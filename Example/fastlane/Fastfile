@@ -1,0 +1,156 @@
+# vim:set sw=2 ft=ruby
+fastlane_version "1.68.0"
+default_platform :ios
+
+platform :ios do
+    desc "Runs all the tests"
+    lane :test do
+        scan
+    end
+
+    def change_log_since_last_tag
+        # http://git-scm.com/docs/pretty-formats
+        # <short hash> <commit title>
+        return changelog_from_git_commits(pretty: '%h %s')
+    end
+
+    def release_tag_string(version_number)
+        "v#{version_number}"
+    end
+
+    def load_keys
+        begin
+            import("keys")
+        rescue => exception
+            UI.important("fastlane/keys file not found. To use this Fastfile, copy fastlane/keys.template into fastlane/keys and fill in the values, will try to use ENV variables")
+            ENV["SIGH_USERNAME"] = ENV["APPLE_ID"]
+            ENV["PILOT_APPLE_ID"] = ENV["APPLE_ID"]
+            ENV["DELIVER_USERNAME"] = ENV["APPLE_ID"]
+        end
+    end
+
+    desc "Build a snapshot version"
+    lane :snapshot do |options|
+        load_keys
+        only_build = options[:only_build]
+
+        unless only_build
+            increment_build_number(
+              build_number: (Time.new.to_r * 1000).round.to_s
+            )
+        end
+
+        cocoapods
+
+        unless options[:no_tests]
+            scan(clean: true,
+                scheme: "MobileMessagingExample"
+            )
+        end
+        
+        sigh(
+            output_path: "./tmp",
+            development: true
+        )
+        gym(
+            clean: true,
+            scheme: "MobileMessagingExample",
+            use_legacy_build_api: true
+        )
+
+        unless only_build
+            clean_build_artifacts
+        end
+    end
+
+    desc "Build a release version, publish to Cocoapods"
+    lane :release do |options|
+        load_keys
+
+        only_build = options[:only_build]
+
+        unless only_build
+            ensure_git_status_clean
+
+            unless options[:version_number] or options[:version]
+                UI.error("You must specify :version (patch, minor, major) or a full version string in :version_number")
+                raise "You must specify :version (patch, minor, major) or a full version string in :version_number"
+            end
+
+            version_number = options[:version_number] || get_version_number
+            custom_version_number = !!options[:version_number]
+            if custom_version_number
+                increment_version_number(version_number: version_number)
+            else
+                increment_version_number(bump_type: options[:version])
+            end
+
+            version_number = get_version_number
+            build_number = increment_build_number
+            new_version_tag = release_tag_string(version_number)
+        end
+
+        cocoapods
+
+        unless options[:no_tests]
+            scan(scheme: "MobileMessagingExample")
+        end
+
+        sigh(
+            output_path: "./tmp",
+            development: true
+        )
+        gym(
+            scheme: "MobileMessagingExample",
+            use_legacy_build_api: true
+        )
+
+        unless only_build
+            clean_build_artifacts
+
+            change_log = change_log_since_last_tag
+
+            commit_msg = "Version bump to #{new_version_tag}"
+            commit_version_bump(
+                message: commit_msg,
+                xcodeproj: "MobileMessagingExample.xcodeproj"
+            )
+
+            add_git_tag(
+                tag: new_version_tag
+            )
+
+            podspec_path = ENV["WORKSPACE"]+"/MobileMessaging.podspec"
+        
+            version_bump_podspec(
+                path: podspec_path,
+                version_number: version_number
+            )
+
+            desc "Bumping lib version variable"
+            swift_version_path = ENV["WORKSPACE"]+"/Pod/Classes/MMVersion.swift"
+            sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{version_number}/g;' #{swift_version_path}"
+
+            desc "Comitting version bumps"
+            sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\""
+
+            desc "Pushing to Stash repo master"
+            sh "git push origin HEAD:master --tags"
+
+            desc "Pushing to Github repo master"
+            sh "git push github HEAD:master --tags"
+
+            set_github_release(
+                repository_name: "infobip/mobile-messaging-sdk-ios",
+                api_token: ENV["GITHUB_API_TOKEN"],
+                tag_name: new_version_tag,
+                name: new_version_tag
+            )
+
+            # pod_push(
+            #     path: podspec_path,
+            #     allow_warnings: false
+            # )
+        end
+    end
+end
