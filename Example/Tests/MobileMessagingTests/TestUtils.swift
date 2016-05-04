@@ -29,7 +29,7 @@ enum TestResult {
 	case Cancel
 }
 
-class TestMMRemoteAPI : MMRemoteAPIQueue {
+final class TestMMRemoteAPI : MMRemoteAPIQueue {
 	
 	var testCompletion : (TestResult) -> Void
 	

@@ -8,7 +8,7 @@
 
 import MMAFNetworking
 
-class MMHTTPSessionManager : MM_AFHTTPSessionManager {
+final class MMHTTPSessionManager : MM_AFHTTPSessionManager {
 	
 	class func sendRequest<R: MMHTTPRequestData>(request: R, baseURL: String, applicationCode: String, completion: Result<R.ResponseType> -> Void) -> Void {
 		let manager = MMHTTPSessionManager(baseURL: NSURL(string: baseURL), sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration())

@@ -14,7 +14,6 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 # Mobile Messaging Quick Start
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application.
-
 1. Prepare your App ID, provisioning profiles and APNs certificate ([APNs Certificate Guide](https://github.com/infobip/mobile-messaging-sdk-ios/blob/master/Guides/CERTIFICATES.md)).
 2. Prepare your Infobip account (https://portal.infobip.com/push/):
 	1. Create new application on Infobip Push portal.

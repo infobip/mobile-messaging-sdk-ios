@@ -44,7 +44,7 @@ enum Result<ValueType> {
 	}
 }
 
-class MMRemoteAPIQueue {
+final class MMRemoteAPIQueue {
 	private(set) var baseURL: String
 	private(set) var applicationCode: String
 	

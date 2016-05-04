@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class RegistrationOperation: Operation {
+final class RegistrationOperation: Operation {
 
 	var context: NSManagedObjectContext
 	var installationObject: InstallationManagedObject!

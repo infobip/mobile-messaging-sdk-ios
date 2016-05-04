@@ -14,10 +14,10 @@ s.description      = <<-DESC
 Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in you application and access to the features of Infobip IP Messaging Platform.
 DESC
 
-s.homepage      = "https://github.com/infobip/MobileMessaging"
+s.homepage      = "https://github.com/infobip/mobile-messaging-sdk-ios"
 s.license       = 'MIT'
 s.authors       = { 'Andrey Kadochnikov' => 'andrey.kadochnikov@infobip.com', 'Olga Koroleva' => 'olga.koroleva@infobip.com' }
-s.source        = { :git => "git@github.com:infobip/infobip-mobile-messaging-ios.git", :tag => "v#{s.version}" }
+s.source        = { :git => "https://github.com/infobip/mobile-messaging-sdk-ios.git", :tag => "v#{s.version}" }
 s.social_media_url = 'https://twitter.com/infobip'
 
 s.platform = :ios, '8.0'

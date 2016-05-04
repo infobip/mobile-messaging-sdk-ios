@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class SetMSISDNOperation: Operation {
+final class SetMSISDNOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: ((NSError?) -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue

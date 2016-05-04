@@ -8,7 +8,7 @@
 
 import Foundation
 
-class MMApplicationListener: NSObject {
+final class MMApplicationListener: NSObject {
 	
     deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
@@ -26,12 +26,16 @@ class MMApplicationListener: NSObject {
 	
 	//MARK: Internal
 	func handleAppWillEnterForegroundNotification() {
-		triggerPeriodicalWork()
+		if UIApplication.sharedApplication().isRemoteNotificationsEnabled {
+			triggerPeriodicalWork()
+		}
 	}
 	
 	func handleAppDidFinishLaunchingNotification() {
-		messageHandler.evictOldMessages()
-		triggerPeriodicalWork()
+		if UIApplication.sharedApplication().isRemoteNotificationsEnabled {
+			messageHandler.evictOldMessages()
+			triggerPeriodicalWork()
+		}
 	}
 	
 	//MARK: Private

@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class MessageHandlingOperation: GroupOperation {
+final class MessageHandlingOperation: GroupOperation {
 	var context: NSManagedObjectContext
 	var finishBlock: (NSError? -> Void)?
 	var newMessageReceivedCallback: (() -> Void)? = nil

@@ -58,7 +58,7 @@ struct MMStorageSettings {
 	static var SQLiteStoreSettings = MMStorageSettings(databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
 }
 
-class MMCoreDataStorage {
+final class MMCoreDataStorage {
 	
 	init(settings: MMStorageSettings) throws {
         self.databaseFileName = settings.databaseFileName

@@ -8,7 +8,7 @@
 import XCTest
 @testable import MobileMessaging
 
-class InstallationMock: NSObject {
+final class InstallationMock: NSObject {
     var deviceToken: String?
 	var internalId: String?
     var metaData: NSDictionary?
@@ -19,7 +19,7 @@ class InstallationMock: NSObject {
     }
 }
 
-class RegistrationTests: MMTestCase {
+final class RegistrationTests: MMTestCase {
     
     func testInstallationPersisting() {
 		let metaexp = expectationWithDescription("meta2 saved")

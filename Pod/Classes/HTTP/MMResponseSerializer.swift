@@ -8,7 +8,7 @@
 import MMAFNetworking
 import Freddy
 
-class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
+final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override init() {
 		super.init()
 		let range: NSRange = NSMakeRange(200, 99)

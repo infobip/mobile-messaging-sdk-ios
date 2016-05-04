@@ -8,7 +8,7 @@
 
 import Foundation
 
-class MMQueueObject: CustomStringConvertible {
+final class MMQueueObject: CustomStringConvertible {
     
     private(set) var queue: dispatch_queue_t
 

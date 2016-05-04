@@ -8,7 +8,7 @@
 
 import Foundation
 
-class MMInstallationManager: MMStoringService {
+final class MMInstallationManager: MMStoringService {
 	//MARK: Internal
 	var registrationRemoteAPI: MMRemoteAPIQueue
 	lazy var registrationQueue = OperationQueue.newSerialQueue

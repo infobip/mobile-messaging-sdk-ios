@@ -12,7 +12,7 @@ var operationExecutionCounter: Int = Int.max
 let noReachabilityAttemptNumber = 1
 var reachabilityTesting = false
 
-class MMTestNetworkReachabilityManager: MMNetworkReachabilityManager {
+final class MMTestNetworkReachabilityManager: MMNetworkReachabilityManager {
 	override func currentlyReachable() -> Bool {
 		if reachabilityTesting {
 			return operationExecutionCounter > noReachabilityAttemptNumber
@@ -22,7 +22,7 @@ class MMTestNetworkReachabilityManager: MMNetworkReachabilityManager {
 	}
 }
 
-class MMTestCounterOperation: MMRetryableOperation {
+final class MMTestCounterOperation: MMRetryableOperation {
 	override func execute() {
 		super.execute()
 		operationExecutionCounter += 1
@@ -30,7 +30,7 @@ class MMTestCounterOperation: MMRetryableOperation {
 	}
 }
 
-class MMTestRechabilityOperation<RequestType: MMHTTPRequestData>: MMRetryableRequestOperation<RequestType> {
+final class MMTestRechabilityOperation<RequestType: MMHTTPRequestData>: MMRetryableRequestOperation<RequestType> {
 	
 	required init(retryLimit: Int, completion: MMRetryableOperationCompletion) {
 		super.init(retryLimit: retryLimit, completion: completion)
@@ -42,7 +42,7 @@ class MMTestRechabilityOperation<RequestType: MMHTTPRequestData>: MMRetryableReq
 	}
 }
 
-class RetryOperationTests: XCTestCase {
+final class RetryOperationTests: XCTestCase {
 	
 	func testReachabilityLogic() {
 		let expectation = expectationWithDescription("Retryable operation finished")

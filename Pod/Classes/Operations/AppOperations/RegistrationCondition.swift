@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RegistrationCondition: OperationCondition {
+final class RegistrationCondition: OperationCondition {
 	static var name = "RegistrationCondition"
 	static var isMutuallyExclusive = false
 	

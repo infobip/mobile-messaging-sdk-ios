@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class DeliveryReportingOperation: Operation {
+final class DeliveryReportingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (NSError? -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue

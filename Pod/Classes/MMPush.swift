@@ -16,7 +16,7 @@ Push notifications handling
 - plays sound or vibrate, if `sound` exists in userInfo
 - changes application badge, if `badge` exists
  */
-class MMPush {
+final class MMPush {
     
     /**
      Handles notification

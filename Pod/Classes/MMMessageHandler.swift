@@ -8,7 +8,7 @@
 
 import Foundation
 
-class MMMessageHandler : MMStoringService {
+final class MMMessageHandler : MMStoringService {
 	lazy var messageHandlingQueue = OperationQueue.newSerialQueue
 	lazy var synchronizationQueue = OperationQueue.newSerialQueue
 	
@@ -54,7 +54,7 @@ class MMMessageHandler : MMStoringService {
     }
 	
     func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {
-		messageHandlingQueue.addOperation(SendSeenOperation(messageIds: messageIds, context: storageContext, remoteAPIQueue: seenSenderRemoteAPI, finishBlock: completion))
+		messageHandlingQueue.addOperation(SetSeenOperation(messageIds: messageIds, context: storageContext, remoteAPIQueue: seenSenderRemoteAPI, finishBlock: completion))
     }
 	
 	//MARK: Private

@@ -30,7 +30,7 @@ struct SyncableAttributes: OptionSetType {
 }
 
 
-class InstallationManagedObject: NSManagedObject {
+final class InstallationManagedObject: NSManagedObject {
 
 	override func didChangeValueForKey(key: String) {
 		super.didChangeValueForKey(key)

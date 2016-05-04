@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class MessagesSyncOperation: GroupOperation {
+final class MessagesSyncOperation: GroupOperation {
 	var context: NSManagedObjectContext
 	var finishBlock: (NSError? -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
@@ -19,7 +19,7 @@ class MessagesSyncOperation: GroupOperation {
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 
-		let seenOperation = SendSeenOperation(context: context, remoteAPIQueue: remoteAPIQueue)
+		let seenOperation = SetSeenOperation(context: context, remoteAPIQueue: remoteAPIQueue)
 		
 		super.init(operations: [seenOperation])
 		

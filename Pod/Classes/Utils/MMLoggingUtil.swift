@@ -8,7 +8,7 @@
 
 import CocoaLumberjack
 
-public class MMLoggingOptions : NSObject {
+public final class MMLoggingOptions : NSObject {
 	let rawValue: Int
 	init(rawValue: Int) { self.rawValue = rawValue }
 	public init(options: [MMLoggingOptions]) {
@@ -26,7 +26,7 @@ public class MMLoggingOptions : NSObject {
     public static let File = MMLoggingOptions(rawValue: 1 << 2)
 }
 
-public class MMLoggingUtil : NSObject {
+public final class MMLoggingUtil : NSObject {
     /**
      Path to the log file.
      Non null, if loggingOption contains .File
@@ -97,7 +97,7 @@ public class MMLoggingUtil : NSObject {
     }
 }
 
-class MMLogFormatter: NSObject, DDLogFormatter {
+final class MMLogFormatter: NSObject, DDLogFormatter {
     let dateFormatter: NSDateFormatter
     override init() {
         self.dateFormatter = NSDateFormatter()

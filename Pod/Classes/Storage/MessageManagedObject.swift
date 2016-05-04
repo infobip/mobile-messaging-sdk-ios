@@ -15,7 +15,7 @@ enum MMSeenStatus : Int32 {
     case SeenSent
 }
 
-class MessageManagedObject: NSManagedObject {
+final class MessageManagedObject: NSManagedObject {
 
     var seenStatus: MMSeenStatus {
 		get { return MMSeenStatus(rawValue: seenStatusValue.intValue) ?? .NotSeen }

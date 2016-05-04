@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class SetEmailOperation: Operation {
+final class SetEmailOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: ((NSError?) -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class MMInstallation : NSObject {
+final public class MMInstallation : NSObject {
 	//MARK: Public
 	public override var description: String {
 		return "Installation:\n  device token = \(deviceToken)\n  metadata = \(metaData)"

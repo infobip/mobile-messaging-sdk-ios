@@ -10,7 +10,7 @@ import Foundation
 import MMMagicalRecord
 import MMAFNetworking
 
-public class MobileMessaging: NSObject {
+public final class MobileMessaging: NSObject {
 	//MARK: Public
 	/**
 	Starts new Mobile Messaging session. This method should be called form within AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.

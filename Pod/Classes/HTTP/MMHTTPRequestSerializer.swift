@@ -9,7 +9,7 @@
 import MMAFNetworking
 import CoreTelephony
 
-class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
+final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String
     private var jsonBody: [String: AnyObject]?
     
@@ -90,7 +90,7 @@ class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
     }
 }
 
-class MMUserAgentData {
+final class MMUserAgentData {
 	
 	struct DataOptions : OptionSetType {
 		let rawValue: Int
