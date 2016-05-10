@@ -1,0 +1,4 @@
+module MMMagicalRecord {
+	header "MagicalRecord.h"
+	export *
+}

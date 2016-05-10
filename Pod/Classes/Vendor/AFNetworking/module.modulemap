@@ -1,0 +1,4 @@
+module MMAFNetworking {
+	header "AFNetworking.h"
+	export *
+}

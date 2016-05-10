@@ -1,0 +1,11 @@
+source 'https://github.com/CocoaPods/Specs.git'
+use_frameworks!
+
+target 'MobileMessagingExample', :exclusive => true do
+    pod 'MobileMessaging', :path => '../'
+end
+
+target 'MobileMessagingExample_Tests', :exclusive => true do
+    pod 'MobileMessaging', :path => '../'
+end
+
