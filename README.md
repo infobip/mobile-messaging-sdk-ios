@@ -7,7 +7,9 @@
 Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in your application and access to the features of Infobip IP Messaging Platform. 
 The document describes library integration steps.
 
-Mobile Messaging SDK requires iOS 8.0 and later.
+## Requirements
+- Xcode 7.3+
+- iOS 8.0+
 
 ## Usage
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
