@@ -27,7 +27,8 @@ final class MMMessageHandler : MMStoringService {
 
     //MARK: Intenal
 	func handleMessage(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: (() -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
-		handleMessages([userInfo], newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
+		resetMessageHandlingContext()
+		messageHandlingQueue.addOperation(MessageHandlingOperation(userInfos: [userInfo], context: storageContext, remoteAPIQueue: messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
 	}
 	
 	func syncWithServer(completion: (NSError? -> Void)? = nil) {
@@ -42,28 +43,22 @@ final class MMMessageHandler : MMStoringService {
 	}
 	
 	func evictOldMessages(completion:(() -> Void)? = nil) {
-		messageHandlingQueue.addOperationWithBlock { 
-			self.storageContext.performBlockAndWait {
-				let dateToCompare = NSDate().dateByAddingTimeInterval(-MMMessageHandler.kEntityExpirationPeriod)
-				
-				MessageManagedObject.MR_deleteAllMatchingPredicate(NSPredicate(format: "creationDate <= %@", dateToCompare), inContext: self.storageContext)
-				self.save()
-				completion?()
-			}
-		}
+		resetMessageHandlingContext()
+		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storageContext, finishBlock: completion))
     }
 	
     func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {
+		resetMessageHandlingContext()
 		messageHandlingQueue.addOperation(SetSeenOperation(messageIds: messageIds, context: storageContext, remoteAPIQueue: seenSenderRemoteAPI, finishBlock: completion))
     }
 	
 	//MARK: Private
-	private func handleMessages(userInfos: [[NSObject : AnyObject]], newMessageReceivedCallback: (() -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
-		messageHandlingQueue.addOperation(MessageHandlingOperation(userInfos: userInfos, context: storageContext, remoteAPIQueue: messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
-	}
-	
     private var messageSyncRemoteAPI: MMRemoteAPIQueue
     private var seenSenderRemoteAPI: MMRemoteAPIQueue
-    
-    private static let kEntityExpirationPeriod: NSTimeInterval = 7 * 24 * 60 * 60; //one week
+	
+	func resetMessageHandlingContext() {
+		storageContext.performBlockAndWait { [weak self] in
+			self?.storageContext.reset()
+		}
+	}
 }

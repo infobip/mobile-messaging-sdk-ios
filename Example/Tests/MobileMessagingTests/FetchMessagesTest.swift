@@ -55,24 +55,19 @@ class FetchMessagesTest: MMTestCase {
 	m2 seen and deivered, m1 delivered
 	*/
 	func testConcurrency() {
-		
+		let prepconditionExpectation = expectationWithDescription("Initial message base set up")
 		let seenExpectation = expectationWithDescription("Seen request finished")
 		let syncExpectation = expectationWithDescription("Sync finished")
 		let newMsgExpectation = expectationWithDescription("New message received")
-		
+
 		MobileMessaging.stop()
 		MobileMessaging.testStartWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
 		//Precondiotions
-		let messagesCtx = storage.mainThreadManagedObjectContext
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
-		messagesCtx?.performBlockAndWait {
-			let m2 = MessageManagedObject.MR_createEntityInContext(messagesCtx)
-			m2.messageId = "m2"
-			m2.reportSent = false
-			m2.creationDate = NSDate()
-			messagesCtx?.MR_saveToPersistentStoreAndWait()
-		}
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: {}, completion: { error in
+			prepconditionExpectation.fulfill()
+		})
 		
 		//Actions
 		mobileMessagingInstance.setSeen(["m2"], completion: { result in
@@ -82,21 +77,20 @@ class FetchMessagesTest: MMTestCase {
 		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: {}, completion: { error in
 			newMsgExpectation.fulfill()
 		})
-		
+
 		mobileMessagingInstance.messageHandler?.syncWithServer({ error in
 			syncExpectation.fulfill()
 		})
 		
 		//Expectations
 		waitForExpectationsWithTimeout(50) { error in
-			messagesCtx?.performBlockAndWait {
-				if let messages = MessageManagedObject.MR_findAllInContext(messagesCtx) as? [MessageManagedObject] {
+			let ctx = self.mobileMessagingInstance.messageHandler?.storageContext
+			ctx!.performBlockAndWait {
+				if let messages = MessageManagedObject.MR_findAllInContext(ctx) as? [MessageManagedObject] {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
 					let m2 = messages.filter({$0.messageId == "m2"}).first
-					
-				    XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenSent, "m2 must be seen and synced")
+					XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenSent, "m2 must be seen and synced")
 					XCTAssertEqual(m2?.reportSent, NSNumber(bool: true), "m2 delivery report must be delivered")
-					
 					XCTAssertEqual(m1?.seenStatus, MMSeenStatus.NotSeen, "m1 must be not seen")
 					XCTAssertEqual(m1?.reportSent, NSNumber(bool: true), "m1 delivery report must be delivered")
 				} else {
@@ -129,11 +123,13 @@ class FetchMessagesTest: MMTestCase {
 			m1.messageId = "m1"
 			m1.reportSent = true
 			m1.creationDate = NSDate()
+			m1.supplementaryId = "stub"
 			
 			let m2 = MessageManagedObject.MR_createEntityInContext(messagesCtx)
 			m2.messageId = "m2"
 			m2.reportSent = false
 			m2.creationDate = NSDate()
+			m2.supplementaryId = "stub"
 			
 			messagesCtx?.MR_saveToPersistentStoreAndWait()
 		}

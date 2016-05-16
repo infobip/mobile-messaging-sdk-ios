@@ -32,7 +32,7 @@ class MMTestCase: XCTestCase {
 	}
 	
 	var storage: MMCoreDataStorage {
-		return MobileMessagingInstance.sharedInstance.storage!
+		return mobileMessagingInstance.storage!
 	}
 	
 	override func setUp() {
