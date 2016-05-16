@@ -49,7 +49,6 @@ final class MessageHandlingOperation: GroupOperation {
 			for newMessage in newMessages {
 				let newDBMessage = MessageManagedObject.MR_createEntityInContext(self.context)
 				newDBMessage.messageId = newMessage.messageId
-				newDBMessage.supplementaryId = newMessage.supplementaryId
 				newDBMessage.creationDate = NSDate()
 			}
 			

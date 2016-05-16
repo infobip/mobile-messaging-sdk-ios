@@ -71,7 +71,6 @@ class FetchMessagesTest: MMTestCase {
 			m2.messageId = "m2"
 			m2.reportSent = false
 			m2.creationDate = NSDate()
-			m2.supplementaryId = m2.messageId
 			messagesCtx?.MR_saveToPersistentStoreAndWait()
 		}
 		
@@ -130,13 +129,11 @@ class FetchMessagesTest: MMTestCase {
 			m1.messageId = "m1"
 			m1.reportSent = true
 			m1.creationDate = NSDate()
-			m1.supplementaryId = "stub"
 			
 			let m2 = MessageManagedObject.MR_createEntityInContext(messagesCtx)
 			m2.messageId = "m2"
 			m2.reportSent = false
 			m2.creationDate = NSDate()
-			m2.supplementaryId = "stub"
 			
 			messagesCtx?.MR_saveToPersistentStoreAndWait()
 		}

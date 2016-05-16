@@ -38,14 +38,12 @@ protocol MMHTTPRequestData: MMHTTPRequestResponsable {
 	var path: MMHTTPAPIPath {get}
 	var parameters: [String: AnyObject]? {get}
 	var headers: [String: String]? {get}
-	var platformType: String {get}
 	var retryLimit: Int {get}
     var body: [String: AnyObject]? {get}
 }
 
 extension MMHTTPRequestData {
 	var retryLimit: Int { return 0 }
-	var platformType: String { return MMAPIValues.kPlatformType }
 	var headers: [String: String]? { return nil }
     var body: [String: AnyObject]? { return nil }
     
@@ -61,7 +59,8 @@ struct MMPostRegistrationRequest: MMHTTPRequestData {
 	var method: MMHTTPMethod { return .POST }
 	var path: MMHTTPAPIPath { return .Registration }
     var parameters: [String: AnyObject]? {
-        var params = [MMAPIKeys.kRegistrationId: currentDeviceToken]
+        var params = [MMAPIKeys.kRegistrationId: currentDeviceToken,
+                      MMAPIKeys.kPlatformType: MMAPIValues.kPlatformType]
         if let internalId = internalId {
             params[MMAPIKeys.kInternalRegistrationId] = internalId
         }

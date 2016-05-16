@@ -19,14 +19,14 @@ func jsonStringAlertObject(messageId: String) -> String {
 }
 
 func jsonStringFromBackend(messageId: String) -> String {
-    return "{\"body\":\"test\",\"badge\":6,\"sound\":\"default\",\"messageId\":\"\(messageId)\",\"supplementaryId\":\"\(messageId)\", \"data\": {\"key1\": \"value1\"}}"
+    return "{\"body\":\"test\",\"badge\":6,\"sound\":\"default\",\"messageId\":\"\(messageId)\", \"data\": {\"key1\": \"value1\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
 
 
 func jsonDictionary(messageId: String) -> [NSObject: AnyObject] {
-    return ["messageId": messageId, "supplementaryId": messageId, "aps": ["alert":"alerttitle", "badge": 6, "sound": "default"]]
+    return ["messageId": messageId, "aps": ["alert":"alerttitle", "badge": 6, "sound": "default"]]
 }
 
 
@@ -62,7 +62,6 @@ class MessageReceivingTests: MMTestCase {
 				XCTAssertEqual(message.payload!["aps"]!["badge"], 6, "badger must be parsed")
                 XCTAssertEqual(message.data!, ["key1": "value1"], "data must be parsed")
 				XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
-                XCTAssertEqual(message.supplementaryId, id, "Message supplementary Id must be parsed")
 			}
 		} catch {
 			XCTFail("JSON string encoding failed")

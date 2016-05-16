@@ -2,7 +2,7 @@
 //  MessageManagedObject+CoreDataProperties.swift
 //  Pods
 //
-//  Created by okoroleva on 20.04.16.
+//  Created by okoroleva on 16.05.16.
 //
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -19,6 +19,5 @@ extension MessageManagedObject {
     @NSManaged var reportSent: NSNumber
     @NSManaged var seenDate: NSDate?
     @NSManaged var seenStatusValue: NSNumber
-    @NSManaged var supplementaryId: String
 
 }

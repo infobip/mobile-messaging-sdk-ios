@@ -71,14 +71,6 @@ public struct MMMessage: Hashable, JSONDecodable {
 		self.messageId = try json.string(MMAPIKeys.kMessageId)
 		result[MMAPIKeys.kMessageId] = self.messageId
 		
-		if let wrappedSupplId = try? json.string(MMAPIKeys.kSupplementaryId) {
-			self.supplementaryId = wrappedSupplId
-		} else {
-			self.supplementaryId = messageId
-		}
-		
-        result[MMAPIKeys.kSupplementaryId] = supplementaryId
-        
         var aps = [NSObject: AnyObject]()
         if let sound = try? json[MMAPIKeys.kSound]?.string() {
             aps[MMAPIKeys.kSound] = sound
@@ -108,13 +100,11 @@ public struct MMMessage: Hashable, JSONDecodable {
 	public var hashValue: Int { return messageId.hashValue }
 	
 	let messageId: String
-    let supplementaryId: String
 	var payload: [String: AnyObject]?
     var data: [String: JSON]?
 	
-    init(messageId: String, supplementaryId: String, payload: [String: AnyObject]?) {
+    init(messageId: String, payload: [String: AnyObject]?) {
 		self.messageId = messageId
-        self.supplementaryId = supplementaryId
 		self.payload = payload
 	}
 	
@@ -124,14 +114,11 @@ public struct MMMessage: Hashable, JSONDecodable {
 			return nil
 		}
 		
-		let supplId = (payload[MMAPIKeys.kSupplementaryId] as? String) ?? messageId
-		
-        self.init(messageId: messageId, supplementaryId: supplId, payload: payload)
+        self.init(messageId: messageId, payload: payload)
 	}
 	
 	init(message: MessageManagedObject) {
 		self.messageId = message.messageId
-        self.supplementaryId = message.supplementaryId
 	}
 }
 

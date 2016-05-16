@@ -62,8 +62,8 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
                 default: break
                 }
             }
+			queryString.removeAtIndex(queryString.endIndex.predecessor())
         }
-        queryString.removeAtIndex(queryString.endIndex.predecessor())
         
         var completeURLString = URLString;
         

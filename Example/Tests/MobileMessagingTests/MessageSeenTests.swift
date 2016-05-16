@@ -248,7 +248,6 @@ class MessageSeenTests: MMTestCase {
             } else {
                 newMsg = MessageManagedObject.MR_createEntityInContext(context)
                 newMsg.messageId = id
-                newMsg.supplementaryId = id
                 newMsg.creationDate = date
             }
             newMsg.seenStatus = seenStatus

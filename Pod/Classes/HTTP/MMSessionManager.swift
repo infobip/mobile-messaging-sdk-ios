@@ -15,9 +15,7 @@ final class MMHTTPSessionManager : MM_AFHTTPSessionManager {
 		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: request.body)
 		manager.responseSerializer = MMResponseSerializer<R.ResponseType>()
 		
-		var params: [String: AnyObject] = [MMAPIKeys.kPlatformType:request.platformType]
-		params += request.parameters
-		MMLogInfo("Sending request \(request.dynamicType) w/parameters: \(params) to \(baseURL + request.path.rawValue)")
+		MMLogInfo("Sending request \(request.dynamicType) w/parameters: \(request.parameters) to \(baseURL + request.path.rawValue)")
 		
 		let successBlock = { (task: NSURLSessionDataTask, obj: AnyObject?) -> Void in
 			if let obj = obj as? R.ResponseType {
@@ -35,11 +33,11 @@ final class MMHTTPSessionManager : MM_AFHTTPSessionManager {
 		let urlString = manager.baseURL!.absoluteString + request.path.rawValue
 		switch request.method {
 		case .POST:
-			manager.POST(urlString, parameters: params, progress: nil, success: successBlock, failure: failureBlock)
+			manager.POST(urlString, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
 		case .PUT:
-			manager.PUT(urlString, parameters: params, success: successBlock, failure: failureBlock)
+			manager.PUT(urlString, parameters: request.parameters, success: successBlock, failure: failureBlock)
 		case .GET:
-			manager.GET(urlString, parameters: params, progress: nil, success: successBlock, failure: failureBlock)
+			manager.GET(urlString, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
 		}
 	}
 }

@@ -13,7 +13,7 @@ class DeliveryReportingTests: MMTestCase {
     func testSendingDeliveryStatusSuccess() {
         let expectation = expectationWithDescription("Delivery sending completed")
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1", "supplementaryId": "m1"], newMessageReceivedCallback: {
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: {
 			
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 			
@@ -34,7 +34,7 @@ class DeliveryReportingTests: MMTestCase {
 		
         let expectation = expectationWithDescription("Delivery sending completed")
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2", "supplementaryId": "m2"], newMessageReceivedCallback: {
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: {
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 			
 		}, completion: { error in
@@ -58,12 +58,10 @@ class DeliveryReportingTests: MMTestCase {
 		ctx.performBlockAndWait {
 			let newMsg1 = MessageManagedObject.MR_createEntityInContext(ctx)
 			newMsg1.messageId = "qwerty1"
-            newMsg1.supplementaryId = "qwerty1"
 			newMsg1.creationDate = NSDate().dateByAddingTimeInterval(-kEntityExpirationPeriod)
 			
 			let newMsg2 = MessageManagedObject.MR_createEntityInContext(ctx)
 			newMsg2.messageId = "qwerty2"
-            newMsg2.supplementaryId = "qwerty2"
 			newMsg2.creationDate = NSDate().dateByAddingTimeInterval(-kEntityExpirationPeriod)
 			
 			messageHandler.save()
