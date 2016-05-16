@@ -25,7 +25,7 @@ enum MMHTTPAPIPath: String {
     case FetchMessages = "/mobile/1/messages"
 	case Email = "/mobile/1/email"
 	case MSISDN = "/mobile/1/msisdn"
-    case SeenMessages = "/mobile/1/seenMessages"
+    case SeenMessages = "/mobile/1/messages/seen"
 }
 
 protocol MMHTTPRequestResponsable {

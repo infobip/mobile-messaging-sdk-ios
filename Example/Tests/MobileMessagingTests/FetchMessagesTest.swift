@@ -95,7 +95,7 @@ class FetchMessagesTest: MMTestCase {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
 					let m2 = messages.filter({$0.messageId == "m2"}).first
 					
-					XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenSent, "m2 must be seen and synced")
+				    XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenSent, "m2 must be seen and synced")
 					XCTAssertEqual(m2?.reportSent, NSNumber(bool: true), "m2 delivery report must be delivered")
 					
 					XCTAssertEqual(m1?.seenStatus, MMSeenStatus.NotSeen, "m1 must be not seen")

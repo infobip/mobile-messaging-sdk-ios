@@ -64,6 +64,7 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
             }
         }
         queryString.removeAtIndex(queryString.endIndex.predecessor())
+		queryString += "&d"
         
         var completeURLString = URLString;
         

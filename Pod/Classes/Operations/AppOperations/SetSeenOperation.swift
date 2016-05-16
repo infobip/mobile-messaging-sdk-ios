@@ -11,11 +11,9 @@ import CoreData
 
 struct SeenData {
 	let messageId: String
-	let supplementaryId: String
-	let seenTimestamp: String
-	var dict: [String: String] {
+	let seenTimestamp: Double
+	var dict: [String: AnyObject] {
 		return [MMAPIKeys.kMessageId: messageId,
-		        MMAPIKeys.kSupplementaryId: supplementaryId,
 		        MMAPIKeys.kSeenTimestamp: seenTimestamp]
 	}
 	static func requestBody(seenList: [SeenData]) -> [String: AnyObject] {
@@ -82,7 +80,7 @@ final class SetSeenOperation: Operation {
 			guard let date = msg.seenDate else {
 				return nil
 			}
-			return SeenData(messageId: msg.messageId, supplementaryId: msg.supplementaryId, seenTimestamp: String(date.timeIntervalSince1970))
+			return SeenData(messageId: msg.messageId, seenTimestamp: date.timeIntervalSince1970)
 		}
 		
 		let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)

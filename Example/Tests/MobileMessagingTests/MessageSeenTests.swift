@@ -48,7 +48,33 @@ class SeenTestsRemoteAPI : MMRemoteAPIQueue {
 
 
 class MessageSeenTests: MMTestCase {
-    
+	
+	func testSendSeenStatusInDB() {
+		let expSeenStatusInDB = expectationWithDescription("SeenStatusInDB")
+		let seenMessageIds = ["m1"]
+		let messagesCtx = storage.mainThreadManagedObjectContext
+		let remoteApi = MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode)
+		let seenRemoteApi = SeenTestsRemoteAPI(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, testCompletion:{ _ -> Void in
+			let message = MessageManagedObject.MR_findFirstWithPredicate(NSPredicate(format:"messageId == %@", "m1"), inContext: messagesCtx)
+			XCTAssertNotNil(message)
+			XCTAssertEqual(message.seenStatus, MMSeenStatus.SeenSent, "\(seenMessageIds) must me seen and sent")
+			
+			expSeenStatusInDB.fulfill()
+		})
+		let messageHandler: MMMessageHandler = MMMessageHandler(storage: self.storage, remoteApi: remoteApi, seenSenderRemoteAPI: seenRemoteApi)
+		
+		messageHandler.messageHandlingQueue.addOperationWithBlock {
+			messageHandler.storageContext.performBlockAndWait{
+				self.createDBMessages(seenMessageIds, seenStatus: .NotSeen, context: messageHandler.storageContext)
+				messageHandler.save()
+			}
+		}
+		
+		messageHandler.setSeen(seenMessageIds)
+		
+		self.waitForExpectationsWithTimeout(100, handler: nil)
+	}
+	
     func testSendEmpty() {
         let expResponseCheck = expectationWithDescription("response")
         
@@ -206,7 +232,7 @@ class MessageSeenTests: MMTestCase {
                 if let datesToCheck = datesToCheck {
                     for seendData in request.seenList {
                         if let date = datesToCheck[seendData.messageId] {
-                            XCTAssertEqual(seendData.seenTimestamp, String(date.timeIntervalSince1970), "Expected date differ from actual for message")
+                            XCTAssertEqual(seendData.seenTimestamp, date.timeIntervalSince1970, "Expected date differ from actual for message")
                         }
                     }
                 }
