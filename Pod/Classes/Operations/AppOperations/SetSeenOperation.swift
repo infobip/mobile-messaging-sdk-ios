@@ -19,11 +19,7 @@ struct SeenData {
 		        MMAPIKeys.kSeenTimestamp: seenTimestamp]
 	}
 	static func requestBody(seenList: [SeenData]) -> [String: AnyObject] {
-		var seenDicts = [[String: String]]()
-		for seenData in seenList {
-			seenDicts.append(seenData.dict)
-		}
-		return [MMAPIKeys.kSeenMessages: seenDicts]
+		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dict } ]
 	}
 }
 
