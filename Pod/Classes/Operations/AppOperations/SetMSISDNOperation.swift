@@ -28,6 +28,11 @@ final class SetMSISDNOperation: Operation {
 	
 	override func execute() {
 		context.performBlockAndWait {
+			guard self.msisdn.characters.count > 0 else {
+				self.finishWithError(NSError(type: MMInternalErrorType.EmptyMsisdn))
+				return
+			}
+			
 			guard let installation = InstallationManagedObject.MR_findFirstInContext(self.context) else {
 				self.finish()
 				return

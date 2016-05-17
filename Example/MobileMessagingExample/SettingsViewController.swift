@@ -10,14 +10,16 @@ import UIKit
 import MobileMessaging
 
 class SettingsViewController : UIViewController, UITextFieldDelegate {
+	static let kMSISDNValidationRegExp = "^[0-9]{4,17}$"
+	
 	@IBOutlet weak var msisdsTextField: UITextField!
 	@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
 	@IBOutlet weak var sendMSISDNButton: UIButton!
-	@IBOutlet weak var closeBarButtonItem: UIBarButtonItem!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		msisdsTextField.delegate = self
+		msisdsTextField.text = MobileMessaging.currentInstallation?.msisdn
 	}
 	
 	//MARK: UITextFieldDelegate
@@ -31,10 +33,6 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	}
 
 	//MARK: Actions
-	@IBAction func closeButtonPressed(sender: UIBarButtonItem) {
-		dismissViewControllerAnimated(true, completion:nil)
-	}
-	
 	@IBAction func sendMSISDNButtonClicked(sender: UIButton) {
 		guard let msisdn = msisdsTextField.text else {
 			return
@@ -62,12 +60,11 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	
 	//MARK: Private
 	private func validateFormat(msisdn : String) throws {
-		let pattern = "^[1-9]{1}[0-9]{3,14}$"
-		let predicate = NSPredicate(format: "SELF MATCHES[cd] %@", pattern)
+		let predicate = NSPredicate(format: "SELF MATCHES[cd] %@", SettingsViewController.kMSISDNValidationRegExp)
 		predicate.evaluateWithObject(msisdn)
 		if !predicate.evaluateWithObject(msisdn) {
 			throw NSError(domain: "custom", code: 100, userInfo: [
-				NSLocalizedDescriptionKey :  NSLocalizedString("MSISDN format not valid", comment: ""),
+				NSLocalizedDescriptionKey :  NSLocalizedString("Invalid MSISDN format", comment: ""),
 				])
 		}
 	}
@@ -100,7 +97,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	private func enableControls(enabled: Bool) {
 		self.msisdsTextField.enabled = enabled
 		self.sendMSISDNButton.enabled = enabled
-		self.closeBarButtonItem.enabled = enabled
+		self.tabBarController?.tabBar.userInteractionEnabled = enabled
 	}
 	
 	private func setControlsAlpha(alpha: CGFloat) {
@@ -110,9 +107,9 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	
 	private func showResultAlert(error: NSError?) {
 		let cancelAction = UIAlertAction(title: "OK", style: .Cancel, handler: nil)
-  	    let alert = UIAlertController(title: error == nil ? "Success" : "Error occured",
-			                        message: error == nil ? "MSISDN was successfully sent" : "\(error!.localizedDescription)",
-			                        preferredStyle: .Alert)
+		let alert = UIAlertController(title: error == nil ? "Success" : "Error",
+		                              message: error == nil ? "MSISDN was successfully sent" : "\(error!.localizedDescription)",
+		                              preferredStyle: .Alert)
 		alert.addAction(cancelAction)
 		presentViewController(alert, animated: true, completion: nil)
 

@@ -70,25 +70,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 		NSUserDefaults.standardUserDefaults().removeObjectForKey(kMessagesKey)
 		updateUI()
 	}
-
-	@IBAction func actionsButtonClicked(sender: UIBarButtonItem) {
-		let informationAction = UIAlertAction(title: "Information", style: .Default) { (action) -> Void in
-			self.performSegueWithIdentifier(kInformationSegueId, sender: sender)
-		}
-		
-		let settingsAction = UIAlertAction(title: "Settings", style: .Default) { (action) -> Void in
-			self.performSegueWithIdentifier(kSettingsSegueId , sender: sender)
-		}
-		
-		let cancelAction = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-		
-		let alert = UIAlertController(title: "Choose Action", message: nil, preferredStyle: .ActionSheet)
-		alert.addAction(informationAction)
-		alert.addAction(settingsAction)
-		alert.addAction(cancelAction)
-
-        presentViewController(alert, animated: true, completion: nil)
-	}
 	
     var messages:[Message] = [Message]()
     let cellFont = UIFont.systemFontOfSize(15.0)
@@ -103,14 +84,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 	
         updateUI()
 		
-		
-//		do {
-//			let jstring = "{\"aps\":{\"alert\":{\"body\":\"test12 3123131 3131231231231  23123123fgf gfgfg bodytest123123131313123123123123123 123fgfgfgfgbody\",\"title\":\"testtitle\"},\"badge\":6,\"sound\":\"default\"},\"messageId\":\"123\"}"
-//			let json = try JSON(jsonString: jstring)
-//			let message = try MMMessage(json: json)
-//			NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kMessageReceived, object: self, userInfo: [MMEventNotifications.kMessageUserInfoKey: message.payload!])
-//		} catch {
-//		}
+//		MobileMessaging.didReceiveRemoteNotification(["messageId": "m1", "aps": ["alert": "alert"]], fetchCompletionHandler: nil)
 		
 //		for i in 0..<10 {
 //			let error = NSError(domain: "foo", code: 123, userInfo: [NSLocalizedDescriptionKey: "shit happens-\(i)"])
