@@ -109,7 +109,10 @@ class FetchMessagesTest: MMTestCase {
      m1, m2, m3, m4 are in DB
      */
     func testMergeOldMessageIdsWithNew() {
-        let expectation = expectationWithDescription("Sync finished")
+		let newMsgExpectation1 = expectationWithDescription("New message m1 received")
+		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
+		let syncExpectation1 = expectationWithDescription("Sync1 finished")
+		let syncExpectation2 = expectationWithDescription("Sync2 finished")
 		
 		MobileMessaging.stop()
 		MobileMessaging.testStartWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
@@ -117,26 +120,22 @@ class FetchMessagesTest: MMTestCase {
         let messagesCtx = storage.mainThreadManagedObjectContext
 		print(messagesCtx?.persistentStoreCoordinator?.persistentStores)
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
-
-		messagesCtx?.performBlockAndWait {
-			let m1 = MessageManagedObject.MR_createEntityInContext(messagesCtx)
-			m1.messageId = "m1"
-			m1.reportSent = true
-			m1.creationDate = NSDate()
-			m1.supplementaryId = "stub"
-			
-			let m2 = MessageManagedObject.MR_createEntityInContext(messagesCtx)
-			m2.messageId = "m2"
-			m2.reportSent = false
-			m2.creationDate = NSDate()
-			m2.supplementaryId = "stub"
-			
-			messagesCtx?.MR_saveToPersistentStoreAndWait()
-		}
+		
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: {}, completion: { error in
+			newMsgExpectation1.fulfill()
+		})
+		
+		mobileMessagingInstance.messageHandler?.syncWithServer({ error in
+			syncExpectation1.fulfill()
+		})
+		
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: {}, completion: { error in
+			newMsgExpectation2.fulfill()
+		})
 		
         let messageHandler = mobileMessagingInstance.messageHandler
 		messageHandler?.syncWithServer { error in
-			expectation.fulfill()
+			syncExpectation2.fulfill()
 		}
 		
 		waitForExpectationsWithTimeout(50) { error in
