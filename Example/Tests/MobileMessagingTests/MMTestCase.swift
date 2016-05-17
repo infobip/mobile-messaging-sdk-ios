@@ -47,6 +47,7 @@ class MMTestCase: XCTestCase {
 	
 	func nonReportedStoredMessagesCount(ctx: NSManagedObjectContext) -> UInt {
 		var count: UInt = 0
+		ctx.reset()
 		ctx.performBlockAndWait {
 			count = MessageManagedObject.MR_countOfEntitiesWithPredicate(NSPredicate(format: "reportSent == false"), inContext: ctx)
 		}
@@ -55,6 +56,7 @@ class MMTestCase: XCTestCase {
 	
 	func allStoredMessagesCount(ctx: NSManagedObjectContext) -> UInt {
 		var count: UInt = 0
+		ctx.reset()
 		MMQueue.Main.queue.executeSync {
 			count = MessageManagedObject.MR_countOfEntitiesWithContext(ctx)
 		}

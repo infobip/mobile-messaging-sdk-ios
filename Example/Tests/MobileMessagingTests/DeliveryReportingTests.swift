@@ -51,30 +51,33 @@ class DeliveryReportingTests: MMTestCase {
 	}
 	
     func testExpiredDeliveryReportsClean() {
-        let expectation = expectationWithDescription("old entities cleaned")
+        let evictionExpectation = expectationWithDescription("Old messages evicted")
         let kEntityExpirationPeriod: NSTimeInterval = 7 * 24 * 60 * 60; //one week
-        let messageHandler = mobileMessagingInstance.messageHandler!
-		let ctx = messageHandler.storageContext
-		ctx.performBlockAndWait {
-			let newMsg1 = MessageManagedObject.MR_createEntityInContext(ctx)
-			newMsg1.messageId = "qwerty1"
-			newMsg1.creationDate = NSDate().dateByAddingTimeInterval(-kEntityExpirationPeriod)
+		
+		let messageReceivingGroup = dispatch_group_create()
+		
+		dispatch_group_enter(messageReceivingGroup)
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "qwerty1"], newMessageReceivedCallback: nil, completion: { err in
+			dispatch_group_leave(messageReceivingGroup)
+		})
+		
+		let ctx = self.storage.mainThreadManagedObjectContext!
+		dispatch_group_notify(messageReceivingGroup, dispatch_get_main_queue()) {
 			
-			let newMsg2 = MessageManagedObject.MR_createEntityInContext(ctx)
-			newMsg2.messageId = "qwerty2"
-			newMsg2.creationDate = NSDate().dateByAddingTimeInterval(-kEntityExpirationPeriod)
-			
-			messageHandler.save()
-			
-			XCTAssertEqual(self.nonReportedStoredMessagesCount(ctx), 2, "There must be only two stored message")
+			XCTAssertEqual(self.allStoredMessagesCount(ctx), 1, "There must be a stored message")
+			let messageHandler = self.mobileMessagingInstance.messageHandler!
+			messageHandler.evictOldMessages(kEntityExpirationPeriod) {
+				XCTAssertEqual(self.allStoredMessagesCount(ctx), 1, "There is no messages to evict, there must be a stored message")
+				
+				// this is a workaround: negative age used to simulate that eviction happens in future so that our messages considered as old
+				messageHandler.evictOldMessages(-kEntityExpirationPeriod) {
+					evictionExpectation.fulfill()
+				}
+			}
 		}
 	
-		messageHandler.evictOldMessages {
-			expectation.fulfill()
-		}
-
 		self.waitForExpectationsWithTimeout(50) { error in
-			XCTAssertEqual(self.nonReportedStoredMessagesCount(ctx), 0, "There must be not any stored message")
+			XCTAssertEqual(self.allStoredMessagesCount(ctx), 0, "There must be not any stored message")
 		}
     }
 }

@@ -27,7 +27,7 @@ final class SetSeenOperation: Operation {
 	var finishBlock: (MMSeenMessagesResult -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var messageIds: [String]?
-	var result = MMSeenMessagesResult.Failure(NSError(type: .UnknownError))
+	var result = MMSeenMessagesResult.Cancel
 	
 	init(messageIds: [String]? = nil, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMSeenMessagesResult -> Void)? = nil) {
 		self.messageIds = messageIds
@@ -113,6 +113,9 @@ final class SetSeenOperation: Operation {
 	}
 	
 	override func finished(errors: [NSError]) {
+		if let error = errors.first {
+			result = MMSeenMessagesResult.Failure(error)
+		}
 		finishBlock?(result)
 	}
 }

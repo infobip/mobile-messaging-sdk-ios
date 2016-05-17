@@ -20,7 +20,7 @@ struct MMAPIKeys {
     
     //MARK: delivery
     static let kMessageIDs = "messageIDs"
-    
+	
     //MARK: serviceErrors
     static let kRequestError = "requestError"
     static let kServiceException = "serviceException"

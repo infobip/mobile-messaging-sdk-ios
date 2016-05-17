@@ -13,7 +13,7 @@ class MessagesFetchingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (MMFetchMessagesResult -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
-	var result = MMFetchMessagesResult.Failure(NSError(type: .UnknownError))
+	var result = MMFetchMessagesResult.Cancel
 	
 	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMFetchMessagesResult -> Void)? = nil) {
 		self.context = context
@@ -31,12 +31,7 @@ class MessagesFetchingOperation: Operation {
 			return
 		}
 		context.performBlockAndWait {
-			var notReportedMessageIds = [String]()
-			if let nonReportedMessages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "reportSent == false"), inContext: self.context) as? [MessageManagedObject] where nonReportedMessages.count > 0 {
-				notReportedMessageIds = nonReportedMessages.map { $0.messageId }
-			}
-			
-			let request = MMGetMessagesRequest(messageIds: notReportedMessageIds, internalId: internalId)
+			let request = MMGetMessagesRequest(internalId: internalId)
 			self.remoteAPIQueue.performRequest(request) {
 				self.handleFetchResult($0)
 			}

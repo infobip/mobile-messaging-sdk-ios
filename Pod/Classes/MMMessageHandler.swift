@@ -42,9 +42,9 @@ final class MMMessageHandler : MMStoringService {
 		}
 	}
 	
-	func evictOldMessages(completion:(() -> Void)? = nil) {
+	func evictOldMessages(messageAge: NSTimeInterval? = nil, completion:(() -> Void)? = nil) {
 		resetMessageHandlingContext()
-		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storageContext, finishBlock: completion))
+		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storageContext, messageMaximumAge: messageAge, finishBlock: completion))
     }
 	
     func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {

@@ -102,7 +102,7 @@ class FetchMessagesTest: MMTestCase {
 
     /** Conditions:
      1. m1(delivery sent), m2(delivery not sent) - are in DB
-     2. fetch request was sent with parameter ["m2"]
+     2. fetch request was sent
      3. m1, m3, m4 response received
      
      Expected result:
@@ -111,31 +111,31 @@ class FetchMessagesTest: MMTestCase {
     func testMergeOldMessageIdsWithNew() {
 		let newMsgExpectation1 = expectationWithDescription("New message m1 received")
 		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
-		let syncExpectation1 = expectationWithDescription("Sync1 finished")
-		let syncExpectation2 = expectationWithDescription("Sync2 finished")
+		let syncExpectation = expectationWithDescription("Sync finished")
+		var newMsgCounter = 0
+		expectationForNotification(MMEventNotifications.kMessageReceived, object: nil) { (n) -> Bool in
+			newMsgCounter += 1
+			return newMsgCounter == 4 // we must emit 4 unique kMessageReceived notifications
+		}
 		
 		MobileMessaging.stop()
 		MobileMessaging.testStartWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
         let messagesCtx = storage.mainThreadManagedObjectContext
-		print(messagesCtx?.persistentStoreCoordinator?.persistentStores)
+		
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: {}, completion: { error in
 			newMsgExpectation1.fulfill()
 		})
-		
-		mobileMessagingInstance.messageHandler?.syncWithServer({ error in
-			syncExpectation1.fulfill()
-		})
-		
+	
 		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: {}, completion: { error in
 			newMsgExpectation2.fulfill()
 		})
 		
         let messageHandler = mobileMessagingInstance.messageHandler
 		messageHandler?.syncWithServer { error in
-			syncExpectation2.fulfill()
+			syncExpectation.fulfill()
 		}
 		
 		waitForExpectationsWithTimeout(50) { error in

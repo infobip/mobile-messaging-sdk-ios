@@ -95,13 +95,11 @@ struct MMGetMessagesRequest: MMHTTPRequestData {
 	var method: MMHTTPMethod { return .GET }
 	var path: MMHTTPAPIPath { return .FetchMessages }
 	var parameters: [String: AnyObject]? {
-		return [MMAPIKeys.kInternalRegistrationId: internalId] + (messageIds.count > 0 ? [MMAPIKeys.kMessageIDs: messageIds] : nil)
+		return [MMAPIKeys.kInternalRegistrationId: internalId]
 	}
-	var messageIds: [String]
 	var internalId: String
 	
-	init(messageIds: [String], internalId: String) {
-		self.messageIds = messageIds
+	init(internalId: String) {
 		self.internalId = internalId
 	}
 }

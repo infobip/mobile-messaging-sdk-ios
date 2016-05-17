@@ -10,248 +10,126 @@ import XCTest
 import CoreData
 @testable import MobileMessaging
 
-class SeenTestsRemoteAPI : MMRemoteAPIQueue {
-    var testCompletion : (TestResult) -> Void
-    var testCompletionWithRequest : ((MMPostSeenMessagesRequest) -> Void)?
-    
-    init(baseURLString: String, appCode: String, testCompletion: (TestResult) -> Void, testCompletionWithRequest: ((MMPostSeenMessagesRequest) -> Void)? = nil) {
-        self.testCompletion = testCompletion
-        self.testCompletionWithRequest = testCompletionWithRequest
-        super.init(baseURL: baseURLString, applicationCode: appCode)
-    }
-    
-    override func performRequest<R: MMHTTPRequestData>(request: R, completion: (Result<R.ResponseType>) -> Void) {
-        
-        if let request = request as? MMPostSeenMessagesRequest {
-            self.testCompletionWithRequest?(request)
-        }
-        
-        let requestOperation = MMRetryableRequestOperation<R>(request: request, applicationCode: applicationCode, baseURL: baseURL) { requestResult in
-            completion(requestResult)
-            
-            var testResult : TestResult
-            switch requestResult {
-            case .Success:
-                testResult = TestResult.Success()
-            case .Failure(let error):
-                testResult = TestResult.Failure(error: error)
-			case .Cancel:
-				testResult = TestResult.Cancel
-            }
-            
-            self.testCompletion(testResult)
-        }
-        queue.cancelAllOperations()
-        queue.addOperation(requestOperation)
-    }
-}
-
-
 class MessageSeenTests: MMTestCase {
 	
-	func testSendSeenStatusInDB() {
-		let expSeenStatusInDB = expectationWithDescription("SeenStatusInDB")
-		let seenMessageIds = ["m1"]
-		let messagesCtx = storage.mainThreadManagedObjectContext
-		let remoteApi = MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode)
-		let seenRemoteApi = SeenTestsRemoteAPI(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, testCompletion:{ _ -> Void in
-			let message = MessageManagedObject.MR_findFirstWithPredicate(NSPredicate(format:"messageId == %@", "m1"), inContext: messagesCtx)
-			XCTAssertNotNil(message)
-			XCTAssertEqual(message.seenStatus, MMSeenStatus.SeenSent, "\(seenMessageIds) must me seen and sent")
-			
-			expSeenStatusInDB.fulfill()
-		})
-		let messageHandler: MMMessageHandler = MMMessageHandler(storage: self.storage, remoteApi: remoteApi, seenSenderRemoteAPI: seenRemoteApi)
+	func testSendSeenStatusUpdate() {
 		
-		messageHandler.messageHandlingQueue.addOperationWithBlock {
-			messageHandler.storageContext.performBlockAndWait{
-				self.createDBMessages(seenMessageIds, seenStatus: .NotSeen, context: messageHandler.storageContext)
-				messageHandler.save()
+		let seenRequestCompleted = expectationWithDescription("seen request completed")
+		let messageId = "m1"
+		
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": messageId], newMessageReceivedCallback: nil) { err in
+			self.mobileMessagingInstance.setSeen([messageId], completion: { result in
+				seenRequestCompleted.fulfill()
+			})
+		}
+
+		self.waitForExpectationsWithTimeout(100) { err in
+			let ctx = self.storage.mainThreadManagedObjectContext!
+			ctx.performBlockAndWait {
+				if let messages = MessageManagedObject.MR_findAllInContext(ctx) as? [MessageManagedObject] {
+					let m1 = messages.filter({$0.messageId == "m1"}).first
+					XCTAssertEqual(m1!.seenStatus, MMSeenStatus.SeenSent, "m1 must be seen and synced")
+				} else {
+					XCTFail("There should be some messages in database")
+				}
 			}
 		}
-		
-		messageHandler.setSeen(seenMessageIds)
-		
-		self.waitForExpectationsWithTimeout(100, handler: nil)
 	}
 	
     func testSendEmpty() {
-        let expResponseCheck = expectationWithDescription("response")
-        
-        let request = MMPostSeenMessagesRequest(seenList: [])
-        let seenRemoteApi = MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode)
-        
-        seenRemoteApi.performRequest(request) { (result) in
-            switch result {
-            case .Success:
-                XCTAssert(false, "Not expected success response")
-            case .Failure(let error):
-                XCTAssert(error?.localizedDescription == "Empty message seen data", "Not expected error \(error?.localizedDescription)")
-			case .Cancel:
-				 XCTAssert(false, "Not expected cancel")
-			}
-			
-            expResponseCheck.fulfill()
-        }
-        
-        self.waitForExpectationsWithTimeout(100, handler: nil)
-    }
-    
-	/*
-    - setSeen (m1, m2, m3)
-    nothing to add from DB
-    **/
-    func testSendSeenSuccess() {
-        let expRequestCheck = expectationWithDescription("request")
-        let expResponseCheck = expectationWithDescription("response")
-
-        let seenMessageIds = ["m1", "m2", "m3"]
-        let remoteApi = MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode)
-        let seenRemoteApi = getSeenRemoteApi(seenMessageIds, expRequestCheck: expRequestCheck, expResponseCheck: expResponseCheck)
-        let messageHandler: MMMessageHandler = MMMessageHandler(storage: self.storage, remoteApi: remoteApi, seenSenderRemoteAPI: seenRemoteApi)
+        let expectation = expectationWithDescription("expectation")
 		
-		messageHandler.messageHandlingQueue.addOperationWithBlock {
-			messageHandler.storageContext.performBlockAndWait{
-				self.createDBMessages(seenMessageIds, seenStatus: .NotSeen, context: messageHandler.storageContext)
-				messageHandler.save()
-			}
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: nil) { err in
+			self.mobileMessagingInstance.setSeen([], completion: { result in
+				expectation.fulfill()
+			})
 		}
 		
-        messageHandler.setSeen(seenMessageIds)
-        
-        self.waitForExpectationsWithTimeout(100, handler: nil)
+		self.waitForExpectationsWithTimeout(100) { err in
+			let ctx = self.storage.mainThreadManagedObjectContext!
+			ctx.performBlockAndWait {
+				if let messages = MessageManagedObject.MR_findAllInContext(ctx) as? [MessageManagedObject] {
+					let m1 = messages.filter({$0.messageId == "m1"}).first!
+					XCTAssertEqual(m1.seenStatus, MMSeenStatus.NotSeen, "m1 must be seen and synced")
+					XCTAssertEqual(m1.seenDate, nil, "seen date must be nil")
+				} else {
+					XCTFail("There should be some messages in database")
+				}
+			}
+		}
     }
-    
-    func testSendSeenWithDBAdditionalSeens() {
-        let expRequestCheck = expectationWithDescription("request")
-        let expResponseCheck = expectationWithDescription("response")
-        
-        let seenMessageIds = ["m1", "m2"]
-        let seenStatusSentMessageIdsInDB = ["m3", "m4"]
-        let seenStatusNotSentMessageIdsInDB = ["m5", "m6"]
-        
-        let remoteApi = MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode)
-        let seenRemoteApi = getSeenRemoteApi(seenMessageIds + seenStatusNotSentMessageIdsInDB, expRequestCheck: expRequestCheck, expResponseCheck: expResponseCheck)
-        let messageHandler: MMMessageHandler = MMMessageHandler(storage: self.storage, remoteApi: remoteApi, seenSenderRemoteAPI: seenRemoteApi)
+	
+	func testSendSeenAgain() {
+		let expectation = expectationWithDescription("expectation")
+		let messageReceivingGroup = dispatch_group_create()
 		
-		messageHandler.messageHandlingQueue.addOperationWithBlock {
-			messageHandler.storageContext.performBlockAndWait {
+		for mId in ["m1", "m2", "m3"] {
+			dispatch_group_enter(messageReceivingGroup)
+			mobileMessagingInstance.didReceiveRemoteNotification(["messageId": mId], newMessageReceivedCallback: nil, completion: { (err) in
+				dispatch_group_leave(messageReceivingGroup)
+			})
+		}
+		
+		dispatch_group_notify(messageReceivingGroup, dispatch_get_main_queue()) { 
+			self.mobileMessagingInstance.setSeen(["m1", "m2"], completion: { result in
 				
-				self.createDBMessages(seenMessageIds, seenStatus: .NotSeen, context: messageHandler.storageContext)
-				self.createDBMessages(seenStatusSentMessageIdsInDB, seenStatus: .SeenSent, context: messageHandler.storageContext)
-				self.createDBMessages(seenStatusNotSentMessageIdsInDB, seenStatus: .SeenNotSent, context: messageHandler.storageContext)
+				var messagesSeenDates = [String: NSDate?]()
+				let ctx = self.storage.mainThreadManagedObjectContext!
+				ctx.reset()
+				ctx.performBlockAndWait {
+					if let messages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["m1", "m2"]), inContext: ctx) as? [MessageManagedObject] where messages.count > 0 {
+						
+						for m in messages {
+							XCTAssertEqual(m.seenStatus, MMSeenStatus.SeenSent)
+							messagesSeenDates[m.messageId] = m.seenDate
+						}
+						
+						if let m3 = messages.filter({ $0.messageId == "m3" }).first {
+							XCTAssertEqual(m3.seenStatus, MMSeenStatus.NotSeen)
+						}
+					} else {
+						XCTFail("There should be some messages in database")
+					}
+				}
 				
-				messageHandler.save()
-			}
-		}
-		
-        messageHandler.setSeen(seenMessageIds)
-        
-        self.waitForExpectationsWithTimeout(100, handler: nil)
-    }
+				self.mobileMessagingInstance.setSeen(["m1", "m2", "m3"], completion: { result in
+					
+					let ctx = self.storage.mainThreadManagedObjectContext!
+					ctx.reset()
+					ctx.performBlockAndWait {
+						if let messages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["m1", "m2"]), inContext: ctx) as? [MessageManagedObject] where messages.count > 0 {
+							
+							for m in messages {
+								XCTAssertEqual(m.seenStatus, MMSeenStatus.SeenSent)
+								XCTAssertEqual(m.seenDate, messagesSeenDates[m.messageId]!)
+							}
 
-    func testSendSeenAgain() {
-        let expRequestCheck = expectationWithDescription("request")
-        let expResponseCheck = expectationWithDescription("response")
-        
-        let seenMessageIds = ["m1", "m3"]
-        let seenStatusSentMessageIdsInDB = ["m1", "m2"]
-        
-        let creationDate = NSDate()
-        
-        let remoteApi = MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode)
-        let seenRemoteApi = getSeenRemoteApi(seenMessageIds, datesToCheck: ["m1": creationDate], expRequestCheck: expRequestCheck, expResponseCheck: expResponseCheck)
-        let messageHandler: MMMessageHandler = MMMessageHandler(storage: self.storage, remoteApi: remoteApi, seenSenderRemoteAPI: seenRemoteApi)
-		
-		messageHandler.storageContext.performBlockAndWait {
-			
-			self.createDBMessages(seenStatusSentMessageIdsInDB, date: creationDate, seenStatus: .SeenSent, context: messageHandler.storageContext)
-			self.createDBMessages(["m3"], date: creationDate, seenStatus: .NotSeen, context: messageHandler.storageContext)
-			
-			messageHandler.save()
+						} else {
+							XCTFail("There should be some messages in database")
+						}
+						expectation.fulfill()
+					}
+				})
+			})
 		}
-		
-        //delay for check that date not changed after setSeen
-        let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC)))
-        dispatch_after(delayTime, dispatch_get_main_queue()) {
-            messageHandler.setSeen(seenMessageIds)
-        }
-        
+
         self.waitForExpectationsWithTimeout(100, handler: nil)
     }
     
     func testSendFailureInvalidAppId() {
-        let expResponseCheck = expectationWithDescription("response")
-        let seenMessageIds = ["m1", "m3"]
-        let remoteApi = MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode)
-        let seenRemoteApi = SeenTestsRemoteAPI(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, testCompletion:{ (result) -> Void in
-            switch result {
-            case .Success:
-                XCTAssert(false, "Not expected success response")
-            case .Failure(let error):
-                XCTAssert(error?.localizedDescription == "Invalid Application Id", "Not expected error \(error?.localizedDescription)")
-			case .Cancel: break
-            }
-            expResponseCheck.fulfill()
-        })
-        
-        let messageHandler: MMMessageHandler = MMMessageHandler(storage: self.storage, remoteApi: remoteApi, seenSenderRemoteAPI: seenRemoteApi)
+		MobileMessaging.stop()
+		MobileMessaging.testStartWithWrongApplicationCode()
 		
-		messageHandler.messageHandlingQueue.addOperationWithBlock {
-			messageHandler.storageContext.performBlockAndWait {
-				self.createDBMessages(seenMessageIds, seenStatus: .NotSeen, context: messageHandler.storageContext)
-				messageHandler.save()
+		let expectation = expectationWithDescription("Delivery sending completed")
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: nil, completion: { (err) in
+			self.mobileMessagingInstance.setSeen(["m1"]) { result in
+				
+				XCTAssertNotNil(result.error, "We expect an error")
+				XCTAssertEqual(result.error?.localizedDescription, "Invalid Application Id", "There must be a wrong application code error")
+				expectation.fulfill()
 			}
-		}
+		})
 		
-        messageHandler.setSeen(seenMessageIds)
-        
-        self.waitForExpectationsWithTimeout(100, handler: nil)
-    }
-	
-    //MARK: Utils
-	private func getSeenRemoteApi(messageIdsToCheck: [String], datesToCheck: [String: NSDate]? = nil, expRequestCheck: XCTestExpectation, expResponseCheck: XCTestExpectation) -> SeenTestsRemoteAPI {
-        return SeenTestsRemoteAPI(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, testCompletion: { (result) -> Void in
-            
-            switch result {
-			case .Failure(let error):
-                XCTAssertNil(error, "Request failed with error")
-			case .Cancel:
-				XCTAssert(false, "Unexpected cancel")
-			default: break
-            }
-            expResponseCheck.fulfill()
-            
-            }) { request in
-                let messageIds = request.seenList.flatMap{ $0.messageId }
-                let mIdsToCheck = Set(messageIds)
-                let mIds = Set(messageIdsToCheck)
-                let diff = mIdsToCheck.exclusiveOr(mIds)
-                XCTAssert(diff.count == 0, "Unexpected count of send seen statuses \(mIdsToCheck) should be \(mIds)")
-                
-                if let datesToCheck = datesToCheck {
-                    for seendData in request.seenList {
-                        if let date = datesToCheck[seendData.messageId] {
-                            XCTAssertEqual(seendData.seenTimestamp, date.timeIntervalSince1970, "Expected date differ from actual for message")
-                        }
-                    }
-                }
-                expRequestCheck.fulfill()
-        }
-    }
-    
-    private func createDBMessages(messageIds: [String], date: NSDate = NSDate(), seenStatus: MMSeenStatus, context: NSManagedObjectContext) {
-        var newMsg : MessageManagedObject
-        for id in messageIds {
-            if let newMsgObj = MessageManagedObject.MR_findFirstWithPredicate(NSPredicate(format: "messageId == %@", id), inContext: context) {
-                newMsg = newMsgObj
-            } else {
-                newMsg = MessageManagedObject.MR_createEntityInContext(context)
-                newMsg.messageId = id
-                newMsg.creationDate = date
-            }
-            newMsg.seenStatus = seenStatus
-            newMsg.seenDate = date
-        }
+		self.waitForExpectationsWithTimeout(50, handler: nil)
     }
 }

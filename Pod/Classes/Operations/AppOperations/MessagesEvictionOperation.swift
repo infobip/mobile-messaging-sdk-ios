@@ -11,18 +11,20 @@ import CoreData
 
 
 final class MessagesEvictionOperation: Operation {
-	let kEntityExpirationPeriod: NSTimeInterval = 7 * 24 * 60 * 60; //one week
+	static let defaultMessageMaxAge: NSTimeInterval = 7 * 24 * 60 * 60; //one week
+	var messageMaximumAge: NSTimeInterval
 	var context: NSManagedObjectContext
 	var finishBlock: (() -> Void)?
 	
-	init(context: NSManagedObjectContext, finishBlock: (() -> Void)? = nil) {
+	init(context: NSManagedObjectContext, messageMaximumAge: NSTimeInterval? = nil, finishBlock: (() -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
+		self.messageMaximumAge = messageMaximumAge ?? MessagesEvictionOperation.defaultMessageMaxAge
 	}
 	
 	override func execute() {
 		self.context.performBlockAndWait {
-			let dateToCompare = NSDate().dateByAddingTimeInterval(-self.kEntityExpirationPeriod)
+			let dateToCompare = NSDate().dateByAddingTimeInterval(-self.messageMaximumAge)
 			
 			MessageManagedObject.MR_deleteAllMatchingPredicate(NSPredicate(format: "creationDate <= %@", dateToCompare), inContext: self.context)
 			self.context.MR_saveToPersistentStoreAndWait()
