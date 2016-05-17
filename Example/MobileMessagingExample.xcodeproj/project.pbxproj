@@ -17,6 +17,17 @@
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
+		8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */; };
+		8EFABFCC1CEB3B9400510762 /* DeliveryReportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DE1CABA839001873B4 /* DeliveryReportingTests.swift */; };
+		8EFABFCD1CEB3B9400510762 /* MMTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5077629C1CC2893B00499542 /* MMTestCase.swift */; };
+		8EFABFCE1CEB3B9400510762 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103E01CABA839001873B4 /* TestUtils.swift */; };
+		8EFABFCF1CEB3B9400510762 /* RegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DB1CABA839001873B4 /* RegistrationTests.swift */; };
+		8EFABFD01CEB3B9400510762 /* MessageReceivingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */; };
+		8EFABFD11CEB3B9400510762 /* RetryOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DC1CABA839001873B4 /* RetryOperationTests.swift */; };
+		8EFABFD21CEB3B9400510762 /* FetchMessagesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DF1CABA839001873B4 /* FetchMessagesTest.swift */; };
+		8EFABFD31CEB3B9400510762 /* MessageSeenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */; };
+		8EFABFD51CEB3B9400510762 /* Pods_MobileMessagingExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 500003141CCB7D4C00C91479 /* Pods_MobileMessagingExample.framework */; };
+		8EFABFD61CEB3B9400510762 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1BD2D7F4AFBA3723049088 /* Pods_MobileMessagingExample_Tests.framework */; };
 		A01AD7481CD23A3C00A0EFD6 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01AD7471CD23A3C00A0EFD6 /* SettingsViewController.swift */; };
 		A03F75001CE2243600414A6B /* MessageReceivingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */; };
 		A03F75011CE2243C00414A6B /* RegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DB1CABA839001873B4 /* RegistrationTests.swift */; };
@@ -36,6 +47,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		607FACE61AFB9204008FA782 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
+			remoteInfo = MobileMessaging;
+		};
+		8EFABFC91CEB3B9400510762 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
 			proxyType = 1;
@@ -66,6 +84,8 @@
 		6527DBE51CAD144F00526BE7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		854CAD8A86B9610693BA4BC7 /* MobileMessaging.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = MobileMessaging.podspec; path = ../MobileMessaging.podspec; sourceTree = "<group>"; };
 		861CBD5568B6D3B68BF95BA8 /* Pods_MobileMessagingExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MobileMessagingExample_Tests_Device-Info.plist"; sourceTree = "<group>"; };
+		8EFABFDD1CEB3B9400510762 /* MobileMessagingExample_Tests_Device.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileMessagingExample_Tests_Device.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C014EAD3460C8C6C12F4258 /* Pods_MobileMessaging_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessaging_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A01AD7471CD23A3C00A0EFD6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		A047BFD11CB403F500A6859F /* InfoTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoTableViewController.swift; sourceTree = "<group>"; };
@@ -100,6 +120,15 @@
 			files = (
 				500003151CCB7D4C00C91479 /* Pods_MobileMessagingExample.framework in Frameworks */,
 				BC0C8A45BA4DCA5E1449BCF0 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8EFABFD41CEB3B9400510762 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8EFABFD51CEB3B9400510762 /* Pods_MobileMessagingExample.framework in Frameworks */,
+				8EFABFD61CEB3B9400510762 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,6 +168,7 @@
 			children = (
 				607FACD01AFB9204008FA782 /* MobileMessagingExample_Example.app */,
 				607FACE51AFB9204008FA782 /* MobileMessagingExample_Example.xctest */,
+				8EFABFDD1CEB3B9400510762 /* MobileMessagingExample_Tests_Device.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -182,6 +212,7 @@
 		607FACE91AFB9204008FA782 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */,
 				607FACEA1AFB9204008FA782 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -267,6 +298,27 @@
 			productReference = 607FACE51AFB9204008FA782 /* MobileMessagingExample_Example.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		8EFABFC71CEB3B9400510762 /* MobileMessagingExample_Tests_Device */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8EFABFDA1CEB3B9400510762 /* Build configuration list for PBXNativeTarget "MobileMessagingExample_Tests_Device" */;
+			buildPhases = (
+				8EFABFCA1CEB3B9400510762 /* Check Pods Manifest.lock */,
+				8EFABFCB1CEB3B9400510762 /* Sources */,
+				8EFABFD41CEB3B9400510762 /* Frameworks */,
+				8EFABFD71CEB3B9400510762 /* Resources */,
+				8EFABFD81CEB3B9400510762 /* Embed Pods Frameworks */,
+				8EFABFD91CEB3B9400510762 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8EFABFC81CEB3B9400510762 /* PBXTargetDependency */,
+			);
+			name = MobileMessagingExample_Tests_Device;
+			productName = Tests;
+			productReference = 8EFABFDD1CEB3B9400510762 /* MobileMessagingExample_Tests_Device.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -292,6 +344,9 @@
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
 					};
+					8EFABFC71CEB3B9400510762 = {
+						TestTargetID = 607FACCF1AFB9204008FA782;
+					};
 				};
 			};
 			buildConfigurationList = 607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "MobileMessagingExample" */;
@@ -309,6 +364,7 @@
 			targets = (
 				607FACCF1AFB9204008FA782 /* MobileMessagingExample */,
 				607FACE41AFB9204008FA782 /* MobileMessagingExample_Tests */,
+				8EFABFC71CEB3B9400510762 /* MobileMessagingExample_Tests_Device */,
 			);
 		};
 /* End PBXProject section */
@@ -322,6 +378,7 @@
 				50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */,
 				500003101CCB7B3C00C91479 /* Pods-MobileMessagingExample_Tests.debug.xcconfig in Resources */,
 				A0953C291CAD1C660076488D /* Main.storyboard in Resources */,
+				8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */,
 				5000030D1CCB7B2F00C91479 /* Pods-MobileMessagingExample.release.xcconfig in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				5000030C1CCB7B2F00C91479 /* Pods-MobileMessagingExample.debug.xcconfig in Resources */,
@@ -329,6 +386,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		607FACE31AFB9204008FA782 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8EFABFD71CEB3B9400510762 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -369,6 +433,51 @@
 			showEnvVarsInLog = 0;
 		};
 		8D0A0F576D2A67BB80DC0B17 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8EFABFCA1CEB3B9400510762 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		8EFABFD81CEB3B9400510762 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8EFABFD91CEB3B9400510762 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -460,6 +569,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8EFABFCB1CEB3B9400510762 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8EFABFCC1CEB3B9400510762 /* DeliveryReportingTests.swift in Sources */,
+				8EFABFCD1CEB3B9400510762 /* MMTestCase.swift in Sources */,
+				8EFABFCE1CEB3B9400510762 /* TestUtils.swift in Sources */,
+				8EFABFCF1CEB3B9400510762 /* RegistrationTests.swift in Sources */,
+				8EFABFD01CEB3B9400510762 /* MessageReceivingTests.swift in Sources */,
+				8EFABFD11CEB3B9400510762 /* RetryOperationTests.swift in Sources */,
+				8EFABFD21CEB3B9400510762 /* FetchMessagesTest.swift in Sources */,
+				8EFABFD31CEB3B9400510762 /* MessageSeenTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -467,6 +591,11 @@
 			isa = PBXTargetDependency;
 			target = 607FACCF1AFB9204008FA782 /* MobileMessagingExample */;
 			targetProxy = 607FACE61AFB9204008FA782 /* PBXContainerItemProxy */;
+		};
+		8EFABFC81CEB3B9400510762 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 607FACCF1AFB9204008FA782 /* MobileMessagingExample */;
+			targetProxy = 8EFABFC91CEB3B9400510762 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -662,6 +791,44 @@
 			};
 			name = Release;
 		};
+		8EFABFDB1CEB3B9400510762 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5000030E1CCB7B3C00C91479 /* Pods-MobileMessagingExample_Tests.debug.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Tests/MobileMessagingExample_Tests_Device-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample_Example.app/MobileMessagingExample_Example";
+			};
+			name = Debug;
+		};
+		8EFABFDC1CEB3B9400510762 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5000030F1CCB7B3C00C91479 /* Pods-MobileMessagingExample_Tests.release.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = "Tests/MobileMessagingExample_Tests_Device-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample_Example.app/MobileMessagingExample_Example";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -688,6 +855,15 @@
 			buildConfigurations = (
 				607FACF31AFB9204008FA782 /* Debug */,
 				607FACF41AFB9204008FA782 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8EFABFDA1CEB3B9400510762 /* Build configuration list for PBXNativeTarget "MobileMessagingExample_Tests_Device" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8EFABFDB1CEB3B9400510762 /* Debug */,
+				8EFABFDC1CEB3B9400510762 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
