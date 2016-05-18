@@ -42,6 +42,16 @@ protocol MMHTTPRequestData: MMHTTPRequestResponsable {
     var body: [String: AnyObject]? {get}
 }
 
+protocol MMHTTPGetRequest: MMHTTPRequestData { }
+extension MMHTTPGetRequest {
+	var method: MMHTTPMethod { return .GET }
+}
+
+protocol MMHTTPPostRequest: MMHTTPRequestData { }
+extension MMHTTPPostRequest {
+	var method: MMHTTPMethod { return .POST }
+}
+
 extension MMHTTPRequestData {
 	var retryLimit: Int { return 0 }
 	var headers: [String: String]? { return nil }
@@ -52,11 +62,10 @@ extension MMHTTPRequestData {
 	}
 }
 
-struct MMPostRegistrationRequest: MMHTTPRequestData {
+struct MMPostRegistrationRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPRegistrationResponse
 	
 	var retryLimit: Int { return 3 }
-	var method: MMHTTPMethod { return .POST }
 	var path: MMHTTPAPIPath { return .Registration }
     var parameters: [String: AnyObject]? {
         var params = [MMAPIKeys.kRegistrationId: currentDeviceToken,
@@ -76,10 +85,9 @@ struct MMPostRegistrationRequest: MMHTTPRequestData {
 	}
 }
 
-struct MMPostDeliveryReportRequest: MMHTTPRequestData {
+struct MMPostDeliveryReportRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPDeliveryReportingResponse
 	
-	var method: MMHTTPMethod { return .POST }
 	var path: MMHTTPAPIPath { return .DeliveryReport }
 	var parameters: [String: AnyObject]? { return [MMAPIKeys.kMessageIDs: messageIDs] }
 	var messageIDs: [String]
@@ -89,10 +97,9 @@ struct MMPostDeliveryReportRequest: MMHTTPRequestData {
 	}
 }
 
-struct MMGetMessagesRequest: MMHTTPRequestData {
+struct MMGetMessagesRequest: MMHTTPGetRequest {
 	typealias ResponseType = MMHTTPFetchMessagesResponse
 	
-	var method: MMHTTPMethod { return .GET }
 	var path: MMHTTPAPIPath { return .FetchMessages }
 	var parameters: [String: AnyObject]? {
 		return [MMAPIKeys.kInternalRegistrationId: internalId]
@@ -104,10 +111,9 @@ struct MMGetMessagesRequest: MMHTTPRequestData {
 	}
 }
 
-struct MMPostMSISDNRequest: MMHTTPRequestData {
+struct MMPostMSISDNRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSaveMSISDNResponse
 	
-	var method: MMHTTPMethod { return .POST }
 	var path: MMHTTPAPIPath { return .MSISDN }
 	var parameters: [String: AnyObject]? { return [MMAPIKeys.kInternalRegistrationId: internalId, MMAPIKeys.kMSISDN: msisdn] }
 	var msisdn: String
@@ -119,10 +125,9 @@ struct MMPostMSISDNRequest: MMHTTPRequestData {
 	}
 }
 
-struct MMPostSeenMessagesRequest: MMHTTPRequestData {
+struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSeenMessagesResponse
 	
-	var method: MMHTTPMethod { return .POST }
 	var path: MMHTTPAPIPath { return .SeenMessages }
 	var parameters: [String: AnyObject]? { return nil }
 	var seenList: [SeenData]
@@ -133,10 +138,9 @@ struct MMPostSeenMessagesRequest: MMHTTPRequestData {
 	}
 }
 
-struct MMPostEmailRequest: MMHTTPRequestData {
+struct MMPostEmailRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSaveEmailResponse
 	
-	var method: MMHTTPMethod { return .POST }
 	var path: MMHTTPAPIPath { return .Email }
 	var parameters: [String: AnyObject]? { return [MMAPIKeys.kInternalRegistrationId: internalId, MMAPIKeys.kEmail: email] }
 	var email: String
