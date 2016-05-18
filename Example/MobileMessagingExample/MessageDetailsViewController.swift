@@ -35,6 +35,7 @@ class MessageDetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		updateUI()
+		seenMessage()
     }
     
     deinit {
@@ -45,8 +46,8 @@ class MessageDetailsViewController: UIViewController {
         self.dismissViewControllerAnimated(true, completion:nil)
     }
     
-    //MARK: Utils
-    func updateUI() {
+    //MARK: Private
+    private func updateUI() {
 		dispatch_async(dispatch_get_main_queue()) {
 			if let msg = self.message {
 				self.messageTextView?.text = msg.text
@@ -55,4 +56,14 @@ class MessageDetailsViewController: UIViewController {
 			}
 		}
     }
+	
+	private func seenMessage() {
+		guard let messageId = message?.messageId where message?.seen == false else {
+			return
+		}
+		
+		MobileMessaging.setSeen([messageId])
+		message?.seen = true
+	}
+
 }

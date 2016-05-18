@@ -63,9 +63,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		let predicate = NSPredicate(format: "SELF MATCHES[cd] %@", SettingsViewController.kMSISDNValidationRegExp)
 		predicate.evaluateWithObject(msisdn)
 		if !predicate.evaluateWithObject(msisdn) {
-			throw NSError(domain: "custom", code: 100, userInfo: [
-				NSLocalizedDescriptionKey :  NSLocalizedString("Invalid MSISDN format", comment: ""),
-				])
+			throw NSError(type: CustomErrorType.InvalidMSISDNFormat)
 		}
 	}
 	

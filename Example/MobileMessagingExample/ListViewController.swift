@@ -15,12 +15,18 @@ let kMessageDetailsSegueId = "kMessageDetailsSegueId"
 let kInformationSegueId = "kInformationSegueId"
 let kSettingsSegueId = "kSettingsSegueId"
 let kMessagesKey = "kMessagesKey"
+let kMessageDidChangeSeenNotification = "kMessageDidChangeSeenNotification"
 
 class Message : NSObject, NSCoding {
     var text: String
     var messageId: String
     dynamic var delivered: Bool = false
-    
+	var seen : Bool = false {
+		didSet {
+			NSNotificationCenter.defaultCenter().postNotificationName(kMessageDidChangeSeenNotification, object: self, userInfo: nil)
+		}
+	}
+	
     required init(text: String, messageId: String){
         self.text = text
         self.messageId = messageId
@@ -32,12 +38,14 @@ class Message : NSObject, NSCoding {
         text = aDecoder.decodeObjectForKey("text") as! String
         messageId = aDecoder.decodeObjectForKey("messageId") as! String
         delivered = aDecoder.decodeObjectForKey("delivered") as! Bool
+		seen = aDecoder.decodeObjectForKey("seen") as! Bool
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(text, forKey: "text")
         aCoder.encodeObject(messageId, forKey: "messageId")
         aCoder.encodeObject(delivered, forKey: "delivered")
+		aCoder.encodeObject(seen, forKey: "seen")
     }
     
     //MARK: Util
@@ -61,7 +69,7 @@ class Message : NSObject, NSCoding {
     }
 }
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -73,6 +81,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 	
     var messages:[Message] = [Message]()
     let cellFont = UIFont.systemFontOfSize(15.0)
+	let unreadCellFont = UIFont.boldSystemFontOfSize(15.0)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -84,7 +93,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 	
         updateUI()
 		
-//		MobileMessaging.didReceiveRemoteNotification(["messageId": "m1", "aps": ["alert": "alert"]], fetchCompletionHandler: nil)
+//		for i in 0..<10 {
+//			MobileMessaging.didReceiveRemoteNotification(["messageId": "m\(i)", "aps": ["alert": "alert\(i)"]], fetchCompletionHandler: nil)
+//		}
 		
 //		for i in 0..<10 {
 //			let error = NSError(domain: "foo", code: 123, userInfo: [NSLocalizedDescriptionKey: "shit happens-\(i)"])
@@ -120,6 +131,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         }
     }
+	
+	func handleMessageDidChangeSeenNotification(notification: NSNotification) {
+		archiveMessages()
+		updateUI()
+	}
+
     
     //MARK: UITableViewDataSource
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -128,9 +145,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(kMessageCellId, forIndexPath: indexPath)
+		let message = messages[indexPath.row]
         cell.textLabel?.numberOfLines = 5
-        cell.textLabel?.font = cellFont
-        cell.textLabel?.text = messages[indexPath.row].text
+		cell.textLabel?.font = message.seen ? cellFont : unreadCellFont
+        cell.textLabel?.text = message.text
 		cell.accessoryType = .DisclosureIndicator
         return cell
     }
@@ -158,18 +176,23 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.reloadData()
     }
     
-    func startObservingNotifications() {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.handleNewMessageReceivedNotification(_:)), name: MMEventNotifications.kMessageReceived, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.handleDeliveryReportSentNotification(_:)), name: MMEventNotifications.kDeliveryReportSent, object: nil)
-    }
-    
+	func startObservingNotifications() {
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ListViewController.handleNewMessageReceivedNotification(_:)), name: MMEventNotifications.kMessageReceived, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ListViewController.handleDeliveryReportSentNotification(_:)), name: MMEventNotifications.kDeliveryReportSent, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ListViewController.handleMessageDidChangeSeenNotification(_:)), name: kMessageDidChangeSeenNotification, object: nil)
+	}
+	
     func saveMessage(message: Message) {
         messages.insert(message, atIndex: 0)
-        let data: NSData = NSKeyedArchiver.archivedDataWithRootObject(messages)
-        NSUserDefaults.standardUserDefaults().setObject(data, forKey: kMessagesKey)
+        archiveMessages()
         updateUIWithInsertMessage()
     }
-    
+	
+	func archiveMessages() {
+		let data: NSData = NSKeyedArchiver.archivedDataWithRootObject(messages)
+		NSUserDefaults.standardUserDefaults().setObject(data, forKey: kMessagesKey)
+	}
+	
     func unarchiveMessages() {
         if let messagesData = NSUserDefaults.standardUserDefaults().objectForKey(kMessagesKey) as? NSData,
             let messages = NSKeyedUnarchiver.unarchiveObjectWithData(messagesData) as? [Message] {

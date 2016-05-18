@@ -9,7 +9,7 @@
         <!--List-->
         <scene sceneID="51G-gw-4tD">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="TVJ-Tn-zid" userLabel="List" customClass="ViewController" customModule="MobileMessagingExample_Example" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="TVJ-Tn-zid" userLabel="List" customClass="ListViewController" customModule="MobileMessagingExample_Example" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="2Oi-uG-PXJ"/>
                         <viewControllerLayoutGuide type="bottom" id="J4z-EP-6Mi"/>
