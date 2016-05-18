@@ -58,7 +58,34 @@ extension MMHTTPRequestData {
     var body: [String: AnyObject]? { return nil }
     
 	func responseObject(applicationCode: String, baseURL: String, completion: Result<ResponseType> -> Void) {
-		MMHTTPSessionManager.sendRequest(self, baseURL: baseURL, applicationCode: applicationCode, completion: completion)
+		let manager = MM_AFHTTPSessionManager(baseURL: NSURL(string: baseURL), sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration())
+		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: self.body)
+		manager.responseSerializer = MMResponseSerializer<ResponseType>()
+		
+		MMLogInfo("Sending request \(self.dynamicType) w/parameters: \(self.parameters) to \(baseURL + self.path.rawValue)")
+		
+		let successBlock = { (task: NSURLSessionDataTask, obj: AnyObject?) -> Void in
+			if let obj = obj as? ResponseType {
+				completion(Result.Success(obj))
+			} else {
+				let error = NSError(domain: AFURLResponseSerializationErrorDomain, code: NSURLErrorCannotDecodeContentData, userInfo:nil)
+				completion(Result.Failure(error))
+			}
+		}
+		
+		let failureBlock = { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+			completion(Result<ResponseType>.Failure(error))
+		}
+		
+		let urlString = manager.baseURL!.absoluteString + self.path.rawValue
+		switch self.method {
+		case .POST:
+			manager.POST(urlString, parameters: self.parameters, progress: nil, success: successBlock, failure: failureBlock)
+		case .PUT:
+			manager.PUT(urlString, parameters: self.parameters, success: successBlock, failure: failureBlock)
+		case .GET:
+			manager.GET(urlString, parameters: self.parameters, progress: nil, success: successBlock, failure: failureBlock)
+		}
 	}
 }
 
