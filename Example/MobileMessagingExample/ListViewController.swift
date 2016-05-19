@@ -37,15 +37,15 @@ class Message : NSObject, NSCoding {
     required init(coder aDecoder: NSCoder) {
         text = aDecoder.decodeObjectForKey("text") as! String
         messageId = aDecoder.decodeObjectForKey("messageId") as! String
-        delivered = aDecoder.decodeObjectForKey("delivered") as! Bool
-		seen = aDecoder.decodeObjectForKey("seen") as! Bool
+        delivered = aDecoder.decodeBoolForKey("delivered")
+		seen = aDecoder.decodeBoolForKey("seen")
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
         aCoder.encodeObject(text, forKey: "text")
         aCoder.encodeObject(messageId, forKey: "messageId")
-        aCoder.encodeObject(delivered, forKey: "delivered")
-		aCoder.encodeObject(seen, forKey: "seen")
+        aCoder.encodeBool(delivered, forKey: "delivered")
+		aCoder.encodeBool(seen, forKey: "seen")
     }
     
     //MARK: Util
