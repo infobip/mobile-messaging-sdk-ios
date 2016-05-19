@@ -22,7 +22,6 @@ extension NSManagedObject {
 	}
 	
 	class func MM_requestAll(predicate: NSPredicate? = nil, context: NSManagedObjectContext) -> NSFetchRequest {
-		print(self.MM_entityName)
 		let r = NSFetchRequest(entityName: self.MM_entityName)
 		r.predicate = predicate
 		return r
@@ -70,7 +69,6 @@ extension NSManagedObject {
 		return deleted || managedObjectContext == nil
 	}
 
-	
 	func MM_deleteEntityInContext(context: NSManagedObjectContext) -> Bool {
 		do {
 			let objectInContext = try context.existingObjectWithID(objectID)
@@ -82,7 +80,6 @@ extension NSManagedObject {
 		return false
 	}
 
-	
 	class func MM_deleteAllMatchingPredicate(predicate: NSPredicate, inContext context: NSManagedObjectContext) {
 		let request = self.MM_requestAll(predicate, context: context)
 		request.returnsObjectsAsFaults = true
