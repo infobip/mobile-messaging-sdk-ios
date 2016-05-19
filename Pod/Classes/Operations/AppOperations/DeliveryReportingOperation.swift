@@ -27,7 +27,7 @@ final class DeliveryReportingOperation: Operation {
 	}
 	
 	private func deliverReports() {
-		guard let nonReportedMessages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "reportSent == false"), inContext: self.context) as? [MessageManagedObject]
+		guard let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), inContext: self.context) as? [MessageManagedObject]
 			where nonReportedMessages.count > 0
 			else
 		{
@@ -59,7 +59,7 @@ final class DeliveryReportingOperation: Operation {
 	}
 	
 	private func dequeueDeliveryReports(messageIDs: [String]) {
-		guard let messages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), inContext: context) as? [MessageManagedObject]
+		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), inContext: context) as? [MessageManagedObject]
 			where messages.count > 0
 			else
 		{
@@ -71,7 +71,7 @@ final class DeliveryReportingOperation: Operation {
 		}
 		
 		MMLogDebug("Marked as sent: \(messages.map{ $0.messageId })")
-		context.MR_saveToPersistentStoreAndWait()
+		context.MM_saveToPersistentStoreAndWait()
 	}
 	
 	override func finished(errors: [NSError]) {

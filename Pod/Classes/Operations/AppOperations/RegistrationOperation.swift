@@ -28,7 +28,7 @@ final class RegistrationOperation: Operation {
 	
 	override func execute() {
 		context.performBlockAndWait {
-			guard let installation = InstallationManagedObject.MR_findFirstInContext(self.context) else {
+			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
 				self.finish()
 				return
 			}
@@ -40,7 +40,7 @@ final class RegistrationOperation: Operation {
 			
             if (self.installationHasChanges) {
                 MMLogInfo("Saving installation locally...")
-                self.context.MR_saveToPersistentStoreAndWait()
+                self.context.MM_saveToPersistentStoreAndWait()
             } else {
                 MMLogInfo("No need to save installation locally.")
             }
@@ -103,7 +103,7 @@ final class RegistrationOperation: Operation {
 				return
 			}
 			
-			self.context.MR_saveToPersistentStoreAndWait()
+			self.context.MM_saveToPersistentStoreAndWait()
 		}
 	}
 	

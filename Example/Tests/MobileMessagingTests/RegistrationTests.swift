@@ -44,9 +44,9 @@ final class RegistrationTests: MMTestCase {
 		}
 		
 		waitForExpectationsWithTimeout(100, handler: { err in
-			let installationsNumber = InstallationManagedObject.MR_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext)
+			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
 			
-			if let installation = InstallationManagedObject.MR_findFirstInContext(self.storage.mainThreadManagedObjectContext) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
 				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".toHexademicalString(), "Most recent token must be persisted")
 				XCTAssertEqual((installation.metaData as! [String: String])["meta2"], "metadata2", "meta2 key must contain metadata2")
@@ -99,7 +99,7 @@ final class RegistrationTests: MMTestCase {
         
         self.waitForExpectationsWithTimeout(100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
-			if let installation = InstallationManagedObject.MR_findFirstInContext(self.storage.mainThreadManagedObjectContext) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 			
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "current installation must be synchronized")
 				XCTAssertEqual(installation.internalId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(installation.internalId))")
@@ -125,7 +125,7 @@ final class RegistrationTests: MMTestCase {
 		}
 		self.waitForExpectationsWithTimeout(100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
-			if let installation = InstallationManagedObject.MR_findFirstInContext(self.storage.mainThreadManagedObjectContext) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 			
 				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalId, nil, "Internal id must be nil, server denied the application code")

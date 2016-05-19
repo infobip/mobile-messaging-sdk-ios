@@ -80,8 +80,8 @@ final class MMInstallationManager: MMStoringService {
 	private func createInstallation() -> InstallationManagedObject {
 		var result: InstallationManagedObject?
 		storageContext.performBlockAndWait {
-			result = InstallationManagedObject.MR_createEntityInContext(self.storageContext)
-			self.storageContext.MR_saveOnlySelfAndWait()
+			result = InstallationManagedObject.MM_createEntityInContext(context: self.storageContext)
+			self.storageContext.MM_saveOnlySelfAndWait()
 		}
 		return result!
 	}
@@ -89,7 +89,7 @@ final class MMInstallationManager: MMStoringService {
 	private func findCurrentInstallation() -> InstallationManagedObject? {
 		var result: InstallationManagedObject?
 		storageContext.performBlockAndWait {
-			result = InstallationManagedObject.MR_findFirstInContext(self.storageContext)
+			result = InstallationManagedObject.MM_findFirstInContext(self.storageContext)
 		}
 		return result
 	}

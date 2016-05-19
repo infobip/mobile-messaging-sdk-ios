@@ -45,20 +45,20 @@ class MMTestCase: XCTestCase {
 		MobileMessaging.stop()
 	}
 	
-	func nonReportedStoredMessagesCount(ctx: NSManagedObjectContext) -> UInt {
-		var count: UInt = 0
+	func nonReportedStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
+		var count: Int = 0
 		ctx.reset()
 		ctx.performBlockAndWait {
-			count = MessageManagedObject.MR_countOfEntitiesWithPredicate(NSPredicate(format: "reportSent == false"), inContext: ctx)
+			count = MessageManagedObject.MM_countOfEntitiesWithPredicate(NSPredicate(format: "reportSent == false"), inContext: ctx)
 		}
 		return count
 	}
 	
-	func allStoredMessagesCount(ctx: NSManagedObjectContext) -> UInt {
-		var count: UInt = 0
+	func allStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
+		var count: Int = 0
 		ctx.reset()
 		MMQueue.Main.queue.executeSync {
-			count = MessageManagedObject.MR_countOfEntitiesWithContext(ctx)
+			count = MessageManagedObject.MM_countOfEntitiesWithContext(ctx)
 		}
 		return count
 	}

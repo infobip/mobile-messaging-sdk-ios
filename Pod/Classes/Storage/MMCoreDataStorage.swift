@@ -31,7 +31,7 @@ class MMStoringService {
 	
 	func save(completion: (() -> Void)? = nil) {
 		_storageContext?.performBlock {
-			self.storageContext.MR_saveOnlySelfAndWait()
+			self.storageContext.MM_saveOnlySelfAndWait()
 			completion?()
 		}
 	}
@@ -106,7 +106,7 @@ final class MMCoreDataStorage {
 	}
 	
 	func drop() {
-		_persistentStore?.MR_removePersistentStoreFiles()
+		_persistentStore?.MM_removePersistentStoreFiles()
 	}
 	
 	//MARK: Private
@@ -129,7 +129,7 @@ final class MMCoreDataStorage {
                 
                 if error.domain == NSCocoaErrorDomain && isMigrationError {
                     MMLogInfo("Couldn't open the database, because of migration error, database will be recreated")
-                    NSPersistentStore.MR_removePersistentStoreFilesAtURL(storeURL)
+                    NSPersistentStore.MM_removePersistentStoreFilesAtURL(storeURL)
                     _persistentStore = try psc.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options)
                 }
             }

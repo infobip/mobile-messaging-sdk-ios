@@ -28,7 +28,7 @@ final class SetEmailOperation: Operation {
 	
 	override func execute() {
 		context.performBlockAndWait {
-			guard let installation = InstallationManagedObject.MR_findFirstInContext(self.context) else {
+			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
 				self.finish()
 				return
 			}
@@ -42,7 +42,7 @@ final class SetEmailOperation: Operation {
 				if result.error == nil {
 					self.context.performBlockAndWait {
 						installation.email = self.email
-						self.context.MR_saveToPersistentStoreAndWait()
+						self.context.MM_saveToPersistentStoreAndWait()
 					}
 				}
 				self.finishWithError(result.error)

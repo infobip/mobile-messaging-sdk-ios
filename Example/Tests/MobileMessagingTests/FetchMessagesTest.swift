@@ -84,9 +84,9 @@ class FetchMessagesTest: MMTestCase {
 		
 		//Expectations
 		waitForExpectationsWithTimeout(50) { error in
-			let ctx = self.mobileMessagingInstance.messageHandler?.storageContext
-			ctx!.performBlockAndWait {
-				if let messages = MessageManagedObject.MR_findAllInContext(ctx) as? [MessageManagedObject] {
+			let ctx = self.mobileMessagingInstance.messageHandler!.storageContext
+			ctx.performBlockAndWait {
+				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
 					let m2 = messages.filter({$0.messageId == "m2"}).first
 					XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenSent, "m2 must be seen and synced")
@@ -121,7 +121,7 @@ class FetchMessagesTest: MMTestCase {
 		MobileMessaging.stop()
 		MobileMessaging.testStartWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
-        let messagesCtx = storage.mainThreadManagedObjectContext
+        let messagesCtx = storage.mainThreadManagedObjectContext!
 		
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
 		
@@ -140,8 +140,8 @@ class FetchMessagesTest: MMTestCase {
 		
 		waitForExpectationsWithTimeout(50) { error in
 			
-			messagesCtx?.performBlockAndWait {
-				if let messagesAfterSync = MessageManagedObject.MR_findAllInContext(messagesCtx) as? [MessageManagedObject] {
+			messagesCtx.performBlockAndWait {
+				if let messagesAfterSync = MessageManagedObject.MM_findAllInContext(messagesCtx) as? [MessageManagedObject] {
 					let mIdsToCheck = Set(messagesAfterSync.map{$0.messageId})
 					let mIds = Set(["m1", "m2", "m3", "m4"])
 					let diff = mIdsToCheck.exclusiveOr(mIds)

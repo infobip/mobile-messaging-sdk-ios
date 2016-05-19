@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MMMagicalRecord
 import MMAFNetworking
 
 public final class MobileMessaging: NSObject {

@@ -47,12 +47,12 @@ final class MessageHandlingOperation: GroupOperation {
 			}
 			
 			for newMessage in newMessages {
-				let newDBMessage = MessageManagedObject.MR_createEntityInContext(self.context)
+				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
 				newDBMessage.creationDate = NSDate()
 			}
 			
-			self.context.MR_saveToPersistentStoreAndWait()
+			self.context.MM_saveToPersistentStoreAndWait()
 			
 			self.postNewMessagesEvents(newMessages)
 		}
@@ -76,7 +76,7 @@ final class MessageHandlingOperation: GroupOperation {
 		}
 		let messagesSet = Set(userInfos.flatMap(MMMessage.init))
 		var dbMessages = [MMMessage]()
-		if let msgs = MessageManagedObject.MR_findAllInContext(context) as? [MessageManagedObject] {
+		if let msgs = MessageManagedObject.MM_findAllInContext(context) as? [MessageManagedObject] {
 			dbMessages = msgs.map(MMMessage.init)
 		}
 		let dbMessagesSet = Set(dbMessages)

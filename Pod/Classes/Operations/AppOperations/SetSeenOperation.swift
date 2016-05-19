@@ -51,7 +51,7 @@ final class SetSeenOperation: Operation {
 		guard let messageIds = self.messageIds where messageIds.count > 0 else {
 			return
 		}
-		if let dbMessages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), inContext: self.context) as? [MessageManagedObject] {
+		if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), inContext: self.context) as? [MessageManagedObject] {
 			for message in dbMessages {
 				switch message.seenStatus {
 				case .NotSeen :
@@ -62,12 +62,12 @@ final class SetSeenOperation: Operation {
 				case .SeenNotSent: break
 				}
 			}
-			self.context.MR_saveOnlySelfAndWait()
+			self.context.MM_saveOnlySelfAndWait()
 		}
 	}
 	
 	private func sendSeen() {
-		guard let seenNotSentMessages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), inContext: self.context) as? [MessageManagedObject]
+		guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), inContext: self.context) as? [MessageManagedObject]
 			where seenNotSentMessages.count > 0
 			else
 		{
@@ -97,11 +97,11 @@ final class SetSeenOperation: Operation {
 			MMLogInfo("Seen messages request succeded")
 			
 			context.performBlockAndWait {
-				if let messages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), inContext: self.context) as? [MessageManagedObject] where messages.count > 0 {
+				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), inContext: self.context) as? [MessageManagedObject] where messages.count > 0 {
 					for message in messages {
 						message.seenStatus = .SeenSent
 					}
-					self.context.MR_saveOnlySelfAndWait()
+					self.context.MM_saveOnlySelfAndWait()
 				}
 			}
 			

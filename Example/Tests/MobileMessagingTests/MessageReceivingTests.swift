@@ -30,7 +30,7 @@ func jsonDictionary(messageId: String) -> [NSObject: AnyObject] {
 }
 
 
-func sendPushes(count: UInt, receivingHandler: ([String: AnyObject]) -> Void) {
+func sendPushes(count: Int, receivingHandler: ([String: AnyObject]) -> Void) {
     for _ in 0..<count {
         let newMessageId = NSUUID().UUIDString
         if let payload = MMMessage(payload: jsonDictionary(newMessageId))?.payload {
@@ -70,8 +70,8 @@ class MessageReceivingTests: MMTestCase {
 
     func testMessagesPersisting() {
         let expectation = expectationWithDescription("Check finished")
-		let expectedMessagesCount: UInt = 5
-		var iterationCounter: UInt = 0
+		let expectedMessagesCount: Int = 5
+		var iterationCounter: Int = 0
 		sendPushes(expectedMessagesCount) { userInfo in
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 				iterationCounter += 1

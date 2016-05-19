@@ -26,7 +26,7 @@ class MessageSeenTests: MMTestCase {
 		self.waitForExpectationsWithTimeout(100) { err in
 			let ctx = self.storage.mainThreadManagedObjectContext!
 			ctx.performBlockAndWait {
-				if let messages = MessageManagedObject.MR_findAllInContext(ctx) as? [MessageManagedObject] {
+				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
 					XCTAssertEqual(m1!.seenStatus, MMSeenStatus.SeenSent, "m1 must be seen and synced")
 				} else {
@@ -48,7 +48,7 @@ class MessageSeenTests: MMTestCase {
 		self.waitForExpectationsWithTimeout(100) { err in
 			let ctx = self.storage.mainThreadManagedObjectContext!
 			ctx.performBlockAndWait {
-				if let messages = MessageManagedObject.MR_findAllInContext(ctx) as? [MessageManagedObject] {
+				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
 					let m1 = messages.filter({$0.messageId == "m1"}).first!
 					XCTAssertEqual(m1.seenStatus, MMSeenStatus.NotSeen, "m1 must be seen and synced")
 					XCTAssertEqual(m1.seenDate, nil, "seen date must be nil")
@@ -77,7 +77,7 @@ class MessageSeenTests: MMTestCase {
 				let ctx = self.storage.mainThreadManagedObjectContext!
 				ctx.reset()
 				ctx.performBlockAndWait {
-					if let messages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["m1", "m2"]), inContext: ctx) as? [MessageManagedObject] where messages.count > 0 {
+					if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["m1", "m2"]), inContext: ctx) as? [MessageManagedObject] where messages.count > 0 {
 						
 						for m in messages {
 							XCTAssertEqual(m.seenStatus, MMSeenStatus.SeenSent)
@@ -97,7 +97,7 @@ class MessageSeenTests: MMTestCase {
 					let ctx = self.storage.mainThreadManagedObjectContext!
 					ctx.reset()
 					ctx.performBlockAndWait {
-						if let messages = MessageManagedObject.MR_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["m1", "m2"]), inContext: ctx) as? [MessageManagedObject] where messages.count > 0 {
+						if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["m1", "m2"]), inContext: ctx) as? [MessageManagedObject] where messages.count > 0 {
 							
 							for m in messages {
 								XCTAssertEqual(m.seenStatus, MMSeenStatus.SeenSent)

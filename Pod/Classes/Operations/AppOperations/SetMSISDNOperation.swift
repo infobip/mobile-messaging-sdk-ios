@@ -33,7 +33,7 @@ final class SetMSISDNOperation: Operation {
 				return
 			}
 			
-			guard let installation = InstallationManagedObject.MR_findFirstInContext(self.context) else {
+			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
 				self.finish()
 				return
 			}
@@ -47,7 +47,7 @@ final class SetMSISDNOperation: Operation {
 				if result.error == nil {
 					self.context.performBlockAndWait {
 						installation.msisdn = self.msisdn
-						self.context.MR_saveToPersistentStoreAndWait()
+						self.context.MM_saveToPersistentStoreAndWait()
 					}
 				}
 				self.finishWithError(result.error)

@@ -26,8 +26,8 @@ final class MessagesEvictionOperation: Operation {
 		self.context.performBlockAndWait {
 			let dateToCompare = NSDate().dateByAddingTimeInterval(-self.messageMaximumAge)
 			
-			MessageManagedObject.MR_deleteAllMatchingPredicate(NSPredicate(format: "creationDate <= %@", dateToCompare), inContext: self.context)
-			self.context.MR_saveToPersistentStoreAndWait()
+			MessageManagedObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "creationDate <= %@", dateToCompare), inContext: self.context)
+			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		finish()
 	}
