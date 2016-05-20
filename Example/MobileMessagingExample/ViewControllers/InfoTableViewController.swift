@@ -32,20 +32,15 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
     }
 	
 	deinit {
-		messagingInfo.removeObserver(self, forKeyPath: "deviceToken")
-		messagingInfo.removeObserver(self, forKeyPath: "internalId")
-	}
-	
-	var messagingInfo: MessagingInfo {
-		return MessagingInfoManager.sharedInstance.messagingInfo
+		NSNotificationCenter.defaultCenter().removeObserver(self)
 	}
 	
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.registerClass(CopyableCell.self, forCellReuseIdentifier: kSettingCellId)
 		tableView.estimatedRowHeight = 44
-		messagingInfo.addObserver(self, forKeyPath: "deviceToken", options: .New, context: nil)
-		messagingInfo.addObserver(self, forKeyPath: "internalId", options: .New, context: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: MMEventNotifications.kRegistrationUpdated, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: MMEventNotifications.kDeviceTokenUpdated, object: nil)
     }
     
     @IBAction func closeButtonClicked(sender: UIBarButtonItem) {
@@ -53,12 +48,8 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
     }
     
     //MARK: Notification
-	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-		if keyPath == "deviceToken" || keyPath == "internalId" {
-			tableView.reloadData()
-		} else {
-			super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
-		}
+	func registrationChanged() {
+		tableView.reloadData()
 	}
 	
     //MARK: UITableViewDataSource
@@ -81,9 +72,9 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
 		var settingValue : String?
 		switch indexPath.section {
 		case SettingsCell.DeviceToken.rawValue:
-			settingValue = messagingInfo.deviceToken
+			settingValue = MobileMessaging.currentInstallation?.deviceToken
 		case SettingsCell.InternalId.rawValue:
-			settingValue = messagingInfo.internalId
+			settingValue = MobileMessaging.currentInstallation?.internalId
 		default: break
 		}
 		

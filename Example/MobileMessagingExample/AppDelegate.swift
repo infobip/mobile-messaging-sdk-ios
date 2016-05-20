@@ -19,7 +19,6 @@ class AppDelegate: MobileMessagingAppDelegate {
 	override var userNotificationType: UIUserNotificationType { return [.Alert, .Sound] }
 	
 	override func mm_application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		setupMessagingInfo()
 		setupLogging()
 		return true
 	}
@@ -28,15 +27,5 @@ class AppDelegate: MobileMessagingAppDelegate {
 		if let loggingUtil = MobileMessaging.loggingUtil {
 			loggingUtil.setLoggingOptions([MMLoggingOptions.Console], logLevel: .All)
 		}
-	}
-	
-	func setupMessagingInfo() {
-		if let internalId = MobileMessaging.currentInstallation?.internalId {
-			MessagingInfoManager.sharedInstance.messagingInfo.internalId = internalId
-		}
-	}
-	
-	override func mm_application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-		MessagingInfoManager.sharedInstance.messagingInfo.deviceToken = deviceToken.toHexString
 	}
 }

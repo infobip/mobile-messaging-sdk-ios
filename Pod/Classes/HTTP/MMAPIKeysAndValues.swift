@@ -65,6 +65,13 @@ public struct MMEventNotifications {
 	public static let kRegistrationUserInfoKey = "com.mobile-messaging.notification.registration-key"
 	
 	/**
+	The notification `kDeviceTokenUpdated` will be posted after the APNs device token is updated.
+	The notification's `userInfo` will contain a new hex-encoded device token string paired with `kDeviceTokenKey` key
+	*/
+	public static let kDeviceTokenUpdated = "com.mobile-messaging.notification.device-token-updated"
+	public static let kDeviceTokenKey = "com.mobile-messaging.notification.device-token-key"
+	
+	/**
 	The notification `kDeliveryReportSent` will be posted after the MobileMesaging library has succesfully sent message delivery report.
 	The notification's `userInfo` will contain an array of message ID strings paired with `kMessageIDsUserInfoKey` key
 	*/

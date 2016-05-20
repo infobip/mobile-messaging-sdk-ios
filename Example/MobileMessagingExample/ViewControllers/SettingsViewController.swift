@@ -25,10 +25,10 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	//MARK: UITextFieldDelegate
 	func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
 		let cs = NSCharacterSet.decimalDigitCharacterSet()
-		var currentText : NSString = self.msisdsTextField.text ?? ""
+		var currentText : NSString = msisdsTextField.text ?? ""
 		currentText = currentText.stringByReplacingCharactersInRange(range, withString:string)
 		currentText = currentText.componentsSeparatedByCharactersInSet(cs.invertedSet).joinWithSeparator("")
-		self.msisdsTextField.text = currentText as String
+		msisdsTextField.text = currentText as String
 		return false
 	}
 
@@ -52,7 +52,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 			})
 			
 		} catch let error as NSError {
-			self.hideActivityIndicator {
+			hideActivityIndicator {
 				self.showResultAlert(error)
 			}
 		}
@@ -93,14 +93,14 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	}
 	
 	private func enableControls(enabled: Bool) {
-		self.msisdsTextField.enabled = enabled
-		self.sendMSISDNButton.enabled = enabled
-		self.tabBarController?.tabBar.userInteractionEnabled = enabled
+		msisdsTextField.enabled = enabled
+		sendMSISDNButton.enabled = enabled
+		tabBarController?.tabBar.userInteractionEnabled = enabled
 	}
 	
 	private func setControlsAlpha(alpha: CGFloat) {
-		self.msisdsTextField.alpha = alpha
-		self.sendMSISDNButton.alpha = alpha
+		msisdsTextField.alpha = alpha
+		sendMSISDNButton.alpha = alpha
 	}
 	
 	private func showResultAlert(error: NSError?) {
