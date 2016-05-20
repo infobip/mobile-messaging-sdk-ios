@@ -99,13 +99,6 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleDeliveryReportSentNotification(_:)), name: MMEventNotifications.kDeliveryReportSent, object: nil)
 	}
 	
-	private func saveMessage(message: Message) {
-		synced(self) {
-			self.messages.insert(message, atIndex: 0)
-		}
-		newMessageBlock?(message)
-	}
-	
 	private func archiveMessages() {
 		synced(self) {
 			let data: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.messages)
@@ -134,7 +127,11 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 				return
 		}
 		
-		saveMessage(message)
+		synced(self) {
+			self.messages.insert(message, atIndex: 0)
+		}
+		
+		newMessageBlock?(message)
 	}
 	
 	func handleDeliveryReportSentNotification(notification: NSNotification) {
