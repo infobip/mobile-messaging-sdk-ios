@@ -16,10 +16,8 @@ let kSettingsSegueId = "kSettingsSegueId"
 
 class ListViewController: UIViewController, UITableViewDelegate {
 	
-	@IBOutlet var msgManager: MessagesManager?
-	
+	let messagesManager = MessagesManager.sharedInstance
     @IBOutlet weak var tableView: UITableView!
-    
 	@IBAction func trashInbox(sender: AnyObject) {
 		MessagesManager.sharedInstance.cleanMessages()
 		updateUI()
@@ -31,10 +29,9 @@ class ListViewController: UIViewController, UITableViewDelegate {
         tableView.registerClass(MessageCell.self, forCellReuseIdentifier: kMessageCellId)
 		tableView.estimatedRowHeight = 44
 		tableView.rowHeight = UITableViewAutomaticDimension;
-		msgManager = MessagesManager.sharedInstance
-		tableView.dataSource = msgManager
+		tableView.dataSource = messagesManager
 		
-		msgManager?.newMessageBlock = { _ in
+		messagesManager.newMessageBlock = { _ in
 			self.updateUIWithInsertMessage()
 		}
         updateUI()
@@ -50,7 +47,7 @@ class ListViewController: UIViewController, UITableViewDelegate {
         if segue.identifier == kMessageDetailsSegueId,
             let vc = segue.destinationViewController as? MessageDetailsViewController,
             let indexPath = sender as? NSIndexPath {
-                vc.message = msgManager?.messages[indexPath.row]
+                vc.message = messagesManager.messages[indexPath.row]
         }
     }
 

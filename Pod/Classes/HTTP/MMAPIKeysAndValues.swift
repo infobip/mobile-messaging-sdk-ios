@@ -48,7 +48,6 @@ struct MMAPIKeys {
     
     //MARK: Common fields
     static let kMessageId = "messageId"
-
 }
 
 struct MMAPIValues {

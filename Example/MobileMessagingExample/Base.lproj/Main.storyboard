@@ -71,12 +71,10 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="msgManager" destination="BCk-tM-Ebv" id="wvo-CB-BaY"/>
                         <outlet property="tableView" destination="Thd-Qc-Auo" id="hBM-5o-gR2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Vg8-I9-c5g" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <customObject id="BCk-tM-Ebv"/>
             </objects>
             <point key="canvasLocation" x="-1220" y="-1170"/>
         </scene>
