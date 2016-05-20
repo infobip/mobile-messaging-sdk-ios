@@ -12,9 +12,9 @@ import MMAFNetworking
 public final class MobileMessaging: NSObject {
 	//MARK: Public
 	/**
-	Starts new Mobile Messaging session. This method should be called form within AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
-	- parameter code: An Application Code of your Application from Push Portal website
-	- parameter backendBaseURL: Your backend server base URL, non-mandatory parameter. Default is http://oneapi.infobip.com.
+	Starts a new Mobile Messaging session. This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
+	- parameter code: The application code of your Application from Push Portal website.
+	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	*/
 	public class func startWithApplicationCode(code: String, backendBaseURL: String) {
 		MobileMessagingInstance.loadComponents(code, storageType: .SQLite, remoteAPIBaseURL: backendBaseURL)
@@ -32,17 +32,17 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/**
-	This method handles new APNs device token and updates user registration on server. This method should be called form within AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
-	- parameter token: A token that identifies the device to APNs.
+	This method handles a new APNs device token and updates user's registration on the server. This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
+	- parameter token: A token that identifies a particular device to APNs.
 	*/
 	public class func didRegisterForRemoteNotificationsWithDeviceToken(token: NSData) {
 		MobileMessagingInstance.sharedInstance.didRegisterForRemoteNotificationsWithDeviceToken(token)
 	}
 	
 	/**
-	This method handles incoming remote notifications and triggers sending procedure for delivery reports. This method should be called from within AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback.
+	This method handles incoming remote notifications and triggers sending procedure for delivery reports. The method should be called from AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback.
 	- parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	- parameter fetchCompletionHandler: The block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
+	- parameter fetchCompletionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
 	*/
 	public class func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: ((UIBackgroundFetchResult) -> Void)?) {
 		MMLogInfo("New remote notification received \(userInfo)")
@@ -52,38 +52,38 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/**
-	LoggingUtil used for:
-	- setup logging options and logging levels
-	- obtaining path to log file, if logging options contains `.File` option
+	Logging utility is used for:
+	- setting up logging options and logging levels.
+	- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
 	*/
 	public class var loggingUtil: MMLoggingUtil? {
 		return MobileMessagingInstance.sharedInstance.loggingUtil
 	}
 	
 	/**
-	Maintains attributes related to current application installation such as APNs device token, unique ID for the registered user, email, MSISDN etc.
+	Maintains attributes related to the current application installation such as APNs device token, unique ID for the registered user, email, MSISDN etc.
 	*/
 	public class var currentInstallation: MMInstallation? {
 		return MobileMessagingInstance.sharedInstance.currentInstallation
 	}
     
     /**
-     This method set seen status for messages and sends such request to the server, if something will went wrong, service repeats requests until it reaches the server
-     - parameter messageIds: Array of message ids of messages that need to be marked as seen
+	This method sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
+	- parameter messageIds: Array of identifiers of messages that need to be marked as seen.
     */
     public class func setSeen(messageIds: [String]) {
         MobileMessagingInstance.sharedInstance.setSeen(messageIds)
     }
 	
 	/**
-	A boolean variable that indicates whether the library will send the carrier information to the server.
-	Default value is `true`
+	A boolean variable that indicates whether the library will be sending the carrier information to the server.
+	Default value is `true`.
     */
 	public static var shouldSendCarrierInfo : Bool = true
 	
 	/**
-	A boolean variable that indicates whether the library will send the system information like OS version, device model, application version to the server.
-	Default value is `true`
+	A boolean variable that indicates whether the library will be sending the system information such as OS version, device model, application version to the server.
+	Default value is `true`.
 	*/
 	public static var shouldSendSystemInfo : Bool = true
 }
