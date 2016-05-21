@@ -12,19 +12,19 @@ class MessageDetailsViewController: UIViewController {
     
     @IBOutlet weak var deliveryStatus: UILabel?
     @IBOutlet weak var messageTextView: UITextView?
-    
+	
 	var message: Message? {
 		willSet {
-			message?.removeObserver(self, forKeyPath: "delivered")
+			resetMessageObserving()
 		}
 		didSet {
-			message?.addObserver(self, forKeyPath: "delivered", options: .New, context: nil)
+			message?.addObserver(self, forKeyPath: kMessageDeliveryReportSentAttribute, options: .New, context: nil)
 			updateUI()
 		}
 	}
 	
 	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-		if keyPath == "delivered" {
+		if keyPath == kMessageDeliveryReportSentAttribute {
 			updateUI()
 		} else {
 			super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
@@ -34,11 +34,15 @@ class MessageDetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 		updateUI()
-		seenMessage()
     }
+	
+	override func viewDidAppear(animated: Bool) {
+		super.viewDidAppear(animated)
+		markMessageAsSeen()
+	}
     
     deinit {
-		message?.removeObserver(self, forKeyPath: "delivered")
+		resetMessageObserving()
     }
     
     @IBAction func closeButtonClicked(sender: UIBarButtonItem) {
@@ -50,13 +54,17 @@ class MessageDetailsViewController: UIViewController {
 		dispatch_async(dispatch_get_main_queue()) {
 			if let msg = self.message {
 				self.messageTextView?.text = msg.text
-				self.deliveryStatus?.text = msg.delivered ? "Delivery report sent" : "Delivery report isn't sent"
-				self.deliveryStatus?.textColor = msg.delivered ? UIColor.greenColor() : UIColor.redColor()
+				self.deliveryStatus?.text = msg.deliveryReportSent ? "Delivery report sent" : "Delivery report not sent"
+				self.deliveryStatus?.textColor = msg.deliveryReportSent ? UIColor.greenColor() : UIColor.redColor()
 			}
 		}
     }
 	
-	private func seenMessage() {
+	private func resetMessageObserving() {
+		message?.removeObserver(self, forKeyPath: kMessageDeliveryReportSentAttribute)
+	}
+	
+	private func markMessageAsSeen() {
 		guard let messageId = message?.messageId where message?.seen == false else {
 			return
 		}

@@ -10,7 +10,7 @@ import UIKit
 class MessageCell: UITableViewCell {
 	
 	deinit {
-		cancelMessageObserving()
+		resetMessageObserving()
 	}
 	
 	override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
@@ -24,18 +24,28 @@ class MessageCell: UITableViewCell {
 	}
 	
 	var message: Message? {
+		willSet {
+			resetMessageObserving()
+		}
 		didSet {
-			cancelMessageObserving()
 			if let message = message {
 				textLabel?.text = message.text
 				refreshSeenStatus()
-				NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessageCell.handleMessageDidChangeSeenNotification(_:)), name: kMessageDidChangeSeenNotification, object: message)
 			}
+			message?.addObserver(self, forKeyPath: kMessageSeenAttribute, options: .New, context: nil)
 		}
 	}
 	
-	func handleMessageDidChangeSeenNotification(n: NSNotification) {
-		refreshSeenStatus()
+	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+		if keyPath == kMessageSeenAttribute {
+			refreshSeenStatus()
+		} else {
+			super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
+		}
+	}
+	
+	private func resetMessageObserving() {
+		message?.removeObserver(self, forKeyPath: kMessageSeenAttribute)
 	}
 	
 	private func refreshSeenStatus() {
@@ -43,9 +53,5 @@ class MessageCell: UITableViewCell {
 			return
 		}
 		textLabel?.font = message.seen ? UIFont.systemFontOfSize(15.0) : UIFont.boldSystemFontOfSize(15.0)
-	}
-	
-	private func cancelMessageObserving() {
-		NSNotificationCenter.defaultCenter().removeObserver(self, name: kMessageDidChangeSeenNotification, object: nil)
 	}
 }

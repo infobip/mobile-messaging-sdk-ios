@@ -8,18 +8,15 @@
 import UIKit
 import MobileMessaging
 
-let kMessageDidChangeSeenNotification = "kMessageDidChangeSeenNotification"
+let kMessageSeenAttribute = "seen"
+let kMessageDeliveryReportSentAttribute = "deliveryReportSent"
 let kMessagesKey = "kMessagesKey"
 
 class Message : NSObject, NSCoding {
 	var text: String
 	var messageId: String
-	dynamic var delivered: Bool = false
-	var seen : Bool = false {
-		didSet {
-			NSNotificationCenter.defaultCenter().postNotificationName(kMessageDidChangeSeenNotification, object: self, userInfo: nil)
-		}
-	}
+	dynamic var deliveryReportSent: Bool = false
+	dynamic var seen : Bool = false
 	
 	required init(text: String, messageId: String){
 		self.text = text
@@ -31,14 +28,14 @@ class Message : NSObject, NSCoding {
 	required init(coder aDecoder: NSCoder) {
 		text = aDecoder.decodeObjectForKey("text") as! String
 		messageId = aDecoder.decodeObjectForKey("messageId") as! String
-		delivered = aDecoder.decodeBoolForKey("delivered")
+		deliveryReportSent = aDecoder.decodeBoolForKey(kMessageDeliveryReportSentAttribute)
 		seen = aDecoder.decodeBoolForKey("seen")
 	}
 	
 	func encodeWithCoder(aCoder: NSCoder) {
 		aCoder.encodeObject(text, forKey: "text")
 		aCoder.encodeObject(messageId, forKey: "messageId")
-		aCoder.encodeBool(delivered, forKey: "delivered")
+		aCoder.encodeBool(deliveryReportSent, forKey: kMessageDeliveryReportSentAttribute)
 		aCoder.encodeBool(seen, forKey: "seen")
 	}
 	
@@ -141,7 +138,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		
 		for message in messages {
 			if messageUserInfo.contains(message.messageId) {
-				message.delivered = true
+				message.deliveryReportSent = true
 			}
 		}
 	}
