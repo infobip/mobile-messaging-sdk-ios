@@ -3,7 +3,6 @@
 //  MobileMessaging
 //
 //  Created by okoroleva on 31.03.16.
-//  Copyright © 2016 CocoaPods. All rights reserved.
 //
 
 import UIKit

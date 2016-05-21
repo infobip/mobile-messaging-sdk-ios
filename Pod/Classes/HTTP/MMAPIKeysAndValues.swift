@@ -1,9 +1,8 @@
 //
 //  MMAPIKeysAndValues.swift
-//  
+//  MobileMessaging
 //
-//  Created by Ольга Королева on 08.03.16.
-//
+//  Created by okoroleva on 08.03.16.
 //
 
 import Foundation

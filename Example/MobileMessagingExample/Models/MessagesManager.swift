@@ -3,7 +3,6 @@
 //  MobileMessagingExample
 //
 //  Created by Andrey K. on 20/05/16.
-//  Copyright © 2016 CocoaPods. All rights reserved.
 //
 
 import UIKit

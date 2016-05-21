@@ -2,9 +2,8 @@
 //  MMHTTPRequestSerializer.swift
 //  MobileMessaging
 //
-//  Created by Ольга Королева on 07.03.16.
+//  Created by okoroleva on 07.03.16.
 //  
-//
 
 import MMAFNetworking
 import CoreTelephony

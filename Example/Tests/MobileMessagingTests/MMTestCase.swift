@@ -3,7 +3,6 @@
 //  MobileMessaging
 //
 //  Created by Andrey K. on 16/04/16.
-//  Copyright © 2016 CocoaPods. All rights reserved.
 //
 
 import XCTest

@@ -2,7 +2,7 @@
 //  DeliveryReportingTests.swift
 //  MobileMessaging
 //
-//  Created by Ольга Королева on 09.03.16.
+//  Created by okoroleva on 09.03.16.
 //
 
 import Freddy
