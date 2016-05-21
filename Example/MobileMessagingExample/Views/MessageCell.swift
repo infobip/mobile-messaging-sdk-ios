@@ -11,7 +11,7 @@ import UIKit
 class MessageCell: UITableViewCell {
 	
 	deinit {
-		NSNotificationCenter.defaultCenter().removeObserver(self)
+		cancelMessageObserving()
 	}
 	
 	override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
@@ -26,6 +26,7 @@ class MessageCell: UITableViewCell {
 	
 	var message: Message? {
 		didSet {
+			cancelMessageObserving()
 			if let message = message {
 				textLabel?.text = message.text
 				refreshSeenStatus()
@@ -38,10 +39,14 @@ class MessageCell: UITableViewCell {
 		refreshSeenStatus()
 	}
 	
-	func refreshSeenStatus() {
+	private func refreshSeenStatus() {
 		guard let message = message else {
 			return
 		}
 		textLabel?.font = message.seen ? UIFont.systemFontOfSize(15.0) : UIFont.boldSystemFontOfSize(15.0)
+	}
+	
+	private func cancelMessageObserving() {
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: kMessageDidChangeSeenNotification, object: nil)
 	}
 }
