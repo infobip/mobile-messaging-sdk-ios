@@ -110,9 +110,7 @@ class MobileMessagingInstance {
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
 		MMLogInfo("Application did register with device token \(token.toHexString)")
-		MMQueue.Main.queue.executeAsync {
-			NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kDeviceTokenUpdated, object: nil, userInfo: [MMEventNotifications.kDeviceTokenKey: token.toHexString])
-		}
+		NSNotificationCenter.postNotificationFromMainThread(MMEventNotifications.kDeviceTokenUpdated, userInfo: [MMEventNotifications.kDeviceTokenKey: token.toHexString])
 		MobileMessagingInstance.queue.executeAsync {
 			self.currentInstallation?.updateDeviceToken(token, completion: completion)
 		}

@@ -10,6 +10,14 @@ import Foundation
 import CoreData
 import MMAFNetworking
 
+extension NSNotificationCenter {
+	class func postNotificationFromMainThread(name: String, userInfo: [NSObject: AnyObject]) {
+		MMQueue.Main.queue.executeAsync {
+			NSNotificationCenter.defaultCenter().postNotificationName(name, object: self, userInfo: userInfo)
+		}
+	}
+}
+
 extension OperationQueue {
 	class var newSerialQueue: OperationQueue {
 		let newQ = OperationQueue()

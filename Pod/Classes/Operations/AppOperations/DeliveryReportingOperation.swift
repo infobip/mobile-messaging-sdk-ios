@@ -44,9 +44,7 @@ final class DeliveryReportingOperation: Operation {
 				case .Success:
 					self.dequeueDeliveryReports(nonReportedMessageIds)
 					MMLogInfo("Delivery report sent.")
-					MMQueue.Main.queue.executeAsync {
-						NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kDeliveryReportSent, object: self, userInfo: [MMEventNotifications.kMessageIDsUserInfoKey: nonReportedMessageIds])
-					}
+					NSNotificationCenter.postNotificationFromMainThread(MMEventNotifications.kDeliveryReportSent, userInfo: [MMEventNotifications.kMessageIDsUserInfoKey: nonReportedMessageIds])
 				case .Failure(let error):
 					MMLogError("Delivery reporting request failed with error: \(error)")
 				case .Cancel:

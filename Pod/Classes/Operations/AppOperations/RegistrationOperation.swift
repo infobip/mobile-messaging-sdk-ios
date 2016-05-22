@@ -94,9 +94,7 @@ final class RegistrationOperation: Operation {
 				MMLogInfo("Installation updated on server for internal ID \(regResponse.internalId). Updating local version...")
 				installationObject.resetDirtyRegistration()
 				installationObject.internalId = regResponse.internalId
-				MMQueue.Main.queue.executeAsync {
-					NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kRegistrationUpdated, object: self, userInfo: [MMEventNotifications.kRegistrationUserInfoKey: regResponse.internalId])
-				}
+				NSNotificationCenter.postNotificationFromMainThread(MMEventNotifications.kRegistrationUpdated, userInfo: [MMEventNotifications.kRegistrationUserInfoKey: regResponse.internalId])
 			case .Failure(let error):
 				MMLogError("Registration request failed with error: \(error)")
 			case .Cancel:

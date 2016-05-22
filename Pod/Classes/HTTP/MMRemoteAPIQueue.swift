@@ -72,8 +72,6 @@ class MMRemoteAPIQueue {
 		guard let error = error else {
 			return
 		}
-		MMQueue.Main.queue.executeAsync {
-			NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kAPIError, object: self, userInfo: [MMEventNotifications.kAPIErrorUserInfoKey: error])
-		}
+		NSNotificationCenter.postNotificationFromMainThread(MMEventNotifications.kAPIError, userInfo: [MMEventNotifications.kAPIErrorUserInfoKey: error])
 	}
 }
