@@ -90,8 +90,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	private func startObservingNotifications() {
-	
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.appDidEnterBackground), name: UIApplicationDidEnterBackgroundNotification, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.appWillTerminate), name: UIApplicationWillTerminateNotification, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleNewMessageReceivedNotification(_:)), name: MMEventNotifications.kMessageReceived, object: nil)
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleDeliveryReportSentNotification(_:)), name: MMEventNotifications.kDeliveryReportSent, object: nil)
 	}
@@ -113,7 +112,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	//MARK: Handle notifications
-	func appDidEnterBackground() {
+	func appWillTerminate() {
 		archiveMessages()
 	}
 	
