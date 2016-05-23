@@ -29,14 +29,14 @@ class Message : NSObject, NSCoding {
 		text = aDecoder.decodeObjectForKey("text") as! String
 		messageId = aDecoder.decodeObjectForKey("messageId") as! String
 		deliveryReportSent = aDecoder.decodeBoolForKey(kMessageDeliveryReportSentAttribute)
-		seen = aDecoder.decodeBoolForKey("seen")
+		seen = aDecoder.decodeBoolForKey(kMessageSeenAttribute)
 	}
 	
 	func encodeWithCoder(aCoder: NSCoder) {
 		aCoder.encodeObject(text, forKey: "text")
 		aCoder.encodeObject(messageId, forKey: "messageId")
 		aCoder.encodeBool(deliveryReportSent, forKey: kMessageDeliveryReportSentAttribute)
-		aCoder.encodeBool(seen, forKey: "seen")
+		aCoder.encodeBool(seen, forKey: kMessageSeenAttribute)
 	}
 	
 	//MARK: Util
