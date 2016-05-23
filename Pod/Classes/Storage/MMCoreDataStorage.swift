@@ -138,18 +138,17 @@ final class MMCoreDataStorage {
         }
     }
 	
-    private var persistentStoreDirectory: NSString {
-        let paths = NSSearchPathForDirectoriesInDomains(.ApplicationSupportDirectory, .UserDomainMask, true)
-        let basePath: NSString = paths.count > 0 ? paths[0] : NSTemporaryDirectory()
+	private func persistentStoreDirectory(fileName: String) -> String {
+        let applicationSupportPaths = NSSearchPathForDirectoriesInDomains(.ApplicationSupportDirectory, .UserDomainMask, true)
+        let basePath: NSString = applicationSupportPaths.first ?? NSTemporaryDirectory()
         let fm = NSFileManager.defaultManager()
-        let bundleIdentifier = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleIdentifier") as? String
-        let persistentStoreDir = basePath.stringByAppendingPathComponent(bundleIdentifier ?? "default")
+		let persistentStoreDir = basePath.stringByAppendingPathComponent("com.mobile-messaging.database")
         if (fm.fileExistsAtPath(persistentStoreDir) == false) {
             do {
                 try fm.createDirectoryAtPath(persistentStoreDir, withIntermediateDirectories: true, attributes: nil)
             } catch { }
         }
-        return persistentStoreDir
+        return (persistentStoreDir as! NSString).stringByAppendingPathComponent(fileName)
     }
 	
     private var _managedObjectModel: NSManagedObjectModel?
@@ -186,9 +185,7 @@ final class MMCoreDataStorage {
 		
 		if let dbFileName = databaseFileName {
 			// SQLite storage
-			let docsPath = persistentStoreDirectory
-			let storePath = docsPath.stringByAppendingPathComponent(dbFileName)
-			
+			let storePath = persistentStoreDirectory(dbFileName)
 			do {
 				try addPersistentStoreWithPath(newPSC, storePath: storePath, options: storeOptions)
 			} catch let error as NSError {
