@@ -9,19 +9,24 @@
 import UIKit
 import CoreData
 
+enum MessageOrigin {
+	case APNS, Server
+}
+
 final class MessageHandlingOperation: GroupOperation {
 	var context: NSManagedObjectContext
 	var finishBlock: (NSError? -> Void)?
 	var newMessageReceivedCallback: (() -> Void)? = nil
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var userInfos: [[NSObject : AnyObject]]
+	var messagesOrigin: MessageOrigin
 	
-	init(userInfos: [[NSObject : AnyObject]], context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: (() -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
-		self.userInfos = userInfos
+	init(userInfos: [[NSObject : AnyObject]], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: (() -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
+		self.userInfos = userInfos //can be either APNS or Server layout
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
-		
+		self.messagesOrigin = messagesOrigin
 		super.init(operations: [])
 		
 		self.userInitiated = true
@@ -62,7 +67,7 @@ final class MessageHandlingOperation: GroupOperation {
 		MMQueue.Main.queue.executeAsync {
 			for newMessage in newMessages {
 				if let payload = newMessage.payload {
-					NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kMessageReceived, object: self, userInfo: [MMEventNotifications.kMessageUserInfoKey: payload])
+					NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kMessageReceived, object: self, userInfo: [MMEventNotifications.kMessageUserInfoKey: payload, MMEventNotifications.kMessageIsPushKey: self.messagesOrigin == .APNS])
 				}
 				self.newMessageReceivedCallback?()
 			}
@@ -70,8 +75,7 @@ final class MessageHandlingOperation: GroupOperation {
 	}
 	
 	private func getNewMessages(context: NSManagedObjectContext, userInfos: [[NSObject : AnyObject]]) -> Set<MMMessage>? {
-		guard userInfos.count > 0
-			else {
+		guard userInfos.count > 0 else {
 			return nil
 		}
 		let messagesSet = Set(userInfos.flatMap(MMMessage.init))

@@ -113,7 +113,22 @@ class FetchMessagesTest: MMTestCase {
 		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
 		let syncExpectation = expectationWithDescription("Sync finished")
 		var newMsgCounter = 0
-		expectationForNotification(MMEventNotifications.kMessageReceived, object: nil) { (n) -> Bool in
+		expectationForNotification(MMEventNotifications.kMessageReceived, object: nil) { n -> Bool in
+			if	let userInfo = n.userInfo,
+				let messageDict = userInfo[MMEventNotifications.kMessageUserInfoKey] as? [NSObject : AnyObject],
+				let isPushFlag = n.userInfo?[MMEventNotifications.kMessageIsPushKey] as? Bool,
+				let messageId = messageDict.messageId
+			{
+				if ["m1", "m2"].contains(messageId) {
+					XCTAssertTrue(isPushFlag)
+				}
+				if ["m3", "m4"].contains(messageId) {
+					XCTAssertFalse(isPushFlag)
+				}
+			} else {
+				XCTFail()
+			}
+
 			newMsgCounter += 1
 			return newMsgCounter == 4 // we must emit 4 unique kMessageReceived notifications
 		}

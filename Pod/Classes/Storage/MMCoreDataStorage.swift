@@ -148,7 +148,7 @@ final class MMCoreDataStorage {
                 try fm.createDirectoryAtPath(persistentStoreDir, withIntermediateDirectories: true, attributes: nil)
             } catch { }
         }
-        return (persistentStoreDir as! NSString).stringByAppendingPathComponent(fileName)
+        return (persistentStoreDir as NSString).stringByAppendingPathComponent(fileName)
     }
 	
     private var _managedObjectModel: NSManagedObjectModel?

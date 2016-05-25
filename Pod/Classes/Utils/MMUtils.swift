@@ -10,6 +10,29 @@ import Foundation
 import CoreData
 import MMAFNetworking
 
+extension Dictionary where Key: NSObject, Value: AnyObject {
+	public var alertBody: String? {
+		var messageDict: [NSObject : AnyObject]
+		if let aps = (self as [NSObject : AnyObject])["aps"] as? [NSObject : AnyObject] {
+			messageDict = aps
+		} else {
+			messageDict = self
+		}
+		
+		if let alert = messageDict["alert"] as? String {
+			return alert
+		} else if let alert = messageDict["alert"] as? [NSObject : AnyObject], let body = alert["body"] as? String {
+			return body
+		} else {
+			return nil
+		}
+	}
+	
+	public var messageId: String? {
+		return (self as NSDictionary)["messageId"] as? String
+	}
+}
+
 extension NSNotificationCenter {
 	class func postNotificationFromMainThread(name: String, userInfo: [NSObject: AnyObject]) {
 		MMQueue.Main.queue.executeAsync {

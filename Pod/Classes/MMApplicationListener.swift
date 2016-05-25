@@ -42,16 +42,8 @@ final class MMApplicationListener: NSObject {
 	private var messageHandler: MMMessageHandler
 	private var installation: MMInstallation
 	
-	private func resaveInstallation() {
-		installation.syncWithServer()
-	}
-	
-	private func syncWithServer() {
-		messageHandler.syncWithServer()
-	}
-	
 	private func triggerPeriodicalWork() {
-		resaveInstallation()
-		syncWithServer()
+		installation.syncWithServer()
+		messageHandler.syncWithServer()
 	}
 }

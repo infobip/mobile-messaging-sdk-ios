@@ -54,6 +54,7 @@ class MessagesFetchingOperation: Operation {
 	
 	private func handleMessageOperation(messages: [MMMessage]) -> MessageHandlingOperation {
 		return MessageHandlingOperation(userInfos: messages.flatMap { $0.payload },
+		                                messagesOrigin: .Server,
 		                                context: self.context,
 		                                remoteAPIQueue: self.remoteAPIQueue,
 		                                newMessageReceivedCallback: nil) { error in

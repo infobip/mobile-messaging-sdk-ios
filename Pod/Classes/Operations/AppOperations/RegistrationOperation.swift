@@ -54,7 +54,7 @@ final class RegistrationOperation: Operation {
     }
 	
 	private var registrationDataChanged: Bool {
-		return  deviceTokenChanged
+		return deviceTokenChanged
 	}
 	
 	private var deviceTokenChanged: Bool {

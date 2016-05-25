@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreData
 
 final class MMMessageHandler : MMStoringService {
 	lazy var messageHandlingQueue = OperationQueue.newSerialQueue
@@ -26,19 +27,20 @@ final class MMMessageHandler : MMStoringService {
     }
 
     //MARK: Intenal
-	func handleMessage(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: (() -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
+	func handleAPNSMessage(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: (() -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
 		resetMessageHandlingContext()
-		messageHandlingQueue.addOperation(MessageHandlingOperation(userInfos: [userInfo], context: storageContext, remoteAPIQueue: messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
+		messageHandlingQueue.addOperation(MessageHandlingOperation(userInfos: [userInfo], messagesOrigin: .APNS, context: storageContext, remoteAPIQueue: messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
 	}
 	
+	var dataSyncContext: NSManagedObjectContext?
 	func syncWithServer(completion: (NSError? -> Void)? = nil) {
-		do {
-			let ctx = try storage.newParallelContext()
+		if dataSyncContext == nil {
+			if let newctx = try? storage.newParallelContext() {
+				dataSyncContext = newctx
+			}
+		}
+		if let ctx = dataSyncContext {
 			synchronizationQueue.addOperation(MessagesSyncOperation(context: ctx, remoteAPIQueue: messageSyncRemoteAPI, finishBlock: completion))
-		} catch let error as NSError {
-			completion?(error)
-		} catch let error as MMInternalErrorType {
-			completion?(NSError(type: error))
 		}
 	}
 	

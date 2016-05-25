@@ -104,7 +104,7 @@ class MobileMessagingInstance {
 	
 	func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: (() -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
 		MobileMessagingInstance.queue.executeAsync {
-			self.messageHandler?.handleMessage(userInfo, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
+			self.messageHandler?.handleAPNSMessage(userInfo, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
 		}
 	}
 	

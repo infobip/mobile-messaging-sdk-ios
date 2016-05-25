@@ -41,21 +41,11 @@ class Message : NSObject, NSCoding {
 	
 	//MARK: Util
 	class func prepare(rawMessage: [NSObject : AnyObject]) -> Message? {
-		guard let aps = rawMessage["aps"] as? [NSObject : AnyObject],
-			let messageId = rawMessage["messageId"] as? String else {
-				return nil
-		}
-		
-		var text = String()
-		if let alert = aps["alert"] as? String {
-			text = alert
-		} else if let alert = aps["alert"] as? [NSObject : AnyObject],
-			let body = alert["body"] as? String {
-			text = body
-		} else {
+		guard let text = rawMessage.alertBody
+			, let messageId = rawMessage.messageId 
+			else {
 			return nil
 		}
-		
 		return Message(text: text, messageId: messageId)
 	}
 }
