@@ -150,6 +150,12 @@ extension String {
         
         return data
     }
+	
+	func escapeString() -> String {
+		var raw: NSString = self
+		var str = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,raw, nil,"!*'();:@&=+$,/?%#[]",CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding))
+		return str as (String)
+	}
 }
 
 func += <Key, Value> (inout left: Dictionary<Key, Value>, right: Dictionary<Key, Value>?) {
