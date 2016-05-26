@@ -46,31 +46,11 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 		}
 		
         request.addValue(MMUserAgentData.value(options), forHTTPHeaderField: "User-Agent")
-        
-        var queryString = ""
-        
-        if let dictParams = parameters as? [String : AnyObject] {
-            for (key, value) in dictParams {
-                switch value {
-                case is String :
-                    queryString.appendContentsOf("\(key)=\(value)&")
-                case (let values as [String]) :
-                    for arrayValue in values {
-                        queryString.appendContentsOf("\(key)=\(arrayValue)&")
-                    }
-                default: break
-                }
-            }
-			queryString.removeAtIndex(queryString.endIndex.predecessor())
-        }
-        
-        var completeURLString = URLString;
-        
-        if let normalizedQueryString = queryString.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet()) {
-            completeURLString.appendContentsOf("?")
-            completeURLString.appendContentsOf(normalizedQueryString)
-        }
-        
+		
+		var completeURLString = URLString
+		if let dictParams = parameters as? [String : AnyObject] {
+			completeURLString += "?" + MMHTTPRequestSerializer.queryFromParameters(dictParams);
+		}
         request.URL = NSURL(string: completeURLString)
         
         if let jsonBody = jsonBody where method == "POST" {
@@ -87,6 +67,23 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
         
         return request;
     }
+	
+	class func queryFromParameters(parameters: [String: AnyObject]) -> String {
+		var escapedPairs = [String]()
+		for (key, value) in parameters {
+			switch value {
+			case let _value as String :
+				escapedPairs.append("\(key.escapeString())=\(_value.escapeString())")
+			case (let _values as [String]) :
+				for arrayValue in _values {
+					escapedPairs.append("\(key.escapeString())=\(arrayValue.escapeString())")
+				}
+			default:
+				escapedPairs.append("\(key.escapeString())=\(String(value).escapeString())")
+			}
+		}
+		return escapedPairs.joinWithSeparator("&")
+	}
 }
 
 final class MMUserAgentData {
