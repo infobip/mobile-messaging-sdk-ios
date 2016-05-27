@@ -116,8 +116,8 @@ class MessageSeenTests: MMTestCase {
     }
     
     func testSendFailureInvalidAppId() {
-		MobileMessaging.stop()
-		MobileMessaging.testStartWithWrongApplicationCode()
+		cleanUpAndStop()
+		startWithWrongApplicationCode()
 		
 		let expectation = expectationWithDescription("Delivery sending completed")
 		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: nil, completion: { (err) in

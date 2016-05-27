@@ -116,8 +116,8 @@ final class RegistrationTests: MMTestCase {
 	
 	func testWrongApplicationCode() {
 		
-		MobileMessaging.stop()
-		MobileMessaging.testStartWithWrongApplicationCode()
+		cleanUpAndStop()
+		startWithWrongApplicationCode()
 		
 		let expectation = expectationWithDescription("Installation data updating")
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in

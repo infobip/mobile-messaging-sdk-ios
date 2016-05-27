@@ -10,21 +10,6 @@ import Foundation
 import CoreData
 @testable import MobileMessaging
 
-extension MobileMessaging {
-	class func testStartWithApplicationCode(code: String) {
-		MobileMessagingInstance.loadComponents(code, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
-		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
-	}
-	class func testStartWithCorrectApplicationCode() {
-		MobileMessagingInstance.loadComponents(MMTestConstants.kTestCorrectApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
-		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
-	}
-	class func testStartWithWrongApplicationCode() {
-		MobileMessagingInstance.loadComponents(MMTestConstants.kTestWrongApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
-		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
-	}
-}
-
 class MMTestCase: XCTestCase {
 	var mobileMessagingInstance: MobileMessagingInstance {
 		return MobileMessagingInstance.sharedInstance
@@ -36,12 +21,16 @@ class MMTestCase: XCTestCase {
 	
 	override func setUp() {
 		super.setUp()
-		MobileMessaging.testStartWithCorrectApplicationCode()
+		startWithCorrectApplicationCode()
+	}
+	
+	func cleanUpAndStop() {
+		mobileMessagingInstance.cleanUpAndStop()
 	}
 	
 	override func tearDown() {
 		super.tearDown()
-		MobileMessaging.stop()
+		cleanUpAndStop()
 	}
 	
 	func nonReportedStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
@@ -60,5 +49,20 @@ class MMTestCase: XCTestCase {
 			count = MessageManagedObject.MM_countOfEntitiesWithContext(ctx)
 		}
 		return count
+	}
+	
+	func startWithApplicationCode(code: String) {
+		MobileMessagingInstance.start(UIUserNotificationType.Alert, applicationCode: code, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
+		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
+	}
+	
+	func startWithCorrectApplicationCode() {
+		MobileMessagingInstance.start(UIUserNotificationType.Alert, applicationCode: MMTestConstants.kTestCorrectApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
+		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
+	}
+	
+	func startWithWrongApplicationCode() {
+		MobileMessagingInstance.start(UIUserNotificationType.Alert, applicationCode: MMTestConstants.kTestWrongApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
+		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
 	}
 }

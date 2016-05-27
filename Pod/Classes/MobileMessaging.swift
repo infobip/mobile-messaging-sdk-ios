@@ -13,22 +13,28 @@ public final class MobileMessaging: NSObject {
 	//MARK: Public
 	/**
 	Starts a new Mobile Messaging session. This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
-	- parameter code: The application code of your Application from Push Portal website.
+	- remark: For now, Mobile Messaging SDK doesn't support badge. You should handle the badge counter by yourself.
+	- parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	- parameter applicationCode: The application code of your Application from Push Portal website.
 	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	*/
-	public class func startWithApplicationCode(code: String, backendBaseURL: String) {
-		MobileMessagingInstance.loadComponents(code, storageType: .SQLite, remoteAPIBaseURL: backendBaseURL)
+	public class func startWithApplicationCode(userNotificationType: UIUserNotificationType, applicationCode: String, backendBaseURL: String) {
+		MobileMessagingInstance.start(userNotificationType, applicationCode: applicationCode, storageType: .SQLite, remoteAPIBaseURL: backendBaseURL)
 	}
 	
-	public class func startWithApplicationCode(code: String) {
-		startWithApplicationCode(code, backendBaseURL: MMAPIValues.kProdBaseURLString)
+	public class func startWithApplicationCode(userNotificationType: UIUserNotificationType, applicationCode: String) {
+		startWithApplicationCode(userNotificationType, applicationCode: applicationCode, backendBaseURL: MMAPIValues.kProdBaseURLString)
 	}
 	
 	/**
 	Stops current Mobile Messaging session.
 	*/
-	public class func stop() {
-		MobileMessagingInstance.sharedInstance.reset()
+	public class func stop(cleanUpData: Bool = false) {
+		if cleanUpData {
+			MobileMessagingInstance.sharedInstance.cleanUpAndStop()
+		} else {
+			MobileMessagingInstance.sharedInstance.stop()
+		}
 	}
 	
 	/**
@@ -91,10 +97,19 @@ public final class MobileMessaging: NSObject {
 class MobileMessagingInstance {
 	//MARK: Internal
 	static var sharedInstance = MobileMessagingInstance()
-
-	func reset() {
+	
+	func cleanUpAndStop() {
 		MobileMessagingInstance.queue.executeSync {
 			self.storage?.drop()
+			self.stop()
+		}
+	}
+	
+	func stop() {
+		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() {
+			UIApplication.sharedApplication().unregisterForRemoteNotifications()
+		}
+		MobileMessagingInstance.queue.executeSync {
 			self.storage = nil
 			self.currentInstallation = nil
 			self.appListener = nil
@@ -122,7 +137,9 @@ class MobileMessagingInstance {
 		}
 	}
 	
-	static func loadComponents(applicationCode: String, storageType: MMStorageType, remoteAPIBaseURL: String, completion: (() -> Void)? = nil) {
+	static func start(userNotificationType: UIUserNotificationType, applicationCode: String, storageType: MMStorageType, remoteAPIBaseURL: String, completion: (() -> Void)? = nil) {
+		
+		MobileMessagingInstance.sharedInstance.stop()
 		MobileMessagingInstance.queue.executeAsync {
 			do {
 				var storage: MMCoreDataStorage?
@@ -144,6 +161,8 @@ class MobileMessagingInstance {
 			} catch {
 				MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
 			}
+			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: nil))
+			UIApplication.sharedApplication().registerForRemoteNotifications()
 		}
 	}
 	

@@ -25,8 +25,8 @@ class FetchMessagesTest: MMTestCase {
      nothing changed in DB
     */
     func testNothingToSynchronize() {
-		MobileMessaging.stop()
-		MobileMessaging.testStartWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
+		cleanUpAndStop()
+		startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
 		
 		let expectation = expectationWithDescription("Sync finished")
         XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
@@ -60,8 +60,8 @@ class FetchMessagesTest: MMTestCase {
 		let syncExpectation = expectationWithDescription("Sync finished")
 		let newMsgExpectation = expectationWithDescription("New message received")
 
-		MobileMessaging.stop()
-		MobileMessaging.testStartWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
+		cleanUpAndStop()
+		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
@@ -133,8 +133,8 @@ class FetchMessagesTest: MMTestCase {
 			return newMsgCounter == 4 // we must emit 4 unique kMessageReceived notifications
 		}
 		
-		MobileMessaging.stop()
-		MobileMessaging.testStartWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
+		cleanUpAndStop()
+		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
         let messagesCtx = storage.mainThreadManagedObjectContext!
 		

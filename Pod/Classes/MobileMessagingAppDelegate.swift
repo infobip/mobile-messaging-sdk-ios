@@ -21,7 +21,7 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	}
 	
 	/**
-	Passes your preferable notification types to the Mobile Messaging SDK. You should override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
+	Preferable notification types that indicating how the app alerts the user when a  push notification arrives. You should override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
 	- remark: For now, Mobile Messaging SDK doesn't support badge. You should handle the badge counter by yourself.
 	*/
 	public var userNotificationType: UIUserNotificationType {
@@ -30,8 +30,7 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	
 	//MARK: Public
 	final public func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		MobileMessaging.startWithApplicationCode(applicationCode)
-		registerRemoteNotifications(application)
+		MobileMessaging.startWithApplicationCode(userNotificationType, applicationCode: applicationCode)
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)
 	}
 	
@@ -64,10 +63,4 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when a remote notification arrived that indicates there is data to be fetched.
 	*/
 	public func mm_application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) { }
-	
-	//MARK: Private
-	private func registerRemoteNotifications(application: UIApplication) {
-		application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: nil))
-		application.registerForRemoteNotifications()	
-	}
 }

@@ -29,8 +29,8 @@ class DeliveryReportingTests: MMTestCase {
     }
 	
     func testSendingDeliveryStatusWrongAppIdFailure() {
-		MobileMessaging.stop()
-		MobileMessaging.testStartWithWrongApplicationCode()
+		cleanUpAndStop()
+		startWithWrongApplicationCode()
 		
         let expectation = expectationWithDescription("Delivery sending completed")
 		
