@@ -1,26 +1,24 @@
-# MobileMessaging SDK
+# Mobile Messaging SDK for iOS
 
 [![Version](https://img.shields.io/cocoapods/v/MobileMessaging.svg?style=flat)](http://cocoapods.org/pods/MobileMessaging)
 [![License](https://img.shields.io/cocoapods/l/MobileMessaging.svg?style=flat)](http://cocoapods.org/pods/MobileMessaging)
 [![Platform](https://img.shields.io/cocoapods/p/MobileMessaging.svg?style=flat)](http://cocoapods.org/pods/MobileMessaging)
 
-Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in your application and access to the features of Infobip IP Messaging Platform. 
+Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in your application and access to the features of [Infobip IP Messaging Platform](https://portal.infobip.com/push/). 
 The document describes library integration steps.
 
 ## Requirements
 - Xcode 7.3+
 - iOS 8.0+
 
-## Usage
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
-# Mobile Messaging Quick Start
+<!-- ## Usage -->
+## Quick start guide
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application.
 
 1. Prepare your App ID, provisioning profiles and APNs certificate ([APNs Certificate Guide](https://github.com/infobip/mobile-messaging-sdk-ios/blob/master/Guides/CERTIFICATES.md)).
-2. Prepare your Infobip account (https://portal.infobip.com/push/):
-	1. Create new application on Infobip Push portal.
-	2. Navigate to your Application.
+2. Prepare your Infobip account (https://portal.infobip.com/push/) to get your Application Code:
+	1. [Create new application](https://dev.infobip.com/v1/docs/push-introduction-create-app) on Infobip Push portal.
+	2. Navigate to your Application where you will get the Application Code.
 	3. Mark the "Available on iOS" checkbox.
 	4. Mark the "Sandbox" checkbox if you are using sandbox environment for the application.
 	5. Click on "UPLOAD" under "APNS Certificates" and locate the .p12 certificate you exported from your Keychain earlier.
@@ -30,7 +28,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 4. Configure the new project to support Push Notifications:
 	1. Click on "Capabilities", then turn on Push Notifications.
 	2. Turn on Background Modes and check the Remote notifications checkbox.
-5. Install MobileMessaging using Cocoa Pods. The podfile example:
+5. Install MobileMessaging using Cocoa Pods. When you are working with Cocoa Pods you need to open __.xcworkspace__ and not .xcodeproj file The podfile example:
 
 	```ruby
 	source 'https://github.com/CocoaPods/Specs.git'
@@ -54,7 +52,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	// Objective-C
 	@import MobileMessaging;
 	```
-2. Start MobileMessaging service using your Application Code as a parameter:
+2. Start MobileMessaging service using your Infobip Application Code, obtained in step 2, as a parameter:
 
 	```swift
 	// Swift
@@ -188,3 +186,37 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	* `mm_application(:didFinishLaunchingWithOptions:)`
 	* `mm_application(:didRegisterForRemoteNotificationsWithDeviceToken:)`
 	* `mm_application(:didReceiveRemoteNotification:fetchCompletionHandler:)`
+
+
+## Mobile Messaging APIs
+
+### Events
+
+Library informs you about following events using NSNotificationCenter:
+
+* __Message received__ - is triggered when message is received.
+* __Device token updated__ - is triggered when device token is updated.
+* __Registration updated__ - is triggered when APNS registration token successfully stored on the registration server.
+* __API error__ - is triggered on every error returned by API.
+* __Delivery reports sent__ - is triggered when message delivery is reported.
+
+
+### Linking MSISDN
+
+It is recommended that you link the Telephone number (in [MSISDN](https://en.wikipedia.org/wiki/MSISDN) format).
+It will give an additional opportunity to target your application users and orchestrate your campaigns with [OMNI Messaging service](https://dev.infobip.com/docs/omni-introduction) including SMS fallback feature. 
+
+    ```swift
+    // Swift
+    MobileMessaging.currentInstallation?.saveMSISDN("385911234567", completion: { (error) -> () in
+        // if an error occurs, handle it
+    })
+	```
+
+	```objective-c
+	// Objective-C
+    [[MobileMessaging currentInstallation] saveMSISDN:@"385911234567"
+                                           completion:^(NSError * _Nullable error) {
+        // if an error occurs, handle it
+    }];
+	```
