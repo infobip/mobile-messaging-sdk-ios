@@ -12,6 +12,8 @@ platform :ios do
     def test_on_device 
         begin
             scan(
+                slack_url: ENV["SLACK_WEBHOOK"],
+                slack_only_on_failure: true,
                 scheme: "MobileMessagingExample_Tests_Device",
                 destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
             )
@@ -50,6 +52,8 @@ platform :ios do
 
         unless options[:no_tests]
             scan(
+                slack_url: ENV["SLACK_WEBHOOK"],
+                slack_only_on_failure: true,
                 scheme: "MobileMessagingExample"
             )
         end
@@ -104,7 +108,11 @@ platform :ios do
         cocoapods
 
         unless options[:no_tests]
-            scan(scheme: "MobileMessagingExample")
+            scan(
+                slack_url: ENV["SLACK_WEBHOOK"],
+                slack_only_on_failure: true,
+                scheme: "MobileMessagingExample"
+            )
         end
 
         unless options[:no_device_tests]
