@@ -10,7 +10,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "NO">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -23,15 +23,12 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "MobileMessagingExample_Example.app"
-            BlueprintName = "MobileMessagingExample"
-            ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "-IsDeviceStartedToRunTests YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -50,7 +47,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "MobileMessagingExample_Example.app"
+            BuildableName = "MobileMessagingExample.app"
             BlueprintName = "MobileMessagingExample"
             ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
          </BuildableReference>
@@ -68,7 +65,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "MobileMessagingExample_Example.app"
+            BuildableName = "MobileMessagingExample.app"
             BlueprintName = "MobileMessagingExample"
             ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
          </BuildableReference>

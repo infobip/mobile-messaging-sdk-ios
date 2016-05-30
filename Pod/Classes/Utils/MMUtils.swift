@@ -87,12 +87,6 @@ extension UIApplication {
 	var isCurrentAppRegisteredForRemoteNotifications: Bool {
 		return UIApplication.sharedApplication().isRegisteredForRemoteNotifications()
 	}
-	var isRemoteNotificationsEnabled: Bool {
-		guard let notificationType = self.currentUserNotificationSettings()?.types else {
-			return false
-		}
-		return notificationType != .None
-	}
 }
 
 extension NSData {

@@ -26,16 +26,12 @@ final class MMApplicationListener: NSObject {
 	
 	//MARK: Internal
 	func handleAppWillEnterForegroundNotification() {
-		if UIApplication.sharedApplication().isRemoteNotificationsEnabled {
-			triggerPeriodicalWork()
-		}
+		triggerPeriodicalWork()
 	}
 	
 	func handleAppDidFinishLaunchingNotification() {
-		if UIApplication.sharedApplication().isRemoteNotificationsEnabled {
-			messageHandler.evictOldMessages()
-			triggerPeriodicalWork()
-		}
+		messageHandler.evictOldMessages()
+		triggerPeriodicalWork()
 	}
 	
 	//MARK: Private

@@ -51,7 +51,6 @@ public final class MobileMessaging: NSObject {
 	- parameter fetchCompletionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
 	*/
 	public class func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: ((UIBackgroundFetchResult) -> Void)?) {
-		MMLogInfo("New remote notification received \(userInfo)")
 		MobileMessagingInstance.sharedInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 			completionHandler?(.NewData)
 		})
@@ -99,6 +98,7 @@ class MobileMessagingInstance {
 	static var sharedInstance = MobileMessagingInstance()
 	
 	func cleanUpAndStop() {
+		MMLogInfo("Cleaning up MobileMessaging service...")
 		MobileMessagingInstance.queue.executeSync {
 			self.storage?.drop()
 			self.stop()
@@ -106,6 +106,7 @@ class MobileMessagingInstance {
 	}
 	
 	func stop() {
+		MMLogInfo("Stopping MobileMessaging service...")
 		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() {
 			UIApplication.sharedApplication().unregisterForRemoteNotifications()
 		}
@@ -118,6 +119,7 @@ class MobileMessagingInstance {
 	}
 	
 	func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: (() -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
+		MMLogInfo("New remote notification received \(userInfo)")
 		MobileMessagingInstance.queue.executeAsync {
 			self.messageHandler?.handleAPNSMessage(userInfo, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
 		}
@@ -132,14 +134,16 @@ class MobileMessagingInstance {
 	}
 	
 	func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {
+		MMLogInfo("Setting seen status: \(messageIds)")
 		MobileMessagingInstance.queue.executeAsync {
 			self.messageHandler?.setSeen(messageIds, completion: completion)
 		}
 	}
 	
 	static func start(userNotificationType: UIUserNotificationType, applicationCode: String, storageType: MMStorageType, remoteAPIBaseURL: String, completion: (() -> Void)? = nil) {
-		
+
 		MobileMessagingInstance.sharedInstance.stop()
+		MMLogInfo("Starting MobileMessaging service...")
 		MobileMessagingInstance.queue.executeAsync {
 			do {
 				var storage: MMCoreDataStorage?
@@ -161,8 +165,11 @@ class MobileMessagingInstance {
 			} catch {
 				MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
 			}
-			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: nil))
-			UIApplication.sharedApplication().registerForRemoteNotifications()
+
+			MobileMessagingInstance.queue.executeAsync {
+				UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: nil))
+				UIApplication.sharedApplication().registerForRemoteNotifications()
+			}
 		}
 	}
 	

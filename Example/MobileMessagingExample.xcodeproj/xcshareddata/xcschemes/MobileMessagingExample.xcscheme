@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-               BuildableName = "MobileMessagingExample_Example.app"
+               BuildableName = "MobileMessagingExample.app"
                BlueprintName = "MobileMessagingExample"
                ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
             </BuildableReference>
@@ -29,7 +29,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "MobileMessagingExample_Example.xctest"
+               BuildableName = "MobileMessagingExample.xctest"
                BlueprintName = "MobileMessagingExample_Tests"
                ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
             </BuildableReference>
@@ -47,7 +47,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "MobileMessagingExample_Example.xctest"
+               BuildableName = "MobileMessagingExample.xctest"
                BlueprintName = "MobileMessagingExample_Tests"
                ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
             </BuildableReference>
@@ -57,7 +57,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "MobileMessagingExample_Example.app"
+            BuildableName = "MobileMessagingExample.app"
             BlueprintName = "MobileMessagingExample"
             ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "MobileMessagingExample_Example.app"
+            BuildableName = "MobileMessagingExample.app"
             BlueprintName = "MobileMessagingExample"
             ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
          </BuildableReference>
@@ -105,7 +105,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "MobileMessagingExample_Example.app"
+            BuildableName = "MobileMessagingExample.app"
             BlueprintName = "MobileMessagingExample"
             ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
          </BuildableReference>

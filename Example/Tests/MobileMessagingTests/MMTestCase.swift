@@ -21,6 +21,7 @@ class MMTestCase: XCTestCase {
 	
 	override func setUp() {
 		super.setUp()
+		MobileMessaging.stop(true)
 		startWithCorrectApplicationCode()
 	}
 	
@@ -52,17 +53,17 @@ class MMTestCase: XCTestCase {
 	}
 	
 	func startWithApplicationCode(code: String) {
-		MobileMessagingInstance.start(UIUserNotificationType.Alert, applicationCode: code, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
+		MobileMessagingInstance.start(UIUserNotificationType.None, applicationCode: code, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
 		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
 	}
 	
 	func startWithCorrectApplicationCode() {
-		MobileMessagingInstance.start(UIUserNotificationType.Alert, applicationCode: MMTestConstants.kTestCorrectApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
+		MobileMessagingInstance.start(UIUserNotificationType.None, applicationCode: MMTestConstants.kTestCorrectApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
 		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
 	}
 	
 	func startWithWrongApplicationCode() {
-		MobileMessagingInstance.start(UIUserNotificationType.Alert, applicationCode: MMTestConstants.kTestWrongApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
+		MobileMessagingInstance.start(UIUserNotificationType.None, applicationCode: MMTestConstants.kTestWrongApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
 		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
 	}
 }
