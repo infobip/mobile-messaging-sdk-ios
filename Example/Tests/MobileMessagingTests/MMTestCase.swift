@@ -45,7 +45,7 @@ class MMTestCase: XCTestCase {
 	func allStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
 		var count: Int = 0
 		ctx.reset()
-		MMQueue.Main.queue.executeSync {
+		ctx.performBlockAndWait {
 			count = MessageManagedObject.MM_countOfEntitiesWithContext(ctx)
 		}
 		return count
