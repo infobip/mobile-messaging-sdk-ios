@@ -30,17 +30,23 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	
 	//MARK: Public
 	final public func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		MobileMessaging.startWithApplicationCode(userNotificationType, applicationCode: applicationCode)
+		if !isTesting {
+			MobileMessaging.startWithApplicationCode(userNotificationType, applicationCode: applicationCode)
+		}
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)
 	}
 	
 	final public func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-		MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
+		if !isTesting {
+			MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
+		}
 		mm_application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
 	}
 	
 	final public func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
-		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+		if !isTesting {
+			MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+		}
 		mm_application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
 	}
 	
@@ -63,4 +69,9 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when a remote notification arrived that indicates there is data to be fetched.
 	*/
 	public func mm_application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) { }
+	
+	//MARK: Private
+	var isTesting: Bool {
+		return NSProcessInfo.processInfo().arguments.contains("-IsDeviceStartedToRunTests")
+	}
 }

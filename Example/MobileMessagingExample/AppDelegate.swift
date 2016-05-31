@@ -8,28 +8,17 @@ import UIKit
 import MobileMessaging
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: MobileMessagingAppDelegate {
 	
 	var window: UIWindow?
 	
-	var isTesting: Bool {
-		return NSProcessInfo.processInfo().arguments.contains("-IsDeviceStartedToRunTests")
-	}
+	override var applicationCode: String { return "40b4ba5a62004d8a80ee3bb49cbaf077-50f69373-f84f-466c-830f-fcdb7d15a6bd" }
 	
-	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
-		if !isTesting {
-			MobileMessaging.startWithApplicationCode([.Alert, .Sound], applicationCode: "40b4ba5a62004d8a80ee3bb49cbaf077-50f69373-f84f-466c-830f-fcdb7d15a6bd")
-			setupLogging()
-		}
+	override var userNotificationType: UIUserNotificationType { return [.Alert, .Sound] }
+	
+	override func mm_application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+		setupLogging()
 		return true
-	}
-
-	func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
-		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
-	}
-	
-	func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-		MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
 	}
 	
 	func setupLogging() {
