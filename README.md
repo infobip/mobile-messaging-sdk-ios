@@ -204,19 +204,18 @@ Library informs you about following events using NSNotificationCenter:
 ### Linking MSISDN
 
 It is recommended that you link the Telephone number (in [MSISDN](https://en.wikipedia.org/wiki/MSISDN) format).
-It will give an additional opportunity to target your application users and orchestrate your campaigns with [OMNI Messaging service](https://dev.infobip.com/docs/omni-introduction) including SMS fallback feature. 
+It will give an additional opportunity to target your application users and orchestrate your campaigns with [OMNI Messaging service](https://dev.infobip.com/docs/omni-introduction) including SMS fallback feature.
 
-    ```swift
-    // Swift
-    MobileMessaging.currentInstallation?.saveMSISDN("385911234567", completion: { (error) -> () in
-        // if an error occurs, handle it
-    })
-    ```
+```swift
+// Swift
+MobileMessaging.currentInstallation?.saveMSISDN("385911234567", completion: { (error) -> () in
+	// if an error occurs, handle it
+})
+```
 
-    ```objective-c
-    // Objective-C
-    [[MobileMessaging currentInstallation] saveMSISDN:@"385911234567"
-                                           completion:^(NSError * _Nullable error) {
-        // if an error occurs, handle it
-    }];
-    ```
+```objective-c
+// Objective-C
+[[MobileMessaging currentInstallation] saveMSISDN:@"385911234567" completion:^(NSError * _Nullable error) {
+	// if an error occurs, handle it
+}];
+```
