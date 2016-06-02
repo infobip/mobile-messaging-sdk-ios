@@ -41,6 +41,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
 ### App Delegate Inheritance
 The simplest approach to integrate Mobile Messaging with an existing app is by inheriting your app delegate from `MobileMessagingAppDelegate`. If you prefer a more advanced way: [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition).
+
 1. Import the library, into your `AppDelegate` declaration file:
 
 	```swift
