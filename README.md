@@ -15,7 +15,7 @@ The document describes library integration steps.
 ## Quick start guide
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application.
 
-1. Prepare your App ID, provisioning profiles and APNs certificate ([APNs Certificate Guide](https://github.com/infobip/mobile-messaging-sdk-ios/blob/master/Guides/CERTIFICATES.md)).
+1. Prepare your App ID, provisioning profiles and APNs certificate ([APNs Certificate Guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/APNs-Certificate-guide)).
 2. Prepare your Infobip account (https://portal.infobip.com/push/) to get your Application Code:
 	1. [Create new application](https://dev.infobip.com/v1/docs/push-introduction-create-app) on Infobip Push portal.
 	2. Navigate to your Application where you will get the Application Code.
