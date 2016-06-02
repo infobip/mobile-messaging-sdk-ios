@@ -36,100 +36,11 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	use_frameworks!
 	pod 'MobileMessaging'
 	```
-6. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Composition](#app-delegate-composition) or [App Delegate Inheritance](#app-delegate-inheritance)
-
-
-### App Delegate Composition
-
-1. Import the library:
-
-	```swift
-	// Swift
-	import MobileMessaging
-	```
-
-	```objective-c
-	// Objective-C
-	@import MobileMessaging;
-	```
-2. Start MobileMessaging service using your Infobip Application Code, obtained in step 2, as a parameter:
-
-	```swift
-	// Swift
-	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		MobileMessaging.startWithApplicationCode("your_application_code")
-		...
-	}	
-	```
-
-	```objective-c
-	// Objective-C
-	- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-		[MobileMessaging startWithApplicationCode:@"your_application_code"];
-		...
-	}
-	```
-3. Setup notification types that you want to use and register for remote notifications:
-
-	```swift
-	// Swift
-	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		MobileMessaging.startWithApplicationCode("your_application_code")
-
-		let userNotificationTypes: UIUserNotificationType = [.Alert, .Badge, .Sound]
-		let settings = UIUserNotificationSettings(forTypes: userNotificationTypes, categories: nil)
-		application.registerUserNotificationSettings(settings)
-		application.registerForRemoteNotifications()
-		...
-	}
-	```
-
-	```objective-c
-	// Objective-C
-	- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-		[MobileMessaging startWithApplicationCode:@"your_application_code"];
-
-		UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert | UIUserNotificationTypeBadge | UIUserNotificationTypeSound);
-		UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes categories:nil];
-		[application registerUserNotificationSettings:settings];
-		[application registerForRemoteNotifications];
-		...
-	}
-	```
-4. Override method `application:didRegisterForRemoteNotificationsWithDeviceToken:` in order to inform Infobip about the new device registered:
-
-	```swift
-	// Swift
-	func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-		MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
-	}
-	```
-
-	```objective-c
-	// Objective-C
-	- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-		[MobileMessaging didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-	}
-	```
-5. Override method `application:didReceiveRemoteNotification:fetchCompletionHandler:` in order to send notification delivery reports to Infobip:
-
-	```swift
-	// Swift
-	func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
-		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
-	}
-	```
-
-	```objective-c
-	// Objective-C
-	- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
-		[MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-	}
-	```
+6. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
 
 
 ### App Delegate Inheritance
-
+The simplest approach to integrate Mobile Messaging with an existing app is by inheriting your app delegate from `MobileMessagingAppDelegate`. If you prefer a more advanced way: [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition).
 1. Import the library, into your `AppDelegate` declaration file:
 
 	```swift
