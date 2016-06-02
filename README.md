@@ -23,7 +23,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	4. Mark the "Sandbox" checkbox if you are using sandbox environment for the application.
 	5. Click on "UPLOAD" under "APNS Certificates" and locate the .p12 certificate you exported from your Keychain earlier.
 
-	<center><img src="Guides/Images/CUPCertificate.png?raw=true" alt="CUP Settings"/></center>
+	<center><img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/CUPCertificate.png?raw=true" alt="CUP Settings"/></center>
 3. Create a new Xcode Project.
 4. Configure the new project to support Push Notifications:
 	1. Click on "Capabilities", then turn on Push Notifications.
