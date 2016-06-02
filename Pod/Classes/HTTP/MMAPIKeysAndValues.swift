@@ -84,7 +84,7 @@ public struct MMEventNotifications {
 	public static let kAPIErrorUserInfoKey = "com.mobile-messaging.notification.api-error-key"
 	
 	/**
-	The notification `kMessageReceived` will be posted after receiving any error from server.
+	The notification `kMessageReceived` will be posted after receiving any message, either from APNs or the server.
 	The notification's `userInfo` will contain a remote notification `userInfo` dictionary paired with `kMessageUserInfoKey` key
 	The value for key `kMessageIsPushKey` contains a flag which indicate whether the message is pushed by APNs or pulled from the server
 	*/
