@@ -208,7 +208,7 @@ It will give an additional opportunity to target your application users and orch
 
 ```swift
 // Swift
-MobileMessaging.currentInstallation?.saveMSISDN("385911234567", completion: { (error) -> () in
+MobileMessaging.currentInstallation?.saveMSISDN("385911234567", completion: { error in
 	// if an error occurs, handle it
 })
 ```
