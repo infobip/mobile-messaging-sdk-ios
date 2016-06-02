@@ -18,12 +18,12 @@ public final class MobileMessaging: NSObject {
 	- parameter applicationCode: The application code of your Application from Push Portal website.
 	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	*/
-	public class func startWithApplicationCode(userNotificationType: UIUserNotificationType, applicationCode: String, backendBaseURL: String) {
+	public class func startWithNotificationType(userNotificationType: UIUserNotificationType, applicationCode: String, backendBaseURL: String) {
 		MobileMessagingInstance.start(userNotificationType, applicationCode: applicationCode, storageType: .SQLite, remoteAPIBaseURL: backendBaseURL)
 	}
 	
-	public class func startWithApplicationCode(userNotificationType: UIUserNotificationType, applicationCode: String) {
-		startWithApplicationCode(userNotificationType, applicationCode: applicationCode, backendBaseURL: MMAPIValues.kProdBaseURLString)
+	public class func startWithNotificationType(userNotificationType: UIUserNotificationType, applicationCode: String) {
+		startWithNotificationType(userNotificationType, applicationCode: applicationCode, backendBaseURL: MMAPIValues.kProdBaseURLString)
 	}
 	
 	/**

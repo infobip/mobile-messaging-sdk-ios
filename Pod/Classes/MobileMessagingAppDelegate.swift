@@ -31,7 +31,7 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	//MARK: Public
 	final public func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		if !isTesting {
-			MobileMessaging.startWithApplicationCode(userNotificationType, applicationCode: applicationCode)
+			MobileMessaging.startWithNotificationType(userNotificationType, applicationCode: applicationCode)
 		}
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)
 	}

@@ -21,7 +21,7 @@
 }
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	[MobileMessaging startWithApplicationCode: self.userNotificationType applicationCode: self.applicationCode];
+	[MobileMessaging startWithNotificationType:self.userNotificationType applicationCode:self.applicationCode];
 	return [self mm_application:application didFinishLaunchingWithOptions:launchOptions];
 }
 -(BOOL)mm_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
