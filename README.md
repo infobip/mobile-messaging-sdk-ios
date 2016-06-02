@@ -36,7 +36,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	use_frameworks!
 	pod 'MobileMessaging'
 	```
-6. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Composition](#App-Delegate-Composition) or [App Delegate Inheritance](#App-Delegate-Inheritance)
+6. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Composition](#app-delegate-composition) or [App Delegate Inheritance](#app-delegate-inheritance)
 
 
 ### App Delegate Composition
