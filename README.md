@@ -24,11 +24,10 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	5. Click on "UPLOAD" under "APNS Certificates" and locate the .p12 certificate you exported from your Keychain earlier.
 
 	<center><img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/CUPCertificate.png?raw=true" alt="CUP Settings"/></center>
-3. Create a new Xcode Project.
-4. Configure the new project to support Push Notifications:
+3. Configure your project to support Push Notifications:
 	1. Click on "Capabilities", then turn on Push Notifications.
 	2. Turn on Background Modes and check the Remote notifications checkbox.
-5. Install MobileMessaging using Cocoa Pods. When you are working with Cocoa Pods you need to open __.xcworkspace__ and not .xcodeproj file The podfile example:
+4. To integrate MobileMessaging into your Xcode project using [CocoaPods](https://guides.cocoapods.org/using/getting-started.html#getting-started), specify it in your Podfile:
 
 	```ruby
 	source 'https://github.com/CocoaPods/Specs.git'
@@ -36,7 +35,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	use_frameworks!
 	pod 'MobileMessaging'
 	```
-6. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
+5. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
 
 
 ### App Delegate Inheritance
