@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
 s.name             = "MobileMessaging"
-s.version          = "0.1.0"
+s.version          = "0.1.1"
 s.summary          = "Mobile Messaging SDK for iOS"
 s.description      = <<-DESC
 Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in you application and access to the features of Infobip IP Messaging Platform.
