@@ -12,6 +12,7 @@ platform :ios do
     def test_on_device 
         begin
             scan(
+                skip_build: true,
                 slack_url: ENV["SLACK_WEBHOOK"],
                 slack_only_on_failure: true,
                 scheme: "MobileMessagingExample_Tests_Device",
@@ -52,6 +53,7 @@ platform :ios do
 
         unless options[:no_tests]
             scan(
+                skip_build: true,
                 slack_url: ENV["SLACK_WEBHOOK"],
                 slack_only_on_failure: true,
                 scheme: "MobileMessagingExample"
@@ -109,6 +111,7 @@ platform :ios do
 
         unless options[:no_tests]
             scan(
+                skip_build: true,
                 slack_url: ENV["SLACK_WEBHOOK"],
                 slack_only_on_failure: true,
                 scheme: "MobileMessagingExample"
