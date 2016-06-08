@@ -9,9 +9,10 @@
 import Foundation
 
 final public class MMInstallation : NSObject {
+	
 	//MARK: Public
 	public override var description: String {
-		return "Installation:\n  device token = \(deviceToken)\n  metadata = \(metaData)"
+		return "Installation:\n  Device token = \(deviceToken)\n  Internal registration ID = \(internalId)\n  Metadata = \(metaData)"
 	}
 	
 	/**

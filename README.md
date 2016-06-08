@@ -106,7 +106,7 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 Library informs you about following events using NSNotificationCenter:
 
 * __Message received__ - is triggered when message is received.
-* __Device token updated__ - is triggered when device token is updated.
+* __Device token received__ - is triggered when device token is received from APNS.
 * __Registration updated__ - is triggered when APNS registration token successfully stored on the registration server.
 * __API error__ - is triggered on every error returned by API.
 * __Delivery reports sent__ - is triggered when message delivery is reported.

@@ -39,7 +39,7 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
         tableView.registerClass(CopyableCell.self, forCellReuseIdentifier: kSettingCellId)
 		tableView.estimatedRowHeight = 44
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: MMEventNotifications.kRegistrationUpdated, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: MMEventNotifications.kDeviceTokenUpdated, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: MMEventNotifications.kDeviceTokenReceived, object: nil)
     }
     
     @IBAction func closeButtonClicked(sender: UIBarButtonItem) {
