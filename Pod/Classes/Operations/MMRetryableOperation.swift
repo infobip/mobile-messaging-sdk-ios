@@ -7,15 +7,30 @@ import Foundation
 
 class MMRetryableOperation: Operation {
 
+	private var _retryCounter = -1
+	private let counterLock = NSLock()
+	private(set) var retryCounter: Int {
+		set {
+			counterLock.withCriticalScope {
+				self._retryCounter = newValue
+			}
+		}
+		get {
+			return counterLock.withCriticalScope {
+				 self._retryCounter
+			}
+		}
+	}
+	
 	typealias MMRetryableOperationCompletion = MMRetryableOperation -> Void
 	private(set) var retryLimit = 0
 	private(set) var currentError: NSError?
-	private(set) var retryCounter = -1
+	
 	private var attemptObservers = [MMBlockObserver]()
 	var finishCompletion: MMRetryableOperationCompletion
 	
 	func mapAttributesFrom(previous: MMRetryableOperation) {
-		self.retryCounter = previous.retryCounter
+		retryCounter = previous.retryCounter
 	}
 	
 	required init(retryLimit: Int, completion: MMRetryableOperationCompletion) {
@@ -32,7 +47,7 @@ class MMRetryableOperation: Operation {
 		return nextOp
 	}
 	
-	func shouldRetry(afterError error: NSError?) -> Bool {
+	private func shouldRetry(afterError error: NSError?) -> Bool {
 		var isErrorOkToRetry = false
 		switch error {
 		case .Some(let err) where err.mm_isRetryable:
@@ -42,6 +57,7 @@ class MMRetryableOperation: Operation {
 		default:
 			isErrorOkToRetry = false
 		}
+
 		return retryCounter < retryLimit && !cancelled && isErrorOkToRetry
 	}
 	

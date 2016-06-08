@@ -8,6 +8,12 @@
 
 import Foundation
 
+func synced(lock: AnyObject, closure: () -> ()) {
+	objc_sync_enter(lock)
+	closure()
+	objc_sync_exit(lock)
+}
+
 final class MMQueueObject: CustomStringConvertible {
     
     private(set) var queue: dispatch_queue_t
