@@ -75,13 +75,9 @@ platform :ios do
 
         unless only_build
             clean_build_artifacts
-
-            desc "Cleaning the application code occurrences"
-            swift_app_code_path = ENV["WORKSPACE"]+"/Example/MobileMessagingExample/AppDelegate.swift"
-            sh "perl -i -p -e 's/[\w]{32}-[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/your_application_code/g;' #{swift_app_code_path}"
             
             desc "Pushing to Github repo master"
-            sh "git push github HEAD:master --tags"
+            sh "git push github HEAD:master"
         end
     end
 
