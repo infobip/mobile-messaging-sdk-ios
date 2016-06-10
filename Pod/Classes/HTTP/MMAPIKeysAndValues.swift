@@ -34,6 +34,7 @@ struct MMAPIKeys {
     static let kBadge = "badge"
     static let kSound = "sound"
     static let kData = "data"
+	static let kContentAvailable = "content-available"
 	
 	//MARK: email
 	static let kEmail = "email"
@@ -54,41 +55,73 @@ struct MMAPIValues {
 	static let kPlatformType = "APNS"
 }
 
-public struct MMEventNotifications {
+public struct MMEventNotificationKeys {
 	/**
-	The notification `kRegistrationUpdated` will be posted after the registration is updated on backend server.
-	The notification's `userInfo` will contain a server's Internal Id string for the registered user paired with `kRegistrationUserInfoKey` key
+	Key for entry in userInfo dictionary of `kRegistrationUpdated` notification.
+	Contains an Internal Id string for the registered user.
 	*/
-	public static let kRegistrationUpdated = "com.mobile-messaging.notification.reg-updated"
-	public static let kRegistrationUserInfoKey = "com.mobile-messaging.notification.registration-key"
+	public static let kRegistrationInternalIdKey = "com.mobile-messaging.notification.registration-key"
 	
 	/**
-	The notification `kDeviceTokenReceived` will be posted after the APNs device token is received.
-	The notification's `userInfo` will contain a new hex-encoded device token string paired with `kDeviceTokenKey` key
+	Key for entry in userInfo dictionary of `kRegistrationUpdated` notification.
+	Contains a hex-encoded device token string received from APNS.
 	*/
-	public static let kDeviceTokenReceived = "com.mobile-messaging.notification.device-token-received"
 	public static let kDeviceTokenKey = "com.mobile-messaging.notification.device-token-key"
 	
 	/**
-	The notification `kDeliveryReportSent` will be posted after the MobileMesaging library has succesfully sent message delivery report.
-	The notification's `userInfo` will contain an array of message ID strings paired with `kMessageIDsUserInfoKey` key
+	Key for entry in userInfo dictionary of `kDeliveryReportSent` notification.
+	Contains a an array of message ID strings.
 	*/
-	public static let kDeliveryReportSent = "com.mobile-messaging.notification.dlr-sent"
-	public static let kMessageIDsUserInfoKey = "com.mobile-messaging.notification.dlr-key"
+	public static let kDLRMessageIDsKey = "com.mobile-messaging.notification.dlr-key"
 	
 	/**
-	The notification `kAPIError` will be posted after receiving any error from server.
-	The notification's `userInfo` will contain a corresponding `NSError` object paired with `kAPIErrorUserInfoKey` key
+	Key for entry in userInfo dictionary of `kAPIError` notification.
+	Contains a corresponding `NSError` object.
 	*/
-	public static let kAPIError = "com.mobile-messaging.notification.api-error"
 	public static let kAPIErrorUserInfoKey = "com.mobile-messaging.notification.api-error-key"
 	
 	/**
+	Key for entry in userInfo dictionary of `kMessageReceived` notification.
+	Contains a remote notification payload.
+	*/
+	public static let kMessagePayloadKey = "com.mobile-messaging.notification.message-key"
+	
+	/**
+	Key for entry in userInfo dictionary of `kMessageReceived` notification.
+	Contains a flag that indicates whether the message is pushed by APNs or pulled from the server.
+	*/
+	public static let kMessageIsPushKey = "com.mobile-messaging.notification.message-is-push-key"
+	
+	/**
+	Key for entry in userInfo dictionary of `kMessageReceived` notification.
+	Contains a flag that indicates whether the remote notification is a silent push.
+	*/
+	public static let kMessageIsSilentKey = "com.mobile-messaging.notification.message-is-silent-key"
+}
+
+public struct MMEventNotifications {
+	/**
+	The notification `kRegistrationUpdated` will be posted after the registration is updated on backend server.
+	*/
+	public static let kRegistrationUpdated = "com.mobile-messaging.notification.reg-updated"
+	
+	/**
+	The notification `kDeviceTokenReceived` will be posted after the APNs device token is received.
+	*/
+	public static let kDeviceTokenReceived = "com.mobile-messaging.notification.device-token-received"
+	
+	/**
+	The notification `kDeliveryReportSent` will be posted after the MobileMesaging library has succesfully sent message delivery report.
+	*/
+	public static let kDeliveryReportSent = "com.mobile-messaging.notification.dlr-sent"
+	
+	/**
+	The notification `kAPIError` will be posted after receiving any error from server.
+	*/
+	public static let kAPIError = "com.mobile-messaging.notification.api-error"
+	
+	/**
 	The notification `kMessageReceived` will be posted after receiving any message, either from APNs or the server.
-	The notification's `userInfo` will contain a remote notification `userInfo` dictionary paired with `kMessageUserInfoKey` key
-	The value for key `kMessageIsPushKey` contains a flag which indicate whether the message is pushed by APNs or pulled from the server
 	*/
 	public static let kMessageReceived = "com.mobile-messaging.notification.message-received"
-	public static let kMessageUserInfoKey = "com.mobile-messaging.notification.message-key"
-	public static let kMessageIsPushKey = "com.mobile-messaging.notification.message-is-push-key"
 }

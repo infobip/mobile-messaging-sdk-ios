@@ -108,7 +108,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	func handleNewMessageReceivedNotification(notification: NSNotification) {
 		guard let userInfo = notification.userInfo,
-			let messageUserInfo = userInfo[MMEventNotifications.kMessageUserInfoKey] as? [NSObject : AnyObject],
+			let messageUserInfo = userInfo[MMEventNotificationKeys.kMessagePayloadKey] as? [NSObject : AnyObject],
 			let message = Message.prepare(messageUserInfo) else {
 				return
 		}
@@ -122,7 +122,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	func handleDeliveryReportSentNotification(notification: NSNotification) {
 		guard let userInfo = notification.userInfo,
-			let messageUserInfo = userInfo[MMEventNotifications.kMessageIDsUserInfoKey] as? [String] else {
+			let messageUserInfo = userInfo[MMEventNotificationKeys.kDLRMessageIDsKey] as? [String] else {
 				return
 		}
 		

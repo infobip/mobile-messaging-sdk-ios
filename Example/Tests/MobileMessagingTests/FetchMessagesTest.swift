@@ -115,8 +115,8 @@ class FetchMessagesTest: MMTestCase {
 		var newMsgCounter = 0
 		expectationForNotification(MMEventNotifications.kMessageReceived, object: nil) { n -> Bool in
 			if	let userInfo = n.userInfo,
-				let messageDict = userInfo[MMEventNotifications.kMessageUserInfoKey] as? [NSObject : AnyObject],
-				let isPushFlag = n.userInfo?[MMEventNotifications.kMessageIsPushKey] as? Bool,
+				let messageDict = userInfo[MMEventNotificationKeys.kMessagePayloadKey] as? [NSObject : AnyObject],
+				let isPushFlag = n.userInfo?[MMEventNotificationKeys.kMessageIsPushKey] as? Bool,
 				let messageId = messageDict.messageId
 			{
 				if ["m1", "m2"].contains(messageId) {

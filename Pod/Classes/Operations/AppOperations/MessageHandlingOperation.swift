@@ -31,7 +31,7 @@ final class MessageHandlingOperation: GroupOperation {
 		
 		self.userInitiated = true
 		let messageHandling = BlockOperation(block: { block in
-			self.messageHandling()
+			self.handleMessage()
 			block()
 		})
 		
@@ -42,18 +42,19 @@ final class MessageHandlingOperation: GroupOperation {
 		addOperation(reportDelivering)
 	}
 	
-	private func messageHandling() {
+	private func handleMessage() {
 		context.performBlockAndWait {
-			guard let newMessages = self.getNewMessages(self.context, userInfos: self.userInfos)
+			guard let newMessages: Set<MMMessage> = self.getNewMessages(self.context, userInfos: self.userInfos)
 				where newMessages.count > 0
 				else
 			{
 				return
 			}
 			
-			for newMessage in newMessages {
+			for newMessage: MMMessage in newMessages {
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
+				newDBMessage.isSilent = newMessage.isSilent
 			}
 			
 			self.context.MM_saveToPersistentStoreAndWait()
@@ -66,7 +67,13 @@ final class MessageHandlingOperation: GroupOperation {
 		MMQueue.Main.queue.executeAsync {
 			for newMessage in newMessages {
 				if let payload = newMessage.payload {
-					NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kMessageReceived, object: self, userInfo: [MMEventNotifications.kMessageUserInfoKey: payload, MMEventNotifications.kMessageIsPushKey: self.messagesOrigin == .APNS])
+					NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kMessageReceived,
+											object: self,
+											userInfo: [
+													MMEventNotificationKeys.kMessagePayloadKey: payload,
+													MMEventNotificationKeys.kMessageIsPushKey: self.messagesOrigin == .APNS,
+													MMEventNotificationKeys.kMessageIsSilentKey: newMessage.isSilent
+													])
 				}
 				self.newMessageReceivedCallback?()
 			}

@@ -10,30 +10,37 @@ import Freddy
 import XCTest
 @testable import MobileMessaging
 
-func jsonString(messageId: String) -> String {
-	return "{\"aps\":{\"alert\":\"test\",\"badge\":6,\"sound\":\"default\"},\"messageId\":\"\(messageId)\"}"
+//func APNSJsonString(messageId: String) -> String {
+//	return "{\"aps\":{\"alert\":\"test\",\"badge\":6,\"sound\":\"default\"},\"messageId\":\"\(messageId)\"}"
+//}
+
+//func APNSjsonStringAlertObject(messageId: String) -> String {
+//	return "{\"aps\":{\"alert\":{\"body\":\"testbody\",\"title\":\"testtitle\"},\"badge\":6,\"sound\":\"default\"},\"messageId\":\"\(messageId)\"}"
+//}
+
+func backendJSONSilentMessage(messageId: String) -> String {
+	return "{\"badge\":6,\"sound\":\"\",\"content-available\":1,\"messageId\":\"\(messageId)\"}"
 }
 
-func jsonStringAlertObject(messageId: String) -> String {
-	return "{\"aps\":{\"alert\":{\"body\":\"testbody\",\"title\":\"testtitle\"},\"badge\":6,\"sound\":\"default\"},\"messageId\":\"\(messageId)\"}"
-}
-
-func jsonStringFromBackend(messageId: String) -> String {
-    return "{\"body\":\"test\",\"badge\":6,\"sound\":\"default\",\"messageId\":\"\(messageId)\", \"data\": {\"key1\": \"value1\"}}"
+func backendJSONRegularMessage(messageId: String) -> String {
+    return "{\"body\":\"test\",\"badge\":6,\"sound\":\"default\",\"content-available\":1,\"messageId\":\"\(messageId)\", \"data\": {\"key1\": \"value1\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
 
+func apnsNormalMessagePayload(messageId: String) -> [NSObject: AnyObject] {
+    return ["messageId": messageId, "aps": ["alert": "alerttitle", "badge": 6, "sound": "default"]]
+}
 
-func jsonDictionary(messageId: String) -> [NSObject: AnyObject] {
-    return ["messageId": messageId, "aps": ["alert":"alerttitle", "badge": 6, "sound": "default"]]
+func apnsSilentMessagePayload(messageId: String) -> [NSObject: AnyObject] {
+	return ["messageId": messageId, "aps": ["content-available": 1, "badge": 6, "sound": ""]]
 }
 
 
-func sendPushes(count: Int, receivingHandler: ([String: AnyObject]) -> Void) {
+func sendPushes(preparingFunc:(String) -> [NSObject: AnyObject], count: Int, receivingHandler: ([String: AnyObject]) -> Void) {
     for _ in 0..<count {
         let newMessageId = NSUUID().UUIDString
-        if let payload = MMMessage(payload: jsonDictionary(newMessageId))?.payload {
+        if let payload = MMMessage(payload: preparingFunc(newMessageId))?.payload {
             receivingHandler(payload)
         } else {
             XCTFail()
@@ -55,8 +62,9 @@ class MessageReceivingTests: MMTestCase {
 			
 			do {
 				let id = NSUUID().UUIDString
-				let json = try JSON(jsonString: jsonStringFromBackend(id))
+				let json = try JSON(jsonString: backendJSONRegularMessage(id))
 				let message = try MMMessage(json: json)
+				XCTAssertFalse(message.isSilent)
 				XCTAssertEqual(message.payload!["aps"]!["alert"]!!["body"], "test", "Message body must be parsed")
 				XCTAssertEqual(message.payload!["aps"]!["sound"], "default", "sound must be parsed")
 				XCTAssertEqual(message.payload!["aps"]!["badge"], 6, "badger must be parsed")
@@ -72,7 +80,7 @@ class MessageReceivingTests: MMTestCase {
         let expectation = expectationWithDescription("Check finished")
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
-		sendPushes(expectedMessagesCount) { userInfo in
+		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 				iterationCounter += 1
 				if iterationCounter == expectedMessagesCount {
@@ -83,5 +91,35 @@ class MessageReceivingTests: MMTestCase {
 		self.waitForExpectationsWithTimeout(100, handler: { error in
 			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
+	}
+	
+	func testThatSilenMessagesEventWorks() {
+		let expectedEventsCount: Int = 5
+		var eventsCounter: Int = 0
+		sendPushes(apnsSilentMessagePayload, count: expectedEventsCount) { userInfo in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo)
+		}
+		expectationForNotification(MMEventNotifications.kMessageReceived, object: nil) { (notification) -> Bool in
+			XCTAssertTrue(notification.userInfo?[MMEventNotificationKeys.kMessageIsSilentKey] as! Bool)
+			eventsCounter += 1
+			return eventsCounter == expectedEventsCount
+		}
+		self.waitForExpectationsWithTimeout(2, handler: { error in
+			XCTAssertEqual(eventsCounter, expectedEventsCount, "We should receive exact same amount of events")
+		})
+	}
+	
+	func testThatServerSilentMessageParsing() {
+		do {
+			do {
+				let id = NSUUID().UUIDString
+				let json = try JSON(jsonString: backendJSONSilentMessage(id))
+				let message = try MMMessage(json: json)
+				XCTAssertTrue(message.isSilent, "Message must be parsed as silent")
+				XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
+			}
+		} catch {
+			XCTFail("JSON string encoding failed")
+		}
 	}
 }

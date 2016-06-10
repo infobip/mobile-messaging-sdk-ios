@@ -19,5 +19,5 @@ extension MessageManagedObject {
     @NSManaged var reportSent: NSNumber
     @NSManaged var seenDate: NSDate?
     @NSManaged var seenStatusValue: NSNumber
-
+    @NSManaged var isSilent: NSNumber
 }

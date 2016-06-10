@@ -146,9 +146,9 @@ extension String {
     }
 	
 	func escapeString() -> String {
-		var raw: NSString = self
-		var str = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,raw, nil,"!*'();:@&=+$,/?%#[]",CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding))
-		return str as (String)
+		let raw: NSString = self
+		let str = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, raw, nil, "!*'();:@&=+$,/?%#[]", CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding))
+		return String(str)
 	}
 }
 

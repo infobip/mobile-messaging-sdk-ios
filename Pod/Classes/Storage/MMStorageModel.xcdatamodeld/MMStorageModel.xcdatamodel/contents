@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15E65" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15F34" minimumToolsVersion="Xcode 7.0">
     <entity name="InstallationManagedObject" representedClassName=".InstallationManagedObject" syncable="YES">
         <attribute name="badgeNumber" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="deviceToken" optional="YES" attributeType="String" syncable="YES"/>
@@ -11,6 +11,7 @@
     </entity>
     <entity name="MessageManagedObject" representedClassName=".MessageManagedObject" syncable="YES">
         <attribute name="creationDate" attributeType="Date" syncable="YES"/>
+        <attribute name="isSilent" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="messageId" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="reportSent" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="seenDate" optional="YES" attributeType="Date" syncable="YES"/>
@@ -18,6 +19,6 @@
     </entity>
     <elements>
         <element name="InstallationManagedObject" positionX="-63" positionY="-18" width="128" height="255"/>
-        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="120"/>
+        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="135"/>
     </elements>
 </model>
