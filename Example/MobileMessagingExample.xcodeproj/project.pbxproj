@@ -19,6 +19,8 @@
 		5087EDB11CEF067100B85546 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAD1CEF067100B85546 /* ListViewController.swift */; };
 		5087EDB21CEF067100B85546 /* MessageDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAE1CEF067100B85546 /* MessageDetailsViewController.swift */; };
 		5087EDB31CEF067100B85546 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAF1CEF067100B85546 /* SettingsViewController.swift */; };
+		50AD28B71D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */; };
+		50AD28B81D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */; };
 		50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
@@ -82,6 +84,7 @@
 		5087EDAE1CEF067100B85546 /* MessageDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageDetailsViewController.swift; sourceTree = "<group>"; };
 		5087EDAF1CEF067100B85546 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		508B62E31CAAA1BB009A265F /* MobileMessaging.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileMessaging.framework; path = "Pods/../build/Debug-iphoneos/MobileMessaging.framework"; sourceTree = "<group>"; };
+		50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObjectObserverTests.swift; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* MobileMessagingExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobileMessagingExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -292,6 +295,7 @@
 				A09103E01CABA839001873B4 /* TestUtils.swift */,
 				A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */,
 				5077629C1CC2893B00499542 /* MMTestCase.swift */,
+				50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */,
 			);
 			path = MobileMessagingTests;
 			sourceTree = "<group>";
@@ -606,6 +610,7 @@
 				A03F75071CE2243C00414A6B /* MMTestCase.swift in Sources */,
 				A024DEA51CF7477A00084EF5 /* EscapingQueryTests.swift in Sources */,
 				A03F75051CE2243C00414A6B /* TestUtils.swift in Sources */,
+				50AD28B71D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */,
 				A03F75011CE2243C00414A6B /* RegistrationTests.swift in Sources */,
 				A03F75001CE2243600414A6B /* MessageReceivingTests.swift in Sources */,
 				A03F75021CE2243C00414A6B /* RetryOperationTests.swift in Sources */,
@@ -622,6 +627,7 @@
 				8EFABFCD1CEB3B9400510762 /* MMTestCase.swift in Sources */,
 				A024DEA61CF7477A00084EF5 /* EscapingQueryTests.swift in Sources */,
 				8EFABFCE1CEB3B9400510762 /* TestUtils.swift in Sources */,
+				50AD28B81D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */,
 				8EFABFCF1CEB3B9400510762 /* RegistrationTests.swift in Sources */,
 				8EFABFD01CEB3B9400510762 /* MessageReceivingTests.swift in Sources */,
 				8EFABFD11CEB3B9400510762 /* RetryOperationTests.swift in Sources */,

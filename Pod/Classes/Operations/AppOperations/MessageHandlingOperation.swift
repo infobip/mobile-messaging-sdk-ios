@@ -54,7 +54,6 @@ final class MessageHandlingOperation: GroupOperation {
 			for newMessage in newMessages {
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
-				newDBMessage.creationDate = NSDate()
 			}
 			
 			self.context.MM_saveToPersistentStoreAndWait()

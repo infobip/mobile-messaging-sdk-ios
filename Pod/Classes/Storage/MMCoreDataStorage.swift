@@ -106,6 +106,9 @@ final class MMCoreDataStorage {
 	}
 	
 	func drop() {
+		_mainThreadManagedObjectContext = nil
+		_managedObjectModel = nil
+		_persistentStoreCoordinator = nil
 		_persistentStore?.MM_removePersistentStoreFiles()
 	}
 	

@@ -36,12 +36,12 @@ final class MMInstallationManager: MMStoringService {
 	}
 	
     func syncWithServer(completion: (NSError? -> Void)? = nil) {
-        let newRegOp = RegistrationOperation(context: self.storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
+        let newRegOp = RegistrationOperation(context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
         registrationQueue.addOperation(newRegOp)
     }
     
 	func updateDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
-		let newRegOp = RegistrationOperation(newDeviceToken: token, context: self.storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
+		let newRegOp = RegistrationOperation(newDeviceToken: token, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
 		registrationQueue.addOperation(newRegOp)
 	}
 	
@@ -53,8 +53,7 @@ final class MMInstallationManager: MMStoringService {
 		registrationQueue.addOperation(SetEmailOperation(email: email, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion))
 	}
 	
-	//MARK: Private
-	private var installationObject: InstallationManagedObject {
+	var installationObject: InstallationManagedObject {
 		if let installation = _currentInstallation {
 			return installation
 		} else {
@@ -62,6 +61,8 @@ final class MMInstallationManager: MMStoringService {
 			return _currentInstallation!
 		}
 	}
+	
+	//MARK: Private
 	private var installationHasChanges: Bool {
 		return installationObject.changedValues().count > 0
 	}

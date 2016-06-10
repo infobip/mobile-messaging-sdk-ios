@@ -16,7 +16,9 @@ enum MMSeenStatus : Int32 {
 }
 
 final class MessageManagedObject: NSManagedObject {
-
+	override func MM_awakeFromCreation() {
+		self.creationDate = NSDate()
+	}
     var seenStatus: MMSeenStatus {
 		get { return MMSeenStatus(rawValue: seenStatusValue.intValue) ?? .NotSeen }
 		set { seenStatusValue = NSNumber(int: newValue.rawValue) }

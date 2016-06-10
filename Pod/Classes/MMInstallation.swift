@@ -6,9 +6,14 @@
 //  
 //
 
+import CoreData
 import Foundation
 
 final public class MMInstallation : NSObject {
+	
+	deinit {
+		ManagedObjectObserver.sharedInstance.removeAllObservers()
+	}
 	
 	//MARK: Public
 	public override var description: String {
@@ -61,6 +66,34 @@ final public class MMInstallation : NSObject {
 	*/
 	public func saveMSISDN(msisdn: String, completion: (NSError?) -> ()) {
 		installationManager.saveMsisdn(msisdn, completion: completion)
+	}
+	
+	//MARK: Observing
+	/**
+	Registers `observer` to receive notifications for the specified key-path relative to the Installation.
+	`observer` is no retained. An object that calls this method must also call either the removeObserver:forKeyPath: or removeObserver:forKeyPath:context: method if needed.
+	- parameter observer: The object to register for notifications.
+	- parameter keyPath: The key path, relative to the Installation, of the property to observe.
+	- parameter handler: The block/closure that is called when the value of `keyPath` changes.
+	*/
+	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: ObservationHandler) {
+		if isKeyObservable(keyPath) {
+			ManagedObjectObserver.sharedInstance.addObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
+		}
+	}
+	
+	public override func addObserver(observer: NSObject, forKeyPath keyPath: String, options: NSKeyValueObservingOptions, context: UnsafeMutablePointer<Void>) {
+		addObserver(observer, forKeyPath: keyPath) { (keyPath, newValue) in
+			observer.observeValueForKeyPath(keyPath, ofObject: self, change: [NSKeyValueChangeNewKey: newValue], context: context)
+		}
+	}
+	
+	public override func removeObserver(observer: NSObject, forKeyPath keyPath: String) {
+		ManagedObjectObserver.sharedInstance.removeObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath)
+	}
+	
+	public override func removeObserver(observer: NSObject, forKeyPath keyPath: String, context: UnsafeMutablePointer<Void>) {
+		ManagedObjectObserver.sharedInstance.removeObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath)
 	}
 	
     //MARK: Internal
@@ -116,6 +149,28 @@ final public class MMInstallation : NSObject {
     }
     
     //MARK: private
+	private func isKeyObservable(key: String) -> Bool {
+		func propertiesForClass(cl: AnyClass) -> Set<String> {
+			var count = UInt32()
+			let classToInspect: AnyClass = cl
+			let properties : UnsafeMutablePointer <objc_property_t> = class_copyPropertyList(classToInspect, &count)
+			var propertyNames = Set<String>()
+			let intCount = Int(count)
+			for i in 0..<intCount {
+				let property : objc_property_t = properties[i]
+				guard let propertyName = NSString(UTF8String: property_getName(property)) as? String else {
+					debugPrint("Couldn't unwrap property name for \(property)")
+					break
+				}
+				propertyNames.insert(propertyName)
+			}
+			free(properties)
+			return propertyNames
+		}
+		
+		return propertiesForClass(MMInstallation.self).intersect(propertiesForClass(InstallationManagedObject.self)).contains(key)
+	}
+	
     private var installationManager: MMInstallationManager
 	
 	var badgeNumber: Int {

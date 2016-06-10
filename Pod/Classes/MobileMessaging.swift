@@ -141,8 +141,6 @@ class MobileMessagingInstance {
 	}
 	
 	static func start(userNotificationType: UIUserNotificationType, applicationCode: String, storageType: MMStorageType, remoteAPIBaseURL: String, completion: (() -> Void)? = nil) {
-
-		MobileMessagingInstance.sharedInstance.stop()
 		MMLogInfo("Starting MobileMessaging service...")
 		MobileMessagingInstance.queue.executeAsync {
 			do {
