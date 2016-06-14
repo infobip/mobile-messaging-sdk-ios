@@ -12,7 +12,7 @@ import Foundation
 final public class MMInstallation : NSObject {
 	
 	deinit {
-		ManagedObjectObserver.sharedInstance.removeAllObservers()
+		ManagedObjectNotificationCenter.defaultCenter.removeAllObservers()
 	}
 	
 	//MARK: Public
@@ -78,7 +78,7 @@ final public class MMInstallation : NSObject {
 	*/
 	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: ObservationHandler) {
 		if isKeyObservable(keyPath) {
-			ManagedObjectObserver.sharedInstance.addObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
 		}
 	}
 	
@@ -89,11 +89,11 @@ final public class MMInstallation : NSObject {
 	}
 	
 	public override func removeObserver(observer: NSObject, forKeyPath keyPath: String) {
-		ManagedObjectObserver.sharedInstance.removeObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath)
+		ManagedObjectNotificationCenter.defaultCenter.removeObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath)
 	}
 	
 	public override func removeObserver(observer: NSObject, forKeyPath keyPath: String, context: UnsafeMutablePointer<Void>) {
-		ManagedObjectObserver.sharedInstance.removeObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath)
+		ManagedObjectNotificationCenter.defaultCenter.removeObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath)
 	}
 	
     //MARK: Internal

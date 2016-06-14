@@ -7,7 +7,7 @@
 
 import XCTest
 @testable import MobileMessaging
-
+import CoreData
 class ManagedObjectObserverTests: MMTestCase {
 
     override func setUp() {
@@ -38,13 +38,13 @@ class ManagedObjectObserverTests: MMTestCase {
 			let msg1newId = "1.2"
 			let msg2newId = "2.2"
 			
-			ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg1, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg1, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				XCTAssertEqual(newValue as? String, msg1newId, "The new value must be passed to handler")
 				XCTAssertEqual(keyPath, observingKeyPath, "The keypath should be that particluar one which we are observing")
 				expectation1.fulfill()
 			})
 			
-			ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg2, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg2, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				XCTAssertEqual(newValue as? String, msg2newId, "The new value must be passed to handler")
 				XCTAssertEqual(keyPath, observingKeyPath, "The keypath should be that particluar one which we are observing")
 				expectation2.fulfill()
@@ -58,7 +58,7 @@ class ManagedObjectObserverTests: MMTestCase {
 			XCTFail()
 		}
 		
-		waitForExpectationsWithTimeout(1) { error in
+		waitForExpectationsWithTimeout(2) { error in
 			XCTAssertTrue(true)
 		}
     }
@@ -68,7 +68,7 @@ class ManagedObjectObserverTests: MMTestCase {
 		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(ctx){
 			let observingKeyPath = "creationDate"
 			
-			ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				XCTFail("Handler must not be triggered, because we changed different key")
 			})
 			
@@ -90,19 +90,19 @@ class ManagedObjectObserverTests: MMTestCase {
 		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(ctx){
 			do {
 				let observingKeyPath = "messageId"
-				ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+				ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 					XCTFail("Handler must not be triggered, because we removed the observer")
 				})
-				ManagedObjectObserver.sharedInstance.removeObserver(self, observee: msg, forKeyPath: observingKeyPath)
+				ManagedObjectNotificationCenter.defaultCenter.removeObserver(self, observee: msg, forKeyPath: observingKeyPath)
 				msg.messageId = "2"
 				ctx.MM_saveToPersistentStoreAndWait()
 			}
 			do {
 				let observingKeyPath = "messageId"
-				ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+				ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 					XCTFail("Handler must not be triggered, because we removed the observer")
 				})
-				ManagedObjectObserver.sharedInstance.removeAllObservers()
+				ManagedObjectNotificationCenter.defaultCenter.removeAllObservers()
 				msg.messageId = "2"
 				ctx.MM_saveToPersistentStoreAndWait()
 			}
@@ -123,11 +123,11 @@ class ManagedObjectObserverTests: MMTestCase {
 			let expectation = expectationWithDescription("Test finished")
 			let observingKeyPath = "messageId"
 			
-			ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				observationsCounter += 1
 			})
 			
-			ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				observationsCounter += 1
 			})
 			
@@ -151,7 +151,7 @@ class ManagedObjectObserverTests: MMTestCase {
 			let expectation = expectationWithDescription("Test finished")
 			
 			let observingKeyPath = "messageId"
-			ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				XCTFail("Handler must not be triggered, because we removed the observer")
 			})
 			
@@ -164,7 +164,7 @@ class ManagedObjectObserverTests: MMTestCase {
 			msg2.messageId = "2.1"
 			ctx.MM_saveToPersistentStoreAndWait()
 	
-			ManagedObjectObserver.sharedInstance.addObserver(self, observee: msg2, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg2, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				expectation.fulfill()
 			})
 		

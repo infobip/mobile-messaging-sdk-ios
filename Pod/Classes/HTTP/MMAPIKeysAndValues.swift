@@ -107,6 +107,7 @@ public struct MMEventNotifications {
 	
 	/**
 	The notification `kDeviceTokenReceived` will be posted after the APNs device token is received.
+
 	*/
 	public static let kDeviceTokenReceived = "com.mobile-messaging.notification.device-token-received"
 	
