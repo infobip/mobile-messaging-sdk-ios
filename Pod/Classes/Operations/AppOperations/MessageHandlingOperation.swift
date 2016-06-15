@@ -67,12 +67,12 @@ final class MessageHandlingOperation: GroupOperation {
 		MMQueue.Main.queue.executeAsync {
 			for newMessage in newMessages {
 				if let payload = newMessage.payload {
-					NSNotificationCenter.defaultCenter().postNotificationName(MMEventNotifications.kMessageReceived,
+					NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived,
 											object: self,
 											userInfo: [
-													MMEventNotificationKeys.kMessagePayloadKey: payload,
-													MMEventNotificationKeys.kMessageIsPushKey: self.messagesOrigin == .APNS,
-													MMEventNotificationKeys.kMessageIsSilentKey: newMessage.isSilent
+													MMNotificationKeyMessagePayload: payload,
+													MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS,
+													MMNotificationKeyMessageIsSilent: newMessage.isSilent
 													])
 				}
 				self.newMessageReceivedCallback?()

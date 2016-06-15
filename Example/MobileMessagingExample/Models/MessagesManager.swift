@@ -81,8 +81,8 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	private func startObservingNotifications() {
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.appWillTerminate), name: UIApplicationWillTerminateNotification, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleNewMessageReceivedNotification(_:)), name: MMEventNotifications.kMessageReceived, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleDeliveryReportSentNotification(_:)), name: MMEventNotifications.kDeliveryReportSent, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleNewMessageReceivedNotification(_:)), name: MMNotificationMessageReceived, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleDeliveryReportSentNotification(_:)), name: MMNotificationDeliveryReportSent, object: nil)
 	}
 	
 	private func archiveMessages() {
@@ -108,7 +108,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	func handleNewMessageReceivedNotification(notification: NSNotification) {
 		guard let userInfo = notification.userInfo,
-			let messageUserInfo = userInfo[MMEventNotificationKeys.kMessagePayloadKey] as? [NSObject : AnyObject],
+			let messageUserInfo = userInfo[MMNotificationKeyMessagePayload] as? [NSObject : AnyObject],
 			let message = Message.prepare(messageUserInfo) else {
 				return
 		}
@@ -122,7 +122,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	func handleDeliveryReportSentNotification(notification: NSNotification) {
 		guard let userInfo = notification.userInfo,
-			let messageUserInfo = userInfo[MMEventNotificationKeys.kDLRMessageIDsKey] as? [String] else {
+			let messageUserInfo = userInfo[MMNotificationKeyDLRMessageIDs] as? [String] else {
 				return
 		}
 		

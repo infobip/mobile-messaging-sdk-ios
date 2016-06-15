@@ -43,7 +43,7 @@ public enum MMInternalErrorType : ErrorType {
 			if MobileMessaging.currentInstallation?.deviceToken != nil {
 				errorDescription = NSLocalizedString("The application instance is not registered on the server yet. APNs device token was not received by the Mobile Messaging SDK. Make sure your app is set up correctly to work with remote notifications.", comment: "")
 			} else {
-				errorDescription = NSLocalizedString("The application instance is not registered on the server yet. The registration will be perfomed eventually. Subscribe to the notification `MMEventNotifications.kRegistrationUpdated` to be notified as the registration succeeded.", comment: "")
+				errorDescription = NSLocalizedString("The application instance is not registered on the server yet. The registration will be perfomed eventually. Subscribe to the notification `MMRegistrationUpdated` to be notified as the registration succeeded.", comment: "")
 			}
 		case StorageInitializationError:
 			errorDescription = NSLocalizedString("Core Data storage not initialized.", comment: "")
