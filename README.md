@@ -111,6 +111,7 @@ Library informs you about following events using NSNotificationCenter:
 * __API error__ - is triggered on every error returned by API.
 * __Delivery reports sent__ - is triggered when message delivery is reported.
 
+More information on library events available on our [wiki page](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Library-events).
 
 ### Linking MSISDN
 

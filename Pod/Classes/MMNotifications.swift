@@ -6,7 +6,37 @@
 //
 //
 
+
+//MARK: Notifications
+
+/**
+Posted when the registration is updated on backend server.
+*/
+public let MMNotificationRegistrationUpdated = "com.mobile-messaging.notification.reg-updated"
+
+/**
+Posted when an APNs device token is received.
+*/
+public let MMNotificationDeviceTokenReceived = "com.mobile-messaging.notification.device-token-received"
+
+/**
+Posted when the library has succesfully sent message delivery report.
+*/
+public let MMNotificationDeliveryReportSent = "com.mobile-messaging.notification.dlr-sent"
+
+/**
+Posted when a server error received.
+*/
+public let MMNotificationAPIError = "com.mobile-messaging.notification.api-error"
+
+/**
+Posted when a message is received (either pushed by APNs or fetched from the server).
+*/
+public let MMNotificationMessageReceived = "com.mobile-messaging.notification.message-received"
+
+
 //MARK: Notification keys
+
 /**
 Key for entry in userInfo dictionary of `kRegistrationUpdated` notification.
 Contains an Internal Id string for the registered user.
@@ -48,30 +78,3 @@ Key for entry in userInfo dictionary of `kMessageReceived` notification.
 Contains a flag that indicates whether the remote notification is a silent push.
 */
 public let MMNotificationKeyMessageIsSilent = "com.mobile-messaging.notification.message-is-silent-key"
-
-//MARK: Notifications
-/**
-The notification `kRegistrationUpdated` will be posted after the registration is updated on backend server.
-*/
-public let MMNotificationRegistrationUpdated = "com.mobile-messaging.notification.reg-updated"
-
-/**
-The notification `kDeviceTokenReceived` will be posted after the APNs device token is received.
-
-*/
-public let MMNotificationDeviceTokenReceived = "com.mobile-messaging.notification.device-token-received"
-
-/**
-The notification `kDeliveryReportSent` will be posted after the MobileMesaging library has succesfully sent message delivery report.
-*/
-public let MMNotificationDeliveryReportSent = "com.mobile-messaging.notification.dlr-sent"
-
-/**
-The notification `kAPIError` will be posted after receiving any error from server.
-*/
-public let MMNotificationAPIError = "com.mobile-messaging.notification.api-error"
-
-/**
-The notification `kMessageReceived` will be posted after receiving any message, either from APNs or the server.
-*/
-public let MMNotificationMessageReceived = "com.mobile-messaging.notification.message-received"
