@@ -149,7 +149,7 @@ static NSArray * AFPublicKeyTrustChainForServerTrust(SecTrustRef serverTrust) {
 #pragma mark -
 
 @interface MM_AFSecurityPolicy()
-@property (readwrite, nonatomic, assign) AFSSLPinningMode SSLPinningMode;
+@property (readwrite, nonatomic, assign) MM_AFSSLPinningMode SSLPinningMode;
 @property (readwrite, nonatomic, strong) NSSet *pinnedPublicKeys;
 @end
 
@@ -180,16 +180,16 @@ static NSArray * AFPublicKeyTrustChainForServerTrust(SecTrustRef serverTrust) {
 
 + (instancetype)defaultPolicy {
     MM_AFSecurityPolicy *securityPolicy = [[self alloc] init];
-    securityPolicy.SSLPinningMode = AFSSLPinningModeNone;
+    securityPolicy.SSLPinningMode = MM_AFSSLPinningModeNone;
 
     return securityPolicy;
 }
 
-+ (instancetype)policyWithPinningMode:(AFSSLPinningMode)pinningMode {
++ (instancetype)policyWithPinningMode:(MM_AFSSLPinningMode)pinningMode {
     return [self policyWithPinningMode:pinningMode withPinnedCertificates:[self defaultPinnedCertificates]];
 }
 
-+ (instancetype)policyWithPinningMode:(AFSSLPinningMode)pinningMode withPinnedCertificates:(NSSet *)pinnedCertificates {
++ (instancetype)policyWithPinningMode:(MM_AFSSLPinningMode)pinningMode withPinnedCertificates:(NSSet *)pinnedCertificates {
     MM_AFSecurityPolicy *securityPolicy = [[self alloc] init];
     securityPolicy.SSLPinningMode = pinningMode;
 
@@ -232,7 +232,7 @@ static NSArray * AFPublicKeyTrustChainForServerTrust(SecTrustRef serverTrust) {
 - (BOOL)evaluateServerTrust:(SecTrustRef)serverTrust
                   forDomain:(NSString *)domain
 {
-    if (domain && self.allowInvalidCertificates && self.validatesDomainName && (self.SSLPinningMode == AFSSLPinningModeNone || [self.pinnedCertificates count] == 0)) {
+    if (domain && self.allowInvalidCertificates && self.validatesDomainName && (self.SSLPinningMode == MM_AFSSLPinningModeNone || [self.pinnedCertificates count] == 0)) {
         // https://developer.apple.com/library/mac/documentation/NetworkingInternet/Conceptual/NetworkingTopics/Articles/OverridingSSLChainValidationCorrectly.html
         //  According to the docs, you should only trust your provided certs for evaluation.
         //  Pinned certificates are added to the trust. Without pinned certificates,
@@ -254,17 +254,17 @@ static NSArray * AFPublicKeyTrustChainForServerTrust(SecTrustRef serverTrust) {
 
     SecTrustSetPolicies(serverTrust, (__bridge CFArrayRef)policies);
 
-    if (self.SSLPinningMode == AFSSLPinningModeNone) {
+    if (self.SSLPinningMode == MM_AFSSLPinningModeNone) {
         return self.allowInvalidCertificates || AFServerTrustIsValid(serverTrust);
     } else if (!AFServerTrustIsValid(serverTrust) && !self.allowInvalidCertificates) {
         return NO;
     }
 
     switch (self.SSLPinningMode) {
-        case AFSSLPinningModeNone:
+        case MM_AFSSLPinningModeNone:
         default:
             return NO;
-        case AFSSLPinningModeCertificate: {
+        case MM_AFSSLPinningModeCertificate: {
             NSMutableArray *pinnedCertificates = [NSMutableArray array];
             for (NSData *certificateData in self.pinnedCertificates) {
                 [pinnedCertificates addObject:(__bridge_transfer id)SecCertificateCreateWithData(NULL, (__bridge CFDataRef)certificateData)];
@@ -286,7 +286,7 @@ static NSArray * AFPublicKeyTrustChainForServerTrust(SecTrustRef serverTrust) {
             
             return NO;
         }
-        case AFSSLPinningModePublicKey: {
+        case MM_AFSSLPinningModePublicKey: {
             NSUInteger trustedPublicKeyCount = 0;
             NSArray *publicKeys = AFPublicKeyTrustChainForServerTrust(serverTrust);
 

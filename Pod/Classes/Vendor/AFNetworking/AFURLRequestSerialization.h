@@ -57,8 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
 
  */
-typedef NS_ENUM(NSUInteger, AFHTTPRequestQueryStringSerializationStyle) {
-    AFHTTPRequestQueryStringDefaultStyle = 0,
+typedef NS_ENUM(NSUInteger, MM_AFHTTPRequestQueryStringSerializationStyle) {
+    MM_AFHTTPRequestQueryStringDefaultStyle = 0,
 };
 
 @protocol MM_AFMultipartFormData;
@@ -184,7 +184,7 @@ forHTTPHeaderField:(NSString *)field;
 
  @see AFHTTPRequestQueryStringSerializationStyle
  */
-- (void)setQueryStringSerializationWithStyle:(AFHTTPRequestQueryStringSerializationStyle)style;
+- (void)setQueryStringSerializationWithStyle:(MM_AFHTTPRequestQueryStringSerializationStyle)style;
 
 /**
  Set the a custom method of query string serialization according to the specified block.

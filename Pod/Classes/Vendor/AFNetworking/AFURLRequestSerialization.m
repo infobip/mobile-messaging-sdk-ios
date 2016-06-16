@@ -30,7 +30,7 @@
 NSString * const AFURLRequestSerializationErrorDomain = @"com.alamofire.error.serialization.request";
 NSString * const AFNetworkingOperationFailingURLRequestErrorKey = @"com.alamofire.serialization.request.error.response";
 
-typedef NSString * (^AFQueryStringSerializationBlock)(NSURLRequest *request, id parameters, NSError *__autoreleasing *error);
+typedef NSString * (^MM_AFQueryStringSerializationBlock)(NSURLRequest *request, id parameters, NSError *__autoreleasing *error);
 
 /**
  Returns a percent-escaped string following RFC 3986 for a query string key or value.
@@ -189,8 +189,8 @@ static void *AFHTTPRequestSerializerObserverContext = &AFHTTPRequestSerializerOb
 @interface MM_AFHTTPRequestSerializer ()
 @property (readwrite, nonatomic, strong) NSMutableSet *mutableObservedChangedKeyPaths;
 @property (readwrite, nonatomic, strong) NSMutableDictionary *mutableHTTPRequestHeaders;
-@property (readwrite, nonatomic, assign) AFHTTPRequestQueryStringSerializationStyle queryStringSerializationStyle;
-@property (readwrite, nonatomic, copy) AFQueryStringSerializationBlock queryStringSerialization;
+@property (readwrite, nonatomic, assign) MM_AFHTTPRequestQueryStringSerializationStyle queryStringSerializationStyle;
+@property (readwrite, nonatomic, copy) MM_AFQueryStringSerializationBlock queryStringSerialization;
 @end
 
 @implementation MM_AFHTTPRequestSerializer
@@ -333,7 +333,7 @@ forHTTPHeaderField:(NSString *)field
 
 #pragma mark -
 
-- (void)setQueryStringSerializationWithStyle:(AFHTTPRequestQueryStringSerializationStyle)style {
+- (void)setQueryStringSerializationWithStyle:(MM_AFHTTPRequestQueryStringSerializationStyle)style {
     self.queryStringSerializationStyle = style;
     self.queryStringSerialization = nil;
 }
@@ -492,7 +492,7 @@ forHTTPHeaderField:(NSString *)field
             }
         } else {
             switch (self.queryStringSerializationStyle) {
-                case AFHTTPRequestQueryStringDefaultStyle:
+                case MM_AFHTTPRequestQueryStringDefaultStyle:
                     query = AFQueryStringFromParameters(parameters);
                     break;
             }
@@ -554,7 +554,7 @@ forHTTPHeaderField:(NSString *)field
     }
 
     self.mutableHTTPRequestHeaders = [[decoder decodeObjectOfClass:[NSDictionary class] forKey:NSStringFromSelector(@selector(mutableHTTPRequestHeaders))] mutableCopy];
-    self.queryStringSerializationStyle = (AFHTTPRequestQueryStringSerializationStyle)[[decoder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(queryStringSerializationStyle))] unsignedIntegerValue];
+    self.queryStringSerializationStyle = (MM_AFHTTPRequestQueryStringSerializationStyle)[[decoder decodeObjectOfClass:[NSNumber class] forKey:NSStringFromSelector(@selector(queryStringSerializationStyle))] unsignedIntegerValue];
 
     return self;
 }
