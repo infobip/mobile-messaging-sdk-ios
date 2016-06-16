@@ -12,10 +12,10 @@ NSString* MMNotificationAPIError = @"com.mobile-messaging.notification.api-error
 NSString* MMNotificationMessageReceived = @"com.mobile-messaging.notification.message-received";
 
 //MARK: Notification keys
-NSString* MMNotificationKeyRegistrationInternalId = @"com.mobile-messaging.notification.registration-key";
-NSString* MMNotificationKeyDeviceToken = @"com.mobile-messaging.notification.device-token-key";
-NSString* MMNotificationKeyDLRMessageIDs = @"com.mobile-messaging.notification.dlr-key";
-NSString* MMNotificationKeyAPIErrorUserInfo = @"com.mobile-messaging.notification.api-error-key";
-NSString* MMNotificationKeyMessagePayload = @"com.mobile-messaging.notification.message-key";
-NSString* MMNotificationKeyMessageIsPush = @"com.mobile-messaging.notification.message-is-push-key";
-NSString* MMNotificationKeyMessageIsSilent = @"com.mobile-messaging.notification.message-is-silent-key";
+NSString* MMNotificationKeyRegistrationInternalId = @"com.mobile-messaging.notification.key.registration";
+NSString* MMNotificationKeyDeviceToken = @"com.mobile-messaging.notification.key.device-token";
+NSString* MMNotificationKeyDLRMessageIDs = @"com.mobile-messaging.notification.key.dlr-message-ids";
+NSString* MMNotificationKeyAPIErrorUserInfo = @"com.mobile-messaging.notification.key.api-error";
+NSString* MMNotificationKeyMessagePayload = @"com.mobile-messaging.notification.key.message";
+NSString* MMNotificationKeyMessageIsPush = @"com.mobile-messaging.notification.key.message-is-push";
+NSString* MMNotificationKeyMessageIsSilent = @"com.mobile-messaging.notification.key.message-is-silent";
