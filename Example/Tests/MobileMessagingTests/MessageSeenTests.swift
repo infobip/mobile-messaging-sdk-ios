@@ -114,21 +114,4 @@ class MessageSeenTests: MMTestCase {
 
         self.waitForExpectationsWithTimeout(100, handler: nil)
     }
-    
-    func testSendFailureInvalidAppId() {
-		cleanUpAndStop()
-		startWithWrongApplicationCode()
-		
-		let expectation = expectationWithDescription("Delivery sending completed")
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: nil, completion: { (err) in
-			self.mobileMessagingInstance.setSeen(["m1"]) { result in
-				
-				XCTAssertNotNil(result.error, "We expect an error")
-				XCTAssertEqual(result.error?.localizedDescription, "Invalid Application Id", "There must be a wrong application code error")
-				expectation.fulfill()
-			}
-		})
-		
-		self.waitForExpectationsWithTimeout(50, handler: nil)
-    }
 }

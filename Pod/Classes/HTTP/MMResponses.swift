@@ -10,7 +10,7 @@ import Freddy
 
 typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
 typealias MMDeliveryReportingResult = Result<MMHTTPDeliveryReportingResponse>
-typealias MMFetchMessagesResult = Result<MMHTTPFetchMessagesResponse>
+typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>
 typealias MMSaveEmailResult = Result<MMHTTPSaveEmailResponse>
 typealias MMSaveMSISDNResult = Result<MMHTTPSaveMSISDNResponse>
 typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
@@ -39,7 +39,7 @@ final class MMHTTPSaveEmailResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSaveMSISDNResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 
-final class MMHTTPFetchMessagesResponse {
+final class MMHTTPSyncMessagesResponse {
     let messages : [MMMessage]?
     
     init(messages:[MMMessage]?) {
@@ -47,7 +47,7 @@ final class MMHTTPFetchMessagesResponse {
     }
 }
 
-extension MMHTTPFetchMessagesResponse : JSONDecodable {
+extension MMHTTPSyncMessagesResponse : JSONDecodable {
     convenience init(json value: JSON) throws {
         var payloads = [JSON]()
         do {
@@ -65,13 +65,46 @@ public func ==(lhs: MMMessage, rhs: MMMessage) -> Bool {
 	return lhs.messageId == rhs.messageId
 }
 
+//TODO: reafactor
+func jsonDictToNormalDict(jsonDict: [String: JSON]) -> [String: AnyObject] {
+	var normalDict = [String : AnyObject]()
+	for (key,value) in jsonDict {
+		normalDict[key] = jsonToAnyObject(value)
+	}
+	return normalDict
+}
+
+func jsonArrToNormalArr(jsonArr: [JSON]) -> [AnyObject] {
+	return jsonArr.flatMap(jsonToAnyObject)
+}
+
+
+func jsonToAnyObject(json: JSON) -> AnyObject {
+	switch json {
+	case JSON.Array(let jsonArray):
+		return jsonArrToNormalArr(jsonArray)
+	case JSON.Dictionary(let jsonDictionary):
+		return jsonDictToNormalDict(jsonDictionary)
+	case .String(let str):
+		return str
+	case .Double(let num):
+		return num
+	case .Int(let int):
+		return int
+	case .Bool(let b):
+		return b
+	case JSON.Null:
+		return NSNull()
+	}
+}
+
+
 public struct MMMessage: Hashable, JSONDecodable {
 	
 	public var hashValue: Int { return messageId.hashValue }
 	let isSilent: Bool
 	let messageId: String
 	var payload: [String: AnyObject]?
-	var data: [String: JSON]?
 	
 	public init(json: JSON) throws {
         var result = [String: AnyObject]()
@@ -99,16 +132,15 @@ public struct MMMessage: Hashable, JSONDecodable {
 		if aps.count > 0 {
 			result[MMAPIKeys.kAps] = aps
         }
-        
-		self.payload = result
+		
         self.isSilent = MMMessage.checkIfSilent(result)
-        if let data = try? json.dictionary(MMAPIKeys.kData) {
-            self.data = data
+        if let data = try? json.dictionary(MMAPIKeys.kGatewayData) {
+			result += jsonDictToNormalDict(data)
         }
+		self.payload = result
 	}
 	
 	init?(payload: [NSObject: AnyObject]) {
-		print(payload)
 		guard let messageId = payload[MMAPIKeys.kMessageId] as? String,
             let payload = payload as? [String: AnyObject] else {
 			return nil
@@ -127,7 +159,6 @@ public struct MMMessage: Hashable, JSONDecodable {
 		guard let aps = payload[MMAPIKeys.kAps] as? [String: AnyObject] else {
 			return false
 		}
-		print(aps)
 		if aps[MMAPIKeys.kContentAvailable] as? Int != 1 {
 			return false
 		}

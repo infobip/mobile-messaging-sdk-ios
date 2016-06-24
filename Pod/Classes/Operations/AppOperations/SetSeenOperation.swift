@@ -37,55 +37,53 @@ final class SetSeenOperation: Operation {
 	}
 	
 	override func execute() {
-		if MMAPIKeys.kSeenAPIEnabled {
-			self.context.performBlockAndWait {
-				self.markMessagesAsSeen()
-				self.sendSeen()
-			}
-		} else {
-			finish()
-		}
+		self.markMessagesAsSeen()
+		self.sendSeen()
 	}
 	
 	private func markMessagesAsSeen() {
-		guard let messageIds = self.messageIds where messageIds.count > 0 else {
-			return
-		}
-		if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), inContext: self.context) as? [MessageManagedObject] {
-			for message in dbMessages {
-				switch message.seenStatus {
-				case .NotSeen :
-					message.seenStatus = .SeenNotSent
-					message.seenDate = NSDate()
-				case .SeenSent:
-					message.seenStatus = .SeenNotSent
-				case .SeenNotSent: break
-				}
+		self.context.performBlockAndWait {
+			guard let messageIds = self.messageIds where messageIds.count > 0 else {
+				return
 			}
-			self.context.MM_saveOnlySelfAndWait()
+			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), inContext: self.context) as? [MessageManagedObject] {
+				for message in dbMessages {
+					switch message.seenStatus {
+					case .NotSeen :
+						message.seenStatus = .SeenNotSent
+						message.seenDate = NSDate()
+					case .SeenSent:
+						message.seenStatus = .SeenNotSent
+					case .SeenNotSent: break
+					}
+				}
+				self.context.MM_saveOnlySelfAndWait()
+			}
 		}
 	}
 	
 	private func sendSeen() {
-		guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), inContext: self.context) as? [MessageManagedObject]
-			where seenNotSentMessages.count > 0
-			else
-		{
-			MMLogDebug("There is no unseen meessages to send on server. Finishing...")
-			self.finish()
-			return
-		}
-		
-		let seenStatusesToSend = seenNotSentMessages.flatMap { msg -> SeenData? in
-			guard let date = msg.seenDate else {
-				return nil
+		self.context.performBlockAndWait {
+			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), inContext: self.context) as? [MessageManagedObject]
+				where seenNotSentMessages.count > 0
+				else
+			{
+				MMLogDebug("There is no unseen meessages to send on server. Finishing...")
+				self.finish()
+				return
 			}
-			return SeenData(messageId: msg.messageId, seenTimestamp: date.timeIntervalSince1970)
-		}
-		
-		let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)
-		self.remoteAPIQueue.performRequest(request) { result in
-			self.handleSeenResult(result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
+			
+			let seenStatusesToSend = seenNotSentMessages.flatMap { msg -> SeenData? in
+				guard let date = msg.seenDate else {
+					return nil
+				}
+				return SeenData(messageId: msg.messageId, seenTimestamp: date.timeIntervalSince1970)
+			}
+			
+			let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)
+			self.remoteAPIQueue.performRequest(request) { result in
+				self.handleSeenResult(result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
+			}
 		}
 	}
 

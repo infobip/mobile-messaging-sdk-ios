@@ -9,10 +9,10 @@
 import Foundation
 import CoreData
 
-final class MMMessageHandler : MMStoringService {
-	lazy var messageHandlingQueue = OperationQueue.newSerialQueue
-	lazy var synchronizationQueue = OperationQueue.newSerialQueue
-	
+final class MMMessageHandler {
+	lazy var messageHandlingQueue = OperationQueue()
+
+	var storage: MMCoreDataStorage
     convenience init(storage: MMCoreDataStorage, baseURL: String, applicationCode: String) {
         let remoteAPI = MMRemoteAPIQueue(baseURL: baseURL, applicationCode: applicationCode)
         let seenSenderRemoteAPI = MMRemoteAPIQueue(baseURL: baseURL, applicationCode: applicationCode)
@@ -22,45 +22,28 @@ final class MMMessageHandler : MMStoringService {
     init(storage: MMCoreDataStorage, remoteApi: MMRemoteAPIQueue, seenSenderRemoteAPI: MMRemoteAPIQueue) {
         self.messageSyncRemoteAPI = remoteApi
         self.seenSenderRemoteAPI = seenSenderRemoteAPI
-        super.init(storage: storage)
+		self.storage = storage
         self.evictOldMessages()
     }
 
     //MARK: Intenal
-	func handleAPNSMessage(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: (() -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
-		resetMessageHandlingContext()
-		messageHandlingQueue.addOperation(MessageHandlingOperation(userInfos: [userInfo], messagesOrigin: .APNS, context: storageContext, remoteAPIQueue: messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
+	func handleAPNSMessage(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: (() -> Void)? = nil, completion: (NSError? -> Void)? = nil) {
+		self.messageHandlingQueue.addOperation(MessageHandlingOperation(userInfos: [userInfo], messagesOrigin: .APNS, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
 	}
 	
-	var dataSyncContext: NSManagedObjectContext?
 	func syncWithServer(completion: (NSError? -> Void)? = nil) {
-		if dataSyncContext == nil {
-			if let newctx = try? storage.newParallelContext() {
-				dataSyncContext = newctx
-			}
-		}
-		if let ctx = dataSyncContext {
-			synchronizationQueue.addOperation(MessagesSyncOperation(context: ctx, remoteAPIQueue: messageSyncRemoteAPI, finishBlock: completion))
-		}
+		self.messageHandlingQueue.addOperation(MessagesSyncOperation(context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, finishBlock: completion))
 	}
 	
 	func evictOldMessages(messageAge: NSTimeInterval? = nil, completion:(() -> Void)? = nil) {
-		resetMessageHandlingContext()
-		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storageContext, messageMaximumAge: messageAge, finishBlock: completion))
+		self.messageHandlingQueue.addOperation(MessagesEvictionOperation(context: self.storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
     }
 	
     func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {
-		resetMessageHandlingContext()
-		messageHandlingQueue.addOperation(SetSeenOperation(messageIds: messageIds, context: storageContext, remoteAPIQueue: seenSenderRemoteAPI, finishBlock: completion))
+		self.messageHandlingQueue.addOperation(SetSeenOperation(messageIds: messageIds, context: self.storage.newPrivateContext(), remoteAPIQueue: self.seenSenderRemoteAPI, finishBlock: completion))
     }
 	
 	//MARK: Private
     private var messageSyncRemoteAPI: MMRemoteAPIQueue
     private var seenSenderRemoteAPI: MMRemoteAPIQueue
-	
-	func resetMessageHandlingContext() {
-		storageContext.performBlockAndWait { [weak self] in
-			self?.storageContext.reset()
-		}
-	}
 }

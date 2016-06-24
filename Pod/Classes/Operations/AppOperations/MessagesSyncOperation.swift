@@ -25,15 +25,9 @@ final class MessagesSyncOperation: GroupOperation {
 		
 		self.addCondition(RegistrationCondition())
 		
-		if MMAPIKeys.kFetchAPIEnabled {
-			let fetchOperation = MessagesFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue)
-			fetchOperation.addDependency(seenOperation)
-			self.addOperation(fetchOperation)
-		} else {
-			let deliverReportsOperation = DeliveryReportingOperation(context: context, remoteAPIQueue: remoteAPIQueue)
-			deliverReportsOperation.addDependency(seenOperation)
-			self.addOperation(deliverReportsOperation)
-		}
+		let syncOperation = SyncOperation(context: context, remoteAPIQueue: remoteAPIQueue)
+		syncOperation.addDependency(seenOperation)
+		self.addOperation(syncOperation)
 	}
 	
 	override func finished(errors: [NSError]) {

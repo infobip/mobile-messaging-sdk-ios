@@ -84,7 +84,7 @@ class FetchMessagesTest: MMTestCase {
 		
 		//Expectations
 		waitForExpectationsWithTimeout(50) { error in
-			let ctx = self.mobileMessagingInstance.messageHandler!.storageContext
+			let ctx = self.mobileMessagingInstance.storage!.mainThreadManagedObjectContext!
 			ctx.performBlockAndWait {
 				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
 					let m1 = messages.filter({$0.messageId == "m1"}).first

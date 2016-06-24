@@ -22,10 +22,10 @@ enum MMHTTPMethod {
 enum MMHTTPAPIPath: String {
     case Registration = "/mobile/2/registration"
     case DeliveryReport = "/mobile/1/deliveryreports"
-    case FetchMessages = "/mobile/1/messages"
 	case Email = "/mobile/1/email"
 	case MSISDN = "/mobile/1/msisdn"
     case SeenMessages = "/mobile/1/messages/seen"
+	case SyncMessages = "/mobile/1/messages"
 }
 
 protocol MMHTTPRequestResponsable {
@@ -59,10 +59,10 @@ extension MMHTTPRequestData {
     
 	func responseObject(applicationCode: String, baseURL: String, completion: Result<ResponseType> -> Void) {
 		let manager = MM_AFHTTPSessionManager(baseURL: NSURL(string: baseURL), sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration())
-		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: self.body)
+		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
 		manager.responseSerializer = MMResponseSerializer<ResponseType>()
 		
-		MMLogInfo("Sending request \(self.dynamicType) w/parameters: \(self.parameters) to \(baseURL + self.path.rawValue)")
+		MMLogInfo("Sending request \(self.dynamicType)\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
 		
 		let successBlock = { (task: NSURLSessionDataTask, obj: AnyObject?) -> Void in
 			if let obj = obj as? ResponseType {
@@ -80,11 +80,11 @@ extension MMHTTPRequestData {
 		let urlString = manager.baseURL!.absoluteString + self.path.rawValue
 		switch self.method {
 		case .POST:
-			manager.POST(urlString, parameters: self.parameters, progress: nil, success: successBlock, failure: failureBlock)
+			manager.POST(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
 		case .PUT:
-			manager.PUT(urlString, parameters: self.parameters, success: successBlock, failure: failureBlock)
+			manager.PUT(urlString, parameters: parameters, success: successBlock, failure: failureBlock)
 		case .GET:
-			manager.GET(urlString, parameters: self.parameters, progress: nil, success: successBlock, failure: failureBlock)
+			manager.GET(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
 		}
 	}
 }
@@ -121,20 +121,6 @@ struct MMPostDeliveryReportRequest: MMHTTPPostRequest {
 	
 	init(messageIDs: [String]) {
 		self.messageIDs = messageIDs
-	}
-}
-
-struct MMGetMessagesRequest: MMHTTPGetRequest {
-	typealias ResponseType = MMHTTPFetchMessagesResponse
-	
-	var path: MMHTTPAPIPath { return .FetchMessages }
-	var parameters: [String: AnyObject]? {
-		return [MMAPIKeys.kInternalRegistrationId: internalId]
-	}
-	var internalId: String
-	
-	init(internalId: String) {
-		self.internalId = internalId
 	}
 }
 
@@ -178,3 +164,27 @@ struct MMPostEmailRequest: MMHTTPPostRequest {
 		self.email = email ?? ""
 	}
 }
+
+struct MMGetSyncRequest: MMHTTPGetRequest {
+	typealias ResponseType = MMHTTPSyncMessagesResponse
+	
+	var path: MMHTTPAPIPath { return .SyncMessages }
+	var parameters: [String: AnyObject]? {
+		var params = [String: AnyObject]()
+		params[MMAPIKeys.kInternalRegistrationId] = internalId
+		params[MMAPIKeys.kArchiveMsgIds] = archiveMsgIds
+		params[MMAPIKeys.kDLRMsgIds] = dlrMsgIds
+		return params
+	}
+
+	var internalId: String
+	var archiveMsgIds: [String]?
+	var dlrMsgIds: [String]?
+	
+	init(internalId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?) {
+		self.internalId = internalId
+		self.archiveMsgIds = archiveMsgIds
+		self.dlrMsgIds = dlrMsgIds
+	}
+}
+

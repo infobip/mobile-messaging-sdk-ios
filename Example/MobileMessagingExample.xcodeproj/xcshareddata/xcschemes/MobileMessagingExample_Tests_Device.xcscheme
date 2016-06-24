@@ -25,7 +25,11 @@
       </Testables>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-IsDeviceStartedToRunTests YES"
+            argument = "-IsDeviceStartedToRunTests 1"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-UseIAMMocks 1"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

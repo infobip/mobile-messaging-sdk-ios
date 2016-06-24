@@ -11,10 +11,12 @@ import CoreTelephony
 final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String
     private var jsonBody: [String: AnyObject]?
+	private var headers: [String: String]?
     
-    init(applicationCode: String, jsonBody: [String: AnyObject]? = nil) {
+    init(applicationCode: String, jsonBody: [String: AnyObject]?, headers: [String: String]?) {
 		self.applicationCode = applicationCode
         self.jsonBody = jsonBody
+		self.headers = headers
 		super.init()
 	}
 	
@@ -28,31 +30,29 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
             params.insert("POST")
             return params
         }
-        set {}}
-    
+        set {}
+	}
+	
+	func applyHeaders(inout request: NSMutableURLRequest) {
+		if let headers = headers {
+			for (header, value) in headers {
+				request.addValue(value, forHTTPHeaderField: header)
+			}
+		}
+		request.addValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
+		request.addValue(MMUserAgentData.currentUserAgent, forHTTPHeaderField: "User-Agent")
+		if NSProcessInfo.processInfo().arguments.contains("-UseIAMMocks") {
+			request.addValue("iam-mock", forHTTPHeaderField: "Accept-Features")
+		}
+	}
+	
     override func requestWithMethod(method: String, URLString: String, parameters: AnyObject?, error: NSErrorPointer) -> NSMutableURLRequest {
-        let request = NSMutableURLRequest()
+        var request = NSMutableURLRequest()
 		request.timeoutInterval = 20
         request.HTTPMethod = method
-		request.addValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
-
-		var options = [MMUserAgentData.DataOptions.None]
-		if MobileMessaging.shouldSendSystemInfo {
-			options.append(MMUserAgentData.DataOptions.System)
-		}
+		request.URL = URL(withQueryParameters: parameters, url: URLString)
+		applyHeaders(&request)
 		
-		if MobileMessaging.shouldSendCarrierInfo {
-			options.append(MMUserAgentData.DataOptions.Carrier)
-		}
-		
-        request.addValue(MMUserAgentData.value(options), forHTTPHeaderField: "User-Agent")
-		
-		var completeURLString = URLString
-		if let dictParams = parameters as? [String : AnyObject] {
-			completeURLString += "?" + MMHTTPRequestSerializer.queryFromParameters(dictParams);
-		}
-        request.URL = NSURL(string: completeURLString)
-        
         if let jsonBody = jsonBody where method == "POST" {
             var data : NSData?
             do {
@@ -67,6 +67,14 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
         
         return request;
     }
+	
+	func URL(withQueryParameters parameters: AnyObject?, url: String) -> NSURL? {
+		var completeURLString = url
+		if let dictParams = parameters as? [String : AnyObject] {
+			completeURLString += "?" + MMHTTPRequestSerializer.queryFromParameters(dictParams);
+		}
+		return NSURL(string: completeURLString)
+	}
 	
 	class func queryFromParameters(parameters: [String: AnyObject]) -> String {
 		var escapedPairs = [String]()
@@ -131,6 +139,17 @@ final class MMUserAgentData {
 			   carrierValue(options.contains(self.DataOptions.Carrier))
 	}
 	
+	class var currentUserAgent: String {
+		var options = [MMUserAgentData.DataOptions.None]
+		if MobileMessaging.shouldSendSystemInfo {
+			options.append(MMUserAgentData.DataOptions.System)
+		}
+		
+		if MobileMessaging.shouldSendCarrierInfo {
+			options.append(MMUserAgentData.DataOptions.Carrier)
+		}
+		return MMUserAgentData.value(options)
+	}
 	
 	private static let sharedInstance = MMUserAgentData()
     

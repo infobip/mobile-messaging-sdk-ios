@@ -23,7 +23,7 @@ func backendJSONSilentMessage(messageId: String) -> String {
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
-    return "{\"body\":\"test\",\"badge\":6,\"sound\":\"default\",\"content-available\":1,\"messageId\":\"\(messageId)\", \"data\": {\"key1\": \"value1\"}}"
+    return "{\"body\":\"test\",\"badge\":6,\"sound\":\"default\",\"content-available\":1,\"messageId\":\"\(messageId)\", \"\(MMAPIKeys.kGatewayData)\": {\"key1\": \"value1\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -49,8 +49,17 @@ func sendPushes(preparingFunc:(String) -> [NSObject: AnyObject], count: Int, rec
 }
 
 class MessageReceivingTests: MMTestCase {
+	
+	func testJSONToNSObjects() {
+		let jsonstring = "{\"body\":\"test\",\"badge\":6,\"sound\":\"default\",\"content-available\":1,\"messageId\":\"m1\", \"\(MMAPIKeys.kGatewayData)\": {\"key1\": {\"key1\": \"value1\"}}}"
+		var message: MMMessage?
+		if let json = try? JSON(jsonString: jsonstring) {
+			message = try? MMMessage(json: json)
+		}
+		XCTAssertEqual(message?.payload as! [String: NSObject] , ["aps": ["alert": ["body":"test"], "badge": 6, "sound": "default", "content-available":1], "messageId":"m1", "key1": ["key1": "value1"]])
+	}
+	
 	func testPayloadParsing() {
-		
 		do {
 			do {
 				let json = try JSON(jsonString: jsonWithoutMessageId)
@@ -68,7 +77,7 @@ class MessageReceivingTests: MMTestCase {
 				XCTAssertEqual(message.payload!["aps"]!["alert"]!!["body"], "test", "Message body must be parsed")
 				XCTAssertEqual(message.payload!["aps"]!["sound"], "default", "sound must be parsed")
 				XCTAssertEqual(message.payload!["aps"]!["badge"], 6, "badger must be parsed")
-                XCTAssertEqual(message.data!, ["key1": "value1"], "data must be parsed")
+
 				XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
 			}
 		} catch {

@@ -229,8 +229,8 @@ extension NSManagedObjectContext {
 			static var token: dispatch_once_t = 0
 		}
 		dispatch_once(&Static.token) {
-			let originalSelector = Selector("willTurnIntoFault")
-			let swizzledSelector = Selector("mobilemessaging_willTurnIntoFault")
+			let originalSelector = #selector(NSManagedObject.willTurnIntoFault)
+			let swizzledSelector = #selector(NSManagedObject.mobilemessaging_willTurnIntoFault)
 			
 			let cl = NSManagedObject.self
 			

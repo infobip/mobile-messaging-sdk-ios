@@ -11,8 +11,10 @@ import XCTest
 
 class DeliveryReportingTests: MMTestCase {
     func testSendingDeliveryStatusSuccess() {
+	
         let expectation = expectationWithDescription("Delivery sending completed")
 		
+		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: {
 			
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
@@ -33,7 +35,7 @@ class DeliveryReportingTests: MMTestCase {
 		startWithWrongApplicationCode()
 		
         let expectation = expectationWithDescription("Delivery sending completed")
-		
+		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: {
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 			

@@ -9,8 +9,8 @@ import Foundation
 
 struct MMAPIKeys {
 	//MARK: API availability
-	static let kFetchAPIEnabled = true
-	static let kSeenAPIEnabled = true
+//	static let kFetchAPIEnabled = true
+//	static let kSeenAPIEnabled = true
 	
     //MARK: registration
     static let kPlatformType = "platformType"
@@ -33,7 +33,7 @@ struct MMAPIKeys {
     static let kBody = "body"
     static let kBadge = "badge"
     static let kSound = "sound"
-    static let kData = "data"
+    static let kGatewayData = "gatewayData"
 	static let kContentAvailable = "content-available"
 	
 	//MARK: email
@@ -48,6 +48,10 @@ struct MMAPIKeys {
     
     //MARK: Common fields
     static let kMessageId = "messageId"
+	
+	//MARK: Sync API
+	static let kArchiveMsgIds = "mIDs"
+	static let kDLRMsgIds = "drIDs"
 }
 
 struct MMAPIValues {

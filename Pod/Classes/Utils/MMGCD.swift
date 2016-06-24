@@ -64,7 +64,7 @@ final class MMQueueObject: CustomStringConvertible {
             dispatch_barrier_async(queue, closure)
         }
     }
-    
+
     func executeSync(closure: () -> Void) {
         if isCurrentQueue {
             closure()

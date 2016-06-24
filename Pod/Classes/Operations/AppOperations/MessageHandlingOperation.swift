@@ -13,13 +13,14 @@ enum MessageOrigin {
 	case APNS, Server
 }
 
-final class MessageHandlingOperation: GroupOperation {
+final class MessageHandlingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (NSError? -> Void)?
 	var newMessageReceivedCallback: (() -> Void)? = nil
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var userInfos: [[NSObject : AnyObject]]
 	var messagesOrigin: MessageOrigin
+	var hasNewMessages: Bool = false
 	
 	init(userInfos: [[NSObject : AnyObject]], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: (() -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
 		self.userInfos = userInfos //can be either APNS or Server layout
@@ -27,19 +28,13 @@ final class MessageHandlingOperation: GroupOperation {
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 		self.messagesOrigin = messagesOrigin
-		super.init(operations: [])
+		super.init()
 		
 		self.userInitiated = true
-		let messageHandling = BlockOperation(block: { block in
-			self.handleMessage()
-			block()
-		})
-		
-		let reportDelivering = DeliveryReportingOperation(context: context, remoteAPIQueue: remoteAPIQueue)
-		reportDelivering.addDependency(messageHandling)
-		
-		addOperation(messageHandling)
-		addOperation(reportDelivering)
+	}
+	
+	override func execute() {
+		handleMessage()
 	}
 	
 	private func handleMessage() {
@@ -48,8 +43,10 @@ final class MessageHandlingOperation: GroupOperation {
 				where newMessages.count > 0
 				else
 			{
+				self.finish()
 				return
 			}
+			self.hasNewMessages = true
 			
 			for newMessage: MMMessage in newMessages {
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
@@ -60,6 +57,8 @@ final class MessageHandlingOperation: GroupOperation {
 			self.context.MM_saveToPersistentStoreAndWait()
 			
 			self.postNewMessagesEvents(newMessages)
+			
+			self.finish()
 		}
 	}
 	
@@ -94,6 +93,13 @@ final class MessageHandlingOperation: GroupOperation {
 	}
 	
 	override func finished(errors: [NSError]) {
-		finishBlock?(errors.first)
+		if hasNewMessages && errors.isEmpty {
+			let syncOperation = SyncOperation(context: context, remoteAPIQueue: remoteAPIQueue, finishBlock: { result in
+				self.finishBlock?(result.error)
+			})
+			self.produceOperation(syncOperation)
+		} else {
+			self.finishBlock?(errors.first)
+		}
 	}
 }

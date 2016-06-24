@@ -9,39 +9,6 @@
 import Foundation
 import CoreData
 
-class MMStoringService {
-	init(storage: MMCoreDataStorage) {
-		self.storage = storage
-	}
-	
-	//MARK: Internal
-	var storageContext: NSManagedObjectContext {
-		if let moc = _storageContext {
-			return moc
-		} else {
-			if let coordinator = storage.persistentStoreCoordinator {
-				_storageContext = NSManagedObjectContext.init(concurrencyType: .PrivateQueueConcurrencyType)
-				_storageContext?.persistentStoreCoordinator = coordinator
-				_storageContext?.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
-				_storageContext?.undoManager = nil
-			}
-		}
-		return _storageContext!
-	}
-	
-	func save(completion: (() -> Void)? = nil) {
-		_storageContext?.performBlock {
-			self.storageContext.MM_saveOnlySelfAndWait()
-			completion?()
-		}
-	}
-	
-	var storage: MMCoreDataStorage
-	
-	//MARK: Private
-	private var _storageContext: NSManagedObjectContext?
-}
-
 enum MMStorageType {
 	case SQLite
 	case InMemory
@@ -97,7 +64,15 @@ final class MMCoreDataStorage {
 		return _mainThreadManagedObjectContext
 	}
 	
-	func newParallelContext() throws -> NSManagedObjectContext {
+	func newPrivateContext() -> NSManagedObjectContext {
+		let newContext = NSManagedObjectContext.init(concurrencyType: .PrivateQueueConcurrencyType)
+		newContext.persistentStoreCoordinator = persistentStoreCoordinator
+		newContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
+		newContext.undoManager = nil
+		return newContext
+	}
+	
+	func newContextWithNewPSC() throws -> NSManagedObjectContext {
 		let newContext = NSManagedObjectContext.init(concurrencyType: .PrivateQueueConcurrencyType)
 		newContext.persistentStoreCoordinator = try newPersistentStoreCoordinator()
 		newContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy

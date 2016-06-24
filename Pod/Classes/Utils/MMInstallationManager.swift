@@ -7,17 +7,20 @@
 //
 
 import Foundation
+import CoreData
 
-final class MMInstallationManager: MMStoringService {
+final class MMInstallationManager {
 	//MARK: Internal
 	var registrationRemoteAPI: MMRemoteAPIQueue
 	lazy var registrationQueue = OperationQueue.newSerialQueue
-
+	var storage: MMCoreDataStorage
+	var storageContext: NSManagedObjectContext
 	
 	init(storage: MMCoreDataStorage, registrationRemoteAPI: MMRemoteAPIQueue) {
 		self.registrationRemoteAPI = registrationRemoteAPI
 		self.emailMsisdnRemoteAPI = MMRemoteAPIQueue(baseURL: registrationRemoteAPI.baseURL, applicationCode: registrationRemoteAPI.applicationCode)
-		super.init(storage: storage)
+		self.storage = storage
+		self.storageContext = storage.newPrivateContext()
 		_currentInstallation = installationObject
 	}
 	
@@ -53,6 +56,13 @@ final class MMInstallationManager: MMStoringService {
 		registrationQueue.addOperation(SetEmailOperation(email: email, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion))
 	}
 	
+	func save(completion: (() -> Void)? = nil) {
+		storageContext.performBlock {
+			self.storageContext.MM_saveOnlySelfAndWait()
+			completion?()
+		}
+	}
+
 	var installationObject: InstallationManagedObject {
 		if let installation = _currentInstallation {
 			return installation
