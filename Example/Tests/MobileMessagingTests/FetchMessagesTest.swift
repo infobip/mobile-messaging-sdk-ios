@@ -65,7 +65,7 @@ class FetchMessagesTest: MMTestCase {
 		
 		//Precondiotions
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: {}, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
 			prepconditionExpectation.fulfill()
 		})
 		
@@ -74,7 +74,7 @@ class FetchMessagesTest: MMTestCase {
 			seenExpectation.fulfill()
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: {}, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation.fulfill()
 		})
 
@@ -85,6 +85,7 @@ class FetchMessagesTest: MMTestCase {
 		//Expectations
 		waitForExpectationsWithTimeout(50) { error in
 			let ctx = self.mobileMessagingInstance.storage!.mainThreadManagedObjectContext!
+			ctx.reset()
 			ctx.performBlockAndWait {
 				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
@@ -140,11 +141,11 @@ class FetchMessagesTest: MMTestCase {
 		
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: {}, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation1.fulfill()
 		})
 	
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: {}, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation2.fulfill()
 		})
 		

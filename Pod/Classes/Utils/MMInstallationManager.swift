@@ -58,7 +58,7 @@ final class MMInstallationManager {
 	
 	func save(completion: (() -> Void)? = nil) {
 		storageContext.performBlock {
-			self.storageContext.MM_saveOnlySelfAndWait()
+			self.storageContext.MM_saveToPersistentStoreAndWait()
 			completion?()
 		}
 	}
@@ -92,7 +92,7 @@ final class MMInstallationManager {
 		var result: InstallationManagedObject?
 		storageContext.performBlockAndWait {
 			result = InstallationManagedObject.MM_createEntityInContext(context: self.storageContext)
-			self.storageContext.MM_saveOnlySelfAndWait()
+			self.storageContext.MM_saveToPersistentStoreAndWait()
 		}
 		return result!
 	}

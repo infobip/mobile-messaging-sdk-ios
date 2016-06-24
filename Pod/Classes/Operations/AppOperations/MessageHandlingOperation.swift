@@ -16,18 +16,19 @@ enum MessageOrigin {
 final class MessageHandlingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (NSError? -> Void)?
-	var newMessageReceivedCallback: (() -> Void)? = nil
+	var newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var userInfos: [[NSObject : AnyObject]]
 	var messagesOrigin: MessageOrigin
 	var hasNewMessages: Bool = false
 	
-	init(userInfos: [[NSObject : AnyObject]], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: (() -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
+	init(userInfos: [[NSObject : AnyObject]], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
 		self.userInfos = userInfos //can be either APNS or Server layout
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 		self.messagesOrigin = messagesOrigin
+		self.newMessageReceivedCallback = newMessageReceivedCallback
 		super.init()
 		
 		self.userInitiated = true
@@ -66,15 +67,10 @@ final class MessageHandlingOperation: Operation {
 		MMQueue.Main.queue.executeAsync {
 			for newMessage in newMessages {
 				if let payload = newMessage.payload {
-					NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived,
-											object: self,
-											userInfo: [
-													MMNotificationKeyMessagePayload: payload,
-													MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS,
-													MMNotificationKeyMessageIsSilent: newMessage.isSilent
-													])
+					let userInfo: [NSObject : AnyObject] = [ MMNotificationKeyMessagePayload: payload, MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS, MMNotificationKeyMessageIsSilent: newMessage.isSilent ]
+					NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived, object: self, userInfo: userInfo)
+					self.newMessageReceivedCallback?(userInfo)
 				}
-				self.newMessageReceivedCallback?()
 			}
 		}
 	}

@@ -105,14 +105,30 @@ class MessageReceivingTests: MMTestCase {
 	func testThatSilenMessagesEventWorks() {
 		let expectedEventsCount: Int = 5
 		var eventsCounter: Int = 0
-		sendPushes(apnsSilentMessagePayload, count: expectedEventsCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo)
-		}
+		
+//		let expectation = expectationWithDescription("Check finished")
+//		sendPushes(apnsSilentMessagePayload, count: expectedEventsCount) { userInfo in
+//			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: { userInfo in
+//				XCTAssertTrue(userInfo[MMNotificationKeyMessageIsSilent] as! Bool)
+//				eventsCounter += 1
+//				if eventsCounter == expectedEventsCount {
+//					expectation.fulfill()
+//				}
+//			}, completion: { error in
+//					
+//			})
+//		}
+		
 		expectationForNotification(MMNotificationMessageReceived, object: nil) { (notification) -> Bool in
 			XCTAssertTrue(notification.userInfo?[MMNotificationKeyMessageIsSilent] as! Bool)
 			eventsCounter += 1
 			return eventsCounter == expectedEventsCount
 		}
+		
+		sendPushes(apnsSilentMessagePayload, count: expectedEventsCount) { userInfo in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo)
+		}
+		
 		self.waitForExpectationsWithTimeout(2, handler: { error in
 			XCTAssertEqual(eventsCounter, expectedEventsCount, "We should receive exact same amount of events")
 		})

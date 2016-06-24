@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 final class MMMessageHandler {
-	lazy var messageHandlingQueue = OperationQueue()
+	lazy var messageHandlingQueue = OperationQueue.newSerialQueue
 
 	var storage: MMCoreDataStorage
     convenience init(storage: MMCoreDataStorage, baseURL: String, applicationCode: String) {
@@ -27,7 +27,7 @@ final class MMMessageHandler {
     }
 
     //MARK: Intenal
-	func handleAPNSMessage(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: (() -> Void)? = nil, completion: (NSError? -> Void)? = nil) {
+	func handleAPNSMessage(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, completion: (NSError? -> Void)? = nil) {
 		self.messageHandlingQueue.addOperation(MessageHandlingOperation(userInfos: [userInfo], messagesOrigin: .APNS, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
 	}
 	

@@ -15,7 +15,7 @@ class DeliveryReportingTests: MMTestCase {
         let expectation = expectationWithDescription("Delivery sending completed")
 		
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: {
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: { _ in
 			
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 			
@@ -25,7 +25,7 @@ class DeliveryReportingTests: MMTestCase {
 				XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 				expectation.fulfill()
 				
-		})
+			})
 		
         self.waitForExpectationsWithTimeout(50, handler: nil)
     }
@@ -36,7 +36,7 @@ class DeliveryReportingTests: MMTestCase {
 		
         let expectation = expectationWithDescription("Delivery sending completed")
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: {
+		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: { _ in
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 			
 		}, completion: { error in

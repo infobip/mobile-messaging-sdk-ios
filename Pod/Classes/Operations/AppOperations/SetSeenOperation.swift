@@ -46,7 +46,7 @@ final class SetSeenOperation: Operation {
 			guard let messageIds = self.messageIds where messageIds.count > 0 else {
 				return
 			}
-			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), inContext: self.context) as? [MessageManagedObject] {
+			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), inContext: self.context) as? [MessageManagedObject] where dbMessages.count > 0 {
 				for message in dbMessages {
 					switch message.seenStatus {
 					case .NotSeen :
@@ -57,7 +57,7 @@ final class SetSeenOperation: Operation {
 					case .SeenNotSent: break
 					}
 				}
-				self.context.MM_saveOnlySelfAndWait()
+				self.context.MM_saveToPersistentStoreAndWait()
 			}
 		}
 	}
@@ -99,7 +99,7 @@ final class SetSeenOperation: Operation {
 					for message in messages {
 						message.seenStatus = .SeenSent
 					}
-					self.context.MM_saveOnlySelfAndWait()
+					self.context.MM_saveToPersistentStoreAndWait()
 				}
 			}
 			
