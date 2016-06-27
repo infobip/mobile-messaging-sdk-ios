@@ -21,7 +21,7 @@ final class RegistrationOperation: Operation {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
-		self.newDeviceToken = newDeviceToken?.toHexString
+		self.newDeviceToken = newDeviceToken?.mm_toHexString
         
 		super.init()
 	}
@@ -94,7 +94,7 @@ final class RegistrationOperation: Operation {
 				MMLogInfo("Installation updated on server for internal ID \(regResponse.internalId). Updating local version...")
 				installationObject.resetDirtyRegistration()
 				installationObject.internalId = regResponse.internalId
-				NSNotificationCenter.postNotificationFromMainThread(MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalId])
+				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalId])
 			case .Failure(let error):
 				MMLogError("Registration request failed with error: \(error)")
 			case .Cancel:

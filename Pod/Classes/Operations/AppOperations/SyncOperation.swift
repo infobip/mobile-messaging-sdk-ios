@@ -63,7 +63,7 @@ final class SyncOperation: Operation {
 					self.dequeueDeliveryReports(nonReportedMessageIds)
 					MMLogInfo("Delivery report sent for messages: \(nonReportedMessageIds)")
 					if nonReportedMessageIds.count > 0 {
-						NSNotificationCenter.postNotificationFromMainThread(MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
+						NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
 				}
 				

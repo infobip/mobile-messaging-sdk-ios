@@ -10,8 +10,12 @@ import Foundation
 import CoreData
 
 final class MMMessageHandler {
-	lazy var messageHandlingQueue = OperationQueue.newSerialQueue
-
+	lazy var messageHandlingQueue = OperationQueue.mm_newSerialQueue
+	
+	deinit {
+		messageHandlingQueue.cancelAllOperations()
+	}
+	
 	var storage: MMCoreDataStorage
     convenience init(storage: MMCoreDataStorage, baseURL: String, applicationCode: String) {
         let remoteAPI = MMRemoteAPIQueue(baseURL: baseURL, applicationCode: applicationCode)

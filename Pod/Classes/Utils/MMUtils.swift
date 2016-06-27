@@ -10,10 +10,20 @@ import Foundation
 import CoreData
 import MMAFNetworking
 
-extension Dictionary where Key: NSObject, Value: AnyObject {
-	public var alertBody: String? {
-		var messageDict: [NSObject : AnyObject]
-		if let aps = (self as [NSObject : AnyObject])["aps"] as? [NSObject : AnyObject] {
+public extension Dictionary where Key: NSObject, Value: AnyObject {
+	public var mm_apsAlertBody: String? {
+		return (self as NSDictionary).mm_apsAlertBody
+	}
+	
+	public var mm_messageId: String? {
+		return (self as NSDictionary).mm_messageId
+	}
+}
+
+public extension NSDictionary {
+	public var mm_apsAlertBody: String? {
+		var messageDict: NSDictionary
+		if let aps = self["aps"] as? NSDictionary {
 			messageDict = aps
 		} else {
 			messageDict = self
@@ -21,20 +31,20 @@ extension Dictionary where Key: NSObject, Value: AnyObject {
 		
 		if let alert = messageDict["alert"] as? String {
 			return alert
-		} else if let alert = messageDict["alert"] as? [NSObject : AnyObject], let body = alert["body"] as? String {
+		} else if let alert = messageDict["alert"] as? NSDictionary, let body = alert["body"] as? String {
 			return body
 		} else {
 			return nil
 		}
 	}
 	
-	public var messageId: String? {
-		return (self as NSDictionary)["messageId"] as? String
+	public var mm_messageId: String? {
+		return self["messageId"] as? String
 	}
 }
 
 extension NSNotificationCenter {
-	class func postNotificationFromMainThread(name: String, userInfo: [NSObject: AnyObject]) {
+	class func mm_postNotificationFromMainThread(name: String, userInfo: [NSObject: AnyObject]) {
 		MMQueue.Main.queue.executeAsync {
 			NSNotificationCenter.defaultCenter().postNotificationName(name, object: self, userInfo: userInfo)
 		}
@@ -42,7 +52,7 @@ extension NSNotificationCenter {
 }
 
 extension OperationQueue {
-	class var newSerialQueue: OperationQueue {
+	class var mm_newSerialQueue: OperationQueue {
 		let newQ = OperationQueue()
 		newQ.maxConcurrentOperationCount = 1
 		return newQ
@@ -84,13 +94,13 @@ class MMNetworkReachabilityManager {
 }
 
 extension UIApplication {
-	var isCurrentAppRegisteredForRemoteNotifications: Bool {
+	var mm_isCurrentAppRegisteredForRemoteNotifications: Bool {
 		return UIApplication.sharedApplication().isRegisteredForRemoteNotifications()
 	}
 }
 
 extension NSData {
-    var toHexString: String {
+    var mm_toHexString: String {
         let tokenChars = UnsafePointer<CChar>(self.bytes)
         var tokenString = ""
         for i in 0..<self.length {
@@ -102,23 +112,23 @@ extension NSData {
 
 extension String {
     
-    func toHexademicalString() -> String? {
+    func mm_toHexademicalString() -> String? {
         if let data: NSData = self.dataUsingEncoding(NSUTF16StringEncoding) {
-            return data.toHexString
+            return data.mm_toHexString
         } else {
             return nil
         }
     }
     
-    func fromHexademicalString() -> String? {
-        if let data = self.dataFromHexadecimalString() {
+    func mm_fromHexademicalString() -> String? {
+        if let data = self.mm_dataFromHexadecimalString() {
             return String.init(data: data, encoding: NSUTF16StringEncoding)
         } else {
             return nil
         }
     }
     
-    func dataFromHexadecimalString() -> NSData? {
+    func mm_dataFromHexadecimalString() -> NSData? {
         let trimmedString = self.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<> ")).stringByReplacingOccurrencesOfString(" ", withString: "")
         
         // make sure the cleaned up string consists solely of hex digits, and that we have even number of them
@@ -145,7 +155,7 @@ extension String {
         return data
     }
 	
-	func escapeString() -> String {
+	func mm_escapeString() -> String {
 		let raw: NSString = self
 		let str = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, raw, nil, "!*'();:@&=+$,/?%#[]", CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding))
 		return String(str)

@@ -118,7 +118,7 @@ class FetchMessagesTest: MMTestCase {
 			if	let userInfo = n.userInfo,
 				let messageDict = userInfo[MMNotificationKeyMessagePayload] as? [NSObject : AnyObject],
 				let isPushFlag = n.userInfo?[MMNotificationKeyMessageIsPush] as? Bool,
-				let messageId = messageDict.messageId
+				let messageId = messageDict.mm_messageId
 			{
 				if ["m1", "m2"].contains(messageId) {
 					XCTAssertTrue(isPushFlag)

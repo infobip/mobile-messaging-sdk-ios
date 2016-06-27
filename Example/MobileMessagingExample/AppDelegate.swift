@@ -12,7 +12,7 @@ class AppDelegate: MobileMessagingAppDelegate {
 	
 	var window: UIWindow?
 	
-	override var applicationCode: String { return "40b4ba5a62004d8a80ee3bb49cbaf077-50f69373-f84f-466c-830f-fcdb7d15a6bd" }
+	override var applicationCode: String { return "a2277b20b0d4193998f10f06ab1f451f-2d951329-a751-41ae-b215-b7ceab09f9a0" }
 	
 	override var userNotificationType: UIUserNotificationType { return [.Alert, .Sound] }
 	

@@ -10,24 +10,17 @@ import Foundation
 import AVFoundation
 import UIKit
 
-/**
-Push notifications handling
-- shows alert, if `alert` exists in userInfo
-- plays sound or vibrate, if `sound` exists in userInfo
-- changes application badge, if `badge` exists
- */
-final class MMPush {
+public final class MMPush: NSObject {
     
     /**
-     Handles notification
-     
-     - shows alert, if `alert` exists in userInfo
-     - plays sound or vibrate, if `sound` exists in userInfo
-     - changes application badge, if `badge` exists
+     Handles the remote notification in following way:
+     - displays an alert for the remote notification payload
+     - plays sound or vibrate, if `sound` is set
+     - changes application badge, if `badge` is set
 
-     - parameter userInfo: userInfo of type `[NSObject : AnyObject]` from push notification
+     - parameter userInfo: a dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
     */
-    class func handlePush(userInfo: [NSObject: AnyObject]) {
+    public class func handlePush(userInfo: [NSObject: AnyObject]) {
         guard let aps = userInfo[MMAPIKeys.kAps] else {
             MMLogError("IBMMPush: Can't parse payload")
             return
@@ -44,7 +37,7 @@ final class MMPush {
             if let title = (aps[MMAPIKeys.kAlert] as? [String: AnyObject])?[MMAPIKeys.kTitle] as? String {
                 appName = title
             }
-            
+			
             if let appName = appName as? String {
                 MMAlert.showAlert(appName, message: body, animated: true, cancelActionCompletion: { (action) -> Void in
                     MMLogInfo("MMPush: \(appName) \(body) Closed")
@@ -83,8 +76,8 @@ final class MMPush {
 }
 
 private class MMAlert {
-    static let operationQueue : NSOperationQueue = {
-        let opQueue = NSOperationQueue()
+    static let operationQueue : OperationQueue = {
+        let opQueue = OperationQueue()
         opQueue.maxConcurrentOperationCount = 1
         return opQueue
     }()
@@ -95,7 +88,7 @@ private class MMAlert {
     }
 }
 
-final class MMAlertOperation : Operation {
+private final class MMAlertOperation : Operation {
     static let kCancelButtonTitle = "OK"
     
     var alertController: UIAlertController

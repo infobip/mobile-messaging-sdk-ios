@@ -48,7 +48,7 @@ final class RegistrationTests: MMTestCase {
 			
 			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
-				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".toHexademicalString(), "Most recent token must be persisted")
+				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".mm_toHexademicalString(), "Most recent token must be persisted")
 				XCTAssertEqual((installation.metaData as! [String: String])["meta2"], "metadata2", "meta2 key must contain metadata2")
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "Device token must be synced with server")
 			} else {
@@ -103,7 +103,7 @@ final class RegistrationTests: MMTestCase {
 			
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "current installation must be synchronized")
 				XCTAssertEqual(installation.internalId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(installation.internalId))")
-				XCTAssertEqual(installation.deviceToken, "someToken2".toHexademicalString(), "Device token must be mocked properly. (current is \(installation.deviceToken))")
+				XCTAssertEqual(installation.deviceToken, "someToken2".mm_toHexademicalString(), "Device token must be mocked properly. (current is \(installation.deviceToken))")
 				XCTAssertEqual(installation.email, MMTestConstants.kTestValidEmail, "")
 				XCTAssertEqual(installation.msisdn, MMTestConstants.kTestValidMSISDN, "")
 				
@@ -129,7 +129,7 @@ final class RegistrationTests: MMTestCase {
 			
 				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalId, nil, "Internal id must be nil, server denied the application code")
-				XCTAssertEqual(installation.deviceToken, "someToken".toHexademicalString(), "Device token must be mocked properly. (current is \(installation.deviceToken))")
+				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString(), "Device token must be mocked properly. (current is \(installation.deviceToken))")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
 			}

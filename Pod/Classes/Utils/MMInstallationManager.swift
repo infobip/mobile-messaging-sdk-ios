@@ -12,7 +12,7 @@ import CoreData
 final class MMInstallationManager {
 	//MARK: Internal
 	var registrationRemoteAPI: MMRemoteAPIQueue
-	lazy var registrationQueue = OperationQueue.newSerialQueue
+	lazy var registrationQueue = OperationQueue.mm_newSerialQueue
 	var storage: MMCoreDataStorage
 	var storageContext: NSManagedObjectContext
 	

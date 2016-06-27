@@ -41,8 +41,8 @@ class Message : NSObject, NSCoding {
 	
 	//MARK: Util
 	class func prepare(rawMessage: [NSObject : AnyObject]) -> Message? {
-		guard let text = rawMessage.alertBody
-			, let messageId = rawMessage.messageId 
+		guard let text = rawMessage.mm_apsAlertBody
+			, let messageId = rawMessage.mm_messageId
 			else {
 			return nil
 		}
@@ -73,6 +73,12 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	//MARK: Private
+	private func displayMessageAlert(messageUserInfo: [NSObject : AnyObject]) {
+		if UIApplication.sharedApplication().applicationState == .Active {
+			MMPush.handlePush(messageUserInfo)
+		}
+	}
+	
 	private func synced(lock: AnyObject, closure: () -> ()) {
 		objc_sync_enter(lock)
 		closure()
@@ -118,6 +124,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		}
 		
 		newMessageBlock?(message)
+		displayMessageAlert(messageUserInfo)
 	}
 	
 	func handleDeliveryReportSentNotification(notification: NSNotification) {

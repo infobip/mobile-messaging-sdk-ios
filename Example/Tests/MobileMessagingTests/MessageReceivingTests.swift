@@ -106,19 +106,6 @@ class MessageReceivingTests: MMTestCase {
 		let expectedEventsCount: Int = 5
 		var eventsCounter: Int = 0
 		
-//		let expectation = expectationWithDescription("Check finished")
-//		sendPushes(apnsSilentMessagePayload, count: expectedEventsCount) { userInfo in
-//			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: { userInfo in
-//				XCTAssertTrue(userInfo[MMNotificationKeyMessageIsSilent] as! Bool)
-//				eventsCounter += 1
-//				if eventsCounter == expectedEventsCount {
-//					expectation.fulfill()
-//				}
-//			}, completion: { error in
-//					
-//			})
-//		}
-		
 		expectationForNotification(MMNotificationMessageReceived, object: nil) { (notification) -> Bool in
 			XCTAssertTrue(notification.userInfo?[MMNotificationKeyMessageIsSilent] as! Bool)
 			eventsCounter += 1
