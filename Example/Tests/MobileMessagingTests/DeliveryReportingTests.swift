@@ -41,10 +41,10 @@ class DeliveryReportingTests: MMTestCase {
 			
 		}, completion: { error in
 		
-			XCTAssertNotNil(error, "We expect an error")
-			XCTAssertEqual(error?.localizedDescription, "Invalid Application Id", "There must be a wrong application code error")
+			XCTAssertNotNil(error)
+			XCTAssertEqual(error?.localizedDescription, "Invalid Application Id")
+			XCTAssertEqual(error?.userInfo[MMAPIKeys.kErrorMessageId] as? String, "1")
 			expectation.fulfill()
-			
 		})
 
 		self.waitForExpectationsWithTimeout(5000) { err in

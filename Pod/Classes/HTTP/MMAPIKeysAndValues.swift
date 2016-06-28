@@ -21,9 +21,11 @@ struct MMAPIKeys {
     static let kMessageIDs = "messageIDs"
 	
     //MARK: serviceErrors
+	static let kBackendErrorDomain = "com.mobile-messaging.backend"
     static let kRequestError = "requestError"
     static let kServiceException = "serviceException"
     static let kErrorText = "text"
+	static let kErrorMessageId = "messageId"
     
     //MARK: APNs
     static let kPayloads = "payloads"

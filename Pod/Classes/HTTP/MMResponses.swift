@@ -15,7 +15,7 @@ typealias MMSaveEmailResult = Result<MMHTTPSaveEmailResponse>
 typealias MMSaveMSISDNResult = Result<MMHTTPSaveMSISDNResponse>
 typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
 
-public final class MMRequestError: NSObject {
+public struct MMRequestError {
 	public var isUNAUTHORIZED: Bool {
 		return messageId == "UNAUTHORIZED"
 	}
@@ -24,57 +24,47 @@ public final class MMRequestError: NSObject {
 	
 	public let text: String
 	
-	init(errorUserInfo: [NSObject: AnyObject]) throws {
-		guard
-			let requestError = errorUserInfo["requestError"] as? [NSObject: AnyObject],
-			let serviceException = requestError["serviceException"] as? [NSObject: AnyObject],
-			let messageId = serviceException["messageId"] as? String,
-			let text = serviceException["text"] as? String
-			else {
-				throw MMInternalErrorType.UnknownError
-		}
-		self.messageId = messageId
-		self.text = text
-	}
-	
-	public convenience init(error: NSError) throws {
-		try self.init(errorUserInfo: error.userInfo)
+	var foundationError: NSError {
+		var userInfo = [NSObject: AnyObject]()
+		userInfo[NSLocalizedDescriptionKey] = text
+		userInfo[MMAPIKeys.kErrorText] = text
+		userInfo[MMAPIKeys.kErrorMessageId] = messageId
+		return NSError(domain: MMAPIKeys.kBackendErrorDomain, code: Int(messageId) ?? 0, userInfo: userInfo)
 	}
 }
 
 extension MMRequestError: JSONDecodable {
-	convenience public init(json value: JSON) throws {
-		let jsonDict = try value.dictionary()
-		try self.init(errorUserInfo: jsonDictToNormalDict(jsonDict))
+	public init(json value: JSON) throws {
+		let requestError = try value.dictionary(MMAPIKeys.kRequestError)
+		guard
+			let serviceException = requestError[MMAPIKeys.kServiceException],
+			let text = try? serviceException.string(MMAPIKeys.kErrorText),
+			let messageId = try? serviceException.string(MMAPIKeys.kErrorMessageId)
+		else {
+			throw JSON.Error.ValueNotConvertible(value: value, to: self.dynamicType)
+		}
+		
+		self.messageId = messageId
+		self.text = text
 	}
 }
 
-protocol MMHTTPFailableResponse {
-	var requestError: MMRequestError? {get}
-}
-
-final class MMHTTPRegistrationResponse : MMHTTPFailableResponse {
-	var requestError: MMRequestError?
-    let internalId: String
-	
-	init(internalId: String, requestError: MMRequestError?) {
-		self.internalId = internalId
-		self.requestError = requestError
-	}
-}
-
-extension MMHTTPRegistrationResponse : JSONDecodable {
-	convenience init(json value: JSON) throws {
-		let internalId = try value.string(MMAPIKeys.kInternalRegistrationId)
-		self.init(internalId: internalId, requestError: try? MMRequestError(json: value))
-	}
-}
-
-class MMHTTPEmptyResponse : JSONDecodable, MMHTTPFailableResponse {
-	var requestError: MMRequestError?
+class MMHTTPResponse : JSONDecodable {
 	required init(json value: JSON) throws {
-		requestError = try? MMRequestError(json: value)
 	}
+}
+
+//MARK: API Responses
+final class MMHTTPRegistrationResponse : MMHTTPResponse {
+    let internalId: String
+
+	required init(json value: JSON) throws {
+		self.internalId = try value.string(MMAPIKeys.kInternalRegistrationId)
+		try super.init(json: value)
+	}
+}
+
+class MMHTTPEmptyResponse : MMHTTPResponse {
 }
 
 final class MMHTTPDeliveryReportingResponse: MMHTTPEmptyResponse { }
@@ -82,30 +72,21 @@ final class MMHTTPSaveEmailResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSaveMSISDNResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 
-final class MMHTTPSyncMessagesResponse : MMHTTPFailableResponse {
+final class MMHTTPSyncMessagesResponse : MMHTTPResponse {
     let messages : [MMMessage]?
-	var requestError: MMRequestError?
-    
-    init(messages:[MMMessage]?, requestError: MMRequestError?) {
-        self.messages = messages
-		self.requestError = requestError
-    }
+	required init(json value: JSON) throws {
+		var payloads = [JSON]()
+		do {
+			payloads = try value.array(MMAPIKeys.kPayloads)
+		} catch JSON.Error.KeyNotFound(key: MMAPIKeys.kPayloads){
+			MMLogDebug("MMHTTPSyncMessagesResponse: nothing to fetch")
+		}
+		self.messages = try payloads.map {try MMMessage(json: $0)}
+		try super.init(json: value)
+	}
 }
 
-extension MMHTTPSyncMessagesResponse : JSONDecodable {
-    convenience init(json value: JSON) throws {
-        var payloads = [JSON]()
-        do {
-            payloads = try value.array(MMAPIKeys.kPayloads)
-        } catch JSON.Error.KeyNotFound(key: MMAPIKeys.kPayloads){
-            MMLogDebug("MMHTTPSyncMessagesResponse: nothing to fetch")
-        }
-		
-		let messages = try payloads.map {try MMMessage(json: $0)}
-        self.init(messages: messages, requestError: try? MMRequestError(json: value))
-    }
-}
-
+//MARK: Other
 public func ==(lhs: MMMessage, rhs: MMMessage) -> Bool {
 	return lhs.messageId == rhs.messageId
 }

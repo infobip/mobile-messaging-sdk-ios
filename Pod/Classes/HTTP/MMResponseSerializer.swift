@@ -19,36 +19,14 @@ final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer
 		MMLogInfo("Response received: \(response)")
 		super.responseObjectForResponse(response, data: data, error: error)
 		
-		guard let data = data else {
+		guard let data = data, let json = try? JSON(data: data) else {
 			return nil
 		}
 		
-		guard let json = try? JSON(data: data) else {
-			return nil
-		}
-		
-		if let errorValue = error.memory {
-			var userInfo = Dictionary<NSObject, AnyObject>()
-			
-			if let jsonDict = try? json.dictionary() {
-				userInfo = jsonDictToNormalDict(jsonDict)
-				if let errorDescr = errorDescription(json) {
-					userInfo[NSLocalizedDescriptionKey] = errorDescr
-				}
-			} else {
-				userInfo = errorValue.userInfo
-			}
-			error.memory = NSError(domain: errorValue.domain, code: errorValue.code, userInfo: userInfo)
+		if let requestError = try? MMRequestError(json: json) {
+			error.memory = requestError.foundationError
 		}
 		
 		return (try? T(json: json)) as? AnyObject
-	}
-	
-	private func errorDescription(json: JSON) -> String? {
-		guard let requestError = try? json.dictionary(MMAPIKeys.kRequestError),
-			let serviceException = requestError[MMAPIKeys.kServiceException] else {
-				return nil
-		}
-		return try? serviceException.string(MMAPIKeys.kErrorText)
 	}
 }
