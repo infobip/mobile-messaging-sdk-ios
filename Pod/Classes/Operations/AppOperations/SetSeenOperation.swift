@@ -9,19 +9,6 @@
 import UIKit
 import CoreData
 
-struct SeenData {
-	let messageId: String
-	let seenTimestamp: Double
-	var dict: [String: AnyObject] {
-		return [MMAPIKeys.kMessageId: messageId,
-		        MMAPIKeys.kSeenTimestamp: seenTimestamp]
-	}
-	static func requestBody(seenList: [SeenData]) -> [String: AnyObject] {
-		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dict } ]
-	}
-}
-
-
 final class SetSeenOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (MMSeenMessagesResult -> Void)?
@@ -74,10 +61,10 @@ final class SetSeenOperation: Operation {
 			}
 			
 			let seenStatusesToSend = seenNotSentMessages.flatMap { msg -> SeenData? in
-				guard let date = msg.seenDate else {
+				guard let seenDate = msg.seenDate else {
 					return nil
 				}
-				return SeenData(messageId: msg.messageId, seenTimestamp: date.timeIntervalSince1970)
+				return SeenData(messageId: msg.messageId, seenDate: seenDate)
 			}
 			
 			let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)

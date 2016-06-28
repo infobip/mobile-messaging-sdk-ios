@@ -138,6 +138,21 @@ struct MMPostMSISDNRequest: MMHTTPPostRequest {
 	}
 }
 
+struct SeenData {
+	let messageId: String
+	let seenDate: NSDate
+	var timestampDelta: UInt {
+		return UInt(max(0, NSDate().timeIntervalSinceReferenceDate - seenDate.timeIntervalSinceReferenceDate))
+	}
+	var dict: [String: AnyObject] {
+		return [MMAPIKeys.kMessageId: messageId,
+		        MMAPIKeys.kSeenTimestampDelta: timestampDelta]
+	}
+	static func requestBody(seenList: [SeenData]) -> [String: AnyObject] {
+		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dict } ]
+	}
+}
+
 struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSeenMessagesResponse
 	

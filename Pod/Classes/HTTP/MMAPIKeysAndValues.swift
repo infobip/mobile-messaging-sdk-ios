@@ -44,7 +44,7 @@ struct MMAPIKeys {
     
     //MARK: seenMessages
     static let kSeenMessages = "messages"
-    static let kSeenTimestamp = "seenDate"
+    static let kSeenTimestampDelta = "timestampDelta"
     
     //MARK: Common fields
     static let kMessageId = "messageId"
