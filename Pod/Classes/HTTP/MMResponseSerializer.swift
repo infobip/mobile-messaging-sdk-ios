@@ -28,12 +28,17 @@ final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer
 		}
 		
 		if let errorValue = error.memory {
-			if let errorDescr = errorDescription(json) {
-				var userInfo = errorValue.userInfo
-				userInfo[NSLocalizedDescriptionKey] = errorDescr
-				error.memory = NSError(domain: errorValue.domain, code: errorValue.code, userInfo: userInfo)
+			var userInfo = Dictionary<NSObject, AnyObject>()
+			
+			if let jsonDict = try? json.dictionary() {
+				userInfo = jsonDictToNormalDict(jsonDict)
+				if let errorDescr = errorDescription(json) {
+					userInfo[NSLocalizedDescriptionKey] = errorDescr
+				}
+			} else {
+				userInfo = errorValue.userInfo
 			}
-			return nil
+			error.memory = NSError(domain: errorValue.domain, code: errorValue.code, userInfo: userInfo)
 		}
 		
 		return (try? T(json: json)) as? AnyObject

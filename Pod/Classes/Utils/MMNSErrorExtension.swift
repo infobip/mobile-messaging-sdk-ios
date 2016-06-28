@@ -6,6 +6,7 @@
 //  
 
 import Foundation
+import Freddy
 
 public let MMInternalErrorDomain = "com.mobile-messaging"
 

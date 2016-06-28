@@ -68,6 +68,13 @@ final public class MMInstallation : NSObject {
 		installationManager.saveMsisdn(msisdn, completion: completion)
 	}
 	
+	/**
+	Explicitly tries to save installation data on the server.
+	*/
+	public func syncWithServer(completion: (NSError? -> Void)? = nil) {
+		installationManager.syncWithServer(completion)
+	}
+	
 	//MARK: Observing
 	/**
 	Registers `observer` to receive notifications for the specified key-path relative to the Installation.
@@ -114,10 +121,6 @@ final public class MMInstallation : NSObject {
     var metaData: NSDictionary? {
         get { return installationManager.getValueForKey("metaData") as? NSDictionary }
         set { installationManager.setValueForKey("metaData", value: newValue) }
-    }
-	
-    func syncWithServer(completion: (NSError? -> Void)? = nil) {
-        installationManager.syncWithServer(completion)
     }
     
 	func updateDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {

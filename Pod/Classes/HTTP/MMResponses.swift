@@ -15,23 +15,66 @@ typealias MMSaveEmailResult = Result<MMHTTPSaveEmailResponse>
 typealias MMSaveMSISDNResult = Result<MMHTTPSaveMSISDNResponse>
 typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
 
-final class MMHTTPRegistrationResponse {
+public final class MMRequestError: NSObject {
+	public var isUNAUTHORIZED: Bool {
+		return messageId == "UNAUTHORIZED"
+	}
+	
+	public let messageId: String
+	
+	public let text: String
+	
+	init(errorUserInfo: [NSObject: AnyObject]) throws {
+		guard
+			let requestError = errorUserInfo["requestError"] as? [NSObject: AnyObject],
+			let serviceException = requestError["serviceException"] as? [NSObject: AnyObject],
+			let messageId = serviceException["messageId"] as? String,
+			let text = serviceException["text"] as? String
+			else {
+				throw MMInternalErrorType.UnknownError
+		}
+		self.messageId = messageId
+		self.text = text
+	}
+	
+	public convenience init(error: NSError) throws {
+		try self.init(errorUserInfo: error.userInfo)
+	}
+}
+
+extension MMRequestError: JSONDecodable {
+	convenience public init(json value: JSON) throws {
+		let jsonDict = try value.dictionary()
+		try self.init(errorUserInfo: jsonDictToNormalDict(jsonDict))
+	}
+}
+
+protocol MMHTTPFailableResponse {
+	var requestError: MMRequestError? {get}
+}
+
+final class MMHTTPRegistrationResponse : MMHTTPFailableResponse {
+	var requestError: MMRequestError?
     let internalId: String
-	init(internalId: String) {
+	
+	init(internalId: String, requestError: MMRequestError?) {
 		self.internalId = internalId
+		self.requestError = requestError
 	}
 }
 
 extension MMHTTPRegistrationResponse : JSONDecodable {
 	convenience init(json value: JSON) throws {
 		let internalId = try value.string(MMAPIKeys.kInternalRegistrationId)
-		self.init(internalId: internalId)
+		self.init(internalId: internalId, requestError: try? MMRequestError(json: value))
 	}
 }
 
-
-class MMHTTPEmptyResponse : JSONDecodable {
-	required init(json value: JSON) throws {}
+class MMHTTPEmptyResponse : JSONDecodable, MMHTTPFailableResponse {
+	var requestError: MMRequestError?
+	required init(json value: JSON) throws {
+		requestError = try? MMRequestError(json: value)
+	}
 }
 
 final class MMHTTPDeliveryReportingResponse: MMHTTPEmptyResponse { }
@@ -39,11 +82,13 @@ final class MMHTTPSaveEmailResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSaveMSISDNResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 
-final class MMHTTPSyncMessagesResponse {
+final class MMHTTPSyncMessagesResponse : MMHTTPFailableResponse {
     let messages : [MMMessage]?
+	var requestError: MMRequestError?
     
-    init(messages:[MMMessage]?) {
+    init(messages:[MMMessage]?, requestError: MMRequestError?) {
         self.messages = messages
+		self.requestError = requestError
     }
 }
 
@@ -57,7 +102,7 @@ extension MMHTTPSyncMessagesResponse : JSONDecodable {
         }
 		
 		let messages = try payloads.map {try MMMessage(json: $0)}
-        self.init(messages: messages)
+        self.init(messages: messages, requestError: try? MMRequestError(json: value))
     }
 }
 
