@@ -54,6 +54,10 @@ public final class MobileMessaging: NSObject {
 		MobileMessagingInstance.sharedInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 			completionHandler?(.NewData)
 		})
+
+		if UIApplication.sharedApplication().applicationState == .Inactive {
+			notificationTapHandler?(userInfo)
+		}
 	}
 	
 	/**
@@ -91,6 +95,11 @@ public final class MobileMessaging: NSObject {
 	Default value is `true`.
 	*/
 	public static var shouldSendSystemInfo : Bool = true
+	
+	/**
+	A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
+	*/
+	public static var notificationTapHandler : (([NSObject : AnyObject]) -> Void)?
 }
 
 class MobileMessagingInstance {
@@ -211,6 +220,8 @@ class MobileMessagingInstance {
 		get { return self.valueForKey("messageHandler") as? MMMessageHandler }
 		set { self.setValue(newValue, forKey: "messageHandler") }
 	}
+	
+	private(set) var alertTapHandler: (() -> Void)?
 	
 	private(set) var loggingUtil : MMLoggingUtil
 }
