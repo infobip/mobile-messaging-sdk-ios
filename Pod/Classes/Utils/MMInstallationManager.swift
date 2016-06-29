@@ -15,6 +15,10 @@ final class MMInstallationManager {
 	lazy var registrationQueue = OperationQueue.mm_newSerialQueue
 	var storage: MMCoreDataStorage
 	var storageContext: NSManagedObjectContext
+
+	deinit {
+		registrationQueue.cancelAllOperations()
+	}
 	
 	init(storage: MMCoreDataStorage, registrationRemoteAPI: MMRemoteAPIQueue) {
 		self.registrationRemoteAPI = registrationRemoteAPI
