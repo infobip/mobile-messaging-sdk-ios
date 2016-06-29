@@ -67,7 +67,7 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyMessagePayload;
  Key for entry in userInfo dictionary of `kMessageReceived` notification.
  Contains a remote notification custom parameters from payload.
  */
-FOUNDATION_EXPORT NSString* MMNotificationKeyMessageAppData;
+FOUNDATION_EXPORT NSString* MMNotificationKeyMessageCustomPayload;
 
 /**
  Key for entry in userInfo dictionary of `kMessageReceived` notification.

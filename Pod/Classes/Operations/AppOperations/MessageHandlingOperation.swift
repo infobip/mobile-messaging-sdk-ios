@@ -69,7 +69,7 @@ final class MessageHandlingOperation: Operation {
 				if let payload = newMessage.payload {
 					var userInfo: [NSObject : AnyObject] = [ MMNotificationKeyMessagePayload: payload, MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS, MMNotificationKeyMessageIsSilent: newMessage.isSilent ]
 					if let appData = newMessage.appData {
-						userInfo[MMNotificationKeyMessageAppData] = appData
+						userInfo[MMNotificationKeyMessageCustomPayload] = appData
 					}
 					NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived, object: self, userInfo: userInfo)
 					self.newMessageReceivedCallback?(userInfo)
