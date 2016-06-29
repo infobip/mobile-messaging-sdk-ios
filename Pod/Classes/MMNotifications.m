@@ -17,5 +17,6 @@ NSString* MMNotificationKeyDeviceToken = @"com.mobile-messaging.notification.key
 NSString* MMNotificationKeyDLRMessageIDs = @"com.mobile-messaging.notification.key.dlr-message-ids";
 NSString* MMNotificationKeyAPIErrorUserInfo = @"com.mobile-messaging.notification.key.api-error";
 NSString* MMNotificationKeyMessagePayload = @"com.mobile-messaging.notification.key.message";
+NSString* MMNotificationKeyMessageAppData = @"com.mobile-messaging.notification.key.message-app-data";
 NSString* MMNotificationKeyMessageIsPush = @"com.mobile-messaging.notification.key.message-is-push";
 NSString* MMNotificationKeyMessageIsSilent = @"com.mobile-messaging.notification.key.message-is-silent";
