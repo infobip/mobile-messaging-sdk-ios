@@ -135,8 +135,9 @@ class MessageReceivingTests: MMTestCase {
 		var eventsCounter: Int = 0
 		
 		expectationForNotification(MMNotificationMessageReceived, object: nil) { (notification) -> Bool in
-			XCTAssertTrue(notification.userInfo?[MMNotificationKeyMessageIsSilent] as! Bool)
-			eventsCounter += 1
+			if notification.userInfo?[MMNotificationKeyMessageIsSilent] as? Bool == true {
+				eventsCounter += 1
+			}
 			return eventsCounter == expectedEventsCount
 		}
 		
@@ -144,7 +145,7 @@ class MessageReceivingTests: MMTestCase {
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo)
 		}
 		
-		self.waitForExpectationsWithTimeout(2, handler: { error in
+		self.waitForExpectationsWithTimeout(10, handler: { error in
 			XCTAssertEqual(eventsCounter, expectedEventsCount, "We should receive exact same amount of events")
 		})
 	}
