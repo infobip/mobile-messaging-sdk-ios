@@ -11,11 +11,11 @@ import XCTest
 @testable import MobileMessaging
 
 func backendJSONSilentMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"internalData\": {\"internalKey1\": \"internalValue1\"}, \"\(MMAPIKeys.kAppData)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"internalData\": {\"internalKey1\": \"internalValue1\"}, \"\(MMAPIKeys.kCustomPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"internalData\": {\"internalKey1\": \"internalValue1\"}, \"\(MMAPIKeys.kAppData)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"internalData\": {\"internalKey1\": \"internalValue1\"}, \"\(MMAPIKeys.kCustomPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -58,7 +58,7 @@ class MessageReceivingTests: MMTestCase {
 							"messageId": "m1",
 							"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
 							"internalData": ["internalKey1": "internalValue1"],
-							MMAPIKeys.kAppData : ["customKey" : "customValue"]
+							MMAPIKeys.kCustomPayload : ["customKey" : "customValue"]
 						]
 		var message: MMMessage?
 		if let json = try? JSON(jsonString: jsonstring) {
@@ -76,7 +76,7 @@ class MessageReceivingTests: MMTestCase {
 			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
 			"silent": 1,
 			"internalData": ["internalKey1": "internalValue1"],
-			MMAPIKeys.kAppData : ["customKey" : "customValue"]
+			MMAPIKeys.kCustomPayload : ["customKey" : "customValue"]
 		]
 		var message: MMMessage?
 		if let json = try? JSON(jsonString: jsonstring) {
