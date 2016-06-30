@@ -128,20 +128,16 @@ func jsonToAnyObject(json: JSON) -> AnyObject {
 public struct MMMessage: Hashable, JSONDecodable {
 	
 	public var hashValue: Int { return messageId.hashValue }
-	var isSilent: Bool = false
+	let isSilent: Bool
 	let messageId: String
-	var payload: [String: AnyObject]?
-	var customPayload: [String: AnyObject]?
+	let payload: [String: AnyObject]?
+	let customPayload: [String: AnyObject]?
 	
 	public init(json: JSON) throws {
 		self.messageId = try json.string(MMAPIKeys.kMessageId)
-		if var payload = jsonToAnyObject(json) as? [String : AnyObject] {
-			self.payload = payload
-		}
-		if let customPayload = self.payload?[MMAPIKeys.kCustomPayload] as? [String : AnyObject] {
-			self.customPayload = customPayload
-		}
-		self.isSilent = MMMessage.checkIfSilent(self.payload)
+		self.payload = jsonToAnyObject(json) as? [String : AnyObject]
+		self.customPayload = self.payload?[MMAPIKeys.kCustomPayload] as? [String : AnyObject]
+		self.isSilent = MMMessage.checkIfSilent(payload)
 	}
 	
 	init?(payload: [NSObject: AnyObject]) {
@@ -153,36 +149,30 @@ public struct MMMessage: Hashable, JSONDecodable {
 		self.isSilent = MMMessage.checkIfSilent(payload)
 		if (self.isSilent) {
 			if let silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject] {
-				payload[MMAPIKeys.kAps] = mergeApsWithSilentParameters(payload[MMAPIKeys.kAps] as? [String: AnyObject], silentData: silentData)
+				payload[MMAPIKeys.kAps] = MMMessage.mergeApsWithSilentParameters(payload[MMAPIKeys.kAps] as? [String: AnyObject], silentData: silentData)
 			}
 		}
 		self.payload = payload
-		
-		if let customPayload = self.payload?[MMAPIKeys.kCustomPayload] as? [String : AnyObject] {
-			self.customPayload = customPayload
-		}
+		self.customPayload = self.payload?[MMAPIKeys.kCustomPayload] as? [String : AnyObject]
 	}
 	
 	init(message: MessageManagedObject) {
 		self.messageId = message.messageId
 		self.isSilent = message.isSilent.boolValue
+		self.customPayload = nil
+		self.payload = nil
 	}
 	
 	static func checkIfSilent(payload: [String: AnyObject]?) -> Bool {
-		//received from APNS
+		//if payload APNS originated:
 		if (payload?[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject]) != nil {
 			return true
 		}
-		
-		//pulled from server
-		if let silent = payload?[MMAPIKeys.kSilent] as? Bool {
-			return silent
-		}
-		
-		return false
+		//if payload Server originated:
+		return payload?[MMAPIKeys.kSilent] as? Bool ?? false
 	}
 	
-	private func mergeApsWithSilentParameters(apsPayload: [String: AnyObject]?, silentData: [String: AnyObject]) -> [String: AnyObject] {
+	private static func mergeApsWithSilentParameters(apsPayload: [String: AnyObject]?, silentData: [String: AnyObject]) -> [String: AnyObject] {
 		var resultAps = [String: AnyObject]()
 		var alert = [String: String]()
 		resultAps += apsPayload
