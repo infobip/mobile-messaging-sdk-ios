@@ -18,7 +18,7 @@ class MessageSeenTests: MMTestCase {
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": messageId], newMessageReceivedCallback: nil) { err in
 			self.mobileMessagingInstance.setSeen([messageId], completion: { result in
-				seenRequestCompleted.fulfill()
+				 seenRequestCompleted.fulfill()
 			})
 		}
 

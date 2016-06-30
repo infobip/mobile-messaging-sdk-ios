@@ -128,52 +128,45 @@ func jsonToAnyObject(json: JSON) -> AnyObject {
 public struct MMMessage: Hashable, JSONDecodable {
 	
 	public var hashValue: Int { return messageId.hashValue }
-	let isSilent: Bool
+	var isSilent: Bool = false
 	let messageId: String
 	var payload: [String: AnyObject]?
+	var appData: [String: AnyObject]?
 	
 	public init(json: JSON) throws {
-        var result = [String: AnyObject]()
 		self.messageId = try json.string(MMAPIKeys.kMessageId)
-		result[MMAPIKeys.kMessageId] = self.messageId
-        var aps = [NSObject: AnyObject]()
-        if let sound = try? json[MMAPIKeys.kSound]?.string() {
-            aps[MMAPIKeys.kSound] = sound
+		if var payload = jsonToAnyObject(json) as? [String : AnyObject] {
+			self.payload = payload
 		}
-		
-		if let ca = try? json[MMAPIKeys.kContentAvailable]?.int() {
-			aps[MMAPIKeys.kContentAvailable] = ca
+		if let data = self.payload?[MMAPIKeys.kAppData] as? [String : AnyObject] {
+			self.appData = data
 		}
-		
-        if let badge = try? json[MMAPIKeys.kBadge]?.int() {
-            aps[MMAPIKeys.kBadge] = badge
-        }
-		
-        if let value = json[MMAPIKeys.kBody], let body = try? value.string() {
-            var alert = [NSObject: AnyObject]()
-            alert[MMAPIKeys.kBody] = body
-            aps[MMAPIKeys.kAlert] = alert
-		}
-		
-		if aps.count > 0 {
-			result[MMAPIKeys.kAps] = aps
-        }
-		
-        self.isSilent = MMMessage.checkIfSilent(result)
-        if let data = try? json.dictionary(MMAPIKeys.kGatewayData) {
-			result += jsonDictToNormalDict(data)
-        }
-		self.payload = result
+		self.isSilent = MMMessage.checkIfSilent(self.payload)
 	}
 	
 	init?(payload: [NSObject: AnyObject]) {
 		guard let messageId = payload[MMAPIKeys.kMessageId] as? String,
-            let payload = payload as? [String: AnyObject] else {
+            var payload = payload as? [String: AnyObject] else {
 			return nil
 		}
 		self.messageId = messageId
-		self.payload = payload
 		self.isSilent = MMMessage.checkIfSilent(payload)
+		if (self.isSilent) {
+			if let silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject] {
+				payload[MMAPIKeys.kAps] = mergeApsWithSilentParameters(payload[MMAPIKeys.kAps] as? [String: AnyObject], silentData: silentData)
+			}
+		}
+		self.payload = payload
+		
+		if let data = self.payload?[MMAPIKeys.kAppData] as? [String : AnyObject] {
+			self.appData = data
+		} else { //remove after start receiving appData parameter
+			var customPayload = self.payload
+			customPayload?.removeValueForKey(MMAPIKeys.kAps)
+			customPayload?.removeValueForKey(MMAPIKeys.kMessageId)
+			customPayload?.removeValueForKey(MMAPIKeys.kInternalData)
+			self.appData = customPayload
+		}
 	}
 	
 	init(message: MessageManagedObject) {
@@ -181,22 +174,38 @@ public struct MMMessage: Hashable, JSONDecodable {
 		self.isSilent = message.isSilent.boolValue
 	}
 	
-	static func checkIfSilent(payload: [String: AnyObject]) -> Bool {
-		guard let aps = payload[MMAPIKeys.kAps] as? [String: AnyObject] else {
-			return false
-		}
-		if aps[MMAPIKeys.kContentAvailable] as? Int != 1 {
-			return false
+	static func checkIfSilent(payload: [String: AnyObject]?) -> Bool {
+		//received from APNS
+		if (payload?[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject]) != nil {
+			return true
 		}
 		
-		if aps.keys.contains(MMAPIKeys.kAlert) {
-			return false
+		//pulled from server
+		if let silent = payload?[MMAPIKeys.kSilent] as? Bool {
+			return silent
 		}
 		
-		if !aps.keys.contains(MMAPIKeys.kSound) || (aps[MMAPIKeys.kSound] as? String)?.characters.count > 0 { // { sound: "", ...} <- means silent
-			return false
+		return false
+	}
+	
+	private func mergeApsWithSilentParameters(apsPayload: [String: AnyObject]?, silentData: [String: AnyObject]) -> [String: AnyObject] {
+		var resultAps = [String: AnyObject]()
+		var alert = [String: String]()
+		resultAps += apsPayload
+		
+		if let body = silentData[MMAPIKeys.kBody] as? String {
+			alert[MMAPIKeys.kBody] = body
 		}
-		return true
+		if let title = silentData[MMAPIKeys.kTitle] as? String {
+			alert[MMAPIKeys.kTitle] = title
+		}
+		
+		resultAps[MMAPIKeys.kAlert] = alert
+		
+		if let sound = silentData[MMAPIKeys.kSound] as? String {
+			resultAps[MMAPIKeys.kSound] = sound
+		}
+		return resultAps
 	}
 }
 

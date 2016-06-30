@@ -25,7 +25,7 @@ enum MMHTTPAPIPath: String {
 	case Email = "/mobile/1/email"
 	case MSISDN = "/mobile/1/msisdn"
     case SeenMessages = "/mobile/1/messages/seen"
-	case SyncMessages = "/mobile/1/messages"
+	case SyncMessages = "/mobile/2/messages"
 }
 
 protocol MMHTTPRequestResponsable {
@@ -189,6 +189,7 @@ struct MMGetSyncRequest: MMHTTPGetRequest {
 		params[MMAPIKeys.kInternalRegistrationId] = internalId
 		params[MMAPIKeys.kArchiveMsgIds] = archiveMsgIds
 		params[MMAPIKeys.kDLRMsgIds] = dlrMsgIds
+		params[MMAPIKeys.kPlatformType] = MMAPIValues.kPlatformType
 		return params
 	}
 
