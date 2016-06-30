@@ -65,7 +65,7 @@ class MessageReceivingTests: MMTestCase {
 			message = try? MMMessage(json: json)
 		}
 		XCTAssertEqual(message?.payload as! [String: NSObject], resultDict)
-		XCTAssertEqual(message?.appData as! [String: NSObject], ["customKey" : "customValue"])
+		XCTAssertEqual(message?.customPayload as! [String: NSObject], ["customKey" : "customValue"])
 		XCTAssertFalse(message!.isSilent)
 	}
 	
@@ -83,7 +83,7 @@ class MessageReceivingTests: MMTestCase {
 			message = try? MMMessage(json: json)
 		}
 		XCTAssertEqual(message?.payload as! [String: NSObject], resultDict)
-		XCTAssertEqual(message?.appData as! [String: NSObject], ["customKey" : "customValue"])
+		XCTAssertEqual(message?.customPayload as! [String: NSObject], ["customKey" : "customValue"])
 		XCTAssertTrue(message!.isSilent)
 	}
 	

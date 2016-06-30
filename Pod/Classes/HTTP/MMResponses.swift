@@ -131,15 +131,15 @@ public struct MMMessage: Hashable, JSONDecodable {
 	var isSilent: Bool = false
 	let messageId: String
 	var payload: [String: AnyObject]?
-	var appData: [String: AnyObject]?
+	var customPayload: [String: AnyObject]?
 	
 	public init(json: JSON) throws {
 		self.messageId = try json.string(MMAPIKeys.kMessageId)
 		if var payload = jsonToAnyObject(json) as? [String : AnyObject] {
 			self.payload = payload
 		}
-		if let data = self.payload?[MMAPIKeys.kCustomPayload] as? [String : AnyObject] {
-			self.appData = data
+		if let customPayload = self.payload?[MMAPIKeys.kCustomPayload] as? [String : AnyObject] {
+			self.customPayload = customPayload
 		}
 		self.isSilent = MMMessage.checkIfSilent(self.payload)
 	}
@@ -158,14 +158,8 @@ public struct MMMessage: Hashable, JSONDecodable {
 		}
 		self.payload = payload
 		
-		if let data = self.payload?[MMAPIKeys.kCustomPayload] as? [String : AnyObject] {
-			self.appData = data
-		} else { //remove after start receiving appData parameter
-			var customPayload = self.payload
-			customPayload?.removeValueForKey(MMAPIKeys.kAps)
-			customPayload?.removeValueForKey(MMAPIKeys.kMessageId)
-			customPayload?.removeValueForKey(MMAPIKeys.kInternalData)
-			self.appData = customPayload
+		if let customPayload = self.payload?[MMAPIKeys.kCustomPayload] as? [String : AnyObject] {
+			self.customPayload = customPayload
 		}
 	}
 	
