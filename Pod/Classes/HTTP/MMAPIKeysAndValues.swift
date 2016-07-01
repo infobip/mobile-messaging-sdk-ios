@@ -35,7 +35,7 @@ struct MMAPIKeys {
     static let kBody = "body"
     static let kBadge = "badge"
     static let kSound = "sound"
-    static let kCustomPayload = "applicationData"
+    static let kCustomPayload = "customPayload"
 	static let kContentAvailable = "content-available"
 	static let kInternalData = "internalData"
 	static let kSilent = "silent"
