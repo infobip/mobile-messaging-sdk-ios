@@ -70,7 +70,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/**
-	Maintains attributes related to the current application installation such as APNs device token, unique ID for the registered user, email, MSISDN etc.
+	Maintains attributes related to the current application installation such as APNs device token, unique ID for the registered user, badge number, email, MSISDN etc.
 	*/
 	public class var currentInstallation: MMInstallation? {
 		return MobileMessagingInstance.sharedInstance.currentInstallation
