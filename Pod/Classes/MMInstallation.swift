@@ -89,6 +89,23 @@ final public class MMInstallation : NSObject {
 		}
 	}
 	
+	/**
+	The number currently set as the badge of the app icon in Springboard.
+	
+	Set to 0 (zero) to hide the badge number. The default value of this property is 0.
+	*/
+	public var badgeNumber: Int {
+		get {
+			let appBadge = UIApplication.sharedApplication().applicationIconBadgeNumber
+			installationManager.setValueForKey("badgeNumber", value: appBadge)
+			return appBadge
+		}
+		set {
+			UIApplication.sharedApplication().applicationIconBadgeNumber = newValue
+			installationManager.setValueForKey("badgeNumber", value: newValue)
+		}
+	}
+	
 	public override func addObserver(observer: NSObject, forKeyPath keyPath: String, options: NSKeyValueObservingOptions, context: UnsafeMutablePointer<Void>) {
 		addObserver(observer, forKeyPath: keyPath) { (keyPath, newValue) in
 			observer.observeValueForKeyPath(keyPath, ofObject: self, change: [NSKeyValueChangeNewKey: newValue], context: context)
@@ -175,19 +192,4 @@ final public class MMInstallation : NSObject {
 	}
 	
     private var installationManager: MMInstallationManager
-	
-	var badgeNumber: Int {
-		get {
-			let appBadge = UIApplication.sharedApplication().applicationIconBadgeNumber
-			installationManager.setValueForKey("badgeNumber", value: appBadge)
-			return appBadge
-		}
-		set {
-			guard newValue > 0 else {
-				return
-			}
-			UIApplication.sharedApplication().applicationIconBadgeNumber = newValue
-			installationManager.setValueForKey("badgeNumber", value: newValue)
-		}
-	}
 }
