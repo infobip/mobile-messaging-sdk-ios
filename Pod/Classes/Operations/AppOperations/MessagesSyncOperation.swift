@@ -19,14 +19,14 @@ final class MessagesSyncOperation: GroupOperation {
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 
-		let seenOperation = SetSeenOperation(context: context, remoteAPIQueue: remoteAPIQueue)
+		let syncSeenOperation = SendSeenToServerOperation(context: context, remoteAPIQueue: remoteAPIQueue)
 		
-		super.init(operations: [seenOperation])
+		super.init(operations: [syncSeenOperation])
 		
 		self.addCondition(RegistrationCondition())
 		
 		let syncOperation = SyncOperation(context: context, remoteAPIQueue: remoteAPIQueue)
-		syncOperation.addDependency(seenOperation)
+		syncOperation.addDependency(syncSeenOperation)
 		self.addOperation(syncOperation)
 	}
 	

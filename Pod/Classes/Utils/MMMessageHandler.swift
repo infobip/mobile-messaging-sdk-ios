@@ -11,6 +11,7 @@ import CoreData
 
 final class MMMessageHandler {
 	lazy var messageHandlingQueue = OperationQueue.mm_newSerialQueue
+	lazy var seenThrottle = MMThrottle(executionQueue: dispatch_get_main_queue())
 	
 	deinit {
 		messageHandlingQueue.cancelAllOperations()
@@ -43,8 +44,12 @@ final class MMMessageHandler {
 		self.messageHandlingQueue.addOperation(MessagesEvictionOperation(context: self.storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
     }
 	
+	
     func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {
-		self.messageHandlingQueue.addOperation(SetSeenOperation(messageIds: messageIds, context: self.storage.newPrivateContext(), remoteAPIQueue: self.seenSenderRemoteAPI, finishBlock: completion))
+		self.messageHandlingQueue.addOperation(SetSeenOperation(messageIds: messageIds, context: self.storage.newPrivateContext()))
+		seenThrottle.postponeBlock() {
+			self.messageHandlingQueue.addOperation(SendSeenToServerOperation(context: self.storage.newPrivateContext(), remoteAPIQueue: self.seenSenderRemoteAPI, finishBlock: completion))
+		}
     }
 	
 	//MARK: Private
