@@ -42,7 +42,7 @@ final class SyncOperation: Operation {
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
 			
-			let request = MMGetSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
+			let request = MMPostSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
 			
 			self.remoteAPIQueue.performRequest(request) { result in
 				self.handleRequestResponse(result, nonReportedMessageIds: nonReportedMessageIds)
@@ -67,8 +67,8 @@ final class SyncOperation: Operation {
 					}
 				}
 				
-			case .Failure(let error):
-				MMLogError("Sync request failed with error: \(error)")
+			case .Failure(_):
+				MMLogError("Sync request failed")
 			case .Cancel:
 				MMLogInfo("Sync cancelled")
 				break

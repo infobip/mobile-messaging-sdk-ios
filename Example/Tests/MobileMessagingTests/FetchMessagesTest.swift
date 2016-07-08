@@ -113,6 +113,7 @@ class FetchMessagesTest: MMTestCase {
 		let newMsgExpectation1 = expectationWithDescription("New message m1 received")
 		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
 		let syncExpectation = expectationWithDescription("Sync finished")
+		
 		var newMsgCounter = 0
 		expectationForNotification(MMNotificationMessageReceived, object: nil) { n -> Bool in
 			if	let userInfo = n.userInfo,

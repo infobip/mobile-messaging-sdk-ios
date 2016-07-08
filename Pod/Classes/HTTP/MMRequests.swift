@@ -25,7 +25,7 @@ enum MMHTTPAPIPath: String {
 	case Email = "/mobile/1/email"
 	case MSISDN = "/mobile/1/msisdn"
     case SeenMessages = "/mobile/1/messages/seen"
-	case SyncMessages = "/mobile/2/messages"
+	case SyncMessages = "/mobile/3/messages"
 }
 
 protocol MMHTTPRequestResponsable {
@@ -180,22 +180,29 @@ struct MMPostEmailRequest: MMHTTPPostRequest {
 	}
 }
 
-struct MMGetSyncRequest: MMHTTPGetRequest {
+struct MMPostSyncRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSyncMessagesResponse
-	
 	var path: MMHTTPAPIPath { return .SyncMessages }
 	var parameters: [String: AnyObject]? {
 		var params = [String: AnyObject]()
 		params[MMAPIKeys.kInternalRegistrationId] = internalId
-		params[MMAPIKeys.kArchiveMsgIds] = archiveMsgIds
-		params[MMAPIKeys.kDLRMsgIds] = dlrMsgIds
 		params[MMAPIKeys.kPlatformType] = MMAPIValues.kPlatformType
 		return params
 	}
-
+	
 	var internalId: String
 	var archiveMsgIds: [String]?
 	var dlrMsgIds: [String]?
+	var body: [String: AnyObject]? {
+		var result = [String: AnyObject]()
+		if let archiveMsgIds = archiveMsgIds where archiveMsgIds.count > 0 {
+			result[MMAPIKeys.kArchiveMsgIds] = archiveMsgIds
+		}
+		if let dlrMsgIds = dlrMsgIds  where dlrMsgIds.count > 0 {
+			result[MMAPIKeys.kDLRMsgIds] = dlrMsgIds
+		}
+		return result
+	}
 	
 	init(internalId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?) {
 		self.internalId = internalId
@@ -203,4 +210,3 @@ struct MMGetSyncRequest: MMHTTPGetRequest {
 		self.dlrMsgIds = dlrMsgIds
 	}
 }
-
