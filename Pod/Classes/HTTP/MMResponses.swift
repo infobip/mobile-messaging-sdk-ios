@@ -141,7 +141,7 @@ public struct MMMessage: Hashable, JSONDecodable {
 	}
 	
 	init?(payload: [NSObject: AnyObject]) {
-		guard let messageId = payload[MMAPIKeys.kMessageId] as? String,
+		guard let messageId = payload[MMAPIKeys.kMessageId] as? String where messageId.isEmpty == false,
             var payload = payload as? [String: AnyObject] else {
 			return nil
 		}
