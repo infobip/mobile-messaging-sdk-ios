@@ -65,7 +65,7 @@ class FetchMessagesTest: MMTestCase {
 		
 		//Precondiotions
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
 			prepconditionExpectation.fulfill()
 		})
 		
@@ -74,7 +74,7 @@ class FetchMessagesTest: MMTestCase {
 			seenExpectation.fulfill()
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation.fulfill()
 		})
 
@@ -142,11 +142,11 @@ class FetchMessagesTest: MMTestCase {
 		
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation1.fulfill()
 		})
 	
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation2.fulfill()
 		})
 		

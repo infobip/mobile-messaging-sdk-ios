@@ -13,17 +13,41 @@ enum MessageOrigin {
 	case APNS, Server
 }
 
+
+func == (lhs: MessageMeta, rhs: MessageMeta) -> Bool {
+	return lhs.hashValue == rhs.hashValue
+}
+
+struct MessageMeta : MMMessageMetadata {
+	var isSilent: Bool
+	var messageId: String
+	
+	var hashValue: Int {
+		return messageId.hash
+	}
+	
+	init(message: MessageManagedObject) {
+		self.messageId = message.messageId
+		self.isSilent = message.isSilent.boolValue
+	}
+	
+	init(message: MMMessage) {
+		self.messageId = message.messageId
+		self.isSilent = message.isSilent
+	}
+}
+
 final class MessageHandlingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (NSError? -> Void)?
 	var newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil
 	var remoteAPIQueue: MMRemoteAPIQueue
-	var userInfos: [[NSObject : AnyObject]]
+	var messagesToHandle: [MMMessage]
 	var messagesOrigin: MessageOrigin
 	var hasNewMessages: Bool = false
 	
-	init(userInfos: [[NSObject : AnyObject]], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
-		self.userInfos = userInfos //can be either APNS or Server layout
+	init(messagesToHandle: [MMMessage], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
+		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
@@ -40,7 +64,7 @@ final class MessageHandlingOperation: Operation {
 	
 	private func handleMessage() {
 		context.performBlockAndWait {
-			guard let newMessages: Set<MMMessage> = self.getNewMessages(self.context, userInfos: self.userInfos)
+			guard let newMessages: [MMMessage] = self.getNewMessages(self.context, messagesToHandle: self.messagesToHandle)
 				where newMessages.count > 0
 				else
 			{
@@ -54,7 +78,6 @@ final class MessageHandlingOperation: Operation {
 				newDBMessage.messageId = newMessage.messageId
 				newDBMessage.isSilent = newMessage.isSilent
 			}
-			
 			self.context.MM_saveToPersistentStoreAndWait()
 			
 			self.postNewMessagesEvents(newMessages)
@@ -63,32 +86,41 @@ final class MessageHandlingOperation: Operation {
 		}
 	}
 	
-	private func postNewMessagesEvents(newMessages: Set<MMMessage>) {
+	private func postNewMessagesEvents(newMessages: [MMMessage]) {
 		MMQueue.Main.queue.executeAsync {
-			for newMessage in newMessages {
-				if let payload = newMessage.payload {
-					var userInfo: [NSObject : AnyObject] = [ MMNotificationKeyMessagePayload: payload, MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS, MMNotificationKeyMessageIsSilent: newMessage.isSilent ]
-					if let customPayload = newMessage.customPayload {
-						userInfo[MMNotificationKeyMessageCustomPayload] = customPayload
-					}
-					NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived, object: self, userInfo: userInfo)
-					self.newMessageReceivedCallback?(userInfo)
+			for msg in newMessages {
+				var userInfo: [NSObject : AnyObject] = [ MMNotificationKeyMessagePayload: msg.originalPayload, MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS, MMNotificationKeyMessageIsSilent: msg.isSilent ]
+				if let customPayload = msg.customPayload {
+					userInfo[MMNotificationKeyMessageCustomPayload] = customPayload
 				}
+				NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived, object: self, userInfo: userInfo)
+				self.newMessageReceivedCallback?(userInfo)
 			}
 		}
 	}
 	
-	private func getNewMessages(context: NSManagedObjectContext, userInfos: [[NSObject : AnyObject]]) -> Set<MMMessage>? {
-		guard userInfos.count > 0 else {
+	private func getNewMessages(context: NSManagedObjectContext, messagesToHandle: [MMMessage]) -> [MMMessage]? {
+		guard messagesToHandle.count > 0 else {
 			return nil
 		}
-		let messagesSet = Set(userInfos.flatMap(MMMessage.init))
-		var dbMessages = [MMMessage]()
+		let messagesSet = Set(messagesToHandle.flatMap(MessageMeta.init))
+		var dbMessages = [MessageMeta]()
 		if let msgs = MessageManagedObject.MM_findAllInContext(context) as? [MessageManagedObject] {
-			dbMessages = msgs.map(MMMessage.init)
+			dbMessages = msgs.map(MessageMeta.init)
 		}
 		let dbMessagesSet = Set(dbMessages)
-		return messagesSet.subtract(dbMessagesSet)
+		let newMessageMetas = messagesSet.subtract(dbMessagesSet)
+		return newMessageMetas.flatMap(metaToMessage)
+	}
+	
+	private func metaToMessage(meta: MessageMeta) -> MMMessage? {
+		if let message = self.messagesToHandle.filter({ (msg: MMMessage) -> Bool in
+			return msg.messageId == meta.messageId
+		}).first {
+			return message
+		} else {
+			return nil
+		}
 	}
 	
 	override func finished(errors: [NSError]) {

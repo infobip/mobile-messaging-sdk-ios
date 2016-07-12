@@ -132,4 +132,10 @@ enum MMQueue {
 			return MMQueueObject(queue: dispatch_queue_create(queueName, DISPATCH_QUEUE_SERIAL))
 		}
 	}
+	
+	enum Concurrent {
+		static func newQueue(queueName: String) -> MMQueueObject {
+			return MMQueueObject(queue: dispatch_queue_create(queueName, DISPATCH_QUEUE_CONCURRENT))
+		}
+	}
 }

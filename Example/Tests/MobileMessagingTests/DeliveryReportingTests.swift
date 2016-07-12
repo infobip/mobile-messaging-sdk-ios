@@ -15,7 +15,7 @@ class DeliveryReportingTests: MMTestCase {
         let expectation = expectationWithDescription("Delivery sending completed")
 		
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m1"], newMessageReceivedCallback: { _ in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: { _ in
 			
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 			
@@ -36,7 +36,7 @@ class DeliveryReportingTests: MMTestCase {
 		
         let expectation = expectationWithDescription("Delivery sending completed")
 		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "m2"], newMessageReceivedCallback: { _ in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: { _ in
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 			
 		}, completion: { error in
@@ -59,7 +59,7 @@ class DeliveryReportingTests: MMTestCase {
 		let messageReceivingGroup = dispatch_group_create()
 		
 		dispatch_group_enter(messageReceivingGroup)
-		mobileMessagingInstance.didReceiveRemoteNotification(["messageId": "qwerty1"], newMessageReceivedCallback: nil, completion: { err in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "qwerty1"], newMessageReceivedCallback: nil, completion: { err in
 			dispatch_group_leave(messageReceivingGroup)
 		})
 		

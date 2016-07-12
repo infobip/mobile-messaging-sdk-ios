@@ -40,6 +40,10 @@ struct MMAPIKeys {
 	static let kInternalData = "internalData"
 	static let kSilent = "silent"
 	
+	//MARK: Interactive Notifications
+	static let kInteractive = "interactive"
+	static let kButtonActions = "button_actions"
+	
 	//MARK: email
 	static let kEmail = "email"
 	

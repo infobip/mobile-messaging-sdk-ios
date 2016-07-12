@@ -42,7 +42,7 @@ func apnsSilentMessagePayload(messageId: String) -> [NSObject: AnyObject] {
 func sendPushes(preparingFunc:(String) -> [NSObject: AnyObject], count: Int, receivingHandler: ([String: AnyObject]) -> Void) {
     for _ in 0..<count {
         let newMessageId = NSUUID().UUIDString
-        if let payload = MMMessage(payload: preparingFunc(newMessageId))?.payload {
+        if let payload = try? MMMessage(payload: preparingFunc(newMessageId)).originalPayload {
             receivingHandler(payload)
         } else {
             XCTFail()
@@ -64,7 +64,7 @@ class MessageReceivingTests: MMTestCase {
 		if let json = try? JSON(jsonString: jsonstring) {
 			message = try? MMMessage(json: json)
 		}
-		XCTAssertEqual(message?.payload as! [String: NSObject], resultDict)
+		XCTAssertEqual(message?.originalPayload as! [String: NSObject], resultDict)
 		XCTAssertEqual(message?.customPayload as! [String: NSObject], ["customKey" : "customValue"])
 		XCTAssertFalse(message!.isSilent)
 	}
@@ -82,7 +82,7 @@ class MessageReceivingTests: MMTestCase {
 		if let json = try? JSON(jsonString: jsonstring) {
 			message = try? MMMessage(json: json)
 		}
-		XCTAssertEqual(message?.payload as! [String: NSObject], resultDict)
+		XCTAssertEqual(message?.originalPayload as! [String: NSObject], resultDict)
 		XCTAssertEqual(message?.customPayload as! [String: NSObject], ["customKey" : "customValue"])
 		XCTAssertTrue(message!.isSilent)
 	}
@@ -102,9 +102,9 @@ class MessageReceivingTests: MMTestCase {
 				let json = try JSON(jsonString: backendJSONRegularMessage(id))
 				let message = try MMMessage(json: json)
 				XCTAssertFalse(message.isSilent)
-				XCTAssertEqual(message.payload!["aps"]!["alert"]!!["body"], "msg_body", "Message body must be parsed")
-				XCTAssertEqual(message.payload!["aps"]!["sound"], "default", "sound must be parsed")
-				XCTAssertEqual(message.payload!["aps"]!["badge"], 6, "badger must be parsed")
+				XCTAssertEqual(message.originalPayload["aps"]!["alert"]!!["body"], "msg_body", "Message body must be parsed")
+				XCTAssertEqual(message.originalPayload["aps"]!["sound"], "default", "sound must be parsed")
+				XCTAssertEqual(message.originalPayload["aps"]!["badge"], 6, "badger must be parsed")
 
 				XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
 			}

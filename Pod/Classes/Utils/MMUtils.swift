@@ -188,3 +188,11 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>?) -> 
 		return lMutable
 	}
 }
+
+func isIOS9() -> Bool {
+	if #available(iOS 9.0, *) {
+		return true
+	} else {
+		return false
+	}
+}

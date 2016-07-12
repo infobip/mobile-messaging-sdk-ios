@@ -33,7 +33,12 @@ final class MMMessageHandler {
 
     //MARK: Intenal
 	func handleAPNSMessage(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, completion: (NSError? -> Void)? = nil) {
-		self.messageHandlingQueue.addOperation(MessageHandlingOperation(userInfos: [userInfo], messagesOrigin: .APNS, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
+		do {
+			let msg = try MMMessage.init(payload: userInfo)
+			self.messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: [msg], messagesOrigin: .APNS, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
+		} catch {
+			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
+		}
 	}
 	
 	func syncWithServer(completion: (NSError? -> Void)? = nil) {

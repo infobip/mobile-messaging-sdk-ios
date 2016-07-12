@@ -46,6 +46,7 @@
 		A03F75061CE2243C00414A6B /* MessageSeenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */; };
 		A03F75071CE2243C00414A6B /* MMTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5077629C1CC2893B00499542 /* MMTestCase.swift */; };
 		A047BFD81CB4EB5C00A6859F /* CopyableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A047BFD71CB4EB5C00A6859F /* CopyableCell.swift */; };
+		A06A82DB1D2FE3C80081026D /* InteractiveMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */; };
 		A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */; };
 		A0953C291CAD1C660076488D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0953C271CAD1C660076488D /* Main.storyboard */; };
 		BC0C8A45BA4DCA5E1449BCF0 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1BD2D7F4AFBA3723049088 /* Pods_MobileMessagingExample_Tests.framework */; };
@@ -101,6 +102,7 @@
 		9C014EAD3460C8C6C12F4258 /* Pods_MobileMessaging_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessaging_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EscapingQueryTests.swift; sourceTree = "<group>"; };
 		A047BFD71CB4EB5C00A6859F /* CopyableCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CopyableCell.swift; sourceTree = "<group>"; };
+		A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageTests.swift; sourceTree = "<group>"; };
 		A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSErrorExtension.swift; sourceTree = "<group>"; };
 		A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageReceivingTests.swift; sourceTree = "<group>"; };
 		A09103DB1CABA839001873B4 /* RegistrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationTests.swift; sourceTree = "<group>"; };
@@ -296,6 +298,7 @@
 				A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */,
 				5077629C1CC2893B00499542 /* MMTestCase.swift */,
 				50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */,
+				A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */,
 			);
 			path = MobileMessagingTests;
 			sourceTree = "<group>";
@@ -606,6 +609,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A06A82DB1D2FE3C80081026D /* InteractiveMessageTests.swift in Sources */,
 				A03F75031CE2243C00414A6B /* DeliveryReportingTests.swift in Sources */,
 				A03F75071CE2243C00414A6B /* MMTestCase.swift in Sources */,
 				A024DEA51CF7477A00084EF5 /* EscapingQueryTests.swift in Sources */,

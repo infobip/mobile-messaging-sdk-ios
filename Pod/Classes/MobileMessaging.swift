@@ -61,6 +61,18 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/**
+	This method handles actions of interactive notification and triggers procedure for performing operations that are defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` and `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callbacks.
+	
+	- parameter identifier: The identifier associated with the action of interactive notification.
+	- parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
+	- parameter responseInfo: The data dictionary sent by the action.
+	- parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` and `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callbacks as a `completionHandler` parameter. Mobile Messaging will execute this block after performing all actions.
+    */
+	public class func handleActionWithIdentifier(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (() -> Void)?) {
+		MMMessage.performAction(identifier, userInfo: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
+	}
+	
+	/**
 	Logging utility is used for:
 	- setting up logging options and logging levels.
 	- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
@@ -174,7 +186,8 @@ class MobileMessagingInstance {
 			}
 
 			MobileMessagingInstance.queue.executeAsync {
-				UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: nil))
+				let categories = MMNotificationCategoryManager.categoriesToRegister()
+				UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: categories))
 				UIApplication.sharedApplication().registerForRemoteNotifications()
 			}
 		}

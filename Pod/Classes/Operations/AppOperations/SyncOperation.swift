@@ -94,7 +94,7 @@ final class SyncOperation: Operation {
 	}
 	
 	private func handleMessageOperation(messages: [MMMessage]) -> MessageHandlingOperation {
-		return MessageHandlingOperation(userInfos: messages.flatMap { $0.payload },
+		return MessageHandlingOperation(messagesToHandle: messages,
 		                                messagesOrigin: .Server,
 		                                context: self.context,
 		                                remoteAPIQueue: self.remoteAPIQueue,
