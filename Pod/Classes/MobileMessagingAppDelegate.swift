@@ -51,7 +51,7 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	}
 	
 	//iOS8
-	final public func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void) {
+	final public func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: Void -> Void) {
 		if !isTesting {
 			MobileMessaging.handleActionWithIdentifier(identifier, userInfo: userInfo, responseInfo: nil, completionHandler: completionHandler)
 		}
@@ -60,7 +60,7 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	
 	//iOS9
 	@available(iOS 9.0, *)
-	final public func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], withResponseInfo responseInfo: [NSObject : AnyObject], completionHandler: () -> Void) {
+	final public func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], withResponseInfo responseInfo: [NSObject : AnyObject], completionHandler: Void -> Void) {
 		if !isTesting {
 			MobileMessaging.handleActionWithIdentifier(identifier, userInfo: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 		}
@@ -92,7 +92,7 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a remote notification.
 	This method is avaliable for iOS 8.0 and later.
 	*/
-	public func mm_application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void) { }
+	public func mm_application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: Void -> Void) { }
 	
 	/**
 	This is an substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)`.
@@ -100,7 +100,7 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	This method is avaliable for iOS 9.0 and later.
 	*/
 	@available(iOS 9.0, *)
-	public func mm_application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], withResponseInfo responseInfo: [NSObject : AnyObject], completionHandler: () -> Void) { }
+	public func mm_application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], withResponseInfo responseInfo: [NSObject : AnyObject], completionHandler: Void -> Void) { }
 	
 	//MARK: Private
 	var isTesting: Bool {

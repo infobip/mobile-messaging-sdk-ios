@@ -26,11 +26,11 @@ enum MMPredefinedActions : String {
 protocol MMBaseAction {
 	static var actionId : MMPredefinedActions {get}
 	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?)
-	func perform(message: MMMessage, completion:Void->Void)
+	func perform(message: MMMessage, completion: Void -> Void)
 }
 protocol MMAction : MMBaseAction {
 	associatedtype Result : MMActionResult
-	static func setActionHandler(handler: Result->Void)
+	static func setActionHandler(handler: Result -> Void)
 }
 
 public final class MMActionMarkAsSeen : NSObject, MMAction {
@@ -40,7 +40,7 @@ public final class MMActionMarkAsSeen : NSObject, MMAction {
 		super.init()
 	}
 	
-	func perform(message: MMMessage, completion:Void->Void) {
+	func perform(message: MMMessage, completion: Void -> Void) {
 		MobileMessaging.setSeen([message.messageId])
 		MMActionsManager.executeActionHandler(MMMarkAsSeenActionResult(messageId: message.messageId), actionId: MMActionMarkAsSeen.actionId) {
 			completion()
@@ -51,7 +51,7 @@ public final class MMActionMarkAsSeen : NSObject, MMAction {
 	Method sets handler for action.
 	- parameter handler: Handler for action. Will be performed after action predefined activities.
    */
-	public static func setActionHandler(handler: Result->Void) {
+	public static func setActionHandler(handler: Result -> Void) {
 		MMActionsManager.setActionHandler(MMActionMarkAsSeen.self, handler: handler)
 	}
 }
@@ -67,14 +67,14 @@ public final class MMActionReply : NSObject, MMAction {
 		super.init()
 	}
 	
-	func perform(message: MMMessage, completion:Void->Void) {
+	func perform(message: MMMessage, completion: Void -> Void) {
 		let reply = MMReplyActionResult(messageId: message.messageId, text: self.text)
 		MMActionsManager.executeActionHandler(reply, actionId: MMActionReply.actionId) {
 			completion()
 		}
 	}
 	
-	public static func setActionHandler(handler: Result->Void) {
+	public static func setActionHandler(handler: Result -> Void) {
 		MMActionsManager.setActionHandler(MMActionReply.self, handler: handler)
 	}
 }
@@ -92,7 +92,7 @@ public final class MMActionOpenURL : NSObject, MMAction {
 		super.init()
 	}
 	
-	func perform(message: MMMessage, completion:Void->Void) {
+	func perform(message: MMMessage, completion: Void -> Void) {
 		let result = Result(messageId: message.messageId, url: url)
 		dispatch_async(dispatch_get_main_queue()) {
 			UIApplication.sharedApplication().openURL(self.url)
@@ -102,7 +102,7 @@ public final class MMActionOpenURL : NSObject, MMAction {
 		}
 	}
 
-	public static func setActionHandler(handler: Result->Void) {
+	public static func setActionHandler(handler: Result -> Void) {
 		MMActionsManager.setActionHandler(MMActionOpenURL.self, handler: handler)
 	}
 }

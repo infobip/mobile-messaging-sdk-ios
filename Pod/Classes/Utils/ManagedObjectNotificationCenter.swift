@@ -170,7 +170,7 @@ extension NSManagedObject {
 		}
 	}
 	
-	func onTurninigIntoFault(block: () -> Void) {
+	func onTurninigIntoFault(block: Void -> Void) {
 		var watchers = self.faultingWatchers()
 		watchers.append(BlockObject(block: block))
 		objc_setAssociatedObject(self, AssociatedKeys.AssociatedFaultingWatchersKey, watchers, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -188,7 +188,7 @@ private extension NSObject {
 		static var AssociatedFaultingWatchersKey = "mm_AssociatedFaultingWatchersKey"
 	}
 	
-	func onDeallocation(block: () -> Void) {
+	func onDeallocation(block: Void -> Void) {
 		var watchers = self.watchers()
 		watchers.append(DeallocationWatcher(block: block))
 		objc_setAssociatedObject(self, AssociatedKeys.AssociatedDeallocationWatchersKey, watchers, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -201,18 +201,18 @@ private extension NSObject {
 
 //MARK: Block wrapper
 class BlockObject: NSObject {
-	private var block: () -> Void
+	private var block: Void -> Void
 	
-	init(block: () -> Void) {
+	init(block: Void -> Void) {
 		self.block = block
 	}
 }
 
 //MARK: Deallocation watcher (will execute underlying block while on self deallocation)
 class DeallocationWatcher: NSObject {
-	private var block: () -> Void
+	private var block: Void -> Void
 	
-	init(block: () -> Void) {
+	init(block: Void -> Void) {
 		self.block = block
 	}
 	

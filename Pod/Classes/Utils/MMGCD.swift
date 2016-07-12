@@ -8,7 +8,7 @@
 
 import Foundation
 
-func synced(lock: AnyObject, closure: () -> ()) {
+func synced(lock: AnyObject, closure: Void -> Void) {
 	objc_sync_enter(lock)
 	closure()
 	objc_sync_exit(lock)
@@ -49,7 +49,7 @@ final class MMQueueObject: CustomStringConvertible {
 	
 	var queueLabel: String?
 	
-    func executeAsync(closure: () -> Void) {
+    func executeAsync(closure: Void -> Void) {
         if isCurrentQueue {
             closure()
         } else {
@@ -57,7 +57,7 @@ final class MMQueueObject: CustomStringConvertible {
         }
     }
     
-    func executeAsyncBarier(closure: () -> Void) {
+    func executeAsyncBarier(closure: Void -> Void) {
         if isCurrentQueue {
             closure()
         } else {
@@ -65,7 +65,7 @@ final class MMQueueObject: CustomStringConvertible {
         }
     }
 
-    func executeSync(closure: () -> Void) {
+    func executeSync(closure: Void -> Void) {
         if isCurrentQueue {
             closure()
         } else {
@@ -82,7 +82,7 @@ protocol MMQueueEnum {
 }
 
 final class MMQueuePool {
-	class func queue(queueEnum: MMQueueEnum, queueBuilder: () -> MMQueueObject) -> MMQueueObject {
+	class func queue(queueEnum: MMQueueEnum, queueBuilder: Void -> MMQueueObject) -> MMQueueObject {
 		var queue: MMQueueObject
 		objc_sync_enter(qTable)
 		if let q = qTable[queueEnum.queueName] {

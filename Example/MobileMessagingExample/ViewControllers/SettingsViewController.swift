@@ -77,7 +77,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		}
 	}
 	
-	private func hideActivityIndicator(completion: () -> Void) {
+	private func hideActivityIndicator(completion: Void -> Void) {
 		activityIndicator.stopAnimating()
 		UIView.animateWithDuration(0.3, delay: 0.2, options: .BeginFromCurrentState,
 			animations: {

@@ -15,7 +15,7 @@ class MMThrottle: NSObject {
 		self.executionQueue = executionQueue
 	}
 	
-	func postponeBlock(delay: Double = 2, block: () -> Void) {
+	func postponeBlock(delay: Double = 2, block: Void -> Void) {
 		schedulerQueue.executeAsync {
 			self.invalidateTimer()
 			self.block = block

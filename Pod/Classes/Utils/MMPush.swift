@@ -98,7 +98,7 @@ private final class MMAlertOperation : Operation {
     
 	override func execute() {
 		MMQueue.Main.queue.executeAsync {
-			self.showAlertController(self.alertController, completion: { () -> Void in
+			self.showAlertController(self.alertController, completion: { Void -> Void in
 				self.finish()
 			})
 		}
@@ -117,7 +117,7 @@ private final class MMAlertOperation : Operation {
         alertController.addAction(action)
     }
     
-    private func showAlertController(alertController: UIAlertController, completion:() -> Void) {
+    private func showAlertController(alertController: UIAlertController, completion: Void -> Void) {
         guard var rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController else {
             return
         }
