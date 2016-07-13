@@ -188,7 +188,9 @@ class MobileMessagingInstance {
 			MobileMessagingInstance.queue.executeAsync {
 				let categories = MMNotificationCategoryManager.categoriesToRegister()
 				UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: categories))
-				UIApplication.sharedApplication().registerForRemoteNotifications()
+				if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
+					UIApplication.sharedApplication().registerForRemoteNotifications()
+				}
 			}
 		}
 	}
