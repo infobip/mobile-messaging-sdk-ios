@@ -10,9 +10,12 @@ import CoreLocation
 import UIKit
 
 public protocol MMLocationManagerProtocol: class {
+    // Functions called when new regions from campaings are added for region monitoring.
     func canAddCampaign(campaign: MMCampaign) -> Bool
     func willAddCampaing(campaign: MMCampaign)
     func didAddCampaing(campaign: MMCampaign)
+    
+    // Functions called when person enters or exits monitored region.
     func didEnterRegion(region: MMRegion)
     func didExitRegion(region: MMRegion)
 }
@@ -20,7 +23,7 @@ public protocol MMLocationManagerProtocol: class {
 public class MMLocationManager: NSObject, CLLocationManagerDelegate {
     
     // MARK: - Public
-    
+    public static var sharedInstance = MMLocationManager()
     public var locationManager: CLLocationManager
     public weak var delegate: MMLocationManagerProtocol?
     var datasource: MMGeofencingDatasource
@@ -40,7 +43,8 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
         super.init()
     }
     
-    public func startMonitoringCampaigns() {
+    // Set delegate object for location manager and start monitoring regions from received campaings.
+    public func startMonitoringCampaignsRegions() {
         self.locationManager.delegate = self
         self.locationManager.distanceFilter = kCLLocationAccuracyHundredMeters
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -81,6 +85,14 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
         
         // Load saved (already received) campaings and start monitoring them.
         startMonitoringCampaigns(datasource.campaigns)
+    }
+    
+    // start monitoring regions from received campaings.
+    public func stopMonitoringCampaignsRegions() {
+        let regions = locationManager.monitoredRegions
+        for region in regions {
+            locationManager.stopMonitoringForRegion(region)
+        }
     }
     
     public func addCampaingToRegionMonitoring(campaign: MMCampaign) {

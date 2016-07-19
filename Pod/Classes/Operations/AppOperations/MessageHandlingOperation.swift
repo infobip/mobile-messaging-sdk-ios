@@ -77,6 +77,12 @@ final class MessageHandlingOperation: Operation {
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
 				newDBMessage.isSilent = newMessage.isSilent
+                
+                // Add new regions for geofencing
+                if let geoData = newMessage.geoData {
+                    let newCampaing = MMLocationManager.getCampaignFromDictionary(geoData)
+                    MMLocationManager.sharedInstance.addCampaingToRegionMonitoring(newCampaing)
+                }
 			}
 			self.context.MM_saveToPersistentStoreAndWait()
 			

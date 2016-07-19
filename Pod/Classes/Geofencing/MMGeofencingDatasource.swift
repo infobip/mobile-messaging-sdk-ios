@@ -59,9 +59,18 @@ class MMGeofencingDatasource {
     }
     
     func save() {
-        let rootUrl = NSFileManager.defaultManager().URLsForDirectory(NSSearchPathDirectory.DocumentDirectory, inDomains: NSSearchPathDomainMask.UserDomainMask)[0]
+        let rootUrl = NSFileManager.defaultManager().URLsForDirectory(NSSearchPathDirectory.ApplicationSupportDirectory, inDomains: NSSearchPathDomainMask.UserDomainMask)[0]
         
-        let plistUrl = rootUrl.URLByAppendingPathComponent(MMGeofencingDatasource.plistFile)
+        let fileDirectoryUrl = rootUrl.URLByAppendingPathComponent("com.mobile-messaging.geo-data")
+        if let path = fileDirectoryUrl.path where !NSFileManager.defaultManager().fileExistsAtPath(path) {
+            do {
+                try NSFileManager.defaultManager().createDirectoryAtURL(fileDirectoryUrl,
+                                                                        withIntermediateDirectories: true,
+                                                                        attributes: nil)
+            } catch { }
+        }
+        
+        let plistUrl = fileDirectoryUrl.URLByAppendingPathComponent(MMGeofencingDatasource.plistFile)
         
         // Create NSMutableArray for storing to plist.
         var plistCampaignArray:[[String:AnyObject]] = []
@@ -94,12 +103,12 @@ class MMGeofencingDatasource {
         }
     }
     
-    
     func load() {
         
-        let rootUrl = NSFileManager.defaultManager().URLsForDirectory(NSSearchPathDirectory.DocumentDirectory, inDomains: NSSearchPathDomainMask.UserDomainMask)[0]
+        let rootUrl = NSFileManager.defaultManager().URLsForDirectory(NSSearchPathDirectory.ApplicationSupportDirectory, inDomains: NSSearchPathDomainMask.UserDomainMask)[0]
         
-        let plistUrl = rootUrl.URLByAppendingPathComponent(MMGeofencingDatasource.plistFile)
+        let fileDirectoryUrl = rootUrl.URLByAppendingPathComponent("com.mobile-messaging.geo-data")
+        let plistUrl = fileDirectoryUrl.URLByAppendingPathComponent(MMGeofencingDatasource.plistFile)
         let plistPath = plistUrl.path
         
         if let path = plistPath {
