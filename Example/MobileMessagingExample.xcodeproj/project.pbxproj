@@ -14,6 +14,7 @@
 		500003111CCB7B3C00C91479 /* Pods-MobileMessagingExample_Tests.release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5000030F1CCB7B3C00C91479 /* Pods-MobileMessagingExample_Tests.release.xcconfig */; };
 		500003151CCB7D4C00C91479 /* Pods_MobileMessagingExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 500003141CCB7D4C00C91479 /* Pods_MobileMessagingExample.framework */; };
 		502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502129421CEEF450007CEF8E /* MessagesManager.swift */; };
+		5079E8EC1D37C61700C09BE9 /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
 		5087EDA71CEEF82500B85546 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDA61CEEF82500B85546 /* MessageCell.swift */; };
 		5087EDB01CEF067100B85546 /* InfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAC1CEF067100B85546 /* InfoTableViewController.swift */; };
 		5087EDB11CEF067100B85546 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAD1CEF067100B85546 /* ListViewController.swift */; };
@@ -49,6 +50,7 @@
 		A06A82DB1D2FE3C80081026D /* InteractiveMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */; };
 		A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */; };
 		A0953C291CAD1C660076488D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0953C271CAD1C660076488D /* Main.storyboard */; };
+		A0F30B101D410A3300247CED /* MOMessageSending.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F30B0F1D410A3300247CED /* MOMessageSending.swift */; };
 		BC0C8A45BA4DCA5E1449BCF0 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1BD2D7F4AFBA3723049088 /* Pods_MobileMessagingExample_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -79,6 +81,7 @@
 		500003141CCB7D4C00C91479 /* Pods_MobileMessagingExample.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Pods_MobileMessagingExample.framework; path = "Pods/../build/Debug-iphoneos/Pods_MobileMessagingExample.framework"; sourceTree = "<group>"; };
 		502129421CEEF450007CEF8E /* MessagesManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesManager.swift; sourceTree = "<group>"; };
 		5077629C1CC2893B00499542 /* MMTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMTestCase.swift; sourceTree = "<group>"; };
+		5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataTests.swift; sourceTree = "<group>"; };
 		5087EDA61CEEF82500B85546 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		5087EDAC1CEF067100B85546 /* InfoTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoTableViewController.swift; sourceTree = "<group>"; };
 		5087EDAD1CEF067100B85546 /* ListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
@@ -112,6 +115,7 @@
 		A09103E01CABA839001873B4 /* TestUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
 		A0953C281CAD1C660076488D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageSeenTests.swift; sourceTree = "<group>"; };
+		A0F30B0F1D410A3300247CED /* MOMessageSending.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MOMessageSending.swift; sourceTree = "<group>"; };
 		DA73038AA431C3538C3F8E66 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		DC1BD2D7F4AFBA3723049088 /* Pods_MobileMessagingExample_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F131340E2E65C8C12A3D0354 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -299,6 +303,8 @@
 				5077629C1CC2893B00499542 /* MMTestCase.swift */,
 				50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */,
 				A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */,
+				5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */,
+				A0F30B0F1D410A3300247CED /* MOMessageSending.swift */,
 			);
 			path = MobileMessagingTests;
 			sourceTree = "<group>";
@@ -609,8 +615,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0F30B101D410A3300247CED /* MOMessageSending.swift in Sources */,
 				A06A82DB1D2FE3C80081026D /* InteractiveMessageTests.swift in Sources */,
 				A03F75031CE2243C00414A6B /* DeliveryReportingTests.swift in Sources */,
+				5079E8EC1D37C61700C09BE9 /* UserDataTests.swift in Sources */,
 				A03F75071CE2243C00414A6B /* MMTestCase.swift in Sources */,
 				A024DEA51CF7477A00084EF5 /* EscapingQueryTests.swift in Sources */,
 				A03F75051CE2243C00414A6B /* TestUtils.swift in Sources */,

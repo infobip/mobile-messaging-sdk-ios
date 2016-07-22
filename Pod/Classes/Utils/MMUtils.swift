@@ -10,6 +10,33 @@ import Foundation
 import CoreData
 import MMAFNetworking
 
+struct NSDateStaticFormatters {
+	static var ContactsServiceDateFormatter: NSDateFormatter = {
+		let result = NSDateFormatter()
+		result.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+		result.dateFormat = "yyyy-MM-dd"
+		return result
+	}()
+	static var ISO8601Formatter: NSDateFormatter = {
+		let result = NSDateFormatter()
+		result.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
+		return result
+	}()
+	static var CoreDataDateFormatter: NSDateFormatter = {
+		let result = NSDateFormatter()
+		result.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+		result.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
+		return result
+	}()
+	static var timeFormatter: NSDateFormatter = {
+		let result = NSDateFormatter()
+		result.dateStyle = NSDateFormatterStyle.NoStyle
+		result.timeStyle = NSDateFormatterStyle.ShortStyle
+		return result
+	}()
+}
+
 public extension Dictionary where Key: NSObject, Value: AnyObject {
 	public var mm_apsAlertBody: String? {
 		return (self as NSDictionary).mm_apsAlertBody
@@ -44,7 +71,7 @@ public extension NSDictionary {
 }
 
 extension NSNotificationCenter {
-	class func mm_postNotificationFromMainThread(name: String, userInfo: [NSObject: AnyObject]) {
+	class func mm_postNotificationFromMainThread(name: String, userInfo: [NSObject: AnyObject]?) {
 		MMQueue.Main.queue.executeAsync {
 			NSNotificationCenter.defaultCenter().postNotificationName(name, object: self, userInfo: userInfo)
 		}

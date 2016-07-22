@@ -1,6 +1,5 @@
 //
 //  ManagedObjectNotificationCenter.swift
-//  Pods
 //
 //  Created by Andrey K. on 09/06/16.
 //
@@ -24,7 +23,7 @@ class ManagedObjectNotificationCenter {
 			return res
 		}
 	}
-	private var observersQueue = MMQueue.Serial.newQueue("com.mobile-messaging.managedObjectObserverQueue")
+	private var observersQueue = MMQueue.Serial.newQueue("com.mobile-messaging.queue.serial.mo-observer")
 	
 	deinit {
 		removeAllObservers()

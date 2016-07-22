@@ -1,13 +1,13 @@
 //
-//  MMThrottle.swift
+//  MMPostponer.swift
 //
 //  Created by Andrey K. on 05/07/16.
 //
 
 import Foundation
-class MMThrottle: NSObject {
-	private var block: (() -> Void)?
-	private var schedulerQueue = MMQueue.Serial.newQueue("com.mobile-messaging.queue.serial.throttle")
+class MMPostponer: NSObject {
+	private var block: (Void -> Void)?
+	private var schedulerQueue = MMQueue.Serial.newQueue("com.mobile-messaging.queue.serial.postponer")
 	private var timer: dispatch_source_t?
 	private var executionQueue: dispatch_queue_t
 	
@@ -21,7 +21,7 @@ class MMThrottle: NSObject {
 			self.block = block
 			self.timer = self.createDispatchTimer(delay, queue: self.executionQueue, block:
 				{
-					var blockToExecute: (() -> Void)?
+					var blockToExecute: (Void -> Void)?
 					self.schedulerQueue.executeSync {
 						blockToExecute = self.block
 						self.invalidateTimer()

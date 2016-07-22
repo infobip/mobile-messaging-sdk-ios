@@ -8,21 +8,9 @@
 import XCTest
 @testable import MobileMessaging
 
-final class InstallationMock: NSObject {
-    var deviceToken: String?
-	var internalId: String?
-    var metaData: NSDictionary?
-    
-    init(deviceToken: String?, metaData: NSDictionary?) {
-        self.deviceToken = deviceToken
-        self.metaData = metaData
-    }
-}
-
 final class RegistrationTests: MMTestCase {
-    
+	
     func testInstallationPersisting() {
-		let metaexp = expectationWithDescription("meta2 saved")
 		let tokensexp = expectationWithDescription("device tokens saved")
 		let maxCount = 2
 		
@@ -35,22 +23,20 @@ final class RegistrationTests: MMTestCase {
 			}
         }
 		
-        MobileMessaging.currentInstallation?.setMetaForKey("meta1", object: "metadata1")
-        MobileMessaging.currentInstallation?.save()
+        MobileMessaging.currentUser?.setCustomDataForKey("meta1", object: "metadata1")
+        MobileMessaging.currentUser?.persist()
 		
-        MobileMessaging.currentInstallation?.setMetaForKey("meta2", object: "metadata2")
-		MobileMessaging.currentInstallation?.save {
-			metaexp.fulfill()
-		}
+        MobileMessaging.currentUser?.setCustomDataForKey("meta2", object: "metadata2")
+		MobileMessaging.currentUser?.persist()
 		
 		waitForExpectationsWithTimeout(100, handler: { err in
 			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
 			
-			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
 				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
 				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".mm_toHexademicalString(), "Most recent token must be persisted")
-				XCTAssertEqual((installation.metaData as! [String: String])["meta2"], "metadata2", "meta2 key must contain metadata2")
-				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "Device token must be synced with server")
+				XCTAssertEqual((installation.customUserData as! [String: String])["meta2"], "metadata2", "meta2 key must contain metadata2")
+				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Device token must be synced with server")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
 			}
@@ -58,7 +44,7 @@ final class RegistrationTests: MMTestCase {
     }
 
     func testRegisterForRemoteNotificationsWithDeviceToken() {
-		guard let currentInstallation = MobileMessaging.currentInstallation else {
+		guard let currentUser = MobileMessaging.currentUser else {
 			XCTFail("Installation not initialized")
 			return
 		}
@@ -66,8 +52,6 @@ final class RegistrationTests: MMTestCase {
         let token2Saved = expectationWithDescription("token2 saved")
 		let validEmailSaved = expectationWithDescription("email saved")
 		let validMsisdnSaved = expectationWithDescription("msisdn saved")
-		let invalidEmailSaved = expectationWithDescription("email saved")
-		let invalidMsisdnSaved = expectationWithDescription("msisdn saved")
 		
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
 		
@@ -75,39 +59,29 @@ final class RegistrationTests: MMTestCase {
 				
 				token2Saved.fulfill()
 				
-				currentInstallation.saveEmail(MMTestConstants.kTestValidEmail, completion: { err in
+				currentUser.saveEmail(MMTestConstants.kTestValidEmail, completion: { err in
 					XCTAssertNil(err)
 					validEmailSaved.fulfill()
 				})
 				
-				currentInstallation.saveMSISDN(MMTestConstants.kTestValidMSISDN, completion: { err in
+				currentUser.saveMSISDN(MMTestConstants.kTestValidMSISDN, completion: { err in
 					XCTAssertNil(err)
 					validMsisdnSaved.fulfill()
-				})
-				
-				currentInstallation.saveEmail(MMTestConstants.kTestInvalidEmail, completion: { err in
-					XCTAssertNotNil(err)
-					invalidEmailSaved.fulfill()
-				})
-				
-				currentInstallation.saveMSISDN(MMTestConstants.kTestInvalidMSISDN, completion: { err in
-					XCTAssertNotNil(err)
-					invalidMsisdnSaved.fulfill()
 				})
 			}
 		}
         
         self.waitForExpectationsWithTimeout(100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
-			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
 			
-				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "current installation must be synchronized")
-				XCTAssertEqual(installation.internalId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(installation.internalId))")
+				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "current installation must be synchronized")
+				XCTAssertEqual(installation.internalUserId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(installation.internalUserId))")
 				XCTAssertEqual(installation.deviceToken, "someToken2".mm_toHexademicalString(), "Device token must be mocked properly. (current is \(installation.deviceToken))")
-				XCTAssertEqual(installation.email, MMTestConstants.kTestValidEmail, "")
-				XCTAssertEqual(installation.msisdn, MMTestConstants.kTestValidMSISDN, "")
+				XCTAssertEqual(installation.predefinedUserData?[MMUserPredefinedDataKeys.Email.name] as? String, MMTestConstants.kTestValidEmail, "")
+				XCTAssertEqual(installation.predefinedUserData?[MMUserPredefinedDataKeys.MSISDN.name] as? String, MMTestConstants.kTestValidMSISDN, "")
 				
-				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "")
+				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
 			}
@@ -125,10 +99,10 @@ final class RegistrationTests: MMTestCase {
 		}
 		self.waitForExpectationsWithTimeout(100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
-			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
 			
-				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributes.deviceToken), "Dirty flag may be false only after success registration")
-				XCTAssertEqual(installation.internalId, nil, "Internal id must be nil, server denied the application code")
+				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Dirty flag may be false only after success registration")
+				XCTAssertEqual(installation.internalUserId, nil, "Internal id must be nil, server denied the application code")
 				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString(), "Device token must be mocked properly. (current is \(installation.deviceToken))")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
@@ -166,7 +140,7 @@ final class RegistrationTests: MMTestCase {
     
     func testRegistrationDataNotSendsTwice() {
 		
-        mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
+        mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.currentInstallation?.deviceToken = "someToken"
 		
         let sync1 = expectationWithDescription("sync1")

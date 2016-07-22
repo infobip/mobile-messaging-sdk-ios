@@ -15,7 +15,7 @@ public enum MMInternalErrorType : ErrorType {
     case OperationCanceled
 	case NoRegistration
 	case StorageInitializationError
-	case EmptyMsisdn
+	
     
     private var errorCode: Int {
         switch self {
@@ -27,8 +27,6 @@ public enum MMInternalErrorType : ErrorType {
 			return 2
 		case .StorageInitializationError:
 			return 3
-		case .EmptyMsisdn:
-			return 4
         }
     }
 
@@ -48,8 +46,6 @@ public enum MMInternalErrorType : ErrorType {
 			}
 		case StorageInitializationError:
 			errorDescription = NSLocalizedString("Core Data storage not initialized.", comment: "")
-		case .EmptyMsisdn:
-			errorDescription = NSLocalizedString("MSISDN is Empty.", comment: "")
         }
         return [NSLocalizedDescriptionKey: errorDescription]
     }

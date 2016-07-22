@@ -68,7 +68,7 @@ public final class MobileMessaging: NSObject {
 	- parameter responseInfo: The data dictionary sent by the action.
 	- parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` and `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callbacks as a `completionHandler` parameter. Mobile Messaging will execute this block after performing all actions.
     */
-	public class func handleActionWithIdentifier(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (() -> Void)?) {
+	public class func handleActionWithIdentifier(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (Void -> Void)?) {
 		MMMessage.performAction(identifier, userInfo: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
@@ -82,10 +82,17 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/**
-	Maintains attributes related to the current application installation such as APNs device token, unique ID for the registered user, badge number, email, MSISDN etc.
+	Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
 	*/
 	public class var currentInstallation: MMInstallation? {
 		return MobileMessagingInstance.sharedInstance.currentInstallation
+	}
+	
+	/**
+	Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
+	*/
+	public class var currentUser: MMUser? {
+		return MobileMessagingInstance.sharedInstance.currentUser
 	}
     
     /**
@@ -95,6 +102,15 @@ public final class MobileMessaging: NSObject {
     public class func setSeen(messageIds: [String]) {
         MobileMessagingInstance.sharedInstance.setSeen(messageIds)
     }
+	
+	/**
+	This method sends mobile originated messages to the server.
+	- parameter messages: Array of objects of `MOMessage` class that need to be sent.
+	- parameter completion: completion block that will be performed after receiving an answer from server, returns `MMOMessageSendResult` object, that contains the array of `MOMessage` messages, with `status` of sending.
+	*/
+	public class func sendMessages(messages: [MOMessage], completion: (MMOMessageSendResult -> Void)? = nil) {
+		MobileMessagingInstance.sharedInstance.sendMessages(messages, completion: completion)
+	}
 	
 	/**
 	A boolean variable that indicates whether the library will be sending the carrier information to the server.
@@ -140,7 +156,7 @@ class MobileMessagingInstance {
 	}
 	
 	func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
-		MMLogInfo("New remote notification received \(userInfo)")
+		MMLogDebug("New remote notification received \(userInfo)")
 		MobileMessagingInstance.queue.executeAsync {
 			self.messageHandler?.handleAPNSMessage(userInfo, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
 		}
@@ -155,13 +171,20 @@ class MobileMessagingInstance {
 	}
 	
 	func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {
-		MMLogInfo("Setting seen status: \(messageIds)")
+		MMLogDebug("Setting seen status: \(messageIds)")
 		MobileMessagingInstance.queue.executeAsync {
 			self.messageHandler?.setSeen(messageIds, completion: completion)
 		}
 	}
 	
-	static func start(userNotificationType: UIUserNotificationType, applicationCode: String, storageType: MMStorageType, remoteAPIBaseURL: String, completion: (() -> Void)? = nil) {
+	func sendMessages(messages: [MOMessage], completion: (MMOMessageSendResult -> Void)? = nil) {
+		MMLogDebug("Sending mobile originated messages...")
+		MobileMessagingInstance.queue.executeAsync {
+			self.messageHandler?.sendMessages(messages, completion: completion)
+		}
+	}
+	
+	static func start(userNotificationType: UIUserNotificationType, applicationCode: String, storageType: MMStorageType, remoteAPIBaseURL: String, completion: (Void -> Void)? = nil) {
 		MMLogInfo("Starting MobileMessaging service...")
 		MobileMessagingInstance.queue.executeAsync {
 			do {
@@ -176,9 +199,11 @@ class MobileMessagingInstance {
 					MobileMessagingInstance.sharedInstance.storage = storage
 					let installation = MMInstallation(storage: storage, baseURL: remoteAPIBaseURL, applicationCode: applicationCode)
 					MobileMessagingInstance.sharedInstance.currentInstallation = installation
+					let user = MMUser(installation: installation)
+					MobileMessagingInstance.sharedInstance.currentUser = user
 					let messageHandler = MMMessageHandler(storage: storage, baseURL: remoteAPIBaseURL, applicationCode: applicationCode)
 					MobileMessagingInstance.sharedInstance.messageHandler = messageHandler
-					MobileMessagingInstance.sharedInstance.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation)
+					MobileMessagingInstance.sharedInstance.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
 					MMLogInfo("MobileMessaging SDK service successfully initialized.")
 				}
 			} catch {
@@ -226,6 +251,11 @@ class MobileMessagingInstance {
 		set { self.setValue(newValue, forKey: "currentInstallation") }
 	}
 	
+	private(set) var currentUser: MMUser? {
+		get { return self.valueForKey("currentUser") as? MMUser }
+		set { self.setValue(newValue, forKey: "currentUser") }
+	}
+	
 	private(set) var appListener: MMApplicationListener? {
 		get { return self.valueForKey("appListener") as? MMApplicationListener }
 		set { self.setValue(newValue, forKey: "appListener") }
@@ -236,7 +266,7 @@ class MobileMessagingInstance {
 		set { self.setValue(newValue, forKey: "messageHandler") }
 	}
 	
-	private(set) var alertTapHandler: (() -> Void)?
+	private(set) var alertTapHandler: (Void -> Void)?
 	
 	private(set) var loggingUtil : MMLoggingUtil
 }

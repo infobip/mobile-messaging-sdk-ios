@@ -14,9 +14,11 @@ final class MMApplicationListener: NSObject {
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
-    init(messageHandler: MMMessageHandler, installation: MMInstallation) {
+	init(messageHandler: MMMessageHandler, installation: MMInstallation, user: MMUser) {
         self.messageHandler = messageHandler
         self.installation = installation
+		self.user = user
+		
         super.init()
 		
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MMApplicationListener.handleAppWillEnterForegroundNotification), name: UIApplicationWillEnterForegroundNotification, object: nil)
@@ -37,9 +39,11 @@ final class MMApplicationListener: NSObject {
 	//MARK: Private
 	private var messageHandler: MMMessageHandler
 	private var installation: MMInstallation
+	private var user: MMUser
 	
 	private func triggerPeriodicalWork() {
 		installation.syncWithServer()
+		user.syncWithServer()
 		messageHandler.syncWithServer()
 	}
 }

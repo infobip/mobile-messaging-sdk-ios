@@ -22,10 +22,10 @@ enum MMHTTPMethod {
 enum MMHTTPAPIPath: String {
     case Registration = "/mobile/2/registration"
     case DeliveryReport = "/mobile/1/deliveryreports"
-	case Email = "/mobile/1/email"
-	case MSISDN = "/mobile/1/msisdn"
     case SeenMessages = "/mobile/1/messages/seen"
 	case SyncMessages = "/mobile/3/messages"
+	case UserData = "/mobile/1/userdata"
+	case MOMessage = "/mobile/1/messages/mo"
 }
 
 protocol MMHTTPRequestResponsable {
@@ -56,6 +56,7 @@ extension MMHTTPRequestData {
 	var retryLimit: Int { return 0 }
 	var headers: [String: String]? { return nil }
     var body: [String: AnyObject]? { return nil }
+	var parameters: [String: AnyObject]? { return nil }
     
 	func responseObject(applicationCode: String, baseURL: String, completion: Result<ResponseType> -> Void) {
 		let manager = MM_AFHTTPSessionManager(baseURL: NSURL(string: baseURL), sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration())
@@ -97,14 +98,11 @@ struct MMPostRegistrationRequest: MMHTTPPostRequest {
     var parameters: [String: AnyObject]? {
         var params = [MMAPIKeys.kRegistrationId: currentDeviceToken,
                       MMAPIKeys.kPlatformType: MMAPIValues.kPlatformType]
-        if let internalId = internalId {
-            params[MMAPIKeys.kInternalRegistrationId] = internalId
-        }
-		
+		params[MMAPIKeys.kInternalRegistrationId] = internalId
         return params
     }
-    var currentDeviceToken: String
-	var internalId: String?
+    let currentDeviceToken: String
+	let internalId: String?
 
     init(internalId: String?, deviceToken: String) {
 		self.internalId = internalId
@@ -117,24 +115,10 @@ struct MMPostDeliveryReportRequest: MMHTTPPostRequest {
 	
 	var path: MMHTTPAPIPath { return .DeliveryReport }
 	var parameters: [String: AnyObject]? { return [MMAPIKeys.kMessageIDs: messageIDs] }
-	var messageIDs: [String]
+	let messageIDs: [String]
 	
 	init(messageIDs: [String]) {
 		self.messageIDs = messageIDs
-	}
-}
-
-struct MMPostMSISDNRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPSaveMSISDNResponse
-	
-	var path: MMHTTPAPIPath { return .MSISDN }
-	var parameters: [String: AnyObject]? { return [MMAPIKeys.kInternalRegistrationId: internalId, MMAPIKeys.kMSISDN: msisdn] }
-	var msisdn: String
-	var internalId: String
-	
-	init(internalId: String, msisdn: String?) {
-		self.internalId = internalId
-		self.msisdn = msisdn ?? ""
 	}
 }
 
@@ -158,25 +142,11 @@ struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 	
 	var path: MMHTTPAPIPath { return .SeenMessages }
 	var parameters: [String: AnyObject]? { return nil }
-	var seenList: [SeenData]
+	let seenList: [SeenData]
     var body: [String: AnyObject]? { return SeenData.requestBody(seenList) }
 	
 	init(seenList: [SeenData]) {
 		self.seenList = seenList
-	}
-}
-
-struct MMPostEmailRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPSaveEmailResponse
-	
-	var path: MMHTTPAPIPath { return .Email }
-	var parameters: [String: AnyObject]? { return [MMAPIKeys.kInternalRegistrationId: internalId, MMAPIKeys.kEmail: email] }
-	var email: String
-	var internalId: String
-	
-	init(internalId: String, email: String?) {
-		self.internalId = internalId
-		self.email = email ?? ""
 	}
 }
 
@@ -190,17 +160,13 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 		return params
 	}
 	
-	var internalId: String
-	var archiveMsgIds: [String]?
-	var dlrMsgIds: [String]?
+	let internalId: String
+	let archiveMsgIds: [String]?
+	let dlrMsgIds: [String]?
 	var body: [String: AnyObject]? {
 		var result = [String: AnyObject]()
-		if let archiveMsgIds = archiveMsgIds where archiveMsgIds.count > 0 {
-			result[MMAPIKeys.kArchiveMsgIds] = archiveMsgIds
-		}
-		if let dlrMsgIds = dlrMsgIds  where dlrMsgIds.count > 0 {
-			result[MMAPIKeys.kDLRMsgIds] = dlrMsgIds
-		}
+		result[MMAPIKeys.kArchiveMsgIds] = (archiveMsgIds?.isEmpty ?? true) ? nil : archiveMsgIds
+		result[MMAPIKeys.kDLRMsgIds] = (dlrMsgIds?.isEmpty ?? true) ? nil : dlrMsgIds
 		return result
 	}
 	
@@ -208,5 +174,62 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 		self.internalId = internalId
 		self.archiveMsgIds = archiveMsgIds
 		self.dlrMsgIds = dlrMsgIds
+	}
+}
+
+struct MMPostUserDataRequest: MMHTTPPostRequest {
+	typealias ResponseType = MMHTTPUserDataFetchResponse
+	var path: MMHTTPAPIPath { return .UserData }
+	var parameters: [String: AnyObject]? {
+		var params = [MMAPIKeys.kInternalRegistrationId: internalUserId]
+		if let externalUserId = externalUserId {
+			params[MMAPIKeys.kExternalUserId] = externalUserId
+		}
+		return params
+	}
+	var body: [String: AnyObject]? {
+		var result = [String: AnyObject]()
+		result[MMAPIKeys.kPredefinedUserData] = predefinedUserData
+		result[MMAPIKeys.kCustomUserData] = customUserData
+		return result
+	}
+	
+	let internalUserId: String
+	let externalUserId: String?
+	let predefinedUserData: [String: AnyObject]
+	let customUserData: [String: AnyObject]
+	
+	init(internalUserId: String, externalUserId: String?, predefinedUserData: [String: AnyObject], customUserData: [String: AnyObject]) {
+		self.internalUserId = internalUserId
+		self.externalUserId = externalUserId
+		self.predefinedUserData = predefinedUserData
+		self.customUserData = customUserData
+	}
+}
+
+struct MMPostMessageRequest: MMHTTPPostRequest {
+	typealias ResponseType = MMHTTPMOMessageResponse
+	var path: MMHTTPAPIPath { return .MOMessage }
+	var parameters: [String: AnyObject]? {
+		return [MMAPIKeys.kPlatformType : MMAPIValues.kPlatformType]
+	}
+	var body: [String: AnyObject]? {
+		var result = [String: AnyObject]()
+		result[MMAPIKeys.kMOFrom] = internalUserId
+		
+		let messageDicts = messages.map { (m: MOMessage) in return m.dictRepresentation }
+		result[MMAPIKeys.kMOMessages] = messageDicts
+		return result
+	}
+	
+	let internalUserId: String
+	let messages: [MOMessage]
+	
+	init?(internalUserId: String, messages: [MOMessage]) {
+		guard !messages.isEmpty else {
+			return nil
+		}
+		self.internalUserId = internalUserId
+		self.messages = messages
 	}
 }

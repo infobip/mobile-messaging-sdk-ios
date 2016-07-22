@@ -11,9 +11,15 @@ import Freddy
 typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
 typealias MMDeliveryReportingResult = Result<MMHTTPDeliveryReportingResponse>
 typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>
-typealias MMSaveEmailResult = Result<MMHTTPSaveEmailResponse>
-typealias MMSaveMSISDNResult = Result<MMHTTPSaveMSISDNResponse>
 typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
+typealias MMUserDataFetchResult = Result<MMHTTPUserDataFetchResponse>
+typealias MMMOMessageResult = Result<MMHTTPMOMessageResponse>
+
+extension NSDate: JSONEncodable {
+	public func toJSON() -> Freddy.JSON {
+		return NSDateStaticFormatters.ContactsServiceDateFormatter.stringFromDate(self).toJSON()
+	}
+}
 
 public struct MMRequestError {
 	public var isUNAUTHORIZED: Bool {
@@ -49,30 +55,35 @@ extension MMRequestError: JSONDecodable {
 	}
 }
 
-class MMHTTPResponse : JSONDecodable {
+class MMHTTPResponse: JSONDecodable {
 	required init(json value: JSON) throws {
 	}
 }
 
 //MARK: API Responses
-final class MMHTTPRegistrationResponse : MMHTTPResponse {
-    let internalId: String
+final class MMHTTPRegistrationResponse: MMHTTPResponse {
+    let internalUserId: String
 
 	required init(json value: JSON) throws {
-		self.internalId = try value.string(MMAPIKeys.kInternalRegistrationId)
+		self.internalUserId = try value.string(MMAPIKeys.kInternalRegistrationId)
 		try super.init(json: value)
 	}
 }
 
-class MMHTTPEmptyResponse : MMHTTPResponse {
+class MMHTTPEmptyResponse: MMHTTPResponse {
+}
+
+class TESTC {
+	let name: String?
+	init(name: String? ){
+		self.name = nil
+	}
 }
 
 final class MMHTTPDeliveryReportingResponse: MMHTTPEmptyResponse { }
-final class MMHTTPSaveEmailResponse: MMHTTPEmptyResponse { }
-final class MMHTTPSaveMSISDNResponse: MMHTTPEmptyResponse { }
+final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
-
-final class MMHTTPSyncMessagesResponse : MMHTTPResponse {
+final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
     let messages : [MMMessage]?
 	required init(json value: JSON) throws {
 		var payloads = [JSON]()
@@ -85,6 +96,43 @@ final class MMHTTPSyncMessagesResponse : MMHTTPResponse {
 		try super.init(json: value)
 	}
 }
+final class MMHTTPUserDataFetchResponse: MMHTTPResponse {
+	let predefinedData: [String: AnyObject]?
+	let customData: [String: AnyObject]?
+	
+	required init(json value: JSON) throws {
+		if let predefinedDataJSON = try? value.dictionary(MMAPIKeys.kPredefinedUserData) {
+			self.predefinedData = jsonDictToNormalDict(predefinedDataJSON)
+		} else {
+			self.predefinedData = nil
+		}
+		
+		if let customDataJSON = try? value.dictionary(MMAPIKeys.kCustomUserData) {
+			self.customData = jsonDictToNormalDict(customDataJSON)
+		} else {
+			self.customData = nil
+		}
+		
+		try super.init(json: value)
+	}
+}
+final class MMHTTPMOMessageResponse: MMHTTPResponse {
+	let messages: [MOMessage]
+	
+	required init(json value: JSON) throws {
+		if let messageJSONs = try? value.array(MMAPIKeys.kMOMessages) {
+			
+			self.messages = try messageJSONs.map({ (messageJSON) -> MOMessage in
+				return try MOMessage(json: messageJSON)
+			})
+
+		} else {
+			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOMessages)
+		}
+		try super.init(json: value)
+	}
+}
+
 
 //MARK: Other
 public func ==(lhs: MMMessage, rhs: MMMessage) -> Bool {
@@ -133,80 +181,3 @@ enum MMAPS {
 	case SilentAPS([String: AnyObject])
 	case NativeAPS([String: AnyObject])
 }
-
-public struct MMMessage: MMMessageMetadata, JSONDecodable {
-	
-	public var hashValue: Int { return messageId.hashValue }
-	let isSilent: Bool
-	let messageId: String
-	let originalPayload: [String: AnyObject]
-	let customPayload: [String: AnyObject]?
-	let aps: MMAPS
-	let silentData: [String: AnyObject]?
-	let geoData: [String: AnyObject]? // Future
-	let interactionsData: [String: AnyObject]?
-	
-	public init(json: JSON) throws {
-		if let payload = jsonToAnyObject(json) as? [String : AnyObject] {
-			try self.init(payload: payload)
-		} else {
-			throw JSON.Error.ValueNotConvertible(value: json, to: MMMessage.self)
-		}
-	}
-	
-	init(payload: [NSObject: AnyObject]) throws {
-		guard let messageId = payload[MMAPIKeys.kMessageId] as? String else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMessageId)
-		}
-		guard let nativeAPS = payload[MMAPIKeys.kAps] as? [String: AnyObject] else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kAps)
-		}
-		
-		self.messageId = messageId
-		self.isSilent = MMMessage.checkIfSilent(payload)
-		if (self.isSilent) {
-			if let silentAPS = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject] {
-				self.aps = MMAPS.SilentAPS(MMMessage.mergeApsWithSilentParameters(nativeAPS, silentAPS: silentAPS))
-			} else {
-				self.aps = MMAPS.NativeAPS(nativeAPS)
-			}
-		} else {
-			self.aps = MMAPS.NativeAPS(nativeAPS)
-		}
-		self.originalPayload = payload as! [String: AnyObject]
-		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? [String : AnyObject]
-		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String : AnyObject]
-		self.interactionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kInteractive] as? [String : AnyObject]
-        self.geoData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [String : AnyObject]
-	}
-		
-	static func checkIfSilent(payload: [NSObject: AnyObject]?) -> Bool {
-		//if payload APNS originated:
-		if (payload?[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject]) != nil {
-			return true
-		}
-		//if payload Server originated:
-		return payload?[MMAPIKeys.kSilent] as? Bool ?? false
-	}
-	
-	private static func mergeApsWithSilentParameters(nativeAPS: [String: AnyObject]?, silentAPS: [String: AnyObject]) -> [String: AnyObject] {
-		var resultAps = [String: AnyObject]()
-		var alert = [String: String]()
-		resultAps += nativeAPS
-		
-		if let body = silentAPS[MMAPIKeys.kBody] as? String {
-			alert[MMAPIKeys.kBody] = body
-		}
-		if let title = silentAPS[MMAPIKeys.kTitle] as? String {
-			alert[MMAPIKeys.kTitle] = title
-		}
-		
-		resultAps[MMAPIKeys.kAlert] = alert
-		
-		if let sound = silentAPS[MMAPIKeys.kSound] as? String {
-			resultAps[MMAPIKeys.kSound] = sound
-		}
-		return resultAps
-	}
-}
-

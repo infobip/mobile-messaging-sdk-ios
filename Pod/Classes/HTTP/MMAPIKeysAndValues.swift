@@ -44,12 +44,6 @@ struct MMAPIKeys {
 	//MARK: Interactive Notifications
 	static let kInteractive = "interactive"
 	static let kButtonActions = "button_actions"
-	
-	//MARK: email
-	static let kEmail = "email"
-	
-	//MARK: msisdn
-	static let kMSISDN = "msisdn"
     
     //MARK: seenMessages
     static let kSeenMessages = "messages"
@@ -61,6 +55,21 @@ struct MMAPIKeys {
 	//MARK: Sync API
 	static let kArchiveMsgIds = "mIDs"
 	static let kDLRMsgIds = "drIDs"
+	
+	//MARK: UserData API
+	static let kPredefinedUserData = "predefinedUserData"
+	static let kCustomUserData = "customUserData"
+	static let kExternalUserId = "externalUserId"
+	
+	//MARK: MO Messages API
+	static let kMOFailedMOMessageIDs = "failedMessageIDs" //TODO: update
+	static let kMOFrom = "from"
+	static let kMOMessages = "messages"
+	static let kMODestination = "destination"
+	static let kMOText = "text"
+	static let kMOCustomPayload = "customPayload"
+	static let kMOMessageId = "messageId"
+	static let kMOStatusCode = "statusCode"
 }
 
 struct MMAPIValues {

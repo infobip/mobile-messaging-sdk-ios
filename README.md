@@ -110,6 +110,8 @@ Library informs you about following events using NSNotificationCenter:
 * __Registration updated__ - is triggered when APNS registration token successfully stored on the registration server.
 * __API error__ - is triggered on every error returned by API.
 * __Delivery reports sent__ - is triggered when message delivery is reported.
+* __Message will be send__ - is triggered when the mobile originated message is about to send to the server.
+* __Message did send__ - is triggered when the mobile originated message sent to the server.
 
 More information on library events available on our [wiki page](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Library-events).
 

@@ -1,6 +1,5 @@
 //
 //  MessageHandlingOperation.swift
-//  Pods
 //
 //  Created by Andrey K. on 20/04/16.
 //
@@ -131,10 +130,10 @@ final class MessageHandlingOperation: Operation {
 	
 	override func finished(errors: [NSError]) {
 		if hasNewMessages && errors.isEmpty {
-			let syncOperation = SyncOperation(context: context, remoteAPIQueue: remoteAPIQueue, finishBlock: { result in
+			let messageFetching = MessageFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue, finishBlock: { result in
 				self.finishBlock?(result.error)
 			})
-			self.produceOperation(syncOperation)
+			self.produceOperation(messageFetching)
 		} else {
 			self.finishBlock?(errors.first)
 		}

@@ -1,6 +1,5 @@
 //
 //  MMCoreDataExtensions.swift
-//  Pods
 //
 //  Created by Andrey K. on 18/05/16.
 //
@@ -21,7 +20,7 @@ extension NSManagedObject {
 		return NSStringFromClass(self).componentsSeparatedByString(".").last!
 	}
 	
-	class func MM_requestAll(predicate: NSPredicate? = nil, context: NSManagedObjectContext) -> NSFetchRequest {
+	class func MM_requestAll(predicate: NSPredicate? = nil) -> NSFetchRequest {
 		let r = NSFetchRequest(entityName: self.MM_entityName)
 		r.predicate = predicate
 		return r
@@ -46,7 +45,7 @@ extension NSManagedObject {
 	}
 	
 	class func MM_findAllWithPredicate(predicate: NSPredicate? = nil, inContext context: NSManagedObjectContext) -> [NSManagedObject]? {
-		let r = self.MM_requestAll(predicate, context: context)
+		let r = self.MM_requestAll(predicate)
 		return self.MM_executeRequest(r, inContext: context)
 	}
 	
@@ -81,7 +80,7 @@ extension NSManagedObject {
 	}
 
 	class func MM_deleteAllMatchingPredicate(predicate: NSPredicate, inContext context: NSManagedObjectContext) {
-		let request = self.MM_requestAll(predicate, context: context)
+		let request = self.MM_requestAll(predicate)
 		request.returnsObjectsAsFaults = true
 		request.includesPropertyValues = false
 		
@@ -98,8 +97,8 @@ extension NSManagedObject {
 		return results?.first as? T
 	}
 
-	class func MM_findFirstInContext(context: NSManagedObjectContext) -> Self? {
-		let request = MM_requestAll(context: context)
+	class func MM_findFirstInContext(predicate: NSPredicate? = nil, context: NSManagedObjectContext) -> Self? {
+		let request = MM_requestAll(predicate)
 		return MM_executeFetchRequestAndReturnFirstObject(request, inContext: context)
 	}
 	
@@ -113,11 +112,24 @@ extension NSManagedObject {
 	
 	class func MM_countOfEntitiesWithPredicate(predicate: NSPredicate? = nil, inContext context: NSManagedObjectContext) -> Int {
 		var error: NSError? = nil
-		let count = context.countForFetchRequest(MM_requestAll(predicate, context: context), error: &error)
+		let count = context.countForFetchRequest(MM_requestAll(predicate), error: &error)
 		if let error = error {
 			MMLogError(error.description)
 		}
 		return count
+	}
+	
+	class func MM_selectAttribute(attribute: String, withPredicte predicate: NSPredicate, inContext context: NSManagedObjectContext) -> [String: AnyObject]? {
+		let request = self.MM_requestAll(predicate)
+		request.resultType = .DictionaryResultType
+		request.propertiesToFetch = [attribute]
+		
+		if let results = MM_executeRequest(request, inContext: context) {
+			let foundationArray = NSArray(array: results)
+			return foundationArray.valueForKeyPath(NSString(format: "@unionOfObjects.%@", attribute) as String) as? [String: AnyObject]
+		} else {
+			return nil
+		}
 	}
 }
 

@@ -65,7 +65,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	
 	func testThatChangeHandlerNotTriggerred() {
 		let expectation = expectationWithDescription("Test finished")
-		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(ctx){
+		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			let observingKeyPath = "creationDate"
 			
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -87,7 +87,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	
 	func testThatRemovedObserverNotTriggerred() {
 		let expectation = expectationWithDescription("Test finished")
-		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(ctx){
+		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			do {
 				let observingKeyPath = "messageId"
 				ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -118,7 +118,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	}
 	
 	func testObservationsNotDuplicated() {
-		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(ctx){
+		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			var observationsCounter = 0
 			let expectation = expectationWithDescription("Test finished")
 			let observingKeyPath = "messageId"
@@ -147,7 +147,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	
 	func testThatStopServiceResets() {
 		
-		if let msg = MessageManagedObject.MM_findFirstInContext(mobileMessagingInstance.storage!.mainThreadManagedObjectContext!){
+		if let msg = MessageManagedObject.MM_findFirstInContext(context: mobileMessagingInstance.storage!.mainThreadManagedObjectContext!){
 			let expectation = expectationWithDescription("Test finished")
 			
 			let observingKeyPath = "messageId"

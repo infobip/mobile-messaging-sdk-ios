@@ -1,6 +1,5 @@
 //
 //  MessageManagedObject+CoreDataProperties.swift
-//  Pods
 //
 //  Created by okoroleva on 16.05.16.
 //
@@ -20,4 +19,8 @@ extension MessageManagedObject {
     @NSManaged var seenDate: NSDate?
     @NSManaged var seenStatusValue: NSNumber
     @NSManaged var isSilent: NSNumber
+	
+	@NSManaged var text: String?
+	@NSManaged var destination: String?
+	@NSManaged var customPayload: [String: AnyObject]?
 }

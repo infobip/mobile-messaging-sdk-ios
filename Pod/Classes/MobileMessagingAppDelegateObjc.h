@@ -1,6 +1,5 @@
 //
 //  MobileMessagingAppDelegate.h
-//  Pods
 //
 //  Created by Andrey K. on 12/04/16.
 //

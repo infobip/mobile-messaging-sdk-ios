@@ -9,7 +9,7 @@ import Foundation
 
 class MMActionsManager {
 	private static let sharedInstance = MMActionsManager()
-	private var queue = MMQueue.Concurrent.newQueue("com.mobile-messaging.actionHandlersQueue")
+	private var queue = MMQueue.Concurrent.newQueue("com.mobile-messaging.queue.concurrent.notification-actions-manager")
 	private var actionHandlers = [String: Any?]()
 	
 	private func setActionHandler<T:MMActionResult>(actionId: MMPredefinedActions, handler: (T -> Void)?) {

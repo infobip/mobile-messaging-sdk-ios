@@ -1,6 +1,5 @@
 //
 //  MMInstallationManager.swift
-//  Pods
 //
 //  Created by Andrey K. on 18/04/16.
 //
@@ -13,8 +12,8 @@ final class MMInstallationManager {
 	//MARK: Internal
 	var registrationRemoteAPI: MMRemoteAPIQueue
 	lazy var registrationQueue = OperationQueue.mm_newSerialQueue
-	var storage: MMCoreDataStorage
-	var storageContext: NSManagedObjectContext
+	let storage: MMCoreDataStorage
+	let storageContext: NSManagedObjectContext
 
 	deinit {
 		registrationQueue.cancelAllOperations()
@@ -42,25 +41,24 @@ final class MMInstallationManager {
 		}
 	}
 	
-    func syncWithServer(completion: (NSError? -> Void)? = nil) {
+    func syncRegistrationWithServer(completion: (NSError? -> Void)? = nil) {
         let newRegOp = RegistrationOperation(context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
         registrationQueue.addOperation(newRegOp)
     }
-    
+	
+	func syncUserWithServer(completion: (NSError? -> Void)? = nil, force: Bool) {
+		if let user = MobileMessaging.currentUser {
+			let op = UserDataSynchronizationOperation(user: user, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion, force: force)
+			registrationQueue.addOperation(op)
+		}
+	}
+	
 	func updateDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
 		let newRegOp = RegistrationOperation(newDeviceToken: token, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
 		registrationQueue.addOperation(newRegOp)
 	}
 	
-	func saveMsisdn(msisdn: String, completion: (NSError?) -> Void) {
-		registrationQueue.addOperation(SetMSISDNOperation(msisdn: msisdn, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion))
-	}
-	
-	func saveEmail(email: String, completion: (NSError?) -> Void) {
-		registrationQueue.addOperation(SetEmailOperation(email: email, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion))
-	}
-	
-	func save(completion: (() -> Void)? = nil) {
+	func save(completion: (Void -> Void)? = nil) {
 		storageContext.performBlock {
 			self.storageContext.MM_saveToPersistentStoreAndWait()
 			completion?()
@@ -104,7 +102,7 @@ final class MMInstallationManager {
 	private func findCurrentInstallation() -> InstallationManagedObject? {
 		var result: InstallationManagedObject?
 		storageContext.performBlockAndWait {
-			result = InstallationManagedObject.MM_findFirstInContext(self.storageContext)
+			result = InstallationManagedObject.MM_findFirstInContext(context: self.storageContext)
 		}
 		return result
 	}

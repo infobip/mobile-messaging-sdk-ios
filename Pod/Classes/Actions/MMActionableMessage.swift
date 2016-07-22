@@ -8,7 +8,7 @@
 import Foundation
 
 protocol MMActionableMessage {
-	static func performAction(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (() -> Void)?)
+	static func performAction(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (Void -> Void)?)
 }
 
 extension MMMessage : MMActionableMessage {
@@ -17,7 +17,7 @@ extension MMMessage : MMActionableMessage {
 		return interactionsData?[MMAPIKeys.kButtonActions] as? [String: AnyObject]
 	}
 	
-	static func performAction(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (() -> Void)?) {
+	static func performAction(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (Void -> Void)?) {
 		guard let userInfo = userInfo as? [String: AnyObject], let message = try? MMMessage(payload: userInfo) else {
 			return
 		}

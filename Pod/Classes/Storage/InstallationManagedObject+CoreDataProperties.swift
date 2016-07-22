@@ -17,16 +17,9 @@ extension InstallationManagedObject {
     @NSManaged var badgeNumber: NSNumber
     @NSManaged var deviceToken: String?
     @NSManaged var dirtyAttributes: NSNumber
-    @NSManaged var email: String?
-    @NSManaged var internalId: String?
-    @NSManaged var metaData: NSObject?
-    @NSManaged var msisdn: String?
-    @NSManaged var osVersion: String?
-    @NSManaged var deviceModel: String?
-    @NSManaged var libraryVersion: String?
-    @NSManaged var hostingAppVersion: String?
-    @NSManaged var mobileCarrierName: String?
-    @NSManaged var mobileCountryCode: String?
-    @NSManaged var mobileNetworkCode: String?
-
+    @NSManaged var internalUserId: String?
+	@NSManaged var externallUserId: String?
+	
+    @NSManaged var customUserData: [String: AnyObject]?
+	@NSManaged var predefinedUserData: [String: AnyObject]?
 }

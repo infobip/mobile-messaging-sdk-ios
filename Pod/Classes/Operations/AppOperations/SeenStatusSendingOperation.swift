@@ -1,6 +1,5 @@
 //
-//  SendSeenToServerOperation.swift
-//  Pods
+//  SeenStatusSendingOperation.swift
 //
 //  Created by Andrey K. on 05/07/16.
 //
@@ -9,7 +8,7 @@
 import UIKit
 import CoreData
 
-class SendSeenToServerOperation: Operation {
+class SeenStatusSendingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (MMSeenMessagesResult -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
@@ -46,6 +45,7 @@ class SendSeenToServerOperation: Operation {
 			let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)
 			self.remoteAPIQueue.performRequest(request) { result in
 				self.handleSeenResult(result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
+				self.finishWithError(result.error)
 			}
 		}
 	}
@@ -69,7 +69,6 @@ class SendSeenToServerOperation: Operation {
 			MMLogError("Seen messages request failed with error: \(error)")
 		case .Cancel: break
 		}
-		finishWithError(result.error)
 	}
 	
 	override func finished(errors: [NSError]) {

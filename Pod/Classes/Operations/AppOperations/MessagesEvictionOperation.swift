@@ -1,6 +1,5 @@
 //
 //  MessagesEvictionOperation.swift
-//  Pods
 //
 //  Created by Andrey K. on 16/05/16.
 //
@@ -14,9 +13,9 @@ final class MessagesEvictionOperation: Operation {
 	static let defaultMessageMaxAge: NSTimeInterval = 7 * 24 * 60 * 60; //one week
 	var messageMaximumAge: NSTimeInterval
 	var context: NSManagedObjectContext
-	var finishBlock: (() -> Void)?
+	var finishBlock: (Void -> Void)?
 	
-	init(context: NSManagedObjectContext, messageMaximumAge: NSTimeInterval? = nil, finishBlock: (() -> Void)? = nil) {
+	init(context: NSManagedObjectContext, messageMaximumAge: NSTimeInterval? = nil, finishBlock: (Void -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.messageMaximumAge = messageMaximumAge ?? MessagesEvictionOperation.defaultMessageMaxAge

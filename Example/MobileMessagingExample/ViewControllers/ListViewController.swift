@@ -3,7 +3,6 @@
 //  MobileMessaging
 //
 //  Created by Andrey K. on 03/29/2016.
-//  Copyright (c) 2016 Andrey K.. All rights reserved.
 //
 
 import UIKit

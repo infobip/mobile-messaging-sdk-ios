@@ -1,6 +1,5 @@
 //
 //  MessagesSyncOperation.swift
-//  Pods
 //
 //  Created by Andrey K. on 18/04/16.
 //
@@ -19,15 +18,15 @@ final class MessagesSyncOperation: GroupOperation {
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 
-		let syncSeenOperation = SendSeenToServerOperation(context: context, remoteAPIQueue: remoteAPIQueue)
+		let seenStatusSending = SeenStatusSendingOperation(context: context, remoteAPIQueue: remoteAPIQueue)
 		
-		super.init(operations: [syncSeenOperation])
+		super.init(operations: [seenStatusSending])
 		
 		self.addCondition(RegistrationCondition())
 		
-		let syncOperation = SyncOperation(context: context, remoteAPIQueue: remoteAPIQueue)
-		syncOperation.addDependency(syncSeenOperation)
-		self.addOperation(syncOperation)
+		let messageFetching = MessageFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue)
+		messageFetching.addDependency(seenStatusSending)
+		self.addOperation(messageFetching)
 	}
 	
 	override func finished(errors: [NSError]) {

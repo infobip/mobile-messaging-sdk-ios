@@ -9,7 +9,257 @@
 import CoreData
 import Foundation
 
-final public class MMInstallation : NSObject {
+@objc public protocol UserDataSupportedTypes: AnyObject {}
+extension NSString: UserDataSupportedTypes {}
+extension NSNumber: UserDataSupportedTypes {}
+extension NSNull: UserDataSupportedTypes {}
+
+@objc public enum MMUserGenderValues: Int {
+	case Female
+	case Male
+	
+	func name() -> String {
+		switch self {
+		case .Female : return "F"
+		case .Male : return "M"
+		}
+	}
+}
+
+@objc public enum MMUserPredefinedDataKeys: Int {
+	case MSISDN
+	case FirstName
+	case LastName
+	case Gender
+	case Birthdate
+	case Email
+	
+	var name: String {
+		switch self {
+		case .MSISDN : return "msisdn"
+		case .FirstName : return "firstName"
+		case .LastName : return "lastName"
+		case .Gender : return "gender"
+		case .Birthdate : return "birthdate"
+		case .Email : return "email"
+		}
+	}
+}
+
+final public class MMUser: NSObject {
+//MARK: Public
+	public override var description: String {
+		return "User:\n  Internal ID = \(internalId)\n    External ID = \(externalId)\n    Email = \(email)\n    MSISDN = \(msisdn)\n    Custom Data = \(customData)"
+	}
+	
+	/**
+	A read-only identifier provided by server to uniquely identify the current app instance on a specific device.
+	*/
+	public internal(set) var internalId: String? {
+		get { return installationManager.getValueForKey("internalUserId") as? String }
+		set { installationManager.setValueForKey("internalUserId", value: newValue) }
+	}
+	
+	/**
+	The user's id you can provide in order to link your own unique user identifier with Mobile Messaging user id, so that you will be able to send personalised targeted messages to exact user and other nice features.
+	*/
+	public internal(set) var externalId: String? {
+		get { return installationManager.getValueForKey("externalUserId") as? String }
+		set { installationManager.setValueForKey("externalUserId", value: newValue) }
+	}
+	
+	/**
+	Saves the External User Id on the server asynchronously and executes the given callback block.
+	- parameter id: The id you want to link with the current user.
+	- parameter completion: The block to execute after the server responded.
+	*/
+	public func saveExternalId(id: String, completion: NSError? -> Void) {
+		self.externalId = id
+		save(completion)
+	}
+	
+	/**
+	The user's email address. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+	*/
+	public var email: String? {
+		get { return predefinedDataForKey(MMUserPredefinedDataKeys.Email) as? String }
+		set { setPredefinedDataForKey(MMUserPredefinedDataKeys.Email, object: newValue as NSString?) }
+	}
+	
+	/**
+	Saves the email on the server asynchronously and executes the given callback block.
+	- parameter email: The email you want to link with the current user.
+	- parameter completion: The block to execute after the server responded.
+	*/
+	public func saveEmail(email: String, completion: NSError? -> Void) {
+		self.email = email
+		save(completion)
+	}
+	
+	/**
+	A user's MSISDN. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+	*/
+	public var msisdn: String? {
+		get { return predefinedDataForKey(MMUserPredefinedDataKeys.MSISDN) as? String }
+		set { setPredefinedDataForKey(MMUserPredefinedDataKeys.MSISDN, object: newValue as NSString?) }
+	}
+	
+	/**
+	Saves the MSISDN on the server asynchronously and executes the given callback block.
+	- parameter msisdn: The MSISDN you want to link with the current user.
+	- parameter completion: The block to execute after the server responded.
+	*/
+	public func saveMSISDN(msisdn: String, completion: NSError? -> Void) {
+		self.msisdn = msisdn
+		save(completion)
+	}
+	
+	
+	// ================================= CUSTOM DATA =================================
+	/**
+	Returns user's custom data. Arbitrary attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+	*/
+	public var customData: [String: UserDataSupportedTypes]? {
+		get { return installationManager.getValueForKey("customUserData") as? [String: UserDataSupportedTypes] }
+		set { installationManager.setValueForKey("customUserData", value: newValue) }
+	}
+	
+	/**
+	Saves the user's custom data on the server asynchronously and executes the given callback block.
+	- parameter data: The dictionary representing data you want to link with the current user.
+	- parameter completion: The block to execute after the server responded.
+	*/
+	public func saveCustomData(data: [String: UserDataSupportedTypes], completion: NSError? -> Void) {
+		self.customData = data
+		save(completion)
+	}
+	
+	/**
+	Returns the custom data value associated with a given key.
+	- parameter key: The key for which to return the corresponding value.
+	*/
+	public func customDataForKey(key: String) -> UserDataSupportedTypes? {
+		var result: UserDataSupportedTypes? = nil
+		if let customUserData = self.customData {
+			result = customUserData[key]
+		}
+		return result is NSNull ? nil : result
+	}
+	
+	/**
+	Sets the custom data value for a given key. To save data, call `save(completion:)` method of `MMUser` object.
+	- parameter key: The key for `object`.
+	- parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
+	*/
+	public func setCustomDataForKey(key: String, object: UserDataSupportedTypes?) {
+		setDataForKey(key, attributeName: "customUserData", object: object)
+	}
+	
+	/**
+	Sets the custom data value for a given key, immediately sends changes to the server asynchronously and executes the given callback block.
+	- parameter key: The key for `object`.
+	- parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
+	- parameter completion: The block to execute after the server responded.
+	*/
+	public func saveCustomDataForKey(key: String, object: UserDataSupportedTypes?, completion: NSError? -> Void) {
+		self.setCustomDataForKey(key, object: object)
+		save(completion)
+	}
+	
+	
+	// ================================= PREDEFINED DATA =================================
+	/**
+	Returns user's predefined attributes (all possible attributes are described in the `MMUserPredefinedDataKeys` enum). Predefined attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+	*/
+	public var predefinedData: [String: UserDataSupportedTypes]? {
+		get { return installationManager.getValueForKey("predefinedUserData") as? [String: UserDataSupportedTypes] }
+		set { installationManager.setValueForKey("predefinedUserData", value: newValue) }
+	}
+	
+	/**
+	Saves the user's attributes on the server asynchronously and executes the given callback block.
+	- parameter data: The dictionary representing data you want to link with the current user.
+	- parameter completion: The block to execute after the server responded.
+	*/
+	public func savePredefinedData(data: [String: UserDataSupportedTypes], completion: NSError? -> Void) {
+		self.predefinedData = data
+		save(completion)
+	}
+	
+	/**
+	Returns the user's attribute value associated with a given key.
+	- parameter key: The key of type `MMUserPredefinedDataKeys` for which to return the corresponding value.
+	*/
+	public func predefinedDataForKey(key: MMUserPredefinedDataKeys) -> UserDataSupportedTypes? {
+		var result: UserDataSupportedTypes? = nil
+		if let predefinedData = self.predefinedData {
+			result = predefinedData[key.name]
+		}
+		return result is NSNull ? nil : result
+	}
+	
+	/**
+	Sets the user's attribute value for a given key. To save data, call `save(completion:)` method of `MMUser` object.
+	- parameter key: The key of type `MMUserPredefinedDataKeys` for `object`.
+	- parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
+	*/
+	public func setPredefinedDataForKey(key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?) {
+		setDataForKey(key.name, attributeName: "predefinedUserData", object: object)
+	}
+	
+	/**
+	Sets the user's attribute value for a given key, immediately sends changes to the server asynchronously and executes the given callback block.
+	- parameter key: The key for `object`.
+	- parameter object: The object for `key` of type `MMUserPredefinedDataKeys`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
+	- parameter completion: The block to execute after the server responded.
+	*/
+	public func savePredefinedDataForKey(key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?, completion: NSError? -> Void) {
+		setPredefinedDataForKey(key, object: object)
+		save(completion)
+	}
+	
+	/**
+	Explicitly tries to save all user data on the server.
+	*/
+	public func save(completion: (NSError? -> Void)? = nil) {
+		syncWithServerIfNeeded(completion, force: false)
+	}
+	
+	/**
+	Tries to sync all local user data with server user data.
+	*/
+	public func syncWithServer(completion: (NSError? -> Void)? = nil) {
+		syncWithServerIfNeeded(completion, force: true)
+	}
+	
+//MARK: Internal
+	func setDataForKey(key: String, attributeName: String, object: UserDataSupportedTypes?) {
+		if let dictionaryValue = installationManager.getValueForKey(attributeName) as? [String: AnyObject] {
+			var updatedDictionaryValue = dictionaryValue
+			updatedDictionaryValue[key] = object ?? NSNull()
+			installationManager.setValueForKey(attributeName, value: updatedDictionaryValue)
+		} else {
+			installationManager.setValueForKey(attributeName, value: [key: object ?? NSNull()])
+		}
+	}
+	
+	init(installation: MMInstallation) {
+		self.installationManager = installation.installationManager
+	}
+	
+	func syncWithServerIfNeeded(completion: (NSError? -> Void)? = nil, force: Bool) {
+		installationManager.syncUserWithServer(completion, force: force)
+	}
+	
+	public func persist() {
+		installationManager.storageContext.MM_saveToPersistentStoreAndWait()
+	}
+	
+	private let installationManager: MMInstallationManager
+}
+
+
+final public class MMInstallation: NSObject {
 	
 	deinit {
 		ManagedObjectNotificationCenter.defaultCenter.removeAllObservers()
@@ -17,7 +267,7 @@ final public class MMInstallation : NSObject {
 	
 	//MARK: Public
 	public override var description: String {
-		return "Installation:\n  Device token = \(deviceToken)\n  Internal registration ID = \(internalId)\n  Metadata = \(metaData)"
+		return "Installation:\n    Device token = \(deviceToken)\n    Badge number = \(badgeNumber)\n"
 	}
 	
 	/**
@@ -29,50 +279,10 @@ final public class MMInstallation : NSObject {
 	}
 	
 	/**
-	A read-only identifier provided by server to uniquely identify the current app instance on a specific device.
-	*/
-	public internal(set) var internalId: String? {
-		get { return installationManager.getValueForKey("internalId") as? String }
-		set { installationManager.setValueForKey("internalId", value: newValue) }
-	}
-	
-	/**
-	A users email address. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user message is aimed and other nice features.
-	*/
-	public var email: String? {
-		get { return installationManager.getValueForKey("email") as? String }
-	}
-	
-	/**
-	Saves an email to the server and executes the given completion block.
-	- parameter email: An email you want to link with the current user.
-	- parameter completion: The block to execute after the server responded.
-	*/
-	public func saveEmail(email: String, completion: (NSError?) -> ()) {
-		installationManager.saveEmail(email, completion: completion)
-	}
-	
-	/**
-	A users MSISDN. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user message is aimed and other nice features.
-	*/
-	public var msisdn: String? {
-		get { return installationManager.getValueForKey("msisdn") as? String }
-	}
-	
-	/**
-	Saves a MSISDN to the server and executes the given completion block.
-	- parameter msisdn: A MSISDN you want to link with the current user.
-	- parameter completion: The block to execute after the server responded.
-	*/
-	public func saveMSISDN(msisdn: String, completion: (NSError?) -> ()) {
-		installationManager.saveMsisdn(msisdn, completion: completion)
-	}
-	
-	/**
 	Explicitly tries to save installation data on the server.
 	*/
 	public func syncWithServer(completion: (NSError? -> Void)? = nil) {
-		installationManager.syncWithServer(completion)
+		installationManager.syncRegistrationWithServer(completion)
 	}
 	
 	//MARK: Observing
@@ -130,43 +340,9 @@ final public class MMInstallation : NSObject {
 		self.installationManager = MMInstallationManager(storage: storage, registrationRemoteAPI: registrationRemoteAPI)
 	}
 	
-	var registrationRemoteAPI: MMRemoteAPIQueue {
-		set { installationManager.registrationRemoteAPI = newValue }
-		get { return installationManager.registrationRemoteAPI }
-	}
-	
-    var metaData: NSDictionary? {
-        get { return installationManager.getValueForKey("metaData") as? NSDictionary }
-        set { installationManager.setValueForKey("metaData", value: newValue) }
-    }
-    
 	func updateDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
 		installationManager.updateDeviceToken(token, completion: completion)
 	}
-	
-	func save(completion: (() -> Void)? = nil) {
-        installationManager.save(completion)
-    }
-	
-    func metaForKey(key: NSCopying) -> String? {
-        var result: String? = nil
-        if let metaData = self.metaData {
-            result = metaData[key] as? String
-        }
-        return result
-    }
-    
-    func setMetaForKey(key: NSCopying, object: String) {
-        if let meta = self.metaData {
-            let metaData: NSMutableDictionary = meta.mutableCopy() as! NSMutableDictionary
-            metaData[key] = object
-            self.metaData = metaData.copy() as? NSDictionary
-        } else {
-            let metaData = NSMutableDictionary()
-            metaData[key] = object
-            self.metaData = metaData.copy() as? NSDictionary
-        }
-    }
     
     //MARK: private
 	private func isKeyObservable(key: String) -> Bool {
@@ -191,5 +367,5 @@ final public class MMInstallation : NSObject {
 		return propertiesForClass(MMInstallation.self).intersect(propertiesForClass(InstallationManagedObject.self)).contains(key)
 	}
 	
-    private var installationManager: MMInstallationManager
+    private let installationManager: MMInstallationManager
 }

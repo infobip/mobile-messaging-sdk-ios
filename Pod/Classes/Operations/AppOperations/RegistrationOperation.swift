@@ -1,6 +1,5 @@
 //
 //  RegistrationOperation.swift
-//  Pods
 //
 //  Created by Andrey K. on 18/04/16.
 //
@@ -28,7 +27,7 @@ final class RegistrationOperation: Operation {
 	
 	override func execute() {
 		context.performBlockAndWait {
-			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
+			guard let installation = InstallationManagedObject.MM_findFirstInContext(context: self.context) else {
 				self.finish()
 				return
 			}
@@ -54,16 +53,12 @@ final class RegistrationOperation: Operation {
     }
 	
 	private var registrationDataChanged: Bool {
-		return deviceTokenChanged
-	}
-	
-	private var deviceTokenChanged: Bool {
-		return installationObject.dirtyAttributesSet.contains(SyncableAttributes.deviceToken)
+		return installationObject.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken)
 	}
 	
 	private func sendRegistrationIfNeeded() {
-		if (self.registrationDataChanged) {
-			MMLogInfo("Sending the installation updates to server...")
+		if self.registrationDataChanged {
+			MMLogInfo("Sending the registration updates to server...")
 			self.sendRegistration()
 		} else {
 			MMLogInfo("No need to send the installation on server.")
@@ -77,7 +72,7 @@ final class RegistrationOperation: Operation {
             return
         }
         
-		let request = MMPostRegistrationRequest(internalId: installationObject.internalId, deviceToken: deviceToken)
+		let request = MMPostRegistrationRequest(internalId: installationObject.internalUserId, deviceToken: deviceToken)
 		self.remoteAPIQueue.performRequest(request) { result in
 			self.handleRegistrationResult(result)
 			self.finishWithError(result.error)
@@ -91,11 +86,11 @@ final class RegistrationOperation: Operation {
 			}
 			switch result {
 			case .Success(let regResponse):
-				MMLogInfo("Installation updated on server for internal ID \(regResponse.internalId). Updating local version...")
+				MMLogInfo("Installation updated on server for internal ID \(regResponse.internalUserId). Updating local version...")
 				installationObject.resetDirtyRegistration()
-				installationObject.internalId = regResponse.internalId
+				installationObject.internalUserId = regResponse.internalUserId
 				self.context.MM_saveToPersistentStoreAndWait()
-				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalId])
+				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalUserId])
 			case .Failure(let error):
 				MMLogError("Registration request failed with error: \(error)")
 				return

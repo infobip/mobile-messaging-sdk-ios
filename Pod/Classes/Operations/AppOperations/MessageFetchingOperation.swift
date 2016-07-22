@@ -1,5 +1,5 @@
 //
-//  SyncOperation.swift
+//  MessageFetchingOperation.swift
 //
 //  Created by Andrey K. on 20/06/16.
 //
@@ -7,7 +7,7 @@
 import Foundation
 import CoreData
 
-final class SyncOperation: Operation {
+final class MessageFetchingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (MMFetchMessagesResult -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
@@ -29,7 +29,7 @@ final class SyncOperation: Operation {
 	
 	private func syncMessages() {
 		self.context.performBlockAndWait {
-			guard let internalId = MobileMessaging.currentInstallation?.internalId else {
+			guard let internalId = MobileMessaging.currentUser?.internalId else {
 				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 				return
 			}

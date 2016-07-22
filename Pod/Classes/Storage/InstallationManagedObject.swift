@@ -9,24 +9,56 @@
 import Foundation
 import CoreData
 
-struct SyncableAttributes: OptionSetType {
-	let rawValue : Int
-	init(rawValue: Int) { self.rawValue = rawValue }
-	static func withName(attributeName: String) -> SyncableAttributes? {
-		switch attributeName {
-		case "deviceToken":
-			return SyncableAttributes.deviceToken
-		case "email":
-			return SyncableAttributes.email
-		case "msisdn":
-			return SyncableAttributes.msisdn
-        default:
-            return nil
+enum SyncableAttributes: String {
+	
+	case DeviceToken = "deviceToken"
+	case CustomUserData = "customUserData"
+	case PredefinedUserData = "predefinedUserData"
+	case ExternalUserId = "externalUserId"
+	
+	static var userData: Int {
+		return	SyncableAttributes.CustomUserData.integerValue | SyncableAttributes.PredefinedUserData.integerValue | SyncableAttributes.ExternalUserId.integerValue
+	}
+	
+	var integerValue: Int {
+		switch self {
+		case .DeviceToken:
+			return 1 << 0
+		case .CustomUserData:
+			return 1 << 1
+		case .PredefinedUserData:
+			return 1 << 2
+		case .ExternalUserId:
+			return 1 << 3
 		}
 	}
-	static let deviceToken	= SyncableAttributes(rawValue: 1 << 0)
-	static let email		= SyncableAttributes(rawValue: 1 << 1)
-	static let msisdn		= SyncableAttributes(rawValue: 1 << 2)
+}
+
+struct SyncableAttributesSet: OptionSetType {
+	let rawValue : Int
+	init(rawValue: Int) { self.rawValue = rawValue }
+	
+	static func withAttribute(name: String) -> SyncableAttributesSet? {
+		if let attr = SyncableAttributes(rawValue: name) {
+			switch attr {
+			case .DeviceToken:
+				return SyncableAttributesSet.deviceToken
+			case .PredefinedUserData:
+				return SyncableAttributesSet.predefinedUserData
+			case .CustomUserData:
+				return SyncableAttributesSet.customUserData
+			case .ExternalUserId:
+				return SyncableAttributesSet.externalUserId
+			}
+		}
+		return nil
+	}
+	static let deviceToken	= SyncableAttributesSet(rawValue: SyncableAttributes.DeviceToken.integerValue)
+	static let customUserData = SyncableAttributesSet(rawValue: SyncableAttributes.CustomUserData.integerValue)
+	static let predefinedUserData = SyncableAttributesSet(rawValue: SyncableAttributes.PredefinedUserData.integerValue)
+	static let externalUserId = SyncableAttributesSet(rawValue: SyncableAttributes.ExternalUserId.integerValue)
+	
+	static let userData = SyncableAttributesSet(rawValue: SyncableAttributes.userData)
 }
 
 
@@ -38,28 +70,28 @@ final class InstallationManagedObject: NSManagedObject {
     }
     
     func setDeviceTokenIfDifferent(token: String?) {
-        setValueIfDifferent(token, forKey: "deviceToken")
+        setValueIfDifferent(token, forKey: SyncableAttributes.DeviceToken.rawValue)
     }
 
-	var dirtyAttributesSet: SyncableAttributes {
-		return SyncableAttributes(rawValue: dirtyAttributes.integerValue)
+	var dirtyAttributesSet: SyncableAttributesSet {
+		return SyncableAttributesSet(rawValue: dirtyAttributes.integerValue)
 	}
 
 	func resetDirtyRegistration() {
-		resetAttribute(SyncableAttributes.deviceToken)
+		resetDirtyAttribute(SyncableAttributesSet.deviceToken)
 	}
 
-	private func resetAttribute(attributes: SyncableAttributes) {
+	func resetDirtyAttribute(attributes: SyncableAttributesSet) {
 		var newSet = dirtyAttributesSet
 		newSet.remove(attributes)
 		dirtyAttributes = newSet.rawValue
 	}
 	
 	private func setDirtyAttribute(attrName: String) {
-		if let newAttr = SyncableAttributes.withName(attrName) {
-			var newSet = dirtyAttributesSet
-			newSet.insert(newAttr)
-			dirtyAttributes = newSet.rawValue
+		if let dirtyAttribute = SyncableAttributesSet.withAttribute(attrName) {
+			var updatedSet = dirtyAttributesSet
+			updatedSet.insert(dirtyAttribute)
+			dirtyAttributes = updatedSet.rawValue
 		}
 	}
     

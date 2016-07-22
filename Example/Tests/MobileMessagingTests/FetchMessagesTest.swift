@@ -33,7 +33,7 @@ class FetchMessagesTest: MMTestCase {
                 
         let messageHandler = mobileMessagingInstance.messageHandler
 		
-		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		messageHandler?.syncWithServer { error in
 			
@@ -64,7 +64,7 @@ class FetchMessagesTest: MMTestCase {
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
 		//Precondiotions
-		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
 			prepconditionExpectation.fulfill()
 		})
@@ -140,7 +140,7 @@ class FetchMessagesTest: MMTestCase {
 		
         let messagesCtx = storage.mainThreadManagedObjectContext!
 		
-		mobileMessagingInstance.currentInstallation?.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation1.fulfill()

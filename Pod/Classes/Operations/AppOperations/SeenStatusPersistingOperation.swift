@@ -1,6 +1,5 @@
 //
-//  SendSeenOperation.swift
-//  Pods
+//  SeenStatusPersistingOperation.swift
 //
 //  Created by Andrey K. on 20/04/16.
 //
@@ -9,7 +8,7 @@
 import UIKit
 import CoreData
 
-final class SetSeenOperation: Operation {
+final class SeenStatusPersistingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (() -> Void)?
 	var messageIds: [String]

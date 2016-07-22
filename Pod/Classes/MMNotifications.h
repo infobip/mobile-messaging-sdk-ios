@@ -4,6 +4,7 @@
 //  Created by Andrey K. on 16/06/16.
 //
 
+
 //MARK: Notification names
 
 /**
@@ -30,6 +31,22 @@ FOUNDATION_EXPORT NSString* MMNotificationAPIError;
  Posted when a message is received (either pushed by APNs or fetched from the server).
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessageReceived;
+
+/**
+ Posted when the user data is synced with the server.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationUserDataSynced;
+
+/**
+ Posted when the mobile originated message sent to the server. The `userInfo` dictionary contains the following key: `MMNotificationKeyMessageSendingMOMessages` - contains an array of `MOMessage` messages with `status` of sending.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationMessagesDidSend;
+
+/**
+ Posted when the mobile originated message is about to send to the server. The `userInfo` dictionary contains the following key: `MMNotificationKeyMessageSendingMOMessages` - contains an array of `MOMessage` messages with `status` of sending.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationMessagesWillSend;
+
 
 //MARK: Notification keys
 
@@ -80,3 +97,9 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyMessageIsPush;
  Contains a flag that indicates whether the remote notification is a silent push.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessageIsSilent;
+
+/**
+ Key for entry in userInfo dictionary of `MMNotificationMessagesWillSend` and `MMNotificationMessagesDidSend` notification.
+ Contains a an array of `MOMessage` messages with `status` of sending.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyMessageSendingMOMessages;
