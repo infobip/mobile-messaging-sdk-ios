@@ -96,16 +96,18 @@ extension NSString: CustomPayloadSupportedTypes {}
 extension NSNull: CustomPayloadSupportedTypes {}
 
 public class MOMessage: NSObject {
-	public let destination: String
+	public let destination: String?
 	public let text: String
 	public let customPayload: [String: CustomPayloadSupportedTypes]?
 	public var messageId: String?
 	public var status : MOMessageStatus = .NotSent
 	
 	var dictRepresentation: [String: AnyObject] {
-		var result: [String: AnyObject] = [MMAPIKeys.kMODestination: destination,
-		                                   MMAPIKeys.kMOText: text]
+		var result: [String: AnyObject] = [MMAPIKeys.kMOText: text]
 		
+		if let destination = destination {
+			result[MMAPIKeys.kMODestination] = destination
+		}
 		result[MMAPIKeys.kMOCustomPayload] = customPayload
 		return result
 	}
@@ -153,7 +155,7 @@ public class MOMessage: NSObject {
 		self.messageId = message.messageId
 	}
 	
-	public init(destination: String, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
+	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
 		self.destination = destination
 		self.text = text
 		self.customPayload = customPayload
