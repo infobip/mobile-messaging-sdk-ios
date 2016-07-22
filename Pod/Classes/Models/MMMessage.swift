@@ -129,17 +129,13 @@ public class MOMessage: NSObject {
 			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOText)
 		}
 		
-		guard let destination = dictionary[MMAPIKeys.kMODestination] as? String else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMODestination)
-		}
-		
 		guard let status = dictionary[MMAPIKeys.kMOStatusCode] as? Int,
 		      let moStatus = MOMessageStatus(rawValue: status) else {
 			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOStatusCode)
 		}
 		
 		self.messageId = messageId
-		self.destination = destination
+		self.destination = dictionary[MMAPIKeys.kMODestination] as? String
 		self.text = text
 		self.status = moStatus
 		self.customPayload = dictionary[MMAPIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
