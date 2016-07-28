@@ -23,7 +23,7 @@ public protocol MMLocationManagerProtocol: class {
 public class MMLocationManager: NSObject, CLLocationManagerDelegate {
     
     // MARK: - Public
-    public static var sharedInstance = MMLocationManager()
+    public static let sharedInstance = MMLocationManager()
     public var locationManager: CLLocationManager
     public weak var delegate: MMLocationManagerProtocol?
     var datasource: MMGeofencingDatasource
@@ -36,7 +36,7 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
         return datasource.regions
     }
     
-    public override init() {
+    override init() {
         //  Just create location manager.
         locationManager = CLLocationManager()
         datasource = MMGeofencingDatasource()
@@ -48,6 +48,7 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
         self.locationManager.delegate = self
         self.locationManager.distanceFilter = kCLLocationAccuracyHundredMeters
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        self.locationManager.startUpdatingLocation()
         
         // When app is moving to the background stop standard location service and start
         // significant location change service if available.
@@ -84,15 +85,21 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
         })
         
         // Load saved (already received) campaings and start monitoring them.
-        startMonitoringCampaigns(datasource.campaigns)
+        refreshMonitoredRegions()
     }
     
-    // start monitoring regions from received campaings.
+    // Stop monitoring regions from received campaings.
     public func stopMonitoringCampaignsRegions() {
+        self.locationManager.delegate = nil
+        self.locationManager.stopMonitoringSignificantLocationChanges()
+        self.locationManager.stopUpdatingLocation()
+        
         let regions = locationManager.monitoredRegions
         for region in regions {
             locationManager.stopMonitoringForRegion(region)
         }
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     public func addCampaingToRegionMonitoring(campaign: MMCampaign) {
@@ -108,12 +115,15 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
     // MARK: - Private
     
     private func refreshMonitoredRegions() {
+        // Remove all regions from monitoring
         let regions = locationManager.monitoredRegions
         for region in regions {
             locationManager.stopMonitoringForRegion(region)
         }
         
-        for region in self.findTwentyClosestRegions(datasource.campaigns) {
+        // Add new regions to monitor
+        let twentyClosestRegions = self.findTwentyClosestRegions(datasource.campaigns)
+        for region in twentyClosestRegions {
             addRegionToMonitor(region)
         }
     }
@@ -159,11 +169,21 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
         
         let sortedRegions = allRegions.sort( { (region1: MMRegion, region2: MMRegion) in
             let location1 = CLLocation(latitude: region1.center.latitude,
-                longitude: region1.center.latitude)
+                longitude: region1.center.longitude)
             let location2 = CLLocation(latitude: region2.center.latitude,
-                longitude: region2.center.latitude)
+                longitude: region2.center.longitude)
             return currentLocation.distanceFromLocation(location1) < currentLocation.distanceFromLocation(location2)
         })
+        
+        // Print twenty closest regions.
+//        for regionIndex in 0..<min(20, sortedRegions.count) {
+//            let region = sortedRegions[regionIndex]
+//            let location1 = CLLocation(latitude: region.center.latitude,
+//                                       longitude: region.center.longitude)
+//            let distance = currentLocation.distanceFromLocation(location1)
+//            print("\(regionIndex+1). Title: \(region.campaign?.title ?? "") | Distance to current location: \(distance)")
+//        }
+//        print()
         
         return Array(sortedRegions[0..<min(20, sortedRegions.count)])
     }
@@ -199,6 +219,9 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
             for reg in campaing.regions {
                 if reg.id == region.identifier {
                     delegate?.didEnterRegion(reg)
+                    
+                    NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidEnter,
+                                                                           userInfo: [MMNotificationKeyGeographicalRegion: reg])
                 }
             }
         }
@@ -210,8 +233,15 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
             for reg in campaing.regions {
                 if reg.id == region.identifier {
                     delegate?.didExitRegion(reg)
+                    
+                    NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit,
+                                                                           userInfo: [MMNotificationKeyGeographicalRegion: reg])
                 }
             }
         }
+    }
+    
+    public func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        refreshMonitoredRegions()
     }
 }

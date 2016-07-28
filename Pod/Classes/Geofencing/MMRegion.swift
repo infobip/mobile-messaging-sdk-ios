@@ -8,7 +8,7 @@
 import Foundation
 import CoreLocation
 
-public struct MMRegion: Hashable, Equatable {
+public class MMRegion: Hashable, Equatable {
     public let id: String
     public var center: CLLocationCoordinate2D
     public var radius: Double

@@ -47,6 +47,16 @@ FOUNDATION_EXPORT NSString* MMNotificationMessagesDidSend;
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessagesWillSend;
 
+/**
+ Posted when the user enters monitored region. The `userInfo` dictionary contains the following key: `MMNotificationKeyGeographicalRegion` - contains `MMRegion` object in which user entered.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidEnter;
+
+/**
+ Posted when the user exits monitored region. The `userInfo` dictionary contains the following key: `MMNotificationKeyGeographicalRegion` - contains `MMRegion` object from which user exited.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidExit;
+
 
 //MARK: Notification keys
 
@@ -103,3 +113,9 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyMessageIsSilent;
  Contains a an array of `MOMessage` messages with `status` of sending.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessageSendingMOMessages;
+
+/**
+ Key for entry in userInfo dictionary of `MMNotificationGeoRegionDidEnter` and `MMNotificationGeoRegionDidExit` notification.
+ Contains object holding info about region to which user entered or exited.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyGeographicalRegion;
