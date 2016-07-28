@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class MMOMessageSendResult {
+public class MMOMessageSendResult : NSObject {
 	public let resultMessages: [MOMessage]?
 	public let error: NSError?
 	

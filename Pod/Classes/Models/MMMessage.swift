@@ -85,7 +85,7 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	}
 }
 
-public enum MOMessageStatus : Int {
+@objc public enum MOMessageStatus : Int {
 	case NotSent = -1
 	case SentSuccessfully = 0
 	case SentWithFailure = 1
