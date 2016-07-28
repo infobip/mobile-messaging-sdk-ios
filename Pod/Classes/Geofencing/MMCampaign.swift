@@ -12,7 +12,7 @@ public enum CampaignSource: String {
     case Remote
 }
 
-public struct MMCampaign: Hashable, Equatable {
+public class MMCampaign: Hashable, Equatable {
     public let id: String
     public var title: String
     public var message: String
