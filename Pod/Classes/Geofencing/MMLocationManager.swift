@@ -41,6 +41,11 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
         locationManager = CLLocationManager()
         datasource = MMGeofencingDatasource()
         super.init()
+        
+        // It is important to set location manager delegate as soon as MMLocationManager is created. This is important because application can be terminated.
+        // New region event will start application in the background and deliver event to newly created CLLocationManager object in shared MMLocationManager. 
+        // When this is set MMNotificationGeographicalRegionDidEnter and MMNotificationGeographicalRegionDidExit will be posted.
+        locationManager.delegate = self
     }
     
     // Set delegate object for location manager and start monitoring regions from received campaings.

@@ -115,7 +115,7 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyMessageIsSilent;
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessageSendingMOMessages;
 
 /**
- Key for entry in userInfo dictionary of `MMNotificationGeoRegionDidEnter` and `MMNotificationGeoRegionDidExit` notification.
+ Key for entry in userInfo dictionary of `MMNotificationGeographicalRegionDidEnter` and `MMNotificationGeographicalRegionDidExit` notification.
  Contains object holding info about region to which user entered or exited.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyGeographicalRegion;
