@@ -142,7 +142,7 @@ class MMGeofencingDatasource {
             let dateReceived = dict[GeoDatasourceCampaignKeys.DateReceived.rawValue] as? NSDate ?? NSDate()
             let regionArray = dict[GeoDatasourceCampaignKeys.Regions.rawValue] as! [[String:AnyObject]]
             
-            var newCampaign = MMCampaign(id: id,
+            let newCampaign = MMCampaign(id: id,
                                          title: title,
                                          message: message,
                                          dateReceived: dateReceived)

@@ -222,17 +222,23 @@ final public class MMUser: NSObject {
 	Explicitly tries to save all user data on the server.
 	*/
 	public func save(completion: (NSError? -> Void)? = nil) {
-		syncWithServerIfNeeded(completion, force: false)
+		syncWithServer(completion)
 	}
 	
+	//TODO: remove for v2 User Data API.
 	/**
-	Tries to sync all local user data with server user data.
+	Tries to fetch the user data from the server.
 	*/
-	public func syncWithServer(completion: (NSError? -> Void)? = nil) {
-		syncWithServerIfNeeded(completion, force: true)
+	public func fetchFromServer(completion: (NSError? -> Void)? = nil) {
+		installationManager.fetchUserWithServer(completion)
 	}
 	
 //MARK: Internal
+	
+	func syncWithServer(completion: (NSError? -> Void)? = nil) {
+		installationManager.syncUserWithServer(completion)
+	}
+	
 	func setDataForKey(key: String, attributeName: String, object: UserDataSupportedTypes?) {
 		if let dictionaryValue = installationManager.getValueForKey(attributeName) as? [String: AnyObject] {
 			var updatedDictionaryValue = dictionaryValue
@@ -245,10 +251,6 @@ final public class MMUser: NSObject {
 	
 	init(installation: MMInstallation) {
 		self.installationManager = installation.installationManager
-	}
-	
-	func syncWithServerIfNeeded(completion: (NSError? -> Void)? = nil, force: Bool) {
-		installationManager.syncUserWithServer(completion, force: force)
 	}
 	
 	public func persist() {

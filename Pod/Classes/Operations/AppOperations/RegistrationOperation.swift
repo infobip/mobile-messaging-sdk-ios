@@ -102,7 +102,6 @@ final class RegistrationOperation: Operation {
 	}
 	
 	override func finished(errors: [NSError]) {
-		super.finished(errors)
 		finishBlock?(errors.first)
 	}
 }

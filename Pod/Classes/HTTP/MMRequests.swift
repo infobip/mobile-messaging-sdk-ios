@@ -189,19 +189,19 @@ struct MMPostUserDataRequest: MMHTTPPostRequest {
 	}
 	var body: [String: AnyObject]? {
 		var result = [String: AnyObject]()
-		result[MMAPIKeys.kPredefinedUserData] = predefinedUserData
-		result[MMAPIKeys.kCustomUserData] = customUserData
+		result[MMAPIKeys.kPredefinedUserData] = predefinedUserData ?? [String: AnyObject]()
+		result[MMAPIKeys.kCustomUserData] = customUserData ?? [String: AnyObject]()
 		return result
 	}
 	
 	let internalUserId: String
 	let externalUserId: String?
-	let predefinedUserData: [String: AnyObject]
-	let customUserData: [String: AnyObject]
+	let predefinedUserData: [String: AnyObject]?
+	let customUserData: [String: AnyObject]?
 	
-	init(internalUserId: String, externalUserId: String?, predefinedUserData: [String: AnyObject], customUserData: [String: AnyObject]) {
+	init(internalUserId: String, externalUserId: String?, predefinedUserData: [String: AnyObject]? = nil, customUserData: [String: AnyObject]? = nil) {
 		self.internalUserId = internalUserId
-		self.externalUserId = externalUserId
+		self.externalUserId = externalUserId //???: what if I send nil after I sent non-nil earlier?
 		self.predefinedUserData = predefinedUserData
 		self.customUserData = customUserData
 	}

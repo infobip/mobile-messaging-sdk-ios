@@ -199,7 +199,7 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
         let id = geoDict["id"] as? String ?? ""
         let title = geoDict["title"] as? String ?? ""
         let message = geoDict["message"] as? String ?? ""
-        var newCampaing = MMCampaign(id: id, title: title, message: message)
+        let newCampaing = MMCampaign(id: id, title: title, message: message)
         newCampaing.source = .Remote
         var regions: Set<MMRegion> = []
         let regArray = geoDict["regions"] as? [[String:AnyObject]] ?? []
@@ -208,7 +208,7 @@ public class MMLocationManager: NSObject, CLLocationManagerDelegate {
             let lon = regDict["longitude"] as? Double ?? 0
             let radius = regDict["radius"] as? Double ?? 0
             let loc = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-            var newRegion = MMRegion(center: loc, radius: radius)
+            let newRegion = MMRegion(center: loc, radius: radius)
             newRegion.campaign = newCampaing
             regions.insert(newRegion)
         }

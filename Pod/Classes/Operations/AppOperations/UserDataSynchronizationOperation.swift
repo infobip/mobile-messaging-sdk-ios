@@ -10,19 +10,26 @@ import CoreData
 
 class UserDataSynchronizationOperation: Operation {
 	let context: NSManagedObjectContext
-	var installationObject: InstallationManagedObject!
 	let finishBlock: (NSError? -> Void)?
 	let remoteAPIQueue: MMRemoteAPIQueue
-	let user: MMUser
-	var dirtyAttributes = SyncableAttributesSet(rawValue: 0)
-	let forceSync : Bool
 	
-	init(user: MMUser, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil, force: Bool = false) {
+	private var installationObject: InstallationManagedObject!
+	private var dirtyAttributes = SyncableAttributesSet(rawValue: 0)
+	private let onlyFetching: Bool //TODO: remove for v2 User Data API.
+	
+	convenience init(fetchingOperationWithContext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil) {
+		self.init(context: context, remoteAPIQueue: remoteAPIQueue, onlyFetching: true, finishBlock: finishBlock)
+	}
+	
+	convenience init(syncOperationWithContext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil) {
+		self.init(context: context, remoteAPIQueue: remoteAPIQueue, onlyFetching: false, finishBlock: finishBlock)
+	}
+	
+	private init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, onlyFetching: Bool, finishBlock: (NSError? -> Void)? = nil) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
-		self.user = user
-		self.forceSync = force
+		self.onlyFetching = onlyFetching
 		
 		super.init()
 		
@@ -63,7 +70,10 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	private func sendUserDataIfNeeded() {
-		if shouldSendRequest || forceSync {
+		if onlyFetching {
+			MMLogDebug("Fetching user data...")
+			self.fetchUserData()
+		} else if shouldSendRequest {
 			MMLogDebug("Sending user data updates to the server...")
 			self.sendUserData()
 		} else {
@@ -72,13 +82,29 @@ class UserDataSynchronizationOperation: Operation {
 		}
 	}
 	
-	private func sendUserData() {
-		guard let internalId = user.internalId else {
-			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
+	private func fetchUserData() {
+		guard let internalId = MobileMessaging.currentUser?.internalId
+			else {
+				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+				return
 		}
 		
-		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: user.externalId, predefinedUserData: user.predefinedData ?? [String: AnyObject](), customUserData: user.customData ?? [String: AnyObject]())
+		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: MobileMessaging.currentUser?.externalId)
+		
+		remoteAPIQueue.performRequest(request) { result in
+			self.handleResult(result)
+			self.finishWithError(result.error)
+		}
+	}
+	
+	private func sendUserData() {
+		guard let user = MobileMessaging.currentUser, let internalId = user.internalId
+			else {
+				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+				return
+		}
+		
+		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: user.externalId, predefinedUserData: user.predefinedData, customUserData: user.customData)
 		
 		remoteAPIQueue.performRequest(request) { result in
 			self.handleResult(result)
@@ -93,7 +119,7 @@ class UserDataSynchronizationOperation: Operation {
 				guard let installationObject = self.installationObject else {
 					return
 				}
-
+				
 				installationObject.customUserData = response.customData
 				installationObject.predefinedUserData = response.predefinedData
 				

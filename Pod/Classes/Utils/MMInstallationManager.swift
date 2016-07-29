@@ -46,16 +46,20 @@ final class MMInstallationManager {
         registrationQueue.addOperation(newRegOp)
     }
 	
-	func syncUserWithServer(completion: (NSError? -> Void)? = nil, force: Bool) {
-		if let user = MobileMessaging.currentUser {
-			let op = UserDataSynchronizationOperation(user: user, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion, force: force)
-			registrationQueue.addOperation(op)
-		}
+	func fetchUserWithServer(completion: (NSError? -> Void)? = nil) {
+		let op = UserDataSynchronizationOperation(fetchingOperationWithContext: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
+		registrationQueue.addOperation(op)
+	}
+	
+	func syncUserWithServer(completion: (NSError? -> Void)? = nil) {
+		let op = UserDataSynchronizationOperation(syncOperationWithContext: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
+		registrationQueue.addOperation(op)
 	}
 	
 	func updateDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
 		let newRegOp = RegistrationOperation(newDeviceToken: token, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
 		registrationQueue.addOperation(newRegOp)
+		syncUserWithServer()
 	}
 	
 	func save(completion: (Void -> Void)? = nil) {
