@@ -105,13 +105,14 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 
 Library informs you about following events using NSNotificationCenter:
 
-* __Message received__ - is triggered when message is received.
-* __Device token received__ - is triggered when device token is received from APNS.
-* __Registration updated__ - is triggered when APNS registration token successfully stored on the registration server.
+* __Message received__ - is triggered after a message has been received.
+* __Device token received__ - is triggered after an APNS registration token has been received from APNS.
+* __Registration updated__ - is triggered after an APNS registration token has been successfully stored on the server.
 * __API error__ - is triggered on every error returned by API.
-* __Delivery reports sent__ - is triggered when message delivery is reported.
-* __Message will be send__ - is triggered when the mobile originated message is about to send to the server.
-* __Message did send__ - is triggered when the mobile originated message sent to the server.
+* __Delivery reports sent__ - is triggered after a message delivery has been reported.
+* __Message will be sent__ - is triggered when a mobile originated message is about to be sent to the server.
+* __Message did send__ - is triggered after a mobile originated message has been sent to the server.
+* etc.
 
 More information on library events available on our [wiki page](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Library-events).
 
@@ -122,14 +123,14 @@ It will give an additional opportunity to target your application users and orch
 
 ```swift
 // Swift
-MobileMessaging.currentInstallation?.saveMSISDN("385911234567", completion: { error in
+MobileMessaging.currentUser?.saveMSISDN("385911234567", completion: { error in
 	// if an error occurs, handle it
 })
 ```
 
 ```objective-c
 // Objective-C
-[[MobileMessaging currentInstallation] saveMSISDN:@"385911234567" completion:^(NSError * _Nullable error) {
+[[MobileMessaging currentUser] saveMSISDN:@"385911234567" completion:^(NSError * _Nullable error) {
 	// if an error occurs, handle it
 }];
 ```
