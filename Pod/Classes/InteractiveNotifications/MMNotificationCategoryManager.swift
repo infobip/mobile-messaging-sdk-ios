@@ -10,6 +10,25 @@ import Foundation
 enum MMNotificationCategories : String {
 	case ChatMessage = "chatMessage"
 	case CouponMessage = "couponMessage"
+
+	var identifier: String {
+		return self.rawValue
+	}
+	
+	var buttons: [MMNotificationButton] {
+		switch self {
+		case .ChatMessage:
+			return [
+				MMNotificationButton(identifier: MMNotificationButtons.MarkAsSeen,
+					title: "Mark as seen", activationMode: .Background, authenticationRequired: false, destructive: false, parameters: nil),
+				MMNotificationButton(identifier: MMNotificationButtons.Reply, title: "Reply", activationMode: isIOS9() ? .Background : .Foreground, authenticationRequired: false, destructive: false, parameters: nil, allowsTextInput: true)
+			]
+		case .CouponMessage:
+			return [
+				MMNotificationButton(identifier: MMNotificationButtons.Apply, title: "Apply", activationMode: .Foreground, authenticationRequired: false, destructive: false, parameters: nil)
+			]
+		}
+	}
 }
 
 enum MMNotificationButtons : String {
@@ -60,49 +79,25 @@ class MMNotificationButton {
 	}
 }
 
-struct MMNotificatoionCategory {
-	let categoryId: String
-	let buttons : [MMNotificationButton]
-	
-	static var chatCategory : MMNotificatoionCategory  {
-		return MMNotificatoionCategory(categoryId: MMNotificationCategories.ChatMessage.rawValue ,
-		                               buttons:[
-										MMNotificationButton(identifier: MMNotificationButtons.MarkAsSeen,
-											title: "Mark as seen", activationMode: .Background, authenticationRequired: false, destructive: false, parameters: nil),
-										MMNotificationButton(identifier: MMNotificationButtons.Reply, title: "Reply", activationMode: isIOS9() ? .Background : .Foreground, authenticationRequired: false, destructive: false, parameters: nil, allowsTextInput: true)
-			])
-	}
-	
-	static var couponCategory: MMNotificatoionCategory {
-		return MMNotificatoionCategory(categoryId: MMNotificationCategories.CouponMessage.rawValue ,
-		                               buttons:[
-										MMNotificationButton(identifier: MMNotificationButtons.Apply, title: "Apply", activationMode: .Foreground, authenticationRequired: false, destructive: false, parameters: nil)
-			])
-	}
-}
-
 class MMNotificationCategoryManager {
 	
 	class func categoriesToRegister() -> Set<UIUserNotificationCategory>? {
-		let categoriesToRegister = predefinedCategories.map { (categoryId, category) -> UIUserNotificationCategory in
-			let notificationActions = category.buttons.map({ (action) -> UIUserNotificationAction in
+		let categoriesToRegister = predefinedCategories.map { (category: MMNotificationCategories) -> UIUserNotificationCategory in
+			let notificationActions = category.buttons.map { action -> UIUserNotificationAction in
 				return prepareNotificationAction(action)
-			})
+			}
 			
-			let category = UIMutableUserNotificationCategory()
-			category.identifier = categoryId.rawValue
-			category.setActions(notificationActions, forContext: .Default)
-			category.setActions(notificationActions, forContext: .Minimal)
-			return category
+			let userNotificationCategory = UIMutableUserNotificationCategory()
+			userNotificationCategory.identifier = category.identifier
+			userNotificationCategory.setActions(notificationActions, forContext: .Default)
+			userNotificationCategory.setActions(notificationActions, forContext: .Minimal)
+			return userNotificationCategory
 		}
 		return NSSet(array: categoriesToRegister) as? Set<UIUserNotificationCategory>
 	}
 	
 	//MARK: Private
-	private static let predefinedCategories: [MMNotificationCategories: MMNotificatoionCategory] = [
-		MMNotificationCategories.ChatMessage: MMNotificatoionCategory.chatCategory,
-		MMNotificationCategories.CouponMessage: MMNotificatoionCategory.couponCategory
-	]
+	private static let predefinedCategories: [MMNotificationCategories] = [.ChatMessage, .CouponMessage]
 	
 	private class func prepareNotificationAction(notificationButton: MMNotificationButton) -> UIUserNotificationAction {
 		let inputAction = UIMutableUserNotificationAction()
