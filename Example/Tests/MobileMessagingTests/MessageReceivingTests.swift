@@ -152,13 +152,13 @@ class MessageReceivingTests: MMTestCase {
 	
 	func testThatServerSilentMessageParsing() {
 		do {
-			do {
-				let id = NSUUID().UUIDString
-				let json = try JSON(jsonString: backendJSONSilentMessage(id))
-				let message = try MMMessage(json: json)
-				XCTAssertTrue(message.isSilent, "Message must be parsed as silent")
-				XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
-			}
+			
+			let id = NSUUID().UUIDString
+			let json = try JSON(jsonString: backendJSONSilentMessage(id))
+			let message = try MMMessage(json: json)
+			XCTAssertTrue(message.isSilent, "Message must be parsed as silent")
+			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
+		
 		} catch {
 			XCTFail("JSON string encoding failed")
 		}

@@ -23,6 +23,9 @@
 		50AD28B71D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */; };
 		50AD28B81D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */; };
 		50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
+		50DBBC8A1D50880300485835 /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
+		50DBBC8B1D50881200485835 /* MOMessageSendingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */; };
+		50DBBC8C1D50882100485835 /* InteractiveMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */; };
@@ -640,8 +643,11 @@
 				A024DEA61CF7477A00084EF5 /* EscapingQueryTests.swift in Sources */,
 				8EFABFCE1CEB3B9400510762 /* TestUtils.swift in Sources */,
 				50AD28B81D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */,
+				50DBBC8A1D50880300485835 /* UserDataTests.swift in Sources */,
+				50DBBC8B1D50881200485835 /* MOMessageSendingTests.swift in Sources */,
 				8EFABFCF1CEB3B9400510762 /* RegistrationTests.swift in Sources */,
 				8EFABFD01CEB3B9400510762 /* MessageReceivingTests.swift in Sources */,
+				50DBBC8C1D50882100485835 /* InteractiveMessageTests.swift in Sources */,
 				8EFABFD11CEB3B9400510762 /* RetryOperationTests.swift in Sources */,
 				8EFABFD21CEB3B9400510762 /* FetchMessagesTest.swift in Sources */,
 				8EFABFD31CEB3B9400510762 /* MessageSeenTests.swift in Sources */,

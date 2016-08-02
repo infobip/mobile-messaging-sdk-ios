@@ -19,7 +19,7 @@ class InteractiveMessageTests: XCTestCase {
 				[
 					    MMAPIKeys.kInteractive:
 					    [
-							MMAPIKeys.kButtonActions : [ "\(buttonId)" : ["mark_as_seen", ["open_url":"http://www.google.com"], "reply"]]
+							MMAPIKeys.kButtonActions : [ "\(buttonId)" : ["mark_as_seen", "reply"]]
 						]
 				],
 				MMAPIKeys.kCustomPayload: ["customKey": "customValue"]
@@ -39,7 +39,6 @@ class InteractiveMessageTests: XCTestCase {
 		
 		let replyExp = expectationWithDescription("Reply handler called")
 		let mssExp = expectationWithDescription("Mark as Seen handler called")
-		let urlExp = expectationWithDescription("Open URL handler called")
 		
 		MMActionReply.setActionHandler { (result) in
 			XCTAssertEqual(result.messageId, "m1")
@@ -49,12 +48,6 @@ class InteractiveMessageTests: XCTestCase {
 		MMActionMarkAsSeen.setActionHandler { (result) in
 			XCTAssertEqual(result.messageId, "m1")
 			mssExp.fulfill()
-		}
-		
-		MMActionOpenURL.setActionHandler { (result) in
-			XCTAssertEqual(result.messageId, "m1")
-			XCTAssertEqual(result.url.absoluteString, "http://www.google.com")
-			urlExp.fulfill()
 		}
 		
 		MMMessage.performAction(buttonId, userInfo: messageWithAllActions("category", buttonId: buttonId), responseInfo: nil, completionHandler: nil)
