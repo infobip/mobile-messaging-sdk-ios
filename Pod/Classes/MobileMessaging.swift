@@ -210,13 +210,11 @@ class MobileMessagingInstance {
 			} catch {
 				MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
 			}
-
-			MobileMessagingInstance.queue.executeAsync {
-				let categories = MMNotificationCategoryManager.categoriesToRegister()
-				UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: categories))
-				if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
-					UIApplication.sharedApplication().registerForRemoteNotifications()
-				}
+			
+			let categories = MMNotificationCategoryManager.categoriesToRegister()
+			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: categories))
+			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
+				UIApplication.sharedApplication().registerForRemoteNotifications()
 			}
 		}
 	}
