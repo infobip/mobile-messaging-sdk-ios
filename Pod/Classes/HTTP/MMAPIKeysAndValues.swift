@@ -70,7 +70,7 @@ struct MMAPIKeys {
 	static let kMOText = "text"
 	static let kMOCustomPayload = "customPayload"
 	static let kMOMessageId = "messageId"
-	static let kMOStatusCode = "statusCode"
+	static let kMOMessageSentStatusCode = "statusCode"
 }
 
 struct MMAPIValues {

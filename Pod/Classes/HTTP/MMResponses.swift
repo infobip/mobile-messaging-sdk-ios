@@ -129,9 +129,9 @@ final class MMHTTPMOMessageResponse: MMHTTPResponse {
 	required init(json value: JSON) throws {
 		if let messageJSONs = try? value.array(MMAPIKeys.kMOMessages) {
 			
-			self.messages = try messageJSONs.map({ (messageJSON) -> MOMessage in
+			self.messages = try messageJSONs.map { messageJSON -> MOMessage in
 				return try MOMessage(json: messageJSON)
-			})
+			}
 
 		} else {
 			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOMessages)

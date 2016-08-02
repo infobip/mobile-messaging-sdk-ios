@@ -12,15 +12,10 @@ import Foundation
 import CoreData
 
 extension MessageManagedObject {
-
     @NSManaged var creationDate: NSDate
     @NSManaged var messageId: String
     @NSManaged var reportSent: NSNumber
     @NSManaged var seenDate: NSDate?
     @NSManaged var seenStatusValue: NSNumber
     @NSManaged var isSilent: NSNumber
-	
-	@NSManaged var text: String?
-	@NSManaged var destination: String?
-	@NSManaged var customPayload: [String: AnyObject]?
 }

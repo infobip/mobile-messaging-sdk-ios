@@ -85,8 +85,8 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	}
 }
 
-@objc public enum MOMessageStatus : Int {
-	case NotSent = -1
+@objc public enum MOMessageSentStatus : Int {
+	case Undefined = -1
 	case SentSuccessfully = 0
 	case SentWithFailure = 1
 }
@@ -99,28 +99,46 @@ public class MOMessage: NSObject {
 	public let destination: String?
 	public let text: String
 	public let customPayload: [String: CustomPayloadSupportedTypes]?
-	public var messageId: String?
-	public var status : MOMessageStatus = .NotSent
-	
+	public let messageId: String
+	public let status: MOMessageSentStatus
+
+	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
+		self.messageId = NSUUID().UUIDString
+		self.destination = destination
+		self.text = text
+		self.customPayload = customPayload
+		self.status = .Undefined
+	}
+
 	var dictRepresentation: [String: AnyObject] {
-		var result: [String: AnyObject] = [MMAPIKeys.kMOText: text]
+		var result = [String: AnyObject]()
 		
 		if let destination = destination {
 			result[MMAPIKeys.kMODestination] = destination
 		}
+		result[MMAPIKeys.kMOText] = text
 		result[MMAPIKeys.kMOCustomPayload] = customPayload
+		result[MMAPIKeys.kMOMessageId] = messageId
 		return result
 	}
-	
-	public convenience init(json: JSON) throws {
+
+	convenience init(json: JSON) throws {
 		if let dictionary = jsonToAnyObject(json) as? [String : AnyObject] {
 			try self.init(dictionary: dictionary)
 		} else {
 			throw JSON.Error.ValueNotConvertible(value: json, to: MMMessage.self)
 		}
 	}
+
+	init(messageId: String, destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
+		self.messageId = messageId
+		self.destination = destination
+		self.text = text
+		self.customPayload = customPayload
+		self.status = .Undefined
+	}
 	
-	init(dictionary: [String: AnyObject]) throws {
+	private init(dictionary: [String: AnyObject]) throws {
 		guard let messageId = dictionary[MMAPIKeys.kMOMessageId] as? String else {
 			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOMessageId)
 		}
@@ -129,31 +147,14 @@ public class MOMessage: NSObject {
 			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOText)
 		}
 		
-		guard let status = dictionary[MMAPIKeys.kMOStatusCode] as? Int,
-		      let moStatus = MOMessageStatus(rawValue: status) else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOStatusCode)
+		guard let status = dictionary[MMAPIKeys.kMOMessageSentStatusCode] as? Int else {
+			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOMessageSentStatusCode)
 		}
 		
 		self.messageId = messageId
 		self.destination = dictionary[MMAPIKeys.kMODestination] as? String
 		self.text = text
-		self.status = moStatus
+		self.status = MOMessageSentStatus(rawValue: status) ?? MOMessageSentStatus.Undefined
 		self.customPayload = dictionary[MMAPIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
-	}
-	
-	init?(message: MessageManagedObject) {
-		guard let dest = message.destination, let txt = message.text else {
-			return nil
-		}
-		self.destination = dest
-		self.text = txt
-		self.customPayload = message.customPayload as? [String: CustomPayloadSupportedTypes]
-		self.messageId = message.messageId
-	}
-	
-	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
-		self.destination = destination
-		self.text = text
-		self.customPayload = customPayload
 	}
 }

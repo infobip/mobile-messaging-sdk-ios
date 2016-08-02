@@ -216,9 +216,7 @@ struct MMPostMessageRequest: MMHTTPPostRequest {
 	var body: [String: AnyObject]? {
 		var result = [String: AnyObject]()
 		result[MMAPIKeys.kMOFrom] = internalUserId
-		
-		let messageDicts = messages.map { (m: MOMessage) in return m.dictRepresentation }
-		result[MMAPIKeys.kMOMessages] = messageDicts
+		result[MMAPIKeys.kMOMessages] = messages.map { $0.dictRepresentation }
 		return result
 	}
 	
