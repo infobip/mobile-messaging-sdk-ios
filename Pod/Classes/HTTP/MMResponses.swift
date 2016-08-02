@@ -12,7 +12,7 @@ typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
 typealias MMDeliveryReportingResult = Result<MMHTTPDeliveryReportingResponse>
 typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>
 typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
-typealias MMUserDataFetchResult = Result<MMHTTPUserDataFetchResponse>
+typealias MMUserDataSyncResult = Result<MMHTTPUserDataSyncResponse>
 typealias MMMOMessageResult = Result<MMHTTPMOMessageResponse>
 
 extension NSDate: JSONEncodable {
@@ -96,22 +96,29 @@ final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
 		try super.init(json: value)
 	}
 }
-final class MMHTTPUserDataFetchResponse: MMHTTPResponse {
-	let predefinedData: [String: AnyObject]?
-	let customData: [String: AnyObject]?
+final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
+	typealias ErrorMessage = String
+	typealias AttributeName = String
+	typealias ValueType = AnyObject
+	
+	let predefinedData: [AttributeName: ValueType]?
+	let customData: [AttributeName: ValueType]?
+	let error: MMRequestError? //TODO: UserData v2 negotiate the errors format.
 	
 	required init(json value: JSON) throws {
-		if let predefinedDataJSON = try? value.dictionary(MMAPIKeys.kPredefinedUserData) {
+		if let predefinedDataJSON = try? value.dictionary(MMAPIKeys.kUserDataPredefinedUserData) {
 			self.predefinedData = jsonDictToNormalDict(predefinedDataJSON)
 		} else {
 			self.predefinedData = nil
 		}
 		
-		if let customDataJSON = try? value.dictionary(MMAPIKeys.kCustomUserData) {
+		if let customDataJSON = try? value.dictionary(MMAPIKeys.kUserDataCustomUserData) {
 			self.customData = jsonDictToNormalDict(customDataJSON)
 		} else {
 			self.customData = nil
 		}
+		
+		self.error = try? MMRequestError(json: value)
 		
 		try super.init(json: value)
 	}

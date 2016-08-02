@@ -109,7 +109,8 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	override func finished(errors: [NSError]) {
-		switch result {
+		let finishResult = errors.isEmpty ? result : MMFetchMessagesResult.Failure(errors.first)
+		switch finishResult {
 		case .Success(let fetchResponse):
 			if let messages = fetchResponse.messages where messages.count > 0 {
 				self.produceOperation(handleMessageOperation(messages))

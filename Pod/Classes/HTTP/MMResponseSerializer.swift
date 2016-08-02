@@ -11,7 +11,7 @@ import Freddy
 final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override init() {
 		super.init()
-		let range: NSRange = NSMakeRange(200, 99)
+		let range: NSRange = NSMakeRange(200, 100)
 		self.acceptableStatusCodes = NSIndexSet(indexesInRange: range)
 	}
 	
@@ -23,10 +23,20 @@ final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer
 			return nil
 		}
 		
-		if let requestError = try? MMRequestError(json: json) {
+		if let requestError = try? MMRequestError(json: json) where response?.isFailureHTTPREsponse ?? false {
 			error.memory = requestError.foundationError
 		}
 		
 		return (try? T(json: json)) as? AnyObject
+	}
+}
+
+extension NSURLResponse {
+	var isFailureHTTPREsponse: Bool {
+		var statusCodeIsError = false
+		if let httpResponse = self as? NSHTTPURLResponse {
+			statusCodeIsError = NSIndexSet(indexesInRange: NSMakeRange(200, 100)).containsIndex(httpResponse.statusCode) == false
+		}
+		return statusCodeIsError
 	}
 }

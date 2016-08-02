@@ -57,9 +57,10 @@ struct MMAPIKeys {
 	static let kDLRMsgIds = "drIDs"
 	
 	//MARK: UserData API
-	static let kPredefinedUserData = "predefinedUserData"
-	static let kCustomUserData = "customUserData"
-	static let kExternalUserId = "externalUserId"
+	static let kUserDataPredefinedUserData = "predefinedUserData"
+	static let kUserDataCustomUserData = "customUserData"
+	static let kUserDataExternalUserId = "externalUserId"
+	static let kUserDataFailures = "failures"
 	
 	//MARK: MO Messages API
 	static let kMOFailedMOMessageIDs = "failedMessageIDs" //TODO: update

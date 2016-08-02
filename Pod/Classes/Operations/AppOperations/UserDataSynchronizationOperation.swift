@@ -41,6 +41,9 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	override func execute() {
+		//TODO: store old valid attributes
+		//installationObject.customUserData
+		//installationObject.predefinedUserData
 		context.performBlockAndWait {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(context: self.context) else {
 				self.finish()
@@ -108,11 +111,11 @@ class UserDataSynchronizationOperation: Operation {
 		
 		remoteAPIQueue.performRequest(request) { result in
 			self.handleResult(result)
-			self.finishWithError(result.error)
+			self.finishWithError(result.error ?? result.value?.error?.foundationError)
 		}
 	}
 	
-	private func handleResult(result: MMUserDataFetchResult) {
+	private func handleResult(result: MMUserDataSyncResult) {
 		self.context.performBlockAndWait {
 			switch result {
 			case .Success(let response):
@@ -140,6 +143,6 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	override func finished(errors: [NSError]) {
-		finishBlock?(errors.first)
+		self.finishBlock?(errors.first)
 	}
 }

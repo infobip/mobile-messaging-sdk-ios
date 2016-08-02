@@ -24,7 +24,7 @@ enum MMHTTPAPIPath: String {
     case DeliveryReport = "/mobile/1/deliveryreports"
     case SeenMessages = "/mobile/1/messages/seen"
 	case SyncMessages = "/mobile/3/messages"
-	case UserData = "/mobile/1/userdata"
+	case UserData = "/mobile/2/userdata"
 	case MOMessage = "/mobile/1/messages/mo"
 }
 
@@ -178,19 +178,19 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 }
 
 struct MMPostUserDataRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPUserDataFetchResponse
+	typealias ResponseType = MMHTTPUserDataSyncResponse
 	var path: MMHTTPAPIPath { return .UserData }
 	var parameters: [String: AnyObject]? {
 		var params = [MMAPIKeys.kInternalRegistrationId: internalUserId]
 		if let externalUserId = externalUserId {
-			params[MMAPIKeys.kExternalUserId] = externalUserId
+			params[MMAPIKeys.kUserDataExternalUserId] = externalUserId
 		}
 		return params
 	}
 	var body: [String: AnyObject]? {
 		var result = [String: AnyObject]()
-		result[MMAPIKeys.kPredefinedUserData] = predefinedUserData ?? [String: AnyObject]()
-		result[MMAPIKeys.kCustomUserData] = customUserData ?? [String: AnyObject]()
+		result[MMAPIKeys.kUserDataPredefinedUserData] = predefinedUserData ?? [String: AnyObject]()
+		result[MMAPIKeys.kUserDataCustomUserData] = customUserData ?? [String: AnyObject]()
 		return result
 	}
 	

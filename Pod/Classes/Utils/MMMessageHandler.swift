@@ -58,8 +58,11 @@ final class MMMessageHandler {
 		}
     }
 	
-	func sendMessages(messages: [MOMessage], completion: (MMOMessageSendResult -> Void)? = nil) {
-		self.messageSendingQueue.addOperation(MessagePostingOperation(messages: messages, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, finishBlock: completion))
+	func sendMessages(messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+		self.messageSendingQueue.addOperation(MessagePostingOperation(messages: messages, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, finishBlock: { (result: MMMOMessageResult) in
+			
+			completion?(result.value?.messages, result.error)
+		}))
 	}
 	
 	//MARK: Private

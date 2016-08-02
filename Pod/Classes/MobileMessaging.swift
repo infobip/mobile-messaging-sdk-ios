@@ -103,12 +103,13 @@ public final class MobileMessaging: NSObject {
         MobileMessagingInstance.sharedInstance.setSeen(messageIds)
     }
 	
+	//FIXME: MOMEssage should be replaced with something lighter
 	/**
 	This method sends mobile originated messages to the server.
 	- parameter messages: Array of objects of `MOMessage` class that need to be sent.
-	- parameter completion: completion block that will be performed after receiving an answer from server, returns `MMOMessageSendResult` object, that contains the array of `MOMessage` messages, with `status` of sending.
+	- parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
 	*/
-	public class func sendMessages(messages: [MOMessage], completion: (MMOMessageSendResult -> Void)? = nil) {
+	public class func sendMessages(messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MobileMessagingInstance.sharedInstance.sendMessages(messages, completion: completion)
 	}
 	
@@ -177,7 +178,7 @@ class MobileMessagingInstance {
 		}
 	}
 	
-	func sendMessages(messages: [MOMessage], completion: (MMOMessageSendResult -> Void)? = nil) {
+	func sendMessages(messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MMLogDebug("Sending mobile originated messages...")
 		MobileMessagingInstance.queue.executeAsync {
 			self.messageHandler?.sendMessages(messages, completion: completion)

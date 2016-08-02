@@ -11,12 +11,13 @@ import CoreData
 
 class MessagePostingOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: (MMOMessageSendResult -> Void)?
+	let finishBlock: (MMMOMessageResult -> Void)?
+	var result = MMMOMessageResult.Cancel
 	let remoteAPIQueue: MMRemoteAPIQueue
 	var messagesToSend: [MOMessage]?
 	var resultMessages: [MOMessage]?
 	
-	init(messages: [MOMessage]?, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMOMessageSendResult -> Void)? = nil) {
+	init(messages: [MOMessage]?, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMMOMessageResult -> Void)? = nil) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
@@ -64,6 +65,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	private func handleResult(result: MMMOMessageResult) {
+		self.result = result
 		context.performBlockAndWait {
 			switch result {
 			case .Success(let response):
@@ -85,6 +87,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	override func finished(errors: [NSError]) {
-		finishBlock?(MMOMessageSendResult(resultMessages: resultMessages, error: errors.first))
+		let finishResult = errors.isEmpty ? result : MMMOMessageResult.Failure(errors.first)
+		finishBlock?(finishResult)
 	}
 }

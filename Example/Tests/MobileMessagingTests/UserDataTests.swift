@@ -56,7 +56,7 @@ class UserDataTests: MMTestCase {
 		}
     }
 	
-	func testSetupPredefinedAndCustomerData() {
+	func testSetupPredefinedAndCustomData() {
 		let expectation = expectationWithDescription("save completed")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
@@ -99,7 +99,7 @@ class UserDataTests: MMTestCase {
 		waitForExpectationsWithTimeout(10, handler: nil)
 	}
 	
-	func testDeletePredefinedAndCustomerData() {
+	func testDeletePredefinedAndCustomData() {
 		let expectation = expectationWithDescription("data received")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
@@ -135,7 +135,7 @@ class UserDataTests: MMTestCase {
 		waitForExpectationsWithTimeout(10, handler: nil)
 	}
 	
-	func testGetPredefinedAndCustomerData() {
+	func testGetPredefinedAndCustomData() {
 		let expectation = expectationWithDescription("data received")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
@@ -145,7 +145,7 @@ class UserDataTests: MMTestCase {
 		
 		let currentUser = MobileMessaging.currentUser!
 		
-		currentUser.syncWithServer { (error) in
+		currentUser.fetchFromServer { (error) in
 			XCTAssertNil(error)
 			
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name] as? String, "Darth")
