@@ -19,6 +19,8 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 		super.mapAttributesFrom(previous)
 		if let previous = previous as? MMRetryableRequestOperation {
 			self.request = previous.request
+            self.applicationCode = previous.applicationCode;
+            self.baseURL = previous.baseURL;
 		}
 	}
 	
