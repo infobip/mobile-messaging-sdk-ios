@@ -51,6 +51,11 @@ platform :ios do
 
         cocoapods
 
+		sigh(
+            output_path: "./tmp",
+            development: true
+        )
+        
         unless options[:no_tests]
             scan(
                 skip_build: true,
@@ -64,10 +69,6 @@ platform :ios do
             test_on_device
         end
         
-        sigh(
-            output_path: "./tmp",
-            development: true
-        )
         gym(
             scheme: "MobileMessagingExample",
             use_legacy_build_api: true
