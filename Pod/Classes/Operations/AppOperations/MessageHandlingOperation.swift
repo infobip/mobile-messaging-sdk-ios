@@ -58,20 +58,20 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	override func execute() {
+		MMLogDebug("Starting message handling operation...")
 		handleMessage()
 	}
 	
 	private func handleMessage() {
 		context.performBlockAndWait {
-			guard let newMessages: [MMMessage] = self.getNewMessages(self.context, messagesToHandle: self.messagesToHandle)
-				where newMessages.count > 0
-				else
+			guard let newMessages: [MMMessage] = self.getNewMessages(self.context, messagesToHandle: self.messagesToHandle) where !newMessages.isEmpty else
 			{
+				MMLogDebug("There is no new messages to handle.")
 				self.finish()
 				return
 			}
 			self.hasNewMessages = true
-			
+			MMLogDebug("There are \(newMessages.count) new messages to handle.")
 			for newMessage: MMMessage in newMessages {
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
@@ -129,6 +129,7 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	override func finished(errors: [NSError]) {
+		MMLogDebug("Message handling finished with errors: \(errors)")
 		if hasNewMessages && errors.isEmpty {
 			let messageFetching = MessageFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue, finishBlock: { result in
 				self.finishBlock?(result.error)

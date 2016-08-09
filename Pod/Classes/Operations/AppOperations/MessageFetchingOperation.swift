@@ -24,12 +24,14 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	override func execute() {
+		MMLogDebug("Starting message fetching operation...")
 		self.syncMessages()
 	}
 	
 	private func syncMessages() {
 		self.context.performBlockAndWait {
-			guard let internalId = MobileMessaging.currentUser?.internalId else {
+			guard let internalId = MobileMessaging.currentUser?.internalId else
+			{
 				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 				return
 			}
@@ -43,7 +45,7 @@ final class MessageFetchingOperation: Operation {
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
 			
 			let request = MMPostSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
-			
+			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages) archive messages.")
 			self.remoteAPIQueue.performRequest(request) { result in
 				self.handleRequestResponse(result, nonReportedMessageIds: nonReportedMessageIds)
 			}
