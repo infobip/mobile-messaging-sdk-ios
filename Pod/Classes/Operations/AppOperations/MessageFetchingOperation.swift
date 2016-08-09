@@ -111,6 +111,7 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	override func finished(errors: [NSError]) {
+		MMLogDebug("Message fetching operation finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? result : MMFetchMessagesResult.Failure(errors.first)
 		switch finishResult {
 		case .Success(let fetchResponse):
