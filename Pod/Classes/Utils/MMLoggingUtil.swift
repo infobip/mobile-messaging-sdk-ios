@@ -67,6 +67,26 @@ public final class MMLoggingUtil : NSObject {
         prepareLogging(logLevel.ddlogLevel())
     }
 	
+	public func sendLogs(fromViewController vc: UIViewController) {
+		var objectsToShare: [AnyObject] = [MMUserAgent.currentUserAgent]
+		
+		if let dt = MobileMessaging.currentInstallation?.deviceToken {
+			objectsToShare.append("APNS device token: \(dt)")
+		}
+		
+		if let id = MobileMessaging.currentUser?.internalId {
+			objectsToShare.append("Push registration ID: \(id)")
+		}
+		
+		if let filePath = MobileMessaging.loggingUtil?.logFilePath {
+			let url = NSURL(fileURLWithPath: filePath)
+			objectsToShare.append(url)
+			
+			let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+			vc.presentViewController(activityVC, animated: true, completion: nil)
+		}
+	}
+	
 	//MARK: Private
     private var loggingOptions: MMLoggingOptions
     private var fileLogger: DDFileLogger?
