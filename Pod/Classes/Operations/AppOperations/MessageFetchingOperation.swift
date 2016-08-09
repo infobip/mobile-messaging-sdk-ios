@@ -45,7 +45,7 @@ final class MessageFetchingOperation: Operation {
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
 			
 			let request = MMPostSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
-			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages) archive messages.")
+			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
 			self.remoteAPIQueue.performRequest(request) { result in
 				self.handleRequestResponse(result, nonReportedMessageIds: nonReportedMessageIds)
 			}
@@ -59,11 +59,11 @@ final class MessageFetchingOperation: Operation {
 			switch result {
 			case .Success(let fetchResponse):
 				let fetchedMessages = fetchResponse.messages
-				MMLogInfo("Messages fetching succeded: received \(fetchedMessages?.count) new messages: \(fetchedMessages)")
+				MMLogDebug("Messages fetching succeded: received \(fetchedMessages?.count) new messages: \(fetchedMessages)")
 				
 				if let nonReportedMessageIds = nonReportedMessageIds {
 					self.dequeueDeliveryReports(nonReportedMessageIds)
-					MMLogInfo("Delivery report sent for messages: \(nonReportedMessageIds)")
+					MMLogDebug("Delivery report sent for messages: \(nonReportedMessageIds)")
 					if nonReportedMessageIds.count > 0 {
 						NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
@@ -72,7 +72,7 @@ final class MessageFetchingOperation: Operation {
 			case .Failure(_):
 				MMLogError("Sync request failed")
 			case .Cancel:
-				MMLogInfo("Sync cancelled")
+				MMLogDebug("Sync cancelled")
 				break
 			}
 			self.finishWithError(result.error)
