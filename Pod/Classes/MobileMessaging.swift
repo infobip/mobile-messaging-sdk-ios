@@ -115,20 +115,29 @@ public final class MobileMessaging: NSObject {
 	
 	/**
 	A boolean variable that indicates whether the library will be sending the carrier information to the server.
-	Default value is `true`.
+	Default value is `false`.
     */
-	public static var shouldSendCarrierInfo : Bool = true
+	public static var carrierInfoSendingDisabled: Bool = false
 	
 	/**
 	A boolean variable that indicates whether the library will be sending the system information such as OS version, device model, application version to the server.
-	Default value is `true`.
+	Default value is `false`.
 	*/
-	public static var shouldSendSystemInfo : Bool = true
+	public static var systemInfoSendingDisabled: Bool = false
 	
 	/**
 	A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	*/
-	public static var notificationTapHandler : (([NSObject : AnyObject]) -> Void)?
+	public static var notificationTapHandler: (([NSObject : AnyObject]) -> Void)?
+	
+	/**
+	//TODO: docs
+	*/
+	public static var geoNotificationsDisabled: Bool = false {
+		didSet {
+			MMRegionMonitoringManager.sharedInstance.locationManagerEnabled = !geoNotificationsDisabled
+		}
+	}
 }
 
 class MobileMessagingInstance {
@@ -205,6 +214,9 @@ class MobileMessagingInstance {
 					let messageHandler = MMMessageHandler(storage: storage, baseURL: remoteAPIBaseURL, applicationCode: applicationCode)
 					MobileMessagingInstance.sharedInstance.messageHandler = messageHandler
 					MobileMessagingInstance.sharedInstance.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
+					
+					MMRegionMonitoringManager.sharedInstance.startMonitoringCampaignsRegions()
+					
 					MMLogInfo("MobileMessaging SDK service successfully initialized.")
 				}
 			} catch {

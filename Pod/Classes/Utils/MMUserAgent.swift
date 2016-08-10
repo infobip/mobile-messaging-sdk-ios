@@ -19,11 +19,11 @@ final public class MMUserAgent: NSObject {
 	
 	public class var currentUserAgent: String {
 		var options = [MMUserAgent.DataOptions.None]
-		if MobileMessaging.shouldSendSystemInfo {
+		if !MobileMessaging.systemInfoSendingDisabled {
 			options.append(MMUserAgent.DataOptions.System)
 		}
 		
-		if MobileMessaging.shouldSendCarrierInfo {
+		if !MobileMessaging.carrierInfoSendingDisabled {
 			options.append(MMUserAgent.DataOptions.Carrier)
 		}
 		return MMUserAgent.userAgentString(withOptions: options)

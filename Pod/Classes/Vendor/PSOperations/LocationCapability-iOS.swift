@@ -61,7 +61,7 @@ private class LocationAuthorizer: NSObject, CLLocationManagerDelegate {
     
     func authorize(kind: Location, completion: CapabilityStatus -> Void) {
         guard self.completion == nil else {
-            fatalError("Attempting to authorize location when a request is already in-flight")
+			fatalError("Attempting to authorize location when a request is already in-flight")
         }
         self.completion = completion
         self.kind = kind
