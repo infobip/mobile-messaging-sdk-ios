@@ -26,7 +26,12 @@ public final class MMLoggingOptions : NSObject {
     public static let File = MMLoggingOptions(rawValue: 1 << 2)
 }
 
-public final class MMLoggingUtil : NSObject {
+/**
+Logging utility is used for:
+- setting up logging options and logging levels.
+- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
+*/
+public final class MMLoggingUtil: NSObject {
     /**
      Path to the log file.
      Non null, if loggingOption contains .File
@@ -78,7 +83,7 @@ public final class MMLoggingUtil : NSObject {
 			objectsToShare.append("Push registration ID: \(id)")
 		}
 		
-		if let filePath = MobileMessaging.loggingUtil?.logFilePath {
+		if let filePath = MobileMessaging.loggingUtil.logFilePath {
 			let url = NSURL(fileURLWithPath: filePath)
 			objectsToShare.append(url)
 			

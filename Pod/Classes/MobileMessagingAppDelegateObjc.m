@@ -9,6 +9,10 @@
 #import <MobileMessaging/MobileMessaging-Swift.h>
 
 @implementation MobileMessagingAppDelegateObjc
+-(BOOL)geofencingServiceDisabled {
+	return FALSE;
+}
+
 -(NSString *)applicationCode {
 	[NSException raise:NSInternalInconsistencyException format:@"Application code not set. Please override `applicationCode` variable in your subclass of `MobileMessagingAppDelegate`."];
     return nil;
@@ -20,7 +24,7 @@
 }
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	[MobileMessaging startWithNotificationType:self.userNotificationType applicationCode:self.applicationCode];
+	[[[MobileMessaging withApplicationCode:self.applicationCode notificationType:self.userNotificationType] withGeofencingServiceDisabled:self.geofencingServiceDisabled] start:nil];
 	return [self mm_application:application didFinishLaunchingWithOptions:launchOptions];
 }
 -(BOOL)mm_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {

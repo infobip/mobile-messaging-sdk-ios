@@ -22,9 +22,7 @@ class AppDelegate: MobileMessagingAppDelegate {
 	}
 	
 	func setupLogging() {
-		if let loggingUtil = MobileMessaging.loggingUtil {
-			loggingUtil.setLoggingOptions([MMLoggingOptions.Console], logLevel: .All)
-		}
+		MobileMessaging.loggingUtil.setLoggingOptions([MMLoggingOptions.Console], logLevel: .All)
 	}
 }
 

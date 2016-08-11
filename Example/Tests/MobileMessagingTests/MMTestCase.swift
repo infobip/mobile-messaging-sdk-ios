@@ -11,8 +11,8 @@ import CoreData
 @testable import MobileMessaging
 
 class MMTestCase: XCTestCase {
-	var mobileMessagingInstance: MobileMessagingInstance {
-		return MobileMessagingInstance.sharedInstance
+	var mobileMessagingInstance: MobileMessaging {
+		return MobileMessaging.sharedInstance!
 	}
 	
 	var storage: MMCoreDataStorage {
@@ -21,6 +21,7 @@ class MMTestCase: XCTestCase {
 	
 	override func setUp() {
 		super.setUp()
+		MobileMessaging.loggingUtil.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
 		MobileMessaging.stop(true)
 		startWithCorrectApplicationCode()
 	}
@@ -53,17 +54,14 @@ class MMTestCase: XCTestCase {
 	}
 	
 	func startWithApplicationCode(code: String) {
-		MobileMessagingInstance.start(UIUserNotificationType.None, applicationCode: code, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
-		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
+		MobileMessaging.withApplicationCode(code, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
 	}
 	
 	func startWithCorrectApplicationCode() {
-		MobileMessagingInstance.start(UIUserNotificationType.None, applicationCode: MMTestConstants.kTestCorrectApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
-		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
+		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
 	}
 	
 	func startWithWrongApplicationCode() {
-		MobileMessagingInstance.start(UIUserNotificationType.None, applicationCode: MMTestConstants.kTestWrongApplicationCode, storageType: .SQLite, remoteAPIBaseURL: MMTestConstants.kTestBaseURLString)
-		MobileMessaging.loggingUtil?.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
+		MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
 	}
 }

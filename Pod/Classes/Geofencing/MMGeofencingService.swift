@@ -1,5 +1,5 @@
 //
-//  MMRegionMonitoringManager.swift
+//  MMGeofencingService.swift
 //
 //  Created by Ivan Cigic on 06/07/16.
 //
@@ -44,18 +44,19 @@ public enum MMCapabilityStatus: Int {
 	case NotAvailable
 }
 
-public protocol MMRegionMonitoringManagerProtocol: class {
+public protocol MMGeofencingServiceDelegate: class {
 	func didAddCampaing(campaign: MMCampaign)
 	func didEnterRegion(region: MMRegion)
 	func didExitRegion(region: MMRegion)
 }
 
-public class MMRegionMonitoringManager: NSObject, CLLocationManagerDelegate {
+public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
+	static let sharedInstance = MMGeofencingService()
 	let locationManager: CLLocationManager
 	let datasource: MMGeofencingDatasource
 	var isRunning = false
 	
-	// MARK: - Public
+// MARK: - Public
 	private var _locationManagerEnabled = true
 	public var locationManagerEnabled: Bool {
 		set {
@@ -68,21 +69,13 @@ public class MMRegionMonitoringManager: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
-	public var currentUserLocation: CLLocation? {
-		return locationManager.location
-	}
+	public var currentUserLocation: CLLocation? { return locationManager.location }
 	
-	public static let sharedInstance = MMRegionMonitoringManager()
-	
-	public weak var delegate: MMRegionMonitoringManagerProtocol?
+	public weak var delegate: MMGeofencingServiceDelegate?
 
-	public var allCampaings: Set<MMCampaign> {
-		return datasource.campaigns
-	}
+	public var allCampaings: Set<MMCampaign> { return datasource.campaigns }
 	
-	public var allRegions: Set<MMRegion> {
-		return datasource.regions
-	}
+	public var allRegions: Set<MMRegion> { return datasource.regions }
 	
 	override init() {
 		locationManager = CLLocationManager()
@@ -97,61 +90,15 @@ public class MMRegionMonitoringManager: NSObject, CLLocationManagerDelegate {
 		locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
 	}
 	
-	private func currentCapabilityStatusForService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage) -> MMCapabilityStatus {
-		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(MMLocationServiceKind.RegionMonitoring) || CLLocationManager.isMonitoringAvailableForClass(CLCircularRegion)) else
-		{
-			return .NotAvailable
-		}
-		
-		let actual = CLLocationManager.authorizationStatus()
-		
-		switch actual {
-		case .NotDetermined: return .NotDetermined
-		case .Restricted: return .NotAvailable
-		case .Denied: return .Denied
-		case .AuthorizedAlways: return .Authorized
-		case .AuthorizedWhenInUse:
-			if usage == MMLocationServiceUsage.WhenInUse {
-				return .Authorized
-			} else {
-				// the user wants .Always, but has .WhenInUse
-				// return .NotDetermined so that we can prompt to upgrade the permission
-				return .NotDetermined
-			}
-		}
+	public func currentCapabilityStatus(usage: MMLocationServiceUsage) -> MMCapabilityStatus {
+		return currentCapabilityStatusForService(MMLocationServiceKind.RegionMonitoring, usage: .Always)
 	}
 	
-	public func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: MMCapabilityStatus -> Void) {
-		guard self.completion == nil else
-		{
-			fatalError("Attempting to authorize location when a request is already in-flight")
-		}
-		
-		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(MMLocationServiceKind.RegionMonitoring) || CLLocationManager.isMonitoringAvailableForClass(CLCircularRegion)) else
-		{
-			completion(.NotAvailable)
-			return
-		}
-		
-		self.completion = completion
-		self.usageKind = usage
-		
-		let key: String
-		switch usage {
-		case .WhenInUse:
-			key = "NSLocationWhenInUseUsageDescription"
-			locationManager.requestWhenInUseAuthorization()
-			
-		case .Always:
-			key = "NSLocationAlwaysUsageDescription"
-			locationManager.requestAlwaysAuthorization()
-		}
-		
-		// This is helpful when developing an app.
-		assert(NSBundle.mainBundle().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
+	public func authorize(usage: MMLocationServiceUsage, completion: MMCapabilityStatus -> Void) {
+		authorizeService(MMLocationServiceKind.RegionMonitoring, usage: usage, completion: completion)
 	}
 	
-	public func startMonitoringCampaignsRegions(completion: (Bool -> Void)? = nil) {
+	public func start(completion: (Bool -> Void)? = nil) {
 		guard locationManagerEnabled == true && isRunning == false else
 		{
 			completion?(false)
@@ -160,13 +107,13 @@ public class MMRegionMonitoringManager: NSObject, CLLocationManagerDelegate {
 		
 		switch currentCapabilityStatusForService(MMLocationServiceKind.RegionMonitoring, usage: .Always) {
 		case .Authorized:
-			self.start()
+			self.startService()
 			completion?(true)
 		case .NotDetermined:
 			authorizeService(MMLocationServiceKind.RegionMonitoring, usage: .Always) { status in
 				switch status {
 				case .Authorized:
-					self.start()
+					self.startService()
 					completion?(true)
 				default:
 					completion?(false)
@@ -210,6 +157,7 @@ public class MMRegionMonitoringManager: NSObject, CLLocationManagerDelegate {
 		refreshMonitoredRegions()
 	}
 	
+// MARK: - Location Manager delegation
 	public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
 		if let completion = self.completion where manager == self.locationManager && status != .NotDetermined {
 			self.completion = nil
@@ -238,9 +186,64 @@ public class MMRegionMonitoringManager: NSObject, CLLocationManagerDelegate {
 		} else {
 			switch status {
 			case .AuthorizedAlways:
-				start()
+				startService()
 			default:
 				break
+			}
+		}
+	}
+	
+// MARK: - Internal
+	func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: MMCapabilityStatus -> Void) {
+		guard self.completion == nil else
+		{
+			fatalError("Attempting to authorize location when a request is already in-flight")
+		}
+		
+		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(MMLocationServiceKind.RegionMonitoring) || CLLocationManager.isMonitoringAvailableForClass(CLCircularRegion)) else
+		{
+			completion(.NotAvailable)
+			return
+		}
+		
+		self.completion = completion
+		self.usageKind = usage
+		
+		let key: String
+		switch usage {
+		case .WhenInUse:
+			key = "NSLocationWhenInUseUsageDescription"
+			locationManager.requestWhenInUseAuthorization()
+			
+		case .Always:
+			key = "NSLocationAlwaysUsageDescription"
+			locationManager.requestAlwaysAuthorization()
+		}
+		
+		// This is helpful when developing an app.
+		assert(NSBundle.mainBundle().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
+	}
+	
+	func currentCapabilityStatusForService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage) -> MMCapabilityStatus {
+		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(MMLocationServiceKind.RegionMonitoring) || CLLocationManager.isMonitoringAvailableForClass(CLCircularRegion)) else
+		{
+			return .NotAvailable
+		}
+		
+		let actual = CLLocationManager.authorizationStatus()
+		
+		switch actual {
+		case .NotDetermined: return .NotDetermined
+		case .Restricted: return .NotAvailable
+		case .Denied: return .Denied
+		case .AuthorizedAlways: return .Authorized
+		case .AuthorizedWhenInUse:
+			if usage == MMLocationServiceUsage.WhenInUse {
+				return .Authorized
+			} else {
+				// the user wants .Always, but has .WhenInUse
+				// return .NotDetermined so that we can prompt to upgrade the permission
+				return .NotDetermined
 			}
 		}
 	}
@@ -250,7 +253,7 @@ public class MMRegionMonitoringManager: NSObject, CLLocationManagerDelegate {
 	
 	private var completion: (MMCapabilityStatus -> Void)?
 	
-	private func start() {
+	private func startService() {
 		guard locationManagerEnabled == true && isRunning == false else
 		{
 			return
