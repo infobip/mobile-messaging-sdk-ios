@@ -24,12 +24,14 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	override func execute() {
+		MMLogDebug("Starting message fetching operation...")
 		self.syncMessages()
 	}
 	
 	private func syncMessages() {
 		self.context.performBlockAndWait {
-			guard let internalId = MobileMessaging.currentUser?.internalId else {
+			guard let internalId = MobileMessaging.currentUser?.internalId else
+			{
 				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 				return
 			}
@@ -43,7 +45,7 @@ final class MessageFetchingOperation: Operation {
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
 			
 			let request = MMPostSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
-			
+			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
 			self.remoteAPIQueue.performRequest(request) { result in
 				self.handleRequestResponse(result, nonReportedMessageIds: nonReportedMessageIds)
 			}
@@ -57,11 +59,11 @@ final class MessageFetchingOperation: Operation {
 			switch result {
 			case .Success(let fetchResponse):
 				let fetchedMessages = fetchResponse.messages
-				MMLogInfo("Messages fetching succeded: received \(fetchedMessages?.count) new messages: \(fetchedMessages)")
+				MMLogDebug("Messages fetching succeded: received \(fetchedMessages?.count) new messages: \(fetchedMessages)")
 				
 				if let nonReportedMessageIds = nonReportedMessageIds {
 					self.dequeueDeliveryReports(nonReportedMessageIds)
-					MMLogInfo("Delivery report sent for messages: \(nonReportedMessageIds)")
+					MMLogDebug("Delivery report sent for messages: \(nonReportedMessageIds)")
 					if nonReportedMessageIds.count > 0 {
 						NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
@@ -70,7 +72,7 @@ final class MessageFetchingOperation: Operation {
 			case .Failure(_):
 				MMLogError("Sync request failed")
 			case .Cancel:
-				MMLogInfo("Sync cancelled")
+				MMLogDebug("Sync cancelled")
 				break
 			}
 			self.finishWithError(result.error)
@@ -109,6 +111,7 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	override func finished(errors: [NSError]) {
+		MMLogDebug("Message fetching operation finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? result : MMFetchMessagesResult.Failure(errors.first)
 		switch finishResult {
 		case .Success(let fetchResponse):

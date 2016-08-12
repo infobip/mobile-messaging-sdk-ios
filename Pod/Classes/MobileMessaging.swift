@@ -10,7 +10,36 @@ import Foundation
 import MMAFNetworking
 
 public final class MobileMessaging: NSObject {
+	
+	static var sharedInstance: MobileMessaging?
+	let userNotificationType: UIUserNotificationType,
+		applicationCode: String
+	
+	var	storageType: MMStorageType = .SQLite,
+		remoteAPIBaseURL: String = MMAPIValues.kProdBaseURLString,
+		geofencingServiceDisabled: Bool = false
+	
+	private init(applicationCode: String, notificationType: UIUserNotificationType) {
+		self.applicationCode = applicationCode
+		self.userNotificationType = notificationType
+	}
+	
 	//MARK: Public
+	public class func withApplicationCode(code: String, notificationType: UIUserNotificationType) -> MobileMessaging {
+		sharedInstance = MobileMessaging(applicationCode: code, notificationType: notificationType)
+		return sharedInstance!
+	}
+	
+	public func withBackendBaseURL(urlString: String) -> MobileMessaging {
+		remoteAPIBaseURL = urlString
+		return self
+	}
+	
+	public func withGeofencingServiceDisabled(disabled: Bool) -> MobileMessaging {
+		geofencingServiceDisabled = disabled
+		return self
+	}
+	
 	/**
 	Starts a new Mobile Messaging session. This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	- remark: For now, Mobile Messaging SDK doesn't support badge. You should handle the badge counter by yourself.
@@ -18,12 +47,43 @@ public final class MobileMessaging: NSObject {
 	- parameter applicationCode: The application code of your Application from Push Portal website.
 	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	*/
-	public class func startWithNotificationType(userNotificationType: UIUserNotificationType, applicationCode: String, backendBaseURL: String) {
-		MobileMessagingInstance.start(userNotificationType, applicationCode: applicationCode, storageType: .SQLite, remoteAPIBaseURL: backendBaseURL)
-	}
-	
-	public class func startWithNotificationType(userNotificationType: UIUserNotificationType, applicationCode: String) {
-		startWithNotificationType(userNotificationType, applicationCode: applicationCode, backendBaseURL: MMAPIValues.kProdBaseURLString)
+	public func start(completion: (Void -> Void)? = nil) {
+		MMLogInfo("Starting MobileMessaging service...")
+		MobileMessaging.singletonQueue.executeAsync {
+			do {
+				var storage: MMCoreDataStorage?
+				switch self.storageType {
+				case .InMemory:
+					storage = try MMCoreDataStorage.newInMemoryStorage()
+				case .SQLite:
+					storage = try MMCoreDataStorage.SQLiteStorage()
+				}
+				if let storage = storage {
+					self.storage = storage
+					let installation = MMInstallation(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
+					self.currentInstallation = installation
+					let user = MMUser(installation: installation)
+					self.currentUser = user
+					let messageHandler = MMMessageHandler(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
+					self.messageHandler = messageHandler
+					self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
+					
+					if !self.geofencingServiceDisabled {
+						MMGeofencingService.sharedInstance.start()
+					}
+					
+					MMLogInfo("MobileMessaging SDK service successfully initialized.")
+				}
+			} catch {
+				MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
+			}
+			
+			let categories = MMNotificationCategoryManager.categoriesToRegister()
+			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: categories))
+			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
+				UIApplication.sharedApplication().registerForRemoteNotifications()
+			}
+		}
 	}
 	
 	/**
@@ -31,18 +91,30 @@ public final class MobileMessaging: NSObject {
 	*/
 	public class func stop(cleanUpData: Bool = false) {
 		if cleanUpData {
-			MobileMessagingInstance.sharedInstance.cleanUpAndStop()
+			MobileMessaging.sharedInstance?.cleanUpAndStop()
 		} else {
-			MobileMessagingInstance.sharedInstance.stop()
+			MobileMessaging.sharedInstance?.stop()
 		}
 	}
+	
+	/**
+	Logging utility is used for:
+	- setting up logging options and logging levels.
+	- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
+	*/
+	public static let loggingUtil = MMLoggingUtil()
+	
+	/**
+	//TODO: docs
+	*/
+	public static let geofencingService = MMGeofencingService.sharedInstance
 	
 	/**
 	This method handles a new APNs device token and updates user's registration on the server. This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
 	- parameter token: A token that identifies a particular device to APNs.
 	*/
 	public class func didRegisterForRemoteNotificationsWithDeviceToken(token: NSData) {
-		MobileMessagingInstance.sharedInstance.didRegisterForRemoteNotificationsWithDeviceToken(token)
+		MobileMessaging.sharedInstance?.didRegisterForRemoteNotificationsWithDeviceToken(token)
 	}
 	
 	/**
@@ -51,7 +123,7 @@ public final class MobileMessaging: NSObject {
 	- parameter fetchCompletionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
 	*/
 	public class func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: ((UIBackgroundFetchResult) -> Void)?) {
-		MobileMessagingInstance.sharedInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
+		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 			completionHandler?(.NewData)
 		})
 
@@ -73,26 +145,17 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/**
-	Logging utility is used for:
-	- setting up logging options and logging levels.
-	- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
-	*/
-	public class var loggingUtil: MMLoggingUtil? {
-		return MobileMessagingInstance.sharedInstance.loggingUtil
-	}
-	
-	/**
 	Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
 	*/
 	public class var currentInstallation: MMInstallation? {
-		return MobileMessagingInstance.sharedInstance.currentInstallation
+		return MobileMessaging.sharedInstance?.currentInstallation
 	}
 	
 	/**
 	Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
 	*/
 	public class var currentUser: MMUser? {
-		return MobileMessagingInstance.sharedInstance.currentUser
+		return MobileMessaging.sharedInstance?.currentUser
 	}
     
     /**
@@ -100,7 +163,7 @@ public final class MobileMessaging: NSObject {
 	- parameter messageIds: Array of identifiers of messages that need to be marked as seen.
     */
     public class func setSeen(messageIds: [String]) {
-        MobileMessagingInstance.sharedInstance.setSeen(messageIds)
+        MobileMessaging.sharedInstance?.setSeen(messageIds)
     }
 	
 	//FIXME: MOMEssage should be replaced with something lighter
@@ -110,34 +173,31 @@ public final class MobileMessaging: NSObject {
 	- parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
 	*/
 	public class func sendMessages(messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		MobileMessagingInstance.sharedInstance.sendMessages(messages, completion: completion)
+		MobileMessaging.sharedInstance?.sendMessages(messages, completion: completion)
 	}
 	
 	/**
 	A boolean variable that indicates whether the library will be sending the carrier information to the server.
-	Default value is `true`.
+	Default value is `false`.
     */
-	public static var shouldSendCarrierInfo : Bool = true
+	public static var carrierInfoSendingDisabled: Bool = false
 	
 	/**
 	A boolean variable that indicates whether the library will be sending the system information such as OS version, device model, application version to the server.
-	Default value is `true`.
+	Default value is `false`.
 	*/
-	public static var shouldSendSystemInfo : Bool = true
+	public static var systemInfoSendingDisabled: Bool = false
 	
 	/**
 	A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	*/
-	public static var notificationTapHandler : (([NSObject : AnyObject]) -> Void)?
-}
+	public static var notificationTapHandler: (([NSObject : AnyObject]) -> Void)?
 
-class MobileMessagingInstance {
-	//MARK: Internal
-	static var sharedInstance = MobileMessagingInstance()
-	
+
+//MARK: Internal
 	func cleanUpAndStop() {
 		MMLogInfo("Cleaning up MobileMessaging service...")
-		MobileMessagingInstance.queue.executeSync {
+		MobileMessaging.singletonQueue.executeSync {
 			self.storage?.drop()
 			self.stop()
 		}
@@ -148,7 +208,7 @@ class MobileMessagingInstance {
 		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() {
 			UIApplication.sharedApplication().unregisterForRemoteNotifications()
 		}
-		MobileMessagingInstance.queue.executeSync {
+		MobileMessaging.singletonQueue.executeSync {
 			self.storage = nil
 			self.currentInstallation = nil
 			self.appListener = nil
@@ -158,7 +218,7 @@ class MobileMessagingInstance {
 	
 	func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
 		MMLogDebug("New remote notification received \(userInfo)")
-		MobileMessagingInstance.queue.executeAsync {
+		MobileMessaging.singletonQueue.executeAsync {
 			self.messageHandler?.handleAPNSMessage(userInfo, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
 		}
 	}
@@ -166,75 +226,39 @@ class MobileMessagingInstance {
 	func didRegisterForRemoteNotificationsWithDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
 		MMLogInfo("Application did register with device token \(token.mm_toHexString)")
 		NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
-		MobileMessagingInstance.queue.executeAsync {
+		MobileMessaging.singletonQueue.executeAsync {
 			self.currentInstallation?.updateDeviceToken(token, completion: completion)
 		}
 	}
 	
 	func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {
 		MMLogDebug("Setting seen status: \(messageIds)")
-		MobileMessagingInstance.queue.executeAsync {
+		MobileMessaging.singletonQueue.executeAsync {
 			self.messageHandler?.setSeen(messageIds, completion: completion)
 		}
 	}
 	
 	func sendMessages(messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MMLogDebug("Sending mobile originated messages...")
-		MobileMessagingInstance.queue.executeAsync {
+		MobileMessaging.singletonQueue.executeAsync {
 			self.messageHandler?.sendMessages(messages, completion: completion)
 		}
 	}
 	
-	static func start(userNotificationType: UIUserNotificationType, applicationCode: String, storageType: MMStorageType, remoteAPIBaseURL: String, completion: (Void -> Void)? = nil) {
-		MMLogInfo("Starting MobileMessaging service...")
-		MobileMessagingInstance.queue.executeAsync {
-			do {
-				var storage: MMCoreDataStorage?
-				switch storageType {
-				case .InMemory:
-					storage = try MMCoreDataStorage.newInMemoryStorage()
-				case .SQLite:
-					storage = try MMCoreDataStorage.SQLiteStorage()
-				}
-				if let storage = storage {
-					MobileMessagingInstance.sharedInstance.storage = storage
-					let installation = MMInstallation(storage: storage, baseURL: remoteAPIBaseURL, applicationCode: applicationCode)
-					MobileMessagingInstance.sharedInstance.currentInstallation = installation
-					let user = MMUser(installation: installation)
-					MobileMessagingInstance.sharedInstance.currentUser = user
-					let messageHandler = MMMessageHandler(storage: storage, baseURL: remoteAPIBaseURL, applicationCode: applicationCode)
-					MobileMessagingInstance.sharedInstance.messageHandler = messageHandler
-					MobileMessagingInstance.sharedInstance.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
-					MMLogInfo("MobileMessaging SDK service successfully initialized.")
-				}
-			} catch {
-				MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
-			}
-			
-			let categories = MMNotificationCategoryManager.categoriesToRegister()
-			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: userNotificationType, categories: categories))
-			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
-				UIApplication.sharedApplication().registerForRemoteNotifications()
-			}
-		}
-	}
-	
 	//MARK: Private
-	private static var queue: MMQueueObject = MMQueue.Serial.New.MobileMessagingSingletonQueue.queue
-	private var valuesStorage = [NSObject: AnyObject]()
-	private init() {
-		self.loggingUtil = MMLoggingUtil()
-	}
+	private static let singletonQueue: MMQueueObject = MMQueue.Serial.New.MobileMessagingSingletonQueue.queue
 	
-	private func setValue(value: AnyObject?, forKey key: String) {
-		MobileMessagingInstance.queue.executeAsync {
+	private var valuesStorage = [NSObject: AnyObject]()
+
+	public override func setValue(value: AnyObject?, forKey key: String) {
+		MobileMessaging.singletonQueue.executeAsync {
 			self.valuesStorage[key] = value
 		}
 	}
 	
-	private func valueForKey(key: String) -> AnyObject? {
+	public override func valueForKey(key: String) -> AnyObject? {
 		var result: AnyObject?
-		MobileMessagingInstance.queue.executeSync {
+		MobileMessaging.singletonQueue.executeSync {
 			result = self.valuesStorage[key]
 		}
 		return result
@@ -264,8 +288,4 @@ class MobileMessagingInstance {
 		get { return self.valueForKey("messageHandler") as? MMMessageHandler }
 		set { self.setValue(newValue, forKey: "messageHandler") }
 	}
-	
-	private(set) var alertTapHandler: (Void -> Void)?
-	
-	private(set) var loggingUtil : MMLoggingUtil
 }

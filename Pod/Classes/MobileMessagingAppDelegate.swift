@@ -13,6 +13,13 @@ To implement this way, you should inherit your Application Delegate from `Mobile
 */
 public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	/**
+	Defines whether the Geofencing service is enabled. Default value is `false` (The service is enabled by default). If you want to disable the Geofencing service you override this variable in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `true`.
+	*/
+	public var geofencingServiceDisabled: Bool {
+		return false
+	}
+	
+	/**
 	Passes your Application Code to the Mobile Messaging SDK. In order to provide your own unique Application Code, you override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
 	*/
 	public var applicationCode: String {
@@ -30,7 +37,7 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	//MARK: Public
 	final public func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		if !isTesting {
-			MobileMessaging.startWithNotificationType(userNotificationType, applicationCode: applicationCode)
+			MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType).withGeofencingServiceDisabled(geofencingServiceDisabled).start()
 		}
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)
 	}

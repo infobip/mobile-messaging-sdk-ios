@@ -26,7 +26,12 @@ public final class MMLoggingOptions : NSObject {
     public static let File = MMLoggingOptions(rawValue: 1 << 2)
 }
 
-public final class MMLoggingUtil : NSObject {
+/**
+Logging utility is used for:
+- setting up logging options and logging levels.
+- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
+*/
+public final class MMLoggingUtil: NSObject {
     /**
      Path to the log file.
      Non null, if loggingOption contains .File
@@ -66,6 +71,26 @@ public final class MMLoggingUtil : NSObject {
         self.loggingOptions = opts
         prepareLogging(logLevel.ddlogLevel())
     }
+	
+	public func sendLogs(fromViewController vc: UIViewController) {
+		var objectsToShare: [AnyObject] = [MMUserAgent.currentUserAgent]
+		
+		if let dt = MobileMessaging.currentInstallation?.deviceToken {
+			objectsToShare.append("APNS device token: \(dt)")
+		}
+		
+		if let id = MobileMessaging.currentUser?.internalId {
+			objectsToShare.append("Push registration ID: \(id)")
+		}
+		
+		if let filePath = MobileMessaging.loggingUtil.logFilePath {
+			let url = NSURL(fileURLWithPath: filePath)
+			objectsToShare.append(url)
+			
+			let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+			vc.presentViewController(activityVC, animated: true, completion: nil)
+		}
+	}
 	
 	//MARK: Private
     private var loggingOptions: MMLoggingOptions

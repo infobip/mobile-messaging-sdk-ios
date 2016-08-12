@@ -18,8 +18,11 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	let customPayload: [String: AnyObject]?
 	let aps: MMAPS
 	let silentData: [String: AnyObject]?
-	let geoData: [String: AnyObject]? // Future
+	let geoRegions: [[String: AnyObject]]? // Future
 	let interactionsData: [String: AnyObject]?
+	var text: String? {
+		return aps.text
+	}
 	
 	public init(json: JSON) throws {
 		if let payload = jsonToAnyObject(json) as? [String : AnyObject] {
@@ -52,7 +55,7 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? [String : AnyObject]
 		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String : AnyObject]
 		self.interactionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kInteractive] as? [String : AnyObject]
-		self.geoData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [String : AnyObject]
+		self.geoRegions = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [[String : AnyObject]]
 	}
 	
 	static func checkIfSilent(payload: [NSObject: AnyObject]?) -> Bool {

@@ -14,10 +14,15 @@
 @property (nonnull, nonatomic, readonly) NSString * applicationCode;
 
 /**
- Preferable notification types that indicating how the app alerts the user when a  push notification arrives. You should override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
+ Preferable notification types that indicating how the app alerts the user when a  push notification arrives. You should override this property in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
 	- remark: For now, Mobile Messaging SDK doesn't support badge. You should handle the badge counter by yourself.
 */
 @property (nonatomic, readonly) UIUserNotificationType userNotificationType;
+
+/**
+ Defines whether the Geofencing service is enabled. Default value is `FALSE` (The service is enabled by default). If you want to disable the Geofencing service you override this property in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `TRUE`.
+*/
+@property (nonatomic, readonly) BOOL geofencingServiceDisabled;
 
 -(BOOL)mm_application:(UIApplication * _Nonnull)application didFinishLaunchingWithOptions:(NSDictionary * _Nullable)launchOptions;
 -(void)mm_application:(UIApplication * _Nonnull)application didReceiveRemoteNotification:(NSDictionary * _Nonnull)userInfo fetchCompletionHandler:(void (^ _Nonnull)(UIBackgroundFetchResult))completionHandler;

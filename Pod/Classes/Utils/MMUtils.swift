@@ -138,7 +138,16 @@ extension NSData {
 }
 
 extension String {
-    
+	func mm_breakWithMaxLength(maxLenght: Int) -> String {
+		var result: String = self
+		let currentLen = self.characters.count
+		let doPutDots = maxLenght > 3
+		if currentLen > maxLenght {
+			result = self.substringToIndex(self.startIndex.advancedBy(maxLenght - (doPutDots ? 3 : 0), limit: self.endIndex)) + (doPutDots ? "..." : "")
+		}
+		return result
+	}
+	
     func mm_toHexademicalString() -> String? {
         if let data: NSData = self.dataUsingEncoding(NSUTF16StringEncoding) {
             return data.mm_toHexString
