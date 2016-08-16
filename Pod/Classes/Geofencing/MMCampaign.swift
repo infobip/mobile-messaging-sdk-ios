@@ -27,6 +27,8 @@ enum MMRegionDataKeys: String {
 	case Longitude = "longitude"
 	case Radius = "radiusInMeters"
 	case Title = "title"
+	case Identifier = "id"
+	case Expiry = "expiry"
 }
 
 protocol PlistArchivable {
@@ -34,7 +36,7 @@ protocol PlistArchivable {
 	var dictionaryRepresentation: [String: AnyObject] {get}
 }
 
-final public class MMCampaign: Hashable, Equatable, PlistArchivable {
+final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, PlistArchivable {
     public let id: String
     public let title: String
     public let message: String
@@ -74,6 +76,7 @@ final public class MMCampaign: Hashable, Equatable, PlistArchivable {
 		let regionObjects = regionDicts.flatMap(MMRegion.init)
 		let date = dict[MMCampaignDataKeys.DateReceived.rawValue] as? NSDate ?? NSDate()
 		let origin = MMCampaignOrigin(rawValue: dict[MMCampaignDataKeys.Origin.rawValue] as? Int ?? 0) ?? .Manual
+		
 		self.init(id: id, origin: origin, title: dict[MMCampaignDataKeys.Title.rawValue] as? String ?? "", message: dict[MMCampaignDataKeys.Message.rawValue] as? String ?? "", dateReceived: date, regions: Set(regionObjects))
 	}
 	
@@ -85,11 +88,17 @@ final public class MMCampaign: Hashable, Equatable, PlistArchivable {
 		result[MMCampaignDataKeys.DateReceived.rawValue] = dateReceived
 		result[MMCampaignDataKeys.Regions.rawValue] = regions.map { $0.dictionaryRepresentation }
 		result[MMCampaignDataKeys.Origin.rawValue] = origin.rawValue
+		
+		assert(MMCampaign(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
 	
 	public var hashValue: Int {
 		return id.hashValue
+	}
+	
+	public var description: String {
+		return "title=\(title), id=\(id), origin=\(origin)"
 	}
 }
 
@@ -98,13 +107,21 @@ public func ==(lhs: MMCampaign, rhs: MMCampaign) -> Bool {
 }
 
 final public class MMRegion: NSObject, PlistArchivable, NSCoding {
-	public let id: String
+	public let identifier: String
+	public let expiryDate: NSDate
+	let expiryms: NSTimeInterval
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
 	public weak var campaign: MMCampaign?
+	public var isExpired: Bool {
+		return NSDate().compare(expiryDate) == NSComparisonResult.OrderedDescending
+	}
+	public var circularRegion: CLCircularRegion {
+		return CLCircularRegion(center: center, radius: radius, identifier: identifier)
+	}
 	
-	public init?(center: CLLocationCoordinate2D, radius: Double, title: String) {
+	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: NSTimeInterval) {
 		guard radius > 0 else
 		{
 			return nil
@@ -112,22 +129,26 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 		self.title = title
 		self.center = center
 		self.radius = radius
-		self.id = "\(self.radius) \(self.center.longitude) \(self.center.latitude)"
+		self.identifier = identifier
+		self.expiryms = expiryms
+		self.expiryDate = NSDate(timeIntervalSince1970: expiryms/1000)
 	}
 	
 	public override var description: String {
-		return "\(title), radius \(radius)m: \(center.longitude) \(center.latitude)"
+		return "\(title), radius \(radius)m, expiration \(expiryDate): \(center.longitude) \(center.latitude)"
 	}
 	
 	public convenience init?(dictRepresentation dict: [String: AnyObject]) {
 		guard let lat = dict[MMRegionDataKeys.Latitude.rawValue] as? Double,
 			let lon = dict[MMRegionDataKeys.Longitude.rawValue] as? Double,
 			let title = dict[MMRegionDataKeys.Title.rawValue] as? String,
+			let identifier = dict[MMRegionDataKeys.Identifier.rawValue] as? String,
+			let expiryms = dict[MMRegionDataKeys.Expiry.rawValue] as? Double,
 			let radius = dict[MMRegionDataKeys.Radius.rawValue] as? Double else
 		{
 			return nil
 		}
-		self.init(center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title)
+		self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryms: expiryms)
 	}
 	
 	var dictionaryRepresentation: [String: AnyObject] {
@@ -136,11 +157,15 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 		result[MMRegionDataKeys.Longitude.rawValue] = center.longitude
 		result[MMRegionDataKeys.Radius.rawValue] = radius
 		result[MMRegionDataKeys.Title.rawValue] = title
+		result[MMRegionDataKeys.Expiry.rawValue] = expiryms
+		result[MMRegionDataKeys.Identifier.rawValue] = identifier
+		
+		assert(MMRegion(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
 
 	public override var hashValue: Int {
-		return id.hashValue
+		return identifier.hashValue
 	}
 	
 	convenience required public init(coder aDecoder: NSCoder) {
@@ -154,5 +179,5 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 }
 
 public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
-	return lhs.id == rhs.id
+	return lhs.identifier == rhs.identifier
 }

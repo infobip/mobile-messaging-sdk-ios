@@ -13,13 +13,13 @@ class MMGeofencingDatasource {
 	
 	static let plistDir = "com.mobile-messaging.geo-data"
 	static let plistFile = "CampaignsData.plist"
-	static let sharedInstance = MMGeofencingDatasource()
 	var campaigns = Set<MMCampaign>()
-	var regions: Set<MMRegion> {
-		return campaigns.reduce(Set<MMRegion>()) { (accumulator, campaign) -> Set<MMRegion> in
-			return accumulator.union(campaign.regions)
-		}
+	typealias RegionIdentifier = String
+	var regions = [RegionIdentifier: MMRegion]()
+	var notExpiredRegions: [MMRegion] {
+		return regions.values.filter { $0.isExpired == false }
 	}
+	
 	var numberOfCampaigns: Int {
 		return campaigns.count
 	}
@@ -32,13 +32,27 @@ class MMGeofencingDatasource {
 		return campaigns.filter({ $0.id == id }).first
 	}
 	
+	func addRegionsFromCampaign(campaign: MMCampaign) {
+		for region in campaign.regions {
+			regions[region.identifier] = region
+		}
+	}
+	
+	func removeRegionsFromCampaign(campaign: MMCampaign) {
+		for region in campaign.regions {
+			regions[region.identifier] = nil
+		}
+	}
+	
 	func addNewCampaign(newCampaign: MMCampaign) {
 		campaigns.insert(newCampaign)
+		addRegionsFromCampaign(newCampaign)
 		save()
 	}
 	
 	func removeCampaign(campaingToRemove: MMCampaign) {
 		campaigns.remove(campaingToRemove)
+		removeRegionsFromCampaign(campaingToRemove)
 		save()
 	}
 	

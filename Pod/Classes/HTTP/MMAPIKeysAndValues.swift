@@ -40,6 +40,7 @@ struct MMAPIKeys {
 	static let kInternalData = "internalData"
 	static let kSilent = "silent"
     static let kGeo = "geo"
+	static let kMessageType = "messageType"
 	
 	//MARK: Interactive Notifications
 	static let kInteractive = "interactive"
