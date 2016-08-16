@@ -37,7 +37,7 @@ s.public_header_files = 'Pod/Classes/**/*.h'
 s.private_header_files = 'Pod/Classes/Vendor/**/*.h'
 s.frameworks = 'CoreData', 'CoreTelephony'
 s.resources = 'Pod/Classes/Storage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
-s.dependency 'Freddy', '~> 2.0'
+s.dependency 'Freddy'
 s.dependency 'CocoaLumberjack'
 
 # s.default_subspecs = 'HTTP', 'Operations', 'Vendor', 'Storage', 'Utils'

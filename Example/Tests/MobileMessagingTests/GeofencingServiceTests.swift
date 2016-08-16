@@ -15,7 +15,7 @@ import Freddy
 
 class GeofencingServiceTests: MMTestCase {
 	let zagreb: [String: AnyObject] = [
-		MMRegionDataKeys.Expiry.rawValue: NSTimeInterval(1470438000000),
+		MMRegionDataKeys.Expiry.rawValue: NSTimeInterval(1470438000000.0),
 		MMRegionDataKeys.Identifier.rawValue: "6713245DA3638FDECFE448C550AD7681",
 		MMRegionDataKeys.Latitude.rawValue: 45.80869126677998,
 		MMRegionDataKeys.Longitude.rawValue: 15.97206115722656,
@@ -23,7 +23,7 @@ class GeofencingServiceTests: MMTestCase {
 		MMRegionDataKeys.Title.rawValue: "Zagreb"
 	]
 	let pula: [String: AnyObject] = [
-		MMRegionDataKeys.Expiry.rawValue: NSTimeInterval(1470438000000),
+		MMRegionDataKeys.Expiry.rawValue: NSTimeInterval(1470438000000.0),
 		MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
 		MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
 		MMRegionDataKeys.Longitude.rawValue: 13.84586334228516,
@@ -92,6 +92,19 @@ class GeofencingServiceTests: MMTestCase {
 		}
 	}
 	
+// Freddy overflows while parsing big integers on 32bit devices.
+// It should fallback to Double in such cases, but it falls to String by default. It is weird.
+// The following test case demonstrates a workaround to force Freddy to fallback to Double if Int is overflown.
+// Another solution is to `try` parse retrieve an Int from JSON object, `catch` the possible error, then try to retrieve a string
+// https://github.com/bignerdranch/Freddy/issues/76
+//	func testParsingOutALargeNumberEspeciallyOn32BitPlatforms() {
+//		let val = 1466719200000.0
+//		let str = "{\"startDate\": 1466719200000}"
+//		let data = str.dataUsingEncoding(NSUTF8StringEncoding)!
+//		let json = try? (sizeof(Int) == sizeof(Int64)) ? JSON(data: data) : JSON(data: data, usingParser: NSJSONSerialization.self)
+//		XCTAssertEqual(try? json!.double("startDate"), val)
+//	}
+	
 	func testCampaignJSONConstructors() {
 		let jsonStr =
 		"{" +
@@ -129,7 +142,7 @@ class GeofencingServiceTests: MMTestCase {
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
 			let zagrebObject = regionsDict[zagrebId]!
-			XCTAssertEqual(zagrebObject.expiryms, NSTimeInterval(1470438000000))
+			XCTAssertEqual(zagrebObject.expiryms, NSTimeInterval(1470438000000.0))
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
@@ -139,7 +152,7 @@ class GeofencingServiceTests: MMTestCase {
 			
 			let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
 			let pulaObject = regionsDict[pulaId]!
-			XCTAssertEqual(pulaObject.expiryms, NSTimeInterval(1470438000000))
+			XCTAssertEqual(pulaObject.expiryms, NSTimeInterval(1470438000000.0))
 			XCTAssertEqual(pulaObject.identifier, pulaId)
 			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
