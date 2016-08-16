@@ -13,7 +13,13 @@ class MMGeofencingDatasource {
 	
 	static let plistDir = "com.mobile-messaging.geo-data"
 	static let plistFile = "CampaignsData.plist"
-	var campaigns = Set<MMCampaign>()
+	var campaigns = Set<MMCampaign>() {
+		didSet {
+			for campaign in campaigns {
+				addRegionsFromCampaign(campaign)
+			}
+		}
+	}
 	typealias RegionIdentifier = String
 	var regions = [RegionIdentifier: MMRegion]()
 	var notExpiredRegions: [MMRegion] {
@@ -102,7 +108,7 @@ class MMGeofencingDatasource {
 			return
 		}
 		
-		self.campaigns = Set(plistDicts.flatMap(MMCampaign.init))
+		campaigns = Set(plistDicts.flatMap(MMCampaign.init))
 	}
 }
 
