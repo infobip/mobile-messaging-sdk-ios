@@ -15,7 +15,7 @@ import Freddy
 
 class GeofencingServiceTests: MMTestCase {
 	let zagreb: [String: AnyObject] = [
-		MMRegionDataKeys.Expiry.rawValue: 1470438000000,
+		MMRegionDataKeys.Expiry.rawValue: NSTimeInterval(1470438000000),
 		MMRegionDataKeys.Identifier.rawValue: "6713245DA3638FDECFE448C550AD7681",
 		MMRegionDataKeys.Latitude.rawValue: 45.80869126677998,
 		MMRegionDataKeys.Longitude.rawValue: 15.97206115722656,
@@ -23,7 +23,7 @@ class GeofencingServiceTests: MMTestCase {
 		MMRegionDataKeys.Title.rawValue: "Zagreb"
 	]
 	let pula: [String: AnyObject] = [
-		MMRegionDataKeys.Expiry.rawValue: 1470438000000,
+		MMRegionDataKeys.Expiry.rawValue: NSTimeInterval(1470438000000),
 		MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
 		MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
 		MMRegionDataKeys.Longitude.rawValue: 13.84586334228516,
@@ -129,7 +129,7 @@ class GeofencingServiceTests: MMTestCase {
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
 			let zagrebObject = regionsDict[zagrebId]!
-			XCTAssertEqual(zagrebObject.expiryms, 1470438000000)
+			XCTAssertEqual(zagrebObject.expiryms, NSTimeInterval(1470438000000))
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
@@ -139,7 +139,7 @@ class GeofencingServiceTests: MMTestCase {
 			
 			let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
 			let pulaObject = regionsDict[pulaId]!
-			XCTAssertEqual(pulaObject.expiryms, 1470438000000)
+			XCTAssertEqual(pulaObject.expiryms, NSTimeInterval(1470438000000))
 			XCTAssertEqual(pulaObject.identifier, pulaId)
 			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)

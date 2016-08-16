@@ -53,7 +53,27 @@ public enum MMInternalErrorType : ErrorType {
 
 extension NSError {
 	var mm_isRetryable: Bool {
-		return mm_isNetworkingError
+		
+		var retryableCodes = Set<Int>()
+		
+		for i in 404..<600 {
+			retryableCodes.insert(i)
+		}
+		retryableCodes.insert(NSURLErrorUnknown)
+		retryableCodes.insert(NSURLErrorCancelled)
+		retryableCodes.insert(NSURLErrorTimedOut)
+		retryableCodes.insert(NSURLErrorCannotFindHost)
+		retryableCodes.insert(NSURLErrorCannotConnectToHost)
+		retryableCodes.insert(NSURLErrorNetworkConnectionLost)
+		retryableCodes.insert(NSURLErrorDNSLookupFailed)
+		retryableCodes.insert(NSURLErrorResourceUnavailable)
+		retryableCodes.insert(NSURLErrorNotConnectedToInternet)
+		retryableCodes.insert(NSURLErrorBadServerResponse)
+		retryableCodes.insert(NSURLErrorCannotDecodeRawData)
+		retryableCodes.insert(NSURLErrorCannotDecodeContentData)
+		retryableCodes.insert(NSURLErrorCannotParseResponse)
+		
+		return domain == NSURLErrorDomain && retryableCodes.contains(code)
 	}
 
     public convenience init(type: MMInternalErrorType) {
@@ -63,8 +83,4 @@ extension NSError {
 	var mm_isCancelledOperationError: Bool {
 		return domain == MMInternalErrorDomain && code == MMInternalErrorType.OperationCanceled.errorCode
 	}
-	
-    var mm_isNetworkingError: Bool {
-        return (code >= 404 || code < -998) && domain == NSURLErrorDomain
-    }
 }

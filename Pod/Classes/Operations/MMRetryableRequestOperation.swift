@@ -42,6 +42,7 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 	}
 	
 	override func execute() {
+		super.execute()
 		sendRequest()
 	}
 	
