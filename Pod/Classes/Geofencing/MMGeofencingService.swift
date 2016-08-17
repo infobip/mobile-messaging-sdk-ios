@@ -49,7 +49,6 @@ public protocol MMGeofencingServiceDelegate: class {
 
 public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	let kDistanceFilter: CLLocationDistance = 100
-	let kRegionRefreshThreshold: CLLocationDistance = 500
 	
 	static let sharedInstance = MMGeofencingService()
 	var locationManager: CLLocationManager!
@@ -259,27 +258,29 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	private func refreshMonitoredRegions() {
 		serviceQueue.executeAsync() {
+			MMLogDebug("[GeofencingService] datasource regions: \n\(self.datasource.regions.values)")
+			
 			MMLogDebug("[GeofencingService] refreshing regions...")
 			
-			let currentlyMonitoredRegions = Set(self.locationManager.monitoredRegions.flatMap {$0 as? CLCircularRegion})
+			let currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap {$0 as? CLCircularRegion})
 			MMLogDebug("[GeofencingService] currently monitored regions \n\(currentlyMonitoredRegions)")
 			
-			let regionsWeAreInside = currentlyMonitoredRegions.filter {
+			let regionsWeAreInside: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
 				if let currentCoordinate = self.locationManager.location?.coordinate {
 					return $0.containsCoordinate(currentCoordinate)
 				} else {
 					return false
 				}
-			}
-			MMLogDebug("[GeofencingService] regions we are inside \n\(regionsWeAreInside)")
-			
-			let expiredRegions = currentlyMonitoredRegions.filter {
+			})
+			MMLogDebug("[GeofencingService] regions we are inside: \n\(regionsWeAreInside)")
+
+			let expiredRegions: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
 				return self.datasource.regions[$0.identifier]?.isExpired ?? true
-			}
-			MMLogDebug("[GeofencingService] expired monitored regions \n\(expiredRegions)")
-			
-			let regionsToStopMonitoring = currentlyMonitoredRegions.subtract(regionsWeAreInside).subtract(expiredRegions)
-			MMLogDebug("[GeofencingService] regions to stop monitoring \n\(regionsToStopMonitoring)")
+			})
+			MMLogDebug("[GeofencingService] expired monitored regions: \n\(expiredRegions)")
+
+			let regionsToStopMonitoring = currentlyMonitoredRegions.subtract(regionsWeAreInside).union(expiredRegions)
+			MMLogDebug("[GeofencingService] regions to stop monitoring: \n\(regionsToStopMonitoring)")
 			
 			for region in regionsToStopMonitoring {
 				self.locationManager.stopMonitoringForRegion(region)
@@ -287,7 +288,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			let datasourceRegions = Set(self.datasource.notExpiredRegions.flatMap { $0.circularRegion })
 			let regionsToStartMonitoring = Set(MMGeofencingService.findClosestRegions(20 - self.locationManager.monitoredRegions.count, fromLocation: self.locationManager.location, fromRegions: datasourceRegions, filter: { self.locationManager.monitoredRegions.contains($0) == false }))
 			
-			MMLogDebug("[GeofencingService] regions to start monitoring \n\(regionsToStartMonitoring)")
+			MMLogDebug("[GeofencingService] regions to start monitoring: \n\(regionsToStartMonitoring)")
 
 			for region in regionsToStartMonitoring {
 				region.notifyOnEntry = true
@@ -296,7 +297,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 				
 				//check if aleady in region
 				if let currentCoordinate = self.locationManager.location?.coordinate where region.containsCoordinate(currentCoordinate) {
-					MMLogDebug("[GeofencingService] detected a region which we are currently in \(region)")
+					MMLogDebug("[GeofencingService] detected a region in which we currently are \(region)")
 					self.locationManager(self.locationManager, didEnterRegion: region)
 				}
 			}
@@ -343,13 +344,9 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
-	private var previousLocation: CLLocation?
-	private func shouldRefreshRegionsWithNewLocation(location: CLLocation) -> Bool {
-		guard let previousLocation = previousLocation else {
-			return true
-		}
+	private func shouldRefreshRegions() -> Bool {
 		let monitorableRegionsCount = self.datasource.notExpiredRegions.count
-		return location.distanceFromLocation(previousLocation) > self.kRegionRefreshThreshold && monitorableRegionsCount > 20
+		return monitorableRegionsCount > 20
 	}
 	
 	// MARK: - Location Manager delegate
@@ -430,8 +427,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		guard let location = locations.last else {
 			return
 		}
-		if self.shouldRefreshRegionsWithNewLocation(location) {
-			self.previousLocation = location
+		if self.shouldRefreshRegions() {
 			self.refreshMonitoredRegions()
 		}
 	}
