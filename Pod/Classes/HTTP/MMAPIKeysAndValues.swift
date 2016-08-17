@@ -75,6 +75,6 @@ struct MMAPIKeys {
 }
 
 struct MMAPIValues {
-	static let kProdBaseURLString = "https://oneapi.infobip.com"	
+	static let kProdBaseURLString = "https://oneapi2.infobip.com"
 	static let kPlatformType = "APNS"
 }
