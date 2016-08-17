@@ -73,7 +73,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public var allCampaings: Set<MMCampaign> { return datasource.campaigns }
 	public var allRegions: Set<MMRegion> { return Set(datasource.regions.values) }
 	
-	public func currentCapabilityStatus(usage: MMLocationServiceUsage) -> MMCapabilityStatus {
+	class var currentCapabilityStatus: MMCapabilityStatus {
 		return MMGeofencingService.currentCapabilityStatusForService(MMLocationServiceKind.RegionMonitoring, usage: .Always)
 	}
 
@@ -91,7 +91,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 				return
 			}
 			
-			switch MMGeofencingService.currentCapabilityStatusForService(MMLocationServiceKind.RegionMonitoring, usage: .Always) {
+			let currentCapability = MMGeofencingService.currentCapabilityStatus
+			switch currentCapability {
 			case .Authorized:
 				self.startService()
 				completion?(true)
@@ -104,13 +105,13 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 						self.startService()
 						completion?(true)
 					default:
-						MMLogDebug("[GeofencingService] successfully was not authorized. Canceling the startup.")
+						MMLogDebug("[GeofencingService] was not authorized. Canceling the startup.")
 						completion?(false)
 						break
 					}
 				}
 			case .Denied, .NotAvailable:
-				MMLogDebug("[GeofencingService] capability is 'denied'. Canceling the startup.")
+				MMLogDebug("[GeofencingService] capability is \(currentCapability). Canceling the startup.")
 				completion?(false)
 			}
 		}
@@ -168,6 +169,14 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
+	class var isWhenInUseDescriptionProvided: Bool {
+		return NSBundle.mainBundle().objectForInfoDictionaryKey("NSLocationWhenInUseUsageDescription") != nil
+	}
+	
+	class var isAlwaysDescriptionProvided: Bool {
+		return NSBundle.mainBundle().objectForInfoDictionaryKey("NSLocationAlwaysUsageDescription") != nil
+	}
+	
 	func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: MMCapabilityStatus -> Void) {
 		serviceQueue.executeAsync() {
 			guard self.completion == nil else
@@ -186,22 +195,30 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			
 			self.completion = completion
 			self.usageKind = usage
-			
-			let key: String
+		
 			switch usage {
 			case .WhenInUse:
-				MMLogDebug("[GeofencingService] requsting 'WhenInUse'")
-				key = "NSLocationWhenInUseUsageDescription"
-				self.locationManager.requestWhenInUseAuthorization()
+				MMLogDebug("[GeofencingService] requesting 'WhenInUse'")
 				
+				if !MMGeofencingService.isWhenInUseDescriptionProvided {
+					MMLogDebug("[GeofencingService] NSLocationWhenInUseUsageDescription is not defined. Geo service cannot be used")
+					completion(.NotAvailable)
+				} else {
+					self.locationManager.requestWhenInUseAuthorization()
+				}
 			case .Always:
 				MMLogDebug("[GeofencingService] requsting 'Always'")
-				key = "NSLocationAlwaysUsageDescription"
-				self.locationManager.requestAlwaysAuthorization()
+				
+				if !MMGeofencingService.isAlwaysDescriptionProvided {
+					MMLogDebug("[GeofencingService] NSLocationAlwaysUsageDescription is not defined. Geo service cannot be used")
+					completion(.NotAvailable)
+				} else {
+					self.locationManager.requestAlwaysAuthorization()
+				}
 			}
 			
 			// This is helpful when developing an app.
-			assert(NSBundle.mainBundle().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
+//			assert(NSBundle.mainBundle().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
 		}
 	}
 	
@@ -326,9 +343,11 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			return .NotAvailable
 		}
 		
-		let actual = CLLocationManager.authorizationStatus()
+		if (usage == .WhenInUse && !MMGeofencingService.isWhenInUseDescriptionProvided) || (usage == .Always && !MMGeofencingService.isAlwaysDescriptionProvided) {
+			return .NotAvailable
+		}
 		
-		switch actual {
+		switch CLLocationManager.authorizationStatus() {
 		case .NotDetermined: return .NotDetermined
 		case .Restricted: return .NotAvailable
 		case .Denied: return .Denied
@@ -352,7 +371,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	// MARK: - Location Manager delegate
 	public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
 		assert(NSThread.isMainThread())
-		MMLogDebug("[GeofencingService] locationManager did change the authorization status \(status)")
+		MMLogDebug("[GeofencingService] locationManager did change the authorization status \(status.rawValue)")
 		if let completion = self.completion where manager == self.locationManager && status != .NotDetermined {
 			self.completion = nil
 			
@@ -424,9 +443,6 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
 		assert(NSThread.isMainThread())
 		MMLogDebug("[GeofencingService] did update locations")
-		guard let location = locations.last else {
-			return
-		}
 		if self.shouldRefreshRegions() {
 			self.refreshMonitoredRegions()
 		}
