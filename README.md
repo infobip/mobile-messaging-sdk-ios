@@ -70,20 +70,20 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 	```swift
 	// Swift
 	override var applicationCode: String {
-		return "your_application_code"
+		return <# your application code #>
 	}
 	override var userNotificationType: UIUserNotificationType {
-		return [.Alert, .Sound]
+		return <# your notification types preference, i.e. [.Alert, .Sound] #>
 	}
 	```
 
 	```objective-c
 	// Objective-C
 	-(NSString *)applicationCode {
-		return @"your_application_code";
+		return <# your application code #>";
 	}
 	-(UIUserNotificationType)userNotificationType {
-		return UIUserNotificationTypeAlert | UIUserNotificationTypeSound;
+		return <# your notification types preference, i.e. UIUserNotificationTypeAlert | UIUserNotificationTypeSound #>;
 	}
 	```
 4. If you have any of following application callbacks implemented in your AppDelegate:
@@ -123,14 +123,14 @@ It will give an additional opportunity to target your application users and orch
 
 ```swift
 // Swift
-MobileMessaging.currentUser?.saveMSISDN("385911234567", completion: { error in
+MobileMessaging.currentUser?.saveMSISDN(<# for example "385911234567" #>, completion: { error in
 	// if an error occurs, handle it
 })
 ```
 
 ```objective-c
 // Objective-C
-[[MobileMessaging currentUser] saveMSISDN:@"385911234567" completion:^(NSError * _Nullable error) {
+[[MobileMessaging currentUser] saveMSISDN:<# for example @"385911234567" #> completion:^(NSError * _Nullable error) {
 	// if an error occurs, handle it
 }];
 ```
