@@ -106,7 +106,7 @@ final class MMCoreDataStorage {
                 error.code == NSPersistentStoreIncompatibleVersionHashError
                 
                 if error.domain == NSCocoaErrorDomain && isMigrationError {
-                    MMLogInfo("Couldn't open the database, because of migration error, database will be recreated")
+                    MMLogError("Couldn't open the database, because of migration error, database will be recreated")
                     NSPersistentStore.MM_removePersistentStoreFilesAtURL(storeURL)
                     _persistentStore = try psc.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options)
                 }

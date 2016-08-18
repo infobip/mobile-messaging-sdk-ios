@@ -30,18 +30,14 @@ public final class MMPush: NSObject {
         
         if let alert = aps[MMAPIKeys.kAlert] as? String,
             appName = appName as? String {
-                MMAlert.showAlert(appName, message: alert, animated: true, cancelActionCompletion: { (action) -> Void in
-                    MMLogInfo("IBMMPush: \(alert) Closed")
-                })
+                MMAlert.showAlert(appName, message: alert, animated: true, cancelActionCompletion: nil)
         } else if let body = (aps[MMAPIKeys.kAlert] as? [String: AnyObject])?[MMAPIKeys.kBody] as? String {
             if let title = (aps[MMAPIKeys.kAlert] as? [String: AnyObject])?[MMAPIKeys.kTitle] as? String {
                 appName = title
             }
 			
             if let appName = appName as? String {
-                MMAlert.showAlert(appName, message: body, animated: true, cancelActionCompletion: { (action) -> Void in
-                    MMLogInfo("MMPush: \(appName) \(body) Closed")
-                })
+                MMAlert.showAlert(appName, message: body, animated: true, cancelActionCompletion: nil)
             }
         }
         
@@ -82,7 +78,7 @@ private class MMAlert {
         return opQueue
     }()
     
-    class func showAlert(title:String, message: String, animated:Bool, cancelActionCompletion:(UIAlertAction) -> Void) {
+    class func showAlert(title:String, message: String, animated:Bool, cancelActionCompletion:(UIAlertAction -> Void)?) {
         let operation = MMAlertOperation(title: title, message: message, animated: animated, cancelActionCompletion: cancelActionCompletion)
         operationQueue.addOperation(operation)
     }
@@ -91,7 +87,7 @@ private class MMAlert {
 private final class MMAlertOperation : Operation {
     static let kCancelButtonTitle = "OK"
     
-    var alertController: UIAlertController
+    let alertController: UIAlertController
     let title: String
     let message: String
     let animated: Bool
@@ -104,14 +100,14 @@ private final class MMAlertOperation : Operation {
 		}
     }
 	
-    private init(title: String, message: String, animated:Bool, cancelActionCompletion:(UIAlertAction) -> Void){
+    private init(title: String, message: String, animated:Bool, cancelActionCompletion:(UIAlertAction -> Void)?){
         self.title = title
         self.message = message
         self.animated = animated
         self.alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
         
         let action = UIAlertAction(title: MMAlertOperation.kCancelButtonTitle, style: .Cancel) { (action) -> Void in
-            cancelActionCompletion(action)
+            cancelActionCompletion?(action)
         }
         
         alertController.addAction(action)

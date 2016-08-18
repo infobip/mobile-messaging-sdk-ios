@@ -48,7 +48,7 @@ public final class MobileMessaging: NSObject {
 	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	*/
 	public func start(completion: (Void -> Void)? = nil) {
-		MMLogInfo("Starting MobileMessaging service...")
+		MMLogDebug("Starting MobileMessaging service...")
 		MobileMessaging.singletonQueue.executeAsync {
 			do {
 				var storage: MMCoreDataStorage?
@@ -202,7 +202,7 @@ public final class MobileMessaging: NSObject {
 
 //MARK: Internal
 	func cleanUpAndStop() {
-		MMLogInfo("Cleaning up MobileMessaging service...")
+		MMLogDebug("Cleaning up MobileMessaging service...")
 		MobileMessaging.singletonQueue.executeSync {
 			self.storage?.drop()
 			self.stop()
@@ -230,7 +230,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
-		MMLogInfo("Application did register with device token \(token.mm_toHexString)")
+		MMLogDebug("Application did register with device token \(token.mm_toHexString)")
 		NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
 		MobileMessaging.singletonQueue.executeAsync {
 			self.currentInstallation?.updateDeviceToken(token, completion: completion)

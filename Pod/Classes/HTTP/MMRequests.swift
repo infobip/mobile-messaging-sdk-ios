@@ -63,7 +63,7 @@ extension MMHTTPRequestData {
 		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
 		manager.responseSerializer = MMResponseSerializer<ResponseType>()
 		
-		MMLogInfo("Sending request \(self.dynamicType)\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
+		MMLogDebug("Sending request \(self.dynamicType)\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
 		
 		let successBlock = { (task: NSURLSessionDataTask, obj: AnyObject?) -> Void in
 			if let obj = obj as? ResponseType {

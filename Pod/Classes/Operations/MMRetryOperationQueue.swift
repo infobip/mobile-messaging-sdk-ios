@@ -52,7 +52,7 @@ class MMRetryOperationQueue: OperationQueue {
 		if let newOperation = operation.dynamicType.nextOperation(operation) {
 			let retryNumber = newOperation.retryCounter + 1
 			let delay = pow(Double(retryNumber), 2)
-			MMLogInfo("Scheduled retry attempt #\(retryNumber) for request \(newOperation.dynamicType) in \(delay) seconds.")
+			MMLogDebug("Scheduled retry attempt #\(retryNumber) for request \(newOperation.dynamicType) in \(delay) seconds.")
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
 				self.addOperation(newOperation)
 			})

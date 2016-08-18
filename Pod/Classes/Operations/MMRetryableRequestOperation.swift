@@ -68,9 +68,9 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 		if let error = result.error {
 			MMLogError("Failed request \(request.dynamicType) on attempt #\(retryCounter) with error: \(error).")
 			if reachabilityManager.currentlyReachable() == false {
-				MMLogInfo("Network is not reachable now \(reachabilityManager.localizedNetworkReachabilityStatusString). Setting up a reachability listener...")
+				MMLogDebug("Network is not reachable now \(reachabilityManager.localizedNetworkReachabilityStatusString). Setting up a reachability listener...")
 				reachabilityManager.setReachabilityStatusChangeBlock {[weak self] status in
-					MMLogInfo("Network Status Changed: \(self?.reachabilityManager.localizedNetworkReachabilityStatusString). Retrying request \(self?.request.self)...")
+					MMLogDebug("Network Status Changed: \(self?.reachabilityManager.localizedNetworkReachabilityStatusString). Retrying request \(self?.request.self)...")
 					if self?.reachabilityManager.reachable ?? false {
 						self?.reachabilityManager.stopMonitoring()
 						self?.execute()
@@ -81,7 +81,7 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 				finish(Result.Failure(error))
 			}
 		} else {
-			MMLogInfo("Request \(request.dynamicType) succeeded.")
+			MMLogDebug("Request \(request.dynamicType) succeeded.")
 			finish(result)
 		}
 	}

@@ -148,7 +148,7 @@ extension NSManagedObjectContext {
 		}
 		
 		if hasChanges == false {
-			MMLogInfo("NO CHANGES IN ** \(MM_workingName) ** CONTEXT - NOT SAVING")
+			MMLogDebug("NO CHANGES IN ** \(MM_workingName) ** CONTEXT - NOT SAVING")
 			if (saveParentContexts && parentContext != nil) {
 				MMLogVerbose("Proceeding to save parent context \(parentContext?.MM_description)")
 			} else {
@@ -185,7 +185,7 @@ extension NSManagedObjectContext {
 						parentCtx.MM_saveWithOptions(parentContentSaveOptions, completion:completion)
 					} else {
 						// If we are not the default context (And therefore need to save the root context, do the completion action if one was specified
-						MMLogInfo("→ Finished saving: \(self.MM_description)")
+						MMLogDebug("→ Finished saving: \(self.MM_description)")
 						
 						let numberOfInsertedObjects = self.insertedObjects.count
 						let numberOfUpdatedObjects = self.updatedObjects.count

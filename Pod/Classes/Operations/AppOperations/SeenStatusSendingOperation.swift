@@ -54,7 +54,7 @@ class SeenStatusSendingOperation: Operation {
 		self.result = result
 		switch result {
 		case .Success(_):
-			MMLogInfo("Seen messages request succeded")
+			MMLogDebug("Seen messages request succeded")
 			
 			context.performBlockAndWait {
 				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), inContext: self.context) as? [MessageManagedObject] where messages.count > 0 {

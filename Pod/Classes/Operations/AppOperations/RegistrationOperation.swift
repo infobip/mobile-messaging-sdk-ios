@@ -38,10 +38,10 @@ final class RegistrationOperation: Operation {
 			self.installationObject = installation
 			
             if (self.installationHasChanges) {
-                MMLogInfo("Saving installation locally...")
+                MMLogDebug("Saving installation locally...")
                 self.context.MM_saveToPersistentStoreAndWait()
             } else {
-                MMLogInfo("No need to save installation locally.")
+                MMLogDebug("No need to save installation locally.")
             }
             
 			self.sendRegistrationIfNeeded()
@@ -58,10 +58,10 @@ final class RegistrationOperation: Operation {
 	
 	private func sendRegistrationIfNeeded() {
 		if self.registrationDataChanged {
-			MMLogInfo("Sending the registration updates to server...")
+			MMLogDebug("Sending the registration updates to server...")
 			self.sendRegistration()
 		} else {
-			MMLogInfo("No need to send the installation on server.")
+			MMLogDebug("No need to send the installation on server.")
 			finishWithError(NSError(type: MMInternalErrorType.OperationCanceled))
 		}
 	}
@@ -86,7 +86,7 @@ final class RegistrationOperation: Operation {
 			}
 			switch result {
 			case .Success(let regResponse):
-				MMLogInfo("Installation updated on server for internal ID \(regResponse.internalUserId). Updating local version...")
+				MMLogDebug("Installation updated on server for internal ID \(regResponse.internalUserId). Updating local version...")
 				installationObject.resetDirtyRegistration()
 				installationObject.internalUserId = regResponse.internalUserId
 				self.context.MM_saveToPersistentStoreAndWait()

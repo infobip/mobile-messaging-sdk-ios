@@ -207,7 +207,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 					self.locationManager.requestWhenInUseAuthorization()
 				}
 			case .Always:
-				MMLogDebug("[GeofencingService] requsting 'Always'")
+				MMLogDebug("[GeofencingService] requesting 'Always'")
 				
 				if !MMGeofencingService.isAlwaysDescriptionProvided {
 					MMLogDebug("[GeofencingService] NSLocationAlwaysUsageDescription is not defined. Geo service cannot be used")
