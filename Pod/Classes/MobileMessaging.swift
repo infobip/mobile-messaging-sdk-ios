@@ -79,12 +79,14 @@ public final class MobileMessaging: NSObject {
 			}
 
 			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() && self.currentInstallation?.deviceToken == nil {
+				MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 				UIApplication.sharedApplication().unregisterForRemoteNotifications()
 			}
 			
 			let categories = MMNotificationCategoryManager.categoriesToRegister()
 			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: categories))
 			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
+				MMLogDebug("Registering for remote notifications...")
 				UIApplication.sharedApplication().registerForRemoteNotifications()
 			}
 		}
