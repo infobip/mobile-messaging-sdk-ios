@@ -9,7 +9,6 @@
 import Freddy
 
 typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
-typealias MMDeliveryReportingResult = Result<MMHTTPDeliveryReportingResponse>
 typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>
 typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
 typealias MMUserDataSyncResult = Result<MMHTTPUserDataSyncResponse>
@@ -80,7 +79,6 @@ class TESTC {
 	}
 }
 
-final class MMHTTPDeliveryReportingResponse: MMHTTPEmptyResponse { }
 final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {

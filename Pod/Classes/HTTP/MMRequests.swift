@@ -21,7 +21,6 @@ enum MMHTTPMethod {
 
 enum MMHTTPAPIPath: String {
     case Registration = "/mobile/2/registration"
-    case DeliveryReport = "/mobile/1/deliveryreports"
     case SeenMessages = "/mobile/1/messages/seen"
 	case SyncMessages = "/mobile/3/messages"
 	case UserData = "/mobile/2/userdata"
@@ -107,18 +106,6 @@ struct MMPostRegistrationRequest: MMHTTPPostRequest {
     init(internalId: String?, deviceToken: String) {
 		self.internalId = internalId
 		self.currentDeviceToken = deviceToken
-	}
-}
-
-struct MMPostDeliveryReportRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPDeliveryReportingResponse
-	
-	var path: MMHTTPAPIPath { return .DeliveryReport }
-	var parameters: [String: AnyObject]? { return [MMAPIKeys.kMessageIDs: messageIDs] }
-	let messageIDs: [String]
-	
-	init(messageIDs: [String]) {
-		self.messageIDs = messageIDs
 	}
 }
 
