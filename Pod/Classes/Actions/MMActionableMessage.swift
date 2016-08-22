@@ -18,7 +18,8 @@ extension MMMessage : MMActionableMessage {
 	}
 	
 	static func performAction(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (Void -> Void)?) {
-		guard let userInfo = userInfo as? [String: AnyObject], let message = try? MMMessage(payload: userInfo) else {
+		guard let userInfo = userInfo as? [String: AnyObject], let message = MMMessage(payload: userInfo) else
+		{
 			return
 		}
 		var actions = [MMBaseAction]()

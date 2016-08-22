@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Freddy
 
 let kMessageCellId = "kMessageCellId"
 let kMessageDetailsSegueId = "kMessageDetailsSegueId"

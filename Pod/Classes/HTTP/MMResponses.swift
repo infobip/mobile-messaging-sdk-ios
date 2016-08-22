@@ -6,7 +6,7 @@
 //  
 //
 
-import Freddy
+import SwiftyJSON
 
 typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
 typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>
@@ -14,10 +14,33 @@ typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
 typealias MMUserDataSyncResult = Result<MMHTTPUserDataSyncResponse>
 typealias MMMOMessageResult = Result<MMHTTPMOMessageResponse>
 
+public protocol JSONDecodable {
+	init?(json: JSON)
+}
+public protocol JSONEncodable {
+	func toJSON() -> JSON
+}
+
 extension NSDate: JSONEncodable {
-	public func toJSON() -> Freddy.JSON {
-		return NSDateStaticFormatters.ContactsServiceDateFormatter.stringFromDate(self).toJSON()
+	public func toJSON() -> JSON {
+		return JSON(NSDateStaticFormatters.ContactsServiceDateFormatter.stringFromDate(self))
 	}
+}
+
+extension JSON {
+	
+	/// An enum to encapsulate errors that may arise in working with `JSON`.
+	public enum Error: ErrorType {
+		/// The `index` is out of bounds for a JSON array
+		case IndexOutOfBounds(index: Swift.Int)
+		
+		/// The `key` was not found in the JSON dictionary
+		case KeyNotFound(key: Swift.String)
+
+		/// Unexpected JSON `value` was found that is not convertible `to` type
+		case ValueNotConvertible(value: JSON, to: Any.Type)
+	}
+	
 }
 
 public struct MMRequestError {
@@ -39,14 +62,13 @@ public struct MMRequestError {
 }
 
 extension MMRequestError: JSONDecodable {
-	public init(json value: JSON) throws {
-		let requestError = try value.dictionary(MMAPIKeys.kRequestError)
+	public init?(json value: JSON) {
+		let serviceException = value[MMAPIKeys.kRequestError][MMAPIKeys.kServiceException]
 		guard
-			let serviceException = requestError[MMAPIKeys.kServiceException],
-			let text = try? serviceException.string(MMAPIKeys.kErrorText),
-			let messageId = try? serviceException.string(MMAPIKeys.kErrorMessageId)
+			let text = serviceException[MMAPIKeys.kErrorText].string,
+			let messageId = serviceException[MMAPIKeys.kErrorMessageId].string
 		else {
-			throw JSON.Error.ValueNotConvertible(value: value, to: self.dynamicType)
+			return nil
 		}
 		
 		self.messageId = messageId
@@ -55,7 +77,7 @@ extension MMRequestError: JSONDecodable {
 }
 
 class MMHTTPResponse: JSONDecodable {
-	required init(json value: JSON) throws {
+	required init?(json value: JSON) {
 	}
 }
 
@@ -63,9 +85,13 @@ class MMHTTPResponse: JSONDecodable {
 final class MMHTTPRegistrationResponse: MMHTTPResponse {
     let internalUserId: String
 
-	required init(json value: JSON) throws {
-		self.internalUserId = try value.string(MMAPIKeys.kInternalRegistrationId)
-		try super.init(json: value)
+	required init?(json value: JSON) {
+		if let internalUserId = value[MMAPIKeys.kInternalRegistrationId].string {
+			self.internalUserId = internalUserId
+		} else {
+			return nil
+		}
+		super.init(json: value)
 	}
 }
 
@@ -83,15 +109,9 @@ final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
     let messages : [MMMessage]?
-	required init(json value: JSON) throws {
-		var payloads = [JSON]()
-		do {
-			payloads = try value.array(MMAPIKeys.kPayloads)
-		} catch JSON.Error.KeyNotFound(key: MMAPIKeys.kPayloads){
-			MMLogDebug("MMHTTPSyncMessagesResponse: nothing to fetch")
-		}
-		self.messages = try payloads.map {try MMMessage(json: $0)}
-		try super.init(json: value)
+	required init?(json value: JSON) {
+		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessage(json: $0) }
+		super.init(json: value)
 	}
 }
 final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
@@ -103,38 +123,19 @@ final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
 	let customData: [AttributeName: ValueType]?
 	let error: MMRequestError? //TODO: UserData v2 negotiate the errors format.
 	
-	required init(json value: JSON) throws {
-		if let predefinedDataJSON = try? value.dictionary(MMAPIKeys.kUserDataPredefinedUserData) {
-			self.predefinedData = jsonDictToNormalDict(predefinedDataJSON)
-		} else {
-			self.predefinedData = nil
-		}
-		
-		if let customDataJSON = try? value.dictionary(MMAPIKeys.kUserDataCustomUserData) {
-			self.customData = jsonDictToNormalDict(customDataJSON)
-		} else {
-			self.customData = nil
-		}
-		
-		self.error = try? MMRequestError(json: value)
-		
-		try super.init(json: value)
+	required init?(json value: JSON) {
+		self.predefinedData = value[MMAPIKeys.kUserDataPredefinedUserData].dictionaryObject
+		self.customData = value[MMAPIKeys.kUserDataCustomUserData].dictionaryObject
+		self.error = MMRequestError(json: value)
+		super.init(json: value)
 	}
 }
 final class MMHTTPMOMessageResponse: MMHTTPResponse {
 	let messages: [MOMessage]
 	
-	required init(json value: JSON) throws {
-		if let messageJSONs = try? value.array(MMAPIKeys.kMOMessages) {
-			
-			self.messages = try messageJSONs.map { messageJSON -> MOMessage in
-				return try MOMessage(json: messageJSON)
-			}
-
-		} else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOMessages)
-		}
-		try super.init(json: value)
+	required init?(json value: JSON) {
+		self.messages = value[MMAPIKeys.kMOMessages].arrayValue.flatMap(MOMessage.init)
+		super.init(json: value)
 	}
 }
 
@@ -142,39 +143,6 @@ final class MMHTTPMOMessageResponse: MMHTTPResponse {
 //MARK: Other
 public func ==(lhs: MMMessage, rhs: MMMessage) -> Bool {
 	return lhs.messageId == rhs.messageId
-}
-
-//TODO: reafactor
-func jsonDictToNormalDict(jsonDict: [String: JSON]) -> [String: AnyObject] {
-	var normalDict = [String : AnyObject]()
-	for (key,value) in jsonDict {
-		normalDict[key] = jsonToAnyObject(value)
-	}
-	return normalDict
-}
-
-func jsonArrToNormalArr(jsonArr: [JSON]) -> [AnyObject] {
-	return jsonArr.flatMap(jsonToAnyObject)
-}
-
-
-func jsonToAnyObject(json: JSON) -> AnyObject {
-	switch json {
-	case JSON.Array(let jsonArray):
-		return jsonArrToNormalArr(jsonArray)
-	case JSON.Dictionary(let jsonDictionary):
-		return jsonDictToNormalDict(jsonDictionary)
-	case .String(let str):
-		return str
-	case .Double(let num):
-		return num
-	case .Int(let int):
-		return int
-	case .Bool(let b):
-		return b
-	case JSON.Null:
-		return NSNull()
-	}
 }
 
 protocol MMMessageMetadata: Hashable {

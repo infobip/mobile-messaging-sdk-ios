@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Freddy
+import SwiftyJSON
 
 public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	
@@ -24,20 +24,20 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 		return aps.text
 	}
 	
-	public init(json: JSON) throws {
-		if let payload = jsonToAnyObject(json) as? [String : AnyObject] {
-			try self.init(payload: payload)
+	public init?(json: JSON) {
+		if let payload = json.dictionaryObject {
+			self.init(payload: payload)
 		} else {
-			throw JSON.Error.ValueNotConvertible(value: json, to: MMMessage.self)
+			return nil
 		}
 	}
 	
-	init(payload: [NSObject: AnyObject]) throws {
+	init?(payload: [NSObject: AnyObject]) {
 		guard let messageId = payload[MMAPIKeys.kMessageId] as? String else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMessageId)
+			return nil
 		}
 		guard let nativeAPS = payload[MMAPIKeys.kAps] as? [String: AnyObject] else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kAps)
+			return nil
 		}
 		
 		self.messageId = messageId
@@ -125,11 +125,11 @@ public class MOMessage: NSObject {
 		return result
 	}
 
-	convenience init(json: JSON) throws {
-		if let dictionary = jsonToAnyObject(json) as? [String : AnyObject] {
-			try self.init(dictionary: dictionary)
+	convenience init?(json: JSON) {
+		if let dictionary = json.dictionaryObject {
+			self.init(dictionary: dictionary)
 		} else {
-			throw JSON.Error.ValueNotConvertible(value: json, to: MMMessage.self)
+			return nil
 		}
 	}
 
@@ -141,17 +141,12 @@ public class MOMessage: NSObject {
 		self.status = .Undefined
 	}
 	
-	private init(dictionary: [String: AnyObject]) throws {
-		guard let messageId = dictionary[MMAPIKeys.kMOMessageId] as? String else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOMessageId)
-		}
-		
-		guard let text = dictionary[MMAPIKeys.kMOText] as? String else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOText)
-		}
-		
-		guard let status = dictionary[MMAPIKeys.kMOMessageSentStatusCode] as? Int else {
-			throw JSON.Error.KeyNotFound(key: MMAPIKeys.kMOMessageSentStatusCode)
+	private init?(dictionary: [String: AnyObject]) {
+		guard let messageId = dictionary[MMAPIKeys.kMOMessageId] as? String,
+			let text = dictionary[MMAPIKeys.kMOText] as? String,
+			let status = dictionary[MMAPIKeys.kMOMessageSentStatusCode] as? Int else
+		{
+			return nil
 		}
 		
 		self.messageId = messageId

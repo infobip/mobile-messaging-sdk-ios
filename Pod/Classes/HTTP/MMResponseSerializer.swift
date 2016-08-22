@@ -6,7 +6,7 @@
 //
 
 import MMAFNetworking
-import Freddy
+import SwiftyJSON
 
 final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override init() {
@@ -19,15 +19,16 @@ final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer
 		MMLogDebug("Response received: \(response)")
 		super.responseObjectForResponse(response, data: data, error: error)
 		
-		guard let data = data, let json = try? JSON(data: data) else {
+		guard let data = data else
+		{
 			return nil
 		}
 		
-		if let requestError = try? MMRequestError(json: json) where response?.isFailureHTTPREsponse ?? false {
+		let json = JSON(data: data)
+		if let requestError = MMRequestError(json: json) where response?.isFailureHTTPREsponse ?? false {
 			error.memory = requestError.foundationError
 		}
-		
-		return (try? T(json: json)) as? AnyObject
+		return T(json: json) as? AnyObject
 	}
 }
 

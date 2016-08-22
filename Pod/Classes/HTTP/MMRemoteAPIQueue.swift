@@ -5,7 +5,7 @@
 //  Created by Andrey K. on 19/02/16.
 //  
 //
-import Freddy
+import SwiftyJSON
 
 enum Result<ValueType> {
 	case Success(ValueType)

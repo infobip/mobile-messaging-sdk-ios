@@ -7,7 +7,6 @@
 
 import XCTest
 @testable import MobileMessaging
-import Freddy
 
 class UserDataTests: MMTestCase {
 	

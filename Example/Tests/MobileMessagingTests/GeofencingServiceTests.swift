@@ -8,10 +8,8 @@
 
 import XCTest
 import CoreLocation
-import Freddy
+import SwiftyJSON
 @testable import MobileMessaging
-
-
 
 class GeofencingServiceTests: MMTestCase {
 	let zagreb: [String: AnyObject] = [
@@ -60,8 +58,8 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testCampaignAPNSConstructors() {
-		let message = try! MMMessage(payload: apnsPayload)
-		if let campaign = MMCampaign(message: message) {
+		if let message = MMMessage(payload: apnsPayload), let campaign = MMCampaign(message: message) {
+			
 			var regionsDict = [String: MMRegion]()
 			for region in campaign.regions {
 				regionsDict[region.identifier] = region
@@ -86,7 +84,6 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(pulaObject.radius, pula[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
 			XCTAssertEqual(pulaObject.title, pula[MMRegionDataKeys.Title.rawValue] as? String)
 			XCTAssertTrue(pulaObject.isExpired)
-			
 		} else {
 			XCTFail()
 		}
@@ -133,9 +130,9 @@ class GeofencingServiceTests: MMTestCase {
 			"}" +
 		"}"
 		
-		let json = try! JSON(jsonString: jsonStr)
-		let message = try! MMMessage(json: json)
-		if let campaign = MMCampaign(message: message) {
+		let json = JSON.parse(jsonStr)
+		
+		if let message = MMMessage(json: json), let campaign = MMCampaign(message: message) {
 			var regionsDict = [String: MMRegion]()
 			for region in campaign.regions {
 				regionsDict[region.identifier] = region

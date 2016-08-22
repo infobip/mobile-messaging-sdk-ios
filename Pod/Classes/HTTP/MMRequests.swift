@@ -5,7 +5,7 @@
 //  Created by Andrey K. on 23/02/16.
 //  
 //
-import Freddy
+import SwiftyJSON
 import MMAFNetworking
 
 enum MMHTTPRequestError: ErrorType {

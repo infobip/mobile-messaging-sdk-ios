@@ -139,26 +139,15 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 	}
 	
 	public convenience init?(dictRepresentation dict: [String: AnyObject]) {
-		var expiryValue: NSTimeInterval?
-		switch dict[MMRegionDataKeys.Expiry.rawValue] {
-		case let d as NSTimeInterval:
-			expiryValue = Double(d)
-		case let s as String:
-			expiryValue = Double(s)
-		default:
-			return nil
-		}
-		
 		guard let lat = dict[MMRegionDataKeys.Latitude.rawValue] as? Double,
 			let lon = dict[MMRegionDataKeys.Longitude.rawValue] as? Double,
 			let title = dict[MMRegionDataKeys.Title.rawValue] as? String,
 			let identifier = dict[MMRegionDataKeys.Identifier.rawValue] as? String,
-			let expiryms = expiryValue,
+			let expiryms = dict[MMRegionDataKeys.Expiry.rawValue] as? Double,
 			let radius = dict[MMRegionDataKeys.Radius.rawValue] as? Double else
 		{
 			return nil
 		}
-		
 		
 		self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryms: expiryms)
 	}

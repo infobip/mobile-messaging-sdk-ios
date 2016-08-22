@@ -5,7 +5,6 @@
 //  Created by okoroleva on 09.03.16.
 //
 
-import Freddy
 @testable import MobileMessaging
 import XCTest
 
