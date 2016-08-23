@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum MMPredefinedActions : String {
+enum MMPredefinedNotificationActionId: String {
 	case OpenURL = "open_url"
 	case MarkAsSeen = "mark_as_seen"
 	case Reply = "reply"
 	
-	func createInstance(parameters parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) -> MMBaseAction? {
+	func createInstance(parameters parameters: AnyObject?, resultInfo: [NSObject: AnyObject]?) -> MMBaseAction? {
 		var actionType: MMBaseAction.Type
 		switch self {
 		case .OpenURL: actionType = MMActionOpenURL.self
@@ -24,19 +24,19 @@ enum MMPredefinedActions : String {
 }
 
 protocol MMBaseAction {
-	static var actionId : MMPredefinedActions {get}
-	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?)
+	static var actionId: MMPredefinedNotificationActionId {get}
+	init?(parameters: AnyObject?, resultInfo: [NSObject: AnyObject]?)
 	func perform(message: MMMessage, completion: Void -> Void)
 }
-protocol MMAction : MMBaseAction {
-	associatedtype Result : MMActionResult
+protocol MMAction: MMBaseAction {
+	associatedtype Result: MMActionResult
 	static func setActionHandler(handler: Result -> Void)
 }
 
-public final class MMActionMarkAsSeen : NSObject, MMAction {
+public final class MMActionMarkAsSeen: NSObject, MMAction {
 	public typealias Result = MMMarkAsSeenActionResult
-	static let actionId : MMPredefinedActions = .MarkAsSeen
-	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) {
+	static let actionId = MMPredefinedNotificationActionId.MarkAsSeen
+	init?(parameters: AnyObject?, resultInfo: [NSObject: AnyObject]?) {
 		super.init()
 	}
 	
@@ -50,17 +50,17 @@ public final class MMActionMarkAsSeen : NSObject, MMAction {
 	/**
 	Method sets handler for action.
 	- parameter handler: Handler for action. Will be performed after action predefined activities.
-   */
+    */
 	public static func setActionHandler(handler: Result -> Void) {
 		MMActionsManager.setActionHandler(MMActionMarkAsSeen.self, handler: handler)
 	}
 }
 
-public final class MMActionReply : NSObject, MMAction {
+public final class MMActionReply: NSObject, MMAction {
 	public typealias Result = MMReplyActionResult
-	static let actionId : MMPredefinedActions = .Reply
-	var text : String?
-	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) {
+	static let actionId = MMPredefinedNotificationActionId.Reply
+	var text: String?
+	init?(parameters: AnyObject?, resultInfo: [NSObject: AnyObject]?) {
 		if #available(iOS 9.0, *) {
 			self.text = resultInfo?[UIUserNotificationActionResponseTypedTextKey] as? String
 		}
@@ -79,11 +79,11 @@ public final class MMActionReply : NSObject, MMAction {
 	}
 }
 
-public final class MMActionOpenURL : NSObject, MMAction {
+public final class MMActionOpenURL: NSObject, MMAction {
 	public typealias Result = MMOpenURLActionResult
-	static let actionId : MMPredefinedActions = .OpenURL
+	static let actionId = MMPredefinedNotificationActionId.OpenURL
 	let url: NSURL
-	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) {
+	init?(parameters: AnyObject?, resultInfo: [NSObject: AnyObject]?) {
 		guard let path = parameters as? String,
 		   let url = NSURL(string: path) else {
 			return nil
@@ -109,11 +109,11 @@ public final class MMActionOpenURL : NSObject, MMAction {
 
 protocol MMActionResult {
 	var messageId: String {get}
-	var actionId : MMPredefinedActions {get}
+	var actionId: MMPredefinedNotificationActionId {get}
 }
 
-@objc public class MMMarkAsSeenActionResult : NSObject, MMActionResult {
-	let actionId : MMPredefinedActions = .MarkAsSeen
+@objc public class MMMarkAsSeenActionResult: NSObject, MMActionResult {
+	let actionId = MMPredefinedNotificationActionId.MarkAsSeen
 	public let messageId: String
 	init(messageId: String) {
 		self.messageId = messageId
@@ -121,10 +121,10 @@ protocol MMActionResult {
 	}
 }
 
-@objc public class MMReplyActionResult : NSObject, MMActionResult {
-	let actionId : MMPredefinedActions = .Reply
+@objc public class MMReplyActionResult: NSObject, MMActionResult {
+	let actionId = MMPredefinedNotificationActionId.Reply
 	public let messageId: String
-	public let text : String?
+	public let text: String?
 	init(messageId: String, text: String?) {
 		self.messageId = messageId
 		self.text = text
@@ -133,7 +133,7 @@ protocol MMActionResult {
 }
 
 @objc public class MMOpenURLActionResult: NSObject, MMActionResult {
-	let actionId : MMPredefinedActions = .OpenURL
+	let actionId = MMPredefinedNotificationActionId.OpenURL
 	public let messageId: String
 	public let url: NSURL
 	init(messageId: String, url: NSURL) {

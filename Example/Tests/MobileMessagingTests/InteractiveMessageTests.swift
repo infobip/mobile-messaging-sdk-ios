@@ -10,7 +10,7 @@ import XCTest
 
 class InteractiveMessageTests: XCTestCase {
 	
-	func messageWithAllActions(categoryId: String, buttonId: String) -> [NSObject: AnyObject] {
+	func apnsPayloadWithAllActions(categoryId: String, actionId: String) -> [NSObject: AnyObject] {
 		return
 			[
 				"messageId": "m1",
@@ -19,44 +19,45 @@ class InteractiveMessageTests: XCTestCase {
 				[
 					    MMAPIKeys.kInteractive:
 					    [
-							MMAPIKeys.kButtonActions : [ "\(buttonId)" : ["mark_as_seen", "reply"]]
+							MMAPIKeys.kButtonActions : [
+								"\(actionId)" : [
+									"mark_as_seen",
+									"reply"
+								]
+							]
 						]
 				],
 				MMAPIKeys.kCustomPayload: ["customKey": "customValue"]
 		    ]
 	}
 
-    override func setUp() {
-        super.setUp()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-    }
-
     func testHandlersCalled() {
-		let buttonId = "apply"
-		
 		let replyExp = expectationWithDescription("Reply handler called")
 		let mssExp = expectationWithDescription("Mark as Seen handler called")
+		var replyResultMessageId: String?
+		var markAsSeenResultMessageId: String?
 		
 		MMActionReply.setActionHandler { (result) in
-			XCTAssertEqual(result.messageId, "m1")
+			replyResultMessageId = result.messageId
 			replyExp.fulfill()
 		}
 		
 		MMActionMarkAsSeen.setActionHandler { (result) in
-			XCTAssertEqual(result.messageId, "m1")
+			markAsSeenResultMessageId = result.messageId
 			mssExp.fulfill()
 		}
 		
-		MMMessage.performAction(buttonId, userInfo: messageWithAllActions("category", buttonId: buttonId), responseInfo: nil, completionHandler: nil)
+		let actionId = "open_url"
+		MMMessage.performAction(actionId, userInfo: apnsPayloadWithAllActions("category", actionId: actionId), responseInfo: nil, completionHandler: nil)
 		
-		self.waitForExpectationsWithTimeout(10, handler: nil)
+		self.waitForExpectationsWithTimeout(200) { err in
+			XCTAssertEqual(replyResultMessageId, "m1")
+			XCTAssertEqual(markAsSeenResultMessageId, "m1")
+		}
 	}
 	
 	func testHandlersNotCalledForPredefinedCategory() {
-		let buttonId = "reply"
+		let actionId = "reply"
 		let replyExp = expectationWithDescription("Reply handler called")
 
 		MMActionReply.setActionHandler { (result) in
@@ -72,13 +73,13 @@ class InteractiveMessageTests: XCTestCase {
 			XCTFail()
 		}
 		
-		MMMessage.performAction(buttonId, userInfo: messageWithAllActions("chatMessage", buttonId: buttonId), responseInfo: nil, completionHandler: nil)
+		MMMessage.performAction(actionId, userInfo: apnsPayloadWithAllActions("chatMessage", actionId: actionId), responseInfo: nil, completionHandler: nil)
 		
 		self.waitForExpectationsWithTimeout(10, handler: nil)
 	}
 	
 	func testReplyText() {
-		let buttonId = "reply"
+		let actionId = "reply"
 		let replyText = "Hello world!"
 		
 		let replyExp = expectationWithDescription("Reply handler called")
@@ -102,13 +103,13 @@ class InteractiveMessageTests: XCTestCase {
 		}
 		
 		if #available(iOS 9.0, *) {
-			MMMessage.performAction(buttonId,
-			                        userInfo: messageWithAllActions("chatMessage", buttonId: buttonId),
+			MMMessage.performAction(actionId,
+			                        userInfo: apnsPayloadWithAllActions("chatMessage", actionId: actionId),
 			                        responseInfo: [UIUserNotificationActionResponseTypedTextKey : replyText],
 			                        completionHandler: nil)
 		} else {
-			MMMessage.performAction(buttonId,
-			                        userInfo: messageWithAllActions("chatMessage", buttonId: buttonId),
+			MMMessage.performAction(actionId,
+			                        userInfo: apnsPayloadWithAllActions("chatMessage", actionId: actionId),
 			                        responseInfo: nil,
 			                        completionHandler: nil)
 		}

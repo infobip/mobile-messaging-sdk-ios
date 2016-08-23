@@ -146,7 +146,7 @@ public final class MobileMessaging: NSObject {
 	- parameter responseInfo: The data dictionary sent by the action.
 	- parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` and `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callbacks as a `completionHandler` parameter. Mobile Messaging will execute this block after performing all actions.
     */
-	public class func handleActionWithIdentifier(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (Void -> Void)?) {
+	public class func handleActionWithIdentifier(identifier: String, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (Void -> Void)?) {
 		MMMessage.performAction(identifier, userInfo: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	

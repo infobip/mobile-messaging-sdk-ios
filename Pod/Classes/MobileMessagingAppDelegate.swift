@@ -58,6 +58,9 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	
 	//iOS8
 	final public func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: Void -> Void) {
+		guard let identifier = identifier else {
+			return
+		}
 		if !isTesting {
 			MobileMessaging.handleActionWithIdentifier(identifier, userInfo: userInfo, responseInfo: nil, completionHandler: completionHandler)
 		}
@@ -67,6 +70,9 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	//iOS9
 	@available(iOS 9.0, *)
 	final public func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], withResponseInfo responseInfo: [NSObject : AnyObject], completionHandler: Void -> Void) {
+		guard let identifier = identifier else {
+			return
+		}
 		if !isTesting {
 			MobileMessaging.handleActionWithIdentifier(identifier, userInfo: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 		}
