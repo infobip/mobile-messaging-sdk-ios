@@ -38,14 +38,14 @@ struct MessageMeta : MMMessageMetadata {
 
 final class MessageHandlingOperation: Operation {
 	var context: NSManagedObjectContext
-	var finishBlock: (NSError? -> Void)?
-	var newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil
+	var finishBlock: ((NSError?) -> Void)?
+	var newMessageReceivedCallback: (([AnyHashable : Any]) -> Void)? = nil
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var messagesToHandle: [MMMessage]
 	var messagesOrigin: MessageOrigin
 	var hasNewMessages: Bool = false
 	
-	init(messagesToHandle: [MMMessage], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
+	init(messagesToHandle: [MMMessage], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: (([AnyHashable : Any]) -> Void)? = nil, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
@@ -63,8 +63,8 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	private func handleMessage() {
-		context.performBlockAndWait {
-			guard let newMessages: [MMMessage] = self.getNewMessages(self.context, messagesToHandle: self.messagesToHandle) where !newMessages.isEmpty else
+		context.performAndWait {
+			guard let newMessages: [MMMessage] = self.getNewMessages(context: self.context, messagesToHandle: self.messagesToHandle) , !newMessages.isEmpty else
 			{
 				MMLogDebug("There is no new messages to handle.")
 				self.finish()
@@ -75,8 +75,8 @@ final class MessageHandlingOperation: Operation {
 			for newMessage: MMMessage in newMessages {
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
-				newDBMessage.isSilent = newMessage.isSilent
-                
+				newDBMessage.isSilent = NSNumber(value: newMessage.isSilent)
+
                 // Add new regions for geofencing
 				if MMGeofencingService.sharedInstance.isRunning {
 					if let newCampaing = MMCampaign(message: newMessage) {
@@ -86,7 +86,7 @@ final class MessageHandlingOperation: Operation {
 			}
 			self.context.MM_saveToPersistentStoreAndWait()
 			
-			self.postNewMessagesEvents(newMessages)
+			self.postNewMessagesEvents(newMessages: newMessages)
 			
 			self.finish()
 		}
@@ -95,11 +95,14 @@ final class MessageHandlingOperation: Operation {
 	private func postNewMessagesEvents(newMessages: [MMMessage]) {
 		MMQueue.Main.queue.executeAsync {
 			for msg in newMessages {
-				var userInfo: [NSObject : AnyObject] = [ MMNotificationKeyMessagePayload: msg.originalPayload, MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS, MMNotificationKeyMessageIsSilent: msg.isSilent ]
+				var userInfo: [AnyHashable : Any] = [MMNotificationKeyMessagePayload: msg.originalPayload,
+				                                     MMNotificationKeyMessageIsSilent: msg.isSilent,
+				                                     MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS]
 				if let customPayload = msg.customPayload {
 					userInfo[MMNotificationKeyMessageCustomPayload] = customPayload
 				}
-				NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived, object: self, userInfo: userInfo)
+
+				NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: userInfo)
 				self.newMessageReceivedCallback?(userInfo)
 			}
 		}
@@ -109,14 +112,14 @@ final class MessageHandlingOperation: Operation {
 		guard messagesToHandle.count > 0 else {
 			return nil
 		}
-		let messagesSet = Set(messagesToHandle.flatMap(MessageMeta.init))
+		var messagesSet = Set(messagesToHandle.flatMap(MessageMeta.init))
 		var dbMessages = [MessageMeta]()
-		if let msgs = MessageManagedObject.MM_findAllInContext(context) as? [MessageManagedObject] {
+		if let msgs = MessageManagedObject.MM_findAllInContext(context) {
 			dbMessages = msgs.map(MessageMeta.init)
 		}
 		let dbMessagesSet = Set(dbMessages)
-		let newMessageMetas = messagesSet.subtract(dbMessagesSet)
-		return newMessageMetas.flatMap(metaToMessage)
+		messagesSet.subtract(dbMessagesSet)
+		return messagesSet.flatMap(metaToMessage)
 	}
 	
 	private func metaToMessage(meta: MessageMeta) -> MMMessage? {
@@ -129,7 +132,7 @@ final class MessageHandlingOperation: Operation {
 		}
 	}
 	
-	override func finished(errors: [NSError]) {
+	override func finished(_ errors: [NSError]) {
 		MMLogDebug("Message handling finished with errors: \(errors)")
 		if hasNewMessages && errors.isEmpty {
 			let messageFetching = MessageFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue, finishBlock: { result in

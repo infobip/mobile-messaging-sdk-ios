@@ -27,43 +27,43 @@ final class MMInstallationManager {
 		_currentInstallation = installationObject
 	}
 	
-	func getValueForKey(key: String) -> AnyObject? {
-		var result: AnyObject?
-		storageContext.performBlockAndWait {
-			result = self.installationObject.valueForKey(key)
+	func getValueForKey(_ key: String) -> Any? {
+		var result: Any?
+		storageContext.performAndWait {
+			result = self.installationObject.value(forKey: key)
 		}
 		return result
 	}
 	
-	func setValueForKey(key: String, value: AnyObject?) {
-		storageContext.performBlock {
-			self.installationObject.setValueIfDifferent(value, forKey: key)
+	func setValueForKey(_ key: String, value: Any?) {
+		storageContext.perform {
+			self.installationObject.setValueIfDifferent(value: value, forKey: key)
 		}
 	}
 	
-    func syncRegistrationWithServer(completion: (NSError? -> Void)? = nil) {
+    func syncRegistrationWithServer(_ completion: ((NSError?) -> Void)? = nil) {
         let newRegOp = RegistrationOperation(context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
         registrationQueue.addOperation(newRegOp)
     }
 	
-	func fetchUserWithServer(completion: (NSError? -> Void)? = nil) {
+	func fetchUserWithServer(_ completion: ((NSError?) -> Void)? = nil) {
 		let op = UserDataSynchronizationOperation(fetchingOperationWithContext: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
 	
-	func syncUserWithServer(completion: (NSError? -> Void)? = nil) {
+	func syncUserWithServer(_ completion: ((NSError?) -> Void)? = nil) {
 		let op = UserDataSynchronizationOperation(syncOperationWithContext: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
 	
-	func updateDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
+	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {
 		let newRegOp = RegistrationOperation(newDeviceToken: token, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
 		registrationQueue.addOperation(newRegOp)
 		syncUserWithServer()
 	}
 	
-	func save(completion: (Void -> Void)? = nil) {
-		storageContext.performBlock {
+	func save(_ completion: ((Void) -> Void)? = nil) {
+		storageContext.perform {
 			self.storageContext.MM_saveToPersistentStoreAndWait()
 			completion?()
 		}
@@ -96,7 +96,7 @@ final class MMInstallationManager {
 	
 	private func createInstallation() -> InstallationManagedObject {
 		var result: InstallationManagedObject?
-		storageContext.performBlockAndWait {
+		storageContext.performAndWait {
 			result = InstallationManagedObject.MM_createEntityInContext(context: self.storageContext)
 			self.storageContext.MM_saveToPersistentStoreAndWait()
 		}
@@ -105,8 +105,8 @@ final class MMInstallationManager {
 	
 	private func findCurrentInstallation() -> InstallationManagedObject? {
 		var result: InstallationManagedObject?
-		storageContext.performBlockAndWait {
-			result = InstallationManagedObject.MM_findFirstInContext(context: self.storageContext)
+		storageContext.performAndWait {
+			result = InstallationManagedObject.MM_findFirstInContext(self.storageContext)
 		}
 		return result
 	}

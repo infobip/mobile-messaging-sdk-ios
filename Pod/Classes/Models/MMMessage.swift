@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import SwiftyJSON
+//import SwiftyJSON
 
+//TODO: Swift3 userInfo type changed from [NSObject: AnyObject] to [AnyHashable: Any]
 public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	
 	public var hashValue: Int { return messageId.hashValue }
@@ -26,25 +27,25 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	
 	public init?(json: JSON) {
 		if let payload = json.dictionaryObject {
-			self.init(payload: payload)
+			self.init(payload: payload as [NSObject : AnyObject])
 		} else {
 			return nil
 		}
 	}
 	
 	init?(payload: [NSObject: AnyObject]) {
-		guard let messageId = payload[MMAPIKeys.kMessageId] as? String else {
+		guard let messageId = payload[MMAPIKeys.kMessageId as NSString] as? String else {
 			return nil
 		}
-		guard let nativeAPS = payload[MMAPIKeys.kAps] as? [String: AnyObject] else {
+		guard let nativeAPS = payload[MMAPIKeys.kAps  as NSString] as? [String: AnyObject] else {
 			return nil
 		}
 		
 		self.messageId = messageId
-		self.isSilent = MMMessage.checkIfSilent(payload)
+		self.isSilent = MMMessage.checkIfSilent(payload: payload)
 		if (self.isSilent) {
-			if let silentAPS = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject] {
-				self.aps = MMAPS.SilentAPS(MMMessage.mergeApsWithSilentParameters(nativeAPS, silentAPS: silentAPS))
+			if let silentAPS = payload[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kSilent] as? [String: AnyObject] {
+				self.aps = MMAPS.SilentAPS(MMMessage.mergeApsWithSilentParameters(nativeAPS: nativeAPS, silentAPS: silentAPS))
 			} else {
 				self.aps = MMAPS.NativeAPS(nativeAPS)
 			}
@@ -52,19 +53,19 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 			self.aps = MMAPS.NativeAPS(nativeAPS)
 		}
 		self.originalPayload = payload as! [String: AnyObject]
-		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? [String : AnyObject]
-		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String : AnyObject]
-		self.interactionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kInteractive] as? [String : AnyObject]
-		self.geoRegions = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [[String : AnyObject]]
+		self.customPayload = payload[MMAPIKeys.kCustomPayload  as NSString] as? [String : AnyObject]
+		self.silentData = payload[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kSilent] as? [String : AnyObject]
+		self.interactionsData = payload[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kInteractive] as? [String : AnyObject]
+		self.geoRegions = payload[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kGeo] as? [[String : AnyObject]]
 	}
 	
 	static func checkIfSilent(payload: [NSObject: AnyObject]?) -> Bool {
 		//if payload APNS originated:
-		if (payload?[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject]) != nil {
+		if (payload?[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kSilent] as? [String: AnyObject]) != nil {
 			return true
 		}
 		//if payload Server originated:
-		return payload?[MMAPIKeys.kSilent] as? Bool ?? false
+		return payload?[MMAPIKeys.kSilent as NSString] as? Bool ?? false
 	}
 	
 	private static func mergeApsWithSilentParameters(nativeAPS: [String: AnyObject]?, silentAPS: [String: AnyObject]) -> [String: AnyObject] {
@@ -79,10 +80,10 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 			alert[MMAPIKeys.kTitle] = title
 		}
 		
-		resultAps[MMAPIKeys.kAlert] = alert
+		resultAps[MMAPIKeys.kAlert] = alert as AnyObject
 		
 		if let sound = silentAPS[MMAPIKeys.kSound] as? String {
-			resultAps[MMAPIKeys.kSound] = sound
+			resultAps[MMAPIKeys.kSound] = sound as AnyObject
 		}
 		return resultAps
 	}
@@ -106,15 +107,15 @@ public class MOMessage: NSObject {
 	public let status: MOMessageSentStatus
 
 	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
-		self.messageId = NSUUID().UUIDString
+		self.messageId = NSUUID().uuidString
 		self.destination = destination
 		self.text = text
 		self.customPayload = customPayload
 		self.status = .Undefined
 	}
 
-	var dictRepresentation: [String: AnyObject] {
-		var result = [String: AnyObject]()
+	var dictRepresentation: [String: Any] {
+		var result = [String: Any]()
 		
 		if let destination = destination {
 			result[MMAPIKeys.kMODestination] = destination

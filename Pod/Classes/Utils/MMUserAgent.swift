@@ -9,7 +9,7 @@ import Foundation
 import CoreTelephony
 
 final public class MMUserAgent: NSObject {
-	struct DataOptions : OptionSetType {
+	struct DataOptions : OptionSet {
 		let rawValue: Int
 		init(rawValue: Int = 0) { self.rawValue = rawValue }
 		static let None = DataOptions(rawValue: 0)
@@ -30,38 +30,38 @@ final public class MMUserAgent: NSObject {
 	}
 	
 	public static var osVersion: String {
-		return UIDevice.currentDevice().systemVersion
+		return UIDevice.current.systemVersion
 	}
 	
 	public static var osName: String {
-		return UIDevice.currentDevice().systemName
+		return UIDevice.current.systemName
 	}
 	
 	public static var libraryVersion: String {
-		return NSBundle(identifier:"org.cocoapods.MobileMessaging")?.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?? libVersion
+		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? libVersion
 	}
 	
 	public static var libraryName: String {
-		return NSBundle(identifier:"org.cocoapods.MobileMessaging")?.objectForInfoDictionaryKey("CFBundleName") as? String ?? "MobileMessaging"
+		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "MobileMessaging"
 	}
 	
 	public static var hostingAppVersion: String {
-		return NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+		return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 	}
 	
 	public static var hostingAppName: String {
-		return NSBundle.mainBundle().infoDictionary?["CFBundleName"] as? String ?? ""
+		return Bundle.main.infoDictionary?["CFBundleName"] as? String ?? ""
 	}
 	
 	public static var deviceName : String {
-		let name = UnsafeMutablePointer<utsname>.alloc(1)
+		var name = UnsafeMutablePointer<utsname>.allocate(capacity: 1)
 		defer {
-			name.dealloc(1)
+			name.deallocate(capacity: 1)
 		}
 		uname(name)
-		let machine = withUnsafePointer(&name.memory.machine, { (ptr) -> String? in
-			let int8Ptr = unsafeBitCast(ptr, UnsafePointer<Int8>.self)
-			return String.fromCString(int8Ptr)
+		let machine = withUnsafePointer(to: &name.pointee.machine, { (ptr) -> String? in
+			let int8Ptr = unsafeBitCast(ptr, to: UnsafePointer<Int8>.self)
+			return String(validatingUTF8: int8Ptr)
 		})
 		
 		let machines = [
@@ -116,9 +116,9 @@ final public class MMUserAgent: NSObject {
 			"x86_64":"Simulator"
 		]
 		if let machine = machine {
-			return machines[machine] ?? UIDevice.currentDevice().localizedModel
+			return machines[machine] ?? UIDevice.current.localizedModel
 		} else {
-			return UIDevice.currentDevice().localizedModel
+			return UIDevice.current.localizedModel
 		}
 	}
 	
@@ -151,6 +151,6 @@ final public class MMUserAgent: NSObject {
 			return ";\(mobileCarrierName);\(mobileNetworkCode);\(mobileCountryCode))"
 		}
 		
-		return systemDataString(options.contains(MMUserAgent.DataOptions.System)) + carrierDataString(options.contains(MMUserAgent.DataOptions.Carrier))
+		return systemDataString(allowed: options.contains(MMUserAgent.DataOptions.System)) + carrierDataString(allowed: options.contains(MMUserAgent.DataOptions.Carrier))
 	}
 }

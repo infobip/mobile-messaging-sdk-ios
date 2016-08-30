@@ -34,7 +34,7 @@ enum SyncableAttributes: String {
 	}
 }
 
-struct SyncableAttributesSet: OptionSetType {
+struct SyncableAttributesSet: OptionSet {
 	let rawValue : Int
 	init(rawValue: Int) { self.rawValue = rawValue }
 	
@@ -62,42 +62,42 @@ struct SyncableAttributesSet: OptionSetType {
 }
 
 
-final class InstallationManagedObject: NSManagedObject {
+final class InstallationManagedObject: NSManagedObject, Fetchable {
 
-	override func didChangeValueForKey(key: String) {
-		super.didChangeValueForKey(key)
-		setDirtyAttribute(key)
+	override func didChangeValue(forKey key: String) {
+		super.didChangeValue(forKey: key)
+		setDirtyAttribute(attrName: key)
     }
-    
+	
     func setDeviceTokenIfDifferent(token: String?) {
-        setValueIfDifferent(token, forKey: SyncableAttributes.DeviceToken.rawValue)
+        setValueIfDifferent(value: token as AnyObject?, forKey: SyncableAttributes.DeviceToken.rawValue)
     }
 
 	var dirtyAttributesSet: SyncableAttributesSet {
-		return SyncableAttributesSet(rawValue: dirtyAttributes.integerValue)
+		return SyncableAttributesSet(rawValue: dirtyAttributes.intValue)
 	}
 
 	func resetDirtyRegistration() {
-		resetDirtyAttribute(SyncableAttributesSet.deviceToken)
+		resetDirtyAttribute(attributes: SyncableAttributesSet.deviceToken)
 	}
 
 	func resetDirtyAttribute(attributes: SyncableAttributesSet) {
 		var newSet = dirtyAttributesSet
 		newSet.remove(attributes)
-		dirtyAttributes = newSet.rawValue
+		dirtyAttributes = NSNumber(value: newSet.rawValue)
 	}
 	
 	private func setDirtyAttribute(attrName: String) {
-		if let dirtyAttribute = SyncableAttributesSet.withAttribute(attrName) {
+		if let dirtyAttribute = SyncableAttributesSet.withAttribute(name: attrName) {
 			var updatedSet = dirtyAttributesSet
 			updatedSet.insert(dirtyAttribute)
-			dirtyAttributes = updatedSet.rawValue
+			dirtyAttributes = NSNumber(value: updatedSet.rawValue)
 		}
 	}
     
-    func setValueIfDifferent(value: AnyObject?, forKey key: String) {
+    func setValueIfDifferent(value: Any?, forKey key: String) {
 		var isDifferent: Bool
-		if let currentValue = self.valueForKey(key) {
+		if let currentValue = self.value(forKey: key) as? AnyObject {
 			isDifferent = value == nil ? true : !currentValue.isEqual(value!)
 		} else {
 			isDifferent = value != nil

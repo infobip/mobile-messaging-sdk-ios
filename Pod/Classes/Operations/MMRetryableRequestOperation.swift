@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import MMAFNetworking
 
 class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOperation {
 	typealias ResponseTypeResult = Result<RequestType.ResponseType>
@@ -16,7 +15,7 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 	var reachabilityManager: MMNetworkReachabilityManager
 	
 	override func mapAttributesFrom(previous: MMRetryableOperation) {
-		super.mapAttributesFrom(previous)
+		super.mapAttributesFrom(previous: previous)
 		if let previous = previous as? MMRetryableRequestOperation {
 			self.request = previous.request
             self.applicationCode = previous.applicationCode;
@@ -29,7 +28,7 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 		super.init(retryLimit: retryLimit, completion: completion)
 	}
 	
-	convenience init(request: RequestType, applicationCode: String, baseURL: String, completion: ResponseTypeResult -> Void) {
+	convenience init(request: RequestType, applicationCode: String, baseURL: String, completion: @escaping (ResponseTypeResult) -> Void) {
 		self.init(retryLimit: request.retryLimit) { finishedOperation in
 			if let op = finishedOperation as? MMRetryableRequestOperation {
 				completion(op.operationResult)
@@ -38,7 +37,7 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 		self.request = request
 		self.applicationCode = applicationCode
 		self.baseURL = baseURL
-		self.name = "com.mobile-messaging.retryable-request-" + String(request.dynamicType)
+		self.name = "com.mobile-messaging.retryable-request-" + String(describing: type(of: request))
 	}
 	
 	override func execute() {
@@ -47,7 +46,7 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 	}
 	
 	private func sendRequest() {
-		guard self.cancelled == false else {
+		guard self.isCancelled == false else {
 			finish(Result.Cancel)
 			return
 		}
@@ -55,18 +54,18 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 			finish(Result.Failure(NSError(type: MMInternalErrorType.UnknownError)))
 			return
 		}
-		request?.responseObject(applicationCode, baseURL: baseURL) { result in
-			self.operationQueue.executeSync { self.handleResult(result) }
+		request?.responseObject(applicationCode: applicationCode, baseURL: baseURL) { result in
+			self.operationQueue.executeSync { self.handleResult(result: result) }
 		}
 	}
 	
 	private func handleResult(result: ResponseTypeResult) {
-		guard self.cancelled == false else {
+		guard self.isCancelled == false else {
 			finish(Result.Cancel)
 			return
 		}
 		if let error = result.error {
-			MMLogError("Failed request \(request.dynamicType) on attempt #\(retryCounter) with error: \(error).")
+			MMLogError("Failed request \(type(of: request)) on attempt #\(retryCounter) with error: \(error).")
 			if reachabilityManager.currentlyReachable() == false {
 				MMLogDebug("Network is not reachable now \(reachabilityManager.localizedNetworkReachabilityStatusString). Setting up a reachability listener...")
 				reachabilityManager.setReachabilityStatusChangeBlock {[weak self] status in
@@ -81,12 +80,12 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 				finish(Result.Failure(error))
 			}
 		} else {
-			MMLogDebug("Request \(request.dynamicType) succeeded.")
+			MMLogDebug("Request \(type(of: request)) succeeded.")
 			finish(result)
 		}
 	}
 	
-	private func finish(result: ResponseTypeResult) {
+	private func finish(_ result: ResponseTypeResult) {
 		self.operationResult = result
 		super.finishWithError(result.error)
 	}

@@ -9,12 +9,12 @@ import Foundation
 
 public let CustomErrorDomain = "customDomain"
 
-public enum CustomErrorType : ErrorType {
-	case InvalidMSISDNFormat
+public enum CustomErrorType : Error {
+	case invalidMSISDNFormat
 	
-	private var errorCode: Int {
+	fileprivate var errorCode: Int {
 		switch self {
-		case .InvalidMSISDNFormat:
+		case .invalidMSISDNFormat:
 			return 0
 		}
 	}
@@ -23,7 +23,7 @@ public enum CustomErrorType : ErrorType {
 		var errorDescription: String = ""
 		
 		switch self {
-		case InvalidMSISDNFormat:
+		case .invalidMSISDNFormat:
 			errorDescription = NSLocalizedString("Invalid MSISDN format", comment: "")
 		}
 		return [NSLocalizedDescriptionKey: errorDescription]

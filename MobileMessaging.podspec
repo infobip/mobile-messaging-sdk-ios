@@ -24,6 +24,8 @@ s.platform = :ios, '8.0'
 s.requires_arc = true
 s.pod_target_xcconfig =  {
 	'ENABLE_TESTABILITY' => 'YES',
+    'SWIFT_VERSION' => '3.0',
+    'MODULEMAP_PRIVATE_FILE' => '${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/module.private.modulemap',
 	'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/MagicalRecord/** ${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/MagicalRecord/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**'
 }
 
@@ -36,8 +38,8 @@ s.resource_bundles = {
 s.public_header_files = 'Pod/Classes/**/*.h'
 s.private_header_files = 'Pod/Classes/Vendor/**/*.h'
 s.frameworks = 'CoreData', 'CoreTelephony'
-s.resources = 'Pod/Classes/Storage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
-s.dependency 'SwiftyJSON'
+s.resources = 'Pod/Classes/Storage/*.xcdatamodeld'
+#s.dependency 'SwiftyJSON'
 s.dependency 'CocoaLumberjack'
 
 # s.default_subspecs = 'HTTP', 'Operations', 'Vendor', 'Storage', 'Utils'

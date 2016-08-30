@@ -7,80 +7,60 @@
 
 import CoreData
 
-struct MMContextSaveOptions: OptionSetType {
+struct MMContextSaveOptions: OptionSet {
 	let rawValue : Int
 	init(rawValue: Int) { self.rawValue = rawValue }
 	static let SaveSynchronously	= MMContextSaveOptions(rawValue: 1 << 0)
 	static let SaveParent		= MMContextSaveOptions(rawValue: 1 << 1)
 }
 
-extension NSManagedObject {
+protocol Fetchable : NSFetchRequestResult {
+	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<Self>
+	static func MM_executeRequest(_ request: NSFetchRequest<Self>, inContext ctx: NSManagedObjectContext) -> [Self]?
+	static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext)
+	static func MM_executeFetchRequestAndReturnFirstObject(_ request: NSFetchRequest<Self>, inContext context: NSManagedObjectContext) -> Self?
+	static func MM_findFirstInContext(_ context: NSManagedObjectContext) -> Self?
+	static func MM_findFirstWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> Self?
+	static func MM_findAllWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> [Self]?
+	static func MM_findAllInContext(_ context: NSManagedObjectContext) -> [Self]?
+	static func MM_countOfEntitiesWithContext(_ context: NSManagedObjectContext) -> Int
+	static func MM_countOfEntitiesWithPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> Int
+	static func MM_selectAttribute(_ attribute: String, withPredicte predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> [String: AnyObject]?
+}
+
+extension Fetchable where Self : NSManagedObject {
 	
-	class var MM_entityName: String {
-		return NSStringFromClass(self).componentsSeparatedByString(".").last!
-	}
-	
-	class func MM_requestAll(predicate: NSPredicate? = nil) -> NSFetchRequest {
-		let r = NSFetchRequest(entityName: self.MM_entityName)
+	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<Self> {
+		let r = NSFetchRequest<Self>(entityName: self.MM_entityName)
 		r.predicate = predicate
 		return r
 	}
 	
-	class func MM_executeRequest(request: NSFetchRequest, inContext ctx: NSManagedObjectContext) -> [NSManagedObject]? {
-		var results: [NSManagedObject]?
+	static func MM_executeRequest(_ request: NSFetchRequest<Self>, inContext ctx: NSManagedObjectContext) -> [Self]? {
+		var results: [Self]?
 		let requestBlock = {
 			do {
-				results = try ctx.executeFetchRequest(request) as? [NSManagedObject]
+				results = try ctx.fetch(request)
 			}
 			catch let error as NSError {
-				MMLogError("Fetching error: \(error)")
+				print("Fetching error: \(error)")
 			}
 		}
-		if ctx.concurrencyType == NSManagedObjectContextConcurrencyType.ConfinementConcurrencyType {
+		if ctx.concurrencyType == NSManagedObjectContextConcurrencyType.confinementConcurrencyType {
 			requestBlock()
 		} else {
-			ctx.performBlockAndWait(requestBlock)
+			ctx.performAndWait(requestBlock)
 		}
 		return results
 	}
 	
-	class func MM_findAllWithPredicate(predicate: NSPredicate? = nil, inContext context: NSManagedObjectContext) -> [NSManagedObject]? {
-		let r = self.MM_requestAll(predicate)
+	static func MM_findAllWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> [Self]? {
+		let r : NSFetchRequest<Self> = self.MM_requestAll(predicate)
 		return self.MM_executeRequest(r, inContext: context)
 	}
 	
-	class func MM_entityDescription(inContext context: NSManagedObjectContext) -> NSEntityDescription {
-		return NSEntityDescription.entityForName(self.MM_entityName, inManagedObjectContext: context)!
-	}
-	
-	class func MM_createEntityInContext(entityDescription: NSEntityDescription? = nil, context: NSManagedObjectContext) -> Self {
-		let entity = entityDescription ?? self.MM_entityDescription(inContext: context)
-		let managedObject = self.init(entity: entity, insertIntoManagedObjectContext: context)
-		managedObject.MM_awakeFromCreation()
-		return managedObject
-	}
-	
-	func MM_awakeFromCreation() {
-
-	}
-	
-	var MM_isEntityDeleted: Bool {
-		return deleted || managedObjectContext == nil
-	}
-
-	func MM_deleteEntityInContext(context: NSManagedObjectContext) -> Bool {
-		do {
-			let objectInContext = try context.existingObjectWithID(objectID)
-			context.deleteObject(objectInContext)
-			return objectInContext.MM_isEntityDeleted
-		} catch let error as NSError {
-			MMLogError("An error occured while deleting an object \(self): \(error)")
-		}
-		return false
-	}
-
-	class func MM_deleteAllMatchingPredicate(predicate: NSPredicate, inContext context: NSManagedObjectContext) {
-		let request = self.MM_requestAll(predicate)
+	static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) {
+		let request : NSFetchRequest<Self> = self.MM_requestAll(predicate)
 		request.returnsObjectsAsFaults = true
 		request.includesPropertyValues = false
 		
@@ -91,45 +71,87 @@ extension NSManagedObject {
 		}
 	}
 	
-	class func MM_executeFetchRequestAndReturnFirstObject<T>(request: NSFetchRequest, inContext context: NSManagedObjectContext) -> T? {
+	static func MM_executeFetchRequestAndReturnFirstObject(_ request: NSFetchRequest<Self>, inContext context: NSManagedObjectContext) -> Self? {
 		request.fetchLimit = 1
 		let results = MM_executeRequest(request, inContext: context)
-		return results?.first as? T
+		return results?.first
 	}
-
-	class func MM_findFirstInContext(predicate: NSPredicate? = nil, context: NSManagedObjectContext) -> Self? {
-		let request = MM_requestAll(predicate)
+	
+	static func MM_findFirstInContext(_ context: NSManagedObjectContext) -> Self? {
+		return MM_findFirstWithPredicate(nil, context: context)
+	}
+	
+	static func MM_findFirstWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> Self? {
+		let request : NSFetchRequest<Self> = MM_requestAll(predicate)
 		return MM_executeFetchRequestAndReturnFirstObject(request, inContext: context)
 	}
 	
-	class func MM_findAllInContext(context: NSManagedObjectContext) -> [NSManagedObject]? {
-		return MM_findAllWithPredicate(inContext: context)
+	static func MM_findAllInContext(_ context: NSManagedObjectContext) -> [Self]? {
+		return MM_findAllWithPredicate(nil, context: context)
 	}
 	
-	class func MM_countOfEntitiesWithContext(context: NSManagedObjectContext) -> Int {
-		return MM_countOfEntitiesWithPredicate(inContext: context)
+	static func MM_countOfEntitiesWithContext(_ context: NSManagedObjectContext) -> Int {
+		return MM_countOfEntitiesWithPredicate(nil, inContext: context)
 	}
 	
-	class func MM_countOfEntitiesWithPredicate(predicate: NSPredicate? = nil, inContext context: NSManagedObjectContext) -> Int {
-		var error: NSError? = nil
-		let count = context.countForFetchRequest(MM_requestAll(predicate), error: &error)
-		if let error = error {
+	static func MM_countOfEntitiesWithPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> Int {
+		var count = 0
+		do {
+			count = try context.count(for: MM_requestAll(predicate))
+		} catch let error as NSError {
 			MMLogError(error.description)
 		}
 		return count
 	}
 	
-	class func MM_selectAttribute(attribute: String, withPredicte predicate: NSPredicate, inContext context: NSManagedObjectContext) -> [String: AnyObject]? {
-		let request = self.MM_requestAll(predicate)
-		request.resultType = .DictionaryResultType
+	static func MM_selectAttribute(_ attribute: String, withPredicte predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> [String: AnyObject]? {
+		let request : NSFetchRequest<Self> = self.MM_requestAll(predicate)
+		request.resultType = .dictionaryResultType
 		request.propertiesToFetch = [attribute]
 		
 		if let results = MM_executeRequest(request, inContext: context) {
 			let foundationArray = NSArray(array: results)
-			return foundationArray.valueForKeyPath(NSString(format: "@unionOfObjects.%@", attribute) as String) as? [String: AnyObject]
+			return foundationArray.value(forKeyPath: NSString(format: "@unionOfObjects.%@", attribute) as String) as? [String: AnyObject]
 		} else {
 			return nil
 		}
+	}
+}
+
+
+extension NSManagedObject {
+	
+	class var MM_entityName: String {
+		return NSStringFromClass(self).components(separatedBy: ".").last!
+	}
+	
+	class func MM_entityDescription(inContext context: NSManagedObjectContext) -> NSEntityDescription {
+		return NSEntityDescription.entity(forEntityName: self.MM_entityName, in: context)!
+	}
+	
+	class func MM_createEntityInContext(_ entityDescription: NSEntityDescription? = nil, context: NSManagedObjectContext) -> Self {
+		let entity = entityDescription ?? self.MM_entityDescription(inContext: context)
+		let managedObject = self.init(entity: entity, insertInto: context)
+		managedObject.MM_awakeFromCreation()
+		return managedObject
+	}
+	
+	func MM_awakeFromCreation() {}
+	
+	var MM_isEntityDeleted: Bool {
+		return isDeleted || managedObjectContext == nil
+	}
+
+	@discardableResult
+	func MM_deleteEntityInContext(_ context: NSManagedObjectContext) -> Bool {
+		do {
+			let objectInContext = try context.existingObject(with: objectID)
+			context.delete(objectInContext)
+			return objectInContext.MM_isEntityDeleted
+		} catch let error as NSError {
+			MMLogError("An error occured while deleting an object \(self): \(error)")
+		}
+		return false
 	}
 }
 
@@ -137,20 +159,20 @@ let kMMNSManagedObjectContextWorkingName = "kNSManagedObjectContextWorkingName"
 
 extension NSManagedObjectContext {
 	
-	func MM_saveWithOptions(options: MMContextSaveOptions, completion: ((Bool, NSError?) -> Void)?) {
+	func MM_saveWithOptions(_ options: MMContextSaveOptions, completion: ((Bool, NSError?) -> Void)?) {
 		let saveParentContexts = options.contains(.SaveParent)
 		let saveSynchronously = options.contains(.SaveSynchronously)
 		var ctxHasChanges: Bool = false
-		if concurrencyType == NSManagedObjectContextConcurrencyType.ConfinementConcurrencyType {
+		if concurrencyType == NSManagedObjectContextConcurrencyType.confinementConcurrencyType {
 			ctxHasChanges = hasChanges
 		} else {
-			performBlockAndWait{ ctxHasChanges = self.hasChanges }
+			performAndWait{ ctxHasChanges = self.hasChanges }
 		}
 		
 		if hasChanges == false {
 			MMLogDebug("NO CHANGES IN ** \(MM_workingName) ** CONTEXT - NOT SAVING")
-			if (saveParentContexts && parentContext != nil) {
-				MMLogVerbose("Proceeding to save parent context \(parentContext?.MM_description)")
+			if (saveParentContexts && parent != nil) {
+				MMLogVerbose("Proceeding to save parent context \(parent?.MM_description)")
 			} else {
 				completion?(true, nil)
 				return
@@ -159,8 +181,8 @@ extension NSManagedObjectContext {
 		
 		let saveBlock = {
 			var optionsSummary = ""
-			optionsSummary = optionsSummary.stringByAppendingString(saveParentContexts ? "Save Parents" : "")
-			optionsSummary = optionsSummary.stringByAppendingString(saveSynchronously ? "Sync Save" : "")
+			optionsSummary = optionsSummary.appending(saveParentContexts ? "Save Parents" : "")
+			optionsSummary = optionsSummary.appending(saveSynchronously ? "Sync Save" : "")
 			
 			MMLogVerbose("→ Saving \(self.MM_description) [\(optionsSummary)]")
 			
@@ -180,7 +202,7 @@ extension NSManagedObjectContext {
 					completion?(saved, error)
 				} else {
 					// If we should not save the parent context, or there is not a parent context to save (root context), call the completion block
-					if let parentCtx = self.parentContext where saveParentContexts {
+					if let parentCtx = self.parent , saveParentContexts {
 						let parentContentSaveOptions: MMContextSaveOptions = [.SaveSynchronously, .SaveParent]
 						parentCtx.MM_saveWithOptions(parentContentSaveOptions, completion:completion)
 					} else {
@@ -198,21 +220,21 @@ extension NSManagedObjectContext {
 			}
 		}
 		
-		if concurrencyType == NSManagedObjectContextConcurrencyType.ConfinementConcurrencyType {
+		if concurrencyType == NSManagedObjectContextConcurrencyType.confinementConcurrencyType {
 			saveBlock()
 		} else if saveSynchronously == true {
-			performBlockAndWait(saveBlock)
+			performAndWait(saveBlock)
 		} else {
-			performBlock(saveBlock)
+			perform(saveBlock)
 		}
 	}
 	
 	var MM_workingName: String {
-		return (userInfo.objectForKey(kMMNSManagedObjectContextWorkingName) as? String) ?? "UNNAMED"
+		return (userInfo.object(forKey: kMMNSManagedObjectContextWorkingName) as? String) ?? "UNNAMED"
 	}
 	
 	var MM_description: String {
-		let thread = NSThread.isMainThread() ? "*** MAIN THREAD ***" : "*** BACKGROUND THREAD ***";
+		let thread = Thread.isMainThread ? "*** MAIN THREAD ***" : "*** BACKGROUND THREAD ***";
 		return "\(MM_workingName) on \(thread)"
 	}
 	
@@ -226,29 +248,30 @@ extension NSManagedObjectContext {
 }
 
 extension NSPersistentStore {
+	@discardableResult
 	func MM_removePersistentStoreFiles() -> Bool {
-		guard let url = self.URL else {
+		guard let url = self.url else {
 			return false
 		}
 		return NSPersistentStore.MM_removePersistentStoreFilesAtURL(url)
 	}
 	
-	class func MM_removePersistentStoreFilesAtURL(url: NSURL) -> Bool {
-		guard url.fileURL else {
+	@discardableResult
+	class func MM_removePersistentStoreFilesAtURL(_ url: URL) -> Bool {
+		guard url.isFileURL else {
 			assertionFailure("URL must be a file URL")
 			return false
 		}
 		
-		let rawURL = url.absoluteString
-		
-		let shmSidecar = NSURL(string: rawURL.stringByAppendingString("-shm"))!
-		let walSidecar = NSURL(string: rawURL.stringByAppendingString("-wal"))!
+		let rawURL : String = url.absoluteString
+		let shmSidecar : URL = URL(string: rawURL.appending("-shm"))!
+		let walSidecar : URL = URL(string: rawURL.appending("-wal"))!
 		
 		var removeItemResult = true
 		
 		for fileURL in [url, shmSidecar, walSidecar] {
 			do {
-				try NSFileManager.defaultManager().removeItemAtURL(fileURL)
+				try FileManager.default.removeItem(at: fileURL)
 			} catch let error as NSError where error.code == NSFileNoSuchFileError {
 				// If the file doesn't exist, that's OK — that's still a successful result!
 			} catch let error {

@@ -16,7 +16,7 @@ class MessageCell: UITableViewCell {
 	override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)
 		textLabel?.numberOfLines = 5
-		accessoryType = .DisclosureIndicator
+		accessoryType = .disclosureIndicator
 	}
 	
 	required init?(coder aDecoder: NSCoder) {
@@ -32,26 +32,26 @@ class MessageCell: UITableViewCell {
 				textLabel?.text = message.text
 				refreshSeenStatus()
 			}
-			message?.addObserver(self, forKeyPath: kMessageSeenAttribute, options: .New, context: nil)
+			message?.addObserver(self, forKeyPath: kMessageSeenAttribute, options: .new, context: nil)
 		}
 	}
 	
-	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
 		if keyPath == kMessageSeenAttribute {
 			refreshSeenStatus()
 		} else {
-			super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
+			super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
 		}
 	}
 	
-	private func resetMessageObserving() {
+	fileprivate func resetMessageObserving() {
 		message?.removeObserver(self, forKeyPath: kMessageSeenAttribute)
 	}
 	
-	private func refreshSeenStatus() {
+	fileprivate func refreshSeenStatus() {
 		guard let message = message else {
 			return
 		}
-		textLabel?.font = message.seen ? UIFont.systemFontOfSize(15.0) : UIFont.boldSystemFontOfSize(15.0)
+		textLabel?.font = message.seen ? UIFont.systemFont(ofSize: 15.0) : UIFont.boldSystemFont(ofSize: 15.0)
 	}
 }

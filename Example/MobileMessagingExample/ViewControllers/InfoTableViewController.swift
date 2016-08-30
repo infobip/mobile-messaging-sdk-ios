@@ -13,13 +13,13 @@ let kSettingCellId = "kSettingCellId"
 class InfoTableViewController : UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
     enum SettingsCell: Int {
-        case DeviceToken
-        case InternalId
+        case deviceToken
+        case internalId
         
 		var text: String {
             switch self {
-            case DeviceToken: return "APNs Device token: "
-            case InternalId: return "Internal Registration Id: "
+            case .deviceToken: return "APNs Device token: "
+            case .internalId: return "Internal Registration Id: "
             }
         }
         
@@ -31,19 +31,19 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
     }
 	
 	deinit {
-		NSNotificationCenter.defaultCenter().removeObserver(self)
+		NotificationCenter.default.removeObserver(self)
 	}
 	
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.registerClass(CopyableCell.self, forCellReuseIdentifier: kSettingCellId)
+        tableView.register(CopyableCell.self, forCellReuseIdentifier: kSettingCellId)
 		tableView.estimatedRowHeight = 44
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: MMNotificationRegistrationUpdated, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: MMNotificationDeviceTokenReceived, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: NSNotification.Name(rawValue: MMNotificationRegistrationUpdated), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(InfoTableViewController.registrationChanged), name: NSNotification.Name(rawValue: MMNotificationDeviceTokenReceived), object: nil)
     }
     
-    @IBAction func closeButtonClicked(sender: UIBarButtonItem) {
-        self.dismissViewControllerAnimated(true, completion:nil)
+    @IBAction func closeButtonClicked(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true, completion:nil)
     }
     
     //MARK: Notification
@@ -52,27 +52,27 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
 	}
 	
     //MARK: UITableViewDataSource
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return 1
     }
 	
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return SettingsCell.count
     }
     
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return SettingsCell(rawValue: section)?.text
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(kSettingCellId, forIndexPath: indexPath)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: kSettingCellId, for: indexPath)
         cell.textLabel?.numberOfLines = 0
 		
 		var settingValue : String?
 		switch indexPath.section {
-		case SettingsCell.DeviceToken.rawValue:
+		case SettingsCell.deviceToken.rawValue:
 			settingValue = MobileMessaging.currentInstallation?.deviceToken
-		case SettingsCell.InternalId.rawValue:
+		case SettingsCell.internalId.rawValue:
 			settingValue = MobileMessaging.currentUser?.internalId
 		default: break
 		}

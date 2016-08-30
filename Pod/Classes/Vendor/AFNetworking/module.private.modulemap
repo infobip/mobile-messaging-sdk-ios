@@ -1,0 +1,4 @@
+framework module MobileMessaging.MMAFNetworking {
+	private header "AFNetworking.h"
+	export *
+}

@@ -11,10 +11,10 @@ protocol MMOperationObserver {
 }
 
 struct MMBlockObserver: MMOperationObserver {
-    private let startHandler: (MMRetryableOperation -> Void)?
+    private let startHandler: ((MMRetryableOperation) -> Void)?
     private let finishHandler: ((MMRetryableOperation, NSError?) -> Void)?
 	
-	init(startHandler: (MMRetryableOperation -> Void)? = nil, finishHandler: ((MMRetryableOperation, NSError?) -> Void)? = nil) {
+	init(startHandler: ((MMRetryableOperation) -> Void)? = nil, finishHandler: ((MMRetryableOperation, NSError?) -> Void)? = nil) {
 		self.startHandler = startHandler
 		self.finishHandler = finishHandler
 	}
@@ -34,32 +34,32 @@ class MMRetryOperationQueue: OperationQueue {
 		self.name = "com.mobile-messaging.retryable-operation-queue"
 	}
 	
-	override func addOperation(operation: NSOperation) {
+	override func addOperation(_ operation: Foundation.Operation) {
 		if let op = operation as? MMRetryableOperation {
 			let obs = MMBlockObserver(startHandler: nil,
 			                          finishHandler: { [weak self] (operation, error) -> Void in
 										if let strongSelf = self {
-											strongSelf.scheduleRetry(operation)
+											strongSelf.scheduleRetry(operation: operation)
 										}
 				}
 			)
-			op.addObserver(obs)
+			op.addObserver(observer: obs)
 		}
 		super.addOperation(operation)
     }
 	
 	private func scheduleRetry(operation: MMRetryableOperation) {
-		if let newOperation = operation.dynamicType.nextOperation(operation) {
+		if let newOperation = type(of: operation).nextOperation(previousOperation: operation) {
 			let retryNumber = newOperation.retryCounter + 1
 			let delay = pow(Double(retryNumber), 2)
-			MMLogDebug("Scheduled retry attempt #\(retryNumber) for request \(newOperation.dynamicType) in \(delay) seconds.")
-			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+			MMLogDebug("Scheduled retry attempt #\(retryNumber) for request \(type(of: newOperation)) in \(delay) seconds.")
+			DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: {
 				self.addOperation(newOperation)
 			})
 		}
 	}
 	
-	override func addOperations(ops: [NSOperation], waitUntilFinished wait: Bool) {
+	override func addOperations(_ ops: [Foundation.Operation], waitUntilFinished wait: Bool) {
 		for op in ops {
 			addOperation(op)
 			if wait {

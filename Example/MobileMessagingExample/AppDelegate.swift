@@ -14,9 +14,9 @@ class AppDelegate: MobileMessagingAppDelegate {
 
 	override var applicationCode: String { return "a2277b20b0d4193998f10f06ab1f451f-2d951329-a751-41ae-b215-b7ceab09f9a0" }
 	
-	override var userNotificationType: UIUserNotificationType { return [.Alert, .Sound] }
+	override var userNotificationType: UIUserNotificationType { return [.alert, .sound] }
 	
-	override func mm_application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+	override func mm_application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]?) -> Bool {
 		setupLogging()
 		return true
 	}

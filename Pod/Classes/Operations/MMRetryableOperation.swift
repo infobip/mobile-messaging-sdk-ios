@@ -22,7 +22,7 @@ class MMRetryableOperation: Operation {
 		}
 	}
 	
-	typealias MMRetryableOperationCompletion = MMRetryableOperation -> Void
+	typealias MMRetryableOperationCompletion = (MMRetryableOperation) -> Void
 	private(set) var retryLimit = 0
 	private(set) var currentError: NSError?
 	
@@ -39,8 +39,8 @@ class MMRetryableOperation: Operation {
 	}
 	
 	class func nextOperation(previousOperation: MMRetryableOperation) -> MMRetryableOperation? {
-		let nextOp = previousOperation.dynamicType.init(retryLimit: previousOperation.retryLimit, completion: previousOperation.finishCompletion)
-		nextOp.mapAttributesFrom(previousOperation)
+		let nextOp = type(of: previousOperation).init(retryLimit: previousOperation.retryLimit, completion: previousOperation.finishCompletion)
+		nextOp.mapAttributesFrom(previous: previousOperation)
 		if !nextOp.shouldRetry(afterError: previousOperation.currentError) {
 			return nil
 		}
@@ -50,15 +50,15 @@ class MMRetryableOperation: Operation {
 	private func shouldRetry(afterError error: NSError?) -> Bool {
 		var isErrorOkToRetry = false
 		switch error {
-		case .Some(let err) where err.mm_isRetryable:
+		case .some(let err) where err.mm_isRetryable:
 			isErrorOkToRetry = true
-		case .None:
+		case .none:
 			isErrorOkToRetry = false
 		default:
 			isErrorOkToRetry = false
 		}
 
-		return retryCounter < retryLimit && !cancelled && isErrorOkToRetry
+		return retryCounter < retryLimit && !isCancelled && isErrorOkToRetry
 	}
 	
 	func addObserver(observer: MMBlockObserver) {
@@ -68,17 +68,17 @@ class MMRetryableOperation: Operation {
 	override func execute() {
 		retryCounter += 1
 		for obs in attemptObservers {
-			obs.attemptDidStart(self)
+			obs.attemptDidStart(operation: self)
 		}
 	}
 	
-	override func finished(errors: [NSError]) {
+	override func finished(_ errors: [NSError]) {
 		currentError = errors.first
 		if !shouldRetry(afterError: currentError) {
 			finishCompletion(self)
 		}
 		for obs in attemptObservers {
-			obs.attemptDidFinish(self, error: currentError)
+			obs.attemptDidFinish(operation: self, error: currentError)
 		}
 		attemptObservers.removeAll()
 	}

@@ -35,33 +35,33 @@ class MMTestCase: XCTestCase {
 		cleanUpAndStop()
 	}
 	
-	func nonReportedStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
+	func nonReportedStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
 		var count: Int = 0
 		ctx.reset()
-		ctx.performBlockAndWait {
+		ctx.performAndWait {
 			count = MessageManagedObject.MM_countOfEntitiesWithPredicate(NSPredicate(format: "reportSent == false"), inContext: ctx)
 		}
 		return count
 	}
 	
-	func allStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
+	func allStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
 		var count: Int = 0
 		ctx.reset()
-		ctx.performBlockAndWait {
+		ctx.performAndWait {
 			count = MessageManagedObject.MM_countOfEntitiesWithContext(ctx)
 		}
 		return count
 	}
 	
-	func startWithApplicationCode(code: String) {
-		MobileMessaging.withApplicationCode(code, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+	func startWithApplicationCode(_ code: String) {
+		MobileMessaging.withApplicationCode(code, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
 	}
 	
 	func startWithCorrectApplicationCode() {
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
 	}
 	
 	func startWithWrongApplicationCode() {
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
 	}
 }

@@ -15,12 +15,12 @@ enum MMSeenStatus : Int32 {
     case SeenSent
 }
 
-final class MessageManagedObject: NSManagedObject {
+final class MessageManagedObject: NSManagedObject, Fetchable {
 	override func MM_awakeFromCreation() {
 		self.creationDate = NSDate()
 	}
     var seenStatus: MMSeenStatus {
-		get { return MMSeenStatus(rawValue: seenStatusValue.intValue) ?? .NotSeen }
-		set { seenStatusValue = NSNumber(int: newValue.rawValue) }
+		get { return MMSeenStatus(rawValue: Int32(seenStatusValue.intValue)) ?? .NotSeen }
+		set { seenStatusValue = NSNumber(value: newValue.rawValue) }
     }
 }

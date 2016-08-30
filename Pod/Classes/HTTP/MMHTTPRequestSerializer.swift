@@ -5,8 +5,6 @@
 //  Created by okoroleva on 07.03.16.
 //  
 
-import MMAFNetworking
-
 final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String
     private var jsonBody: [String: AnyObject]?
@@ -23,16 +21,16 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 		fatalError("init(coder:) has not been implemented")
 	}
 	
-    override var HTTPMethodsEncodingParametersInURI : Set<String> {
+    override var httpMethodsEncodingParametersInURI : Set<String> {
         get {
-            var params = super.HTTPMethodsEncodingParametersInURI
+            var params = super.httpMethodsEncodingParametersInURI
             params.insert("POST")
             return params
         }
         set {}
 	}
 	
-	func applyHeaders(inout request: NSMutableURLRequest) {
+	func applyHeaders(_ request: inout NSMutableURLRequest) {
 		if let headers = headers {
 			for (header, value) in headers {
 				request.addValue(value, forHTTPHeaderField: header)
@@ -40,25 +38,26 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 		}
 		request.addValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
 		request.addValue(MMUserAgent.currentUserAgent, forHTTPHeaderField: "User-Agent")
-		if NSProcessInfo.processInfo().arguments.contains("-UseIAMMocks") {
+		if ProcessInfo.processInfo.arguments.contains("-UseIAMMocks") {
 			request.addValue("iam-mock", forHTTPHeaderField: "Accept-Features")
 		}
 	}
 	
-    override func requestWithMethod(method: String, URLString: String, parameters: AnyObject?, error: NSErrorPointer) -> NSMutableURLRequest {
+
+	override func request(withMethod method: String, urlString URLString: String, parameters: Any?, error: NSErrorPointer) -> NSMutableURLRequest {
         var request = NSMutableURLRequest()
 		request.timeoutInterval = 20
-        request.HTTPMethod = method
-		request.URL = URL(withQueryParameters: parameters, url: URLString)
+        request.httpMethod = method
+		request.url = makeURL(withQueryParameters: parameters, url: URLString)
 		applyHeaders(&request)
 		
-        if let jsonBody = jsonBody where method == "POST" {
-            var data : NSData?
+        if let jsonBody = jsonBody , method == "POST" {
+            var data : Data?
             do {
-                data = try NSJSONSerialization.dataWithJSONObject(jsonBody, options: [])
+                data = try JSONSerialization.data(withJSONObject: jsonBody, options: [])
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.addValue("application/json", forHTTPHeaderField: "Accept")
-                request.HTTPBody = data
+                request.httpBody = data
             } catch let error as NSError {
                 MMLogError("RequestSerializer can't serialize json body: \(jsonBody) with error: \(error)")
             }
@@ -67,12 +66,12 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
         return request;
     }
 	
-	func URL(withQueryParameters parameters: AnyObject?, url: String) -> NSURL? {
+	func makeURL(withQueryParameters parameters: Any?, url: String) -> URL? {
 		var completeURLString = url
 		if let dictParams = parameters as? [String : AnyObject] {
-			completeURLString += "?" + MMHTTPRequestSerializer.queryFromParameters(dictParams);
+			completeURLString += "?" + MMHTTPRequestSerializer.queryFromParameters(parameters: dictParams);
 		}
-		return NSURL(string: completeURLString)
+		return URL(string: completeURLString)
 	}
 	
 	class func queryFromParameters(parameters: [String: AnyObject]) -> String {
@@ -86,9 +85,9 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 					escapedPairs.append("\(key.mm_escapeString())=\(arrayValue.mm_escapeString())")
 				}
 			default:
-				escapedPairs.append("\(key.mm_escapeString())=\(String(value).mm_escapeString())")
+				escapedPairs.append("\(key.mm_escapeString())=\(String(describing: value).mm_escapeString())")
 			}
 		}
-		return escapedPairs.joinWithSeparator("&")
+		return escapedPairs.joined(separator: "&")
 	}
 }

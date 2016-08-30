@@ -28,7 +28,7 @@ class FetchMessagesTest: MMTestCase {
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
 		
-		let expectation = expectationWithDescription("Sync finished")
+		let expectation = self.expectation(description: "Sync finished")
         XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
                 
         let messageHandler = mobileMessagingInstance.messageHandler
@@ -42,7 +42,7 @@ class FetchMessagesTest: MMTestCase {
 			expectation.fulfill()
         }
         
-        waitForExpectationsWithTimeout(10, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
 	
 	/**
@@ -55,17 +55,17 @@ class FetchMessagesTest: MMTestCase {
 	m2 seen and deivered, m1 delivered
 	*/
 	func testConcurrency() {
-		let prepconditionExpectation = expectationWithDescription("Initial message base set up")
-		let seenExpectation = expectationWithDescription("Seen request finished")
-		let syncExpectation = expectationWithDescription("Sync finished")
-		let newMsgExpectation = expectationWithDescription("New message received")
+		let prepconditionExpectation = expectation(description: "Initial message base set up")
+		let seenExpectation = expectation(description: "Seen request finished")
+		let syncExpectation = expectation(description: "Sync finished")
+		let newMsgExpectation = expectation(description: "New message received")
 
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
 			prepconditionExpectation.fulfill()
 		})
 		
@@ -74,7 +74,7 @@ class FetchMessagesTest: MMTestCase {
 			seenExpectation.fulfill()
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation.fulfill()
 		})
 
@@ -83,17 +83,17 @@ class FetchMessagesTest: MMTestCase {
 		})
 		
 		//Expectations
-		waitForExpectationsWithTimeout(50) { error in
+		waitForExpectations(timeout: 50) { error in
 			let ctx = self.mobileMessagingInstance.storage!.mainThreadManagedObjectContext!
 			ctx.reset()
-			ctx.performBlockAndWait {
-				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
+			ctx.performAndWait {
+				if let messages = MessageManagedObject.MM_findAllInContext(ctx) {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
 					let m2 = messages.filter({$0.messageId == "m2"}).first
 					XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenSent, "m2 must be seen and synced")
-					XCTAssertEqual(m2?.reportSent, NSNumber(bool: true), "m2 delivery report must be delivered")
+					XCTAssertEqual(m2?.reportSent, NSNumber(value: true), "m2 delivery report must be delivered")
 					XCTAssertEqual(m1?.seenStatus, MMSeenStatus.NotSeen, "m1 must be not seen")
-					XCTAssertEqual(m1?.reportSent, NSNumber(bool: true), "m1 delivery report must be delivered")
+					XCTAssertEqual(m1?.reportSent, NSNumber(value: true), "m1 delivery report must be delivered")
 				} else {
 					XCTFail("There should be some messages in database")
 				}
@@ -110,12 +110,12 @@ class FetchMessagesTest: MMTestCase {
      m1, m2, m3, m4 are in DB
      */
     func testMergeOldMessageIdsWithNew() {
-		let newMsgExpectation1 = expectationWithDescription("New message m1 received")
-		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
-		let syncExpectation = expectationWithDescription("Sync finished")
+		let newMsgExpectation1 = expectation(description: "New message m1 received")
+		let newMsgExpectation2 = expectation(description: "New message m2 received")
+		let syncExpectation = expectation(description: "Sync finished")
 		
 		var newMsgCounter = 0
-		expectationForNotification(MMNotificationMessageReceived, object: nil) { n -> Bool in
+		expectation(forNotification: MMNotificationMessageReceived, object: nil) { n -> Bool in
 			if	let userInfo = n.userInfo,
 				let messageDict = userInfo[MMNotificationKeyMessagePayload] as? [NSObject : AnyObject],
 				let isPushFlag = n.userInfo?[MMNotificationKeyMessageIsPush] as? Bool,
@@ -142,11 +142,11 @@ class FetchMessagesTest: MMTestCase {
 		
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation1.fulfill()
 		})
 	
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
 			newMsgExpectation2.fulfill()
 		})
 		
@@ -155,13 +155,13 @@ class FetchMessagesTest: MMTestCase {
 			syncExpectation.fulfill()
 		}
 		
-		waitForExpectationsWithTimeout(50) { error in
+		waitForExpectations(timeout: 50) { error in
 			
-			messagesCtx.performBlockAndWait {
-				if let messagesAfterSync = MessageManagedObject.MM_findAllInContext(messagesCtx) as? [MessageManagedObject] {
+			messagesCtx.performAndWait {
+				if let messagesAfterSync = MessageManagedObject.MM_findAllInContext(messagesCtx) {
 					let mIdsToCheck = Set(messagesAfterSync.map{$0.messageId})
 					let mIds = Set(["m1", "m2", "m3", "m4"])
-					let diff = mIdsToCheck.exclusiveOr(mIds)
+					let diff = mIdsToCheck.symmetricDifference(mIds)
 					XCTAssertTrue(diff.isEmpty, "Not Expected mIds in DB: \(diff)")
 				}
 			}

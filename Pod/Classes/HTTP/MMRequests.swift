@@ -5,10 +5,9 @@
 //  Created by Andrey K. on 23/02/16.
 //  
 //
-import SwiftyJSON
-import MMAFNetworking
+//import SwiftyJSON
 
-enum MMHTTPRequestError: ErrorType {
+enum MMHTTPRequestError: Error {
     case EmptyDeviceToken
     case IncorrectApplicationCode
 }
@@ -29,7 +28,7 @@ enum MMHTTPAPIPath: String {
 
 protocol MMHTTPRequestResponsable {
 	associatedtype ResponseType: JSONDecodable
-	func responseObject(applicationCode: String, baseURL: String, completion: Result<ResponseType> -> Void)
+	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void)
 }
 
 protocol MMHTTPRequestData: MMHTTPRequestResponsable {
@@ -57,14 +56,14 @@ extension MMHTTPRequestData {
     var body: [String: AnyObject]? { return nil }
 	var parameters: [String: AnyObject]? { return nil }
     
-	func responseObject(applicationCode: String, baseURL: String, completion: Result<ResponseType> -> Void) {
-		let manager = MM_AFHTTPSessionManager(baseURL: NSURL(string: baseURL), sessionConfiguration: NSURLSessionConfiguration.defaultSessionConfiguration())
+	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void) {
+		let manager = MM_AFHTTPSessionManager(baseURL: NSURL(string: baseURL) as URL?, sessionConfiguration: URLSessionConfiguration.default)
 		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
 		manager.responseSerializer = MMResponseSerializer<ResponseType>()
 		
-		MMLogDebug("Sending request \(self.dynamicType)\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
+		MMLogDebug("Sending request \(type(of: self))\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
 		
-		let successBlock = { (task: NSURLSessionDataTask, obj: AnyObject?) -> Void in
+		let successBlock = { (task: URLSessionDataTask, obj: Any?) -> Void in
 			if let obj = obj as? ResponseType {
 				completion(Result.Success(obj))
 			} else {
@@ -73,18 +72,18 @@ extension MMHTTPRequestData {
 			}
 		}
 		
-		let failureBlock = { (task: NSURLSessionDataTask?, error: NSError) -> Void in
-			completion(Result<ResponseType>.Failure(error))
+		let failureBlock = { (task: URLSessionDataTask?, error: Error) -> Void in
+			completion(Result<ResponseType>.Failure(error as NSError?))
 		}
 		
 		let urlString = manager.baseURL!.absoluteString + self.path.rawValue
 		switch self.method {
 		case .POST:
-			manager.POST(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
+			manager.post(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
 		case .PUT:
-			manager.PUT(urlString, parameters: parameters, success: successBlock, failure: failureBlock)
+			manager.put(urlString, parameters: parameters, success: successBlock, failure: failureBlock)
 		case .GET:
-			manager.GET(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
+			manager.get(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
 		}
 	}
 }
@@ -94,7 +93,7 @@ struct MMPostRegistrationRequest: MMHTTPPostRequest {
 	
 	var retryLimit: Int { return 3 }
 	var path: MMHTTPAPIPath { return .Registration }
-    var parameters: [String: AnyObject]? {
+    var parameters: [String: Any]? {
         var params = [MMAPIKeys.kRegistrationId: currentDeviceToken,
                       MMAPIKeys.kPlatformType: MMAPIValues.kPlatformType]
 		params[MMAPIKeys.kInternalRegistrationId] = internalId
@@ -116,10 +115,10 @@ struct SeenData {
 		return UInt(max(0, NSDate().timeIntervalSinceReferenceDate - seenDate.timeIntervalSinceReferenceDate))
 	}
 	var dict: [String: AnyObject] {
-		return [MMAPIKeys.kMessageId: messageId,
-		        MMAPIKeys.kSeenTimestampDelta: timestampDelta]
+		return [MMAPIKeys.kMessageId: messageId as AnyObject,
+		        MMAPIKeys.kSeenTimestampDelta: timestampDelta as AnyObject]
 	}
-	static func requestBody(seenList: [SeenData]) -> [String: AnyObject] {
+	static func requestBody(seenList: [SeenData]) -> [String: Any] {
 		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dict } ]
 	}
 }
@@ -130,7 +129,7 @@ struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 	var path: MMHTTPAPIPath { return .SeenMessages }
 	var parameters: [String: AnyObject]? { return nil }
 	let seenList: [SeenData]
-    var body: [String: AnyObject]? { return SeenData.requestBody(seenList) }
+    var body: [String: Any]? { return SeenData.requestBody(seenList: seenList) }
 	
 	init(seenList: [SeenData]) {
 		self.seenList = seenList
@@ -138,20 +137,21 @@ struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 }
 
 struct MMPostSyncRequest: MMHTTPPostRequest {
+
 	typealias ResponseType = MMHTTPSyncMessagesResponse
 	var path: MMHTTPAPIPath { return .SyncMessages }
 	var parameters: [String: AnyObject]? {
 		var params = [String: AnyObject]()
-		params[MMAPIKeys.kInternalRegistrationId] = internalId
-		params[MMAPIKeys.kPlatformType] = MMAPIValues.kPlatformType
+		params[MMAPIKeys.kInternalRegistrationId] = internalId as AnyObject
+		params[MMAPIKeys.kPlatformType] = MMAPIValues.kPlatformType as AnyObject
 		return params
 	}
 	
 	let internalId: String
 	let archiveMsgIds: [String]?
 	let dlrMsgIds: [String]?
-	var body: [String: AnyObject]? {
-		var result = [String: AnyObject]()
+	var body: [String: Any]? {
+		var result = [String: Any]()
 		result[MMAPIKeys.kArchiveMsgIds] = (archiveMsgIds?.isEmpty ?? true) ? nil : archiveMsgIds
 		result[MMAPIKeys.kDLRMsgIds] = (dlrMsgIds?.isEmpty ?? true) ? nil : dlrMsgIds
 		return result
@@ -172,12 +172,12 @@ struct MMPostUserDataRequest: MMHTTPPostRequest {
 		if let externalUserId = externalUserId {
 			params[MMAPIKeys.kUserDataExternalUserId] = externalUserId
 		}
-		return params
+		return params as [String : AnyObject]
 	}
-	var body: [String: AnyObject]? {
-		var result = [String: AnyObject]()
-		result[MMAPIKeys.kUserDataPredefinedUserData] = predefinedUserData ?? [String: AnyObject]()
-		result[MMAPIKeys.kUserDataCustomUserData] = customUserData ?? [String: AnyObject]()
+	var body: [String: Any]? {
+		var result = [String: Any]()
+		result[MMAPIKeys.kUserDataPredefinedUserData] = predefinedUserData ?? [String: Any]()
+		result[MMAPIKeys.kUserDataCustomUserData] = customUserData ?? [String: Any]()
 		return result
 	}
 	
@@ -195,13 +195,14 @@ struct MMPostUserDataRequest: MMHTTPPostRequest {
 }
 
 struct MMPostMessageRequest: MMHTTPPostRequest {
+
 	typealias ResponseType = MMHTTPMOMessageResponse
 	var path: MMHTTPAPIPath { return .MOMessage }
 	var parameters: [String: AnyObject]? {
-		return [MMAPIKeys.kPlatformType : MMAPIValues.kPlatformType]
+		return [MMAPIKeys.kPlatformType : MMAPIValues.kPlatformType as AnyObject]
 	}
-	var body: [String: AnyObject]? {
-		var result = [String: AnyObject]()
+	var body: [String: Any]? {
+		var result = [String: Any]()
 		result[MMAPIKeys.kMOFrom] = internalUserId
 		result[MMAPIKeys.kMOMessages] = messages.map { $0.dictRepresentation }
 		return result

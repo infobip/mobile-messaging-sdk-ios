@@ -20,12 +20,12 @@ enum MMNotificationCategories : String {
 		case .ChatMessage:
 			return [
 				MMNotificationButton(identifier: MMNotificationButtons.MarkAsSeen,
-					title: "Mark as seen", activationMode: .Background, authenticationRequired: false, destructive: false, parameters: nil),
-				MMNotificationButton(identifier: MMNotificationButtons.Reply, title: "Reply", activationMode: isIOS9() ? .Background : .Foreground, authenticationRequired: false, destructive: false, parameters: nil, allowsTextInput: true)
+					title: "Mark as seen", activationMode: .background, authenticationRequired: false, destructive: false, parameters: nil),
+				MMNotificationButton(identifier: MMNotificationButtons.Reply, title: "Reply", activationMode: isIOS9() ? .background : .foreground, authenticationRequired: false, destructive: false, parameters: nil, allowsTextInput: true)
 			]
 		case .CouponMessage:
 			return [
-				MMNotificationButton(identifier: MMNotificationButtons.Apply, title: "Apply", activationMode: .Foreground, authenticationRequired: false, destructive: false, parameters: nil)
+				MMNotificationButton(identifier: MMNotificationButtons.Apply, title: "Apply", activationMode: .foreground, authenticationRequired: false, destructive: false, parameters: nil)
 			]
 		}
 	}
@@ -74,7 +74,7 @@ class MMNotificationButton {
 		self.parameters = parameters
 		
 		if #available(iOS 9.0, *) {
-			self.behavior = allowsTextInput ? .TextInput : .Default
+			self.behavior = allowsTextInput ? .textInput : .default
 		}
 	}
 }
@@ -84,13 +84,13 @@ class MMNotificationCategoryManager {
 	class func categoriesToRegister() -> Set<UIUserNotificationCategory>? {
 		let categoriesToRegister = predefinedCategories.map { (category: MMNotificationCategories) -> UIUserNotificationCategory in
 			let notificationActions = category.buttons.map { action -> UIUserNotificationAction in
-				return prepareNotificationAction(action)
+				return prepareNotificationAction(notificationButton: action)
 			}
 			
 			let userNotificationCategory = UIMutableUserNotificationCategory()
 			userNotificationCategory.identifier = category.identifier
-			userNotificationCategory.setActions(notificationActions, forContext: .Default)
-			userNotificationCategory.setActions(notificationActions, forContext: .Minimal)
+			userNotificationCategory.setActions(notificationActions, for: .default)
+			userNotificationCategory.setActions(notificationActions, for: .minimal)
 			return userNotificationCategory
 		}
 		return NSSet(array: categoriesToRegister) as? Set<UIUserNotificationCategory>
@@ -104,8 +104,8 @@ class MMNotificationCategoryManager {
 		inputAction.identifier = notificationButton.identifier
 		inputAction.title = notificationButton.title
 		inputAction.activationMode = notificationButton.activationMode
-		inputAction.authenticationRequired = notificationButton.authenticationRequired
-		inputAction.destructive = notificationButton.destructive
+		inputAction.isAuthenticationRequired = notificationButton.authenticationRequired
+		inputAction.isDestructive = notificationButton.destructive
 		
 		if #available(iOS 9.0, *) {
 			if let params = notificationButton.parameters {

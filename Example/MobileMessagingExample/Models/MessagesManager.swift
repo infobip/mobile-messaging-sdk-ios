@@ -26,21 +26,21 @@ class Message : NSObject, NSCoding {
 	
 	//MARK: NSCoding
 	required init(coder aDecoder: NSCoder) {
-		text = aDecoder.decodeObjectForKey("text") as! String
-		messageId = aDecoder.decodeObjectForKey("messageId") as! String
-		deliveryReportSent = aDecoder.decodeBoolForKey(kMessageDeliveryReportSentAttribute)
-		seen = aDecoder.decodeBoolForKey(kMessageSeenAttribute)
+		text = aDecoder.decodeObject(forKey: "text") as! String
+		messageId = aDecoder.decodeObject(forKey: "messageId") as! String
+		deliveryReportSent = aDecoder.decodeBool(forKey: kMessageDeliveryReportSentAttribute)
+		seen = aDecoder.decodeBool(forKey: kMessageSeenAttribute)
 	}
 	
-	func encodeWithCoder(aCoder: NSCoder) {
-		aCoder.encodeObject(text, forKey: "text")
-		aCoder.encodeObject(messageId, forKey: "messageId")
-		aCoder.encodeBool(deliveryReportSent, forKey: kMessageDeliveryReportSentAttribute)
-		aCoder.encodeBool(seen, forKey: kMessageSeenAttribute)
+	func encode(with aCoder: NSCoder) {
+		aCoder.encode(text, forKey: "text")
+		aCoder.encode(messageId, forKey: "messageId")
+		aCoder.encode(deliveryReportSent, forKey: kMessageDeliveryReportSentAttribute)
+		aCoder.encode(seen, forKey: kMessageSeenAttribute)
 	}
 	
 	//MARK: Util
-	class func prepare(rawMessage: [NSObject : AnyObject]) -> Message? {
+	class func prepare(_ rawMessage: [NSObject : AnyObject]) -> Message? {
 		guard let text = rawMessage.mm_apsAlertBody
 			, let messageId = rawMessage.mm_messageId
 			else {
@@ -56,7 +56,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	var messages = [Message]()
 
 	deinit {
-		NSNotificationCenter.defaultCenter().removeObserver(self)
+		NotificationCenter.default.removeObserver(self)
 	}
 	
 	override init() {
@@ -68,41 +68,41 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	func cleanMessages() {
 		synced(self) {
 			self.messages.removeAll()
-			NSUserDefaults.standardUserDefaults().removeObjectForKey(kMessagesKey)
+			UserDefaults.standard.removeObject(forKey: kMessagesKey)
 		}
 	}
 	
 	//MARK: Private
-	private func displayMessageAlert(messageUserInfo: [NSObject : AnyObject]) {
-		if UIApplication.sharedApplication().applicationState == .Active {
-			MMPush.handlePush(messageUserInfo)
+	fileprivate func displayMessageAlert(_ messageUserInfo: [NSObject : AnyObject]) {
+		if UIApplication.shared.applicationState == .active {
+			MMPush.handlePush(userInfo: messageUserInfo)
 		}
 	}
 	
-	private func synced(lock: AnyObject, closure: Void -> Void) {
+	fileprivate func synced(_ lock: AnyObject, closure: (Void) -> Void) {
 		objc_sync_enter(lock)
 		closure()
 		objc_sync_exit(lock)
 	}
 	
-	private func startObservingNotifications() {
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.appWillTerminate), name: UIApplicationWillTerminateNotification, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleNewMessageReceivedNotification(_:)), name: MMNotificationMessageReceived, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MessagesManager.handleDeliveryReportSentNotification(_:)), name: MMNotificationDeliveryReportSent, object: nil)
+	fileprivate func startObservingNotifications() {
+		NotificationCenter.default.addObserver(self, selector: #selector(MessagesManager.appWillTerminate), name: NSNotification.Name.UIApplicationWillTerminate, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(MessagesManager.handleNewMessageReceivedNotification(_:)), name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(MessagesManager.handleDeliveryReportSentNotification(_:)), name: NSNotification.Name(rawValue: MMNotificationDeliveryReportSent), object: nil)
 	}
 	
-	private func archiveMessages() {
+	fileprivate func archiveMessages() {
 		synced(self) {
-			let data: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.messages)
-			NSUserDefaults.standardUserDefaults().setObject(data, forKey: kMessagesKey)
+			let data: Data = NSKeyedArchiver.archivedData(withRootObject: self.messages)
+			UserDefaults.standard.set(data, forKey: kMessagesKey)
 		}
 	}
 	
-	private func unarchiveMessages() {
+	fileprivate func unarchiveMessages() {
 		synced(self) {
-			if let messagesData = NSUserDefaults.standardUserDefaults().objectForKey(kMessagesKey) as? NSData,
-				let messages = NSKeyedUnarchiver.unarchiveObjectWithData(messagesData) as? [Message] {
-				self.messages.appendContentsOf(messages)
+			if let messagesData = UserDefaults.standard.object(forKey: kMessagesKey) as? Data,
+				let messages = NSKeyedUnarchiver.unarchiveObject(with: messagesData) as? [Message] {
+				self.messages.append(contentsOf: messages)
 			}
 		}
 	}
@@ -112,23 +112,23 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		archiveMessages()
 	}
 	
-	func handleNewMessageReceivedNotification(notification: NSNotification) {
-		guard let userInfo = notification.userInfo,
+	func handleNewMessageReceivedNotification(_ notification: Notification) {
+		guard let userInfo = (notification as NSNotification).userInfo,
 			let messageUserInfo = userInfo[MMNotificationKeyMessagePayload] as? [NSObject : AnyObject],
 			let message = Message.prepare(messageUserInfo) else {
 				return
 		}
 		
 		synced(self) {
-			self.messages.insert(message, atIndex: 0)
+			self.messages.insert(message, at: 0)
 		}
 		
 		newMessageBlock?(message)
 		displayMessageAlert(messageUserInfo)
 	}
 	
-	func handleDeliveryReportSentNotification(notification: NSNotification) {
-		guard let userInfo = notification.userInfo,
+	func handleDeliveryReportSentNotification(_ notification: Notification) {
+		guard let userInfo = (notification as NSNotification).userInfo,
 			let messageUserInfo = userInfo[MMNotificationKeyDLRMessageIDs] as? [String] else {
 				return
 		}
@@ -141,13 +141,13 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 
 	//MARK: UITableViewDataSource
-	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return messages.count
 	}
 	
-	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-		if let cell = tableView.dequeueReusableCellWithIdentifier(kMessageCellId, forIndexPath: indexPath) as? MessageCell {
-			cell.message = messages[indexPath.row]
+	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+		if let cell = tableView.dequeueReusableCell(withIdentifier: kMessageCellId, for: indexPath) as? MessageCell {
+			cell.message = messages[(indexPath as NSIndexPath).row]
 			return cell
 		}
 		fatalError()

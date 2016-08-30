@@ -34,51 +34,51 @@ class MMGeofencingDatasource {
 		load()
 	}
 	
-	func campaingWithId(id: String) -> MMCampaign? {
+	func campaingWithId(_ id: String) -> MMCampaign? {
 		return campaigns.filter({ $0.id == id }).first
 	}
 	
-	func addRegionsFromCampaign(campaign: MMCampaign) {
+	func addRegionsFromCampaign(_ campaign: MMCampaign) {
 		for region in campaign.regions {
 			regions[region.identifier] = region
 		}
 	}
 	
-	func removeRegionsFromCampaign(campaign: MMCampaign) {
+	func removeRegionsFromCampaign(_ campaign: MMCampaign) {
 		for region in campaign.regions {
 			regions[region.identifier] = nil
 		}
 	}
 	
-	func addNewCampaign(newCampaign: MMCampaign) {
+	func addNewCampaign(_ newCampaign: MMCampaign) {
 		campaigns.insert(newCampaign)
 		addRegionsFromCampaign(newCampaign)
 		save()
 	}
 	
-	func removeCampaign(campaingToRemove: MMCampaign) {
+	func removeCampaign(_ campaingToRemove: MMCampaign) {
 		campaigns.remove(campaingToRemove)
 		removeRegionsFromCampaign(campaingToRemove)
 		save()
 	}
 	
-	lazy var rootURL: NSURL = {
-		return NSFileManager.defaultManager().URLsForDirectory(NSSearchPathDirectory.ApplicationSupportDirectory, inDomains: NSSearchPathDomainMask.UserDomainMask)[0]
+	lazy var rootURL: URL = {
+		return FileManager.default.urls(for: FileManager.SearchPathDirectory.applicationSupportDirectory, in: FileManager.SearchPathDomainMask.userDomainMask)[0]
 	}()
 	
-	lazy var fileDirectoryURL: NSURL = {
-		return self.rootURL.URLByAppendingPathComponent(MMGeofencingDatasource.plistDir)
+	lazy var fileDirectoryURL: URL = {
+		return self.rootURL.appendingPathComponent(MMGeofencingDatasource.plistDir)
 	}()
 	
-	lazy var plistURL: NSURL = {
-		self.fileDirectoryURL.URLByAppendingPathComponent(MMGeofencingDatasource.plistFile)
+	lazy var plistURL: URL = {
+		return self.fileDirectoryURL.appendingPathComponent(MMGeofencingDatasource.plistFile)
 	}()
 	
 	func save() {
 		//FIXME: move to BG thread
-		if let path = fileDirectoryURL.path where !NSFileManager.defaultManager().fileExistsAtPath(path) {
+		if !FileManager.default.fileExists(atPath: fileDirectoryURL.path) {
 			do {
-				try NSFileManager.defaultManager().createDirectoryAtURL(fileDirectoryURL, withIntermediateDirectories: true, attributes: nil)
+				try FileManager.default.createDirectory(at: fileDirectoryURL as URL, withIntermediateDirectories: true, attributes: nil)
 			} catch {
 				MMLogError("Can't create a directory for a plist.")
 				return
@@ -89,8 +89,8 @@ class MMGeofencingDatasource {
 		let campaignDicts = campaigns.map { $0.dictionaryRepresentation }
 		
 		do {
-			let data = try NSPropertyListSerialization.dataWithPropertyList(campaignDicts, format: NSPropertyListFormat.XMLFormat_v1_0, options: 0)
-			try data.writeToURL(plistURL, options: NSDataWritingOptions.AtomicWrite)
+			let data = try PropertyListSerialization.data(fromPropertyList: campaignDicts, format: PropertyListSerialization.PropertyListFormat.xml, options: 0)
+			try data.write(to: plistURL, options: NSData.WritingOptions.atomicWrite)
 		} catch {
 			MMLogError("Can't write to a plist.")
 		}
@@ -98,9 +98,8 @@ class MMGeofencingDatasource {
 	
 	func load() {
 		//FIXME: move to BG thread
-		guard let plistPath = plistURL.path,
-			let data = NSFileManager.defaultManager().contentsAtPath(plistPath),
-			let plistArray = try? NSPropertyListSerialization.propertyListWithData(data, options: NSPropertyListMutabilityOptions.MutableContainersAndLeaves, format: nil),
+		guard let data = FileManager.default.contents(atPath: plistURL.path),
+			let plistArray = try? PropertyListSerialization.propertyList(from: data, options: PropertyListSerialization.MutabilityOptions.mutableContainersAndLeaves, format: nil),
 			let plistDicts = plistArray as? [[String: AnyObject]] else
 		{
 			MMLogError("Can't load campaigns from plist.")

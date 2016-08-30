@@ -11,13 +11,13 @@ import CoreData
 
 class MessagePostingOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: (MMMOMessageResult -> Void)?
+	let finishBlock: ((MMMOMessageResult) -> Void)?
 	var result = MMMOMessageResult.Cancel
 	let remoteAPIQueue: MMRemoteAPIQueue
 	var messagesToSend: [MOMessage]?
 	var resultMessages: [MOMessage]?
 	
-	init(messages: [MOMessage]?, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMMOMessageResult -> Void)? = nil) {
+	init(messages: [MOMessage]?, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMMOMessageResult) -> Void)? = nil) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
@@ -28,7 +28,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	override func execute() {
-		self.context.performBlockAndWait {
+		self.context.performAndWait {
 			
 			guard let internalId = MobileMessaging.currentUser?.internalId else {
 				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
@@ -44,32 +44,33 @@ class MessagePostingOperation: Operation {
 				
 				self.postWillSendNotification(messagesToSend: messagesToSend)
 				
-				self.remoteAPIQueue.performRequest(request) { result in
-					self.handleResult(result)
+				self.remoteAPIQueue.performRequest(request, completion: { result in
+					self.handleResult(result: result)
 					self.finishWithError(result.error)
-				}
+					}
+				)
 			}
 		}
 	}
 	
-	private func postWillSendNotification(messagesToSend messagesToSend: [MOMessage]) {
+	private func postWillSendNotification(messagesToSend: [MOMessage]) {
 		var userInfo = [String: AnyObject]()
-		userInfo[MMNotificationKeyMessageSendingMOMessages] = messagesToSend
-		NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationMessagesWillSend, userInfo: userInfo.isEmpty ? nil : userInfo)
+		userInfo[MMNotificationKeyMessageSendingMOMessages] = messagesToSend as AnyObject?
+		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesWillSend, userInfo: userInfo.isEmpty ? nil : userInfo as [NSObject : AnyObject]?)
 	}
 	
 	private func postDidSendNotification(resultMessages: [MOMessage]) {
 		var userInfo = [String: AnyObject]()
-		userInfo[MMNotificationKeyMessageSendingMOMessages] = resultMessages
-		NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationMessagesDidSend, userInfo: userInfo.isEmpty ? nil : userInfo)
+		userInfo[MMNotificationKeyMessageSendingMOMessages] = resultMessages as AnyObject?
+		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesDidSend, userInfo: userInfo.isEmpty ? nil : userInfo as [NSObject : AnyObject]?)
 	}
 	
 	private func handleResult(result: MMMOMessageResult) {
 		self.result = result
-		context.performBlockAndWait {
+		context.performAndWait {
 			switch result {
 			case .Success(let response):
-				self.handleSuccess(response.messages)
+				self.handleSuccess(messages: response.messages)
 				MMLogDebug("Message posting successfuly finished")
 			case .Failure(let error):
 				MMLogError("Message posting request failed with error: \(error)")
@@ -83,10 +84,10 @@ class MessagePostingOperation: Operation {
 	
 	private func handleSuccess(messages : [MOMessage]) {
 		resultMessages = messages
-		self.postDidSendNotification(messages)
+		self.postDidSendNotification(resultMessages: messages)
 	}
 	
-	override func finished(errors: [NSError]) {
+	override func finished(_ errors: [NSError]) {
 		let finishResult = errors.isEmpty ? result : MMMOMessageResult.Failure(errors.first)
 		finishBlock?(finishResult)
 	}

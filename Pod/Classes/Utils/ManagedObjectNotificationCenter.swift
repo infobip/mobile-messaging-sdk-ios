@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-public typealias ObservationHandler = (keyPath: String, newValue: AnyObject) -> Void
+public typealias ObservationHandler = (_ keyPath: String, _ newValue: AnyObject) -> Void
 
 //MARK: Observer
 class ManagedObjectNotificationCenter {
@@ -23,7 +23,7 @@ class ManagedObjectNotificationCenter {
 			return res
 		}
 	}
-	private var observersQueue = MMQueue.Serial.newQueue("com.mobile-messaging.queue.serial.mo-observer")
+	private var observersQueue = MMQueue.Serial.newQueue(queueName: "com.mobile-messaging.queue.serial.mo-observer")
 	
 	deinit {
 		removeAllObservers()
@@ -52,56 +52,56 @@ class ManagedObjectNotificationCenter {
 	
 	func addObserver(observer: NSObject, observee: NSManagedObject, forKeyPath keyPath: String, handler: ObservationHandler) {
 		observersQueue.executeSync {
-			self.removeObserver(observer, observee: observee, forKeyPath: keyPath)
+			self.removeObserver(observer: observer, observee: observee, forKeyPath: keyPath)
 			
 			let newObs = Observation(observer: observer, observee: observee, keyPath: keyPath, handler: handler)
 			newObs.start()
 			newObs.onParticipantDeallocation { observation in
-				self.removeObserver(observation.uniqueId)
+				self.removeObserver(observationId: observation.uniqueId)
 			}
 			self._observations.insert(newObs)
 		}
 	}
 	
-	private func removeObserver(filterBlock: Observation -> Bool) {
+	private func removeObserver(filterBlock: @escaping (Observation) -> Bool) {
 		observersQueue.executeSync {
-			let ind = self._observations.indexOf(filterBlock)
+			let ind = self._observations.index(where: filterBlock)
 			if let ind = ind {
 				let ob = self._observations[ind]
 				ob.stop()
-				self._observations.removeAtIndex(ind)
+				self._observations.remove(at: ind)
 			}
 		}
 	}
 }
 
 func address<T: AnyObject>(o: T) -> Int {
-	return unsafeBitCast(o, Int.self)
+	return unsafeBitCast(o, to: Int.self)
 }
 
 //MARK: Observation
 class Observation: NSObject {
-	let uniqueId: String = NSUUID().UUIDString
+	let uniqueId: String = NSUUID().uuidString
 	var observer: NSObject?
 	weak var observee: NSManagedObject?
 
-	private let keyPath: String
+	fileprivate let keyPath: String
 	private let handler: ObservationHandler
-	private var participantDeallocationHandler: (Observation -> Void)?
-	func onParticipantDeallocation(block: Observation -> Void) {
+	private var participantDeallocationHandler: ((Observation) -> Void)?
+	func onParticipantDeallocation(block: @escaping (Observation) -> Void) {
 		participantDeallocationHandler = block
 	}
 	private var changedValues = [String: AnyObject]()
 	
-	override func isEqual(object: AnyObject?) -> Bool {
-		return hash == object?.hash
+	override func isEqual(_ object: Any?) -> Bool {
+		return hash == (object as AnyObject?)?.hash
 	}
 	
 	override var hash: Int {
 		guard let observer = observer, let observee = observee else {
 			return 0
 		}
-		return address(observer) ^ address(observee) ^ keyPath.hashValue
+		return address(o: observer) ^ address(o: observee) ^ keyPath.hashValue
 	}
 	
 	init(observer: NSObject, observee: NSManagedObject, keyPath: String, handler: ObservationHandler) {
@@ -116,7 +116,7 @@ class Observation: NSObject {
 			self.participantDeallocationHandler?(self)
 		}
 		
-		self.observee?.managedObjectContext?.performBlockAndWait {
+		self.observee?.managedObjectContext?.performAndWait {
 			self.observee?.onDeallocation {
 				self.stop()
 				self.participantDeallocationHandler?(self)
@@ -130,26 +130,26 @@ class Observation: NSObject {
 	
 	func start() {
 		if let ctx = observee?.managedObjectContext {
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(Observation.objectsChanged(_:)), name: NSManagedObjectContextObjectsDidChangeNotification, object: ctx)
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(Observation.contextDidSave(_:)), name: NSManagedObjectContextDidSaveNotification, object: ctx)
+			NotificationCenter.default.addObserver(self, selector: #selector(Observation.objectsChanged(notification:)), name: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: ctx)
+			NotificationCenter.default.addObserver(self, selector: #selector(Observation.contextDidSave(notification:)), name: NSNotification.Name.NSManagedObjectContextDidSave, object: ctx)
 		}
 	}
 	
-	private func stop() {
-		NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextObjectsDidChangeNotification, object: nil)
-		NSNotificationCenter.defaultCenter().removeObserver(self, name: NSManagedObjectContextDidSaveNotification, object: nil)
+	fileprivate func stop() {
+		NotificationCenter.default.removeObserver(self, name: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: nil)
+		NotificationCenter.default.removeObserver(self, name: NSNotification.Name.NSManagedObjectContextDidSave, object: nil)
 	}
 	
 	func contextDidSave(notification: NSNotification) {
 		for (key, updatedValue) in changedValues where key == keyPath  {
-			handler(keyPath: keyPath, newValue: updatedValue)
+			handler(keyPath, updatedValue)
 		}
 	}
 	
 	func objectsChanged(notification: NSNotification) {
 		if let updatedObjects = notification.userInfo?["updated"] as? Set<NSManagedObject> {
 			for obj in updatedObjects where obj == observee {
-				changedValues = obj.changedValues()
+				changedValues = obj.changedValues() as [String : AnyObject]
 			}
 		}
 	}
@@ -169,7 +169,7 @@ extension NSManagedObject {
 		}
 	}
 	
-	func onTurninigIntoFault(block: Void -> Void) {
+	func onTurninigIntoFault(block: @escaping (Void) -> Void) {
 		var watchers = self.faultingWatchers()
 		watchers.append(BlockObject(block: block))
 		objc_setAssociatedObject(self, AssociatedKeys.AssociatedFaultingWatchersKey, watchers, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -181,13 +181,13 @@ extension NSManagedObject {
 }
 
 //MARK: NSObject extension
-private extension NSObject {
-	private struct AssociatedKeys {
+fileprivate extension NSObject {
+	fileprivate struct AssociatedKeys {
 		static var AssociatedDeallocationWatchersKey = "mm_AssociatedDeallocationWatchersKey"
 		static var AssociatedFaultingWatchersKey = "mm_AssociatedFaultingWatchersKey"
 	}
 	
-	func onDeallocation(block: Void -> Void) {
+	func onDeallocation(block: @escaping (Void) -> Void) {
 		var watchers = self.watchers()
 		watchers.append(DeallocationWatcher(block: block))
 		objc_setAssociatedObject(self, AssociatedKeys.AssociatedDeallocationWatchersKey, watchers, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -200,18 +200,18 @@ private extension NSObject {
 
 //MARK: Block wrapper
 class BlockObject: NSObject {
-	private var block: Void -> Void
+	fileprivate var block: (Void) -> Void
 	
-	init(block: Void -> Void) {
+	init(block: @escaping (Void) -> Void) {
 		self.block = block
 	}
 }
 
 //MARK: Deallocation watcher (will execute underlying block while on self deallocation)
 class DeallocationWatcher: NSObject {
-	private var block: Void -> Void
+	private var block: (Void) -> Void
 	
-	init(block: Void -> Void) {
+	init(block: @escaping (Void) -> Void) {
 		self.block = block
 	}
 	
@@ -222,27 +222,27 @@ class DeallocationWatcher: NSObject {
 
 //MARK: NSManagedObjectContext extension
 extension NSManagedObjectContext {
-//	The swizzling for NSManagedObject implemented here, in NSManagedObjectContext's initialize(), otherwise not any NSManagedObject has a chance to get initialized. (crashing in runtime)
-	override public class func initialize() {
+	//	The swizzling for NSManagedObject implemented here, in NSManagedObjectContext's initialize(), otherwise not any NSManagedObject has a chance to get initialized. (crashing in runtime)
+	override open class func initialize() {
 		struct Static {
-			static var token: dispatch_once_t = 0
+			static let swizzling : () = {
+				let originalSelector = #selector(NSManagedObject.willTurnIntoFault)
+				let swizzledSelector = #selector(NSManagedObject.mobilemessaging_willTurnIntoFault)
+				
+				let cl = NSManagedObject.self
+				
+				let originalMethod = class_getInstanceMethod(cl, originalSelector)
+				let swizzledMethod = class_getInstanceMethod(cl, swizzledSelector)
+				
+				let didAddMethod = class_addMethod(cl, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
+				
+				if didAddMethod {
+					class_replaceMethod(cl, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
+				} else {
+					method_exchangeImplementations(originalMethod, swizzledMethod)
+				}
+			}()
 		}
-		dispatch_once(&Static.token) {
-			let originalSelector = #selector(NSManagedObject.willTurnIntoFault)
-			let swizzledSelector = #selector(NSManagedObject.mobilemessaging_willTurnIntoFault)
-			
-			let cl = NSManagedObject.self
-			
-			let originalMethod = class_getInstanceMethod(cl, originalSelector)
-			let swizzledMethod = class_getInstanceMethod(cl, swizzledSelector)
-			
-			let didAddMethod = class_addMethod(cl, originalSelector, method_getImplementation(swizzledMethod), method_getTypeEncoding(swizzledMethod))
-			
-			if didAddMethod {
-				class_replaceMethod(cl, swizzledSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod))
-			} else {
-				method_exchangeImplementations(originalMethod, swizzledMethod)
-			}
-		}
+		Static.swizzling
 	}
 }

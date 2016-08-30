@@ -20,38 +20,37 @@ public final class MMPush: NSObject {
 
      - parameter userInfo: a dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
     */
-    public class func handlePush(userInfo: [NSObject: AnyObject]) {
-        guard let aps = userInfo[MMAPIKeys.kAps] else {
+    public class func handlePush(userInfo: [AnyHashable: Any]) {
+        guard let aps = userInfo[MMAPIKeys.kAps] as? [AnyHashable: Any] else {
             MMLogError("IBMMPush: Can't parse payload")
             return
         }
         
-        var appName = NSBundle.mainBundle().infoDictionary?["CFBundleName"]
+        var appName = Bundle.main.infoDictionary?["CFBundleName"]
         
-        if let alert = aps[MMAPIKeys.kAlert] as? String,
-            appName = appName as? String {
-                MMAlert.showAlert(appName, message: alert, animated: true, cancelActionCompletion: nil)
+        if let alert = aps[MMAPIKeys.kAlert as String] as? String,
+            let appName = appName as? String {
+                MMAlert.showAlert(title: appName, message: alert, animated: true, cancelActionCompletion: nil)
         } else if let body = (aps[MMAPIKeys.kAlert] as? [String: AnyObject])?[MMAPIKeys.kBody] as? String {
             if let title = (aps[MMAPIKeys.kAlert] as? [String: AnyObject])?[MMAPIKeys.kTitle] as? String {
                 appName = title
             }
 			
             if let appName = appName as? String {
-                MMAlert.showAlert(appName, message: body, animated: true, cancelActionCompletion: nil)
+                MMAlert.showAlert(title: appName, message: body, animated: true, cancelActionCompletion: nil)
             }
         }
-        
-        
-        if let badgeNumber = aps[MMAPIKeys.kBadge],
-           let number = badgeNumber?.integerValue {
-                UIApplication.sharedApplication().applicationIconBadgeNumber = number
+		
+        if let badgeNumber = aps[MMAPIKeys.kBadge] as AnyObject?,
+           let number = badgeNumber.integerValue {
+                UIApplication.shared.applicationIconBadgeNumber = number
         }
         
         if let sound = aps[MMAPIKeys.kSound] as? String {
             if sound == "default" {
                 playVibrate()
             } else {
-                playSound(sound)
+                playSound(name: sound)
             }
         }
     }
@@ -63,9 +62,9 @@ public final class MMPush: NSObject {
     
     private class func playSound(name: String) {
         let name = NSString(string: name)
-        if let soundURL = NSBundle.mainBundle().URLForResource(name.stringByDeletingPathExtension, withExtension:name.pathExtension) {
+        if let soundURL = Bundle.main.url(forResource: name.deletingPathExtension, withExtension:name.pathExtension) {
             var soundId: SystemSoundID = 0
-            AudioServicesCreateSystemSoundID(soundURL, &soundId)
+            AudioServicesCreateSystemSoundID(soundURL as CFURL, &soundId)
             AudioServicesPlaySystemSound(soundId);
         }
     }
@@ -78,13 +77,13 @@ private class MMAlert {
         return opQueue
     }()
     
-    class func showAlert(title:String, message: String, animated:Bool, cancelActionCompletion:(UIAlertAction -> Void)?) {
+    class func showAlert(title:String, message: String, animated:Bool, cancelActionCompletion:((UIAlertAction) -> Void)?) {
         let operation = MMAlertOperation(title: title, message: message, animated: animated, cancelActionCompletion: cancelActionCompletion)
         operationQueue.addOperation(operation)
     }
 }
 
-private final class MMAlertOperation : Operation {
+fileprivate final class MMAlertOperation : Operation {
     static let kCancelButtonTitle = "OK"
     
     let alertController: UIAlertController
@@ -100,28 +99,28 @@ private final class MMAlertOperation : Operation {
 		}
     }
 	
-    private init(title: String, message: String, animated:Bool, cancelActionCompletion:(UIAlertAction -> Void)?){
+	init(title: String, message: String, animated:Bool, cancelActionCompletion:((UIAlertAction) -> Void)?){
         self.title = title
         self.message = message
         self.animated = animated
-        self.alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        self.alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         
-        let action = UIAlertAction(title: MMAlertOperation.kCancelButtonTitle, style: .Cancel) { (action) -> Void in
+        let action = UIAlertAction(title: MMAlertOperation.kCancelButtonTitle, style: .cancel) { (action) -> Void in
             cancelActionCompletion?(action)
         }
         
         alertController.addAction(action)
     }
     
-    private func showAlertController(alertController: UIAlertController, completion: Void -> Void) {
-        guard var rootViewController = UIApplication.sharedApplication().keyWindow?.rootViewController else {
+    private func showAlertController(_ alertController: UIAlertController, completion: @escaping (Void) -> Void) {
+        guard var rootViewController = UIApplication.shared.keyWindow?.rootViewController else {
             return
         }
         
         while let presentedViewController = rootViewController.presentedViewController {
             rootViewController = presentedViewController
         }
-        
-        rootViewController.presentViewController(alertController, animated: animated, completion: completion)
+		
+        rootViewController.present(alertController, animated: animated, completion: completion)
     }
 }

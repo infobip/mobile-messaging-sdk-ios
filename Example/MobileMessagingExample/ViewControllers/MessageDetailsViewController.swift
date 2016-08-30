@@ -18,16 +18,16 @@ class MessageDetailsViewController: UIViewController {
 			resetMessageObserving()
 		}
 		didSet {
-			message?.addObserver(self, forKeyPath: kMessageDeliveryReportSentAttribute, options: .New, context: nil)
+			message?.addObserver(self, forKeyPath: kMessageDeliveryReportSentAttribute, options: .new, context: nil)
 			updateUI()
 		}
 	}
 	
-	override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
 		if keyPath == kMessageDeliveryReportSentAttribute {
 			updateUI()
 		} else {
-			super.observeValueForKeyPath(keyPath, ofObject: object, change: change, context: context)
+			super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
 		}
 	}
 	
@@ -36,7 +36,7 @@ class MessageDetailsViewController: UIViewController {
 		updateUI()
     }
 	
-	override func viewDidAppear(animated: Bool) {
+	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		markMessageAsSeen()
 	}
@@ -45,17 +45,17 @@ class MessageDetailsViewController: UIViewController {
 		resetMessageObserving()
     }
     
-    @IBAction func closeButtonClicked(sender: UIBarButtonItem) {
-        self.dismissViewControllerAnimated(true, completion:nil)
+    @IBAction func closeButtonClicked(_ sender: UIBarButtonItem) {
+        self.dismiss(animated: true, completion:nil)
     }
     
     //MARK: Private
     private func updateUI() {
-		dispatch_async(dispatch_get_main_queue()) {
+		DispatchQueue.main.async {
 			if let msg = self.message {
 				self.messageTextView?.text = msg.text
 				self.deliveryStatus?.text = msg.deliveryReportSent ? "Delivery report sent" : "Delivery report not sent"
-				self.deliveryStatus?.textColor = msg.deliveryReportSent ? UIColor.greenColor() : UIColor.redColor()
+				self.deliveryStatus?.textColor = msg.deliveryReportSent ? UIColor.green : UIColor.red
 			}
 		}
     }
@@ -65,11 +65,11 @@ class MessageDetailsViewController: UIViewController {
 	}
 	
 	private func markMessageAsSeen() {
-		guard let messageId = message?.messageId where message?.seen == false else {
+		guard let messageId = message?.messageId , message?.seen == false else {
 			return
 		}
 		
-		MobileMessaging.setSeen([messageId])
+		MobileMessaging.setSeen(messageIds: [messageId])
 		message?.seen = true
 	}
 

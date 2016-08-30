@@ -44,7 +44,7 @@ final class MMTestRechabilityOperation<RequestType: MMHTTPRequestData>: MMRetrya
 final class RetryOperationTests: XCTestCase {
 	
 	func testReachabilityLogic() {
-		let expectation = expectationWithDescription("Retryable operation finished")
+		let expectation = self.expectation(description: "Retryable operation finished")
 		let r = MMPostRegistrationRequest(internalId: nil, deviceToken: "stub")
 		
 		let op = MMTestRechabilityOperation(request: r, applicationCode: "stub", baseURL: "stub") { op in
@@ -54,7 +54,7 @@ final class RetryOperationTests: XCTestCase {
 		let retryOpQ = MMRetryOperationQueue()
 		retryOpQ.addOperation(op)
 		
-		self.waitForExpectationsWithTimeout(60) { error in
+		self.waitForExpectations(timeout: 60) { error in
 			
 			XCTAssertEqual(operationExecutionCounter, 2, "Operation must be executed 2 times: 1st - initial, 2nd - after we get reachable status")
 			
@@ -62,7 +62,7 @@ final class RetryOperationTests: XCTestCase {
 	}
 	
     func testRetryCounters() {
-		let expectation = expectationWithDescription("Retryable operation finished")
+		let expectation = self.expectation(description: "Retryable operation finished")
 		let retryLimit = 2
 		let opQ = MMRetryOperationQueue()
 		let op = MMTestCounterOperation(retryLimit: retryLimit) { op in
@@ -71,7 +71,7 @@ final class RetryOperationTests: XCTestCase {
 
 		opQ.addOperation(op)
 		
-		self.waitForExpectationsWithTimeout(60) { error in
+		self.waitForExpectations(timeout: 60) { error in
 			
 			XCTAssertEqual(operationExecutionCounter, retryLimit + 1, "Operation must be executed \(retryLimit + 1) times as we set retry limit \(retryLimit)")
 			

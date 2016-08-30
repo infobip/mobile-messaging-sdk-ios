@@ -8,31 +8,30 @@
 
 import Foundation
 import CoreData
-import MMAFNetworking
 
 struct NSDateStaticFormatters {
-	static var ContactsServiceDateFormatter: NSDateFormatter = {
-		let result = NSDateFormatter()
-		result.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+	static var ContactsServiceDateFormatter: DateFormatter = {
+		let result = DateFormatter()
+		result.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
 		result.dateFormat = "yyyy-MM-dd"
 		return result
 	}()
-	static var ISO8601Formatter: NSDateFormatter = {
-		let result = NSDateFormatter()
-		result.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+	static var ISO8601Formatter: DateFormatter = {
+		let result = DateFormatter()
+		result.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
 		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
 		return result
 	}()
-	static var CoreDataDateFormatter: NSDateFormatter = {
-		let result = NSDateFormatter()
-		result.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+	static var CoreDataDateFormatter: DateFormatter = {
+		let result = DateFormatter()
+		result.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
 		result.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
 		return result
 	}()
-	static var timeFormatter: NSDateFormatter = {
-		let result = NSDateFormatter()
-		result.dateStyle = NSDateFormatterStyle.NoStyle
-		result.timeStyle = NSDateFormatterStyle.ShortStyle
+	static var timeFormatter: DateFormatter = {
+		let result = DateFormatter()
+		result.dateStyle = DateFormatter.Style.none
+		result.timeStyle = DateFormatter.Style.short
 		return result
 	}()
 }
@@ -70,10 +69,10 @@ public extension NSDictionary {
 	}
 }
 
-extension NSNotificationCenter {
-	class func mm_postNotificationFromMainThread(name: String, userInfo: [NSObject: AnyObject]?) {
+extension NotificationCenter {
+	class func mm_postNotificationFromMainThread(name: String, userInfo: [AnyHashable: Any]?) {
 		MMQueue.Main.queue.executeAsync {
-			NSNotificationCenter.defaultCenter().postNotificationName(name, object: self, userInfo: userInfo)
+			NotificationCenter.default.post(name: NSNotification.Name(rawValue: name), object: self, userInfo: userInfo)
 		}
 	}
 }
@@ -90,7 +89,7 @@ class MMNetworkReachabilityManager {
 	static let sharedInstance = MMNetworkReachabilityManager()
 	private let manager: MM_AFNetworkReachabilityManager
 	init() {
-		manager = MM_AFNetworkReachabilityManager.sharedManager()
+		manager = MM_AFNetworkReachabilityManager.shared()
 	}
 	var localizedNetworkReachabilityStatusString: String {
 		return manager.localizedNetworkReachabilityStatusString()
@@ -98,42 +97,45 @@ class MMNetworkReachabilityManager {
 	
 	func startMonitoring() { manager.startMonitoring() }
 	func stopMonitoring() { manager.stopMonitoring() }
-	var reachable: Bool { return manager.reachable }
+	var reachable: Bool { return manager.isReachable }
 	
 	func currentlyReachable() -> Bool {
-		var zeroAddress = sockaddr_in()
-		zeroAddress.sin_len = UInt8(sizeofValue(zeroAddress))
+        var zeroAddress = sockaddr_in()
+		zeroAddress.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
 		zeroAddress.sin_family = sa_family_t(AF_INET)
-		let rechability = withUnsafePointer(&zeroAddress) {
-			SCNetworkReachabilityCreateWithAddress(nil, UnsafePointer($0))
-		}
-		var flags : SCNetworkReachabilityFlags = SCNetworkReachabilityFlags()
-		if SCNetworkReachabilityGetFlags(rechability!, &flags) == false {
+		
+		guard let defaultRouteReachability = withUnsafePointer(to: &zeroAddress, {
+			$0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+				SCNetworkReachabilityCreateWithAddress(nil, $0)
+			}
+		}) else {
 			return false
 		}
-		let isReachable = (flags.rawValue & UInt32(kSCNetworkFlagsReachable)) != 0
-		let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
+		
+		var flags: SCNetworkReachabilityFlags = []
+		if !SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags) {
+			return false
+		}
+		
+		let isReachable = flags.contains(.reachable)
+		let needsConnection = flags.contains(.connectionRequired)
+		
 		return (isReachable && !needsConnection)
 	}
 	func setReachabilityStatusChangeBlock(block: ((AFNetworkReachabilityStatus) -> Void)?) {
-		manager.setReachabilityStatusChangeBlock(block)
+		manager.setReachabilityStatusChange(block)
 	}
 }
 
 extension UIApplication {
 	var mm_isCurrentAppRegisteredForRemoteNotifications: Bool {
-		return UIApplication.sharedApplication().isRegisteredForRemoteNotifications()
+		return UIApplication.shared.isRegisteredForRemoteNotifications
 	}
 }
 
-extension NSData {
+extension Data {
     var mm_toHexString: String {
-        let tokenChars = UnsafePointer<CChar>(self.bytes)
-        var tokenString = ""
-        for i in 0..<self.length {
-            tokenString += String(format: "%02.2hhx", arguments: [tokenChars[i]])
-        }
-        return tokenString
+		return reduce("") {$0 + String(format: "%02x", $1)}
     }
 }
 
@@ -143,13 +145,15 @@ extension String {
 		let currentLen = self.characters.count
 		let doPutDots = maxLenght > 3
 		if currentLen > maxLenght {
-			result = self.substringToIndex(self.startIndex.advancedBy(maxLenght - (doPutDots ? 3 : 0), limit: self.endIndex)) + (doPutDots ? "..." : "")
+			if let index = self.index(self.startIndex, offsetBy: maxLenght - (doPutDots ? 3 : 0), limitedBy: self.endIndex) {
+				result = self.substring(to: index) + (doPutDots ? "..." : "")
+			}
 		}
 		return result
 	}
 	
     func mm_toHexademicalString() -> String? {
-        if let data: NSData = self.dataUsingEncoding(NSUTF16StringEncoding) {
+        if let data: Data = self.data(using: String.Encoding.utf16) {
             return data.mm_toHexString
         } else {
             return nil
@@ -158,47 +162,53 @@ extension String {
     
     func mm_fromHexademicalString() -> String? {
         if let data = self.mm_dataFromHexadecimalString() {
-            return String.init(data: data, encoding: NSUTF16StringEncoding)
+            return String.init(data: data as Data, encoding: String.Encoding.utf16)
         } else {
             return nil
         }
     }
     
-    func mm_dataFromHexadecimalString() -> NSData? {
-        let trimmedString = self.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString: "<> ")).stringByReplacingOccurrencesOfString(" ", withString: "")
+    func mm_dataFromHexadecimalString() -> Data? {
+		let trimmedString = self.trimmingCharacters(in: CharacterSet.init(charactersIn:"<> ")).replacingOccurrences(of: " ", with: "")
         
         // make sure the cleaned up string consists solely of hex digits, and that we have even number of them
         
-        let regex = try! NSRegularExpression(pattern: "^[0-9a-f]*$", options: .CaseInsensitive)
+        let regex = try! NSRegularExpression(pattern: "^[0-9a-f]*$", options: .caseInsensitive)
         
-        let found = regex.firstMatchInString(trimmedString, options: [], range: NSMakeRange(0, trimmedString.characters.count))
+        let found = regex.firstMatch(in: trimmedString, options: [], range: NSMakeRange(0, trimmedString.characters.count))
         if found == nil || found?.range.location == NSNotFound || trimmedString.characters.count % 2 != 0 {
             return nil
         }
         
         // everything ok, so now let's build NSData
-        
-        let data = NSMutableData(capacity: trimmedString.characters.count / 2)
+		var data = Data()
 		
 		var index = trimmedString.startIndex
+		
 		while index < trimmedString.endIndex {
-            let byteString = trimmedString.substringWithRange(index ..< index.successor().successor())
+			let range:Range<Index> = index..<trimmedString.index(index, offsetBy: 2)
+			let byteString = trimmedString.substring(with: range)
             let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
-            data?.appendBytes([num] as [UInt8], length: 1)
-			index = index.successor().successor()
+            data.append([num] as [UInt8], count: 1)
+			index = trimmedString.index(index, offsetBy: 2)
         }
-        
+		
         return data
     }
-	
+
 	func mm_escapeString() -> String {
-		let raw: NSString = self
-		let str = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, raw, nil, "!*'();:@&=+$,/?%#[]", CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding))
-		return String(str)
+		let raw: String = self
+		var urlFragmentAllowed = CharacterSet.urlFragmentAllowed
+		urlFragmentAllowed.remove(charactersIn: "!*'();:@&=+$,/?%#[]")
+		var result = String()
+		if let str = raw.addingPercentEncoding(withAllowedCharacters: urlFragmentAllowed) {
+			result = str
+		}
+		return result
 	}
 }
 
-func += <Key, Value> (inout left: Dictionary<Key, Value>, right: Dictionary<Key, Value>?) {
+func += <Key, Value> (left: inout Dictionary<Key, Value>, right: Dictionary<Key, Value>?) {
 	guard let right = right else {
 		return
 	}
@@ -210,13 +220,13 @@ func += <Key, Value> (inout left: Dictionary<Key, Value>, right: Dictionary<Key,
 func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>?) -> Dictionary<Key, Value>? {
 	
 	switch (l, r) {
-	case (.None, .None):
+	case (.none, .none):
 		return nil
-	case (.Some(let left), .None):
+	case (.some(let left), .none):
 		return left
-	case (.None, .Some(let right)):
+	case (.none, .some(let right)):
 		return right
-	case (.Some(let left), .Some(let right)):
+	case (.some(let left), .some(let right)):
 		var lMutable = left
 		for (k, v) in right {
 			lMutable[k] = v

@@ -11,11 +11,11 @@ import XCTest
 final class RegistrationTests: MMTestCase {
 	
     func testInstallationPersisting() {
-		let tokensexp = expectationWithDescription("device tokens saved")
+		let tokensexp = expectation(description: "device tokens saved")
 		let maxCount = 2
 		
         for counter in 0..<maxCount {
-            let deviceToken = "token\(counter)".dataUsingEncoding(NSUTF16StringEncoding)
+            let deviceToken = "token\(counter)".data(using: String.Encoding.utf16)
 			mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken!) { error in
 				if counter == maxCount - 1 {
 					tokensexp.fulfill()
@@ -23,16 +23,16 @@ final class RegistrationTests: MMTestCase {
 			}
         }
 		
-        MobileMessaging.currentUser?.setCustomDataForKey("meta1", object: "metadata1")
+        MobileMessaging.currentUser?.setCustomDataForKey("meta1", object: "metadata1" as UserDataSupportedTypes?)
         MobileMessaging.currentUser?.persist()
 		
-        MobileMessaging.currentUser?.setCustomDataForKey("meta2", object: "metadata2")
+        MobileMessaging.currentUser?.setCustomDataForKey("meta2", object: "metadata2" as UserDataSupportedTypes?)
 		MobileMessaging.currentUser?.persist()
 		
-		waitForExpectationsWithTimeout(100, handler: { err in
+		waitForExpectations(timeout: 100, handler: { err in
 			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
 			
-			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
 				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".mm_toHexademicalString(), "Most recent token must be persisted")
 				XCTAssertEqual((installation.customUserData as! [String: String])["meta2"], "metadata2", "meta2 key must contain metadata2")
@@ -49,31 +49,31 @@ final class RegistrationTests: MMTestCase {
 			return
 		}
 		
-        let token2Saved = expectationWithDescription("token2 saved")
-		let validEmailSaved = expectationWithDescription("email saved")
-		let validMsisdnSaved = expectationWithDescription("msisdn saved")
+        let token2Saved = expectation(description: "token2 saved")
+		let validEmailSaved = expectation(description: "email saved")
+		let validMsisdnSaved = expectation(description: "msisdn saved")
 		
-		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
+		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
 		
-			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken2".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
+			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken2".data(using: String.Encoding.utf16)!) {  error in
 				
 				token2Saved.fulfill()
 				
-				currentUser.saveEmail(MMTestConstants.kTestValidEmail, completion: { err in
+				currentUser.saveEmail(email: MMTestConstants.kTestValidEmail, completion: { err in
 					XCTAssertNil(err)
 					validEmailSaved.fulfill()
 				})
 				
-				currentUser.saveMSISDN(MMTestConstants.kTestValidMSISDN, completion: { err in
+				currentUser.saveMSISDN(msisdn: MMTestConstants.kTestValidMSISDN, completion: { err in
 					XCTAssertNil(err)
 					validMsisdnSaved.fulfill()
 				})
 			}
 		}
         
-        self.waitForExpectationsWithTimeout(100) { error in
+        self.waitForExpectations(timeout: 100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
-			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 			
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "current installation must be synchronized")
 				XCTAssertEqual(installation.internalUserId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(installation.internalUserId))")
@@ -93,13 +93,13 @@ final class RegistrationTests: MMTestCase {
 		cleanUpAndStop()
 		startWithWrongApplicationCode()
 		
-		let expectation = expectationWithDescription("Installation data updating")
-		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
+		let expectation = self.expectation(description: "Installation data updating")
+		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
 			expectation.fulfill()
 		}
-		self.waitForExpectationsWithTimeout(100) { error in
+		self.waitForExpectations(timeout: 100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
-			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 			
 				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalUserId, nil, "Internal id must be nil, server denied the application code")
@@ -111,30 +111,30 @@ final class RegistrationTests: MMTestCase {
 	}
     
     func testTokenNotSendsTwice() {
-        let expectation1 = expectationWithDescription("notification1")
-        let expectation2 = expectationWithDescription("notification2")
+        let expectation1 = expectation(description: "notification1")
+        let expectation2 = expectation(description: "notification2")
 
-        mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
+        mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
             XCTAssertNil(error)
             expectation1.fulfill()
-            self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
+            self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
                 XCTAssertNotNil(error)
                 expectation2.fulfill()
             }
         }
         
-        self.waitForExpectationsWithTimeout(100) { error in
+        self.waitForExpectations(timeout: 100) { error in
         }
     }
     
     func testRegistrationDataNotSendsWithoutToken() {
-        let sync1 = expectationWithDescription("sync1")
-        MobileMessaging.currentInstallation?.syncWithServer({ (error) -> Void in
+        let sync1 = expectation(description: "sync1")
+        MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) -> Void in
             XCTAssertNotNil(error)
             sync1.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(100) { error in
+        self.waitForExpectations(timeout: 100) { error in
         }
     }
     
@@ -143,19 +143,19 @@ final class RegistrationTests: MMTestCase {
         mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.currentInstallation?.deviceToken = "someToken"
 		
-        let sync1 = expectationWithDescription("sync1")
-        let sync2 = expectationWithDescription("sync2")
+        let sync1 = expectation(description: "sync1")
+        let sync2 = expectation(description: "sync2")
 		
-        mobileMessagingInstance.currentInstallation?.syncWithServer({ (error) -> Void in
+        mobileMessagingInstance.currentInstallation?.syncWithServer(completion: { (error) -> Void in
             XCTAssertNil(error)
             sync1.fulfill()
-            self.mobileMessagingInstance.currentInstallation?.syncWithServer({ (error) -> Void in
+            self.mobileMessagingInstance.currentInstallation?.syncWithServer(completion: { (error) -> Void in
                 XCTAssertNotNil(error)
                 sync2.fulfill()
             })
         })
         
-        self.waitForExpectationsWithTimeout(100) { error in
+        self.waitForExpectations(timeout: 100) { error in
         }
     }
 }

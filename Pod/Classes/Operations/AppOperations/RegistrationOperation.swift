@@ -16,7 +16,7 @@ final class RegistrationOperation: Operation {
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var newDeviceToken: String?
 	
-    init(newDeviceToken: NSData? = nil, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)?) {
+    init(newDeviceToken: Data? = nil, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)?) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
@@ -26,13 +26,13 @@ final class RegistrationOperation: Operation {
 	}
 	
 	override func execute() {
-		context.performBlockAndWait {
-			guard let installation = InstallationManagedObject.MM_findFirstInContext(context: self.context) else {
+		context.performAndWait {
+			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
 				self.finish()
 				return
 			}
             if self.newDeviceToken != nil { // only store new token values
-                installation.setDeviceTokenIfDifferent(self.newDeviceToken)
+                installation.setDeviceTokenIfDifferent(token: self.newDeviceToken)
             }
 			
 			self.installationObject = installation
@@ -74,13 +74,13 @@ final class RegistrationOperation: Operation {
         
 		let request = MMPostRegistrationRequest(internalId: installationObject.internalUserId, deviceToken: deviceToken)
 		self.remoteAPIQueue.performRequest(request) { result in
-			self.handleRegistrationResult(result)
+			self.handleRegistrationResult(result: result)
 			self.finishWithError(result.error)
 		}
 	}
 	
 	private func handleRegistrationResult(result: MMRegistrationResult) {
-		self.context.performBlockAndWait {
+		self.context.performAndWait {
 			guard let installationObject = self.installationObject else {
 				return
 			}
@@ -90,7 +90,7 @@ final class RegistrationOperation: Operation {
 				installationObject.resetDirtyRegistration()
 				installationObject.internalUserId = regResponse.internalUserId
 				self.context.MM_saveToPersistentStoreAndWait()
-				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalUserId])
+				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId as NSObject: regResponse.internalUserId as AnyObject])
 			case .Failure(let error):
 				MMLogError("Registration request failed with error: \(error)")
 				return
@@ -101,7 +101,7 @@ final class RegistrationOperation: Operation {
 		}
 	}
 	
-	override func finished(errors: [NSError]) {
+	override func finished(_ errors: [NSError]) {
 		finishBlock?(errors.first)
 	}
 }

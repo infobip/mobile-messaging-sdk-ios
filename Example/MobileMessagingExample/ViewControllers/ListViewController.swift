@@ -16,7 +16,7 @@ class ListViewController: UIViewController, UITableViewDelegate {
 	
 	let messagesManager = MessagesManager.sharedInstance
     @IBOutlet weak var tableView: UITableView!
-	@IBAction func trashInbox(sender: AnyObject) {
+	@IBAction func trashInbox(_ sender: AnyObject) {
 		MessagesManager.sharedInstance.cleanMessages()
 		updateUI()
 	}
@@ -24,7 +24,7 @@ class ListViewController: UIViewController, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.registerClass(MessageCell.self, forCellReuseIdentifier: kMessageCellId)
+        tableView.register(MessageCell.self, forCellReuseIdentifier: kMessageCellId)
 		tableView.estimatedRowHeight = 44
 		tableView.rowHeight = UITableViewAutomaticDimension;
 		tableView.dataSource = messagesManager
@@ -36,23 +36,23 @@ class ListViewController: UIViewController, UITableViewDelegate {
 	}
 	
 	//MARK: TableView delegate
-	func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-		performSegueWithIdentifier(kMessageDetailsSegueId, sender: indexPath)
+	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		performSegue(withIdentifier: kMessageDetailsSegueId, sender: indexPath)
 	}
     
     //MARK: Segues
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == kMessageDetailsSegueId,
-            let vc = segue.destinationViewController as? MessageDetailsViewController,
-            let indexPath = sender as? NSIndexPath {
+            let vc = segue.destination as? MessageDetailsViewController,
+            let indexPath = sender as? IndexPath {
                 vc.message = messagesManager.messages[indexPath.row]
         }
     }
 
     //MARK: Utils
     private func updateUIWithInsertMessage() {
-        tableView.insertRowsAtIndexPaths([NSIndexPath(forItem: 0, inSection: 0)], withRowAnimation: .Right)
-        tableView.selectRowAtIndexPath(NSIndexPath(forItem: 0, inSection: 0), animated: true, scrollPosition: .Middle)
+        tableView.insertRows(at: [IndexPath(item: 0, section: 0)], with: .right)
+        tableView.selectRow(at: IndexPath(item: 0, section: 0), animated: true, scrollPosition: .middle)
     }
     
     private func updateUI() {

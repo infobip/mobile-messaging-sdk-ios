@@ -22,17 +22,18 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	}
 	
 	//MARK: UITextFieldDelegate
-	func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-		let cs = NSCharacterSet.decimalDigitCharacterSet()
-		var currentText : NSString = msisdsTextField.text ?? ""
-		currentText = currentText.stringByReplacingCharactersInRange(range, withString:string)
-		currentText = currentText.componentsSeparatedByCharactersInSet(cs.invertedSet).joinWithSeparator("")
-		msisdsTextField.text = currentText as String
+	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+		let cs = CharacterSet.decimalDigits
+		let nsString : NSString = (msisdsTextField.text ?? "") as NSString
+		var string = nsString.replacingCharacters(in: range, with: string)
+		string = string.components(separatedBy: cs.inverted).joined(separator: "")
+		msisdsTextField.text = string
+		
 		return false
 	}
 
 	//MARK: Actions
-	@IBAction func sendMSISDNButtonClicked(sender: UIButton) {
+	@IBAction func sendMSISDNButtonClicked(_ sender: UIButton) {
 		guard let msisdn = msisdsTextField.text else {
 			return
 		}
@@ -42,8 +43,8 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		do {
 			try validateFormat(msisdn)
 			
-			MobileMessaging.currentUser?.saveMSISDN(msisdn, completion: { (error) -> () in
-				dispatch_async(dispatch_get_main_queue()) {
+			MobileMessaging.currentUser?.saveMSISDN(msisdn: msisdn, completion: { (error) -> () in
+				DispatchQueue.main.async {
 					self.hideActivityIndicator {
 						self.showResultAlert(error)
 					}
@@ -58,18 +59,18 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	}
 	
 	//MARK: Private
-	private func validateFormat(msisdn : String) throws {
+	fileprivate func validateFormat(_ msisdn : String) throws {
 		let predicate = NSPredicate(format: "SELF MATCHES[cd] %@", SettingsViewController.kMSISDNValidationRegExp)
-		predicate.evaluateWithObject(msisdn)
-		if !predicate.evaluateWithObject(msisdn) {
-			throw NSError(type: CustomErrorType.InvalidMSISDNFormat)
+		predicate.evaluate(with: msisdn)
+		if !predicate.evaluate(with: msisdn) {
+			throw NSError(type: CustomErrorType.invalidMSISDNFormat)
 		}
 	}
 	
-	private func showActivityIndicator() {
+	fileprivate func showActivityIndicator() {
 		enableControls(false)
 		activityIndicator.startAnimating()
-		UIView.animateWithDuration(0.1, delay: 0, options: [],
+		UIView.animate(withDuration: 0.1, delay: 0, options: [],
 			animations: {
 				self.setControlsAlpha(0.2)
 			}) { (finished) -> Void in
@@ -77,9 +78,9 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		}
 	}
 	
-	private func hideActivityIndicator(completion: Void -> Void) {
+	fileprivate func hideActivityIndicator(_ completion: @escaping (Void) -> Void) {
 		activityIndicator.stopAnimating()
-		UIView.animateWithDuration(0.3, delay: 0.2, options: .BeginFromCurrentState,
+		UIView.animate(withDuration: 0.3, delay: 0.2, options: .beginFromCurrentState,
 			animations: {
 				self.setControlsAlpha(1)
 			}) { (finished) -> Void in
@@ -91,24 +92,24 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		}
 	}
 	
-	private func enableControls(enabled: Bool) {
-		msisdsTextField.enabled = enabled
-		sendMSISDNButton.enabled = enabled
-		tabBarController?.tabBar.userInteractionEnabled = enabled
+	fileprivate func enableControls(_ enabled: Bool) {
+		msisdsTextField.isEnabled = enabled
+		sendMSISDNButton.isEnabled = enabled
+		tabBarController?.tabBar.isUserInteractionEnabled = enabled
 	}
 	
-	private func setControlsAlpha(alpha: CGFloat) {
+	fileprivate func setControlsAlpha(_ alpha: CGFloat) {
 		msisdsTextField.alpha = alpha
 		sendMSISDNButton.alpha = alpha
 	}
 	
-	private func showResultAlert(error: NSError?) {
-		let cancelAction = UIAlertAction(title: "OK", style: .Cancel, handler: nil)
+	fileprivate func showResultAlert(_ error: NSError?) {
+		let cancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
 		let alert = UIAlertController(title: error == nil ? "Success" : "Error",
 		                              message: error == nil ? "MSISDN was successfully sent" : "\(error!.localizedDescription)",
-		                              preferredStyle: .Alert)
+		                              preferredStyle: .alert)
 		alert.addAction(cancelAction)
-		presentViewController(alert, animated: true, completion: nil)
+		present(alert, animated: true, completion: nil)
 
 	}
 }

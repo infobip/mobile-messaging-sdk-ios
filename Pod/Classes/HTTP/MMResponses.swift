@@ -6,7 +6,7 @@
 //  
 //
 
-import SwiftyJSON
+//import SwiftyJSON
 
 typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
 typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>
@@ -21,16 +21,16 @@ public protocol JSONEncodable {
 	func toJSON() -> JSON
 }
 
-extension NSDate: JSONEncodable {
+extension Date: JSONEncodable {
 	public func toJSON() -> JSON {
-		return JSON(NSDateStaticFormatters.ContactsServiceDateFormatter.stringFromDate(self))
+		return JSON(NSDateStaticFormatters.ContactsServiceDateFormatter.string(from: self) as AnyObject)
 	}
 }
 
 extension JSON {
 	
 	/// An enum to encapsulate errors that may arise in working with `JSON`.
-	public enum Error: ErrorType {
+	public enum JSONError: Error {
 		/// The `index` is out of bounds for a JSON array
 		case IndexOutOfBounds(index: Swift.Int)
 		
@@ -53,7 +53,7 @@ public struct MMRequestError {
 	public let text: String
 	
 	var foundationError: NSError {
-		var userInfo = [NSObject: AnyObject]()
+		var userInfo = [AnyHashable: Any]()
 		userInfo[NSLocalizedDescriptionKey] = text
 		userInfo[MMAPIKeys.kErrorText] = text
 		userInfo[MMAPIKeys.kErrorMessageId] = messageId

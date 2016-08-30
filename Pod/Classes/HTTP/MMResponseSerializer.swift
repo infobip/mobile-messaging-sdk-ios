@@ -5,38 +5,41 @@
 //
 //
 
-import MMAFNetworking
-import SwiftyJSON
+//import SwiftyJSON
 
 final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override init() {
 		super.init()
 		let range: NSRange = NSMakeRange(200, 100)
-		self.acceptableStatusCodes = NSIndexSet(indexesInRange: range)
+		self.acceptableStatusCodes = NSIndexSet(indexesIn: range) as IndexSet
+	}
+
+	required init?(coder aDecoder: NSCoder) {
+	    fatalError("init(coder:) has not been implemented")
 	}
 	
-	override func responseObjectForResponse(response: NSURLResponse?, data: NSData?, error: NSErrorPointer) -> AnyObject? {
+	override func responseObject(for response: URLResponse?, data: Data?, error: NSErrorPointer) -> Any? {
 		MMLogDebug("Response received: \(response)")
-		super.responseObjectForResponse(response, data: data, error: error)
+		super.responseObject(for: response, data: data, error: error)
 		
 		guard let data = data else
 		{
 			return nil
 		}
 		
-		let json = JSON(data: data)
-		if let requestError = MMRequestError(json: json) where response?.isFailureHTTPREsponse ?? false {
-			error.memory = requestError.foundationError
+		let json = JSON(data: data as Data)
+		if let requestError = MMRequestError(json: json) , response?.isFailureHTTPREsponse ?? false {
+			error?.pointee = requestError.foundationError
 		}
-		return T(json: json) as? AnyObject
+		return T(json: json)
 	}
 }
 
-extension NSURLResponse {
+extension URLResponse {
 	var isFailureHTTPREsponse: Bool {
 		var statusCodeIsError = false
-		if let httpResponse = self as? NSHTTPURLResponse {
-			statusCodeIsError = NSIndexSet(indexesInRange: NSMakeRange(200, 100)).containsIndex(httpResponse.statusCode) == false
+		if let httpResponse = self as? HTTPURLResponse {
+			statusCodeIsError = NSIndexSet(indexesIn: NSMakeRange(200, 100)).contains(httpResponse.statusCode) == false
 		}
 		return statusCodeIsError
 	}

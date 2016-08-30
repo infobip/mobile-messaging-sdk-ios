@@ -22,7 +22,7 @@ struct MMStorageSettings {
 	var storeOptions: MMStoreOptions?
 	
 	static var inMemoryStoreSettings = MMStorageSettings(databaseFileName: nil, storeOptions: nil)
-	static var SQLiteStoreSettings = MMStorageSettings(databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
+	static var SQLiteStoreSettings = MMStorageSettings(databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption as NSObject: true as AnyObject, NSInferMappingModelAutomaticallyOption as NSObject: true as AnyObject])
 }
 
 final class MMCoreDataStorage {
@@ -56,7 +56,7 @@ final class MMCoreDataStorage {
 		}
 		
 		if let coordinator = persistentStoreCoordinator {
-			_mainThreadManagedObjectContext = NSManagedObjectContext.init(concurrencyType: .MainQueueConcurrencyType)
+			_mainThreadManagedObjectContext = NSManagedObjectContext.init(concurrencyType: .mainQueueConcurrencyType)
 			_mainThreadManagedObjectContext?.persistentStoreCoordinator = coordinator
 			_mainThreadManagedObjectContext?.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
 			_mainThreadManagedObjectContext?.undoManager = nil
@@ -65,7 +65,7 @@ final class MMCoreDataStorage {
 	}
 	
 	func newPrivateContext() -> NSManagedObjectContext {
-		let newContext = NSManagedObjectContext.init(concurrencyType: .PrivateQueueConcurrencyType)
+		let newContext = NSManagedObjectContext.init(concurrencyType: .privateQueueConcurrencyType)
 		newContext.persistentStoreCoordinator = persistentStoreCoordinator
 		newContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
 		newContext.undoManager = nil
@@ -73,7 +73,7 @@ final class MMCoreDataStorage {
 	}
 	
 	func newContextWithNewPSC() throws -> NSManagedObjectContext {
-		let newContext = NSManagedObjectContext.init(concurrencyType: .PrivateQueueConcurrencyType)
+		let newContext = NSManagedObjectContext.init(concurrencyType: .privateQueueConcurrencyType)
 		newContext.persistentStoreCoordinator = try newPersistentStoreCoordinator()
 		newContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
 		newContext.undoManager = nil
@@ -89,44 +89,44 @@ final class MMCoreDataStorage {
 	
 	//MARK: Private
 	private let managedObjectModelName: String
-    private var managedObjectModelBundle: NSBundle {
-        return NSBundle(forClass: self.dynamicType)
+    private var managedObjectModelBundle: Bundle {
+        return Bundle(for: type(of: self))
 	}
     private var databaseFileName: String?
     private var storeOptions: MMStoreOptions?
 	
-	private func addPersistentStoreWithPath(psc: NSPersistentStoreCoordinator, storePath: String?, options: MMStoreOptions?) throws {
+	private func addPersistentStoreWithPath(_ psc: NSPersistentStoreCoordinator, storePath: String?, options: MMStoreOptions?) throws {
         if let storePath = storePath {
-            let storeURL = NSURL.fileURLWithPath(storePath)
+            let storeURL = NSURL.fileURL(withPath: storePath)
             do {
-                _persistentStore = try psc.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options)
+                _persistentStore = try psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)
             } catch let error as NSError {
                 let isMigrationError = error.code == NSMigrationError ||
-                    error.code == NSMigrationMissingSourceModelError
-                error.code == NSPersistentStoreIncompatibleVersionHashError
+                    error.code == NSMigrationMissingSourceModelError ||
+					error.code == NSPersistentStoreIncompatibleVersionHashError
                 
                 if error.domain == NSCocoaErrorDomain && isMigrationError {
                     MMLogError("Couldn't open the database, because of migration error, database will be recreated")
                     NSPersistentStore.MM_removePersistentStoreFilesAtURL(storeURL)
-                    _persistentStore = try psc.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options)
+                    _persistentStore = try psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)
                 }
             }
         } else {
-            _persistentStore = try psc.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
+            _persistentStore = try psc.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil, options: nil)
         }
     }
 	
 	private func persistentStoreDirectory(fileName: String) -> String {
-        let applicationSupportPaths = NSSearchPathForDirectoriesInDomains(.ApplicationSupportDirectory, .UserDomainMask, true)
-        let basePath: NSString = applicationSupportPaths.first ?? NSTemporaryDirectory()
-        let fm = NSFileManager.defaultManager()
-		let persistentStoreDir = basePath.stringByAppendingPathComponent("com.mobile-messaging.database")
-        if (fm.fileExistsAtPath(persistentStoreDir) == false) {
+        let applicationSupportPaths = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)
+        let basePath: NSString = applicationSupportPaths.first as NSString? ?? NSTemporaryDirectory() as NSString
+        let fm = FileManager.default
+		let persistentStoreDir = basePath.appendingPathComponent("com.mobile-messaging.database")
+        if (fm.fileExists(atPath: persistentStoreDir) == false) {
             do {
-                try fm.createDirectoryAtPath(persistentStoreDir, withIntermediateDirectories: true, attributes: nil)
+                try fm.createDirectory(atPath: persistentStoreDir, withIntermediateDirectories: true, attributes: nil)
             } catch { }
         }
-        return (persistentStoreDir as NSString).stringByAppendingPathComponent(fileName)
+        return (persistentStoreDir as NSString).appendingPathComponent(fileName)
     }
 	
     private var _managedObjectModel: NSManagedObjectModel?
@@ -137,13 +137,13 @@ final class MMCoreDataStorage {
 			}
 			
 			let momName = managedObjectModelName
-			var momPath = managedObjectModelBundle.pathForResource(momName, ofType: "mom")
+			var momPath = managedObjectModelBundle.path(forResource: momName, ofType: "mom")
 			if (momPath == nil) {
-				momPath = managedObjectModelBundle.pathForResource(momName, ofType: "momd")
+				momPath = managedObjectModelBundle.path(forResource: momName, ofType: "momd")
 			}
 			if let momPath = momPath {
-				let momUrl = NSURL.fileURLWithPath(momPath)
-				_managedObjectModel = NSManagedObjectModel(contentsOfURL: momUrl)
+				let momUrl = NSURL.fileURL(withPath: momPath)
+				_managedObjectModel = NSManagedObjectModel(contentsOf: momUrl)
 			} else {
 				MMLogError("Couldn't find managedObjectModel file \(momName)")
 			}
@@ -163,7 +163,7 @@ final class MMCoreDataStorage {
 		
 		if let dbFileName = databaseFileName {
 			// SQLite storage
-			let storePath = persistentStoreDirectory(dbFileName)
+			let storePath = persistentStoreDirectory(fileName: dbFileName)
 			do {
 				try addPersistentStoreWithPath(newPSC, storePath: storePath, options: storeOptions)
 			} catch let error as NSError {
@@ -197,7 +197,7 @@ final class MMCoreDataStorage {
         }
     }
 	
-    private func didNotAddPersistentStoreWithPath(storePath: NSString?, options: MMStoreOptions?, error: NSError?) {
+    private func didNotAddPersistentStoreWithPath(_ storePath: String?, options: MMStoreOptions?, error: NSError?) {
 		MMLogError("Failed creating persistent store: \(error)")
     }
 	

@@ -8,20 +8,20 @@
 
 import XCTest
 import CoreLocation
-import SwiftyJSON
+//import SwiftyJSON
 @testable import MobileMessaging
 
 class GeofencingServiceTests: MMTestCase {
-	let zagreb: [String: AnyObject] = [
-		MMRegionDataKeys.Expiry.rawValue: NSTimeInterval(1470438000000.0),
-		MMRegionDataKeys.Identifier.rawValue: "6713245DA3638FDECFE448C550AD7681",
-		MMRegionDataKeys.Latitude.rawValue: 45.80869126677998,
-		MMRegionDataKeys.Longitude.rawValue: 15.97206115722656,
-		MMRegionDataKeys.Radius.rawValue: 9492,
-		MMRegionDataKeys.Title.rawValue: "Zagreb"
+	let zagreb: [AnyHashable: AnyObject] = [
+		MMRegionDataKeys.Expiry.rawValue: TimeInterval(1470438000000.0) as AnyObject,
+		MMRegionDataKeys.Identifier.rawValue: "6713245DA3638FDECFE448C550AD7681" as AnyObject,
+		MMRegionDataKeys.Latitude.rawValue: 45.80869126677998 as AnyObject,
+		MMRegionDataKeys.Longitude.rawValue: 15.97206115722656 as AnyObject,
+		MMRegionDataKeys.Radius.rawValue: 9492 as AnyObject,
+		MMRegionDataKeys.Title.rawValue: "Zagreb" as AnyObject
 	]
-	let pula: [String: AnyObject] = [
-		MMRegionDataKeys.Expiry.rawValue: NSTimeInterval(1470438000000.0),
+	let pula: [AnyHashable: AnyObject] = [
+		MMRegionDataKeys.Expiry.rawValue: TimeInterval(1470438000000.0),
 		MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
 		MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
 		MMRegionDataKeys.Longitude.rawValue: 13.84586334228516,
@@ -29,7 +29,7 @@ class GeofencingServiceTests: MMTestCase {
 		MMRegionDataKeys.Title.rawValue: "Pula"
 	]
 	
-	var internalData: [String: AnyObject] {
+	var internalData: [AnyHashable: Any] {
 		return [
 			MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
 			MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
@@ -37,7 +37,7 @@ class GeofencingServiceTests: MMTestCase {
 		]
 	}
 	
-	var apnsPayload: [String: AnyObject] {
+	var apnsPayload: [AnyHashable: Any] {
 		return [
 			"messageId": "123",
 			"aps": [
@@ -58,7 +58,7 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testCampaignAPNSConstructors() {
-		if let message = MMMessage(payload: apnsPayload), let campaign = MMCampaign(message: message) {
+		if let message = MMMessage(payload: apnsPayload as [NSObject : AnyObject]), let campaign = MMCampaign(message: message) {
 			
 			var regionsDict = [String: MMRegion]()
 			for region in campaign.regions {
@@ -67,7 +67,7 @@ class GeofencingServiceTests: MMTestCase {
 			
 			let zagrebId = zagreb[MMRegionDataKeys.Identifier.rawValue] as! String
 			let zagrebObject = regionsDict[zagrebId]!
-			XCTAssertEqual(zagrebObject.expiryms, zagreb[MMRegionDataKeys.Expiry.rawValue] as? NSTimeInterval)
+			XCTAssertEqual(zagrebObject.expiryms, zagreb[MMRegionDataKeys.Expiry.rawValue] as? TimeInterval)
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, zagreb[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, zagreb[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
@@ -77,7 +77,7 @@ class GeofencingServiceTests: MMTestCase {
 			
 			let pulaId = pula[MMRegionDataKeys.Identifier.rawValue] as! String
 			let pulaObject = regionsDict[pulaId]!
-			XCTAssertEqual(pulaObject.expiryms, pula[MMRegionDataKeys.Expiry.rawValue] as? NSTimeInterval)
+			XCTAssertEqual(pulaObject.expiryms, pula[MMRegionDataKeys.Expiry.rawValue] as? TimeInterval)
 			XCTAssertEqual(pulaObject.identifier, pulaId)
 			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, pula[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, pula[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
@@ -139,7 +139,7 @@ class GeofencingServiceTests: MMTestCase {
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
 			let zagrebObject = regionsDict[zagrebId]!
-			XCTAssertEqual(zagrebObject.expiryms, NSTimeInterval(1470438000000.0))
+			XCTAssertEqual(zagrebObject.expiryms, TimeInterval(1470438000000.0))
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
@@ -149,7 +149,7 @@ class GeofencingServiceTests: MMTestCase {
 			
 			let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
 			let pulaObject = regionsDict[pulaId]!
-			XCTAssertEqual(pulaObject.expiryms, NSTimeInterval(1470438000000.0))
+			XCTAssertEqual(pulaObject.expiryms, TimeInterval(1470438000000.0))
 			XCTAssertEqual(pulaObject.identifier, pulaId)
 			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
@@ -163,10 +163,10 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testDictRepresentations() {
-		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: pula)!.dictionaryRepresentation))
-		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: zagreb)!.dictionaryRepresentation))
-		XCTAssertNotNil(MMRegion(dictRepresentation: pula))
-		XCTAssertNotNil(MMRegion(dictRepresentation: zagreb))
+		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: pula as! [String : AnyObject])!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: zagreb as! [String : AnyObject])!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: pula as [String : AnyObject]))
+		XCTAssertNotNil(MMRegion(dictRepresentation: zagreb as [String : AnyObject]))
 	}
 	
 	func testThatNullRadiusRegionNotCreating() {

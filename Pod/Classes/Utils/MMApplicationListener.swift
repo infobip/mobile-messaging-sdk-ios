@@ -11,7 +11,7 @@ import Foundation
 final class MMApplicationListener: NSObject {
 	
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
 	init(messageHandler: MMMessageHandler, installation: MMInstallation, user: MMUser) {
@@ -21,9 +21,9 @@ final class MMApplicationListener: NSObject {
 		
         super.init()
 		
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MMApplicationListener.handleAppWillEnterForegroundNotification), name: UIApplicationWillEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppWillEnterForegroundNotification), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(MMApplicationListener.handleAppDidFinishLaunchingNotification), name: UIApplicationDidFinishLaunchingNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppDidFinishLaunchingNotification), name: NSNotification.Name.UIApplicationDidFinishLaunching, object: nil)
     }
 	
 	//MARK: Internal

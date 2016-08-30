@@ -57,7 +57,7 @@ final public class MMUser: NSObject {
 	*/
 	public internal(set) var internalId: String? {
 		get { return installationManager.getValueForKey("internalUserId") as? String }
-		set { installationManager.setValueForKey("internalUserId", value: newValue) }
+		set { installationManager.setValueForKey("internalUserId", value: newValue as AnyObject?) }
 	}
 	
 	/**
@@ -65,7 +65,7 @@ final public class MMUser: NSObject {
 	*/
 	public internal(set) var externalId: String? {
 		get { return installationManager.getValueForKey("externalUserId") as? String }
-		set { installationManager.setValueForKey("externalUserId", value: newValue) }
+		set { installationManager.setValueForKey("externalUserId", value: newValue  as AnyObject?) }
 	}
 	
 	/**
@@ -73,7 +73,7 @@ final public class MMUser: NSObject {
 	- parameter id: The id you want to link with the current user.
 	- parameter completion: The block to execute after the server responded.
 	*/
-	public func saveExternalId(id: String, completion: NSError? -> Void) {
+	public func saveExternalId(id: String, completion: @escaping (NSError?) -> Void) {
 		self.externalId = id
 		save(completion)
 	}
@@ -91,7 +91,7 @@ final public class MMUser: NSObject {
 	- parameter email: The email you want to link with the current user.
 	- parameter completion: The block to execute after the server responded.
 	*/
-	public func saveEmail(email: String, completion: NSError? -> Void) {
+	public func saveEmail(email: String, completion: @escaping (NSError?) -> Void) {
 		self.email = email
 		save(completion)
 	}
@@ -109,7 +109,7 @@ final public class MMUser: NSObject {
 	- parameter msisdn: The MSISDN you want to link with the current user.
 	- parameter completion: The block to execute after the server responded.
 	*/
-	public func saveMSISDN(msisdn: String, completion: NSError? -> Void) {
+	public func saveMSISDN(msisdn: String, completion: @escaping (NSError?) -> Void) {
 		self.msisdn = msisdn
 		save(completion)
 	}
@@ -129,7 +129,7 @@ final public class MMUser: NSObject {
 	- parameter data: The dictionary representing data you want to link with the current user.
 	- parameter completion: The block to execute after the server responded.
 	*/
-	public func saveCustomData(data: [String: UserDataSupportedTypes], completion: NSError? -> Void) {
+	public func saveCustomData(_ data: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
 		self.customData = data
 		save(completion)
 	}
@@ -138,7 +138,7 @@ final public class MMUser: NSObject {
 	Returns the custom data value associated with a given key.
 	- parameter key: The key for which to return the corresponding value.
 	*/
-	public func customDataForKey(key: String) -> UserDataSupportedTypes? {
+	public func customDataForKey(_ key: String) -> UserDataSupportedTypes? {
 		var result: UserDataSupportedTypes? = nil
 		if let customUserData = self.customData {
 			result = customUserData[key]
@@ -151,8 +151,8 @@ final public class MMUser: NSObject {
 	- parameter key: The key for `object`.
 	- parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
 	*/
-	public func setCustomDataForKey(key: String, object: UserDataSupportedTypes?) {
-		setDataForKey(key, attributeName: "customUserData", object: object)
+	public func setCustomDataForKey(_ key: String, object: UserDataSupportedTypes?) {
+		setDataForKey(key: key, attributeName: "customUserData", object: object)
 	}
 	
 	/**
@@ -161,7 +161,7 @@ final public class MMUser: NSObject {
 	- parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
 	- parameter completion: The block to execute after the server responded.
 	*/
-	public func saveCustomDataForKey(key: String, object: UserDataSupportedTypes?, completion: NSError? -> Void) {
+	public func saveCustomDataForKey(_ key: String, object: UserDataSupportedTypes?, completion: @escaping (NSError?) -> Void) {
 		self.setCustomDataForKey(key, object: object)
 		save(completion)
 	}
@@ -173,7 +173,7 @@ final public class MMUser: NSObject {
 	*/
 	public var predefinedData: [String: UserDataSupportedTypes]? {
 		get { return installationManager.getValueForKey("predefinedUserData") as? [String: UserDataSupportedTypes] }
-		set { installationManager.setValueForKey("predefinedUserData", value: newValue) }
+		set { installationManager.setValueForKey("predefinedUserData", value: newValue as AnyObject?) }
 	}
 	
 	/**
@@ -181,7 +181,7 @@ final public class MMUser: NSObject {
 	- parameter data: The dictionary representing data you want to link with the current user.
 	- parameter completion: The block to execute after the server responded.
 	*/
-	public func savePredefinedData(data: [String: UserDataSupportedTypes], completion: NSError? -> Void) {
+	public func savePredefinedData(_ data: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
 		self.predefinedData = data
 		save(completion)
 	}
@@ -190,7 +190,7 @@ final public class MMUser: NSObject {
 	Returns the user's attribute value associated with a given key.
 	- parameter key: The key of type `MMUserPredefinedDataKeys` for which to return the corresponding value.
 	*/
-	public func predefinedDataForKey(key: MMUserPredefinedDataKeys) -> UserDataSupportedTypes? {
+	public func predefinedDataForKey(_ key: MMUserPredefinedDataKeys) -> UserDataSupportedTypes? {
 		var result: UserDataSupportedTypes? = nil
 		if let predefinedData = self.predefinedData {
 			result = predefinedData[key.name]
@@ -203,8 +203,8 @@ final public class MMUser: NSObject {
 	- parameter key: The key of type `MMUserPredefinedDataKeys` for `object`.
 	- parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
 	*/
-	public func setPredefinedDataForKey(key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?) {
-		setDataForKey(key.name, attributeName: "predefinedUserData", object: object)
+	public func setPredefinedDataForKey(_ key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?) {
+		setDataForKey(key: key.name, attributeName: "predefinedUserData", object: object)
 	}
 	
 	/**
@@ -213,7 +213,7 @@ final public class MMUser: NSObject {
 	- parameter object: The object for `key` of type `MMUserPredefinedDataKeys`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
 	- parameter completion: The block to execute after the server responded.
 	*/
-	public func savePredefinedDataForKey(key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?, completion: NSError? -> Void) {
+	public func savePredefinedDataForKey(_ key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?, completion: @escaping (NSError?) -> Void) {
 		setPredefinedDataForKey(key, object: object)
 		save(completion)
 	}
@@ -221,7 +221,7 @@ final public class MMUser: NSObject {
 	/**
 	Explicitly tries to save all user data on the server.
 	*/
-	public func save(completion: (NSError? -> Void)? = nil) {
+	public func save(_ completion: ((NSError?) -> Void)? = nil) {
 		syncWithServer(completion)
 	}
 	
@@ -229,13 +229,13 @@ final public class MMUser: NSObject {
 	/**
 	Tries to fetch the user data from the server.
 	*/
-	public func fetchFromServer(completion: (NSError? -> Void)? = nil) {
+	public func fetchFromServer(_ completion: ((NSError?) -> Void)? = nil) {
 		installationManager.fetchUserWithServer(completion)
 	}
 	
 //MARK: Internal
 	
-	func syncWithServer(completion: (NSError? -> Void)? = nil) {
+	func syncWithServer(_ completion: ((NSError?) -> Void)? = nil) {
 		installationManager.syncUserWithServer(completion)
 	}
 	
@@ -243,7 +243,7 @@ final public class MMUser: NSObject {
 		if let dictionaryValue = installationManager.getValueForKey(attributeName) as? [String: AnyObject] {
 			var updatedDictionaryValue = dictionaryValue
 			updatedDictionaryValue[key] = object ?? NSNull()
-			installationManager.setValueForKey(attributeName, value: updatedDictionaryValue)
+			installationManager.setValueForKey(attributeName, value: updatedDictionaryValue as AnyObject?)
 		} else {
 			installationManager.setValueForKey(attributeName, value: [key: object ?? NSNull()])
 		}
@@ -283,7 +283,7 @@ final public class MMInstallation: NSObject {
 	/**
 	Explicitly tries to save installation data on the server.
 	*/
-	public func syncWithServer(completion: (NSError? -> Void)? = nil) {
+	public func syncWithServer(completion: ((NSError?) -> Void)? = nil) {
 		installationManager.syncRegistrationWithServer(completion)
 	}
 	
@@ -296,8 +296,8 @@ final public class MMInstallation: NSObject {
 	- parameter handler: The block/closure that is called when the value of `keyPath` changes.
 	*/
 	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: ObservationHandler) {
-		if isKeyObservable(keyPath) {
-			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
+		if isKeyObservable(key: keyPath) {
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
 		}
 	}
 	
@@ -308,28 +308,28 @@ final public class MMInstallation: NSObject {
 	*/
 	public var badgeNumber: Int {
 		get {
-			let appBadge = UIApplication.sharedApplication().applicationIconBadgeNumber
+			let appBadge = UIApplication.shared.applicationIconBadgeNumber
 			installationManager.setValueForKey("badgeNumber", value: appBadge)
 			return appBadge
 		}
 		set {
-			UIApplication.sharedApplication().applicationIconBadgeNumber = newValue
+			UIApplication.shared.applicationIconBadgeNumber = newValue
 			installationManager.setValueForKey("badgeNumber", value: newValue)
 		}
 	}
 	
-	public override func addObserver(observer: NSObject, forKeyPath keyPath: String, options: NSKeyValueObservingOptions, context: UnsafeMutablePointer<Void>) {
-		addObserver(observer, forKeyPath: keyPath) { (keyPath, newValue) in
-			observer.observeValueForKeyPath(keyPath, ofObject: self, change: [NSKeyValueChangeNewKey: newValue], context: context)
+	public override func addObserver(_ observer: NSObject, forKeyPath keyPath: String, options: NSKeyValueObservingOptions, context: UnsafeMutableRawPointer?) {
+		addObserver(observer: observer, forKeyPath: keyPath) { (keyPath, newValue) in
+			observer.observeValue(forKeyPath: keyPath, of: self, change: [NSKeyValueChangeKey.newKey: newValue], context: context)
 		}
 	}
 	
-	public override func removeObserver(observer: NSObject, forKeyPath keyPath: String) {
-		ManagedObjectNotificationCenter.defaultCenter.removeObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath)
+	public override func removeObserver(_ observer: NSObject, forKeyPath keyPath: String) {
+		ManagedObjectNotificationCenter.defaultCenter.removeObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath)
 	}
 	
-	public override func removeObserver(observer: NSObject, forKeyPath keyPath: String, context: UnsafeMutablePointer<Void>) {
-		ManagedObjectNotificationCenter.defaultCenter.removeObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath)
+	public override func removeObserver(_ observer: NSObject, forKeyPath keyPath: String, context:UnsafeMutableRawPointer?) {
+		ManagedObjectNotificationCenter.defaultCenter.removeObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath)
 	}
 	
     //MARK: Internal
@@ -342,8 +342,8 @@ final public class MMInstallation: NSObject {
 		self.installationManager = MMInstallationManager(storage: storage, registrationRemoteAPI: registrationRemoteAPI)
 	}
 	
-	func updateDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
-		installationManager.updateDeviceToken(token, completion: completion)
+	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {
+		installationManager.updateDeviceToken(token: token, completion: completion)
 	}
     
     //MARK: private
@@ -351,23 +351,24 @@ final public class MMInstallation: NSObject {
 		func propertiesForClass(cl: AnyClass) -> Set<String> {
 			var count = UInt32()
 			let classToInspect: AnyClass = cl
-			let properties : UnsafeMutablePointer <objc_property_t> = class_copyPropertyList(classToInspect, &count)
+			let properties : UnsafeMutablePointer <objc_property_t?> = class_copyPropertyList(classToInspect, &count)
 			var propertyNames = Set<String>()
 			let intCount = Int(count)
 			for i in 0..<intCount {
-				let property : objc_property_t = properties[i]
-				guard let propertyName = NSString(UTF8String: property_getName(property)) as? String else {
-					debugPrint("Couldn't unwrap property name for \(property)")
-					break
+				if let property = properties[i] {
+					guard let propertyName = NSString(utf8String: property_getName(property)) as? String else {
+						debugPrint("Couldn't unwrap property name for \(property)")
+						break
+					}
+					propertyNames.insert(propertyName)
 				}
-				propertyNames.insert(propertyName)
 			}
 			free(properties)
 			return propertyNames
 		}
 		
-		return propertiesForClass(MMInstallation.self).intersect(propertiesForClass(InstallationManagedObject.self)).contains(key)
+		return propertiesForClass(cl: MMInstallation.self).intersection(propertiesForClass(cl: InstallationManagedObject.self)).contains(key)
 	}
 	
-    private let installationManager: MMInstallationManager
+    fileprivate let installationManager: MMInstallationManager
 }

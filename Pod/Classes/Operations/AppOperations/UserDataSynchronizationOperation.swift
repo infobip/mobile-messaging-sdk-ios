@@ -10,22 +10,22 @@ import CoreData
 
 class UserDataSynchronizationOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: (NSError? -> Void)?
+	let finishBlock: ((NSError?) -> Void)?
 	let remoteAPIQueue: MMRemoteAPIQueue
 	
 	private var installationObject: InstallationManagedObject!
 	private var dirtyAttributes = SyncableAttributesSet(rawValue: 0)
 	private let onlyFetching: Bool //TODO: remove for v2 User Data API.
 	
-	convenience init(fetchingOperationWithContext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil) {
+	convenience init(fetchingOperationWithContext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.init(context: context, remoteAPIQueue: remoteAPIQueue, onlyFetching: true, finishBlock: finishBlock)
 	}
 	
-	convenience init(syncOperationWithContext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil) {
+	convenience init(syncOperationWithContext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.init(context: context, remoteAPIQueue: remoteAPIQueue, onlyFetching: false, finishBlock: finishBlock)
 	}
 	
-	private init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, onlyFetching: Bool, finishBlock: (NSError? -> Void)? = nil) {
+	private init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, onlyFetching: Bool, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
@@ -44,8 +44,8 @@ class UserDataSynchronizationOperation: Operation {
 		//TODO: store old valid attributes
 		//installationObject.customUserData
 		//installationObject.predefinedUserData
-		context.performBlockAndWait {
-			guard let installation = InstallationManagedObject.MM_findFirstInContext(context: self.context) else {
+		context.performAndWait {
+			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
 				self.finish()
 				return
 			}
@@ -65,7 +65,7 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	private var userDataChanged: Bool {
-		return installationObject.dirtyAttributesSet.intersect(SyncableAttributesSet.userData).isEmpty == false
+		return installationObject.dirtyAttributesSet.intersection(SyncableAttributesSet.userData).isEmpty == false
 	}
 	
 	private var shouldSendRequest: Bool {
@@ -115,8 +115,8 @@ class UserDataSynchronizationOperation: Operation {
 		}
 	}
 	
-	private func handleResult(result: MMUserDataSyncResult) {
-		self.context.performBlockAndWait {
+	private func handleResult(_ result: MMUserDataSyncResult) {
+		self.context.performAndWait {
 			switch result {
 			case .Success(let response):
 				guard let installationObject = self.installationObject else {
@@ -126,11 +126,11 @@ class UserDataSynchronizationOperation: Operation {
 				installationObject.customUserData = response.customData
 				installationObject.predefinedUserData = response.predefinedData
 				
-				installationObject.resetDirtyAttribute(SyncableAttributesSet.userData) // all user data now in sync
+				installationObject.resetDirtyAttribute(attributes: SyncableAttributesSet.userData) // all user data now in sync
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("User data: successfully synced")
 				
-				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationUserDataSynced, userInfo: nil)
+				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationUserDataSynced, userInfo: nil)
 				
 			case .Failure(let error):
 				MMLogError("User data: sync request failed with error: \(error)")
@@ -142,7 +142,7 @@ class UserDataSynchronizationOperation: Operation {
 		}
 	}
 	
-	override func finished(errors: [NSError]) {
+	override func finished(_ errors: [NSError]) {
 		self.finishBlock?(errors.first)
 	}
 }

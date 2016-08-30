@@ -6,18 +6,18 @@
 //  
 
 import Foundation
-import SwiftyJSON
+//import SwiftyJSON
 
 public let MMInternalErrorDomain = "com.mobile-messaging"
 
-public enum MMInternalErrorType : ErrorType {
+public enum MMInternalErrorType : Error {
     case UnknownError
     case OperationCanceled
 	case NoRegistration
 	case StorageInitializationError
 	
     
-    private var errorCode: Int {
+    fileprivate var errorCode: Int {
         switch self {
         case .UnknownError:
             return 0
@@ -34,17 +34,17 @@ public enum MMInternalErrorType : ErrorType {
         var errorDescription: String = ""
         
         switch self {
-        case UnknownError:
+        case .UnknownError:
             errorDescription = NSLocalizedString("Unknown error", comment: "")
-        case OperationCanceled:
+        case .OperationCanceled:
             errorDescription = NSLocalizedString("Task cancelled internally", comment: "")
-		case NoRegistration:
+		case .NoRegistration:
 			if MobileMessaging.currentInstallation?.deviceToken != nil {
 				errorDescription = NSLocalizedString("The application instance is not registered on the server yet. APNs device token was not received by the Mobile Messaging SDK. Make sure your app is set up correctly to work with remote notifications.", comment: "")
 			} else {
 				errorDescription = NSLocalizedString("The application instance is not registered on the server yet. The registration will be perfomed eventually. Subscribe to the notification `MMRegistrationUpdated` to be notified as the registration succeeded.", comment: "")
 			}
-		case StorageInitializationError:
+		case .StorageInitializationError:
 			errorDescription = NSLocalizedString("Core Data storage not initialized.", comment: "")
         }
         return [NSLocalizedDescriptionKey: errorDescription]

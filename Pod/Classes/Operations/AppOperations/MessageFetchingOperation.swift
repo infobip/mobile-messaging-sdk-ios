@@ -9,11 +9,11 @@ import CoreData
 
 final class MessageFetchingOperation: Operation {
 	var context: NSManagedObjectContext
-	var finishBlock: (MMFetchMessagesResult -> Void)?
+	var finishBlock: ((MMFetchMessagesResult) -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var result = MMFetchMessagesResult.Cancel
 	
-	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMFetchMessagesResult -> Void)? = nil) {
+	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMFetchMessagesResult) -> Void)? = nil) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
@@ -29,7 +29,7 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func syncMessages() {
-		self.context.performBlockAndWait {
+		self.context.performAndWait {
 			guard let internalId = MobileMessaging.currentUser?.internalId else
 			{
 				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
@@ -38,34 +38,36 @@ final class MessageFetchingOperation: Operation {
 			
 			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // 7 days ago
 			
-			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), inContext: self.context) as? [MessageManagedObject]
-			let archivedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == true && creationDate > %@", date), inContext: self.context) as? [MessageManagedObject]
+			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
+			let archivedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == true && creationDate > %@", date), context: self.context)
 			
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
 			
 			let request = MMPostSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
 			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
-			self.remoteAPIQueue.performRequest(request) { result in
-				self.handleRequestResponse(result, nonReportedMessageIds: nonReportedMessageIds)
-			}
+			
+			self.remoteAPIQueue.performRequest(request, completion: { result in
+				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
+				}
+			)
 		}
 	}
 
 	private func handleRequestResponse(result: MMFetchMessagesResult, nonReportedMessageIds: [String]?) {
 		self.result = result
 		
-		self.context.performBlockAndWait {
+		self.context.performAndWait {
 			switch result {
 			case .Success(let fetchResponse):
 				let fetchedMessages = fetchResponse.messages
 				MMLogDebug("Messages fetching succeded: received \(fetchedMessages?.count) new messages: \(fetchedMessages)")
 				
 				if let nonReportedMessageIds = nonReportedMessageIds {
-					self.dequeueDeliveryReports(nonReportedMessageIds)
+					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds)
 					MMLogDebug("Delivery report sent for messages: \(nonReportedMessageIds)")
 					if nonReportedMessageIds.count > 0 {
-						NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
+						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs as NSObject: nonReportedMessageIds as AnyObject])
 					}
 				}
 				
@@ -80,8 +82,8 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func dequeueDeliveryReports(messageIDs: [String]) {
-		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), inContext: context) as? [MessageManagedObject]
-			where messages.count > 0
+		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), context: context)
+			, messages.count > 0
 			else
 		{
 			return
@@ -110,13 +112,13 @@ final class MessageFetchingOperation: Operation {
 		}
 	}
 	
-	override func finished(errors: [NSError]) {
+	override func finished(_ errors: [NSError]) {
 		MMLogDebug("Message fetching operation finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? result : MMFetchMessagesResult.Failure(errors.first)
 		switch finishResult {
 		case .Success(let fetchResponse):
-			if let messages = fetchResponse.messages where messages.count > 0 {
-				self.produceOperation(handleMessageOperation(messages))
+			if let messages = fetchResponse.messages , messages.count > 0 {
+				self.produceOperation(handleMessageOperation(messages: messages))
 			} else {
 				self.finishBlock?(result)
 			}

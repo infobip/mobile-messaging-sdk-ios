@@ -8,7 +8,7 @@
 
 import Foundation
 
-func synced(lock: AnyObject, closure: Void -> Void) {
+func synced(lock: AnyObject, closure: (Void) -> Void) {
 	objc_sync_enter(lock)
 	closure()
 	objc_sync_exit(lock)
@@ -16,27 +16,24 @@ func synced(lock: AnyObject, closure: Void -> Void) {
 
 final class MMQueueObject: CustomStringConvertible {
     
-    private(set) var queue: dispatch_queue_t
+    private(set) var queue: DispatchQueue
 
-	private var queueTag: UnsafeMutablePointer<Void>
+	private var queueTag: DispatchSpecificKey<String>
 	
     var isCurrentQueue: Bool {
 		if isMain {
-			return NSThread.isMainThread()
+			return Thread.isMainThread
 		} else if isGlobal {
-			return queueLabel == String(UTF8String: dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL))
+			return DispatchQueue.getSpecific(key: queueTag) == DispatchQueue.global().label
 		}
-		return dispatch_get_specific(queueTag) != nil
+		return DispatchQueue.getSpecific(key: queueTag) != nil
 	}
-    
-    deinit { queueTag.dealloc(1) }
 	
-	init(queue: dispatch_queue_t) {
+	init(queue: DispatchQueue) {
 		self.queue = queue
-		let charPtr = dispatch_queue_get_label(queue)
-		self.queueLabel = String(UTF8String: charPtr)
-		self.queueTag = UnsafeMutablePointer.alloc(1)
-		dispatch_queue_set_specific(queue, queueTag, queueTag, nil)
+		self.queueLabel = queue.label
+		self.queueTag = DispatchSpecificKey<String>()
+		queue.setSpecific(key: queueTag, value: queue.label)
 	}
 	
 	var isGlobal: Bool {
@@ -49,31 +46,33 @@ final class MMQueueObject: CustomStringConvertible {
 	
 	var queueLabel: String?
 	
-    func executeAsync(closure: Void -> Void) {
+    func executeAsync(closure: @escaping (Void) -> Void) {
         if isCurrentQueue {
             closure()
         } else {
-            dispatch_async(queue, closure)
+            queue.async(execute: closure)
         }
     }
     
-    func executeAsyncBarier(closure: Void -> Void) {
+    func executeAsyncBarier(closure: @escaping (Void) -> Void) {
         if isCurrentQueue {
             closure()
         } else {
-            dispatch_barrier_async(queue, closure)
+			queue.async(flags: .barrier) {
+				closure()
+			}
         }
     }
 
-    func executeSync(closure: Void -> Void) {
+    func executeSync(closure: (Void) -> Void) {
         if isCurrentQueue {
             closure()
         } else {
-            dispatch_sync(queue, closure)
+            queue.sync(execute: closure)
         }
     }
 	
-	var description: String { return String(UTF8String: dispatch_queue_get_label(queue)) ?? "untitled queue" }
+	var description: String { return queue.label }
 }
 
 protocol MMQueueEnum {
@@ -82,7 +81,7 @@ protocol MMQueueEnum {
 }
 
 final class MMQueuePool {
-	class func queue(queueEnum: MMQueueEnum, queueBuilder: Void -> MMQueueObject) -> MMQueueObject {
+	class func queue(queueEnum: MMQueueEnum, queueBuilder: (Void) -> MMQueueObject) -> MMQueueObject {
 		var queue: MMQueueObject
 		objc_sync_enter(qTable)
 		if let q = qTable[queueEnum.queueName] {
@@ -105,9 +104,9 @@ enum MMQueue {
 	var queue: MMQueueObject {
 		switch self {
 		case .Global:
-			return MMQueueObject(queue: dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0))
+			return MMQueueObject(queue: DispatchQueue.global(qos: .default))
 		case .Main:
-			return MMQueueObject(queue: dispatch_get_main_queue())
+			return MMQueueObject(queue: DispatchQueue.main)
 		}
 		
 	}
@@ -117,7 +116,7 @@ enum MMQueue {
 			case DefaultQueue = "com.mobile-messaging.queue.serial.default-shared"
 			var queueName: String { return rawValue }
 			var queue: MMQueueObject {
-				return MMQueuePool.queue(self, queueBuilder: { Serial.newQueue(self.queueName) })
+				return MMQueuePool.queue(queueEnum: self, queueBuilder: { Serial.newQueue(queueName: self.queueName) })
 			}
 		}
 		
@@ -125,17 +124,17 @@ enum MMQueue {
 			case MobileMessagingSingletonQueue = "com.mobile-messaging.queue.serial.api-singleton"
 			case RetryableRequest = "com.mobile-messaging.queue.serial.request-retry"
 			var queueName: String { return rawValue }
-			var queue: MMQueueObject { return Serial.newQueue(queueName) }
+			var queue: MMQueueObject { return Serial.newQueue(queueName: queueName) }
 		}
 		
 		static func newQueue(queueName: String) -> MMQueueObject {
-			return MMQueueObject(queue: dispatch_queue_create(queueName, DISPATCH_QUEUE_SERIAL))
+			return MMQueueObject(queue: DispatchQueue(label: queueName))
 		}
 	}
 	
 	enum Concurrent {
 		static func newQueue(queueName: String) -> MMQueueObject {
-			return MMQueueObject(queue: dispatch_queue_create(queueName, DISPATCH_QUEUE_CONCURRENT))
+			return MMQueueObject(queue: DispatchQueue(label: queueName, attributes: DispatchQueue.Attributes.concurrent))
 		}
 	}
 }

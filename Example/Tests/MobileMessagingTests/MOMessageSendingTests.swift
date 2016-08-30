@@ -13,7 +13,7 @@ class MOMessageSendingTests: MMTestCase {
 
     func testSendMOMessageSuccessfully() {
 		
-		let expectation = expectationWithDescription("Sending finished")
+		let expectation = self.expectation(description: "Sending finished")
 
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
@@ -21,10 +21,10 @@ class MOMessageSendingTests: MMTestCase {
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
-		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1"])
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2"])
+		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
+		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
 
-		MobileMessaging.sendMessages([moMessage1, moMessage2]) { (messages, error) in
+		MobileMessaging.sendMessages(messages: [moMessage1, moMessage2]) { (messages, error) in
 			XCTAssertEqual(messages?.first?.messageId, "m1")
 			XCTAssertEqual(messages?.first?.text, "message1")
 			XCTAssertEqual(messages?.first?.destination, MMTestConstants.kTestCorrectApplicationCode)
@@ -40,7 +40,7 @@ class MOMessageSendingTests: MMTestCase {
 			expectation.fulfill()
 		}
 		
-		waitForExpectationsWithTimeout(10, handler: nil)
+		waitForExpectations(timeout: 10, handler: nil)
     }
 
 }

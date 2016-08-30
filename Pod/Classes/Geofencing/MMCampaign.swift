@@ -64,7 +64,7 @@ final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, Pli
 			return nil
 		}
 		let regions = Set(regionsData.flatMap(MMRegion.init))
-		self.init(id: NSUUID().UUIDString, origin: .Push, title: text.mm_breakWithMaxLength(15), message: text, dateReceived: NSDate(), regions: regions)
+		self.init(id: NSUUID().uuidString, origin: .Push, title: text.mm_breakWithMaxLength(maxLenght: 15), message: text, dateReceived: NSDate(), regions: regions)
 	}
 	
 	
@@ -82,12 +82,12 @@ final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, Pli
 	
 	var dictionaryRepresentation: [String: AnyObject] {
 		var result = [String: AnyObject]()
-		result[MMCampaignDataKeys.Id.rawValue] = id
-		result[MMCampaignDataKeys.Title.rawValue] = title
-		result[MMCampaignDataKeys.Message.rawValue] = message
-		result[MMCampaignDataKeys.DateReceived.rawValue] = dateReceived
-		result[MMCampaignDataKeys.Regions.rawValue] = regions.map { $0.dictionaryRepresentation }
-		result[MMCampaignDataKeys.Origin.rawValue] = origin.rawValue
+		result[MMCampaignDataKeys.Id.rawValue] = id as AnyObject?
+		result[MMCampaignDataKeys.Title.rawValue] = title as AnyObject?
+		result[MMCampaignDataKeys.Message.rawValue] = message as AnyObject?
+		result[MMCampaignDataKeys.DateReceived.rawValue] = dateReceived as AnyObject?
+		result[MMCampaignDataKeys.Regions.rawValue] = regions.map { $0.dictionaryRepresentation } as AnyObject?
+		result[MMCampaignDataKeys.Origin.rawValue] = origin.rawValue as AnyObject?
 		
 		assert(MMCampaign(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
@@ -107,21 +107,22 @@ public func ==(lhs: MMCampaign, rhs: MMCampaign) -> Bool {
 }
 
 final public class MMRegion: NSObject, PlistArchivable, NSCoding {
+
 	public let identifier: String
 	public let expiryDate: NSDate
-	let expiryms: NSTimeInterval
+	let expiryms: TimeInterval
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
 	public weak var campaign: MMCampaign?
 	public var isExpired: Bool {
-		return NSDate().compare(expiryDate) == NSComparisonResult.OrderedDescending
+		return NSDate().compare(expiryDate as Date) == ComparisonResult.orderedDescending
 	}
 	public var circularRegion: CLCircularRegion {
 		return CLCircularRegion(center: center, radius: radius, identifier: identifier)
 	}
 	
-	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: NSTimeInterval) {
+	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: TimeInterval) {
 		guard radius > 0 else
 		{
 			return nil
@@ -154,12 +155,12 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 	
 	var dictionaryRepresentation: [String: AnyObject] {
 		var result = [String: AnyObject]()
-		result[MMRegionDataKeys.Latitude.rawValue] = center.latitude
-		result[MMRegionDataKeys.Longitude.rawValue] = center.longitude
-		result[MMRegionDataKeys.Radius.rawValue] = radius
-		result[MMRegionDataKeys.Title.rawValue] = title
-		result[MMRegionDataKeys.Expiry.rawValue] = expiryms
-		result[MMRegionDataKeys.Identifier.rawValue] = identifier
+		result[MMRegionDataKeys.Latitude.rawValue] = center.latitude as AnyObject?
+		result[MMRegionDataKeys.Longitude.rawValue] = center.longitude as AnyObject?
+		result[MMRegionDataKeys.Radius.rawValue] = radius as AnyObject?
+		result[MMRegionDataKeys.Title.rawValue] = title as AnyObject?
+		result[MMRegionDataKeys.Expiry.rawValue] = expiryms as AnyObject?
+		result[MMRegionDataKeys.Identifier.rawValue] = identifier as AnyObject?
 		
 		assert(MMRegion(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
@@ -170,12 +171,12 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 	}
 	
 	convenience required public init(coder aDecoder: NSCoder) {
-		let dict = aDecoder.decodeObjectForKey("dictRepresentation") as! [String: AnyObject]
+		let dict = aDecoder.decodeObject(forKey: "dictRepresentation") as! [String: AnyObject]
 		self.init(dictRepresentation: dict)!
 	}
 	
-	public func encodeWithCoder(aCoder: NSCoder) {
-		aCoder.encodeObject(self.dictionaryRepresentation, forKey: "dictRepresentation")
+	public func encode(with aCoder: NSCoder) {
+		aCoder.encode(self.dictionaryRepresentation, forKey: "dictRepresentation")
 	}
 }
 

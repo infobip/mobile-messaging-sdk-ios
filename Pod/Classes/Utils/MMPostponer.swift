@@ -6,22 +6,22 @@
 
 import Foundation
 class MMPostponer: NSObject {
-	private var block: (Void -> Void)?
-	private var schedulerQueue = MMQueue.Serial.newQueue("com.mobile-messaging.queue.serial.postponer")
-	private var timer: dispatch_source_t?
-	private var executionQueue: dispatch_queue_t
+	private var block: ((Void) -> Void)?
+	private var schedulerQueue = MMQueue.Serial.newQueue(queueName: "com.mobile-messaging.queue.serial.postponer")
+	private var timer: DispatchSourceTimer?
+	private var executionQueue: DispatchQueue
 	
-	init(executionQueue: dispatch_queue_t) {
+	init(executionQueue: DispatchQueue) {
 		self.executionQueue = executionQueue
 	}
 	
-	func postponeBlock(delay: Double = 2, block: Void -> Void) {
+	func postponeBlock(delay: Double = 2, block: @escaping (Void) -> Void) {
 		schedulerQueue.executeAsync {
 			self.invalidateTimer()
 			self.block = block
 			self.timer = self.createDispatchTimer(delay, queue: self.executionQueue, block:
 				{
-					var blockToExecute: (Void -> Void)?
+					var blockToExecute: (() -> Void)?
 					self.schedulerQueue.executeSync {
 						blockToExecute = self.block
 						self.invalidateTimer()
@@ -34,19 +34,15 @@ class MMPostponer: NSObject {
 	
 	private func invalidateTimer() {
 		self.block = nil
-		if let timer = self.timer {
-			dispatch_source_cancel(timer)
-			self.timer = nil
-		}
+		timer?.cancel()
 	}
 	
-	private func createDispatchTimer(delay: Double, queue: dispatch_queue_t, block: dispatch_block_t) -> dispatch_source_t {
-		let result = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue)
-		if (result != nil) {
-			dispatch_source_set_timer(result, dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))), DISPATCH_TIME_FOREVER, 0)
-			dispatch_source_set_event_handler(result, block)
-			dispatch_resume(result)
-		}
-		return result
+	private func createDispatchTimer(_ delay: Double, queue: DispatchQueue, block: @escaping () -> ()) -> DispatchSourceTimer {
+		let timer : DispatchSourceTimer = DispatchSource.makeTimerSource(queue: queue)
+		timer.scheduleOneshot(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC)))/Double(NSEC_PER_SEC),
+		                      leeway: DispatchTimeInterval.seconds(0))
+		timer.setEventHandler(handler: block)
+		timer.resume()
+		return timer
 	}
 }

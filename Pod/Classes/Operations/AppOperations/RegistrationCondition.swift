@@ -11,15 +11,15 @@ final class RegistrationCondition: OperationCondition {
 	static var name = "RegistrationCondition"
 	static var isMutuallyExclusive = false
 	
-	func dependencyForOperation(operation: Operation) -> NSOperation? {
+	public func dependencyForOperation(_ operation: Operation) -> Foundation.Operation? {
 		return nil
 	}
 	
-	func evaluateForOperation(operation: Operation, completion: OperationConditionResult -> Void) {
+	public func evaluateForOperation(_ operation: Operation, completion: @escaping (OperationConditionResult) -> Void) {
 		if MobileMessaging.currentUser?.internalId == nil {
-			completion(OperationConditionResult.Failed(NSError(type: MMInternalErrorType.NoRegistration)))
+			completion(OperationConditionResult.failed(NSError(type: MMInternalErrorType.NoRegistration)))
 		} else {
-			completion(OperationConditionResult.Satisfied)
+			completion(OperationConditionResult.satisfied)
 		}
 	}
 }

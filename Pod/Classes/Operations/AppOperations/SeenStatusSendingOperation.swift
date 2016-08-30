@@ -10,11 +10,11 @@ import CoreData
 
 class SeenStatusSendingOperation: Operation {
 	var context: NSManagedObjectContext
-	var finishBlock: (MMSeenMessagesResult -> Void)?
+	var finishBlock: ((MMSeenMessagesResult) -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var result = MMSeenMessagesResult.Cancel
 	
-	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMSeenMessagesResult -> Void)? = nil) {
+	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMSeenMessagesResult) -> Void)? = nil) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
@@ -25,9 +25,9 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	private func sendSeen() {
-		self.context.performBlockAndWait {
-			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), inContext: self.context) as? [MessageManagedObject]
-				where seenNotSentMessages.count > 0
+		self.context.performAndWait {
+			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), context: self.context)
+				, seenNotSentMessages.count > 0
 				else
 			{
 				MMLogDebug("There is no unseen meessages to send on server. Finishing...")
@@ -44,7 +44,7 @@ class SeenStatusSendingOperation: Operation {
 			
 			let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)
 			self.remoteAPIQueue.performRequest(request) { result in
-				self.handleSeenResult(result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
+				self.handleSeenResult(result: result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
 				self.finishWithError(result.error)
 			}
 		}
@@ -56,8 +56,8 @@ class SeenStatusSendingOperation: Operation {
 		case .Success(_):
 			MMLogDebug("Seen messages request succeded")
 			
-			context.performBlockAndWait {
-				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), inContext: self.context) as? [MessageManagedObject] where messages.count > 0 {
+			context.performAndWait {
+				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), context: self.context), messages.count > 0 {
 					for message in messages {
 						message.seenStatus = .SeenSent
 					}
@@ -71,7 +71,7 @@ class SeenStatusSendingOperation: Operation {
 		}
 	}
 	
-	override func finished(errors: [NSError]) {
+	override func finished(_ errors: [NSError]) {
 		if let error = errors.first {
 			result = MMSeenMessagesResult.Failure(error)
 		}

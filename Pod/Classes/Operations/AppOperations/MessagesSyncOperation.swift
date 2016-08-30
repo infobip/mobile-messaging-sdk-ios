@@ -10,10 +10,10 @@ import CoreData
 
 final class MessagesSyncOperation: GroupOperation {
 	var context: NSManagedObjectContext
-	var finishBlock: (NSError? -> Void)?
+	var finishBlock: ((NSError?) -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
 	
-	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil) {
+	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
@@ -29,7 +29,7 @@ final class MessagesSyncOperation: GroupOperation {
 		self.addOperation(messageFetching)
 	}
 	
-	override func finished(errors: [NSError]) {
+	override func finished(_ errors: [NSError]) {
 		finishBlock?(errors.first)
 	}
 }

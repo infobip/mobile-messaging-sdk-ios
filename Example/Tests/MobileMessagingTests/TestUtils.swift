@@ -24,32 +24,32 @@ struct MMTestConstants {
 }
 
 enum TestResult {
-	case Success()
-	case Failure(error: NSError?)
-	case Cancel
+	case success()
+	case failure(error: NSError?)
+	case cancel
 }
 
 final class TestMMRemoteAPI : MMRemoteAPIQueue {
 	
 	var testCompletion : (TestResult) -> Void
 	
-	init(baseURLString: String, appCode: String, testCompletion: (TestResult) -> Void) {
+	init(baseURLString: String, appCode: String, testCompletion: @escaping (TestResult) -> Void) {
 		self.testCompletion = testCompletion
 		super.init(baseURL: baseURLString, applicationCode: appCode)
 	}
 	
-	override func performRequest<R: MMHTTPRequestData>(request: R, completion: (Result<R.ResponseType>) -> Void) {
+	override func performRequest<R: MMHTTPRequestData>(_ request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		let requestOperation = MMRetryableRequestOperation<R>(request: request, applicationCode: applicationCode, baseURL: baseURL) { requestResult in
 			completion(requestResult)
 			
 			var testResult : TestResult
 			switch requestResult {
 			case .Success:
-				testResult = TestResult.Success()
+				testResult = TestResult.success()
 			case .Failure(let error):
-				testResult = TestResult.Failure(error: error)
+				testResult = TestResult.failure(error: error)
 			case .Cancel:
-				testResult = TestResult.Cancel
+				testResult = TestResult.cancel
 			}
 			
 			self.testCompletion(testResult)

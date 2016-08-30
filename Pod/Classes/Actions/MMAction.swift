@@ -12,7 +12,7 @@ enum MMPredefinedActions : String {
 	case MarkAsSeen = "mark_as_seen"
 	case Reply = "reply"
 	
-	func createInstance(parameters parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) -> MMBaseAction? {
+	func createInstance(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) -> MMBaseAction? {
 		var actionType: MMBaseAction.Type
 		switch self {
 		case .OpenURL: actionType = MMActionOpenURL.self
@@ -25,24 +25,25 @@ enum MMPredefinedActions : String {
 
 protocol MMBaseAction {
 	static var actionId : MMPredefinedActions {get}
-	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?)
-	func perform(message: MMMessage, completion: Void -> Void)
+	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?)
+	func perform(message: MMMessage, completion: @escaping (Void) -> Void)
 }
 protocol MMAction : MMBaseAction {
 	associatedtype Result : MMActionResult
-	static func setActionHandler(handler: Result -> Void)
+	static func setActionHandler(handler: @escaping (Result) -> Void)
 }
 
 public final class MMActionMarkAsSeen : NSObject, MMAction {
+
 	public typealias Result = MMMarkAsSeenActionResult
 	static let actionId : MMPredefinedActions = .MarkAsSeen
-	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) {
+	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) {
 		super.init()
 	}
 	
-	func perform(message: MMMessage, completion: Void -> Void) {
-		MobileMessaging.setSeen([message.messageId])
-		MMActionsManager.executeActionHandler(MMMarkAsSeenActionResult(messageId: message.messageId), actionId: MMActionMarkAsSeen.actionId) {
+	func perform(message: MMMessage, completion: @escaping (Void) -> Void) {
+		MobileMessaging.setSeen(messageIds: [message.messageId])
+		MMActionsManager.executeActionHandler(result: MMMarkAsSeenActionResult(messageId: message.messageId), actionId: MMActionMarkAsSeen.actionId) {
 			completion()
 		}
 	}
@@ -51,31 +52,32 @@ public final class MMActionMarkAsSeen : NSObject, MMAction {
 	Method sets handler for action.
 	- parameter handler: Handler for action. Will be performed after action predefined activities.
    */
-	public static func setActionHandler(handler: Result -> Void) {
-		MMActionsManager.setActionHandler(MMActionMarkAsSeen.self, handler: handler)
+	public static func setActionHandler(handler: @escaping (Result) -> Void) {
+		MMActionsManager.setActionHandler(actionType: MMActionMarkAsSeen.self, handler: handler)
 	}
 }
 
 public final class MMActionReply : NSObject, MMAction {
+
 	public typealias Result = MMReplyActionResult
 	static let actionId : MMPredefinedActions = .Reply
 	var text : String?
-	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) {
+	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) {
 		if #available(iOS 9.0, *) {
 			self.text = resultInfo?[UIUserNotificationActionResponseTypedTextKey] as? String
 		}
 		super.init()
 	}
 	
-	func perform(message: MMMessage, completion: Void -> Void) {
+	func perform(message: MMMessage, completion: @escaping (Void) -> Void) {
 		let reply = MMReplyActionResult(messageId: message.messageId, text: self.text)
-		MMActionsManager.executeActionHandler(reply, actionId: MMActionReply.actionId) {
+		MMActionsManager.executeActionHandler(result: reply, actionId: MMActionReply.actionId) {
 			completion()
 		}
 	}
 	
-	public static func setActionHandler(handler: Result -> Void) {
-		MMActionsManager.setActionHandler(MMActionReply.self, handler: handler)
+	public static func setActionHandler(handler: @escaping (Result) -> Void) {
+		MMActionsManager.setActionHandler(actionType: MMActionReply.self, handler: handler)
 	}
 }
 
@@ -83,7 +85,7 @@ public final class MMActionOpenURL : NSObject, MMAction {
 	public typealias Result = MMOpenURLActionResult
 	static let actionId : MMPredefinedActions = .OpenURL
 	let url: NSURL
-	init?(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) {
+	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) {
 		guard let path = parameters as? String,
 		   let url = NSURL(string: path) else {
 			return nil
@@ -92,18 +94,18 @@ public final class MMActionOpenURL : NSObject, MMAction {
 		super.init()
 	}
 	
-	func perform(message: MMMessage, completion: Void -> Void) {
+	func perform(message: MMMessage, completion: @escaping (Void) -> Void) {
 		let result = Result(messageId: message.messageId, url: url)
-		dispatch_async(dispatch_get_main_queue()) {
-			UIApplication.sharedApplication().openURL(self.url)
+		DispatchQueue.main.async { 
+			UIApplication.shared.openURL(self.url as URL)
 		}
-		MMActionsManager.executeActionHandler(result, actionId: MMActionOpenURL.actionId) {
+		MMActionsManager.executeActionHandler(result: result, actionId: MMActionOpenURL.actionId) {
 			completion()
 		}
 	}
 
-	public static func setActionHandler(handler: Result -> Void) {
-		MMActionsManager.setActionHandler(MMActionOpenURL.self, handler: handler)
+	public static func setActionHandler(handler: @escaping (Result) -> Void) {
+		MMActionsManager.setActionHandler(actionType: MMActionOpenURL.self, handler: handler)
 	}
 }
 

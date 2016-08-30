@@ -17,7 +17,7 @@ public final class MMLoggingOptions : NSObject {
 		}
 		self.rawValue = totalValue
 	}
-	public func contains(options: MMLoggingOptions) -> Bool {
+	public func contains(_ options: MMLoggingOptions) -> Bool {
 		return rawValue & options.rawValue != 0
 	}
     public static let None = MMLoggingOptions(rawValue: 0)
@@ -65,7 +65,7 @@ public final class MMLoggingUtil: NSObject {
      - parameter loggingOptions: An array of `MMLoggingOptions` instances to setup log outputs. For debug scheme default value is `Console`. For release sheme default value is `File`.
      - parameter logLevel: Log level is used to filter out logs sent to output. Default value is `Warning`.
      */
-    public func setLoggingOptions(options:[MMLoggingOptions], logLevel: MMLogLevel) {
+    public func setLoggingOptions(_ options:[MMLoggingOptions], logLevel: MMLogLevel) {
         let opts = MMLoggingOptions(options: options)
         DDLog.removeAllLoggers()
         self.loggingOptions = opts
@@ -73,14 +73,14 @@ public final class MMLoggingUtil: NSObject {
     }
 	
 	public func sendLogs(fromViewController vc: UIViewController) {
-		var objectsToShare: [AnyObject] = [MMUserAgent.currentUserAgent]
+		var objectsToShare: [AnyObject] = [MMUserAgent.currentUserAgent as AnyObject]
 		
 		if let dt = MobileMessaging.currentInstallation?.deviceToken {
-			objectsToShare.append("APNS device token: \(dt)")
+			objectsToShare.append("APNS device token: \(dt)" as AnyObject)
 		}
 		
 		if let id = MobileMessaging.currentUser?.internalId {
-			objectsToShare.append("Push registration ID: \(id)")
+			objectsToShare.append("Push registration ID: \(id)" as AnyObject)
 		}
 		
 		if let filePath = MobileMessaging.loggingUtil.logFilePath {
@@ -88,7 +88,7 @@ public final class MMLoggingUtil: NSObject {
 			objectsToShare.append(url)
 			
 			let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
-			vc.presentViewController(activityVC, animated: true, completion: nil)
+			vc.present(activityVC, animated: true, completion: nil)
 		}
 	}
 	
@@ -96,18 +96,18 @@ public final class MMLoggingUtil: NSObject {
     private var loggingOptions: MMLoggingOptions
     private var fileLogger: DDFileLogger?
     
-    private func prepareLogging(logLevel: DDLogLevel) {
+    private func prepareLogging(_ logLevel: DDLogLevel) {
         
         if self.loggingOptions.contains(.Console) {
             let logger = DDTTYLogger.sharedInstance()
-            logger.logFormatter = MMLogFormatter()
-            DDLog.addLogger(logger, withLevel: logLevel) //Console
+            logger?.logFormatter = MMLogFormatter()
+            DDLog.add(logger, with: logLevel) //Console
         }
         
         if self.loggingOptions.contains(.ASL) {
             let logger = DDASLLogger.sharedInstance()
-            logger.logFormatter = MMLogFormatter()
-            DDLog.addLogger(logger, withLevel: logLevel) //ASL
+            logger?.logFormatter = MMLogFormatter()
+            DDLog.add(logger, with: logLevel) //ASL
         }
         
         if self.loggingOptions.contains(.File) {
@@ -117,20 +117,20 @@ public final class MMLoggingUtil: NSObject {
                 fileLogger.logFileManager.maximumNumberOfLogFiles = 10
                 fileLogger.rollingFrequency = 60*60*24 //24h
             }
-            DDLog.addLogger(fileLogger, withLevel: logLevel)
+            DDLog.add(fileLogger, with: logLevel)
         }
     }
 }
 
 final class MMLogFormatter: NSObject, DDLogFormatter {
-    let dateFormatter: NSDateFormatter
+    let dateFormatter: DateFormatter
     override init() {
-        self.dateFormatter = NSDateFormatter()
+        self.dateFormatter = DateFormatter()
         self.dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
     }
     
-    func formatLogMessage(logMessage: DDLogMessage!) -> String! {
-        let date = dateFormatter.stringFromDate(logMessage.timestamp)
+    func formatLogMessage(_ logMessage: DDLogMessage!) -> String! {
+        let date = dateFormatter.string(from: logMessage.timestamp)
         return date + " [MobileMessaging] " + logMessage.message
     }
 }

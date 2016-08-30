@@ -20,36 +20,36 @@ class CopyableCell: UITableViewCell {
     }
     
     func sharedInit() {
-        userInteractionEnabled = true
+        isUserInteractionEnabled = true
         addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(CopyableCell.showMenu(_:))))
     }
     
-    func showMenu(sender: AnyObject?) {
+    func showMenu(_ sender: AnyObject?) {
 		guard textLabel?.text != nil else {
 			return
 		}
 		becomeFirstResponder()
-		let menu = UIMenuController.sharedMenuController()
-		if !menu.menuVisible {
-			menu.setTargetRect(self.bounds, inView: self)
+		let menu = UIMenuController.shared
+		if !menu.isMenuVisible {
+			menu.setTargetRect(self.bounds, in: self)
 			menu.setMenuVisible(true, animated: true)
 		}
     }
-    
-    override func copy(sender: AnyObject?) {
+	
+	override func copy(_ sender: Any?) {
 		guard let text = textLabel?.text else {
 			return
 		}
-		UIPasteboard.generalPasteboard().string = text
-		UIMenuController.sharedMenuController().setMenuVisible(false, animated: true)
-    }
-    
-    override func canBecomeFirstResponder() -> Bool {
-        return true
-    }
-    
-    override func canPerformAction(action: Selector, withSender sender: AnyObject?) -> Bool {
-        if action == #selector(NSObject.copy(_:)) {
+		UIPasteboard.general.string = text
+		UIMenuController.shared.setMenuVisible(false, animated: true)
+	}
+	
+	override var canBecomeFirstResponder: Bool {
+		return true
+	}
+	    
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        if action == #selector(copy(_:)) {
             return true
         }
         return false

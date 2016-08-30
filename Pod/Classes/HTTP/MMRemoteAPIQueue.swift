@@ -5,7 +5,7 @@
 //  Created by Andrey K. on 19/02/16.
 //  
 //
-import SwiftyJSON
+//import SwiftyJSON
 
 enum Result<ValueType> {
 	case Success(ValueType)
@@ -59,10 +59,10 @@ class MMRemoteAPIQueue {
         self.applicationCode = applicationCode
     }
 	
-	func performRequest<R: MMHTTPRequestData>(request: R, completion: (Result<R.ResponseType>) -> Void) {
+	func performRequest<R: MMHTTPRequestData>(_ request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		let requestOperation = MMRetryableRequestOperation<R>(request: request, applicationCode: applicationCode, baseURL: baseURL) { responseResult in
 			completion(responseResult)
-			self.postErrorNotificationIfNeeded(responseResult.error)
+			self.postErrorNotificationIfNeeded(error: responseResult.error)
 		}
 		queue.addOperation(requestOperation)
 	}
@@ -72,6 +72,6 @@ class MMRemoteAPIQueue {
 		guard let error = error else {
 			return
 		}
-		NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationAPIError, userInfo: [MMNotificationKeyAPIErrorUserInfo: error])
+		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationAPIError, userInfo: [MMNotificationKeyAPIErrorUserInfo as NSObject: error])
 	}
 }
