@@ -11,19 +11,6 @@ import MMAFNetworking
 
 public final class MobileMessaging: NSObject {
 	
-	static var sharedInstance: MobileMessaging?
-	let userNotificationType: UIUserNotificationType,
-		applicationCode: String
-	
-	var	storageType: MMStorageType = .SQLite,
-		remoteAPIBaseURL: String = MMAPIValues.kProdBaseURLString,
-		geofencingServiceDisabled: Bool = false
-	
-	private init(applicationCode: String, notificationType: UIUserNotificationType) {
-		self.applicationCode = applicationCode
-		self.userNotificationType = notificationType
-	}
-	
 	//MARK: Public
 	public class func withApplicationCode(code: String, notificationType: UIUserNotificationType) -> MobileMessaging {
 		sharedInstance = MobileMessaging(applicationCode: code, notificationType: notificationType)
@@ -49,6 +36,7 @@ public final class MobileMessaging: NSObject {
 	*/
 	public func start(completion: (Void -> Void)? = nil) {
 		MMLogDebug("Starting MobileMessaging service...")
+		
 		MobileMessaging.singletonQueue.executeAsync {
 			do {
 				var storage: MMCoreDataStorage?
@@ -205,6 +193,14 @@ public final class MobileMessaging: NSObject {
 
 
 //MARK: Internal
+	static var sharedInstance: MobileMessaging?
+	let userNotificationType: UIUserNotificationType
+	let applicationCode: String
+	
+	var	storageType: MMStorageType = .SQLite
+	var remoteAPIBaseURL: String = MMAPIValues.kProdBaseURLString
+	var geofencingServiceDisabled: Bool = false
+	
 	func cleanUpAndStop() {
 		MMLogDebug("Cleaning up MobileMessaging service...")
 		MobileMessaging.singletonQueue.executeSync {
@@ -256,6 +252,11 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	//MARK: Private
+	private init(applicationCode: String, notificationType: UIUserNotificationType) {
+		self.applicationCode = applicationCode
+		self.userNotificationType = notificationType
+	}
+	
 	private static let singletonQueue: MMQueueObject = MMQueue.Serial.New.MobileMessagingSingletonQueue.queue
 	
 	private var valuesStorage = [NSObject: AnyObject]()

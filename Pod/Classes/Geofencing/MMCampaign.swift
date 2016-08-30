@@ -128,7 +128,7 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 		}
 		self.title = title
 		self.center = center
-		self.radius = radius
+		self.radius = max(100, radius)
 		self.identifier = identifier
 		self.expiryms = expiryms
 		self.expiryDate = NSDate(timeIntervalSince1970: expiryms/1000)
