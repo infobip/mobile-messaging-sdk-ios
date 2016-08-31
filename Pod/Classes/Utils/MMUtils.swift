@@ -17,10 +17,10 @@ struct NSDateStaticFormatters {
 		result.dateFormat = "yyyy-MM-dd"
 		return result
 	}()
-	static var ISO8601Formatter: NSDateFormatter = {
+	static var ISO8601SecondsFormatter: NSDateFormatter = {
 		let result = NSDateFormatter()
 		result.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
+		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
 		return result
 	}()
 	static var CoreDataDateFormatter: NSDateFormatter = {
