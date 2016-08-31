@@ -49,7 +49,7 @@ public protocol MMGeofencingServiceDelegate: class {
 
 public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	let kDistanceFilter: CLLocationDistance = 100
-	let kMonitoringRegionsLimit: Int = 5
+	let kMonitoringRegionsLimit: Int = 20
 	
 	static let sharedInstance = MMGeofencingService()
 	var locationManager: CLLocationManager!
