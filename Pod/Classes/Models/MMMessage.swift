@@ -18,7 +18,7 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	let customPayload: [String: AnyObject]?
 	let aps: MMAPS
 	let silentData: [String: AnyObject]?
-	let geoRegions: [[String: AnyObject]]? // Future
+	let geoRegions: [[String: AnyObject]]?
 	let interactionsData: [String: AnyObject]?
 	var text: String? {
 		return aps.text
