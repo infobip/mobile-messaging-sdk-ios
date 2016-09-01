@@ -15,7 +15,7 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	let isSilent: Bool
 	let messageId: String
 	let originalPayload: [AnyHashable: AnyObject]
-	let customPayload: [String: AnyObject]?
+	let customPayload: [AnyHashable: AnyObject]?
 	let aps: MMAPS
 	let silentData: [String: AnyObject]?
 	let geoRegions: [[String: Any]]? // Future

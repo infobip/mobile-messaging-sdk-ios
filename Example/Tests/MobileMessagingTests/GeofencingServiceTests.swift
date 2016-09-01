@@ -12,7 +12,7 @@ import CoreLocation
 @testable import MobileMessaging
 
 class GeofencingServiceTests: MMTestCase {
-	let zagreb: [AnyHashable: AnyObject] = [
+	let zagreb: [String: AnyObject] = [
 		MMRegionDataKeys.Expiry.rawValue: TimeInterval(1470438000000.0) as AnyObject,
 		MMRegionDataKeys.Identifier.rawValue: "6713245DA3638FDECFE448C550AD7681" as AnyObject,
 		MMRegionDataKeys.Latitude.rawValue: 45.80869126677998 as AnyObject,
@@ -20,13 +20,13 @@ class GeofencingServiceTests: MMTestCase {
 		MMRegionDataKeys.Radius.rawValue: 9492 as AnyObject,
 		MMRegionDataKeys.Title.rawValue: "Zagreb" as AnyObject
 	]
-	let pula: [AnyHashable: AnyObject] = [
-		MMRegionDataKeys.Expiry.rawValue: TimeInterval(1470438000000.0),
-		MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
-		MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
-		MMRegionDataKeys.Longitude.rawValue: 13.84586334228516,
-		MMRegionDataKeys.Radius.rawValue: 5257,
-		MMRegionDataKeys.Title.rawValue: "Pula"
+	let pula: [String: AnyObject] = [
+		MMRegionDataKeys.Expiry.rawValue: TimeInterval(1470438000000.0) as AnyObject,
+		MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2" as AnyObject,
+		MMRegionDataKeys.Latitude.rawValue: 44.86803631018752 as AnyObject,
+		MMRegionDataKeys.Longitude.rawValue: 13.84586334228516 as AnyObject,
+		MMRegionDataKeys.Radius.rawValue: 5257 as AnyObject,
+		MMRegionDataKeys.Title.rawValue: "Pula" as AnyObject
 	]
 	
 	var internalData: [AnyHashable: Any] {
@@ -163,8 +163,8 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testDictRepresentations() {
-		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: pula as! [String : AnyObject])!.dictionaryRepresentation))
-		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: zagreb as! [String : AnyObject])!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: pula)!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: zagreb)!.dictionaryRepresentation))
 		XCTAssertNotNil(MMRegion(dictRepresentation: pula as [String : AnyObject]))
 		XCTAssertNotNil(MMRegion(dictRepresentation: zagreb as [String : AnyObject]))
 	}
