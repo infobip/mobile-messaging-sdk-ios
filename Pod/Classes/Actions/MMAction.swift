@@ -12,7 +12,7 @@ enum MMPredefinedActions : String {
 	case MarkAsSeen = "mark_as_seen"
 	case Reply = "reply"
 	
-	func createInstance(parameters: AnyObject?, resultInfo: [NSObject : AnyObject]?) -> MMBaseAction? {
+	func createInstance(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) -> MMBaseAction? {
 		var actionType: MMBaseAction.Type
 		switch self {
 		case .OpenURL: actionType = MMActionOpenURL.self
@@ -84,10 +84,10 @@ public final class MMActionReply : NSObject, MMAction {
 public final class MMActionOpenURL : NSObject, MMAction {
 	public typealias Result = MMOpenURLActionResult
 	static let actionId : MMPredefinedActions = .OpenURL
-	let url: NSURL
+	let url: URL
 	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) {
 		guard let path = parameters as? String,
-		   let url = NSURL(string: path) else {
+		   let url = URL(string: path) else {
 			return nil
 		}
 		self.url = url
@@ -97,7 +97,7 @@ public final class MMActionOpenURL : NSObject, MMAction {
 	func perform(message: MMMessage, completion: @escaping (Void) -> Void) {
 		let result = Result(messageId: message.messageId, url: url)
 		DispatchQueue.main.async { 
-			UIApplication.shared.openURL(self.url as URL)
+			UIApplication.shared.openURL(self.url)
 		}
 		MMActionsManager.executeActionHandler(result: result, actionId: MMActionOpenURL.actionId) {
 			completion()
@@ -137,8 +137,8 @@ protocol MMActionResult {
 @objc public class MMOpenURLActionResult: NSObject, MMActionResult {
 	let actionId : MMPredefinedActions = .OpenURL
 	public let messageId: String
-	public let url: NSURL
-	init(messageId: String, url: NSURL) {
+	public let url: URL
+	init(messageId: String, url: URL) {
 		self.messageId = messageId
 		self.url = url
 		super.init()

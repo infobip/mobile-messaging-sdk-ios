@@ -412,7 +412,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		if let datasourceRegion = datasource.regions[region.identifier] , datasourceRegion.isExpired == false {
 			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
 			delegate?.didEnterRegion(datasourceRegion)
-			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion as NSObject: datasourceRegion])
+			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		} else {
 			MMLogDebug("[GeofencingService] region is expired.")
 		}
@@ -429,7 +429,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		if let datasourceRegion = datasource.regions[region.identifier] , datasourceRegion.isExpired == false {
 			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
 			delegate?.didExitRegion(datasourceRegion)
-			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion as NSObject: datasourceRegion])
+			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		} else {
 			MMLogDebug("[GeofencingService] region is expired.")
 		}

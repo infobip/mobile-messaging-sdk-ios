@@ -57,7 +57,7 @@ final public class MMUser: NSObject {
 	*/
 	public internal(set) var internalId: String? {
 		get { return installationManager.getValueForKey("internalUserId") as? String }
-		set { installationManager.setValueForKey("internalUserId", value: newValue as AnyObject?) }
+		set { installationManager.setValueForKey("internalUserId", value: newValue) }
 	}
 	
 	/**
@@ -65,7 +65,7 @@ final public class MMUser: NSObject {
 	*/
 	public internal(set) var externalId: String? {
 		get { return installationManager.getValueForKey("externalUserId") as? String }
-		set { installationManager.setValueForKey("externalUserId", value: newValue  as AnyObject?) }
+		set { installationManager.setValueForKey("externalUserId", value: newValue) }
 	}
 	
 	/**
@@ -173,7 +173,7 @@ final public class MMUser: NSObject {
 	*/
 	public var predefinedData: [String: UserDataSupportedTypes]? {
 		get { return installationManager.getValueForKey("predefinedUserData") as? [String: UserDataSupportedTypes] }
-		set { installationManager.setValueForKey("predefinedUserData", value: newValue as AnyObject?) }
+		set { installationManager.setValueForKey("predefinedUserData", value: newValue) }
 	}
 	
 	/**
@@ -243,7 +243,7 @@ final public class MMUser: NSObject {
 		if let dictionaryValue = installationManager.getValueForKey(attributeName) as? [String: AnyObject] {
 			var updatedDictionaryValue = dictionaryValue
 			updatedDictionaryValue[key] = object ?? NSNull()
-			installationManager.setValueForKey(attributeName, value: updatedDictionaryValue as AnyObject?)
+			installationManager.setValueForKey(attributeName, value: updatedDictionaryValue)
 		} else {
 			installationManager.setValueForKey(attributeName, value: [key: object ?? NSNull()])
 		}
@@ -356,7 +356,7 @@ final public class MMInstallation: NSObject {
 			let intCount = Int(count)
 			for i in 0..<intCount {
 				if let property = properties[i] {
-					guard let propertyName = NSString(utf8String: property_getName(property)) as? String else {
+					guard let propertyName = String(utf8String: property_getName(property)) else {
 						debugPrint("Couldn't unwrap property name for \(property)")
 						break
 					}

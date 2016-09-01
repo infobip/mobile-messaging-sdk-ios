@@ -6,7 +6,7 @@
 //
 
 import Foundation
-//TODO: Swift3 check usage of [AnyHashable : Any] instead of [NSObject : AnyObject]
+
 protocol MMActionableMessage {
 	static func performAction(identifier: String?, userInfo: [AnyHashable : Any], responseInfo: [AnyHashable : Any]?, completionHandler: @escaping (Void) -> Void)
 }
@@ -18,7 +18,7 @@ extension MMMessage : MMActionableMessage {
 	}
 	
 	static func performAction(identifier: String?, userInfo: [AnyHashable : Any], responseInfo: [AnyHashable : Any]?, completionHandler: @escaping (Void) -> Void) {
-		guard let message = MMMessage(payload: userInfo as [NSObject : AnyObject]) else
+		guard let message = MMMessage(payload: userInfo) else
 		{
 			return
 		}
@@ -31,7 +31,7 @@ extension MMMessage : MMActionableMessage {
 		}
 		
 		if	let actionId = notificationButton.predefinedAction(),
-			let action = actionId.createInstance(parameters: nil, resultInfo: responseInfo as [NSObject : AnyObject]?)
+			let action = actionId.createInstance(parameters: nil, resultInfo: responseInfo)
 		{
 			actions.append(action)
 		} else if let buttonActions = message.buttonActions?[identifier] as? [AnyObject] {
@@ -40,7 +40,7 @@ extension MMMessage : MMActionableMessage {
 				guard
 					let _aId = aId,
 					let actionId = MMPredefinedActions(rawValue: _aId),
-					let action = actionId.createInstance(parameters: parameters, resultInfo: responseInfo as [NSObject : AnyObject]?) else {
+					let action = actionId.createInstance(parameters: parameters, resultInfo: responseInfo) else {
 					continue
 				}
 				actions.append(action)

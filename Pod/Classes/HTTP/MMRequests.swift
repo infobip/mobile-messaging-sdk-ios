@@ -34,10 +34,10 @@ protocol MMHTTPRequestResponsable {
 protocol MMHTTPRequestData: MMHTTPRequestResponsable {
 	var method: MMHTTPMethod {get}
 	var path: MMHTTPAPIPath {get}
-	var parameters: [String: AnyObject]? {get}
+	var parameters: [String: Any]? {get}
 	var headers: [String: String]? {get}
 	var retryLimit: Int {get}
-    var body: [String: AnyObject]? {get}
+    var body: [String: Any]? {get}
 }
 
 protocol MMHTTPGetRequest: MMHTTPRequestData { }
@@ -53,11 +53,11 @@ extension MMHTTPPostRequest {
 extension MMHTTPRequestData {
 	var retryLimit: Int { return 0 }
 	var headers: [String: String]? { return nil }
-    var body: [String: AnyObject]? { return nil }
-	var parameters: [String: AnyObject]? { return nil }
+    var body: [String: Any]? { return nil }
+	var parameters: [String: Any]? { return nil }
     
 	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void) {
-		let manager = MM_AFHTTPSessionManager(baseURL: NSURL(string: baseURL) as URL?, sessionConfiguration: URLSessionConfiguration.default)
+		let manager = MM_AFHTTPSessionManager(baseURL: URL(string: baseURL), sessionConfiguration: URLSessionConfiguration.default)
 		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
 		manager.responseSerializer = MMResponseSerializer<ResponseType>()
 		
@@ -114,9 +114,9 @@ struct SeenData {
 	var timestampDelta: UInt {
 		return UInt(max(0, NSDate().timeIntervalSinceReferenceDate - seenDate.timeIntervalSinceReferenceDate))
 	}
-	var dict: [String: AnyObject] {
-		return [MMAPIKeys.kMessageId: messageId as AnyObject,
-		        MMAPIKeys.kSeenTimestampDelta: timestampDelta as AnyObject]
+	var dict: [String: Any] {
+		return [MMAPIKeys.kMessageId: messageId,
+		        MMAPIKeys.kSeenTimestampDelta: timestampDelta]
 	}
 	static func requestBody(seenList: [SeenData]) -> [String: Any] {
 		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dict } ]
@@ -127,7 +127,7 @@ struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSeenMessagesResponse
 	
 	var path: MMHTTPAPIPath { return .SeenMessages }
-	var parameters: [String: AnyObject]? { return nil }
+	var parameters: [String: Any]? { return nil }
 	let seenList: [SeenData]
     var body: [String: Any]? { return SeenData.requestBody(seenList: seenList) }
 	
@@ -140,10 +140,10 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 
 	typealias ResponseType = MMHTTPSyncMessagesResponse
 	var path: MMHTTPAPIPath { return .SyncMessages }
-	var parameters: [String: AnyObject]? {
-		var params = [String: AnyObject]()
-		params[MMAPIKeys.kInternalRegistrationId] = internalId as AnyObject
-		params[MMAPIKeys.kPlatformType] = MMAPIValues.kPlatformType as AnyObject
+	var parameters: [String: Any]? {
+		var params = [String: Any]()
+		params[MMAPIKeys.kInternalRegistrationId] = internalId
+		params[MMAPIKeys.kPlatformType] = MMAPIValues.kPlatformType
 		return params
 	}
 	
@@ -167,7 +167,7 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 struct MMPostUserDataRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPUserDataSyncResponse
 	var path: MMHTTPAPIPath { return .UserData }
-	var parameters: [String: AnyObject]? {
+	var parameters: [String: Any]? {
 		var params = [MMAPIKeys.kInternalRegistrationId: internalUserId]
 		if let externalUserId = externalUserId {
 			params[MMAPIKeys.kUserDataExternalUserId] = externalUserId
@@ -198,8 +198,8 @@ struct MMPostMessageRequest: MMHTTPPostRequest {
 
 	typealias ResponseType = MMHTTPMOMessageResponse
 	var path: MMHTTPAPIPath { return .MOMessage }
-	var parameters: [String: AnyObject]? {
-		return [MMAPIKeys.kPlatformType : MMAPIValues.kPlatformType as AnyObject]
+	var parameters: [String: Any]? {
+		return [MMAPIKeys.kPlatformType : MMAPIValues.kPlatformType]
 	}
 	var body: [String: Any]? {
 		var result = [String: Any]()

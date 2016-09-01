@@ -110,7 +110,7 @@ class RemoteNotificationPermissionOperation: Operation {
     @objc func didReceiveResponse(_ notification: Notification) {
         NotificationCenter.default.removeObserver(self)
         
-        let userInfo = (notification as NSNotification).userInfo
+        let userInfo = notification.userInfo
 
         if let token = userInfo?["token"] as? Data {
             handler(.token(token))

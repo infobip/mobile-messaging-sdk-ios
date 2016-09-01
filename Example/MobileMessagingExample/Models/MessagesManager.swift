@@ -73,7 +73,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	//MARK: Private
-	fileprivate func displayMessageAlert(_ messageUserInfo: [NSObject : AnyObject]) {
+	fileprivate func displayMessageAlert(_ messageUserInfo: [AnyHashable: Any]) {
 		if UIApplication.shared.applicationState == .active {
 			MMPush.handlePush(userInfo: messageUserInfo)
 		}
@@ -113,7 +113,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	func handleNewMessageReceivedNotification(_ notification: Notification) {
-		guard let userInfo = (notification as NSNotification).userInfo,
+		guard let userInfo = notification.userInfo,
 			let messageUserInfo = userInfo[MMNotificationKeyMessagePayload] as? [NSObject : AnyObject],
 			let message = Message.prepare(messageUserInfo) else {
 				return
@@ -128,7 +128,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	func handleDeliveryReportSentNotification(_ notification: Notification) {
-		guard let userInfo = (notification as NSNotification).userInfo,
+		guard let userInfo = notification.userInfo,
 			let messageUserInfo = userInfo[MMNotificationKeyDLRMessageIDs] as? [String] else {
 				return
 		}
@@ -147,7 +147,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		if let cell = tableView.dequeueReusableCell(withIdentifier: kMessageCellId, for: indexPath) as? MessageCell {
-			cell.message = messages[(indexPath as NSIndexPath).row]
+			cell.message = messages[indexPath.row]
 			return cell
 		}
 		fatalError()

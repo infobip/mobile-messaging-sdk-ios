@@ -14,7 +14,7 @@ enum MMStorageType {
 	case InMemory
 }
 
-typealias MMStoreOptions = [NSObject: AnyObject]
+typealias MMStoreOptions = [AnyHashable: Any]
 
 struct MMStorageSettings {
 	let modelName: String = "MMStorageModel"
@@ -22,7 +22,7 @@ struct MMStorageSettings {
 	var storeOptions: MMStoreOptions?
 	
 	static var inMemoryStoreSettings = MMStorageSettings(databaseFileName: nil, storeOptions: nil)
-	static var SQLiteStoreSettings = MMStorageSettings(databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption as NSObject: true as AnyObject, NSInferMappingModelAutomaticallyOption as NSObject: true as AnyObject])
+	static var SQLiteStoreSettings = MMStorageSettings(databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
 }
 
 final class MMCoreDataStorage {
@@ -97,7 +97,7 @@ final class MMCoreDataStorage {
 	
 	private func addPersistentStoreWithPath(_ psc: NSPersistentStoreCoordinator, storePath: String?, options: MMStoreOptions?) throws {
         if let storePath = storePath {
-            let storeURL = NSURL.fileURL(withPath: storePath)
+            let storeURL = URL(fileURLWithPath: storePath)
             do {
                 _persistentStore = try psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)
             } catch let error as NSError {
@@ -117,17 +117,18 @@ final class MMCoreDataStorage {
     }
 	
 	private func persistentStoreDirectory(fileName: String) -> String {
-        let applicationSupportPaths = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)
-        let basePath: NSString = applicationSupportPaths.first as NSString? ?? NSTemporaryDirectory() as NSString
-        let fm = FileManager.default
-		let persistentStoreDir = basePath.appendingPathComponent("com.mobile-messaging.database")
-        if (fm.fileExists(atPath: persistentStoreDir) == false) {
-            do {
-                try fm.createDirectory(atPath: persistentStoreDir, withIntermediateDirectories: true, attributes: nil)
-            } catch { }
-        }
-        return (persistentStoreDir as NSString).appendingPathComponent(fileName)
-    }
+		let applicationSupportPaths = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)
+		let basePath = applicationSupportPaths.first ?? NSTemporaryDirectory()
+		let fm = FileManager.default
+		let persistentStoreDir = URL(fileURLWithPath: basePath).appendingPathComponent("com.mobile-messaging.database").path
+		if (fm.fileExists(atPath: persistentStoreDir) == false) {
+			do {
+				try fm.createDirectory(atPath: persistentStoreDir, withIntermediateDirectories: true, attributes: nil)
+			} catch { }
+		}
+		return URL(fileURLWithPath: persistentStoreDir).appendingPathComponent(fileName).path
+		
+	}
 	
     private var _managedObjectModel: NSManagedObjectModel?
     private var managedObjectModel: NSManagedObjectModel? {
@@ -142,7 +143,7 @@ final class MMCoreDataStorage {
 				momPath = managedObjectModelBundle.path(forResource: momName, ofType: "momd")
 			}
 			if let momPath = momPath {
-				let momUrl = NSURL.fileURL(withPath: momPath)
+				let momUrl = URL(fileURLWithPath: momPath)
 				_managedObjectModel = NSManagedObjectModel(contentsOf: momUrl)
 			} else {
 				MMLogError("Couldn't find managedObjectModel file \(momName)")

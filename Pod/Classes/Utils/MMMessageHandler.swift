@@ -35,7 +35,7 @@ final class MMMessageHandler {
     //MARK: Intenal
 	func handleAPNSMessage(_ userInfo: [AnyHashable : Any], newMessageReceivedCallback: (([AnyHashable : Any]) -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
 		
-		if let msg = MMMessage.init(payload: userInfo as [NSObject : AnyObject]) {
+		if let msg = MMMessage.init(payload: userInfo) {
 			self.messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: [msg], messagesOrigin: .APNS, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, newMessageReceivedCallback: newMessageReceivedCallback, finishBlock: completion))
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")

@@ -10,8 +10,7 @@
 final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override init() {
 		super.init()
-		let range: NSRange = NSMakeRange(200, 100)
-		self.acceptableStatusCodes = NSIndexSet(indexesIn: range) as IndexSet
+		self.acceptableStatusCodes = IndexSet(integersIn: 200..<100)
 	}
 
 	required init?(coder aDecoder: NSCoder) {
@@ -39,7 +38,7 @@ extension URLResponse {
 	var isFailureHTTPREsponse: Bool {
 		var statusCodeIsError = false
 		if let httpResponse = self as? HTTPURLResponse {
-			statusCodeIsError = NSIndexSet(indexesIn: NSMakeRange(200, 100)).contains(httpResponse.statusCode) == false
+			statusCodeIsError = IndexSet(integersIn: 200..<100).contains(httpResponse.statusCode) == false
 		}
 		return statusCodeIsError
 	}

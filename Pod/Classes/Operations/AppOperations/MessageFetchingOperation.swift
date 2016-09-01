@@ -36,10 +36,10 @@ final class MessageFetchingOperation: Operation {
 				return
 			}
 			
-			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // 7 days ago
+			let date = Date(timeIntervalSinceNow: -60 * 60 * 24 * 7) // 7 days ago
 			
 			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
-			let archivedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == true && creationDate > %@", date), context: self.context)
+			let archivedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == true && creationDate > %@", argumentArray: [date]), context: self.context)
 			
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
@@ -67,7 +67,7 @@ final class MessageFetchingOperation: Operation {
 					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds)
 					MMLogDebug("Delivery report sent for messages: \(nonReportedMessageIds)")
 					if nonReportedMessageIds.count > 0 {
-						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs as NSObject: nonReportedMessageIds as AnyObject])
+						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
 				}
 				
@@ -77,7 +77,7 @@ final class MessageFetchingOperation: Operation {
 				MMLogDebug("Sync cancelled")
 				break
 			}
-			self.finishWithError(result.error)
+			self.finishWithError(result.error as NSError?)
 		}
 	}
 	

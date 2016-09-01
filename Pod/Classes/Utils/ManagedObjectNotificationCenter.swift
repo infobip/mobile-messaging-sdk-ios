@@ -94,7 +94,11 @@ class Observation: NSObject {
 	private var changedValues = [String: AnyObject]()
 	
 	override func isEqual(_ object: Any?) -> Bool {
-		return hash == (object as AnyObject?)?.hash
+		if let object = object as? Observation {
+			//TODO: take collisions into account(Equality of objects hash values doesn't mean that this objects are equal)
+			return self.hash == object.hash
+		}
+		return false
 	}
 	
 	override var hash: Int {

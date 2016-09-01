@@ -90,7 +90,7 @@ final class RegistrationOperation: Operation {
 				installationObject.resetDirtyRegistration()
 				installationObject.internalUserId = regResponse.internalUserId
 				self.context.MM_saveToPersistentStoreAndWait()
-				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId as NSObject: regResponse.internalUserId as AnyObject])
+				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalUserId])
 			case .Failure(let error):
 				MMLogError("Registration request failed with error: \(error)")
 				return

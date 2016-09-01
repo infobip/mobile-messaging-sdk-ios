@@ -7,10 +7,10 @@
 
 final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String
-    private var jsonBody: [String: AnyObject]?
+    private var jsonBody: [String: Any]?
 	private var headers: [String: String]?
     
-    init(applicationCode: String, jsonBody: [String: AnyObject]?, headers: [String: String]?) {
+    init(applicationCode: String, jsonBody: [String: Any]?, headers: [String: String]?) {
 		self.applicationCode = applicationCode
         self.jsonBody = jsonBody
 		self.headers = headers

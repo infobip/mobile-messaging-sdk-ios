@@ -12,19 +12,19 @@ import CoreData
 struct NSDateStaticFormatters {
 	static var ContactsServiceDateFormatter: DateFormatter = {
 		let result = DateFormatter()
-		result.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
+		result.locale = Locale(identifier: "en_US_POSIX")
 		result.dateFormat = "yyyy-MM-dd"
 		return result
 	}()
 	static var ISO8601Formatter: DateFormatter = {
 		let result = DateFormatter()
-		result.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
+		result.locale = Locale(identifier: "en_US_POSIX")
 		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
 		return result
 	}()
 	static var CoreDataDateFormatter: DateFormatter = {
 		let result = DateFormatter()
-		result.locale = NSLocale(localeIdentifier: "en_US_POSIX") as Locale!
+		result.locale = Locale(identifier: "en_US_POSIX")
 		result.dateFormat = "yyyy-MM-dd HH:mm:ss Z"
 		return result
 	}()
@@ -162,7 +162,7 @@ extension String {
     
     func mm_fromHexademicalString() -> String? {
         if let data = self.mm_dataFromHexadecimalString() {
-            return String.init(data: data as Data, encoding: String.Encoding.utf16)
+            return String.init(data: data, encoding: String.Encoding.utf16)
         } else {
             return nil
         }

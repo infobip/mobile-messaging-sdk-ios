@@ -78,7 +78,7 @@ class MMGeofencingDatasource {
 		//FIXME: move to BG thread
 		if !FileManager.default.fileExists(atPath: fileDirectoryURL.path) {
 			do {
-				try FileManager.default.createDirectory(at: fileDirectoryURL as URL, withIntermediateDirectories: true, attributes: nil)
+				try FileManager.default.createDirectory(at: fileDirectoryURL, withIntermediateDirectories: true, attributes: nil)
 			} catch {
 				MMLogError("Can't create a directory for a plist.")
 				return
@@ -100,7 +100,7 @@ class MMGeofencingDatasource {
 		//FIXME: move to BG thread
 		guard let data = FileManager.default.contents(atPath: plistURL.path),
 			let plistArray = try? PropertyListSerialization.propertyList(from: data, options: PropertyListSerialization.MutabilityOptions.mutableContainersAndLeaves, format: nil),
-			let plistDicts = plistArray as? [[String: AnyObject]] else
+			let plistDicts = plistArray as? [[String: Any]] else
 		{
 			MMLogError("Can't load campaigns from plist.")
 			self.campaigns = []

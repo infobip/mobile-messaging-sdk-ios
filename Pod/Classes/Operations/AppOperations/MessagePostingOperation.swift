@@ -54,15 +54,15 @@ class MessagePostingOperation: Operation {
 	}
 	
 	private func postWillSendNotification(messagesToSend: [MOMessage]) {
-		var userInfo = [String: AnyObject]()
-		userInfo[MMNotificationKeyMessageSendingMOMessages] = messagesToSend as AnyObject?
-		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesWillSend, userInfo: userInfo.isEmpty ? nil : userInfo as [NSObject : AnyObject]?)
+		var userInfo = [String: Any]()
+		userInfo[MMNotificationKeyMessageSendingMOMessages] = messagesToSend
+		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesWillSend, userInfo: userInfo.isEmpty ? nil : userInfo)
 	}
 	
 	private func postDidSendNotification(resultMessages: [MOMessage]) {
-		var userInfo = [String: AnyObject]()
-		userInfo[MMNotificationKeyMessageSendingMOMessages] = resultMessages as AnyObject?
-		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesDidSend, userInfo: userInfo.isEmpty ? nil : userInfo as [NSObject : AnyObject]?)
+		var userInfo = [String: Any]()
+		userInfo[MMNotificationKeyMessageSendingMOMessages] = resultMessages
+		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesDidSend, userInfo: userInfo.isEmpty ? nil : userInfo)
 	}
 	
 	private func handleResult(result: MMMOMessageResult) {

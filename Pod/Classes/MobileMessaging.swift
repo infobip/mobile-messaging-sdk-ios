@@ -133,7 +133,7 @@ public final class MobileMessaging: NSObject {
 		})
 
 		if UIApplication.shared.applicationState == .inactive {
-			notificationTapHandler?(userInfo as [NSObject : AnyObject])
+			notificationTapHandler?(userInfo)
 		}
 	}
 	
@@ -146,7 +146,7 @@ public final class MobileMessaging: NSObject {
 	- parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` and `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callbacks as a `completionHandler` parameter. Mobile Messaging will execute this block after performing all actions.
     */
 	public class func handleActionWithIdentifier(_ identifier: String?, userInfo: [AnyHashable : Any], responseInfo: [AnyHashable : Any]?, completionHandler: @escaping (Void) -> Void) {
-		MMMessage.performAction(identifier: identifier, userInfo: userInfo as [NSObject : AnyObject], responseInfo: responseInfo, completionHandler: completionHandler)
+		MMMessage.performAction(identifier: identifier, userInfo: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
 	/**
@@ -196,7 +196,7 @@ public final class MobileMessaging: NSObject {
 	/**
 	A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	*/
-	public static var notificationTapHandler: (([NSObject : AnyObject]) -> Void)?
+	public static var notificationTapHandler: (([AnyHashable : Any]) -> Void)?
 
 
 //MARK: Internal
@@ -253,18 +253,18 @@ public final class MobileMessaging: NSObject {
 	//MARK: Private
 	private static let singletonQueue: MMQueueObject = MMQueue.Serial.New.MobileMessagingSingletonQueue.queue
 	
-	private var valuesStorage = [NSObject: AnyObject]()
+	private var valuesStorage = [AnyHashable: Any]()
 	
 	public override func setValue(_ value: Any?, forKey key: String) {
 		MobileMessaging.singletonQueue.executeAsync {
-			self.valuesStorage[key as NSObject] = value as AnyObject
+			self.valuesStorage[key] = value
 		}
 	}
 	
 	public override func value(forKey key: String) -> Any? {
-		var result: AnyObject?
+		var result: Any?
 		MobileMessaging.singletonQueue.executeSync {
-			result = self.valuesStorage[key as NSObject]
+			result = self.valuesStorage[key]
 		}
 		return result
 	}

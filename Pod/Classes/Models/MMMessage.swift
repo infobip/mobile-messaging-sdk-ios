@@ -9,17 +9,16 @@
 import Foundation
 //import SwiftyJSON
 
-//TODO: Swift3 userInfo type changed from [NSObject: AnyObject] to [AnyHashable: Any]
 public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	
 	public var hashValue: Int { return messageId.hashValue }
 	let isSilent: Bool
 	let messageId: String
-	let originalPayload: [String: AnyObject]
+	let originalPayload: [AnyHashable: AnyObject]
 	let customPayload: [String: AnyObject]?
 	let aps: MMAPS
 	let silentData: [String: AnyObject]?
-	let geoRegions: [[String: AnyObject]]? // Future
+	let geoRegions: [[String: Any]]? // Future
 	let interactionsData: [String: AnyObject]?
 	var text: String? {
 		return aps.text
@@ -27,24 +26,28 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	
 	public init?(json: JSON) {
 		if let payload = json.dictionaryObject {
-			self.init(payload: payload as [NSObject : AnyObject])
+			self.init(payload: payload)
 		} else {
 			return nil
 		}
 	}
 	
-	init?(payload: [NSObject: AnyObject]) {
-		guard let messageId = payload[MMAPIKeys.kMessageId as NSString] as? String else {
+	init?(payload: [AnyHashable: Any]) {
+		guard let payload = payload as? [AnyHashable : AnyObject] else {
 			return nil
 		}
-		guard let nativeAPS = payload[MMAPIKeys.kAps  as NSString] as? [String: AnyObject] else {
+		
+		guard let messageId = payload[MMAPIKeys.kMessageId] as? String else {
+			return nil
+		}
+		guard let nativeAPS = payload[MMAPIKeys.kAps] as? [String: AnyObject] else {
 			return nil
 		}
 		
 		self.messageId = messageId
 		self.isSilent = MMMessage.checkIfSilent(payload: payload)
 		if (self.isSilent) {
-			if let silentAPS = payload[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kSilent] as? [String: AnyObject] {
+			if let silentAPS = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject] {
 				self.aps = MMAPS.SilentAPS(MMMessage.mergeApsWithSilentParameters(nativeAPS: nativeAPS, silentAPS: silentAPS))
 			} else {
 				self.aps = MMAPS.NativeAPS(nativeAPS)
@@ -52,20 +55,20 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 		} else {
 			self.aps = MMAPS.NativeAPS(nativeAPS)
 		}
-		self.originalPayload = payload as! [String: AnyObject]
-		self.customPayload = payload[MMAPIKeys.kCustomPayload  as NSString] as? [String : AnyObject]
-		self.silentData = payload[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kSilent] as? [String : AnyObject]
-		self.interactionsData = payload[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kInteractive] as? [String : AnyObject]
-		self.geoRegions = payload[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kGeo] as? [[String : AnyObject]]
+		self.originalPayload = payload
+		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? [String : AnyObject]
+		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String : AnyObject]
+		self.interactionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kInteractive] as? [String : AnyObject]
+		self.geoRegions = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [[String : AnyObject]]
 	}
 	
-	static func checkIfSilent(payload: [NSObject: AnyObject]?) -> Bool {
+	static func checkIfSilent(payload: [AnyHashable: AnyObject]?) -> Bool {
 		//if payload APNS originated:
-		if (payload?[MMAPIKeys.kInternalData  as NSString]?[MMAPIKeys.kSilent] as? [String: AnyObject]) != nil {
+		if (payload?[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String: AnyObject]) != nil {
 			return true
 		}
 		//if payload Server originated:
-		return payload?[MMAPIKeys.kSilent as NSString] as? Bool ?? false
+		return payload?[MMAPIKeys.kSilent] as? Bool ?? false
 	}
 	
 	private static func mergeApsWithSilentParameters(nativeAPS: [String: AnyObject]?, silentAPS: [String: AnyObject]) -> [String: AnyObject] {
