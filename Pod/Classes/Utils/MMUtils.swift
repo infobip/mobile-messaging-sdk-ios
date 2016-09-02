@@ -235,6 +235,14 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>?) -> 
 	}
 }
 
+func ==(lhs : [AnyHashable : UserDataSupportedTypes], rhs: [AnyHashable : UserDataSupportedTypes]) -> Bool {
+	return NSDictionary(dictionary: lhs).isEqual(to: rhs)
+}
+
+func !=(lhs : [AnyHashable : UserDataSupportedTypes], rhs: [AnyHashable : UserDataSupportedTypes]) -> Bool {
+	return !NSDictionary(dictionary: lhs).isEqual(to: rhs)
+}
+
 func isIOS9() -> Bool {
 	if #available(iOS 9.0, *) {
 		return true

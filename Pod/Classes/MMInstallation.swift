@@ -240,7 +240,7 @@ final public class MMUser: NSObject {
 	}
 	
 	func setDataForKey(key: String, attributeName: String, object: UserDataSupportedTypes?) {
-		if let dictionaryValue = installationManager.getValueForKey(attributeName) as? [String: AnyObject] {
+		if let dictionaryValue = installationManager.getValueForKey(attributeName) as? [AnyHashable: UserDataSupportedTypes] {
 			var updatedDictionaryValue = dictionaryValue
 			updatedDictionaryValue[key] = object ?? NSNull()
 			installationManager.setValueForKey(attributeName, value: updatedDictionaryValue)

@@ -97,8 +97,8 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
 	
 	func setValueIfDifferent<Value: Equatable>(value: Value?, forKey key: String) {
 		var isDifferent: Bool
-		if let currentValue = self.value(forKey: key) as? Value? {
-			isDifferent = value == nil ? true : currentValue != value
+		if let currentValue = self.value(forKey: key) as? Value {
+			isDifferent = value == nil ? true : currentValue != value!
 		} else {
 			isDifferent = value != nil
 		}
@@ -107,10 +107,10 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
 		}
     }
 	
-	func setValueIfDifferent<Value: Any>(value: Value?, forKey key: String) {
+	func setValueIfDifferent(value: Dictionary<AnyHashable, UserDataSupportedTypes>?, forKey key: String) {
 		var isDifferent: Bool
-		if let currentValue = self.value(forKey: key) as? AnyObject {
-			isDifferent = value == nil ? true : !currentValue.isEqual(value!)
+		if let currentValue = self.value(forKey: key) as? Dictionary<AnyHashable, UserDataSupportedTypes> {
+			isDifferent = value == nil ? true : currentValue != value!
 		} else {
 			isDifferent = value != nil
 		}

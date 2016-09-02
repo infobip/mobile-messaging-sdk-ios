@@ -35,7 +35,12 @@ final class MMInstallationManager {
 		return result
 	}
 	
-	func setValueForKey(_ key: String, value: Any?) {
+	func setValueForKey<Value: Equatable>(_ key: String, value: Value?) {
+		storageContext.perform {
+			self.installationObject.setValueIfDifferent(value: value, forKey: key)
+		}
+	}
+	func setValueForKey(_ key: String, value: [AnyHashable : UserDataSupportedTypes]?) {
 		storageContext.perform {
 			self.installationObject.setValueIfDifferent(value: value, forKey: key)
 		}
