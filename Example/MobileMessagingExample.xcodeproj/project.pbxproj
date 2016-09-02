@@ -105,6 +105,7 @@
 		A09103DE1CABA839001873B4 /* DeliveryReportingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeliveryReportingTests.swift; sourceTree = "<group>"; };
 		A09103DF1CABA839001873B4 /* FetchMessagesTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchMessagesTest.swift; sourceTree = "<group>"; };
 		A09103E01CABA839001873B4 /* TestUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
+		A0945CB11D79A1810093C188 /* MobileMessagingExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = MobileMessagingExample.entitlements; path = MobileMessagingExample/MobileMessagingExample.entitlements; sourceTree = "<group>"; };
 		A0953C281CAD1C660076488D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageSeenTests.swift; sourceTree = "<group>"; };
 		A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MOMessageSendingTests.swift; sourceTree = "<group>"; };
@@ -194,6 +195,7 @@
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
+				A0945CB11D79A1810093C188 /* MobileMessagingExample.entitlements */,
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				607FACD21AFB9204008FA782 /* Example for MobileMessaging */,
 				607FACE81AFB9204008FA782 /* Tests */,
@@ -758,6 +760,7 @@
 			baseConfigurationReference = 364A00C2B70A565BA7B49DE7 /* Pods-MobileMessagingExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1460136653736;
 				DEFINES_MODULE = YES;
@@ -785,6 +788,7 @@
 			baseConfigurationReference = A233CBE4A81A1F68FE94B93E /* Pods-MobileMessagingExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1460136653736;
 				DEFINES_MODULE = YES;
