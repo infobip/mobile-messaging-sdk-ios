@@ -117,7 +117,7 @@ final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
 final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
 	typealias ErrorMessage = String
 	typealias AttributeName = String
-	typealias ValueType = AnyObject
+	typealias ValueType = Any
 	
 	let predefinedData: [AttributeName: ValueType]?
 	let customData: [AttributeName: ValueType]?

@@ -145,7 +145,7 @@ public class MOMessage: NSObject {
 		self.status = .Undefined
 	}
 	
-	private init?(dictionary: [String: AnyObject]) {
+	private init?(dictionary: [AnyHashable: Any]) {
 		guard let messageId = dictionary[MMAPIKeys.kMOMessageId] as? String,
 			let text = dictionary[MMAPIKeys.kMOText] as? String,
 			let status = dictionary[MMAPIKeys.kMOMessageSentStatusCode] as? Int else

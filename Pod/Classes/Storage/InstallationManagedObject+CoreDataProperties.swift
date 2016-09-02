@@ -20,6 +20,6 @@ extension InstallationManagedObject {
     @NSManaged var internalUserId: String?
 	@NSManaged var externallUserId: String?
 	
-    @NSManaged var customUserData: [String: AnyObject]?
-	@NSManaged var predefinedUserData: [String: AnyObject]?
+    @NSManaged var customUserData: [String: Any]?
+	@NSManaged var predefinedUserData: [String: Any]?
 }
