@@ -314,6 +314,7 @@
 				B6DF0C3DB3277A269B6A6F75 /* [CP] Embed Pods Frameworks */,
 				7D043BF2892761EF47BF8DDF /* [CP] Copy Pods Resources */,
 				E511C91681BE8FB43576B124 /* Embed Pods Frameworks */,
+				A00F44491D79D30800E8C40C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -520,11 +521,25 @@
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		A00F44491D79D30800E8C40C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p \"${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/\"\ncp \"${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/module.private.modulemap\" \"${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/module.private.modulemap\"";
 		};
 		B14C33B71345FFBC388F5137 /* Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;

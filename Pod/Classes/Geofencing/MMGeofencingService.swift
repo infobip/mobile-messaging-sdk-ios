@@ -25,12 +25,12 @@ public final class MMLocationServiceKind: NSObject {
 	public static let RegionMonitoring = MMLocationServiceKind(rawValue: 1 << 0)
 }
 
-public enum MMLocationServiceUsage: Int {
+@objc public enum MMLocationServiceUsage: Int {
 	case WhenInUse
 	case Always
 }
 
-public enum MMCapabilityStatus: Int {
+@objc public enum MMCapabilityStatus: Int {
 	/// The capability has not been requested yet
 	case NotDetermined
 	/// The capability has been requested and approved

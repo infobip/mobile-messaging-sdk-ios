@@ -25,11 +25,11 @@ s.requires_arc = true
 s.pod_target_xcconfig =  {
 	'ENABLE_TESTABILITY' => 'YES',
     'SWIFT_VERSION' => '3.0',
-    'MODULEMAP_PRIVATE_FILE' => '${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/module.private.modulemap',
+    'MODULEMAP_PRIVATE_FILE' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/module.private.modulemap',
 	'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/MagicalRecord/** ${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/MagicalRecord/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**'
 }
 
-s.source_files = 'Pod/Classes/**/*.{c,h,hh,m,mm,swift}'
+s.source_files = 'Pod/Classes/**/*.{c,h,hh,m,mm,swift,modulemap}'
 
 s.resource_bundles = {
 'MobileMessaging' => ['Pod/Assets/*.png']

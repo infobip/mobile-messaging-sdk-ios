@@ -112,7 +112,7 @@ public final class MobileMessaging: NSObject {
 	/**
 	//TODO: docs
 	*/
-//	public static let geofencingService = MMGeofencingService.sharedInstance
+	public static let geofencingService = MMGeofencingService.sharedInstance
 	
 	/**
 	This method handles a new APNs device token and updates user's registration on the server. This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
