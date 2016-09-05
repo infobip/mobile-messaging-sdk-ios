@@ -333,6 +333,8 @@ final public class MMInstallation: NSObject {
 	}
 	
     //MARK: Internal
+	let installationManager: MMInstallationManager
+	
 	convenience init(storage: MMCoreDataStorage, baseURL: String, applicationCode: String) {
 		let registrationRemoteAPI = MMRemoteAPIQueue(baseURL: baseURL, applicationCode: applicationCode)
 		self.init(storage: storage, registrationRemoteAPI: registrationRemoteAPI)
@@ -368,6 +370,4 @@ final public class MMInstallation: NSObject {
 		
 		return propertiesForClass(MMInstallation.self).intersect(propertiesForClass(InstallationManagedObject.self)).contains(key)
 	}
-	
-    private let installationManager: MMInstallationManager
 }

@@ -73,7 +73,7 @@ public final class MMLoggingUtil: NSObject {
     }
 	
 	public func sendLogs(fromViewController vc: UIViewController) {
-		var objectsToShare: [AnyObject] = [MMUserAgent.currentUserAgent]
+		var objectsToShare: [AnyObject] = [MobileMessaging.userAgent.currentUserAgentString]
 		
 		if let dt = MobileMessaging.currentInstallation?.deviceToken {
 			objectsToShare.append("APNS device token: \(dt)")

@@ -23,7 +23,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	public func withGeofencingServiceDisabled(disabled: Bool) -> MobileMessaging {
-		geofencingServiceDisabled = disabled
+		MMGeofencingService.geoServiceEnabled = !disabled
 		return self
 	}
 	
@@ -56,9 +56,7 @@ public final class MobileMessaging: NSObject {
 					self.messageHandler = messageHandler
 					self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
 					
-					if !self.geofencingServiceDisabled {
-						MMGeofencingService.sharedInstance.start()
-					}
+					MMGeofencingService.sharedInstance.start()
 					
 					MMLogInfo("MobileMessaging SDK service successfully initialized.")
 				}
@@ -96,12 +94,12 @@ public final class MobileMessaging: NSObject {
 	- setting up logging options and logging levels.
 	- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
 	*/
-	public static let loggingUtil = MMLoggingUtil()
+	public static var loggingUtil = MMLoggingUtil()
 	
 	/**
 	//TODO: docs
 	*/
-	public static let geofencingService = MMGeofencingService.sharedInstance
+	public static var geofencingService = MMGeofencingService.sharedInstance
 	
 	/**
 	This method handles a new APNs device token and updates user's registration on the server. This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
@@ -191,7 +189,8 @@ public final class MobileMessaging: NSObject {
 	*/
 	public static var notificationTapHandler: (([NSObject : AnyObject]) -> Void)?
 
-
+	public static var userAgent = MMUserAgent()
+	
 //MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UIUserNotificationType

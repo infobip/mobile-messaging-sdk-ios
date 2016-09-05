@@ -50,22 +50,25 @@ public protocol MMGeofencingServiceDelegate: class {
 public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	let kDistanceFilter: CLLocationDistance = 100
 	let kMonitoringRegionsLimit: Int = 20
-	
+	var isAvailable: Bool {
+		return MMGeofencingService.currentCapabilityStatus == .Authorized && MMGeofencingService.geoServiceEnabled
+	}
 	static let sharedInstance = MMGeofencingService()
 	var locationManager: CLLocationManager!
 	var datasource: MMGeofencingDatasource!
 	var isRunning = false
 	
 	// MARK: - Public
-	private var _locationManagerEnabled = true
-	public var locationManagerEnabled: Bool {
+	static var _geoServiceEnabled = true
+	public static var geoServiceEnabled: Bool {
 		set {
-			if newValue != locationManagerEnabled && newValue == false {
-				stop()
+			if newValue != geoServiceEnabled && newValue == false {
+				MMGeofencingService.sharedInstance.stop()
 			}
+			_geoServiceEnabled = newValue
 		}
 		get {
-			return _locationManagerEnabled
+			return _geoServiceEnabled
 		}
 	}
 	
@@ -83,11 +86,16 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 
 	public func start(completion: (Bool -> Void)? = nil) {
+		MMLogDebug("[GeofencingService] starting ...")
+		guard MMGeofencingService.geoServiceEnabled == true else {
+			completion?(false)
+			MMLogDebug("[GeofencingService] startup cancelled. Service is disabled.")
+			return
+		}
 		serviceQueue.executeAsync() {
-			MMLogDebug("[GeofencingService] starting ...")
-			guard self.locationManagerEnabled == true && self.isRunning == false else
+			guard self.isRunning == false else
 			{
-				MMLogDebug("[GeofencingService] locationManagerEnabled = \(self.locationManagerEnabled), isRunning = \(self.isRunning))")
+				MMLogDebug("[GeofencingService] locationManagerEnabled = \(MMGeofencingService.geoServiceEnabled), isRunning = \(self.isRunning))")
 				completion?(false)
 				return
 			}
@@ -137,9 +145,9 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func addCampaingToRegionMonitoring(campaign: MMCampaign) {
 		serviceQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] trying to add a campaign")
-			guard self.locationManagerEnabled == true && self.isRunning == true else
+			guard MMGeofencingService.geoServiceEnabled == true && self.isRunning == true else
 			{
-				MMLogDebug("[GeofencingService] locationManagerEnabled = \(self.locationManagerEnabled), isRunning = \(self.isRunning))")
+				MMLogDebug("[GeofencingService] geoServiceEnabled = \(MMGeofencingService.geoServiceEnabled), isRunning = \(self.isRunning))")
 				return
 			}
 			
@@ -184,7 +192,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: MMCapabilityStatus -> Void) {
 		serviceQueue.executeAsync() {
-			guard self.completion == nil else
+			guard self.capabilityCompletion == nil else
 			{
 				fatalError("Attempting to authorize location when a request is already in-flight")
 			}
@@ -198,7 +206,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 				return
 			}
 			
-			self.completion = completion
+			self.capabilityCompletion = completion
 			self.usageKind = usage
 		
 			switch usage {
@@ -230,7 +238,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	// MARK: - Private
 	private var usageKind = MMLocationServiceUsage.WhenInUse
 	
-	private var completion: (MMCapabilityStatus -> Void)?
+	private var capabilityCompletion: (MMCapabilityStatus -> Void)?
 	
 	private func restartLocationManager() {
 		if UIApplication.sharedApplication().applicationState == UIApplicationState.Active {
@@ -252,7 +260,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	private func startService() {
 		serviceQueue.executeAsync() {
-			guard self.locationManagerEnabled == true && self.isRunning == false else
+			guard MMGeofencingService.geoServiceEnabled == true && self.isRunning == false else
 			{
 				return
 			}
@@ -425,8 +433,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
 		assert(NSThread.isMainThread())
 		MMLogDebug("[GeofencingService] locationManager did change the authorization status \(status.rawValue)")
-		if let completion = self.completion where manager == self.locationManager && status != .NotDetermined {
-			self.completion = nil
+		if let completion = self.capabilityCompletion where manager == self.locationManager && status != .NotDetermined {
+			self.capabilityCompletion = nil
 			
 			switch status {
 			case .AuthorizedAlways:

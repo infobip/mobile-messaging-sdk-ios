@@ -12,6 +12,7 @@ typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
 typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>
 typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
 typealias MMUserDataSyncResult = Result<MMHTTPUserDataSyncResponse>
+typealias MMSystemDataSyncResult = Result<MMHTTPSystemDataSyncResponse>
 typealias MMMOMessageResult = Result<MMHTTPMOMessageResponse>
 
 public protocol JSONDecodable {
@@ -114,6 +115,9 @@ final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
 		super.init(json: value)
 	}
 }
+
+final class MMHTTPSystemDataSyncResponse: MMHTTPEmptyResponse { }
+
 final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
 	typealias ErrorMessage = String
 	typealias AttributeName = String

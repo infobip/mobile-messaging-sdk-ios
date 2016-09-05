@@ -19,8 +19,8 @@ struct MMTestConstants {
 	static let kTestWrongApplicationCode = "someWrongApplicationID"
 	static let kTestCurrentRegistrationId = "fffe73006f006d00650054006f006b0065006e003200"
 	static let kTestOldRegistrationId = "fffe73006f006d00650054006f006b0065006e00"
-//	static let kTestBaseURLString = "http://127.0.0.1:18080"
-	static let kTestBaseURLString = "https://oneapi.ioinfobip.com"
+	static let kTestBaseURLString = "http://127.0.0.1:18080"
+//	static let kTestBaseURLString = "https://oneapi.ioinfobip.com"
 }
 
 enum TestResult {
