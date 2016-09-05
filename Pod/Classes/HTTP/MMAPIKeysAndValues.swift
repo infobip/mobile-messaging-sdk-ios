@@ -63,6 +63,15 @@ struct MMAPIKeys {
 	static let kUserDataExternalUserId = "externalUserId"
 	static let kUserDataFailures = "failures"
 	
+	//MARK: UserData API
+	static let kSystemDataSDKVersion = "sdkVersion"
+	static let kSystemDataOSVer = "osVersion"
+	static let kSystemDataDeviceManufacturer = "deviceManufacturer"
+	static let kSystemDataDeviceModel = "deviceModel"
+	static let kSystemDataAppVer = "applicationVersion"
+	static let kSystemDataGeoAvailability = "geofencing"
+	
+	
 	//MARK: MO Messages API
 	static let kMOFailedMOMessageIDs = "failedMessageIDs" //TODO: update
 	static let kMOFrom = "from"

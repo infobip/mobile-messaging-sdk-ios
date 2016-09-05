@@ -37,7 +37,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	//MARK: Public
 	public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
 		if !isTesting {
-			MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType).withGeofencingServiceDisabled(geofencingServiceDisabled).start()
+			MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType).withGeofencingServiceDisabled(disabled: geofencingServiceDisabled).start()
 		}
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)
 	}
@@ -89,31 +89,39 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	This is a substitution for the standard `application(:didRegisterForRemoteNotificationsWithDeviceToken:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the app successfully registered with Apple Push Notification service (APNs).
 	*/
-	@nonobjc open func mm_application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) { }
+	@nonobjc open func mm_application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+		// override this callback in your AppDelegate if needed
+	}
 	
 	/**
-	This is an substitution for the standard `application(:didReceiveRemoteNotification:fetchCompletionHandler:)`.
+	This is a substitution for the standard `application(:didReceiveRemoteNotification:fetchCompletionHandler:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when a remote notification arrived that indicates there is data to be fetched.
 	*/
-	@nonobjc open func mm_application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) { }
-
+	@nonobjc open func mm_application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+		// override this callback in your AppDelegate if needed
+	}
+	
 	/**
-	This is an substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:completionHandler:)`.
+	This is a substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:completionHandler:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a remote notification.
 	This method is avaliable for iOS 8.0 and later.
 	*/
-	@nonobjc open func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping (Void) -> Void) { }
+	@nonobjc open func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping (Void) -> Void) {
+     	// override this callback in your AppDelegate if needed
+    }
 
 	/**
-	This is an substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)`.
+	This is a substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a remote notification.
 	This method is avaliable for iOS 9.0 and later.
 	*/
 	@available(iOS 9.0, *)
-	@nonobjc open func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping (Void) -> Void) { }
+	@nonobjc open func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping (Void) -> Void) { 
+		// override this callback in your AppDelegate if needed
+	}
 	
 	//MARK: Private
-	var isTesting: Bool {
+	private var isTesting: Bool {
 		return ProcessInfo.processInfo.arguments.contains("-IsDeviceStartedToRunTests")
 	}
 }

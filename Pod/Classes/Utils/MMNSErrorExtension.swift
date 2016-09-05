@@ -10,9 +10,8 @@ import Foundation
 
 public let MMInternalErrorDomain = "com.mobile-messaging"
 
-public enum MMInternalErrorType : Error {
+public enum MMInternalErrorType: Error {
     case UnknownError
-    case OperationCanceled
 	case NoRegistration
 	case StorageInitializationError
 	
@@ -21,12 +20,10 @@ public enum MMInternalErrorType : Error {
         switch self {
         case .UnknownError:
             return 0
-        case .OperationCanceled:
-            return 1
 		case .NoRegistration:
-			return 2
+			return 1
 		case .StorageInitializationError:
-			return 3
+			return 2
         }
     }
 
@@ -36,8 +33,6 @@ public enum MMInternalErrorType : Error {
         switch self {
         case .UnknownError:
             errorDescription = NSLocalizedString("Unknown error", comment: "")
-        case .OperationCanceled:
-            errorDescription = NSLocalizedString("Task cancelled internally", comment: "")
 		case .NoRegistration:
 			if MobileMessaging.currentInstallation?.deviceToken != nil {
 				errorDescription = NSLocalizedString("The application instance is not registered on the server yet. APNs device token was not received by the Mobile Messaging SDK. Make sure your app is set up correctly to work with remote notifications.", comment: "")
@@ -79,8 +74,4 @@ extension NSError {
     public convenience init(type: MMInternalErrorType) {
         self.init(domain: MMInternalErrorDomain, code: type.errorCode, userInfo: type.userInfo)
     }
-	
-	var mm_isCancelledOperationError: Bool {
-		return domain == MMInternalErrorDomain && code == MMInternalErrorType.OperationCanceled.errorCode
-	}
 }

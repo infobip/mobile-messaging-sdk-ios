@@ -24,11 +24,12 @@
 }
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	[[[MobileMessaging withApplicationCode:self.applicationCode notificationType:self.userNotificationType] withGeofencingServiceDisabled:self.geofencingServiceDisabled] start:nil];
+	
+	[[[MobileMessaging withApplicationCode:self.applicationCode notificationType:self.userNotificationType] withGeofencingServiceDisabledWithDisabled:self.geofencingServiceDisabled] start:nil];
 	return [self mm_application:application didFinishLaunchingWithOptions:launchOptions];
 }
 -(BOOL)mm_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	// override in your AppDelegate if needed
+	// override this callback in your AppDelegate if needed
 	return true;
 }
 
@@ -37,7 +38,7 @@
 	[self mm_application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
 -(void)mm_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-	// override in your AppDelegate if needed
+	// override this callback in your AppDelegate if needed
 }
 
 -(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
@@ -54,7 +55,7 @@
 }
 
 -(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-	// override in your AppDelegate if needed
+	// override this callback in your AppDelegate if needed
 }
 
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
@@ -63,7 +64,7 @@
 }
 
 -(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
-	// override in your AppDelegate if needed
+	// override this callback in your AppDelegate if needed
 }
 
 @end

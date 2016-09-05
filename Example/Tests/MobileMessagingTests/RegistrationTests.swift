@@ -8,6 +8,7 @@
 import XCTest
 @testable import MobileMessaging
 
+
 final class RegistrationTests: MMTestCase {
 	
     func testInstallationPersisting() {
@@ -109,8 +110,21 @@ final class RegistrationTests: MMTestCase {
 			}
 		}
 	}
-    
+	
+	var requestSentCounter = 0
     func testTokenNotSendsTwice() {
+		MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub()
+		MobileMessaging.userAgent = MMUserAgentStub()
+		MobileMessaging.currentInstallation?.installationManager.registrationRemoteAPI = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
+			
+			switch request {
+			case (is MMPostRegistrationRequest):
+				self.requestSentCounter += 1
+			default:
+				break
+			}
+		})
+		
         let expectation1 = expectation(description: "notification1")
         let expectation2 = expectation(description: "notification2")
 
@@ -118,41 +132,21 @@ final class RegistrationTests: MMTestCase {
             XCTAssertNil(error)
             expectation1.fulfill()
             self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-                XCTAssertNotNil(error)
+                XCTAssertNil(error)
                 expectation2.fulfill()
             }
         }
         
-        self.waitForExpectations(timeout: 100) { error in
+        self.waitForExpectations(timeout:100) { error in
+			XCTAssertEqual(self.requestSentCounter, 1)
         }
     }
-    
+	
     func testRegistrationDataNotSendsWithoutToken() {
         let sync1 = expectation(description: "sync1")
         MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) -> Void in
             XCTAssertNotNil(error)
             sync1.fulfill()
-        })
-        
-        self.waitForExpectations(timeout: 100) { error in
-        }
-    }
-    
-    func testRegistrationDataNotSendsTwice() {
-		
-        mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.currentInstallation?.deviceToken = "someToken"
-		
-        let sync1 = expectation(description: "sync1")
-        let sync2 = expectation(description: "sync2")
-		
-        mobileMessagingInstance.currentInstallation?.syncWithServer(completion: { (error) -> Void in
-            XCTAssertNil(error)
-            sync1.fulfill()
-            self.mobileMessagingInstance.currentInstallation?.syncWithServer(completion: { (error) -> Void in
-                XCTAssertNotNil(error)
-                sync2.fulfill()
-            })
         })
         
         self.waitForExpectations(timeout: 100) { error in

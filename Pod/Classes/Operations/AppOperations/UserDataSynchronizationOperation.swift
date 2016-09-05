@@ -33,7 +33,7 @@ class UserDataSynchronizationOperation: Operation {
 		
 		super.init()
 		
-		self.addCondition(RegistrationCondition())
+		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	private var installationHasChanges: Bool {

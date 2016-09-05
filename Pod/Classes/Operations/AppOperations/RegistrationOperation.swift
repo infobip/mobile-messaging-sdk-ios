@@ -62,13 +62,13 @@ final class RegistrationOperation: Operation {
 			self.sendRegistration()
 		} else {
 			MMLogDebug("No need to send the installation on server.")
-			finishWithError(NSError(type: MMInternalErrorType.OperationCanceled))
+			finish()
 		}
 	}
 	
 	private func sendRegistration() {
         guard let deviceToken = installationObject.deviceToken else {
-            self.finishWithError(NSError(type: MMInternalErrorType.OperationCanceled))
+            self.finish()
             return
         }
         
@@ -102,6 +102,13 @@ final class RegistrationOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		finishBlock?(errors.first)
+		if errors.isEmpty {
+			let systemDataSync = SystemDataSynchronizationOperation(сontext: self.context, remoteAPIQueue: remoteAPIQueue, finishBlock: { error in
+				self.finishBlock?(error)
+			})
+			self.produceOperation(systemDataSync)
+		} else {
+			finishBlock?(errors.first)
+		}
 	}
 }

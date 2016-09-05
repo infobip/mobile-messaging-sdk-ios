@@ -8,6 +8,7 @@
         <attribute name="externalUserId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="internalUserId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="predefinedUserData" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="systemDataHash" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
     </entity>
     <entity name="MessageManagedObject" representedClassName=".MessageManagedObject" syncable="YES">
         <attribute name="creationDate" attributeType="Date" syncable="YES"/>
@@ -18,7 +19,7 @@
         <attribute name="seenStatusValue" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
     </entity>
     <elements>
-        <element name="InstallationManagedObject" positionX="-63" positionY="-18" width="128" height="150"/>
+        <element name="InstallationManagedObject" positionX="-63" positionY="-18" width="128" height="165"/>
         <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="135"/>
     </elements>
 </model>

@@ -28,7 +28,8 @@ enum MMRegionDataKeys: String {
 	case Radius = "radiusInMeters"
 	case Title = "title"
 	case Identifier = "id"
-	case Expiry = "expiry"
+	case ExpiryMillis = "expiry"
+	case ExpiryDate = "expiryTime"
 }
 
 protocol PlistArchivable {
@@ -106,11 +107,10 @@ public func ==(lhs: MMCampaign, rhs: MMCampaign) -> Bool {
     return lhs.id == rhs.id
 }
 
-final public class MMRegion: NSObject, PlistArchivable, NSCoding {
-
+final public class MMRegion: NSObject, PlistArchivable {
 	public let identifier: String
 	public let expiryDate: Date
-	let expiryms: TimeInterval
+	public let expiryDateString: String
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
@@ -122,17 +122,31 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 		return CLCircularRegion(center: center, radius: radius, identifier: identifier)
 	}
 	
-	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: TimeInterval) {
-		guard radius > 0 else
+	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryDateString: String) {
+		guard let expiry = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryDateString), radius > 0 else
 		{
 			return nil
 		}
 		self.title = title
 		self.center = center
-		self.radius = radius
+		self.radius = max(100, radius)
 		self.identifier = identifier
-		self.expiryms = expiryms
+		self.expiryDateString = expiryDateString
+		self.expiryDate = expiry
+	}
+	
+	@available(*, deprecated: 1.3.0, message: "Used only for backward compatability. Expiry date format is changed since 1.3.0 from millisecond timestamp to IOS8601 date string with the seconds granularity")
+	init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: TimeInterval) {
+		guard radius > 0 && expiryms > 0 else
+		{
+			return nil
+		}
+		self.title = title
+		self.center = center
+		self.radius = max(100, radius)
+		self.identifier = identifier
 		self.expiryDate = Date(timeIntervalSince1970: expiryms/1000)
+		self.expiryDateString = DateStaticFormatters.ISO8601SecondsFormatter.string(from: expiryDate)
 	}
 	
 	public override var description: String {
@@ -144,13 +158,17 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 			let lon = dict[MMRegionDataKeys.Longitude.rawValue] as? Double,
 			let title = dict[MMRegionDataKeys.Title.rawValue] as? String,
 			let identifier = dict[MMRegionDataKeys.Identifier.rawValue] as? String,
-			let expiryms = dict[MMRegionDataKeys.Expiry.rawValue] as? Double,
 			let radius = dict[MMRegionDataKeys.Radius.rawValue] as? Double else
 		{
 			return nil
 		}
-		
-		self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryms: expiryms)
+		if let expiryDateString = dict[MMRegionDataKeys.ExpiryDate.rawValue] as? String {
+			self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryDateString: expiryDateString)
+		} else if let expiryms = dict[MMRegionDataKeys.ExpiryMillis.rawValue] as? Double {
+			self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryms: expiryms)
+		} else {
+			return nil
+		}
 	}
 	
 	var dictionaryRepresentation: [String: Any] {
@@ -159,7 +177,7 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 		result[MMRegionDataKeys.Longitude.rawValue] = center.longitude
 		result[MMRegionDataKeys.Radius.rawValue] = radius
 		result[MMRegionDataKeys.Title.rawValue] = title
-		result[MMRegionDataKeys.Expiry.rawValue] = expiryms
+		result[MMRegionDataKeys.ExpiryDate.rawValue] = expiryDateString
 		result[MMRegionDataKeys.Identifier.rawValue] = identifier
 		
 		assert(MMRegion(dictRepresentation: result) != nil, "The dictionary representation is invalid")
@@ -168,15 +186,6 @@ final public class MMRegion: NSObject, PlistArchivable, NSCoding {
 
 	public override var hashValue: Int {
 		return identifier.hashValue
-	}
-	
-	convenience required public init(coder aDecoder: NSCoder) {
-		let dict = aDecoder.decodeObject(forKey: "dictRepresentation") as! [String: AnyObject]
-		self.init(dictRepresentation: dict)!
-	}
-	
-	public func encode(with aCoder: NSCoder) {
-		aCoder.encode(self.dictionaryRepresentation, forKey: "dictRepresentation")
 	}
 }
 

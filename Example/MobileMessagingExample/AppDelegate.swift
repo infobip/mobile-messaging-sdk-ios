@@ -16,6 +16,8 @@ class AppDelegate: MobileMessagingAppDelegate {
 	
 	override var userNotificationType: UIUserNotificationType { return [.alert, .sound] }
 	
+	override var geofencingServiceDisabled: Bool { return true }
+	
 	override func mm_application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]?) -> Bool {
 		setupLogging()
 		return true

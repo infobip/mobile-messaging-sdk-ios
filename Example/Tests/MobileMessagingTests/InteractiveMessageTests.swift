@@ -10,7 +10,7 @@ import XCTest
 
 class InteractiveMessageTests: XCTestCase {
 	
-	func messageWithAllActions(_ categoryId: String, buttonId: String) -> [AnyHashable: Any] {
+	func apnsPayloadWithAllActions(categoryId: String, actionId: String) -> [AnyHashable: Any] {
 		return
 			[
 				"messageId": "m1" ,
@@ -19,47 +19,45 @@ class InteractiveMessageTests: XCTestCase {
 				[
 					    MMAPIKeys.kInteractive:
 					    [
-							MMAPIKeys.kButtonActions : [ "\(buttonId)" : ["mark_as_seen", "reply"]]
+							MMAPIKeys.kButtonActions : [
+								"\(actionId)" : [
+									"mark_as_seen",
+									"reply"
+								]
+							]
 						]
 				],
 				MMAPIKeys.kCustomPayload: ["customKey": "customValue"]
 		    ]
 	}
 
-    override func setUp() {
-        super.setUp()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-    }
-
     func testHandlersCalled() {
-		let buttonId = "apply"
-		
 		let replyExp = expectation(description: "Reply handler called")
 		let mssExp = expectation(description: "Mark as Seen handler called")
+		var replyResultMessageId: String?
+		var markAsSeenResultMessageId: String?
 		
 		MMActionReply.setActionHandler { (result) in
-			XCTAssertEqual(result.messageId, "m1")
+			replyResultMessageId = result.messageId
 			replyExp.fulfill()
 		}
 		
 		MMActionMarkAsSeen.setActionHandler { (result) in
-			XCTAssertEqual(result.messageId, "m1")
+			markAsSeenResultMessageId = result.messageId
 			mssExp.fulfill()
 		}
 		
-		MMMessage.performAction(identifier: buttonId, userInfo: messageWithAllActions("category", buttonId: buttonId), responseInfo: nil) { () in
-			
-		}
-
+		let actionId = "open_url"
+		MMMessage.performAction(identifier: actionId, userInfo: apnsPayloadWithAllActions(categoryId: "category", actionId: actionId), responseInfo: nil, completionHandler: nil)
 		
-		self.waitForExpectations(timeout: 10, handler: nil)
+		self.waitForExpectations(timeout: 200) { err in
+			XCTAssertEqual(replyResultMessageId, "m1")
+			XCTAssertEqual(markAsSeenResultMessageId, "m1")
+		}
 	}
 	
 	func testHandlersNotCalledForPredefinedCategory() {
-		let buttonId = "reply"
+		let actionId = "reply"
 		let replyExp = expectation(description: "Reply handler called")
 
 		MMActionReply.setActionHandler { (result) in
@@ -75,15 +73,13 @@ class InteractiveMessageTests: XCTestCase {
 			XCTFail()
 		}
 		
-		MMMessage.performAction(identifier: buttonId, userInfo: messageWithAllActions("chatMessage", buttonId: buttonId), responseInfo: nil) { () in
-			
-		}
+		MMMessage.performAction(identifier: actionId, userInfo: apnsPayloadWithAllActions(categoryId: "chatMessage", actionId: actionId), responseInfo: nil, completionHandler: nil)
 		
 		self.waitForExpectations(timeout: 10, handler: nil)
 	}
 	
 	func testReplyText() {
-		let buttonId = "reply"
+		let actionId = "reply"
 		let replyText = "Hello world!"
 		
 		let replyExp = expectation(description: "Reply handler called")
@@ -107,17 +103,15 @@ class InteractiveMessageTests: XCTestCase {
 		}
 		
 		if #available(iOS 9.0, *) {
-			MMMessage.performAction(identifier: buttonId,
-			                        userInfo: messageWithAllActions("chatMessage", buttonId: buttonId),
-			                        responseInfo: [UIUserNotificationActionResponseTypedTextKey : replyText])
-			{ () in
-				
-			}
-
+			MMMessage.performAction(identifier: actionId,
+			                        userInfo: apnsPayloadWithAllActions(categoryId: "chatMessage", actionId: actionId),
+			                        responseInfo: [UIUserNotificationActionResponseTypedTextKey : replyText],
+			                        completionHandler: nil)
 		} else {
-			MMMessage.performAction(identifier: buttonId, userInfo: messageWithAllActions("chatMessage", buttonId: buttonId), responseInfo: nil) { () in
-				
-			}
+			MMMessage.performAction(identifier: actionId,
+			                        userInfo: apnsPayloadWithAllActions(categoryId: "chatMessage", actionId: actionId),
+			                        responseInfo: nil,
+			                        completionHandler: nil)
 		}
 		
 		self.waitForExpectations(timeout: 10, handler: nil)

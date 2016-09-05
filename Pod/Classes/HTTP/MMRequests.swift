@@ -22,8 +22,9 @@ enum MMHTTPAPIPath: String {
     case Registration = "/mobile/2/registration"
     case SeenMessages = "/mobile/1/messages/seen"
 	case SyncMessages = "/mobile/3/messages"
-	case UserData = "/mobile/2/userdata"
+	case UserData = "/mobile/2/data/user"
 	case MOMessage = "/mobile/1/messages/mo"
+	case SystemData = "/mobile/1/data/system"
 }
 
 protocol MMHTTPRequestResponsable {
@@ -191,6 +192,52 @@ struct MMPostUserDataRequest: MMHTTPPostRequest {
 		self.externalUserId = externalUserId //???: what if I send nil after I sent non-nil earlier?
 		self.predefinedUserData = predefinedUserData
 		self.customUserData = customUserData
+	}
+}
+
+
+func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
+	return lhs.hashValue == rhs.hashValue
+}
+struct MMSystemData: Hashable {
+	let SDKVersion, OSVer, deviceManufcturer, deviceModel, appVer: String
+	let geoAvailability: Bool
+	var dictionaryRepresentation: [String: Any] {
+		return [
+			MMAPIKeys.kSystemDataSDKVersion: SDKVersion,
+			MMAPIKeys.kSystemDataOSVer: OSVer,
+			MMAPIKeys.kSystemDataDeviceManufacturer: deviceManufcturer,
+			MMAPIKeys.kSystemDataDeviceModel: deviceModel,
+			MMAPIKeys.kSystemDataAppVer: appVer,
+			MMAPIKeys.kSystemDataGeoAvailability: geoAvailability
+		]
+	}
+	
+	var hashValue: Int {
+		return (SDKVersion + OSVer + deviceManufcturer + deviceModel + appVer + String(geoAvailability)).hash
+	}
+	
+	static func currentSystemData(userAgent: MMUserAgent) -> MMSystemData {
+		return MMSystemData(SDKVersion: userAgent.libraryVersion, OSVer: userAgent.osVersion, deviceManufcturer: userAgent.deviceManufacturer, deviceModel: userAgent.deviceName, appVer: userAgent.hostingAppVersion, geoAvailability: MobileMessaging.geofencingService.isAvailable)
+	}
+}
+
+struct MMPostSystemDataRequest: MMHTTPPostRequest {
+	typealias ResponseType = MMHTTPSystemDataSyncResponse
+	var path: MMHTTPAPIPath { return .SystemData }
+	var parameters: [String: Any]? {
+		return [MMAPIKeys.kInternalRegistrationId: internalUserId]
+	}
+	var body: [String: Any]? {
+		return systemData.dictionaryRepresentation
+	}
+	
+	let internalUserId: String
+	let systemData: MMSystemData
+	
+	init(internalUserId: String, systemData: MMSystemData) {
+		self.internalUserId = internalUserId
+		self.systemData = systemData
 	}
 }
 

@@ -9,17 +9,17 @@
 import Foundation
 import CoreData
 
-struct NSDateStaticFormatters {
+struct DateStaticFormatters {
 	static var ContactsServiceDateFormatter: DateFormatter = {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")
 		result.dateFormat = "yyyy-MM-dd"
 		return result
 	}()
-	static var ISO8601Formatter: DateFormatter = {
+	static var ISO8601SecondsFormatter: DateFormatter = {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")
-		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZ"
+		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
 		return result
 	}()
 	static var CoreDataDateFormatter: DateFormatter = {

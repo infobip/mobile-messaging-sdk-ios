@@ -37,7 +37,7 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 			}
 		}
 		request.addValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
-		request.addValue(MMUserAgent.currentUserAgent, forHTTPHeaderField: "User-Agent")
+		request.addValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: "User-Agent")
 		if ProcessInfo.processInfo.arguments.contains("-UseIAMMocks") {
 			request.addValue("iam-mock", forHTTPHeaderField: "Accept-Features")
 		}

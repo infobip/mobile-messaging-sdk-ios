@@ -10,19 +10,6 @@ import Foundation
 
 public final class MobileMessaging: NSObject {
 	
-	static var sharedInstance: MobileMessaging?
-	let userNotificationType: UIUserNotificationType,
-		applicationCode: String
-	
-	var	storageType: MMStorageType = .SQLite,
-		remoteAPIBaseURL: String = MMAPIValues.kProdBaseURLString,
-		geofencingServiceDisabled: Bool = false
-	
-	private init(applicationCode: String, notificationType: UIUserNotificationType) {
-		self.applicationCode = applicationCode
-		self.userNotificationType = notificationType
-	}
-	
 	//MARK: Public
 	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType) -> MobileMessaging {
 		sharedInstance = MobileMessaging(applicationCode: code, notificationType: notificationType)
@@ -34,8 +21,8 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
-	public func withGeofencingServiceDisabled(_ disabled: Bool) -> MobileMessaging {
-		geofencingServiceDisabled = disabled
+	public func withGeofencingServiceDisabled(disabled: Bool) -> MobileMessaging {
+		MMGeofencingService.geoServiceEnabled = !disabled
 		return self
 	}
 	
@@ -48,6 +35,7 @@ public final class MobileMessaging: NSObject {
 	*/
 	public func start(_ completion: ((Void) -> Void)? = nil) {
 		MMLogDebug("Starting MobileMessaging service...")
+		
 		MobileMessaging.singletonQueue.executeAsync {
 			do {
 				var storage: MMCoreDataStorage?
@@ -67,9 +55,7 @@ public final class MobileMessaging: NSObject {
 					self.messageHandler = messageHandler
 					self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
 					
-					if !self.geofencingServiceDisabled {
-						MMGeofencingService.sharedInstance.start()
-					}
+					MMGeofencingService.sharedInstance.start()
 					
 					MMLogInfo("MobileMessaging SDK service successfully initialized.")
 				}
@@ -107,12 +93,12 @@ public final class MobileMessaging: NSObject {
 	- setting up logging options and logging levels.
 	- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
 	*/
-	public static let loggingUtil = MMLoggingUtil()
+	public static var loggingUtil = MMLoggingUtil()
 	
 	/**
 	//TODO: docs
 	*/
-	public static let geofencingService = MMGeofencingService.sharedInstance
+	public static var geofencingService = MMGeofencingService.sharedInstance
 	
 	/**
 	This method handles a new APNs device token and updates user's registration on the server. This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
@@ -145,7 +131,11 @@ public final class MobileMessaging: NSObject {
 	- parameter responseInfo: The data dictionary sent by the action.
 	- parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` and `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callbacks as a `completionHandler` parameter. Mobile Messaging will execute this block after performing all actions.
     */
-	public class func handleActionWithIdentifier(_ identifier: String?, userInfo: [AnyHashable : Any], responseInfo: [AnyHashable : Any]?, completionHandler: @escaping (Void) -> Void) {
+	public class func handleActionWithIdentifier(_ identifier: String?, userInfo: [AnyHashable : Any], responseInfo: [AnyHashable : Any]?, completionHandler: ( @escaping (Void) -> Void)?) {
+		guard let identifier = identifier else {
+			completionHandler?()
+			return
+		}
 		MMMessage.performAction(identifier: identifier, userInfo: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
@@ -198,8 +188,17 @@ public final class MobileMessaging: NSObject {
 	*/
 	public static var notificationTapHandler: (([AnyHashable : Any]) -> Void)?
 
-
+	public static var userAgent = MMUserAgent()
+	
 //MARK: Internal
+	static var sharedInstance: MobileMessaging?
+	let userNotificationType: UIUserNotificationType
+	let applicationCode: String
+	
+	var	storageType: MMStorageType = .SQLite
+	var remoteAPIBaseURL: String = MMAPIValues.kProdBaseURLString
+	var geofencingServiceDisabled: Bool = false
+	
 	func cleanUpAndStop() {
 		MMLogDebug("Cleaning up MobileMessaging service...")
 		MobileMessaging.singletonQueue.executeSync {
@@ -251,6 +250,11 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	//MARK: Private
+	private init(applicationCode: String, notificationType: UIUserNotificationType) {
+		self.applicationCode = applicationCode
+		self.userNotificationType = notificationType
+	}
+	
 	private static let singletonQueue: MMQueueObject = MMQueue.Serial.New.MobileMessagingSingletonQueue.queue
 	
 	private var valuesStorage = [AnyHashable: Any]()

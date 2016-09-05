@@ -3,12 +3,11 @@
 //
 //  Created by Andrey K. on 08/07/16.
 //
-//
 
 import Foundation
 import CoreTelephony
 
-final public class MMUserAgent: NSObject {
+public class MMUserAgent: NSObject {
 	struct DataOptions : OptionSet {
 		let rawValue: Int
 		init(rawValue: Int = 0) { self.rawValue = rawValue }
@@ -17,7 +16,7 @@ final public class MMUserAgent: NSObject {
 		static let Carrier = DataOptions(rawValue: 1 << 1)
 	}
 	
-	public class var currentUserAgent: String {
+	public var currentUserAgentString: String {
 		var options = [MMUserAgent.DataOptions.None]
 		if !MobileMessaging.systemInfoSendingDisabled {
 			options.append(MMUserAgent.DataOptions.System)
@@ -26,35 +25,39 @@ final public class MMUserAgent: NSObject {
 		if !MobileMessaging.carrierInfoSendingDisabled {
 			options.append(MMUserAgent.DataOptions.Carrier)
 		}
-		return MMUserAgent.userAgentString(withOptions: options)
+		return userAgentString(withOptions: options)
 	}
 	
-	public static var osVersion: String {
+	public var osVersion: String {
 		return UIDevice.current.systemVersion
 	}
 	
-	public static var osName: String {
+	public var osName: String {
 		return UIDevice.current.systemName
 	}
 	
-	public static var libraryVersion: String {
+	public var libraryVersion: String {
 		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? libVersion
 	}
 	
-	public static var libraryName: String {
+	public var libraryName: String {
 		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "MobileMessaging"
 	}
 	
-	public static var hostingAppVersion: String {
+	public var hostingAppVersion: String {
 		return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 	}
 	
-	public static var hostingAppName: String {
+	public var hostingAppName: String {
 		return Bundle.main.infoDictionary?["CFBundleName"] as? String ?? ""
 	}
 	
-	public static var deviceName : String {
-		var name = UnsafeMutablePointer<utsname>.allocate(capacity: 1)
+	public var deviceManufacturer: String {
+		return "Apple"
+	}
+	
+	public var deviceName : String {
+		let name = UnsafeMutablePointer<utsname>.allocate(capacity: 1)
 		defer {
 			name.deallocate(capacity: 1)
 		}
@@ -122,15 +125,15 @@ final public class MMUserAgent: NSObject {
 		}
 	}
 	
-	class func userAgentString(withOptions options: [DataOptions]) -> String {
+	func userAgentString(withOptions options: [DataOptions]) -> String {
 		func systemDataString(allowed: Bool) -> String {
-			let outputOSName = allowed ? MMUserAgent.osName : ""
-			let outputOSVersion = allowed ? MMUserAgent.osVersion : ""
-			let outputDeviceModel = allowed ? MMUserAgent.deviceName : ""
+			let outputOSName = allowed ? osName : ""
+			let outputOSVersion = allowed ? osVersion : ""
+			let outputDeviceModel = allowed ? deviceName : ""
 			let osArch = ""
 			let deviceManufacturer = ""
-			let outputHostingAppName = allowed ? MMUserAgent.hostingAppName : ""
-			let outputHostingAppVersion = allowed ? MMUserAgent.hostingAppVersion : ""
+			let outputHostingAppName = allowed ? hostingAppName : ""
+			let outputHostingAppVersion = allowed ? hostingAppVersion : ""
 			let currCarrierName = ""
 			let currMNC = ""
 			let currMCC = ""

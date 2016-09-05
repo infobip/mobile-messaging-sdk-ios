@@ -13,6 +13,7 @@ class MMGeofencingDatasource {
 	
 	static let plistDir = "com.mobile-messaging.geo-data"
 	static let plistFile = "CampaignsData.plist"
+	static let locationArchive = "currentLocation"
 	var campaigns = Set<MMCampaign>() {
 		didSet {
 			for campaign in campaigns {
@@ -22,6 +23,7 @@ class MMGeofencingDatasource {
 	}
 	typealias RegionIdentifier = String
 	var regions = [RegionIdentifier: MMRegion]()
+	var currentLocation: CLLocation?
 	var notExpiredRegions: [MMRegion] {
 		return regions.values.filter { $0.isExpired == false }
 	}
@@ -66,28 +68,31 @@ class MMGeofencingDatasource {
 		return FileManager.default.urls(for: FileManager.SearchPathDirectory.applicationSupportDirectory, in: FileManager.SearchPathDomainMask.userDomainMask)[0]
 	}()
 	
-	lazy var fileDirectoryURL: URL = {
+	lazy var geoDirectoryURL: URL = {
 		return self.rootURL.appendingPathComponent(MMGeofencingDatasource.plistDir)
 	}()
 	
 	lazy var plistURL: URL = {
-		return self.fileDirectoryURL.appendingPathComponent(MMGeofencingDatasource.plistFile)
+		self.geoDirectoryURL.appendingPathComponent(MMGeofencingDatasource.plistFile)
+	}()
+	
+	lazy var locationArchivePath: String = {
+		let url = self.geoDirectoryURL.appendingPathComponent(MMGeofencingDatasource.locationArchive)
+		return url.path
 	}()
 	
 	func save() {
 		//FIXME: move to BG thread
-		if !FileManager.default.fileExists(atPath: fileDirectoryURL.path) {
+		if !FileManager.default.fileExists(atPath: geoDirectoryURL.path) {
 			do {
-				try FileManager.default.createDirectory(at: fileDirectoryURL, withIntermediateDirectories: true, attributes: nil)
+				try FileManager.default.createDirectory(at: geoDirectoryURL, withIntermediateDirectories: true, attributes: nil)
 			} catch {
 				MMLogError("Can't create a directory for a plist.")
 				return
 			}
 		}
 		
-		
 		let campaignDicts = campaigns.map { $0.dictionaryRepresentation }
-		
 		do {
 			let data = try PropertyListSerialization.data(fromPropertyList: campaignDicts, format: PropertyListSerialization.PropertyListFormat.xml, options: 0)
 			try data.write(to: plistURL, options: NSData.WritingOptions.atomicWrite)
@@ -106,7 +111,6 @@ class MMGeofencingDatasource {
 			self.campaigns = []
 			return
 		}
-		
 		campaigns = Set(plistDicts.flatMap(MMCampaign.init))
 	}
 }
