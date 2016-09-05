@@ -24,7 +24,7 @@ class MessagePostingOperation: Operation {
 		self.messagesToSend = messages
 		super.init()
 		
-		self.addCondition(RegistrationCondition())
+		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	override func execute() {

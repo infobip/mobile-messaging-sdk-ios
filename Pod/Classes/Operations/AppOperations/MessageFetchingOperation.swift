@@ -20,7 +20,7 @@ final class MessageFetchingOperation: Operation {
 		
 		super.init()
 		
-		self.addCondition(RegistrationCondition())
+		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	override func execute() {

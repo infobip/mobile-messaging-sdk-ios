@@ -10,13 +10,18 @@ import UIKit
 final class RegistrationCondition: OperationCondition {
 	static var name = "RegistrationCondition"
 	static var isMutuallyExclusive = false
+	let internalId: String?
+	
+	init(internalId: String?) {
+		self.internalId = internalId
+	}
 	
 	func dependencyForOperation(operation: Operation) -> NSOperation? {
 		return nil
 	}
 	
 	func evaluateForOperation(operation: Operation, completion: OperationConditionResult -> Void) {
-		if MobileMessaging.currentUser?.internalId == nil {
+		if internalId == nil {
 			completion(OperationConditionResult.Failed(NSError(type: MMInternalErrorType.NoRegistration)))
 		} else {
 			completion(OperationConditionResult.Satisfied)

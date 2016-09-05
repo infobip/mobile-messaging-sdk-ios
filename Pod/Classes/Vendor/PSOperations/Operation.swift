@@ -154,7 +154,6 @@ public class Operation: NSOperation {
 					state = .Ready
 					_ready = true
 					return
-//					break
 				}
 				
 				// If super isReady, conditions can be evaluated

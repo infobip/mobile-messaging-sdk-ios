@@ -29,7 +29,7 @@ class SystemDataSynchronizationOperation: Operation {
 		self.remoteAPIQueue = remoteAPIQueue
 		super.init()
 		
-		self.addCondition(RegistrationCondition())
+		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	override func execute() {
@@ -44,12 +44,8 @@ class SystemDataSynchronizationOperation: Operation {
 			self.installationObject = installation
 			
 			if installation.systemDataHash != self.currentSystemDataHash {
-				print("current hash", self.currentSystemDataHash)
-				print("current stored hash", installation.systemDataHash)
 				self.sendRequest()
 			} else {
-				print("current hash", self.currentSystemDataHash)
-				print("current stored hash",installation.systemDataHash)
 				self.finish()
 			}
 		}
