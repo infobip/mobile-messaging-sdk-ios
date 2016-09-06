@@ -40,7 +40,7 @@ class Message : NSObject, NSCoding {
 	}
 	
 	//MARK: Util
-	class func prepare(_ rawMessage: [NSObject : AnyObject]) -> Message? {
+	class func prepare(_ rawMessage: [String : Any]) -> Message? {
 		guard let text = rawMessage.mm_apsAlertBody
 			, let messageId = rawMessage.mm_messageId
 			else {
@@ -114,7 +114,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	func handleNewMessageReceivedNotification(_ notification: Notification) {
 		guard let userInfo = notification.userInfo,
-			let messageUserInfo = userInfo[MMNotificationKeyMessagePayload] as? [NSObject : AnyObject],
+			let messageUserInfo = userInfo[MMNotificationKeyMessagePayload] as? [String : Any],
 			let message = Message.prepare(messageUserInfo) else {
 				return
 		}

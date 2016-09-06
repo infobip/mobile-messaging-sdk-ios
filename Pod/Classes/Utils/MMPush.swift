@@ -31,8 +31,8 @@ public final class MMPush: NSObject {
         if let alert = aps[MMAPIKeys.kAlert as String] as? String,
             let appName = appName as? String {
                 MMAlert.showAlert(title: appName, message: alert, animated: true, cancelActionCompletion: nil)
-        } else if let body = (aps[MMAPIKeys.kAlert] as? [String: AnyObject])?[MMAPIKeys.kBody] as? String {
-            if let title = (aps[MMAPIKeys.kAlert] as? [String: AnyObject])?[MMAPIKeys.kTitle] as? String {
+        } else if let body = (aps[MMAPIKeys.kAlert] as? [AnyHashable: Any])?[MMAPIKeys.kBody] as? String {
+            if let title = (aps[MMAPIKeys.kAlert] as? [AnyHashable: Any])?[MMAPIKeys.kTitle] as? String {
                 appName = title
             }
 			
@@ -41,9 +41,8 @@ public final class MMPush: NSObject {
             }
         }
 		
-        if let badgeNumber = aps[MMAPIKeys.kBadge] as AnyObject?,
-           let number = badgeNumber.integerValue {
-                UIApplication.shared.applicationIconBadgeNumber = number
+        if let badgeNumber = aps[MMAPIKeys.kBadge] as? Int {
+                UIApplication.shared.applicationIconBadgeNumber = badgeNumber
         }
         
         if let sound = aps[MMAPIKeys.kSound] as? String {

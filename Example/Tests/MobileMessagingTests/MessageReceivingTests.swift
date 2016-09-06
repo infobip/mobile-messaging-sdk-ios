@@ -90,8 +90,8 @@ class MessageReceivingTests: MMTestCase {
 		let json = JSON.parse(backendJSONRegularMessage(id))
 		if let message = MMMessage(json: json) {
 			XCTAssertFalse(message.isSilent)
-			let origPayload = message.originalPayload["aps"] as! [String : AnyObject]
-			XCTAssertEqual((origPayload["alert"] as! [String : AnyObject])["body"] as! String, "msg_body", "Message body must be parsed")
+			let origPayload = message.originalPayload["aps"] as! [String : Any]
+			XCTAssertEqual((origPayload["alert"] as! [String : Any])["body"] as! String, "msg_body", "Message body must be parsed")
 			XCTAssertEqual(origPayload["sound"] as! String, "default", "sound must be parsed")
 			XCTAssertEqual(origPayload["badge"] as! Int, 6, "badger must be parsed")
 

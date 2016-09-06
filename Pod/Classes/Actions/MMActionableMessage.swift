@@ -12,8 +12,8 @@ protocol MMActionableMessage {
 }
 
 extension MMMessage: MMActionableMessage {
-	var actions: [String: AnyObject]? {
-		return interactionsData?[MMAPIKeys.kButtonActions] as? [String: AnyObject]
+	var actions: [String: Any]? {
+		return interactionsData?[MMAPIKeys.kButtonActions] as? [String: Any]
 	}
 	
 	static func performAction(identifier: String, userInfo: [AnyHashable : Any], responseInfo: [AnyHashable : Any]?, completionHandler:  (@escaping (Void) -> Void)?) {
@@ -26,7 +26,7 @@ extension MMMessage: MMActionableMessage {
 		
 		if	let action = notificationActionId.createInstance(parameters: nil, resultInfo: responseInfo) {
 			resultActions.append(action)
-		} else if let messageActions = message.actions?[identifier] as? [AnyObject] {
+		} else if let messageActions = message.actions?[identifier] as? [Any] {
 			for messageAction in messageActions {
 				let actionData = getActionData(buttonAction: messageAction)
 				if let actionIdStr = actionData.0, let actionId = MMPredefinedNotificationActionId(rawValue: actionIdStr), let action = actionId.createInstance(parameters: actionData.1, resultInfo: responseInfo)
@@ -52,12 +52,12 @@ extension MMMessage: MMActionableMessage {
 		}
 	}
 	
-	private static func getActionData(buttonAction: AnyObject) -> (String?, AnyObject?) {
+	private static func getActionData(buttonAction: Any) -> (String?, Any?) {
 		var aId: String?
-		var parameters: AnyObject?
+		var parameters: Any?
 		if let actionId = buttonAction as? String {
 			aId = actionId
-		} else if let buttonAction = buttonAction as? [String: AnyObject], let actionId = buttonAction.keys.first {
+		} else if let buttonAction = buttonAction as? [String: Any], let actionId = buttonAction.keys.first {
 			aId = actionId
 			parameters = buttonAction[actionId]
 		}

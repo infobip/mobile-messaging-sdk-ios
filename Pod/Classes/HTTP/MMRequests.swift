@@ -173,7 +173,7 @@ struct MMPostUserDataRequest: MMHTTPPostRequest {
 		if let externalUserId = externalUserId {
 			params[MMAPIKeys.kUserDataExternalUserId] = externalUserId
 		}
-		return params as [String : AnyObject]
+		return params
 	}
 	var body: [String: Any]? {
 		var result = [String: Any]()

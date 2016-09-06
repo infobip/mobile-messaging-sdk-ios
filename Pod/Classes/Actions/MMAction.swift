@@ -12,7 +12,7 @@ enum MMPredefinedNotificationActionId: String {
 	case MarkAsSeen = "mark_as_seen"
 	case Reply = "reply"
 	
-	func createInstance(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) -> MMBaseAction? {
+	func createInstance(parameters: Any?, resultInfo: [AnyHashable : Any]?) -> MMBaseAction? {
 		var actionType: MMBaseAction.Type
 		switch self {
 		case .OpenURL: actionType = MMActionOpenURL.self
@@ -25,7 +25,7 @@ enum MMPredefinedNotificationActionId: String {
 
 protocol MMBaseAction {
 	static var actionId: MMPredefinedNotificationActionId {get}
-	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?)
+	init?(parameters: Any?, resultInfo: [AnyHashable : Any]?)
 	func perform(message: MMMessage, completion: @escaping (Void) -> Void)
 }
 protocol MMAction: MMBaseAction {
@@ -36,7 +36,7 @@ protocol MMAction: MMBaseAction {
 public final class MMActionMarkAsSeen: NSObject, MMAction {
 	public typealias Result = MMMarkAsSeenActionResult
 	static let actionId = MMPredefinedNotificationActionId.MarkAsSeen
-	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) {
+	init?(parameters: Any?, resultInfo: [AnyHashable : Any]?) {
 		super.init()
 	}
 	
@@ -60,7 +60,7 @@ public final class MMActionReply: NSObject, MMAction {
 	public typealias Result = MMReplyActionResult
 	static let actionId = MMPredefinedNotificationActionId.Reply
 	var text: String?
-	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) {
+	init?(parameters: Any?, resultInfo: [AnyHashable : Any]?) {
 		if #available(iOS 9.0, *) {
 			self.text = resultInfo?[UIUserNotificationActionResponseTypedTextKey] as? String
 		}
@@ -83,7 +83,7 @@ public final class MMActionOpenURL: NSObject, MMAction {
 	public typealias Result = MMOpenURLActionResult
 	static let actionId = MMPredefinedNotificationActionId.OpenURL
 	let url: URL
-	init?(parameters: AnyObject?, resultInfo: [AnyHashable : Any]?) {
+	init?(parameters: Any?, resultInfo: [AnyHashable : Any]?) {
 		guard let path = parameters as? String,
 		   let url = URL(string: path) else {
 			return nil

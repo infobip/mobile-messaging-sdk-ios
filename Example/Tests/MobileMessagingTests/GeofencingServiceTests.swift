@@ -12,7 +12,7 @@ import CoreLocation
 @testable import MobileMessaging
 
 let expectedDateString = "2016-08-06T12:20:16+03:00"
-let expectedMillisNumber = NSNumber(value: 1470475216000 as UInt64)
+let expectedMillisNumber = NSNumber(value: 1470475216000 as Int64)
 let expectedMillisString = "1470475216000"
 
 class GeofencingServiceTests: MMTestCase {
@@ -117,7 +117,7 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testCampaignAPNSConstructors() {
-		if let message = MMMessage(payload: apnsPayload as [NSObject : AnyObject]), let campaign = MMCampaign(message: message) {
+		if let message = MMMessage(payload: apnsPayload), let campaign = MMCampaign(message: message) {
 			
 			var regionsDict = [String: MMRegion]()
 			for region in campaign.regions {

@@ -85,7 +85,7 @@ public func resetDefaultDebugLevel() {
     defaultDebugLevel = DDLogLevel.verbose
 }
 
-public func SwiftLogMacro(_ isAsynchronous: Bool, level: DDLogLevel, flag flg: DDLogFlag, context: Int = 0, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, string: @autoclosure () -> String) {
+public func SwiftLogMacro(_ isAsynchronous: Bool, level: DDLogLevel, flag flg: DDLogFlag, context: Int = 0, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: Any? = nil, string: @autoclosure () -> String) {
     if level.rawValue & flg.rawValue != 0 {
         // Tell the DDLogMessage constructor to copy the C strings that get passed to it.
         // Using string interpolation to prevent integer overflow warning when using StaticString.stringValue
@@ -94,23 +94,23 @@ public func SwiftLogMacro(_ isAsynchronous: Bool, level: DDLogLevel, flag flg: D
     }
 }
 
-public func MMLogDebug(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, asynchronous async: Bool = true) {
+public func MMLogDebug(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: Any? = nil, asynchronous async: Bool = true) {
     SwiftLogMacro(async, level: level, flag: .debug, context: context, file: file, function: function, line: line, tag: tag, string: logText)
 }
 
-public func MMLogInfo(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, asynchronous async: Bool = true) {
+public func MMLogInfo(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: Any? = nil, asynchronous async: Bool = true) {
     SwiftLogMacro(async, level: level, flag: .info, context: context, file: file, function: function, line: line, tag: tag, string: logText)
 }
 
-public func MMLogWarn(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, asynchronous async: Bool = true) {
+public func MMLogWarn(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: Any? = nil, asynchronous async: Bool = true) {
     SwiftLogMacro(async, level: level, flag: .warning, context: context, file: file, function: function, line: line, tag: tag, string: logText)
 }
 
-public func MMLogVerbose(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, asynchronous async: Bool = true) {
+public func MMLogVerbose(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: Any? = nil, asynchronous async: Bool = true) {
     SwiftLogMacro(async, level: level, flag: .verbose, context: context, file: file, function: function, line: line, tag: tag, string: logText)
 }
 
-public func MMLogError(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, asynchronous async: Bool = false) {
+public func MMLogError(_ logText: @autoclosure () -> String, level: DDLogLevel = defaultDebugLevel, context: Int = mmContext, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: Any? = nil, asynchronous async: Bool = false) {
     SwiftLogMacro(async, level: level, flag: .error, context: context, file: file, function: function, line: line, tag: tag, string: logText)
 }
 

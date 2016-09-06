@@ -28,22 +28,6 @@ extension Date: JSONEncodable {
 	}
 }
 
-extension JSON {
-	
-	/// An enum to encapsulate errors that may arise in working with `JSON`.
-	public enum JSONError: Error {
-		/// The `index` is out of bounds for a JSON array
-		case IndexOutOfBounds(index: Swift.Int)
-		
-		/// The `key` was not found in the JSON dictionary
-		case KeyNotFound(key: Swift.String)
-
-		/// Unexpected JSON `value` was found that is not convertible `to` type
-		case ValueNotConvertible(value: JSON, to: Any.Type)
-	}
-	
-}
-
 public struct MMRequestError {
 	public var isUNAUTHORIZED: Bool {
 		return messageId == "UNAUTHORIZED"
@@ -155,15 +139,15 @@ protocol MMMessageMetadata: Hashable {
 }
 
 enum MMAPS {
-	case SilentAPS([String: AnyObject])
-	case NativeAPS([String: AnyObject])
+	case SilentAPS([AnyHashable: Any])
+	case NativeAPS([AnyHashable: Any])
 	
 	var text: String? {
 		switch self {
 		case .NativeAPS(let dict):
-			return dict["alert"]?["body"] as? String
+			return (dict["alert"] as? [AnyHashable: Any])?["body"] as? String
 		case .SilentAPS(let dict):
-			return dict["alert"]?["body"] as? String
+			return (dict["alert"] as? [AnyHashable: Any])?["body"] as? String
 		}
 	}
 }
