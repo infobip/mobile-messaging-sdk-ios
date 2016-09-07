@@ -28,7 +28,6 @@
 		50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		50DBBC8A1D50880300485835 /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
 		50DBBC8B1D50881200485835 /* MOMessageSendingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */; };
-		50DBBC8C1D50882100485835 /* InteractiveMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */; };
@@ -52,7 +51,6 @@
 		A03F75061CE2243C00414A6B /* MessageSeenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */; };
 		A03F75071CE2243C00414A6B /* MMTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5077629C1CC2893B00499542 /* MMTestCase.swift */; };
 		A047BFD81CB4EB5C00A6859F /* CopyableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A047BFD71CB4EB5C00A6859F /* CopyableCell.swift */; };
-		A06A82DB1D2FE3C80081026D /* InteractiveMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */; };
 		A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */; };
 		A0953C291CAD1C660076488D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0953C271CAD1C660076488D /* Main.storyboard */; };
 		A0F30B101D410A3300247CED /* MOMessageSendingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */; };
@@ -104,7 +102,6 @@
 		8EFABFDD1CEB3B9400510762 /* MobileMessagingExample_Tests_Device.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileMessagingExample_Tests_Device.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EscapingQueryTests.swift; sourceTree = "<group>"; };
 		A047BFD71CB4EB5C00A6859F /* CopyableCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CopyableCell.swift; sourceTree = "<group>"; };
-		A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageTests.swift; sourceTree = "<group>"; };
 		A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSErrorExtension.swift; sourceTree = "<group>"; };
 		A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageReceivingTests.swift; sourceTree = "<group>"; };
 		A09103DB1CABA839001873B4 /* RegistrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationTests.swift; sourceTree = "<group>"; };
@@ -297,7 +294,6 @@
 				A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */,
 				5077629C1CC2893B00499542 /* MMTestCase.swift */,
 				50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */,
-				A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */,
 				5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */,
 				A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */,
 				50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */,
@@ -566,7 +562,6 @@
 			files = (
 				A0F30B101D410A3300247CED /* MOMessageSendingTests.swift in Sources */,
 				509B06641D7444C900E2C065 /* SystemDataTests.swift in Sources */,
-				A06A82DB1D2FE3C80081026D /* InteractiveMessageTests.swift in Sources */,
 				A03F75031CE2243C00414A6B /* DeliveryReportingTests.swift in Sources */,
 				5079E8EC1D37C61700C09BE9 /* UserDataTests.swift in Sources */,
 				A03F75071CE2243C00414A6B /* MMTestCase.swift in Sources */,
@@ -597,7 +592,6 @@
 				8EFABFCF1CEB3B9400510762 /* RegistrationTests.swift in Sources */,
 				50829B781D62056B00BAFA46 /* GeofencingServiceTests.swift in Sources */,
 				8EFABFD01CEB3B9400510762 /* MessageReceivingTests.swift in Sources */,
-				50DBBC8C1D50882100485835 /* InteractiveMessageTests.swift in Sources */,
 				8EFABFD11CEB3B9400510762 /* RetryOperationTests.swift in Sources */,
 				8EFABFD21CEB3B9400510762 /* FetchMessagesTest.swift in Sources */,
 				8EFABFD31CEB3B9400510762 /* MessageSeenTests.swift in Sources */,

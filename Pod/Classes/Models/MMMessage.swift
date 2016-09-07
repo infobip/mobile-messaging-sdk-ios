@@ -19,7 +19,6 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	let aps: MMAPS
 	let silentData: [String: AnyObject]?
 	let geoRegions: [[String: AnyObject]]?
-	let interactionsData: [String: AnyObject]?
 	var text: String? {
 		return aps.text
 	}
@@ -54,7 +53,6 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 		self.originalPayload = payload as! [String: AnyObject]
 		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? [String : AnyObject]
 		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? [String : AnyObject]
-		self.interactionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kInteractive] as? [String : AnyObject]
 		self.geoRegions = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [[String : AnyObject]]
 	}
 	

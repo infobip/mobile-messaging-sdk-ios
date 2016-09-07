@@ -43,17 +43,4 @@
 */
 -(void)mm_application:(UIApplication * _Nonnull)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData * _Nonnull)deviceToken;
 
-/**
-	This is a substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:completionHandler:)`.
-	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a remote notification.
-	This method is avaliable for iOS 8.0 and later.
-*/
--(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString * _Nullable)identifier forRemoteNotification:(NSDictionary * _Nonnull)userInfo completionHandler:(void (^ _Nonnull)())completionHandler;
-
-/**
-	This is a substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)`.
-	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a remote notification.
-	This method is avaliable for iOS 9.0 and later.
-*/
--(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString * _Nullable)identifier forRemoteNotification:(NSDictionary * _Nonnull)userInfo withResponseInfo:(NSDictionary *_Nullable)responseInfo completionHandler:(void (^ _Nonnull)())completionHandler;
 @end

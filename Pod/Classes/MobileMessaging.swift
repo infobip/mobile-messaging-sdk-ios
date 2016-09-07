@@ -68,9 +68,8 @@ public final class MobileMessaging: NSObject {
 				MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 				UIApplication.sharedApplication().unregisterForRemoteNotifications()
 			}
-			
-			let categories = MMNotificationCategoryManager.categoriesToRegister()
-			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: categories))
+
+			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: nil))
 			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
 				MMLogDebug("Registering for remote notifications...")
 				UIApplication.sharedApplication().registerForRemoteNotifications()
@@ -122,22 +121,6 @@ public final class MobileMessaging: NSObject {
 		if UIApplication.sharedApplication().applicationState == .Inactive {
 			notificationTapHandler?(userInfo)
 		}
-	}
-	
-	/**
-	This method handles actions of interactive notification and triggers procedure for performing operations that are defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` and `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callbacks.
-	
-	- parameter identifier: The identifier associated with the action of interactive notification.
-	- parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	- parameter responseInfo: The data dictionary sent by the action.
-	- parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` and `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callbacks as a `completionHandler` parameter. Mobile Messaging will execute this block after performing all actions.
-    */
-	public class func handleActionWithIdentifier(identifier: String?, userInfo: [NSObject : AnyObject], responseInfo: [NSObject : AnyObject]?, completionHandler: (Void -> Void)?) {
-		guard let identifier = identifier else {
-			completionHandler?()
-			return
-		}
-		MMMessage.performAction(identifier, userInfo: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
 	/**

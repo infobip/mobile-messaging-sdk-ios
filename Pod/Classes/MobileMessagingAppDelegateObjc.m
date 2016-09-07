@@ -48,22 +48,4 @@
 	// override in your AppDelegate if needed
 }
 
--(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-	[MobileMessaging handleActionWithIdentifier:identifier userInfo:userInfo responseInfo:nil completionHandler:completionHandler];
-	[self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
-}
-
--(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-	// override this callback in your AppDelegate if needed
-}
-
--(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
-	[MobileMessaging handleActionWithIdentifier:identifier userInfo:userInfo responseInfo:responseInfo completionHandler:completionHandler];
-	[self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
-}
-
--(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
-	// override this callback in your AppDelegate if needed
-}
-
 @end
