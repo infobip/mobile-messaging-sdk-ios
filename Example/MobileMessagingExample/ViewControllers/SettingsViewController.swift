@@ -42,7 +42,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		do {
 			try validateFormat(msisdn)
 			
-			MobileMessaging.currentUser?.saveMSISDN(msisdn, completion: { (error) -> () in
+			MobileMessaging.currentUser?.save(msisdn: msisdn, completion: { (error) -> () in
 				dispatch_async(dispatch_get_main_queue()) {
 					self.hideActivityIndicator {
 						self.showResultAlert(error)

@@ -46,7 +46,7 @@ final class MessageFetchingOperation: Operation {
 			
 			let request = MMPostSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
 			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
-			self.remoteAPIQueue.performRequest(request) { result in
+			self.remoteAPIQueue.perform(request: request) { result in
 				self.handleRequestResponse(result, nonReportedMessageIds: nonReportedMessageIds)
 			}
 		}

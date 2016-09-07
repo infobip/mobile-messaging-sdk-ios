@@ -27,13 +27,13 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
-	/**
-	Starts a new Mobile Messaging session. This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
-	- remark: For now, Mobile Messaging SDK doesn't support badge. You should handle the badge counter by yourself.
-	- parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
-	- parameter applicationCode: The application code of your Application from Push Portal website.
-	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
-	*/
+	/// Starts a new Mobile Messaging session.
+	///
+	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
+	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
+	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter applicationCode: The application code of your Application from Push Portal website.
+	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	public func start(completion: (Void -> Void)? = nil) {
 		MMLogDebug("Starting MobileMessaging service...")
 		
@@ -42,9 +42,9 @@ public final class MobileMessaging: NSObject {
 				var storage: MMCoreDataStorage?
 				switch self.storageType {
 				case .InMemory:
-					storage = try MMCoreDataStorage.newInMemoryStorage()
+					storage = try MMCoreDataStorage.makeInMemoryStorage()
 				case .SQLite:
-					storage = try MMCoreDataStorage.SQLiteStorage()
+					storage = try MMCoreDataStorage.makeSQLiteStorage()
 				}
 				if let storage = storage {
 					self.storage = storage
@@ -68,8 +68,7 @@ public final class MobileMessaging: NSObject {
 				MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 				UIApplication.sharedApplication().unregisterForRemoteNotifications()
 			}
-
-			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: nil))
+			
 			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
 				MMLogDebug("Registering for remote notifications...")
 				UIApplication.sharedApplication().registerForRemoteNotifications()
@@ -77,9 +76,7 @@ public final class MobileMessaging: NSObject {
 		}
 	}
 	
-	/**
-	Stops current Mobile Messaging session.
-	*/
+	/// Stops the currently running Mobile Messaging session.
 	public class func stop(cleanUpData: Bool = false) {
 		if cleanUpData {
 			MobileMessaging.sharedInstance?.cleanUpAndStop()
@@ -88,31 +85,28 @@ public final class MobileMessaging: NSObject {
 		}
 	}
 	
-	/**
-	Logging utility is used for:
-	- setting up logging options and logging levels.
-	- obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
-	*/
-	public static var loggingUtil = MMLoggingUtil()
+	/// Logging utility is used for:
+	/// - setting up the logging options and logging levels.
+	/// - obtaining a path to the logs file in case the Logging utility is set up to log in file (logging options contains `.file` option).
+	public internal(set) static var loggingUtil = MMLoggingUtil()
 	
-	/**
-	//TODO: docs
-	*/
-	public static var geofencingService = MMGeofencingService.sharedInstance
+	/// This service manages geofencing areas, emits geografical regions entering/exiting notifications.
+	///
+	/// You access the Geofencing service APIs through this property.
+	public internal(set) static var geofencingService = MMGeofencingService.sharedInstance
 	
-	/**
-	This method handles a new APNs device token and updates user's registration on the server. This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
-	- parameter token: A token that identifies a particular device to APNs.
-	*/
+	/// This method handles a new APNs device token and updates user's registration on the server.
+	///
+	/// This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
+	/// - parameter token: A token that identifies a particular device to APNs.
 	public class func didRegisterForRemoteNotificationsWithDeviceToken(token: NSData) {
 		MobileMessaging.sharedInstance?.didRegisterForRemoteNotificationsWithDeviceToken(token)
 	}
 	
-	/**
-	This method handles incoming remote notifications and triggers sending procedure for delivery reports. The method should be called from AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback.
-	- parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	- parameter fetchCompletionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
-	*/
+	/// This method handles incoming remote notifications and triggers sending procedure for delivery reports. The method should be called from AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback.
+	///
+	/// - parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
+	/// - parameter fetchCompletionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
 	public class func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: ((UIBackgroundFetchResult) -> Void)?) {
 		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 			completionHandler?(.NewData)
@@ -123,53 +117,41 @@ public final class MobileMessaging: NSObject {
 		}
 	}
 	
-	/**
-	Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
-	*/
+	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
 	public class var currentInstallation: MMInstallation? {
 		return MobileMessaging.sharedInstance?.currentInstallation
 	}
 	
-	/**
-	Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
-	*/
+	/// Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
 	public class var currentUser: MMUser? {
 		return MobileMessaging.sharedInstance?.currentUser
 	}
-    
-    /**
-	This method sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
-	- parameter messageIds: Array of identifiers of messages that need to be marked as seen.
-    */
+	
+	/// This method sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
+	/// - parameter messageIds: Array of identifiers of messages that need to be marked as seen.
     public class func setSeen(messageIds: [String]) {
         MobileMessaging.sharedInstance?.setSeen(messageIds)
     }
 	
 	//FIXME: MOMEssage should be replaced with something lighter
-	/**
-	This method sends mobile originated messages to the server.
-	- parameter messages: Array of objects of `MOMessage` class that need to be sent.
-	- parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
-	*/
+	/// This method sends mobile originated messages to the server.
+	/// - parameter messages: Array of objects of `MOMessage` class that need to be sent.
+	/// - parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
 	public class func sendMessages(messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.sendMessages(messages, completion: completion)
 	}
 	
-	/**
-	A boolean variable that indicates whether the library will be sending the carrier information to the server.
-	Default value is `false`.
-    */
+	/// A boolean variable that indicates whether the library will be sending the carrier information to the server.
+	///
+	/// Default value is `false`.
 	public static var carrierInfoSendingDisabled: Bool = false
 	
-	/**
-	A boolean variable that indicates whether the library will be sending the system information such as OS version, device model, application version to the server.
-	Default value is `false`.
-	*/
+	/// A boolean variable that indicates whether the library will be sending the system information such as OS version, device model, application version to the server.
+	///
+	/// Default value is `false`.
 	public static var systemInfoSendingDisabled: Bool = false
 	
-	/**
-	A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	*/
+	/// A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	public static var notificationTapHandler: (([NSObject : AnyObject]) -> Void)?
 
 	public static var userAgent = MMUserAgent()

@@ -94,7 +94,7 @@ class UserDataSynchronizationOperation: Operation {
 		
 		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: MobileMessaging.currentUser?.externalId)
 		
-		remoteAPIQueue.performRequest(request) { result in
+		remoteAPIQueue.perform(request: request) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}
@@ -109,7 +109,7 @@ class UserDataSynchronizationOperation: Operation {
 		
 		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: user.externalId, predefinedUserData: user.predefinedData, customUserData: user.customData)
 		
-		remoteAPIQueue.performRequest(request) { result in
+		remoteAPIQueue.perform(request: request) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error ?? result.value?.error?.foundationError)
 		}

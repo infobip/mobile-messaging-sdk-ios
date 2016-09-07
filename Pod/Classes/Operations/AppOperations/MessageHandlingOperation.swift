@@ -59,10 +59,6 @@ final class MessageHandlingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("Starting message handling operation...")
-		handleMessage()
-	}
-	
-	private func handleMessage() {
 		context.performBlockAndWait {
 			guard let newMessages: [MMMessage] = self.getNewMessages(self.context, messagesToHandle: self.messagesToHandle) where !newMessages.isEmpty else
 			{
@@ -76,11 +72,11 @@ final class MessageHandlingOperation: Operation {
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
 				newDBMessage.isSilent = newMessage.isSilent
-                
-                // Add new regions for geofencing
+				
+				// Add new regions for geofencing
 				if MMGeofencingService.sharedInstance.isRunning {
 					if let newCampaing = MMCampaign(message: newMessage) {
-						MMGeofencingService.sharedInstance.addCampaingToRegionMonitoring(newCampaing)
+						MMGeofencingService.sharedInstance.add(campaign: newCampaing)
 					}
 				}
 			}

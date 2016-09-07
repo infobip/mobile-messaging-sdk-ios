@@ -21,10 +21,6 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	override func execute() {
-		self.sendSeen()
-	}
-	
-	private func sendSeen() {
 		self.context.performBlockAndWait {
 			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), inContext: self.context) as? [MessageManagedObject]
 				where seenNotSentMessages.count > 0
@@ -43,7 +39,7 @@ class SeenStatusSendingOperation: Operation {
 			}
 			
 			let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)
-			self.remoteAPIQueue.performRequest(request) { result in
+			self.remoteAPIQueue.perform(request: request) { result in
 				self.handleSeenResult(result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
 				self.finishWithError(result.error)
 			}

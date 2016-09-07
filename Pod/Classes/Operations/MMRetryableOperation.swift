@@ -29,8 +29,8 @@ class MMRetryableOperation: Operation {
 	private var attemptObservers = [MMBlockObserver]()
 	var finishCompletion: MMRetryableOperationCompletion
 	
-	func mapAttributesFrom(previous: MMRetryableOperation) {
-		retryCounter = previous.retryCounter
+	func copyAttributes(from operation: MMRetryableOperation) {
+		retryCounter = operation.retryCounter
 	}
 	
 	required init(retryLimit: Int, completion: MMRetryableOperationCompletion) {
@@ -38,10 +38,10 @@ class MMRetryableOperation: Operation {
 		self.finishCompletion = completion
 	}
 	
-	class func nextOperation(previousOperation: MMRetryableOperation) -> MMRetryableOperation? {
-		let nextOp = previousOperation.dynamicType.init(retryLimit: previousOperation.retryLimit, completion: previousOperation.finishCompletion)
-		nextOp.mapAttributesFrom(previousOperation)
-		if !nextOp.shouldRetry(afterError: previousOperation.currentError) {
+	class func makeSuccessor(withPredecessor predecessorOperation: MMRetryableOperation) -> MMRetryableOperation? {
+		let nextOp = predecessorOperation.dynamicType.init(retryLimit: predecessorOperation.retryLimit, completion: predecessorOperation.finishCompletion)
+		nextOp.copyAttributes(from: predecessorOperation)
+		if !nextOp.shouldRetry(afterError: predecessorOperation.currentError) {
 			return nil
 		}
 		return nextOp

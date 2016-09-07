@@ -11,15 +11,11 @@ import AVFoundation
 import UIKit
 
 public final class MMPush: NSObject {
-    
-    /**
-     Handles the remote notification in following way:
-     - displays an alert for the remote notification payload
-     - plays sound or vibrate, if `sound` is set
-     - changes application badge, if `badge` is set
-
-     - parameter userInfo: a dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-    */
+     /// Handles the remote notification in following way:
+     /// - displays an alert for the remote notification payload
+     /// - plays sound or vibrate, if `sound` is set
+     /// - changes application badge, if `badge` is set
+     /// - parameter userInfo: a dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
     public class func handlePush(userInfo: [NSObject: AnyObject]) {
         guard let aps = userInfo[MMAPIKeys.kAps] else {
             MMLogError("IBMMPush: Can't parse payload")

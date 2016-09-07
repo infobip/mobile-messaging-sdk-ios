@@ -13,6 +13,7 @@ let kMessageDeliveryReportSentAttribute = "deliveryReportSent"
 let kMessagesKey = "kMessagesKey"
 
 class Message : NSObject, NSCoding {
+	typealias APNSPayload = [NSObject : AnyObject]
 	var text: String
 	var messageId: String
 	dynamic var deliveryReportSent: Bool = false
@@ -40,10 +41,9 @@ class Message : NSObject, NSCoding {
 	}
 	
 	//MARK: Util
-	class func prepare(rawMessage: [NSObject : AnyObject]) -> Message? {
-		guard let text = rawMessage.mm_apsAlertBody
-			, let messageId = rawMessage.mm_messageId
-			else {
+	class func make(from apnsPayload: APNSPayload) -> Message? {
+		guard let messageId = apnsPayload.mm_messageId, let text = apnsPayload.mm_apsAlertBody else
+		{
 			return nil
 		}
 		return Message(text: text, messageId: messageId)
@@ -115,7 +115,8 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	func handleNewMessageReceivedNotification(notification: NSNotification) {
 		guard let userInfo = notification.userInfo,
 			let messageUserInfo = userInfo[MMNotificationKeyMessagePayload] as? [NSObject : AnyObject],
-			let message = Message.prepare(messageUserInfo) else {
+			let message = Message.make(from: messageUserInfo) else
+		{
 				return
 		}
 		

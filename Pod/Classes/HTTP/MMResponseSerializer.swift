@@ -25,7 +25,7 @@ final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer
 		}
 		
 		let json = JSON(data: data)
-		if let requestError = MMRequestError(json: json) where response?.isFailureHTTPREsponse ?? false {
+		if let requestError = MMRequestError(json: json) where response?.isFailureHTTPResponse ?? false {
 			error.memory = requestError.foundationError
 		}
 		return T(json: json) as? AnyObject
@@ -33,7 +33,7 @@ final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer
 }
 
 extension NSURLResponse {
-	var isFailureHTTPREsponse: Bool {
+	var isFailureHTTPResponse: Bool {
 		var statusCodeIsError = false
 		if let httpResponse = self as? NSHTTPURLResponse {
 			statusCodeIsError = NSIndexSet(indexesInRange: NSMakeRange(200, 100)).containsIndex(httpResponse.statusCode) == false

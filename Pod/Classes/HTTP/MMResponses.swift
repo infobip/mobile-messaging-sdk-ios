@@ -145,7 +145,7 @@ final class MMHTTPMOMessageResponse: MMHTTPResponse {
 
 
 //MARK: Other
-public func ==(lhs: MMMessage, rhs: MMMessage) -> Bool {
+func ==(lhs: MMMessage, rhs: MMMessage) -> Bool {
 	return lhs.messageId == rhs.messageId
 }
 

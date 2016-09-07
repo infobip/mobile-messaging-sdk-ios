@@ -24,10 +24,10 @@ final class RegistrationTests: MMTestCase {
 			}
         }
 		
-        MobileMessaging.currentUser?.setCustomDataForKey("meta1", object: "metadata1")
+		MobileMessaging.currentUser?.set(customData: "metadata1", forKey: "meta1")
         MobileMessaging.currentUser?.persist()
 		
-        MobileMessaging.currentUser?.setCustomDataForKey("meta2", object: "metadata2")
+		MobileMessaging.currentUser?.set(customData: "metadata2", forKey: "meta2")
 		MobileMessaging.currentUser?.persist()
 		
 		waitForExpectationsWithTimeout(100, handler: { err in
@@ -60,12 +60,12 @@ final class RegistrationTests: MMTestCase {
 				
 				token2Saved.fulfill()
 				
-				currentUser.saveEmail(MMTestConstants.kTestValidEmail, completion: { err in
+				currentUser.save(email: MMTestConstants.kTestValidEmail, completion: { err in
 					XCTAssertNil(err)
 					validEmailSaved.fulfill()
 				})
 				
-				currentUser.saveMSISDN(MMTestConstants.kTestValidMSISDN, completion: { err in
+				currentUser.save(msisdn: MMTestConstants.kTestValidMSISDN, completion: { err in
 					XCTAssertNil(err)
 					validMsisdnSaved.fulfill()
 				})
@@ -119,7 +119,11 @@ final class RegistrationTests: MMTestCase {
 			
 			switch request {
 			case (is MMPostRegistrationRequest):
-				self.requestSentCounter += 1
+				
+				dispatch_async(dispatch_get_main_queue(), {
+					self.requestSentCounter += 1
+				})
+
 			default:
 				break
 			}

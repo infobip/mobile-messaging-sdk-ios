@@ -8,7 +8,7 @@
 import Foundation
 import CoreLocation
 
-//FIXME: thread safety
+//TODO: thread safety (it is safe till the only user is MMGeofencingService)
 class MMGeofencingDatasource {
 	
 	static let plistDir = "com.mobile-messaging.geo-data"
@@ -17,51 +17,54 @@ class MMGeofencingDatasource {
 	var campaigns = Set<MMCampaign>() {
 		didSet {
 			for campaign in campaigns {
-				addRegionsFromCampaign(campaign)
+				addRegions(fromCampaign: campaign)
 			}
 		}
 	}
 	typealias RegionIdentifier = String
-	var regions = [RegionIdentifier: MMRegion]()
-	var currentLocation: CLLocation?
-	var notExpiredRegions: [MMRegion] {
-		return regions.values.filter { $0.isExpired == false }
-	}
-	
-	var numberOfCampaigns: Int {
-		return campaigns.count
+	var regionsDictionary = [RegionIdentifier: MMRegion]()
+	var liveRegions: [MMRegion] {
+		return regionsDictionary.values.filter { $0.isExpired == false }
 	}
 	
 	init() {
-		load()
+		loadFromDisk()
 	}
 	
-	func campaingWithId(id: String) -> MMCampaign? {
+	func campaing(withId id: String) -> MMCampaign? {
 		return campaigns.filter({ $0.id == id }).first
 	}
 	
-	func addRegionsFromCampaign(campaign: MMCampaign) {
+	func addRegions(fromCampaign campaign: MMCampaign) {
 		for region in campaign.regions {
-			regions[region.identifier] = region
+			regionsDictionary[region.identifier] = region
 		}
 	}
 	
-	func removeRegionsFromCampaign(campaign: MMCampaign) {
-		for region in campaign.regions {
-			regions[region.identifier] = nil
+	func removeRegions(withCampaignId campaignId: String) {
+		campaigns.filter({
+			return $0.id == campaignId
+		}).forEach {
+			for region in $0.regions {
+				regionsDictionary[region.identifier] = nil
+			}
 		}
 	}
 	
-	func addNewCampaign(newCampaign: MMCampaign) {
-		campaigns.insert(newCampaign)
-		addRegionsFromCampaign(newCampaign)
-		save()
+	func add(campaign campaign: MMCampaign) {
+		campaigns.insert(campaign)
+		addRegions(fromCampaign: campaign)
+		saveToDisk()
 	}
 	
-	func removeCampaign(campaingToRemove: MMCampaign) {
-		campaigns.remove(campaingToRemove)
-		removeRegionsFromCampaign(campaingToRemove)
-		save()
+	func removeCampaign(withId campaignId: String) {
+		removeRegions(withCampaignId: campaignId)
+		campaigns.filter({
+			return $0.id == campaignId
+		}).forEach {
+			campaigns.remove($0)
+		}
+		saveToDisk()
 	}
 	
 	lazy var rootURL: NSURL = {
@@ -81,7 +84,7 @@ class MMGeofencingDatasource {
 		return url.path!
 	}()
 	
-	func save() {
+	func saveToDisk() {
 		//FIXME: move to BG thread
 		if let path = geoDirectoryURL.path where !NSFileManager.defaultManager().fileExistsAtPath(path) {
 			do {
@@ -101,7 +104,7 @@ class MMGeofencingDatasource {
 		}
 	}
 	
-	func load() {
+	func loadFromDisk() {
 		//FIXME: move to BG thread
 		guard let plistPath = plistURL.path,
 			let data = NSFileManager.defaultManager().contentsAtPath(plistPath),

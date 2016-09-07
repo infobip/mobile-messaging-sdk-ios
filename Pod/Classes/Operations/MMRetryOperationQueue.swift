@@ -37,19 +37,20 @@ class MMRetryOperationQueue: OperationQueue {
 	override func addOperation(operation: NSOperation) {
 		if let op = operation as? MMRetryableOperation {
 			let obs = MMBlockObserver(startHandler: nil,
-			                          finishHandler: { [weak self] (operation, error) -> Void in
-										if let strongSelf = self {
-											strongSelf.scheduleRetry(operation)
-										}
+			                          finishHandler:
+				{ [weak self] (operation, error) -> Void in
+					if let strongSelf = self {
+						strongSelf.scheduleRetry(for: operation)
+					}
 				}
 			)
 			op.addObserver(obs)
 		}
 		super.addOperation(operation)
-    }
+	}
 	
-	private func scheduleRetry(operation: MMRetryableOperation) {
-		if let newOperation = operation.dynamicType.nextOperation(operation) {
+	private func scheduleRetry(for operation: MMRetryableOperation) {
+		if let newOperation = operation.dynamicType.makeSuccessor(withPredecessor: operation) {
 			let retryNumber = newOperation.retryCounter + 1
 			let delay = pow(Double(retryNumber), 2)
 			MMLogDebug("Scheduled retry attempt #\(retryNumber) for request \(newOperation.dynamicType) in \(delay) seconds.")
@@ -59,8 +60,8 @@ class MMRetryOperationQueue: OperationQueue {
 		}
 	}
 	
-	override func addOperations(ops: [NSOperation], waitUntilFinished wait: Bool) {
-		for op in ops {
+	override func addOperations(operations: [NSOperation], waitUntilFinished wait: Bool) {
+		for op in operations {
 			addOperation(op)
 			if wait {
 				op.waitUntilFinished()

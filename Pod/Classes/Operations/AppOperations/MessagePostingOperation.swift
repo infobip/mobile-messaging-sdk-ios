@@ -1,6 +1,5 @@
 //
 //  MessagePostingOperation.swift
-//  Pods
 //
 //  Created by Andrey K. on 19/07/16.
 //
@@ -44,7 +43,7 @@ class MessagePostingOperation: Operation {
 				
 				self.postWillSendNotification(messagesToSend: messagesToSend)
 				
-				self.remoteAPIQueue.performRequest(request) { result in
+				self.remoteAPIQueue.perform(request: request) { result in
 					self.handleResult(result)
 					self.finishWithError(result.error)
 				}

@@ -70,12 +70,12 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 	func URL(withQueryParameters parameters: AnyObject?, url: String) -> NSURL? {
 		var completeURLString = url
 		if let dictParams = parameters as? [String : AnyObject] {
-			completeURLString += "?" + MMHTTPRequestSerializer.queryFromParameters(dictParams);
+			completeURLString += "?" + MMHTTPRequestSerializer.query(fromParameters: dictParams);
 		}
 		return NSURL(string: completeURLString)
 	}
 	
-	class func queryFromParameters(parameters: [String: AnyObject]) -> String {
+	class func query(fromParameters parameters: [String: AnyObject]) -> String {
 		var escapedPairs = [String]()
 		for (key, value) in parameters {
 			switch value {

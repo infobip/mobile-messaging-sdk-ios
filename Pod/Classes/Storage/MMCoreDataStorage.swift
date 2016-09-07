@@ -42,11 +42,11 @@ final class MMCoreDataStorage {
 		}
 	}
 	
-	class func newInMemoryStorage() throws -> MMCoreDataStorage {
+	class func makeInMemoryStorage() throws -> MMCoreDataStorage {
 		return try MMCoreDataStorage(settings: MMStorageSettings.inMemoryStoreSettings)
 	}
 	
-	class func SQLiteStorage() throws -> MMCoreDataStorage {
+	class func makeSQLiteStorage() throws -> MMCoreDataStorage {
 		return try MMCoreDataStorage(settings: MMStorageSettings.SQLiteStoreSettings)
 	}
 	

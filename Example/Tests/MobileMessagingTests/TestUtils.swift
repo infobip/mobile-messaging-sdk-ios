@@ -38,8 +38,8 @@ final class MMRemoteAPIMock : MMRemoteAPIQueue {
 		super.init(baseURL: baseURLString, applicationCode: appCode)
 	}
 	
-	override func performRequest<R: MMHTTPRequestData>(request: R, completion: (Result<R.ResponseType>) -> Void) {
-		super.performRequest(request, completion: completion)
+	override func perform<R: MMHTTPRequestData>(request request: R, completion: (Result<R.ResponseType>) -> Void) {
+		super.perform(request: request, completion: completion)
 		performRequestCompanionBlock(request)
 	}
 }
