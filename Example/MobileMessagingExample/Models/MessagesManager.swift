@@ -73,11 +73,6 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	//MARK: Private
-	private func displayMessageAlert(messageUserInfo: [NSObject : AnyObject]) {
-		if UIApplication.sharedApplication().applicationState == .Active {
-			MMPush.handlePush(messageUserInfo)
-		}
-	}
 	
 	private func synced(lock: AnyObject, closure: Void -> Void) {
 		objc_sync_enter(lock)
@@ -125,7 +120,6 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		}
 		
 		newMessageBlock?(message)
-		displayMessageAlert(messageUserInfo)
 	}
 	
 	func handleDeliveryReportSentNotification(notification: NSNotification) {
