@@ -23,7 +23,7 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 		}
 	}
 	
-	required init(retryLimit: Int, completion: MMRetryableOperationCompletion) {
+	required init(retryLimit: Int, completion: @escaping MMRetryableOperationCompletion) {
 		self.reachabilityManager = MMNetworkReachabilityManager.sharedInstance
 		super.init(retryLimit: retryLimit, completion: completion)
 	}

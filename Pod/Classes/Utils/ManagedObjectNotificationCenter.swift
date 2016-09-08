@@ -50,7 +50,7 @@ class ManagedObjectNotificationCenter {
 		}
 	}
 	
-	func addObserver(observer: NSObject, observee: NSManagedObject, forKeyPath keyPath: String, handler: ObservationHandler) {
+	func addObserver(observer: NSObject, observee: NSManagedObject, forKeyPath keyPath: String, handler: @escaping ObservationHandler) {
 		observersQueue.executeSync {
 			self.removeObserver(observer: observer, observee: observee, forKeyPath: keyPath)
 			
@@ -108,7 +108,7 @@ class Observation: NSObject {
 		return address(o: observer) ^ address(o: observee) ^ keyPath.hashValue
 	}
 	
-	init(observer: NSObject, observee: NSManagedObject, keyPath: String, handler: ObservationHandler) {
+	init(observer: NSObject, observee: NSManagedObject, keyPath: String, handler: @escaping ObservationHandler) {
 		self.observer = observer
 		self.observee = observee
 		self.keyPath = keyPath

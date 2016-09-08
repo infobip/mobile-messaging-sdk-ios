@@ -31,7 +31,7 @@ final class MMTestCounterOperation: MMRetryableOperation {
 }
 
 final class MMTestRechabilityOperation<RequestType: MMHTTPRequestData>: MMRetryableRequestOperation<RequestType> {
-	required init(retryLimit: Int, completion: MMRetryableOperationCompletion) {
+	required init(retryLimit: Int, completion: @escaping MMRetryableOperationCompletion) {
 		super.init(retryLimit: retryLimit, completion: completion)
 	}
 	

@@ -295,7 +295,7 @@ final public class MMInstallation: NSObject {
 	- parameter keyPath: The key path, relative to the Installation, of the property to observe.
 	- parameter handler: The block/closure that is called when the value of `keyPath` changes.
 	*/
-	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: ObservationHandler) {
+	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: @escaping ObservationHandler) {
 		if isKeyObservable(key: keyPath) {
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
 		}

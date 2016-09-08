@@ -25,7 +25,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
 	<center><img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/CUPCertificate.png?raw=true" alt="CUP Settings"/></center>
 3. Configure your project to support Push Notifications:
-	1. Click on "Capabilities", then turn on Push Notifications.
+	1. Click on "Capabilities", then turn on Push Notifications. Entitlements file should be automatically created by XCode with set 'aps-environment' value.
 	2. Turn on Background Modes and check the Remote notifications checkbox.
 4. To integrate MobileMessaging into your Xcode project using [CocoaPods](https://guides.cocoapods.org/using/getting-started.html#getting-started), specify it in your Podfile:
 

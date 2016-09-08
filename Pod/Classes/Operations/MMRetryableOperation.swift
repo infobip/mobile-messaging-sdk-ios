@@ -33,7 +33,7 @@ class MMRetryableOperation: Operation {
 		retryCounter = previous.retryCounter
 	}
 	
-	required init(retryLimit: Int, completion: MMRetryableOperationCompletion) {
+	required init(retryLimit: Int, completion: @escaping MMRetryableOperationCompletion) {
 		self.retryLimit = retryLimit
 		self.finishCompletion = completion
 	}
