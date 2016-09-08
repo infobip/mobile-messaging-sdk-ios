@@ -114,7 +114,10 @@ final public class MMRegion: NSObject, PlistArchivable {
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
-	public weak var campaign: MMCampaign?
+	weak var campaign: MMCampaign?
+	public var campaignText: String? {
+		return campaign?.message
+	}
 	public var isExpired: Bool {
 		return NSDate().compare(expiryDate) == NSComparisonResult.OrderedDescending
 	}

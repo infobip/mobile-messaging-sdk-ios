@@ -31,7 +31,7 @@ public final class MMLocationServiceKind: NSObject {
 /// Describes the usage type for the location service. Possible values:
 /// - When in Use
 /// - Always
-public enum MMLocationServiceUsage: Int {
+@objc public enum MMLocationServiceUsage: Int {
 	/// This app is authorized to start most location services while running in the foreground.
 	case WhenInUse
 	/// This app is authorized to start location services at any time.
@@ -43,7 +43,7 @@ public enum MMLocationServiceUsage: Int {
 /// - `authorized`: The capability has been requested and approved
 /// - `denied`: The capability has been requested but was denied by the user
 /// - `notAvailable`: The capability is not available (perhaps due to restrictions, or lack of support)
-public enum MMCapabilityStatus: Int {
+@objc public enum MMCapabilityStatus: Int {
 	case NotDetermined
 	case Authorized
 	case Denied
