@@ -99,13 +99,6 @@ final class MMHTTPRegistrationResponse: MMHTTPResponse {
 class MMHTTPEmptyResponse: MMHTTPResponse {
 }
 
-class TESTC {
-	let name: String?
-	init(name: String? ){
-		self.name = nil
-	}
-}
-
 final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {

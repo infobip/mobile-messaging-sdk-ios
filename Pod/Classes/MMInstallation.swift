@@ -269,7 +269,7 @@ final public class MMUser: NSObject {
 		self.installationManager = installation.installationManager
 	}
 	
-	public func persist() {
+	func persist() {
 		installationManager.storageContext.MM_saveToPersistentStoreAndWait()
 	}
 	
