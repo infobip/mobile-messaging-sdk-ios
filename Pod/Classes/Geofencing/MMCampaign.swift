@@ -30,6 +30,7 @@ enum MMRegionDataKeys: String {
 	case Identifier = "id"
 	case ExpiryMillis = "expiry"
 	case ExpiryDate = "expiryTime"
+	case StartDate = "startTime"
 }
 
 protocol PlistArchivable {
@@ -109,24 +110,26 @@ public func ==(lhs: MMCampaign, rhs: MMCampaign) -> Bool {
 
 final public class MMRegion: NSObject, PlistArchivable {
 	public let identifier: String
+	public let startDate: NSDate
 	public let expiryDate: NSDate
 	let expiryDateString: NSString
+	let startDateString: NSString
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
-	weak var campaign: MMCampaign?
+	var campaign: MMCampaign?
 	public var campaignText: String? {
 		return campaign?.message
 	}
-	public var isExpired: Bool {
-		return NSDate().compare(expiryDate) == NSComparisonResult.OrderedDescending
+	public var isLive: Bool {
+		return NSDate().compare(expiryDate) == .OrderedAscending && NSDate().compare(startDate) != .OrderedAscending
 	}
 	public var circularRegion: CLCircularRegion {
 		return CLCircularRegion(center: center, radius: radius, identifier: identifier)
 	}
 	
-	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryDateString: String) {
-		guard let expiry = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(expiryDateString) where radius > 0 else
+	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryDateString: String, startDateString: String) {
+		guard let expiryDate = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(expiryDateString), let startDate = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(startDateString) where radius > 0 else
 		{
 			return nil
 		}
@@ -135,7 +138,9 @@ final public class MMRegion: NSObject, PlistArchivable {
 		self.radius = max(100, radius)
 		self.identifier = identifier
 		self.expiryDateString = expiryDateString
-		self.expiryDate = expiry
+		self.expiryDate = expiryDate
+		self.startDateString = startDateString
+		self.startDate = startDate
 	}
 	
 	@available(*, deprecated, message="Used only for backward compatability. Expiry date format is changed since 1.3.0 from millisecond timestamp to IOS8601 date string with the seconds granularity")
@@ -149,7 +154,9 @@ final public class MMRegion: NSObject, PlistArchivable {
 		self.radius = max(100, radius)
 		self.identifier = identifier
 		self.expiryDate = NSDate(timeIntervalSince1970: expiryms/1000)
-		self.expiryDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(expiryDate)
+		self.expiryDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(self.expiryDate)
+		self.startDate = NSDate(timeIntervalSinceReferenceDate: 0)
+		self.startDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(self.startDate)
 	}
 	
 	public override var description: String {
@@ -165,8 +172,9 @@ final public class MMRegion: NSObject, PlistArchivable {
 		{
 			return nil
 		}
+		let startDateString = (dict[MMRegionDataKeys.StartDate.rawValue] as? String) ?? NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: 0))
 		if let expiryDateString = dict[MMRegionDataKeys.ExpiryDate.rawValue] as? String {
-			self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryDateString: expiryDateString)
+			self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryDateString: expiryDateString, startDateString: startDateString)
 		} else if let expiryms = dict[MMRegionDataKeys.ExpiryMillis.rawValue] as? Double {
 			self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryms: expiryms)
 		} else {
@@ -182,6 +190,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 		result[MMRegionDataKeys.Title.rawValue] = title
 		result[MMRegionDataKeys.ExpiryDate.rawValue] = expiryDateString
 		result[MMRegionDataKeys.Identifier.rawValue] = identifier
+		result[MMRegionDataKeys.StartDate.rawValue] = startDateString
 		
 		assert(MMRegion(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result

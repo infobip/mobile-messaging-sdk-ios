@@ -24,7 +24,7 @@ class MMGeofencingDatasource {
 	typealias RegionIdentifier = String
 	var regionsDictionary = [RegionIdentifier: MMRegion]()
 	var liveRegions: [MMRegion] {
-		return regionsDictionary.values.filter { $0.isExpired == false }
+		return regionsDictionary.values.filter { $0.isLive }
 	}
 	
 	init() {

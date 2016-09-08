@@ -363,13 +363,13 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			)
 			MMLogDebug("[GeofencingService] regions we are inside: \n\(regionsWeAreInside.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
-			let expiredRegions: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
-					return self.datasource.regionsDictionary[$0.identifier]?.isExpired ?? true
+			let deadRegions: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
+					return self.datasource.regionsDictionary[$0.identifier]?.isLive == false ?? true
 				}
 			)
-			MMLogDebug("[GeofencingService] expired monitored regions: \n\(expiredRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
+			MMLogDebug("[GeofencingService] dead monitored regions: \n\(deadRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
-			let regionsToStopMonitoring = currentlyMonitoredRegions.subtract(regionsWeAreInside).union(expiredRegions)
+			let regionsToStopMonitoring = currentlyMonitoredRegions.subtract(regionsWeAreInside).union(deadRegions)
 			MMLogDebug("[GeofencingService] regions to stop monitoring: \n\(regionsToStopMonitoring.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			for region in regionsToStopMonitoring {
@@ -502,7 +502,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(manager: CLLocationManager, didEnterRegion region: CLRegion) {
 		assert(NSThread.isMainThread())
 		MMLogDebug("[GeofencingService] did enter circular region \(region)")
-		if let datasourceRegion = datasource.regionsDictionary[region.identifier] where datasourceRegion.isExpired == false {
+		if let datasourceRegion = datasource.regionsDictionary[region.identifier] where datasourceRegion.isLive {
 			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
 			delegate?.didEnterRegion(datasourceRegion)
 			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
@@ -519,7 +519,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(manager: CLLocationManager, didExitRegion region: CLRegion) {
 		assert(NSThread.isMainThread())
 		MMLogDebug("[GeofencingService] did exit circular region \(region)")
-		if let datasourceRegion = datasource.regionsDictionary[region.identifier] where datasourceRegion.isExpired == false {
+		if let datasourceRegion = datasource.regionsDictionary[region.identifier] where datasourceRegion.isLive {
 			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
 			delegate?.didExitRegion(datasourceRegion)
 			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
