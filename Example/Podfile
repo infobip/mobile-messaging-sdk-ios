@@ -9,3 +9,5 @@ target 'MobileMessagingExample_Tests' do
     pod 'MobileMessaging', :path => '../'
 end
 
+system 'mkdir -p "./Pods/MobileMessaging/Pod/Classes/Vendor/AFNetworking/"'
+system 'cp "../Pod/Classes/Vendor/AFNetworking/module.private.modulemap" "./Pods/MobileMessaging/Pod/Classes/Vendor/AFNetworking/module.private.modulemap"'
