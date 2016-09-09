@@ -12,16 +12,20 @@ import MMAFNetworking
 public final class MobileMessaging: NSObject {
 	
 	//MARK: Public
+	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter applicationCode: The application code of your Application from Push Portal website.
 	public class func withApplicationCode(code: String, notificationType: UIUserNotificationType) -> MobileMessaging {
 		sharedInstance = MobileMessaging(applicationCode: code, notificationType: notificationType)
 		return sharedInstance!
 	}
 	
+	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	public func withBackendBaseURL(urlString: String) -> MobileMessaging {
 		remoteAPIBaseURL = urlString
 		return self
 	}
 	
+	/// - parameter disabled: the flag is used to disable the default Geofencing service startup procedure.
 	public func withGeofencingServiceDisabled(disabled: Bool) -> MobileMessaging {
 		MMGeofencingService.geoServiceEnabled = !disabled
 		return self
@@ -31,9 +35,6 @@ public final class MobileMessaging: NSObject {
 	///
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
-	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
-	/// - parameter applicationCode: The application code of your Application from Push Portal website.
-	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	public func start(completion: (Void -> Void)? = nil) {
 		MMLogDebug("Starting MobileMessaging service...")
 		
@@ -68,6 +69,8 @@ public final class MobileMessaging: NSObject {
 				MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 				UIApplication.sharedApplication().unregisterForRemoteNotifications()
 			}
+			
+			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: nil))
 			
 			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
 				MMLogDebug("Registering for remote notifications...")
