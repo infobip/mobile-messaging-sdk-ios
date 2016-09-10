@@ -134,14 +134,18 @@ It will give an additional opportunity to target your application users and orch
 
 ```swift
 // Swift
-MobileMessaging.currentUser?.saveMSISDN(<# for example "385911234567" #>, completion: { error in
-	// if an error occurs, handle it
-})
+MobileMessaging.currentUser?.save(msisdn: <#for example "79091234567"#>, completion:
+	{ error in
+		<#handle the error if needed#>
+	}
+)
 ```
 
 ```objective-c
 // Objective-C
-[[MobileMessaging currentUser] saveMSISDN:<# for example @"385911234567" #> completion:^(NSError * _Nullable error) {
-	// if an error occurs, handle it
+[[MobileMessaging currentUser] saveWithMsisdn: <#for example @"79091234567"#>
+								   completion: ^(NSError * _Nullable error)
+{
+	<#handle the error if needed#>
 }];
 ```
