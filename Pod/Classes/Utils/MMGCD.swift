@@ -122,7 +122,6 @@ enum MMQueue {
 		}
 		
 		enum New: String, MMQueueEnum {
-			case MobileMessagingSingletonQueue = "com.mobile-messaging.queue.serial.api-singleton"
 			case RetryableRequest = "com.mobile-messaging.queue.serial.request-retry"
 			var queueName: String { return rawValue }
 			var queue: MMQueueObject { return Serial.newQueue(queueName) }

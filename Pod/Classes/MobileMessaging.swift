@@ -37,45 +37,42 @@ public final class MobileMessaging: NSObject {
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
 	public func start(completion: (Void -> Void)? = nil) {
 		MMLogDebug("Starting MobileMessaging service...")
+		do {
+			var storage: MMCoreDataStorage?
+			switch self.storageType {
+			case .InMemory:
+				storage = try MMCoreDataStorage.makeInMemoryStorage()
+			case .SQLite:
+				storage = try MMCoreDataStorage.makeSQLiteStorage()
+			}
+			if let storage = storage {
+				self.storage = storage
+				let installation = MMInstallation(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
+				self.currentInstallation = installation
+				let user = MMUser(installation: installation)
+				self.currentUser = user
+				let messageHandler = MMMessageHandler(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
+				self.messageHandler = messageHandler
+				self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
+				
+				MMGeofencingService.sharedInstance.start()
+				
+				MMLogInfo("MobileMessaging SDK service successfully initialized.")
+			}
+		} catch {
+			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
+		}
 		
-		MobileMessaging.singletonQueue.executeAsync {
-			do {
-				var storage: MMCoreDataStorage?
-				switch self.storageType {
-				case .InMemory:
-					storage = try MMCoreDataStorage.makeInMemoryStorage()
-				case .SQLite:
-					storage = try MMCoreDataStorage.makeSQLiteStorage()
-				}
-				if let storage = storage {
-					self.storage = storage
-					let installation = MMInstallation(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
-					self.currentInstallation = installation
-					let user = MMUser(installation: installation)
-					self.currentUser = user
-					let messageHandler = MMMessageHandler(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
-					self.messageHandler = messageHandler
-					self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
-					
-					MMGeofencingService.sharedInstance.start()
-					
-					MMLogInfo("MobileMessaging SDK service successfully initialized.")
-				}
-			} catch {
-				MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
-			}
-
-			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() && self.currentInstallation?.deviceToken == nil {
-				MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
-				UIApplication.sharedApplication().unregisterForRemoteNotifications()
-			}
-			
-			UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: nil))
-			
-			if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
-				MMLogDebug("Registering for remote notifications...")
-				UIApplication.sharedApplication().registerForRemoteNotifications()
-			}
+		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() && self.currentInstallation?.deviceToken == nil {
+			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
+			UIApplication.sharedApplication().unregisterForRemoteNotifications()
+		}
+		
+		UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: nil))
+		
+		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
+			MMLogDebug("Registering for remote notifications...")
+			UIApplication.sharedApplication().registerForRemoteNotifications()
 		}
 	}
 	
@@ -114,7 +111,7 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 			completionHandler?(.NewData)
 		})
-
+		
 		if UIApplication.sharedApplication().applicationState == .Inactive {
 			notificationTapHandler?(userInfo)
 		}
@@ -132,9 +129,9 @@ public final class MobileMessaging: NSObject {
 	
 	/// This method sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
 	/// - parameter messageIds: Array of identifiers of messages that need to be marked as seen.
-    public class func setSeen(messageIds: [String]) {
-        MobileMessaging.sharedInstance?.setSeen(messageIds)
-    }
+	public class func setSeen(messageIds: [String]) {
+		MobileMessaging.sharedInstance?.setSeen(messageIds)
+	}
 	
 	//FIXME: MOMEssage should be replaced with something lighter
 	/// This method sends mobile originated messages to the server.
@@ -156,10 +153,10 @@ public final class MobileMessaging: NSObject {
 	
 	/// A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	public static var notificationTapHandler: (([NSObject : AnyObject]) -> Void)?
-
+	
 	public static var userAgent = MMUserAgent()
 	
-//MARK: Internal
+	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UIUserNotificationType
 	let applicationCode: String
@@ -170,10 +167,8 @@ public final class MobileMessaging: NSObject {
 	
 	func cleanUpAndStop() {
 		MMLogDebug("Cleaning up MobileMessaging service...")
-		MobileMessaging.singletonQueue.executeSync {
-			self.storage?.drop()
-			self.stop()
-		}
+		self.storage?.drop()
+		self.stop()
 	}
 	
 	func stop() {
@@ -181,41 +176,31 @@ public final class MobileMessaging: NSObject {
 		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() {
 			UIApplication.sharedApplication().unregisterForRemoteNotifications()
 		}
-		MobileMessaging.singletonQueue.executeSync {
-			self.storage = nil
-			self.currentInstallation = nil
-			self.appListener = nil
-			self.messageHandler = nil
-		}
+		self.storage = nil
+		self.currentInstallation = nil
+		self.appListener = nil
+		self.messageHandler = nil
 	}
 	
 	func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
 		MMLogDebug("New remote notification received \(userInfo)")
-		MobileMessaging.singletonQueue.executeAsync {
-			self.messageHandler?.handleAPNSMessage(userInfo, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
-		}
+		self.messageHandler?.handleAPNSMessage(userInfo, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
 	}
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(token: NSData, completion: (NSError? -> Void)? = nil) {
 		MMLogDebug("Application did register with device token \(token.mm_toHexString)")
 		NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
-		MobileMessaging.singletonQueue.executeAsync {
-			self.currentInstallation?.updateDeviceToken(token, completion: completion)
-		}
+		self.currentInstallation?.updateDeviceToken(token, completion: completion)
 	}
 	
 	func setSeen(messageIds: [String], completion: (MMSeenMessagesResult -> Void)? = nil) {
 		MMLogDebug("Setting seen status: \(messageIds)")
-		MobileMessaging.singletonQueue.executeAsync {
-			self.messageHandler?.setSeen(messageIds, completion: completion)
-		}
+		self.messageHandler?.setSeen(messageIds, completion: completion)
 	}
 	
 	func sendMessages(messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MMLogDebug("Sending mobile originated messages...")
-		MobileMessaging.singletonQueue.executeAsync {
-			self.messageHandler?.sendMessages(messages, completion: completion)
-		}
+		self.messageHandler?.sendMessages(messages, completion: completion)
 	}
 	
 	//MARK: Private
@@ -224,46 +209,9 @@ public final class MobileMessaging: NSObject {
 		self.userNotificationType = notificationType
 	}
 	
-	private static let singletonQueue: MMQueueObject = MMQueue.Serial.New.MobileMessagingSingletonQueue.queue
-	
-	private var valuesStorage = [NSObject: AnyObject]()
-
-	public override func setValue(value: AnyObject?, forKey key: String) {
-		MobileMessaging.singletonQueue.executeAsync {
-			self.valuesStorage[key] = value
-		}
-	}
-	
-	public override func valueForKey(key: String) -> AnyObject? {
-		var result: AnyObject?
-		MobileMessaging.singletonQueue.executeSync {
-			result = self.valuesStorage[key]
-		}
-		return result
-	}
-	
-	private(set) var storage: MMCoreDataStorage? {
-		get { return self.valueForKey("storage") as? MMCoreDataStorage }
-		set { self.setValue(newValue, forKey: "storage") }
-	}
-	
-	private(set) var currentInstallation: MMInstallation? {
-		get { return self.valueForKey("currentInstallation") as? MMInstallation }
-		set { self.setValue(newValue, forKey: "currentInstallation") }
-	}
-	
-	private(set) var currentUser: MMUser? {
-		get { return self.valueForKey("currentUser") as? MMUser }
-		set { self.setValue(newValue, forKey: "currentUser") }
-	}
-	
-	private(set) var appListener: MMApplicationListener? {
-		get { return self.valueForKey("appListener") as? MMApplicationListener }
-		set { self.setValue(newValue, forKey: "appListener") }
-	}
-	
-	private(set) var messageHandler: MMMessageHandler? {
-		get { return self.valueForKey("messageHandler") as? MMMessageHandler }
-		set { self.setValue(newValue, forKey: "messageHandler") }
-	}
+	private(set) var storage: MMCoreDataStorage?
+	private(set) var currentInstallation: MMInstallation?
+	private(set) var currentUser: MMUser?
+	private(set) var appListener: MMApplicationListener?
+	private(set) var messageHandler: MMMessageHandler?
 }

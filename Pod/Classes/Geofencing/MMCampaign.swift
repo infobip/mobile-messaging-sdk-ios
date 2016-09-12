@@ -144,7 +144,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 	}
 	
 	@available(*, deprecated, message="Used only for backward compatability. Expiry date format is changed since 1.3.0 from millisecond timestamp to IOS8601 date string with the seconds granularity")
-	init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: NSTimeInterval) {
+	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: NSTimeInterval) {
 		guard radius > 0 && expiryms > 0 else
 		{
 			return nil

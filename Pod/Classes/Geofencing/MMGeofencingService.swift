@@ -203,7 +203,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	override init () {
 		super.init()
-		serviceQueue.executeAsync() {
+		serviceQueue.executeSync() {
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = self.kDistanceFilter
