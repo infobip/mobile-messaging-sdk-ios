@@ -28,11 +28,6 @@ s.pod_target_xcconfig =  {
 }
 
 s.source_files = 'Pod/Classes/**/*.{c,h,hh,m,mm,swift}'
-
-s.resource_bundles = {
-'MobileMessaging' => ['Pod/Assets/*.png']
-}
-
 s.public_header_files = 'Pod/Classes/**/*.h'
 s.private_header_files = 'Pod/Classes/Vendor/**/*.h'
 s.frameworks = 'CoreData', 'CoreTelephony'
