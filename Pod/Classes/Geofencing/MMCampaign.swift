@@ -182,7 +182,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 		}
 	}
 	
-	var dictionaryRepresentation: [String: AnyObject] {
+	public var dictionaryRepresentation: [String: AnyObject] {
 		var result = [String: AnyObject]()
 		result[MMRegionDataKeys.Latitude.rawValue] = center.latitude
 		result[MMRegionDataKeys.Longitude.rawValue] = center.longitude
