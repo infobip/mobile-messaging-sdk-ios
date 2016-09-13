@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MMAFNetworking
 
 @objc public protocol MessageHandling {
 	// For swift 3 use `func didReceiveNewMessage(_ message: MMMessage)`
@@ -103,7 +102,7 @@ public final class MobileMessaging: NSObject {
 	/// Logging utility is used for:
 	/// - setting up the logging options and logging levels.
 	/// - obtaining a path to the logs file in case the Logging utility is set up to log in file (logging options contains `.file` option).
-	public internal(set) static var loggingUtil = MMLoggingUtil()
+	public static var logger: MMLogging = MMLogger()
 	
 	/// This service manages geofencing areas, emits geografical regions entering/exiting notifications.
 	///

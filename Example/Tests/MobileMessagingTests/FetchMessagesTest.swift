@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import CocoaLumberjack
 
 @testable import MobileMessaging
 

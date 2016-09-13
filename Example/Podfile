@@ -1,11 +1,13 @@
 source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
+$podName = 'MobileMessaging'
+
 target 'MobileMessagingExample' do
-    pod 'MobileMessaging', :path => '../'
+    pod $podName, :path => '../'
 end
 
 target 'MobileMessagingExample_Tests' do
-    pod 'MobileMessaging', :path => '../'
+    pod $podName, :path => '../'
 end
 
