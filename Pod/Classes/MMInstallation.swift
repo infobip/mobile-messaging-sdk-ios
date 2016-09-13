@@ -61,7 +61,7 @@ final public class MMUser: NSObject {
 	}
 	
 	/// The user's id you can provide in order to link your own unique user identifier with Mobile Messaging user id, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public internal(set) var externalId: String? {
+	public var externalId: String? {
 		get { return installationManager.getValueForKey("externalUserId") as? String }
 		set { installationManager.setValueForKey("externalUserId", value: newValue) }
 	}
