@@ -100,7 +100,7 @@ final class MessageFetchingOperation: Operation {
 		                                messagesOrigin: .Server,
 		                                context: self.context,
 		                                remoteAPIQueue: self.remoteAPIQueue,
-		                                newMessageReceivedCallback: nil) { error in
+		                                messageHandler: MobileMessaging.messageHandling) { error in
 											
 											var finalResult = self.result
 											if let error = error {

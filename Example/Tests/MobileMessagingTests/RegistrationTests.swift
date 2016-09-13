@@ -111,8 +111,8 @@ final class RegistrationTests: MMTestCase {
 		}
 	}
 	
-	var requestSentCounter = 0
     func testTokenNotSendsTwice() {
+		var requestSentCounter = 0
 		MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub()
 		MobileMessaging.userAgent = MMUserAgentStub()
 		MobileMessaging.currentInstallation?.installationManager.registrationRemoteAPI = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
@@ -121,7 +121,7 @@ final class RegistrationTests: MMTestCase {
 			case (is MMPostRegistrationRequest):
 				
 				dispatch_async(dispatch_get_main_queue(), {
-					self.requestSentCounter += 1
+					requestSentCounter += 1
 				})
 
 			default:
@@ -142,7 +142,9 @@ final class RegistrationTests: MMTestCase {
         }
         
         self.waitForExpectationsWithTimeout(100) { error in
-			XCTAssertEqual(self.requestSentCounter, 1)
+			dispatch_async(dispatch_get_main_queue(), {
+				XCTAssertEqual(requestSentCounter, 1)
+			})
         }
     }
 	

@@ -167,4 +167,48 @@ class FetchMessagesTest: MMTestCase {
 			}
 		}
     }
+	
+	func testThatAlertIsShown() {
+		let newMsgExpectation1 = expectationWithDescription("New message m1 received")
+		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
+		let syncExpectation = expectationWithDescription("Sync finished")
+		
+		
+		
+		cleanUpAndStop()
+		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
+		
+		var alertShownCounter = 0
+		MobileMessaging.messageHandling = MessageHandlingMock(localNotificationShownBlock: {
+			alertShownCounter += 1
+		})
+		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
+		
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
+			newMsgExpectation1.fulfill()
+		})
+		
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
+			newMsgExpectation2.fulfill()
+		})
+		
+		let messageHandler = mobileMessagingInstance.messageHandler
+		messageHandler?.syncWithServer { error in
+			syncExpectation.fulfill()
+		}
+		
+		waitForExpectationsWithTimeout(50) { error in
+			XCTAssertEqual(alertShownCounter, 2)
+		}
+	}
+}
+
+class MessageHandlingMock : MMDefaultMessageHandling {
+	let localNotificationShownBlock: Void -> Void
+	init(localNotificationShownBlock: Void -> Void) {
+		self.localNotificationShownBlock = localNotificationShownBlock
+	}
+	override func presentLocalNotificationAlert(with message: MMMessage) {
+		self.localNotificationShownBlock()
+	}
 }

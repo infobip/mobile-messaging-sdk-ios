@@ -9,9 +9,22 @@
 import Foundation
 import MMAFNetworking
 
+@objc public protocol MessageHandling {
+	// For swift 3 use `func didReceiveNewMessage(_ message: MMMessage)`
+	
+	/// This callback is triggered after the new message is received. Default behaviour is implemented by `MMDefaultMessageHandling` class.
+	func didReceiveNewMessage(message: MMMessage)
+}
+
 public final class MobileMessaging: NSObject {
 	
 	//MARK: Public
+	/// The message handling object defines the behaviour that is triggered during the message handling.
+	///
+	/// You can implement your own message handling either by subclassing `MMDefaultMessageHandling` or implementing the `MessageHandling` protocol.
+	public static var messageHandling: MessageHandling = MMDefaultMessageHandling()
+	
+	/// Fabric method for Mobile Messaging session.
 	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
 	/// - parameter applicationCode: The application code of your Application from Push Portal website.
 	public class func withApplicationCode(code: String, notificationType: UIUserNotificationType) -> MobileMessaging {
@@ -19,12 +32,14 @@ public final class MobileMessaging: NSObject {
 		return sharedInstance!
 	}
 	
+	/// Fabric method for Mobile Messaging session.
 	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	public func withBackendBaseURL(urlString: String) -> MobileMessaging {
 		remoteAPIBaseURL = urlString
 		return self
 	}
 	
+	/// Fabric method for Mobile Messaging session.
 	/// - parameter disabled: the flag is used to disable the default Geofencing service startup procedure.
 	public func withGeofencingServiceDisabled(disabled: Bool) -> MobileMessaging {
 		MMGeofencingService.geoServiceEnabled = !disabled
@@ -176,10 +191,13 @@ public final class MobileMessaging: NSObject {
 		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() {
 			UIApplication.sharedApplication().unregisterForRemoteNotifications()
 		}
+
 		self.storage = nil
 		self.currentInstallation = nil
 		self.appListener = nil
 		self.messageHandler = nil
+		MobileMessaging.messageHandling = MMDefaultMessageHandling()
+		MMGeofencingService.sharedInstance.stop()
 	}
 	
 	func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {

@@ -8,10 +8,9 @@
 import UIKit
 import CoreData
 
-enum MessageOrigin {
+@objc public enum MessageOrigin: Int {
 	case APNS, Server
 }
-
 
 func == (lhs: MessageMeta, rhs: MessageMeta) -> Bool {
 	return lhs.hashValue == rhs.hashValue
@@ -39,19 +38,19 @@ struct MessageMeta : MMMessageMetadata {
 final class MessageHandlingOperation: Operation {
 	var context: NSManagedObjectContext
 	var finishBlock: (NSError? -> Void)?
-	var newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var messagesToHandle: [MMMessage]
 	var messagesOrigin: MessageOrigin
 	var hasNewMessages: Bool = false
+	var messageHandler: MessageHandling
 	
-	init(messagesToHandle: [MMMessage], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, finishBlock: (NSError? -> Void)? = nil) {
+	init(messagesToHandle: [MMMessage], messagesOrigin: MessageOrigin, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, messageHandler: MessageHandling, finishBlock: (NSError? -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 		self.messagesOrigin = messagesOrigin
-		self.newMessageReceivedCallback = newMessageReceivedCallback
+		self.messageHandler = messageHandler
 		super.init()
 		
 		self.userInitiated = true
@@ -82,23 +81,27 @@ final class MessageHandlingOperation: Operation {
 			}
 			self.context.MM_saveToPersistentStoreAndWait()
 			
-			self.postNewMessagesEvents(newMessages)
+			self.handle(newMessages: newMessages)
 			
 			self.finish()
 		}
 	}
 	
-	private func postNewMessagesEvents(newMessages: [MMMessage]) {
+	private func handle(newMessages messages: [MMMessage]) {
 		MMQueue.Main.queue.executeAsync {
-			for msg in newMessages {
-				var userInfo: [NSObject : AnyObject] = [ MMNotificationKeyMessagePayload: msg.originalPayload, MMNotificationKeyMessageIsPush: self.messagesOrigin == .APNS, MMNotificationKeyMessageIsSilent: msg.isSilent ]
-				if let customPayload = msg.customPayload {
-					userInfo[MMNotificationKeyMessageCustomPayload] = customPayload
-				}
-				NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived, object: self, userInfo: userInfo)
-				self.newMessageReceivedCallback?(userInfo)
+			messages.forEach { message in
+				self.messageHandler.didReceiveNewMessage(message)
+				self.postNotificationForObservers(with: message)
 			}
 		}
+	}
+	
+	private func postNotificationForObservers(with message: MMMessage) {
+		var userInfo: [NSObject: AnyObject] = [ MMNotificationKeyMessage: message, MMNotificationKeyMessagePayload: message.originalPayload, MMNotificationKeyMessageIsPush: message.origin == .APNS, MMNotificationKeyMessageIsSilent: message.isSilent ]
+		if let customPayload = message.customPayload {
+			userInfo[MMNotificationKeyMessageCustomPayload] = customPayload
+		}
+		NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived, object: self, userInfo: userInfo)
 	}
 	
 	private func getNewMessages(context: NSManagedObjectContext, messagesToHandle: [MMMessage]) -> [MMMessage]? {
@@ -135,5 +138,17 @@ final class MessageHandlingOperation: Operation {
 		} else {
 			self.finishBlock?(errors.first)
 		}
+	}
+}
+
+public class MMDefaultMessageHandling: MessageHandling {
+	@objc public func didReceiveNewMessage(message: MMMessage) {
+		if message.origin == .Server && !message.isSilent {
+			self.presentLocalNotificationAlert(with: message)
+		}
+	}
+	
+	func presentLocalNotificationAlert(with message: MMMessage) {
+		MMLocalNotification.presentLocalNotification(with: message)
 	}
 }

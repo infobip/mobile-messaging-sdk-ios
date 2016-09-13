@@ -21,9 +21,13 @@ NSString* MMNotificationKeyRegistrationInternalId = @"com.mobile-messaging.notif
 NSString* MMNotificationKeyDeviceToken = @"com.mobile-messaging.notification.key.device-token";
 NSString* MMNotificationKeyDLRMessageIDs = @"com.mobile-messaging.notification.key.dlr-message-ids";
 NSString* MMNotificationKeyAPIErrorUserInfo = @"com.mobile-messaging.notification.key.api-error";
-NSString* MMNotificationKeyMessagePayload = @"com.mobile-messaging.notification.key.message";
+
+NSString* MMNotificationKeyMessage = @"com.mobile-messaging.notification.key.message";
+
+NSString* MMNotificationKeyMessagePayload = @"com.mobile-messaging.notification.key.messagePayload";
 NSString* MMNotificationKeyMessageCustomPayload = @"com.mobile-messaging.notification.key.message-custom-payload";
 NSString* MMNotificationKeyMessageIsPush = @"com.mobile-messaging.notification.key.message-is-push";
 NSString* MMNotificationKeyMessageIsSilent = @"com.mobile-messaging.notification.key.message-is-silent";
+
 NSString* MMNotificationKeyMessageSendingMOMessages = @"com.mobile-messaging.notification.key.message-sending-messages";
 NSString* MMNotificationKeyGeographicalRegion = @"com.mobile-messaging.notification.key.geographical-region";

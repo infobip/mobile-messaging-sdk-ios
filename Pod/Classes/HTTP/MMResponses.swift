@@ -146,17 +146,3 @@ protocol MMMessageMetadata: Hashable {
 	var isSilent: Bool {get}
 	var messageId: String {get}
 }
-
-enum MMAPS {
-	case SilentAPS([String: AnyObject])
-	case NativeAPS([String: AnyObject])
-	
-	var text: String? {
-		switch self {
-		case .NativeAPS(let dict):
-			return dict["alert"]?["body"] as? String
-		case .SilentAPS(let dict):
-			return dict["alert"]?["body"] as? String
-		}
-	}
-}
