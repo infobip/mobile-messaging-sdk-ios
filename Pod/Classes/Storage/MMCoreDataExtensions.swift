@@ -14,6 +14,21 @@ struct MMContextSaveOptions: OptionSetType {
 	static let SaveParent		= MMContextSaveOptions(rawValue: 1 << 1)
 }
 
+extension String {
+	/// Skips initial space characters (whitespaceSet). Returns true if the firsh character is one of "Y", "y", "T", "t".
+	var boolValue: Bool {
+// for swift 3:
+// let trimmedString = self.trimmingCharacters(in: .whitespaces)
+
+		let trimmedString = self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+		guard let firstChar = trimmedString.characters.first else {
+			return false
+		}
+		
+		return ["t", "T", "y", "Y"].contains(firstChar)
+	}
+}
+
 extension NSManagedObject {
 	
 	class var MM_entityName: String {
@@ -130,6 +145,33 @@ extension NSManagedObject {
 		} else {
 			return nil
 		}
+	}
+
+	class func MM_requestAll(withPredicate predicate: NSPredicate? = nil, fetchLimit: Int, sortedBy sortTerm: String, ascending: Bool) -> NSFetchRequest {
+		let r = self.MM_requestAll(predicate)
+		
+		var ascending = ascending
+		var sortDescriptors = [NSSortDescriptor]()
+		let sortKeys = sortTerm.componentsSeparatedByString(",")
+		sortKeys.forEach { sortKey in
+			var sortKey = sortKey
+			let sortComps = sortKey.componentsSeparatedByString(":")
+			if sortComps.count > 1 {
+				if let customAscending = sortComps.last {
+					ascending = customAscending.boolValue
+					sortKey = sortComps[0]
+				}
+			}
+			sortDescriptors.append(NSSortDescriptor(key: sortKey, ascending: ascending))
+		}
+		r.sortDescriptors = sortDescriptors
+		r.fetchLimit = fetchLimit
+		return r
+	}
+	
+	class func MM_find(withPredicate predicate: NSPredicate, fetchLimit: Int, sortedBy: String, ascending: Bool, inContext context: NSManagedObjectContext) -> [NSManagedObject]? {
+		let r = self.MM_requestAll(withPredicate: predicate, fetchLimit: fetchLimit, sortedBy: sortedBy, ascending: ascending)
+		return self.MM_executeRequest(r, inContext: context)
 	}
 }
 

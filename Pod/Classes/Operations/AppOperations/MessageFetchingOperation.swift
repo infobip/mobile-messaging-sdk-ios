@@ -36,10 +36,12 @@ final class MessageFetchingOperation: Operation {
 				return
 			}
 			
-			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // 7 days ago
+			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
+			let fetchLimit = 100 // consider 100 most recent messages
 			
 			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), inContext: self.context) as? [MessageManagedObject]
-			let archivedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == true && creationDate > %@", date), inContext: self.context) as? [MessageManagedObject]
+
+			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true && creationDate > %@", date), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context) as? [MessageManagedObject]
 			
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
