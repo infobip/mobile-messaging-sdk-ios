@@ -418,4 +418,166 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertNil(MMRegion(identifier: "id1", center: CLLocationCoordinate2D(latitude: 1, longitude: 1), radius: 1, title: "region", expiryDateString: "", startDateString: expectedStartDateString))
 		XCTAssertNil(MMRegion(identifier: "id1", center: CLLocationCoordinate2D(latitude: 1, longitude: 1), radius: 1, title: "region", expiryDateString: expectedExpiryDateString, startDateString: ""))
 	}
+	
+	//MARK: Events tests
+	func testDefaultEventsSettings() {
+		guard let message = MMMessage(payload: makeApnsPayload(withEvents: nil)), let campaign = MMCampaign(message: message) else {
+			XCTFail()
+			return
+		}
+		var regionsDict = [String: MMRegion]()
+		for region in campaign.regions {
+			regionsDict[region.identifier] = region
+		}
+		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
+		let pulaObject = regionsDict[pulaId]!
+		
+		XCTAssertEqual(pulaObject.identifier, pulaId)
+		XCTAssertEqual(pulaObject.title, "Pula")
+		XCTAssertTrue(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		
+		pulaObject.triggerEvent(for: .entry)
+		XCTAssertFalse(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		
+		pulaObject.triggerEvent(for: .exit)
+		XCTAssertFalse(pulaObject.isLive(for: .exit))
+	}
+	
+	func testOnlyOneEventType() {
+		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 1, timeout: 0)])
+		
+		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
+			XCTFail()
+			return
+		}
+		var regionsDict = [String: MMRegion]()
+		for region in campaign.regions {
+			regionsDict[region.identifier] = region
+		}
+		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
+		let pulaObject = regionsDict[pulaId]!
+		
+		XCTAssertEqual(pulaObject.identifier, pulaId)
+		XCTAssertEqual(pulaObject.title, "Pula")
+		XCTAssertTrue(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		
+		pulaObject.triggerEvent(for: .entry)
+		XCTAssertFalse(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		
+		pulaObject.triggerEvent(for: .exit)
+		XCTAssertFalse(pulaObject.isLive(for: .exit))
+	}
+	
+	func testEventsOccuring() {
+		let expEntry = expectationWithDescription("Entry event should become alive")
+		let expExit = expectationWithDescription("Exit event should become alive")
+		
+		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 2, timeout: 2),
+												   makeEvent(ofType: .exit, limit: 2, timeout: 3)])
+		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
+			XCTFail()
+			return
+		}
+		
+		var regionsDict = [String: MMRegion]()
+		for region in campaign.regions {
+			regionsDict[region.identifier] = region
+		}
+		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
+		let pulaObject = regionsDict[pulaId]!
+		
+		XCTAssertEqual(pulaObject.identifier, pulaId)
+		XCTAssertEqual(pulaObject.title, "Pula")
+		XCTAssertTrue(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		
+		pulaObject.triggerEvent(for: .entry)
+		XCTAssertFalse(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		
+		pulaObject.triggerEvent(for: .exit)
+		XCTAssertFalse(pulaObject.isLive(for: .exit))
+		
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(2 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+			XCTAssertTrue(pulaObject.isLive(for: .entry))
+			XCTAssertFalse(pulaObject.isLive(for: .exit))
+			expEntry.fulfill()
+		}
+		
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+			XCTAssertTrue(pulaObject.isLive(for: .entry))
+			XCTAssertTrue(pulaObject.isLive(for: .exit))
+			expExit.fulfill()
+		}
+		
+		waitForExpectationsWithTimeout(5) { error in
+			XCTAssertTrue(true)
+		}
+	}
+	
+	func testEventLimitZero() {
+		
+		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 0, timeout: 0),
+												   makeEvent(ofType: .exit, limit: 0, timeout: 0)])
+		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
+			XCTFail()
+			return
+		}
+		
+		var regionsDict = [String: MMRegion]()
+		for region in campaign.regions {
+			regionsDict[region.identifier] = region
+		}
+		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
+		let pulaObject = regionsDict[pulaId]!
+		
+		XCTAssertEqual(pulaObject.identifier, pulaId)
+		XCTAssertEqual(pulaObject.title, "Pula")
+		XCTAssertTrue(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		
+		for _ in 0 ..< 10 {
+			pulaObject.triggerEvent(for: .entry)
+			XCTAssertTrue(pulaObject.isLive(for: .entry))
+			XCTAssertTrue(pulaObject.isLive(for: .exit))
+		}
+	}
+	
+	func makeApnsPayload(withEvents events: [AnyObject]?) -> [String: AnyObject] {
+		let internalData = [
+			MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
+			MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
+			MMAPIKeys.kGeo: [makePulaRegion(withEvents: events)]
+		]
+		let payload = [
+			"messageId": "123",
+			"aps": [ "content-available": 1],
+			MMAPIKeys.kInternalData: internalData
+		]
+		return payload
+	}
+	
+	func makeEvent(ofType type: MMRegionEventType, limit: UInt, timeout: UInt) -> [String: AnyObject] {
+		return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
+		              MMRegionEventDataKeys.eventLimit.rawValue: limit,
+		              MMRegionEventDataKeys.eventTimeout.rawValue: timeout]
+	}
+	
+	func makePulaRegion(withEvents events: [AnyObject]?) -> [String: AnyObject] {
+		let expiryDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(NSDate.distantFuture())
+		
+		return [
+			MMRegionDataKeys.ExpiryDate.rawValue: expiryDateString,
+			MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
+			MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
+			MMRegionDataKeys.Longitude.rawValue: 13.84586334228516,
+			MMRegionDataKeys.Radius.rawValue: 5257,
+			MMRegionDataKeys.Title.rawValue: "Pula",
+			MMRegionDataKeys.Event.rawValue: events ?? NSNull()
+		]
+	}
 }

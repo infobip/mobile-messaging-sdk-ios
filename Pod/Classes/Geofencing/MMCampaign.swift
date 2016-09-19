@@ -31,6 +31,18 @@ enum MMRegionDataKeys: String {
 	case ExpiryMillis = "expiry"
 	case ExpiryDate = "expiryTime"
 	case StartDate = "startTime"
+	case Event = "event"
+}
+
+enum MMRegionEventDataKeys: String {
+	case eventType = "type"
+	case eventLimit = "limit"
+	case eventTimeout = "timeout"
+}
+
+enum MMRegionEventType: String {
+	case entry
+	case exit
 }
 
 protocol PlistArchivable {
@@ -122,10 +134,35 @@ final public class MMRegion: NSObject, PlistArchivable {
 		return campaign?.message
 	}
 	public var isLive: Bool {
-		return NSDate().compare(expiryDate) == .OrderedAscending && NSDate().compare(startDate) != .OrderedAscending
+		let validEventExists = events.contains{$0.isValid}
+		return validEventExists && NSDate().compare(expiryDate) == .OrderedAscending && NSDate().compare(startDate) != .OrderedAscending
 	}
+	
+	func triggerEvent(for type: MMRegionEventType) {
+		events.filter{$0.type == type}.first?.occur()
+	}
+	
+	func isLive(for type: MMRegionEventType) -> Bool {
+		return isLive && (events.filter{$0.type == type}.first?.isValid) ?? true
+	}
+	
 	public var circularRegion: CLCircularRegion {
 		return CLCircularRegion(center: center, radius: radius, identifier: identifier)
+	}
+	
+	var events: [MMRegionEvent] {
+		set {
+			var result = newValue
+			let addDefaultIfNeeded: (MMRegionEventType) -> Void = { type in
+				if !(result.contains {$0.type == type}) {
+					result.append(MMRegionEvent.makeDefault(ofType: type))
+				}
+			}
+			addDefaultIfNeeded(.entry)
+			addDefaultIfNeeded(.exit)
+			_events = result
+		}
+		get { return _events }
 	}
 	
 	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryDateString: String, startDateString: String) {
@@ -180,6 +217,10 @@ final public class MMRegion: NSObject, PlistArchivable {
 		} else {
 			return nil
 		}
+		
+		if let eventDicts = dict[MMRegionDataKeys.Event.rawValue] as? [[String:AnyObject]] {
+			self.events = eventDicts.flatMap(MMRegionEvent.init)
+		}
 	}
 	
 	public var dictionaryRepresentation: [String: AnyObject] {
@@ -191,6 +232,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 		result[MMRegionDataKeys.ExpiryDate.rawValue] = expiryDateString
 		result[MMRegionDataKeys.Identifier.rawValue] = identifier
 		result[MMRegionDataKeys.StartDate.rawValue] = startDateString
+		result[MMRegionDataKeys.Event.rawValue] = events.flatMap{$0.dictionaryRepresentation}
 		
 		assert(MMRegion(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
@@ -199,8 +241,63 @@ final public class MMRegion: NSObject, PlistArchivable {
 	public override var hashValue: Int {
 		return identifier.hashValue
 	}
+	
+	private var _events: [MMRegionEvent] = {
+		return [MMRegionEvent.makeDefault(ofType: .entry),
+		        MMRegionEvent.makeDefault(ofType: .exit)]
+	}()
 }
 
 public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
 	return lhs.identifier == rhs.identifier
+}
+
+final class MMRegionEvent: PlistArchivable {
+	let type: MMRegionEventType
+	let limit: UInt					//how many times this event can occur, 0 means unlimited
+	let timeout: UInt				//seconds till next possible event
+	
+	var rate: UInt = 0
+	var lastOccur: NSDate?
+	
+	var isValid: Bool {
+		if limit != 0 && rate >= limit {
+			return false
+		}
+		
+		return lastOccur?.dateByAddingTimeInterval(NSTimeInterval(timeout)).compare(NSDate()) != .OrderedDescending
+	}
+	
+	func occur() {
+		rate += 1
+		lastOccur = NSDate()
+	}
+	
+	init?(dictRepresentation dict: [String: AnyObject]) {
+		guard let typeString = dict[MMRegionEventDataKeys.eventType.rawValue] as? String,
+			  let type = MMRegionEventType(rawValue: typeString),
+			  let limit = dict[MMRegionEventDataKeys.eventLimit.rawValue] as? UInt,
+			  let timeout = dict[MMRegionEventDataKeys.eventTimeout.rawValue] as? UInt else {
+				return nil
+		}
+		self.type = type
+		self.limit = limit
+		self.timeout = timeout
+	}
+	
+	var dictionaryRepresentation: [String: AnyObject] {
+		var result = [String: AnyObject]()
+		result[MMRegionEventDataKeys.eventType.rawValue] = type.rawValue
+		result[MMRegionEventDataKeys.eventLimit.rawValue] = limit
+		result[MMRegionEventDataKeys.eventTimeout.rawValue] = timeout
+		assert(MMRegionEvent(dictRepresentation: result) != nil, "The dictionary representation is invalid")
+		return result
+	}
+	
+	private class func makeDefault(ofType type: MMRegionEventType) -> MMRegionEvent {
+		let defaultDict: [String: AnyObject] = [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
+		                                        MMRegionEventDataKeys.eventLimit.rawValue: 1,
+		                                        MMRegionEventDataKeys.eventTimeout.rawValue: 0]
+		return MMRegionEvent(dictRepresentation: defaultDict)!
+	}
 }
