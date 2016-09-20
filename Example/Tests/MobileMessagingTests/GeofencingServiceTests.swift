@@ -435,18 +435,18 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertEqual(pulaObject.identifier, pulaId)
 		XCTAssertEqual(pulaObject.title, "Pula")
 		XCTAssertTrue(pulaObject.isLive(for: .entry))
-		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		XCTAssertFalse(pulaObject.isLive(for: .exit))
 		
 		pulaObject.triggerEvent(for: .entry)
 		XCTAssertFalse(pulaObject.isLive(for: .entry))
-		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		XCTAssertFalse(pulaObject.isLive(for: .exit))
 		
 		pulaObject.triggerEvent(for: .exit)
 		XCTAssertFalse(pulaObject.isLive(for: .exit))
 	}
 	
 	func testOnlyOneEventType() {
-		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 1, timeout: 0)])
+		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
 		
 		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
 			XCTFail()
@@ -461,15 +461,14 @@ class GeofencingServiceTests: MMTestCase {
 		
 		XCTAssertEqual(pulaObject.identifier, pulaId)
 		XCTAssertEqual(pulaObject.title, "Pula")
-		XCTAssertTrue(pulaObject.isLive(for: .entry))
-		XCTAssertTrue(pulaObject.isLive(for: .exit))
-		
-		pulaObject.triggerEvent(for: .entry)
 		XCTAssertFalse(pulaObject.isLive(for: .entry))
 		XCTAssertTrue(pulaObject.isLive(for: .exit))
 		
 		pulaObject.triggerEvent(for: .exit)
 		XCTAssertFalse(pulaObject.isLive(for: .exit))
+		
+		pulaObject.triggerEvent(for: .entry)
+		XCTAssertFalse(pulaObject.isLive(for: .entry))
 	}
 	
 	func testEventsOccuring() {
@@ -547,6 +546,35 @@ class GeofencingServiceTests: MMTestCase {
 		}
 	}
 	
+	func testEventTimeoutNotSet() {
+		
+		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 1),
+			makeEvent(ofType: .exit, limit: 1)])
+		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
+			XCTFail()
+			return
+		}
+		
+		var regionsDict = [String: MMRegion]()
+		for region in campaign.regions {
+			regionsDict[region.identifier] = region
+		}
+		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
+		let pulaObject = regionsDict[pulaId]!
+		
+		XCTAssertEqual(pulaObject.identifier, pulaId)
+		XCTAssertEqual(pulaObject.title, "Pula")
+		XCTAssertTrue(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+
+		pulaObject.triggerEvent(for: .entry)
+		XCTAssertFalse(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
+		
+		pulaObject.triggerEvent(for: .exit)
+		XCTAssertFalse(pulaObject.isLive(for: .exit))
+	}
+	
 	func makeApnsPayload(withEvents events: [AnyObject]?) -> [String: AnyObject] {
 		let internalData = [
 			MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
@@ -565,6 +593,11 @@ class GeofencingServiceTests: MMTestCase {
 		return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
 		              MMRegionEventDataKeys.eventLimit.rawValue: limit,
 		              MMRegionEventDataKeys.eventTimeout.rawValue: timeout]
+	}
+	
+	func makeEvent(ofType type: MMRegionEventType, limit: UInt) -> [String: AnyObject] {
+		return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
+		        MMRegionEventDataKeys.eventLimit.rawValue: limit]
 	}
 	
 	func makePulaRegion(withEvents events: [AnyObject]?) -> [String: AnyObject] {

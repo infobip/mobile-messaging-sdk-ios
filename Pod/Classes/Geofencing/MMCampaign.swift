@@ -143,27 +143,16 @@ final public class MMRegion: NSObject, PlistArchivable {
 	}
 	
 	func isLive(for type: MMRegionEventType) -> Bool {
-		return isLive && (events.filter{$0.type == type}.first?.isValid) ?? true
+		return isLive && (events.filter{$0.type == type}.first?.isValid) ?? false
 	}
 	
 	public var circularRegion: CLCircularRegion {
 		return CLCircularRegion(center: center, radius: radius, identifier: identifier)
 	}
 	
-	var events: [MMRegionEvent] {
-		set {
-			var result = newValue
-			let addDefaultIfNeeded: (MMRegionEventType) -> Void = { type in
-				if !(result.contains {$0.type == type}) {
-					result.append(MMRegionEvent.makeDefault(ofType: type))
-				}
-			}
-			addDefaultIfNeeded(.entry)
-			addDefaultIfNeeded(.exit)
-			_events = result
-		}
-		get { return _events }
-	}
+	var events: [MMRegionEvent] = {
+		return [MMRegionEvent.makeDefault(ofType: .entry)]
+	}()
 	
 	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryDateString: String, startDateString: String) {
 		guard let expiryDate = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(expiryDateString), let startDate = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(startDateString) where radius > 0 else
@@ -241,11 +230,6 @@ final public class MMRegion: NSObject, PlistArchivable {
 	public override var hashValue: Int {
 		return identifier.hashValue
 	}
-	
-	private var _events: [MMRegionEvent] = {
-		return [MMRegionEvent.makeDefault(ofType: .entry),
-		        MMRegionEvent.makeDefault(ofType: .exit)]
-	}()
 }
 
 public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
@@ -276,13 +260,12 @@ final class MMRegionEvent: PlistArchivable {
 	init?(dictRepresentation dict: [String: AnyObject]) {
 		guard let typeString = dict[MMRegionEventDataKeys.eventType.rawValue] as? String,
 			  let type = MMRegionEventType(rawValue: typeString),
-			  let limit = dict[MMRegionEventDataKeys.eventLimit.rawValue] as? UInt,
-			  let timeout = dict[MMRegionEventDataKeys.eventTimeout.rawValue] as? UInt else {
+			  let limit = dict[MMRegionEventDataKeys.eventLimit.rawValue] as? UInt else {
 				return nil
 		}
 		self.type = type
 		self.limit = limit
-		self.timeout = timeout
+		self.timeout = dict[MMRegionEventDataKeys.eventTimeout.rawValue] as? UInt ?? 0
 	}
 	
 	var dictionaryRepresentation: [String: AnyObject] {
