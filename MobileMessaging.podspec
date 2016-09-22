@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
         core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
         core.source_files = 'Pod/Classes/**/*.{c,h,hh,m,mm,swift}'
         core.exclude_files = 'Pod/Classes/Logging/DummyLogger/**', 'Pod/Classes/Logging/CocoaLumberjack/**'
-        core.dependency 'SwiftyJSON'    
+        core.dependency 'SwiftyJSON', '2.3.2'
     end
 
     s.subspec 'DummyLogger' do |d|
@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
     s.subspec 'CocoaLumberjack' do |cl|
         cl.source_files = 'Pod/Classes/Logging/CocoaLumberjack/**'
         cl.dependency 'MobileMessaging/Core'
-        cl.dependency 'CocoaLumberjack'
+        cl.dependency 'CocoaLumberjack', '2.4.0'
     end
 end
