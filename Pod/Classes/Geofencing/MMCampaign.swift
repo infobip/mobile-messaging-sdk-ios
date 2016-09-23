@@ -37,7 +37,7 @@ enum MMRegionDataKeys: String {
 enum MMRegionEventDataKeys: String {
 	case eventType = "type"
 	case eventLimit = "limit"
-	case eventTimeout = "timeout"
+	case eventTimeout = "timeoutInMinutes"
 }
 
 enum MMRegionEventType: String {
@@ -239,7 +239,7 @@ public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
 final class MMRegionEvent: PlistArchivable {
 	let type: MMRegionEventType
 	let limit: UInt					//how many times this event can occur, 0 means unlimited
-	let timeout: UInt				//seconds till next possible event
+	let timeout: UInt			    //minutes till next possible event
 	
 	var rate: UInt = 0
 	var lastOccur: NSDate?
@@ -249,7 +249,7 @@ final class MMRegionEvent: PlistArchivable {
 			return false
 		}
 		
-		return lastOccur?.dateByAddingTimeInterval(NSTimeInterval(timeout)).compare(NSDate()) != .OrderedDescending
+		return lastOccur?.dateByAddingTimeInterval(NSTimeInterval(timeout*60)).compare(NSDate()) != .OrderedDescending
 	}
 	
 	func occur() {

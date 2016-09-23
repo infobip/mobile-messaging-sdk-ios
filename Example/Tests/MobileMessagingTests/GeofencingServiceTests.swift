@@ -473,10 +473,9 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testEventsOccuring() {
 		let expEntry = expectationWithDescription("Entry event should become alive")
-		let expExit = expectationWithDescription("Exit event should become alive")
 		
-		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 2, timeout: 2),
-												   makeEvent(ofType: .exit, limit: 2, timeout: 3)])
+		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 2, timeout: 1),
+												   makeEvent(ofType: .exit, limit: 2, timeout: 1)])
 		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
 			XCTFail()
 			return
@@ -501,19 +500,13 @@ class GeofencingServiceTests: MMTestCase {
 		pulaObject.triggerEvent(for: .exit)
 		XCTAssertFalse(pulaObject.isLive(for: .exit))
 		
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(2 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(60 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
 			XCTAssertTrue(pulaObject.isLive(for: .entry))
-			XCTAssertFalse(pulaObject.isLive(for: .exit))
+			XCTAssertTrue(pulaObject.isLive(for: .exit))
 			expEntry.fulfill()
 		}
 		
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-			XCTAssertTrue(pulaObject.isLive(for: .entry))
-			XCTAssertTrue(pulaObject.isLive(for: .exit))
-			expExit.fulfill()
-		}
-		
-		waitForExpectationsWithTimeout(5) { error in
+		waitForExpectationsWithTimeout(60) { error in
 			XCTAssertTrue(true)
 		}
 	}
