@@ -34,6 +34,6 @@ Pod::Spec.new do |s|
     s.subspec 'CocoaLumberjack' do |cl|
         cl.source_files = 'Pod/Classes/Logging/CocoaLumberjack/**'
         cl.dependency 'MobileMessaging/Core'
-        cl.dependency 'CocoaLumberjack', '2.4.0'
+        cl.dependency 'CocoaLumberjack', '2.3.0'
     end
 end
