@@ -48,3 +48,24 @@ public final class MMLogOutput : NSObject {
 	public static let ASL = MMLogOutput(rawValue: 1 << 1) //Apple System Logs
 	public static let File = MMLogOutput(rawValue: 1 << 2)
 }
+
+@objc public enum MMLogLevel : UInt {
+	/// No logs
+	case Off
+	
+	/// Error logs only
+	case Error
+	
+	/// Error and warning logs
+	case Warning
+	
+	/// Error, warning and info logs
+	case Info
+	
+	/// Error, warning, info and debug logs
+	case Debug
+	
+	/// Error, warning, info, debug and verbose logs
+	case Verbose
+	case All
+}

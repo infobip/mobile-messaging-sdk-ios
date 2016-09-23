@@ -34,29 +34,6 @@ extension DDLogFlag {
 	}
 }
 
-
-@objc public enum MMLogLevel : UInt {
-	/// No logs
-	case Off
-	
-	/// Error logs only
-	case Error
-	
-	/// Error and warning logs
-	case Warning
-	
-	/// Error, warning and info logs
-	case Info
-	
-	/// Error, warning, info and debug logs
-	case Debug
-	
-	/// Error, warning, info, debug and verbose logs
-	case Verbose
-	case All
-}
-
-
 func lumberjackLogLevel(from mmLogLevel: MMLogLevel) -> DDLogLevel {
 	switch mmLogLevel {
 	case .Off: return DDLogLevel.Off
