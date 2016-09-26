@@ -223,10 +223,10 @@ let oldjsonStr =
 
 class GeofencingServiceTests: MMTestCase {
 	func testCampaignAPNSConstructors() {
-		if let message = MMMessage(payload: apnsPayload), let campaign = MMCampaign(message: message) {
+		if let message = MMMessage(payload: apnsPayload), let geoRegions = message.geoRegions {
 			
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in geoRegions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = zagreb[MMRegionDataKeys.Identifier.rawValue] as! String
@@ -256,10 +256,10 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testOldCampaignAPNSConstructors() {
-		if let message = MMMessage(payload: oldapnsPayload), let campaign = MMCampaign(message: message) {
+		if let message = MMMessage(payload: oldapnsPayload), let geoRegions = message.geoRegions {
 			
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in geoRegions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = zagreb[MMRegionDataKeys.Identifier.rawValue] as! String
@@ -293,9 +293,9 @@ class GeofencingServiceTests: MMTestCase {
 	func testCampaignJSONConstructors() {
 		let json = JSON.parse(jsonStr)
 		
-		if let message = MMMessage(json: json), let campaign = MMCampaign(message: message) {
+		if let message = MMMessage(json: json), let geoRegions = message.geoRegions {
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in geoRegions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
@@ -330,9 +330,9 @@ class GeofencingServiceTests: MMTestCase {
 	func testCampaignJSONConstructorsWithoutStartTime() {
 		let json = JSON.parse(jsonStrWithoutStartTime)
 		
-		if let message = MMMessage(json: json), let campaign = MMCampaign(message: message) {
+		if let message = MMMessage(json: json), let geoRegions = message.geoRegions {
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in geoRegions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
@@ -367,9 +367,9 @@ class GeofencingServiceTests: MMTestCase {
 	func testOldCampaignJSONConstructors() {
 		let json = JSON.parse(oldjsonStr)
 		
-		if let message = MMMessage(json: json), let campaign = MMCampaign(message: message) {
+		if let message = MMMessage(json: json), let geoRegions = message.geoRegions {
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in geoRegions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
@@ -421,12 +421,12 @@ class GeofencingServiceTests: MMTestCase {
 	
 	//MARK: Events tests
 	func testDefaultEventsSettings() {
-		guard let message = MMMessage(payload: makeApnsPayload(withEvents: nil)), let campaign = MMCampaign(message: message) else {
+		guard let message = MMMessage(payload: makeApnsPayload(withEvents: nil)), let geoRegions = message.geoRegions else {
 			XCTFail()
 			return
 		}
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in geoRegions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
@@ -448,12 +448,12 @@ class GeofencingServiceTests: MMTestCase {
 	func testOnlyOneEventType() {
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
 		
-		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
+		guard let message = MMMessage(payload: payload), let geoRegions = message.geoRegions else {
 			XCTFail()
 			return
 		}
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in geoRegions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
@@ -476,13 +476,13 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 2, timeout: 1),
 												   makeEvent(ofType: .exit, limit: 2, timeout: 1)])
-		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
+		guard let message = MMMessage(payload: payload), let geoRegions = message.geoRegions else {
 			XCTFail()
 			return
 		}
 		
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in geoRegions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
@@ -506,7 +506,7 @@ class GeofencingServiceTests: MMTestCase {
 			expEntry.fulfill()
 		}
 		
-		waitForExpectationsWithTimeout(60) { error in
+		waitForExpectationsWithTimeout(100) { error in
 			XCTAssertTrue(true)
 		}
 	}
@@ -515,13 +515,13 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 0, timeout: 0),
 												   makeEvent(ofType: .exit, limit: 0, timeout: 0)])
-		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
+		guard let message = MMMessage(payload: payload), let geoRegions = message.geoRegions else {
 			XCTFail()
 			return
 		}
 		
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in geoRegions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
@@ -543,13 +543,13 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 1),
 			makeEvent(ofType: .exit, limit: 1)])
-		guard let message = MMMessage(payload: payload), let campaign = MMCampaign(message: message) else {
+		guard let message = MMMessage(payload: payload), let geoRegions = message.geoRegions else {
 			XCTFail()
 			return
 		}
 		
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in geoRegions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"

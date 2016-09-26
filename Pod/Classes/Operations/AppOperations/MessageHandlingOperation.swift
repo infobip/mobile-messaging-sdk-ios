@@ -73,10 +73,12 @@ final class MessageHandlingOperation: Operation {
 				newDBMessage.isSilent = newMessage.isSilent
 				
 				// Add new regions for geofencing
-				if MMGeofencingService.sharedInstance.isRunning {
-					if let newCampaing = MMCampaign(message: newMessage) {
-						MMGeofencingService.sharedInstance.add(campaign: newCampaing)
-					}
+				if let geoService = MMGeofencingService.sharedInstance where geoService.isRunning {
+					if newMessage.isGeoMessage {
+						newDBMessage.payload = newMessage.originalPayload
+						newDBMessage.messageType = .Geo
+						geoService.add(campaign: newMessage)
+					}     
 				}
 			}
 			self.context.MM_saveToPersistentStoreAndWait()

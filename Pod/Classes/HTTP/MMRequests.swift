@@ -200,13 +200,13 @@ func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
 	return lhs.hashValue == rhs.hashValue
 }
 struct MMSystemData: Hashable {
-	let SDKVersion, OSVer, deviceManufcturer, deviceModel, appVer: String
+	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
 	let geoAvailability: Bool
 	var dictionaryRepresentation: [String: AnyObject] {
 		return [
 			MMAPIKeys.kSystemDataSDKVersion: SDKVersion,
 			MMAPIKeys.kSystemDataOSVer: OSVer,
-			MMAPIKeys.kSystemDataDeviceManufacturer: deviceManufcturer,
+			MMAPIKeys.kSystemDataDeviceManufacturer: deviceManufacturer,
 			MMAPIKeys.kSystemDataDeviceModel: deviceModel,
 			MMAPIKeys.kSystemDataAppVer: appVer,
 			MMAPIKeys.kSystemDataGeoAvailability: geoAvailability
@@ -214,11 +214,11 @@ struct MMSystemData: Hashable {
 	}
 	
 	var hashValue: Int {
-		return (SDKVersion + OSVer + deviceManufcturer + deviceModel + appVer + String(geoAvailability)).hash
+		return (SDKVersion + OSVer + deviceManufacturer + deviceModel + appVer + String(geoAvailability)).hash
 	}
 	
 	static func currentSystemData(userAgent: MMUserAgent) -> MMSystemData {
-		return MMSystemData(SDKVersion: userAgent.libraryVersion, OSVer: userAgent.osVersion, deviceManufcturer: userAgent.deviceManufacturer, deviceModel: userAgent.deviceName, appVer: userAgent.hostingAppVersion, geoAvailability: MobileMessaging.geofencingService.isAvailable)
+		return MMSystemData(SDKVersion: userAgent.libraryVersion, OSVer: userAgent.osVersion, deviceManufacturer: userAgent.deviceManufacturer, deviceModel: userAgent.deviceName, appVer: userAgent.hostingAppVersion, geoAvailability: MobileMessaging.geofencingService?.isAvailable ?? false)
 	}
 }
 

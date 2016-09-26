@@ -113,7 +113,7 @@ final class RegistrationTests: MMTestCase {
 	
     func testTokenNotSendsTwice() {
 		var requestSentCounter = 0
-		MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub()
+		MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub(storage: mobileMessagingInstance.storage!)
 		MobileMessaging.userAgent = MMUserAgentStub()
 		MobileMessaging.currentInstallation?.installationManager.registrationRemoteAPI = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
 			

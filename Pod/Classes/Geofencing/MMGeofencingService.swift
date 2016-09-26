@@ -52,7 +52,7 @@ public final class MMLocationServiceKind: NSObject {
 
 public protocol MMGeofencingServiceDelegate: class {
 	/// Called after the a new campaign is added to the service data source
-	func didAddCampaing(campaign: MMCampaign)
+	func didAddCampaign(campaign: MMMessage)
 	/// Called after the user entered the region
 	/// - parameter region: A particular region, that the user has entered
 	func didEnterRegion(region: MMRegion)
@@ -67,7 +67,13 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	var isAvailable: Bool {
 		return MMGeofencingService.currentCapabilityStatus == .Authorized && MMGeofencingService.geoServiceEnabled
 	}
-	static let sharedInstance = MMGeofencingService()
+	
+	class func withStorage(storage: MMCoreDataStorage) -> MMGeofencingService {
+		sharedInstance = MMGeofencingService(storage: storage)
+		return sharedInstance!
+	}
+	
+	static var sharedInstance: MMGeofencingService?
 	var locationManager: CLLocationManager!
 	var datasource: MMGeofencingDatasource!
 	var isRunning = false
@@ -77,7 +83,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public static var geoServiceEnabled: Bool {
 		set {
 			if newValue != geoServiceEnabled && newValue == false {
-				MMGeofencingService.sharedInstance.stop()
+				MMGeofencingService.sharedInstance?.stop()
 			}
 			_geoServiceEnabled = newValue
 		}
@@ -91,7 +97,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public weak var delegate: MMGeofencingServiceDelegate?
 	
 	/// Returns all the campaigns available in the Geofencing Service storage.
-	public var allCampaings: Set<MMCampaign> { return datasource.campaigns }
+	public var allCampaigns: Set<MMMessage> { return datasource.campaigns }
 	
 	/// Returns all the regions available in the Geofencing Service storage.
 	public var allRegions: Set<MMRegion> { return Set(datasource.regionsDictionary.values) }
@@ -172,8 +178,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	/// Accepts a campaign, during which the underlying regions should be monitored.
-	/// - parameter campaign: A campaign object to add to the monitoring. Object of `MMCampaign` class.
-	public func add(campaign campaign: MMCampaign) {
+	/// - parameter campaign: A campaign object to add to the monitoring. Object of `MMMessage` class.
+	public func add(campaign campaign: MMMessage) {
 		serviceQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] trying to add a campaign")
 			guard MMGeofencingService.geoServiceEnabled == true && self.isRunning == true else
@@ -183,17 +189,17 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			}
 			
 			self.datasource.add(campaign: campaign)
-			self.delegate?.didAddCampaing(campaign)
+			self.delegate?.didAddCampaign(campaign)
 			MMLogDebug("[GeofencingService] added a campaign\n\(campaign)")
 			self.refreshMonitoredRegions()
 		}
 	}
 
 	/// Removes a campaign from the monitoring.
-	public func removeCampaign(withId campaingId: String) {
+	public func removeCampaign(withId campaignId: String) {
 		serviceQueue.executeAsync() {
-			self.datasource.removeCampaign(withId: campaingId)
-			MMLogDebug("[GeofencingService] campaign removed \(campaingId)")
+			self.datasource.removeCampaign(withId: campaignId)
+			MMLogDebug("[GeofencingService] campaign removed \(campaignId)")
 			self.refreshMonitoredRegions()
 		}
 	}
@@ -201,16 +207,15 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 // MARK: - Internal
 	let serviceQueue = MMQueue.Main.queue
 	
-	override init () {
+	init (storage: MMCoreDataStorage) {
 		super.init()
 		serviceQueue.executeSync() {
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = self.kDistanceFilter
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-			self.datasource = MMGeofencingDatasource()
-			
-			self.previousLocation = NSKeyedUnarchiver.unarchiveObjectWithFile(self.datasource.locationArchivePath) as? CLLocation
+			self.datasource = MMGeofencingDatasource(storage: storage)
+			self.previousLocation = MobileMessaging.currentInstallation?.location
 		}
 	}
 	
@@ -315,8 +320,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 					MMLogDebug("[GeofencingService] App did enter background.")
 					assert(NSThread .isMainThread())
 					self?.restartLocationManager()
-					if let previousLocation = self?.previousLocation, let filePath = self?.datasource.locationArchivePath {
-						NSKeyedArchiver.archiveRootObject(previousLocation, toFile: filePath)
+					if let previousLocation = self?.previousLocation {
+						MobileMessaging.currentInstallation?.location = previousLocation
 					}
 				}
 			)

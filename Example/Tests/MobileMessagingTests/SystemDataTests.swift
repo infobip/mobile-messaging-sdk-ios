@@ -50,7 +50,7 @@ class SystemDataTests: MMTestCase {
     func testSystemDataUpdates() {
 		
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
-		MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub()
+		MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub(storage: mobileMessagingInstance.storage!)
 		MobileMessaging.userAgent = MMUserAgentStub()
 		
 		let requestsCompleted = expectationWithDescription("requestsCompleted")
@@ -62,7 +62,7 @@ class SystemDataTests: MMTestCase {
 			initialSystemDataHash = installation.systemDataHash.integerValue
 		}
 		
-		MobileMessaging.geofencingService = MMAvailableGeofencingServiceStub()
+		MobileMessaging.geofencingService = MMAvailableGeofencingServiceStub(storage: mobileMessagingInstance.storage!)
 		MobileMessaging.currentInstallation?.syncWithServer({ (error) in
 			
 			ctx.reset()
@@ -70,7 +70,7 @@ class SystemDataTests: MMTestCase {
 				updatedSystemDataHash = installation.systemDataHash.integerValue
 			}
 			
-			MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub()
+			MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub(storage: self.mobileMessagingInstance.storage!)
 			MobileMessaging.currentInstallation?.syncWithServer({ (error) in
 				requestsCompleted.fulfill()
 			})

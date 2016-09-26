@@ -69,7 +69,7 @@ public final class MobileMessaging: NSObject {
 				self.messageHandler = messageHandler
 				self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
 				
-				MMGeofencingService.sharedInstance.start()
+				MMGeofencingService.withStorage(storage).start()
 				
 				MMLogInfo("MobileMessaging SDK service successfully initialized.")
 			}
@@ -196,7 +196,7 @@ public final class MobileMessaging: NSObject {
 		self.appListener = nil
 		self.messageHandler = nil
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
-		MMGeofencingService.sharedInstance.stop()
+		MMGeofencingService.sharedInstance?.stop()
 	}
 	
 	func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {

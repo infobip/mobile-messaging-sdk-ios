@@ -8,6 +8,7 @@
 
 import CoreData
 import Foundation
+import CoreLocation
 
 @objc public protocol UserDataSupportedTypes: AnyObject {}
 extension NSString: UserDataSupportedTypes {}
@@ -362,6 +363,10 @@ final public class MMInstallation: NSObject {
 	}
     
 //MARK: - Private
+	var location: CLLocation? {
+		get { return installationManager.getValueForKey("location") as? CLLocation }
+		set { installationManager.setValueForKey("location", value: newValue) }
+	}
 	
 	private func isKeyObservable(key: String) -> Bool {
 		func propertiesForClass(cl: AnyClass) -> Set<String> {

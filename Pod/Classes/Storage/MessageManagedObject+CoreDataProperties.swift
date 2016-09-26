@@ -18,4 +18,6 @@ extension MessageManagedObject {
     @NSManaged var seenDate: NSDate?
     @NSManaged var seenStatusValue: NSNumber
     @NSManaged var isSilent: NSNumber
+	@NSManaged var payload: [String: AnyObject]?
+	@NSManaged var messageTypeValue: NSNumber
 }

@@ -24,4 +24,5 @@ extension InstallationManagedObject {
 	@NSManaged var predefinedUserData: [String: AnyObject]?
 	
 	@NSManaged var systemDataHash: NSNumber
+	@NSManaged var location: AnyObject?
 }

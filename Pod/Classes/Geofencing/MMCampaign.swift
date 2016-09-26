@@ -8,11 +8,13 @@
 import Foundation
 import CoreLocation
 
-public enum MMCampaignOrigin: Int {
+@available(*, deprecated)
+enum MMCampaignOrigin: Int {
 	case Push = 0
-	case Manual
+	case Manual //old, for geo showcase support
 }
 
+@available(*, deprecated)
 enum MMCampaignDataKeys: String {
 	case Id = "id"
 	case Title = "title"
@@ -50,58 +52,93 @@ protocol PlistArchivable {
 	var dictionaryRepresentation: [String: AnyObject] {get}
 }
 
-final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, PlistArchivable {
-    public let id: String
-    public let title: String
-    public let message: String
-    public let dateReceived: NSDate
-    public var regions: Set<MMRegion>
-	public let origin: MMCampaignOrigin
+extension MMMessage {
 	
-	public init?(id: String, origin: MMCampaignOrigin, title: String, message: String, dateReceived: NSDate, regions: Set<MMRegion> = Set<MMRegion>()) {
-		guard origin == .Manual || (origin == .Push && !regions.isEmpty) else {
-			return nil
-		}
-		self.origin = origin
-        self.id = id
-        self.title = title
-        self.message = message
-        self.dateReceived = dateReceived
-        self.regions = regions
-		for region in regions {
-			region.campaign = self
-		}
-    }
-	
-	convenience init?(message: MMMessage) {
-		guard let regionsData = message.geoRegions, let text = message.text else {
-			return nil
-		}
-		let regions = Set(regionsData.flatMap(MMRegion.init))
-		self.init(id: NSUUID().UUIDString, origin: .Push, title: text.mm_breakWithMaxLength(15), message: text, dateReceived: NSDate(), regions: regions)
+	public var isGeoMessage: Bool {
+		return self.geoRegionsData != nil
 	}
 	
+	public var geoRegions: Set<MMRegion>? {
+		guard isGeoMessage else {
+			return nil
+		}
+		let regions: Set<MMRegion> = Set(self.geoRegionsData!.flatMap(MMRegion.init))
+		for region in regions {
+			region.message = self
+		}
+		return regions
+	}
+	
+	override public var description: String {
+		return "title=\(self.text?.mm_breakWithMaxLength(15)), id=\(self.messageId)"
+	}
+	
+	convenience init?(managedObject: MessageManagedObject) {
+		guard let payload = managedObject.payload else {
+			return nil
+		}
+		
+		self.init(payload: payload)
+	}
+}
+
+@available(*, deprecated)
+final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, PlistArchivable {
+    public let id: String
+    public let title: String?
+    public let body: String?
+    public let dateReceived: NSDate
+    public let regions: Set<MMRegion>
+	
+	init?(id: String,
+	      title: String?,
+	      body: String?,
+	      sound: String?,
+	      dateReceived: NSDate,
+	      regions: Set<MMRegion> = Set<MMRegion>(),
+	      customPayload: [String: AnyObject]?) {
+		
+		guard !regions.isEmpty else {
+			return nil
+		}
+        self.id = id
+        self.title = title
+        self.body = body
+        self.dateReceived = dateReceived
+        self.regions = regions
+    }
 	
 	convenience init?(dictRepresentation dict: [String: AnyObject]) {
-		guard let id = dict[MMCampaignDataKeys.Id.rawValue] as? String, let regionDicts = dict[MMCampaignDataKeys.Regions.rawValue] as? [[String:AnyObject]] else
+		guard let id = dict[MMCampaignDataKeys.Id.rawValue] as? String,
+			  let regionDicts = dict[MMCampaignDataKeys.Regions.rawValue] as? [[String:AnyObject]] else
 		{
 			return nil
 		}
 		let regionObjects = regionDicts.flatMap(MMRegion.init)
 		let date = dict[MMCampaignDataKeys.DateReceived.rawValue] as? NSDate ?? NSDate()
-		let origin = MMCampaignOrigin(rawValue: dict[MMCampaignDataKeys.Origin.rawValue] as? Int ?? 0) ?? .Manual
 		
-		self.init(id: id, origin: origin, title: dict[MMCampaignDataKeys.Title.rawValue] as? String ?? "", message: dict[MMCampaignDataKeys.Message.rawValue] as? String ?? "", dateReceived: date, regions: Set(regionObjects))
+		//if .Manual, then do not re-save at CoreData DB
+		let origin = MMCampaignOrigin(rawValue: dict[MMCampaignDataKeys.Origin.rawValue] as? Int ?? 0) ?? .Manual
+		if origin == .Manual {
+			return nil
+		}
+		
+		self.init(id: id,
+		          title: dict[MMCampaignDataKeys.Title.rawValue] as? String ?? "",
+		          body: dict[MMCampaignDataKeys.Message.rawValue] as? String ?? "",
+		          sound: nil,
+		          dateReceived: date,
+		          regions: Set(regionObjects),
+		          customPayload: nil)
 	}
 	
 	var dictionaryRepresentation: [String: AnyObject] {
 		var result = [String: AnyObject]()
 		result[MMCampaignDataKeys.Id.rawValue] = id
 		result[MMCampaignDataKeys.Title.rawValue] = title
-		result[MMCampaignDataKeys.Message.rawValue] = message
+		result[MMCampaignDataKeys.Message.rawValue] = body
 		result[MMCampaignDataKeys.DateReceived.rawValue] = dateReceived
 		result[MMCampaignDataKeys.Regions.rawValue] = regions.map { $0.dictionaryRepresentation }
-		result[MMCampaignDataKeys.Origin.rawValue] = origin.rawValue
 		
 		assert(MMCampaign(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
@@ -112,7 +149,7 @@ final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, Pli
 	}
 	
 	public var description: String {
-		return "title=\(title), id=\(id), origin=\(origin)"
+		return "title=\(title), id=\(id)"
 	}
 }
 
@@ -129,10 +166,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
-	var campaign: MMCampaign?
-	public var campaignText: String? {
-		return campaign?.message
-	}
+	weak var message: MMMessage?
 	public var isLive: Bool {
 		let validEventExists = events.contains{$0.isValid}
 		return validEventExists && NSDate().compare(expiryDate) == .OrderedAscending && NSDate().compare(startDate) != .OrderedAscending

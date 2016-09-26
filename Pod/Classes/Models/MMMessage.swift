@@ -70,7 +70,7 @@ public class MMMessage: NSObject, MMMessageMetadata, JSONDecodable {
 	/// Geographical regions data for the geofencing service.
 	///
 	/// See also: [Geofencing service](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service)
-	public let geoRegions: [StringKeyPayload]?
+	public let geoRegionsData: [StringKeyPayload]?
 	
 	/// Text of a message.
 	public var text: String? {
@@ -114,7 +114,7 @@ public class MMMessage: NSObject, MMMessageMetadata, JSONDecodable {
 		//TODO: refactor all these `as` by extending Dictionary.
 		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? StringKeyPayload
 		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? StringKeyPayload
-		self.geoRegions = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [StringKeyPayload]
+		self.geoRegionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [StringKeyPayload]
 		
 		self.origin = .APNS
 	}

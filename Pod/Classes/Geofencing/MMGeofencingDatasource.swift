@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import CoreData
 
 //TODO: thread safety (it is safe till the only user is MMGeofencingService)
 class MMGeofencingDatasource {
@@ -14,7 +15,11 @@ class MMGeofencingDatasource {
 	static let plistDir = "com.mobile-messaging.geo-data"
 	static let plistFile = "CampaignsData.plist"
 	static let locationArchive = "currentLocation"
-	var campaigns = Set<MMCampaign>() {
+	
+	let storage: MMCoreDataStorage
+	let context: NSManagedObjectContext
+	
+	var campaigns = Set<MMMessage>() {
 		didSet {
 			for campaign in campaigns {
 				addRegions(fromCampaign: campaign)
@@ -27,95 +32,147 @@ class MMGeofencingDatasource {
 		return regionsDictionary.values.filter { $0.isLive }
 	}
 	
-	init() {
-		loadFromDisk()
+	init(storage: MMCoreDataStorage) {
+		self.storage = storage
+		self.context = storage.newPrivateContext()
+		loadCampainsFromPlist()
+		loadLocationFromPlist()
+		loadCampaigns()
 	}
 	
-	func campaing(withId id: String) -> MMCampaign? {
-		return campaigns.filter({ $0.id == id }).first
+	func campaign(withId id: String) -> MMMessage? {
+		return campaigns.filter({ $0.messageId == id }).first
 	}
 	
-	func addRegions(fromCampaign campaign: MMCampaign) {
-		for region in campaign.regions {
+	func addRegions(fromCampaign campaign: MMMessage) {
+		guard let regions = campaign.geoRegions else {
+			return
+		}
+		for region in regions {
 			regionsDictionary[region.identifier] = region
 		}
 	}
 	
 	func removeRegions(withCampaignId campaignId: String) {
 		campaigns.filter({
-			return $0.id == campaignId
+			return $0.messageId == campaignId
 		}).forEach {
-			for region in $0.regions {
-				regionsDictionary[region.identifier] = nil
+			if let regions = $0.geoRegions {
+				for region in regions {
+					regionsDictionary[region.identifier] = nil
+				}
 			}
 		}
 	}
 	
-	func add(campaign campaign: MMCampaign) {
+	func add(campaign campaign: MMMessage) {
 		campaigns.insert(campaign)
 		addRegions(fromCampaign: campaign)
-		saveToDisk()
 	}
 	
+	func addRegions(regions: Set<MMRegion>) {
+		for region in regions {
+			regionsDictionary[region.identifier] = region
+		}
+	}
+
 	func removeCampaign(withId campaignId: String) {
 		removeRegions(withCampaignId: campaignId)
 		campaigns.filter({
-			return $0.id == campaignId
+			return $0.messageId == campaignId
 		}).forEach {
 			campaigns.remove($0)
 		}
-		saveToDisk()
 	}
 	
-	lazy var rootURL: NSURL = {
+	func loadCampaigns() {
+		context.performBlockAndWait {
+			let msgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == %i", MMMessageType.Geo.rawValue), inContext: self.context) as? [MessageManagedObject]
+			
+			if let campaigns = msgs?.flatMap(MMMessage.init) {
+				self.campaigns = Set(campaigns)
+			}
+		}
+	}
+	
+	//MARK: for compatibility with previous storage
+	private lazy var rootURL: NSURL = {
 		return NSFileManager.defaultManager().URLsForDirectory(NSSearchPathDirectory.ApplicationSupportDirectory, inDomains: NSSearchPathDomainMask.UserDomainMask)[0]
 	}()
 	
-	lazy var geoDirectoryURL: NSURL = {
+	private lazy var geoDirectoryURL: NSURL = {
 		return self.rootURL.URLByAppendingPathComponent(MMGeofencingDatasource.plistDir)
 	}()
 	
-	lazy var plistURL: NSURL = {
+	private lazy var plistURL: NSURL = {
 		self.geoDirectoryURL.URLByAppendingPathComponent(MMGeofencingDatasource.plistFile)
 	}()
 	
-	lazy var locationArchivePath: String = {
-		let url = self.geoDirectoryURL.URLByAppendingPathComponent(MMGeofencingDatasource.locationArchive)
-		return url.path!
-	}()
-	
-	func saveToDisk() {
-		//FIXME: move to BG thread
-		if let path = geoDirectoryURL.path where !NSFileManager.defaultManager().fileExistsAtPath(path) {
-			do {
-				try NSFileManager.defaultManager().createDirectoryAtURL(geoDirectoryURL, withIntermediateDirectories: true, attributes: nil)
-			} catch {
-				MMLogError("Can't create a directory for a plist.")
-				return
-			}
-		}
-		
-		let campaignDicts = campaigns.map { $0.dictionaryRepresentation }
-		do {
-			let data = try NSPropertyListSerialization.dataWithPropertyList(campaignDicts, format: NSPropertyListFormat.XMLFormat_v1_0, options: 0)
-			try data.writeToURL(plistURL, options: NSDataWritingOptions.AtomicWrite)
-		} catch {
-			MMLogError("Can't write to a plist.")
-		}
+	private var locationArchiveURL: NSURL {
+		return self.geoDirectoryURL.URLByAppendingPathComponent(MMGeofencingDatasource.locationArchive)
 	}
 	
-	func loadFromDisk() {
+	private func loadCampainsFromPlist() {
 		//FIXME: move to BG thread
+		var campaigns: Set<MMCampaign>
 		guard let plistPath = plistURL.path,
 			let data = NSFileManager.defaultManager().contentsAtPath(plistPath),
 			let plistArray = try? NSPropertyListSerialization.propertyListWithData(data, options: NSPropertyListMutabilityOptions.MutableContainersAndLeaves, format: nil),
 			let plistDicts = plistArray as? [[String: AnyObject]] else
 		{
 			MMLogError("Can't load campaigns from plist.")
-			self.campaigns = []
+			campaigns = []
 			return
 		}
 		campaigns = Set(plistDicts.flatMap(MMCampaign.init))
+		context.performBlockAndWait {
+		    campaigns.forEach({ (campaign) in
+				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
+				newDBMessage.creationDate = campaign.dateReceived
+				newDBMessage.messageId = "oldCampaign_\(campaign.id)"
+				newDBMessage.isSilent = true
+				newDBMessage.reportSent = true
+				newDBMessage.seenDate = campaign.dateReceived
+				newDBMessage.seenStatus = MMSeenStatus.SeenSent
+				newDBMessage.messageType = .Geo
+				newDBMessage.payload = [
+					MMAPIKeys.kInternalData:
+					[
+						MMAPIKeys.kSilent:
+						[
+							MMAPIKeys.kTitle: campaign.title ?? NSNull(),
+							MMAPIKeys.kBody: campaign.body ?? NSNull()
+						],
+						MMAPIKeys.kGeo: campaign.regions.flatMap{$0.dictionaryRepresentation}
+					]
+				]
+			})
+			
+			self.context.MM_saveToPersistentStoreAndWait()
+		}
+		
+		do {
+			try NSFileManager.defaultManager().removeItemAtPath(plistPath)
+		} catch {
+			MMLogDebug("Can't remove old geo paths.")
+			return
+		}
+	}
+	
+	private func loadLocationFromPlist() {
+		guard let locationArchivePath = locationArchiveURL.path,
+			let location = NSKeyedUnarchiver.unarchiveObjectWithFile(locationArchivePath) as? CLLocation else {
+			return
+		}
+		
+		MobileMessaging.currentInstallation?.location = location
+		
+		do {
+			try NSFileManager.defaultManager().removeItemAtPath(locationArchivePath)
+		} catch {
+			MMLogDebug("Can't remove old geo paths.")
+			return
+		}
 	}
 }
 
