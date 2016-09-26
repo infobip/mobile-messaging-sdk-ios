@@ -49,7 +49,7 @@ final class RegistrationTests: MMTestCase {
 			XCTFail("Installation not initialized")
 			return
 		}
-		
+	
         let token2Saved = expectationWithDescription("token2 saved")
 		let validEmailSaved = expectationWithDescription("email saved")
 		let validMsisdnSaved = expectationWithDescription("msisdn saved")
@@ -60,14 +60,16 @@ final class RegistrationTests: MMTestCase {
 				
 				token2Saved.fulfill()
 				
-				currentUser.save(email: MMTestConstants.kTestValidEmail, completion: { err in
-					XCTAssertNil(err)
-					validEmailSaved.fulfill()
-				})
-				
-				currentUser.save(msisdn: MMTestConstants.kTestValidMSISDN, completion: { err in
-					XCTAssertNil(err)
-					validMsisdnSaved.fulfill()
+			    dispatch_async(dispatch_get_main_queue(), {
+					currentUser.save(email: MMTestConstants.kTestValidEmail, completion: { err in
+						XCTAssertNil(err)
+						validEmailSaved.fulfill()
+					})
+					
+					currentUser.save(msisdn: MMTestConstants.kTestValidMSISDN, completion: { err in
+						XCTAssertNil(err)
+						validMsisdnSaved.fulfill()
+					})
 				})
 			}
 		}
