@@ -9,7 +9,7 @@ import Foundation
 
 class MMLocalNotification {
 	class func presentLocalNotification(with message: MMMessage) {
-		guard !message.isSilent else {
+		guard !message.isSilent || message.isGeoMessage else {
 			return
 		}
 		let localNotification = UILocalNotification()

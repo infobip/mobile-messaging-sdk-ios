@@ -204,6 +204,11 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
+	/// The geo event handling object defines the behaviour that is triggered during the geo event.
+	///
+	/// You can implement your own geo event handling either by subclassing `MMDefaultGeoEventHandling` or implementing the `GeoEventHandling` protocol.
+	public static var geoEventsHandler: GeoEventHandling = MMDefaultGeoEventHandling()
+	
 // MARK: - Internal
 	let serviceQueue = MMQueue.Main.queue
 	
@@ -511,6 +516,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			datasourceRegion.triggerEvent(for: .entry)
 			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
 			delegate?.didEnterRegion(datasourceRegion)
+			MMGeofencingService.geoEventsHandler.didReceiveGeoEvent(datasourceRegion)
 			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		} else {
 			MMLogDebug("[GeofencingService] region is expired.")
@@ -529,6 +535,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			datasourceRegion.triggerEvent(for: .exit)
 			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
 			delegate?.didExitRegion(datasourceRegion)
+			MMGeofencingService.geoEventsHandler.didReceiveGeoEvent(datasourceRegion)
 			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		} else {
 			MMLogDebug("[GeofencingService] region is expired.")
@@ -550,5 +557,22 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.previousLocation = location
 			self.refreshMonitoredRegions()
 		}
+	}
+}
+
+@objc public protocol GeoEventHandling {
+	/// This callback is triggered after the geo event occurs. Default behaviour is implemented by `MMDefaultGeoEventHandling` class.
+	func didReceiveGeoEvent(region: MMRegion)
+}
+
+public class MMDefaultGeoEventHandling: GeoEventHandling {
+	@objc public func didReceiveGeoEvent(region: MMRegion) {
+		if let message = region.message {
+			self.presentLocalNotificationAlert(with: message)
+		}
+	}
+	
+	func presentLocalNotificationAlert(with message: MMMessage) {
+		MMLocalNotification.presentLocalNotification(with: message)
 	}
 }
