@@ -207,7 +207,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	/// The geo event handling object defines the behaviour that is triggered during the geo event.
 	///
 	/// You can implement your own geo event handling either by subclassing `MMDefaultGeoEventHandling` or implementing the `GeoEventHandling` protocol.
-	public static var geoEventsHandler: GeoEventHandling = MMDefaultGeoEventHandling()
+	public static var geoEventsHandler: GeoEventHandling? = MMDefaultGeoEventHandling()
 	
 // MARK: - Internal
 	let serviceQueue = MMQueue.Main.queue
@@ -516,7 +516,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			datasourceRegion.triggerEvent(for: .entry)
 			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
 			delegate?.didEnterRegion(datasourceRegion)
-			MMGeofencingService.geoEventsHandler.didReceiveGeoEvent(datasourceRegion)
+			MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(datasourceRegion)
 			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		} else {
 			MMLogDebug("[GeofencingService] region is expired.")
@@ -535,7 +535,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			datasourceRegion.triggerEvent(for: .exit)
 			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
 			delegate?.didExitRegion(datasourceRegion)
-			MMGeofencingService.geoEventsHandler.didReceiveGeoEvent(datasourceRegion)
+			MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(datasourceRegion)
 			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		} else {
 			MMLogDebug("[GeofencingService] region is expired.")
