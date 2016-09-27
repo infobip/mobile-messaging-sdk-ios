@@ -19,7 +19,7 @@ class MMGeofencingDatasource {
 	let storage: MMCoreDataStorage
 	let context: NSManagedObjectContext
 	
-	var campaigns = Set<MMMessage>() {
+	var campaigns = Set<MMGeoCampaign>() {
 		didSet {
 			for campaign in campaigns {
 				addRegions(fromCampaign: campaign)
@@ -40,15 +40,18 @@ class MMGeofencingDatasource {
 		loadCampaigns()
 	}
 	
-	func campaign(withId id: String) -> MMMessage? {
+	func regions(withIdentifier regionIdentifier: String) -> [MMRegion]? {
+		return campaigns.flatMap { $0.regions.filter({ (region) -> Bool in
+			region.identifier == regionIdentifier
+		}).first}
+	}
+	
+	func campaign(withId id: String) -> MMGeoCampaign? {
 		return campaigns.filter({ $0.messageId == id }).first
 	}
 	
-	func addRegions(fromCampaign campaign: MMMessage) {
-		guard let regions = campaign.geoRegions else {
-			return
-		}
-		for region in regions {
+	func addRegions(fromCampaign campaign: MMGeoCampaign) {
+		for region in campaign.regions {
 			regionsDictionary[region.identifier] = region
 		}
 	}
@@ -57,15 +60,13 @@ class MMGeofencingDatasource {
 		campaigns.filter({
 			return $0.messageId == campaignId
 		}).forEach {
-			if let regions = $0.geoRegions {
-				for region in regions {
-					regionsDictionary[region.identifier] = nil
-				}
+			for region in $0.regions {
+				regionsDictionary[region.identifier] = nil
 			}
 		}
 	}
 	
-	func add(campaign campaign: MMMessage) {
+	func add(campaign campaign: MMGeoCampaign) {
 		campaigns.insert(campaign)
 		addRegions(fromCampaign: campaign)
 	}
@@ -89,8 +90,25 @@ class MMGeofencingDatasource {
 		context.performBlockAndWait {
 			let msgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == %i", MMMessageType.Geo.rawValue), inContext: self.context) as? [MessageManagedObject]
 			
-			if let campaigns = msgs?.flatMap(MMMessage.init) {
-				self.campaigns = Set(campaigns)
+			if let messages = msgs?.flatMap(MMMessage.init) {
+				self.campaigns = Set(messages.flatMap(MMGeoCampaign.init))
+			}
+		}
+	}
+	
+	func triggerEvent(for eventType: MMRegionEventType, region: MMRegion) {
+		guard let campaign = region.campaign else {
+			return
+		}
+		region.triggerEvent(for: eventType)
+		context.performBlockAndWait {
+			if let msg = MessageManagedObject.MM_findFirstInContext(NSPredicate(format: "messageId == %@", campaign.messageId), context: self.context),
+				var payload = msg.payload,
+				var internalData = payload[MMAPIKeys.kInternalData] as? [String: AnyObject] {
+				internalData += [MMAPIKeys.kGeo: campaign.regions.flatMap{$0.dictionaryRepresentation}]
+				payload.updateValue(internalData, forKey: MMAPIKeys.kInternalData)
+				msg.payload = payload
+				self.context.MM_saveToPersistentStoreAndWait()
 			}
 		}
 	}

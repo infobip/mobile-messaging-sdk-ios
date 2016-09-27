@@ -40,6 +40,8 @@ enum MMRegionEventDataKeys: String {
 	case eventType = "type"
 	case eventLimit = "limit"
 	case eventTimeout = "timeoutInMinutes"
+	case eventRate = "rate"
+	case eventLastOccur = "lastOccur"
 }
 
 enum MMRegionEventType: String {
@@ -58,21 +60,6 @@ extension MMMessage {
 		return self.geoRegionsData != nil
 	}
 	
-	public var geoRegions: Set<MMRegion>? {
-		guard isGeoMessage else {
-			return nil
-		}
-		let regions: Set<MMRegion> = Set(self.geoRegionsData!.flatMap(MMRegion.init))
-		for region in regions {
-			region.message = self
-		}
-		return regions
-	}
-	
-	override public var description: String {
-		return "title=\(self.text?.mm_breakWithMaxLength(15)), id=\(self.messageId)"
-	}
-	
 	convenience init?(managedObject: MessageManagedObject) {
 		guard let payload = managedObject.payload else {
 			return nil
@@ -80,6 +67,31 @@ extension MMMessage {
 		
 		self.init(payload: payload)
 	}
+}
+
+final public class MMGeoCampaign: Hashable, Equatable {
+	public var messageId: String {
+		return message.messageId
+	}
+	public let message: MMMessage
+	public let regions: Set<MMRegion>
+	
+	init?(message: MMMessage) {
+		guard let geoRegionsData = message.geoRegionsData else {
+			return nil
+		}
+		self.message = message
+		self.regions = Set(geoRegionsData.flatMap(MMRegion.init))
+		self.regions.forEach{$0.campaign = self}
+	}
+	
+	public var hashValue: Int {
+		return message.messageId.hashValue
+	}
+}
+
+public func ==(lhs: MMGeoCampaign, rhs: MMGeoCampaign) -> Bool {
+	return lhs.messageId == rhs.messageId
 }
 
 @available(*, deprecated)
@@ -166,7 +178,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
-	weak var message: MMMessage?
+	weak var campaign: MMGeoCampaign?
 	public var isLive: Bool {
 		let validEventExists = events.contains{$0.isValid}
 		return validEventExists && NSDate().compare(expiryDate) == .OrderedAscending && NSDate().compare(startDate) != .OrderedAscending
@@ -300,6 +312,8 @@ final class MMRegionEvent: PlistArchivable {
 		self.type = type
 		self.limit = limit
 		self.timeout = dict[MMRegionEventDataKeys.eventTimeout.rawValue] as? UInt ?? 0
+		self.rate = dict[MMRegionEventDataKeys.eventRate.rawValue] as? UInt ?? 0
+		self.lastOccur = dict[MMRegionEventDataKeys.eventLastOccur.rawValue] as? NSDate ?? nil
 	}
 	
 	var dictionaryRepresentation: [String: AnyObject] {
@@ -307,6 +321,8 @@ final class MMRegionEvent: PlistArchivable {
 		result[MMRegionEventDataKeys.eventType.rawValue] = type.rawValue
 		result[MMRegionEventDataKeys.eventLimit.rawValue] = limit
 		result[MMRegionEventDataKeys.eventTimeout.rawValue] = timeout
+		result[MMRegionEventDataKeys.eventRate.rawValue] = rate
+		result[MMRegionEventDataKeys.eventLastOccur.rawValue] = lastOccur
 		assert(MMRegionEvent(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}

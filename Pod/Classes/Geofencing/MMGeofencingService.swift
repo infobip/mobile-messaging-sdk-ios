@@ -52,7 +52,7 @@ public final class MMLocationServiceKind: NSObject {
 
 public protocol MMGeofencingServiceDelegate: class {
 	/// Called after the a new campaign is added to the service data source
-	func didAddCampaign(campaign: MMMessage)
+	func didAddCampaign(campaign: MMGeoCampaign)
 	/// Called after the user entered the region
 	/// - parameter region: A particular region, that the user has entered
 	func didEnterRegion(region: MMRegion)
@@ -97,7 +97,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public weak var delegate: MMGeofencingServiceDelegate?
 	
 	/// Returns all the campaigns available in the Geofencing Service storage.
-	public var allCampaigns: Set<MMMessage> { return datasource.campaigns }
+	public var allCampaigns: Set<MMGeoCampaign> { return datasource.campaigns }
 	
 	/// Returns all the regions available in the Geofencing Service storage.
 	public var allRegions: Set<MMRegion> { return Set(datasource.regionsDictionary.values) }
@@ -178,8 +178,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	/// Accepts a campaign, during which the underlying regions should be monitored.
-	/// - parameter campaign: A campaign object to add to the monitoring. Object of `MMMessage` class.
-	public func add(campaign campaign: MMMessage) {
+	/// - parameter campaign: A campaign object to add to the monitoring. Object of `MMGeoCampaign` class.
+	public func add(campaign campaign: MMGeoCampaign) {
 		serviceQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] trying to add a campaign")
 			guard MMGeofencingService.geoServiceEnabled == true && self.isRunning == true else
@@ -512,15 +512,17 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(manager: CLLocationManager, didEnterRegion region: CLRegion) {
 		assert(NSThread.isMainThread())
 		MMLogDebug("[GeofencingService] did enter circular region \(region)")
-		if let datasourceRegion = datasource.regionsDictionary[region.identifier] where datasourceRegion.isLive(for: .entry) {
-			datasourceRegion.triggerEvent(for: .entry)
-			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
-			delegate?.didEnterRegion(datasourceRegion)
-			MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(datasourceRegion)
-			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
-		} else {
-			MMLogDebug("[GeofencingService] region is expired.")
-		}
+		datasource.regions(withIdentifier: region.identifier)?.forEach({ (datasourceRegion) in
+			if datasourceRegion.isLive(for: .entry) {
+				datasource.triggerEvent(for: .entry, region: datasourceRegion)
+				MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
+				delegate?.didEnterRegion(datasourceRegion)
+				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(datasourceRegion)
+				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+			} else {
+				MMLogDebug("[GeofencingService] region is expired.")
+			}
+		})
 	}
 	
 	public func locationManager(manager: CLLocationManager, didStartMonitoringForRegion region: CLRegion) {
@@ -531,15 +533,17 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(manager: CLLocationManager, didExitRegion region: CLRegion) {
 		assert(NSThread.isMainThread())
 		MMLogDebug("[GeofencingService] did exit circular region \(region)")
-		if let datasourceRegion = datasource.regionsDictionary[region.identifier] where datasourceRegion.isLive(for: .exit) {
-			datasourceRegion.triggerEvent(for: .exit)
-			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
-			delegate?.didExitRegion(datasourceRegion)
-			MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(datasourceRegion)
-			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
-		} else {
-			MMLogDebug("[GeofencingService] region is expired.")
-		}
+		datasource.regions(withIdentifier: region.identifier)?.forEach({ (datasourceRegion) in
+			if datasourceRegion.isLive(for: .exit) {
+				datasource.triggerEvent(for: .exit, region: datasourceRegion)
+				MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
+				delegate?.didExitRegion(datasourceRegion)
+				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(datasourceRegion)
+				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+			} else {
+				MMLogDebug("[GeofencingService] region is expired.")
+			}
+		})
 	}
 	
 	public func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
@@ -567,7 +571,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 
 public class MMDefaultGeoEventHandling: GeoEventHandling {
 	@objc public func didReceiveGeoEvent(region: MMRegion) {
-		if let message = region.message {
+		if let message = region.campaign?.message {
 			self.presentLocalNotificationAlert(with: message)
 		}
 	}
