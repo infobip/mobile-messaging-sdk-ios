@@ -21,7 +21,6 @@ final class MMInstallationManager {
 	
 	init(storage: MMCoreDataStorage, registrationRemoteAPI: MMRemoteAPIQueue) {
 		self.registrationRemoteAPI = registrationRemoteAPI
-		self.emailMsisdnRemoteAPI = MMRemoteAPIQueue(baseURL: registrationRemoteAPI.baseURL, applicationCode: registrationRemoteAPI.applicationCode)
 		self.storage = storage
 		self.storageContext = storage.newPrivateContext()
 		_currentInstallation = installationObject
@@ -37,7 +36,16 @@ final class MMInstallationManager {
 	
 	func setValueForKey(key: String, value: AnyObject?) {
 		storageContext.performBlock {
-			self.installationObject.setValueIfDifferent(value, forKey: key)
+			if let dictValue = value as? [String: AnyObject] {
+				if var dictionaryValue = self.getValueForKey(key) as? [String: AnyObject] {
+					dictionaryValue += dictValue
+					self.installationObject.setValueIfDifferent(dictionaryValue, forKey: key)
+				} else {
+					self.installationObject.setValueIfDifferent(value, forKey: key)
+				}
+			} else {
+				self.installationObject.setValueIfDifferent(value, forKey: key)
+			}
 		}
 	}
 	
@@ -82,7 +90,6 @@ final class MMInstallationManager {
 	private var installationHasChanges: Bool {
 		return installationObject.changedValues().count > 0
 	}
-	private var emailMsisdnRemoteAPI: MMRemoteAPIQueue
 	private var _currentInstallation: InstallationManagedObject?
 	
 	

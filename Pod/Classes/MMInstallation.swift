@@ -257,13 +257,7 @@ final public class MMUser: NSObject {
 	}
 	
 	func set(data object: UserDataSupportedTypes?, forKey key: String, attributeName: String) {
-		if let dictionaryValue = installationManager.getValueForKey(attributeName) as? [String: AnyObject] {
-			var updatedDictionaryValue = dictionaryValue
-			updatedDictionaryValue[key] = object ?? NSNull()
-			installationManager.setValueForKey(attributeName, value: updatedDictionaryValue)
-		} else {
-			installationManager.setValueForKey(attributeName, value: [key: object ?? NSNull()])
-		}
+		installationManager.setValueForKey(attributeName, value: [key: object ?? NSNull()])
 	}
 	
 	init(installation: MMInstallation) {

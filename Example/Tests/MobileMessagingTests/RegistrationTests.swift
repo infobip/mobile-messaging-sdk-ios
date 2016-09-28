@@ -60,20 +60,17 @@ final class RegistrationTests: MMTestCase {
 				
 				token2Saved.fulfill()
 				
-			    dispatch_async(dispatch_get_main_queue(), {
-					currentUser.save(email: MMTestConstants.kTestValidEmail, completion: { err in
-						XCTAssertNil(err)
-						validEmailSaved.fulfill()
-					})
-					
-					currentUser.save(msisdn: MMTestConstants.kTestValidMSISDN, completion: { err in
-						XCTAssertNil(err)
-						validMsisdnSaved.fulfill()
-					})
-				})
+				currentUser.email = MMTestConstants.kTestValidEmail
+				currentUser.msisdn = MMTestConstants.kTestValidMSISDN
+				
+				currentUser.save { err in
+					XCTAssertNil(err)
+					validEmailSaved.fulfill()
+					validMsisdnSaved.fulfill()
+				}
 			}
 		}
-        
+		
         self.waitForExpectationsWithTimeout(100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
 			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {

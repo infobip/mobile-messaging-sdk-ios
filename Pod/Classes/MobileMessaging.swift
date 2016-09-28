@@ -195,6 +195,7 @@ public final class MobileMessaging: NSObject {
 		self.currentInstallation = nil
 		self.appListener = nil
 		self.messageHandler = nil
+		self.currentUser = nil
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
 		MMGeofencingService.sharedInstance?.stop()
 	}
