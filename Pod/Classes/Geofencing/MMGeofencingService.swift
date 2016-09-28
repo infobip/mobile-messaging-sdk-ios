@@ -64,6 +64,11 @@ public protocol MMGeofencingServiceDelegate: class {
 public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	let kDistanceFilter: CLLocationDistance = 100
 	let kMonitoringRegionsLimit: Int = 20
+	static let kGeofencingPreferableUsage = MMLocationServiceUsage.Always
+	static let kGeofencingMinimumAllowedUsage = MMLocationServiceUsage.WhenInUse
+	static let kGeofencingSupportedAuthStatuses = [CLAuthorizationStatus.AuthorizedWhenInUse, CLAuthorizationStatus.AuthorizedAlways]
+	
+	
 	var isAvailable: Bool {
 		return MMGeofencingService.currentCapabilityStatus == .Authorized && MMGeofencingService.geoServiceEnabled
 	}
@@ -104,7 +109,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	/// Returns current capability status for Geofencing Service. For more information see `MMCapabilityStatus`.
 	public class var currentCapabilityStatus: MMCapabilityStatus {
-		return MMGeofencingService.currentCapabilityStatus(forService: MMLocationServiceKind.RegionMonitoring, usage: .Always)
+		return MMGeofencingService.currentCapabilityStatus(forService: MMLocationServiceKind.RegionMonitoring, usage: MMGeofencingService.kGeofencingMinimumAllowedUsage)
 	}
 
 	/// Requests permission to use location services whenever the app is running.
@@ -141,14 +146,14 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 				completion?(true)
 			case .NotDetermined:
 				MMLogDebug("[GeofencingService] capability is 'not determined', authorizing...")
-				self.authorizeService(MMLocationServiceKind.RegionMonitoring, usage: .Always) { status in
-					switch status {
+				self.authorizeService(MMLocationServiceKind.RegionMonitoring, usage: MMGeofencingService.kGeofencingPreferableUsage) { capability in
+					switch capability {
 					case .Authorized:
-						MMLogDebug("[GeofencingService] successfully authorized")
+						MMLogDebug("[GeofencingService] successfully authorized for `Always` mode")
 						self.startService()
 						completion?(true)
 					default:
-						MMLogDebug("[GeofencingService] was not authorized. Canceling the startup.")
+						MMLogDebug("[GeofencingService] was not authorized for `Always` mode. Canceling the startup.")
 						completion?(false)
 						break
 					}
@@ -249,7 +254,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			}
 			
 			self.capabilityCompletion = completion
-			self.usageKind = usage
+			self.desirableUsageKind = usage
 		
 			switch usage {
 			case .WhenInUse:
@@ -278,7 +283,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	// MARK: - Private
-	private var usageKind = MMLocationServiceUsage.WhenInUse
+	private var desirableUsageKind = MMLocationServiceUsage.WhenInUse
 	
 	private var capabilityCompletion: (MMCapabilityStatus -> Void)?
 	
@@ -482,7 +487,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			case .AuthorizedAlways:
 				completion(.Authorized)
 			case .AuthorizedWhenInUse:
-				completion(self.usageKind == .WhenInUse ? .Authorized : .Denied)
+				completion(self.desirableUsageKind == MMLocationServiceUsage.WhenInUse ? .Authorized : .Denied)
 			case .Denied:
 				completion(.Denied)
 			case .Restricted:
@@ -492,20 +497,13 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			}
 		}
 		
-		if self.isRunning {
-			switch status {
-			case .AuthorizedWhenInUse, .Denied, .Restricted, .NotDetermined:
-				stop()
-			default:
-				break
-			}
-		} else {
-			switch status {
-			case .AuthorizedAlways:
-				startService()
-			default:
-				break
-			}
+		switch (self.isRunning, status) {
+		case (true, let status) where !MMGeofencingService.kGeofencingSupportedAuthStatuses.contains(status):
+			stop()
+		case (false, let status) where MMGeofencingService.kGeofencingSupportedAuthStatuses.contains(status):
+			startService()
+		default:
+			break
 		}
 	}
 	
