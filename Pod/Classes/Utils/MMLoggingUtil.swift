@@ -128,9 +128,8 @@ final class MMLogFormatter: NSObject, DDLogFormatter {
         self.dateFormatter = DateFormatter()
         self.dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
     }
-    
-    func formatLogMessage(_ logMessage: DDLogMessage!) -> String! {
-        let date = dateFormatter.string(from: logMessage.timestamp)
-        return date + " [MobileMessaging] " + logMessage.message
-    }
+	func formatLogMessage(_ logMessage: DDLogMessage!) -> String! {
+		let date = dateFormatter.string(from: logMessage.timestamp)
+		return date + " [MobileMessaging] " + logMessage.message
+	}
 }

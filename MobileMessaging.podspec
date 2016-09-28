@@ -40,7 +40,7 @@ s.private_header_files = 'Pod/Classes/Vendor/**/*.h'
 s.frameworks = 'CoreData', 'CoreTelephony'
 s.resources = 'Pod/Classes/Storage/*.xcdatamodeld'
 #s.dependency 'SwiftyJSON'
-s.dependency 'CocoaLumberjack'
+s.dependency 'CocoaLumberjack', '2.3.0'
 
 # s.default_subspecs = 'HTTP', 'Operations', 'Vendor', 'Storage', 'Utils'
 

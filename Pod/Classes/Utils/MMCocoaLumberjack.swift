@@ -90,7 +90,7 @@ public func SwiftLogMacro(_ isAsynchronous: Bool, level: DDLogLevel, flag flg: D
         // Tell the DDLogMessage constructor to copy the C strings that get passed to it.
         // Using string interpolation to prevent integer overflow warning when using StaticString.stringValue
         let logMessage = DDLogMessage(message: string(), level: level, flag: flg, context: context, file: "\(file)", function: "\(function)", line: line, tag: tag, options: [.copyFile, .copyFunction], timestamp: nil)
-        DDLog.log(isAsynchronous, message: logMessage)
+		DDLog.log(isAsynchronous, message: logMessage)
     }
 }
 
