@@ -8,22 +8,6 @@
 import Foundation
 import CoreLocation
 
-@available(*, deprecated)
-enum MMCampaignOrigin: Int {
-	case Push = 0
-	case Manual //old, for geo showcase support
-}
-
-@available(*, deprecated)
-enum MMCampaignDataKeys: String {
-	case Id = "id"
-	case Title = "title"
-	case Message = "message"
-	case DateReceived = "receivedDate"
-	case Regions = "regions"
-	case Origin = "origin"
-}
-
 enum MMRegionDataKeys: String {
 	case Latitude = "latitude"
 	case Longitude = "longitude"
@@ -94,8 +78,22 @@ public func ==(lhs: MMGeoCampaign, rhs: MMGeoCampaign) -> Bool {
 	return lhs.messageId == rhs.messageId
 }
 
-@available(*, deprecated)
-final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, PlistArchivable {
+//MARK: Plist parsing, for migrate from old versions
+enum MMPlistCampaignOrigin: Int {
+	case Push = 0
+	case Manual //old, for geo showcase support
+}
+
+enum MMPlistCampaignDataKeys: String {
+	case Id = "id"
+	case Title = "title"
+	case Message = "message"
+	case DateReceived = "receivedDate"
+	case Regions = "regions"
+	case Origin = "origin"
+}
+
+final class MMPlistCampaign: Hashable, Equatable, CustomStringConvertible, PlistArchivable {
     public let id: String
     public let title: String?
     public let body: String?
@@ -121,23 +119,23 @@ final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, Pli
     }
 	
 	convenience init?(dictRepresentation dict: [String: AnyObject]) {
-		guard let id = dict[MMCampaignDataKeys.Id.rawValue] as? String,
-			  let regionDicts = dict[MMCampaignDataKeys.Regions.rawValue] as? [[String:AnyObject]] else
+		guard let id = dict[MMPlistCampaignDataKeys.Id.rawValue] as? String,
+			  let regionDicts = dict[MMPlistCampaignDataKeys.Regions.rawValue] as? [[String:AnyObject]] else
 		{
 			return nil
 		}
 		let regionObjects = regionDicts.flatMap(MMRegion.init)
-		let date = dict[MMCampaignDataKeys.DateReceived.rawValue] as? NSDate ?? NSDate()
+		let date = dict[MMPlistCampaignDataKeys.DateReceived.rawValue] as? NSDate ?? NSDate()
 		
 		//if .Manual, then do not re-save at CoreData DB
-		let origin = MMCampaignOrigin(rawValue: dict[MMCampaignDataKeys.Origin.rawValue] as? Int ?? 0) ?? .Manual
+		let origin = MMPlistCampaignOrigin(rawValue: dict[MMPlistCampaignDataKeys.Origin.rawValue] as? Int ?? 0) ?? .Manual
 		if origin == .Manual {
 			return nil
 		}
 		
 		self.init(id: id,
-		          title: dict[MMCampaignDataKeys.Title.rawValue] as? String ?? "",
-		          body: dict[MMCampaignDataKeys.Message.rawValue] as? String ?? "",
+		          title: dict[MMPlistCampaignDataKeys.Title.rawValue] as? String ?? "",
+		          body: dict[MMPlistCampaignDataKeys.Message.rawValue] as? String ?? "",
 		          sound: nil,
 		          dateReceived: date,
 		          regions: Set(regionObjects),
@@ -146,26 +144,26 @@ final public class MMCampaign: Hashable, Equatable, CustomStringConvertible, Pli
 	
 	var dictionaryRepresentation: [String: AnyObject] {
 		var result = [String: AnyObject]()
-		result[MMCampaignDataKeys.Id.rawValue] = id
-		result[MMCampaignDataKeys.Title.rawValue] = title
-		result[MMCampaignDataKeys.Message.rawValue] = body
-		result[MMCampaignDataKeys.DateReceived.rawValue] = dateReceived
-		result[MMCampaignDataKeys.Regions.rawValue] = regions.map { $0.dictionaryRepresentation }
+		result[MMPlistCampaignDataKeys.Id.rawValue] = id
+		result[MMPlistCampaignDataKeys.Title.rawValue] = title
+		result[MMPlistCampaignDataKeys.Message.rawValue] = body
+		result[MMPlistCampaignDataKeys.DateReceived.rawValue] = dateReceived
+		result[MMPlistCampaignDataKeys.Regions.rawValue] = regions.map { $0.dictionaryRepresentation }
 		
-		assert(MMCampaign(dictRepresentation: result) != nil, "The dictionary representation is invalid")
+		assert(MMPlistCampaign(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
 	
-	public var hashValue: Int {
+	var hashValue: Int {
 		return id.hashValue
 	}
 	
-	public var description: String {
+	var description: String {
 		return "title=\(title), id=\(id)"
 	}
 }
 
-public func ==(lhs: MMCampaign, rhs: MMCampaign) -> Bool {
+func ==(lhs: MMPlistCampaign, rhs: MMPlistCampaign) -> Bool {
     return lhs.id == rhs.id
 }
 

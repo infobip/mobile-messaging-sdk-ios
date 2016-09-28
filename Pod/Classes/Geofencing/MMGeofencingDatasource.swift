@@ -132,7 +132,7 @@ class MMGeofencingDatasource {
 	
 	private func loadCampainsFromPlist() {
 		//FIXME: move to BG thread
-		var campaigns: Set<MMCampaign>
+		var campaigns: Set<MMPlistCampaign>
 		guard let plistPath = plistURL.path,
 			let data = NSFileManager.defaultManager().contentsAtPath(plistPath),
 			let plistArray = try? NSPropertyListSerialization.propertyListWithData(data, options: NSPropertyListMutabilityOptions.MutableContainersAndLeaves, format: nil),
@@ -142,7 +142,7 @@ class MMGeofencingDatasource {
 			campaigns = []
 			return
 		}
-		campaigns = Set(plistDicts.flatMap(MMCampaign.init))
+		campaigns = Set(plistDicts.flatMap(MMPlistCampaign.init))
 		context.performBlockAndWait {
 		    campaigns.forEach({ (campaign) in
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
