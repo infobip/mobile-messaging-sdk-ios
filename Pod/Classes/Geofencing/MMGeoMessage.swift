@@ -1,5 +1,5 @@
 //
-//  MMCampaign.swift
+//  MMGeoMessage.swift
 //
 //  Created by Ivan Cigic on 06/07/16.
 //
@@ -39,11 +39,6 @@ protocol PlistArchivable {
 }
 
 extension MMMessage {
-	
-	public var isGeoMessage: Bool {
-		return self.geoRegionsData != nil
-	}
-	
 	convenience init?(managedObject: MessageManagedObject) {
 		guard let payload = managedObject.payload else {
 			return nil
@@ -53,29 +48,17 @@ extension MMMessage {
 	}
 }
 
-final public class MMGeoCampaign: Hashable, Equatable {
-	public var messageId: String {
-		return message.messageId
-	}
-	public let message: MMMessage
+final public class MMGeoMessage: MMMessage {
 	public let regions: Set<MMRegion>
 	
-	init?(message: MMMessage) {
-		guard let geoRegionsData = message.geoRegionsData else {
+	required public init?(payload: APNSPayload) {
+		guard let geoRegionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [StringKeyPayload] else {
 			return nil
 		}
-		self.message = message
 		self.regions = Set(geoRegionsData.flatMap(MMRegion.init))
-		self.regions.forEach{$0.campaign = self}
+		super.init(payload: payload)
+		self.regions.forEach{$0.message = self}
 	}
-	
-	public var hashValue: Int {
-		return message.messageId.hashValue
-	}
-}
-
-public func ==(lhs: MMGeoCampaign, rhs: MMGeoCampaign) -> Bool {
-	return lhs.messageId == rhs.messageId
 }
 
 //MARK: Plist parsing, for migrate from old versions
@@ -94,11 +77,11 @@ enum MMPlistCampaignDataKeys: String {
 }
 
 final class MMPlistCampaign: Hashable, Equatable, CustomStringConvertible, PlistArchivable {
-    public let id: String
-    public let title: String?
-    public let body: String?
-    public let dateReceived: NSDate
-    public let regions: Set<MMRegion>
+    let id: String
+    let title: String?
+    let body: String?
+    let dateReceived: NSDate
+    let regions: Set<MMRegion>
 	
 	init?(id: String,
 	      title: String?,
@@ -176,7 +159,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
-	weak var campaign: MMGeoCampaign?
+	weak var message: MMGeoMessage?
 	public var isLive: Bool {
 		let validEventExists = events.contains{$0.isValid}
 		return validEventExists && NSDate().compare(expiryDate) == .OrderedAscending && NSDate().compare(startDate) != .OrderedAscending

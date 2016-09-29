@@ -45,7 +45,6 @@ enum MMAPS {
 
 /// Incapsulates all the attributes related to the remote notifications.
 public class MMMessage: NSObject, MMMessageMetadata, JSONDecodable {
-	
 	override public var hashValue: Int { return messageId.hashValue }
 	
 	/// Defines the origin of a message.
@@ -66,11 +65,6 @@ public class MMMessage: NSObject, MMMessageMetadata, JSONDecodable {
 	///
 	/// See also: [Custom message payload](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Custom-message-payload)
 	public let customPayload: StringKeyPayload?
-	
-	/// Geographical regions data for the geofencing service.
-	///
-	/// See also: [Geofencing service](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service)
-	public let geoRegionsData: [StringKeyPayload]?
 	
 	/// Text of a message.
 	public var text: String? {
@@ -94,7 +88,7 @@ public class MMMessage: NSObject, MMMessageMetadata, JSONDecodable {
 		self.origin = .Server
 	}
 	
-	init?(payload: APNSPayload) {
+	required public init?(payload: APNSPayload) {
 		guard let payload = payload as? StringKeyPayload, let messageId = payload[MMAPIKeys.kMessageId] as? String, let nativeAPS = payload[MMAPIKeys.kAps] as? StringKeyPayload else {
 			return nil
 		}
@@ -114,7 +108,6 @@ public class MMMessage: NSObject, MMMessageMetadata, JSONDecodable {
 		//TODO: refactor all these `as` by extending Dictionary.
 		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? StringKeyPayload
 		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? StringKeyPayload
-		self.geoRegionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [StringKeyPayload]
 		
 		self.origin = .APNS
 	}
@@ -145,6 +138,15 @@ public class MMMessage: NSObject, MMMessageMetadata, JSONDecodable {
 			resultAps[MMAPIKeys.kSound] = sound
 		}
 		return resultAps
+	}
+}
+
+class MMMessageFactory {
+	class func makeMessage(payload: APNSPayload) -> MMMessage? {
+		return MMGeoMessage.init(payload: payload) ?? MMMessage.init(payload: payload)
+	}
+	class func makeMessage(json: JSON) -> MMMessage? {
+		return MMGeoMessage.init(json: json) ?? MMMessage.init(json: json)
 	}
 }
 

@@ -104,7 +104,7 @@ final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
     let messages : [MMMessage]?
 	required init?(json value: JSON) {
-		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessage(json: $0) }
+		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage($0) }
 		super.init(json: value)
 	}
 }

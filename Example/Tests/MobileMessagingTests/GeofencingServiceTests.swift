@@ -223,11 +223,10 @@ let oldjsonStr =
 
 class GeofencingServiceTests: MMTestCase {
 	func testCampaignAPNSConstructors() {
-		if let message = MMMessage(payload: apnsPayload),
-		   let campaign = MMGeoCampaign(message: message) {
+		if let message = MMGeoMessage(payload: apnsPayload) {
 			
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in message.regions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = zagreb[MMRegionDataKeys.Identifier.rawValue] as! String
@@ -257,11 +256,10 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testOldCampaignAPNSConstructors() {
-		if let message = MMMessage(payload: oldapnsPayload),
-		   let campaign = MMGeoCampaign(message: message){
+		if let message = MMGeoMessage(payload: oldapnsPayload) {
 			
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in message.regions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = zagreb[MMRegionDataKeys.Identifier.rawValue] as! String
@@ -295,10 +293,9 @@ class GeofencingServiceTests: MMTestCase {
 	func testCampaignJSONConstructors() {
 		let json = JSON.parse(jsonStr)
 		
-		if let message = MMMessage(json: json),
-		   let campaign = MMGeoCampaign(message: message) {
+		if let message = MMGeoMessage(json: json) {
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in message.regions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
@@ -333,10 +330,9 @@ class GeofencingServiceTests: MMTestCase {
 	func testCampaignJSONConstructorsWithoutStartTime() {
 		let json = JSON.parse(jsonStrWithoutStartTime)
 		
-		if let message = MMMessage(json: json),
-		   let campaign = MMGeoCampaign(message: message) {
+		if let message = MMGeoMessage(json: json) {
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in message.regions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
@@ -371,10 +367,9 @@ class GeofencingServiceTests: MMTestCase {
 	func testOldCampaignJSONConstructors() {
 		let json = JSON.parse(oldjsonStr)
 		
-		if let message = MMMessage(json: json),
-			let campaign = MMGeoCampaign(message: message) {
+		if let message = MMGeoMessage(json: json) {
 			var regionsDict = [String: MMRegion]()
-			for region in campaign.regions {
+			for region in message.regions {
 				regionsDict[region.identifier] = region
 			}
 			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
@@ -426,13 +421,12 @@ class GeofencingServiceTests: MMTestCase {
 	
 	//MARK: Events tests
 	func testDefaultEventsSettings() {
-		guard let message = MMMessage(payload: makeApnsPayload(withEvents: nil)),
-			  let campaign = MMGeoCampaign(message: message) else {
+		guard let message = MMGeoMessage(payload: makeApnsPayload(withEvents: nil)) else {
 			XCTFail()
 			return
 		}
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in message.regions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
@@ -454,13 +448,12 @@ class GeofencingServiceTests: MMTestCase {
 	func testOnlyOneEventType() {
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
 		
-		guard let message = MMMessage(payload: payload),
-			let campaign = MMGeoCampaign(message: message) else {
+		guard let message = MMGeoMessage(payload: payload) else {
 			XCTFail()
 			return
 		}
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in message.regions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
@@ -478,18 +471,45 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertFalse(pulaObject.isLive(for: .entry))
 	}
 	
+	func makeApnsPayload() -> [String: AnyObject] {
+		let internalData = [
+			MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
+			MMAPIKeys.kMessageType: MMAPIKeys.kGeo
+		]
+		let payload = [
+			"messageId": "123",
+			"aps": [ "content-available": 1],
+			MMAPIKeys.kInternalData: internalData
+		]
+		return payload
+	}
+	
+	func testGeoMessage() {
+		let geoMessage = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
+		let geoMsg = MMMessageFactory.makeMessage(geoMessage)
+		if !(geoMsg is MMGeoMessage) {
+			XCTFail()
+		}
+		
+		let message = makeApnsPayload()
+		let msg = MMMessageFactory.makeMessage(message)
+		if msg is MMGeoMessage {
+			XCTFail()
+		}
+	}
+	
 	func testEventsOccuring() {
 		let expEntry = expectationWithDescription("Entry event should become alive")
 		
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 2, timeout: 1),
 												   makeEvent(ofType: .exit, limit: 2, timeout: 1)])
-		guard let message = MMMessage(payload: payload), let campaign = MMGeoCampaign(message: message) else {
+		guard let message = MMGeoMessage(payload: payload) else {
 			XCTFail()
 			return
 		}
 		
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in message.regions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
@@ -522,13 +542,13 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 0, timeout: 0),
 												   makeEvent(ofType: .exit, limit: 0, timeout: 0)])
-		guard let message = MMMessage(payload: payload), let campaign = MMGeoCampaign(message: message) else {
+		guard let message = MMGeoMessage(payload: payload) else {
 			XCTFail()
 			return
 		}
 		
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in message.regions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
@@ -550,13 +570,13 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 1),
 			makeEvent(ofType: .exit, limit: 1)])
-		guard let message = MMMessage(payload: payload), let campaign = MMGeoCampaign(message: message) else {
+		guard let message = MMGeoMessage(payload: payload) else {
 			XCTFail()
 			return
 		}
 		
 		var regionsDict = [String: MMRegion]()
-		for region in campaign.regions {
+		for region in message.regions {
 			regionsDict[region.identifier] = region
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"

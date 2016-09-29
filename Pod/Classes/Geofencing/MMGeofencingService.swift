@@ -51,8 +51,8 @@ public final class MMLocationServiceKind: NSObject {
 }
 
 public protocol MMGeofencingServiceDelegate: class {
-	/// Called after the a new campaign is added to the service data source
-	func didAddCampaign(campaign: MMGeoCampaign)
+	/// Called after the a new geo message is added to the service data source
+	func didAddMessage(message: MMGeoMessage)
 	/// Called after the user entered the region
 	/// - parameter region: A particular region, that the user has entered
 	func didEnterRegion(region: MMRegion)
@@ -96,8 +96,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public var currentUserLocation: CLLocation? { return locationManager.location }
 	public weak var delegate: MMGeofencingServiceDelegate?
 	
-	/// Returns all the campaigns available in the Geofencing Service storage.
-	public var allCampaigns: Set<MMGeoCampaign> { return datasource.campaigns }
+	/// Returns all the geo messages available in the Geofencing Service storage.
+	public var allMessages: Set<MMGeoMessage> { return datasource.messages }
 	
 	/// Returns all the regions available in the Geofencing Service storage.
 	public var allRegions: Set<MMRegion> { return Set(datasource.regionsDictionary.values) }
@@ -177,29 +177,29 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
-	/// Accepts a campaign, during which the underlying regions should be monitored.
-	/// - parameter campaign: A campaign object to add to the monitoring. Object of `MMGeoCampaign` class.
-	public func add(campaign campaign: MMGeoCampaign) {
+	/// Accepts a geo message, which contains regions that should be monitored.
+	/// - parameter message: A message object to add to the monitoring. Object of `MMGeoMessage` class.
+	public func add(message message: MMGeoMessage) {
 		serviceQueue.executeAsync() {
-			MMLogDebug("[GeofencingService] trying to add a campaign")
+			MMLogDebug("[GeofencingService] trying to add a message")
 			guard MMGeofencingService.geoServiceEnabled == true && self.isRunning == true else
 			{
 				MMLogDebug("[GeofencingService] geoServiceEnabled = \(MMGeofencingService.geoServiceEnabled), isRunning = \(self.isRunning))")
 				return
 			}
 			
-			self.datasource.add(campaign: campaign)
-			self.delegate?.didAddCampaign(campaign)
-			MMLogDebug("[GeofencingService] added a campaign\n\(campaign)")
+			self.datasource.add(message: message)
+			self.delegate?.didAddMessage(message)
+			MMLogDebug("[GeofencingService] added a message\n\(message)")
 			self.refreshMonitoredRegions()
 		}
 	}
 
-	/// Removes a campaign from the monitoring.
-	public func removeCampaign(withId campaignId: String) {
+	/// Removes a message from the monitoring.
+	public func removeMessage(withId messageId: String) {
 		serviceQueue.executeAsync() {
-			self.datasource.removeCampaign(withId: campaignId)
-			MMLogDebug("[GeofencingService] campaign removed \(campaignId)")
+			self.datasource.removeMessage(withId: messageId)
+			MMLogDebug("[GeofencingService] message removed \(messageId)")
 			self.refreshMonitoredRegions()
 		}
 	}
@@ -571,7 +571,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 
 public class MMDefaultGeoEventHandling: GeoEventHandling {
 	@objc public func didReceiveGeoEvent(region: MMRegion) {
-		if let message = region.campaign?.message {
+		if let message = region.message {
 			self.presentLocalNotificationAlert(with: message)
 		}
 	}
