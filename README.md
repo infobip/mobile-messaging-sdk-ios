@@ -41,13 +41,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	> ### Notice 
 	> MobileMessaging SDK has geofencing service enabled by default. In order to opt-out the service, skip following 6-8 steps and follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service#disabling-the-default-geofencing-service-startup).
 
-6. Include the `UIRequiredDeviceCapabilities` key in the app’s `Info.plist` file. The value for the `UIRequiredDeviceCapabilities` is an array of strings indicating the features that your app requires. Two strings are required for using geofencing services:
-    - `location-services`
-    - `gps`
-
-    _For more information about the UIRequiredDeviceCapabilities key, see [Information Property List Key Reference](https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Introduction/Introduction.html#//apple_ref/doc/uid/TP40009247)._
-7. Enable the **Background Modes** capability in your Xcode project (located in the **Capabilities** tab of your project) and enable the **Location updates** mode.
-8. Include the `NSLocationAlwaysUsageDescription` key in your app’s Info.plist file and set the value of that key to a string that describes how your app intends to use location data.
+6. Include `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysUsageDescription` keys in your app’s Info.plist. These keys let you describe the reason your app accesses the user’s location information. The system includes the value of these keys in the alert panel displayed to the user when requesting permission to use location services.
 
 ### App Delegate Inheritance
 The simplest approach to integrate Mobile Messaging with an existing app is by inheriting your app delegate from `MobileMessagingAppDelegate`. If you prefer a more advanced way: [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition).
