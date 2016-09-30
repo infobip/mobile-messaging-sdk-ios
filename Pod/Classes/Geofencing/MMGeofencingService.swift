@@ -73,36 +73,16 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		return MMGeofencingService.currentCapabilityStatus == .Authorized && MMGeofencingService.geoServiceEnabled
 	}
 	
-	class func withStorage(storage: MMCoreDataStorage) -> MMGeofencingService {
-		sharedInstance = MMGeofencingService(storage: storage)
-		return sharedInstance!
-	}
-	
-	static var sharedInstance: MMGeofencingService?
 	var locationManager: CLLocationManager!
 	var datasource: MMGeofencingDatasource!
 	var isRunning = false
 	
 	// MARK: - Public
-	static var _geoServiceEnabled = true
-	public static var geoServiceEnabled: Bool {
-		set {
-			if newValue != geoServiceEnabled && newValue == false {
-				MMGeofencingService.sharedInstance?.stop()
-			}
-			_geoServiceEnabled = newValue
-		}
-		get {
-			return _geoServiceEnabled
-		}
-	}
+	public static var geoServiceEnabled: Bool = true
 	
 	/// Returns current user location with accuracy `kCLLocationAccuracyHundredMeters`.
 	public var currentUserLocation: CLLocation? { return locationManager.location }
 	public weak var delegate: MMGeofencingServiceDelegate?
-	
-	/// Returns all the geo messages available in the Geofencing Service storage.
-	public var allMessages: Set<MMGeoMessage> { return datasource.messages }
 	
 	/// Returns all the regions available in the Geofencing Service storage.
 	public var allRegions: Set<MMRegion> { return Set(datasource.regionsDictionary.values) }
@@ -574,7 +554,7 @@ public class MMDefaultGeoEventHandling: GeoEventHandling {
 		}
 	}
 	
-	func presentLocalNotificationAlert(with message: MMMessage) {
+	func presentLocalNotificationAlert(with message: MTMessage) {
 		MMLocalNotification.presentLocalNotification(with: message)
 	}
 }

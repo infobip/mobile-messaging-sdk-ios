@@ -13,14 +13,16 @@ class MessagePostingOperation: Operation {
 	let finishBlock: (MMMOMessageResult -> Void)?
 	var result = MMMOMessageResult.Cancel
 	let remoteAPIQueue: MMRemoteAPIQueue
-	var messagesToSend: [MOMessage]?
+	var messagesToSend: Set<MOMessage>?
 	var resultMessages: [MOMessage]?
 	
 	init(messages: [MOMessage]?, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMMOMessageResult -> Void)? = nil) {
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
-		self.messagesToSend = messages
+		if let messages = messages where !messages.isEmpty {
+			self.messagesToSend = Set(messages)
+		}
 		super.init()
 		
 		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
@@ -34,15 +36,14 @@ class MessagePostingOperation: Operation {
 				return
 			}
 			
-			guard let messagesToSend = self.messagesToSend else {
+			guard let messagesToSend = self.messagesToSend where !messagesToSend.isEmpty else {
 				self.finish()
 				return
 			}
 			
-			if let request = MMPostMessageRequest(internalUserId: internalId, messages: messagesToSend) {
-				
+			if let request = MMPostMessageRequest(internalUserId: internalId, messages: Array(messagesToSend)) {
 				self.postWillSendNotification(messagesToSend: messagesToSend)
-				
+				self.populateMessageStorage(with: messagesToSend)
 				self.remoteAPIQueue.perform(request: request) { result in
 					self.handleResult(result)
 					self.finishWithError(result.error)
@@ -51,8 +52,17 @@ class MessagePostingOperation: Operation {
 		}
 	}
 	
-	private func postWillSendNotification(messagesToSend messagesToSend: [MOMessage]) {
+	private func populateMessageStorage(with messages: Set<MOMessage>) {
+		MobileMessaging.sharedInstance?.messageStorageAdapter?.insert(outgoing: Array(messages))
+	}
+	
+	private func updateMessageStorage(with messages: [MOMessage]) {
+		messages.forEach({ MobileMessaging.sharedInstance?.messageStorageAdapter?.update(messageSentStatus: $0.sentStatus, for: $0.messageId) })
+	}
+	
+	private func postWillSendNotification(messagesToSend messagesToSend: Set<MOMessage>) {
 		var userInfo = [String: AnyObject]()
+
 		userInfo[MMNotificationKeyMessageSendingMOMessages] = messagesToSend
 		NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationMessagesWillSend, userInfo: userInfo.isEmpty ? nil : userInfo)
 	}
@@ -69,6 +79,7 @@ class MessagePostingOperation: Operation {
 			switch result {
 			case .Success(let response):
 				self.handleSuccess(response.messages)
+				self.updateMessageStorage(with: response.messages)
 				MMLogDebug("Message posting successfuly finished")
 			case .Failure(let error):
 				MMLogError("Message posting request failed with error: \(error)")

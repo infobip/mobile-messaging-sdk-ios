@@ -54,10 +54,12 @@ class SeenStatusSendingOperation: Operation {
 			
 			context.performBlockAndWait {
 				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), inContext: self.context) as? [MessageManagedObject] where messages.count > 0 {
-					for message in messages {
+					messages.forEach { message in
 						message.seenStatus = .SeenSent
 					}
 					self.context.MM_saveToPersistentStoreAndWait()
+					
+					self.updateMessageStorage(with: messages)
 				}
 			}
 			
@@ -65,6 +67,10 @@ class SeenStatusSendingOperation: Operation {
 			MMLogError("Seen messages request failed with error: \(error)")
 		case .Cancel: break
 		}
+	}
+	
+	private func updateMessageStorage(with messages: [MessageManagedObject]) {
+		messages.forEach({ MobileMessaging.messageStorage?.update(messageSeenStatus: $0.seenStatus , for: $0.messageId) })
 	}
 	
 	override func finished(errors: [NSError]) {

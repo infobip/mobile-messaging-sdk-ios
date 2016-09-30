@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 
     s.subspec 'Core' do |core|
         core.frameworks = 'CoreData', 'CoreTelephony'
-        core.resources = 'Pod/Classes/Storage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
+        core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
         core.public_header_files = 'Pod/Classes/**/*.h'
         core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
         core.source_files = 'Pod/Classes/**/*.{c,h,hh,m,mm,swift}'

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G31" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G1004" minimumToolsVersion="Xcode 7.0">
     <entity name="InstallationManagedObject" representedClassName=".InstallationManagedObject" syncable="YES">
         <attribute name="badgeNumber" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="customUserData" optional="YES" attributeType="Transformable" syncable="YES"/>

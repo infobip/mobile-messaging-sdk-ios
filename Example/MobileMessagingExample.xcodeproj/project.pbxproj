@@ -13,6 +13,8 @@
 		500003101CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		500003111CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502129421CEEF450007CEF8E /* MessagesManager.swift */; };
+		5073E4131D8AC93A00A175C4 /* MessageStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */; };
+		5073E4141D8AC93A00A175C4 /* MessageStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */; };
 		5079E8EC1D37C61700C09BE9 /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
 		507D54FD1D81ABAC00A26F37 /* CoreDataHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */; };
 		507D54FE1D81ABAD00A26F37 /* CoreDataHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */; };
@@ -79,6 +81,7 @@
 		002D861BD5A05AE0FB9FBCEB /* Pods_MobileMessagingExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		220F5AFCE661E9767C9715CF /* Pods-MobileMessagingExample_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		502129421CEEF450007CEF8E /* MessagesManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesManager.swift; sourceTree = "<group>"; };
+		5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageStorageTests.swift; sourceTree = "<group>"; };
 		5077629C1CC2893B00499542 /* MMTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMTestCase.swift; sourceTree = "<group>"; };
 		5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataTests.swift; sourceTree = "<group>"; };
 		507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataHelpersTests.swift; sourceTree = "<group>"; };
@@ -277,6 +280,7 @@
 			isa = PBXGroup;
 			children = (
 				507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */,
+				5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */,
 				A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */,
 				A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */,
 				A09103DB1CABA839001873B4 /* RegistrationTests.swift */,
@@ -606,6 +610,7 @@
 				A03F75051CE2243C00414A6B /* TestUtils.swift in Sources */,
 				50AD28B71D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */,
 				507D54FD1D81ABAC00A26F37 /* CoreDataHelpersTests.swift in Sources */,
+				5073E4131D8AC93A00A175C4 /* MessageStorageTests.swift in Sources */,
 				A03F75011CE2243C00414A6B /* RegistrationTests.swift in Sources */,
 				A03F75001CE2243600414A6B /* MessageReceivingTests.swift in Sources */,
 				A03F75021CE2243C00414A6B /* RetryOperationTests.swift in Sources */,
@@ -628,6 +633,7 @@
 				50DBBC8B1D50881200485835 /* MOMessageSendingTests.swift in Sources */,
 				8EFABFCF1CEB3B9400510762 /* RegistrationTests.swift in Sources */,
 				507D54FE1D81ABAD00A26F37 /* CoreDataHelpersTests.swift in Sources */,
+				5073E4141D8AC93A00A175C4 /* MessageStorageTests.swift in Sources */,
 				50829B781D62056B00BAFA46 /* GeofencingServiceTests.swift in Sources */,
 				8EFABFD01CEB3B9400510762 /* MessageReceivingTests.swift in Sources */,
 				8EFABFD11CEB3B9400510762 /* RetryOperationTests.swift in Sources */,

@@ -38,26 +38,26 @@ protocol PlistArchivable {
 	var dictionaryRepresentation: [String: AnyObject] {get}
 }
 
-extension MMMessage {
+extension MTMessage {
 	convenience init?(managedObject: MessageManagedObject) {
 		guard let payload = managedObject.payload else {
 			return nil
 		}
 		
-		self.init(payload: payload)
+		self.init(payload: payload, createdDate: managedObject.creationDate)
 	}
 }
 
-final public class MMGeoMessage: MMMessage {
+final public class MMGeoMessage: MTMessage {
 	public let regions: Set<MMRegion>
 	
-	required public init?(payload: APNSPayload) {
+	public override init?(payload: APNSPayload, createdDate: NSDate) {
 		guard let geoRegionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [StringKeyPayload] else {
 			return nil
 		}
 		self.regions = Set(geoRegionsData.flatMap(MMRegion.init))
-		super.init(payload: payload)
-		self.regions.forEach{$0.message = self}
+		super.init(payload: payload, createdDate: createdDate)
+		self.regions.forEach { $0.message = self }
 	}
 }
 
@@ -267,7 +267,6 @@ final class MMRegionEvent: PlistArchivable {
 	let type: MMRegionEventType
 	let limit: UInt					//how many times this event can occur, 0 means unlimited
 	let timeout: UInt			    //minutes till next possible event
-	
 	var rate: UInt = 0
 	var lastOccur: NSDate?
 	
@@ -276,7 +275,7 @@ final class MMRegionEvent: PlistArchivable {
 			return false
 		}
 		
-		return lastOccur?.dateByAddingTimeInterval(NSTimeInterval(timeout*60)).compare(NSDate()) != .OrderedDescending
+		return lastOccur?.dateByAddingTimeInterval(NSTimeInterval(timeout * 60)).compare(NSDate()) != .OrderedDescending
 	}
 	
 	func occur() {

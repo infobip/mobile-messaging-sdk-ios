@@ -8,21 +8,10 @@
 
 import Foundation
 
-@objc public protocol MessageHandling {
-	// For swift 3 use `func didReceiveNewMessage(_ message: MMMessage)`
-	
-	/// This callback is triggered after the new message is received. Default behaviour is implemented by `MMDefaultMessageHandling` class.
-	func didReceiveNewMessage(message: MMMessage)
-}
-
 public final class MobileMessaging: NSObject {
-	
+
 	//MARK: Public
-	/// The message handling object defines the behaviour that is triggered during the message handling.
-	///
-	/// You can implement your own message handling either by subclassing `MMDefaultMessageHandling` or implementing the `MessageHandling` protocol.
-	public static var messageHandling: MessageHandling = MMDefaultMessageHandling()
-	
+
 	/// Fabric method for Mobile Messaging session.
 	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
 	/// - parameter applicationCode: The application code of your Application from Push Portal website.
@@ -34,7 +23,7 @@ public final class MobileMessaging: NSObject {
 	/// Fabric method for Mobile Messaging session.
 	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	public func withBackendBaseURL(urlString: String) -> MobileMessaging {
-		remoteAPIBaseURL = urlString
+		self.remoteAPIBaseURL = urlString
 		return self
 	}
 	
@@ -42,6 +31,24 @@ public final class MobileMessaging: NSObject {
 	/// - parameter disabled: the flag is used to disable the default Geofencing service startup procedure.
 	public func withGeofencingServiceDisabled(disabled: Bool) -> MobileMessaging {
 		MMGeofencingService.geoServiceEnabled = !disabled
+		if disabled == false {
+			self.geofencingService?.stop()
+		}
+		return self
+	}
+	
+	/// Fabric method for Mobile Messaging session.
+	/// It is possible to supply a default implementation of Message Storage to the Mobile Messaging library during initialization. In this case the library will save all received Push messages using the `MMDefaultMessageStorage`. Library can also be initialized either without message storage or with user-provided one (see `withMessageStorage(messageStorage:)`).
+	public func withDefaultMessageStorage() -> MobileMessaging {
+		self.messageStorage = MMDefaultMessageStorage()
+		return self
+	}
+	
+	/// Fabric method for Mobile Messaging session.
+	/// It is possible to supply an implementation of Message Storage to the Mobile Messaging library during initialization. In this case the library will save all received Push messages to the supplied `messageStorage`. Library can also be initialized either without message storage or with the default message storage (see `withDefaultMessageStorage()` method).
+	/// - parameter messageStorage: a storage object, that implements the `MessageStorage` protocol
+	public func withMessageStorage(messageStorage: MessageStorage) -> MobileMessaging {
+		self.messageStorage = messageStorage
 		return self
 	}
 	
@@ -57,10 +64,10 @@ public final class MobileMessaging: NSObject {
 			case .InMemory:
 				storage = try MMCoreDataStorage.makeInMemoryStorage()
 			case .SQLite:
-				storage = try MMCoreDataStorage.makeSQLiteStorage()
+				storage = try MMCoreDataStorage.makeSQLiteInternalStorage()
 			}
 			if let storage = storage {
-				self.storage = storage
+				self.internalStorage = storage
 				let installation = MMInstallation(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
 				self.currentInstallation = installation
 				let user = MMUser(installation: installation)
@@ -68,8 +75,10 @@ public final class MobileMessaging: NSObject {
 				let messageHandler = MMMessageHandler(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
 				self.messageHandler = messageHandler
 				self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
+				self.startMessageStorage()
 				
-				MMGeofencingService.withStorage(storage).start()
+				self.geofencingService = MMGeofencingService(storage: storage)
+				self.geofencingService?.start()
 				
 				MMLogInfo("MobileMessaging SDK service successfully initialized.")
 			}
@@ -88,6 +97,7 @@ public final class MobileMessaging: NSObject {
 			MMLogDebug("Registering for remote notifications...")
 			UIApplication.sharedApplication().registerForRemoteNotifications()
 		}
+		completion?()
 	}
 	
 	/// Stops the currently running Mobile Messaging session.
@@ -103,11 +113,13 @@ public final class MobileMessaging: NSObject {
 	/// - setting up the logging options and logging levels.
 	/// - obtaining a path to the logs file in case the Logging utility is set up to log in file (logging options contains `.file` option).
 	public static var logger: MMLogging = MMLogger()
-	
+
 	/// This service manages geofencing areas, emits geografical regions entering/exiting notifications.
 	///
 	/// You access the Geofencing service APIs through this property.
-	public internal(set) static var geofencingService = MMGeofencingService.sharedInstance
+	public class var geofencingService: MMGeofencingService? {
+		return MobileMessaging.sharedInstance?.geofencingService
+	}
 	
 	/// This method handles a new APNs device token and updates user's registration on the server.
 	///
@@ -136,6 +148,11 @@ public final class MobileMessaging: NSObject {
 		return MobileMessaging.sharedInstance?.currentInstallation
 	}
 	
+	/// Returns the default message storage if used. For more information see `MMDefaultMessageStorage` class description.
+	public class var defaultMessageStorage: MMDefaultMessageStorage? {
+		return MobileMessaging.sharedInstance?.messageStorage as? MMDefaultMessageStorage
+	}
+
 	/// Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
 	public class var currentUser: MMUser? {
 		return MobileMessaging.sharedInstance?.currentUser
@@ -168,7 +185,13 @@ public final class MobileMessaging: NSObject {
 	/// A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	public static var notificationTapHandler: (([NSObject : AnyObject]) -> Void)?
 	
+	/// An auxillary component provides the convinient access to the user agent data.
 	public static var userAgent = MMUserAgent()
+	
+	/// The message handling object defines the behaviour that is triggered during the message handling.
+	///
+	/// You can implement your own message handling either by subclassing `MMDefaultMessageHandling` or implementing the `MessageHandling` protocol.
+	public static var messageHandling: MessageHandling = MMDefaultMessageHandling()
 	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
@@ -181,7 +204,8 @@ public final class MobileMessaging: NSObject {
 	
 	func cleanUpAndStop() {
 		MMLogDebug("Cleaning up MobileMessaging service...")
-		self.storage?.drop()
+		self.internalStorage?.drop()
+		(MobileMessaging.sharedInstance?.messageStorage as? MMDefaultMessageStorage)?.coreDataStorage?.drop()
 		self.stop()
 	}
 	
@@ -191,13 +215,16 @@ public final class MobileMessaging: NSObject {
 			UIApplication.sharedApplication().unregisterForRemoteNotifications()
 		}
 
-		self.storage = nil
+		self.internalStorage = nil
 		self.currentInstallation = nil
 		self.appListener = nil
 		self.messageHandler = nil
 		self.currentUser = nil
+		self.messageStorage?.stop()
+		self.messageStorage = nil
+		
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
-		MMGeofencingService.sharedInstance?.stop()
+		MobileMessaging.geofencingService?.stop()
 	}
 	
 	func didReceiveRemoteNotification(userInfo: [NSObject : AnyObject], newMessageReceivedCallback: ([NSObject : AnyObject] -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
@@ -222,14 +249,29 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	//MARK: Private
+	private func startMessageStorage() {
+		self.messageStorage?.start()
+	}
+	
 	private init(applicationCode: String, notificationType: UIUserNotificationType) {
 		self.applicationCode = applicationCode
 		self.userNotificationType = notificationType
 	}
 	
-	private(set) var storage: MMCoreDataStorage?
+	class var messageStorage: MessageStorage? {
+		return MobileMessaging.sharedInstance?.messageStorage
+	}
+	
+	var messageStorageAdapter: MMMessageStorageQueuedAdapter?
+	private(set) var messageStorage: MessageStorage? {
+		didSet {
+			messageStorageAdapter = MMMessageStorageQueuedAdapter(adapteeStorage: messageStorage)
+		}
+	}
+	private(set) var internalStorage: MMCoreDataStorage?
 	private(set) var currentInstallation: MMInstallation?
 	private(set) var currentUser: MMUser?
 	private(set) var appListener: MMApplicationListener?
 	private(set) var messageHandler: MMMessageHandler?
+	internal(set) var geofencingService: MMGeofencingService?
 }

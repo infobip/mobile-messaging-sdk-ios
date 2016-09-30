@@ -102,9 +102,9 @@ class MMHTTPEmptyResponse: MMHTTPResponse {
 final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
-    let messages : [MMMessage]?
+    let messages: [MTMessage]?
 	required init?(json value: JSON) {
-		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage($0) }
+		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
 		super.init(json: value)
 	}
 }
@@ -138,7 +138,7 @@ final class MMHTTPMOMessageResponse: MMHTTPResponse {
 
 
 //MARK: Other
-func ==(lhs: MMMessage, rhs: MMMessage) -> Bool {
+func ==(lhs: MTMessage, rhs: MTMessage) -> Bool {
 	return lhs.messageId == rhs.messageId
 }
 

@@ -12,7 +12,7 @@ class ManagedObjectObserverTests: MMTestCase {
 
     override func setUp() {
         super.setUp()
-		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext {
+		if let ctx = storage.mainThreadManagedObjectContext {
 			let msg1 = MessageManagedObject.MM_createEntityInContext(context: ctx)
 			msg1.messageId = "1.1"
 			
@@ -30,7 +30,7 @@ class ManagedObjectObserverTests: MMTestCase {
 		let expectation1 = expectationWithDescription("Message 1 observed")
 		let expectation2 = expectationWithDescription("Message 2 observed")
 		
-		if	let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext,
+		if	let ctx = storage.mainThreadManagedObjectContext,
 			let msg1 = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId == %@", "1.1"), inContext: ctx)!.first as? MessageManagedObject,
 			let msg2 = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId == %@", "2.1"), inContext: ctx)!.first as? MessageManagedObject {
 			
@@ -65,7 +65,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	
 	func testThatChangeHandlerNotTriggerred() {
 		let expectation = expectationWithDescription("Test finished")
-		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
+		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			let observingKeyPath = "creationDate"
 			
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -87,7 +87,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	
 	func testThatRemovedObserverNotTriggerred() {
 		let expectation = expectationWithDescription("Test finished")
-		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
+		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			do {
 				let observingKeyPath = "messageId"
 				ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -118,7 +118,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	}
 	
 	func testObservationsNotDuplicated() {
-		if let ctx = mobileMessagingInstance.storage?.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
+		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			var observationsCounter = 0
 			let expectation = expectationWithDescription("Test finished")
 			let observingKeyPath = "messageId"
@@ -147,7 +147,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	
 	func testThatStopServiceResets() {
 		
-		if let msg = MessageManagedObject.MM_findFirstInContext(context: mobileMessagingInstance.storage!.mainThreadManagedObjectContext!){
+		if let msg = MessageManagedObject.MM_findFirstInContext(context: storage.mainThreadManagedObjectContext!){
 			let expectation = expectationWithDescription("Test finished")
 			
 			let observingKeyPath = "messageId"
@@ -159,7 +159,7 @@ class ManagedObjectObserverTests: MMTestCase {
 			mobileMessagingInstance.cleanUpAndStop()
 			startWithCorrectApplicationCode()
 			
-			let ctx = mobileMessagingInstance.storage!.mainThreadManagedObjectContext!
+			let ctx = storage.mainThreadManagedObjectContext!
 			let msg2 = MessageManagedObject.MM_createEntityInContext(context: ctx)
 			msg2.messageId = "2.1"
 			ctx.MM_saveToPersistentStoreAndWait()

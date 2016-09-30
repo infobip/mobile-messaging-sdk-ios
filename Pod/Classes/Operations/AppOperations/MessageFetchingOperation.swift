@@ -89,17 +89,23 @@ final class MessageFetchingOperation: Operation {
 			return
 		}
 		
-		for message in messages {
+		messages.forEach { message in
 			message.reportSent = true
 		}
 		
 		MMLogDebug("Marked as delivered: \(messages.map{ $0.messageId })")
 		context.MM_saveToPersistentStoreAndWait()
+		
+		self.updateMessageStorage(with: messages)
 	}
 	
-	private func handleMessageOperation(messages: [MMMessage]) -> MessageHandlingOperation {
+	private func updateMessageStorage(with messages: [MessageManagedObject]) {
+		messages.forEach({ MobileMessaging.sharedInstance?.messageStorageAdapter?.update(deliveryReportStatus: $0.reportSent.boolValue , for: $0.messageId) })
+	}
+	
+	private func handleMessageOperation(messages: [MTMessage]) -> MessageHandlingOperation {
 		return MessageHandlingOperation(messagesToHandle: messages,
-		                                messagesOrigin: .Server,
+		                                messagesDeliveryMethod: .pull,
 		                                context: self.context,
 		                                remoteAPIQueue: self.remoteAPIQueue,
 		                                messageHandler: MobileMessaging.messageHandling) { error in

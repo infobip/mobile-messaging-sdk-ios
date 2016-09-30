@@ -83,7 +83,7 @@ class FetchMessagesTest: MMTestCase {
 		
 		//Expectations
 		waitForExpectationsWithTimeout(50) { error in
-			let ctx = self.mobileMessagingInstance.storage!.mainThreadManagedObjectContext!
+			let ctx = self.storage.mainThreadManagedObjectContext!
 			ctx.reset()
 			ctx.performBlockAndWait {
 				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
@@ -207,7 +207,7 @@ class MessageHandlingMock : MMDefaultMessageHandling {
 	init(localNotificationShownBlock: Void -> Void) {
 		self.localNotificationShownBlock = localNotificationShownBlock
 	}
-	override func presentLocalNotificationAlert(with message: MMMessage) {
+	override func presentLocalNotificationAlert(with message: MTMessage) {
 		self.localNotificationShownBlock()
 	}
 }

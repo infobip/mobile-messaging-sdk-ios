@@ -11,6 +11,17 @@ import SwiftyJSON
 @testable import MobileMessaging
 
 
+class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
+	override var isRunning: Bool {
+		set {
+			
+		}
+		get {
+			return true
+		}
+	}
+}
+
 let expectedStartDateString = "2016-08-05T12:20:16+03:00"
 let expectedStartMillisNumber = NSNumber(longLong: 1470388816000)
 let expectedStartMillisString = "1470388816000"
@@ -221,10 +232,73 @@ let oldjsonStr =
 		"}" +
 "}"
 
+
+func makeApnsPayload() -> [String: AnyObject] {
+	let internalData = [
+		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
+		MMAPIKeys.kMessageType: MMAPIKeys.kGeo
+	]
+	let payload = [
+		"messageId": "123",
+		"aps": [ "content-available": 1],
+		MMAPIKeys.kInternalData: internalData
+	]
+	return payload
+}
+func makeApnsPayload(withEvents events: [AnyObject]?) -> [String: AnyObject] {
+	let internalData = [
+		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
+		MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
+		MMAPIKeys.kGeo: [makePulaRegion(withEvents: events)]
+	]
+	let payload = [
+		"messageId": "123",
+		"aps": [ "content-available": 1],
+		MMAPIKeys.kInternalData: internalData
+	]
+	return payload
+}
+
+func makeEvent(ofType type: MMRegionEventType, limit: UInt, timeout: UInt) -> [String: AnyObject] {
+	return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
+	        MMRegionEventDataKeys.eventLimit.rawValue: limit,
+	        MMRegionEventDataKeys.eventTimeout.rawValue: timeout]
+}
+
+func makeEvent(ofType type: MMRegionEventType, limit: UInt) -> [String: AnyObject] {
+	return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
+	        MMRegionEventDataKeys.eventLimit.rawValue: limit]
+}
+
+func makePulaRegion(withEvents events: [AnyObject]?) -> [String: AnyObject] {
+	let expiryDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(NSDate.distantFuture())
+	
+	return [
+		MMRegionDataKeys.ExpiryDate.rawValue: expiryDateString,
+		MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
+		MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
+		MMRegionDataKeys.Longitude.rawValue: 13.84586334228516,
+		MMRegionDataKeys.Radius.rawValue: 5257,
+		MMRegionDataKeys.Title.rawValue: "Pula",
+		MMRegionDataKeys.Event.rawValue: events ?? NSNull()
+	]
+}
+
 class GeofencingServiceTests: MMTestCase {
+	
+	func testThatGeoPushIsPassedToTheGeoService() {
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
+		let expectation = expectationWithDescription("Check finished")
+		self.mobileMessagingInstance.didReceiveRemoteNotification(apnsPayload, newMessageReceivedCallback: nil, completion: { result in
+			expectation.fulfill()
+		})
+		self.waitForExpectationsWithTimeout(100, handler: { error in
+			XCTAssertEqual(MobileMessaging.geofencingService?.allRegions.count, 2)
+		})
+	}
+	
 	func testCampaignAPNSConstructors() {
-		if let message = MMGeoMessage(payload: apnsPayload) {
-			
+		if let message = MMGeoMessage(payload: apnsPayload, createdDate: NSDate()) {
 			var regionsDict = [String: MMRegion]()
 			for region in message.regions {
 				regionsDict[region.identifier] = region
@@ -256,8 +330,7 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testOldCampaignAPNSConstructors() {
-		if let message = MMGeoMessage(payload: oldapnsPayload) {
-			
+		if let message = MMGeoMessage(payload: oldapnsPayload, createdDate: NSDate()) {
 			var regionsDict = [String: MMRegion]()
 			for region in message.regions {
 				regionsDict[region.identifier] = region
@@ -292,7 +365,7 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testCampaignJSONConstructors() {
 		let json = JSON.parse(jsonStr)
-		
+	
 		if let message = MMGeoMessage(json: json) {
 			var regionsDict = [String: MMRegion]()
 			for region in message.regions {
@@ -421,7 +494,7 @@ class GeofencingServiceTests: MMTestCase {
 	
 	//MARK: Events tests
 	func testDefaultEventsSettings() {
-		guard let message = MMGeoMessage(payload: makeApnsPayload(withEvents: nil)) else {
+		guard let message = MMGeoMessage(payload: makeApnsPayload(withEvents: nil), createdDate: NSDate()) else {
 			XCTFail()
 			return
 		}
@@ -448,7 +521,7 @@ class GeofencingServiceTests: MMTestCase {
 	func testOnlyOneEventType() {
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
 		
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, createdDate: NSDate()) else {
 			XCTFail()
 			return
 		}
@@ -471,39 +544,22 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertFalse(pulaObject.isLive(for: .entry))
 	}
 	
-	func makeApnsPayload() -> [String: AnyObject] {
-		let internalData = [
-			MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
-			MMAPIKeys.kMessageType: MMAPIKeys.kGeo
-		]
-		let payload = [
-			"messageId": "123",
-			"aps": [ "content-available": 1],
-			MMAPIKeys.kInternalData: internalData
-		]
-		return payload
-	}
-	
-	func testGeoMessage() {
-		let geoMessage = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
-		let geoMsg = MMMessageFactory.makeMessage(geoMessage)
-		if !(geoMsg is MMGeoMessage) {
-			XCTFail()
-		}
+	func testGeoMessageTypeCasting() {
+		let geoMessagePayload = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
+		let geoMsg = MMMessageFactory.makeMessage(with: geoMessagePayload, createdDate: NSDate())
+		XCTAssertTrue(geoMsg is MMGeoMessage)
 		
-		let message = makeApnsPayload()
-		let msg = MMMessageFactory.makeMessage(message)
-		if msg is MMGeoMessage {
-			XCTFail()
-		}
+		let regularMessagePayload = makeApnsPayload()
+		let msg = MMMessageFactory.makeMessage(with: regularMessagePayload, createdDate: NSDate())
+		XCTAssertFalse(msg is MMGeoMessage)
 	}
 	
 	func testEventsOccuring() {
-		let expEntry = expectationWithDescription("Entry event should become alive")
+		let timeoutInMins: UInt = 1
 		
-		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 2, timeout: 1),
-												   makeEvent(ofType: .exit, limit: 2, timeout: 1)])
-		guard let message = MMGeoMessage(payload: payload) else {
+		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 2, timeout: timeoutInMins),
+												   makeEvent(ofType: .exit, limit: 2, timeout: timeoutInMins)])
+		guard let message = MMGeoMessage(payload: payload, createdDate: NSDate()) else {
 			XCTFail()
 			return
 		}
@@ -514,6 +570,7 @@ class GeofencingServiceTests: MMTestCase {
 		}
 		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
 		let pulaObject = regionsDict[pulaId]!
+		
 		
 		XCTAssertEqual(pulaObject.identifier, pulaId)
 		XCTAssertEqual(pulaObject.title, "Pula")
@@ -527,22 +584,19 @@ class GeofencingServiceTests: MMTestCase {
 		pulaObject.triggerEvent(for: .exit)
 		XCTAssertFalse(pulaObject.isLive(for: .exit))
 		
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(60 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-			XCTAssertTrue(pulaObject.isLive(for: .entry))
-			XCTAssertTrue(pulaObject.isLive(for: .exit))
-			expEntry.fulfill()
+		// move the event into the past for 1 minute
+		pulaObject.events.forEach { (event) in
+			event.lastOccur = NSDate(timeIntervalSinceNow: -Double(timeoutInMins) * Double(60))
 		}
-		
-		waitForExpectationsWithTimeout(100) { error in
-			XCTAssertTrue(true)
-		}
+		XCTAssertTrue(pulaObject.isLive(for: .entry))
+		XCTAssertTrue(pulaObject.isLive(for: .exit))
 	}
 	
 	func testEventLimitZero() {
 		
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 0, timeout: 0),
 												   makeEvent(ofType: .exit, limit: 0, timeout: 0)])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, createdDate: NSDate()) else {
 			XCTFail()
 			return
 		}
@@ -570,7 +624,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 1),
 			makeEvent(ofType: .exit, limit: 1)])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, createdDate: NSDate()) else {
 			XCTFail()
 			return
 		}
@@ -593,44 +647,5 @@ class GeofencingServiceTests: MMTestCase {
 		
 		pulaObject.triggerEvent(for: .exit)
 		XCTAssertFalse(pulaObject.isLive(for: .exit))
-	}
-	
-	func makeApnsPayload(withEvents events: [AnyObject]?) -> [String: AnyObject] {
-		let internalData = [
-			MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
-			MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
-			MMAPIKeys.kGeo: [makePulaRegion(withEvents: events)]
-		]
-		let payload = [
-			"messageId": "123",
-			"aps": [ "content-available": 1],
-			MMAPIKeys.kInternalData: internalData
-		]
-		return payload
-	}
-	
-	func makeEvent(ofType type: MMRegionEventType, limit: UInt, timeout: UInt) -> [String: AnyObject] {
-		return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
-		              MMRegionEventDataKeys.eventLimit.rawValue: limit,
-		              MMRegionEventDataKeys.eventTimeout.rawValue: timeout]
-	}
-	
-	func makeEvent(ofType type: MMRegionEventType, limit: UInt) -> [String: AnyObject] {
-		return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
-		        MMRegionEventDataKeys.eventLimit.rawValue: limit]
-	}
-	
-	func makePulaRegion(withEvents events: [AnyObject]?) -> [String: AnyObject] {
-		let expiryDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(NSDate.distantFuture())
-		
-		return [
-			MMRegionDataKeys.ExpiryDate.rawValue: expiryDateString,
-			MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
-			MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
-			MMRegionDataKeys.Longitude.rawValue: 13.84586334228516,
-			MMRegionDataKeys.Radius.rawValue: 5257,
-			MMRegionDataKeys.Title.rawValue: "Pula",
-			MMRegionDataKeys.Event.rawValue: events ?? NSNull()
-		]
 	}
 }

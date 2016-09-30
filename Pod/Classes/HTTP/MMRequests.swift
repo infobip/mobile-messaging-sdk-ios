@@ -250,7 +250,11 @@ struct MMPostMessageRequest: MMHTTPPostRequest {
 	var body: [String: AnyObject]? {
 		var result = [String: AnyObject]()
 		result[MMAPIKeys.kMOFrom] = internalUserId
-		result[MMAPIKeys.kMOMessages] = messages.map { $0.dictRepresentation }
+		result[MMAPIKeys.kMOMessages] = messages.map { msg -> [String: AnyObject] in
+			var dict = msg.dictRepresentation
+			dict[MMAPIKeys.kMOMessageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
+			return dict
+		}
 		return result
 	}
 	

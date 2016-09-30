@@ -8,7 +8,7 @@
 import Foundation
 
 class MMLocalNotification {
-	class func presentLocalNotification(with message: MMMessage) {
+	class func presentLocalNotification(with message: MTMessage) {
 		guard !message.isSilent || (message is MMGeoMessage) else {
 			return
 		}

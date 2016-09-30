@@ -59,7 +59,7 @@ extension NSManagedObject {
 		return results
 	}
 	
-	class func MM_findAllWithPredicate(predicate: NSPredicate? = nil, inContext context: NSManagedObjectContext) -> [NSManagedObject]? {
+	class func MM_findAllWithPredicate(predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> [NSManagedObject]? {
 		let r = self.MM_requestAll(predicate)
 		return self.MM_executeRequest(r, inContext: context)
 	}
@@ -118,7 +118,7 @@ extension NSManagedObject {
 	}
 	
 	class func MM_findAllInContext(context: NSManagedObjectContext) -> [NSManagedObject]? {
-		return MM_findAllWithPredicate(inContext: context)
+		return MM_findAllWithPredicate(nil, inContext: context)
 	}
 	
 	class func MM_countOfEntitiesWithContext(context: NSManagedObjectContext) -> Int {
@@ -171,6 +171,14 @@ extension NSManagedObject {
 	
 	class func MM_find(withPredicate predicate: NSPredicate, fetchLimit: Int, sortedBy: String, ascending: Bool, inContext context: NSManagedObjectContext) -> [NSManagedObject]? {
 		let r = self.MM_requestAll(withPredicate: predicate, fetchLimit: fetchLimit, sortedBy: sortedBy, ascending: ascending)
+		return self.MM_executeRequest(r, inContext: context)
+	}
+	
+	class func MM_findAll(withPredicate predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, skip: Int?, inContext context: NSManagedObjectContext) -> [NSManagedObject]? {
+		let r = self.MM_requestAll(predicate)
+		r.sortDescriptors = sortDescriptors
+		r.fetchLimit = limit ?? 0
+		r.fetchOffset = skip ?? 0
 		return self.MM_executeRequest(r, inContext: context)
 	}
 }
@@ -260,6 +268,10 @@ extension NSManagedObjectContext {
 	
 	func MM_saveToPersistentStoreAndWait() {
 		MM_saveWithOptions([.SaveParent, .SaveSynchronously], completion: nil)
+	}
+	
+	func MM_saveToPersistentStore() {
+		MM_saveWithOptions([.SaveParent], completion: nil)
 	}
 	
 	func MM_saveOnlySelfAndWait() {
