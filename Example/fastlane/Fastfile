@@ -8,6 +8,24 @@ platform :ios do
         scan
     end
 
+    desc "Runs all the tests on Simulators"
+    def test_on_simulator
+        begin
+            scan(
+                skip_build: true,
+                slack_url: ENV["SLACK_WEBHOOK"],
+                slack_only_on_failure: true,
+                scheme: "MobileMessagingExample",
+                devices: [
+                            "iPhone 5 (8.4)",
+                            "iPhone 5 (9.3)",
+                            "iPhone 6 (8.4)",
+                            "iPhone 6 (9.3)"
+                          ]
+            )
+        end
+    end
+
     desc "Runs all the tests on iPhone 5"
     def test_on_device 
         begin
@@ -57,12 +75,7 @@ platform :ios do
         )
         
         unless options[:no_tests]
-            scan(
-                skip_build: true,
-                slack_url: ENV["SLACK_WEBHOOK"],
-                slack_only_on_failure: true,
-                scheme: "MobileMessagingExample"
-            )
+            test_on_simulator
         end
 
         unless options[:no_device_tests]
@@ -111,12 +124,7 @@ platform :ios do
         cocoapods
 
         unless options[:no_tests]
-            scan(
-                skip_build: true,
-                slack_url: ENV["SLACK_WEBHOOK"],
-                slack_only_on_failure: true,
-                scheme: "MobileMessagingExample"
-            )
+            test_on_simulator
         end
 
         unless options[:no_device_tests]
