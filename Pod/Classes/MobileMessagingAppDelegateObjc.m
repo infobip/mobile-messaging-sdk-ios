@@ -9,7 +9,8 @@
 #import <MobileMessaging/MobileMessaging-Swift.h>
 
 @implementation MobileMessagingAppDelegateObjc
--(BOOL)geofencingServiceDisabled {
+
+-(BOOL)geofencingServiceEnabled {
 	return FALSE;
 }
 
@@ -24,7 +25,11 @@
 }
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	[[[MobileMessaging withApplicationCode:self.applicationCode notificationType:self.userNotificationType] withGeofencingServiceDisabled:self.geofencingServiceDisabled] start:nil];
+	MobileMessaging * session = [MobileMessaging withApplicationCode:self.applicationCode notificationType:self.userNotificationType];
+	if (self.geofencingServiceEnabled) {
+		session = [session withGeofencingService];
+	}
+	[session start: nil];
 	return [self mm_application:application didFinishLaunchingWithOptions:launchOptions];
 }
 -(BOOL)mm_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {

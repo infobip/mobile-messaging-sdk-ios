@@ -7,6 +7,25 @@
 import Foundation
 import CoreTelephony
 
+struct MMSystemData: Hashable {
+	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
+	let geoAvailability: Bool
+	var dictionaryRepresentation: [String: AnyObject] {
+		return [
+			MMAPIKeys.kSystemDataSDKVersion: SDKVersion,
+			MMAPIKeys.kSystemDataOSVer: OSVer,
+			MMAPIKeys.kSystemDataDeviceManufacturer: deviceManufacturer,
+			MMAPIKeys.kSystemDataDeviceModel: deviceModel,
+			MMAPIKeys.kSystemDataAppVer: appVer,
+			MMAPIKeys.kSystemDataGeoAvailability: geoAvailability
+		]
+	}
+	
+	var hashValue: Int {
+		return (SDKVersion + OSVer + deviceManufacturer + deviceModel + appVer + String(geoAvailability)).hash
+	}
+}
+
 public class MMUserAgent: NSObject {
 	struct DataOptions : OptionSetType {
 		let rawValue: Int
@@ -14,6 +33,14 @@ public class MMUserAgent: NSObject {
 		static let None = DataOptions(rawValue: 0)
 		static let System = DataOptions(rawValue: 1 << 0)
 		static let Carrier = DataOptions(rawValue: 1 << 1)
+	}
+	
+	var systemData: MMSystemData {
+		return MMSystemData(SDKVersion: libraryVersion, OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, geoAvailability: isGeoAvailable)
+	}
+	
+	public var isGeoAvailable: Bool {
+		return (MobileMessaging.sharedInstance?.isGeoServiceEnabled ?? false) && MMGeofencingService.currentCapabilityStatus == .Authorized
 	}
 	
 	public var currentUserAgentString: String {

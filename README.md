@@ -37,11 +37,8 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	```
 5. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
 
-
 	> ### Notice 
-	> MobileMessaging SDK has geofencing service enabled by default. In order to opt-out the service, skip following 6-8 steps and follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service#disabling-the-default-geofencing-service-startup).
-
-6. Include `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysUsageDescription` keys in your app’s Info.plist. These keys let you describe the reason your app accesses the user’s location information. The system includes the value of these keys in the alert panel displayed to the user when requesting permission to use location services.
+	> MobileMessaging SDK has geofencing service disabled by default. In order to enable the service follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service).
 
 ### App Delegate Inheritance
 The simplest approach to integrate Mobile Messaging with an existing app is by inheriting your app delegate from `MobileMessagingAppDelegate`. If you prefer a more advanced way: [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition).

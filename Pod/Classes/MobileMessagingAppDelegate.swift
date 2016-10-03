@@ -15,8 +15,8 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	
 	/// Defines whether the Geofencing service is enabled.
 	///
-	/// Default value is `false` (The service is enabled by default). If you want to disable the Geofencing service you override this variable in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `true`.
-	public var geofencingServiceDisabled: Bool {
+	/// Default value is `false` (The service is disabled by default). If you want to enable the Geofencing service you override this variable in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `true`.
+	public var geofencingServiceEnabled: Bool {
 		return false
 	}
 	
@@ -38,7 +38,11 @@ public class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	//MARK: Public
 	final public func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		if !isTesting {
-			MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType).withGeofencingServiceDisabled(geofencingServiceDisabled).start()
+			var session = MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType)
+			if geofencingServiceEnabled {
+				session = session.withGeofencingService()
+			}
+			session.start()
 		}
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)
 	}

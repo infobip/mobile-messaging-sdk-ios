@@ -28,12 +28,9 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/// Fabric method for Mobile Messaging session.
-	/// - parameter disabled: the flag is used to disable the default Geofencing service startup procedure.
-	public func withGeofencingServiceDisabled(disabled: Bool) -> MobileMessaging {
-		MMGeofencingService.geoServiceEnabled = !disabled
-		if disabled == false {
-			self.geofencingService?.stop()
-		}
+	/// Use this method to enable the Geofencing service.
+	public func withGeofencingService() -> MobileMessaging {
+		isGeoServiceEnabled = true
 		return self
 	}
 	
@@ -78,7 +75,9 @@ public final class MobileMessaging: NSObject {
 				self.startMessageStorage()
 				
 				self.geofencingService = MMGeofencingService(storage: storage)
-				self.geofencingService?.start()
+				if isGeoServiceEnabled {
+					self.geofencingService?.start()
+				}
 				
 				MMLogInfo("MobileMessaging SDK service successfully initialized.")
 			}
@@ -200,7 +199,7 @@ public final class MobileMessaging: NSObject {
 	
 	var	storageType: MMStorageType = .SQLite
 	var remoteAPIBaseURL: String = MMAPIValues.kProdBaseURLString
-	var geofencingServiceDisabled: Bool = false
+	var isGeoServiceEnabled: Bool = false
 	
 	func cleanUpAndStop() {
 		MMLogDebug("Cleaning up MobileMessaging service...")

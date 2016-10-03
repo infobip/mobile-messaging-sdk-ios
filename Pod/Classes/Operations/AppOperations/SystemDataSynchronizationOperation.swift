@@ -16,7 +16,7 @@ class SystemDataSynchronizationOperation: Operation {
 	private var installationObject: InstallationManagedObject!
 	
 	lazy var currentSystemData: MMSystemData = {
-		return MMSystemData.currentSystemData(MobileMessaging.userAgent)
+		return MobileMessaging.userAgent.systemData
 	}()
 	
 	lazy var currentSystemDataHash: Int = {

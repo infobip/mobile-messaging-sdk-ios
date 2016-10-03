@@ -21,9 +21,9 @@
 @property (nonatomic, readonly) UIUserNotificationType userNotificationType;
 
 /**
-	Defines whether the Geofencing service is enabled. Default value is `FALSE` (The service is enabled by default). If you want to disable the Geofencing service you override this property in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `TRUE`.
+	Defines whether the Geofencing service is enabled. Default value is `FALSE` (The service is disabled by default). If you want to enable the Geofencing service you override this property in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `TRUE`.
 */
-@property (nonatomic, readonly) BOOL geofencingServiceDisabled;
+@property (nonatomic, readonly) BOOL geofencingServiceEnabled;
 
 /**
 	This is a substitution for the standard `application(:didFinishLaunchingWithOptions:)`.

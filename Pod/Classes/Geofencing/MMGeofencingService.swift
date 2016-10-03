@@ -68,17 +68,11 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	static let kGeofencingMinimumAllowedUsage = MMLocationServiceUsage.WhenInUse
 	static let kGeofencingSupportedAuthStatuses = [CLAuthorizationStatus.AuthorizedWhenInUse, CLAuthorizationStatus.AuthorizedAlways]
 	
-	
-	var isAvailable: Bool {
-		return MMGeofencingService.currentCapabilityStatus == .Authorized && MMGeofencingService.geoServiceEnabled
-	}
-	
 	var locationManager: CLLocationManager!
 	var datasource: MMGeofencingDatasource!
 	var isRunning = false
 	
 	// MARK: - Public
-	public static var geoServiceEnabled: Bool = true
 	
 	/// Returns current user location with accuracy `kCLLocationAccuracyHundredMeters`.
 	public var currentUserLocation: CLLocation? { return locationManager.location }
@@ -106,15 +100,10 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	/// - parameter completion: A block that will be triggered once the startup process is finished. Contains a Bool flag parameter, that indicates whether the startup succeded.
 	public func start(completion: (Bool -> Void)? = nil) {
 		MMLogDebug("[GeofencingService] starting ...")
-		guard MMGeofencingService.geoServiceEnabled == true else {
-			completion?(false)
-			MMLogDebug("[GeofencingService] startup cancelled. Service is disabled.")
-			return
-		}
 		serviceQueue.executeAsync() {
 			guard self.isRunning == false else
 			{
-				MMLogDebug("[GeofencingService] locationManagerEnabled = \(MMGeofencingService.geoServiceEnabled), isRunning = \(self.isRunning))")
+				MMLogDebug("[GeofencingService] isRunning = \(self.isRunning))")
 				completion?(false)
 				return
 			}
@@ -167,9 +156,9 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func add(message message: MMGeoMessage) {
 		serviceQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] trying to add a message")
-			guard MMGeofencingService.geoServiceEnabled == true && self.isRunning == true else
+			guard self.isRunning == true else
 			{
-				MMLogDebug("[GeofencingService] geoServiceEnabled = \(MMGeofencingService.geoServiceEnabled), isRunning = \(self.isRunning))")
+				MMLogDebug("[GeofencingService] isRunning = \(self.isRunning))")
 				return
 			}
 			
@@ -287,7 +276,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	private func startService() {
 		serviceQueue.executeAsync() {
-			guard MMGeofencingService.geoServiceEnabled == true && self.isRunning == false else
+			guard self.isRunning == false else
 			{
 				return
 			}

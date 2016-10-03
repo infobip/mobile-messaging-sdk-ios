@@ -8,7 +8,7 @@
 import XCTest
 @testable import MobileMessaging
 
-class MMUserAgentStub: MMUserAgent {
+class UserAgentStub: MMUserAgent {
 	override var libraryVersion: String {
 		return "1.0.0"
 	}
@@ -32,37 +32,34 @@ class MMUserAgentStub: MMUserAgent {
 	}
 }
 
-public class MMAvailableGeofencingServiceStub: MMGeofencingService {
-	override var isAvailable: Bool  {
+class GeoAvailableUserAgentStub: UserAgentStub {
+	override var isGeoAvailable: Bool {
 		return true
 	}
 }
 
-public class MMNotAvailableGeofencingServiceStub: MMGeofencingService {
-	override var isAvailable: Bool  {
+class GeoNotAvailableUserAgentStub: UserAgentStub {
+	override var isGeoAvailable: Bool {
 		return false
 	}
 }
 
-
 class SystemDataTests: MMTestCase {
 
     func testSystemDataUpdates() {
-		
-		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.geofencingService = MMNotAvailableGeofencingServiceStub(storage: storage)
-		MobileMessaging.userAgent = MMUserAgentStub()
-		
 		let requestsCompleted = expectationWithDescription("requestsCompleted")
-		var initialSystemDataHash: Int!
-		var updatedSystemDataHash: Int!
-	
 		let ctx = self.storage.mainThreadManagedObjectContext!
+		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
+		
+		var initialSystemDataHash: Int!
+		MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
+		
 		if let installation = InstallationManagedObject.MM_findFirstInContext(context: ctx) {
 			initialSystemDataHash = installation.systemDataHash.integerValue
 		}
 		
-		mobileMessagingInstance.geofencingService = MMAvailableGeofencingServiceStub(storage: storage)
+		var updatedSystemDataHash: Int!
+		MobileMessaging.userAgent = GeoAvailableUserAgentStub()
 		MobileMessaging.currentInstallation?.syncWithServer({ (error) in
 			
 			ctx.reset()
@@ -70,7 +67,7 @@ class SystemDataTests: MMTestCase {
 				updatedSystemDataHash = installation.systemDataHash.integerValue
 			}
 			
-			self.mobileMessagingInstance.geofencingService = MMNotAvailableGeofencingServiceStub(storage: self.storage)
+			MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
 			MobileMessaging.currentInstallation?.syncWithServer({ (error) in
 				requestsCompleted.fulfill()
 			})
