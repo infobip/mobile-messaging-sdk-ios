@@ -151,7 +151,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
-	weak var message: MMGeoMessage?
+	public weak var message: MMGeoMessage?
 	public var isLive: Bool {
 		let validEventExists = events.contains{$0.isValid}
 		return validEventExists && Date().compare(expiryDate) == .orderedAscending && Date().compare(startDate) != .orderedAscending
