@@ -37,6 +37,8 @@ protocol Fetchable : NSFetchRequestResult {
 	static func MM_countOfEntitiesWithContext(_ context: NSManagedObjectContext) -> Int
 	static func MM_countOfEntitiesWithPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> Int
 	static func MM_selectAttribute(_ attribute: String, withPredicte predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> [String: AnyObject]?
+	static func MM_find(withPredicate predicate: NSPredicate, fetchLimit: Int, sortedBy: String, ascending: Bool, inContext context: NSManagedObjectContext) -> [Self]?
+	static func MM_findAll(withPredicate predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, skip: Int?, inContext context: NSManagedObjectContext) -> [Self]?
 }
 
 extension Fetchable where Self : NSManagedObject {
@@ -129,15 +131,15 @@ extension Fetchable where Self : NSManagedObject {
 		}
 	}
 
-	static func MM_requestAll(withPredicate predicate: NSPredicate? = nil, fetchLimit: Int, sortedBy sortTerm: String, ascending: Bool) -> NSFetchRequest {
+	static func MM_requestAll(withPredicate predicate: NSPredicate? = nil, fetchLimit: Int, sortedBy sortTerm: String, ascending: Bool) -> NSFetchRequest<Self> {
 		let r = self.MM_requestAll(predicate)
 		
 		var ascending = ascending
 		var sortDescriptors = [NSSortDescriptor]()
-		let sortKeys = sortTerm.componentsSeparatedByString(",")
+		let sortKeys = sortTerm.components(separatedBy: ",")
 		sortKeys.forEach { sortKey in
 			var sortKey = sortKey
-			let sortComps = sortKey.componentsSeparatedByString(":")
+			let sortComps = sortKey.components(separatedBy: ":")
 			if sortComps.count > 1 {
 				if let customAscending = sortComps.last {
 					ascending = customAscending.boolValue

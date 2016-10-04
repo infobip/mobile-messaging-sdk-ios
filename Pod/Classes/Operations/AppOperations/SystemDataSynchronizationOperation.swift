@@ -11,7 +11,7 @@ import Security
 
 class SystemDataSynchronizationOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: (NSError? -> Void)?
+	let finishBlock: ((NSError?) -> Void)?
 	let remoteAPIQueue: MMRemoteAPIQueue
 	private var installationObject: InstallationManagedObject!
 	
@@ -23,7 +23,7 @@ class SystemDataSynchronizationOperation: Operation {
 		return self.currentSystemData.hashValue
 	}()
 	
-	init(сontext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil) {
+	init(сontext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.remoteAPIQueue = remoteAPIQueue
@@ -73,7 +73,7 @@ class SystemDataSynchronizationOperation: Operation {
 				guard let installationObject = self.installationObject else {
 					return
 				}
-				installationObject.systemDataHash = NSNumber(integer: self.currentSystemDataHash)
+				installationObject.systemDataHash = NSNumber(value: self.currentSystemDataHash)
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("System Data: successfully synced")
 			case .Failure(let error):

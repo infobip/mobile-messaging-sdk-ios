@@ -45,7 +45,7 @@ class MessagePostingOperation: Operation {
 				self.postWillSendNotification(messagesToSend: messagesToSend)
 				self.populateMessageStorage(with: messagesToSend)
 				self.remoteAPIQueue.perform(request: request) { result in
-						self.handleResult(result)
+						self.handleResult(result: result)
 						self.finishWithError(result.error)
 				}
 			}
@@ -61,7 +61,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	private func postWillSendNotification(messagesToSend: Set<MOMessage>) {
-		var userInfo = [String: AnyObject]()
+		var userInfo = [String: Any]()
 
 		userInfo[MMNotificationKeyMessageSendingMOMessages] = messagesToSend
 		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesWillSend, userInfo: userInfo.isEmpty ? nil : userInfo)

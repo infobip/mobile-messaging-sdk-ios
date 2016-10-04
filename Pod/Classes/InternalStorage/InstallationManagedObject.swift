@@ -70,7 +70,7 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
     }
 	
     func setDeviceTokenIfDifferent(token: String?) {
-        setValueIfDifferent(value: token, forKey: SyncableAttributes.DeviceToken.rawValue)
+        setValueIfDifferent(token, forKey: SyncableAttributes.DeviceToken.rawValue)
     }
 
 	var dirtyAttributesSet: SyncableAttributesSet {
@@ -95,7 +95,7 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
 		}
 	}
 	
-	func setValueIfDifferent<Value: Equatable>(value: Value?, forKey key: String) {
+	func setValueIfDifferent<Value: Equatable>(_ value: Value?, forKey key: String) {
 		var isDifferent: Bool
 		if let currentValue = self.value(forKey: key) as? Value {
 			isDifferent = value == nil ? true : currentValue != value!
@@ -107,7 +107,7 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
 		}
     }
 	
-	func setValueIfDifferent(value: Dictionary<AnyHashable, UserDataSupportedTypes>?, forKey key: String) {
+	func setValueIfDifferent(_ value: Dictionary<AnyHashable, UserDataSupportedTypes>?, forKey key: String) {
 		var isDifferent: Bool
 		if let currentValue = self.value(forKey: key) as? Dictionary<AnyHashable, UserDataSupportedTypes> {
 			isDifferent = value == nil ? true : currentValue != value!

@@ -60,7 +60,7 @@ class MMRetryOperationQueue: OperationQueue {
 		}
 	}
 	
-	override func addOperations(operations: [Foundation.Operation], waitUntilFinished wait: Bool) {
+	override func addOperations(_ operations: [Foundation.Operation], waitUntilFinished wait: Bool) {
 		for op in operations {
 			addOperation(op)
 			if wait {

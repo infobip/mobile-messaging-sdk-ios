@@ -11,24 +11,24 @@
 	func logVerbose(message: String)
 }
 
-public func MMLogDebug(message: String) {
-	MobileMessaging.logger.logDebug(message)
+public func MMLogDebug(_ message: String) {
+	MobileMessaging.logger.logDebug(message: message)
 }
 
-public func MMLogInfo(message: String) {
-	MobileMessaging.logger.logInfo(message)
+public func MMLogInfo(_ message: String) {
+	MobileMessaging.logger.logInfo(message: message)
 }
 
-public func MMLogWarn(message: String) {
-	MobileMessaging.logger.logWarn(message)
+public func MMLogWarn(_ message: String) {
+	MobileMessaging.logger.logWarn(message: message)
 }
 
-public func MMLogVerbose(message: String) {
-	MobileMessaging.logger.logVerbose(message)
+public func MMLogVerbose(_ message: String) {
+	MobileMessaging.logger.logVerbose(message: message)
 }
 
-public func MMLogError(message: String) {
-	MobileMessaging.logger.logError(message)
+public func MMLogError(_ message: String) {
+	MobileMessaging.logger.logError(message: message)
 }
 
 public final class MMLogOutput : NSObject {
@@ -50,22 +50,46 @@ public final class MMLogOutput : NSObject {
 }
 
 @objc public enum MMLogLevel : UInt {
-	/// No logs
+	/**
+	*  No logs
+	*/
 	case Off
 	
-	/// Error logs only
+	/**
+	*  Error logs only
+	*/
 	case Error
 	
-	/// Error and warning logs
+	/**
+	*  Error and warning logs
+	*/
 	case Warning
 	
-	/// Error, warning and info logs
+	/**
+	*  Error, warning and info logs
+	*/
 	case Info
 	
-	/// Error, warning, info and debug logs
+	/**
+	*  Error, warning, info and debug logs
+	*/
 	case Debug
 	
-	/// Error, warning, info, debug and verbose logs
+	/**
+	*  Error, warning, info, debug and verbose logs
+	*/
 	case Verbose
 	case All
+//	
+//	func ddlogLevel() -> DDLogLevel {
+//		switch self {
+//		case .Off: return DDLogLevel.off
+//		case .Error: return DDLogLevel.error
+//		case .Warning: return DDLogLevel.warning
+//		case .Info: return DDLogLevel.info
+//		case .Debug: return DDLogLevel.debug
+//		case .Verbose: return DDLogLevel.verbose
+//		case .All: return DDLogLevel.all
+//		}
+//	}
 }

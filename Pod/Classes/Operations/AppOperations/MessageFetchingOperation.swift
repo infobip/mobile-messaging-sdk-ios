@@ -38,7 +38,7 @@ final class MessageFetchingOperation: Operation {
 			
 			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
 			let fetchLimit = 100 // consider 100 most recent messages
-			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), inContext: self.context)
+			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
 			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true && creationDate > %@", date), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
 			
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
@@ -48,7 +48,7 @@ final class MessageFetchingOperation: Operation {
 			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
 
 			self.remoteAPIQueue.perform(request: request) { result in
-				self.handleRequestResponse(result, nonReportedMessageIds: nonReportedMessageIds)
+				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
 			}
 		}
 	}
@@ -99,7 +99,7 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func updateMessageStorage(with messages: [MessageManagedObject]) {
-		messages.forEach({ MobileMessaging.sharedInstance?.messageStorageAdapter?.update(deliveryReportStatus: $0.reportSent.boolValue , for: $0.messageId) })
+		messages.forEach({ MobileMessaging.sharedInstance?.messageStorageAdapter?.update(deliveryReportStatus: $0.reportSent , for: $0.messageId) })
 	}
 	
 	private func handleMessageOperation(messages: [MTMessage]) -> MessageHandlingOperation {

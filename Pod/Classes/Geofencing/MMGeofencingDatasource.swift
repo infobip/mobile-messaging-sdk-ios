@@ -17,7 +17,7 @@ class MMGeofencingDatasource {
 	static let locationArchive = "currentLocation"
 	
 	let storage: MMCoreDataStorage
-	let context: ManagedObjectContext
+	let context: NSManagedObjectContext
 	
 	var messages = Set<MMGeoMessage>() {
 		didSet {
@@ -91,8 +91,8 @@ class MMGeofencingDatasource {
 	}
 	
 	func loadMessages() {
-		context.performBlockAndWait {
-			let msgs = MessageManagedObject.MM_findAllWithPredicate(Predicate(format: "messageTypeValue == %i", MMMessageType.Geo.rawValue), inContext: self.context) as? [MessageManagedObject]
+		context.performAndWait {
+			let msgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == %i", MMMessageType.Geo.rawValue), context: self.context)
 			
 			if let messages = msgs?.flatMap(MMGeoMessage.init) {
 				self.messages = Set(messages)
@@ -105,10 +105,9 @@ class MMGeofencingDatasource {
 			return
 		}
 		region.triggerEvent(for: eventType)
-		context.performBlockAndWait {
-			if let msg = MessageManagedObject.MM_findFirstInContext(NSPredicate(format: "messageId == %@", message.messageId), context: self.context),
-				var payload = msg.payload,
-				var internalData = payload[MMAPIKeys.kInternalData] as? [String: AnyObject] {
+		context.performAndWait {
+			if let msg = MessageManagedObject.MM_findFirstWithPredicate(NSPredicate(format: "messageId == %@", message.messageId), context: self.context), var payload = msg.payload, var internalData = payload[MMAPIKeys.kInternalData] as? [String: Any]
+			{
 				internalData += [MMAPIKeys.kGeo: message.regions.flatMap{$0.dictionaryRepresentation}]
 				payload.updateValue(internalData, forKey: MMAPIKeys.kInternalData)
 				msg.payload = payload
@@ -119,35 +118,33 @@ class MMGeofencingDatasource {
 	
 	//MARK: for compatibility with previous storage
 	private lazy var rootURL: URL = {
-		return FileManager.defaultManager().URLsForDirectory(SearchPathDirectory.ApplicationSupportDirectory, inDomains: SearchPathDomainMask.UserDomainMask)[0]
+		return FileManager.default.urls(for: FileManager.SearchPathDirectory.applicationSupportDirectory, in: FileManager.SearchPathDomainMask.userDomainMask)[0]
 	}()
 	
-	private lazy var geoDirectoryURL: NSURL = {
-		return self.rootURL.URLByAppendingPathComponent(MMGeofencingDatasource.plistDir)
+	private lazy var geoDirectoryURL: URL = {
+		return self.rootURL.appendingPathComponent(MMGeofencingDatasource.plistDir)
 	}()
 	
 	private lazy var plistURL: URL = {
-		self.geoDirectoryURL.URLByAppendingPathComponent(MMGeofencingDatasource.plistFile)
+		return self.geoDirectoryURL.appendingPathComponent(MMGeofencingDatasource.plistFile)
 	}()
 	
 	private var locationArchiveURL: URL {
-		return self.geoDirectoryURL.URLByAppendingPathComponent(MMGeofencingDatasource.locationArchive)
+		return self.geoDirectoryURL.appendingPathComponent(MMGeofencingDatasource.locationArchive)
 	}
 	
 	private func loadCampainsFromPlist() {
 		//FIXME: move to BG thread
 		var campaigns: Set<MMPlistCampaign>
-		guard let plistPath = plistURL.path,
-			let data = FileManager.defaultManager().contentsAtPath(plistPath),
-			let plistArray = try? PropertyListSerialization.propertyListWithData(data, options: PropertyListMutabilityOptions.MutableContainersAndLeaves, format: nil),
-			let plistDicts = plistArray as? [[String: AnyObject]] else
+		let plistPath = plistURL.path
+		guard let data = FileManager.default.contents(atPath: plistPath), let plistArray = try? PropertyListSerialization.propertyList(from: data, options: PropertyListSerialization.ReadOptions.mutableContainersAndLeaves, format: nil), let plistDicts = plistArray as? [[String: Any]] else
 		{
 			MMLogError("Can't load campaigns from plist.")
 			campaigns = []
 			return
 		}
 		campaigns = Set(plistDicts.flatMap(MMPlistCampaign.init))
-		context.performBlockAndWait {
+		context.performAndWait {
 		    campaigns.forEach({ (campaign) in
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.creationDate = campaign.dateReceived
@@ -157,13 +154,17 @@ class MMGeofencingDatasource {
 				newDBMessage.seenDate = campaign.dateReceived
 				newDBMessage.seenStatus = MMSeenStatus.SeenSent
 				newDBMessage.messageType = .Geo
+				
+				let title: Any = campaign.title ?? NSNull()
+				let body: Any = campaign.body ?? NSNull()
+				
 				newDBMessage.payload = [
 					MMAPIKeys.kInternalData:
 					[
 						MMAPIKeys.kSilent:
 						[
-							MMAPIKeys.kTitle: campaign.title ?? Null(),
-							MMAPIKeys.kBody: campaign.body ?? Null()
+							MMAPIKeys.kTitle: title,
+							MMAPIKeys.kBody: body
 						],
 						MMAPIKeys.kGeo: campaign.regions.flatMap{$0.dictionaryRepresentation}
 					]
@@ -174,7 +175,7 @@ class MMGeofencingDatasource {
 		}
 		
 		do {
-			try FileManager.defaultManager().removeItemAtPath(plistPath)
+			try FileManager.default.removeItem(atPath: plistPath)
 		} catch {
 			MMLogDebug("Can't remove old geo paths.")
 			return
@@ -182,14 +183,15 @@ class MMGeofencingDatasource {
 	}
 	
 	private func loadLocationFromPlist() {
-		guard let locationArchivePath = locationArchiveURL.path,
-			let location = KeyedUnarchiver.unarchiveObjectWithFile(locationArchivePath) as? CLLocation else {
+		let locationArchivePath = locationArchiveURL.path
+		guard let location = NSKeyedUnarchiver.unarchiveObject(withFile: locationArchivePath) as? CLLocation else
+		{
 			return
 		}
 		MobileMessaging.currentInstallation?.location = location
 		
 		do {
-			try FileManager.defaultManager().removeItemAtPath(locationArchivePath)
+			try FileManager.default.removeItem(atPath: locationArchivePath)
 		} catch {
 			MMLogDebug("Can't remove old geo paths.")
 			return

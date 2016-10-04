@@ -52,7 +52,7 @@ public final class MobileMessaging: NSObject {
 	///
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
-	public func start(_ completion: (Void -> Void)? = nil) {
+	public func start(_ completion: ((Void) -> Void)? = nil) {
 		MMLogDebug("Starting MobileMessaging service...")
 		do {
 			var storage: MMCoreDataStorage?
@@ -84,16 +84,16 @@ public final class MobileMessaging: NSObject {
 			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
 		}
 		
-		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() && self.currentInstallation?.deviceToken == nil {
+		if UIApplication.shared.isRegisteredForRemoteNotifications && self.currentInstallation?.deviceToken == nil {
 			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
-			UIApplication.sharedApplication().unregisterForRemoteNotifications()
+			UIApplication.shared.unregisterForRemoteNotifications()
 		}
 		
-		UIApplication.sharedApplication().registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: nil))
+		UIApplication.sharedApplication.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: nil))
 		
-		if UIApplication.sharedApplication().isRegisteredForRemoteNotifications() == false {
+		if UIApplication.shared.isRegisteredForRemoteNotifications == false {
 			MMLogDebug("Registering for remote notifications...")
-			UIApplication.sharedApplication().registerForRemoteNotifications()
+			UIApplication.shared.registerForRemoteNotifications()
 		}
 		completion?()
 	}
@@ -179,21 +179,18 @@ public final class MobileMessaging: NSObject {
 	/// Default value is `false`.
 	public static var systemInfoSendingDisabled: Bool = false
 	
-	public static var userAgent = MMUserAgent()
-	
-//MARK: Internal
-	/// A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	public static var notificationTapHandler: (([AnyHashable: Any]) -> Void)?
-	
 	/// An auxillary component provides the convinient access to the user agent data.
 	public static var userAgent = MMUserAgent()
+	
+	/// A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
+	public static var notificationTapHandler: (([AnyHashable: Any]) -> Void)?
 	
 	/// The message handling object defines the behaviour that is triggered during the message handling.
 	///
 	/// You can implement your own message handling either by subclassing `MMDefaultMessageHandling` or implementing the `MessageHandling` protocol.
 	public static var messageHandling: MessageHandling = MMDefaultMessageHandling()
 	
-	//MARK: Internal
+//MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UIUserNotificationType
 	let applicationCode: String
@@ -234,7 +231,7 @@ public final class MobileMessaging: NSObject {
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
 		MMLogDebug("Application did register with device token \(token.mm_toHexString)")
-		NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
+		NotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
 		self.currentInstallation?.updateDeviceToken(token, completion: completion)
 	}
 	

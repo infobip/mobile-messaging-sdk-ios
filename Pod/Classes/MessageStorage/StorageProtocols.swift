@@ -7,7 +7,7 @@
 import Foundation
 
 public typealias MessageId = String
-public typealias FetchResultBlock = [BaseMessage]? -> Void
+public typealias FetchResultBlock = ([BaseMessage]?) -> Void
 
 /// The class defines a query that is used to fetch messages from the Message Storage.
 @objc public class Query: NSObject {
@@ -41,15 +41,15 @@ public typealias FetchResultBlock = [BaseMessage]? -> Void
 }
 
 @objc public protocol MessageStorageDelegate {
-	func didInsertNewMessages(messages: [BaseMessage])
-	func didUpdateMessage(message: BaseMessage)
-	func didRemoveMessages(messages: [BaseMessage])
+	func didInsertNewMessages(_ messages: [BaseMessage])
+	func didUpdateMessage(_ message: BaseMessage)
+	func didRemoveMessages(_ messages: [BaseMessage])
 }
 
 @objc public protocol MessageStorageFinders {
-	func findAllMessages(completion: FetchResultBlock)
-	func findMessages(withIds messageIds: [MessageId], completion: FetchResultBlock)
-	func findMessages(withQuery query: Query, completion: FetchResultBlock)
+	func findAllMessages(completion: @escaping FetchResultBlock)
+	func findMessages(withIds messageIds: [MessageId], completion: @escaping FetchResultBlock)
+	func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock)
 }
 
 @objc public protocol MessageStorageRemovers {
@@ -62,7 +62,7 @@ public typealias FetchResultBlock = [BaseMessage]? -> Void
 @objc public protocol MessageStorage {
 	/// The queue in which all the hooks(inserts, updates) are dispatched.
 	/// The queue must be provided by the particular implementation of this protocol in order to provide thread safety and performance aspects.
-	var queue: dispatch_queue_t {get}
+	var queue: DispatchQueue {get}
 	
 	/// This method is called by the Mobile Messaging SDK during the initialization process. You implement your custom preparation routine here if needed.
 	func start()
@@ -108,7 +108,7 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 		self.adapteeStorage = adapteeStorage
 	}
 	
-	@objc var queue: dispatch_queue_t {
+	@objc var queue: DispatchQueue {
 		return adapteeStorage.queue
 	}
 	
@@ -117,7 +117,7 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 			return
 		}
 		
-		dispatch_async(queue) {
+		queue.asynchronously() {
 			self.adapteeStorage.insert(outgoing: messages.filter({ return self.findMessage(withId: $0.messageId) == nil }))
 		}
 	}
@@ -126,7 +126,7 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 		guard !messages.isEmpty else {
 			return
 		}
-		dispatch_async(queue) {
+		queue.asynchronously() {
 			self.adapteeStorage.insert(incoming: messages)
 		}
 	}
@@ -136,31 +136,31 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 	}
 	
 	@objc func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId) {
-		dispatch_async(queue) {
+		queue.asynchronously() {
 			self.adapteeStorage.update(messageSentStatus: status, for: messageId)
 		}
 	}
 	
 	@objc func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId) {
-		dispatch_async(queue) {
+		queue.asynchronously() {
 			self.adapteeStorage.update(messageSeenStatus: status, for: messageId)
 		}
 	}
 	
 	@objc func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId) {
-		dispatch_async(queue) {
+		queue.asynchronously() {
 			self.adapteeStorage.update(deliveryReportStatus: isDelivered, for: messageId)
 		}
 	}
 	
 	@objc func start() {
-		dispatch_async(queue) {
+		queue.asynchronously() {
 			self.adapteeStorage.start()
 		}
 	}
 	
 	@objc func stop() {
-		dispatch_async(queue) {
+		queue.asynchronously() {
 			self.adapteeStorage.stop()
 		}
 	}

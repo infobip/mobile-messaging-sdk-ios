@@ -66,7 +66,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	let kMonitoringRegionsLimit: Int = 20
 	static let kGeofencingPreferableUsage = MMLocationServiceUsage.Always
 	static let kGeofencingMinimumAllowedUsage = MMLocationServiceUsage.WhenInUse
-	static let kGeofencingSupportedAuthStatuses = [CLAuthorizationStatus.AuthorizedWhenInUse, CLAuthorizationStatus.AuthorizedAlways]
+	static let kGeofencingSupportedAuthStatuses = [CLAuthorizationStatus.authorizedWhenInUse, CLAuthorizationStatus.authorizedAlways]
 	
 	var locationManager: CLLocationManager!
 	var datasource: MMGeofencingDatasource!
@@ -89,8 +89,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	/// Requests permission to use location services whenever the app is running.
 	/// - parameter usage: Defines the usage type for which permissions is requested.
 	/// - parameter completion: A block that will be triggered once the authorization request is finished and the capability statys is defined. The current capability status is passed to the block as a parameter.
-	public func authorize(usage: MMLocationServiceUsage, completion: MMCapabilityStatus -> Void) {
-		authorizeService(MMLocationServiceKind.RegionMonitoring, usage: usage, completion: completion)
+	public func authorize(usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
+		authorizeService(kind: MMLocationServiceKind.RegionMonitoring, usage: usage, completion: completion)
 	}
 
 	/// Starts the Geofencing Service
@@ -98,7 +98,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	/// During the startup process, the service automatically asks user to grant the appropriate permissions
 	/// Once the user granted the permissions, the service succesfully lauches.
 	/// - parameter completion: A block that will be triggered once the startup process is finished. Contains a Bool flag parameter, that indicates whether the startup succeded.
-	public func start(completion: (Bool -> Void)? = nil) {
+	public func start(completion: ((Bool) -> Void)? = nil) {
 		MMLogDebug("[GeofencingService] starting ...")
 		serviceQueue.executeAsync() {
 			guard self.isRunning == false else
@@ -115,7 +115,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 				completion?(true)
 			case .NotDetermined:
 				MMLogDebug("[GeofencingService] capability is 'not determined', authorizing...")
-				self.authorizeService(MMLocationServiceKind.RegionMonitoring, usage: MMGeofencingService.kGeofencingPreferableUsage) { capability in
+				self.authorizeService(kind: MMLocationServiceKind.RegionMonitoring, usage: MMGeofencingService.kGeofencingPreferableUsage) { capability in
 					switch capability {
 					case .Authorized:
 						MMLogDebug("[GeofencingService] successfully authorized for `Always` mode")
@@ -146,14 +146,14 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.locationManager.stopMonitoringSignificantLocationChanges()
 			self.locationManager.stopUpdatingLocation()
 			self.stopMonitoringMonitoredRegions()
-			NSNotificationCenter.defaultCenter().removeObserver(self)
+			NotificationCenter.default.removeObserver(self)
 			MMLogDebug("[GeofencingService] stopped.")
 		}
 	}
 	
 	/// Accepts a geo message, which contains regions that should be monitored.
 	/// - parameter message: A message object to add to the monitoring. Object of `MMGeoMessage` class.
-	public func add(message message: MMGeoMessage) {
+	public func add(message: MMGeoMessage) {
 		serviceQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] trying to add a message")
 			guard self.isRunning == true else
@@ -163,7 +163,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			}
 			
 			self.datasource.add(message: message)
-			self.delegate?.didAddMessage(message)
+			self.delegate?.didAddMessage(message: message)
 			MMLogDebug("[GeofencingService] added a message\n\(message)")
 			self.refreshMonitoredRegions()
 		}
@@ -199,14 +199,14 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	class var isDescriptionProvidedForWhenInUseUsage: Bool {
-		return NSBundle.mainBundle().objectForInfoDictionaryKey("NSLocationWhenInUseUsageDescription") != nil
+		return Bundle.main.object(forInfoDictionaryKey: "NSLocationWhenInUseUsageDescription") != nil
 	}
 	
 	class var isDescriptionProvidedForAlwaysUsage: Bool {
-		return NSBundle.mainBundle().objectForInfoDictionaryKey("NSLocationAlwaysUsageDescription") != nil
+		return Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil
 	}
 	
-	func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: MMCapabilityStatus -> Void) {
+	func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
 		serviceQueue.executeAsync() {
 			guard self.capabilityCompletion == nil else
 			{
@@ -214,8 +214,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			}
 			
 			let locationServicesEnabled = CLLocationManager.locationServicesEnabled()
-			let regionMonitoringAvailable = CLLocationManager.isMonitoringAvailableForClass(CLCircularRegion)
-			guard locationServicesEnabled && (!kind.contains(MMLocationServiceKind.RegionMonitoring) || regionMonitoringAvailable) else
+			let regionMonitoringAvailable = CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self)
+			guard locationServicesEnabled && (!kind.contains(options: MMLocationServiceKind.RegionMonitoring) || regionMonitoringAvailable) else
 			{
 				MMLogDebug("[GeofencingService] not available (locationServicesEnabled = \(locationServicesEnabled), regionMonitoringAvailable = \(regionMonitoringAvailable))")
 				completion(.NotAvailable)
@@ -254,10 +254,10 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	// MARK: - Private
 	private var desirableUsageKind = MMLocationServiceUsage.WhenInUse
 	
-	private var capabilityCompletion: (MMCapabilityStatus -> Void)?
+	private var capabilityCompletion: ((MMCapabilityStatus) -> Void)?
 	
 	private func restartLocationManager() {
-		if UIApplication.sharedApplication().applicationState == UIApplicationState.Active {
+		if UIApplication.shared.applicationState == UIApplicationState.active {
 			if CLLocationManager.significantLocationChangeMonitoringAvailable() {
 				self.locationManager.stopMonitoringSignificantLocationChanges()
 				MMLogDebug("[GeofencingService] stopped updating significant location changes")
@@ -284,20 +284,20 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.restartLocationManager()
 			self.refreshMonitoredRegions()
 			
-			NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationDidFinishLaunchingNotification, object: nil, queue: nil, usingBlock:
+			NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidFinishLaunching, object: nil, queue: nil, using:
 				{ [weak self] notification in
-					assert(NSThread .isMainThread())
-					if notification.userInfo?[UIApplicationLaunchOptionsLocationKey] != nil {
+					assert(Thread .isMainThread)
+					if notification.userInfo?[UIApplicationLaunchOptionsKey.location] != nil {
 						MMLogDebug("[GeofencingService] The app relaunched by the OS.")
 						self?.restartLocationManager()
 					}
 				}
 			)
 			
-			NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationDidEnterBackgroundNotification, object: nil, queue: nil, usingBlock:
+			NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidEnterBackground, object: nil, queue: nil, using:
 				{ [weak self] notification in
 					MMLogDebug("[GeofencingService] App did enter background.")
-					assert(NSThread .isMainThread())
+					assert(Thread .isMainThread)
 					self?.restartLocationManager()
 					if let previousLocation = self?.previousLocation {
 						MobileMessaging.currentInstallation?.location = previousLocation
@@ -305,10 +305,10 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 				}
 			)
 			
-			NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationDidBecomeActiveNotification, object: nil, queue: nil, usingBlock:
+			NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidBecomeActive, object: nil, queue: nil, using:
 				{ [weak self] note in
 					MMLogDebug("[GeofencingService] App did become active.")
-					assert(NSThread .isMainThread())
+					assert(Thread .isMainThread)
 					self?.restartLocationManager()
 				}
 			)
@@ -322,7 +322,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		serviceQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] stopping monitoring all regions")
 			for monitoredRegion in self.locationManager.monitoredRegions {
-				self.locationManager.stopMonitoringForRegion(monitoredRegion)
+				self.locationManager.stopMonitoring(for: monitoredRegion)
 			}
 		}
 	}
@@ -334,12 +334,12 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			let closestLiveRegions = self.closestLiveRegions
 			MMLogDebug("[GeofencingService] datasource regions: \n\(self.datasource.regionsDictionary.values)")
 
-			let currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap {$0 as? CLCircularRegion})
+			var currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap {$0 as? CLCircularRegion})
 			MMLogDebug("[GeofencingService] currently monitored regions \n\(currentlyMonitoredRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			let regionsWeAreInside: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
 					if let currentCoordinate = self.locationManager.location?.coordinate {
-						return $0.containsCoordinate(currentCoordinate)
+						return $0.contains(currentCoordinate)
 					} else {
 						return false
 					}
@@ -348,16 +348,16 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			MMLogDebug("[GeofencingService] regions we are inside: \n\(regionsWeAreInside.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			let deadRegions: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
-					return self.datasource.regionsDictionary[$0.identifier]?.isLive == false ?? true
+					return self.datasource.regionsDictionary[$0.identifier]?.isLive == false
 				}
 			)
 			MMLogDebug("[GeofencingService] dead monitored regions: \n\(deadRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
-			let regionsToStopMonitoring = currentlyMonitoredRegions.subtract(regionsWeAreInside).union(deadRegions)
+			let regionsToStopMonitoring = currentlyMonitoredRegions.subtracting(regionsWeAreInside).union(deadRegions)
 			MMLogDebug("[GeofencingService] regions to stop monitoring: \n\(regionsToStopMonitoring.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			for region in regionsToStopMonitoring {
-				self.locationManager.stopMonitoringForRegion(region)
+				self.locationManager.stopMonitoring(for: region)
 			}
 			
 			MMLogDebug("[GeofencingService] regions to start monitoring: \n\(closestLiveRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
@@ -365,10 +365,10 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			for region in closestLiveRegions {
 				region.notifyOnEntry = true
 				region.notifyOnExit = true
-				self.locationManager.startMonitoringForRegion(region)
+				self.locationManager.startMonitoring(for: region)
 				
 				//check if aleady in region
-				if let currentCoordinate = self.locationManager.location?.coordinate where region.containsCoordinate(currentCoordinate) {
+				if let currentCoordinate = self.locationManager.location?.coordinate , region.contains(currentCoordinate) {
 					MMLogDebug("[GeofencingService] detected a region in which we currently are \(self.datasource.regionsDictionary[region.identifier])")
 					self.locationManager(self.locationManager, didEnterRegion: region)
 				}
@@ -384,7 +384,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		return Set(array)
 	}
 	
-	class func closestLiveRegions(withNumberLimit number: Int, forLocation: CLLocation?, fromRegions regions: Set<CLCircularRegion>, filter: (CLCircularRegion -> Bool)?) -> [CLCircularRegion] {
+	class func closestLiveRegions(withNumberLimit number: Int, forLocation: CLLocation?, fromRegions regions: Set<CLCircularRegion>, filter: ((CLCircularRegion) -> Bool)?) -> [CLCircularRegion] {
 		
 		let number = Int(max(0, number))
 		guard number > 0 else
@@ -392,14 +392,14 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			return []
 		}
 		
-		let filterPredicate: CLCircularRegion -> Bool = filter == nil ? { (_: CLCircularRegion) -> Bool in return true } : filter!
+		let filterPredicate: (CLCircularRegion) -> Bool = filter == nil ? { (_: CLCircularRegion) -> Bool in return true } : filter!
 		let filteredRegions: [CLCircularRegion] = Array(regions).filter(filterPredicate)
 		
 		if let location = forLocation {
-			let sortedRegions = filteredRegions.sort { region1, region2 in
+			let sortedRegions = filteredRegions.sorted { region1, region2 in
 				let region1Location = CLLocation(latitude: region1.center.latitude, longitude: region1.center.longitude)
 				let region2Location = CLLocation(latitude: region2.center.latitude, longitude: region2.center.longitude)
-				return location.distanceFromLocation(region1Location) < location.distanceFromLocation(region2Location)
+				return location.distance(from: region1Location) < location.distance(from: region2Location)
 			}
 			return Array(sortedRegions[0..<min(number, sortedRegions.count)])
 		} else {
@@ -408,7 +408,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	class func currentCapabilityStatus(forService kind: MMLocationServiceKind, usage: MMLocationServiceUsage) -> MMCapabilityStatus {
-		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(MMLocationServiceKind.RegionMonitoring) || CLLocationManager.isMonitoringAvailableForClass(CLCircularRegion)) else
+		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(options: MMLocationServiceKind.RegionMonitoring) || CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self)) else
 		{
 			return .NotAvailable
 		}
@@ -418,11 +418,11 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 		
 		switch CLLocationManager.authorizationStatus() {
-		case .NotDetermined: return .NotDetermined
-		case .Restricted: return .NotAvailable
-		case .Denied: return .Denied
-		case .AuthorizedAlways: return .Authorized
-		case .AuthorizedWhenInUse:
+		case .notDetermined: return .NotDetermined
+		case .restricted: return .NotAvailable
+		case .denied: return .Denied
+		case .authorizedAlways: return .Authorized
+		case .authorizedWhenInUse:
 			if usage == MMLocationServiceUsage.WhenInUse {
 				return .Authorized
 			} else {
@@ -440,28 +440,28 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			return true
 		}
 		let monitorableRegionsCount = self.datasource.liveRegions.count
-		let distanceFromPreviousPoint = location.distanceFromLocation(previousLocation)
+		let distanceFromPreviousPoint = location.distance(from: previousLocation)
 		MMLogDebug("[GeofencingService] distance from previous point = \(distanceFromPreviousPoint), monitorableRegionsCount = \(monitorableRegionsCount)")
 		return distanceFromPreviousPoint > self.kRegionRefreshThreshold && monitorableRegionsCount > self.kMonitoringRegionsLimit
 	}
 	
 // MARK: - Location Manager delegate
-	public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-		assert(NSThread.isMainThread())
+	public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] locationManager did change the authorization status \(status.rawValue)")
-		if let completion = self.capabilityCompletion where manager == self.locationManager && status != .NotDetermined {
+		if let completion = self.capabilityCompletion , manager == self.locationManager && status != .notDetermined {
 			self.capabilityCompletion = nil
 			
 			switch status {
-			case .AuthorizedAlways:
+			case .authorizedAlways:
 				completion(.Authorized)
-			case .AuthorizedWhenInUse:
+			case .authorizedWhenInUse:
 				completion(self.desirableUsageKind == MMLocationServiceUsage.WhenInUse ? .Authorized : .Denied)
-			case .Denied:
+			case .denied:
 				completion(.Denied)
-			case .Restricted:
+			case .restricted:
 				completion(.NotAvailable)
-			case .NotDetermined:
+			case .notDetermined:
 				fatalError("Unreachable due to the if statement, but included to keep clang happy")
 			}
 		}
@@ -476,55 +476,55 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
-	public func locationManager(manager: CLLocationManager, didEnterRegion region: CLRegion) {
-		assert(NSThread.isMainThread())
+	public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did enter circular region \(region)")
 		datasource.regions(withIdentifier: region.identifier)?.forEach({ (datasourceRegion) in
 			if datasourceRegion.isLive(for: .entry) {
 				datasource.triggerEvent(for: .entry, region: datasourceRegion)
 				MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
-				delegate?.didEnterRegion(datasourceRegion)
-				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(datasourceRegion)
-				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+				delegate?.didEnterRegion(region: datasourceRegion)
+				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
+				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 			} else {
 				MMLogDebug("[GeofencingService] region is expired.")
 			}
 		})
 	}
 	
-	public func locationManager(manager: CLLocationManager, didStartMonitoringForRegion region: CLRegion) {
-		assert(NSThread.isMainThread())
+	public func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
+		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did start monitoring \(region)")
 	}
 	
-	public func locationManager(manager: CLLocationManager, didExitRegion region: CLRegion) {
-		assert(NSThread.isMainThread())
+	public func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did exit circular region \(region)")
 		datasource.regions(withIdentifier: region.identifier)?.forEach({ (datasourceRegion) in
 			if datasourceRegion.isLive(for: .exit) {
 				datasource.triggerEvent(for: .exit, region: datasourceRegion)
 				MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
-				delegate?.didExitRegion(datasourceRegion)
-				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(datasourceRegion)
-				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+				delegate?.didExitRegion(region: datasourceRegion)
+				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
+				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 			} else {
 				MMLogDebug("[GeofencingService] region is expired.")
 			}
 		})
 	}
 	
-	public func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
-		assert(NSThread.isMainThread())
+	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did fail with error \(error)")
 	}
 	
-	public func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-		assert(NSThread.isMainThread())
+	public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did update locations")
 		guard let location = locations.last else {
 			return
 		}
-		if self.shouldRefreshRegionsWithNewLocation(location) {
+		if self.shouldRefreshRegionsWithNewLocation(location: location) {
 			self.previousLocation = location
 			self.refreshMonitoredRegions()
 		}

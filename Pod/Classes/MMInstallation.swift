@@ -70,13 +70,13 @@ final public class MMUser: NSObject {
 	/// Saves the External User Id on the server asynchronously and executes the given callback block.
 	/// - parameter id: The id you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(externalId: String, completion: NSError? -> Void) {
+	public func save(externalId: String, completion: @escaping (NSError?) -> Void) {
 		self.externalId = externalId
 		save(completion)
 	}
 	
 	@available(*, deprecated, renamed: "MMUser.save(externalId:completion:)")
-	public func saveExternalId(id: String, completion: NSError? -> Void) {
+	public func saveExternalId(id: String, completion: @escaping (NSError?) -> Void) {
 		self.externalId = id
 		save(completion)
 	}
@@ -90,7 +90,7 @@ final public class MMUser: NSObject {
 	/// Saves the email on the server asynchronously and executes the given callback block.
 	/// - parameter email: The email you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(email: String, completion: NSError? -> Void) {
+	public func save(email: String, completion: @escaping (NSError?) -> Void) {
 		self.email = email
 		save(completion)
 	}
@@ -104,14 +104,14 @@ final public class MMUser: NSObject {
 	/// Saves the MSISDN on the server asynchronously and executes the given callback block.
 	/// - parameter msisdn: The MSISDN you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(msisdn: String, completion: NSError? -> Void) {
+	public func save(msisdn: String, completion: @escaping (NSError?) -> Void) {
 		self.msisdn = msisdn
 		save(completion)
 	}
 
 
 	@available(*, deprecated, renamed: "MMUser.save(msisdn:completion:)")
-	public func saveMSISDN(msisdn: String, completion: NSError? -> Void) {
+	public func saveMSISDN(msisdn: String, completion: @escaping (NSError?) -> Void) {
 		save(msisdn: msisdn, completion: completion)
 	}
 	
@@ -126,13 +126,13 @@ final public class MMUser: NSObject {
 	/// Saves the user's custom data on the server asynchronously and executes the given callback block.
 	/// - parameter data: The dictionary representing data you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(customData: [String: UserDataSupportedTypes], completion: NSError? -> Void) {
+	public func save(customData: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
 		self.customData = customData
 		save(completion)
 	}
 	
 	@available(*, deprecated, renamed: "save(customData:completion:)")
-	public func saveCustomData(data: [String: UserDataSupportedTypes], completion: NSError? -> Void) {
+	public func saveCustomData(data: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
 		save(customData: data, completion: completion)
 	}
 	
@@ -167,13 +167,13 @@ final public class MMUser: NSObject {
 	/// - parameter key: The key for `object`.
 	/// - parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(customData object: UserDataSupportedTypes?, forKey key: String, completion: NSError? -> Void) {
+	public func save(customData object: UserDataSupportedTypes?, forKey key: String, completion: @escaping (NSError?) -> Void) {
 		self.set(customData: object, forKey: key)
 		save(completion)
 	}
 	
 	@available(*, deprecated, renamed: "save(customData:forKey:completion:)")
-	public func saveCustomDataForKey(key: String, object: UserDataSupportedTypes?, completion: NSError? -> Void) {
+	public func saveCustomDataForKey(key: String, object: UserDataSupportedTypes?, completion: @escaping (NSError?) -> Void) {
 		save(customData: object, forKey: key, completion: completion)
 	}
 	
@@ -188,13 +188,13 @@ final public class MMUser: NSObject {
 	/// Saves the user's attributes on the server asynchronously and executes the given callback block.
 	/// - parameter data: The dictionary representing data you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(predefinedData: [String: UserDataSupportedTypes], completion: NSError? -> Void) {
+	public func save(predefinedData: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
 		self.predefinedData = predefinedData
 		save(completion)
 	}
 	
 	@available(*, deprecated, renamed: "save(predefinedData:completion:)")
-	public func savePredefinedData(data: [String: UserDataSupportedTypes], completion: NSError? -> Void) {
+	public func savePredefinedData(data: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
 		save(predefinedData: data, completion: completion)
 	}
 	
@@ -229,25 +229,25 @@ final public class MMUser: NSObject {
 	/// - parameter key: The key for `object`.
 	/// - parameter object: The object for `key` of type `MMUserPredefinedDataKeys`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(predefinedData object: UserDataSupportedTypes?, forKey key: MMUserPredefinedDataKeys, completion: NSError? -> Void) {
+	public func save(predefinedData object: UserDataSupportedTypes?, forKey key: MMUserPredefinedDataKeys, completion: @escaping (NSError?) -> Void) {
 		set(predefinedData: object, forKey: key)
 		save(completion)
 	}
 	
 	@available(*, deprecated, renamed: "save(predefinedData:forKey:completion:)")
-	public func savePredefinedDataForKey(key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?, completion: NSError? -> Void) {
+	public func savePredefinedDataForKey(key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?, completion: @escaping (NSError?) -> Void) {
 		save(predefinedData: object, forKey: key, completion: completion)
 	}
 	
 	/// Explicitly tries to save all user data on the server.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(completion: (NSError? -> Void)? = nil) {
+	public func save(_ completion: ((NSError?) -> Void)? = nil) {
 		syncWithServer(completion)
 	}
 	
 	/// Tries to fetch the user data from the server.
 	/// - parameter completion: The block to execute after the server responded.
-	public func fetchFromServer(completion: (NSError? -> Void)? = nil) {
+	public func fetchFromServer(completion: ((NSError?) -> Void)? = nil) {
 		installationManager.fetchUserWithServer(completion)
 	}
 	
@@ -294,7 +294,7 @@ final public class MMInstallation: NSObject {
 	}
 	
 	/// Explicitly tries to save installation data on the server.
-	public func syncWithServer(completion: (NSError? -> Void)? = nil) {
+	public func syncWithServer(completion: ((NSError?) -> Void)? = nil) {
 		installationManager.syncRegistrationWithServer(completion)
 	}
 	
@@ -306,9 +306,9 @@ final public class MMInstallation: NSObject {
 	/// - parameter observer: The object to register for notifications.
 	/// - parameter keyPath: The key path, relative to the Installation, of the property to observe.
 	/// - parameter handler: The block/closure that is called when the value of `keyPath` changes.
-	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: ObservationHandler) {
-		if isKeyObservable(keyPath) {
-			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
+	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: @escaping ObservationHandler) {
+		if isKeyObservable(key: keyPath) {
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
 		}
 	}
 	

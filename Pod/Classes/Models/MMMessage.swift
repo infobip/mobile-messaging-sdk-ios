@@ -55,7 +55,7 @@ public class BaseMessage: NSObject {
 	public let messageId: String
 	public let direction: MessageDirection
 	public let originalPayload: StringKeyPayload
-	public let createdDate: NSDate
+	public let createdDate: Date
 	
 	class func makeMessage(coreDataMessage: Message) -> BaseMessage? {
 		guard let direction = MessageDirection(rawValue: coreDataMessage.direction) else {
@@ -69,7 +69,7 @@ public class BaseMessage: NSObject {
 		}
 	}
 	
-	public init(messageId: String, direction: MessageDirection, originalPayload: StringKeyPayload, createdDate: NSDate) {
+	public init(messageId: String, direction: MessageDirection, originalPayload: StringKeyPayload, createdDate: Date) {
 		self.messageId = messageId
 		self.originalPayload = originalPayload
 		self.direction = direction
@@ -80,7 +80,7 @@ public class BaseMessage: NSObject {
 		return messageId.hash
 	}
 	
-	public override func isEqual(object: AnyObject?) -> Bool {
+	public func isEqual(object: AnyObject?) -> Bool {
 		return self.hash == object?.hash
 	}
 }
@@ -119,7 +119,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 	
 	convenience required public init?(json: JSON) {
 		if let payload = json.dictionaryObject {
-			self.init(payload: payload, createdDate: NSDate())
+			self.init(payload: payload, createdDate: Date())
 		} else {
 			return nil
 		}
@@ -132,7 +132,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 		self.isDeliveryReportSent = coreDataMessage.isDeliveryReportSent
 	}
 	
-	init?(payload: APNSPayload, createdDate: NSDate) {
+	init?(payload: APNSPayload, createdDate: Date) {
 		guard let payload = payload as? StringKeyPayload, let messageId = payload[MMAPIKeys.kMessageId] as? String, let nativeAPS = payload[MMAPIKeys.kAps] as? StringKeyPayload else {
 			return nil
 		}
@@ -157,7 +157,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 		super.init(messageId: messageId, direction: .MT, originalPayload: payload, createdDate: createdDate)
 	}
 	
-	private static func isSilent(payload: [NSObject: AnyObject]?) -> Bool {
+	private static func isSilent(payload: APNSPayload?) -> Bool {
 		//if payload APNS originated:
 		if ((payload?[MMAPIKeys.kInternalData] as? [AnyHashable: Any])?[MMAPIKeys.kSilent] as? [AnyHashable: Any]) != nil {
 			return true
@@ -187,7 +187,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 }
 
 class MMMessageFactory {
-	class func makeMessage(with payload: APNSPayload, createdDate: NSDate) -> MTMessage? {
+	class func makeMessage(with payload: APNSPayload, createdDate: Date) -> MTMessage? {
 		return MMGeoMessage.init(payload: payload, createdDate: createdDate) ?? MTMessage.init(payload: payload, createdDate: createdDate)
 	}
 	class func makeMessage(with json: JSON) -> MTMessage? {
@@ -221,12 +221,12 @@ struct MOAttributes: MOMessageAttributes {
 	let sentStatus: MOMessageSentStatus
 	
 	var dictRepresentation: [String: Any] {
-		var result = [String: AnyObject]()
+		var result = [String: Any]()
 		result[MMAPIKeys.kMODestination] = destination
 		result[MMAPIKeys.kMOText] = text
 		result[MMAPIKeys.kMOCustomPayload] = customPayload
 		result[MMAPIKeys.kMOMessageId] = messageId
-		result[MMAPIKeys.kMOMessageSentStatusCode] = NSNumber(short: sentStatus.rawValue)
+		result[MMAPIKeys.kMOMessageSentStatusCode] = NSNumber(value: sentStatus.rawValue)
 		return result
 	}
 }
@@ -243,9 +243,9 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.customPayload = customPayload
 		self.text = text
 		
-		let mId = NSUUID().UUIDString
+		let mId = NSUUID().uuidString
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: mId, sentStatus: .Undefined).dictRepresentation
-		super.init(messageId: mId, direction: .MO, originalPayload: dict, createdDate: NSDate())
+		super.init(messageId: mId, direction: .MO, originalPayload: dict, createdDate: Date())
 	}
 
 	convenience init?(coreDataMessage: Message) {
@@ -267,10 +267,10 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.text = text
 		
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
-		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: NSDate())
+		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: Date())
 	}
 	
-	var dictRepresentation: [String: AnyObject] {
+	var dictRepresentation: [String: Any] {
 		return MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: sentStatus).dictRepresentation
 	}
 	
@@ -288,6 +288,6 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.text = text
 		
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
-		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: NSDate())
+		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: Date())
 	}
 }

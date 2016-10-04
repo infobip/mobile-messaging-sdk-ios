@@ -22,7 +22,7 @@ struct MessageMeta : MMMessageMetadata {
 	
 	init(message: MessageManagedObject) {
 		self.messageId = message.messageId
-		self.isSilent = message.isSilent.boolValue
+		self.isSilent = message.isSilent
 	}
 	
 	init(message: MTMessage) {
@@ -33,14 +33,14 @@ struct MessageMeta : MMMessageMetadata {
 
 final class MessageHandlingOperation: Operation {
 	var context: NSManagedObjectContext
-	var finishBlock: (NSError? -> Void)?
+	var finishBlock: ((NSError?) -> Void)?
 	var remoteAPIQueue: MMRemoteAPIQueue
 	var messagesToHandle: [MTMessage]
 	var messagesDeliveryMethod: MessageDeliveryMethod
 	var hasNewMessages: Bool = false
 	var messageHandler: MessageHandling
 	
-	init(messagesToHandle: [MTMessage], messagesDeliveryMethod: MessageDeliveryMethod, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, messageHandler: MessageHandling, finishBlock: (NSError? -> Void)? = nil) {
+	init(messagesToHandle: [MTMessage], messagesDeliveryMethod: MessageDeliveryMethod, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, messageHandler: MessageHandling, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
@@ -54,8 +54,8 @@ final class MessageHandlingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("Starting message handling operation...")
-		context.performBlockAndWait {
-			guard let newMessages: [MTMessage] = self.getNewMessages(self.context, messagesToHandle: self.messagesToHandle), !newMessages.isEmpty else
+		context.performAndWait {
+			guard let newMessages: [MTMessage] = self.getNewMessages(context: self.context, messagesToHandle: self.messagesToHandle), !newMessages.isEmpty else
 			{
 				MMLogDebug("There is no new messages to handle.")
 				self.finish()
@@ -93,18 +93,19 @@ final class MessageHandlingOperation: Operation {
 	private func handle(newMessages messages: [MTMessage]) {
 		MMQueue.Main.queue.executeAsync {
 			messages.forEach { message in
-				self.messageHandler.didReceiveNewMessage(message)
+				self.messageHandler.didReceiveNewMessage(message: message)
 				self.postNotificationForObservers(with: message)
 			}
 		}
 	}
 	
 	private func postNotificationForObservers(with message: MTMessage) {
-		var userInfo: [NSObject: AnyObject] = [ MMNotificationKeyMessage: message, MMNotificationKeyMessagePayload: message.originalPayload, MMNotificationKeyMessageIsPush: message.deliveryMethod == .push, MMNotificationKeyMessageIsSilent: message.isSilent ]
+		var userInfo: [String: Any] = [ MMNotificationKeyMessage: message, MMNotificationKeyMessagePayload: message.originalPayload, MMNotificationKeyMessageIsPush: message.deliveryMethod == .push, MMNotificationKeyMessageIsSilent: message.isSilent ]
 		if let customPayload = message.customPayload {
 			userInfo[MMNotificationKeyMessageCustomPayload] = customPayload
 		}
-		NSNotificationCenter.defaultCenter().postNotificationName(MMNotificationMessageReceived, object: self, userInfo: userInfo)
+		
+		NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: userInfo)
 	}
 	
 	private func getNewMessages(context: NSManagedObjectContext, messagesToHandle: [MTMessage]) -> [MTMessage]? {

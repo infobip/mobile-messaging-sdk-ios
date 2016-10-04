@@ -14,10 +14,10 @@ import CoreData
 extension Message {
 
     @NSManaged var messageId: String
-	@NSManaged var payload: [String: AnyObject]
+	@NSManaged var payload: [String: Any]
     @NSManaged var isDeliveryReportSent: Bool
     @NSManaged var seenStatusValue: Int16
-    @NSManaged var createdDate: NSDate
+    @NSManaged var createdDate: Date
 	@NSManaged var deliveryMethod: Int16
 	@NSManaged var direction: Int16
 	@NSManaged var sentStatusValue: Int16

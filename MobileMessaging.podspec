@@ -11,9 +11,12 @@ Pod::Spec.new do |s|
     s.platform = :ios, '8.0'
     s.requires_arc = true
     s.pod_target_xcconfig =  {
-    	'ENABLE_TESTABILITY' => 'YES',
-    	'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/MagicalRecord/** ${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/MagicalRecord/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**'
+        'ENABLE_TESTABILITY' => 'YES',
+        'SWIFT_VERSION' => '3.0',
+        'MODULEMAP_PRIVATE_FILE' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/module.private.modulemap',
+        'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**'
     }
+
     s.default_subspec = 'CocoaLumberjack'
 
     s.subspec 'Core' do |core|
@@ -21,9 +24,9 @@ Pod::Spec.new do |s|
         core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
         core.public_header_files = 'Pod/Classes/**/*.h'
         core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
-        core.source_files = 'Pod/Classes/**/*.{c,h,hh,m,mm,swift}'
+        core.source_files = 'Pod/Classes/**/*.{h,m,swift,modulemap}'
         core.exclude_files = 'Pod/Classes/Logging/DummyLogger/**', 'Pod/Classes/Logging/CocoaLumberjack/**'
-        core.dependency 'SwiftyJSON', '2.3.2'
+        core.dependency 'SwiftyJSON', '~> 3.1'
     end
 
     s.subspec 'DummyLogger' do |d|
@@ -34,6 +37,6 @@ Pod::Spec.new do |s|
     s.subspec 'CocoaLumberjack' do |cl|
         cl.source_files = 'Pod/Classes/Logging/CocoaLumberjack/**'
         cl.dependency 'MobileMessaging/Core'
-        cl.dependency 'CocoaLumberjack', '2.3.0'
+        cl.dependency 'CocoaLumberjack', '~> 3.0'
     end
 end

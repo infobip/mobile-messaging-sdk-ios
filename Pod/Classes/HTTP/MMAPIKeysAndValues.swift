@@ -37,9 +37,9 @@ struct MMAPIKeys {
     static let kSound = "sound"
     static let kCustomPayload = "customPayload"
 	static let kContentAvailable = "content-available"
-	static let kInternalData: String = "internalData"
-	static let kSilent: String = "silent"
-    static let kGeo = "geo"
+	static let kInternalData = "internalData"
+	static let kSilent = "silent"
+	static let kGeo: String = "geo"
 	static let kMessageType = "messageType"
     
     //MARK: seenMessages

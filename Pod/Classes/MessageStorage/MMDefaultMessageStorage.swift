@@ -10,12 +10,12 @@ import CoreData
 
 /// Default implementation of the Message Storage protocol. Uses Core Data persistent storage with SQLite database.
 @objc public class MMDefaultMessageStorage: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
-	public var queue: dispatch_queue_t {
+	public var queue: DispatchQueue {
 		return serialQueue
 	}
 	
 	override init() {
-		self.delegateQueue = dispatch_get_main_queue()
+		self.delegateQueue = DispatchQueue.main
 		super.init()
 	}
 	
@@ -32,11 +32,11 @@ import CoreData
 	}
 	
 	public func insert(outgoing messages: [MOMessage]) {
-		guard let context = context where !messages.isEmpty else {
+		guard let context = context, !messages.isEmpty else {
 			return
 		}
 		var newMessages = [Message]()
-		context.performBlockAndWait {
+		context.performAndWait {
 			messages.forEach { message in
 				let newMessage = Message.MM_createEntityInContext(context: context)
 				newMessage.payload = message.dictRepresentation
@@ -50,11 +50,11 @@ import CoreData
 	}
 	
 	public func insert(incoming messages: [MTMessage]) {
-		guard let context = context where !messages.isEmpty else {
+		guard let context = context, !messages.isEmpty else {
 			return
 		}
 		var newMessages = [Message]()
-		context.performBlockAndWait {
+		context.performAndWait {
 			messages.forEach { message in
 				let newMessage = Message.MM_createEntityInContext(context: context)
 				newMessage.payload = message.originalPayload
@@ -73,8 +73,8 @@ import CoreData
 			return nil
 		}
 		var result: BaseMessage?
-		context.performBlockAndWait {
-			if let message = Message.MM_findFirstInContext(NSPredicate(format: "messageId == %@", messageId), context: context), let baseMessage = message.baseMessage {
+		context.performAndWait {
+			if let message = Message.MM_findFirstWithPredicate(NSPredicate(format: "messageId == %@", messageId), context: context), let baseMessage = message.baseMessage {
 				result = baseMessage
 			}
 		}
@@ -101,43 +101,43 @@ import CoreData
 	
 	//MARK: - Convenience
 	public weak var delegate: MessageStorageDelegate?
-	public var delegateQueue: dispatch_queue_t
+	public var delegateQueue: DispatchQueue
 	
 	//MARK: - MessageStorageFinders
-	public func findAllMessages(completion: FetchResultBlock) {
-		dispatch_async(queue) {
+	public func findAllMessages(completion: @escaping FetchResultBlock) {
+		queue.async() {
 			guard let context = self.context else {
 				completion(nil)
 				return
 			}
-			context.performBlockAndWait {
-				let messages = Message.MM_findAllWithPredicate(nil, inContext: context) as? [Message]
+			context.performAndWait {
+				let messages = Message.MM_findAllWithPredicate(nil, context: context)
 				completion(messages?.baseMessages)
 			}
 		}
 	}
 	
-	public func findMessages(withIds messageIds: [MessageId], completion: FetchResultBlock) {
-		dispatch_async(queue) {
-			guard let context = self.context where !messageIds.isEmpty else {
+	public func findMessages(withIds messageIds: [MessageId], completion: @escaping FetchResultBlock) {
+		queue.async() {
+			guard let context = self.context , !messageIds.isEmpty else {
 				completion(nil)
 				return
 			}
-			context.performBlockAndWait {
-				let messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), inContext: context) as? [Message]
+			context.performAndWait {
+				let messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), context: context)
 				completion(messages?.baseMessages)
 			}
 		}
 	}
 	
-	public func findMessages(withQuery query: Query, completion: FetchResultBlock) {
-		dispatch_async(queue) {
+	public func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock) {
+		queue.async() {
 			guard let context = self.context else {
 				completion(nil)
 				return
 			}
-			context.performBlockAndWait {
-				let messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context) as? [Message]
+			context.performAndWait {
+				let messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context)
 				completion(messages?.baseMessages)
 			}
 		}
@@ -145,12 +145,12 @@ import CoreData
 	
 	//MARK: - MessageStorageRemovers
 	public func removeAllMessages() {
-		dispatch_async(queue) {
+		queue.async() {
 			guard let context = self.context else {
 				return
 			}
-			context.performBlockAndWait {
-				if let messages = Message.MM_findAllInContext(context) as? [Message] {
+			context.performAndWait {
+				if let messages = Message.MM_findAllInContext(context) {
 					self.delete(messages: messages)
 				}
 			}
@@ -158,12 +158,12 @@ import CoreData
 	}
 	
 	public func remove(withIds messageIds: [MessageId]) {
-		dispatch_async(queue) {
-			guard let context = self.context where !messageIds.isEmpty else {
+		queue.async() {
+			guard let context = self.context , !messageIds.isEmpty else {
 				return
 			}
-			context.performBlockAndWait {
-				if let messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), inContext: context) as? [Message] {
+			context.performAndWait {
+				if let messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), context: context){
 					self.delete(messages: messages)
 				}
 			}
@@ -171,12 +171,12 @@ import CoreData
 	}
 	
 	public func remove(withQuery query: Query) {
-		dispatch_async(queue) {
+		queue.async() {
 			guard let context = self.context else {
 				return
 			}
-			context.performBlockAndWait {
-				if let messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context) as? [Message] {
+			context.performAndWait {
+				if let messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context) {
 					self.delete(messages: messages)
 				}
 			}
@@ -188,15 +188,15 @@ import CoreData
 	var context: NSManagedObjectContext?
 	
 	// MARK: - Private
-	private let serialQueue: dispatch_queue_t = MMQueue.Serial.Reusable.MessageStorageQueue.queue.queue
+	private let serialQueue: DispatchQueue = MMQueue.Serial.Reusable.MessageStorageQueue.queue.queue
 	
-	private func delete(messages messages: [Message]) {
+	private func delete(messages: [Message]) {
 		guard let context = context else {
 			return
 		}
 		let deleted = messages.baseMessages
 		messages.forEach { message in
-			context.deleteObject(message)
+			context.delete(message)
 		}
 		context.MM_saveToPersistentStoreAndWait()
 		self.callDelegateIfNeeded {
@@ -204,7 +204,7 @@ import CoreData
 		}
 	}
 	
-	private func didUpdate(message message: Message) {
+	private func didUpdate(message: Message) {
 		guard let baseMessage = message.baseMessage else {
 			return
 		}
@@ -213,12 +213,12 @@ import CoreData
 		}
 	}
 	
-	private func updateMessage(foundWith predicate: NSPredicate, applyChanges block: (Message) -> Void) {
+	private func updateMessage(foundWith predicate: NSPredicate, applyChanges block: @escaping (Message) -> Void) {
 		guard let context = context else {
 			return
 		}
-		context.performBlockAndWait {
-			if let message = Message.MM_findFirstInContext(predicate, context: context) {
+		context.performAndWait {
+			if let message = Message.MM_findFirstWithPredicate(predicate, context: context) {
 				block(message)
 				context.MM_saveToPersistentStore()
 				self.didUpdate(message: message)
@@ -226,15 +226,15 @@ import CoreData
 		}
 	}
 	
-	private func callDelegateIfNeeded(block: (Void -> Void)) {
+	private func callDelegateIfNeeded(block: @escaping ((Void) -> Void)) {
 		if self.delegate != nil {
-			dispatch_async(delegateQueue, block)
+			delegateQueue.async(execute: block)
 		}
 	}
 }
 
 extension Array where Element: Message {
-	private var baseMessages: [BaseMessage] {
+	fileprivate var baseMessages: [BaseMessage] {
 		return self.flatMap { $0.baseMessage }
 	}
 }

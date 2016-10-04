@@ -33,9 +33,11 @@ enum MMRegionEventType: String {
 	case exit
 }
 
+public typealias DictionaryRepresentation = [String: Any]
+
 protocol PlistArchivable {
-	init?(dictRepresentation dict: [String: AnyObject])
-	var dictionaryRepresentation: [String: AnyObject] {get}
+	init?(dictRepresentation dict: DictionaryRepresentation)
+	var dictionaryRepresentation: DictionaryRepresentation {get}
 }
 
 extension MTMessage {
@@ -51,8 +53,9 @@ extension MTMessage {
 final public class MMGeoMessage: MTMessage {
 	public let regions: Set<MMRegion>
 	
-	public override init?(payload: APNSPayload, createdDate: NSDate) {
-		guard let geoRegionsData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kGeo] as? [StringKeyPayload] else {
+	public override init?(payload: APNSPayload, createdDate: Date) {
+		guard let internalData = payload[MMAPIKeys.kInternalData] as? StringKeyPayload, let geoRegionsData = internalData[MMAPIKeys.kGeo] as? [StringKeyPayload] else
+		{
 			return nil
 		}
 		self.regions = Set(geoRegionsData.flatMap(MMRegion.init))
@@ -80,17 +83,10 @@ final class MMPlistCampaign: Hashable, Equatable, CustomStringConvertible, Plist
     let id: String
     let title: String?
     let body: String?
-    let dateReceived: NSDate
+    let dateReceived: Date
     let regions: Set<MMRegion>
 	
-	init?(id: String,
-	      title: String?,
-	      body: String?,
-	      sound: String?,
-	      dateReceived: NSDate,
-	      regions: Set<MMRegion> = Set<MMRegion>(),
-	      customPayload: [String: AnyObject]?) {
-		
+	init?(id: String, title: String?, body: String?, sound: String?, dateReceived: Date, regions: Set<MMRegion> = Set<MMRegion>()) {
 		guard !regions.isEmpty else {
 			return nil
 		}
@@ -101,14 +97,14 @@ final class MMPlistCampaign: Hashable, Equatable, CustomStringConvertible, Plist
         self.regions = regions
     }
 	
-	convenience init?(dictRepresentation dict: [String: AnyObject]) {
+	convenience init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard let id = dict[MMPlistCampaignDataKeys.Id.rawValue] as? String,
-			  let regionDicts = dict[MMPlistCampaignDataKeys.Regions.rawValue] as? [[String:AnyObject]] else
+			  let regionDicts = dict[MMPlistCampaignDataKeys.Regions.rawValue] as? [DictionaryRepresentation] else
 		{
 			return nil
 		}
 		let regionObjects = regionDicts.flatMap(MMRegion.init)
-		let date = dict[MMPlistCampaignDataKeys.DateReceived.rawValue] as? NSDate ?? NSDate()
+		let date = dict[MMPlistCampaignDataKeys.DateReceived.rawValue] as? Date ?? Date()
 		
 		//if .Manual, then do not re-save at CoreData DB
 		let origin = MMPlistCampaignOrigin(rawValue: dict[MMPlistCampaignDataKeys.Origin.rawValue] as? Int ?? 0) ?? .Manual
@@ -116,17 +112,13 @@ final class MMPlistCampaign: Hashable, Equatable, CustomStringConvertible, Plist
 			return nil
 		}
 		
-		self.init(id: id,
-		          title: dict[MMPlistCampaignDataKeys.Title.rawValue] as? String ?? "",
-		          body: dict[MMPlistCampaignDataKeys.Message.rawValue] as? String ?? "",
-		          sound: nil,
-		          dateReceived: date,
-		          regions: Set(regionObjects),
-		          customPayload: nil)
+		let title = dict[MMPlistCampaignDataKeys.Title.rawValue] as? String
+		let body = dict[MMPlistCampaignDataKeys.Message.rawValue] as? String
+		self.init(id: id, title: title, body: body, sound: nil, dateReceived: date, regions: Set(regionObjects))
 	}
 	
-	var dictionaryRepresentation: [String: AnyObject] {
-		var result = [String: AnyObject]()
+	var dictionaryRepresentation: DictionaryRepresentation {
+		var result = DictionaryRepresentation()
 		result[MMPlistCampaignDataKeys.Id.rawValue] = id
 		result[MMPlistCampaignDataKeys.Title.rawValue] = title
 		result[MMPlistCampaignDataKeys.Message.rawValue] = body
@@ -152,8 +144,8 @@ func ==(lhs: MMPlistCampaign, rhs: MMPlistCampaign) -> Bool {
 
 final public class MMRegion: NSObject, PlistArchivable {
 	public let identifier: String
-	public let startDate: NSDate
-	public let expiryDate: NSDate
+	public let startDate: Date
+	public let expiryDate: Date
 	let expiryDateString: NSString
 	let startDateString: NSString
 	public let center: CLLocationCoordinate2D
@@ -162,7 +154,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 	weak var message: MMGeoMessage?
 	public var isLive: Bool {
 		let validEventExists = events.contains{$0.isValid}
-		return validEventExists && NSDate().compare(expiryDate) == .OrderedAscending && NSDate().compare(startDate) != .OrderedAscending
+		return validEventExists && Date().compare(expiryDate) == .orderedAscending && Date().compare(startDate) != .orderedAscending
 	}
 	
 	func triggerEvent(for type: MMRegionEventType) {
@@ -182,7 +174,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 	}()
 	
 	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryDateString: String, startDateString: String) {
-		guard let expiryDate = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(expiryDateString), let startDate = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(startDateString) where radius > 0 else
+		guard let expiryDate = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryDateString), let startDate = DateStaticFormatters.ISO8601SecondsFormatter.date(from: startDateString) , radius > 0 else
 		{
 			return nil
 		}
@@ -190,14 +182,14 @@ final public class MMRegion: NSObject, PlistArchivable {
 		self.center = center
 		self.radius = max(100, radius)
 		self.identifier = identifier
-		self.expiryDateString = expiryDateString
+		self.expiryDateString = expiryDateString as NSString
 		self.expiryDate = expiryDate
-		self.startDateString = startDateString
+		self.startDateString = startDateString as NSString
 		self.startDate = startDate
 	}
 	
-	@available(*, deprecated, message="Used only for backward compatability. Expiry date format is changed since 1.3.0 from millisecond timestamp to IOS8601 date string with the seconds granularity")
-	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: NSTimeInterval) {
+	@available(*, deprecated, message: "Used only for backward compatability. Expiry date format is changed since 1.3.0 from millisecond timestamp to IOS8601 date string with the seconds granularity")
+	public init?(identifier: String, center: CLLocationCoordinate2D, radius: Double, title: String, expiryms: TimeInterval) {
 		guard radius > 0 && expiryms > 0 else
 		{
 			return nil
@@ -206,17 +198,17 @@ final public class MMRegion: NSObject, PlistArchivable {
 		self.center = center
 		self.radius = max(100, radius)
 		self.identifier = identifier
-		self.expiryDate = NSDate(timeIntervalSince1970: expiryms/1000)
-		self.expiryDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(self.expiryDate)
-		self.startDate = NSDate(timeIntervalSinceReferenceDate: 0)
-		self.startDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(self.startDate)
+		self.expiryDate = Date(timeIntervalSince1970: expiryms/1000)
+		self.expiryDateString = DateStaticFormatters.ISO8601SecondsFormatter.string(from: self.expiryDate) as NSString
+		self.startDate = Date(timeIntervalSinceReferenceDate: 0)
+		self.startDateString = DateStaticFormatters.ISO8601SecondsFormatter.string(from: self.startDate) as NSString
 	}
 	
 	public override var description: String {
 		return "\(title), radius \(radius)m, expiration \(expiryDate): \(center.longitude) \(center.latitude)"
 	}
 	
-	public convenience init?(dictRepresentation dict: [String: AnyObject]) {
+	public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard let lat = dict[MMRegionDataKeys.Latitude.rawValue] as? Double,
 			let lon = dict[MMRegionDataKeys.Longitude.rawValue] as? Double,
 			let title = dict[MMRegionDataKeys.Title.rawValue] as? String,
@@ -225,7 +217,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 		{
 			return nil
 		}
-		let startDateString = (dict[MMRegionDataKeys.StartDate.rawValue] as? String) ?? NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(NSDate(timeIntervalSinceReferenceDate: 0))
+		let startDateString = (dict[MMRegionDataKeys.StartDate.rawValue] as? String) ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date(timeIntervalSinceReferenceDate: 0))
 		if let expiryDateString = dict[MMRegionDataKeys.ExpiryDate.rawValue] as? String {
 			self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title, expiryDateString: expiryDateString, startDateString: startDateString)
 		} else if let expiryms = dict[MMRegionDataKeys.ExpiryMillis.rawValue] as? Double {
@@ -234,13 +226,13 @@ final public class MMRegion: NSObject, PlistArchivable {
 			return nil
 		}
 		
-		if let eventDicts = dict[MMRegionDataKeys.Event.rawValue] as? [[String:AnyObject]] {
+		if let eventDicts = dict[MMRegionDataKeys.Event.rawValue] as? [[String:Any]] {
 			self.events = eventDicts.flatMap(MMRegionEvent.init)
 		}
 	}
 	
-	public var dictionaryRepresentation: [String: AnyObject] {
-		var result = [String: AnyObject]()
+	public var dictionaryRepresentation: [String: Any] {
+		var result = [String: Any]()
 		result[MMRegionDataKeys.Latitude.rawValue] = center.latitude
 		result[MMRegionDataKeys.Longitude.rawValue] = center.longitude
 		result[MMRegionDataKeys.Radius.rawValue] = radius
@@ -268,22 +260,22 @@ final class MMRegionEvent: PlistArchivable {
 	let limit: UInt					//how many times this event can occur, 0 means unlimited
 	let timeout: UInt			    //minutes till next possible event
 	var rate: UInt = 0
-	var lastOccur: NSDate?
+	var lastOccur: Date?
 	
 	var isValid: Bool {
 		if limit != 0 && rate >= limit {
 			return false
 		}
 		
-		return lastOccur?.dateByAddingTimeInterval(NSTimeInterval(timeout * 60)).compare(NSDate()) != .OrderedDescending
+		return lastOccur?.addingTimeInterval(TimeInterval(timeout * 60)).compare(Date() as Date) != .orderedDescending
 	}
 	
 	func occur() {
 		rate += 1
-		lastOccur = NSDate()
+		lastOccur = Date()
 	}
 	
-	init?(dictRepresentation dict: [String: AnyObject]) {
+	init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard let typeString = dict[MMRegionEventDataKeys.eventType.rawValue] as? String,
 			  let type = MMRegionEventType(rawValue: typeString),
 			  let limit = dict[MMRegionEventDataKeys.eventLimit.rawValue] as? UInt else {
@@ -293,11 +285,11 @@ final class MMRegionEvent: PlistArchivable {
 		self.limit = limit
 		self.timeout = dict[MMRegionEventDataKeys.eventTimeout.rawValue] as? UInt ?? 0
 		self.rate = dict[MMRegionEventDataKeys.eventRate.rawValue] as? UInt ?? 0
-		self.lastOccur = dict[MMRegionEventDataKeys.eventLastOccur.rawValue] as? NSDate ?? nil
+		self.lastOccur = dict[MMRegionEventDataKeys.eventLastOccur.rawValue] as? Date ?? nil
 	}
 	
-	var dictionaryRepresentation: [String: AnyObject] {
-		var result = [String: AnyObject]()
+	var dictionaryRepresentation: DictionaryRepresentation {
+		var result = DictionaryRepresentation()
 		result[MMRegionEventDataKeys.eventType.rawValue] = type.rawValue
 		result[MMRegionEventDataKeys.eventLimit.rawValue] = limit
 		result[MMRegionEventDataKeys.eventTimeout.rawValue] = timeout
@@ -307,8 +299,8 @@ final class MMRegionEvent: PlistArchivable {
 		return result
 	}
 	
-	private class func makeDefault(ofType type: MMRegionEventType) -> MMRegionEvent {
-		let defaultDict: [String: AnyObject] = [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
+	fileprivate class func makeDefault(ofType type: MMRegionEventType) -> MMRegionEvent {
+		let defaultDict: DictionaryRepresentation = [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
 		                                        MMRegionEventDataKeys.eventLimit.rawValue: 1,
 		                                        MMRegionEventDataKeys.eventTimeout.rawValue: 0]
 		return MMRegionEvent(dictRepresentation: defaultDict)!

@@ -6,10 +6,6 @@ extension DDLogFlag {
 		return DDLogFlag(rawValue: logLevel.rawValue)
 	}
 	
-	public init(_ logLevel: DDLogLevel) {
-		self = DDLogFlag(rawValue: logLevel.rawValue)
-	}
-	
 	///returns the log level, or the lowest equivalant.
 	public func toLogLevel() -> DDLogLevel {
 		if let ourValid = DDLogLevel(rawValue: self.rawValue) {
@@ -17,18 +13,18 @@ extension DDLogFlag {
 		} else {
 			let logFlag:DDLogFlag = self
 			
-			if logFlag.contains(.Verbose) {
-				return .Verbose
-			} else if logFlag.contains(.Debug) {
-				return .Debug
-			} else if logFlag.contains(.Info) {
-				return .Info
-			} else if logFlag.contains(.Warning) {
-				return .Warning
-			} else if logFlag.contains(.Error) {
-				return .Error
+			if logFlag.contains(.verbose) {
+				return .verbose
+			} else if logFlag.contains(.debug) {
+				return .debug
+			} else if logFlag.contains(.info) {
+				return .info
+			} else if logFlag.contains(.warning) {
+				return .warning
+			} else if logFlag.contains(.error) {
+				return .error
 			} else {
-				return .Off
+				return .off
 			}
 		}
 	}
@@ -36,13 +32,13 @@ extension DDLogFlag {
 
 func lumberjackLogLevel(from mmLogLevel: MMLogLevel) -> DDLogLevel {
 	switch mmLogLevel {
-	case .Off: return DDLogLevel.Off
-	case .Error: return DDLogLevel.Error
-	case .Warning: return DDLogLevel.Warning
-	case .Info: return DDLogLevel.Info
-	case .Debug: return DDLogLevel.Debug
-	case .Verbose: return DDLogLevel.Verbose
-	case .All: return DDLogLevel.All
+	case .Off: return DDLogLevel.off
+	case .Error: return DDLogLevel.error
+	case .Warning: return DDLogLevel.warning
+	case .Info: return DDLogLevel.info
+	case .Debug: return DDLogLevel.debug
+	case .Verbose: return DDLogLevel.verbose
+	case .All: return DDLogLevel.all
 	}
 }
 
@@ -93,7 +89,7 @@ public final class MMLogger: NSObject, MMLogging {
 			return nil
 		}
 		
-		return filelogger.currentLogFileInfo().filePath
+		return filelogger.currentLogFileInfo.filePath
 	}
 	
 	init(logOutput: MMLogOutput, logLevel: MMLogLevel) {
@@ -117,11 +113,11 @@ public final class MMLogger: NSObject, MMLogging {
 		var objectsToShare: [AnyObject] = [MobileMessaging.userAgent.currentUserAgentString]
 		
 		if let dt = MobileMessaging.currentInstallation?.deviceToken {
-			objectsToShare.append("APNS device token: \(dt)")
+			objectsToShare.append("APNS device token: \(dt)" as AnyObject)
 		}
 		
 		if let id = MobileMessaging.currentUser?.internalId {
-			objectsToShare.append("Push registration ID: \(id)")
+			objectsToShare.append("Push registration ID: \(id)" as AnyObject)
 		}
 		
 		if let filePath = self.logFilePath {
@@ -129,7 +125,7 @@ public final class MMLogger: NSObject, MMLogging {
 			objectsToShare.append(url)
 			
 			let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
-			vc.presentViewController(activityVC, animated: true, completion: nil)
+			vc.present(activityVC, animated: true, completion: nil)
 		}
 	}
 	
@@ -141,14 +137,14 @@ public final class MMLogger: NSObject, MMLogging {
 		
 		if logOutput.contains(.Console) {
 			let logger = DDTTYLogger.sharedInstance()
-			logger.logFormatter = MMLogFormatter()
-			DDLog.addLogger(logger, withLevel: lumberjackLogLvl) //Console
+			logger?.logFormatter = MMLogFormatter()
+			DDLog.add(logger, with: lumberjackLogLvl) //Console
 		}
 		
 		if logOutput.contains(.ASL) {
 			let logger = DDASLLogger.sharedInstance()
-			logger.logFormatter = MMLogFormatter()
-			DDLog.addLogger(logger, withLevel: lumberjackLogLvl) //ASL
+			logger?.logFormatter = MMLogFormatter()
+			DDLog.add(logger, with: lumberjackLogLvl) //ASL
 		}
 		
 		if logOutput.contains(.File) {
@@ -158,29 +154,29 @@ public final class MMLogger: NSObject, MMLogging {
 				fileLogger.logFileManager.maximumNumberOfLogFiles = 10
 				fileLogger.rollingFrequency = 60*60*24 //24h
 			}
-			DDLog.addLogger(fileLogger, withLevel: lumberjackLogLvl)
+			DDLog.add(fileLogger, with: lumberjackLogLvl)
 		}
 	}
 	
-	public func SwiftLogMacro(isAsynchronous: Bool, level: DDLogLevel, flag flg: DDLogFlag, context: Int = 0, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, @autoclosure string: () -> String) {
+	public func SwiftLogMacro(isAsynchronous: Bool, level: DDLogLevel, flag flg: DDLogFlag, context: Int = 0, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, string: @autoclosure () -> String) {
 		if level.rawValue & flg.rawValue != 0 {
 			// Tell the DDLogMessage constructor to copy the C strings that get passed to it.
 			// Using string interpolation to prevent integer overflow warning when using StaticString.stringValue
-			let logMessage = DDLogMessage(message: string(), level: level, flag: flg, context: context, file: "\(file)", function: "\(function)", line: line, tag: tag, options: [.CopyFile, .CopyFunction], timestamp: nil)
-			DDLog.log(isAsynchronous, message: logMessage)
+			let logMessage = DDLogMessage(message: string(), level: level, flag: flg, context: context, file: "\(file)", function: "\(function)", line: line, tag: tag, options: [.copyFile, .copyFunction], timestamp: nil)
+			DDLog.log(asynchronous: isAsynchronous, message: logMessage)
 		}
 	}
 }
 
 final class MMLogFormatter: NSObject, DDLogFormatter {
-	let dateFormatter: NSDateFormatter
+	let dateFormatter: DateFormatter
 	override init() {
-		self.dateFormatter = NSDateFormatter()
+		self.dateFormatter = DateFormatter()
 		self.dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
 	}
 	
-	func formatLogMessage(logMessage: DDLogMessage!) -> String! {
-		let date = dateFormatter.stringFromDate(logMessage.timestamp)
+	func format(message logMessage: DDLogMessage!) -> String! {
+		let date = dateFormatter.string(from: logMessage.timestamp)
 		return date + " [MobileMessaging] " + logMessage.message
 	}
 }

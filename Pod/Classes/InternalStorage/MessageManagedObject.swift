@@ -15,21 +15,21 @@ import CoreData
     case SeenSent
 }
 
-enum MMMessageType : Int32 {
+enum MMMessageType : Int16 {
 	case Default = 0
 	case Geo
 }
 
-final class MessageManagedObject: NSManagedObject {
+final class MessageManagedObject: NSManagedObject, Fetchable {
 	override func MM_awakeFromCreation() {
-		self.creationDate = NSDate()
+		self.creationDate = Date()
 	}
     var seenStatus: MMSeenStatus {
 		get { return MMSeenStatus(rawValue: seenStatusValue) ?? .NotSeen }
 		set { seenStatusValue = newValue.rawValue }
     }
 	var messageType: MMMessageType {
-		get { return MMMessageType(rawValue: messageTypeValue.intValue) ?? .Default }
-		set { messageTypeValue = NSNumber(int: newValue.rawValue) }
+		get { return MMMessageType(rawValue: messageTypeValue) ?? .Default }
+		set { messageTypeValue = newValue.rawValue }
 	}
 }

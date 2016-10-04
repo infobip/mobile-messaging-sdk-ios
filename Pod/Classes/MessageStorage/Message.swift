@@ -8,14 +8,14 @@
 import Foundation
 import CoreData
 
-public class Message: NSManagedObject {
+final class Message: NSManagedObject, Fetchable {
 
 	override func MM_awakeFromCreation() {
-		self.createdDate = NSDate()
+		self.createdDate = Date()
 	}
 	
 	var baseMessage: BaseMessage? {
-		return BaseMessage.makeMessage(self)
+		return BaseMessage.makeMessage(coreDataMessage: self)
 	}
 	
 	var mtMessage: MTMessage? {

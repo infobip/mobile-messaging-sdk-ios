@@ -10,7 +10,7 @@ import CoreTelephony
 struct MMSystemData: Hashable {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
 	let geoAvailability: Bool
-	var dictionaryRepresentation: [String: AnyObject] {
+	var dictionaryRepresentation: [String: Any] {
 		return [
 			MMAPIKeys.kSystemDataSDKVersion: SDKVersion,
 			MMAPIKeys.kSystemDataOSVer: OSVer,
@@ -27,7 +27,7 @@ struct MMSystemData: Hashable {
 }
 
 public class MMUserAgent: NSObject {
-	struct DataOptions : OptionSetType {
+	struct DataOptions : OptionSet {
 		let rawValue: Int
 		init(rawValue: Int = 0) { self.rawValue = rawValue }
 		static let None = DataOptions(rawValue: 0)
@@ -88,27 +88,27 @@ public class MMUserAgent: NSObject {
 	}
 	
 	public var osVersion: String {
-		return UIDevice.currentDevice().systemVersion
+		return UIDevice.current.systemVersion
 	}
 	
 	public var osName: String {
-		return UIDevice.currentDevice().systemName
+		return UIDevice.current.systemName
 	}
 	
 	public var libraryVersion: String {
-		return NSBundle(identifier:"org.cocoapods.MobileMessaging")?.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String ?? libVersion
+		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? libVersion
 	}
 	
 	public var libraryName: String {
-		return NSBundle(identifier:"org.cocoapods.MobileMessaging")?.objectForInfoDictionaryKey("CFBundleName") as? String ?? "MobileMessaging"
+		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "MobileMessaging"
 	}
 	
 	public var hostingAppVersion: String {
-		return NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+		return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 	}
 	
 	public var hostingAppName: String {
-		return NSBundle.mainBundle().infoDictionary?["CFBundleName"] as? String ?? ""
+		return Bundle.main.infoDictionary?["CFBundleName"] as? String ?? ""
 	}
 	
 	public var deviceManufacturer: String {

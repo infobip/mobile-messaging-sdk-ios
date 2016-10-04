@@ -15,6 +15,6 @@ class MMLocalNotification {
 		let localNotification = UILocalNotification()
 		localNotification.alertBody = message.text
 		localNotification.soundName = message.sound
-		UIApplication.sharedApplication().presentLocalNotificationNow(localNotification)
+		UIApplication.shared.presentLocalNotificationNow(localNotification)
 	}
 }
