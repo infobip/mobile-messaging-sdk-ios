@@ -7,6 +7,17 @@
 
 import CoreData
 
+extension String {
+	/// Skips initial space characters (whitespaceSet). Returns true if the firsh character is one of "Y", "y", "T", "t".
+	var boolValue: Bool {
+		let trimmedString = self.trimmingCharacters(in: .whitespaces)
+		guard let firstChar = trimmedString.characters.first else {
+			return false
+		}
+		return ["t", "T", "y", "Y"].contains(firstChar)
+	}
+}
+
 struct MMContextSaveOptions: OptionSet {
 	let rawValue : Int
 	init(rawValue: Int) { self.rawValue = rawValue }
@@ -54,6 +65,7 @@ extension Fetchable where Self : NSManagedObject {
 		return results
 	}
 	
+
 	static func MM_findAllWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> [Self]? {
 		let r : NSFetchRequest<Self> = self.MM_requestAll(predicate)
 		return self.MM_executeRequest(r, inContext: context)
@@ -115,6 +127,41 @@ extension Fetchable where Self : NSManagedObject {
 		} else {
 			return nil
 		}
+	}
+
+	static func MM_requestAll(withPredicate predicate: NSPredicate? = nil, fetchLimit: Int, sortedBy sortTerm: String, ascending: Bool) -> NSFetchRequest {
+		let r = self.MM_requestAll(predicate)
+		
+		var ascending = ascending
+		var sortDescriptors = [NSSortDescriptor]()
+		let sortKeys = sortTerm.componentsSeparatedByString(",")
+		sortKeys.forEach { sortKey in
+			var sortKey = sortKey
+			let sortComps = sortKey.componentsSeparatedByString(":")
+			if sortComps.count > 1 {
+				if let customAscending = sortComps.last {
+					ascending = customAscending.boolValue
+					sortKey = sortComps[0]
+				}
+			}
+			sortDescriptors.append(NSSortDescriptor(key: sortKey, ascending: ascending))
+		}
+		r.sortDescriptors = sortDescriptors
+		r.fetchLimit = fetchLimit
+		return r
+	}
+	
+	static func MM_find(withPredicate predicate: NSPredicate, fetchLimit: Int, sortedBy: String, ascending: Bool, inContext context: NSManagedObjectContext) -> [Self]? {
+		let r = self.MM_requestAll(withPredicate: predicate, fetchLimit: fetchLimit, sortedBy: sortedBy, ascending: ascending)
+		return self.MM_executeRequest(r, inContext: context)
+	}
+	
+	static func MM_findAll(withPredicate predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, skip: Int?, inContext context: NSManagedObjectContext) -> [Self]? {
+		let r = self.MM_requestAll(predicate)
+		r.sortDescriptors = sortDescriptors
+		r.fetchLimit = limit ?? 0
+		r.fetchOffset = skip ?? 0
+		return self.MM_executeRequest(r, inContext: context)
 	}
 }
 
@@ -240,6 +287,10 @@ extension NSManagedObjectContext {
 	
 	func MM_saveToPersistentStoreAndWait() {
 		MM_saveWithOptions([.SaveParent, .SaveSynchronously], completion: nil)
+	}
+	
+	func MM_saveToPersistentStore() {
+		MM_saveWithOptions([.SaveParent], completion: nil)
 	}
 	
 	func MM_saveOnlySelfAndWait() {

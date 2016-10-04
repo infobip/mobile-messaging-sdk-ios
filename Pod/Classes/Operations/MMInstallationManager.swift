@@ -21,7 +21,6 @@ final class MMInstallationManager {
 	
 	init(storage: MMCoreDataStorage, registrationRemoteAPI: MMRemoteAPIQueue) {
 		self.registrationRemoteAPI = registrationRemoteAPI
-		self.emailMsisdnRemoteAPI = MMRemoteAPIQueue(baseURL: registrationRemoteAPI.baseURL, applicationCode: registrationRemoteAPI.applicationCode)
 		self.storage = storage
 		self.storageContext = storage.newPrivateContext()
 		_currentInstallation = installationObject
@@ -35,14 +34,35 @@ final class MMInstallationManager {
 		return result
 	}
 	
+	//FIXME: duplication in setValueForKey
 	func setValueForKey<Value: Equatable>(_ key: String, value: Value?) {
-		storageContext.perform {
-			self.installationObject.setValueIfDifferent(value: value, forKey: key)
+		storageContext.performBlock {
+			if let dictValue = value as? [String: Any] {
+				if var dictionaryValue = self.getValueForKey(key) as? [String: Any] {
+					dictionaryValue += dictValue
+					self.installationObject.setValueIfDifferent(dictionaryValue, forKey: key)
+				} else {
+					self.installationObject.setValueIfDifferent(value, forKey: key)
+				}
+			} else {
+				self.installationObject.setValueIfDifferent(value, forKey: key)
+			}
 		}
 	}
+	
+	//FIXME: duplication in setValueForKey
 	func setValueForKey(_ key: String, value: [AnyHashable : UserDataSupportedTypes]?) {
-		storageContext.perform {
-			self.installationObject.setValueIfDifferent(value: value, forKey: key)
+		storageContext.performBlock {
+			if let dictValue = value as? [String: Any] {
+				if var dictionaryValue = self.getValueForKey(key) as? [String: Any] {
+					dictionaryValue += dictValue
+					self.installationObject.setValueIfDifferent(dictionaryValue, forKey: key)
+				} else {
+					self.installationObject.setValueIfDifferent(value, forKey: key)
+				}
+			} else {
+				self.installationObject.setValueIfDifferent(value, forKey: key)
+			}
 		}
 	}
 	
@@ -87,7 +107,6 @@ final class MMInstallationManager {
 	private var installationHasChanges: Bool {
 		return installationObject.changedValues().count > 0
 	}
-	private var emailMsisdnRemoteAPI: MMRemoteAPIQueue
 	private var _currentInstallation: InstallationManagedObject?
 	
 	

@@ -19,8 +19,8 @@ extension InstallationManagedObject {
     @NSManaged var dirtyAttributes: NSNumber
     @NSManaged var internalUserId: String?
 	@NSManaged var externallUserId: String?
-	
     @NSManaged var customUserData: [String: Any]?
 	@NSManaged var predefinedUserData: [String: Any]?
 	@NSManaged var systemDataHash: NSNumber
+	@NSManaged var location: AnyObject?
 }

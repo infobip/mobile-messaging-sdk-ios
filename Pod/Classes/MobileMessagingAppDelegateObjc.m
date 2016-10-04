@@ -9,7 +9,8 @@
 #import <MobileMessaging/MobileMessaging-Swift.h>
 
 @implementation MobileMessagingAppDelegateObjc
--(BOOL)geofencingServiceDisabled {
+
+-(BOOL)geofencingServiceEnabled {
 	return FALSE;
 }
 
@@ -24,10 +25,14 @@
 }
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	
-	[[[MobileMessaging withApplicationCode:self.applicationCode notificationType:self.userNotificationType] withGeofencingServiceDisabledWithDisabled:self.geofencingServiceDisabled] start:nil];
+	MobileMessaging * session = [MobileMessaging withApplicationCode:self.applicationCode notificationType:self.userNotificationType];
+	if (self.geofencingServiceEnabled) {
+		session = [session withGeofencingService];
+	}
+	[session start: nil];
 	return [self mm_application:application didFinishLaunchingWithOptions:launchOptions];
 }
+
 -(BOOL)mm_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// override this callback in your AppDelegate if needed
 	return true;
@@ -37,6 +42,7 @@
 	[MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 	[self mm_application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 }
+
 -(void)mm_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 	// override this callback in your AppDelegate if needed
 }
@@ -48,23 +54,4 @@
 -(void)mm_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
 	// override in your AppDelegate if needed
 }
-
--(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-	[MobileMessaging handleActionWithIdentifier:identifier userInfo:userInfo responseInfo:nil completionHandler:completionHandler];
-	[self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
-}
-
--(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-	// override this callback in your AppDelegate if needed
-}
-
--(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
-	[MobileMessaging handleActionWithIdentifier:identifier userInfo:userInfo responseInfo:responseInfo completionHandler:completionHandler];
-	[self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
-}
-
--(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
-	// override this callback in your AppDelegate if needed
-}
-
 @end

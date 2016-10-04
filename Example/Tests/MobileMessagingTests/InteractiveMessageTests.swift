@@ -37,18 +37,19 @@ class InteractiveMessageTests: XCTestCase {
 		var replyResultMessageId: String?
 		var markAsSeenResultMessageId: String?
 		
-		MMActionReply.setActionHandler { (result) in
+		MMActionReply.setHandler { (result) in
 			replyResultMessageId = result.messageId
 			replyExp.fulfill()
 		}
 		
-		MMActionMarkAsSeen.setActionHandler { (result) in
+		MMActionMarkAsSeen.setHandler { (result) in
 			markAsSeenResultMessageId = result.messageId
 			mssExp.fulfill()
 		}
 		
 		let actionId = "open_url"
-		MMMessage.performAction(identifier: actionId, userInfo: apnsPayloadWithAllActions(categoryId: "category", actionId: actionId), responseInfo: nil, completionHandler: nil)
+
+		MMMessage.performAction(withIdentifier: actionId, userInfo: apnsPayloadWithAllActions(categoryId: "category", actionId: actionId), responseInfo: nil, completionHandler: nil)
 		
 		self.waitForExpectations(timeout: 200) { err in
 			XCTAssertEqual(replyResultMessageId, "m1")
@@ -58,23 +59,23 @@ class InteractiveMessageTests: XCTestCase {
 	
 	func testHandlersNotCalledForPredefinedCategory() {
 		let actionId = "reply"
+
 		let replyExp = expectation(description: "Reply handler called")
 
-		MMActionReply.setActionHandler { (result) in
+		MMActionReply.setHandler { (result) in
 			XCTAssertEqual(result.messageId, "m1")
 			replyExp.fulfill()
 		}
 		
-		MMActionMarkAsSeen.setActionHandler { (result) in
+		MMActionMarkAsSeen.setHandler { (result) in
 			XCTFail()
 		}
 		
-		MMActionOpenURL.setActionHandler { (result) in
+		MMActionOpenURL.setHandler { (result) in
 			XCTFail()
 		}
 		
-		MMMessage.performAction(identifier: actionId, userInfo: apnsPayloadWithAllActions(categoryId: "chatMessage", actionId: actionId), responseInfo: nil, completionHandler: nil)
-		
+		MMMessage.performAction(withIdentifier: actionId, userInfo: apnsPayloadWithAllActions(categoryId: "chatMessage", actionId: actionId), responseInfo: nil, completionHandler: nil)
 		self.waitForExpectations(timeout: 10, handler: nil)
 	}
 	
@@ -84,7 +85,7 @@ class InteractiveMessageTests: XCTestCase {
 		
 		let replyExp = expectation(description: "Reply handler called")
 		
-		MMActionReply.setActionHandler { (result) in
+		MMActionReply.setHandler { (result) in
 			XCTAssertEqual(result.messageId, "m1")
 			
 			if #available(iOS 9.0, *) {
@@ -94,21 +95,21 @@ class InteractiveMessageTests: XCTestCase {
 			replyExp.fulfill()
 		}
 		
-		MMActionMarkAsSeen.setActionHandler { (result) in
+		MMActionMarkAsSeen.setHandler { (result) in
 			XCTFail()
 		}
 		
-		MMActionOpenURL.setActionHandler { (result) in
+		MMActionOpenURL.setHandler { (result) in
 			XCTFail()
 		}
 		
 		if #available(iOS 9.0, *) {
-			MMMessage.performAction(identifier: actionId,
+			MMMessage.performAction(withIdentifier: actionId,
 			                        userInfo: apnsPayloadWithAllActions(categoryId: "chatMessage", actionId: actionId),
 			                        responseInfo: [UIUserNotificationActionResponseTypedTextKey : replyText],
 			                        completionHandler: nil)
 		} else {
-			MMMessage.performAction(identifier: actionId,
+			MMMessage.performAction(withIdentifier: actionId,
 			                        userInfo: apnsPayloadWithAllActions(categoryId: "chatMessage", actionId: actionId),
 			                        responseInfo: nil,
 			                        completionHandler: nil)

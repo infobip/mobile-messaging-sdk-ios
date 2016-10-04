@@ -1,6 +1,5 @@
 //
 //  MMMessage.swift
-//  Pods
 //
 //  Created by Andrey K. on 15/07/16.
 //
@@ -9,57 +8,156 @@
 import Foundation
 //import SwiftyJSON
 
-public struct MMMessage: MMMessageMetadata, JSONDecodable {
+@objc public enum MessageDeliveryMethod: Int16 {
+	case undefined = 0, push, pull
+}
+
+@objc public enum MessageDirection: Int16 {
+	case MT = 0, MO
+}
+
+public typealias APNSPayload = [AnyHashable: Any]
+public typealias StringKeyPayload = [String: Any]
+
+enum MMAPS {
+	case SilentAPS([AnyHashable: Any])
+	case NativeAPS([AnyHashable: Any])
 	
-	public var hashValue: Int { return messageId.hashValue }
-	let isSilent: Bool
-	let messageId: String
-	let originalPayload: [AnyHashable: Any]
-	let customPayload: [AnyHashable: Any]?
-	let aps: MMAPS
-	let silentData: [AnyHashable: Any]?
-	let geoRegions: [[String: Any]]?
-	let interactionsData: [AnyHashable: Any]?
+	var badge: Int? {
+		switch self {
+		case .NativeAPS(let dict):
+			return dict["badge"] as? Int
+		case .SilentAPS(let dict):
+			return dict["badge"] as? Int
+		}
+	}
+	
+	var sound: String? {
+		switch self {
+		case .NativeAPS(let dict):
+			return dict["sound"] as? String
+		case .SilentAPS(let dict):
+			return dict["sound"] as? String
+		}
+	}
+	
 	var text: String? {
+		switch self {
+		case .NativeAPS(let dict):
+			return dict["alert"]?["body"] as? String
+		case .SilentAPS(let dict):
+			return dict["alert"]?["body"] as? String
+		}
+	}
+}
+
+public class BaseMessage: NSObject {
+	public let messageId: String
+	public let direction: MessageDirection
+	public let originalPayload: StringKeyPayload
+	public let createdDate: NSDate
+	
+	class func makeMessage(coreDataMessage: Message) -> BaseMessage? {
+		guard let direction = MessageDirection(rawValue: coreDataMessage.direction) else {
+			return nil
+		}
+		switch direction {
+		case .MO:
+			return MOMessage(coreDataMessage: coreDataMessage)
+		case .MT:
+			return MTMessage(coreDataMessage: coreDataMessage)
+		}
+	}
+	
+	public init(messageId: String, direction: MessageDirection, originalPayload: StringKeyPayload, createdDate: NSDate) {
+		self.messageId = messageId
+		self.originalPayload = originalPayload
+		self.direction = direction
+		self.createdDate = createdDate
+	}
+	
+	public override var hash: Int {
+		return messageId.hash
+	}
+	
+	public override func isEqual(object: AnyObject?) -> Bool {
+		return self.hash == object?.hash
+	}
+}
+
+/// Incapsulates all the attributes related to the remote notifications.
+public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
+	
+	/// Defines the origin of a message.
+	///
+	/// Message may be either pushed by APNS or pulled from the server.
+	public private(set) var deliveryMethod: MessageDeliveryMethod
+	
+	/// Defines if a message is silent. Silent messages have neither text nor sound attributes.
+	public let isSilent: Bool
+	
+	/// Custom message payload.
+	///
+	/// See also: [Custom message payload](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Custom-message-payload)
+	public let customPayload: StringKeyPayload?
+	
+	/// Text of a message.
+	public var text: String? {
 		return aps.text
 	}
 	
-	public init?(json: JSON) {
+	/// Sound of a message.
+	public var sound: String? {
+		return aps.sound
+	}
+	
+	public var seenStatus: MMSeenStatus
+	public var isDeliveryReportSent: Bool
+	
+	let aps: MMAPS
+	let silentData: StringKeyPayload?
+	
+	convenience required public init?(json: JSON) {
 		if let payload = json.dictionaryObject {
-			self.init(payload: payload)
+			self.init(payload: payload, createdDate: NSDate())
 		} else {
 			return nil
 		}
+		self.deliveryMethod = .pull
 	}
 	
-	init?(payload: [AnyHashable: Any]) {
-		guard let messageId = payload[MMAPIKeys.kMessageId] as? String else {
-			return nil
-		}
-		guard let nativeAPS = payload[MMAPIKeys.kAps] as? [AnyHashable: Any] else {
+	convenience init?(coreDataMessage: Message) {
+		self.init(payload: coreDataMessage.payload, createdDate: coreDataMessage.createdDate)
+		self.seenStatus = MMSeenStatus(rawValue: coreDataMessage.seenStatusValue) ?? .NotSeen
+		self.isDeliveryReportSent = coreDataMessage.isDeliveryReportSent
+	}
+	
+	init?(payload: APNSPayload, createdDate: NSDate) {
+		guard let payload = payload as? StringKeyPayload, let messageId = payload[MMAPIKeys.kMessageId] as? String, let nativeAPS = payload[MMAPIKeys.kAps] as? StringKeyPayload else {
 			return nil
 		}
 		
-		self.messageId = messageId
-		self.isSilent = MMMessage.checkIfSilent(payload: payload)
+		self.isSilent = MTMessage.isSilent(payload)
 		if (self.isSilent) {
-			if let silentAPS = (payload[MMAPIKeys.kInternalData] as? [AnyHashable: Any])?[MMAPIKeys.kSilent] as? [AnyHashable: Any] {
-				self.aps = MMAPS.SilentAPS(MMMessage.mergeApsWithSilentParameters(nativeAPS: nativeAPS, silentAPS: silentAPS))
+			if let silentAPS = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? StringKeyPayload {
+				self.aps = MMAPS.SilentAPS(MTMessage.apsByMerging(nativeAPS: nativeAPS, withSilentAPS: silentAPS))
 			} else {
 				self.aps = MMAPS.NativeAPS(nativeAPS)
 			}
 		} else {
 			self.aps = MMAPS.NativeAPS(nativeAPS)
 		}
-		self.originalPayload = payload
-		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? [AnyHashable : Any]
-		let internalData = payload[MMAPIKeys.kInternalData] as? [AnyHashable : Any]
-		self.silentData = internalData?[MMAPIKeys.kSilent] as? [AnyHashable : Any]
-		self.interactionsData = internalData?[MMAPIKeys.kInteractive] as? [AnyHashable : Any]
-		self.geoRegions = internalData?[MMAPIKeys.kGeo] as? [[String : Any]]
+
+		//TODO: refactor all these `as` by extending Dictionary.
+		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? StringKeyPayload
+		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? StringKeyPayload
+		self.deliveryMethod = .push
+		self.seenStatus = .NotSeen
+		self.isDeliveryReportSent = false
+		super.init(messageId: messageId, direction: .MT, originalPayload: payload, createdDate: createdDate)
 	}
 	
-	static func checkIfSilent(payload: [AnyHashable: Any]?) -> Bool {
+	private static func isSilent(payload: [NSObject: AnyObject]?) -> Bool {
 		//if payload APNS originated:
 		if ((payload?[MMAPIKeys.kInternalData] as? [AnyHashable: Any])?[MMAPIKeys.kSilent] as? [AnyHashable: Any]) != nil {
 			return true
@@ -68,10 +166,9 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 		return payload?[MMAPIKeys.kSilent] as? Bool ?? false
 	}
 	
-	private static func mergeApsWithSilentParameters(nativeAPS: [AnyHashable: Any]?, silentAPS: [AnyHashable: Any]) -> [AnyHashable: Any] {
-		var resultAps = [AnyHashable: Any]()
-		var alert = [String: String]()
-		resultAps += nativeAPS
+	private static func apsByMerging(nativeAPS: StringKeyPayload?, withSilentAPS silentAPS: StringKeyPayload) -> StringKeyPayload {
+		var resultAps = nativeAPS ?? StringKeyPayload()
+		var alert = StringKeyPayload()
 		
 		if let body = silentAPS[MMAPIKeys.kBody] as? String {
 			alert[MMAPIKeys.kBody] = body
@@ -89,7 +186,16 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 	}
 }
 
-@objc public enum MOMessageSentStatus : Int {
+class MMMessageFactory {
+	class func makeMessage(with payload: APNSPayload, createdDate: NSDate) -> MTMessage? {
+		return MMGeoMessage.init(payload: payload, createdDate: createdDate) ?? MTMessage.init(payload: payload, createdDate: createdDate)
+	}
+	class func makeMessage(with json: JSON) -> MTMessage? {
+		return MMGeoMessage.init(json: json) ?? MTMessage.init(json: json)
+	}
+}
+
+@objc public enum MOMessageSentStatus : Int16 {
 	case Undefined = -1
 	case SentSuccessfully = 0
 	case SentWithFailure = 1
@@ -99,61 +205,89 @@ public struct MMMessage: MMMessageMetadata, JSONDecodable {
 extension NSString: CustomPayloadSupportedTypes {}
 extension NSNull: CustomPayloadSupportedTypes {}
 
-public class MOMessage: NSObject {
-	public let destination: String?
-	public let text: String
-	public let customPayload: [String: CustomPayloadSupportedTypes]?
-	public let messageId: String
-	public let status: MOMessageSentStatus
+protocol MOMessageAttributes {
+	var destination: String? {get}
+	var text: String {get}
+	var customPayload: [String: CustomPayloadSupportedTypes]? {get}
+	var messageId: String {get}
+	var sentStatus: MOMessageSentStatus {get}
+}
 
-	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
-		self.messageId = NSUUID().uuidString
-		self.destination = destination
-		self.text = text
-		self.customPayload = customPayload
-		self.status = .Undefined
-	}
-
+struct MOAttributes: MOMessageAttributes {
+	let destination: String?
+	let text: String
+	let customPayload: [String: CustomPayloadSupportedTypes]?
+	let messageId: String
+	let sentStatus: MOMessageSentStatus
+	
 	var dictRepresentation: [String: Any] {
-		var result = [String: Any]()
-		
-		if let destination = destination {
-			result[MMAPIKeys.kMODestination] = destination
-		}
+		var result = [String: AnyObject]()
+		result[MMAPIKeys.kMODestination] = destination
 		result[MMAPIKeys.kMOText] = text
 		result[MMAPIKeys.kMOCustomPayload] = customPayload
 		result[MMAPIKeys.kMOMessageId] = messageId
+		result[MMAPIKeys.kMOMessageSentStatusCode] = NSNumber(short: sentStatus.rawValue)
 		return result
 	}
+}
 
+public class MOMessage: BaseMessage, MOMessageAttributes {
+	public let destination: String?
+	public let text: String
+	public let customPayload: [String: CustomPayloadSupportedTypes]?
+	public let sentStatus: MOMessageSentStatus
+	
+	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
+		self.destination = destination
+		self.sentStatus = .Undefined
+		self.customPayload = customPayload
+		self.text = text
+		
+		let mId = NSUUID().UUIDString
+		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: mId, sentStatus: .Undefined).dictRepresentation
+		super.init(messageId: mId, direction: .MO, originalPayload: dict, createdDate: NSDate())
+	}
+
+	convenience init?(coreDataMessage: Message) {
+		self.init(payload: coreDataMessage.payload)
+	}
+	
 	convenience init?(json: JSON) {
 		if let dictionary = json.dictionaryObject {
-			self.init(dictionary: dictionary)
+			self.init(payload: dictionary)
 		} else {
 			return nil
 		}
 	}
 
 	init(messageId: String, destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
-		self.messageId = messageId
 		self.destination = destination
-		self.text = text
 		self.customPayload = customPayload
-		self.status = .Undefined
+		self.sentStatus = .Undefined
+		self.text = text
+		
+		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
+		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: NSDate())
 	}
 	
-	private init?(dictionary: [AnyHashable: Any]) {
-		guard let messageId = dictionary[MMAPIKeys.kMOMessageId] as? String,
-			let text = dictionary[MMAPIKeys.kMOText] as? String,
-			let status = dictionary[MMAPIKeys.kMOMessageSentStatusCode] as? Int else
+	var dictRepresentation: [String: AnyObject] {
+		return MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: sentStatus).dictRepresentation
+	}
+	
+	init?(payload: [String: Any]) {
+		guard let messageId = payload[MMAPIKeys.kMOMessageId] as? String,
+			let text = payload[MMAPIKeys.kMOText] as? String,
+			let status = payload[MMAPIKeys.kMOMessageSentStatusCode] as? Int else
 		{
 			return nil
 		}
-		
-		self.messageId = messageId
-		self.destination = dictionary[MMAPIKeys.kMODestination] as? String
+	
+		self.destination = payload[MMAPIKeys.kMODestination] as? String
+		self.sentStatus = MOMessageSentStatus(rawValue: Int16(status)) ?? MOMessageSentStatus.Undefined
+		self.customPayload = payload[MMAPIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
 		self.text = text
-		self.status = MOMessageSentStatus(rawValue: status) ?? MOMessageSentStatus.Undefined
-		self.customPayload = dictionary[MMAPIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
+		
+		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
+		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: NSDate())
 	}
 }

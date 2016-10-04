@@ -24,10 +24,9 @@ final class RegistrationTests: MMTestCase {
 			}
         }
 		
-        MobileMessaging.currentUser?.setCustomDataForKey("meta1", object: "metadata1" as UserDataSupportedTypes?)
+		MobileMessaging.currentUser?.set(customData: "metadata1", forKey: "meta1")
         MobileMessaging.currentUser?.persist()
-		
-        MobileMessaging.currentUser?.setCustomDataForKey("meta2", object: "metadata2" as UserDataSupportedTypes?)
+		MobileMessaging.currentUser?.set(customData: "metadata2", forKey: "meta2")
 		MobileMessaging.currentUser?.persist()
 		
 		waitForExpectations(timeout: 100, handler: { err in
@@ -60,15 +59,14 @@ final class RegistrationTests: MMTestCase {
 				
 				token2Saved.fulfill()
 				
-				currentUser.saveEmail(email: MMTestConstants.kTestValidEmail, completion: { err in
+				currentUser.email = MMTestConstants.kTestValidEmail
+				currentUser.msisdn = MMTestConstants.kTestValidMSISDN
+				
+				currentUser.save { err in
 					XCTAssertNil(err)
 					validEmailSaved.fulfill()
-				})
-				
-				currentUser.saveMSISDN(msisdn: MMTestConstants.kTestValidMSISDN, completion: { err in
-					XCTAssertNil(err)
 					validMsisdnSaved.fulfill()
-				})
+				}
 			}
 		}
         
@@ -111,15 +109,18 @@ final class RegistrationTests: MMTestCase {
 		}
 	}
 	
+
 	var requestSentCounter = 0
     func testTokenNotSendsTwice() {
-		MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub()
-		MobileMessaging.userAgent = MMUserAgentStub()
+		MobileMessaging.userAgent = UserAgentStub()
+		
 		MobileMessaging.currentInstallation?.installationManager.registrationRemoteAPI = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
 			
 			switch request {
 			case (is MMPostRegistrationRequest):
-				self.requestSentCounter += 1
+				DispatchQueue.main.async {
+					requestSentCounter += 1
+				}
 			default:
 				break
 			}
@@ -131,14 +132,17 @@ final class RegistrationTests: MMTestCase {
         mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
             XCTAssertNil(error)
             expectation1.fulfill()
+
             self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
                 XCTAssertNil(error)
                 expectation2.fulfill()
             }
         }
-        
+		
         self.waitForExpectations(timeout:100) { error in
-			XCTAssertEqual(self.requestSentCounter, 1)
+			DispatchQueue.main.async {
+				XCTAssertEqual(requestSentCounter, 1)
+			}
         }
     }
 	
@@ -148,7 +152,7 @@ final class RegistrationTests: MMTestCase {
             XCTAssertNotNil(error)
             sync1.fulfill()
         })
-        
+		
         self.waitForExpectations(timeout: 100) { error in
         }
     }

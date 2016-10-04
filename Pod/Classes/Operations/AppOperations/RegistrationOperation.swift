@@ -23,6 +23,7 @@ final class RegistrationOperation: Operation {
 		self.newDeviceToken = newDeviceToken?.mm_toHexString
         
 		super.init()
+		
 	}
 	
 	override func execute() {
@@ -73,8 +74,9 @@ final class RegistrationOperation: Operation {
         }
         
 		let request = MMPostRegistrationRequest(internalId: installationObject.internalUserId, deviceToken: deviceToken)
-		self.remoteAPIQueue.performRequest(request) { result in
-			self.handleRegistrationResult(result: result)
+		
+		self.remoteAPIQueue.perform(request: request) { result in
+			self.handleRegistrationResult(result)
 			self.finishWithError(result.error)
 		}
 	}

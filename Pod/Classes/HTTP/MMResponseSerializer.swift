@@ -26,7 +26,7 @@ final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer
 			return nil
 		}
 		
-		let json = JSON(data: data as Data)
+		let json = JSON(data: data)
 		if let requestError = MMRequestError(json: json) , response?.isFailureHTTPREsponse ?? false {
 			error?.pointee = requestError.foundationError
 		}

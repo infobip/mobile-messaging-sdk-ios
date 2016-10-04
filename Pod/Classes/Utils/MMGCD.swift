@@ -113,6 +113,7 @@ enum MMQueue {
 	
 	enum Serial {
 		enum Reusable: String, MMQueueEnum {
+			case MessageStorageQueue = "com.mobile-messaging.queue.serial.message-storage"
 			case DefaultQueue = "com.mobile-messaging.queue.serial.default-shared"
 			var queueName: String { return rawValue }
 			var queue: MMQueueObject {
@@ -121,7 +122,6 @@ enum MMQueue {
 		}
 		
 		enum New: String, MMQueueEnum {
-			case MobileMessagingSingletonQueue = "com.mobile-messaging.queue.serial.api-singleton"
 			case RetryableRequest = "com.mobile-messaging.queue.serial.request-retry"
 			var queueName: String { return rawValue }
 			var queue: MMQueueObject { return Serial.newQueue(queueName: queueName) }

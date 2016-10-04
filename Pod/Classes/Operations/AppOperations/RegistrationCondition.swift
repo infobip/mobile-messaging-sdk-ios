@@ -11,7 +11,7 @@ final class RegistrationCondition: OperationCondition {
 	static var name = "RegistrationCondition"
 	static var isMutuallyExclusive = false
 	let internalId: String?
-	
+
 	init(internalId: String?) {
 		self.internalId = internalId
 	}

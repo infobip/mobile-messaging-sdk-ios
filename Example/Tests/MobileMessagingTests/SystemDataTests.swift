@@ -8,7 +8,7 @@
 import XCTest
 @testable import MobileMessaging
 
-class MMUserAgentStub: MMUserAgent {
+class UserAgentStub: MMUserAgent {
 	override var libraryVersion: String {
 		return "1.0.0"
 	}
@@ -32,46 +32,42 @@ class MMUserAgentStub: MMUserAgent {
 	}
 }
 
-public class MMAvailableGeofencingServiceStub: MMGeofencingService {
-	override var isAvailable: Bool  {
+class GeoAvailableUserAgentStub: UserAgentStub {
+	override var isGeoAvailable: Bool {
 		return true
 	}
 }
-
-public class MMNotAvailableGeofencingServiceStub: MMGeofencingService {
-	override var isAvailable: Bool  {
+class GeoNotAvailableUserAgentStub: UserAgentStub {
+	override var isGeoAvailable: Bool {
 		return false
 	}
 }
 
-
 class SystemDataTests: MMTestCase {
 
     func testSystemDataUpdates() {
-		
-		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
-		MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub()
-		MobileMessaging.userAgent = MMUserAgentStub()
-		
-		let requestsCompleted = expectation(description: "requestsCompleted")
-		var initialSystemDataHash: Int!
-		var updatedSystemDataHash: Int!
-	
+		let requestsCompleted = expectationWithDescription("requestsCompleted")
 		let ctx = self.storage.mainThreadManagedObjectContext!
-		if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-			initialSystemDataHash = installation.systemDataHash.intValue
+		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
+		
+		var initialSystemDataHash: Int!
+		MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
+		
+		if let installation = InstallationManagedObject.MM_findFirstInContext(context: ctx) {
+			initialSystemDataHash = installation.systemDataHash.integerValue
 		}
 		
-		MobileMessaging.geofencingService = MMAvailableGeofencingServiceStub()
-		MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) in
+		var updatedSystemDataHash: Int!
+		MobileMessaging.userAgent = GeoAvailableUserAgentStub()
+		MobileMessaging.currentInstallation?.syncWithServer({ (error) in
 			
 			ctx.reset()
-			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-				updatedSystemDataHash = installation.systemDataHash.intValue
+			if let installation = InstallationManagedObject.MM_findFirstInContext(context: ctx) {
+				updatedSystemDataHash = installation.systemDataHash.integerValue
 			}
 			
-			MobileMessaging.geofencingService = MMNotAvailableGeofencingServiceStub()
-			MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) in
+			MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
+			MobileMessaging.currentInstallation?.syncWithServer({ (error) in
 				requestsCompleted.fulfill()
 			})
 		})
@@ -79,11 +75,11 @@ class SystemDataTests: MMTestCase {
 		self.waitForExpectations(timeout: 100) { err in
 			
 			ctx.reset()
-			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(context: ctx) {
 				XCTAssertEqual(initialSystemDataHash, 0)
 				XCTAssertNotEqual(initialSystemDataHash, updatedSystemDataHash)
-				XCTAssertNotEqual(installation.systemDataHash.intValue, initialSystemDataHash)
-				XCTAssertNotEqual(installation.systemDataHash.intValue, updatedSystemDataHash)
+				XCTAssertNotEqual(installation.systemDataHash, initialSystemDataHash)
+				XCTAssertNotEqual(installation.systemDataHash, updatedSystemDataHash)
 			}
 		}
     }

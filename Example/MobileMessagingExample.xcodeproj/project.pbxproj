@@ -7,9 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		14CA94708BD94A0BA7C347D1 /* Pods_MobileMessagingExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECC22349345E52D0C30A5904 /* Pods_MobileMessagingExample.framework */; };
+		0EF45C3CC1E2F1E3F3EC229B /* Pods_MobileMessagingExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 002D861BD5A05AE0FB9FBCEB /* Pods_MobileMessagingExample.framework */; };
+		5000030C1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		5000030D1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		500003101CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		500003111CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502129421CEEF450007CEF8E /* MessagesManager.swift */; };
+		5073E4131D8AC93A00A175C4 /* MessageStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */; };
+		5073E4141D8AC93A00A175C4 /* MessageStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */; };
 		5079E8EC1D37C61700C09BE9 /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
+		507D54FD1D81ABAC00A26F37 /* CoreDataHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */; };
+		507D54FE1D81ABAD00A26F37 /* CoreDataHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */; };
+		50829B781D62056B00BAFA46 /* GeofencingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */; };
 		5087EDA71CEEF82500B85546 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDA61CEEF82500B85546 /* MessageCell.swift */; };
 		5087EDB01CEF067100B85546 /* InfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAC1CEF067100B85546 /* InfoTableViewController.swift */; };
 		5087EDB11CEF067100B85546 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAD1CEF067100B85546 /* ListViewController.swift */; };
@@ -22,7 +31,6 @@
 		50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		50DBBC8A1D50880300485835 /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
 		50DBBC8B1D50881200485835 /* MOMessageSendingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */; };
-		50DBBC8C1D50882100485835 /* InteractiveMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */; };
@@ -30,14 +38,13 @@
 		8EFABFCD1CEB3B9400510762 /* MMTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5077629C1CC2893B00499542 /* MMTestCase.swift */; };
 		8EFABFCE1CEB3B9400510762 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103E01CABA839001873B4 /* TestUtils.swift */; };
 		8EFABFCF1CEB3B9400510762 /* RegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DB1CABA839001873B4 /* RegistrationTests.swift */; };
+		8EFABFD01CEB3B9400510762 /* MessageReceivingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */; };
 		8EFABFD11CEB3B9400510762 /* RetryOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DC1CABA839001873B4 /* RetryOperationTests.swift */; };
 		8EFABFD21CEB3B9400510762 /* FetchMessagesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DF1CABA839001873B4 /* FetchMessagesTest.swift */; };
 		8EFABFD31CEB3B9400510762 /* MessageSeenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */; };
-		90068C12F4071816A8D08154 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64881A3D52E5B50FA411F55A /* Pods_MobileMessagingExample_Tests.framework */; };
-		A010F7A61D78225300077000 /* MessageReceivingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */; };
-		A010F7A71D78225400077000 /* MessageReceivingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */; };
 		A024DEA51CF7477A00084EF5 /* EscapingQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */; };
 		A024DEA61CF7477A00084EF5 /* EscapingQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */; };
+		A03F75001CE2243600414A6B /* MessageReceivingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */; };
 		A03F75011CE2243C00414A6B /* RegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DB1CABA839001873B4 /* RegistrationTests.swift */; };
 		A03F75021CE2243C00414A6B /* RetryOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DC1CABA839001873B4 /* RetryOperationTests.swift */; };
 		A03F75031CE2243C00414A6B /* DeliveryReportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DE1CABA839001873B4 /* DeliveryReportingTests.swift */; };
@@ -46,12 +53,11 @@
 		A03F75061CE2243C00414A6B /* MessageSeenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */; };
 		A03F75071CE2243C00414A6B /* MMTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5077629C1CC2893B00499542 /* MMTestCase.swift */; };
 		A047BFD81CB4EB5C00A6859F /* CopyableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A047BFD71CB4EB5C00A6859F /* CopyableCell.swift */; };
-		A06A82DB1D2FE3C80081026D /* InteractiveMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */; };
 		A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */; };
 		A0953C291CAD1C660076488D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0953C271CAD1C660076488D /* Main.storyboard */; };
-		A0BD71EB1D7D9D2E00423953 /* GeofencingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */; };
-		A0E9AC991D783F42007E79F5 /* GeofencingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */; };
+		A0D1E2881D941ADE00DFB1E9 /* GeofencingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */; };
 		A0F30B101D410A3300247CED /* MOMessageSendingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */; };
+		D8F9257368C50CBB757F54B7 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90EB0BC7A77A81EFC5375E6F /* Pods_MobileMessagingExample_Tests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,10 +78,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		364A00C2B70A565BA7B49DE7 /* Pods-MobileMessagingExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample.debug.xcconfig"; sourceTree = "<group>"; };
+		002D861BD5A05AE0FB9FBCEB /* Pods_MobileMessagingExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		220F5AFCE661E9767C9715CF /* Pods-MobileMessagingExample_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		502129421CEEF450007CEF8E /* MessagesManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesManager.swift; sourceTree = "<group>"; };
+		5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageStorageTests.swift; sourceTree = "<group>"; };
 		5077629C1CC2893B00499542 /* MMTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMTestCase.swift; sourceTree = "<group>"; };
 		5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataTests.swift; sourceTree = "<group>"; };
+		507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataHelpersTests.swift; sourceTree = "<group>"; };
 		50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeofencingServiceTests.swift; sourceTree = "<group>"; };
 		5087EDA61CEEF82500B85546 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		5087EDAC1CEF067100B85546 /* InfoTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoTableViewController.swift; sourceTree = "<group>"; };
@@ -92,15 +101,15 @@
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		607FACE51AFB9204008FA782 /* MobileMessagingExample.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileMessagingExample.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		64881A3D52E5B50FA411F55A /* Pods_MobileMessagingExample_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6527DBE41CAD144F00526BE7 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		6527DBE51CAD144F00526BE7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		854CAD8A86B9610693BA4BC7 /* MobileMessaging.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = MobileMessaging.podspec; path = ../MobileMessaging.podspec; sourceTree = "<group>"; };
 		8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MobileMessagingExample_Tests_Device-Info.plist"; sourceTree = "<group>"; };
 		8EFABFDD1CEB3B9400510762 /* MobileMessagingExample_Tests_Device.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileMessagingExample_Tests_Device.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		90EB0BC7A77A81EFC5375E6F /* Pods_MobileMessagingExample_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		918A53153FB37007425D5C78 /* Pods-MobileMessagingExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample.release.xcconfig"; sourceTree = "<group>"; };
 		A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EscapingQueryTests.swift; sourceTree = "<group>"; };
 		A047BFD71CB4EB5C00A6859F /* CopyableCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CopyableCell.swift; sourceTree = "<group>"; };
-		A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageTests.swift; sourceTree = "<group>"; };
 		A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSErrorExtension.swift; sourceTree = "<group>"; };
 		A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageReceivingTests.swift; sourceTree = "<group>"; };
 		A09103DB1CABA839001873B4 /* RegistrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationTests.swift; sourceTree = "<group>"; };
@@ -108,15 +117,12 @@
 		A09103DE1CABA839001873B4 /* DeliveryReportingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeliveryReportingTests.swift; sourceTree = "<group>"; };
 		A09103DF1CABA839001873B4 /* FetchMessagesTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchMessagesTest.swift; sourceTree = "<group>"; };
 		A09103E01CABA839001873B4 /* TestUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
-		A0945CB11D79A1810093C188 /* MobileMessagingExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = MobileMessagingExample.entitlements; path = MobileMessagingExample/MobileMessagingExample.entitlements; sourceTree = "<group>"; };
 		A0953C281CAD1C660076488D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageSeenTests.swift; sourceTree = "<group>"; };
 		A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MOMessageSendingTests.swift; sourceTree = "<group>"; };
-		A233CBE4A81A1F68FE94B93E /* Pods-MobileMessagingExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample.release.xcconfig"; sourceTree = "<group>"; };
-		C86506A6546127CAC5E93D79 /* Pods-MobileMessagingExample_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests.release.xcconfig"; sourceTree = "<group>"; };
+		D1BDF43CB4775DC413F32BC9 /* Pods-MobileMessagingExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample.debug.xcconfig"; sourceTree = "<group>"; };
 		DA73038AA431C3538C3F8E66 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		EBDF912DDCCF8CCFB9AE9E94 /* Pods-MobileMessagingExample_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests.debug.xcconfig"; sourceTree = "<group>"; };
-		ECC22349345E52D0C30A5904 /* Pods_MobileMessagingExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB0BE174D51A6AAA7FE7425D /* Pods-MobileMessagingExample_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		F131340E2E65C8C12A3D0354 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -125,7 +131,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14CA94708BD94A0BA7C347D1 /* Pods_MobileMessagingExample.framework in Frameworks */,
+				0EF45C3CC1E2F1E3F3EC229B /* Pods_MobileMessagingExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -133,7 +139,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90068C12F4071816A8D08154 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */,
+				D8F9257368C50CBB757F54B7 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,8 +159,8 @@
 				6527DBE41CAD144F00526BE7 /* Fabric.framework */,
 				6527DBE51CAD144F00526BE7 /* Crashlytics.framework */,
 				508B62E31CAAA1BB009A265F /* MobileMessaging.framework */,
-				ECC22349345E52D0C30A5904 /* Pods_MobileMessagingExample.framework */,
-				64881A3D52E5B50FA411F55A /* Pods_MobileMessagingExample_Tests.framework */,
+				002D861BD5A05AE0FB9FBCEB /* Pods_MobileMessagingExample.framework */,
+				90EB0BC7A77A81EFC5375E6F /* Pods_MobileMessagingExample_Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -198,13 +204,12 @@
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
-				A0945CB11D79A1810093C188 /* MobileMessagingExample.entitlements */,
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				607FACD21AFB9204008FA782 /* Example for MobileMessaging */,
 				607FACE81AFB9204008FA782 /* Tests */,
 				607FACD11AFB9204008FA782 /* Products */,
 				0565BB9679D8FC5598A87536 /* Frameworks */,
-				9FA7F2B9F9AE54922FE3F15D /* Pods */,
+				CE755ADA4D0BFA90CB086A68 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -271,20 +276,11 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
-		9FA7F2B9F9AE54922FE3F15D /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				364A00C2B70A565BA7B49DE7 /* Pods-MobileMessagingExample.debug.xcconfig */,
-				A233CBE4A81A1F68FE94B93E /* Pods-MobileMessagingExample.release.xcconfig */,
-				EBDF912DDCCF8CCFB9AE9E94 /* Pods-MobileMessagingExample_Tests.debug.xcconfig */,
-				C86506A6546127CAC5E93D79 /* Pods-MobileMessagingExample_Tests.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		A09103D91CABA839001873B4 /* MobileMessagingTests */ = {
 			isa = PBXGroup;
 			children = (
+				507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */,
+				5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */,
 				A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */,
 				A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */,
 				A09103DB1CABA839001873B4 /* RegistrationTests.swift */,
@@ -295,13 +291,23 @@
 				A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */,
 				5077629C1CC2893B00499542 /* MMTestCase.swift */,
 				50AD28B61D09889D009DCCD6 /* ManagedObjectObserverTests.swift */,
-				A06A82DA1D2FE3C80081026D /* InteractiveMessageTests.swift */,
 				5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */,
 				A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */,
 				50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */,
 				509B06631D7444C900E2C065 /* SystemDataTests.swift */,
 			);
 			path = MobileMessagingTests;
+			sourceTree = "<group>";
+		};
+		CE755ADA4D0BFA90CB086A68 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D1BDF43CB4775DC413F32BC9 /* Pods-MobileMessagingExample.debug.xcconfig */,
+				918A53153FB37007425D5C78 /* Pods-MobileMessagingExample.release.xcconfig */,
+				EB0BE174D51A6AAA7FE7425D /* Pods-MobileMessagingExample_Tests.debug.xcconfig */,
+				220F5AFCE661E9767C9715CF /* Pods-MobileMessagingExample_Tests.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -317,7 +323,7 @@
 				607FACCE1AFB9204008FA782 /* Resources */,
 				B6DF0C3DB3277A269B6A6F75 /* [CP] Embed Pods Frameworks */,
 				7D043BF2892761EF47BF8DDF /* [CP] Copy Pods Resources */,
-				E511C91681BE8FB43576B124 /* Embed Pods Frameworks */,
+				4532A02CF71BD1888EF28843 /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -338,7 +344,7 @@
 				607FACE31AFB9204008FA782 /* Resources */,
 				14C2517FE8B23EFE09E7D0EC /* [CP] Embed Pods Frameworks */,
 				24B814EFF80C8F7730DB9A9D /* [CP] Copy Pods Resources */,
-				B14C33B71345FFBC388F5137 /* Embed Pods Frameworks */,
+				111FECDE2BA631E19B1913C2 /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -381,7 +387,6 @@
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = T6U248P7YM;
-						LastSwiftMigration = 0800;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -393,15 +398,8 @@
 					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
-						DevelopmentTeam = T6U248P7YM;
-						LastSwiftMigration = 0800;
-						ProvisioningStyle = Manual;
-						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
 					8EFABFC71CEB3B9400510762 = {
-						DevelopmentTeam = T6U248P7YM;
-						LastSwiftMigration = 0800;
-						ProvisioningStyle = Automatic;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
 				};
@@ -431,10 +429,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				500003111CCB7B3C00C91479 /* (null) in Resources */,
 				50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */,
+				500003101CCB7B3C00C91479 /* (null) in Resources */,
 				A0953C291CAD1C660076488D /* Main.storyboard in Resources */,
 				8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */,
+				5000030D1CCB7B2F00C91479 /* (null) in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
+				5000030C1CCB7B2F00C91479 /* (null) in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,6 +457,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		111FECDE2BA631E19B1913C2 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		14C2517FE8B23EFE09E7D0EC /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -500,6 +517,21 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
+		4532A02CF71BD1888EF28843 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		71F1278C73F8B40A437D590F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -524,26 +556,10 @@
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B14C33B71345FFBC388F5137 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		B6DF0C3DB3277A269B6A6F75 /* [CP] Embed Pods Frameworks */ = {
@@ -554,21 +570,6 @@
 			inputPaths = (
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E511C91681BE8FB43576B124 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -601,16 +602,17 @@
 			files = (
 				A0F30B101D410A3300247CED /* MOMessageSendingTests.swift in Sources */,
 				509B06641D7444C900E2C065 /* SystemDataTests.swift in Sources */,
-				A06A82DB1D2FE3C80081026D /* InteractiveMessageTests.swift in Sources */,
 				A03F75031CE2243C00414A6B /* DeliveryReportingTests.swift in Sources */,
-				A0BD71EB1D7D9D2E00423953 /* GeofencingServiceTests.swift in Sources */,
 				5079E8EC1D37C61700C09BE9 /* UserDataTests.swift in Sources */,
+				A0D1E2881D941ADE00DFB1E9 /* GeofencingServiceTests.swift in Sources */,
 				A03F75071CE2243C00414A6B /* MMTestCase.swift in Sources */,
 				A024DEA51CF7477A00084EF5 /* EscapingQueryTests.swift in Sources */,
 				A03F75051CE2243C00414A6B /* TestUtils.swift in Sources */,
 				50AD28B71D09889D009DCCD6 /* ManagedObjectObserverTests.swift in Sources */,
+				507D54FD1D81ABAC00A26F37 /* CoreDataHelpersTests.swift in Sources */,
+				5073E4131D8AC93A00A175C4 /* MessageStorageTests.swift in Sources */,
 				A03F75011CE2243C00414A6B /* RegistrationTests.swift in Sources */,
-				A010F7A61D78225300077000 /* MessageReceivingTests.swift in Sources */,
+				A03F75001CE2243600414A6B /* MessageReceivingTests.swift in Sources */,
 				A03F75021CE2243C00414A6B /* RetryOperationTests.swift in Sources */,
 				A03F75041CE2243C00414A6B /* FetchMessagesTest.swift in Sources */,
 				A03F75061CE2243C00414A6B /* MessageSeenTests.swift in Sources */,
@@ -630,9 +632,10 @@
 				50DBBC8A1D50880300485835 /* UserDataTests.swift in Sources */,
 				50DBBC8B1D50881200485835 /* MOMessageSendingTests.swift in Sources */,
 				8EFABFCF1CEB3B9400510762 /* RegistrationTests.swift in Sources */,
-				A0E9AC991D783F42007E79F5 /* GeofencingServiceTests.swift in Sources */,
-				50DBBC8C1D50882100485835 /* InteractiveMessageTests.swift in Sources */,
-				A010F7A71D78225400077000 /* MessageReceivingTests.swift in Sources */,
+				507D54FE1D81ABAD00A26F37 /* CoreDataHelpersTests.swift in Sources */,
+				5073E4141D8AC93A00A175C4 /* MessageStorageTests.swift in Sources */,
+				50829B781D62056B00BAFA46 /* GeofencingServiceTests.swift in Sources */,
+				8EFABFD01CEB3B9400510762 /* MessageReceivingTests.swift in Sources */,
 				8EFABFD11CEB3B9400510762 /* RetryOperationTests.swift in Sources */,
 				8EFABFD21CEB3B9400510762 /* FetchMessagesTest.swift in Sources */,
 				8EFABFD31CEB3B9400510762 /* MessageSeenTests.swift in Sources */,
@@ -691,10 +694,9 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1460136653736;
+				CURRENT_PROJECT_VERSION = 1460136653739;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -739,10 +741,9 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1460136653736;
+				CURRENT_PROJECT_VERSION = 1460136653739;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -764,12 +765,11 @@
 		};
 		607FACF01AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 364A00C2B70A565BA7B49DE7 /* Pods-MobileMessagingExample.debug.xcconfig */;
+			baseConfigurationReference = D1BDF43CB4775DC413F32BC9 /* Pods-MobileMessagingExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1460136653736;
+				CURRENT_PROJECT_VERSION = 1460136653739;
 				DEFINES_MODULE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -786,18 +786,16 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
 		607FACF11AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A233CBE4A81A1F68FE94B93E /* Pods-MobileMessagingExample.release.xcconfig */;
+			baseConfigurationReference = 918A53153FB37007425D5C78 /* Pods-MobileMessagingExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 1460136653736;
+				CURRENT_PROJECT_VERSION = 1460136653739;
 				DEFINES_MODULE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -814,18 +812,13 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
 		607FACF31AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EBDF912DDCCF8CCFB9AE9E94 /* Pods-MobileMessagingExample_Tests.debug.xcconfig */;
+			baseConfigurationReference = EB0BE174D51A6AAA7FE7425D /* Pods-MobileMessagingExample_Tests.debug.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -839,19 +832,13 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = MobileMessagingExample;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 3.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample.app/MobileMessagingExample";
 			};
 			name = Debug;
 		};
 		607FACF41AFB9204008FA782 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C86506A6546127CAC5E93D79 /* Pods-MobileMessagingExample_Tests.release.xcconfig */;
+			baseConfigurationReference = 220F5AFCE661E9767C9715CF /* Pods-MobileMessagingExample_Tests.release.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -861,18 +848,12 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = MobileMessagingExample;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 3.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample.app/MobileMessagingExample";
 			};
 			name = Release;
 		};
 		8EFABFDB1CEB3B9400510762 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -887,9 +868,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample.app/MobileMessagingExample";
 			};
 			name = Debug;
@@ -897,9 +875,6 @@
 		8EFABFDC1CEB3B9400510762 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -910,9 +885,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample.app/MobileMessagingExample";
 			};
 			name = Release;

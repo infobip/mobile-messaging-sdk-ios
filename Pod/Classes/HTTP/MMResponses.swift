@@ -83,19 +83,12 @@ final class MMHTTPRegistrationResponse: MMHTTPResponse {
 class MMHTTPEmptyResponse: MMHTTPResponse {
 }
 
-class TESTC {
-	let name: String?
-	init(name: String? ){
-		self.name = nil
-	}
-}
-
 final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
-    let messages : [MMMessage]?
+    let messages: [MTMessage]?
 	required init?(json value: JSON) {
-		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessage(json: $0) }
+		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
 		super.init(json: value)
 	}
 }
@@ -129,25 +122,11 @@ final class MMHTTPMOMessageResponse: MMHTTPResponse {
 
 
 //MARK: Other
-public func ==(lhs: MMMessage, rhs: MMMessage) -> Bool {
+func ==(lhs: MTMessage, rhs: MTMessage) -> Bool {
 	return lhs.messageId == rhs.messageId
 }
 
 protocol MMMessageMetadata: Hashable {
 	var isSilent: Bool {get}
 	var messageId: String {get}
-}
-
-enum MMAPS {
-	case SilentAPS([AnyHashable: Any])
-	case NativeAPS([AnyHashable: Any])
-	
-	var text: String? {
-		switch self {
-		case .NativeAPS(let dict):
-			return (dict["alert"] as? [AnyHashable: Any])?["body"] as? String
-		case .SilentAPS(let dict):
-			return (dict["alert"] as? [AnyHashable: Any])?["body"] as? String
-		}
-	}
 }

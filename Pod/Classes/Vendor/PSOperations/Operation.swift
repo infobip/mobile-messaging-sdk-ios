@@ -14,6 +14,7 @@ import Foundation
     extended readiness requirements, as well as notify many interested parties 
     about interesting operation state changes
 */
+
 open class Operation: Foundation.Operation {
     
     /* The completionBlock property has unexpected behaviors such as executing twice and executing on unexpected threads. BlockObserver
@@ -418,7 +419,6 @@ open class Operation: Foundation.Operation {
         */
         fatalError("Waiting on operations is an anti-pattern. Remove this ONLY if you're absolutely sure there is No Other Way™.")
     }
-    
 }
 
 // Simple operator functions to simplify the assertions used above.

@@ -21,14 +21,8 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	override func execute() {
-		self.sendSeen()
-	}
-	
-	private func sendSeen() {
 		self.context.performAndWait {
-			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), context: self.context)
-				, seenNotSentMessages.count > 0
-				else
+			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), context: self.context), !seenNotSentMessages.isEmpty else
 			{
 				MMLogDebug("There is no unseen meessages to send on server. Finishing...")
 				self.finish()
@@ -43,32 +37,36 @@ class SeenStatusSendingOperation: Operation {
 			}
 			
 			let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)
-			self.remoteAPIQueue.performRequest(request) { result in
-				self.handleSeenResult(result: result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
+			self.remoteAPIQueue.perform(request: request) { result in
+				self.handleSeenResult(result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
 				self.finishWithError(result.error)
 			}
 		}
 	}
 	
-	private func handleSeenResult(result: MMSeenMessagesResult, seenMessageIds:[String]) {
+	private func handleSeenResult(_ result: MMSeenMessagesResult, seenMessageIds:[String]) {
 		self.result = result
 		switch result {
 		case .Success(_):
 			MMLogDebug("Seen messages request succeded")
-			
 			context.performAndWait {
-				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), context: self.context), messages.count > 0 {
-					for message in messages {
+				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), context: self.context), !messages.isEmpty
+				{
+					messages.forEach { message in
 						message.seenStatus = .SeenSent
 					}
 					self.context.MM_saveToPersistentStoreAndWait()
+					self.updateMessageStorage(with: messages)
 				}
 			}
-			
 		case .Failure(let error):
 			MMLogError("Seen messages request failed with error: \(error)")
 		case .Cancel: break
 		}
+	}
+	
+	private func updateMessageStorage(with messages: [MessageManagedObject]) {
+		messages.forEach { MobileMessaging.messageStorage?.update(messageSeenStatus: $0.seenStatus , for: $0.messageId) }
 	}
 	
 	override func finished(_ errors: [NSError]) {

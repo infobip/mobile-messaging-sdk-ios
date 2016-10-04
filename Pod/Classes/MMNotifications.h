@@ -86,27 +86,33 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyAPIErrorUserInfo;
 
 /**
  Key for entry in userInfo dictionary of `kMessageReceived` notification.
+ Contains an object of class `MMMessage`.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyMessage;
+
+/**
+ Key for entry in userInfo dictionary of `kMessageReceived` notification.
  Contains a remote notification payload.
  */
-FOUNDATION_EXPORT NSString* MMNotificationKeyMessagePayload;
+DEPRECATED_MSG_ATTRIBUTE("Use key `MMNotificationKeyMessage` to retrieve an object of class `MMMessage`. The remote notification payload is stored in `MMMessage.originalPayload` attribute") FOUNDATION_EXPORT NSString* MMNotificationKeyMessagePayload;
 
 /**
  Key for entry in userInfo dictionary of `kMessageReceived` notification.
  Contains a remote notification custom parameters from payload.
  */
-FOUNDATION_EXPORT NSString* MMNotificationKeyMessageCustomPayload;
+DEPRECATED_MSG_ATTRIBUTE("Use key `MMNotificationKeyMessage` to retrieve an object of class `MMMessage`. The custom payload data is stored in `MMMessage.customPayload` attribute") FOUNDATION_EXPORT NSString* MMNotificationKeyMessageCustomPayload;
 
 /**
  Key for entry in userInfo dictionary of `kMessageReceived` notification.
  Contains a flag that indicates whether the message is pushed by APNs or pulled from the server.
  */
-FOUNDATION_EXPORT NSString* MMNotificationKeyMessageIsPush;
+DEPRECATED_MSG_ATTRIBUTE("Use key `MMNotificationKeyMessage` to retrieve an object of class `MMMessage`. The attribute `MMMessage.origin` defines whether the message is pushed by APNS or fetched from the server") FOUNDATION_EXPORT NSString* MMNotificationKeyMessageIsPush;
 
 /**
  Key for entry in userInfo dictionary of `kMessageReceived` notification.
  Contains a flag that indicates whether the remote notification is a silent push.
  */
-FOUNDATION_EXPORT NSString* MMNotificationKeyMessageIsSilent;
+DEPRECATED_MSG_ATTRIBUTE("Use key `MMNotificationKeyMessage` to retrieve an object of class `MMMessage`. The attribute `MMMessage.isSilent` defines whether the message is silent or not") FOUNDATION_EXPORT NSString* MMNotificationKeyMessageIsSilent;
 
 /**
  Key for entry in userInfo dictionary of `MMNotificationMessagesWillSend` and `MMNotificationMessagesDidSend` notification.

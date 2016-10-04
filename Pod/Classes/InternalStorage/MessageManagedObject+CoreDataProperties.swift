@@ -14,8 +14,10 @@ import CoreData
 extension MessageManagedObject {
     @NSManaged var creationDate: NSDate
     @NSManaged var messageId: String
-    @NSManaged var reportSent: NSNumber
+    @NSManaged var reportSent: Bool
     @NSManaged var seenDate: NSDate?
-    @NSManaged var seenStatusValue: NSNumber
-    @NSManaged var isSilent: NSNumber
+	@NSManaged var payload: [String: AnyObject]?
+	@NSManaged var messageTypeValue: NSNumber
+    @NSManaged var seenStatusValue: Int16
+    @NSManaged var isSilent: Bool
 }

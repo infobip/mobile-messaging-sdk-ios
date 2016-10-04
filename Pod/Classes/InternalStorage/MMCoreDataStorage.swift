@@ -17,12 +17,13 @@ enum MMStorageType {
 typealias MMStoreOptions = [AnyHashable: Any]
 
 struct MMStorageSettings {
-	let modelName: String = "MMStorageModel"
+	let modelName: String
 	var databaseFileName: String?
 	var storeOptions: MMStoreOptions?
 	
-	static var inMemoryStoreSettings = MMStorageSettings(databaseFileName: nil, storeOptions: nil)
-	static var SQLiteStoreSettings = MMStorageSettings(databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
+	static var inMemoryStoreSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: nil, storeOptions: nil)
+	static var SQLiteInternalStorageSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
+	static var SQLiteMessageStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
 }
 
 final class MMCoreDataStorage {
@@ -35,19 +36,16 @@ final class MMCoreDataStorage {
     }
 	
 	//MARK: Internal
-	func preparePersistentStoreCoordinator() throws {
-		_persistentStoreCoordinator = persistentStoreCoordinator
-		if _persistentStoreCoordinator == nil {
-			throw MMInternalErrorType.StorageInitializationError
-		}
-	}
-	
-	class func newInMemoryStorage() throws -> MMCoreDataStorage {
+	class func makeInMemoryStorage() throws -> MMCoreDataStorage {
 		return try MMCoreDataStorage(settings: MMStorageSettings.inMemoryStoreSettings)
 	}
 	
-	class func SQLiteStorage() throws -> MMCoreDataStorage {
-		return try MMCoreDataStorage(settings: MMStorageSettings.SQLiteStoreSettings)
+	class func makeSQLiteInternalStorage() throws -> MMCoreDataStorage {
+		return try MMCoreDataStorage(settings: MMStorageSettings.SQLiteInternalStorageSettings)
+	}
+	
+	class func makeSQLiteMessageStorage() throws -> MMCoreDataStorage {
+		return try MMCoreDataStorage(settings: MMStorageSettings.SQLiteMessageStorageSettings)
 	}
 	
 	var mainThreadManagedObjectContext: NSManagedObjectContext? {
@@ -72,14 +70,6 @@ final class MMCoreDataStorage {
 		return newContext
 	}
 	
-	func newContextWithNewPSC() throws -> NSManagedObjectContext {
-		let newContext = NSManagedObjectContext.init(concurrencyType: .privateQueueConcurrencyType)
-		newContext.persistentStoreCoordinator = try newPersistentStoreCoordinator()
-		newContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
-		newContext.undoManager = nil
-		return newContext
-	}
-	
 	func drop() {
 		_mainThreadManagedObjectContext = nil
 		_managedObjectModel = nil
@@ -95,6 +85,14 @@ final class MMCoreDataStorage {
     private var databaseFileName: String?
     private var storeOptions: MMStoreOptions?
 	
+	private func preparePersistentStoreCoordinator() throws {
+		_persistentStoreCoordinator = persistentStoreCoordinator
+		if _persistentStoreCoordinator == nil {
+			throw MMInternalErrorType.StorageInitializationError
+		}
+	}
+	
+	//FIXME: align the name with swift guidelines
 	private func addPersistentStoreWithPath(_ psc: NSPersistentStoreCoordinator, storePath: String?, options: MMStoreOptions?) throws {
         if let storePath = storePath {
             let storeURL = URL(fileURLWithPath: storePath)

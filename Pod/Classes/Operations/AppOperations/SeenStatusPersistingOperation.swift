@@ -28,10 +28,11 @@ final class SeenStatusPersistingOperation: Operation {
 			guard self.messageIds.count > 0 else {
 				return
 			}
-			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", self.messageIds), context: self.context), dbMessages.count > 0 {
-				for message in dbMessages {
+
+			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", self.messageIds), context: self.context), !dbMessages.isEmpty {
+				dbMessages.forEach { message in
 					switch message.seenStatus {
-					case .NotSeen :
+					case .NotSeen:
 						message.seenStatus = .SeenNotSent
 						message.seenDate = NSDate()
 					case .SeenSent:
@@ -40,9 +41,15 @@ final class SeenStatusPersistingOperation: Operation {
 					}
 				}
 				self.context.MM_saveToPersistentStoreAndWait()
+				
+				self.updateMessageStorage(with: dbMessages)
 			}
 		}
 		finish()
+	}
+	
+	private func updateMessageStorage(with messages: [MessageManagedObject]) {
+		messages.forEach { MobileMessaging.sharedInstance?.messageStorageAdapter?.update(messageSeenStatus: $0.seenStatus , for: $0.messageId) }
 	}
 	
 	override func finished(_ errors: [NSError]) {

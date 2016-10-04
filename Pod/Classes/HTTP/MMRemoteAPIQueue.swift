@@ -59,7 +59,7 @@ class MMRemoteAPIQueue {
         self.applicationCode = applicationCode
     }
 	
-	func performRequest<R: MMHTTPRequestData>(_ request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	func perform<R: MMHTTPRequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		let requestOperation = MMRetryableRequestOperation<R>(request: request, applicationCode: applicationCode, baseURL: baseURL) { responseResult in
 			completion(responseResult)
 			self.postErrorNotificationIfNeeded(error: responseResult.error)

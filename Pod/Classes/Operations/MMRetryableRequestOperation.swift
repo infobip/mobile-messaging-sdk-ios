@@ -14,12 +14,12 @@ class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOp
 	private var baseURL: String?
 	var reachabilityManager: MMNetworkReachabilityManager
 	
-	override func mapAttributesFrom(previous: MMRetryableOperation) {
-		super.mapAttributesFrom(previous: previous)
-		if let previous = previous as? MMRetryableRequestOperation {
-			self.request = previous.request
-            self.applicationCode = previous.applicationCode;
-            self.baseURL = previous.baseURL;
+	override func copyAttributes(from operation: MMRetryableOperation) {
+		super.copyAttributes(from: operation)
+		if let operation = operation as? MMRetryableRequestOperation {
+			self.request = operation.request
+            self.applicationCode = operation.applicationCode;
+            self.baseURL = operation.baseURL;
 		}
 	}
 	

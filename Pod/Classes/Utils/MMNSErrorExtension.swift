@@ -6,9 +6,9 @@
 //  
 
 import Foundation
-//import SwiftyJSON
 
 public let MMInternalErrorDomain = "com.mobile-messaging"
+
 
 public enum MMInternalErrorType: Error {
     case UnknownError

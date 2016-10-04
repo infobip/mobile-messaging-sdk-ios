@@ -11,19 +11,19 @@ import Security
 
 class SystemDataSynchronizationOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: ((NSError?) -> Void)?
+	let finishBlock: (NSError? -> Void)?
 	let remoteAPIQueue: MMRemoteAPIQueue
 	private var installationObject: InstallationManagedObject!
 	
 	lazy var currentSystemData: MMSystemData = {
-		return MMSystemData.currentSystemData(userAgent: MobileMessaging.userAgent)
+		return MobileMessaging.userAgent.systemData
 	}()
 	
 	lazy var currentSystemDataHash: Int = {
 		return self.currentSystemData.hashValue
 	}()
 	
-	init(сontext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(сontext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.remoteAPIQueue = remoteAPIQueue
@@ -43,7 +43,7 @@ class SystemDataSynchronizationOperation: Operation {
 			}
 			self.installationObject = installation
 			
-			if installation.systemDataHash.intValue != self.currentSystemDataHash {
+			if installation.systemDataHash != self.currentSystemDataHash {
 				self.sendRequest()
 			} else {
 				self.finish()
@@ -60,21 +60,20 @@ class SystemDataSynchronizationOperation: Operation {
 		
 		let request = MMPostSystemDataRequest(internalUserId: internalId, systemData: currentSystemData)
 		MMLogDebug("System Data: performing request...")
-		remoteAPIQueue.performRequest(request) { result in
-			self.handleResult(result: result)
+		remoteAPIQueue.perform(request: request) { result in
+			self.handleResult(result)
 			self.finishWithError(result.error)
 		}
 	}
 	
-	private func handleResult(result: MMSystemDataSyncResult) {
+	private func handleResult(_ result: MMSystemDataSyncResult) {
 		context.performAndWait {
 			switch result {
 			case .Success:
 				guard let installationObject = self.installationObject else {
 					return
 				}
-				print("storing hash", self.currentSystemDataHash)
-				installationObject.systemDataHash = NSNumber(value: self.currentSystemDataHash)
+				installationObject.systemDataHash = NSNumber(integer: self.currentSystemDataHash)
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("System Data: successfully synced")
 			case .Failure(let error):

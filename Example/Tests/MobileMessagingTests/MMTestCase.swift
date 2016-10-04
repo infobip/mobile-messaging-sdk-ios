@@ -16,12 +16,13 @@ class MMTestCase: XCTestCase {
 	}
 	
 	var storage: MMCoreDataStorage {
-		return mobileMessagingInstance.storage!
+		return mobileMessagingInstance.internalStorage!
 	}
 	
 	override func setUp() {
 		super.setUp()
-		MobileMessaging.loggingUtil.setLoggingOptions([MMLoggingOptions.Console], logLevel: MMLogLevel.All)
+		MobileMessaging.logger.logOutput = .Console
+		MobileMessaging.logger.logLevel = .All
 		MobileMessaging.stop(true)
 		startWithCorrectApplicationCode()
 	}

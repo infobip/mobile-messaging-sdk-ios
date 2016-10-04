@@ -16,12 +16,14 @@ struct DateStaticFormatters {
 		result.dateFormat = "yyyy-MM-dd"
 		return result
 	}()
+	
 	static var ISO8601SecondsFormatter: DateFormatter = {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")
 		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
 		return result
 	}()
+	
 	static var CoreDataDateFormatter: DateFormatter = {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")

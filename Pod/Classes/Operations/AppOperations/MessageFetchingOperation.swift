@@ -36,21 +36,20 @@ final class MessageFetchingOperation: Operation {
 				return
 			}
 			
-			let date = Date(timeIntervalSinceNow: -60 * 60 * 24 * 7) // 7 days ago
-			
-			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
-			let archivedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == true && creationDate > %@", argumentArray: [date]), context: self.context)
+			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
+			let fetchLimit = 100 // consider 100 most recent messages
+			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), inContext: self.context)
+			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true && creationDate > %@", date), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
 			
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
 			
 			let request = MMPostSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
 			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
-			
-			self.remoteAPIQueue.performRequest(request, completion: { result in
-				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
-				}
-			)
+
+			self.remoteAPIQueue.perform(request: request) { result in
+				self.handleRequestResponse(result, nonReportedMessageIds: nonReportedMessageIds)
+			}
 		}
 	}
 
@@ -89,20 +88,26 @@ final class MessageFetchingOperation: Operation {
 			return
 		}
 		
-		for message in messages {
+		messages.forEach { message in
 			message.reportSent = true
 		}
 		
 		MMLogDebug("Marked as delivered: \(messages.map{ $0.messageId })")
 		context.MM_saveToPersistentStoreAndWait()
+		
+		self.updateMessageStorage(with: messages)
 	}
 	
-	private func handleMessageOperation(messages: [MMMessage]) -> MessageHandlingOperation {
+	private func updateMessageStorage(with messages: [MessageManagedObject]) {
+		messages.forEach({ MobileMessaging.sharedInstance?.messageStorageAdapter?.update(deliveryReportStatus: $0.reportSent.boolValue , for: $0.messageId) })
+	}
+	
+	private func handleMessageOperation(messages: [MTMessage]) -> MessageHandlingOperation {
 		return MessageHandlingOperation(messagesToHandle: messages,
-		                                messagesOrigin: .Server,
+		                                messagesDeliveryMethod: .pull,
 		                                context: self.context,
 		                                remoteAPIQueue: self.remoteAPIQueue,
-		                                newMessageReceivedCallback: nil) { error in
+		                                messageHandler: MobileMessaging.messageHandling) { error in
 											
 											var finalResult = self.result
 											if let error = error {

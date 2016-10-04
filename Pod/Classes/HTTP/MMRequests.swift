@@ -199,28 +199,6 @@ struct MMPostUserDataRequest: MMHTTPPostRequest {
 func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
 	return lhs.hashValue == rhs.hashValue
 }
-struct MMSystemData: Hashable {
-	let SDKVersion, OSVer, deviceManufcturer, deviceModel, appVer: String
-	let geoAvailability: Bool
-	var dictionaryRepresentation: [String: Any] {
-		return [
-			MMAPIKeys.kSystemDataSDKVersion: SDKVersion,
-			MMAPIKeys.kSystemDataOSVer: OSVer,
-			MMAPIKeys.kSystemDataDeviceManufacturer: deviceManufcturer,
-			MMAPIKeys.kSystemDataDeviceModel: deviceModel,
-			MMAPIKeys.kSystemDataAppVer: appVer,
-			MMAPIKeys.kSystemDataGeoAvailability: geoAvailability
-		]
-	}
-	
-	var hashValue: Int {
-		return (SDKVersion + OSVer + deviceManufcturer + deviceModel + appVer + String(geoAvailability)).hash
-	}
-	
-	static func currentSystemData(userAgent: MMUserAgent) -> MMSystemData {
-		return MMSystemData(SDKVersion: userAgent.libraryVersion, OSVer: userAgent.osVersion, deviceManufcturer: userAgent.deviceManufacturer, deviceModel: userAgent.deviceName, appVer: userAgent.hostingAppVersion, geoAvailability: MobileMessaging.geofencingService.isAvailable)
-	}
-}
 
 struct MMPostSystemDataRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSystemDataSyncResponse
@@ -251,7 +229,11 @@ struct MMPostMessageRequest: MMHTTPPostRequest {
 	var body: [String: Any]? {
 		var result = [String: Any]()
 		result[MMAPIKeys.kMOFrom] = internalUserId
-		result[MMAPIKeys.kMOMessages] = messages.map { $0.dictRepresentation }
+		result[MMAPIKeys.kMOMessages] = messages.map { msg -> [String: AnyObject] in
+			var dict = msg.dictRepresentation
+			dict[MMAPIKeys.kMOMessageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
+			return dict
+		}
 		return result
 	}
 	

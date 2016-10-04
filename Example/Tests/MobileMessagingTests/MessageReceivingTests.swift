@@ -40,8 +40,8 @@ func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 
 func sendPushes(_ preparingFunc:(String) -> [AnyHashable: Any], count: Int, receivingHandler: ([AnyHashable: Any]) -> Void) {
     for _ in 0..<count {
-        let newMessageId = UUID().uuidString
-        if let payload = MMMessage(payload: preparingFunc(newMessageId))?.originalPayload {
+		let newMessageId = UUID().uuidString
+		if let payload = MTMessage(payload: preparingFunc(newMessageId), createdDate: NSDate())?.originalPayload {
             receivingHandler(payload)
         } else {
             XCTFail()
@@ -59,8 +59,8 @@ class MessageReceivingTests: MMTestCase {
 							MMAPIKeys.kInternalData: ["internalKey1": "internalValue1"] as NSObject,
 							MMAPIKeys.kCustomPayload: ["customKey" : "customValue"] as NSObject
 						]
-		let message = MMMessage(json: JSON.parse(jsonstring))
-
+		let message = MTMessage(json: JSON.parse(jsonstring))
+		
 		XCTAssertEqual((message?.originalPayload as! [AnyHashable : NSObject]?)!, resultDict)
 		XCTAssertEqual((message?.customPayload as! [AnyHashable : NSObject]?)!, ["customKey" : "customValue" as NSObject])
 		XCTAssertFalse(message!.isSilent)
@@ -76,7 +76,7 @@ class MessageReceivingTests: MMTestCase {
 			MMAPIKeys.kCustomPayload : ["customKey" : "customValue"] as NSObject
 		]
 		
-		let message = MMMessage(json: JSON.parse(jsonstring))
+		let message = MTMessage(json: JSON.parse(jsonstring))
 		
 		XCTAssertEqual((message?.originalPayload as! [AnyHashable : NSObject]?)!, resultDict)
 		XCTAssertEqual((message?.customPayload as! [AnyHashable : NSObject]?)!, ["customKey" : "customValue" as NSObject])
@@ -84,11 +84,11 @@ class MessageReceivingTests: MMTestCase {
 	}
 	
 	func testPayloadParsing() {
-		XCTAssertNil(MMMessage(json: JSON.parse(jsonWithoutMessageId)),"Message decoding must throw with nonAPSjson")
+		XCTAssertNil(MTMessage(json: JSON.parse(jsonWithoutMessageId)),"Message decoding must throw with nonAPSjson")
 		
 		let id = UUID().uuidString
 		let json = JSON.parse(backendJSONRegularMessage(id))
-		if let message = MMMessage(json: json) {
+		if let message = MTMessage(json: json) {
 			XCTAssertFalse(message.isSilent)
 			let origPayload = message.originalPayload["aps"] as! [String : Any]
 			XCTAssertEqual((origPayload["alert"] as! [String : Any])["body"] as! String, "msg_body", "Message body must be parsed")
@@ -142,7 +142,7 @@ class MessageReceivingTests: MMTestCase {
 		
 		let id = UUID().uuidString
 		let json = JSON.parse(backendJSONSilentMessage(id))
-		if let message = MMMessage(json: json) {
+		if let message = MTMessage(json: json) {
 			XCTAssertTrue(message.isSilent, "Message must be parsed as silent")
 			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
 		} else {

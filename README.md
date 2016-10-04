@@ -8,7 +8,7 @@ Mobile Messaging SDK is designed and developed to easily enable push notificatio
 The document describes library integration steps.
 
 ## Requirements
-- Xcode 7.3+
+- Xcode 7.3.x
 - iOS 8.0+
 
 <!-- ## Usage -->
@@ -37,17 +37,8 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	```
 5. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
 
-
 	> ### Notice 
-	> MobileMessaging SDK has geofencing service enabled by default. In order to opt-out the service, skip following 6-8 steps and follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service#disabling-the-default-geofencing-service-startup).
-
-6. Include the `UIRequiredDeviceCapabilities` key in the app’s `Info.plist` file. The value for the `UIRequiredDeviceCapabilities` is an array of strings indicating the features that your app requires. Two strings are required for using geofencing services:
-    - `location-services`
-    - `gps`
-
-    _For more information about the UIRequiredDeviceCapabilities key, see [Information Property List Key Reference](https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Introduction/Introduction.html#//apple_ref/doc/uid/TP40009247)._
-7. Enable the **Background Modes** capability in your Xcode project (located in the **Capabilities** tab of your project) and enable the **Location updates** mode.
-8. Include the `NSLocationAlwaysUsageDescription` key in your app’s Info.plist file and set the value of that key to a string that describes how your app intends to use location data.
+	> MobileMessaging SDK has geofencing service disabled by default. In order to enable the service follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service).
 
 ### App Delegate Inheritance
 The simplest approach to integrate Mobile Messaging with an existing app is by inheriting your app delegate from `MobileMessagingAppDelegate`. If you prefer a more advanced way: [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition).
@@ -134,14 +125,18 @@ It will give an additional opportunity to target your application users and orch
 
 ```swift
 // Swift
-MobileMessaging.currentUser?.saveMSISDN(<# for example "385911234567" #>, completion: { error in
-	// if an error occurs, handle it
-})
+MobileMessaging.currentUser?.save(msisdn: <#for example "79091234567"#>, completion:
+	{ error in
+		<#handle the error if needed#>
+	}
+)
 ```
 
 ```objective-c
 // Objective-C
-[[MobileMessaging currentUser] saveMSISDN:<# for example @"385911234567" #> completion:^(NSError * _Nullable error) {
-	// if an error occurs, handle it
+[[MobileMessaging currentUser] saveWithMsisdn: <#for example @"79091234567"#>
+								   completion: ^(NSError * _Nullable error)
+{
+	<#handle the error if needed#>
 }];
 ```
