@@ -26,7 +26,7 @@ Pod::Spec.new do |s|
         core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
         core.source_files = 'Pod/Classes/**/*.{h,m,swift,modulemap}'
         core.exclude_files = 'Pod/Classes/Logging/DummyLogger/**', 'Pod/Classes/Logging/CocoaLumberjack/**'
-        core.dependency 'SwiftyJSON', '~> 3.1'
+        core.dependency 'SwiftyJSON', '3.0.0'
     end
 
     s.subspec 'DummyLogger' do |d|

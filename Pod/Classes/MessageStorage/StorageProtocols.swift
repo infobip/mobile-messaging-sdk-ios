@@ -117,7 +117,7 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 			return
 		}
 		
-		queue.asynchronously() {
+		queue.async() {
 			self.adapteeStorage.insert(outgoing: messages.filter({ return self.findMessage(withId: $0.messageId) == nil }))
 		}
 	}
@@ -126,7 +126,7 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 		guard !messages.isEmpty else {
 			return
 		}
-		queue.asynchronously() {
+		queue.async() {
 			self.adapteeStorage.insert(incoming: messages)
 		}
 	}
@@ -136,31 +136,31 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 	}
 	
 	@objc func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId) {
-		queue.asynchronously() {
+		queue.async() {
 			self.adapteeStorage.update(messageSentStatus: status, for: messageId)
 		}
 	}
 	
 	@objc func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId) {
-		queue.asynchronously() {
+		queue.async() {
 			self.adapteeStorage.update(messageSeenStatus: status, for: messageId)
 		}
 	}
 	
 	@objc func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId) {
-		queue.asynchronously() {
+		queue.async() {
 			self.adapteeStorage.update(deliveryReportStatus: isDelivered, for: messageId)
 		}
 	}
 	
 	@objc func start() {
-		queue.asynchronously() {
+		queue.async() {
 			self.adapteeStorage.start()
 		}
 	}
 	
 	@objc func stop() {
-		queue.asynchronously() {
+		queue.async() {
 			self.adapteeStorage.stop()
 		}
 	}

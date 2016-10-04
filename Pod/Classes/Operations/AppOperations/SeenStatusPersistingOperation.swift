@@ -34,7 +34,7 @@ final class SeenStatusPersistingOperation: Operation {
 					switch message.seenStatus {
 					case .NotSeen:
 						message.seenStatus = .SeenNotSent
-						message.seenDate = NSDate()
+						message.seenDate = Date()
 					case .SeenSent:
 						message.seenStatus = .SeenNotSent
 					case .SeenNotSent: break

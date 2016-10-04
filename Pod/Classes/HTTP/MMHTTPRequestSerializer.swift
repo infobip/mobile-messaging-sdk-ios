@@ -74,7 +74,7 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 		return URL(string: completeURLString)
 	}
 	
-	class func query(fromParameters parameters: [String: AnyObject]) -> String {
+	class func query(fromParameters parameters: [String: Any]) -> String {
 		var escapedPairs = [String]()
 		for (key, value) in parameters {
 			switch value {

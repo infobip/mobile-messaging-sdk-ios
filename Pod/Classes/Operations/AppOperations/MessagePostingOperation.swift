@@ -61,14 +61,14 @@ class MessagePostingOperation: Operation {
 	}
 	
 	private func postWillSendNotification(messagesToSend: Set<MOMessage>) {
-		var userInfo = [String: Any]()
+		var userInfo = DictionaryRepresentation()
 
 		userInfo[MMNotificationKeyMessageSendingMOMessages] = messagesToSend
 		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesWillSend, userInfo: userInfo.isEmpty ? nil : userInfo)
 	}
 	
 	private func postDidSendNotification(resultMessages: [MOMessage]) {
-		var userInfo = [String: Any]()
+		var userInfo = DictionaryRepresentation()
 		userInfo[MMNotificationKeyMessageSendingMOMessages] = resultMessages
 		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesDidSend, userInfo: userInfo.isEmpty ? nil : userInfo)
 	}

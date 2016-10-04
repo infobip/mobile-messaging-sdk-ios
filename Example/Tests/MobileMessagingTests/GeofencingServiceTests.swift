@@ -28,7 +28,7 @@ let expectedExpiryDateString = "2016-08-06T12:20:16+03:00"
 let expectedExpiryMillisNumber = NSNumber(longLong: 1470475216000)
 let expectedExpiryMillisString = "1470475216000"
 
-var expectedStartDate: NSDate {
+var expectedStartDate: Date {
 	let comps = NSDateComponents()
 	comps.year = 2016
 	comps.month = 8
@@ -41,7 +41,7 @@ var expectedStartDate: NSDate {
 	return comps.date!
 }
 
-var expectedExpiryDate: NSDate {
+var expectedExpiryDate: Date {
 	let comps = NSDateComponents()
 	comps.year = 2016
 	comps.month = 8
@@ -54,7 +54,7 @@ var expectedExpiryDate: NSDate {
 	return comps.date!
 }
 
-var notExpectedDate: NSDate {
+var notExpectedDate: Date {
 	let comps = NSDateComponents()
 	comps.year = 2016
 	comps.month = 8
@@ -67,7 +67,7 @@ var notExpectedDate: NSDate {
 	return comps.date!
 }
 
-let zagreb: [String: AnyObject] = [
+let zagreb: DictionaryRepresentation = [
 	MMRegionDataKeys.StartDate.rawValue: expectedStartDateString,
 	MMRegionDataKeys.ExpiryMillis.rawValue: expectedExpiryMillisNumber,
 	MMRegionDataKeys.ExpiryDate.rawValue: expectedExpiryDateString,
@@ -78,7 +78,7 @@ let zagreb: [String: AnyObject] = [
 	MMRegionDataKeys.Title.rawValue: "Zagreb"
 ]
 
-let pula: [String: AnyObject] = [
+let pula: DictionaryRepresentation = [
 	MMRegionDataKeys.StartDate.rawValue: expectedStartDateString,
 	MMRegionDataKeys.ExpiryMillis.rawValue: expectedExpiryMillisNumber,
 	MMRegionDataKeys.ExpiryDate.rawValue: expectedExpiryDateString,
@@ -89,7 +89,7 @@ let pula: [String: AnyObject] = [
 	MMRegionDataKeys.Title.rawValue: "Pula"
 ]
 
-var internalData: [String: AnyObject] {
+var internalData: DictionaryRepresentation {
 	return [
 		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
 		MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
@@ -97,7 +97,7 @@ var internalData: [String: AnyObject] {
 	]
 }
 
-var apnsPayload: [String: AnyObject] {
+var apnsPayload: DictionaryRepresentation {
 	return [
 		"messageId": "123",
 		"aps": [
@@ -107,7 +107,7 @@ var apnsPayload: [String: AnyObject] {
 	]
 }
 
-let oldZagreb: [String: AnyObject] = [
+let oldZagreb: DictionaryRepresentation = [
 	MMRegionDataKeys.ExpiryMillis.rawValue: expectedExpiryMillisNumber,
 	MMRegionDataKeys.Identifier.rawValue: "6713245DA3638FDECFE448C550AD7681",
 	MMRegionDataKeys.Latitude.rawValue: 45.80869126677998,
@@ -116,7 +116,7 @@ let oldZagreb: [String: AnyObject] = [
 	MMRegionDataKeys.Title.rawValue: "Zagreb"
 ]
 
-let oldPula: [String: AnyObject] = [
+let oldPula: DictionaryRepresentation = [
 	MMRegionDataKeys.ExpiryMillis.rawValue: expectedExpiryMillisNumber,
 	MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
 	MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
@@ -125,7 +125,7 @@ let oldPula: [String: AnyObject] = [
 	MMRegionDataKeys.Title.rawValue: "Pula"
 ]
 
-var oldInternalData: [String: AnyObject] {
+var oldInternalData: DictionaryRepresentation {
 	return [
 		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
 		MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
@@ -133,7 +133,7 @@ var oldInternalData: [String: AnyObject] {
 	]
 }
 
-var oldapnsPayload: [String: AnyObject] {
+var oldapnsPayload: DictionaryRepresentation {
 	return [
 		"messageId": "123",
 		"aps": [
@@ -231,7 +231,7 @@ let oldjsonStr =
 "}"
 
 
-func makeApnsPayload() -> [String: AnyObject] {
+func makeApnsPayload() -> DictionaryRepresentation {
 	let internalData = [
 		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
 		MMAPIKeys.kMessageType: MMAPIKeys.kGeo
@@ -243,7 +243,7 @@ func makeApnsPayload() -> [String: AnyObject] {
 	]
 	return payload
 }
-func makeApnsPayload(withEvents events: [AnyObject]?) -> [String: AnyObject] {
+func makeApnsPayload(withEvents events: [AnyObject]?) -> DictionaryRepresentation {
 	let internalData = [
 		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
 		MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
@@ -257,18 +257,18 @@ func makeApnsPayload(withEvents events: [AnyObject]?) -> [String: AnyObject] {
 	return payload
 }
 
-func makeEvent(ofType type: MMRegionEventType, limit: UInt, timeout: UInt) -> [String: AnyObject] {
+func makeEvent(ofType type: MMRegionEventType, limit: UInt, timeout: UInt) -> DictionaryRepresentation {
 	return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
 	        MMRegionEventDataKeys.eventLimit.rawValue: limit,
 	        MMRegionEventDataKeys.eventTimeout.rawValue: timeout]
 }
 
-func makeEvent(ofType type: MMRegionEventType, limit: UInt) -> [String: AnyObject] {
+func makeEvent(ofType type: MMRegionEventType, limit: UInt) -> DictionaryRepresentation {
 	return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
 	        MMRegionEventDataKeys.eventLimit.rawValue: limit]
 }
 
-func makePulaRegion(withEvents events: [AnyObject]?) -> [String: AnyObject] {
+func makePulaRegion(withEvents events: [AnyObject]?) -> DictionaryRepresentation {
 	let expiryDateString = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(NSDate.distantFuture())
 	
 	return [

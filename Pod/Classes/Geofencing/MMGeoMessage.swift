@@ -231,8 +231,8 @@ final public class MMRegion: NSObject, PlistArchivable {
 		}
 	}
 	
-	public var dictionaryRepresentation: [String: Any] {
-		var result = [String: Any]()
+	public var dictionaryRepresentation: DictionaryRepresentation {
+		var result = DictionaryRepresentation()
 		result[MMRegionDataKeys.Latitude.rawValue] = center.latitude
 		result[MMRegionDataKeys.Longitude.rawValue] = center.longitude
 		result[MMRegionDataKeys.Radius.rawValue] = radius

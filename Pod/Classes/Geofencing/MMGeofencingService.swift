@@ -334,7 +334,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			let closestLiveRegions = self.closestLiveRegions
 			MMLogDebug("[GeofencingService] datasource regions: \n\(self.datasource.regionsDictionary.values)")
 
-			var currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap {$0 as? CLCircularRegion})
+			let currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap {$0 as? CLCircularRegion})
 			MMLogDebug("[GeofencingService] currently monitored regions \n\(currentlyMonitoredRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			let regionsWeAreInside: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {

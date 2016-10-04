@@ -16,11 +16,11 @@ enum SyncableAttributes: String {
 	case PredefinedUserData = "predefinedUserData"
 	case ExternalUserId = "externalUserId"
 	
-	static var userData: Int {
+	static var userData: Int32 {
 		return	SyncableAttributes.CustomUserData.integerValue | SyncableAttributes.PredefinedUserData.integerValue | SyncableAttributes.ExternalUserId.integerValue
 	}
 	
-	var integerValue: Int {
+	var integerValue: Int32 {
 		switch self {
 		case .DeviceToken:
 			return 1 << 0
@@ -35,8 +35,8 @@ enum SyncableAttributes: String {
 }
 
 struct SyncableAttributesSet: OptionSet {
-	let rawValue : Int
-	init(rawValue: Int) { self.rawValue = rawValue }
+	let rawValue : Int32
+	init(rawValue: Int32) { self.rawValue = rawValue }
 	
 	static func withAttribute(name: String) -> SyncableAttributesSet? {
 		if let attr = SyncableAttributes(rawValue: name) {
@@ -74,7 +74,7 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
     }
 
 	var dirtyAttributesSet: SyncableAttributesSet {
-		return SyncableAttributesSet(rawValue: dirtyAttributes.intValue)
+		return SyncableAttributesSet(rawValue: dirtyAttributes)
 	}
 
 	func resetDirtyRegistration() {
@@ -84,14 +84,14 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
 	func resetDirtyAttribute(attributes: SyncableAttributesSet) {
 		var newSet = dirtyAttributesSet
 		newSet.remove(attributes)
-		dirtyAttributes = NSNumber(value: newSet.rawValue)
+		dirtyAttributes = newSet.rawValue
 	}
 	
 	private func setDirtyAttribute(attrName: String) {
 		if let dirtyAttribute = SyncableAttributesSet.withAttribute(name: attrName) {
 			var updatedSet = dirtyAttributesSet
 			updatedSet.insert(dirtyAttribute)
-			dirtyAttributes = NSNumber(value: updatedSet.rawValue)
+			dirtyAttributes = updatedSet.rawValue
 		}
 	}
 	

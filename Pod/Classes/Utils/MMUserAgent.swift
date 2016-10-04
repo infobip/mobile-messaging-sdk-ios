@@ -10,7 +10,7 @@ import CoreTelephony
 struct MMSystemData: Hashable {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
 	let geoAvailability: Bool
-	var dictionaryRepresentation: [String: Any] {
+	var dictionaryRepresentation: DictionaryRepresentation {
 		return [
 			MMAPIKeys.kSystemDataSDKVersion: SDKVersion,
 			MMAPIKeys.kSystemDataOSVer: OSVer,
@@ -82,42 +82,9 @@ public class MMUserAgent: NSObject {
 	public var deviceManufacturer: String {
 		return "Apple"
 	}
-	
+
 	public var deviceName : String {
 		let name = UnsafeMutablePointer<utsname>.allocate(capacity: 1)
-	}
-	
-	public var osVersion: String {
-		return UIDevice.current.systemVersion
-	}
-	
-	public var osName: String {
-		return UIDevice.current.systemName
-	}
-	
-	public var libraryVersion: String {
-		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? libVersion
-	}
-	
-	public var libraryName: String {
-		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "MobileMessaging"
-	}
-	
-	public var hostingAppVersion: String {
-		return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-	}
-	
-	public var hostingAppName: String {
-		return Bundle.main.infoDictionary?["CFBundleName"] as? String ?? ""
-	}
-	
-	public var deviceManufacturer: String {
-		return "Apple"
-	}
-	
-	public var deviceName : String {
-		let name = UnsafeMutablePointer<utsname>.alloc(1)
->>>>>>> master
 		defer {
 			name.deallocate(capacity: 1)
 		}

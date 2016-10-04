@@ -16,7 +16,7 @@ extension MessageManagedObject {
     @NSManaged var messageId: String
     @NSManaged var reportSent: Bool
     @NSManaged var seenDate: Date?
-	@NSManaged var payload: [String: Any]?
+	@NSManaged var payload: DictionaryRepresentation?
 	@NSManaged var messageTypeValue: Int16
     @NSManaged var seenStatusValue: Int16
     @NSManaged var isSilent: Bool

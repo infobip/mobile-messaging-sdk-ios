@@ -14,13 +14,13 @@ import CoreData
 
 extension InstallationManagedObject {
 
-    @NSManaged var badgeNumber: NSNumber
+    @NSManaged var badgeNumber: Int
     @NSManaged var deviceToken: String?
-    @NSManaged var dirtyAttributes: NSNumber
+    @NSManaged var dirtyAttributes: Int32
     @NSManaged var internalUserId: String?
 	@NSManaged var externallUserId: String?
-    @NSManaged var customUserData: [String: Any]?
-	@NSManaged var predefinedUserData: [String: Any]?
-	@NSManaged var systemDataHash: NSNumber
+    @NSManaged var customUserData: DictionaryRepresentation?
+	@NSManaged var predefinedUserData: DictionaryRepresentation?
+	@NSManaged var systemDataHash: Int
 	@NSManaged var location: AnyObject?
 }

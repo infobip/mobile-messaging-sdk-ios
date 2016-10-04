@@ -89,7 +89,7 @@ public final class MobileMessaging: NSObject {
 			UIApplication.shared.unregisterForRemoteNotifications()
 		}
 		
-		UIApplication.sharedApplication.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: self.userNotificationType, categories: nil))
+		UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: self.userNotificationType, categories: nil))
 		
 		if UIApplication.shared.isRegisteredForRemoteNotifications == false {
 			MMLogDebug("Registering for remote notifications...")
@@ -231,8 +231,8 @@ public final class MobileMessaging: NSObject {
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
 		MMLogDebug("Application did register with device token \(token.mm_toHexString)")
-		NotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
-		self.currentInstallation?.updateDeviceToken(token, completion: completion)
+		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
+		self.currentInstallation?.updateDeviceToken(token: token, completion: completion)
 	}
 	
 	func setSeen(_ messageIds: [String], completion: ((MMSeenMessagesResult) -> Void)? = nil) {

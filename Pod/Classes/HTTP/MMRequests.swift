@@ -111,9 +111,9 @@ struct MMPostRegistrationRequest: MMHTTPPostRequest {
 
 struct SeenData {
 	let messageId: String
-	let seenDate: NSDate
+	let seenDate: Date
 	var timestampDelta: UInt {
-		return UInt(max(0, NSDate().timeIntervalSinceReferenceDate - seenDate.timeIntervalSinceReferenceDate))
+		return UInt(max(0, Date().timeIntervalSinceReferenceDate - seenDate.timeIntervalSinceReferenceDate))
 	}
 	var dict: [String: Any] {
 		return [MMAPIKeys.kMessageId: messageId,
@@ -229,7 +229,7 @@ struct MMPostMessageRequest: MMHTTPPostRequest {
 	var body: [String: Any]? {
 		var result = [String: Any]()
 		result[MMAPIKeys.kMOFrom] = internalUserId
-		result[MMAPIKeys.kMOMessages] = messages.map { msg -> [String: AnyObject] in
+		result[MMAPIKeys.kMOMessages] = messages.map { msg -> [String: Any] in
 			var dict = msg.dictRepresentation
 			dict[MMAPIKeys.kMOMessageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
 			return dict

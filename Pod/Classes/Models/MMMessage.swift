@@ -44,9 +44,11 @@ enum MMAPS {
 	var text: String? {
 		switch self {
 		case .NativeAPS(let dict):
-			return dict["alert"]?["body"] as? String
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["body"] as? String
 		case .SilentAPS(let dict):
-			return dict["alert"]?["body"] as? String
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["body"] as? String
 		}
 	}
 }
@@ -137,9 +139,9 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 			return nil
 		}
 		
-		self.isSilent = MTMessage.isSilent(payload)
+		self.isSilent = MTMessage.isSilent(payload: payload)
 		if (self.isSilent) {
-			if let silentAPS = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? StringKeyPayload {
+			if let silentAPS = (payload[MMAPIKeys.kInternalData] as? StringKeyPayload)?[MMAPIKeys.kSilent] as? StringKeyPayload {
 				self.aps = MMAPS.SilentAPS(MTMessage.apsByMerging(nativeAPS: nativeAPS, withSilentAPS: silentAPS))
 			} else {
 				self.aps = MMAPS.NativeAPS(nativeAPS)
@@ -150,7 +152,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 
 		//TODO: refactor all these `as` by extending Dictionary.
 		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? StringKeyPayload
-		self.silentData = payload[MMAPIKeys.kInternalData]?[MMAPIKeys.kSilent] as? StringKeyPayload
+		self.silentData = (payload[MMAPIKeys.kInternalData] as? StringKeyPayload)?[MMAPIKeys.kSilent] as? StringKeyPayload
 		self.deliveryMethod = .push
 		self.seenStatus = .NotSeen
 		self.isDeliveryReportSent = false
@@ -220,8 +222,8 @@ struct MOAttributes: MOMessageAttributes {
 	let messageId: String
 	let sentStatus: MOMessageSentStatus
 	
-	var dictRepresentation: [String: Any] {
-		var result = [String: Any]()
+	var dictRepresentation: DictionaryRepresentation {
+		var result = DictionaryRepresentation()
 		result[MMAPIKeys.kMODestination] = destination
 		result[MMAPIKeys.kMOText] = text
 		result[MMAPIKeys.kMOCustomPayload] = customPayload
@@ -270,11 +272,11 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: Date())
 	}
 	
-	var dictRepresentation: [String: Any] {
+	var dictRepresentation: DictionaryRepresentation {
 		return MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: sentStatus).dictRepresentation
 	}
 	
-	init?(payload: [String: Any]) {
+	init?(payload: DictionaryRepresentation) {
 		guard let messageId = payload[MMAPIKeys.kMOMessageId] as? String,
 			let text = payload[MMAPIKeys.kMOText] as? String,
 			let status = payload[MMAPIKeys.kMOMessageSentStatusCode] as? Int else

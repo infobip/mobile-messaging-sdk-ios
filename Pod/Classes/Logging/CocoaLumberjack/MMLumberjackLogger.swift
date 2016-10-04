@@ -66,19 +66,19 @@ public final class MMLogger: NSObject, MMLogging {
 	}
 	
 	public func logDebug(message: String) {
-		SwiftLogMacro(true, level: .Debug, flag: .Debug, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
+		SwiftLogMacro(true, level: .debug, flag: .debug, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
 	}
 	public func logInfo(message: String) {
-		SwiftLogMacro(true, level: .Info, flag: .Info, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
+		SwiftLogMacro(true, level: .info, flag: .info, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
 	}
 	public func logError(message: String) {
-		SwiftLogMacro(true, level: .Error, flag: .Error, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
+		SwiftLogMacro(true, level: .error, flag: .error, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
 	}
 	public func logWarn(message: String) {
-		SwiftLogMacro(true, level: .Warning, flag: .Warning, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
+		SwiftLogMacro(true, level: .warning, flag: .warning, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
 	}
 	public func logVerbose(message: String) {
-		SwiftLogMacro(true, level: .Verbose, flag: .Verbose, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
+		SwiftLogMacro(true, level: .verbose, flag: .verbose, context: context, file: #file, function: #function, line: #line, tag: nil, string: message)
 	}
 	
 	/// Path to the logs file.
@@ -110,20 +110,19 @@ public final class MMLogger: NSObject, MMLogging {
 	}
 	
 	public func sendLogs(fromViewController vc: UIViewController) {
-		var objectsToShare: [AnyObject] = [MobileMessaging.userAgent.currentUserAgentString]
+		var objectsToShare: [Any] = [MobileMessaging.userAgent.currentUserAgentString]
 		
 		if let dt = MobileMessaging.currentInstallation?.deviceToken {
-			objectsToShare.append("APNS device token: \(dt)" as AnyObject)
+			objectsToShare.append("APNS device token: \(dt)")
 		}
 		
 		if let id = MobileMessaging.currentUser?.internalId {
-			objectsToShare.append("Push registration ID: \(id)" as AnyObject)
+			objectsToShare.append("Push registration ID: \(id)")
 		}
 		
 		if let filePath = self.logFilePath {
 			let url = NSURL(fileURLWithPath: filePath)
 			objectsToShare.append(url)
-			
 			let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
 			vc.present(activityVC, animated: true, completion: nil)
 		}
@@ -135,19 +134,19 @@ public final class MMLogger: NSObject, MMLogging {
 	private func prepareLogging() {
 		let lumberjackLogLvl = lumberjackLogLevel(from: logLevel)
 		
-		if logOutput.contains(.Console) {
+		if logOutput.contains(options: .Console) {
 			let logger = DDTTYLogger.sharedInstance()
 			logger?.logFormatter = MMLogFormatter()
 			DDLog.add(logger, with: lumberjackLogLvl) //Console
 		}
 		
-		if logOutput.contains(.ASL) {
+		if logOutput.contains(options: .ASL) {
 			let logger = DDASLLogger.sharedInstance()
 			logger?.logFormatter = MMLogFormatter()
 			DDLog.add(logger, with: lumberjackLogLvl) //ASL
 		}
 		
-		if logOutput.contains(.File) {
+		if logOutput.contains(options: .File) {
 			self.fileLogger = DDFileLogger()
 			if let fileLogger = self.fileLogger {
 				fileLogger.logFormatter = MMLogFormatter()
@@ -158,7 +157,7 @@ public final class MMLogger: NSObject, MMLogging {
 		}
 	}
 	
-	public func SwiftLogMacro(isAsynchronous: Bool, level: DDLogLevel, flag flg: DDLogFlag, context: Int = 0, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, string: @autoclosure () -> String) {
+	public func SwiftLogMacro(_ isAsynchronous: Bool, level: DDLogLevel, flag flg: DDLogFlag, context: Int = 0, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, string: @autoclosure () -> String) {
 		if level.rawValue & flg.rawValue != 0 {
 			// Tell the DDLogMessage constructor to copy the C strings that get passed to it.
 			// Using string interpolation to prevent integer overflow warning when using StaticString.stringValue

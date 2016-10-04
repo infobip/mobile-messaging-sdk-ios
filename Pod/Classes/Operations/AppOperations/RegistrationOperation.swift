@@ -81,7 +81,7 @@ final class RegistrationOperation: Operation {
 		}
 	}
 	
-	private func handleRegistrationResult(result: MMRegistrationResult) {
+	private func handleRegistrationResult(_ result: MMRegistrationResult) {
 		self.context.performAndWait {
 			guard let installationObject = self.installationObject else {
 				return

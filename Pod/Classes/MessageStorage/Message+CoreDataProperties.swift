@@ -14,7 +14,7 @@ import CoreData
 extension Message {
 
     @NSManaged var messageId: String
-	@NSManaged var payload: [String: Any]
+	@NSManaged var payload: DictionaryRepresentation
     @NSManaged var isDeliveryReportSent: Bool
     @NSManaged var seenStatusValue: Int16
     @NSManaged var createdDate: Date

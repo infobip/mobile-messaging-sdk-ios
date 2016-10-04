@@ -100,7 +100,7 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	private func postNotificationForObservers(with message: MTMessage) {
-		var userInfo: [String: Any] = [ MMNotificationKeyMessage: message, MMNotificationKeyMessagePayload: message.originalPayload, MMNotificationKeyMessageIsPush: message.deliveryMethod == .push, MMNotificationKeyMessageIsSilent: message.isSilent ]
+		var userInfo: DictionaryRepresentation = [ MMNotificationKeyMessage: message, MMNotificationKeyMessagePayload: message.originalPayload, MMNotificationKeyMessageIsPush: message.deliveryMethod == .push, MMNotificationKeyMessageIsSilent: message.isSilent ]
 		if let customPayload = message.customPayload {
 			userInfo[MMNotificationKeyMessageCustomPayload] = customPayload
 		}

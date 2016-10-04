@@ -43,7 +43,7 @@ class MOMessageSendingTests: MMTestCase {
     }
 
 	func testMOMessageConstructors() {
-		let mo1 = MOMessage(destination: "destination", text: "text", customPayload: ["meal": "pizza"])
+		let mo1 = MOMessage(destination: "destination", text: "text", customPayload: ["meal": "pizza" as NSString])
 		let dict1 = mo1.dictRepresentation
 		
 		let mo2 = MOMessage(payload: dict1)

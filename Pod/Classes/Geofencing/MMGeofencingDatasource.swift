@@ -106,7 +106,7 @@ class MMGeofencingDatasource {
 		}
 		region.triggerEvent(for: eventType)
 		context.performAndWait {
-			if let msg = MessageManagedObject.MM_findFirstWithPredicate(NSPredicate(format: "messageId == %@", message.messageId), context: self.context), var payload = msg.payload, var internalData = payload[MMAPIKeys.kInternalData] as? [String: Any]
+			if let msg = MessageManagedObject.MM_findFirstWithPredicate(NSPredicate(format: "messageId == %@", message.messageId), context: self.context), var payload = msg.payload, var internalData = payload[MMAPIKeys.kInternalData] as? DictionaryRepresentation
 			{
 				internalData += [MMAPIKeys.kGeo: message.regions.flatMap{$0.dictionaryRepresentation}]
 				payload.updateValue(internalData, forKey: MMAPIKeys.kInternalData)
@@ -137,7 +137,7 @@ class MMGeofencingDatasource {
 		//FIXME: move to BG thread
 		var campaigns: Set<MMPlistCampaign>
 		let plistPath = plistURL.path
-		guard let data = FileManager.default.contents(atPath: plistPath), let plistArray = try? PropertyListSerialization.propertyList(from: data, options: PropertyListSerialization.ReadOptions.mutableContainersAndLeaves, format: nil), let plistDicts = plistArray as? [[String: Any]] else
+		guard let data = FileManager.default.contents(atPath: plistPath), let plistArray = try? PropertyListSerialization.propertyList(from: data, options: PropertyListSerialization.ReadOptions.mutableContainersAndLeaves, format: nil), let plistDicts = plistArray as? [DictionaryRepresentation] else
 		{
 			MMLogError("Can't load campaigns from plist.")
 			campaigns = []
