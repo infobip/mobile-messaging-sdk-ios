@@ -8,16 +8,14 @@
 import XCTest
 @testable import MobileMessaging
 
-func date(d: Int) -> NSDate {
-	let comps = NSDateComponents()
+func date(withDay d: Int) -> NSDate {
+	var comps = DateComponents()
 	comps.day = d
-	comps.calendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)
-	return comps.date!
+	comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+	return NSDate(timeIntervalSince1970: comps.date!.timeIntervalSince1970)
 }
 
-
 class CoreDataHelpersTests: MMTestCase {
-	
     func testExample() {
 		let ctx = self.storage.mainThreadManagedObjectContext!
 		let summaryMessagesNumber = 100
@@ -26,19 +24,16 @@ class CoreDataHelpersTests: MMTestCase {
 		
 		for i in 0..<summaryMessagesNumber {
 			let newMsg = MessageManagedObject.MM_createEntityInContext(context: ctx)
-			newMsg.creationDate = date(i+1)
+			newMsg.creationDate = date(withDay: i+1) as Date
 		}
 		let resultsAll = MessageManagedObject.MM_findAllInContext(ctx)
 		XCTAssertEqual(resultsAll?.count, summaryMessagesNumber)
 		
-		let resultsLimited = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "creationDate < %@", date(notOlderThanDay)), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: ctx) as? [MessageManagedObject]
-		resultsLimited?.forEach({ (msg) in
-			print(msg.creationDate)
-		})
+		let resultsLimited = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "creationDate < %@", date(withDay: notOlderThanDay)), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: ctx)
 		
 		XCTAssertEqual(resultsLimited?.count, fetchLimit)
 		
 		let mostRecentMsg = resultsLimited?.first!
-		XCTAssertEqual(mostRecentMsg?.creationDate, date(notOlderThanDay-1))
+		XCTAssertEqual(mostRecentMsg?.creationDate, date(withDay: notOlderThanDay-1) as Date)
     }
 }

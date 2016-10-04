@@ -70,7 +70,7 @@ class UserDataTests: MMTestCase {
 		currentUser.set(customData: "Death Star" as UserDataSupportedTypes?, forKey: "home")
 		currentUser.set(customData: "Beer" as UserDataSupportedTypes?, forKey: "drink")
 		currentUser.set(customData: "Pizza" as UserDataSupportedTypes?, forKey: "food")
-		currentUser.set(customData: NSNumber(double:189.5), forKey: "height")
+		currentUser.set(customData: NSNumber(value: 189.5), forKey: "height")
 
 		currentUser.set(predefinedData: "Darth" as UserDataSupportedTypes?, forKey: MMUserPredefinedDataKeys.FirstName)
 		currentUser.set(predefinedData: "Vader" as UserDataSupportedTypes?, forKey: MMUserPredefinedDataKeys.LastName)

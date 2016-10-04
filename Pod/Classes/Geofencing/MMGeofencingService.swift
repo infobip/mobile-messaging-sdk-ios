@@ -79,7 +79,13 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public weak var delegate: MMGeofencingServiceDelegate?
 	
 	/// Returns all the regions available in the Geofencing Service storage.
-	public var allRegions: Set<MMRegion> { return Set(datasource.regionsDictionary.values) }
+	public var allRegions: Set<MMRegion> {
+		var result = Set<MMRegion>()
+		serviceQueue.executeSync() {
+			result = Set(datasource.regionsDictionary.values)
+		}
+		return result
+	}
 	
 	/// Returns current capability status for Geofencing Service. For more information see `MMCapabilityStatus`.
 	public class var currentCapabilityStatus: MMCapabilityStatus {

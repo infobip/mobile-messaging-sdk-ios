@@ -54,7 +54,7 @@ class SystemDataTests: MMTestCase {
 		MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
 		
 		if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-			initialSystemDataHash = installation.systemDataHash.integerValue
+			initialSystemDataHash = installation.systemDataHash
 		}
 		
 		var updatedSystemDataHash: Int!
@@ -62,12 +62,12 @@ class SystemDataTests: MMTestCase {
 		MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) in
 			
 			ctx.reset()
-			if let installation = InstallationManagedObject.MM_findFirstInContext(context: ctx) {
-				updatedSystemDataHash = installation.systemDataHash.integerValue
+			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
+				updatedSystemDataHash = installation.systemDataHash
 			}
 			
 			MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
-			MobileMessaging.currentInstallation?.syncWithServer({ (error) in
+			MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) in
 				requestsCompleted.fulfill()
 			})
 		})
@@ -75,7 +75,7 @@ class SystemDataTests: MMTestCase {
 		self.waitForExpectations(timeout: 100) { err in
 			
 			ctx.reset()
-			if let installation = InstallationManagedObject.MM_findFirstInContext(context: ctx) {
+			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 				XCTAssertEqual(initialSystemDataHash, 0)
 				XCTAssertNotEqual(initialSystemDataHash, updatedSystemDataHash)
 				XCTAssertNotEqual(installation.systemDataHash, initialSystemDataHash)

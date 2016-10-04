@@ -165,7 +165,7 @@ public final class MobileMessaging: NSObject {
 	/// This method sends mobile originated messages to the server.
 	/// - parameter messages: Array of objects of `MOMessage` class that need to be sent.
 	/// - parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
-	public class func sendMessages(messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+	public class func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.sendMessages(messages, completion: completion)
 	}
 	

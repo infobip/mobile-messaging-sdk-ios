@@ -23,7 +23,7 @@ class MOMessageSendingTests: MMTestCase {
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
 
-		MobileMessaging.sendMessages(messages: [moMessage1, moMessage2]) { (messages, error) in
+		MobileMessaging.sendMessages([moMessage1, moMessage2]) { (messages, error) in
 			XCTAssertEqual(messages?.first?.messageId, "m1")
 			XCTAssertEqual(messages?.first?.text, "message1")
 			XCTAssertEqual(messages?.first?.destination, MMTestConstants.kTestCorrectApplicationCode)

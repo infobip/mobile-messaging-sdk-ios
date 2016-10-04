@@ -72,7 +72,7 @@ class MessageSeenTests: MMTestCase {
 		messageReceivingGroup.notify(queue: DispatchQueue.main) { 
 			self.mobileMessagingInstance.setSeen(["m1", "m2"], completion: { result in
 				
-				var messagesSeenDates = [String: NSDate?]()
+				var messagesSeenDates = [String: Date?]()
 				let ctx = self.storage.mainThreadManagedObjectContext!
 				ctx.reset()
 				ctx.performAndWait {

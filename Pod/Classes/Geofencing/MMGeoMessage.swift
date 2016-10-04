@@ -226,7 +226,7 @@ final public class MMRegion: NSObject, PlistArchivable {
 			return nil
 		}
 		
-		if let eventDicts = dict[MMRegionDataKeys.Event.rawValue] as? [[String:Any]] {
+		if let eventDicts = dict[MMRegionDataKeys.Event.rawValue] as? [DictionaryRepresentation] {
 			self.events = eventDicts.flatMap(MMRegionEvent.init)
 		}
 	}
@@ -257,9 +257,9 @@ public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
 
 final class MMRegionEvent: PlistArchivable {
 	let type: MMRegionEventType
-	let limit: UInt					//how many times this event can occur, 0 means unlimited
-	let timeout: UInt			    //minutes till next possible event
-	var rate: UInt = 0
+	let limit: Int					//how many times this event can occur, 0 means unlimited
+	let timeout: Int			    //minutes till next possible event
+	var rate: Int
 	var lastOccur: Date?
 	
 	var isValid: Bool {
@@ -278,13 +278,14 @@ final class MMRegionEvent: PlistArchivable {
 	init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard let typeString = dict[MMRegionEventDataKeys.eventType.rawValue] as? String,
 			  let type = MMRegionEventType(rawValue: typeString),
-			  let limit = dict[MMRegionEventDataKeys.eventLimit.rawValue] as? UInt else {
-				return nil
+			  let limit = dict[MMRegionEventDataKeys.eventLimit.rawValue] as? Int else
+		{
+			return nil
 		}
 		self.type = type
 		self.limit = limit
-		self.timeout = dict[MMRegionEventDataKeys.eventTimeout.rawValue] as? UInt ?? 0
-		self.rate = dict[MMRegionEventDataKeys.eventRate.rawValue] as? UInt ?? 0
+		self.timeout = dict[MMRegionEventDataKeys.eventTimeout.rawValue] as? Int ?? 0
+		self.rate = dict[MMRegionEventDataKeys.eventRate.rawValue] as? Int ?? 0
 		self.lastOccur = dict[MMRegionEventDataKeys.eventLastOccur.rawValue] as? Date ?? nil
 	}
 	

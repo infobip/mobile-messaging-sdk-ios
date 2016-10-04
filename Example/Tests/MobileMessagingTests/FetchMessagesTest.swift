@@ -90,9 +90,9 @@ class FetchMessagesTest: MMTestCase {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
 					let m2 = messages.filter({$0.messageId == "m2"}).first
 					XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenSent, "m2 must be seen and synced")
-					XCTAssertEqual(m2?.reportSent, NSNumber(value: true), "m2 delivery report must be delivered")
+					XCTAssertEqual(m2?.reportSent, true, "m2 delivery report must be delivered")
 					XCTAssertEqual(m1?.seenStatus, MMSeenStatus.NotSeen, "m1 must be not seen")
-					XCTAssertEqual(m1?.reportSent, NSNumber(value: true), "m1 delivery report must be delivered")
+					XCTAssertEqual(m1?.reportSent, true, "m1 delivery report must be delivered")
 				} else {
 					XCTFail("There should be some messages in database")
 				}
@@ -168,11 +168,9 @@ class FetchMessagesTest: MMTestCase {
     }
 	
 	func testThatAlertIsShown() {
-		let newMsgExpectation1 = expectationWithDescription("New message m1 received")
-		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
-		let syncExpectation = expectationWithDescription("Sync finished")
-		
-		
+		let newMsgExpectation1 = self.expectation(description: "New message m1 received")
+		let newMsgExpectation2 = self.expectation(description: "New message m2 received")
+		let syncExpectation = self.expectation(description: "Sync finished")
 		
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
@@ -196,15 +194,15 @@ class FetchMessagesTest: MMTestCase {
 			syncExpectation.fulfill()
 		}
 		
-		waitForExpectationsWithTimeout(50) { error in
+		waitForExpectations(timeout: 50) { error in
 			XCTAssertEqual(alertShownCounter, 2)
 		}
 	}
 }
 
 class MessageHandlingMock : MMDefaultMessageHandling {
-	let localNotificationShownBlock: Void -> Void
-	init(localNotificationShownBlock: Void -> Void) {
+	let localNotificationShownBlock: (Void) -> Void
+	init(localNotificationShownBlock: @escaping (Void) -> Void) {
 		self.localNotificationShownBlock = localNotificationShownBlock
 	}
 	override func presentLocalNotificationAlert(with message: MTMessage) {

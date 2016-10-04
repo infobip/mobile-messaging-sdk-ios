@@ -24,9 +24,9 @@ final class RegistrationTests: MMTestCase {
 			}
         }
 		
-		MobileMessaging.currentUser?.set(customData: "metadata1", forKey: "meta1")
+		MobileMessaging.currentUser?.set(customData: "metadata1" as NSString, forKey: "meta1")
         MobileMessaging.currentUser?.persist()
-		MobileMessaging.currentUser?.set(customData: "metadata2", forKey: "meta2")
+		MobileMessaging.currentUser?.set(customData: "metadata2" as NSString, forKey: "meta2")
 		MobileMessaging.currentUser?.persist()
 		
 		waitForExpectations(timeout: 100, handler: { err in
@@ -119,7 +119,7 @@ final class RegistrationTests: MMTestCase {
 			switch request {
 			case (is MMPostRegistrationRequest):
 				DispatchQueue.main.async {
-					requestSentCounter += 1
+					self.requestSentCounter += 1
 				}
 			default:
 				break
@@ -141,7 +141,7 @@ final class RegistrationTests: MMTestCase {
 		
         self.waitForExpectations(timeout:100) { error in
 			DispatchQueue.main.async {
-				XCTAssertEqual(requestSentCounter, 1)
+				XCTAssertEqual(self.requestSentCounter, 1)
 			}
         }
     }

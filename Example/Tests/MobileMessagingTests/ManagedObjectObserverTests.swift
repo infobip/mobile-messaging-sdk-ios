@@ -68,7 +68,7 @@ class ManagedObjectObserverTests: MMTestCase {
 
 		let expectation = self.expectation(description: "Test finished")
 
-		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
+		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(ctx){
 			let observingKeyPath = "creationDate"
 			
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -91,7 +91,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	func testThatRemovedObserverNotTriggerred() {
 		let expectation = self.expectation(description: "Test finished")
 		
-		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
+		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(ctx){
 			do {
 				let observingKeyPath = "messageId"
 				ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -122,7 +122,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	}
 	
 	func testObservationsNotDuplicated() {
-		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
+		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(ctx){
 			var observationsCounter = 0
 			let expectation = self.expectation(description: "Test finished")
 			let observingKeyPath = "messageId"
@@ -151,7 +151,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	
 	func testThatStopServiceResets() {
 		
-		if let msg = MessageManagedObject.MM_findFirstInContext(context: storage.mainThreadManagedObjectContext!){
+		if let msg = MessageManagedObject.MM_findFirstInContext(storage.mainThreadManagedObjectContext!){
 			let expectation = self.expectation(description: "Test finished")
 			let observingKeyPath = "messageId"
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
