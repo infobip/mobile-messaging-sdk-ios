@@ -6,7 +6,7 @@
 //
 
 import Foundation
-//import SwiftyJSON
+import SwiftyJSON
 
 @objc public enum MessageDeliveryMethod: Int16 {
 	case undefined = 0, push, pull

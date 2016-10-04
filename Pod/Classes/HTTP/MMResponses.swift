@@ -6,7 +6,7 @@
 //  
 //
 
-//import SwiftyJSON
+import SwiftyJSON
 
 typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
 typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>

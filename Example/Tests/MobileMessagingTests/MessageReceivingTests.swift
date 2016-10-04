@@ -6,7 +6,7 @@
 //
 
 
-//import SwiftyJSON
+import SwiftyJSON
 import XCTest
 @testable import MobileMessaging
 

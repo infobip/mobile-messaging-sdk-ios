@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
         core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
         core.public_header_files = 'Pod/Classes/**/*.h'
         core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
-        core.source_files = 'Pod/Classes/**/*.{h,m,swift,modulemap}'
+        core.source_files = 'Pod/Classes/**/*.{h,m,swift}'
         core.exclude_files = 'Pod/Classes/Logging/DummyLogger/**', 'Pod/Classes/Logging/CocoaLumberjack/**'
         core.dependency 'SwiftyJSON', '3.0.0'
     end

@@ -5,7 +5,7 @@
 //
 //
 
-//import SwiftyJSON
+import SwiftyJSON
 
 final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override init() {

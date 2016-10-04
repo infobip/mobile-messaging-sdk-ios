@@ -3,7 +3,7 @@
 //  MobileMessaging
 //
 //  Created by okoroleva on 07.03.16.
-//  
+//
 
 final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String
