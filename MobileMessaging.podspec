@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
     s.requires_arc = true
     s.pod_target_xcconfig =  {
     	'ENABLE_TESTABILITY' => 'YES',
-    	'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/MagicalRecord/** ${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/MagicalRecord/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**'
+    	'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**'
     }
     s.default_subspec = 'CocoaLumberjack'
 
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
         core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
         core.public_header_files = 'Pod/Classes/**/*.h'
         core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
-        core.source_files = 'Pod/Classes/**/*.{c,h,hh,m,mm,swift}'
+        core.source_files = 'Pod/Classes/**/*.{h,m,swift}'
         core.exclude_files = 'Pod/Classes/Logging/DummyLogger/**', 'Pod/Classes/Logging/CocoaLumberjack/**'
         core.dependency 'SwiftyJSON', '2.3.2'
     end
