@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
     }
 
     s.default_subspec = 'CocoaLumberjack'
-
+    s.module_map = 'Pod/MobileMessaging.modulemap'
     s.subspec 'Core' do |core|
         core.frameworks = 'CoreData', 'CoreTelephony'
         core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'

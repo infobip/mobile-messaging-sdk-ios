@@ -1,3 +1,6 @@
+system "mkdir", "-p", "./Pods/MobileMessaging/Pod/Classes/Vendor/AFNetworking/"
+system "cp", "../Pod/Classes/Vendor/AFNetworking/module.private.modulemap", "./Pods/MobileMessaging/Pod/Classes/Vendor/AFNetworking/module.private.modulemap"
+
 source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
@@ -10,6 +13,3 @@ end
 target 'MobileMessagingExample_Tests' do
     pod $podName, :path => '../'
 end
-
-system 'mkdir -p "./Pods/MobileMessaging/Pod/Classes/Vendor/AFNetworking/"'
-system 'cp "../Pod/Classes/Vendor/AFNetworking/module.private.modulemap" "./Pods/MobileMessaging/Pod/Classes/Vendor/AFNetworking/module.private.modulemap"'

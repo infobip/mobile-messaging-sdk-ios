@@ -7,6 +7,7 @@
 import UIKit
 import MobileMessaging
 
+
 @UIApplicationMain
 class AppDelegate: MobileMessagingAppDelegate {
 	
