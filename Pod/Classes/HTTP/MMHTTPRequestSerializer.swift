@@ -54,7 +54,7 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
         if let jsonBody = jsonBody , method == "POST" {
             var data : Data?
             do {
-                data = try JSONSerialization.data(withJSONObject: jsonBody, options: [])
+                data = try SanitizedJSONSerialization.data(withJSONObject: jsonBody, options: [])
                 request.addValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.addValue("application/json", forHTTPHeaderField: "Accept")
                 request.httpBody = data
@@ -89,5 +89,14 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 			}
 		}
 		return escapedPairs.joined(separator: "&")
+	}
+}
+
+class SanitizedJSONSerialization: JSONSerialization {
+	override class func data(withJSONObject obj: Any, options opt: JSONSerialization.WritingOptions = []) throws -> Data {
+		let data = try super.data(withJSONObject: obj, options: opt)
+		let jsonString = String(data: data, encoding: String.Encoding.utf8)
+		let sanitizedString = jsonString?.replacingOccurrences(of: "\\/", with: "/")
+		return sanitizedString?.data(using: String.Encoding.utf8) ?? Data()
 	}
 }
