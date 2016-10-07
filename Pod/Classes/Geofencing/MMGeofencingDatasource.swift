@@ -101,11 +101,12 @@ class MMGeofencingDatasource {
 			return
 		}
 		region.triggerEvent(for: eventType)
+
 		context.performBlockAndWait {
 			if let msg = MessageManagedObject.MM_findFirstInContext(NSPredicate(format: "messageId == %@", message.messageId), context: self.context),
 				var payload = msg.payload,
 				var internalData = payload[MMAPIKeys.kInternalData] as? [String: AnyObject] {
-				internalData += [MMAPIKeys.kGeo: message.regions.flatMap{$0.dictionaryRepresentation}]
+				internalData += [MMAPIKeys.kGeo: message.regions.map{$0.dictionaryRepresentation}]
 				payload.updateValue(internalData, forKey: MMAPIKeys.kInternalData)
 				msg.payload = payload
 				self.context.MM_saveToPersistentStoreAndWait()
@@ -161,7 +162,7 @@ class MMGeofencingDatasource {
 							MMAPIKeys.kTitle: campaign.title ?? NSNull(),
 							MMAPIKeys.kBody: campaign.body ?? NSNull()
 						],
-						MMAPIKeys.kGeo: campaign.regions.flatMap{$0.dictionaryRepresentation}
+						MMAPIKeys.kGeo: campaign.regions.map{$0.dictionaryRepresentation}
 					]
 				]
 			})

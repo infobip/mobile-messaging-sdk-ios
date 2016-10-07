@@ -110,7 +110,8 @@ final class MessageHandlingOperation: Operation {
 		guard messagesToHandle.count > 0 else {
 			return nil
 		}
-		let messagesSet = Set(messagesToHandle.flatMap(MessageMeta.init))
+
+		var messagesSet = Set(messagesToHandle.map(MessageMeta.init))
 		var dbMessages = [MessageMeta]()
 		if let msgs = MessageManagedObject.MM_findAllInContext(context) as? [MessageManagedObject] {
 			dbMessages = msgs.map(MessageMeta.init)
