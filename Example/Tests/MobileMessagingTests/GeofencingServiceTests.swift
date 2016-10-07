@@ -22,11 +22,11 @@ class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
 }
 
 let expectedStartDateString = "2016-08-05T12:20:16+03:00"
-let expectedStartMillisNumber = NSNumber(value: 1470388816000)
+let expectedStartMillisNumber = NSNumber(value: 1470388816000 as Int64)
 let expectedStartMillisString = "1470388816000"
 
 let expectedExpiryDateString = "2016-08-06T12:20:16+03:00"
-let expectedExpiryMillisNumber = NSNumber(value: 1470475216000)
+let expectedExpiryMillisNumber = NSNumber(value: 1470475216000 as Int64)
 let expectedExpiryMillisString = "1470475216000"
 
 var expectedStartDate: Date {
