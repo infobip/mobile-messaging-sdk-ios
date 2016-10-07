@@ -31,18 +31,22 @@ extension NSNull: UserDataSupportedTypes {}
 	case MSISDN
 	case FirstName
 	case LastName
+	case MiddleName
 	case Gender
 	case Birthdate
 	case Email
+	case Telephone
 	
 	var name: String {
 		switch self {
 		case .MSISDN : return "msisdn"
 		case .FirstName : return "firstName"
 		case .LastName : return "lastName"
+		case .MiddleName : return "middleName"
 		case .Gender : return "gender"
 		case .Birthdate : return "birthdate"
 		case .Email : return "email"
+		case .Telephone : return "telephone"
 		}
 	}
 }
