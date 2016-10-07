@@ -43,3 +43,13 @@ final class MMRemoteAPIMock : MMRemoteAPIQueue {
 		performRequestCompanionBlock(request)
 	}
 }
+
+func timeTravel(to date: Date, block: () -> Void) {
+	let customDateBlock: @convention(block) (AnyObject) -> Date = { _ in date }
+	let implementation = imp_implementationWithBlock(unsafeBitCast(customDateBlock, to: AnyObject.self))
+	let method = class_getInstanceMethod(NSClassFromString("__NSPlaceholderDate"), #selector(NSObject.init))
+	let oldImplementation = method_getImplementation(method)
+	method_setImplementation(method, implementation)
+	block()
+	method_setImplementation(method, oldImplementation)
+}

@@ -340,7 +340,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			let closestLiveRegions = self.closestLiveRegions
 			MMLogDebug("[GeofencingService] datasource regions: \n\(self.datasource.regionsDictionary.values)")
 
-			let currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap {$0 as? CLCircularRegion})
+			let currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap { $0 as? CLCircularRegion })
 			MMLogDebug("[GeofencingService] currently monitored regions \n\(currentlyMonitoredRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			let regionsWeAreInside: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
@@ -383,7 +383,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	var closestLiveRegions: Set<CLCircularRegion> {
-		let notExpiredRegions = Set(self.datasource.liveRegions.flatMap { $0.circularRegion })
+		let notExpiredRegions = Set(self.datasource.liveRegions.map { $0.circularRegion })
 		let number = self.kMonitoringRegionsLimit - self.locationManager.monitoredRegions.count
 		let location = self.locationManager.location ?? previousLocation
 		let array = MMGeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { self.locationManager.monitoredRegions.contains($0) == false })
@@ -485,17 +485,17 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did enter circular region \(region)")
-		datasource.regions(withIdentifier: region.identifier)?.forEach({ (datasourceRegion) in
-			if datasourceRegion.isLive(for: .entry) {
+		datasource.regions(withIdentifier: region.identifier)?.forEach { datasourceRegion in
+			if datasourceRegion.isNowAppropriateTimeForEntryNotification {
 				datasource.triggerEvent(for: .entry, region: datasourceRegion)
 				MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
 				delegate?.didEnterRegion(region: datasourceRegion)
 				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
 				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 			} else {
-				MMLogDebug("[GeofencingService] region is expired.")
+				MMLogDebug("[GeofencingService] not an appropriate time to trigger entry event.")
 			}
-		})
+		}
 	}
 	
 	public func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
@@ -506,17 +506,17 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did exit circular region \(region)")
-		datasource.regions(withIdentifier: region.identifier)?.forEach({ (datasourceRegion) in
-			if datasourceRegion.isLive(for: .exit) {
+		datasource.regions(withIdentifier: region.identifier)?.forEach { datasourceRegion in
+			if datasourceRegion.isNowAppropriateTimeForExitNotification {
 				datasource.triggerEvent(for: .exit, region: datasourceRegion)
 				MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
 				delegate?.didExitRegion(region: datasourceRegion)
 				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
 				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 			} else {
-				MMLogDebug("[GeofencingService] region is expired.")
+				MMLogDebug("[GeofencingService] not an appropriate time to trigger exit event.")
 			}
-		})
+		}
 	}
 	
 	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

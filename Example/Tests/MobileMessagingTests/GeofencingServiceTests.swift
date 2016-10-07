@@ -10,6 +10,7 @@ import CoreLocation
 import SwiftyJSON
 @testable import MobileMessaging
 
+
 class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
 	override var isRunning: Bool {
 		set {
@@ -20,7 +21,6 @@ class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
 		}
 	}
 }
-
 let expectedStartDateString = "2016-08-05T12:20:16+03:00"
 let expectedStartMillisNumber = NSNumber(value: 1470388816000 as Int64)
 let expectedStartMillisString = "1470388816000"
@@ -68,7 +68,27 @@ var notExpectedDate: Date {
 	return comps.date!
 }
 
-let zagreb: DictionaryRepresentation = [
+var baseAPNSDict: [String: Any] {
+	return
+		[
+			MMAPIKeys.kMessageId: "123",
+	        MMAPIKeys.kAps: [
+				MMAPIKeys.kContentAvailable: 1
+			]
+		]
+}
+
+var baseInternalDataDict: [String: Any] {
+	return
+		[
+			MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
+			MMAPIKeys.kMessageType: MMAPIKeys.kGeo
+		]
+}
+
+
+// modern:
+let modernZagrebDict: [String: Any] = [
 	MMRegionDataKeys.StartDate.rawValue: expectedStartDateString,
 	MMRegionDataKeys.ExpiryMillis.rawValue: expectedExpiryMillisNumber,
 	MMRegionDataKeys.ExpiryDate.rawValue: expectedExpiryDateString,
@@ -79,7 +99,7 @@ let zagreb: DictionaryRepresentation = [
 	MMRegionDataKeys.Title.rawValue: "Zagreb"
 ]
 
-let pula: DictionaryRepresentation = [
+let modernPulaDict: [String: Any] = [
 	MMRegionDataKeys.StartDate.rawValue: expectedStartDateString,
 	MMRegionDataKeys.ExpiryMillis.rawValue: expectedExpiryMillisNumber,
 	MMRegionDataKeys.ExpiryDate.rawValue: expectedExpiryDateString,
@@ -90,25 +110,18 @@ let pula: DictionaryRepresentation = [
 	MMRegionDataKeys.Title.rawValue: "Pula"
 ]
 
-var internalData: DictionaryRepresentation {
-	return [
-		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
-		MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
-		MMAPIKeys.kGeo: [zagreb, pula]
-	]
+var modernInternalDataWithZagrebPulaDict: [String: Any] {
+	var result = baseInternalDataDict
+	result[MMAPIKeys.kGeo] = [modernZagrebDict, modernPulaDict]
+	return result
 }
 
-var apnsPayload: DictionaryRepresentation {
-	return [
-		"messageId": "123",
-		"aps": [
-			"content-available": 1
-		],
-		MMAPIKeys.kInternalData: internalData
-	]
+var modernAPNSPayloadZagrebPulaDict: [String: Any] {
+	return (baseAPNSDict + [MMAPIKeys.kInternalData: modernInternalDataWithZagrebPulaDict])!
 }
 
-let oldZagreb: DictionaryRepresentation = [
+// legacy:
+let oldZagrebDict: [String: Any] = [
 	MMRegionDataKeys.ExpiryMillis.rawValue: expectedExpiryMillisNumber,
 	MMRegionDataKeys.Identifier.rawValue: "6713245DA3638FDECFE448C550AD7681",
 	MMRegionDataKeys.Latitude.rawValue: 45.80869126677998,
@@ -117,7 +130,7 @@ let oldZagreb: DictionaryRepresentation = [
 	MMRegionDataKeys.Title.rawValue: "Zagreb"
 ]
 
-let oldPula: DictionaryRepresentation = [
+let oldPulaDict: [String: Any] = [
 	MMRegionDataKeys.ExpiryMillis.rawValue: expectedExpiryMillisNumber,
 	MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
 	MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
@@ -126,24 +139,17 @@ let oldPula: DictionaryRepresentation = [
 	MMRegionDataKeys.Title.rawValue: "Pula"
 ]
 
-var oldInternalData: DictionaryRepresentation {
-	return [
-		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
-		MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
-		MMAPIKeys.kGeo: [oldZagreb, oldPula]
-	]
+var oldInternalDataZagrebPulaDict: [String: Any] {
+	var result = baseInternalDataDict
+	result[MMAPIKeys.kGeo] = [oldZagrebDict, oldPulaDict]
+	return result
 }
 
-var oldapnsPayload: DictionaryRepresentation {
-	return [
-		"messageId": "123",
-		"aps": [
-			"content-available": 1
-		],
-		MMAPIKeys.kInternalData: oldInternalData
-	]
+var oldmodernAPNSPayloadZagrebPulaDict: [String: Any] {
+	return (baseAPNSDict + [MMAPIKeys.kInternalData: oldInternalDataZagrebPulaDict])!
 }
 
+// jsons
 let jsonStr =
 	"{" +
 		"\"aps\": { \"content-available\": 1}," +
@@ -158,7 +164,7 @@ let jsonStr =
 		"\"id\": \"6713245DA3638FDECFE448C550AD7681\"," +
 		"\"latitude\": 45.80869126677998," +
 		"\"longitude\": 15.97206115722656," +
-		"\"radiusInMeters\": 9492," +
+		"\"radiusInMeters\": 9492.0," +
 		"\"title\": \"Zagreb\"" +
 		"}," +
 		"{" +
@@ -168,7 +174,7 @@ let jsonStr =
 		"\"id\": \"A277A2A0D0612AFB652E9D2D80E02BF2\"," +
 		"\"latitude\": 44.86803631018752," +
 		"\"longitude\": 13.84586334228516," +
-		"\"radiusInMeters\": 5257," +
+		"\"radiusInMeters\": 5257.0," +
 		"\"title\": \"Pula\"" +
 		"}" +
 		"]" +
@@ -188,7 +194,7 @@ let jsonStrWithoutStartTime =
 		"\"id\": \"6713245DA3638FDECFE448C550AD7681\"," +
 		"\"latitude\": 45.80869126677998," +
 		"\"longitude\": 15.97206115722656," +
-		"\"radiusInMeters\": 9492," +
+		"\"radiusInMeters\": 9492.0," +
 		"\"title\": \"Zagreb\"" +
 		"}," +
 		"{" +
@@ -197,7 +203,7 @@ let jsonStrWithoutStartTime =
 		"\"id\": \"A277A2A0D0612AFB652E9D2D80E02BF2\"," +
 		"\"latitude\": 44.86803631018752," +
 		"\"longitude\": 13.84586334228516," +
-		"\"radiusInMeters\": 5257," +
+		"\"radiusInMeters\": 5257.0," +
 		"\"title\": \"Pula\"" +
 		"}" +
 		"]" +
@@ -216,7 +222,7 @@ let oldjsonStr =
 		"\"id\": \"6713245DA3638FDECFE448C550AD7681\"," +
 		"\"latitude\": 45.80869126677998," +
 		"\"longitude\": 15.97206115722656," +
-		"\"radiusInMeters\": 9492," +
+		"\"radiusInMeters\": 9492.0," +
 		"\"title\": \"Zagreb\"" +
 		"}," +
 		"{" +
@@ -224,7 +230,7 @@ let oldjsonStr =
 		"\"id\": \"A277A2A0D0612AFB652E9D2D80E02BF2\"," +
 		"\"latitude\": 44.86803631018752," +
 		"\"longitude\": 13.84586334228516," +
-		"\"radiusInMeters\": 5257," +
+		"\"radiusInMeters\": 5257.0," +
 		"\"title\": \"Pula\"" +
 		"}" +
 		"]" +
@@ -232,56 +238,41 @@ let oldjsonStr =
 "}"
 
 
-func makeApnsPayload() -> DictionaryRepresentation {
-	let internalData: DictionaryRepresentation = [
-		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
-		MMAPIKeys.kMessageType: MMAPIKeys.kGeo
-	]
-	let payload: DictionaryRepresentation = [
-		"messageId": "123",
-		"aps": [ "content-available": 1],
-		MMAPIKeys.kInternalData: internalData
-	]
-	return payload
-}
-func makeApnsPayload(withEvents events: [DictionaryRepresentation]?) -> DictionaryRepresentation {
-	let internalData: DictionaryRepresentation = [
-		MMAPIKeys.kSilent: [MMAPIKeys.kBody: "campaign text"],
-		MMAPIKeys.kMessageType: MMAPIKeys.kGeo,
-		MMAPIKeys.kGeo: [makePulaRegion(withEvents: events)]
-	]
-	let payload: DictionaryRepresentation = [
-		"messageId": "123",
-		"aps": [ "content-available": 1],
-		MMAPIKeys.kInternalData: internalData
-	]
-	return payload
+func makeApnsPayloadWithoutRegionsDataDict() -> [String: Any] {
+	return (baseAPNSDict + [MMAPIKeys.kInternalData: baseInternalDataDict])!
 }
 
-func makeEvent(ofType type: MMRegionEventType, limit: Int, timeout: Int) -> DictionaryRepresentation {
-	return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
-	        MMRegionEventDataKeys.eventLimit.rawValue: limit,
-	        MMRegionEventDataKeys.eventTimeout.rawValue: timeout]
+func makeApnsPayloadWithPulaDict(withEvents events: [Any]?, deliveryTime: Any?) -> [String: Any] {
+	var result = makeApnsPayloadWithoutRegionsDataDict()
+	var internalData = result[MMAPIKeys.kInternalData] as! [String: Any]
+	internalData[MMAPIKeys.kGeo] = [makePulaRegionDict(withEvents: events, deliveryTime: deliveryTime)]
+	result[MMAPIKeys.kInternalData] = internalData
+	return result
 }
 
-func makeEvent(ofType type: MMRegionEventType, limit: Int) -> DictionaryRepresentation {
-	return [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
+func makeEventDict(ofType type: MMRegionEventType, limit: Int, timeout: Int? = nil) -> [String: Any] {
+	var result: [String: Any] = [MMRegionEventDataKeys.eventType.rawValue: type.rawValue,
 	        MMRegionEventDataKeys.eventLimit.rawValue: limit]
+	result[MMRegionEventDataKeys.eventTimeout.rawValue] = timeout
+	return result
 }
 
-func makePulaRegion(withEvents events: [DictionaryRepresentation]?) -> DictionaryRepresentation {
+func makeDeliveryTimeDict(withTimeIntervalString timeInterval: String? = nil, daysString days: String? = nil) -> [String: Any]? {
+	var result = [String: Any]()
+	result[MMRegionDeliveryTimeKeys.timeInterval.rawValue] = timeInterval
+	result[MMRegionDeliveryTimeKeys.days.rawValue] = days
+	return result.isEmpty ? nil : result
+}
+
+var defaultEvent: [String: Any] = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry"]
+
+func makePulaRegionDict(withEvents events: [Any]?, deliveryTime: Any?) -> [String: Any] {
 	let expiryDateString = DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date.distantFuture)
-	
-	let events: Any = events ?? NSNull()
-	return [
-		MMRegionDataKeys.ExpiryDate.rawValue: expiryDateString,
-		MMRegionDataKeys.Identifier.rawValue: "A277A2A0D0612AFB652E9D2D80E02BF2",
-		MMRegionDataKeys.Latitude.rawValue: 44.86803631018752,
-		MMRegionDataKeys.Longitude.rawValue: 13.84586334228516,
-		MMRegionDataKeys.Radius.rawValue: 5257.0,
-		MMRegionDataKeys.Title.rawValue: "Pula",
-		MMRegionDataKeys.Event.rawValue: events
-	]
+	var result = modernPulaDict
+	result[MMRegionDataKeys.ExpiryDate.rawValue] = expiryDateString
+	result[MMRegionDataKeys.Event.rawValue] = events ?? [defaultEvent]
+	result[MMRegionDataKeys.deliveryTime.rawValue] = deliveryTime
+	return result
 }
 
 class GeofencingServiceTests: MMTestCase {
@@ -289,8 +280,11 @@ class GeofencingServiceTests: MMTestCase {
 	func testThatGeoPushIsPassedToTheGeoService() {
 		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		let expectation = self.expectation(description: "Check finished")
-		self.mobileMessagingInstance.didReceiveRemoteNotification(apnsPayload, newMessageReceivedCallback: nil, completion: { result in
-			expectation.fulfill()
+		self.mobileMessagingInstance.didReceiveRemoteNotification(modernAPNSPayloadZagrebPulaDict, newMessageReceivedCallback: nil, completion: { result in
+			DispatchQueue.main.async {
+				expectation.fulfill()
+			}
+			
 		})
 		self.waitForExpectations(timeout: 100, handler: { error in
 			XCTAssertEqual(MobileMessaging.geofencingService?.allRegions.count, 2)
@@ -298,66 +292,65 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testCampaignAPNSConstructors() {
-		if let message = MMGeoMessage(payload: apnsPayload, createdDate: Date()) {
+		if let message = MMGeoMessage(payload: modernAPNSPayloadZagrebPulaDict, createdDate: Date()) {
 			var regionsDict = [String: MMRegion]()
 			for region in message.regions {
 				regionsDict[region.identifier] = region
 			}
-			let zagrebId = zagreb[MMRegionDataKeys.Identifier.rawValue] as! String
+			let zagrebId = modernZagrebDict[MMRegionDataKeys.Identifier.rawValue] as! String
 			let zagrebObject = regionsDict[zagrebId]!
 			XCTAssertEqual(zagrebObject.expiryDate, expectedExpiryDate)
 			XCTAssertNotEqual(zagrebObject.expiryDate, notExpectedDate)
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, zagreb[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, zagreb[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqual(zagrebObject.radius, zagreb[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
-			XCTAssertEqual(zagrebObject.title, zagreb[MMRegionDataKeys.Title.rawValue] as? String)
+			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, modernZagrebDict[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, modernZagrebDict[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.radius, modernZagrebDict[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
+			XCTAssertEqual(zagrebObject.title, modernZagrebDict[MMRegionDataKeys.Title.rawValue] as? String)
 			XCTAssertFalse(zagrebObject.isLive)
 			
-			let pulaId = pula[MMRegionDataKeys.Identifier.rawValue] as! String
+			let pulaId = modernPulaDict[MMRegionDataKeys.Identifier.rawValue] as! String
 			let pulaObject = regionsDict[pulaId]!
 			XCTAssertEqual(pulaObject.expiryDate, expectedExpiryDate)
 			XCTAssertNotEqual(pulaObject.expiryDate, notExpectedDate)
 			XCTAssertEqual(pulaObject.identifier, pulaId)
-			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, pula[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, pula[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqual(pulaObject.radius, pula[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
-			XCTAssertEqual(pulaObject.title, pula[MMRegionDataKeys.Title.rawValue] as? String)
+			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, modernPulaDict[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, modernPulaDict[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.radius, modernPulaDict[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
+			XCTAssertEqual(pulaObject.title, modernPulaDict[MMRegionDataKeys.Title.rawValue] as? String)
 			XCTAssertFalse(pulaObject.isLive)
 		} else {
 			XCTFail()
 		}
 	}
 	
-
 	func testOldCampaignAPNSConstructors() {
-		if let message = MMGeoMessage(payload: oldapnsPayload, createdDate: Date()) {
+		if let message = MMGeoMessage(payload: oldmodernAPNSPayloadZagrebPulaDict, createdDate: Date()) {
 			var regionsDict = [String: MMRegion]()
 			for region in message.regions {
 				regionsDict[region.identifier] = region
 			}
-			let zagrebId = zagreb[MMRegionDataKeys.Identifier.rawValue] as! String
+			let zagrebId = modernZagrebDict[MMRegionDataKeys.Identifier.rawValue] as! String
 			let zagrebObject = regionsDict[zagrebId]!
 			XCTAssertEqual(zagrebObject.startDate, Date(timeIntervalSinceReferenceDate: 0))
 			XCTAssertEqual(zagrebObject.expiryDate, expectedExpiryDate)
 			XCTAssertNotEqual(zagrebObject.expiryDate, notExpectedDate)
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, zagreb[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, zagreb[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqual(zagrebObject.radius, zagreb[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
-			XCTAssertEqual(zagrebObject.title, zagreb[MMRegionDataKeys.Title.rawValue] as? String)
+			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, modernZagrebDict[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, modernZagrebDict[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.radius, modernZagrebDict[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
+			XCTAssertEqual(zagrebObject.title, modernZagrebDict[MMRegionDataKeys.Title.rawValue] as? String)
 			XCTAssertFalse(zagrebObject.isLive)
 			
-			let pulaId = pula[MMRegionDataKeys.Identifier.rawValue] as! String
+			let pulaId = modernPulaDict[MMRegionDataKeys.Identifier.rawValue] as! String
 			let pulaObject = regionsDict[pulaId]!
 			XCTAssertEqual(pulaObject.startDate, Date(timeIntervalSinceReferenceDate: 0))
 			XCTAssertEqual(pulaObject.expiryDate, expectedExpiryDate)
 			XCTAssertNotEqual(pulaObject.expiryDate, notExpectedDate)
 			XCTAssertEqual(pulaObject.identifier, pulaId)
-			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, pula[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, pula[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqual(pulaObject.radius, pula[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
-			XCTAssertEqual(pulaObject.title, pula[MMRegionDataKeys.Title.rawValue] as? String)
+			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, modernPulaDict[MMRegionDataKeys.Latitude.rawValue] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, modernPulaDict[MMRegionDataKeys.Longitude.rawValue] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.radius, modernPulaDict[MMRegionDataKeys.Radius.rawValue] as? CLLocationDistance)
+			XCTAssertEqual(pulaObject.title, modernPulaDict[MMRegionDataKeys.Title.rawValue] as? String)
 			XCTAssertFalse(pulaObject.isLive)
 		} else {
 			XCTFail()
@@ -380,7 +373,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
-			XCTAssertEqual(zagrebObject.radius, 9492)
+			XCTAssertEqual(zagrebObject.radius, 9492.0)
 			XCTAssertEqual(zagrebObject.title, "Zagreb")
 			XCTAssertFalse(zagrebObject.isLive)
 			
@@ -392,7 +385,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(pulaObject.identifier, pulaId)
 			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
-			XCTAssertEqual(pulaObject.radius, 5257)
+			XCTAssertEqual(pulaObject.radius, 5257.0)
 			XCTAssertEqual(pulaObject.title, "Pula")
 			XCTAssertFalse(pulaObject.isLive)
 			
@@ -417,7 +410,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
-			XCTAssertEqual(zagrebObject.radius, 9492)
+			XCTAssertEqual(zagrebObject.radius, 9492.0)
 			XCTAssertEqual(zagrebObject.title, "Zagreb")
 			XCTAssertFalse(zagrebObject.isLive)
 			
@@ -429,7 +422,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(pulaObject.identifier, pulaId)
 			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
-			XCTAssertEqual(pulaObject.radius, 5257)
+			XCTAssertEqual(pulaObject.radius, 5257.0)
 			XCTAssertEqual(pulaObject.title, "Pula")
 			XCTAssertFalse(pulaObject.isLive)
 			
@@ -453,7 +446,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
-			XCTAssertEqual(zagrebObject.radius, 9492)
+			XCTAssertEqual(zagrebObject.radius, 9492.0)
 			XCTAssertEqual(zagrebObject.title, "Zagreb")
 			XCTAssertFalse(zagrebObject.isLive)
 			
@@ -464,7 +457,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(pulaObject.identifier, pulaId)
 			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
 			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
-			XCTAssertEqual(pulaObject.radius, 5257)
+			XCTAssertEqual(pulaObject.radius, 5257.0)
 			XCTAssertEqual(pulaObject.title, "Pula")
 			XCTAssertFalse(pulaObject.isLive)
 			
@@ -474,40 +467,35 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testDictRepresentations() {
-		XCTAssertNotNil(MMRegion(dictRepresentation: pula))
-		XCTAssertNotNil(MMRegion(dictRepresentation: zagreb))
-		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: pula)!.dictionaryRepresentation))
-		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: zagreb)!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: modernPulaDict)!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: modernZagrebDict)!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: modernPulaDict))
+		XCTAssertNotNil(MMRegion(dictRepresentation: modernZagrebDict))
 	}
 	
 	func testOldDictRepresentations() {
-		XCTAssertNotNil(MMRegion(dictRepresentation: oldPula))
-		XCTAssertNotNil(MMRegion(dictRepresentation: oldZagreb))
-		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: oldPula)!.dictionaryRepresentation))
-		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: oldZagreb)!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: oldPulaDict)!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: MMRegion(dictRepresentation: oldZagrebDict)!.dictionaryRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: modernPulaDict))
+		XCTAssertNotNil(MMRegion(dictRepresentation: modernZagrebDict))
 	}
 	
 	func testNullableInitializer() {
-		XCTAssertNil(MMRegion(identifier: "id1", center: CLLocationCoordinate2D(latitude: 1, longitude: 1), radius: 0, title: "region", expiryDateString: "", startDateString: ""))
-		XCTAssertNil(MMRegion(identifier: "id1", center: CLLocationCoordinate2D(latitude: 1, longitude: 1), radius: 1, title: "region", expiryDateString: "", startDateString: expectedStartDateString))
-		XCTAssertNil(MMRegion(identifier: "id1", center: CLLocationCoordinate2D(latitude: 1, longitude: 1), radius: 1, title: "region", expiryDateString: expectedExpiryDateString, startDateString: ""))
+		XCTAssertNil(MMRegion(identifier: "id1", center: CLLocationCoordinate2D(latitude: 1, longitude: 1), radius: 0, title: "region", expiryDateString: "", startDateString: "", deliveryTime: nil, events: []))
+		XCTAssertNil(MMRegion(identifier: "id1", center: CLLocationCoordinate2D(latitude: 1, longitude: 1), radius: 1, title: "region", expiryDateString: "", startDateString: expectedStartDateString, deliveryTime: nil, events: []))
+		XCTAssertNil(MMRegion(identifier: "id1", center: CLLocationCoordinate2D(latitude: 1, longitude: 1), radius: 1, title: "region", expiryDateString: expectedExpiryDateString, startDateString: "", deliveryTime: nil, events: []))
 	}
 	
-	//MARK: Events tests
+//MARK: - Events tests
 	func testDefaultEventsSettings() {
-		guard let message = MMGeoMessage(payload: makeApnsPayload(withEvents: nil), createdDate: Date()) else {
+		guard let message = MMGeoMessage(payload: makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: nil), createdDate: Date()) else
+		{
 			XCTFail()
 			return
 		}
-		var regionsDict = [String: MMRegion]()
-		for region in message.regions {
-			regionsDict[region.identifier] = region
-		}
-		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
-		let pulaObject = regionsDict[pulaId]!
 		
-		XCTAssertEqual(pulaObject.identifier, pulaId)
-		XCTAssertEqual(pulaObject.title, "Pula")
+		let pulaObject = message.regions.first!
+		
 		XCTAssertTrue(pulaObject.isLive(for: .entry))
 		XCTAssertFalse(pulaObject.isLive(for: .exit))
 		
@@ -520,21 +508,14 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testOnlyOneEventType() {
-		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
+		let payload = makeApnsPayloadWithPulaDict(withEvents: [makeEventDict(ofType: .exit, limit: 1, timeout: 0)], deliveryTime: nil)
 		
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
 			XCTFail()
 			return
 		}
-		var regionsDict = [String: MMRegion]()
-		message.regions.forEach { region in
-			regionsDict[region.identifier] = region
-		}
-		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
-		let pulaObject = regionsDict[pulaId]!
+		let pulaObject = message.regions.first!
 		
-		XCTAssertEqual(pulaObject.identifier, pulaId)
-		XCTAssertEqual(pulaObject.title, "Pula")
 		XCTAssertFalse(pulaObject.isLive(for: .entry))
 		XCTAssertTrue(pulaObject.isLive(for: .exit))
 		
@@ -546,11 +527,11 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testGeoMessageTypeCasting() {
-		let geoMessagePayload = makeApnsPayload(withEvents: [makeEvent(ofType: .exit, limit: 1, timeout: 0)])
+		let geoMessagePayload = makeApnsPayloadWithPulaDict(withEvents: [makeEventDict(ofType: .exit, limit: 1, timeout: 0)], deliveryTime: nil)
 		let geoMsg = MMMessageFactory.makeMessage(with: geoMessagePayload, createdDate: Date())
 		XCTAssertTrue(geoMsg is MMGeoMessage)
 		
-		let regularMessagePayload = makeApnsPayload()
+		let regularMessagePayload = makeApnsPayloadWithoutRegionsDataDict()
 		let msg = MMMessageFactory.makeMessage(with: regularMessagePayload, createdDate: Date())
 		XCTAssertFalse(msg is MMGeoMessage)
 	}
@@ -558,23 +539,15 @@ class GeofencingServiceTests: MMTestCase {
 	func testEventsOccuring() {
 		let timeoutInMins: Int = 1
 		
-		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 2, timeout: timeoutInMins),
-												   makeEvent(ofType: .exit, limit: 2, timeout: timeoutInMins)])
+		let payload = makeApnsPayloadWithPulaDict(withEvents: [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins),
+												   makeEventDict(ofType: .exit, limit: 2, timeout: timeoutInMins)], deliveryTime: nil)
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
 			XCTFail()
 			return
 		}
 		
-		var regionsDict = [String: MMRegion]()
-		for region in message.regions {
-			regionsDict[region.identifier] = region
-		}
-		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
-		let pulaObject = regionsDict[pulaId]!
+		let pulaObject = message.regions.first!
 		
-		
-		XCTAssertEqual(pulaObject.identifier, pulaId)
-		XCTAssertEqual(pulaObject.title, "Pula")
 		XCTAssertTrue(pulaObject.isLive(for: .entry))
 		XCTAssertTrue(pulaObject.isLive(for: .exit))
 		
@@ -587,7 +560,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		// move the event into the past for 1 minute
 		pulaObject.events.forEach { (event) in
-			event.lastOccur = Date(timeIntervalSinceNow: -Double(timeoutInMins) * Double(60))
+			event.lastOccuring = Date(timeIntervalSinceNow: -Double(timeoutInMins) * Double(60))
 		}
 		XCTAssertTrue(pulaObject.isLive(for: .entry))
 		XCTAssertTrue(pulaObject.isLive(for: .exit))
@@ -595,22 +568,15 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testEventLimitZero() {
 		
-		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 0, timeout: 0),
-												   makeEvent(ofType: .exit, limit: 0, timeout: 0)])
+		let payload = makeApnsPayloadWithPulaDict(withEvents: [makeEventDict(ofType: .entry, limit: 0, timeout: 0),
+												   makeEventDict(ofType: .exit, limit: 0, timeout: 0)], deliveryTime: nil)
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
 			XCTFail()
 			return
 		}
 		
-		var regionsDict = [String: MMRegion]()
-		message.regions.forEach { region in
-			regionsDict[region.identifier] = region
-		}
-		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
-		let pulaObject = regionsDict[pulaId]!
+		let pulaObject = message.regions.first!
 		
-		XCTAssertEqual(pulaObject.identifier, pulaId)
-		XCTAssertEqual(pulaObject.title, "Pula")
 		XCTAssertTrue(pulaObject.isLive(for: .entry))
 		XCTAssertTrue(pulaObject.isLive(for: .exit))
 		
@@ -623,22 +589,15 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testEventTimeoutNotSet() {
 		
-		let payload = makeApnsPayload(withEvents: [makeEvent(ofType: .entry, limit: 1),
-			makeEvent(ofType: .exit, limit: 1)])
+		let payload = makeApnsPayloadWithPulaDict(withEvents: [makeEventDict(ofType: .entry, limit: 1),
+			makeEventDict(ofType: .exit, limit: 1)], deliveryTime: nil)
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
 			XCTFail()
 			return
 		}
 		
-		var regionsDict = [String: MMRegion]()
-		for region in message.regions {
-			regionsDict[region.identifier] = region
-		}
-		let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
-		let pulaObject = regionsDict[pulaId]!
+		let pulaObject = message.regions.first!
 		
-		XCTAssertEqual(pulaObject.identifier, pulaId)
-		XCTAssertEqual(pulaObject.title, "Pula")
 		XCTAssertTrue(pulaObject.isLive(for: .entry))
 		XCTAssertTrue(pulaObject.isLive(for: .exit))
 
@@ -648,5 +607,185 @@ class GeofencingServiceTests: MMTestCase {
 		
 		pulaObject.triggerEvent(for: .exit)
 		XCTAssertFalse(pulaObject.isLive(for: .exit))
+	}
+	
+//MARK: - delivery time tests
+	
+	func testAbsentDeliveryWindow() {
+		let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: nil)
+		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+			XCTFail()
+			return
+		}
+		
+		let pulaObject = message.regions.first!
+		
+		XCTAssertTrue(pulaObject.isNowAppropriateTimeForEntryNotification)
+		XCTAssertFalse(pulaObject.isNowAppropriateTimeForExitNotification)
+	}
+
+	func testParticularDeliveryWindows() {
+		
+		let testDate: Date = {
+			var comps = DateComponents()
+			comps.year = 2016
+			comps.month = 10
+			comps.day = 6
+			comps.hour = 12
+			comps.minute = 20
+			comps.timeZone = TimeZone(secondsFromGMT: 3*60*60) // has expected timezone
+			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+			return comps.date!
+		}()
+
+		let sunday = "7"
+		let thursdaySunday = "4,7"
+		let monday = "1"
+
+		timeTravel(to: testDate) {
+			// appropriate day, time not set
+			do {
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertTrue(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertTrue(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			// appropriate time, day not set
+			do {
+				let timeIntervalString = "1200/1230"
+				
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: nil))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertTrue(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let timeIntervalString = "2300/1230"
+				
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: nil))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertTrue(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			// appropriate day and time
+			do {
+				let timeIntervalString = "1200/1230"
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: thursdaySunday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertTrue(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let timeIntervalString = "2300/1230"
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: thursdaySunday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertTrue(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			
+			// inappropriate day
+			do {
+				let timeIntervalString = "1200/1230"
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertFalse(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let timeIntervalString = "2300/1230"
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertFalse(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			
+			// inappropriate time
+			do {
+				let timeIntervalString = "0000/1215"
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: sunday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertFalse(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			
+			do {
+				let timeIntervalString = "1230/2335"
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: sunday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertFalse(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			
+			// inappropriate day and time
+			do {
+				let timeIntervalString = "0000/1215"
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertFalse(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let timeIntervalString = "1230/2335"
+				let payload = makeApnsPayloadWithPulaDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday))
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				let pulaObject = message.regions.first!
+				XCTAssertFalse(pulaObject.isNowAppropriateTimeForEntryNotification)
+			}
+			
+		}
+	}
+	
+	func testTimeWindowDictRepresentations() {
+		let timeIntervalString = "0000/1215"
+		let friday = "5"
+		var payload = makePulaRegionDict(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: friday))
+		
+		let dictRepresentation = MMRegion(dictRepresentation: payload)!.dictionaryRepresentation
+		XCTAssertNotNil(MMRegion(dictRepresentation: dictRepresentation))
+		XCTAssertNotNil(MMRegion(dictRepresentation: payload))
+		payload[MMRegionDataKeys.ExpiryMillis.rawValue] = nil // dict representation must not contain the ExpiryMillis field (deprecated one)
+		XCTAssertTrue((dictRepresentation as NSDictionary).isEqual(payload as NSDictionary))
 	}
 }
