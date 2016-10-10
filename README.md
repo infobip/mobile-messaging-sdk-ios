@@ -49,11 +49,12 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 	// Swift
 	import MobileMessaging
 	```
-
+	<details>
+	<summary>In Objective-C</summary>
 	```objective-c
-	// Objective-C
 	@import MobileMessaging;
 	```
+	</details>
 2. Inherit your `AppDelegate` from `MobileMessagingAppDelegate` or `MobileMessagingAppDelegateObjc` depending on your project's language:
 
 	```swift
@@ -62,11 +63,12 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 		...
 	}
 	```
-
+	<details>
+	<summary>In Objective-C</summary>
 	```objective-c
-	// Objective-C
 	@interface AppDelegate : MobileMessagingAppDelegateObjc
 	```
+	</details>
 3. Override `applicationCode` and `userNotificationType` variables in your `AppDelegate` providing appropriate values:
 
 	```swift
@@ -78,9 +80,9 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 		return <# your notification types preference, i.e. [.Alert, .Sound] #>
 	}
 	```
-
+	<details>
+	<summary>In Objective-C</summary>
 	```objective-c
-	// Objective-C
 	-(NSString *)applicationCode {
 		return <# your application code #>";
 	}
@@ -88,6 +90,7 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 		return <# your notification types preference, i.e. UIUserNotificationTypeAlert | UIUserNotificationTypeSound #>;
 	}
 	```
+	</details>
 4. If you have any of following application callbacks implemented in your AppDelegate:
 
 	* `application(:didFinishLaunchingWithOptions:)`
@@ -132,11 +135,13 @@ MobileMessaging.currentUser?.save(msisdn: <#for example "79091234567"#>, complet
 )
 ```
 
+<details>
+<summary>In Objective-C</summary>
 ```objective-c
-// Objective-C
 [[MobileMessaging currentUser] saveWithMsisdn: <#for example @"79091234567"#>
 								   completion: ^(NSError * _Nullable error)
 {
 	<#handle the error if needed#>
 }];
 ```
+</details>
