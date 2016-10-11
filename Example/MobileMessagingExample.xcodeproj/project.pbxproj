@@ -396,6 +396,7 @@
 					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = T6U248P7YM;
 					};
 					8EFABFC71CEB3B9400510762 = {
 						TestTargetID = 607FACCF1AFB9204008FA782;
@@ -789,6 +790,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E12BA09A52F82DC21AABDCF1 /* Pods-MobileMessagingExample_Tests.debug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -810,6 +812,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EF0D3E03184EAF5AB97A1D2A /* Pods-MobileMessagingExample_Tests.release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
