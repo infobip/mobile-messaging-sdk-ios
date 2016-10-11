@@ -163,4 +163,34 @@ class UserDataTests: MMTestCase {
 		
 		waitForExpectationsWithTimeout(10, handler: nil)
 	}
+	
+	func testSetPredefinedData() {
+		MobileMessaging.currentInstallation?.installationManager.setValueForKey("predefinedUserData", value:
+			[
+				MMUserPredefinedDataKeys.LastName.name: "Darth",
+				MMUserPredefinedDataKeys.Gender.name: "F",
+				MMUserPredefinedDataKeys.Telephone.name: "89999999999"
+			]
+		)
+		
+		let currentUser = MobileMessaging.currentUser!
+		
+		currentUser.predefinedData = [
+			MMUserPredefinedDataKeys.LastName.name: "SkyWorker",
+			MMUserPredefinedDataKeys.Gender.name: "M",
+		]
+		
+		XCTAssertEqual(currentUser.predefinedData?.count, 2)
+		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.LastName.name] as? String, "SkyWorker")
+		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.Gender.name] as? String, "M")
+		
+		currentUser.predefinedData = [
+			MMUserPredefinedDataKeys.FirstName.name: "Luk",
+		    MMUserPredefinedDataKeys.Email.name: "sky@worker.com",
+		]
+		
+		XCTAssertEqual(currentUser.predefinedData?.count, 2)
+		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.FirstName.name] as? String, "Luk")
+		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.Email.name] as? String, "sky@worker.com")
+	}
 }

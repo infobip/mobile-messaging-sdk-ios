@@ -34,19 +34,25 @@ final class MMInstallationManager {
 		return result
 	}
 	
-	func setValueForKey(key: String, value: AnyObject?) {
+	
+	func set(value: AnyObject?, forKey key: String?, forAttribute attribute: String) {
 		storageContext.performBlock {
-			if let dictValue = value as? [String: AnyObject] {
-				if var dictionaryValue = self.getValueForKey(key) as? [String: AnyObject] {
+			if let key = key {
+				let dictValue = [key: value ?? NSNull()]
+				if var dictionaryValue = self.getValueForKey(attribute) as? [String: AnyObject] {
 					dictionaryValue += dictValue
-					self.installationObject.setValueIfDifferent(dictionaryValue, forKey: key)
+					self.installationObject.setValueIfDifferent(dictionaryValue, forKey: attribute)
 				} else {
-					self.installationObject.setValueIfDifferent(value, forKey: key)
+					self.installationObject.setValueIfDifferent(dictValue, forKey: attribute)
 				}
 			} else {
-				self.installationObject.setValueIfDifferent(value, forKey: key)
+				self.installationObject.setValueIfDifferent(value, forKey: attribute)
 			}
 		}
+	}
+	
+	func setValueForKey(key: String, value: AnyObject?) {
+		set(value, forKey: nil, forAttribute: key)
 	}
 	
     func syncRegistrationWithServer(completion: (NSError? -> Void)? = nil) {
