@@ -262,7 +262,7 @@ final public class MMUser: NSObject {
 	}
 	
 	func set(data object: UserDataSupportedTypes?, forKey key: String, attributeName: String) {
-		installationManager.setValueForKey(attributeName, value: [key: object ?? NSNull()])
+		installationManager.set(object, key: key, attribute: attributeName)
 	}
 	
 	init(installation: MMInstallation) {

@@ -34,35 +34,26 @@ final class MMInstallationManager {
 		return result
 	}
 	
-	//FIXME: duplication in setValueForKey
+	//FIXME: duplication of setValueForKey methods
 	func setValueForKey<Value: Equatable>(_ key: String, value: Value?) {
 		storageContext.perform {
-			if let dictValue = value as? [AnyHashable : UserDataSupportedTypes] {
-				if var dictionaryValue = self.getValueForKey(key) as? [AnyHashable : UserDataSupportedTypes] {
-					dictionaryValue += dictValue
-					self.installationObject.setValueIfDifferent(dictionaryValue, forKey: key)
-				} else {
-					self.installationObject.setValueIfDifferent(value, forKey: key)
-				}
-			} else {
-				self.installationObject.setValueIfDifferent(value, forKey: key)
-			}
+			self.installationObject.setValueIfDifferent(value, forKey: key)
 		}
 	}
 	
-	//FIXME: duplication in setValueForKey
-	func setValueForKey(_ key: String, value: [AnyHashable : UserDataSupportedTypes]?) {
+	func setValueForKey(_ key: String, value: [AnyHashable: UserDataSupportedTypes]? ) {
 		storageContext.perform {
-			if let dictValue = value {
-				if var dictionaryValue = self.getValueForKey(key) as? [AnyHashable : UserDataSupportedTypes] {
-					dictionaryValue += dictValue
-					self.installationObject.setValueIfDifferent(dictionaryValue, forKey: key)
-				} else {
-					self.installationObject.setValueIfDifferent(value, forKey: key)
-				}
-			} else {
-				self.installationObject.setValueIfDifferent(value, forKey: key)
+			self.installationObject.setValueIfDifferent(value, forKey: key)
+		}
+	}
+	
+	func set(_ value: UserDataSupportedTypes?, key: AnyHashable, attribute: String) {
+		storageContext.perform {
+			var dictValue : [AnyHashable : UserDataSupportedTypes]? = [key: value ?? NSNull()]
+			if var dictionaryValue = self.getValueForKey(attribute) as? [AnyHashable : UserDataSupportedTypes] {
+				dictValue = dictionaryValue + dictValue
 			}
+			self.installationObject.setValueIfDifferent(dictValue, forKey: attribute)
 		}
 	}
 	
