@@ -56,7 +56,7 @@ class UserDataTests: MMTestCase {
     }
 	
 	func testSetupPredefinedAndCustomData() {
-		let expectation = expectationWithDescription("save completed")
+		weak var expectation = expectationWithDescription("save completed")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
@@ -92,14 +92,14 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
 			XCTAssertEqual(currentUser.customData?["height"] as? NSNumber, NSNumber(double:189.5))
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		
 		waitForExpectationsWithTimeout(10, handler: nil)
 	}
 	
 	func testDeletePredefinedAndCustomData() {
-		let expectation = expectationWithDescription("data received")
+		weak var expectation = expectationWithDescription("data received")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
@@ -128,14 +128,14 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
 			XCTAssertNil(currentUser.customData?["height"])
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		
 		waitForExpectationsWithTimeout(10, handler: nil)
 	}
 	
 	func testGetPredefinedAndCustomData() {
-		let expectation = expectationWithDescription("data received")
+		weak var expectation = expectationWithDescription("data received")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
@@ -158,7 +158,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["home"] as? String, "Death Star")
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		
 		waitForExpectationsWithTimeout(10, handler: nil)

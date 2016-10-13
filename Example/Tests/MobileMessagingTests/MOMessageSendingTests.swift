@@ -12,7 +12,7 @@ class MOMessageSendingTests: MMTestCase {
 
     func testSendMOMessageSuccessfully() {
 		
-		let expectation = expectationWithDescription("Sending finished")
+		weak var expectation = expectationWithDescription("Sending finished")
 
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
@@ -36,10 +36,10 @@ class MOMessageSendingTests: MMTestCase {
 			XCTAssertEqual(messages?.last?.customPayload as! [String: String], ["customKey" : "customValue2"])
 			XCTAssertEqual(messages?.last?.sentStatus, MOMessageSentStatus.SentWithFailure)
 			
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		
-		waitForExpectationsWithTimeout(10, handler: nil)
+		waitForExpectationsWithTimeout(100, handler: nil)
     }
 
 	func testMOMessageConstructors() {

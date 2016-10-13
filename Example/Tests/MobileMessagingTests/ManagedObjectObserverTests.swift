@@ -27,8 +27,8 @@ class ManagedObjectObserverTests: MMTestCase {
     }
 
     func testThatChangeHandlerTriggerred() {
-		let expectation1 = expectationWithDescription("Message 1 observed")
-		let expectation2 = expectationWithDescription("Message 2 observed")
+		weak var expectation1 = expectationWithDescription("Message 1 observed")
+		weak var expectation2 = expectationWithDescription("Message 2 observed")
 		
 		if	let ctx = storage.mainThreadManagedObjectContext,
 			let msg1 = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId == %@", "1.1"), inContext: ctx)!.first as? MessageManagedObject,
@@ -41,13 +41,13 @@ class ManagedObjectObserverTests: MMTestCase {
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg1, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				XCTAssertEqual(newValue as? String, msg1newId, "The new value must be passed to handler")
 				XCTAssertEqual(keyPath, observingKeyPath, "The keypath should be that particluar one which we are observing")
-				expectation1.fulfill()
+				expectation1?.fulfill()
 			})
 			
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg2, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				XCTAssertEqual(newValue as? String, msg2newId, "The new value must be passed to handler")
 				XCTAssertEqual(keyPath, observingKeyPath, "The keypath should be that particluar one which we are observing")
-				expectation2.fulfill()
+				expectation2?.fulfill()
 			})
 
 			msg1.messageId = msg1newId
@@ -58,13 +58,11 @@ class ManagedObjectObserverTests: MMTestCase {
 			XCTFail()
 		}
 		
-		waitForExpectationsWithTimeout(2) { error in
-			XCTAssertTrue(true)
-		}
+		waitForExpectationsWithTimeout(2, handler: nil)
     }
 	
 	func testThatChangeHandlerNotTriggerred() {
-		let expectation = expectationWithDescription("Test finished")
+		weak var expectation = expectationWithDescription("Test finished")
 		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			let observingKeyPath = "creationDate"
 			
@@ -78,15 +76,13 @@ class ManagedObjectObserverTests: MMTestCase {
 			XCTFail()
 		}
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
-		waitForExpectationsWithTimeout(1) { error in
-			XCTAssertTrue(true)
-		}
+		waitForExpectationsWithTimeout(2, handler: nil)
 	}
 	
 	func testThatRemovedObserverNotTriggerred() {
-		let expectation = expectationWithDescription("Test finished")
+		weak var expectation = expectationWithDescription("Test finished")
 		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			do {
 				let observingKeyPath = "messageId"
@@ -110,17 +106,15 @@ class ManagedObjectObserverTests: MMTestCase {
 			XCTFail()
 		}
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
-		waitForExpectationsWithTimeout(1) { error in
-			XCTAssertTrue(true)
-		}
+		waitForExpectationsWithTimeout(2, handler: nil)
 	}
 	
 	func testObservationsNotDuplicated() {
 		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			var observationsCounter = 0
-			let expectation = expectationWithDescription("Test finished")
+			weak var expectation = expectationWithDescription("Test finished")
 			let observingKeyPath = "messageId"
 			
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -135,7 +129,7 @@ class ManagedObjectObserverTests: MMTestCase {
 			ctx.MM_saveToPersistentStoreAndWait()
 			
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
-				expectation.fulfill()
+				expectation?.fulfill()
 			}
 			waitForExpectationsWithTimeout(1) { error in
 				XCTAssertEqual(observationsCounter, 1, "Observations must not duplicate")
@@ -148,7 +142,7 @@ class ManagedObjectObserverTests: MMTestCase {
 	func testThatStopServiceResets() {
 		
 		if let msg = MessageManagedObject.MM_findFirstInContext(context: storage.mainThreadManagedObjectContext!){
-			let expectation = expectationWithDescription("Test finished")
+			weak var expectation = expectationWithDescription("Test finished")
 			
 			let observingKeyPath = "messageId"
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -165,15 +159,13 @@ class ManagedObjectObserverTests: MMTestCase {
 			ctx.MM_saveToPersistentStoreAndWait()
 	
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg2, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
-				expectation.fulfill()
+				expectation?.fulfill()
 			})
 		
 			msg2.messageId = "3"
 			ctx.MM_saveToPersistentStoreAndWait()
 			
-			waitForExpectationsWithTimeout(2) { error in
-				XCTAssertTrue(true)
-			}
+			waitForExpectationsWithTimeout(2, handler: nil)
 			
 		} else {
 			XCTFail()

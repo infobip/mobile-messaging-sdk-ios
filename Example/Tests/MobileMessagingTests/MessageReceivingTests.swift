@@ -103,14 +103,14 @@ class MessageReceivingTests: MMTestCase {
 	}
 
     func testMessagesPersisting() {
-        let expectation = expectationWithDescription("Check finished")
+        weak var expectation = expectationWithDescription("Check finished")
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 				iterationCounter += 1
 				if iterationCounter == expectedMessagesCount {
-					expectation.fulfill()
+					expectation?.fulfill()
 				}
 			})
         }

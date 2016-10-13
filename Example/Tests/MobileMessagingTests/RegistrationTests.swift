@@ -12,14 +12,14 @@ import XCTest
 final class RegistrationTests: MMTestCase {
 	
     func testInstallationPersisting() {
-		let tokensexp = expectationWithDescription("device tokens saved")
+		weak var tokensexp = expectationWithDescription("device tokens saved")
 		let maxCount = 2
 		
         for counter in 0..<maxCount {
             let deviceToken = "token\(counter)".dataUsingEncoding(NSUTF16StringEncoding)
 			mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken!) { error in
 				if counter == maxCount - 1 {
-					tokensexp.fulfill()
+					tokensexp?.fulfill()
 				}
 			}
         }
@@ -50,23 +50,23 @@ final class RegistrationTests: MMTestCase {
 			return
 		}
 	
-        let token2Saved = expectationWithDescription("token2 saved")
-		let validEmailSaved = expectationWithDescription("email saved")
-		let validMsisdnSaved = expectationWithDescription("msisdn saved")
+        weak var token2Saved = expectationWithDescription("token2 saved")
+		weak var validEmailSaved = expectationWithDescription("email saved")
+		weak var validMsisdnSaved = expectationWithDescription("msisdn saved")
 		
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
 		
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken2".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
 				
-				token2Saved.fulfill()
+				token2Saved?.fulfill()
 				
 				currentUser.email = MMTestConstants.kTestValidEmail
 				currentUser.msisdn = MMTestConstants.kTestValidMSISDN
 				
 				currentUser.save { err in
 					XCTAssertNil(err)
-					validEmailSaved.fulfill()
-					validMsisdnSaved.fulfill()
+					validEmailSaved?.fulfill()
+					validMsisdnSaved?.fulfill()
 				}
 			}
 		}
@@ -93,9 +93,9 @@ final class RegistrationTests: MMTestCase {
 		cleanUpAndStop()
 		startWithWrongApplicationCode()
 		
-		let expectation = expectationWithDescription("Installation data updating")
+		weak var expectation = expectationWithDescription("Installation data updating")
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		self.waitForExpectationsWithTimeout(100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
@@ -129,33 +129,31 @@ final class RegistrationTests: MMTestCase {
 			}
 		})
 		
-        let expectation1 = expectationWithDescription("notification1")
-        let expectation2 = expectationWithDescription("notification2")
+        weak var expectation1 = expectationWithDescription("notification1")
+        weak var expectation2 = expectationWithDescription("notification2")
 
         mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
             XCTAssertNil(error)
-            expectation1.fulfill()
+            expectation1?.fulfill()
+			
             self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
                 XCTAssertNil(error)
-                expectation2.fulfill()
+                expectation2?.fulfill()
             }
         }
         
-        self.waitForExpectationsWithTimeout(100) { error in
-			dispatch_async(dispatch_get_main_queue(), {
-				XCTAssertEqual(requestSentCounter, 1)
-			})
+        self.waitForExpectationsWithTimeout(20) { error in
+			XCTAssertEqual(requestSentCounter, 1)
         }
     }
 	
     func testRegistrationDataNotSendsWithoutToken() {
-        let sync1 = expectationWithDescription("sync1")
+        weak var sync1 = expectationWithDescription("sync1")
         MobileMessaging.currentInstallation?.syncWithServer({ (error) -> Void in
             XCTAssertNotNil(error)
-            sync1.fulfill()
+            sync1?.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(100) { error in
-        }
+        self.waitForExpectationsWithTimeout(100, handler: nil)
     }
 }

@@ -27,7 +27,7 @@ class FetchMessagesTest: MMTestCase {
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
 		
-		let expectation = expectationWithDescription("Sync finished")
+		weak var  expectation = expectationWithDescription("Sync finished")
         XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
                 
         let messageHandler = mobileMessagingInstance.messageHandler
@@ -38,7 +38,7 @@ class FetchMessagesTest: MMTestCase {
 			
 			XCTAssertNil(error)
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
-			expectation.fulfill()
+			expectation?.fulfill()
         }
         
         waitForExpectationsWithTimeout(10, handler: nil)
@@ -54,10 +54,10 @@ class FetchMessagesTest: MMTestCase {
 	m2 seen and deivered, m1 delivered
 	*/
 	func testConcurrency() {
-		let prepconditionExpectation = expectationWithDescription("Initial message base set up")
-		let seenExpectation = expectationWithDescription("Seen request finished")
-		let syncExpectation = expectationWithDescription("Sync finished")
-		let newMsgExpectation = expectationWithDescription("New message received")
+		weak var prepconditionExpectation = expectationWithDescription("Initial message base set up")
+		weak var seenExpectation = expectationWithDescription("Seen request finished")
+		weak var syncExpectation = expectationWithDescription("Sync finished")
+		weak var newMsgExpectation = expectationWithDescription("New message received")
 
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
@@ -65,20 +65,20 @@ class FetchMessagesTest: MMTestCase {
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
-			prepconditionExpectation.fulfill()
+			prepconditionExpectation?.fulfill()
 		})
 		
 		//Actions
 		mobileMessagingInstance.setSeen(["m2"], completion: { result in
-			seenExpectation.fulfill()
+			seenExpectation?.fulfill()
 		})
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation.fulfill()
+			newMsgExpectation?.fulfill()
 		})
 
 		mobileMessagingInstance.messageHandler?.syncWithServer({ error in
-			syncExpectation.fulfill()
+			syncExpectation?.fulfill()
 		})
 		
 		//Expectations
@@ -109,9 +109,9 @@ class FetchMessagesTest: MMTestCase {
      m1, m2, m3, m4 are in DB
      */
     func testMergeOldMessageIdsWithNew() {
-		let newMsgExpectation1 = expectationWithDescription("New message m1 received")
-		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
-		let syncExpectation = expectationWithDescription("Sync finished")
+		weak var newMsgExpectation1 = expectationWithDescription("New message m1 received")
+		weak var newMsgExpectation2 = expectationWithDescription("New message m2 received")
+		weak var syncExpectation = expectationWithDescription("Sync finished")
 		
 		var newMsgCounter = 0
 		expectationForNotification(MMNotificationMessageReceived, object: nil) { n -> Bool in
@@ -142,16 +142,16 @@ class FetchMessagesTest: MMTestCase {
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation1.fulfill()
+			newMsgExpectation1?.fulfill()
 		})
 	
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation2.fulfill()
+			newMsgExpectation2?.fulfill()
 		})
 		
         let messageHandler = mobileMessagingInstance.messageHandler
 		messageHandler?.syncWithServer { error in
-			syncExpectation.fulfill()
+			syncExpectation?.fulfill()
 		}
 		
 		waitForExpectationsWithTimeout(50) { error in
@@ -168,11 +168,9 @@ class FetchMessagesTest: MMTestCase {
     }
 	
 	func testThatAlertIsShown() {
-		let newMsgExpectation1 = expectationWithDescription("New message m1 received")
-		let newMsgExpectation2 = expectationWithDescription("New message m2 received")
-		let syncExpectation = expectationWithDescription("Sync finished")
-		
-		
+		weak var newMsgExpectation1 = expectationWithDescription("New message m1 received")
+		weak var newMsgExpectation2 = expectationWithDescription("New message m2 received")
+		weak var syncExpectation = expectationWithDescription("Sync finished")
 		
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
@@ -184,16 +182,16 @@ class FetchMessagesTest: MMTestCase {
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation1.fulfill()
+			newMsgExpectation1?.fulfill()
 		})
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation2.fulfill()
+			newMsgExpectation2?.fulfill()
 		})
 		
 		let messageHandler = mobileMessagingInstance.messageHandler
 		messageHandler?.syncWithServer { error in
-			syncExpectation.fulfill()
+			syncExpectation?.fulfill()
 		}
 		
 		waitForExpectationsWithTimeout(50) { error in

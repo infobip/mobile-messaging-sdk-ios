@@ -104,16 +104,16 @@ platform :ios do
         unless only_build
             ensure_git_status_clean
 
-            unless options[:version_number] or options[:version]
-                UI.error("You must specify :version (patch, minor, major) or a full version string in :version_number")
-                raise "You must specify :version (patch, minor, major) or a full version string in :version_number"
+            unless options[:version_number] or options[:release_type]
+                UI.error("You must specify :release_type (patch, minor, major) or a full version string in :version_number")
+                raise "You must specify :release_type (patch, minor, major) or a full version string in :version_number"
             end
 
             custom_version_number = options[:version_number]
             if custom_version_number
                 increment_version_number(version_number: custom_version_number)
             else
-                increment_version_number(bump_type: options[:version])
+                increment_version_number(bump_type: options[:release_type])
             end
 
             version_number = lane_context[SharedValues::VERSION_NUMBER]

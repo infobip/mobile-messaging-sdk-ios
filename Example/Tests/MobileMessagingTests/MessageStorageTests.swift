@@ -62,8 +62,8 @@ class MessageStorageTests: MMTestCase {
 	
 	func testMODuplication() {
 		cleanUpAndStop()
-		let expectation1 = expectationWithDescription("Sending 1 finished")
-		let expectation2 = expectationWithDescription("Sending 2 finished")
+		weak var expectation1 = expectationWithDescription("Sending 1 finished")
+		weak var expectation2 = expectationWithDescription("Sending 2 finished")
 		let mockMessageStorage = MockMessageStorage()
 		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
 		
@@ -74,14 +74,14 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1"])
 			MobileMessaging.sendMessages([moMessage]) { (messages, error) in
-				expectation1.fulfill()
+				expectation1?.fulfill()
 			}
 		}
 		
 		do {
 			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1"])
 			MobileMessaging.sendMessages([moMessage]) { (messages, error) in
-				expectation2.fulfill()
+				expectation2?.fulfill()
 			}
 		}
 		
@@ -95,8 +95,8 @@ class MessageStorageTests: MMTestCase {
 		var isSentSuccessfully = false
 		var isSentWithFailure = false
 		
-		let expectation = expectationWithDescription("Sending finished")
-		let expectation2 = expectationWithDescription("Sent status updated")
+		weak var expectation = expectationWithDescription("Sending finished")
+		weak var expectation2 = expectationWithDescription("Sent status updated")
 		var updateSentStatusCounter = 0
 		let mockMessageStorage = MockMessageStorage(updateMessageSentStatusHook: { status in
 			updateSentStatusCounter += 1
@@ -111,7 +111,7 @@ class MessageStorageTests: MMTestCase {
 			}
 			
 			if updateSentStatusCounter == 2 {
-				expectation2.fulfill()
+				expectation2?.fulfill()
 			}
 		})
 		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
@@ -124,7 +124,7 @@ class MessageStorageTests: MMTestCase {
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2"])
 		
 		MobileMessaging.sendMessages([moMessage1, moMessage2]) { (messages, error) in
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		
 		waitForExpectationsWithTimeout(5, handler: { error in
@@ -135,35 +135,38 @@ class MessageStorageTests: MMTestCase {
 		})
 	}
 	
-    func testExample() {
+    func testDefaultStoragePersistingAndFetching() {
 		cleanUpAndStop()
 		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).withDefaultMessageStorage().start()
 		
-		let expectation1 = expectationWithDescription("Check finished")
+		weak var expectation1 = expectationWithDescription("Check finished")
 		self.defaultMessageStorage?.findAllMessages { results in
 			XCTAssertEqual(results?.count, 0)
-			expectation1.fulfill()
+			expectation1?.fulfill()
 		}
 		
+		let messageReceivingGroup = dispatch_group_create()
 		let expectedMessagesCount = 5
-		let expectation2 = expectationWithDescription("Check finished")
-		var iterationCounter: Int = 0
+	
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
+			dispatch_group_enter(messageReceivingGroup)
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
-				iterationCounter += 1
-				if iterationCounter == expectedMessagesCount {
-					self.defaultMessageStorage?.findAllMessages { results in
-						XCTAssertEqual(results?.count, expectedMessagesCount)
-						expectation2.fulfill()
-					}
-				}
+				dispatch_group_leave(messageReceivingGroup)
 			})
 		}
 
+		weak var expectation2 = expectationWithDescription("Check finished")
+		dispatch_group_notify(messageReceivingGroup, dispatch_get_main_queue()) {
+			self.defaultMessageStorage?.findAllMessages { results in
+				XCTAssertEqual(results?.count, expectedMessagesCount)
+				expectation2?.fulfill()
+			}
+		}
+	
 		self.waitForExpectationsWithTimeout(100, handler: nil)
     }
 	
-	func testCustomStorage() {
+	func testCustomPersistingAndFetching() {
 		cleanUpAndStop()
 		
 		let mockMessageStorage = MockMessageStorage()
@@ -171,31 +174,32 @@ class MessageStorageTests: MMTestCase {
 		
 		XCTAssertEqual(mockMessageStorage.mtMessages.count, 0)
 		
+		let messageReceivingGroup = dispatch_group_create()
 		let expectedMessagesCount = 5
-		let expectation = expectationWithDescription("Check finished")
-		var iterationCounter: Int = 0
+	
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
+			dispatch_group_enter(messageReceivingGroup)
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
-				iterationCounter += 1
-				if iterationCounter == expectedMessagesCount {
-					expectation.fulfill()
-				}
+				dispatch_group_leave(messageReceivingGroup)
 			})
+		}
+		
+		weak var expectation = expectationWithDescription("Check finished")
+		dispatch_group_notify(messageReceivingGroup, dispatch_get_main_queue()) {
+			expectation?.fulfill()
 		}
 		
 		self.waitForExpectationsWithTimeout(100, handler: { error in
 			XCTAssertEqual(mockMessageStorage.mtMessages.count, expectedMessagesCount)
-			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
 	}
-	
 	
 	func testQuery() {
 		cleanUpAndStop()
 		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).withDefaultMessageStorage().start()
 		
 		let messageReceivingGroup = dispatch_group_create()
-		let expectation = expectationWithDescription("Check finished")
+		weak var expectation = expectationWithDescription("Check finished")
 		
 		do {
 			let payload = apnsNormalMessagePayload("001")
@@ -253,15 +257,10 @@ class MessageStorageTests: MMTestCase {
 				XCTAssertEqual(msg1?.messageId, "003")
 				XCTAssertEqual(msg2?.messageId, "002")
 				
-				expectation.fulfill()
+				expectation?.fulfill()
 			}
 		}
 		
 		self.waitForExpectationsWithTimeout(100, handler: nil)
-	}
-	
-	override func tearDown() {
-		self.defaultMessageStorage?.coreDataStorage?.drop()
-		super.tearDown()
 	}
 }

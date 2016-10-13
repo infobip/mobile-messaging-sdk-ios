@@ -44,11 +44,11 @@ final class MMTestRechabilityOperation<RequestType: MMHTTPRequestData>: MMRetrya
 final class RetryOperationTests: XCTestCase {
 	
 	func testReachabilityLogic() {
-		let expectation = expectationWithDescription("Retryable operation finished")
+		weak var expectation = expectationWithDescription("Retryable operation finished")
 		let r = MMPostRegistrationRequest(internalId: nil, deviceToken: "stub")
 		
 		let op = MMTestRechabilityOperation(request: r, applicationCode: "stub", baseURL: "stub") { op in
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		op.reachabilityManager = MMTestNetworkReachabilityManager()
 		let retryOpQ = MMRetryOperationQueue()
@@ -62,11 +62,11 @@ final class RetryOperationTests: XCTestCase {
 	}
 	
     func testRetryCounters() {
-		let expectation = expectationWithDescription("Retryable operation finished")
+		weak var expectation = expectationWithDescription("Retryable operation finished")
 		let retryLimit = 2
 		let opQ = MMRetryOperationQueue()
 		let op = MMTestCounterOperation(retryLimit: retryLimit) { op in
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 
 		opQ.addOperation(op)

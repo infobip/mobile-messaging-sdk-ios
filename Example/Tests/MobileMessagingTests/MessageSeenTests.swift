@@ -13,12 +13,12 @@ class MessageSeenTests: MMTestCase {
 	
 	func testSendSeenStatusUpdate() {
 		
-		let seenRequestCompleted = expectationWithDescription("seen request completed")
+		weak var seenRequestCompleted = expectationWithDescription("seen request completed")
 		let messageId = "m1"
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": messageId], newMessageReceivedCallback: nil) { err in
 			self.mobileMessagingInstance.setSeen([messageId], completion: { result in
-				 seenRequestCompleted.fulfill()
+				 seenRequestCompleted?.fulfill()
 			})
 		}
 
@@ -36,11 +36,11 @@ class MessageSeenTests: MMTestCase {
 	}
 	
     func testSendEmpty() {
-        let expectation = expectationWithDescription("expectation")
+        weak var expectation = expectationWithDescription("expectation")
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil) { err in
 			self.mobileMessagingInstance.setSeen([], completion: { result in
-				expectation.fulfill()
+				expectation?.fulfill()
 			})
 		}
 		
@@ -59,7 +59,7 @@ class MessageSeenTests: MMTestCase {
     }
 	
 	func testSendSeenAgain() {
-		let expectation = expectationWithDescription("expectation")
+		weak var expectation = expectationWithDescription("expectation")
 		let messageReceivingGroup = dispatch_group_create()
 		
 		for mId in ["m1", "m2", "m3"] {
@@ -106,7 +106,7 @@ class MessageSeenTests: MMTestCase {
 						} else {
 							XCTFail("There should be some messages in database")
 						}
-						expectation.fulfill()
+						expectation?.fulfill()
 					}
 				})
 			})

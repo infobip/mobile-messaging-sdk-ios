@@ -47,7 +47,7 @@ class GeoNotAvailableUserAgentStub: UserAgentStub {
 class SystemDataTests: MMTestCase {
 
     func testSystemDataUpdates() {
-		let requestsCompleted = expectationWithDescription("requestsCompleted")
+		weak var requestsCompleted = expectationWithDescription("requestsCompleted")
 		let ctx = self.storage.mainThreadManagedObjectContext!
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
@@ -69,7 +69,7 @@ class SystemDataTests: MMTestCase {
 			
 			MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
 			MobileMessaging.currentInstallation?.syncWithServer({ (error) in
-				requestsCompleted.fulfill()
+				requestsCompleted?.fulfill()
 			})
 		})
 		
