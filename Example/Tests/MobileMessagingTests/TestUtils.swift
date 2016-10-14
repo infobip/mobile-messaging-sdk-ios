@@ -32,13 +32,19 @@ enum TestResult {
 final class MMRemoteAPIMock : MMRemoteAPIQueue {
 	
 	var performRequestCompanionBlock : (Any) -> Void
+	var completionCompanionBlock : ((Any) -> Void)?
 	
-	init(baseURLString: String, appCode: String, performRequestCompanionBlock: @escaping (Any) -> Void) {
+	init(baseURLString: String, appCode: String, performRequestCompanionBlock: @escaping ((Any) -> Void), completionCompanionBlock: ((Any) -> Void)? = nil) {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
+		self.completionCompanionBlock = completionCompanionBlock
 		super.init(baseURL: baseURLString, applicationCode: appCode)
 	}
 	
 	override func perform<R: MMHTTPRequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+		super.perform(request: request) { (response) in
+			completion(response)
+			self.completionCompanionBlock?(response)
+		}
 		super.perform(request: request, completion: completion)
 		performRequestCompanionBlock(request)
 	}

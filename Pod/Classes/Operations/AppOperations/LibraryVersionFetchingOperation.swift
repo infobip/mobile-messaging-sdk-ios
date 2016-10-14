@@ -5,11 +5,11 @@
 import Foundation
 
 class LibraryVersionFetchingOperation: Operation {
-    var finishBlock: (MMLibraryVersionResult -> Void)?
+    var finishBlock: ((MMLibraryVersionResult) -> Void)?
     var remoteAPIQueue: MMRemoteAPIQueue
     var result = MMLibraryVersionResult.Cancel
 
-    init(remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (MMLibraryVersionResult -> Void)? = nil ) {
+    init(remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMLibraryVersionResult) -> Void)? = nil ) {
         self.remoteAPIQueue = remoteAPIQueue
         self.finishBlock = finishBlock
     }
@@ -22,7 +22,7 @@ class LibraryVersionFetchingOperation: Operation {
         }
     }
 
-    override func finished(errors: [NSError]) {
+    override func finished(_ errors: [NSError]) {
         if let error = errors.first {
             result = MMLibraryVersionResult.Failure(error)
         }

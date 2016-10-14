@@ -97,7 +97,7 @@ public final class MobileMessaging: NSObject {
 		}
         
         #if DEBUG
-        MMVersionManager.shared.validateVersion()
+        MMVersionManager.shared?.validateVersion()
         #endif
         
 		completion?()

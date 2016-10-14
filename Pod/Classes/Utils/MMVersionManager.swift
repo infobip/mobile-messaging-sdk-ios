@@ -4,30 +4,31 @@
 
 import Foundation
 
-public class MMVersionManager {
-	public static let shared = MMVersionManager()
+class MMVersionManager {
+	static let shared = MMVersionManager()
+	var remoteApiQueue: MMRemoteAPIQueue
 	
 	private let kLastCheckDateKey = "MMLibrary-LastCheckDateKey"
-	private let lastCheckDate : NSDate?
+	private let lastCheckDate : Date?
 	
-	private init() {
-		lastCheckDate = NSUserDefaults.standardUserDefaults().objectForKey(kLastCheckDateKey) as? NSDate
+	init?() {
+		guard let remoteUrl = MobileMessaging.sharedInstance?.remoteAPIBaseURL,
+			  let appCode = MobileMessaging.sharedInstance?.applicationCode else {
+				return nil
+		}
+		
+		lastCheckDate = UserDefaults.standard.object(forKey: kLastCheckDateKey) as? Date
+		remoteApiQueue = MMRemoteAPIQueue(baseURL: remoteUrl, applicationCode: appCode)
 	}
 	
-	public func validateVersion() {
+	func validateVersion() {
 		MMLogDebug("Checking MobileMessaging library version..")
-		
-		guard let remoteUrl = MobileMessaging.sharedInstance?.remoteAPIBaseURL,
-			let appCode = MobileMessaging.sharedInstance?.applicationCode else {
-				MMLogDebug("Can't validate the library version before the library has been initialised.")
-				return
-		}
 		
 		var shouldCheckVersion = true
 		
 		if lastCheckDate != nil {
-			let advancedDate = lastCheckDate?.dateByAddingTimeInterval(60 /* to minutes */ * 60 /* to hours */ * 24 /* to days */)
-			shouldCheckVersion = (advancedDate?.compare(NSDate()) == NSComparisonResult.OrderedAscending)
+			let advancedDate = lastCheckDate?.addingTimeInterval(60 /* to minutes */ * 60 /* to hours */ * 24 /* to days */)
+			shouldCheckVersion = (advancedDate?.compare(Date()) == ComparisonResult.orderedAscending)
 		}
 		
 		guard shouldCheckVersion else {
@@ -36,9 +37,8 @@ public class MMVersionManager {
 		}
 		
 		let handlingQueue = OperationQueue.mm_newSerialQueue
-		let remoteApi = MMRemoteAPIQueue(baseURL: remoteUrl, applicationCode: appCode)
 		
-		handlingQueue.addOperation(LibraryVersionFetchingOperation(remoteAPIQueue: remoteApi) { [unowned self] (result: MMLibraryVersionResult) in
+		handlingQueue.addOperation(LibraryVersionFetchingOperation(remoteAPIQueue: remoteApiQueue) { [unowned self] (result: MMLibraryVersionResult) in
 			if result.error == nil {
 				if let onlineVersion = result.value?.libraryVersion,
 					let updateUrl = result.value?.updateUrl {
@@ -54,8 +54,8 @@ public class MMVersionManager {
 						MMLogDebug("Your MobileMessaging library is up to date.")
 						
 						// save the date only if our version is the new one. Otherwise, we warn the dev in the console every time until he/she updates
-						NSUserDefaults.standardUserDefaults().setObject(NSDate(), forKey: self.kLastCheckDateKey)
-						NSUserDefaults.standardUserDefaults().synchronize()
+						UserDefaults.standard.set(Date(), forKey: self.kLastCheckDateKey)
+						UserDefaults.standard.synchronize()
 					}
 				}
 			} else {

@@ -17,7 +17,7 @@ public func MMLogDebug(_ message: String) {
 
 public func MMLogSecureDebug(_ message: String) {
 	#if DEBUG
-	MobileMessaging.logger.logDebug(message)
+	MobileMessaging.logger.logDebug(message: message)
 	#endif
 }
 
