@@ -4,24 +4,25 @@
 
 import Foundation
 
-public class MMVersionManager {
-	public static let shared = MMVersionManager()
+class MMVersionManager {
+	static let shared = MMVersionManager()
+	var remoteApiQueue: MMRemoteAPIQueue
 	
 	private let kLastCheckDateKey = "MMLibrary-LastCheckDateKey"
 	private let lastCheckDate : NSDate?
 	
-	private init() {
+	init?() {
+		guard let remoteUrl = MobileMessaging.sharedInstance?.remoteAPIBaseURL,
+			  let appCode = MobileMessaging.sharedInstance?.applicationCode else {
+				return nil
+		}
+		
 		lastCheckDate = NSUserDefaults.standardUserDefaults().objectForKey(kLastCheckDateKey) as? NSDate
+		remoteApiQueue = MMRemoteAPIQueue(baseURL: remoteUrl, applicationCode: appCode)
 	}
 	
-	public func validateVersion() {
+	func validateVersion() {
 		MMLogDebug("Checking MobileMessaging library version..")
-		
-		guard let remoteUrl = MobileMessaging.sharedInstance?.remoteAPIBaseURL,
-			let appCode = MobileMessaging.sharedInstance?.applicationCode else {
-				MMLogDebug("Can't validate the library version before the library has been initialised.")
-				return
-		}
 		
 		var shouldCheckVersion = true
 		
@@ -36,9 +37,8 @@ public class MMVersionManager {
 		}
 		
 		let handlingQueue = OperationQueue.mm_newSerialQueue
-		let remoteApi = MMRemoteAPIQueue(baseURL: remoteUrl, applicationCode: appCode)
 		
-		handlingQueue.addOperation(LibraryVersionFetchingOperation(remoteAPIQueue: remoteApi) { [unowned self] (result: MMLibraryVersionResult) in
+		handlingQueue.addOperation(LibraryVersionFetchingOperation(remoteAPIQueue: remoteApiQueue) { [unowned self] (result: MMLibraryVersionResult) in
 			if result.error == nil {
 				if let onlineVersion = result.value?.libraryVersion,
 					let updateUrl = result.value?.updateUrl {
