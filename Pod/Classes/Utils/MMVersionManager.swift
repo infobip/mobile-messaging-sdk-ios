@@ -44,7 +44,7 @@ public class MMVersionManager {
 					let updateUrl = result.value?.updateUrl {
 					if onlineVersion != libVersion {
 						// Make sure that this is displayed in the console (this code can easily execute before the devs set up the logging in the MM_ methods)
-						let warningMessage = "\n****\n\tMobileMessaging SDK \(onlineVersion) is available. You are on  \(libVersion) version.\n\tIt is recommended to use the latest version.\n\tUpdate using 'pod update' or download the latest version at: \(updateUrl)\n****\n"
+						let warningMessage = "\n****\n\tMobileMessaging SDK version \(onlineVersion) is available. You are currently using the \(libVersion) version.\n\tWe recommend using the latest version.\n\tYou can update using 'pod update' or by downloading the latest version at: \(updateUrl)\n****\n"
 						if MobileMessaging.logger.logLevel == MMLogLevel.Off {
 							NSLog(warningMessage)
 						} else {
