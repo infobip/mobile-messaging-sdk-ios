@@ -14,6 +14,7 @@ typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
 typealias MMUserDataSyncResult = Result<MMHTTPUserDataSyncResponse>
 typealias MMSystemDataSyncResult = Result<MMHTTPSystemDataSyncResponse>
 typealias MMMOMessageResult = Result<MMHTTPMOMessageResponse>
+typealias MMLibraryVersionResult = Result<MMHTTPLibraryVersionResponse>
 
 public protocol JSONDecodable {
 	init?(json: JSON)
@@ -101,6 +102,29 @@ class MMHTTPEmptyResponse: MMHTTPResponse {
 
 final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
+
+final class MMHTTPLibraryVersionResponse: MMHTTPResponse {
+
+	let platformType : String
+	let libraryVersion : String
+	let updateUrl : String
+	
+	required init?(json value: JSON) {
+		
+		guard let platformType = value[MMAPIKeys.kLibraryVersionPlatformType].rawString(),
+			let libraryVersion = value[MMAPIKeys.kLibraryVersionLibraryVersion].rawString(),
+			let updateUrl = value[MMAPIKeys.kLibraryVersionUpdateUrl].rawString() else {
+				return nil
+		}
+		
+		self.platformType = platformType
+		self.libraryVersion = libraryVersion
+		self.updateUrl = updateUrl
+		
+		super.init(json: value)
+	}
+}
+
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
     let messages: [MTMessage]?
 	required init?(json value: JSON) {

@@ -77,6 +77,11 @@ struct MMAPIKeys {
 	static let kMOCustomPayload = "customPayload"
 	static let kMOMessageId = "messageId"
 	static let kMOMessageSentStatusCode = "statusCode"
+
+	//MARK: Library Version API
+	static let kLibraryVersionPlatformType = "platformType"
+	static let kLibraryVersionLibraryVersion = "libraryVersion"
+	static let kLibraryVersionUpdateUrl = "updateUrl"
 }
 
 struct MMAPIValues {

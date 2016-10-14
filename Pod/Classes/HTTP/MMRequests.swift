@@ -26,6 +26,7 @@ enum MMHTTPAPIPath: String {
 	case UserData = "/mobile/2/data/user"
 	case MOMessage = "/mobile/1/messages/mo"
 	case SystemData = "/mobile/1/data/system"
+	case LibraryVersion = "/mobile/3/version"
 }
 
 protocol MMHTTPRequestResponsable {
@@ -63,13 +64,11 @@ extension MMHTTPRequestData {
 		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
 		manager.responseSerializer = MMResponseSerializer<ResponseType>()
 		
-		MMLogDebug("Sending request \(self.dynamicType)\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
-		
 		let successBlock = { (task: NSURLSessionDataTask, obj: AnyObject?) -> Void in
 			if let obj = obj as? ResponseType {
 				completion(Result.Success(obj))
 			} else {
-				let error = NSError(domain: AFURLResponseSerializationErrorDomain, code: NSURLErrorCannotDecodeContentData, userInfo:nil)
+                let error = NSError(domain: AFURLResponseSerializationErrorDomain, code: NSURLErrorCannotDecodeContentData, userInfo:[NSLocalizedFailureReasonErrorKey : "Request succeeded with no return value or return value wasn't a ResponseType value."])
 				completion(Result.Failure(error))
 			}
 		}
@@ -135,6 +134,16 @@ struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 	
 	init(seenList: [SeenData]) {
 		self.seenList = seenList
+	}
+}
+
+struct MMGetLibraryVersionRequest: MMHTTPGetRequest {
+	typealias ResponseType = MMHTTPLibraryVersionResponse
+
+	var path: MMHTTPAPIPath { return .LibraryVersion }
+	var parameters: [String: AnyObject]? = [MMAPIKeys.kPlatformType: MMAPIValues.kPlatformType]
+
+	init() {
 	}
 }
 

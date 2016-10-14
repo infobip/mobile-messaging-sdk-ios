@@ -96,6 +96,11 @@ public final class MobileMessaging: NSObject {
 			MMLogDebug("Registering for remote notifications...")
 			UIApplication.sharedApplication().registerForRemoteNotifications()
 		}
+        
+        #if DEBUG
+        MMVersionManager.shared.validateVersion()
+        #endif
+        
 		completion?()
 	}
 	
@@ -256,6 +261,8 @@ public final class MobileMessaging: NSObject {
 		self.applicationCode = applicationCode
 		self.userNotificationType = notificationType
 	}
+
+
 	
 	class var messageStorage: MessageStorage? {
 		return MobileMessaging.sharedInstance?.messageStorage

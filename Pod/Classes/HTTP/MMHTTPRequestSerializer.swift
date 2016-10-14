@@ -63,6 +63,8 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
                 MMLogError("RequestSerializer can't serialize json body: \(jsonBody) with error: \(error)")
             }
         }
+
+		MMLogSecureDebug("Sending request:\n\(request.debugDescription)\n\n\(request.allHTTPHeaderFields)\nparameters: \(parameters)\nbody: \(request.HTTPBody)")
         
         return request;
     }
