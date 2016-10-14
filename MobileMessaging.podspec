@@ -14,7 +14,8 @@ Pod::Spec.new do |s|
         'ENABLE_TESTABILITY' => 'YES',
         'SWIFT_VERSION' => '3.0',
         'MODULEMAP_PRIVATE_FILE' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/module.private.modulemap',
-        'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**'
+        'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**',
+		'OTHER_SWIFT_FLAGS[config=Debug]' => '-DDEBUG'
     }
 
     s.default_subspec = 'CocoaLumberjack'

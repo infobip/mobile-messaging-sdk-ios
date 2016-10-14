@@ -15,6 +15,12 @@ public func MMLogDebug(_ message: String) {
 	MobileMessaging.logger.logDebug(message: message)
 }
 
+public func MMLogSecureDebug(_ message: String) {
+	#if DEBUG
+	MobileMessaging.logger.logDebug(message)
+	#endif
+}
+
 public func MMLogInfo(_ message: String) {
 	MobileMessaging.logger.logInfo(message: message)
 }
