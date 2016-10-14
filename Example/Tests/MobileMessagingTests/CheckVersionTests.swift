@@ -19,9 +19,9 @@ class CheckVersionTests: MMTestCase {
 	
 	func testVersionCheck() {
 		
-		let requestExp = expectation(description: "libraryVersionRequest")
-		let responseExp = expectation(description: "libraryVersionResponse")
-		let remoteAPIMock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { [weak requestExp] request in
+		weak var requestExp = expectation(description: "libraryVersionRequest")
+		weak var responseExp = expectation(description: "libraryVersionResponse")
+		let remoteAPIMock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
 			
 			switch request {
 			case (is MMGetLibraryVersionRequest):
@@ -30,7 +30,7 @@ class CheckVersionTests: MMTestCase {
 				break
 			}
 			
-			}, completionCompanionBlock: { [weak responseExp] response in
+			}, completionCompanionBlock: { response in
 				switch response {
 				case let result as MMLibraryVersionResult:
 					XCTAssertEqual(result.value?.libraryVersion, "1.0.3")
