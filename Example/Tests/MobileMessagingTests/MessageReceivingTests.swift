@@ -11,11 +11,11 @@ import XCTest
 @testable import MobileMessaging
 
 func backendJSONSilentMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"\(MMAPIKeys.kInternalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(MMAPIKeys.kCustomPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"\(APNSPayloadKeys.kInternalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.kCustomPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(MMAPIKeys.kInternalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(MMAPIKeys.kCustomPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(APNSPayloadKeys.kInternalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.kCustomPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -24,8 +24,8 @@ func apnsNormalMessagePayload(messageId: String) -> [NSObject: AnyObject] {
 	return [
 		"messageId": messageId,
 		"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-		MMAPIKeys.kInternalData: ["internalKey": "internalValue"],
-		MMAPIKeys.kCustomPayload: ["customKey": "customValue"]
+		APNSPayloadKeys.kInternalData: ["internalKey": "internalValue"],
+		APNSPayloadKeys.kCustomPayload: ["customKey": "customValue"]
 	]
 }
 
@@ -33,8 +33,8 @@ func apnsSilentMessagePayload(messageId: String) -> [NSObject: AnyObject] {
 	return [
 		"messageId": messageId,
 		"aps": ["content-available": 1, "badge": 6],
-		MMAPIKeys.kInternalData: ["silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
-		MMAPIKeys.kCustomPayload: ["customKey": "customValue"]
+		APNSPayloadKeys.kInternalData: ["silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
+		APNSPayloadKeys.kCustomPayload: ["customKey": "customValue"]
 	]
 }
 
@@ -56,8 +56,8 @@ class MessageReceivingTests: MMTestCase {
 		let resultDict = [
 							"messageId": "m1",
 							"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-							MMAPIKeys.kInternalData: ["internalKey1": "internalValue1"],
-							MMAPIKeys.kCustomPayload: ["customKey" : "customValue"]
+							APNSPayloadKeys.kInternalData: ["internalKey1": "internalValue1"],
+							APNSPayloadKeys.kCustomPayload: ["customKey" : "customValue"]
 						]
 
 		
@@ -74,8 +74,8 @@ class MessageReceivingTests: MMTestCase {
 			"messageId": "m1",
 			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
 			"silent": 1,
-			MMAPIKeys.kInternalData: ["internalKey1": "internalValue1"],
-			MMAPIKeys.kCustomPayload : ["customKey" : "customValue"]
+			APNSPayloadKeys.kInternalData: ["internalKey1": "internalValue1"],
+			APNSPayloadKeys.kCustomPayload : ["customKey" : "customValue"]
 		]
 		
 		let message = MTMessage(json: JSON.parse(jsonstring))

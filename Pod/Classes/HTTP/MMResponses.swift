@@ -128,7 +128,7 @@ final class MMHTTPLibraryVersionResponse: MMHTTPResponse {
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
     let messages: [MTMessage]?
 	required init?(json value: JSON) {
-		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
+		self.messages = value[APNSPayloadKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
 		super.init(json: value)
 	}
 }
