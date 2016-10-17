@@ -225,10 +225,30 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>?) -> 
 	}
 }
 
+func + <Key, Value> (l: Dictionary<Key, Value>, r: Dictionary<Key, Value>?) -> Dictionary<Key, Value> {
+	
+	switch (r) {
+	case (.None):
+		return l
+	case (.Some(let right)):
+		var lMutable = l
+		for (k, v) in right {
+			lMutable[k] = v
+		}
+		return lMutable
+	}
+}
+
+
 func isIOS9() -> Bool {
 	if #available(iOS 9.0, *) {
 		return true
 	} else {
 		return false
 	}
+}
+
+protocol DictionaryRepresentable {
+	init?(dictRepresentation dict: [String: AnyObject])
+	var dictionaryRepresentation: [String: AnyObject] {get}
 }

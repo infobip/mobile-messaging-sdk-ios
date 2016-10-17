@@ -7,6 +7,9 @@
 import Foundation
 import CoreTelephony
 
+func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
+	return lhs.hashValue == rhs.hashValue
+}
 struct MMSystemData: Hashable {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
 	let geoAvailability: Bool

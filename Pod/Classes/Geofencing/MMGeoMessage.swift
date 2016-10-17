@@ -39,11 +39,6 @@ enum MMRegionEventType: String {
 	case exit
 }
 
-protocol PlistArchivable {
-	init?(dictRepresentation dict: [String: AnyObject])
-	var dictionaryRepresentation: [String: AnyObject] {get}
-}
-
 extension MTMessage {
 	convenience init?(managedObject: MessageManagedObject) {
 		guard let payload = managedObject.payload else {
@@ -89,7 +84,7 @@ func ==(lhs: MMPlistCampaign, rhs: MMPlistCampaign) -> Bool {
 }
 
 @available(*, deprecated, message="Used only for backward compatability. Since 1.3.0 the regions are stored in Core Data storage, not in the Plist")
-final class MMPlistCampaign: Hashable, Equatable, CustomStringConvertible, PlistArchivable {
+final class MMPlistCampaign: Hashable, Equatable, CustomStringConvertible, DictionaryRepresentable {
     let id: String
     let title: String?
     let body: String?
@@ -149,7 +144,7 @@ final class MMPlistCampaign: Hashable, Equatable, CustomStringConvertible, Plist
 	}
 }
 
-public class MMDeliveryTime: NSObject, PlistArchivable {
+public class MMDeliveryTime: NSObject, DictionaryRepresentable {
 	public let timeInterval: MMDeliveryTimeInterval?
 	public let days: Set<MMDay>?
 	var isNow: Bool {
@@ -220,7 +215,7 @@ public class MMDeliveryTime: NSObject, PlistArchivable {
 	case mo = 1, tu = 2, we = 3, th = 4, fr = 5, sa = 6, su = 7
 }
 
-public class MMDeliveryTimeInterval: NSObject, PlistArchivable {
+public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	static let timeIntervalSeparator = "/"
 	let fromTime: String
 	let toTime: String
@@ -279,7 +274,7 @@ public class MMDeliveryTimeInterval: NSObject, PlistArchivable {
 	}
 }
 
-final public class MMRegion: NSObject, PlistArchivable {
+final public class MMRegion: NSObject, DictionaryRepresentable {
 	public let deliveryTime: MMDeliveryTime?
 	public let identifier: String
 	public let startDate: NSDate
@@ -417,7 +412,7 @@ public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
 	return lhs.identifier == rhs.identifier
 }
 
-final class MMRegionEvent: PlistArchivable {
+final class MMRegionEvent: DictionaryRepresentable {
 	let type: MMRegionEventType
 	let limit: Int					//how many times this event can occur, 0 means unlimited
 	let timeout: Int			    //minutes till next possible event

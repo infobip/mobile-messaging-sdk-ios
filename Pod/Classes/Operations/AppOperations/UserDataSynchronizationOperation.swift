@@ -122,8 +122,10 @@ class UserDataSynchronizationOperation: Operation {
 				guard let installationObject = self.installationObject else {
 					return
 				}
-				
-				installationObject.customUserData = response.customData
+
+				installationObject.customUserData = response.customData?.reduce(nil, combine: { (result, element) -> [String: AnyObject]? in
+					return result + element.mapToFoundationTypesDict()
+				}) ?? nil
 				installationObject.predefinedUserData = response.predefinedData
 				
 				installationObject.resetDirtyAttribute(SyncableAttributesSet.userData) // all user data now in sync
@@ -144,5 +146,82 @@ class UserDataSynchronizationOperation: Operation {
 	
 	override func finished(errors: [NSError]) {
 		self.finishBlock?(errors.first)
+	}
+}
+
+struct CustomUserDataElement: DictionaryRepresentable {
+	let dataKey: String
+	let dataValue: CustomUserDataValue?
+	
+	init(dataKey: String, dataValue: UserDataSupportedTypes) {
+		self.dataKey = dataKey
+		if dataValue is NSNull {
+			self.dataValue = nil
+		} else {
+			self.dataValue = CustomUserDataValue.make(withValue: dataValue)
+		}
+	}
+	
+	init?(dictRepresentation dict: [String: AnyObject]) {
+		guard let k = dict.first?.0 else {
+			return nil
+		}
+		self.dataKey = k
+		if let valueDict = dict.first?.1 as? [String: AnyObject], let dataValue = valueDict["value"] as? UserDataSupportedTypes, let dataTypeString = valueDict["type"] as? String, let dataType = ContactsTypes(rawValue: dataTypeString) {
+			self.dataValue = CustomUserDataValue(dataType: dataType, dataValue: dataValue)
+		} else {
+			self.dataValue = nil
+		}
+	}
+	
+	var dictionaryRepresentation: [String: AnyObject] {
+		if let dataValue = dataValue {
+			return [dataKey: ["type": dataValue.dataType.rawValue, "value": dataValue.dataValue]]
+		} else {
+			return [dataKey: NSNull()]
+		}
+	}
+	
+	func mapToFoundationTypesDict() -> [String: AnyObject]? {
+		var result: [String: AnyObject]?
+		if let value = self.dataValue {
+			var dict = [String: AnyObject]()
+			switch (value.dataType, value.dataValue) {
+			case (ContactsTypes.string, let foundationValue as NSString):
+				dict[dataKey] = foundationValue
+			case (ContactsTypes.number, let foundationValue as NSNumber):
+				dict[dataKey] = foundationValue
+			case (ContactsTypes.date, let foundationValue as NSString):
+				dict[dataKey] = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(foundationValue as String)
+			default:
+				break
+			}
+			result = dict
+		}
+		return result
+	}
+	
+	enum ContactsTypes: String {
+		case string = "String"
+		case number = "Number"
+		case date = "Date"
+	}
+	
+	struct CustomUserDataValue {
+		let dataType: ContactsTypes
+		let dataValue: UserDataSupportedTypes
+		
+		static func make(withValue value: UserDataSupportedTypes) -> CustomUserDataValue? {
+			switch value {
+			case let v as NSString:
+				return CustomUserDataValue(dataType: ContactsTypes.string, dataValue: v) //TODO: move to enums
+			case let v as NSNumber:
+				return CustomUserDataValue(dataType: ContactsTypes.number, dataValue: v)
+			case let v as NSDate:
+				return CustomUserDataValue(dataType: ContactsTypes.date, dataValue: NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(v))
+			default:
+				return nil
+			}
+		}
 	}
 }

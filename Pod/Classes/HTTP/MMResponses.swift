@@ -141,12 +141,19 @@ final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
 	typealias ValueType = AnyObject
 	
 	let predefinedData: [AttributeName: ValueType]?
-	let customData: [AttributeName: ValueType]?
-	let error: MMRequestError? //TODO: UserData v2 negotiate the errors format.
+	let customData: [CustomUserDataElement]?
+	let error: MMRequestError?
 	
 	required init?(json value: JSON) {
 		self.predefinedData = value[MMAPIKeys.kUserDataPredefinedUserData].dictionaryObject
-		self.customData = value[MMAPIKeys.kUserDataCustomUserData].dictionaryObject
+		self.customData = value[MMAPIKeys.kUserDataCustomUserData].dictionaryObject?.reduce([CustomUserDataElement](), combine: { (result, pair) -> [CustomUserDataElement] in
+			if let element = CustomUserDataElement(dictRepresentation: [pair.0: pair.1]) {
+				return result + [element]
+			} else {
+				return result
+			}
+		})
+		
 		self.error = MMRequestError(json: value)
 		super.init(json: value)
 	}

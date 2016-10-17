@@ -8,9 +8,85 @@
 import XCTest
 @testable import MobileMessaging
 
+var darthVaderDateOfDeath: NSDate {
+	let comps = NSDateComponents()
+	comps.year = 1983
+	comps.month = 5
+	comps.day = 25
+	comps.hour = 0
+	comps.minute = 0
+	comps.second = 0
+	comps.timeZone = NSTimeZone(forSecondsFromGMT: 0) // has expected timezone
+	comps.calendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)
+	return comps.date!
+}
+
+
 class UserDataTests: MMTestCase {
 	
-    func testDataPersisting() {
+	func testCustomUserDataPayloadConstructors() {
+		
+		//date
+		do {
+			let comps = NSDateComponents()
+			comps.year = 2016
+			comps.month = 12
+			comps.day = 31
+			comps.hour = 23
+			comps.minute = 55
+			comps.second = 00
+			comps.timeZone = NSTimeZone(forSecondsFromGMT: 3*60*60) // has expected timezone
+			comps.calendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)
+			let date = comps.date!
+			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": date])
+			
+			let expectedDict: NSDictionary = [
+				MMAPIKeys.kUserDataPredefinedUserData: [
+					"name": "JohnDow"
+				],
+				MMAPIKeys.kUserDataCustomUserData: [
+					"registrationDate" : [
+						"type": "Date",
+						"value": "2016-12-31T23:55:00+03:00"
+					]
+				]
+			]
+			XCTAssertTrue((request.body! as NSDictionary).isEqual(expectedDict))
+		}
+		
+		// number
+		do {
+			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["bootsize": 9.5])
+			let expectedDict: NSDictionary = [
+				MMAPIKeys.kUserDataPredefinedUserData: [
+					"name": "JohnDow"
+				],
+				MMAPIKeys.kUserDataCustomUserData: [
+					"bootsize" : [
+						"type": "Number",
+						"value": 9.5
+					]
+				]
+			]
+			XCTAssertTrue((request.body! as NSDictionary).isEqual(expectedDict))
+		}
+		
+		// null
+		do {
+			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": NSNull()])
+			let expectedDict = [
+				MMAPIKeys.kUserDataPredefinedUserData: [
+					"name": "JohnDow"
+				],
+				MMAPIKeys.kUserDataCustomUserData: [
+					"registrationDate" : NSNull()
+				]
+			]
+			XCTAssertTrue((request.body! as NSDictionary).isEqual(expectedDict))
+		}
+	}
+	
+	func testDataPersisting() {
 		let currentUser = MobileMessaging.currentUser!
 		currentUser.set(customData: "M", forKey: "nickname")
 		currentUser.externalId = "someExternalId"
@@ -30,7 +106,7 @@ class UserDataTests: MMTestCase {
 		
 		currentUser.set(customData: nil, forKey: "nilElement")
 		
-		XCTAssertEqual(currentUser.customData!["nilElement"] as? NSNull, NSNull())
+		XCTAssertTrue(currentUser.customData!["nilElement"] is NSNull)
 		
 		XCTAssertEqual(NSDate(timeIntervalSince1970: 1468593199).toJSON(), "2016-07-15")
 		
@@ -51,9 +127,9 @@ class UserDataTests: MMTestCase {
 		} else {
 			
 			XCTFail("There must be atleast one installation object in database")
-		
+			
 		}
-    }
+	}
 	
 	func testSetupPredefinedAndCustomData() {
 		weak var expectation = expectationWithDescription("save completed")
@@ -67,8 +143,8 @@ class UserDataTests: MMTestCase {
 		currentUser.set(customData: "Death Star", forKey: "home")
 		currentUser.set(customData: "Beer", forKey: "drink")
 		currentUser.set(customData: "Pizza", forKey: "food")
-		currentUser.set(customData: NSNumber(double:189.5), forKey: "height")
-
+		currentUser.set(customData: 189.5, forKey: "height")
+		
 		currentUser.set(predefinedData: "Darth", forKey: MMUserPredefinedDataKeys.FirstName)
 		currentUser.set(predefinedData: "Vader", forKey: MMUserPredefinedDataKeys.LastName)
 		currentUser.set(predefinedData: "1980-12-12", forKey: MMUserPredefinedDataKeys.Birthdate)
@@ -92,6 +168,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
 			XCTAssertEqual(currentUser.customData?["height"] as? NSNumber, NSNumber(double:189.5))
+			XCTAssertEqual(currentUser.customData?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
 			expectation?.fulfill()
 		}
 		
@@ -127,6 +204,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["home"] as? String, "Death Star")
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
+			XCTAssertEqual(currentUser.customData?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
 			XCTAssertNil(currentUser.customData?["height"])
 			expectation?.fulfill()
 		}
@@ -158,6 +236,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["home"] as? String, "Death Star")
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
+			XCTAssertEqual(currentUser.customData?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
 			expectation?.fulfill()
 		}
 		
@@ -186,7 +265,7 @@ class UserDataTests: MMTestCase {
 		
 		currentUser.predefinedData = [
 			MMUserPredefinedDataKeys.FirstName.name: "Luk",
-		    MMUserPredefinedDataKeys.Email.name: "sky@worker.com",
+			MMUserPredefinedDataKeys.Email.name: "sky@worker.com",
 		]
 		
 		XCTAssertEqual(currentUser.predefinedData?.count, 2)

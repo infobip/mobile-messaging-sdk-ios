@@ -11,6 +11,7 @@ import Foundation
 import CoreLocation
 
 @objc public protocol UserDataSupportedTypes: AnyObject {}
+extension NSDate: UserDataSupportedTypes {}
 extension NSString: UserDataSupportedTypes {}
 extension NSNumber: UserDataSupportedTypes {}
 extension NSNull: UserDataSupportedTypes {}
