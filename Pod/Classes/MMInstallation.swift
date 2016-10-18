@@ -11,6 +11,7 @@ import Foundation
 import CoreLocation
 
 @objc public protocol UserDataSupportedTypes: AnyObject {}
+extension NSDate: UserDataSupportedTypes {}
 extension NSString: UserDataSupportedTypes {}
 extension NSNumber: UserDataSupportedTypes {}
 extension NSNull: UserDataSupportedTypes {}
@@ -19,10 +20,10 @@ extension NSNull: UserDataSupportedTypes {}
 	case Female
 	case Male
 	
-	func name() -> String {
+	func name() -> NSString {
 		switch self {
-		case .Female : return "F"
-		case .Male : return "M"
+		case .Female : return "F" as NSString
+		case .Male : return "M" as NSString
 		}
 	}
 }

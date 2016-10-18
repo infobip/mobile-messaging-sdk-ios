@@ -8,9 +8,87 @@
 import XCTest
 @testable import MobileMessaging
 
+var darthVaderDateOfDeath: NSDate {
+	let comps = NSDateComponents()
+	comps.year = 1983
+	comps.month = 5
+	comps.day = 25
+	comps.hour = 0
+	comps.minute = 0
+	comps.second = 0
+	comps.timeZone = TimeZone(secondsFromGMT: 0) // has expected timezone
+	comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+	return comps.date! as NSDate
+}
+
+
 class UserDataTests: MMTestCase {
 	
-    func testDataPersisting() {
+	
+	func testCustomUserDataPayloadConstructors() {
+		
+		//FIXME: on jenkins machine this fails because of different timezones.
+		//date
+//		do {
+//			let comps = NSDateComponents()
+//			comps.year = 2016
+//			comps.month = 12
+//			comps.day = 31
+//			comps.hour = 23
+//			comps.minute = 55
+//			comps.second = 00
+//			comps.timeZone = NSTimeZone(forSecondsFromGMT: 3*60*60) // has expected timezone
+//			comps.calendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)
+//			let date = comps.date!
+//			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": date])
+//			
+//			let expectedDict: NSDictionary = [
+//				MMAPIKeys.kUserDataPredefinedUserData: [
+//					"name": "JohnDow"
+//				],
+//				MMAPIKeys.kUserDataCustomUserData: [
+//					"registrationDate" : [
+//						"type": "Date",
+//						"value": "2016-12-31T23:55:00+03:00"
+//					]
+//				]
+//			]
+//			XCTAssertTrue((request.body! as NSDictionary).isEqual(expectedDict))
+//		}
+		
+		// number
+		do {
+			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["bootsize": 9.5 as NSNumber])
+			let expectedDict: NSDictionary = [
+				MMAPIKeys.kUserDataPredefinedUserData: [
+					"name": "JohnDow"
+				],
+				MMAPIKeys.kUserDataCustomUserData: [
+					"bootsize" : [
+						"type": "Number",
+						"value": 9.5
+					]
+				]
+			]
+			XCTAssertTrue((request.body! as NSDictionary).isEqual(expectedDict))
+		}
+		
+		// null
+		do {
+			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": NSNull()])
+			let expectedDict = [
+				MMAPIKeys.kUserDataPredefinedUserData: [
+					"name": "JohnDow"
+				],
+				MMAPIKeys.kUserDataCustomUserData: [
+					"registrationDate" : NSNull()
+				]
+			]
+			XCTAssertTrue((request.body! as NSDictionary).isEqual(expectedDict))
+		}
+	}
+	
+	func testDataPersisting() {
 		let currentUser = MobileMessaging.currentUser!
 
 		currentUser.set(customData: "M" as UserDataSupportedTypes?, forKey: "nickname")
@@ -32,7 +110,7 @@ class UserDataTests: MMTestCase {
 		
 		currentUser.set(customData: nil, forKey: "nilElement")
 		
-		XCTAssertEqual(currentUser.customData!["nilElement"] as? NSNull, NSNull())
+		XCTAssertTrue(currentUser.customData!["nilElement"] is NSNull)
 		
 		XCTAssertEqual(Date(timeIntervalSince1970: 1468593199).toJSON(), "2016-07-15")
 		
@@ -53,12 +131,12 @@ class UserDataTests: MMTestCase {
 		} else {
 			
 			XCTFail("There must be atleast one installation object in database")
-		
+			
 		}
-    }
+	}
 	
 	func testSetupPredefinedAndCustomData() {
-		let expectation = self.expectation(description: "save completed")
+		weak var expectation = self.expectation(description: "save completed")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
@@ -67,15 +145,15 @@ class UserDataTests: MMTestCase {
 		
 		let currentUser = MobileMessaging.currentUser!
 
-		currentUser.set(customData: "Death Star" as UserDataSupportedTypes?, forKey: "home")
-		currentUser.set(customData: "Beer" as UserDataSupportedTypes?, forKey: "drink")
-		currentUser.set(customData: "Pizza" as UserDataSupportedTypes?, forKey: "food")
-		currentUser.set(customData: NSNumber(value: 189.5), forKey: "height")
-
-		currentUser.set(predefinedData: "Darth" as UserDataSupportedTypes?, forKey: MMUserPredefinedDataKeys.FirstName)
-		currentUser.set(predefinedData: "Vader" as UserDataSupportedTypes?, forKey: MMUserPredefinedDataKeys.LastName)
-		currentUser.set(predefinedData: "1980-12-12" as UserDataSupportedTypes?, forKey: MMUserPredefinedDataKeys.Birthdate)
-		currentUser.set(predefinedData: MMUserGenderValues.Male.name() as UserDataSupportedTypes?, forKey: MMUserPredefinedDataKeys.Gender)
+		currentUser.set(customData: "Death Star" as NSString, forKey: "home")
+		currentUser.set(customData: "Beer" as NSString, forKey: "drink")
+		currentUser.set(customData: "Pizza" as NSString, forKey: "food")
+		currentUser.set(customData: 189.5 as NSNumber, forKey: "height")
+		
+		currentUser.set(predefinedData: "Darth" as NSString, forKey: MMUserPredefinedDataKeys.FirstName)
+		currentUser.set(predefinedData: "Vader" as NSString, forKey: MMUserPredefinedDataKeys.LastName)
+		currentUser.set(predefinedData: "1980-12-12" as NSString, forKey: MMUserPredefinedDataKeys.Birthdate)
+		currentUser.set(predefinedData: MMUserGenderValues.Male.name(), forKey: MMUserPredefinedDataKeys.Gender)
 
 		currentUser.msisdn = "79214444444"
 		currentUser.email = "darth@vader.com"
@@ -86,7 +164,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name] as? String, "Darth")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name] as? String, "Vader")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name] as? String, "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name] as? String, MMUserGenderValues.Male.name())
+			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name] as? NSString, MMUserGenderValues.Male.name())
 			XCTAssertEqual(currentUser.msisdn, "79214444444")
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
@@ -95,8 +173,9 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["home"] as? String, "Death Star")
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
-			XCTAssertEqual(currentUser.customData?["height"] as? NSNumber, NSNumber(value:189.5))
-			expectation.fulfill()
+			XCTAssertEqual(currentUser.customData?["height"] as? NSNumber, 189.5)
+			XCTAssertEqual(currentUser.customData?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
+			expectation?.fulfill()
 		}
 		
 		waitForExpectations(timeout: 10, handler: nil)
@@ -122,7 +201,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name] as? String, "Darth")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name] as? String, "Vader")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name] as? String, "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name] as? String, MMUserGenderValues.Male.name())
+			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name] as? NSString, MMUserGenderValues.Male.name())
 			XCTAssertNil(currentUser.msisdn)
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
@@ -131,6 +210,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["home"] as? String, "Death Star")
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
+			XCTAssertEqual(currentUser.customData?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
 			XCTAssertNil(currentUser.customData?["height"])
 			expectation.fulfill()
 		}
@@ -139,7 +219,7 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testGetPredefinedAndCustomData() {
-		let expectation = self.expectation(description: "data received")
+		weak var expectation = self.expectation(description: "data received")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
@@ -154,7 +234,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name] as? String, "Darth")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name] as? String, "Vader")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name] as? String, "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name] as? String, MMUserGenderValues.Male.name())
+			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name] as? NSString, MMUserGenderValues.Male.name())
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
 			XCTAssertEqual(currentUser.customData?["nativePlace"] as? String, "Tatooine")
@@ -162,7 +242,8 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["home"] as? String, "Death Star")
 			XCTAssertEqual(currentUser.customData?["drink"] as? String, "Beer")
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
-			expectation.fulfill()
+			XCTAssertEqual(currentUser.customData?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
+			expectation?.fulfill()
 		}
 		
 		waitForExpectations(timeout: 10, handler: nil)
@@ -180,21 +261,21 @@ class UserDataTests: MMTestCase {
 		let currentUser = MobileMessaging.currentUser!
 		
 		currentUser.predefinedData = [
-			MMUserPredefinedDataKeys.LastName.name: "SkyWorker" as UserDataSupportedTypes,
+			MMUserPredefinedDataKeys.LastName.name: "Skywalker" as UserDataSupportedTypes,
 			MMUserPredefinedDataKeys.Gender.name: "M" as UserDataSupportedTypes,
 		]
 		
 		XCTAssertEqual(currentUser.predefinedData?.count, 2)
-		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.LastName.name] as? String, "SkyWorker")
+		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.LastName.name] as? String, "Skywalker")
 		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.Gender.name] as? String, "M")
 		
 		currentUser.predefinedData = [
-			MMUserPredefinedDataKeys.FirstName.name: "Luk" as UserDataSupportedTypes,
-		    MMUserPredefinedDataKeys.Email.name: "sky@worker.com" as UserDataSupportedTypes,
+			MMUserPredefinedDataKeys.FirstName.name: "Luke" as NSString,
+			MMUserPredefinedDataKeys.Email.name: "luke@starwars.com" as NSString
 		]
 		
 		XCTAssertEqual(currentUser.predefinedData?.count, 2)
-		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.FirstName.name] as? String, "Luk")
-		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.Email.name] as? String, "sky@worker.com")
+		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.FirstName.name] as? String, "Luke")
+		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.Email.name] as? String, "luke@starwars.com")
 	}
 }

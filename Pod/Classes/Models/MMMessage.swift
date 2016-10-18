@@ -135,13 +135,13 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 	}
 	
 	init?(payload: APNSPayload, createdDate: Date) {
-		guard let payload = payload as? StringKeyPayload, let messageId = payload[MMAPIKeys.kMessageId] as? String, let nativeAPS = payload[MMAPIKeys.kAps] as? StringKeyPayload else {
+		guard let payload = payload as? StringKeyPayload, let messageId = payload[APNSPayloadKeys.kMessageId] as? String, let nativeAPS = payload[APNSPayloadKeys.kAps] as? StringKeyPayload else {
 			return nil
 		}
 		
 		self.isSilent = MTMessage.isSilent(payload: payload)
 		if (self.isSilent) {
-			if let silentAPS = (payload[MMAPIKeys.kInternalData] as? StringKeyPayload)?[MMAPIKeys.kSilent] as? StringKeyPayload {
+			if let silentAPS = (payload[APNSPayloadKeys.kInternalData] as? StringKeyPayload)?[APNSPayloadKeys.kInternalDataSilent] as? StringKeyPayload {
 				self.aps = MMAPS.SilentAPS(MTMessage.apsByMerging(nativeAPS: nativeAPS, withSilentAPS: silentAPS))
 			} else {
 				self.aps = MMAPS.NativeAPS(nativeAPS)
@@ -151,8 +151,8 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 		}
 
 		//TODO: refactor all these `as` by extending Dictionary.
-		self.customPayload = payload[MMAPIKeys.kCustomPayload] as? StringKeyPayload
-		self.silentData = (payload[MMAPIKeys.kInternalData] as? StringKeyPayload)?[MMAPIKeys.kSilent] as? StringKeyPayload
+		self.customPayload = payload[APNSPayloadKeys.kCustomPayload] as? StringKeyPayload
+		self.silentData = (payload[APNSPayloadKeys.kInternalData] as? StringKeyPayload)?[APNSPayloadKeys.kInternalDataSilent] as? StringKeyPayload
 		self.deliveryMethod = .push
 		self.seenStatus = .NotSeen
 		self.isDeliveryReportSent = false
@@ -161,28 +161,28 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 	
 	private static func isSilent(payload: APNSPayload?) -> Bool {
 		//if payload APNS originated:
-		if ((payload?[MMAPIKeys.kInternalData] as? [AnyHashable: Any])?[MMAPIKeys.kSilent] as? [AnyHashable: Any]) != nil {
+		if ((payload?[APNSPayloadKeys.kInternalData] as? [AnyHashable: Any])?[APNSPayloadKeys.kInternalDataSilent] as? [AnyHashable: Any]) != nil {
 			return true
 		}
 		//if payload Server originated:
-		return payload?[MMAPIKeys.kSilent] as? Bool ?? false
+		return payload?[APNSPayloadKeys.kInternalDataSilent] as? Bool ?? false
 	}
 	
 	private static func apsByMerging(nativeAPS: StringKeyPayload?, withSilentAPS silentAPS: StringKeyPayload) -> StringKeyPayload {
 		var resultAps = nativeAPS ?? StringKeyPayload()
 		var alert = StringKeyPayload()
 		
-		if let body = silentAPS[MMAPIKeys.kBody] as? String {
-			alert[MMAPIKeys.kBody] = body
+		if let body = silentAPS[APNSPayloadKeys.kBody] as? String {
+			alert[APNSPayloadKeys.kBody] = body
 		}
-		if let title = silentAPS[MMAPIKeys.kTitle] as? String {
-			alert[MMAPIKeys.kTitle] = title
+		if let title = silentAPS[APNSPayloadKeys.kTitle] as? String {
+			alert[APNSPayloadKeys.kTitle] = title
 		}
 		
-		resultAps[MMAPIKeys.kAlert] = alert
+		resultAps[APNSPayloadKeys.kAlert] = alert
 		
-		if let sound = silentAPS[MMAPIKeys.kSound] as? String {
-			resultAps[MMAPIKeys.kSound] = sound
+		if let sound = silentAPS[APNSPayloadKeys.kSound] as? String {
+			resultAps[APNSPayloadKeys.kSound] = sound
 		}
 		return resultAps
 	}

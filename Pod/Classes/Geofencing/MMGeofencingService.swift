@@ -79,26 +79,20 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public weak var delegate: MMGeofencingServiceDelegate?
 	
 	/// Returns all the regions available in the Geofencing Service storage.
-	public var allRegions: Set<MMRegion> {
-		var result = Set<MMRegion>()
-		serviceQueue.executeSync() {
-			result = Set(datasource.regionsDictionary.values)
-		}
-		return result
-	}
+	public var allRegions: Array<MMRegion> { return datasource.allRegions }
 	
 	/// Returns current capability status for Geofencing Service. For more information see `MMCapabilityStatus`.
 	public class var currentCapabilityStatus: MMCapabilityStatus {
 		return MMGeofencingService.currentCapabilityStatus(forService: MMLocationServiceKind.RegionMonitoring, usage: MMGeofencingService.kGeofencingMinimumAllowedUsage)
 	}
-
+	
 	/// Requests permission to use location services whenever the app is running.
 	/// - parameter usage: Defines the usage type for which permissions is requested.
 	/// - parameter completion: A block that will be triggered once the authorization request is finished and the capability statys is defined. The current capability status is passed to the block as a parameter.
 	public func authorize(usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
 		authorizeService(kind: MMLocationServiceKind.RegionMonitoring, usage: usage, completion: completion)
 	}
-
+	
 	/// Starts the Geofencing Service
 	///
 	/// During the startup process, the service automatically asks user to grant the appropriate permissions
@@ -174,7 +168,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.refreshMonitoredRegions()
 		}
 	}
-
+	
 	/// Removes a message from the monitoring.
 	public func removeMessage(withId messageId: String) {
 		serviceQueue.executeAsync() {
@@ -189,7 +183,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	/// You can implement your own geo event handling either by subclassing `MMDefaultGeoEventHandling` or implementing the `GeoEventHandling` protocol.
 	public static var geoEventsHandler: GeoEventHandling? = MMDefaultGeoEventHandling()
 	
-// MARK: - Internal
+	// MARK: - Internal
 	let serviceQueue = MMQueue.Main.queue
 	
 	init (storage: MMCoreDataStorage) {
@@ -230,7 +224,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			
 			self.capabilityCompletion = completion
 			self.desirableUsageKind = usage
-		
+			
 			switch usage {
 			case .WhenInUse:
 				MMLogDebug("[GeofencingService] requesting 'WhenInUse'")
@@ -253,7 +247,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			}
 			
 			// This is helpful when developing an app.
-//			assert(NSBundle.mainBundle().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
+			//			assert(NSBundle.mainBundle().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
 		}
 	}
 	
@@ -339,7 +333,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			
 			let closestLiveRegions = self.closestLiveRegions
 			MMLogDebug("[GeofencingService] datasource regions: \n\(self.datasource.regionsDictionary.values)")
-
+			
 			let currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap { $0 as? CLCircularRegion })
 			MMLogDebug("[GeofencingService] currently monitored regions \n\(currentlyMonitoredRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
@@ -354,7 +348,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			MMLogDebug("[GeofencingService] regions we are inside: \n\(regionsWeAreInside.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			let deadRegions: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
-					return self.datasource.regionsDictionary[$0.identifier]?.isLive == false
+				return self.datasource.regionsDictionary[$0.identifier]?.message?.isNotExpired == false ?? true
 				}
 			)
 			MMLogDebug("[GeofencingService] dead monitored regions: \n\(deadRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
@@ -367,7 +361,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			}
 			
 			MMLogDebug("[GeofencingService] regions to start monitoring: \n\(closestLiveRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
-
+			
 			for region in closestLiveRegions {
 				region.notifyOnEntry = true
 				region.notifyOnExit = true
@@ -451,6 +445,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		return distanceFromPreviousPoint > self.kRegionRefreshThreshold && monitorableRegionsCount > self.kMonitoringRegionsLimit
 	}
 	
+
 // MARK: - Location Manager delegate
 	public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
 		assert(Thread.isMainThread)
@@ -485,16 +480,12 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did enter circular region \(region)")
-		datasource.regions(withIdentifier: region.identifier)?.forEach { datasourceRegion in
-			if datasourceRegion.isNowAppropriateTimeForEntryNotification {
-				datasource.triggerEvent(for: .entry, region: datasourceRegion)
-				MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
-				delegate?.didEnterRegion(region: datasourceRegion)
-				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
-				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
-			} else {
-				MMLogDebug("[GeofencingService] not an appropriate time to trigger entry event.")
-			}
+		datasource.validRegionsForEntryEvent(with: region.identifier)?.forEach { datasourceRegion in
+			datasourceRegion.message?.triggerEvent(for: .entry, region: datasourceRegion, datasource: datasource)
+			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
+			delegate?.didEnterRegion(region: datasourceRegion)
+			MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
+			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		}
 	}
 	
@@ -506,16 +497,12 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did exit circular region \(region)")
-		datasource.regions(withIdentifier: region.identifier)?.forEach { datasourceRegion in
-			if datasourceRegion.isNowAppropriateTimeForExitNotification {
-				datasource.triggerEvent(for: .exit, region: datasourceRegion)
-				MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
-				delegate?.didExitRegion(region: datasourceRegion)
-				MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
-				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
-			} else {
-				MMLogDebug("[GeofencingService] not an appropriate time to trigger exit event.")
-			}
+		datasource.validRegionsForExitEvent(with: region.identifier)?.forEach { datasourceRegion in
+			datasourceRegion.message?.triggerEvent(for: .exit, region: datasourceRegion, datasource: datasource)
+			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
+			delegate?.didExitRegion(region: datasourceRegion)
+			MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
+			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		}
 	}
 	

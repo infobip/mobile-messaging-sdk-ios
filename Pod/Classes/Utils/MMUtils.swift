@@ -237,6 +237,20 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>?) -> 
 	}
 }
 
+func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> Dictionary<Key, Value> {
+	switch (l, r) {
+	case (.none, _):
+		return r
+	case (.some(let left), _):
+		var lMutable = left
+		for (k, v) in r {
+			lMutable[k] = v
+		}
+		return lMutable
+	}
+}
+
+
 func ==(lhs : [AnyHashable : UserDataSupportedTypes], rhs: [AnyHashable : UserDataSupportedTypes]) -> Bool {
 	return NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
@@ -251,4 +265,9 @@ func isIOS9() -> Bool {
 	} else {
 		return false
 	}
+}
+
+protocol DictionaryRepresentable {
+	init?(dictRepresentation dict: DictionaryRepresentation)
+	var dictionaryRepresentation: DictionaryRepresentation {get}
 }

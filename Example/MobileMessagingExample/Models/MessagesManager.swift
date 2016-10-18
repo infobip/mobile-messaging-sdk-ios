@@ -73,12 +73,6 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	//MARK: Private
-	fileprivate func displayMessageAlert(_ messageUserInfo: [AnyHashable: Any]) {
-		if UIApplication.shared.applicationState == .active {
-			MMPush.handlePush(userInfo: messageUserInfo)
-		}
-	}
-	
 	fileprivate func synced(_ lock: AnyObject, closure: (Void) -> Void) {
 		objc_sync_enter(lock)
 		closure()

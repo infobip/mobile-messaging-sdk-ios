@@ -3,13 +3,16 @@
 //  MobileMessaging
 //
 //  Created by Andrey K. on 23/02/16.
-//  
 //
-//import SwiftyJSON
+//
+
+typealias RequestBody = [String: Any]
+typealias RequestParameters = [String: Any]
+typealias RequestHeaders = [String: String]
 
 enum MMHTTPRequestError: Error {
-    case EmptyDeviceToken
-    case IncorrectApplicationCode
+	case EmptyDeviceToken
+	case IncorrectApplicationCode
 }
 
 enum MMHTTPMethod {
@@ -19,10 +22,10 @@ enum MMHTTPMethod {
 }
 
 enum MMHTTPAPIPath: String {
-    case Registration = "/mobile/2/registration"
-    case SeenMessages = "/mobile/1/messages/seen"
+	case Registration = "/mobile/2/registration"
+	case SeenMessages = "/mobile/1/messages/seen"
 	case SyncMessages = "/mobile/3/messages"
-	case UserData = "/mobile/2/data/user"
+	case UserData = "/mobile/3/data/user"
 	case MOMessage = "/mobile/1/messages/mo"
 	case SystemData = "/mobile/1/data/system"
 	case LibraryVersion = "/mobile/3/version"
@@ -36,10 +39,10 @@ protocol MMHTTPRequestResponsable {
 protocol MMHTTPRequestData: MMHTTPRequestResponsable {
 	var method: MMHTTPMethod {get}
 	var path: MMHTTPAPIPath {get}
-	var parameters: [String: Any]? {get}
-	var headers: [String: String]? {get}
+	var parameters: RequestParameters? {get}
+	var headers: RequestHeaders? {get}
 	var retryLimit: Int {get}
-    var body: [String: Any]? {get}
+	var body: RequestBody? {get}
 }
 
 protocol MMHTTPGetRequest: MMHTTPRequestData { }
@@ -54,10 +57,9 @@ extension MMHTTPPostRequest {
 
 extension MMHTTPRequestData {
 	var retryLimit: Int { return 0 }
-	var headers: [String: String]? { return nil }
-    var body: [String: Any]? { return nil }
-	var parameters: [String: Any]? { return nil }
-    
+	var headers: RequestHeaders? { return nil }
+	var body: RequestBody? { return nil }
+	var parameters: RequestParameters? { return nil }
 	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void) {
 		let manager = MM_AFHTTPSessionManager(baseURL: URL(string: baseURL), sessionConfiguration: URLSessionConfiguration.default)
 		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
@@ -93,33 +95,41 @@ struct MMPostRegistrationRequest: MMHTTPPostRequest {
 	
 	var retryLimit: Int { return 3 }
 	var path: MMHTTPAPIPath { return .Registration }
-    var parameters: [String: Any]? {
-        var params = [MMAPIKeys.kRegistrationId: currentDeviceToken,
-                      MMAPIKeys.kPlatformType: MMAPIValues.kPlatformType]
+	var parameters: RequestParameters? {
+		var params = [MMAPIKeys.kRegistrationId: currentDeviceToken,
+		              MMAPIKeys.kPlatformType: MMAPIValues.kPlatformType]
 		params[MMAPIKeys.kInternalRegistrationId] = internalId
-        return params
-    }
-    let currentDeviceToken: String
+		return params
+	}
+	let currentDeviceToken: String
 	let internalId: String?
-
-    init(internalId: String?, deviceToken: String) {
+	
+	init(internalId: String?, deviceToken: String) {
 		self.internalId = internalId
 		self.currentDeviceToken = deviceToken
 	}
 }
 
-struct SeenData {
+struct SeenData: DictionaryRepresentable {
 	let messageId: String
 	let seenDate: Date
 	var timestampDelta: UInt {
 		return UInt(max(0, Date().timeIntervalSinceReferenceDate - seenDate.timeIntervalSinceReferenceDate))
 	}
-	var dict: [String: Any] {
+
+	init(messageId: String, seenDate: Date) {
+		self.messageId = messageId
+		self.seenDate = seenDate
+	}
+	init?(dictRepresentation dict: DictionaryRepresentation) {
+		return nil // unused
+	}
+	var dictionaryRepresentation: DictionaryRepresentation {
 		return [MMAPIKeys.kMessageId: messageId,
 		        MMAPIKeys.kSeenTimestampDelta: timestampDelta]
 	}
-	static func requestBody(seenList: [SeenData]) -> [String: Any] {
-		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dict } ]
+	static func requestBody(seenList: [SeenData]) -> RequestBody {
+		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dictionaryRepresentation } ]
 	}
 }
 
@@ -127,9 +137,9 @@ struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSeenMessagesResponse
 	
 	var path: MMHTTPAPIPath { return .SeenMessages }
-	var parameters: [String: Any]? { return nil }
+	var parameters: RequestParameters? { return nil }
 	let seenList: [SeenData]
-    var body: [String: Any]? { return SeenData.requestBody(seenList: seenList) }
+	var body: RequestBody? { return SeenData.requestBody(seenList: seenList) }
 	
 	init(seenList: [SeenData]) {
 		self.seenList = seenList
@@ -150,8 +160,8 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 
 	typealias ResponseType = MMHTTPSyncMessagesResponse
 	var path: MMHTTPAPIPath { return .SyncMessages }
-	var parameters: [String: Any]? {
-		var params = [String: Any]()
+	var parameters: RequestParameters? {
+		var params = RequestParameters()
 		params[MMAPIKeys.kInternalRegistrationId] = internalId
 		params[MMAPIKeys.kPlatformType] = MMAPIValues.kPlatformType
 		return params
@@ -160,8 +170,9 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 	let internalId: String
 	let archiveMsgIds: [String]?
 	let dlrMsgIds: [String]?
-	var body: [String: Any]? {
-		var result = [String: Any]()
+
+	var body: RequestBody? {
+		var result = RequestBody()
 		result[MMAPIKeys.kArchiveMsgIds] = (archiveMsgIds?.isEmpty ?? true) ? nil : archiveMsgIds
 		result[MMAPIKeys.kDLRMsgIds] = (dlrMsgIds?.isEmpty ?? true) ? nil : dlrMsgIds
 		return result
@@ -176,46 +187,52 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 
 struct MMPostUserDataRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPUserDataSyncResponse
+	typealias UserDataDictionary = [String: Any]
 	var path: MMHTTPAPIPath { return .UserData }
-	var parameters: [String: Any]? {
+	var parameters: RequestParameters? {
 		var params = [MMAPIKeys.kInternalRegistrationId: internalUserId]
 		if let externalUserId = externalUserId {
 			params[MMAPIKeys.kUserDataExternalUserId] = externalUserId
 		}
 		return params
 	}
-	var body: [String: Any]? {
-		var result = [String: Any]()
-		result[MMAPIKeys.kUserDataPredefinedUserData] = predefinedUserData ?? [String: Any]()
-		result[MMAPIKeys.kUserDataCustomUserData] = customUserData ?? [String: Any]()
+	var body: RequestBody? {
+		var result = RequestBody()
+		result[MMAPIKeys.kUserDataPredefinedUserData] = predefinedUserData ?? UserDataDictionary()
+		if let customUserData = customUserData {
+			result[MMAPIKeys.kUserDataCustomUserData] = customUserData.reduce(UserDataDictionary(), { (result, element) -> UserDataDictionary in
+				return result + element.dictionaryRepresentation
+			})
+		} else {
+			result[MMAPIKeys.kUserDataCustomUserData] = UserDataDictionary()
+		}
 		return result
 	}
 	
 	let internalUserId: String
 	let externalUserId: String?
-	let predefinedUserData: [String: AnyObject]?
-	let customUserData: [String: AnyObject]?
+	let predefinedUserData: UserDataDictionary?
+	let customUserData: [CustomUserDataElement]?
 	
-	init(internalUserId: String, externalUserId: String?, predefinedUserData: [String: AnyObject]? = nil, customUserData: [String: AnyObject]? = nil) {
+	init(internalUserId: String, externalUserId: String?, predefinedUserData: UserDataDictionary? = nil, customUserData: [String: UserDataSupportedTypes]? = nil) {
 		self.internalUserId = internalUserId
-		self.externalUserId = externalUserId //???: what if I send nil after I sent non-nil earlier?
+		self.externalUserId = externalUserId
 		self.predefinedUserData = predefinedUserData
-		self.customUserData = customUserData
+		if let customUserData = customUserData {
+			self.customUserData = customUserData.map({CustomUserDataElement(dataKey: $0.0, dataValue: $0.1)})
+		} else {
+			self.customUserData = nil
+		}
 	}
-}
-
-
-func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
-	return lhs.hashValue == rhs.hashValue
 }
 
 struct MMPostSystemDataRequest: MMHTTPPostRequest {
 	typealias ResponseType = MMHTTPSystemDataSyncResponse
 	var path: MMHTTPAPIPath { return .SystemData }
-	var parameters: [String: Any]? {
+	var parameters: RequestParameters? {
 		return [MMAPIKeys.kInternalRegistrationId: internalUserId]
 	}
-	var body: [String: Any]? {
+	var body: RequestBody? {
 		return systemData.dictionaryRepresentation
 	}
 	
@@ -232,13 +249,13 @@ struct MMPostMessageRequest: MMHTTPPostRequest {
 
 	typealias ResponseType = MMHTTPMOMessageResponse
 	var path: MMHTTPAPIPath { return .MOMessage }
-	var parameters: [String: Any]? {
+	var parameters: RequestParameters? {
 		return [MMAPIKeys.kPlatformType : MMAPIValues.kPlatformType]
 	}
-	var body: [String: Any]? {
-		var result = [String: Any]()
+	var body: RequestBody? {
+		var result = RequestBody()
 		result[MMAPIKeys.kMOFrom] = internalUserId
-		result[MMAPIKeys.kMOMessages] = messages.map { msg -> [String: Any] in
+		result[MMAPIKeys.kMOMessages] = messages.map { msg -> RequestBody in
 			var dict = msg.dictRepresentation
 			dict[MMAPIKeys.kMOMessageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
 			return dict

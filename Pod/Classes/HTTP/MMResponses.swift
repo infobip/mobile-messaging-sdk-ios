@@ -112,7 +112,7 @@ final class MMHTTPLibraryVersionResponse: MMHTTPResponse {
 final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
     let messages: [MTMessage]?
 	required init?(json value: JSON) {
-		self.messages = value[MMAPIKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
+		self.messages = value[APNSPayloadKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
 		super.init(json: value)
 	}
 }
@@ -125,12 +125,19 @@ final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
 	typealias ValueType = Any
 	
 	let predefinedData: [AttributeName: ValueType]?
-	let customData: [AttributeName: ValueType]?
-	let error: MMRequestError? //TODO: UserData v2 negotiate the errors format.
+	let customData: [CustomUserDataElement]?
+	let error: MMRequestError?
 	
 	required init?(json value: JSON) {
 		self.predefinedData = value[MMAPIKeys.kUserDataPredefinedUserData].dictionaryObject
-		self.customData = value[MMAPIKeys.kUserDataCustomUserData].dictionaryObject
+		self.customData = value[MMAPIKeys.kUserDataCustomUserData].dictionaryObject?.reduce([CustomUserDataElement](), { (result, pair) -> [CustomUserDataElement] in
+			if let element = CustomUserDataElement(dictRepresentation: [pair.0: pair.1]) {
+				return result + [element]
+			} else {
+				return result
+			}
+		})
+		
 		self.error = MMRequestError(json: value)
 		super.init(json: value)
 	}

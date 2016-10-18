@@ -8,9 +8,7 @@
 import Foundation
 
 struct MMAPIKeys {
-	//MARK: API availability
-//	static let kFetchAPIEnabled = true
-//	static let kSeenAPIEnabled = true
+	static let kMessageId = "messageId"
 	
     //MARK: registration
     static let kPlatformType = "platformType"
@@ -26,28 +24,10 @@ struct MMAPIKeys {
     static let kServiceException = "serviceException"
     static let kErrorText = "text"
 	static let kErrorMessageId = "messageId"
-    
-    //MARK: APNs
-    static let kPayloads = "payloads"
-    static let kAps = "aps"
-    static let kAlert = "alert"
-    static let kTitle = "title"
-    static let kBody = "body"
-    static let kBadge = "badge"
-    static let kSound = "sound"
-    static let kCustomPayload = "customPayload"
-	static let kContentAvailable = "content-available"
-	static let kInternalData = "internalData"
-	static let kSilent = "silent"
-	static let kGeo: String = "geo"
-	static let kMessageType = "messageType"
-    
-    //MARK: seenMessages
+
+	//MARK: seenMessages
     static let kSeenMessages = "messages"
     static let kSeenTimestampDelta = "timestampDelta"
-    
-    //MARK: Common fields
-    static let kMessageId = "messageId"
 	
 	//MARK: Sync API
 	static let kArchiveMsgIds = "mIDs"
@@ -59,7 +39,7 @@ struct MMAPIKeys {
 	static let kUserDataExternalUserId = "externalUserId"
 	static let kUserDataFailures = "failures"
 	
-	//MARK: UserData API
+	//MARK: SystemData API
 	static let kSystemDataSDKVersion = "sdkVersion"
 	static let kSystemDataOSVer = "osVersion"
 	static let kSystemDataDeviceManufacturer = "deviceManufacturer"
@@ -82,6 +62,31 @@ struct MMAPIKeys {
 	static let kLibraryVersionPlatformType = "platformType"
 	static let kLibraryVersionLibraryVersion = "libraryVersion"
 	static let kLibraryVersionUpdateUrl = "updateUrl"
+}
+
+struct APNSPayloadKeys {
+	//MARK: Internal Data Keys
+	static let kInternalDataEvent = "event"
+	static let kInternalDataDeliveryTime = "deliveryTime"
+	static let kInternalData: String = "internalData"
+	static let kInternalDataSilent: String = "silent"
+	static let kInternalDataGeo = "geo"
+	static let kInternalDataMessageTypeGeo = "geo"
+	static let kInternalDataMessageType = "messageType"
+	
+	//MARK: APNs
+	static let kPayloads = "payloads"
+	static let kAps = "aps"
+	static let kAlert = "alert"
+	static let kTitle = "title"
+	static let kBody = "body"
+	static let kBadge = "badge"
+	static let kSound = "sound"
+	static let kCustomPayload = "customPayload"
+	static let kContentAvailable = "content-available"
+	
+	//MARK: Common fields
+	static let kMessageId = "messageId"
 }
 
 struct MMAPIValues {
