@@ -4,7 +4,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MMApplicationDelegate : UIResponder <UIApplicationDelegate>
+@interface MobileMessagingCordovaApplicationDelegate : UIResponder <UIApplicationDelegate>
 
 + (instancetype)sharedInstaller;
 + (void) install;

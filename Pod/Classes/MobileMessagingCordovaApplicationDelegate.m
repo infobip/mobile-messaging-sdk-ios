@@ -2,19 +2,19 @@
 // Created by Goran Tomasic on 10/10/2016.
 //
 
-#import "MMApplicationDelegate.h"
+#import "MobileMessagingCordovaApplicationDelegate.h"
 #import <MobileMessaging/MobileMessaging-Swift.h>
 
-@interface MMApplicationDelegate() {
+@interface MobileMessagingCordovaApplicationDelegate() {
 	id<UIApplicationDelegate> _applicationDelegate;
 	UIBackgroundTaskIdentifier _backgroundTask;
 }
 @end
 
-@implementation MMApplicationDelegate
+@implementation MobileMessagingCordovaApplicationDelegate
 
 + (instancetype)sharedInstaller {
-	static MMApplicationDelegate *_sharedInstaller = nil;
+	static MobileMessagingCordovaApplicationDelegate *_sharedInstaller = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
 		_sharedInstaller = [[self alloc] init];
@@ -33,8 +33,6 @@
 		UIResponder *responder = (UIResponder *) _applicationDelegate;
 		self.window = [responder valueForKey:@"window"];
 		[[UIApplication sharedApplication] setDelegate:self];
-		
-		NSLog(@"***** AppDelegate was intercepted");
 		
 		_backgroundTask = UIBackgroundTaskInvalid;
 		_installed = YES;
