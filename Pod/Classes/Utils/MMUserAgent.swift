@@ -115,6 +115,8 @@ public class MMUserAgent: NSObject {
 			"iPhone8,1":"iPhone 6s",
 			"iPhone8,2":"iPhone 6s Plus",
 			"iPhone8,4":"iPhone SE",
+			"iPhone9,2":"iPhone 7 Plus (LTE)",
+			"iPhone9,3":"iPhone 7 (LTE)",
 			"iPad2,1":"iPad 2 (WiFi)",
 			"iPad2,2":"iPad 2 (GSM)",
 			"iPad2,3":"iPad 2 (CDMA)",
