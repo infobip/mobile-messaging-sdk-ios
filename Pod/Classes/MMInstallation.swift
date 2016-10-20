@@ -10,20 +10,25 @@ import CoreData
 import Foundation
 import CoreLocation
 
+@available(*, deprecated, message: "Use `CustomUserDataValue` class to wrap the custom user data value.")
 @objc public protocol UserDataSupportedTypes: AnyObject {}
+@available(*, deprecated)
 extension NSDate: UserDataSupportedTypes {}
+@available(*, deprecated)
 extension NSString: UserDataSupportedTypes {}
+@available(*, deprecated)
 extension NSNumber: UserDataSupportedTypes {}
+@available(*, deprecated)
 extension NSNull: UserDataSupportedTypes {}
 
 @objc public enum MMUserGenderValues: Int {
 	case Female
 	case Male
 	
-	func name() -> NSString {
+	var name: String {
 		switch self {
-		case .Female : return "F" as NSString
-		case .Male : return "M" as NSString
+		case .Female : return "F"
+		case .Male : return "M"
 		}
 	}
 }
@@ -88,8 +93,8 @@ final public class MMUser: NSObject {
 	
 	/// The user's email address. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var email: String? {
-		get { return predefinedData(forKey: MMUserPredefinedDataKeys.Email) as? String }
-		set { set(predefinedData: newValue as NSString?, forKey: MMUserPredefinedDataKeys.Email) }
+		get { return predefinedData(forKey: MMUserPredefinedDataKeys.Email) }
+		set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.Email) }
 	}
 	
 	/// Saves the email on the server asynchronously and executes the given callback block.
@@ -102,8 +107,8 @@ final public class MMUser: NSObject {
 	
 	/// A user's MSISDN. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var msisdn: String? {
-		get { return predefinedData(forKey: MMUserPredefinedDataKeys.MSISDN) as? String }
-		set { set(predefinedData: newValue as NSString?, forKey: MMUserPredefinedDataKeys.MSISDN) }
+		get { return predefinedData(forKey: MMUserPredefinedDataKeys.MSISDN) }
+		set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.MSISDN) }
 	}
 	
 	/// Saves the MSISDN on the server asynchronously and executes the given callback block.
@@ -123,125 +128,99 @@ final public class MMUser: NSObject {
 //MARK: - CUSTOM DATA
 	
 	/// Returns user's custom data. Arbitrary attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var customData: [String: UserDataSupportedTypes]? {
-		get { return installationManager.getValueForKey("customUserData") as? [String: UserDataSupportedTypes] }
-		set { installationManager.setValueForKey("customUserData", value: newValue) }
+	public var customData: [String: CustomUserDataValue]? {
+		get {
+			let foundationDict = installationManager.getValueForKey("customUserData") as? [String: UserDataFoundationTypes]
+			return foundationDict?.customUserDataValues
+		}
+		set {
+			let foundationValues = newValue?.userDataFoundationTypes
+			installationManager.setValueForKey("customUserData", value: foundationValues)
+		}
 	}
+	
+	//MARK: Save
 	
 	/// Saves the user's custom data on the server asynchronously and executes the given callback block.
 	/// - parameter data: The dictionary representing data you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(customData: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
+	public func save(customData customData: [String: CustomUserDataValue], completion: @escaping (NSError?) -> Void) {
 		self.customData = customData
 		save(completion)
 	}
 	
-	@available(*, deprecated, renamed: "save(customData:completion:)")
-	public func saveCustomData(data: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
-		save(customData: data, completion: completion)
-	}
+	//MARK: Getter
 	
 	/// Returns the custom data value associated with a given key.
 	/// - parameter key: The key for which to return the corresponding value.
-	public func customData(forKey key: String) -> UserDataSupportedTypes? {
-		var result: UserDataSupportedTypes? = nil
+	public func customData(forKey key: String) -> CustomUserDataValue? {
+		var result: CustomUserDataValue? = nil
 		if let customUserData = self.customData {
 			result = customUserData[key]
 		}
-		return result is NSNull ? nil : result
+		return result
 	}
 	
-	@available(*, deprecated, renamed: "customData(forKey:)")
-	@nonobjc public func customDataForKey(key: String) -> UserDataSupportedTypes? {
-		return customData(forKey: key)
-	}
+	//MARK: Setter for key
 	
 	/// Sets the custom data value for a given key. To save data, call `save(completion:)` method of `MMUser` object.
 	/// - parameter key: The key for `object`.
 	/// - parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
-	public func set(customData object: UserDataSupportedTypes?, forKey key: String) {
-		set(data: object, forKey: key, attributeName: "customUserData")
+	public func set(customData object: CustomUserDataValue?, forKey key: String) {
+		set(data: object?.dataValue ?? NSNull(), forKey: key, attributeName: "customUserData")
 	}
 	
-	@available(*, deprecated, renamed: "set(customData:forKey:)")
-	public func setCustomDataForKey(key: String, object: UserDataSupportedTypes?) {
-		set(customData: object, forKey: key)
-	}
+	//MARK: Save for key
 	
 	/// Sets the custom data value for a given key, immediately sends changes to the server asynchronously and executes the given callback block.
 	/// - parameter key: The key for `object`.
 	/// - parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(customData object: UserDataSupportedTypes?, forKey key: String, completion: @escaping (NSError?) -> Void) {
+	public func save(customData object: CustomUserDataValue?, forKey key: String, completion: @escaping (NSError?) -> Void) {
 		self.set(customData: object, forKey: key)
 		save(completion)
-	}
-	
-	@available(*, deprecated, renamed: "save(customData:forKey:completion:)")
-	public func saveCustomDataForKey(key: String, object: UserDataSupportedTypes?, completion: @escaping (NSError?) -> Void) {
-		save(customData: object, forKey: key, completion: completion)
 	}
 	
 //MARK: - PREDEFINED DATA
 	
 	/// Returns user's predefined attributes (all possible attributes are described in the `MMUserPredefinedDataKeys` enum). Predefined attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var predefinedData: [String: UserDataSupportedTypes]? {
-		get { return installationManager.getValueForKey("predefinedUserData") as? [String: UserDataSupportedTypes] }
-		set { installationManager.setValueForKey("predefinedUserData", value: newValue) }
+	public var predefinedData: [String: String]? {
+		get { return installationManager.getValueForKey("predefinedUserData") as? [String: String] }
+		set { installationManager.setValueForKey("predefinedUserData", value: newValue as [AnyHashable: UserDataFoundationTypes]?) }
 	}
 	
 	/// Saves the user's attributes on the server asynchronously and executes the given callback block.
 	/// - parameter data: The dictionary representing data you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(predefinedData: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
+	public func save(predefinedData predefinedData: [String: String], completion: @escaping (NSError?) -> Void) {
 		self.predefinedData = predefinedData
 		save(completion)
 	}
 	
-	@available(*, deprecated, renamed: "save(predefinedData:completion:)")
-	public func savePredefinedData(data: [String: UserDataSupportedTypes], completion: @escaping (NSError?) -> Void) {
-		save(predefinedData: data, completion: completion)
-	}
-	
 	/// Returns the user's attribute value associated with a given key.
 	/// - parameter key: The key of type `MMUserPredefinedDataKeys` for which to return the corresponding value.
-	public func predefinedData(forKey key: MMUserPredefinedDataKeys) -> UserDataSupportedTypes? {
-		var result: UserDataSupportedTypes? = nil
+	public func predefinedData(forKey key: MMUserPredefinedDataKeys) -> String? {
+		var result: String? = nil
 		if let predefinedData = self.predefinedData {
 			result = predefinedData[key.name]
 		}
-		return result is NSNull ? nil : result
-	}
-	
-	@available(*, deprecated, renamed: "predefinedData(forKey:)")
-	@nonobjc public func predefinedDataForKey(key: MMUserPredefinedDataKeys) -> UserDataSupportedTypes? {
-		return predefinedData(forKey: key)
+		return result
 	}
 	
 	/// Sets the user's attribute value for a given key. To save data, call `save(completion:)` method of `MMUser` object.
 	/// - parameter key: The key of type `MMUserPredefinedDataKeys` for `object`.
 	/// - parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
-	public func set(predefinedData object: UserDataSupportedTypes?, forKey key: MMUserPredefinedDataKeys) {
-		set(data: object, forKey: key.name, attributeName: "predefinedUserData")
-	}
-	
-	@available(*, deprecated, renamed: "set(predefinedData:forKey:)")
-	public func setPredefinedDataForKey(key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?) {
-		set(predefinedData: object, forKey: key)
+	public func set(predefinedData object: String?, forKey key: MMUserPredefinedDataKeys) {
+		set(data: object as UserDataFoundationTypes?, forKey: key.name, attributeName: "predefinedUserData")
 	}
 	
 	/// Sets the user's attribute value for a given key, immediately sends changes to the server asynchronously and executes the given callback block.
 	/// - parameter key: The key for `object`.
 	/// - parameter object: The object for `key` of type `MMUserPredefinedDataKeys`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(predefinedData object: UserDataSupportedTypes?, forKey key: MMUserPredefinedDataKeys, completion: @escaping (NSError?) -> Void) {
+	public func save(predefinedData object: String?, forKey key: MMUserPredefinedDataKeys, completion: @escaping (NSError?) -> Void) {
 		set(predefinedData: object, forKey: key)
 		save(completion)
-	}
-	
-	@available(*, deprecated, renamed: "save(predefinedData:forKey:completion:)")
-	public func savePredefinedDataForKey(key: MMUserPredefinedDataKeys, object: UserDataSupportedTypes?, completion: @escaping (NSError?) -> Void) {
-		save(predefinedData: object, forKey: key, completion: completion)
 	}
 	
 	/// Explicitly tries to save all user data on the server.
@@ -261,8 +240,8 @@ final public class MMUser: NSObject {
 	func syncWithServer(_ completion: ((NSError?) -> Void)? = nil) {
 		installationManager.syncUserWithServer(completion)
 	}
-	
-	func set(data object: UserDataSupportedTypes?, forKey key: String, attributeName: String) {
+
+	func set(data object: UserDataFoundationTypes?, forKey key: String, attributeName: String) {
 		installationManager.set(object, key: key, attribute: attributeName)
 	}
 	

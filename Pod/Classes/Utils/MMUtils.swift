@@ -38,6 +38,28 @@ struct DateStaticFormatters {
 	}()
 }
 
+extension Dictionary where Key: StringLiteralConvertible, Value: UserDataFoundationTypes {
+	public var customUserDataValues: [Key: CustomUserDataValue]? {
+		let result = self.reduce([Key: CustomUserDataValue](), { (result, tuple) -> [Key: CustomUserDataValue] in
+			var r = result
+			r[tuple.0] = CustomUserDataValue(withFoundationValue: tuple.1)
+			return r
+		})
+		return result
+	}
+}
+
+extension Dictionary where Key: StringLiteralConvertible, Value: CustomUserDataValue {
+	public var userDataFoundationTypes: [Key: UserDataFoundationTypes]? {
+		let result = self.reduce([Key: UserDataFoundationTypes](), { (result, tuple) -> [Key: UserDataFoundationTypes] in
+			var r = result
+			r[tuple.0] = tuple.1.dataValue
+			return r
+		})
+		return result
+	}
+}
+
 public extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 	public var mm_apsAlertBody: String? {
 		return (self as NSDictionary).mm_apsAlertBody
@@ -251,11 +273,11 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> D
 }
 
 
-func ==(lhs : [AnyHashable : UserDataSupportedTypes], rhs: [AnyHashable : UserDataSupportedTypes]) -> Bool {
+func ==(lhs : [AnyHashable : UserDataFoundationTypes], rhs: [AnyHashable : UserDataFoundationTypes]) -> Bool {
 	return NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
-func !=(lhs : [AnyHashable : UserDataSupportedTypes], rhs: [AnyHashable : UserDataSupportedTypes]) -> Bool {
+func !=(lhs : [AnyHashable : UserDataFoundationTypes], rhs: [AnyHashable : UserDataFoundationTypes]) -> Bool {
 	return !NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 

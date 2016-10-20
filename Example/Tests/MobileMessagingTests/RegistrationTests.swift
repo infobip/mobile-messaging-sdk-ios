@@ -24,18 +24,12 @@ final class RegistrationTests: MMTestCase {
 			}
         }
 		
-		MobileMessaging.currentUser?.set(customData: "metadata1" as NSString, forKey: "meta1")
-        MobileMessaging.currentUser?.persist()
-		MobileMessaging.currentUser?.set(customData: "metadata2" as NSString, forKey: "meta2")
-		MobileMessaging.currentUser?.persist()
-		
 		waitForExpectations(timeout: 100, handler: { err in
 			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
 			
 			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
 				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".mm_toHexademicalString(), "Most recent token must be persisted")
-				XCTAssertEqual((installation.customUserData as! [String: String])["meta2"], "metadata2", "meta2 key must contain metadata2")
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Device token must be synced with server")
 			} else {
 				XCTFail("There must be atleast one installation object in database")

@@ -82,7 +82,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public var allRegions: Array<MMRegion> {
 		var result = Array<MMRegion>()
 		serviceQueue.executeSync() {
-			result = datasource.allRegions
+			result = self.datasource.allRegions
 		}
 		return result
 	}
@@ -383,6 +383,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	var closestLiveRegions: Set<CLCircularRegion> {
+		assert(Thread.isMainThread)
 		let notExpiredRegions = Set(self.datasource.liveRegions.map { $0.circularRegion })
 		let number = self.kMonitoringRegionsLimit - self.locationManager.monitoredRegions.count
 		let location = self.locationManager.location ?? previousLocation
@@ -442,6 +443,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	private var previousLocation: CLLocation?
 	let kRegionRefreshThreshold: CLLocationDistance = 200
 	private func shouldRefreshRegionsWithNewLocation(location: CLLocation) -> Bool {
+		assert(Thread.isMainThread)
 		guard let previousLocation = previousLocation else {
 			return true
 		}

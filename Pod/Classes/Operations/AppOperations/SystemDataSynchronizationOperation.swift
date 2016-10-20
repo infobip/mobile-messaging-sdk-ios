@@ -73,6 +73,7 @@ class SystemDataSynchronizationOperation: Operation {
 				guard let installationObject = self.installationObject else {
 					return
 				}
+
 				installationObject.systemDataHash = self.currentSystemDataHash
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("System Data: successfully synced")

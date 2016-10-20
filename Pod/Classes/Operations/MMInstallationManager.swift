@@ -41,16 +41,16 @@ final class MMInstallationManager {
 		}
 	}
 	
-	func setValueForKey(_ key: String, value: [AnyHashable: UserDataSupportedTypes]? ) {
+	func setValueForKey(_ key: String, value: [AnyHashable: UserDataFoundationTypes]? ) {
 		storageContext.perform {
 			self.installationObject.setValueIfDifferent(value, forKey: key)
 		}
 	}
 	
-	func set(_ value: UserDataSupportedTypes?, key: AnyHashable, attribute: String) {
+	func set(_ value: UserDataFoundationTypes?, key: AnyHashable, attribute: String) {
 		storageContext.perform {
-			var dictValue : [AnyHashable : UserDataSupportedTypes]? = [key: value ?? NSNull()]
-			if let dictionaryValue = self.getValueForKey(attribute) as? [AnyHashable : UserDataSupportedTypes] {
+			var dictValue : [AnyHashable : UserDataFoundationTypes]? = [key: value ?? NSNull()]
+			if let dictionaryValue = self.getValueForKey(attribute) as? [AnyHashable : UserDataFoundationTypes] {
 				dictValue = dictionaryValue + dictValue
 			}
 			self.installationObject.setValueIfDifferent(dictValue, forKey: attribute)
