@@ -217,7 +217,10 @@ class GeofencingServiceTests: MMTestCase {
 		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		weak var expectation = self.expectation(description: "Check finished")
 		self.mobileMessagingInstance.didReceiveRemoteNotification(modernAPNSPayloadZagrebPulaDict, newMessageReceivedCallback: nil, completion: { result in
-			expectation?.fulfill()
+			//Should be in main because Geofensing service saves data asynchronously in main
+			DispatchQueue.main.async {
+				expectation?.fulfill()
+			}
 		})
 		self.waitForExpectations(timeout: 100, handler: { error in
 			XCTAssertEqual(MobileMessaging.geofencingService?.allRegions.count, 2)
