@@ -37,6 +37,28 @@ struct NSDateStaticFormatters {
 	}()
 }
 
+extension Dictionary where Key: StringLiteralConvertible, Value: UserDataFoundationTypes {
+	public var customUserDataValues: [Key: CustomUserDataValue]? {
+		let result = self.reduce([Key: CustomUserDataValue](), combine: { (result, tuple) -> [Key: CustomUserDataValue] in
+			var r = result
+			r[tuple.0] = CustomUserDataValue(withFoundationValue: tuple.1)
+			return r
+		})
+		return result
+	}
+}
+
+extension Dictionary where Key: StringLiteralConvertible, Value: CustomUserDataValue {
+	public var userDataFoundationTypes: [Key: UserDataFoundationTypes]? {
+		let result = self.reduce([Key: UserDataFoundationTypes](), combine: { (result, tuple) -> [Key: UserDataFoundationTypes] in
+			var r = result
+			r[tuple.0] = tuple.1.dataValue
+			return r
+		})
+		return result
+	}
+}
+
 public extension Dictionary where Key: NSObject, Value: AnyObject {
 	public var mm_apsAlertBody: String? {
 		return (self as NSDictionary).mm_apsAlertBody

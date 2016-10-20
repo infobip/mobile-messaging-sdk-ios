@@ -73,7 +73,6 @@ class SystemDataSynchronizationOperation: Operation {
 				guard let installationObject = self.installationObject else {
 					return
 				}
-				print("storing hash", self.currentSystemDataHash)
 				installationObject.systemDataHash = NSNumber(integer: self.currentSystemDataHash)
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("System Data: successfully synced")

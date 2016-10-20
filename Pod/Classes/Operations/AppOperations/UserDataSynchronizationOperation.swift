@@ -124,7 +124,7 @@ class UserDataSynchronizationOperation: Operation {
 				}
 
 				installationObject.customUserData = response.customData?.reduce(nil, combine: { (result, element) -> [String: AnyObject]? in
-					return result + element.mapToFoundationTypesDict()
+					return result + element.mapToCoreDataCompatibleDictionary()
 				}) ?? nil
 				installationObject.predefinedUserData = response.predefinedData
 				
@@ -149,79 +149,239 @@ class UserDataSynchronizationOperation: Operation {
 	}
 }
 
-struct CustomUserDataElement: DictionaryRepresentable {
+struct CustomUserData: DictionaryRepresentable {
 	let dataKey: String
 	let dataValue: CustomUserDataValue?
 	
-	init(dataKey: String, dataValue: UserDataSupportedTypes) {
+	init(dataKey: String, dataValue: UserDataFoundationTypes) {
 		self.dataKey = dataKey
 		if dataValue is NSNull {
 			self.dataValue = nil
 		} else {
-			self.dataValue = CustomUserDataValue.make(withValue: dataValue)
+			self.dataValue = CustomUserDataValue(withFoundationValue: dataValue)
 		}
 	}
 	
 	init?(dictRepresentation dict: [String: AnyObject]) {
-		guard let k = dict.first?.0 else {
+		guard let key = dict.first?.0 else {
 			return nil
 		}
-		self.dataKey = k
-		if let valueDict = dict.first?.1 as? [String: AnyObject], let dataValue = valueDict["value"] as? UserDataSupportedTypes, let dataTypeString = valueDict["type"] as? String, let dataType = ContactsTypes(rawValue: dataTypeString) {
-			self.dataValue = CustomUserDataValue(dataType: dataType, dataValue: dataValue)
+		self.dataKey = key
+		if	let valueDict = dict.first?.1 as? [String: AnyObject] {
+			self.dataValue = CustomUserDataValue(withJSONDict: valueDict)
 		} else {
 			self.dataValue = nil
 		}
 	}
 	
 	var dictionaryRepresentation: [String: AnyObject] {
-		if let dataValue = dataValue {
-			return [dataKey: ["type": dataValue.dataType.rawValue, "value": dataValue.dataValue]]
+		if let dataValue = dataValue, let valueDict = dataValue.jsonDictRepresentation {
+			return [dataKey: valueDict]
 		} else {
 			return [dataKey: NSNull()]
 		}
 	}
 	
-	func mapToFoundationTypesDict() -> [String: AnyObject]? {
+	func mapToCoreDataCompatibleDictionary() -> [String: AnyObject]? { //TODO: not needed after removing UserDataFoundationTypes
 		var result: [String: AnyObject]?
-		if let value = self.dataValue {
+		if let value = self.dataValue, let type = value.dataType {
 			var dict = [String: AnyObject]()
-			switch (value.dataType, value.dataValue) {
-			case (ContactsTypes.string, let foundationValue as NSString):
-				dict[dataKey] = foundationValue
-			case (ContactsTypes.number, let foundationValue as NSNumber):
-				dict[dataKey] = foundationValue
-			case (ContactsTypes.date, let foundationValue as NSString):
-				dict[dataKey] = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(foundationValue as String)
-			default:
-				break
+			switch type {
+			case .string:
+				if let stringValue = value.dataValue as? NSString {
+					dict[dataKey] = stringValue
+				}
+			case .number:
+				if let numberValue = value.dataValue as? NSNumber {
+					dict[dataKey] = numberValue
+				}
+			case .date:
+				if let dateValue = value.dataValue as? NSDate {
+					dict[dataKey] = dateValue
+				}
 			}
+			result = dict
+		} else {
+			var dict = [String: AnyObject]()
+			dict[dataKey] = nil
 			result = dict
 		}
 		return result
 	}
+}
+
+enum UserDataServiceTypes: String {
+	case string = "String"
+	case number = "Number"
+	case date = "Date"
+}
+
+@objc public protocol UserDataFoundationTypes: AnyObject {}
+extension NSDate: UserDataFoundationTypes {}
+extension NSNumber: UserDataFoundationTypes {}
+extension NSString: UserDataFoundationTypes {}
+extension NSNull: UserDataFoundationTypes {}
+
+public final class CustomUserDataValue: NSObject, StringLiteralConvertible, FloatLiteralConvertible, IntegerLiteralConvertible {
+	let dataType: UserDataServiceTypes?
+	let dataValue: UserDataFoundationTypes
 	
-	enum ContactsTypes: String {
-		case string = "String"
-		case number = "Number"
-		case date = "Date"
+	
+//MARK: - Accessors
+	public var string: String? {
+		guard let type = dataType, let stringValue = dataValue as? NSString where type == .string else {
+			return nil
+		}
+		return stringValue as String
+	}
+	public var date: NSDate? {
+		guard let type = dataType, let dateValue = dataValue as? NSDate where type == .date else {
+			return nil
+		}
+		return dateValue
+	}
+	public var number: NSNumber? {
+		guard let type = dataType, let numberValue = dataValue as? NSNumber where type == .number else {
+			return nil
+		}
+		return numberValue
+	}
+	public var double: Double? {
+		guard let type = dataType, let numberValue = dataValue as? NSNumber where type == .number else {
+			return nil
+		}
+		return CustomUserDataValue.isInteger(numberValue) ? nil : numberValue.doubleValue
+	}
+	public var integer: Int? {
+		guard let type = dataType, let numberValue = dataValue as? NSNumber where type == .number else {
+			return nil
+		}
+		return CustomUserDataValue.isInteger(numberValue) ? numberValue.integerValue : nil
+	}
+//MARK: - Literals
+	convenience public init(integerLiteral value: Int) {
+		self.init(integer: value)
+	}
+	convenience public init(floatLiteral value: Double) {
+		self.init(double: value)
 	}
 	
-	struct CustomUserDataValue {
-		let dataType: ContactsTypes
-		let dataValue: UserDataSupportedTypes
-		
-		static func make(withValue value: UserDataSupportedTypes) -> CustomUserDataValue? {
-			switch value {
-			case let v as NSString:
-				return CustomUserDataValue(dataType: ContactsTypes.string, dataValue: v) //TODO: move to enums
-			case let v as NSNumber:
-				return CustomUserDataValue(dataType: ContactsTypes.number, dataValue: v)
-			case let v as NSDate:
-				return CustomUserDataValue(dataType: ContactsTypes.date, dataValue: NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(v))
-			default:
-				return nil
+	convenience public init(dateLiteral value: NSDate) {
+		self.init(date: value)
+	}
+	
+	convenience public init(stringLiteral value: String) {
+		self.init(string: value)
+	}
+	
+	convenience public init(extendedGraphemeClusterLiteral value: String) {
+		self.init(string: value)
+	}
+	
+	convenience public init(unicodeScalarLiteral value: String) {
+		self.init(string: value)
+	}
+	
+//MARK: - Init
+	init(dataType: UserDataServiceTypes, dataValue: UserDataFoundationTypes) {
+		self.dataValue = dataValue
+		self.dataType = dataType
+	}
+	public init(date: NSDate) {
+		dataValue = date
+		dataType = .date
+	}
+	public init(integer: Int) {
+		dataValue = NSNumber(integer: integer)
+		dataType = .number
+	}
+	public init(double: Double) {
+		dataValue = NSNumber(double: double)
+		dataType = .number
+	}
+	public init(string: String) {
+		dataValue = string as NSString
+		dataType = .string
+	}
+	public init(null: NSNull) {
+		dataValue = null
+		dataType = nil
+	}
+	
+	static func isInteger(number: NSNumber) -> Bool {
+		return floor(number.doubleValue) == number.doubleValue
+	}
+	
+	convenience init?(withFoundationValue value: UserDataFoundationTypes) {
+		switch value {
+		case let string as NSString:
+			self.init(string: string as String)
+		case let number as NSNumber:
+			if CustomUserDataValue.isInteger(number) {
+				self.init(integer: number.integerValue)
+			} else {
+				self.init(double: number.doubleValue)
+			}
+		case let date as NSDate:
+			self.init(date: date)
+		case let null as NSNull:
+			self.init(null: null)
+		default:
+			return nil
+		}
+	}
+	
+	convenience init?(withJSONDict valueDict: [String: AnyObject]) {
+		guard	let value = valueDict["value"] as? UserDataFoundationTypes,
+				let dataTypeString = valueDict["type"] as? String,
+				let type = UserDataServiceTypes(rawValue: dataTypeString)
+			else
+		{
+			return nil
+		}
+	
+		switch type {
+		case .date:
+			if let value = value as? String, let date = NSDateStaticFormatters.ISO8601SecondsFormatter.dateFromString(value) {
+				self.init(date: date)
+				return
+			}
+		case .number:
+			if let number = value as? NSNumber {
+				self.init(withFoundationValue: number)
+				return
+			}
+		case .string:
+			if let string = value as? String {
+				self.init(string: string)
+				return
 			}
 		}
+		return nil
+	}
+	
+	var jsonDictRepresentation: [String: AnyObject]? {
+		guard let dataType = dataType else {
+			return nil
+		}
+		let jsonDictValue: AnyObject
+		switch dataType {
+		case .date:
+			guard let date = dataValue as? NSDate else {
+				return nil
+			}
+			jsonDictValue = NSDateStaticFormatters.ISO8601SecondsFormatter.stringFromDate(date) as NSString
+		case .number:
+			guard let number = dataValue as? NSNumber else {
+				return nil
+			}
+			jsonDictValue = number
+		case .string:
+			guard let string = dataValue as? NSString else {
+				return nil
+			}
+			jsonDictValue = string
+		}
+		return ["type": dataType.rawValue as NSString, "value": jsonDictValue]
 	}
 }

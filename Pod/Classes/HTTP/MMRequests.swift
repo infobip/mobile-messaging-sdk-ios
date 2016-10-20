@@ -212,14 +212,14 @@ struct MMPostUserDataRequest: MMHTTPPostRequest {
 	let internalUserId: String
 	let externalUserId: String?
 	let predefinedUserData: UserDataDictionary?
-	let customUserData: [CustomUserDataElement]?
+	let customUserData: [CustomUserData]?
 	
-	init(internalUserId: String, externalUserId: String?, predefinedUserData: UserDataDictionary? = nil, customUserData: [String: UserDataSupportedTypes]? = nil) {
+	init(internalUserId: String, externalUserId: String?, predefinedUserData: UserDataDictionary? = nil, customUserData: [String: CustomUserDataValue]? = nil) {
 		self.internalUserId = internalUserId
 		self.externalUserId = externalUserId
 		self.predefinedUserData = predefinedUserData
 		if let customUserData = customUserData {
-			self.customUserData = customUserData.map({CustomUserDataElement(dataKey: $0.0, dataValue: $0.1)})
+			self.customUserData = customUserData.map{ CustomUserData(dataKey: $0.0, dataValue: $0.1.dataValue) }
 		} else {
 			self.customUserData = nil
 		}

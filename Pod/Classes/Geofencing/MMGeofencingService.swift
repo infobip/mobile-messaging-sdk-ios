@@ -79,7 +79,13 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public weak var delegate: MMGeofencingServiceDelegate?
 	
 	/// Returns all the regions available in the Geofencing Service storage.
-	public var allRegions: Array<MMRegion> { return datasource.allRegions }
+	public var allRegions: Array<MMRegion> {
+		var result = Array<MMRegion>()
+		serviceQueue.executeSync() {
+			result = self.datasource.allRegions
+		}
+		return result
+	}
 	
 	/// Returns current capability status for Geofencing Service. For more information see `MMCapabilityStatus`.
 	public class var currentCapabilityStatus: MMCapabilityStatus {
@@ -377,6 +383,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	var closestLiveRegions: Set<CLCircularRegion> {
+		assert(NSThread.isMainThread())
 		let notExpiredRegions = Set(self.datasource.liveRegions.map { $0.circularRegion })
 		let number = self.kMonitoringRegionsLimit - self.locationManager.monitoredRegions.count
 		let location = self.locationManager.location ?? previousLocation
@@ -436,6 +443,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	private var previousLocation: CLLocation?
 	let kRegionRefreshThreshold: CLLocationDistance = 200
 	private func shouldRefreshRegionsWithNewLocation(location: CLLocation) -> Bool {
+		assert(NSThread.isMainThread())
 		guard let previousLocation = previousLocation else {
 			return true
 		}

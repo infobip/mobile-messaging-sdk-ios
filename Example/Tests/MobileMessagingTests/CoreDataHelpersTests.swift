@@ -32,9 +32,6 @@ class CoreDataHelpersTests: MMTestCase {
 		XCTAssertEqual(resultsAll?.count, summaryMessagesNumber)
 		
 		let resultsLimited = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "creationDate < %@", date(notOlderThanDay)), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: ctx) as? [MessageManagedObject]
-		resultsLimited?.forEach({ (msg) in
-			print(msg.creationDate)
-		})
 		
 		XCTAssertEqual(resultsLimited?.count, fetchLimit)
 		
