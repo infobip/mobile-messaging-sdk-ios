@@ -11,3 +11,6 @@ target 'MobileMessagingExample_Tests' do
     pod $podName, :path => '../'
 end
 
+target 'MobileMessagingExample_Tests_Device' do
+	pod $podName, :path => '../'
+end
