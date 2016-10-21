@@ -17,6 +17,11 @@ platform :ios do
         test_on_simulator
     end
 
+    lane :local_test do
+        cocoapods
+        test_on_simulator
+    end
+
     desc "Runs all the tests on Simulators"
     def test_on_simulator
         begin
