@@ -1,4 +1,4 @@
- fastlane documentation
+fastlane documentation
 ================
 # Installation
 ```
@@ -11,19 +11,28 @@ sudo gem install fastlane
 fastlane ios test
 ```
 Runs all the tests
+### ios local_test
+```
+fastlane ios local_test
+```
+
 ### ios snapshot
 ```
 fastlane ios snapshot
 ```
-Build a snapshot version and submit the app on Crashlytics Beta
+Runs all the tests on Simulators
+
+Runs all the tests on iPhone 5
+
+Build a snapshot version
 ### ios release
 ```
 fastlane ios release
 ```
-Build a release version and submit the app on Crashlytics Beta
+Build a release version, publish to Cocoapods
 
 ----
 
-This README.md is auto-generated and will be re-generated every time to run [fastlane](https://fastlane.tools).
+This README.md is auto-generated and will be re-generated every time [fastlane](https://fastlane.tools) is run.
 More information about fastlane can be found on [https://fastlane.tools](https://fastlane.tools).
 The documentation of fastlane can be found on [GitHub](https://github.com/fastlane/fastlane/tree/master/fastlane).
