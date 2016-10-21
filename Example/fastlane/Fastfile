@@ -3,9 +3,29 @@ fastlane_version "1.68.0"
 default_platform :ios
 
 platform :ios do
+
+    before_all do
+            `osascript -e 'tell app "Simulator" to quit'`
+            `osascript -e 'tell app "Xcode" to quit'`
+            sleep(5)
+            ENV["DEVELOPER_DIR"] = "/Applications/Xcode.app"
+            wait_xcrun
+    end
+
     desc "Runs all the tests"
     lane :test do
-        scan
+        load_keys
+        cocoapods
+        sigh(
+            output_path: "./tmp",
+            development: true
+        )
+        test_on_simulator
+    end
+
+    lane :local_test do
+        cocoapods
+        test_on_simulator
     end
 
     desc "Runs all the tests on Simulators"
@@ -13,15 +33,10 @@ platform :ios do
         begin
             scan(
                 skip_build: true,
-                slack_url: ENV["SLACK_WEBHOOK"],
-                slack_only_on_failure: true,
                 scheme: "MobileMessagingExample",
                 devices: [
-                            # "iPhone 5 (8.4)",
-                            # "iPhone 5 (9.3)",
-                            # "iPhone 6 (8.4)",
-                            "iPhone 6 (9.3)"
-                          ]
+                            "iPhone 5 (9.3)"
+                        ]
             )
         end
     end
