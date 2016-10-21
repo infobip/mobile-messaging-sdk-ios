@@ -14,6 +14,10 @@ platform :ios do
     desc "Runs all the tests"
     lane :test do
         cocoapods
+        sigh(
+            output_path: "./tmp",
+            development: true
+        )
         test_on_simulator
     end
 
