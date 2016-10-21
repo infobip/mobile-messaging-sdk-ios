@@ -105,8 +105,8 @@ platform :ios do
         unless only_build
             clean_build_artifacts
             
-            desc "Pushing to Github repo master"
-            sh "git push github HEAD:master"
+            desc "Pushing to Github repo swift2"
+            sh "git push github HEAD:swift2"
         end
     end
 
@@ -188,11 +188,11 @@ platform :ios do
             desc "Comitting changes"
             sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\" \"#{swift_app_code_path}\""
 
-            desc "Pushing to Stash repo master"
-            sh "git push origin HEAD:master --tags"
+            desc "Pushing to Stash repo swift2"
+            sh "git push origin HEAD:swift2 --tags"
 
-            desc "Pushing to Github repo master"
-            sh "git push github HEAD:master"
+            desc "Pushing to Github repo swift2"
+            sh "git push github HEAD:swift2"
 
             set_github_release(
                 repository_name: "infobip/mobile-messaging-sdk-ios",
