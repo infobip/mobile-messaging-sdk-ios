@@ -354,7 +354,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			MMLogDebug("[GeofencingService] regions we are inside: \n\(regionsWeAreInside.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			let deadRegions: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
-				return self.datasource.regionsDictionary[$0.identifier]?.message?.isNotExpired == false ?? true
+				return self.datasource.regionsDictionary[$0.identifier]?.message?.isNotExpired == false
 				}
 			)
 			MMLogDebug("[GeofencingService] dead monitored regions: \n\(deadRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name          = "MobileMessaging"
-    s.version       = "1.0.5"
+    s.version       = "2.0.1"
     s.summary       = "Mobile Messaging SDK for iOS"
     s.description   = "Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in you application and access to the features of Infobip IP Messaging Platform."
     s.homepage      = "https://github.com/infobip/mobile-messaging-sdk-ios"
@@ -13,31 +13,17 @@ Pod::Spec.new do |s|
     s.pod_target_xcconfig =  {
         'ENABLE_TESTABILITY' => 'YES',
         'SWIFT_VERSION' => '3.0',
-        'MODULEMAP_PRIVATE_FILE' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/module.private.modulemap',
         'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**',
-		'OTHER_SWIFT_FLAGS[config=Debug]' => '-DDEBUG'
+        'OTHER_SWIFT_FLAGS[config=Debug]' => '-DDEBUG'
     }
-
-    s.default_subspec = 'CocoaLumberjack'
     s.module_map = 'Pod/MobileMessaging.modulemap'
-    s.subspec 'Core' do |core|
-        core.frameworks = 'CoreData', 'CoreTelephony'
-        core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
-        core.public_header_files = 'Pod/Classes/**/*.h'
-        core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
-        core.source_files = 'Pod/Classes/**/*.{h,m,swift}'
-        core.exclude_files = 'Pod/Classes/Logging/DummyLogger/**', 'Pod/Classes/Logging/CocoaLumberjack/**'
-        core.dependency 'SwiftyJSON', '3.0.0'
-    end
+    s.frameworks = 'CoreData', 'CoreTelephony'
+    s.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
+    s.public_header_files = 'Pod/Classes/**/*.h'
+    s.private_header_files = 'Pod/Classes/Vendor/**/*.h'
+    s.source_files = 'Pod/Classes/**/*.{h,m,swift}'
+    s.exclude_files = 'Pod/Classes/Logging/DummyLogger/**'
+    s.dependency 'SwiftyJSON', '~> 3.0.0'
+    s.dependency 'CocoaLumberjack', '~> 3.0'
 
-    s.subspec 'DummyLogger' do |d|
-        d.source_files = 'Pod/Classes/Logging/DummyLogger/**'
-        d.dependency 'MobileMessaging/Core'
-    end
-
-    s.subspec 'CocoaLumberjack' do |cl|
-        cl.source_files = 'Pod/Classes/Logging/CocoaLumberjack/**'
-        cl.dependency 'MobileMessaging/Core'
-        cl.dependency 'CocoaLumberjack', '~> 3.0'
-    end
 end
