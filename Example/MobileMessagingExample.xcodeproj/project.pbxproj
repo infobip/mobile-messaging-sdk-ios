@@ -406,6 +406,11 @@
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = T6U248P7YM;
+						ProvisioningStyle = Manual;
+					};
+					8EFABFC71CEB3B9400510762 = {
+						DevelopmentTeam = T6U248P7YM;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -809,7 +814,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1460136653739;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -828,8 +833,8 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample;
-				PROVISIONING_PROFILE = "cbf9355a-a87a-4de9-8adf-7dadb9f83d3b";
-				PROVISIONING_PROFILE_SPECIFIER = "XC Ad Hoc: com.infobip.mobilemessaging.example";
+				PROVISIONING_PROFILE = "56a4abfd-1436-4588-95ea-1d5c88e9f48f";
+				PROVISIONING_PROFILE_SPECIFIER = "Mobile Messaging Example - Development";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
@@ -838,6 +843,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E12BA09A52F82DC21AABDCF1 /* Pods-MobileMessagingExample_Tests.debug.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -860,6 +866,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = EF0D3E03184EAF5AB97A1D2A /* Pods-MobileMessagingExample_Tests.release.xcconfig */;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -877,6 +884,7 @@
 		8EFABFDB1CEB3B9400510762 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -897,6 +905,7 @@
 		8EFABFDC1CEB3B9400510762 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
