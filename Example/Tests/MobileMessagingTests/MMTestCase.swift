@@ -10,30 +10,42 @@ import Foundation
 import CoreData
 @testable import MobileMessaging
 
+let queue = MMQueue.Serial.newQueue(queueName: "com.infobip.tests")
+
 class MMTestCase: XCTestCase {
 	var mobileMessagingInstance: MobileMessaging {
-		return MobileMessaging.sharedInstance!
+		var result: MobileMessaging? = nil
+		queue.executeSync { result = MobileMessaging.sharedInstance }
+		return result!
 	}
 	
 	var storage: MMCoreDataStorage {
-		return mobileMessagingInstance.internalStorage!
+		var result: MMCoreDataStorage? = nil
+		queue.executeSync { result = self.mobileMessagingInstance.internalStorage }
+		return result!
 	}
 	
 	override func setUp() {
-		super.setUp()
-		MobileMessaging.logger.logOutput = .Console
-		MobileMessaging.logger.logLevel = .All
-		MobileMessaging.stop(true)
-		startWithCorrectApplicationCode()
+		queue.executeSync {
+			super.setUp()
+			MobileMessaging.logger.logOutput = .Console
+			MobileMessaging.logger.logLevel = .All
+			MobileMessaging.stop(true)
+			startWithCorrectApplicationCode()
+		}
 	}
 	
 	func cleanUpAndStop() {
-		mobileMessagingInstance.cleanUpAndStop()
+		queue.executeSync {
+			mobileMessagingInstance.cleanUpAndStop()
+		}
 	}
 	
 	override func tearDown() {
-		super.tearDown()
-		cleanUpAndStop()
+		queue.executeSync {
+			super.tearDown()
+			cleanUpAndStop()
+		}
 	}
 	
 	func nonReportedStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
@@ -55,14 +67,20 @@ class MMTestCase: XCTestCase {
 	}
 	
 	func startWithApplicationCode(_ code: String) {
-		MobileMessaging.withApplicationCode(code, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		queue.executeSync {
+			MobileMessaging.withApplicationCode(code, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		}
 	}
 	
 	func startWithCorrectApplicationCode() {
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		queue.executeSync {
+			MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		}
 	}
 	
 	func startWithWrongApplicationCode() {
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		queue.executeSync {
+			MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		}
 	}
 }

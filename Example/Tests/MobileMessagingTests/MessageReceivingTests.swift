@@ -118,12 +118,12 @@ class MessageReceivingTests: MMTestCase {
 		})
 	}
 	
-	func testThatSilenMessagesEventWorks() {
+	func testThatSilentMessagesEvenWorks() {
 		let expectedEventsCount: Int = 5
 		var eventsCounter: Int = 0
 		
 		expectation(forNotification: MMNotificationMessageReceived, object: nil) { (notification) -> Bool in
-			if notification.userInfo?[MMNotificationKeyMessageIsSilent] as? Bool == true {
+			if let message = notification.userInfo?[MMNotificationKeyMessage] as? MTMessage, message.isSilent == true {
 				eventsCounter += 1
 			}
 			return eventsCounter == expectedEventsCount

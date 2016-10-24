@@ -85,7 +85,7 @@ class MessageStorageTests: MMTestCase {
 			}
 		}
 		
-		waitForExpectations(timeout: 5, handler: { error in
+		waitForExpectations(timeout: 10, handler: { error in
 			XCTAssertEqual(mockMessageStorage.moMessages.count, 1)
 		})
 	}
@@ -127,7 +127,7 @@ class MessageStorageTests: MMTestCase {
 			expectation.fulfill()
 		}
 		
-		waitForExpectations(timeout: 5, handler: { error in
+		waitForExpectations(timeout: 10, handler: { error in
 			XCTAssertTrue(isSentSuccessfully)
 			XCTAssertTrue(isSentWithFailure)
 			XCTAssertEqual(mockMessageStorage.moMessages.count, 2)

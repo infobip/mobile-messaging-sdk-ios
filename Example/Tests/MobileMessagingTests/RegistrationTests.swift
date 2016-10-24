@@ -149,7 +149,10 @@ final class RegistrationTests: MMTestCase {
     func testRegistrationDataNotSendsWithoutToken() {
         weak var sync1 = expectation(description: "sync1")
 		
-		XCTAssertNotNil(MobileMessaging.currentInstallation)
+		if MobileMessaging.currentInstallation == nil {
+			XCTFail("Installation is nil")
+			sync1?.fulfill()
+		}
 		
         MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) -> Void in
             XCTAssertNotNil(error)
