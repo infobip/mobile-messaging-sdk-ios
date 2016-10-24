@@ -29,29 +29,29 @@ platform :ios do
 
     desc "Runs all the tests on Simulators"
     def test_on_simulator
-        begin
-            scan(
-                skip_build: true,
-                scheme: "MobileMessagingExample",
-                devices: [
-                            	"iPhone 5 (9.3)",
-				"iPhone 5 (10.0)"
-                        ]
-            )
-        end
+    #     begin
+    #         scan(
+    #             skip_build: true,
+    #             scheme: "MobileMessagingExample",
+    #             devices: [
+    #                         	"iPhone 5 (9.3)",
+				# "iPhone 5 (10.0)"
+    #                     ]
+    #         )
+    #     end
     end
 
     desc "Runs all the tests on iPhone 5"
     def test_on_device 
-        begin
-            scan(
-                skip_build: true,
-                slack_url: ENV["SLACK_WEBHOOK"],
-                slack_only_on_failure: true,
-                scheme: "MobileMessagingExample_Tests_Device",
-                destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
-            )
-        end
+        # begin
+        #     scan(
+        #         skip_build: true,
+        #         slack_url: ENV["SLACK_WEBHOOK"],
+        #         slack_only_on_failure: true,
+        #         scheme: "MobileMessagingExample_Tests_Device",
+        #         destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
+        #     )
+        # end
     end
 
     def change_log_since_last_tag
