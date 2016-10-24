@@ -29,29 +29,29 @@ platform :ios do
 
     desc "Runs all the tests on Simulators"
     def test_on_simulator
-    #     begin
-    #         scan(
-    #             skip_build: true,
-    #             scheme: "MobileMessagingExample",
-    #             devices: [
-    #                         	"iPhone 5 (9.3)",
-				# "iPhone 5 (10.0)"
-    #                     ]
-    #         )
-    #     end
+        begin
+            scan(
+                skip_build: true,
+                scheme: "MobileMessagingExample",
+                devices: [
+                            	"iPhone 5 (9.3)",
+				"iPhone 5 (10.0)"
+                        ]
+            )
+        end
     end
 
     desc "Runs all the tests on iPhone 5"
     def test_on_device 
-        # begin
-        #     scan(
-        #         skip_build: true,
-        #         slack_url: ENV["SLACK_WEBHOOK"],
-        #         slack_only_on_failure: true,
-        #         scheme: "MobileMessagingExample_Tests_Device",
-        #         destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
-        #     )
-        # end
+        begin
+            scan(
+                skip_build: true,
+                slack_url: ENV["SLACK_WEBHOOK"],
+                slack_only_on_failure: true,
+                scheme: "MobileMessagingExample_Tests_Device",
+                destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
+            )
+        end
     end
 
     def change_log_since_last_tag
@@ -146,60 +146,60 @@ platform :ios do
             test_on_device
         end
         
-        # sigh(
-        #     output_path: "./tmp",
-        #     development: true
-        # )
-        # gym(
-        #     scheme: "MobileMessagingExample",
-        #     use_legacy_build_api: true
-        # )
+        sigh(
+            output_path: "./tmp",
+            development: true
+        )
+        gym(
+            scheme: "MobileMessagingExample",
+            use_legacy_build_api: true
+        )
 
         unless only_build
             clean_build_artifacts
 
-            # change_log = change_log_since_last_tag
+            change_log = change_log_since_last_tag
 
-            # commit_msg = "Version bump to #{version_number}"
-            # commit_version_bump(
-            #     message: commit_msg,
-            #     xcodeproj: "MobileMessagingExample.xcodeproj"
-            # )
+            commit_msg = "Version bump to #{version_number}"
+            commit_version_bump(
+                message: commit_msg,
+                xcodeproj: "MobileMessagingExample.xcodeproj"
+            )
 
-            # add_git_tag(
-            #     tag: new_version_tag
-            # )
+            add_git_tag(
+                tag: new_version_tag
+            )
 
             podspec_path = ENV["WORKSPACE"]+"/MobileMessaging.podspec"
         
-            # version_bump_podspec(
-            #     path: podspec_path,
-            #     version_number: version_number
-            # )
+            version_bump_podspec(
+                path: podspec_path,
+                version_number: version_number
+            )
 
-            # desc "Bumping lib version variable"
-            # swift_version_path = ENV["WORKSPACE"]+"/Pod/Classes/MMVersion.swift"
-            # sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{version_number}/g;' #{swift_version_path}"
+            desc "Bumping lib version variable"
+            swift_version_path = ENV["WORKSPACE"]+"/Pod/Classes/MMVersion.swift"
+            sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{version_number}/g;' #{swift_version_path}"
 
-            # desc "Cleaning the application code occurrences"
-            # swift_app_code_path = ENV["WORKSPACE"]+"/Example/MobileMessagingExample/AppDelegate.swift"
-            # sh "perl -i -p -e 's/[\w]{32}-[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/your_application_code/g;' #{swift_app_code_path}"
+            desc "Cleaning the application code occurrences"
+            swift_app_code_path = ENV["WORKSPACE"]+"/Example/MobileMessagingExample/AppDelegate.swift"
+            sh "perl -i -p -e 's/[\w]{32}-[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/your_application_code/g;' #{swift_app_code_path}"
 
-            # desc "Comitting changes"
-            # sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\" \"#{swift_app_code_path}\""
+            desc "Comitting changes"
+            sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\" \"#{swift_app_code_path}\""
 
-            # desc "Pushing to Stash repo master"
-            # sh "git push origin HEAD:master --tags"
+            desc "Pushing to Stash repo master"
+            sh "git push origin HEAD:master --tags"
 
-            # desc "Pushing to Github repo master"
-            # sh "git push github HEAD:master"
+            desc "Pushing to Github repo master"
+            sh "git push github HEAD:master"
 
-            # set_github_release(
-            #     repository_name: "infobip/mobile-messaging-sdk-ios",
-            #     api_token: ENV["GITHUB_API_TOKEN"],
-            #     tag_name: version_number,
-            #     name: version_number
-            # )
+            set_github_release(
+                repository_name: "infobip/mobile-messaging-sdk-ios",
+                api_token: ENV["GITHUB_API_TOKEN"],
+                tag_name: version_number,
+                name: version_number
+            )
 
             pod_push(
                 path: podspec_path,
