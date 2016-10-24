@@ -34,7 +34,8 @@ platform :ios do
                 skip_build: true,
                 scheme: "MobileMessagingExample",
                 devices: [
-                            "iPhone 5 (9.3)"
+                            	"iPhone 5 (9.3)",
+				"iPhone 5 (10.0)"
                         ]
             )
         end

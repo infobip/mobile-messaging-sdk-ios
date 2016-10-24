@@ -8,7 +8,7 @@ Mobile Messaging SDK is designed and developed to easily enable push notificatio
 The document describes library integration steps.
 
 ## Requirements
-- Xcode 7.3.x
+- Xcode 8.0+
 - iOS 8.0+
 
 <!-- ## Usage -->
