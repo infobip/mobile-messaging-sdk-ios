@@ -33,6 +33,8 @@ platform :ios do
         begin
             scan(
                 skip_build: true,
+                slack_url: ENV["SLACK_WEBHOOK"],
+                slack_only_on_failure: true,
                 scheme: "MobileMessagingExample",
                 devices: [
                             "iPhone 5 (9.3)"
