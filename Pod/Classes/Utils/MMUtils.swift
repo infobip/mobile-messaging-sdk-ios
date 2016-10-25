@@ -38,7 +38,7 @@ struct DateStaticFormatters {
 	}()
 }
 
-extension Dictionary where Key: StringLiteralConvertible, Value: UserDataFoundationTypes {
+extension Dictionary where Key: ExpressibleByStringLiteral, Value: UserDataFoundationTypes {
 	public var customUserDataValues: [Key: CustomUserDataValue]? {
 		let result = self.reduce([Key: CustomUserDataValue](), { (result, tuple) -> [Key: CustomUserDataValue] in
 			var r = result
@@ -49,7 +49,7 @@ extension Dictionary where Key: StringLiteralConvertible, Value: UserDataFoundat
 	}
 }
 
-extension Dictionary where Key: StringLiteralConvertible, Value: CustomUserDataValue {
+extension Dictionary where Key: ExpressibleByStringLiteral, Value: CustomUserDataValue {
 	public var userDataFoundationTypes: [Key: UserDataFoundationTypes]? {
 		let result = self.reduce([Key: UserDataFoundationTypes](), { (result, tuple) -> [Key: UserDataFoundationTypes] in
 			var r = result

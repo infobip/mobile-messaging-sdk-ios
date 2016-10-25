@@ -8,6 +8,7 @@
 import Foundation
 import CoreLocation
 import UIKit
+import CoreData
 
 /// Describes the kind of location service. Possible values:
 /// - Location Updates
@@ -71,6 +72,9 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	var locationManager: CLLocationManager!
 	var datasource: MMGeofencingDatasource!
 	var isRunning = false
+	let serviceQueue = MMQueue.Main.queue
+	var remoteAPIQueue: MMRemoteAPIQueue!
+	lazy var eventsHandlingQueue = OperationQueue.mm_newSerialQueue
 	
 	// MARK: - Public
 	
@@ -190,9 +194,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	public static var geoEventsHandler: GeoEventHandling? = MMDefaultGeoEventHandling()
 	
 	// MARK: - Internal
-	let serviceQueue = MMQueue.Main.queue
-	
-	init (storage: MMCoreDataStorage) {
+	//FIXME: use background queue. (initialize separate NSThread which lives as long as geo service running)
+	init (storage: MMCoreDataStorage, remoteAPIQueue: MMRemoteAPIQueue) {
 		super.init()
 		serviceQueue.executeSync() {
 			self.locationManager = CLLocationManager()
@@ -201,6 +204,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
 			self.datasource = MMGeofencingDatasource(storage: storage)
 			self.previousLocation = MobileMessaging.currentInstallation?.location
+			self.remoteAPIQueue = remoteAPIQueue
 		}
 	}
 	
@@ -255,6 +259,74 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			// This is helpful when developing an app.
 			//			assert(NSBundle.mainBundle().objectForInfoDictionaryKey(key) != nil, "Requesting location permission requires the \(key) key in your Info.plist")
 		}
+	}
+	
+	var closestLiveRegions: Set<CLCircularRegion> {
+		assert(Thread.isMainThread)
+		let notExpiredRegions = Set(self.datasource.liveRegions.map { $0.circularRegion })
+		let number = self.kMonitoringRegionsLimit - self.locationManager.monitoredRegions.count
+		let location = self.locationManager.location ?? previousLocation
+		let array = MMGeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { self.locationManager.monitoredRegions.contains($0) == false })
+		return Set(array)
+	}
+	
+	class func closestLiveRegions(withNumberLimit number: Int, forLocation: CLLocation?, fromRegions regions: Set<CLCircularRegion>, filter: ((CLCircularRegion) -> Bool)?) -> [CLCircularRegion] {
+		
+		let number = Int(max(0, number))
+		guard number > 0 else
+		{
+			return []
+		}
+		
+		let filterPredicate: (CLCircularRegion) -> Bool = filter == nil ? { (_: CLCircularRegion) -> Bool in return true } : filter!
+		let filteredRegions: [CLCircularRegion] = Array(regions).filter(filterPredicate)
+		
+		if let location = forLocation {
+			let sortedRegions = filteredRegions.sorted { region1, region2 in
+				let region1Location = CLLocation(latitude: region1.center.latitude, longitude: region1.center.longitude)
+				let region2Location = CLLocation(latitude: region2.center.latitude, longitude: region2.center.longitude)
+				return location.distance(from: region1Location) < location.distance(from: region2Location)
+			}
+			return Array(sortedRegions[0..<min(number, sortedRegions.count)])
+		} else {
+			return Array(filteredRegions[0..<min(number, filteredRegions.count)])
+		}
+	}
+	
+	class func currentCapabilityStatus(forService kind: MMLocationServiceKind, usage: MMLocationServiceUsage) -> MMCapabilityStatus {
+		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(options: MMLocationServiceKind.RegionMonitoring) || CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self)) else
+		{
+			return .NotAvailable
+		}
+		
+		if (usage == .WhenInUse && !MMGeofencingService.isDescriptionProvidedForWhenInUseUsage) || (usage == .Always && !MMGeofencingService.isDescriptionProvidedForAlwaysUsage) {
+			return .NotAvailable
+		}
+		
+		switch CLLocationManager.authorizationStatus() {
+		case .notDetermined: return .NotDetermined
+		case .restricted: return .NotAvailable
+		case .denied: return .Denied
+		case .authorizedAlways: return .Authorized
+		case .authorizedWhenInUse:
+			if usage == MMLocationServiceUsage.WhenInUse {
+				return .Authorized
+			} else {
+				// the user wants .Always, but has .WhenInUse
+				// return .NotDetermined so that we can prompt to upgrade the permission
+				return .NotDetermined
+			}
+		}
+	}
+	
+	func report(on eventType: MMRegionEventType, forRegionId regionId: String, message: MMGeoMessage, completion: (() -> Void)? = nil) {
+		message.events.filter{ $0.type == eventType }.first?.occur()
+		self.persistNewEvent(of: eventType, forRegionId: regionId, message: message)
+		self.reportOnEvents(completion: completion)
+	}
+	
+	func syncWithServer() {
+		reportOnEvents()
 	}
 	
 	// MARK: - Private
@@ -382,62 +454,14 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
-	var closestLiveRegions: Set<CLCircularRegion> {
-		assert(Thread.isMainThread)
-		let notExpiredRegions = Set(self.datasource.liveRegions.map { $0.circularRegion })
-		let number = self.kMonitoringRegionsLimit - self.locationManager.monitoredRegions.count
-		let location = self.locationManager.location ?? previousLocation
-		let array = MMGeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { self.locationManager.monitoredRegions.contains($0) == false })
-		return Set(array)
+	private func persistNewEvent(of eventType: MMRegionEventType, forRegionId regionId: String, message: MMGeoMessage) {
+		eventsHandlingQueue.addOperation(GeoEventPersistingOperation(message: message, eventType: eventType, regionId: regionId, context: self.datasource.context))
 	}
 	
-	class func closestLiveRegions(withNumberLimit number: Int, forLocation: CLLocation?, fromRegions regions: Set<CLCircularRegion>, filter: ((CLCircularRegion) -> Bool)?) -> [CLCircularRegion] {
-		
-		let number = Int(max(0, number))
-		guard number > 0 else
-		{
-			return []
-		}
-		
-		let filterPredicate: (CLCircularRegion) -> Bool = filter == nil ? { (_: CLCircularRegion) -> Bool in return true } : filter!
-		let filteredRegions: [CLCircularRegion] = Array(regions).filter(filterPredicate)
-		
-		if let location = forLocation {
-			let sortedRegions = filteredRegions.sorted { region1, region2 in
-				let region1Location = CLLocation(latitude: region1.center.latitude, longitude: region1.center.longitude)
-				let region2Location = CLLocation(latitude: region2.center.latitude, longitude: region2.center.longitude)
-				return location.distance(from: region1Location) < location.distance(from: region2Location)
-			}
-			return Array(sortedRegions[0..<min(number, sortedRegions.count)])
-		} else {
-			return Array(filteredRegions[0..<min(number, filteredRegions.count)])
-		}
-	}
-	
-	class func currentCapabilityStatus(forService kind: MMLocationServiceKind, usage: MMLocationServiceUsage) -> MMCapabilityStatus {
-		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(options: MMLocationServiceKind.RegionMonitoring) || CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self)) else
-		{
-			return .NotAvailable
-		}
-		
-		if (usage == .WhenInUse && !MMGeofencingService.isDescriptionProvidedForWhenInUseUsage) || (usage == .Always && !MMGeofencingService.isDescriptionProvidedForAlwaysUsage) {
-			return .NotAvailable
-		}
-		
-		switch CLLocationManager.authorizationStatus() {
-		case .notDetermined: return .NotDetermined
-		case .restricted: return .NotAvailable
-		case .denied: return .Denied
-		case .authorizedAlways: return .Authorized
-		case .authorizedWhenInUse:
-			if usage == MMLocationServiceUsage.WhenInUse {
-				return .Authorized
-			} else {
-				// the user wants .Always, but has .WhenInUse
-				// return .NotDetermined so that we can prompt to upgrade the permission
-				return .NotDetermined
-			}
-		}
+	private func reportOnEvents(completion: (() -> Void)? = nil) {
+		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: self.datasource.context, remoteAPIQueue: remoteAPIQueue, finishBlock: { _ in
+			completion?()
+		}))
 	}
 	
 	private var previousLocation: CLLocation?
@@ -485,34 +509,44 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
-	public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-		assert(Thread.isMainThread)
-		MMLogDebug("[GeofencingService] did enter circular region \(region)")
-		datasource.validRegionsForEntryEvent(with: region.identifier)?.forEach { datasourceRegion in
-			datasourceRegion.message?.triggerEvent(for: .entry, region: datasourceRegion, datasource: datasource)
-			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
-			delegate?.didEnterRegion(region: datasourceRegion)
-			MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
-			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
-		}
-	}
-	
 	public func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did start monitoring \(region)")
 	}
 	
-	public func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+	public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
 		assert(Thread.isMainThread)
-		MMLogDebug("[GeofencingService] did exit circular region \(region)")
-		datasource.validRegionsForExitEvent(with: region.identifier)?.forEach { datasourceRegion in
-			datasourceRegion.message?.triggerEvent(for: .exit, region: datasourceRegion, datasource: datasource)
-			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
-			delegate?.didExitRegion(region: datasourceRegion)
-			MMGeofencingService.geoEventsHandler?.didReceiveGeoEvent(region: datasourceRegion)
-			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+		MMLogDebug("[GeofencingService] did enter circular region \(region)")
+		datasource.validRegionsForEntryEvent(with: region.identifier)?.forEach { datasourceRegion in
+			
+			if let message = datasourceRegion.message {
+				self.report(on: .entry, forRegionId: region.identifier, message: message)
+			}
+			
+			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
+			delegate?.didEnterRegion(region: datasourceRegion)
+			MMGeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
+			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		}
 	}
+	
+//TODO: uncomment and implement when the feature released
+//	public func locationManager(manager: CLLocationManager, didExitRegion region: CLRegion) {
+//		assert(NSThread.isMainThread())
+//		MMLogDebug("[GeofencingService] did exit circular region \(region)")
+//		
+//		datasource.validRegionsForExitEvent(with: region.identifier)?.forEach { datasourceRegion in
+//			
+//			if let message = datasourceRegion.message {
+//				self.report(on: .exit, forRegionId: region.identifier, message: message)
+//			}
+//			
+//			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
+//			delegate?.didExitRegion(datasourceRegion)
+//			MMGeofencingService.geoEventsHandler?.didExit(datasourceRegion)
+//			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+//		}
+//	}
 	
 	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
 		assert(Thread.isMainThread)
@@ -534,11 +568,11 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 
 @objc public protocol GeoEventHandling {
 	/// This callback is triggered after the geo event occurs. Default behaviour is implemented by `MMDefaultGeoEventHandling` class.
-	func didReceiveGeoEvent(region: MMRegion)
+	func didEnter(region: MMRegion)
 }
 
 public class MMDefaultGeoEventHandling: GeoEventHandling {
-	@objc public func didReceiveGeoEvent(region: MMRegion) {
+	@objc public func didEnter(region: MMRegion) {
 		if let message = region.message {
 			self.presentLocalNotificationAlert(with: message)
 		}

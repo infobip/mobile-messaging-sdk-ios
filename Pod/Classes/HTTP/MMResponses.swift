@@ -15,6 +15,7 @@ typealias MMUserDataSyncResult = Result<MMHTTPUserDataSyncResponse>
 typealias MMSystemDataSyncResult = Result<MMHTTPSystemDataSyncResponse>
 typealias MMMOMessageResult = Result<MMHTTPMOMessageResponse>
 typealias MMLibraryVersionResult = Result<MMHTTPLibraryVersionResponse>
+typealias MMGeoEventReportingResult = Result<MMHTTPGeoEventReportingResponse>
 
 public protocol JSONDecodable {
 	init?(json: JSON)
@@ -86,7 +87,7 @@ class MMHTTPEmptyResponse: MMHTTPResponse {
 
 final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
-
+final class MMHTTPGeoEventReportingResponse: MMHTTPEmptyResponse { }
 final class MMHTTPLibraryVersionResponse: MMHTTPResponse {
 
 	let platformType : String

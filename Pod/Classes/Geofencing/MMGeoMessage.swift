@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import CoreData
 
 struct MMCampaignDataKeys {
 	static let id = "id"
@@ -17,6 +18,7 @@ struct MMCampaignDataKeys {
 	static let origin = "origin"
 	static let expiryDate = "expiryTime"
 	static let startDate = "startTime"
+	static let campaignId = "campaignId"
 }
 
 struct MMRegionDataKeys {
@@ -58,6 +60,7 @@ extension MTMessage {
 }
 
 final public class MMGeoMessage: MTMessage {
+	public let campaignId: String
 	public let regions: Set<MMRegion>
 	public let startTime: Date
 	public let expiryTime: Date
@@ -70,13 +73,16 @@ final public class MMGeoMessage: MTMessage {
 			let internalData = payload[APNSPayloadKeys.kInternalData] as? StringKeyPayload,
 			let geoRegionsData = internalData[APNSPayloadKeys.kInternalDataGeo] as? [StringKeyPayload],
 			let expiryTimeString = internalData[MMCampaignDataKeys.expiryDate] as? String,
+
 			let startTimeString = internalData[MMCampaignDataKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date(timeIntervalSinceReferenceDate: 0)) as String?,
 			let expiryTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryTimeString),
-			let startTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: startTimeString)
+			let startTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: startTimeString),
+			let campaignId = internalData[MMCampaignDataKeys.campaignId] as? String
 			else
 		{
 			return nil
 		}
+		self.campaignId = campaignId
 		self.expiryTime = expiryTime
 		self.startTime = startTime
 		
@@ -110,21 +116,6 @@ final public class MMGeoMessage: MTMessage {
 	}
 	
 	//MARK: - Internal
-	func triggerEvent(for eventType: MMRegionEventType, region: MMRegion, datasource: MMGeofencingDatasource) {
-		events.filter{ $0.type == eventType }.first?.occur()
-		datasource.context.performAndWait {
-			if let msg = MessageManagedObject.MM_findFirstWithPredicate(NSPredicate(format: "messageId == %@", self.messageId), context: datasource.context),
-				var payload = msg.payload,
-				var internalData = payload[APNSPayloadKeys.kInternalData] as? DictionaryRepresentation
-			{
-				internalData += [APNSPayloadKeys.kInternalDataGeo: self.regions.map{ $0.dictionaryRepresentation }]
-				payload.updateValue(internalData, forKey: APNSPayloadKeys.kInternalData)
-				msg.payload = payload
-				datasource.context.MM_saveToPersistentStoreAndWait()
-			}
-		}
-	}
-	
 	let deliveryTime: MMDeliveryTime?
 	
 	func isLive(for type: MMRegionEventType) -> Bool {

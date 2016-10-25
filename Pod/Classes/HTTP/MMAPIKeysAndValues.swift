@@ -64,6 +64,15 @@ struct MMAPIKeys {
 	static let kLibraryVersionUpdateUrl = "updateUrl"
 }
 
+struct GeoReportingAPIKeys {
+	static let reports = "reports"
+	static let event = "event"
+	static let geoAreaId = "geoAreaId"
+	static let campaignId = "campaignId"
+	static let messageId = "messageId"
+	static let timestampDelta = "timestampDelta"
+}
+
 struct APNSPayloadKeys {
 	//MARK: Internal Data Keys
 	static let kInternalDataEvent = "event"

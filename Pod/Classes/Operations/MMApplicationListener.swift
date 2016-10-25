@@ -14,10 +14,11 @@ final class MMApplicationListener: NSObject {
         NotificationCenter.default.removeObserver(self)
     }
     
-	init(messageHandler: MMMessageHandler, installation: MMInstallation, user: MMUser) {
+	init(messageHandler: MMMessageHandler, installation: MMInstallation, user: MMUser, geofencingService: MMGeofencingService?) {
         self.messageHandler = messageHandler
         self.installation = installation
 		self.user = user
+		self.geofencingService = geofencingService
 		
         super.init()
 		
@@ -40,10 +41,12 @@ final class MMApplicationListener: NSObject {
 	private var messageHandler: MMMessageHandler
 	private var installation: MMInstallation
 	private var user: MMUser
+	private var geofencingService: MMGeofencingService?
 	
 	private func triggerPeriodicalWork() {
 		installation.syncWithServer()
 		user.syncWithServer()
 		messageHandler.syncWithServer()
+		geofencingService?.syncWithServer()
 	}
 }

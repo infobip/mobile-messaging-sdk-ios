@@ -144,7 +144,7 @@ final public class MMUser: NSObject {
 	/// Saves the user's custom data on the server asynchronously and executes the given callback block.
 	/// - parameter data: The dictionary representing data you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(customData customData: [String: CustomUserDataValue], completion: @escaping (NSError?) -> Void) {
+	public func save(customData: [String: CustomUserDataValue], completion: @escaping (NSError?) -> Void) {
 		self.customData = customData
 		save(completion)
 	}
@@ -192,7 +192,7 @@ final public class MMUser: NSObject {
 	/// Saves the user's attributes on the server asynchronously and executes the given callback block.
 	/// - parameter data: The dictionary representing data you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
-	public func save(predefinedData predefinedData: [String: String], completion: @escaping (NSError?) -> Void) {
+	public func save(predefinedData: [String: String], completion: @escaping (NSError?) -> Void) {
 		self.predefinedData = predefinedData
 		save(completion)
 	}

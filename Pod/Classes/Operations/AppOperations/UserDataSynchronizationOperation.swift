@@ -223,7 +223,7 @@ extension NSNumber: UserDataFoundationTypes {}
 extension NSString: UserDataFoundationTypes {}
 extension NSNull: UserDataFoundationTypes {}
 
-public final class CustomUserDataValue: NSObject, StringLiteralConvertible, FloatLiteralConvertible, IntegerLiteralConvertible {
+public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
 	let dataType: UserDataServiceTypes?
 	let dataValue: UserDataFoundationTypes
 	
