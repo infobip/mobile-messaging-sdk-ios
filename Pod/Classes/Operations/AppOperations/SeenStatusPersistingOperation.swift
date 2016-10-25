@@ -9,9 +9,9 @@ import UIKit
 import CoreData
 
 final class SeenStatusPersistingOperation: Operation {
-	var context: NSManagedObjectContext
-	var finishBlock: (() -> Void)?
-	var messageIds: [String]
+	let context: NSManagedObjectContext
+	let finishBlock: (() -> Void)?
+	let messageIds: [String]
 	
 	init(messageIds: [String], context: NSManagedObjectContext, finishBlock: (() -> Void)? = nil) {
 		self.messageIds = messageIds

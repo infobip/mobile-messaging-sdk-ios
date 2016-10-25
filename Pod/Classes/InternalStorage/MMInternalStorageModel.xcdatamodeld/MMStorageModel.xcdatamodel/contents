@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G1004" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="16A323" minimumToolsVersion="Xcode 7.0">
+    <entity name="GeoEventReportObject" representedClassName=".GeoEventReportObject" syncable="YES">
+        <attribute name="campaignId" attributeType="String" syncable="YES"/>
+        <attribute name="eventDate" attributeType="Date" syncable="YES"/>
+        <attribute name="eventType" attributeType="String" syncable="YES"/>
+        <attribute name="geoAreaId" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="InstallationManagedObject" representedClassName=".InstallationManagedObject" syncable="YES">
         <attribute name="badgeNumber" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="customUserData" optional="YES" attributeType="Transformable" syncable="YES"/>
@@ -24,5 +30,6 @@
     <elements>
         <element name="InstallationManagedObject" positionX="-63" positionY="-18" width="128" height="180"/>
         <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="165"/>
+        <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="105"/>
     </elements>
 </model>

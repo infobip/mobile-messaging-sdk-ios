@@ -31,6 +31,7 @@ enum MMHTTPAPIPath: String {
 	case MOMessage = "/mobile/1/messages/mo"
 	case SystemData = "/mobile/1/data/system"
 	case LibraryVersion = "/mobile/3/version"
+	case GeoEventsReports = "/mobile/3/geo/event"
 }
 
 protocol MMHTTPRequestResponsable {
@@ -113,12 +114,16 @@ struct MMPostRegistrationRequest: MMHTTPPostRequest {
 	}
 }
 
+extension NSDate {
+	var timestampDelta: UInt {
+		return UInt(max(0, NSDate().timeIntervalSinceReferenceDate - self.timeIntervalSinceReferenceDate))
+	}
+}
+
 struct SeenData: DictionaryRepresentable {
 	let messageId: String
 	let seenDate: NSDate
-	var timestampDelta: UInt {
-		return UInt(max(0, NSDate().timeIntervalSinceReferenceDate - seenDate.timeIntervalSinceReferenceDate))
-	}
+	
 	init(messageId: String, seenDate: NSDate) {
 		self.messageId = messageId
 		self.seenDate = seenDate
@@ -128,7 +133,7 @@ struct SeenData: DictionaryRepresentable {
 	}
 	var dictionaryRepresentation: [String : AnyObject] {
 		return [MMAPIKeys.kMessageId: messageId,
-		        MMAPIKeys.kSeenTimestampDelta: timestampDelta]
+		        MMAPIKeys.kSeenTimestampDelta: seenDate.timestampDelta]
 	}
 	static func requestBody(seenList: [SeenData]) -> RequestBody {
 		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dictionaryRepresentation } ]
@@ -271,5 +276,50 @@ struct MMPostMessageRequest: MMHTTPPostRequest {
 		}
 		self.internalUserId = internalUserId
 		self.messages = messages
+	}
+}
+
+struct GeoEventReportData: DictionaryRepresentable {
+	let campaignId: String
+	let eventDate: NSDate
+	let geoAreaId: String
+	let eventType: MMRegionEventType
+	
+	init(geoAreaId: String, eventType: MMRegionEventType, campaignId: String, eventDate: NSDate) {
+		self.campaignId = campaignId
+		self.eventDate = eventDate
+		self.geoAreaId = geoAreaId
+		self.eventType = eventType
+	}
+	
+	init?(dictRepresentation dict: [String: AnyObject]) {
+		return nil // unused
+	}
+	
+	var dictionaryRepresentation: [String : AnyObject] {
+		return [GeoReportingAPIKeys.campaignId: campaignId,
+		        GeoReportingAPIKeys.timestampDelta: eventDate.timestampDelta,
+		        GeoReportingAPIKeys.geoAreaId: geoAreaId,
+		        GeoReportingAPIKeys.event: eventType.rawValue]
+	}
+	
+	static func requestBody(reportList: [GeoEventReportData]) -> RequestBody {
+		return [GeoReportingAPIKeys.reports: reportList.map{ $0.dictionaryRepresentation } ]
+	}
+}
+
+struct MMGeoEventsReportingRequest: MMHTTPPostRequest {
+	typealias ResponseType = MMHTTPGeoEventReportingResponse
+	
+	var path: MMHTTPAPIPath { return .GeoEventsReports }
+	var parameters: RequestParameters? { return nil }
+	let eventsDataList: [GeoEventReportData]
+	var body: RequestBody? { return GeoEventReportData.requestBody(eventsDataList) }
+	
+	init?(eventsDataList: [GeoEventReportData]) {
+		guard !eventsDataList.isEmpty else {
+			return nil
+		}
+		self.eventsDataList = eventsDataList
 	}
 }

@@ -71,14 +71,13 @@ public final class MobileMessaging: NSObject {
 				self.currentUser = user
 				let messageHandler = MMMessageHandler(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
 				self.messageHandler = messageHandler
-				self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user)
 				self.startMessageStorage()
 				
-				self.geofencingService = MMGeofencingService(storage: storage)
+				self.geofencingService = MMGeofencingService(storage: storage, remoteAPIQueue: MMRemoteAPIQueue(baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode))
 				if isGeoServiceEnabled {
 					self.geofencingService?.start()
 				}
-				
+				self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user, geofencingService: self.geofencingService)
 				MMLogInfo("MobileMessaging SDK service successfully initialized.")
 			}
 		} catch {

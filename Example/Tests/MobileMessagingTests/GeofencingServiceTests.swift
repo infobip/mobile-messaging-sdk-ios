@@ -34,6 +34,9 @@ class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
 		}
 	}
 }
+
+let expectedCampaignId = "campaign1"
+
 let expectedStartDateString = "2016-08-05T12:20:16+03:00"
 
 let expectedExpiryDateString = "2016-08-06T12:20:16+03:00"
@@ -90,6 +93,7 @@ var baseAPNSDict: [String: AnyObject] {
 var baseInternalDataDict: [String: AnyObject] {
 	return
 		[
+			MMCampaignDataKeys.campaignId: expectedCampaignId,
 			MMCampaignDataKeys.startDate: expectedStartDateString,
 			MMCampaignDataKeys.expiryDate: expectedExpiryDateString,
 			APNSPayloadKeys.kInternalDataSilent: [APNSPayloadKeys.kBody: "campaign text"],
@@ -97,10 +101,11 @@ var baseInternalDataDict: [String: AnyObject] {
 	]
 }
 
+let zagrebId = "6713245DA3638FDECFE448C550AD7681"
+let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
 
-// modern:
 let modernZagrebDict: [String: AnyObject] = [
-	MMRegionDataKeys.identifier: "6713245DA3638FDECFE448C550AD7681",
+	MMRegionDataKeys.identifier: zagrebId,
 	MMRegionDataKeys.latitude: 45.80869126677998,
 	MMRegionDataKeys.longitude: 15.97206115722656,
 	MMRegionDataKeys.radius: 9492.0,
@@ -108,7 +113,7 @@ let modernZagrebDict: [String: AnyObject] = [
 ]
 
 let modernPulaDict: [String: AnyObject] = [
-	MMRegionDataKeys.identifier: "A277A2A0D0612AFB652E9D2D80E02BF2",
+	MMRegionDataKeys.identifier: pulaId,
 	MMRegionDataKeys.latitude: 44.86803631018752,
 	MMRegionDataKeys.longitude: 13.84586334228516,
 	MMRegionDataKeys.radius: 5257.0,
@@ -131,19 +136,20 @@ let jsonStr =
 		"\"aps\": { \"content-available\": 1}," +
 		"\"messageId\": \"lY8Ja3GKmeN65J5hNlL9B9lLA9LrN//C/nH75iK+2KI=\"," +
 		"\"internalData\": {" +
+			"\"campaignId\": \""+expectedCampaignId+"\"," +
 			"\"silent\": { \"body\": \"campaign text\"}," +
 			"\"startTime\": \""+expectedStartDateString+"\"," +
 			"\"expiryTime\": \""+expectedExpiryDateString+"\"," +
 			"\"geo\": [" +
 				"{" +
-					"\"id\": \"6713245DA3638FDECFE448C550AD7681\"," +
+					"\"id\": \""+zagrebId+"\"," +
 					"\"latitude\": 45.80869126677998," +
 					"\"longitude\": 15.97206115722656," +
 					"\"radiusInMeters\": 9492.0," +
 					"\"title\": \"Zagreb\"" +
 				"}," +
 				"{" +
-					"\"id\": \"A277A2A0D0612AFB652E9D2D80E02BF2\"," +
+					"\"id\": \""+pulaId+"\"," +
 					"\"latitude\": 44.86803631018752," +
 					"\"longitude\": 13.84586334228516," +
 					"\"radiusInMeters\": 5257.0," +
@@ -158,18 +164,19 @@ let jsonStrWithoutStartTime =
 		"\"aps\": { \"content-available\": 1}," +
 		"\"messageId\": \"lY8Ja3GKmeN65J5hNlL9B9lLA9LrN//C/nH75iK+2KI=\"," +
 		"\"internalData\": {" +
+			"\"campaignId\": \""+expectedCampaignId+"\"," +
 			"\"silent\": { \"body\": \"campaign text\"}," +
 			"\"expiryTime\": \""+expectedExpiryDateString+"\"," +
 			"\"geo\": [" +
 				"{" +
-					"\"id\": \"6713245DA3638FDECFE448C550AD7681\"," +
+					"\"id\": \""+zagrebId+"\"," +
 					"\"latitude\": 45.80869126677998," +
 					"\"longitude\": 15.97206115722656," +
 					"\"radiusInMeters\": 9492.0," +
 					"\"title\": \"Zagreb\"" +
 				"}," +
 				"{" +
-					"\"id\": \"A277A2A0D0612AFB652E9D2D80E02BF2\"," +
+					"\"id\": \""+pulaId+"\"," +
 					"\"latitude\": 44.86803631018752," +
 					"\"longitude\": 13.84586334228516," +
 					"\"radiusInMeters\": 5257.0," +
@@ -214,7 +221,8 @@ var defaultEvent = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry
 class GeofencingServiceTests: MMTestCase {
 	
 	func testThatGeoPushIsPassedToTheGeoService() {
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode))
+		
 		weak var expectation = expectationWithDescription("Check finished")
 		self.mobileMessagingInstance.didReceiveRemoteNotification(modernAPNSPayloadZagrebPulaDict, newMessageReceivedCallback: nil, completion: { result in
 			dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -278,7 +286,6 @@ class GeofencingServiceTests: MMTestCase {
 		
 		if let message = MMGeoMessage(json: json) {
 			
-			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
 			let zagrebObject = message.regions.findZagreb
 			XCTAssertEqual(zagrebObject.message!.startTime, expectedStartDate)
 			XCTAssertEqual(zagrebObject.message!.expiryTime, expectedExpiryDate)
@@ -290,7 +297,6 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(zagrebObject.title, "Zagreb")
 			XCTAssertFalse(zagrebObject.message!.isNotExpired)
 			
-			let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
 			let pulaObject = message.regions.findPula
 			XCTAssertEqual(pulaObject.message!.startTime, expectedStartDate)
 			XCTAssertEqual(pulaObject.message!.expiryTime, expectedExpiryDate)
@@ -312,7 +318,6 @@ class GeofencingServiceTests: MMTestCase {
 		
 		if let message = MMGeoMessage(json: json) {
 			
-			let zagrebId = "6713245DA3638FDECFE448C550AD7681"
 			let zagrebObject = message.regions.findZagreb
 			XCTAssertEqual(zagrebObject.message!.startTime, NSDate(timeIntervalSinceReferenceDate: 0))
 			XCTAssertEqual(zagrebObject.message!.expiryTime, expectedExpiryDate)
@@ -324,7 +329,6 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(zagrebObject.title, "Zagreb")
 			XCTAssertFalse(zagrebObject.message!.isNotExpired)
 			
-			let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
 			let pulaObject = message.regions.findPula
 			XCTAssertEqual(pulaObject.message!.startTime, NSDate(timeIntervalSinceReferenceDate: 0))
 			XCTAssertEqual(pulaObject.message!.expiryTime, expectedExpiryDate)
@@ -362,11 +366,12 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertFalse(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .entry, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+		
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertFalse(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .exit, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .exit))
 	}
 	
@@ -383,10 +388,10 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .exit, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .entry, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .entry))
 	}
 	
@@ -421,11 +426,11 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .entry, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .exit, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .exit))
 		
 		// move the event into the past
@@ -436,7 +441,7 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .entry, region: zagrebObject, datasource: MobileMessaging.geofencingService!.datasource)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: zagrebObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 	}
@@ -458,7 +463,7 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .exit))
 		
 		for _ in 0 ..< 10 {
-			message.triggerEvent(for: .entry, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
 			XCTAssertTrue(message.isLive(for: .entry))
 			XCTAssertTrue(message.isLive(for: .exit))
 		}
@@ -480,11 +485,11 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .entry, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		message.triggerEvent(for: .exit, region: pulaObject, datasource: MobileMessaging.geofencingService!.datasource)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message)
 		XCTAssertFalse(message.isLive(for: .exit))
 	}
 	
@@ -648,5 +653,104 @@ class GeofencingServiceTests: MMTestCase {
 		let dictRepresentation = MMGeoMessage(payload: apnsPayload, createdDate: NSDate())!.originalPayload
 		XCTAssertNotNil(MMGeoMessage(payload: dictRepresentation, createdDate: NSDate()))
 		XCTAssertTrue((dictRepresentation as NSDictionary).isEqual(apnsPayload as NSDictionary))
+	}
+	
+	func testGeoEventsStorageSuccessfullyReported() {
+		// triggers 2 events and mocks successfull reportings wich ends up with an empty events storage
+		generalTestForPersistingEventReports(with: MMRemoteAPIAlaysSucceeding(), expectedEventsCount: 0)
+	}
+	
+	func testGeoEventsStorageUnsuccessfullyReported() {
+		// triggers 2 events and mocks failed reportings wich ends up with an events storage containing 2 records
+		generalTestForPersistingEventReports(with: MMRemoteAPIAlwaysFailing(), expectedEventsCount: 2)
+	}
+	
+	func testThatReportsAreBeingSentToTheServerWithCorrectData() {
+		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
+		guard let message = MMGeoMessage(payload: payload, createdDate: NSDate()) else
+		{
+			XCTFail()
+			return
+		}
+		let pulaObject = message.regions.findPula
+		let zagrebObject = message.regions.findZagreb
+		
+		var reportSentCounter = 0
+		weak var eventReported = self.expectationWithDescription("eventReported")
+		var sentCampaignIds = [String]()
+		var sentGeoAreaIds = [String]()
+		var sentEventTypes = [String]()
+		
+		// expect remote api queue called
+		let remoteAPIMock = MMRemoteAPIAlaysSucceeding() { (request) in
+			if let request = request as? MMGeoEventsReportingRequest {
+				if let report = request.eventsDataList.first {
+					sentCampaignIds.append(report.campaignId)
+					sentGeoAreaIds.append(report.geoAreaId)
+					sentEventTypes.append(report.eventType.rawValue)
+				}
+				
+				reportSentCounter += 1
+			} else {
+				XCTFail()
+			}
+			if reportSentCounter == 2 {
+				XCTAssertTrue(sentCampaignIds.contains(expectedCampaignId))
+				
+				XCTAssertTrue(sentGeoAreaIds.contains(zagrebId))
+				XCTAssertTrue(sentGeoAreaIds.contains(pulaId))
+				
+				XCTAssertTrue(sentEventTypes.contains(MMRegionEventType.entry.rawValue))
+				XCTAssertTrue(sentEventTypes.contains(MMRegionEventType.exit.rawValue))
+				
+				eventReported?.fulfill()
+			}
+		}
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: remoteAPIMock )
+		
+		// simulate entry event
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: zagrebObject.identifier, message: message)
+		
+		self.waitForExpectationsWithTimeout(1000, handler: nil)
+	}
+	
+	//MARK: - Private helpers
+	private func generalTestForPersistingEventReports(with apiMock: MMRemoteAPIQueue, expectedEventsCount: Int) {
+		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
+		guard let message = MMGeoMessage(payload: payload, createdDate: NSDate()) else
+		{
+			XCTFail()
+			return
+		}
+		let pulaObject = message.regions.findPula
+		
+		// expect remote api queue called
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: apiMock )
+		
+		// simulate entry event
+		let reportSendingGroup = dispatch_group_create()
+		mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: {
+			dispatch_group_leave(reportSendingGroup)
+		})
+		
+		mobileMessagingInstance.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message, completion:  {
+			dispatch_group_leave(reportSendingGroup)
+		})
+		
+		weak var eventsDatabaseCheck1 = self.expectationWithDescription("eventsDatabaseCheck1")
+		
+		dispatch_group_enter(reportSendingGroup)
+		dispatch_group_enter(reportSendingGroup)
+		dispatch_group_notify(reportSendingGroup, dispatch_get_main_queue()) {
+			// check events database (must be 0)
+			if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) as? [GeoEventReportObject] {
+				XCTAssertEqual(events.count, expectedEventsCount)
+				eventsDatabaseCheck1?.fulfill()
+			} else {
+				XCTFail()
+			}
+		}
+		self.waitForExpectationsWithTimeout(100, handler: nil)
 	}
 }

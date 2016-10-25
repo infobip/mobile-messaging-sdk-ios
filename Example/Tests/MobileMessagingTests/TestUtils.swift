@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 @testable import MobileMessaging
 
 struct MMTestConstants {
@@ -29,6 +30,35 @@ enum TestResult {
 	case Cancel
 }
 
+final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
+	var completionCompanionBlock : ((Any) -> Void)?
+	
+	init(completionCompanionBlock: ((Any) -> Void)? = nil) {
+		self.completionCompanionBlock = completionCompanionBlock
+		super.init(baseURL: "stub", applicationCode: "stub")
+	}
+	
+	override func perform<R: MMHTTPRequestData>(request request: R, completion: (Result<R.ResponseType>) -> Void) {
+		completion(Result.Failure(nil))
+		completionCompanionBlock?(request)
+	}
+}
+
+final class MMRemoteAPIAlaysSucceeding : MMRemoteAPIQueue {
+	var completionCompanionBlock : ((Any) -> Void)?
+	
+	init(completionCompanionBlock: ((Any) -> Void)? = nil) {
+		self.completionCompanionBlock = completionCompanionBlock
+		super.init(baseURL: "stub", applicationCode: "stub")
+	}
+	
+	override func perform<R: MMHTTPRequestData>(request request: R, completion: (Result<R.ResponseType>) -> Void) {
+		let response = R.ResponseType(json: JSON(NSNull()))
+		completion(Result.Success(response!))
+		completionCompanionBlock?(request)
+	}
+}
+
 final class MMRemoteAPIMock : MMRemoteAPIQueue {
 	
 	var performRequestCompanionBlock : (Any) -> Void
@@ -45,7 +75,6 @@ final class MMRemoteAPIMock : MMRemoteAPIQueue {
 			completion(response)
 			self.completionCompanionBlock?(response)
 		}
-		super.perform(request: request, completion: completion)
 		performRequestCompanionBlock(request)
 	}
 }
