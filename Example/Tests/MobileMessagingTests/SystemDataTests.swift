@@ -46,18 +46,18 @@ class GeoNotAvailableUserAgentStub: UserAgentStub {
 class SystemDataTests: MMTestCase {
 
     func testSystemDataUpdates() {
-		let requestsCompleted = expectation(description: "requestsCompleted")
+		weak var requestsCompleted = expectation(description: "requestsCompleted")
 		let ctx = self.storage.mainThreadManagedObjectContext!
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
-		var initialSystemDataHash: Int!
+		var initialSystemDataHash: Int64!
 		MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
 		
 		if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 			initialSystemDataHash = installation.systemDataHash
 		}
 		
-		var updatedSystemDataHash: Int!
+		var updatedSystemDataHash: Int64!
 		MobileMessaging.userAgent = GeoAvailableUserAgentStub()
 		MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) in
 			
@@ -68,7 +68,7 @@ class SystemDataTests: MMTestCase {
 			
 			MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
 			MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) in
-				requestsCompleted.fulfill()
+				requestsCompleted?.fulfill()
 			})
 		})
 		

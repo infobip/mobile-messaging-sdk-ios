@@ -12,14 +12,14 @@ import XCTest
 final class RegistrationTests: MMTestCase {
 	
     func testInstallationPersisting() {
-		let tokensexp = expectation(description: "device tokens saved")
+		weak var tokensexp = expectation(description: "device tokens saved")
 		let maxCount = 2
 		
         for counter in 0..<maxCount {
             let deviceToken = "token\(counter)".data(using: String.Encoding.utf16)
 			mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken!) { error in
 				if counter == maxCount - 1 {
-					tokensexp.fulfill()
+					tokensexp?.fulfill()
 				}
 			}
         }
@@ -49,23 +49,23 @@ final class RegistrationTests: MMTestCase {
 			return
 		}
 		
-        let token2Saved = expectation(description: "token2 saved")
-		let validEmailSaved = expectation(description: "email saved")
-		let validMsisdnSaved = expectation(description: "msisdn saved")
+        weak var token2Saved = expectation(description: "token2 saved")
+		weak var validEmailSaved = expectation(description: "email saved")
+		weak var validMsisdnSaved = expectation(description: "msisdn saved")
 		
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
 		
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken2".data(using: String.Encoding.utf16)!) {  error in
 				
-				token2Saved.fulfill()
+				token2Saved?.fulfill()
 				
 				currentUser.email = MMTestConstants.kTestValidEmail
 				currentUser.msisdn = MMTestConstants.kTestValidMSISDN
 				
 				currentUser.save { err in
 					XCTAssertNil(err)
-					validEmailSaved.fulfill()
-					validMsisdnSaved.fulfill()
+					validEmailSaved?.fulfill()
+					validMsisdnSaved?.fulfill()
 				}
 			}
 		}
@@ -92,9 +92,9 @@ final class RegistrationTests: MMTestCase {
 		cleanUpAndStop()
 		startWithWrongApplicationCode()
 		
-		let expectation = self.expectation(description: "Installation data updating")
+		weak var expectation = self.expectation(description: "Installation data updating")
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		self.waitForExpectations(timeout: 100) { error in
 			assert(MMQueue.Main.queue.isCurrentQueue)
@@ -126,16 +126,16 @@ final class RegistrationTests: MMTestCase {
 			}
 		})
 		
-        let expectation1 = expectation(description: "notification1")
-        let expectation2 = expectation(description: "notification2")
+        weak var expectation1 = expectation(description: "notification1")
+        weak var expectation2 = expectation(description: "notification2")
 
         mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
             XCTAssertNil(error)
-            expectation1.fulfill()
+            expectation1?.fulfill()
 
             self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
                 XCTAssertNil(error)
-                expectation2.fulfill()
+                expectation2?.fulfill()
             }
         }
 		

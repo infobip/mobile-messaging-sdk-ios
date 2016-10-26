@@ -11,7 +11,7 @@ import XCTest
 class DeliveryReportingTests: MMTestCase {
     func testSendingDeliveryStatusSuccess() {
 	
-        let expectation = self.expectation(description: "Delivery sending completed")
+        weak var expectation = self.expectation(description: "Delivery sending completed")
 		
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], newMessageReceivedCallback: { _ in
@@ -22,7 +22,7 @@ class DeliveryReportingTests: MMTestCase {
 				
 				XCTAssertNil(error, "Delivery reporting request failed with error")
 				XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
-				expectation.fulfill()
+				expectation?.fulfill()
 				
 			})
 		
@@ -33,7 +33,7 @@ class DeliveryReportingTests: MMTestCase {
 		cleanUpAndStop()
 		startWithWrongApplicationCode()
 		
-        let expectation = self.expectation(description: "Delivery sending completed")
+        weak var expectation = self.expectation(description: "Delivery sending completed")
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: { _ in
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
@@ -43,7 +43,7 @@ class DeliveryReportingTests: MMTestCase {
 			XCTAssertNotNil(error)
 			XCTAssertEqual(error?.localizedDescription, "Invalid Application Id")
 			XCTAssertEqual(error?.userInfo[MMAPIKeys.kErrorMessageId] as? String, "1")
-			expectation.fulfill()
+			expectation?.fulfill()
 		})
 
 		self.waitForExpectations(timeout: 5000) { err in
@@ -52,7 +52,7 @@ class DeliveryReportingTests: MMTestCase {
 	}
 	
     func testExpiredDeliveryReportsClean() {
-        let evictionExpectation = expectation(description: "Old messages evicted")
+        weak var evictionExpectation = expectation(description: "Old messages evicted")
         let kEntityExpirationPeriod: TimeInterval = 7 * 24 * 60 * 60; //one week
 		
 		let messageReceivingGroup = DispatchGroup()
@@ -72,7 +72,7 @@ class DeliveryReportingTests: MMTestCase {
 				
 				// this is a workaround: negative age used to simulate that eviction happens in future so that our messages considered as old
 				messageHandler.evictOldMessages(-kEntityExpirationPeriod) {
-					evictionExpectation.fulfill()
+					evictionExpectation?.fulfill()
 				}
 			}
 		}

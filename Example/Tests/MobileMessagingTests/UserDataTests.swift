@@ -182,7 +182,7 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testDeletePredefinedAndCustomData() {
-		let expectation = self.expectation(description: "data received")
+		weak var expectation = self.expectation(description: "data received")
 		cleanUpAndStop()
 		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
@@ -212,7 +212,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customData?["food"] as? String, "Pizza")
 			XCTAssertEqual(currentUser.customData?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
 			XCTAssertNil(currentUser.customData?["height"])
-			expectation.fulfill()
+			expectation?.fulfill()
 		}
 		
 		waitForExpectations(timeout: 10, handler: nil)

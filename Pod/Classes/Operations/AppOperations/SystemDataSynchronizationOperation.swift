@@ -19,8 +19,8 @@ class SystemDataSynchronizationOperation: Operation {
 		return MobileMessaging.userAgent.systemData
 	}()
 	
-	lazy var currentSystemDataHash: Int = {
-		return self.currentSystemData.hashValue
+	lazy var currentSystemDataHash: Int64 = {
+		return Int64(self.currentSystemData.hashValue)
 	}()
 	
 	init(сontext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)? = nil) {

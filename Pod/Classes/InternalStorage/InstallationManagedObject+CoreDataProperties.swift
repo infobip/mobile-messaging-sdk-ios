@@ -21,6 +21,6 @@ extension InstallationManagedObject {
 	@NSManaged var externallUserId: String?
     @NSManaged var customUserData: DictionaryRepresentation?
 	@NSManaged var predefinedUserData: DictionaryRepresentation?
-	@NSManaged var systemDataHash: Int
+	@NSManaged var systemDataHash: Int64
 	@NSManaged var location: AnyObject?
 }
