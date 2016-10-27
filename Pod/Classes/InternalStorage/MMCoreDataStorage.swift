@@ -22,22 +22,17 @@ struct MMStorageSettings {
 	var storeOptions: MMStoreOptions?
 	
 	static var inMemoryStoreSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: nil, storeOptions: nil)
-	static var SQLiteInternalStorageSettings: MMStorageSettings {
-		var options: [AnyHashable: Any] = [NSMigratePersistentStoresAutomaticallyOption: true,
-		                                   NSInferMappingModelAutomaticallyOption: true]
-		if #available(iOS 10.0, *) {
-			options[NSPersistentStoreConnectionPoolMaxSizeKey] = 1
-		}
-		return MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: options)
-	}
+	static var SQLiteInternalStorageSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: storageOptions)
+	static var SQLiteMessageStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: storageOptions)
 	
-	static var SQLiteMessageStorageSettings: MMStorageSettings {
-		var options: [AnyHashable: Any] = [NSMigratePersistentStoresAutomaticallyOption: true,
-		                                   NSInferMappingModelAutomaticallyOption: true]
+	private static var storageOptions: MMStoreOptions {
+		var result: MMStoreOptions = [NSMigratePersistentStoresAutomaticallyOption: true,
+		                                  NSInferMappingModelAutomaticallyOption: true]
 		if #available(iOS 10.0, *) {
-			options[NSPersistentStoreConnectionPoolMaxSizeKey] = 1
+			// by doing this, we stick to old behaviour until we have time to investigate possible issues (i.e. http://stackoverflow.com/questions/39438433/xcode-8-gm-sqlite-error-code6922-disk-i-o-error)
+			result[NSPersistentStoreConnectionPoolMaxSizeKey] = 1
 		}
-		return MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: options)
+		return result
 	}
 }
 
