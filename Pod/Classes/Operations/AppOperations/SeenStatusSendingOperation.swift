@@ -21,7 +21,7 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	override func execute() {
-		self.context.performAndWait {
+		self.context.perform {
 			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), context: self.context), !seenNotSentMessages.isEmpty else
 			{
 				MMLogDebug("[Seen status reporting] There is no non-seen meessages to send to the server. Finishing...")
@@ -62,7 +62,8 @@ class SeenStatusSendingOperation: Operation {
 			}
 		case .Failure(let error):
 			MMLogError("[Seen status reporting] Request failed with error: \(error)")
-		case .Cancel: break
+		case .Cancel:
+			break
 		}
 	}
 	

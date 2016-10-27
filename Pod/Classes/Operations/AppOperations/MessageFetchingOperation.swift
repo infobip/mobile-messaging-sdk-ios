@@ -19,8 +19,6 @@ final class MessageFetchingOperation: Operation {
 		self.finishBlock = finishBlock
 		
 		super.init()
-		
-		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	override func execute() {
@@ -29,13 +27,13 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func syncMessages() {
+		guard let internalId = MobileMessaging.currentUser?.internalId else
+		{
+			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		
 		self.context.performAndWait {
-			guard let internalId = MobileMessaging.currentUser?.internalId else
-			{
-				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-				return
-			}
-			
 			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
 			let fetchLimit = 100 // consider 100 most recent messages
 			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
@@ -65,7 +63,7 @@ final class MessageFetchingOperation: Operation {
 				if let nonReportedMessageIds = nonReportedMessageIds {
 					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds)
 					MMLogDebug("Delivery report sent for messages: \(nonReportedMessageIds)")
-					if nonReportedMessageIds.count > 0 {
+					if !nonReportedMessageIds.isEmpty {
 						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
 				}
@@ -74,15 +72,14 @@ final class MessageFetchingOperation: Operation {
 				MMLogError("Sync request failed")
 			case .Cancel:
 				MMLogDebug("Sync cancelled")
-				break
 			}
-			self.finishWithError(result.error as NSError?)
 		}
+		self.finishWithError(result.error as NSError?)
 	}
 	
 	private func dequeueDeliveryReports(messageIDs: [String]) {
 		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), context: context)
-			, messages.count > 0
+			, !messages.isEmpty
 			else
 		{
 			return

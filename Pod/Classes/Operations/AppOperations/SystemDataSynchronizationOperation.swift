@@ -28,13 +28,11 @@ class SystemDataSynchronizationOperation: Operation {
 		self.finishBlock = finishBlock
 		self.remoteAPIQueue = remoteAPIQueue
 		super.init()
-		
-		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	override func execute() {
 		MMLogDebug("System Data: starting synchronization...")
-		context.performAndWait {
+		context.perform {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else
 			{
 				MMLogDebug("System Data: installation object not found, finishing the operation.")
@@ -79,10 +77,8 @@ class SystemDataSynchronizationOperation: Operation {
 				MMLogDebug("System Data: successfully synced")
 			case .Failure(let error):
 				MMLogError("System Data: sync request failed with error: \(error)")
-				return
 			case .Cancel:
 				MMLogError("System Data: sync request cancelled.")
-				return
 			}
 		}
 	}

@@ -661,14 +661,14 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testGeoEventsStorageSuccessfullyReported() {
 		// triggers 2 events and mocks successfull reportings wich ends up with an empty events storage
-		generalTestForPersistingEventReports(with: MMRemoteAPIAlaysSucceeding(), expectedEventsCount: 0)
+		generalTestForPersistingEventReports(with: MMRemoteAPIAlwaysSucceeding(), expectedEventsCount: 0)
 	}
 	
 	func testGeoEventsStorageUnsuccessfullyReported() {
 		// triggers 2 events and mocks failed reportings wich ends up with an events storage containing 2 records
 		generalTestForPersistingEventReports(with: MMRemoteAPIAlwaysFailing(), expectedEventsCount: 2)
 	}
-	
+
 	func testThatReportsAreBeingSentToTheServerWithCorrectData() {
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else
@@ -687,7 +687,7 @@ class GeofencingServiceTests: MMTestCase {
 		var sentEventTypes = Set<String>()
 		
 		// expect remote api queue called
-		let remoteAPIMock = MMRemoteAPIAlaysSucceeding() { (request) in
+		let remoteAPIMock = MMRemoteAPIAlwaysSucceeding() { (request) in
 			if let request = request as? MMGeoEventsReportingRequest {
 				if let report = request.eventsDataList.first {
 					sentCampaignIds.insert(report.campaignId)

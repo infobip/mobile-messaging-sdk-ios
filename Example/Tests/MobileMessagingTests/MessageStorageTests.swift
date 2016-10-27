@@ -176,9 +176,11 @@ class MessageStorageTests: MMTestCase {
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
-				iterationCounter += 1
-				if iterationCounter == expectedMessagesCount {
-					expectation?.fulfill()
+				DispatchQueue.main.async {
+					iterationCounter += 1
+					if iterationCounter == expectedMessagesCount {
+						expectation?.fulfill()
+					}
 				}
 			})
 		}

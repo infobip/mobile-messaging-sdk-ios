@@ -52,7 +52,7 @@ class DeliveryReportingTests: MMTestCase {
 	}
 	
     func testExpiredDeliveryReportsClean() {
-        weak var evictionExpectation = expectation(description: "Old messages evicted")
+        weak var evictionExpectation = self.expectation(description: "Old messages evicted")
         let kEntityExpirationPeriod: TimeInterval = 7 * 24 * 60 * 60; //one week
 		
 		let messageReceivingGroup = DispatchGroup()

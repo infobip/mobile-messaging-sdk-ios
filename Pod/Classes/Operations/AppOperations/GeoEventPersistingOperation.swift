@@ -24,7 +24,7 @@ class GeoEventPersistingOperation: Operation {
 	}
 	
 	override func execute() {
-		context.performAndWait {
+		self.context.performAndWait {
 			
 			if let msg = MessageManagedObject.MM_findFirstWithPredicate(NSPredicate(format: "messageId == %@", self.message.messageId), context: self.context),
 				var payload = msg.payload,

@@ -44,7 +44,7 @@ final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
 	}
 }
 
-final class MMRemoteAPIAlaysSucceeding : MMRemoteAPIQueue {
+final class MMRemoteAPIAlwaysSucceeding : MMRemoteAPIQueue {
 	var completionCompanionBlock : ((Any) -> Void)?
 	
 	init(completionCompanionBlock: ((Any) -> Void)? = nil) {

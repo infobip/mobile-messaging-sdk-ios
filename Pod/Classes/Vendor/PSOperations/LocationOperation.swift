@@ -20,9 +20,9 @@ import CoreLocation
 open class LocationOperation: Operation, CLLocationManagerDelegate {
     // MARK: Properties
     
-    private let accuracy: CLLocationAccuracy
-    private var manager: CLLocationManager?
-    private let handler: (CLLocation) -> Void
+    fileprivate let accuracy: CLLocationAccuracy
+    fileprivate var manager: CLLocationManager?
+    fileprivate let handler: (CLLocation) -> Void
     
     // MARK: Initialization
     
@@ -73,7 +73,7 @@ open class LocationOperation: Operation, CLLocationManagerDelegate {
     // MARK: CLLocationManagerDelegate
     
     open func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last , location.horizontalAccuracy <= accuracy {
+        if let location = locations.last, location.horizontalAccuracy <= accuracy {
             stopLocationUpdates()
             handler(location)
             finish()

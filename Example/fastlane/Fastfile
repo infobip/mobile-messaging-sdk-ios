@@ -35,7 +35,7 @@ platform :ios do
                 scheme: "MobileMessagingExample",
                 devices: [
                             	"iPhone 5 (9.3)",
-				"iPhone 5 (10.0)"
+                                "iPhone 6 (10.0)"
                         ]
             )
         end

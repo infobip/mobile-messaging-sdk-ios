@@ -23,7 +23,7 @@ class GeoEventReportingOperation: Operation {
 	}
 	
 	override func execute() {
-		self.context.performAndWait {
+		self.context.perform {
 			
 			guard let happenedEvents = GeoEventReportObject.MM_findAllInContext(self.context), !happenedEvents.isEmpty
 				else

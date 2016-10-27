@@ -66,6 +66,8 @@ extension MMHTTPRequestData {
 		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
 		manager.responseSerializer = MMResponseSerializer<ResponseType>()
 		
+		MMLogDebug("Sending request \(type(of: self))\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
+		
 		let successBlock = { (task: URLSessionDataTask, obj: Any?) -> Void in
 			if let obj = obj as? ResponseType {
 				completion(Result.Success(obj))

@@ -54,19 +54,25 @@ final class MessageHandlingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("Starting message handling operation...")
+		var newMessages = [MTMessage]()
 		context.performAndWait {
-			guard let newMessages: [MTMessage] = self.getNewMessages(context: self.context, messagesToHandle: self.messagesToHandle), !newMessages.isEmpty else
-			{
-				MMLogDebug("There is no new messages to handle.")
-				self.finish()
-				return
-			}
+			newMessages = self.getNewMessages(context: self.context, messagesToHandle: self.messagesToHandle) ?? [MTMessage]()
+		}
+		
+		guard !newMessages.isEmpty else
+		{
+			MMLogDebug("There is no new messages to handle.")
+			self.finish()
+			return
+		}
+		
+		MMLogDebug("There are \(newMessages.count) new messages to handle.")
+		
+		context.performAndWait {
 			self.hasNewMessages = true
-			MMLogDebug("There are \(newMessages.count) new messages to handle.")
-			for newMessage in newMessages {
+			newMessages.forEach { newMessage in
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
-				
 				newDBMessage.isSilent = newMessage.isSilent
 				
 				// Add new regions for geofencing
@@ -77,13 +83,11 @@ final class MessageHandlingOperation: Operation {
 				}
 			}
 			self.context.MM_saveToPersistentStoreAndWait()
-			
-			self.handle(newMessages: newMessages)
-			
-			self.populateMessageStorage(with: newMessages)
-			
-			self.finish()
 		}
+		
+		self.handle(newMessages: newMessages)
+		self.populateMessageStorage(with: newMessages)
+		self.finish()
 	}
 	
 	private func populateMessageStorage(with messages: [MTMessage]) {

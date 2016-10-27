@@ -32,8 +32,6 @@ class UserDataSynchronizationOperation: Operation {
 		self.onlyFetching = onlyFetching
 		
 		super.init()
-		
-		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	private var installationHasChanges: Bool {
@@ -44,7 +42,7 @@ class UserDataSynchronizationOperation: Operation {
 		//TODO: store old valid attributes
 		//installationObject.customUserData
 		//installationObject.predefinedUserData
-		context.performAndWait {
+		context.perform {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
 				self.finish()
 				return
@@ -87,9 +85,10 @@ class UserDataSynchronizationOperation: Operation {
 	
 	private func fetchUserData() {
 		guard let internalId = MobileMessaging.currentUser?.internalId
-			else {
-				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-				return
+			else
+		{
+			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
 		}
 		
 		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: MobileMessaging.currentUser?.externalId)
@@ -102,9 +101,10 @@ class UserDataSynchronizationOperation: Operation {
 	
 	private func sendUserData() {
 		guard let user = MobileMessaging.currentUser, let internalId = user.internalId
-			else {
-				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-				return
+			else
+		{
+			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
 		}
 		
 		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: user.externalId, predefinedUserData: user.predefinedData, customUserData: user.customData)
