@@ -132,8 +132,6 @@ class UserDataTests: MMTestCase {
 	
 	func testSetupPredefinedAndCustomData() {
 		weak var expectation = self.expectation(description: "save completed")
-		cleanUpAndStop()
-		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
@@ -181,8 +179,6 @@ class UserDataTests: MMTestCase {
 	
 	func testDeletePredefinedAndCustomData() {
 		weak var expectation = self.expectation(description: "data received")
-		cleanUpAndStop()
-		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
@@ -218,8 +214,6 @@ class UserDataTests: MMTestCase {
 	
 	func testGetPredefinedAndCustomData() {
 		weak var expectation = self.expectation(description: "data received")
-		cleanUpAndStop()
-		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID

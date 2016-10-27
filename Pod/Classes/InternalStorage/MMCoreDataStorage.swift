@@ -22,8 +22,23 @@ struct MMStorageSettings {
 	var storeOptions: MMStoreOptions?
 	
 	static var inMemoryStoreSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: nil, storeOptions: nil)
-	static var SQLiteInternalStorageSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
-	static var SQLiteMessageStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
+	static var SQLiteInternalStorageSettings: MMStorageSettings {
+		var options: [AnyHashable: Any] = [NSMigratePersistentStoresAutomaticallyOption: true,
+		                                   NSInferMappingModelAutomaticallyOption: true]
+		if #available(iOS 10.0, *) {
+			options[NSPersistentStoreConnectionPoolMaxSizeKey] = 1
+		}
+		return MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: options)
+	}
+	
+	static var SQLiteMessageStorageSettings: MMStorageSettings {
+		var options: [AnyHashable: Any] = [NSMigratePersistentStoresAutomaticallyOption: true,
+		                                   NSInferMappingModelAutomaticallyOption: true]
+		if #available(iOS 10.0, *) {
+			options[NSPersistentStoreConnectionPoolMaxSizeKey] = 1
+		}
+		return MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: options)
+	}
 }
 
 final class MMCoreDataStorage {

@@ -39,7 +39,7 @@ class MMTestCase: XCTestCase {
 	
 	func cleanUpAndStop() {
 //		queue.executeSync {
-			mobileMessagingInstance.cleanUpAndStop()
+			MobileMessaging.stop(true)
 //		}
 	}
 	

@@ -159,7 +159,7 @@ class ManagedObjectObserverTests: MMTestCase {
 			})
 			
 			// restart
-			mobileMessagingInstance.cleanUpAndStop()
+			cleanUpAndStop()
 			startWithCorrectApplicationCode()
 			
 			let ctx = storage.mainThreadManagedObjectContext!

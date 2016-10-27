@@ -13,9 +13,6 @@ class MOMessageSendingTests: MMTestCase {
     func testSendMOMessageSuccessfully() {
 		
 		weak var expectation = self.expectation(description: "Sending finished")
-
-		cleanUpAndStop()
-		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
