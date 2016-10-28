@@ -96,11 +96,6 @@ platform :ios do
         unless options[:no_device_tests]
             test_on_device
         end
-        
-        gym(
-            scheme: "MobileMessagingExample",
-            use_legacy_build_api: true
-        )
 
         unless only_build
             clean_build_artifacts
@@ -149,10 +144,6 @@ platform :ios do
         sigh(
             output_path: "./tmp",
             development: true
-        )
-        gym(
-            scheme: "MobileMessagingExample",
-            use_legacy_build_api: true
         )
 
         unless only_build
