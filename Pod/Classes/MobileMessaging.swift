@@ -72,8 +72,8 @@ public final class MobileMessaging: NSObject {
 				self.messageHandler = messageHandler
 				self.startMessageStorage()
 				
-				self.geofencingService = MMGeofencingService(storage: storage, remoteAPIQueue: MMRemoteAPIQueue(baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode))
 				if isGeoServiceEnabled {
+					self.geofencingService = MMGeofencingService(storage: storage, remoteAPIQueue: MMRemoteAPIQueue(baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode))
 					self.geofencingService?.start()
 				}
 				self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user, geofencingService: self.geofencingService)
@@ -226,6 +226,7 @@ public final class MobileMessaging: NSObject {
 		
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
 		MobileMessaging.geofencingService?.stop()
+		self.geofencingService = nil
 	}
 	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], newMessageReceivedCallback: (([AnyHashable : Any]) -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {

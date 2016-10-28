@@ -54,7 +54,7 @@ final class RetryOperationTests: XCTestCase {
 		let retryOpQ = MMRetryOperationQueue()
 		retryOpQ.addOperation(op)
 		
-		self.waitForExpectations(timeout: 60) { error in
+		self.waitForExpectations(timeout: 60) { _ in
 			
 			XCTAssertEqual(operationExecutionCounter, 2, "Operation must be executed 2 times: 1st - initial, 2nd - after we get reachable status")
 			
@@ -71,7 +71,7 @@ final class RetryOperationTests: XCTestCase {
 
 		opQ.addOperation(op)
 		
-		self.waitForExpectations(timeout: 60) { error in
+		self.waitForExpectations(timeout: 60) { _ in
 			
 			XCTAssertEqual(operationExecutionCounter, retryLimit + 1, "Operation must be executed \(retryLimit + 1) times as we set retry limit \(retryLimit)")
 			

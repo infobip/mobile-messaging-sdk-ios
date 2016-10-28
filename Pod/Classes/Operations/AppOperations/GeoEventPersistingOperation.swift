@@ -36,7 +36,6 @@ class GeoEventPersistingOperation: Operation {
 			}
 			
 			let _ = GeoEventReportObject.createEntity(withCampaignId: self.message.campaignId, eventType: self.eventType.rawValue, regionId: self.regionId, messageId: self.message.messageId, in: self.context)
-			
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		MMLogDebug("[Geo event persisting] New geo event data persisted.")

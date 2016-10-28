@@ -26,7 +26,7 @@ class DeliveryReportingTests: MMTestCase {
 				
 			})
 		
-        self.waitForExpectations(timeout: 50, handler: nil)
+        self.waitForExpectations(timeout: 60, handler: nil)
     }
 	
     func testSendingDeliveryStatusWrongAppIdFailure() {
@@ -46,7 +46,7 @@ class DeliveryReportingTests: MMTestCase {
 			expectation?.fulfill()
 		})
 
-		self.waitForExpectations(timeout: 5000) { err in
+		self.waitForExpectations(timeout: 60) { _ in
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 		}
 	}
@@ -77,7 +77,7 @@ class DeliveryReportingTests: MMTestCase {
 			}
 		}
 	
-		self.waitForExpectations(timeout: 50) { error in
+		self.waitForExpectations(timeout: 60) { _ in
 			XCTAssertEqual(self.allStoredMessagesCount(ctx), 0, "There must be not any stored message")
 		}
     }

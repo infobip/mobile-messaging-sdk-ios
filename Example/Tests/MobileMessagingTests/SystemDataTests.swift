@@ -72,7 +72,7 @@ class SystemDataTests: MMTestCase {
 			})
 		})
 		
-		self.waitForExpectations(timeout: 100) { err in
+		self.waitForExpectations(timeout: 60) { _ in
 			
 			ctx.reset()
 			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {

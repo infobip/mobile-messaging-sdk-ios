@@ -44,10 +44,8 @@ class MMTestCase: XCTestCase {
 	}
 	
 	override func tearDown() {
-//		queue.executeSync {
-			super.tearDown()
-			cleanUpAndStop()
-//		}
+		super.tearDown()
+		self.cleanUpAndStop()
 	}
 	
 	func nonReportedStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {

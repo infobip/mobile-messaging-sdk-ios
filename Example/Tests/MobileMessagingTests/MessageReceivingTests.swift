@@ -115,7 +115,7 @@ class MessageReceivingTests: MMTestCase {
 				}
 			})
         }
-		self.waitForExpectations(timeout: 100, handler: { error in
+		self.waitForExpectations(timeout: 60, handler: { error in
 			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
 	}
@@ -135,7 +135,7 @@ class MessageReceivingTests: MMTestCase {
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo)
 		}
 		
-		self.waitForExpectations(timeout: 10, handler: { error in
+		self.waitForExpectations(timeout: 60, handler: { _ in
 			XCTAssertEqual(eventsCounter, expectedEventsCount, "We should receive exact same amount of events")
 		})
 	}

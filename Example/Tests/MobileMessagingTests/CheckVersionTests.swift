@@ -44,7 +44,7 @@ class CheckVersionTests: MMTestCase {
 		MMVersionManager.shared?.remoteApiQueue = remoteAPIMock
 		MobileMessaging.sharedInstance?.start()
 		
-		waitForExpectations(timeout: 20, handler: nil)
+		waitForExpectations(timeout: 60, handler: nil)
 	}
 	
 }

@@ -33,6 +33,15 @@ class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
 			return true
 		}
 	}
+	
+	override func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
+		completion(.Authorized)
+	}
+	
+	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+		
+	}
+
 }
 
 let expectedCampaignId = "campaign 1"
@@ -233,7 +242,7 @@ class GeofencingServiceTests: MMTestCase {
 				expectation?.fulfill()
 			}
 		})
-		self.waitForExpectations(timeout: 100, handler: { error in
+		self.waitForExpectations(timeout: 60, handler: { _ in
 			XCTAssertEqual(MobileMessaging.geofencingService?.allRegions.count, 2)
 		})
 	}
@@ -358,6 +367,9 @@ class GeofencingServiceTests: MMTestCase {
 	
 	//MARK: - Events tests
 	func testDefaultEventsSettings() {
+		weak var report1 = expectation(description: "report1")
+		weak var report2 = expectation(description: "report2")
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else
 		{
@@ -371,15 +383,27 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertFalse(message.isLive(for: .exit))
 		
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+			report1?.fulfill()
+		}
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertFalse(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { _ in
+			report2?.fulfill()
+		}
 		XCTAssertFalse(message.isLive(for: .exit))
+		
+		
+		waitForExpectations(timeout: 60, handler: nil)
 	}
 	
 	func testOnlyOneEventType() {
+		
+		weak var report1 = expectation(description: "report1")
+		weak var report2 = expectation(description: "report2")
+		
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
 		let events = [makeEventDict(ofType: .exit, limit: 1, timeout: 0)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		
@@ -392,11 +416,19 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { _ in
+			report1?.fulfill()
+		}
 		XCTAssertFalse(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+			report2?.fulfill()
+		}
+
 		XCTAssertFalse(message.isLive(for: .entry))
+		
+		
+		waitForExpectations(timeout: 60, handler: nil)
 	}
 	
 	func testGeoMessageTypeCasting() {
@@ -412,6 +444,12 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	func testEventsOccuring() {
+		weak var report1 = expectation(description: "report1")
+		weak var report2 = expectation(description: "report2")
+		weak var report3 = expectation(description: "report3")
+		
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
+		
 		let timeoutInMins: Int = 1
 		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins),
 		              makeEventDict(ofType: .exit, limit: 2, timeout: timeoutInMins)]
@@ -430,11 +468,15 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+			report1?.fulfill()
+		}
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { _ in
+			report2?.fulfill()
+		}
 		XCTAssertFalse(message.isLive(for: .exit))
 		
 		// move the event into the past
@@ -445,12 +487,20 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: zagrebObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: zagrebObject.identifier, message: message) { _ in
+			report3?.fulfill()
+		}
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
+		
+		
+		waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testEventLimitZero() {
+		
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
+
 		let events = [makeEventDict(ofType: .entry, limit: 0, timeout: 0),
 		              makeEventDict(ofType: .exit, limit: 0, timeout: 0)]
 		
@@ -466,14 +516,32 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
+		let group = DispatchGroup()
+		
 		for _ in 0 ..< 10 {
-			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
+			group.enter()
+			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+				group.leave()
+			}
 			XCTAssertTrue(message.isLive(for: .entry))
 			XCTAssertTrue(message.isLive(for: .exit))
 		}
+		
+		
+		weak var exp = expectation(description: "finished")
+		group.notify(queue: DispatchQueue.main) { 
+			exp?.fulfill()
+		}
+		waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testEventTimeoutNotSet() {
+		
+		weak var report1 = expectation(description: "report1")
+		weak var report2 = expectation(description: "report2")
+		
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
+
 		let events = [makeEventDict(ofType: .entry, limit: 1),
 		              makeEventDict(ofType: .exit, limit: 1)]
 		
@@ -489,12 +557,21 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+			report1?.fulfill()
+		}
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { _ in
+			report2?.fulfill()
+		}
+
 		XCTAssertFalse(message.isLive(for: .exit))
+		
+		
+		
+		waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	//MARK: - delivery time tests
@@ -662,14 +739,20 @@ class GeofencingServiceTests: MMTestCase {
 	func testGeoEventsStorageSuccessfullyReported() {
 		// triggers 2 events and mocks successfull reportings wich ends up with an empty events storage
 		generalTestForPersistingEventReports(with: MMRemoteAPIAlwaysSucceeding(), expectedEventsCount: 0)
+		
 	}
 	
 	func testGeoEventsStorageUnsuccessfullyReported() {
 		// triggers 2 events and mocks failed reportings wich ends up with an events storage containing 2 records
 		generalTestForPersistingEventReports(with: MMRemoteAPIAlwaysFailing(), expectedEventsCount: 2)
+		
 	}
 
 	func testThatReportsAreBeingSentToTheServerWithCorrectData() {
+		
+		weak var report1 = expectation(description: "report1")
+		weak var report2 = expectation(description: "report2")
+		
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else
 		{
@@ -722,10 +805,15 @@ class GeofencingServiceTests: MMTestCase {
 		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: remoteAPIMock )
 		
 		// simulate entry event
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message)
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: zagrebObject.identifier, message: message)
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+			report1?.fulfill()
+		}
+
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: zagrebObject.identifier, message: message) { _ in
+			report2?.fulfill()
+		}
 		
-		self.waitForExpectations(timeout: 1000, handler: nil)
+		self.waitForExpectations(timeout: 60, handler: nil)
 	}
 	
 	//MARK: - Private helpers
@@ -743,6 +831,9 @@ class GeofencingServiceTests: MMTestCase {
 		
 		// simulate entry event
 		let reportSendingGroup = DispatchGroup()
+		reportSendingGroup.enter()
+		reportSendingGroup.enter()
+		
 		mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: {
 			reportSendingGroup.leave()
 		})
@@ -753,8 +844,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		weak var eventsDatabaseCheck1 = self.expectation(description: "eventsDatabaseCheck1")
 		
-		reportSendingGroup.enter()
-		reportSendingGroup.enter()
+		
 		reportSendingGroup.notify(queue: DispatchQueue.main) { 
 			// check events database (must be 0)
 			if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
@@ -764,6 +854,7 @@ class GeofencingServiceTests: MMTestCase {
 				XCTFail()
 			}
 		}
-		self.waitForExpectations(timeout: 100, handler: nil)
+		
+		self.waitForExpectations(timeout: 60, handler: nil)
 	}
 }

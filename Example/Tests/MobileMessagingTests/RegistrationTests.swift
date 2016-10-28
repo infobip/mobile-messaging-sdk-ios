@@ -64,7 +64,7 @@ final class RegistrationTests: MMTestCase {
 			}
 		}
         
-        self.waitForExpectations(timeout: 100) { error in
+        self.waitForExpectations(timeout: 60) { _ in
 			assert(MMQueue.Main.queue.isCurrentQueue)
 			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 			
@@ -90,7 +90,7 @@ final class RegistrationTests: MMTestCase {
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
 			expectation?.fulfill()
 		}
-		self.waitForExpectations(timeout: 100) { error in
+		self.waitForExpectations(timeout: 60) { _ in
 			assert(MMQueue.Main.queue.isCurrentQueue)
 			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
 			
@@ -153,7 +153,6 @@ final class RegistrationTests: MMTestCase {
             sync1?.fulfill()
         })
 		
-        self.waitForExpectations(timeout: 100) { error in
-        }
+        self.waitForExpectations(timeout: 60, handler: nil)
     }
 }

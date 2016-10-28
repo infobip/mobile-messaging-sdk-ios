@@ -146,6 +146,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	/// Stops the Geofencing Service
 	public func stop() {
+		eventsHandlingQueue.cancelAllOperations()
 		serviceQueue.executeAsync() {
 			guard self.isRunning == true else
 			{
@@ -206,6 +207,10 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.previousLocation = MobileMessaging.currentInstallation?.location
 			self.remoteAPIQueue = remoteAPIQueue
 		}
+	}
+	
+	deinit {
+		eventsHandlingQueue.cancelAllOperations()
 	}
 	
 	class var isDescriptionProvidedForWhenInUseUsage: Bool {
@@ -321,8 +326,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	func report(on eventType: MMRegionEventType, forRegionId regionId: String, message: MMGeoMessage, completion: (() -> Void)? = nil) {
 		message.events.filter{ $0.type == eventType }.first?.occur()
-		self.persistNewEvent(of: eventType, forRegionId: regionId, message: message)
-		self.reportOnEvents(completion: completion)
+		persistNewEvent(of: eventType, forRegionId: regionId, message: message)
+		reportOnEvents(completion: completion)
 	}
 	
 	func syncWithServer() {

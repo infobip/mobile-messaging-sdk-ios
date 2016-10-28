@@ -160,7 +160,7 @@ class MessageStorageTests: MMTestCase {
 			})
 		}
 
-		self.waitForExpectations(timeout: 100, handler: nil)
+		self.waitForExpectations(timeout: 60, handler: nil)
     }
 	
 	func testCustomStorage() {
@@ -185,7 +185,7 @@ class MessageStorageTests: MMTestCase {
 			})
 		}
 		
-		self.waitForExpectations(timeout: 100, handler: { error in
+		self.waitForExpectations(timeout: 60, handler: { _ in
 			XCTAssertEqual(mockMessageStorage.mtMessages.count, expectedMessagesCount)
 			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
@@ -258,7 +258,7 @@ class MessageStorageTests: MMTestCase {
 			}
 		}
 
-		self.waitForExpectations(timeout: 100, handler: nil)
+		self.waitForExpectations(timeout: 60, handler: nil)
 	}
 	
 	override func tearDown() {
