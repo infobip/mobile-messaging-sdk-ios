@@ -54,29 +54,23 @@ class DeliveryReportingTests: MMTestCase {
     func testExpiredDeliveryReportsClean() {
         weak var evictionExpectation = self.expectation(description: "Old messages evicted")
         let kEntityExpirationPeriod: TimeInterval = 7 * 24 * 60 * 60; //one week
-		
-		let messageReceivingGroup = DispatchGroup()
-		
-		messageReceivingGroup.enter()
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "qwerty1"], newMessageReceivedCallback: nil, completion: { err in
-			messageReceivingGroup.leave()
-		})
-		
 		let ctx = self.storage.mainThreadManagedObjectContext!
-		messageReceivingGroup.notify(queue: DispatchQueue.main) {
-			
-			XCTAssertEqual(self.allStoredMessagesCount(ctx), 1, "There must be a stored message")
-			let messageHandler = self.mobileMessagingInstance.messageHandler!
-			messageHandler.evictOldMessages(kEntityExpirationPeriod) {
-				XCTAssertEqual(self.allStoredMessagesCount(ctx), 1, "There is no messages to evict, there must be a stored message")
-				
-				// this is a workaround: negative age used to simulate that eviction happens in future so that our messages considered as old
-				messageHandler.evictOldMessages(-kEntityExpirationPeriod) {
-					evictionExpectation?.fulfill()
-				}
-			}
-		}
-	
+		
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "qwerty1"], newMessageReceivedCallback: nil, completion: { err in
+            DispatchQueue.main.async {
+                XCTAssertEqual(self.allStoredMessagesCount(ctx), 1, "There must be a stored message")
+                let messageHandler = self.mobileMessagingInstance.messageHandler!
+                messageHandler.evictOldMessages(kEntityExpirationPeriod) {
+                    XCTAssertEqual(self.allStoredMessagesCount(ctx), 1, "There is no messages to evict, there must be a stored message")
+                    
+                    // this is a workaround: negative age used to simulate that eviction happens in future so that our messages considered as old
+                    messageHandler.evictOldMessages(-kEntityExpirationPeriod) {
+                        evictionExpectation?.fulfill()
+                    }
+                }
+            }
+		})
+
 		self.waitForExpectations(timeout: 60) { _ in
 			XCTAssertEqual(self.allStoredMessagesCount(ctx), 0, "There must be not any stored message")
 		}
