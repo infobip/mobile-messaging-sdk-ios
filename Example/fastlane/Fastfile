@@ -115,101 +115,92 @@ platform :ios do
         end
     end
 
-    desc "Build a release version, publish to Cocoapods"
-    lane :release do |options|
-        load_keys
+    # desc "Build a release version, publish to Cocoapods"
+    # lane :release do |options|
+    #     load_keys
 
-        only_build = options[:only_build]
+    #     only_build = options[:only_build]
 
-        unless only_build
-            ensure_git_status_clean
+    #     unless only_build
+    #         ensure_git_status_clean
 
-            unless options[:version_number] or options[:release_type]
-                UI.error("You must specify :release_type (patch, minor, major) or a full version string in :version_number")
-                raise "You must specify :release_type (patch, minor, major) or a full version string in :version_number"
-            end
+    #         unless options[:version_number] or options[:release_type]
+    #             UI.error("You must specify :release_type (patch, minor, major) or a full version string in :version_number")
+    #             raise "You must specify :release_type (patch, minor, major) or a full version string in :version_number"
+    #         end
 
-            custom_version_number = options[:version_number]
-            if custom_version_number
-                increment_version_number(version_number: custom_version_number)
-            else
-                increment_version_number(bump_type: options[:release_type])
-            end
+    #         custom_version_number = options[:version_number]
+    #         if custom_version_number
+    #             increment_version_number(version_number: custom_version_number)
+    #         else
+    #             increment_version_number(bump_type: options[:release_type])
+    #         end
 
-            version_number = lane_context[SharedValues::VERSION_NUMBER]
-            build_number = increment_build_number
-            new_version_tag = "#{version_number}"
-        end
+    #         version_number = lane_context[SharedValues::VERSION_NUMBER]
+    #         build_number = increment_build_number
+    #         new_version_tag = "#{version_number}"
+    #     end
 
-        cocoapods
+    #     cocoapods
 
-        unless options[:no_tests]
-            test_on_simulator
-        end
+    #     unless options[:no_tests]
+    #         test_on_simulator
+    #     end
 
-        unless options[:no_device_tests]
-            test_on_device
-        end
+    #     unless options[:no_device_tests]
+    #         test_on_device
+    #     end
+
+    #     unless only_build
+    #         clean_build_artifacts
+
+    #         change_log = change_log_since_last_tag
+
+    #         commit_msg = "Version bump to #{version_number}"
+    #         commit_version_bump(
+    #             message: commit_msg,
+    #             xcodeproj: "MobileMessagingExample.xcodeproj"
+    #         )
+
+    #         add_git_tag(
+    #             tag: new_version_tag
+    #         )
+
+    #         podspec_path = ENV["WORKSPACE"]+"/MobileMessaging.podspec"
         
-        sigh(
-            output_path: "./tmp",
-            development: true
-        )
-        gym(
-            scheme: "MobileMessagingExample",
-            use_legacy_build_api: true
-        )
+    #         version_bump_podspec(
+    #             path: podspec_path,
+    #             version_number: version_number
+    #         )
 
-        unless only_build
-            clean_build_artifacts
+    #         desc "Bumping lib version variable"
+    #         swift_version_path = ENV["WORKSPACE"]+"/Pod/Classes/MMVersion.swift"
+    #         sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{version_number}/g;' #{swift_version_path}"
 
-            change_log = change_log_since_last_tag
+    #         desc "Cleaning the application code occurrences"
+    #         swift_app_code_path = ENV["WORKSPACE"]+"/Example/MobileMessagingExample/AppDelegate.swift"
+    #         sh "perl -i -p -e 's/[\w]{32}-[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/your_application_code/g;' #{swift_app_code_path}"
 
-            commit_msg = "Version bump to #{version_number}"
-            commit_version_bump(
-                message: commit_msg,
-                xcodeproj: "MobileMessagingExample.xcodeproj"
-            )
+    #         desc "Comitting changes"
+    #         sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\" \"#{swift_app_code_path}\""
 
-            add_git_tag(
-                tag: new_version_tag
-            )
+    #         desc "Pushing to Stash repo - swift2"
+    #         sh "git push origin HEAD:swift2 --tags"
 
-            podspec_path = ENV["WORKSPACE"]+"/MobileMessaging.podspec"
-        
-            version_bump_podspec(
-                path: podspec_path,
-                version_number: version_number
-            )
+    #         desc "Pushing to Github repo - swift2"
+    #         sh "git push github HEAD:swift2"
 
-            desc "Bumping lib version variable"
-            swift_version_path = ENV["WORKSPACE"]+"/Pod/Classes/MMVersion.swift"
-            sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{version_number}/g;' #{swift_version_path}"
+    #         set_github_release(
+    #             repository_name: "infobip/mobile-messaging-sdk-ios",
+    #             api_token: ENV["GITHUB_API_TOKEN"],
+    #             tag_name: version_number,
+    #             name: version_number
+    #         )
 
-            desc "Cleaning the application code occurrences"
-            swift_app_code_path = ENV["WORKSPACE"]+"/Example/MobileMessagingExample/AppDelegate.swift"
-            sh "perl -i -p -e 's/[\w]{32}-[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/your_application_code/g;' #{swift_app_code_path}"
-
-            desc "Comitting changes"
-            sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\" \"#{swift_app_code_path}\""
-
-            desc "Pushing to Stash repo - swift2"
-            sh "git push origin HEAD:swift2 --tags"
-
-            desc "Pushing to Github repo - swift2"
-            sh "git push github HEAD:swift2"
-
-            set_github_release(
-                repository_name: "infobip/mobile-messaging-sdk-ios",
-                api_token: ENV["GITHUB_API_TOKEN"],
-                tag_name: version_number,
-                name: version_number
-            )
-
-            pod_push(
-                path: podspec_path,
-                allow_warnings: true
-            )
-        end
-    end
+    #         pod_push(
+    #             path: podspec_path,
+    #             allow_warnings: true
+    #         )
+    #     end
+    # end
 end
