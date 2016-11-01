@@ -20,7 +20,6 @@ Pod::Spec.new do |s|
     s.frameworks    = 'CoreData', 'CoreTelephony'
     s.resources     = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld', 'Pod/Classes/**/*.modulemap'
     s.public_header_files = 'Pod/Classes/MMNotifications.h',
-                            'Pod/Classes/MobileMessaging.h',
                             'Pod/Classes/MobileMessagingAppDelegateObjc.h',
                             'Pod/Classes/MobileMessagingCordovaApplicationDelegate.h'
     s.private_header_files = 'Pod/Classes/Vendor/**/*.h'
