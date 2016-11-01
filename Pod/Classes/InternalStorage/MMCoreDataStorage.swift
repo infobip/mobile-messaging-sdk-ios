@@ -84,10 +84,12 @@ final class MMCoreDataStorage {
 		_mainThreadManagedObjectContext = nil
 		_managedObjectModel = nil
 		_persistentStore?.MM_removePersistentStoreFiles()
-		do {
-			try _persistentStoreCoordinator?.remove(_persistentStore!)
-		} catch (let exception) {
-			MMLogError("Removing persistent store \(exception)")
+		if let ps = _persistentStore {
+			do {
+				try _persistentStoreCoordinator?.remove(ps)
+			} catch (let exception) {
+				MMLogError("Removing persistent store \(exception)")
+			}
 		}
 		_persistentStoreCoordinator = nil
 		_persistentStore = nil

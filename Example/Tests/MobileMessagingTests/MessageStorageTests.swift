@@ -135,7 +135,7 @@ class MessageStorageTests: MMTestCase {
 		})
 	}
 	
-    func testExample() {
+    func testDefaultStoragePersistingAndFetching() {
 		cleanUpAndStop()
 		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).withDefaultMessageStorage().start()
 		
@@ -163,7 +163,7 @@ class MessageStorageTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: nil)
     }
 	
-	func testCustomStorage() {
+	func testCustomPersistingAndFetching() {
 		cleanUpAndStop()
 		
 		let mockMessageStorage = MockMessageStorage()
