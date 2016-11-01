@@ -141,24 +141,15 @@ platform :ios do
             new_version_tag = "#{version_number}"
         end
 
-        cocoapods
+        # cocoapods
 
-        unless options[:no_tests]
-            test_on_simulator
-        end
+        # unless options[:no_tests]
+        #     test_on_simulator
+        # end
 
-        unless options[:no_device_tests]
-            test_on_device
-        end
-        
-        sigh(
-            output_path: "./tmp",
-            development: true
-        )
-        gym(
-            scheme: "MobileMessagingExample",
-            use_legacy_build_api: true
-        )
+        # unless options[:no_device_tests]
+        #     test_on_device
+        # end
 
         unless only_build
             clean_build_artifacts
