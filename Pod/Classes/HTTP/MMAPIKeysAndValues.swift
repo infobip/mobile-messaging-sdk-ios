@@ -69,6 +69,7 @@ struct GeoReportingAPIKeys {
 	static let event = "event"
 	static let geoAreaId = "geoAreaId"
 	static let campaignId = "campaignId"
+	static let messageId = "messageId"
 	static let timestampDelta = "timestampDelta"
 }
 

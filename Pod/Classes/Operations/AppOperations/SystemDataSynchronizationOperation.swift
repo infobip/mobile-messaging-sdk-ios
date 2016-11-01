@@ -19,8 +19,8 @@ class SystemDataSynchronizationOperation: Operation {
 		return MobileMessaging.userAgent.systemData
 	}()
 	
-	lazy var currentSystemDataHash: Int = {
-		return self.currentSystemData.hashValue
+	lazy var currentSystemDataHash: Int64 = {
+		return Int64(self.currentSystemData.hashValue)
 	}()
 	
 	init(сontext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: (NSError? -> Void)? = nil) {
@@ -28,13 +28,11 @@ class SystemDataSynchronizationOperation: Operation {
 		self.finishBlock = finishBlock
 		self.remoteAPIQueue = remoteAPIQueue
 		super.init()
-		
-		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	override func execute() {
 		MMLogDebug("System Data: starting synchronization...")
-		context.performBlockAndWait {
+		context.performBlock {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(context: self.context) else
 			{
 				MMLogDebug("System Data: installation object not found, finishing the operation.")
@@ -73,15 +71,15 @@ class SystemDataSynchronizationOperation: Operation {
 				guard let installationObject = self.installationObject else {
 					return
 				}
-				installationObject.systemDataHash = NSNumber(integer: self.currentSystemDataHash)
+
+				installationObject.systemDataHash = self.currentSystemDataHash
+
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("System Data: successfully synced")
 			case .Failure(let error):
 				MMLogError("System Data: sync request failed with error: \(error)")
-				return
 			case .Cancel:
 				MMLogError("System Data: sync request cancelled.")
-				return
 			}
 		}
 	}

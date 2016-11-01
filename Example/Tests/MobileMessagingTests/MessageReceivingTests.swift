@@ -108,23 +108,26 @@ class MessageReceivingTests: MMTestCase {
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
-				iterationCounter += 1
-				if iterationCounter == expectedMessagesCount {
-					expectation?.fulfill()
-				}
+				dispatch_async(dispatch_get_main_queue(), {
+					iterationCounter += 1
+					if iterationCounter == expectedMessagesCount {
+						expectation?.fulfill()
+					}
+				})
 			})
         }
-		self.waitForExpectationsWithTimeout(100, handler: { error in
+		
+		waitForExpectationsWithTimeout(60, handler: { _ in
 			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
 	}
 	
-	func testThatSilenMessagesEventWorks() {
+	func testThatSilentMessagesEvenWorks() {
 		let expectedEventsCount: Int = 5
 		var eventsCounter: Int = 0
 		
 		expectationForNotification(MMNotificationMessageReceived, object: nil) { (notification) -> Bool in
-			if notification.userInfo?[MMNotificationKeyMessageIsSilent] as? Bool == true {
+			if let message = notification.userInfo?[MMNotificationKeyMessage] as? MTMessage where message.isSilent == true {
 				eventsCounter += 1
 			}
 			return eventsCounter == expectedEventsCount
@@ -134,7 +137,7 @@ class MessageReceivingTests: MMTestCase {
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo)
 		}
 		
-		self.waitForExpectationsWithTimeout(10, handler: { error in
+		self.waitForExpectationsWithTimeout(60, handler: { _ in
 			XCTAssertEqual(eventsCounter, expectedEventsCount, "We should receive exact same amount of events")
 		})
 	}

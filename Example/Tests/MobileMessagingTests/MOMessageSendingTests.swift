@@ -13,9 +13,6 @@ class MOMessageSendingTests: MMTestCase {
     func testSendMOMessageSuccessfully() {
 		
 		weak var expectation = expectationWithDescription("Sending finished")
-
-		cleanUpAndStop()
-		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
@@ -39,7 +36,7 @@ class MOMessageSendingTests: MMTestCase {
 			expectation?.fulfill()
 		}
 		
-		waitForExpectationsWithTimeout(100, handler: nil)
+		waitForExpectationsWithTimeout(60, handler: nil)
     }
 
 	func testMOMessageConstructors() {

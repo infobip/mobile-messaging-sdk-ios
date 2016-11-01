@@ -19,8 +19,6 @@ final class MessageFetchingOperation: Operation {
 		self.finishBlock = finishBlock
 		
 		super.init()
-		
-		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	override func execute() {
@@ -29,13 +27,13 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func syncMessages() {
+		guard let internalId = MobileMessaging.currentUser?.internalId else
+		{
+			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		
 		self.context.performBlockAndWait {
-			guard let internalId = MobileMessaging.currentUser?.internalId else
-			{
-				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-				return
-			}
-			
 			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
 			let fetchLimit = 100 // consider 100 most recent messages
 			
@@ -66,7 +64,8 @@ final class MessageFetchingOperation: Operation {
 				if let nonReportedMessageIds = nonReportedMessageIds {
 					self.dequeueDeliveryReports(nonReportedMessageIds)
 					MMLogDebug("Delivery report sent for messages: \(nonReportedMessageIds)")
-					if nonReportedMessageIds.count > 0 {
+					
+					if !nonReportedMessageIds.isEmpty {
 						NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
 				}
@@ -75,15 +74,14 @@ final class MessageFetchingOperation: Operation {
 				MMLogError("Sync request failed")
 			case .Cancel:
 				MMLogDebug("Sync cancelled")
-				break
 			}
-			self.finishWithError(result.error)
 		}
+		self.finishWithError(result.error as NSError?)
 	}
 	
 	private func dequeueDeliveryReports(messageIDs: [String]) {
 		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), inContext: context) as? [MessageManagedObject]
-			where messages.count > 0
+			where !messages.isEmpty
 			else
 		{
 			return

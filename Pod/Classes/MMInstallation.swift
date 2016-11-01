@@ -25,7 +25,7 @@ extension NSNull: UserDataSupportedTypes {}
 	case Female
 	case Male
 	
-	func name() -> String {
+	var name: String {
 		switch self {
 		case .Female : return "F"
 		case .Male : return "M"

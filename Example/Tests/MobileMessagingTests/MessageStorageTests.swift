@@ -117,7 +117,7 @@ class MessageStorageTests: MMTestCase {
 		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
 		
 		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).withMessageStorage(mockMessageStorage).start()
-
+		
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1"])
@@ -135,7 +135,7 @@ class MessageStorageTests: MMTestCase {
 		})
 	}
 	
-    func testDefaultStoragePersistingAndFetching() {
+	func testDefaultStoragePersistingAndFetching() {
 		cleanUpAndStop()
 		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).withDefaultMessageStorage().start()
 		
@@ -147,14 +147,14 @@ class MessageStorageTests: MMTestCase {
 		
 		let messageReceivingGroup = dispatch_group_create()
 		let expectedMessagesCount = 5
-	
+		
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 			dispatch_group_enter(messageReceivingGroup)
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 				dispatch_group_leave(messageReceivingGroup)
 			})
 		}
-
+		
 		weak var expectation2 = expectationWithDescription("Check finished")
 		dispatch_group_notify(messageReceivingGroup, dispatch_get_main_queue()) {
 			self.defaultMessageStorage?.findAllMessages { results in
@@ -162,9 +162,9 @@ class MessageStorageTests: MMTestCase {
 				expectation2?.fulfill()
 			}
 		}
-	
+		
 		self.waitForExpectationsWithTimeout(100, handler: nil)
-    }
+	}
 	
 	func testCustomPersistingAndFetching() {
 		cleanUpAndStop()
@@ -176,7 +176,7 @@ class MessageStorageTests: MMTestCase {
 		
 		let messageReceivingGroup = dispatch_group_create()
 		let expectedMessagesCount = 5
-	
+		
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 			dispatch_group_enter(messageReceivingGroup)
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
@@ -261,6 +261,6 @@ class MessageStorageTests: MMTestCase {
 			}
 		}
 		
-		self.waitForExpectationsWithTimeout(100, handler: nil)
+		self.waitForExpectationsWithTimeout(60, handler: nil)
 	}
 }

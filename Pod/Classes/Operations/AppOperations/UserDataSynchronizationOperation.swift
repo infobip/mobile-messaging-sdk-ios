@@ -32,8 +32,6 @@ class UserDataSynchronizationOperation: Operation {
 		self.onlyFetching = onlyFetching
 		
 		super.init()
-		
-		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	private var installationHasChanges: Bool {
@@ -44,7 +42,7 @@ class UserDataSynchronizationOperation: Operation {
 		//TODO: store old valid attributes
 		//installationObject.customUserData
 		//installationObject.predefinedUserData
-		context.performBlockAndWait {
+		context.performBlock {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(context: self.context) else {
 				self.finish()
 				return
@@ -87,9 +85,10 @@ class UserDataSynchronizationOperation: Operation {
 	
 	private func fetchUserData() {
 		guard let internalId = MobileMessaging.currentUser?.internalId
-			else {
-				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-				return
+			else
+		{
+			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
 		}
 		
 		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: MobileMessaging.currentUser?.externalId)
@@ -102,9 +101,10 @@ class UserDataSynchronizationOperation: Operation {
 	
 	private func sendUserData() {
 		guard let user = MobileMessaging.currentUser, let internalId = user.internalId
-			else {
-				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-				return
+			else
+		{
+			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
 		}
 		
 		let request = MMPostUserDataRequest(internalUserId: internalId, externalUserId: user.externalId, predefinedUserData: user.predefinedData, customUserData: user.customData)
@@ -161,8 +161,7 @@ struct CustomUserData: DictionaryRepresentable {
 			self.dataValue = CustomUserDataValue(withFoundationValue: dataValue)
 		}
 	}
-	
-	init?(dictRepresentation dict: [String: AnyObject]) {
+	init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard let key = dict.first?.0 else {
 			return nil
 		}
@@ -174,7 +173,7 @@ struct CustomUserData: DictionaryRepresentable {
 		}
 	}
 	
-	var dictionaryRepresentation: [String: AnyObject] {
+	var dictionaryRepresentation: DictionaryRepresentation {
 		if let dataValue = dataValue, let valueDict = dataValue.jsonDictRepresentation {
 			return [dataKey: valueDict]
 		} else {
@@ -182,7 +181,7 @@ struct CustomUserData: DictionaryRepresentable {
 		}
 	}
 	
-	func mapToCoreDataCompatibleDictionary() -> [String: AnyObject]? { //TODO: not needed after removing UserDataFoundationTypes
+	func mapToCoreDataCompatibleDictionary() -> [String: AnyObject]? {
 		var result: [String: AnyObject]?
 		if let value = self.dataValue, let type = value.dataType {
 			var dict = [String: AnyObject]()

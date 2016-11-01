@@ -62,6 +62,7 @@ class ManagedObjectObserverTests: MMTestCase {
     }
 	
 	func testThatChangeHandlerNotTriggerred() {
+
 		weak var expectation = expectationWithDescription("Test finished")
 		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			let observingKeyPath = "creationDate"
@@ -75,13 +76,15 @@ class ManagedObjectObserverTests: MMTestCase {
 		} else {
 			XCTFail()
 		}
+
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
 			expectation?.fulfill()
 		}
-		waitForExpectationsWithTimeout(2, handler: nil)
+		waitForExpectationsWithTimeout(60, handler: nil)
 	}
 	
 	func testThatRemovedObserverNotTriggerred() {
+
 		weak var expectation = expectationWithDescription("Test finished")
 		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			do {
@@ -105,16 +108,19 @@ class ManagedObjectObserverTests: MMTestCase {
 		} else {
 			XCTFail()
 		}
+
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
 			expectation?.fulfill()
 		}
-		waitForExpectationsWithTimeout(2, handler: nil)
+		waitForExpectationsWithTimeout(60, handler: nil)
 	}
 	
 	func testObservationsNotDuplicated() {
 		if let ctx = storage.mainThreadManagedObjectContext, let msg = MessageManagedObject.MM_findFirstInContext(context: ctx){
 			var observationsCounter = 0
+
 			weak var expectation = expectationWithDescription("Test finished")
+
 			let observingKeyPath = "messageId"
 			
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
@@ -131,7 +137,7 @@ class ManagedObjectObserverTests: MMTestCase {
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5 * Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
 				expectation?.fulfill()
 			}
-			waitForExpectationsWithTimeout(1) { error in
+			waitForExpectationsWithTimeout(60) { error in
 				XCTAssertEqual(observationsCounter, 1, "Observations must not duplicate")
 			}
 		} else {
@@ -143,14 +149,13 @@ class ManagedObjectObserverTests: MMTestCase {
 		
 		if let msg = MessageManagedObject.MM_findFirstInContext(context: storage.mainThreadManagedObjectContext!){
 			weak var expectation = expectationWithDescription("Test finished")
-			
 			let observingKeyPath = "messageId"
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(self, observee: msg, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in
 				XCTFail("Handler must not be triggered, because we removed the observer")
 			})
 			
 			// restart
-			mobileMessagingInstance.cleanUpAndStop()
+			cleanUpAndStop()
 			startWithCorrectApplicationCode()
 			
 			let ctx = storage.mainThreadManagedObjectContext!

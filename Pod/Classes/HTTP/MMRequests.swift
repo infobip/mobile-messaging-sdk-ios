@@ -128,10 +128,10 @@ struct SeenData: DictionaryRepresentable {
 		self.messageId = messageId
 		self.seenDate = seenDate
 	}
-	init?(dictRepresentation dict: [String: AnyObject]) {
+	init?(dictRepresentation dict: DictionaryRepresentation) {
 		return nil // unused
 	}
-	var dictionaryRepresentation: [String : AnyObject] {
+	var dictionaryRepresentation: DictionaryRepresentation {
 		return [MMAPIKeys.kMessageId: messageId,
 		        MMAPIKeys.kSeenTimestampDelta: seenDate.timestampDelta]
 	}
@@ -284,23 +284,28 @@ struct GeoEventReportData: DictionaryRepresentable {
 	let eventDate: NSDate
 	let geoAreaId: String
 	let eventType: MMRegionEventType
+	let messageId: String
 	
-	init(geoAreaId: String, eventType: MMRegionEventType, campaignId: String, eventDate: NSDate) {
+	init(geoAreaId: String, eventType: MMRegionEventType, campaignId: String, eventDate: NSDate, messageId: String) {
 		self.campaignId = campaignId
 		self.eventDate = eventDate
 		self.geoAreaId = geoAreaId
 		self.eventType = eventType
+		self.messageId = messageId
 	}
 	
-	init?(dictRepresentation dict: [String: AnyObject]) {
+	init?(dictRepresentation dict: DictionaryRepresentation) {
 		return nil // unused
 	}
 	
-	var dictionaryRepresentation: [String : AnyObject] {
-		return [GeoReportingAPIKeys.campaignId: campaignId,
+	var dictionaryRepresentation: DictionaryRepresentation {
+		return [
+				GeoReportingAPIKeys.campaignId: campaignId,
 		        GeoReportingAPIKeys.timestampDelta: eventDate.timestampDelta,
 		        GeoReportingAPIKeys.geoAreaId: geoAreaId,
-		        GeoReportingAPIKeys.event: eventType.rawValue]
+		        GeoReportingAPIKeys.event: eventType.rawValue,
+		        GeoReportingAPIKeys.messageId: messageId
+		]
 	}
 	
 	static func requestBody(reportList: [GeoEventReportData]) -> RequestBody {

@@ -27,7 +27,8 @@ class FetchMessagesTest: MMTestCase {
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
 		
-		weak var  expectation = expectationWithDescription("Sync finished")
+		weak var expectation = expectationWithDescription("Sync finished")
+		
         XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
                 
         let messageHandler = mobileMessagingInstance.messageHandler
@@ -40,8 +41,8 @@ class FetchMessagesTest: MMTestCase {
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 			expectation?.fulfill()
         }
-        
-        waitForExpectationsWithTimeout(10, handler: nil)
+		
+        waitForExpectationsWithTimeout(60, handler: nil)
     }
 	
 	/**
@@ -54,6 +55,7 @@ class FetchMessagesTest: MMTestCase {
 	m2 seen and deivered, m1 delivered
 	*/
 	func testConcurrency() {
+
 		weak var prepconditionExpectation = expectationWithDescription("Initial message base set up")
 		weak var seenExpectation = expectationWithDescription("Seen request finished")
 		weak var syncExpectation = expectationWithDescription("Sync finished")
@@ -64,7 +66,7 @@ class FetchMessagesTest: MMTestCase {
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { _ in
 			prepconditionExpectation?.fulfill()
 		})
 		
@@ -73,7 +75,7 @@ class FetchMessagesTest: MMTestCase {
 			seenExpectation?.fulfill()
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { _ in
 			newMsgExpectation?.fulfill()
 		})
 
@@ -97,105 +99,6 @@ class FetchMessagesTest: MMTestCase {
 					XCTFail("There should be some messages in database")
 				}
 			}
-		}
-	}
-
-    /** Conditions:
-     1. m1(delivery sent), m2(delivery not sent) - are in DB
-     2. fetch request was sent
-     3. m1, m3, m4 response received
-     
-     Expected result:
-     m1, m2, m3, m4 are in DB
-     */
-    func testMergeOldMessageIdsWithNew() {
-		weak var newMsgExpectation1 = expectationWithDescription("New message m1 received")
-		weak var newMsgExpectation2 = expectationWithDescription("New message m2 received")
-		weak var syncExpectation = expectationWithDescription("Sync finished")
-		
-		var newMsgCounter = 0
-		expectationForNotification(MMNotificationMessageReceived, object: nil) { n -> Bool in
-			if	let userInfo = n.userInfo,
-				let messageDict = userInfo[MMNotificationKeyMessagePayload] as? [NSObject : AnyObject],
-				let isPushFlag = n.userInfo?[MMNotificationKeyMessageIsPush] as? Bool,
-				let messageId = messageDict.mm_messageId
-			{
-				if ["m1", "m2"].contains(messageId) {
-					XCTAssertTrue(isPushFlag)
-				}
-				if ["m3", "m4"].contains(messageId) {
-					XCTAssertFalse(isPushFlag)
-				}
-			} else {
-				XCTFail()
-			}
-
-			newMsgCounter += 1
-			return newMsgCounter == 4 // we must emit 4 unique kMessageReceived notifications
-		}
-		
-		cleanUpAndStop()
-		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
-		
-        let messagesCtx = storage.mainThreadManagedObjectContext!
-		
-		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
-		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation1?.fulfill()
-		})
-	
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation2?.fulfill()
-		})
-		
-        let messageHandler = mobileMessagingInstance.messageHandler
-		messageHandler?.syncWithServer { error in
-			syncExpectation?.fulfill()
-		}
-		
-		waitForExpectationsWithTimeout(50) { error in
-			
-			messagesCtx.performBlockAndWait {
-				if let messagesAfterSync = MessageManagedObject.MM_findAllInContext(messagesCtx) as? [MessageManagedObject] {
-					let mIdsToCheck = Set(messagesAfterSync.map{$0.messageId})
-					let mIds = Set(["m1", "m2", "m3", "m4"])
-					let diff = mIdsToCheck.exclusiveOr(mIds)
-					XCTAssertTrue(diff.isEmpty, "Not Expected mIds in DB: \(diff)")
-				}
-			}
-		}
-    }
-	
-	func testThatAlertIsShown() {
-		weak var newMsgExpectation1 = expectationWithDescription("New message m1 received")
-		weak var newMsgExpectation2 = expectationWithDescription("New message m2 received")
-		weak var syncExpectation = expectationWithDescription("Sync finished")
-		
-		cleanUpAndStop()
-		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
-		
-		var alertShownCounter = 0
-		MobileMessaging.messageHandling = MessageHandlingMock(localNotificationShownBlock: {
-			alertShownCounter += 1
-		})
-		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
-		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation1?.fulfill()
-		})
-		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
-			newMsgExpectation2?.fulfill()
-		})
-		
-		let messageHandler = mobileMessagingInstance.messageHandler
-		messageHandler?.syncWithServer { error in
-			syncExpectation?.fulfill()
-		}
-		
-		waitForExpectationsWithTimeout(50) { error in
-			XCTAssertEqual(alertShownCounter, 2)
 		}
 	}
 }

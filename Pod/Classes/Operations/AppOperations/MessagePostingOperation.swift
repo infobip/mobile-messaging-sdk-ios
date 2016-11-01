@@ -24,29 +24,23 @@ class MessagePostingOperation: Operation {
 			self.messagesToSend = Set(messages)
 		}
 		super.init()
-		
-		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
 	}
 	
 	override func execute() {
+		guard let internalId = MobileMessaging.currentUser?.internalId else {
+			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		guard let messagesToSend = self.messagesToSend where !messagesToSend.isEmpty else {
+			self.finish()
+			return
+		}
 		self.context.performBlockAndWait {
-			
-			guard let internalId = MobileMessaging.currentUser?.internalId else {
-				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-				return
-			}
-			
-			guard let messagesToSend = self.messagesToSend where !messagesToSend.isEmpty else {
-				self.finish()
-				return
-			}
-			
 			if let request = MMPostMessageRequest(internalUserId: internalId, messages: Array(messagesToSend)) {
 				self.postWillSendNotification(messagesToSend: messagesToSend)
 				self.populateMessageStorage(with: messagesToSend)
 				self.remoteAPIQueue.perform(request: request) { result in
 					self.handleResult(result)
-					self.finishWithError(result.error)
 				}
 			}
 		}
@@ -83,12 +77,11 @@ class MessagePostingOperation: Operation {
 				MMLogDebug("Message posting successfuly finished")
 			case .Failure(let error):
 				MMLogError("Message posting request failed with error: \(error)")
-				return
 			case .Cancel:
 				MMLogError("Message posting cancelled")
-				return
 			}
 		}
+		self.finishWithError(result.error)
 	}
 	
 	private func handleSuccess(messages : [MOMessage]) {

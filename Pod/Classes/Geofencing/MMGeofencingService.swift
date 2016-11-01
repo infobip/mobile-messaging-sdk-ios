@@ -146,6 +146,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	/// Stops the Geofencing Service
 	public func stop() {
+		eventsHandlingQueue.cancelAllOperations()
 		serviceQueue.executeAsync() {
 			guard self.isRunning == true else
 			{
@@ -206,6 +207,10 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.previousLocation = MobileMessaging.currentInstallation?.location
 			self.remoteAPIQueue = remoteAPIQueue
 		}
+	}
+	
+	deinit {
+		eventsHandlingQueue.cancelAllOperations()
 	}
 	
 	class var isDescriptionProvidedForWhenInUseUsage: Bool {
@@ -270,8 +275,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		return Set(array)
 	}
 	
-	class func closestLiveRegions(withNumberLimit number: Int, forLocation: CLLocation?, fromRegions regions: Set<CLCircularRegion>, filter: (CLCircularRegion -> Bool)?) -> [CLCircularRegion] {
-		
+	class func closestLiveRegions(withNumberLimit number: Int, forLocation: CLLocation?, fromRegions regions: Set<CLCircularRegion>, filter: ((CLCircularRegion) -> Bool)?) -> [CLCircularRegion] {
 		let number = Int(max(0, number))
 		guard number > 0 else
 		{
@@ -321,8 +325,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	func report(on eventType: MMRegionEventType, forRegionId regionId: String, message: MMGeoMessage, completion: (() -> Void)? = nil) {
 		message.events.filter{ $0.type == eventType }.first?.occur()
-		self.persistNewEvent(of: eventType, forRegionId: regionId, message: message)
-		self.reportOnEvents(completion)
+		persistNewEvent(of: eventType, forRegionId: regionId, message: message)
+		reportOnEvents(completion)
 	}
 	
 	func syncWithServer() {
@@ -426,7 +430,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			MMLogDebug("[GeofencingService] regions we are inside: \n\(regionsWeAreInside.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
 			
 			let deadRegions: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
-				return self.datasource.regionsDictionary[$0.identifier]?.message?.isNotExpired == false ?? true
+				return self.datasource.regionsDictionary[$0.identifier]?.message?.isNotExpired == false
 				}
 			)
 			MMLogDebug("[GeofencingService] dead monitored regions: \n\(deadRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")

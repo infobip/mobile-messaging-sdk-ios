@@ -24,11 +24,12 @@ final class SeenStatusPersistingOperation: Operation {
 	}
 	
 	private func markMessagesAsSeen() {
+		guard !self.messageIds.isEmpty else {
+			finish()
+			return
+		}
 		self.context.performBlockAndWait {
-			guard self.messageIds.count > 0 else {
-				return
-			}
-			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", self.messageIds), inContext: self.context) as? [MessageManagedObject] where dbMessages.count > 0 {
+			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", self.messageIds), inContext: self.context) as? [MessageManagedObject] where !dbMessages.isEmpty {
 				dbMessages.forEach { message in
 					switch message.seenStatus {
 					case .NotSeen:

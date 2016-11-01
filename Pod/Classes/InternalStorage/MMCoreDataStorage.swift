@@ -22,8 +22,12 @@ struct MMStorageSettings {
 	var storeOptions: MMStoreOptions?
 	
 	static var inMemoryStoreSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: nil, storeOptions: nil)
-	static var SQLiteInternalStorageSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
-	static var SQLiteMessageStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true])
+	static var SQLiteInternalStorageSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: storageOptions)
+	static var SQLiteMessageStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: storageOptions)
+	
+	private static var storageOptions: MMStoreOptions {
+		return [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
+	}
 }
 
 final class MMCoreDataStorage {
@@ -73,8 +77,17 @@ final class MMCoreDataStorage {
 	func drop() {
 		_mainThreadManagedObjectContext = nil
 		_managedObjectModel = nil
-		_persistentStoreCoordinator = nil
 		_persistentStore?.MM_removePersistentStoreFiles()
+		if let persistentStore = _persistentStore {
+			do {
+
+				try _persistentStoreCoordinator?.removePersistentStore(persistentStore)
+			} catch (let exception) {
+				MMLogError("Removing persistent store \(exception)")
+			}
+		}
+		_persistentStoreCoordinator = nil
+		_persistentStore = nil
 	}
 	
 	//MARK: Private

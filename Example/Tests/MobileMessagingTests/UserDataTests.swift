@@ -132,13 +132,12 @@ class UserDataTests: MMTestCase {
 	
 	func testSetupPredefinedAndCustomData() {
 		weak var expectation = expectationWithDescription("save completed")
-		cleanUpAndStop()
-		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		let currentUser = MobileMessaging.currentUser!
+
 		currentUser.set(customData: "Death Star", forKey: "home")
 		currentUser.set(customData: "Beer", forKey: "drink")
 		currentUser.set(customData: "Pizza", forKey: "food")
@@ -147,7 +146,9 @@ class UserDataTests: MMTestCase {
 		currentUser.set(predefinedData: "Darth", forKey: MMUserPredefinedDataKeys.FirstName)
 		currentUser.set(predefinedData: "Vader", forKey: MMUserPredefinedDataKeys.LastName)
 		currentUser.set(predefinedData: "1980-12-12", forKey: MMUserPredefinedDataKeys.Birthdate)
-		currentUser.set(predefinedData: MMUserGenderValues.Male.name(), forKey: MMUserPredefinedDataKeys.Gender)
+
+		currentUser.set(predefinedData: MMUserGenderValues.Male.name, forKey: MMUserPredefinedDataKeys.Gender)
+
 		currentUser.msisdn = "79214444444"
 		currentUser.email = "darth@vader.com"
 		
@@ -157,7 +158,8 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name], "Darth")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name], "Vader")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name], "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name())
+			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name)
+			
 			XCTAssertEqual(currentUser.msisdn, "79214444444")
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
@@ -179,8 +181,6 @@ class UserDataTests: MMTestCase {
 	
 	func testDeletePredefinedAndCustomData() {
 		weak var expectation = expectationWithDescription("data received")
-		cleanUpAndStop()
-		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
@@ -197,7 +197,8 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name], "Darth")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name], "Vader")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name], "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name())
+			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name)
+			
 			XCTAssertNil(currentUser.msisdn)
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
@@ -216,8 +217,6 @@ class UserDataTests: MMTestCase {
 	
 	func testGetPredefinedAndCustomData() {
 		weak var expectation = expectationWithDescription("data received")
-		cleanUpAndStop()
-		startWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
@@ -230,7 +229,8 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name], "Darth")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name], "Vader")
 			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name], "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name())
+			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name)
+
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
 			XCTAssertEqual(currentUser.customData?["nativePlace"]?.string, "Tatooine")

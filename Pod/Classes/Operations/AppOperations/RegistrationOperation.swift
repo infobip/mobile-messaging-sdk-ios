@@ -23,15 +23,15 @@ final class RegistrationOperation: Operation {
 		self.newDeviceToken = newDeviceToken?.mm_toHexString
         
 		super.init()
-		
 	}
 	
 	override func execute() {
-		context.performBlockAndWait {
+		context.performBlock {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(context: self.context) else {
 				self.finish()
 				return
 			}
+			
             if self.newDeviceToken != nil { // only store new token values
                 installation.setDeviceTokenIfDifferent(self.newDeviceToken)
             }
@@ -94,10 +94,8 @@ final class RegistrationOperation: Operation {
 				NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalUserId])
 			case .Failure(let error):
 				MMLogError("Registration request failed with error: \(error)")
-				return
 			case .Cancel:
 				MMLogError("Registration request cancelled.")
-				return
 			}
 		}
 	}

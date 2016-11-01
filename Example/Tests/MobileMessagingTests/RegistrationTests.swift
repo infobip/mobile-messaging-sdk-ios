@@ -24,7 +24,8 @@ final class RegistrationTests: MMTestCase {
 			}
         }
 		
-		waitForExpectationsWithTimeout(100, handler: { err in
+
+		waitForExpectationsWithTimeout(60, handler: { _ in
 			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
 			
 			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
@@ -48,7 +49,6 @@ final class RegistrationTests: MMTestCase {
 		weak var validMsisdnSaved = expectationWithDescription("msisdn saved")
 		
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
-		
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken2".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
 				
 				token2Saved?.fulfill()
@@ -63,8 +63,7 @@ final class RegistrationTests: MMTestCase {
 				}
 			}
 		}
-		
-        self.waitForExpectationsWithTimeout(100) { error in
+        self.waitForExpectationsWithTimeout(60) { _ in
 			assert(MMQueue.Main.queue.isCurrentQueue)
 			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
 			
@@ -90,7 +89,7 @@ final class RegistrationTests: MMTestCase {
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".dataUsingEncoding(NSUTF16StringEncoding)!) {  error in
 			expectation?.fulfill()
 		}
-		self.waitForExpectationsWithTimeout(100) { error in
+		self.waitForExpectationsWithTimeout(60) { _ in
 			assert(MMQueue.Main.queue.isCurrentQueue)
 			if let installation = InstallationManagedObject.MM_findFirstInContext(context: self.storage.mainThreadManagedObjectContext!) {
 			
@@ -141,12 +140,19 @@ final class RegistrationTests: MMTestCase {
     }
 	
     func testRegistrationDataNotSendsWithoutToken() {
+
         weak var sync1 = expectationWithDescription("sync1")
+		
+		if MobileMessaging.currentInstallation == nil {
+			XCTFail("Installation is nil")
+			sync1?.fulfill()
+		}
+		
         MobileMessaging.currentInstallation?.syncWithServer({ (error) -> Void in
             XCTAssertNotNil(error)
             sync1?.fulfill()
         })
         
-        self.waitForExpectationsWithTimeout(100, handler: nil)
+        self.waitForExpectationsWithTimeout(60, handler: nil)
     }
 }

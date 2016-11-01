@@ -18,5 +18,6 @@ extension GeoEventReportObject {
     @NSManaged var eventDate: NSDate
     @NSManaged var eventType: String
     @NSManaged var campaignId: String
+	@NSManaged var messageId: String
 
 }

@@ -24,23 +24,20 @@ class GeoEventPersistingOperation: Operation {
 	}
 	
 	override func execute() {
+
 		context.performBlockAndWait {
 			
 			if let msg = MessageManagedObject.MM_findFirstInContext(NSPredicate(format: "messageId == %@", self.message.messageId), context: self.context),
 				var payload = msg.payload,
-				var internalData = payload[APNSPayloadKeys.kInternalData] as? [String: AnyObject]
+				var internalData = payload[APNSPayloadKeys.kInternalData] as? DictionaryRepresentation
 			{
 				internalData += [APNSPayloadKeys.kInternalDataGeo: self.message.regions.map{ $0.dictionaryRepresentation }]
 				payload.updateValue(internalData, forKey: APNSPayloadKeys.kInternalData)
 				msg.payload = payload
 			}
 			
-			let newEvent = GeoEventReportObject.MM_createEntityInContext(context: self.context)
-			newEvent.campaignId = self.message.campaignId
-			newEvent.eventType = self.eventType.rawValue
-			newEvent.eventDate = NSDate()
-			newEvent.geoAreaId = self.regionId
-			
+			let _ = GeoEventReportObject.createEntity(withCampaignId: self.message.campaignId, eventType: self.eventType.rawValue, regionId: self.regionId, messageId: self.message.messageId, in: self.context)
+
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		MMLogDebug("[Geo event persisting] New geo event data persisted.")
@@ -51,5 +48,3 @@ class GeoEventPersistingOperation: Operation {
 		finishBlock?()
 	}
 }
-
-

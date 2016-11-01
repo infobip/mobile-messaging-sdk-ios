@@ -163,7 +163,7 @@ public class MMDeliveryTime: NSObject, DictionaryRepresentable {
 		return false
 	}
 	
-	required public convenience init?(dictRepresentation dict: [String: AnyObject]) {
+	convenience required public init?(dictRepresentation dict: DictionaryRepresentation) {
 		let interval = MMDeliveryTimeInterval(dictRepresentation: dict)
 		let days: Set<MMDay>?
 		if let daysArray = (dict[MMRegionDeliveryTimeKeys.days] as? String)?.componentsSeparatedByString(",") {
@@ -180,7 +180,7 @@ public class MMDeliveryTime: NSObject, DictionaryRepresentable {
 		self.init(timeInterval: interval, days: days)
 	}
 	
-	var dictionaryRepresentation: [String : AnyObject] {
+	var dictionaryRepresentation: DictionaryRepresentation {
 		var result = [String: AnyObject]()
 		result += timeInterval?.dictionaryRepresentation
 		if let days = days where !days.isEmpty {
@@ -244,7 +244,7 @@ public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 		}
 	}
 	
-	convenience public required init?(dictRepresentation dict: [String: AnyObject]) {
+	convenience public required init?(dictRepresentation dict: DictionaryRepresentation) {
 		if	let comps = (dict[MMRegionDeliveryTimeKeys.timeInterval] as? String)?.componentsSeparatedByString(MMDeliveryTimeInterval.timeIntervalSeparator),
 			let from = comps.first,
 			let to = comps.last where comps.count == 2
@@ -255,7 +255,7 @@ public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 		}
 	}
 	
-	var dictionaryRepresentation: [String: AnyObject] {
+	var dictionaryRepresentation: DictionaryRepresentation {
 		var result = [String: AnyObject]()
 		result[MMRegionDeliveryTimeKeys.timeInterval] = "\(fromTime)\(MMDeliveryTimeInterval.timeIntervalSeparator)\(toTime)"
 		assert(MMDeliveryTimeInterval(dictRepresentation: result) != nil, "The dictionary representation is invalid")
@@ -289,7 +289,7 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 		return "\(title), radius \(radius)m: \(center.longitude) \(center.latitude)"
 	}
 	
-	public convenience init?(dictRepresentation dict: [String: AnyObject]) {
+	public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard
 			let lat = dict[MMRegionDataKeys.latitude] as? Double,
 			let lon = dict[MMRegionDataKeys.longitude] as? Double,
@@ -304,7 +304,7 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 		self.init(identifier: identifier, center: CLLocationCoordinate2D(latitude: lat, longitude: lon), radius: radius, title: title)
 	}
 	
-	public var dictionaryRepresentation: [String: AnyObject] {
+	public var dictionaryRepresentation: DictionaryRepresentation {
 		var result = [String: AnyObject]()
 		result[MMRegionDataKeys.latitude] = center.latitude
 		result[MMRegionDataKeys.longitude] = center.longitude
@@ -344,7 +344,7 @@ final class MMRegionEvent: DictionaryRepresentable {
 		lastOccuring = NSDate()
 	}
 	
-	init?(dictRepresentation dict: [String: AnyObject]) {
+	init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard
 			let typeString = dict[MMRegionEventDataKeys.eventType] as? String,
 			let type = MMRegionEventType(rawValue: typeString),
@@ -360,7 +360,7 @@ final class MMRegionEvent: DictionaryRepresentable {
 		self.lastOccuring = dict[MMRegionEventDataKeys.eventLastOccur] as? NSDate ?? nil
 	}
 	
-	var dictionaryRepresentation: [String: AnyObject] {
+	var dictionaryRepresentation: DictionaryRepresentation {
 		var result = [String: AnyObject]()
 		result[MMRegionEventDataKeys.eventType] = type.rawValue
 		result[MMRegionEventDataKeys.eventLimit] = limit

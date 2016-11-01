@@ -13,7 +13,7 @@ func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
 struct MMSystemData: Hashable {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
 	let geoAvailability: Bool
-	var dictionaryRepresentation: [String: AnyObject] {
+	var dictionaryRepresentation: DictionaryRepresentation {
 		return [
 			MMAPIKeys.kSystemDataSDKVersion: SDKVersion,
 			MMAPIKeys.kSystemDataOSVer: OSVer,

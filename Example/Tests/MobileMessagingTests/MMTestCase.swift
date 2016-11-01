@@ -11,58 +11,62 @@ import CoreData
 @testable import MobileMessaging
 
 class MMTestCase: XCTestCase {
-	var mobileMessagingInstance: MobileMessaging {
-		return MobileMessaging.sharedInstance!
+    var mobileMessagingInstance: MobileMessaging {
+        var result: MobileMessaging? = nil
+        result = MobileMessaging.sharedInstance
+        return result!
+    }
+    
+    var storage: MMCoreDataStorage {
+        var result: MMCoreDataStorage? = nil
+        result = self.mobileMessagingInstance.internalStorage
+        return result!
+    }
+    
+    override func setUp() {
+        super.setUp()
+        MobileMessaging.logger.logOutput = .None
+        MobileMessaging.logger.logLevel = .Off
+        MobileMessaging.stop(true)
+        startWithCorrectApplicationCode()
+    }
+    
+    func cleanUpAndStop() {
+        MobileMessaging.stop(true)
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+		self.cleanUpAndStop()
 	}
-	
-	var storage: MMCoreDataStorage {
-		return mobileMessagingInstance.internalStorage!
-	}
-	
-	override func setUp() {
-		super.setUp()
-		MobileMessaging.logger.logOutput = .Console
-		MobileMessaging.logger.logLevel = .All
-		MobileMessaging.stop(true)
-		startWithCorrectApplicationCode()
-	}
-	
-	func cleanUpAndStop() {
-		mobileMessagingInstance.cleanUpAndStop()
-	}
-	
-	override func tearDown() {
-		super.tearDown()
-		cleanUpAndStop()
-	}
-	
-	func nonReportedStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
-		var count: Int = 0
-		ctx.reset()
-		ctx.performBlockAndWait {
-			count = MessageManagedObject.MM_countOfEntitiesWithPredicate(NSPredicate(format: "reportSent == false"), inContext: ctx)
-		}
-		return count
-	}
-	
-	func allStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
-		var count: Int = 0
-		ctx.reset()
-		ctx.performBlockAndWait {
-			count = MessageManagedObject.MM_countOfEntitiesWithContext(ctx)
-		}
-		return count
-	}
-	
-	func startWithApplicationCode(code: String) {
-		MobileMessaging.withApplicationCode(code, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
-	}
-	
-	func startWithCorrectApplicationCode() {
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
-	}
-	
-	func startWithWrongApplicationCode() {
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: .None).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
-	}
+    
+    func nonReportedStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
+        var count: Int = 0
+        ctx.reset()
+        ctx.performBlockAndWait {
+            count = MessageManagedObject.MM_countOfEntitiesWithPredicate(NSPredicate(format: "reportSent == false"), inContext: ctx)
+        }
+        return count
+    }
+    
+    func allStoredMessagesCount(ctx: NSManagedObjectContext) -> Int {
+        var count: Int = 0
+        ctx.reset()
+        ctx.performBlockAndWait {
+            count = MessageManagedObject.MM_countOfEntitiesWithContext(ctx)
+        }
+        return count
+    }
+    
+    func startWithApplicationCode(code: String) {
+        MobileMessaging.withApplicationCode(code, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+    }
+    
+    func startWithCorrectApplicationCode() {
+        MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+    }
+    
+    func startWithWrongApplicationCode() {
+        MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+    }
 }

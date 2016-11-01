@@ -37,7 +37,10 @@ platform :ios do
                 slack_only_on_failure: true,
                 scheme: "MobileMessagingExample",
                 devices: [
-                            "iPhone 5 (9.3)"
+                            "iPhone 5 (8.4)",
+                            "iPhone 5 (9.3)",
+                            "iPhone 6 (8.4)",
+                            "iPhone 6 (9.3)"
                         ]
             )
         end

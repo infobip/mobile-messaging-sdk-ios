@@ -261,7 +261,6 @@ func + <Key, Value> (l: Dictionary<Key, Value>, r: Dictionary<Key, Value>?) -> D
 	}
 }
 
-
 func isIOS9() -> Bool {
 	if #available(iOS 9.0, *) {
 		return true
@@ -270,7 +269,8 @@ func isIOS9() -> Bool {
 	}
 }
 
+public typealias DictionaryRepresentation = [String: AnyObject]
 protocol DictionaryRepresentable {
-	init?(dictRepresentation dict: [String: AnyObject])
-	var dictionaryRepresentation: [String: AnyObject] {get}
+	init?(dictRepresentation dict: DictionaryRepresentation)
+	var dictionaryRepresentation: DictionaryRepresentation {get}
 }

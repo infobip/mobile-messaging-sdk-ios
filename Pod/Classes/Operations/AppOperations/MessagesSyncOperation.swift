@@ -22,8 +22,6 @@ final class MessagesSyncOperation: GroupOperation {
 		
 		super.init(operations: [seenStatusSending])
 		
-		self.addCondition(RegistrationCondition(internalId: MobileMessaging.currentUser?.internalId))
-		
 		let messageFetching = MessageFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue)
 		messageFetching.addDependency(seenStatusSending)
 		self.addOperation(messageFetching)

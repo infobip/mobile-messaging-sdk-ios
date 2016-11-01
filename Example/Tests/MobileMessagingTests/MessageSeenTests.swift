@@ -22,7 +22,7 @@ class MessageSeenTests: MMTestCase {
 			})
 		}
 
-		self.waitForExpectationsWithTimeout(100) { err in
+		self.waitForExpectationsWithTimeout(60) { err in
 			let ctx = self.storage.mainThreadManagedObjectContext!
 			ctx.performBlockAndWait {
 				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
@@ -44,7 +44,7 @@ class MessageSeenTests: MMTestCase {
 			})
 		}
 		
-		self.waitForExpectationsWithTimeout(100) { err in
+		self.waitForExpectationsWithTimeout(60) { _ in
 			let ctx = self.storage.mainThreadManagedObjectContext!
 			ctx.performBlockAndWait {
 				if let messages = MessageManagedObject.MM_findAllInContext(ctx) as? [MessageManagedObject] {
@@ -112,6 +112,6 @@ class MessageSeenTests: MMTestCase {
 			})
 		}
 
-        self.waitForExpectationsWithTimeout(100, handler: nil)
+        self.waitForExpectationsWithTimeout(60, handler: nil)
     }
 }

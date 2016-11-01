@@ -21,12 +21,10 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	override func execute() {
-		self.context.performBlockAndWait {
-			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), inContext: self.context) as? [MessageManagedObject]
-				where seenNotSentMessages.count > 0
-				else
+		self.context.performBlock {
+			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), inContext: self.context) as? [MessageManagedObject] where !seenNotSentMessages.isEmpty else
 			{
-				MMLogDebug("There is no unseen meessages to send on server. Finishing...")
+				MMLogDebug("[Seen status reporting] There is no non-seen meessages to send to the server. Finishing...")
 				self.finish()
 				return
 			}
@@ -50,10 +48,11 @@ class SeenStatusSendingOperation: Operation {
 		self.result = result
 		switch result {
 		case .Success(_):
-			MMLogDebug("Seen messages request succeded")
-			
+			MMLogDebug("[Seen status reporting] Request succeeded")
+
 			context.performBlockAndWait {
-				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), inContext: self.context) as? [MessageManagedObject] where !messages.isEmpty {
+				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), inContext: self.context) as? [MessageManagedObject] where !messages.isEmpty
+				{
 					messages.forEach { message in
 						message.seenStatus = .SeenSent
 					}
@@ -64,8 +63,9 @@ class SeenStatusSendingOperation: Operation {
 			}
 			
 		case .Failure(let error):
-			MMLogError("Seen messages request failed with error: \(error)")
-		case .Cancel: break
+			MMLogError("[Seen status reporting] Request failed with error: \(error)")
+		case .Cancel:
+			break
 		}
 	}
 	

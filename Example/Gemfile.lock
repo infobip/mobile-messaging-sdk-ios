@@ -287,6 +287,3 @@ DEPENDENCIES
   cocoapods-keys
   fastlane
   fastlane-plugin-wait_xcrun
-
-BUNDLED WITH
-   1.12.5
