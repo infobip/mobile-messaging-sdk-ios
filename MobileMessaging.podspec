@@ -27,10 +27,4 @@ Pod::Spec.new do |s|
     s.exclude_files = 'Pod/Classes/Logging/DummyLogger/**'
     s.dependency 'SwiftyJSON', '~> 3.0'
     s.dependency 'CocoaLumberjack', '~> 3.0'
-
-    s.subspec 'WithoutCocoaLumberjack' do |d|
-        d.source_files = 'Pod/Classes/**/*.{h,m,swift}'
-        d.exclude_files = 'Pod/Classes/Logging/CocoaLumberjack/**'
-        s.exclude_files = 'Pod/Classes/Logging/CocoaLumberjack/**'
-    end
 end
