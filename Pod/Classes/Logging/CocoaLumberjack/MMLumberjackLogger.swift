@@ -151,7 +151,7 @@ public final class MMLogger: NSObject, MMLogging {
 			if let fileLogger = self.fileLogger {
 				fileLogger.logFormatter = MMLogFormatter()
 				fileLogger.logFileManager.maximumNumberOfLogFiles = 10
-				fileLogger.rollingFrequency = 60*60*24 //24h
+				fileLogger.rollingFrequency = TimeInterval(60*60*24) //24h
 			}
 			DDLog.add(fileLogger, with: lumberjackLogLvl)
 		}
