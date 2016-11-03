@@ -12,6 +12,7 @@ Pod::Spec.new do |s|
     s.requires_arc  = true
     s.pod_target_xcconfig =  {
         'ENABLE_TESTABILITY' => 'YES',
+		'SWIFT_VERSION' => '3.0.1',
         'SWIFT_INCLUDE_PATHS' => '${PODS_ROOT}/MobileMessaging/Pod/Classes/Vendor/AFNetworking/** ${PODS_ROOT}/../../Pod/Classes/Vendor/AFNetworking/**',
         'OTHER_SWIFT_FLAGS[config=Debug]' => '-DDEBUG'
     }

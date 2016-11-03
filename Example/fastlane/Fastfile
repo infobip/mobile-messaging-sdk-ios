@@ -7,7 +7,7 @@ platform :ios do
             `osascript -e 'tell app "Simulator" to quit'`
             `osascript -e 'tell app "Xcode" to quit'`
             sleep(5)
-            ENV["DEVELOPER_DIR"] = "/Applications/Xcode8.app"
+            ENV["DEVELOPER_DIR"] = "/Applications/Xcode8.1.app"
             wait_xcrun
     end
 
@@ -35,7 +35,7 @@ platform :ios do
                 scheme: "MobileMessagingExample",
                 devices: [
                             	"iPhone 5 (9.3)",
-                                "iPhone 6 (10.0)"
+                              "iPhone 6 (10.0)"
                         ]
             )
         end
