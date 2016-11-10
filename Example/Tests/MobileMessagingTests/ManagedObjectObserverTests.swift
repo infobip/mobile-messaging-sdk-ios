@@ -15,9 +15,11 @@ class ManagedObjectObserverTests: MMTestCase {
 		if let ctx = storage.mainThreadManagedObjectContext {
 			let msg1 = MessageManagedObject.MM_createEntityInContext(context: ctx)
 			msg1.messageId = "1.1"
+			msg1.creationDate = Date()
 			
 			let msg2 = MessageManagedObject.MM_createEntityInContext(context: ctx)
 			msg2.messageId = "2.1"
+			msg2.creationDate = Date()
 			ctx.MM_saveToPersistentStoreAndWait()
 		}
     }
@@ -165,6 +167,7 @@ class ManagedObjectObserverTests: MMTestCase {
 			let ctx = storage.mainThreadManagedObjectContext!
 			let msg2 = MessageManagedObject.MM_createEntityInContext(context: ctx)
 			msg2.messageId = "2.1"
+			msg2.creationDate = Date()
 			ctx.MM_saveToPersistentStoreAndWait()
 	
 			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: self, observee: msg2, forKeyPath: observingKeyPath, handler: { (keyPath, newValue) in

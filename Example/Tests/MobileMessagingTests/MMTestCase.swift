@@ -10,6 +10,53 @@ import Foundation
 import CoreData
 @testable import MobileMessaging
 
+class ActiveApplicationMock: UIApplicationProtocol {
+	var applicationState: UIApplicationState {
+		return .active
+	}
+	
+	var applicationIconBadgeNumber: Int {
+		get {
+			return 0
+		}
+		set {
+			
+		}
+	}
+	
+	var isRegisteredForRemoteNotifications: Bool {
+		return true
+	}
+	func unregisterForRemoteNotifications() {}
+	func registerForRemoteNotifications() {}
+	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
+	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
+}
+
+
+class InactiveApplicationMock: UIApplicationProtocol {
+	var applicationState: UIApplicationState {
+		return .inactive
+	}
+	
+	var applicationIconBadgeNumber: Int {
+		get {
+			return 0
+		}
+		set {
+			
+		}
+	}
+
+	var isRegisteredForRemoteNotifications: Bool {
+		return true
+	}
+	func unregisterForRemoteNotifications() {}
+	func registerForRemoteNotifications() {}
+	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
+	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
+}
+
 class MMTestCase: XCTestCase {
     var mobileMessagingInstance: MobileMessaging {
         var result: MobileMessaging? = nil

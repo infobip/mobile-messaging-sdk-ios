@@ -24,6 +24,12 @@ class AppDelegate: MobileMessagingAppDelegate {
 	func setupLogging() {
 		MobileMessaging.logger.logOutput = MMLogOutput.Console
 		MobileMessaging.logger.logLevel = .All
+		
+		
+		MobileMessaging.notificationTapHandler = { message in
+			print("Dish is \(message.customPayload?["dish"] as? String)")
+			print("URL is \(message.customPayload?["url"] as? String)")
+		}
 	}
 }
 

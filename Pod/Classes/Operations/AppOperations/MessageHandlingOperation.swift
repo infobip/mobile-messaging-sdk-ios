@@ -13,8 +13,8 @@ func == (lhs: MessageMeta, rhs: MessageMeta) -> Bool {
 }
 
 struct MessageMeta : MMMessageMetadata {
-	var isSilent: Bool
-	var messageId: String
+	let isSilent: Bool
+	let messageId: String
 	
 	var hashValue: Int {
 		return messageId.hash
@@ -32,13 +32,13 @@ struct MessageMeta : MMMessageMetadata {
 }
 
 final class MessageHandlingOperation: Operation {
-	var context: NSManagedObjectContext
-	var finishBlock: ((NSError?) -> Void)?
-	var remoteAPIQueue: MMRemoteAPIQueue
-	var messagesToHandle: [MTMessage]
-	var messagesDeliveryMethod: MessageDeliveryMethod
+	let context: NSManagedObjectContext
+	let finishBlock: ((NSError?) -> Void)?
+	let remoteAPIQueue: MMRemoteAPIQueue
+	let messagesToHandle: [MTMessage]
+	let messagesDeliveryMethod: MessageDeliveryMethod
 	var hasNewMessages: Bool = false
-	var messageHandler: MessageHandling
+	let messageHandler: MessageHandling
 	
 	init(messagesToHandle: [MTMessage], messagesDeliveryMethod: MessageDeliveryMethod, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, messageHandler: MessageHandling, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
@@ -53,26 +53,24 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("Starting message handling operation...")
-		var newMessages = [MTMessage]()
-		context.performAndWait {
-			newMessages = self.getNewMessages(context: self.context, messagesToHandle: self.messagesToHandle) ?? [MTMessage]()
-		}
+		MMLogDebug("[Message handling] Starting message handling operation...")
 		
 		guard !newMessages.isEmpty else
 		{
-			MMLogDebug("There is no new messages to handle.")
+			MMLogDebug("[Message handling] There is no new messages to handle.")
+			handleExistentMessageTappedIdNeeded()
 			self.finish()
 			return
 		}
 		
-		MMLogDebug("There are \(newMessages.count) new messages to handle.")
+		MMLogDebug("[Message handling] There are \(newMessages.count) new messages to handle.")
 		
 		context.performAndWait {
 			self.hasNewMessages = true
-			newMessages.forEach { newMessage in
+			self.newMessages.forEach { newMessage in
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
+				newDBMessage.creationDate = newMessage.createdDate
 				newDBMessage.isSilent = newMessage.isSilent
 				
 				// Add new regions for geofencing
@@ -85,18 +83,19 @@ final class MessageHandlingOperation: Operation {
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		
-		self.handle(newMessages: newMessages)
-		self.populateMessageStorage(with: newMessages)
+		self.handleNewMessages()
+		self.populateMessageStorageWithNewMessages()
 		self.finish()
 	}
 	
-	private func populateMessageStorage(with messages: [MTMessage]) {
-		MobileMessaging.sharedInstance?.messageStorageAdapter?.insert(incoming: messages)
+	private func populateMessageStorageWithNewMessages() {
+		MobileMessaging.sharedInstance?.messageStorageAdapter?.insert(incoming: self.newMessages)
 	}
 	
-	private func handle(newMessages messages: [MTMessage]) {
+	private func handleNewMessages() {
 		MMQueue.Main.queue.executeAsync {
-			messages.forEach { message in
+			self.handleNewMessageTappedIfNeeded()
+			self.newMessages.forEach { message in
 				self.messageHandler.didReceiveNewMessage(message: message)
 				self.postNotificationForObservers(with: message)
 			}
@@ -112,21 +111,62 @@ final class MessageHandlingOperation: Operation {
 		NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: userInfo)
 	}
 	
-	private func getNewMessages(context: NSManagedObjectContext, messagesToHandle: [MTMessage]) -> [MTMessage]? {
-		guard messagesToHandle.count > 0 else {
-			return nil
-		}
-		var messagesSet = Set(messagesToHandle.map(MessageMeta.init))
-		var dbMessages = [MessageMeta]()
-		if let msgs = MessageManagedObject.MM_findAllInContext(context) {
-			dbMessages = msgs.map(MessageMeta.init)
-		}
-		let dbMessagesSet = Set(dbMessages)
-		messagesSet.subtract(dbMessagesSet)
-		return messagesSet.flatMap(metaToMessage)
+//MARK: - Notification tap handling
+	private var isNotificationTapped: Bool {
+		return MobileMessaging.application.applicationState == .inactive && messagesToHandle.count == 1
 	}
 	
-	private func metaToMessage(meta: MessageMeta) -> MTMessage? {
+	private func handleExistentMessageTappedIdNeeded() {
+		if let existentMessage = intersectedMessages.first {
+			handleNotificationTappedIfNeeded(with: existentMessage)
+		}
+	}
+	
+	private func handleNewMessageTappedIfNeeded() {
+		if let newMessage = newMessages.first {
+			handleNotificationTappedIfNeeded(with: newMessage)
+		}
+	}
+	
+	private func handleNotificationTappedIfNeeded(with message: MTMessage) {
+		guard isNotificationTapped else {
+			return
+		}
+		MMQueue.Main.queue.executeAsync {
+			MobileMessaging.notificationTapHandler?(message)
+		}
+	}
+	
+//MARK: - Lazy message collections
+	private lazy var storedMessageMetasSet: Set<MessageMeta> = {
+		var result: Set<MessageMeta> = Set()
+		//TODO: optimization needed, it may be too many of db messages
+		self.context.performAndWait {
+			if let storedMessages = MessageManagedObject.MM_findAllInContext(self.context) {
+				result = Set(storedMessages.map(MessageMeta.init))
+			}
+		}
+		return result
+	}()
+	
+	private lazy var newMessages: [MTMessage] = {
+		guard !self.messagesToHandle.isEmpty else {
+			return [MTMessage]()
+		}
+		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MessageMeta.init))
+		return messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) }
+	}()
+	
+	private lazy var intersectedMessages: [MTMessage] = {
+		guard !self.messagesToHandle.isEmpty else {
+			return [MTMessage]()
+		}
+		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MessageMeta.init))
+		return messagesToHandleMetasSet.intersection(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) }
+	}()
+	
+//MARK: - Lazy message collections
+	private func mtMessage(from meta: MessageMeta) -> MTMessage? {
 		if let message = self.messagesToHandle.filter({ (msg: MTMessage) -> Bool in
 			return msg.messageId == meta.messageId
 		}).first {
@@ -136,8 +176,9 @@ final class MessageHandlingOperation: Operation {
 		}
 	}
 	
+//MARK: -
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("Message handling finished with errors: \(errors)")
+		MMLogDebug("[Message handling] Message handling finished with errors: \(errors)")
 		if hasNewMessages && errors.isEmpty {
 			let messageFetching = MessageFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue, finishBlock: { result in
 				self.finishBlock?(result.error)

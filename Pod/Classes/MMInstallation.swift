@@ -301,12 +301,12 @@ final public class MMInstallation: NSObject {
 	/// Set to 0 (zero) to hide the badge number. The default value of this property is 0.
 	public var badgeNumber: Int {
 		get {
-			let appBadge = UIApplication.shared.applicationIconBadgeNumber
+			let appBadge = MobileMessaging.application.applicationIconBadgeNumber
 			installationManager.setValueForKey("badgeNumber", value: appBadge)
 			return appBadge
 		}
 		set {
-			UIApplication.shared.applicationIconBadgeNumber = newValue
+			MobileMessaging.application.applicationIconBadgeNumber = newValue
 			installationManager.setValueForKey("badgeNumber", value: newValue)
 		}
 	}

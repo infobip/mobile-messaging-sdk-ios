@@ -47,10 +47,20 @@
 	// override this callback in your AppDelegate if needed
 }
 
+-(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+	[MobileMessaging didReceiveLocalNotification:notification];
+	[self mm_application:application didReceiveLocalNotification:notification];
+}
+
+-(void)mm_application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+	// override this callback in your AppDelegate if needed
+}
+
 -(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
 	[MobileMessaging didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 	[self mm_application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
+
 -(void)mm_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
 	// override in your AppDelegate if needed
 }

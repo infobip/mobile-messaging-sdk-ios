@@ -63,6 +63,13 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 		mm_application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
 	}
 
+	public func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
+		if !isTesting {
+			MobileMessaging.didReceiveLocalNotification(notification)
+		}
+		mm_application(application, didReceiveLocalNotification: notification)
+	}
+	
 	/// This is a substitution for the standard `application(:didFinishLaunchingWithOptions:)`.
 	///
 	/// You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the launch process is almost done and the app is almost ready to run.
@@ -80,7 +87,14 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	/// This is a substitution for the standard `application(:didReceiveRemoteNotification:fetchCompletionHandler:)`.
 	///
 	/// You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when a remote notification arrived that indicates there is data to be fetched.
-	open func mm_application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+	@nonobjc open func mm_application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+		// override this callback in your AppDelegate if needed
+	}
+	
+	/// This is a substitution for the standard `application(:didReceiveLocalNotification:)`.
+	///
+	/// You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the running app receives a local notification.
+	@nonobjc open func mm_application(_ application: UIApplication, didReceiveLocalNotification n: UILocalNotification) {
 		// override this callback in your AppDelegate if needed
 	}
 	

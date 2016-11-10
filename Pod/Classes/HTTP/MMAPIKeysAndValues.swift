@@ -49,7 +49,7 @@ struct MMAPIKeys {
 	
 	
 	//MARK: MO Messages API
-	static let kMOFailedMOMessageIDs = "failedMessageIDs" //TODO: update
+	static let kMOFailedMOMessageIDs = "failedMessageIDs"
 	static let kMOFrom = "from"
 	static let kMOMessages = "messages"
 	static let kMODestination = "destination"

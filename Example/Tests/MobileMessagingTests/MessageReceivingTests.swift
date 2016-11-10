@@ -151,4 +151,83 @@ class MessageReceivingTests: MMTestCase {
 			XCTFail("Message decoding failed")
 		}
 	}
+	
+	func testTapHandlingForInactiveApplication() {
+		collectSixTappedMessages(forApplication: InactiveApplicationMock()) { tappedMessages in
+		
+			XCTAssertEqual(tappedMessages.count, 6)
+			
+			XCTAssertTrue(tappedMessages.contains(where: { (m) -> Bool in
+				return m.messageId == "m1"
+			}))
+			
+			XCTAssertTrue(tappedMessages.contains(where: { (m) -> Bool in
+				return m.messageId == "m2"
+			}))
+			
+			XCTAssertTrue(tappedMessages.contains(where: { (m) -> Bool in
+				
+				if let cp = m.customPayload {
+					let ret = (cp as NSDictionary).isEqual(to: ["customKey": "customValue"])
+					return ret
+				} else {
+					return false
+				}
+				
+			}))
+		}
+	}
+	
+	func testTapHandlingForActiveApplication() {
+		collectSixTappedMessages(forApplication: ActiveApplicationMock()) { tappedMessages in
+			XCTAssertEqual(tappedMessages.count, 0)
+		}
+	}
+	
+	private func collectSixTappedMessages(forApplication application: UIApplicationProtocol, assertionsBlock: @escaping ([MTMessage]) -> Void) {
+		weak var messageReceived1 = self.expectation(description: "message received")
+		weak var messageReceived2 = self.expectation(description: "message received")
+		weak var messageReceived3 = self.expectation(description: "message received")
+		weak var messageReceived4 = self.expectation(description: "message received")
+
+		
+		var tappedMessages = [MTMessage]()
+		
+		MobileMessaging.application = application
+		MobileMessaging.notificationTapHandler = { message in
+			tappedMessages.append(message)
+		}
+		
+		let payload1 = apnsNormalMessagePayload("m1")
+		let payload2 = apnsNormalMessagePayload("m2")
+		
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload1, newMessageReceivedCallback: nil, completion: { result in
+			messageReceived1?.fulfill()
+			
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1, newMessageReceivedCallback: nil, completion: { result in
+				messageReceived3?.fulfill()
+			})
+		})
+		
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload2, newMessageReceivedCallback: nil, completion: { result in
+			messageReceived2?.fulfill()
+			
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2, newMessageReceivedCallback: nil, completion: { result in
+				messageReceived4?.fulfill()
+			})
+		})
+		
+		let createdDate = Date()
+		let m1 = MTMessage(payload: payload1, createdDate: createdDate)!
+		let m2 = MTMessage(payload: payload2, createdDate: createdDate)!
+		MobileMessaging.didReceiveLocalNotification(MMLocalNotification.localNotification(with: m1))
+		MobileMessaging.didReceiveLocalNotification(MMLocalNotification.localNotification(with: m2))
+		
+		self.waitForExpectations(timeout: 60, handler: { error in
+			// Workaround. I have to wait until all the async calls to notificationTapHandler performed. FIXME!
+			DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
+				assertionsBlock(tappedMessages)
+			}
+		})
+	}
 }

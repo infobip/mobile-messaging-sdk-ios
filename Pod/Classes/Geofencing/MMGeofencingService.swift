@@ -340,7 +340,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	private var capabilityCompletion: ((MMCapabilityStatus) -> Void)?
 	
 	private func restartLocationManager() {
-		if UIApplication.shared.applicationState == UIApplicationState.active {
+		if MobileMessaging.application.applicationState == UIApplicationState.active {
 			if CLLocationManager.significantLocationChangeMonitoringAvailable() {
 				self.locationManager.stopMonitoringSignificantLocationChanges()
 				MMLogDebug("[GeofencingService] stopped updating significant location changes")
@@ -534,25 +534,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 		}
 	}
-	
-//TODO: uncomment and implement when the feature released
-//	public func locationManager(manager: CLLocationManager, didExitRegion region: CLRegion) {
-//		assert(NSThread.isMainThread())
-//		MMLogDebug("[GeofencingService] did exit circular region \(region)")
-//		
-//		datasource.validRegionsForExitEvent(with: region.identifier)?.forEach { datasourceRegion in
-//			
-//			if let message = datasourceRegion.message {
-//				self.report(on: .exit, forRegionId: region.identifier, message: message)
-//			}
-//			
-//			MMLogDebug("[GeofencingService] did exit datasource region \(datasourceRegion)")
-//			delegate?.didExitRegion(datasourceRegion)
-//			MMGeofencingService.geoEventsHandler?.didExit(datasourceRegion)
-//			NSNotificationCenter.mm_postNotificationFromMainThread(MMNotificationGeographicalRegionDidExit, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
-//		}
-//	}
-	
+		
 	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did fail with error \(error)")

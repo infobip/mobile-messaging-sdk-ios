@@ -93,12 +93,14 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 	* `application(:didFinishLaunchingWithOptions:)`
 	* `application(:didRegisterForRemoteNotificationsWithDeviceToken:)`
 	* `application(:didReceiveRemoteNotification:fetchCompletionHandler:)`
+	* `application(:didReceive:)` or `application(:didReceiveLocalNotification:)`
 
 	, rename it to corresponding:
 
 	* `mm_application(:didFinishLaunchingWithOptions:)`
 	* `mm_application(:didRegisterForRemoteNotificationsWithDeviceToken:)`
 	* `mm_application(:didReceiveRemoteNotification:fetchCompletionHandler:)`
+	* `mm_application(:didReceiveLocalNotification:)`
 
 
 ## Mobile Messaging APIs
@@ -118,7 +120,7 @@ Library informs you about following events using NSNotificationCenter:
 
 More information on library events available on our [wiki page](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Library-events).
 
-### Linking MSISDN
+### Linking with MSISDN
 
 It is recommended that you link the Telephone number (in [MSISDN](https://en.wikipedia.org/wiki/MSISDN) format).
 It will give an additional opportunity to target your application users and orchestrate your campaigns with [OMNI Messaging service](https://dev.infobip.com/docs/omni-introduction) including SMS fallback feature.

@@ -39,9 +39,6 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	override func execute() {
-		//TODO: store old valid attributes
-		//installationObject.customUserData
-		//installationObject.predefinedUserData
 		context.perform {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
 				self.finish()

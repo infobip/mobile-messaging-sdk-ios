@@ -83,16 +83,16 @@ public final class MobileMessaging: NSObject {
 			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
 		}
 		
-		if UIApplication.shared.isRegisteredForRemoteNotifications && self.currentInstallation?.deviceToken == nil {
+		if MobileMessaging.application.isRegisteredForRemoteNotifications && self.currentInstallation?.deviceToken == nil {
 			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
-			UIApplication.shared.unregisterForRemoteNotifications()
+			MobileMessaging.application.unregisterForRemoteNotifications()
 		}
 		
-		UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: self.userNotificationType, categories: nil))
+		MobileMessaging.application.registerUserNotificationSettings(UIUserNotificationSettings(types: self.userNotificationType, categories: nil))
 		
-		if UIApplication.shared.isRegisteredForRemoteNotifications == false {
+		if MobileMessaging.application.isRegisteredForRemoteNotifications == false {
 			MMLogDebug("Registering for remote notifications...")
-			UIApplication.shared.registerForRemoteNotifications()
+			MobileMessaging.application.registerForRemoteNotifications()
 		}
         
         #if DEBUG
@@ -139,8 +139,21 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
 			completionHandler(.newData)
 		})
-		if UIApplication.shared.applicationState == .inactive {
-			notificationTapHandler?(userInfo)
+	}
+	
+	/// This method is called when a running app receives a local notification. The method should be called from AppDelegate's `application(_:didReceiveLocalNotification:)` or `application(_:didReceive:)` callback.
+	///
+	/// - parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
+	public class func didReceiveLocalNotification(_ notification: UILocalNotification) {
+		let wasNotificationTapped = application.applicationState == .inactive
+		if wasNotificationTapped {
+			if	let userInfo = notification.userInfo,
+				let payload = userInfo[LocalNotificationKeys.pushPayload] as? APNSPayload,
+				let createdDate = userInfo[LocalNotificationKeys.createdDate] as? Date,
+				let message = MTMessage(payload: payload, createdDate: createdDate)
+			{
+				MobileMessaging.notificationTapHandler?(message)
+			}
 		}
 	}
 	
@@ -186,8 +199,9 @@ public final class MobileMessaging: NSObject {
 	/// An auxillary component provides the convinient access to the user agent data.
 	public static var userAgent = MMUserAgent()
 	
-	/// A block object to be executed when user opens the app by tapping on the notification alert. This block takes a single NSDictionary that contains information related to the notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	public static var notificationTapHandler: (([AnyHashable: Any]) -> Void)?
+	/// A block object to be executed when user opens the app by tapping on the notification alert. This block takes:
+	/// - single MTMessage object initialized from the Dictionary.
+	public static var notificationTapHandler: ((_ message: MTMessage) -> Void)?
 	
 	/// The message handling object defines the behaviour that is triggered during the message handling.
 	///
@@ -212,8 +226,8 @@ public final class MobileMessaging: NSObject {
 	
 	func stop() {
 		MMLogInfo("Stopping MobileMessaging service...")
-		if UIApplication.shared.isRegisteredForRemoteNotifications {
-			UIApplication.shared.unregisterForRemoteNotifications()
+		if MobileMessaging.application.isRegisteredForRemoteNotifications {
+			MobileMessaging.application.unregisterForRemoteNotifications()
 		}
 
 		self.internalStorage = nil
@@ -223,7 +237,8 @@ public final class MobileMessaging: NSObject {
 		self.currentUser = nil
 		self.messageStorage?.stop()
 		self.messageStorage = nil
-		
+		MobileMessaging.application = UIApplication.shared
+		MobileMessaging.notificationTapHandler = nil
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
 		MobileMessaging.geofencingService?.stop()
 		self.geofencingService = nil
@@ -278,4 +293,17 @@ public final class MobileMessaging: NSObject {
 	private(set) var appListener: MMApplicationListener?
 	private(set) var messageHandler: MMMessageHandler?
 	internal(set) var geofencingService: MMGeofencingService?
+	static var application: UIApplicationProtocol = UIApplication.shared
+}
+
+extension UIApplication: UIApplicationProtocol {}
+
+protocol UIApplicationProtocol {
+	var applicationIconBadgeNumber: Int { get set }
+	var applicationState: UIApplicationState { get }
+	var isRegisteredForRemoteNotifications: Bool { get }
+	func unregisterForRemoteNotifications()
+	func registerForRemoteNotifications()
+	func presentLocalNotificationNow(_ notification: UILocalNotification)
+	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings)
 }
