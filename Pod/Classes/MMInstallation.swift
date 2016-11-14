@@ -229,6 +229,11 @@ final public class MMUser: NSObject {
 		syncWithServer(completion)
 	}
 	
+	/// Explicitly resets the unsaved user data.
+	public func reset() {
+		installationManager.resetContext()
+	}
+	
 	/// Tries to fetch the user data from the server.
 	/// - parameter completion: The block to execute after the server responded.
 	public func fetchFromServer(completion: ((NSError?) -> Void)? = nil) {

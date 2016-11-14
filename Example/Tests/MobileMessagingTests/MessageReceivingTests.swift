@@ -190,7 +190,6 @@ class MessageReceivingTests: MMTestCase {
 		weak var messageReceived3 = self.expectation(description: "message received")
 		weak var messageReceived4 = self.expectation(description: "message received")
 
-		
 		var tappedMessages = [MTMessage]()
 		
 		MobileMessaging.application = application
@@ -205,6 +204,9 @@ class MessageReceivingTests: MMTestCase {
 			messageReceived1?.fulfill()
 			
 			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1, newMessageReceivedCallback: nil, completion: { result in
+				
+				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
+				Thread.sleep(forTimeInterval: 1)
 				messageReceived3?.fulfill()
 			})
 		})
@@ -213,6 +215,9 @@ class MessageReceivingTests: MMTestCase {
 			messageReceived2?.fulfill()
 			
 			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2, newMessageReceivedCallback: nil, completion: { result in
+				
+				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
+				Thread.sleep(forTimeInterval: 1)
 				messageReceived4?.fulfill()
 			})
 		})
@@ -224,10 +229,7 @@ class MessageReceivingTests: MMTestCase {
 		MobileMessaging.didReceiveLocalNotification(MMLocalNotification.localNotification(with: m2))
 		
 		self.waitForExpectations(timeout: 60, handler: { error in
-			// Workaround. I have to wait until all the async calls to notificationTapHandler performed. FIXME!
-			DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
-				assertionsBlock(tappedMessages)
-			}
+			assertionsBlock(tappedMessages)
 		})
 	}
 }

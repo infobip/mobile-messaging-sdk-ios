@@ -84,6 +84,12 @@ final class MMInstallationManager {
 			completion?()
 		}
 	}
+	
+	func resetContext() {
+		storageContext.perform {
+			self.storageContext.rollback()
+		}
+	}
 
 	var installationObject: InstallationManagedObject {
 		if let installation = _currentInstallation {

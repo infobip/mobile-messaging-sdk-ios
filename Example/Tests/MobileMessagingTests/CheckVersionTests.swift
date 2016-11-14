@@ -18,6 +18,7 @@ class CheckVersionTests: MMTestCase {
 	}
 	
 	func testVersionCheck() {
+		cleanUpAndStop()
 		
 		weak var requestExp = expectation(description: "libraryVersionRequest")
 		weak var responseExp = expectation(description: "libraryVersionResponse")

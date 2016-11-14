@@ -152,7 +152,9 @@ public final class MobileMessaging: NSObject {
 				let createdDate = userInfo[LocalNotificationKeys.createdDate] as? Date,
 				let message = MTMessage(payload: payload, createdDate: createdDate)
 			{
-				MobileMessaging.notificationTapHandler?(message)
+				MMQueue.Main.queue.executeAsync {
+					MobileMessaging.notificationTapHandler?(message)
+				}
 			}
 		}
 	}
