@@ -28,6 +28,7 @@ final class MessagesSyncOperation: GroupOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[Message syncing] finished with errors: \(errors)")
 		finishBlock?(errors.first)
 	}
 }

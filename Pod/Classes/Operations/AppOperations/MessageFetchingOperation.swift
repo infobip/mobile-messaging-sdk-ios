@@ -8,9 +8,9 @@ import Foundation
 import CoreData
 
 final class MessageFetchingOperation: Operation {
-	var context: NSManagedObjectContext
-	var finishBlock: ((MMFetchMessagesResult) -> Void)?
-	var remoteAPIQueue: MMRemoteAPIQueue
+	let context: NSManagedObjectContext
+	let finishBlock: ((MMFetchMessagesResult) -> Void)?
+	let remoteAPIQueue: MMRemoteAPIQueue
 	var result = MMFetchMessagesResult.Cancel
 	
 	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMFetchMessagesResult) -> Void)? = nil) {
@@ -22,7 +22,7 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("Starting message fetching operation...")
+		MMLogDebug("[Message fetching] Starting operation...")
 		self.syncMessages()
 	}
 	
@@ -58,20 +58,20 @@ final class MessageFetchingOperation: Operation {
 			switch result {
 			case .Success(let fetchResponse):
 				let fetchedMessages = fetchResponse.messages
-				MMLogDebug("Messages fetching succeded: received \(fetchedMessages?.count) new messages: \(fetchedMessages)")
+				MMLogDebug("[Message fetching] succeded: received \(fetchedMessages?.count) new messages: \(fetchedMessages)")
 				
 				if let nonReportedMessageIds = nonReportedMessageIds {
 					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds)
-					MMLogDebug("Delivery report sent for messages: \(nonReportedMessageIds)")
+					MMLogDebug("[Message fetching] delivery report sent for messages: \(nonReportedMessageIds)")
 					if !nonReportedMessageIds.isEmpty {
 						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
 				}
 				
 			case .Failure(_):
-				MMLogError("Sync request failed")
+				MMLogError("[Message fetching] request failed")
 			case .Cancel:
-				MMLogDebug("Sync cancelled")
+				MMLogDebug("[Message fetching] cancelled")
 			}
 		}
 		self.finishWithError(result.error as NSError?)
@@ -89,7 +89,7 @@ final class MessageFetchingOperation: Operation {
 			message.reportSent = true
 		}
 		
-		MMLogDebug("Marked as delivered: \(messages.map{ $0.messageId })")
+		MMLogDebug("[Message fetching] marked as delivered: \(messages.map{ $0.messageId })")
 		context.MM_saveToPersistentStoreAndWait()
 		
 		self.updateMessageStorage(with: messages)
@@ -104,18 +104,20 @@ final class MessageFetchingOperation: Operation {
 		                                messagesDeliveryMethod: .pull,
 		                                context: self.context,
 		                                remoteAPIQueue: self.remoteAPIQueue,
-		                                messageHandler: MobileMessaging.messageHandling) { error in
+		                                messageHandler: MobileMessaging.messageHandling,
+		                                applicationState: MobileMessaging.application.applicationState,
+		                                finishBlock: { error in
 											
 											var finalResult = self.result
 											if let error = error {
 												finalResult = MMFetchMessagesResult.Failure(error)
 											}
 											self.finishBlock?(finalResult)
-		}
+		})
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("Message fetching operation finished with errors: \(errors)")
+		MMLogDebug("[Message fetching] finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? result : MMFetchMessagesResult.Failure(errors.first)
 		switch finishResult {
 		case .Success(let fetchResponse):

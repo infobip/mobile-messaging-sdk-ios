@@ -73,6 +73,7 @@ class GeoEventReportingOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[Geo event reporting] finished with errors: \(errors)")
 		if let error = errors.first {
 			result = MMGeoEventReportingResult.Failure(error)
 		}

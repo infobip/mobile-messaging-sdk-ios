@@ -22,6 +22,7 @@ final class MessagesEvictionOperation: Operation {
 	}
 	
 	override func execute() {
+		MMLogDebug("[Message eviction] started...")
 		self.context.performAndWait {
 			let dateToCompare = NSDate().addingTimeInterval(-self.messageMaximumAge)
 			
@@ -32,6 +33,7 @@ final class MessagesEvictionOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[Message eviction] finished with errors: \(errors)")
 		finishBlock?()
 	}
 }

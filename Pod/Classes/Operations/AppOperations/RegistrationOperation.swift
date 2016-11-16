@@ -39,10 +39,10 @@ final class RegistrationOperation: Operation {
 			self.installationObject = installation
 			
             if (self.installationHasChanges) {
-                MMLogDebug("Saving installation locally...")
+                MMLogDebug("[Registration] Saving installation locally...")
                 self.context.MM_saveToPersistentStoreAndWait()
             } else {
-                MMLogDebug("No need to save installation locally.")
+                MMLogDebug("[Registration] No need to save installation locally.")
             }
             
 			self.sendRegistrationIfNeeded()
@@ -59,10 +59,10 @@ final class RegistrationOperation: Operation {
 	
 	private func sendRegistrationIfNeeded() {
 		if self.registrationDataChanged {
-			MMLogDebug("Sending the registration updates to server...")
+			MMLogDebug("[Registration] Sending the registration updates to server...")
 			self.sendRegistration()
 		} else {
-			MMLogDebug("No need to send the installation on server.")
+			MMLogDebug("[Registration] No need to send the installation on server.")
 			finish()
 		}
 	}
@@ -88,20 +88,21 @@ final class RegistrationOperation: Operation {
 			}
 			switch result {
 			case .Success(let regResponse):
-				MMLogDebug("Installation updated on server for internal ID \(regResponse.internalUserId). Updating local version...")
+				MMLogDebug("[Registration] Installation updated on server for internal ID \(regResponse.internalUserId). Updating local version...")
 				installationObject.resetDirtyRegistration()
 				installationObject.internalUserId = regResponse.internalUserId
 				self.context.MM_saveToPersistentStoreAndWait()
 				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalUserId])
 			case .Failure(let error):
-				MMLogError("Registration request failed with error: \(error)")
+				MMLogError("[Registration] request failed with error: \(error)")
 			case .Cancel:
-				MMLogError("Registration request cancelled.")
+				MMLogError("[Registration] request cancelled.")
 			}
 		}
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[Registration] finished with errors: \(errors)")
 		if errors.isEmpty {
 			let systemDataSync = SystemDataSynchronizationOperation(сontext: self.context, remoteAPIQueue: remoteAPIQueue, finishBlock: { error in
 				self.finishBlock?(error)

@@ -49,10 +49,10 @@ class UserDataSynchronizationOperation: Operation {
 			self.dirtyAttributes = installation.dirtyAttributesSet
 			
 			if (self.installationHasChanges) {
-				MMLogDebug("User data: saving data locally...")
+				MMLogDebug("[User data sync] saving data locally...")
 				self.context.MM_saveToPersistentStoreAndWait()
 			} else {
-				MMLogDebug("User data: has no changes. No need to save locally.")
+				MMLogDebug("[User data sync] has no changes. No need to save locally.")
 			}
 			
 			self.sendUserDataIfNeeded()
@@ -69,13 +69,13 @@ class UserDataSynchronizationOperation: Operation {
 	
 	private func sendUserDataIfNeeded() {
 		if onlyFetching {
-			MMLogDebug("User data: fetching from server...")
+			MMLogDebug("[User data sync] fetching from server...")
 			self.fetchUserData()
 		} else if shouldSendRequest {
-			MMLogDebug("User data: sending user data updates to the server...")
+			MMLogDebug("[User data sync] sending user data updates to the server...")
 			self.sendUserData()
 		} else {
-			MMLogDebug("User data: has no changes, no need to send to the server.")
+			MMLogDebug("[User data sync] has no changes, no need to send to the server.")
 			finish()
 		}
 	}
@@ -127,21 +127,22 @@ class UserDataSynchronizationOperation: Operation {
 				
 				installationObject.resetDirtyAttribute(attributes: SyncableAttributesSet.userData) // all user data now in sync
 				self.context.MM_saveToPersistentStoreAndWait()
-				MMLogDebug("User data: successfully synced")
+				MMLogDebug("[User data sync] successfully synced")
 				
 				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationUserDataSynced, userInfo: nil)
 				
 			case .Failure(let error):
-				MMLogError("User data: sync request failed with error: \(error)")
+				MMLogError("[User data sync] sync request failed with error: \(error)")
 				return
 			case .Cancel:
-				MMLogError("User data: sync request cancelled.")
+				MMLogError("[User data sync] sync request cancelled.")
 				return
 			}
 		}
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[User data sync] finished with errors: \(errors)")
 		self.finishBlock?(errors.first)
 	}
 }

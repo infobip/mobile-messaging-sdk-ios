@@ -31,11 +31,11 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("System Data: starting synchronization...")
+		MMLogDebug("[System data sync] starting synchronization...")
 		context.perform {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else
 			{
-				MMLogDebug("System Data: installation object not found, finishing the operation.")
+				MMLogDebug("[System data sync] installation object not found, finishing the operation...")
 				self.finish()
 				return
 			}
@@ -44,6 +44,7 @@ class SystemDataSynchronizationOperation: Operation {
 			if installation.systemDataHash != self.currentSystemDataHash {
 				self.sendRequest()
 			} else {
+				MMLogDebug("[System data sync] no changes to send to the server")
 				self.finish()
 			}
 		}
@@ -57,7 +58,7 @@ class SystemDataSynchronizationOperation: Operation {
 		}
 		
 		let request = MMPostSystemDataRequest(internalUserId: internalId, systemData: currentSystemData)
-		MMLogDebug("System Data: performing request...")
+		MMLogDebug("[System data sync] performing request...")
 		remoteAPIQueue.perform(request: request) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
@@ -74,16 +75,17 @@ class SystemDataSynchronizationOperation: Operation {
 
 				installationObject.systemDataHash = self.currentSystemDataHash
 				self.context.MM_saveToPersistentStoreAndWait()
-				MMLogDebug("System Data: successfully synced")
+				MMLogDebug("[System data sync] successfully synced")
 			case .Failure(let error):
-				MMLogError("System Data: sync request failed with error: \(error)")
+				MMLogError("[System data sync] sync request failed with error: \(error)")
 			case .Cancel:
-				MMLogError("System Data: sync request cancelled.")
+				MMLogError("[System data sync] sync request cancelled.")
 			}
 		}
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[System data sync] finished with errors: \(errors)")
 		self.finishBlock?(errors.first)
 	}
 }

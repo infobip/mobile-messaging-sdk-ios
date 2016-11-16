@@ -39,14 +39,16 @@ final class MessageHandlingOperation: Operation {
 	let messagesDeliveryMethod: MessageDeliveryMethod
 	var hasNewMessages: Bool = false
 	let messageHandler: MessageHandling
+	let applicationState: UIApplicationState
 	
-	init(messagesToHandle: [MTMessage], messagesDeliveryMethod: MessageDeliveryMethod, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, messageHandler: MessageHandling, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(messagesToHandle: [MTMessage], messagesDeliveryMethod: MessageDeliveryMethod, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, messageHandler: MessageHandling, applicationState: UIApplicationState, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 		self.messagesDeliveryMethod = messagesDeliveryMethod
 		self.messageHandler = messageHandler
+		self.applicationState = applicationState
 		super.init()
 		
 		self.userInitiated = true
@@ -113,27 +115,23 @@ final class MessageHandlingOperation: Operation {
 	
 //MARK: - Notification tap handling
 	private var isNotificationTapped: Bool {
-		return MobileMessaging.application.applicationState == .inactive && messagesToHandle.count == 1
+		return applicationState == .inactive && messagesToHandle.count == 1
 	}
 	
 	private func handleExistentMessageTappedIdNeeded() {
-		if let existentMessage = intersectedMessages.first {
-			handleNotificationTappedIfNeeded(with: existentMessage)
-		}
+		guard let existentMessage = intersectingMessages.first else { return }
+		handleNotificationTappedIfNeeded(with: existentMessage)
 	}
 	
 	private func handleNewMessageTappedIfNeeded() {
-		if let newMessage = newMessages.first {
-			handleNotificationTappedIfNeeded(with: newMessage)
-		}
+		guard let newMessage = newMessages.first else { return }
+		handleNotificationTappedIfNeeded(with: newMessage)
 	}
 	
 	private func handleNotificationTappedIfNeeded(with message: MTMessage) {
-		guard isNotificationTapped else {
-			return
-		}
+		guard let tapHandler = MobileMessaging.notificationTapHandler, isNotificationTapped else { return }
 		MMQueue.Main.queue.executeAsync {
-			MobileMessaging.notificationTapHandler?(message)
+			tapHandler(message)
 		}
 	}
 	
@@ -150,17 +148,13 @@ final class MessageHandlingOperation: Operation {
 	}()
 	
 	private lazy var newMessages: [MTMessage] = {
-		guard !self.messagesToHandle.isEmpty else {
-			return [MTMessage]()
-		}
+		guard !self.messagesToHandle.isEmpty else { return [MTMessage]() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MessageMeta.init))
 		return messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) }
 	}()
 	
-	private lazy var intersectedMessages: [MTMessage] = {
-		guard !self.messagesToHandle.isEmpty else {
-			return [MTMessage]()
-		}
+	private lazy var intersectingMessages: [MTMessage] = {
+		guard !self.messagesToHandle.isEmpty else { return [MTMessage]() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MessageMeta.init))
 		return messagesToHandleMetasSet.intersection(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) }
 	}()

@@ -204,7 +204,6 @@ class MessageReceivingTests: MMTestCase {
 			messageReceived1?.fulfill()
 			
 			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1, newMessageReceivedCallback: nil, completion: { result in
-				
 				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
 				Thread.sleep(forTimeInterval: 1)
 				messageReceived3?.fulfill()
@@ -215,7 +214,6 @@ class MessageReceivingTests: MMTestCase {
 			messageReceived2?.fulfill()
 			
 			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2, newMessageReceivedCallback: nil, completion: { result in
-				
 				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
 				Thread.sleep(forTimeInterval: 1)
 				messageReceived4?.fulfill()

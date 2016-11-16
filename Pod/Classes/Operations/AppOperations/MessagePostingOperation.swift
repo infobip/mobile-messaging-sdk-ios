@@ -27,6 +27,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	override func execute() {
+		MMLogDebug("[Message posting] started...")
 		guard let internalId = MobileMessaging.currentUser?.internalId else {
 			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
@@ -74,11 +75,11 @@ class MessagePostingOperation: Operation {
 			case .Success(let response):
 				self.handleSuccess(messages: response.messages)
 				self.updateMessageStorage(with: response.messages)
-				MMLogDebug("Message posting successfuly finished")
+				MMLogDebug("[Message posting] successfuly finished")
 			case .Failure(let error):
-				MMLogError("Message posting request failed with error: \(error)")
+				MMLogError("[Message posting] request failed with error: \(error)")
 			case .Cancel:
-				MMLogError("Message posting cancelled")
+				MMLogError("[Message posting] cancelled")
 			}
 		}
 		self.finishWithError(result.error)
@@ -90,6 +91,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[Message posting] finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? result : MMMOMessageResult.Failure(errors.first)
 		finishBlock?(finishResult)
 	}

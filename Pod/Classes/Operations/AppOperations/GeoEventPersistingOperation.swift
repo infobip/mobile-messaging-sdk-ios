@@ -43,6 +43,7 @@ class GeoEventPersistingOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[Geo event persisting] finished with errors \(errors).")
 		finishBlock?()
 	}
 }

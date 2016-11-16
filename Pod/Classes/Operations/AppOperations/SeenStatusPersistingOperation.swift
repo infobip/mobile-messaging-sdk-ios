@@ -20,6 +20,7 @@ final class SeenStatusPersistingOperation: Operation {
 	}
 	
 	override func execute() {
+		MMLogDebug("[Seen status persisting] started...")
 		self.markMessagesAsSeen()
 	}
 	
@@ -53,6 +54,7 @@ final class SeenStatusPersistingOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[Seen status persisting] finished with errors: \(errors)")
 		finishBlock?()
 	}
 }

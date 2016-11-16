@@ -72,6 +72,7 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+		MMLogDebug("[Seen status reporting] finished: \(errors)")
 		if let error = errors.first {
 			result = MMSeenMessagesResult.Failure(error)
 		}

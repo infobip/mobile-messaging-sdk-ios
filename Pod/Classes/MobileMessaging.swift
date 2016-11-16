@@ -248,7 +248,7 @@ public final class MobileMessaging: NSObject {
 	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], newMessageReceivedCallback: (([AnyHashable : Any]) -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
 		MMLogDebug("New remote notification received \(userInfo)")
-		self.messageHandler?.handleAPNSMessage(userInfo, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
+		self.messageHandler?.handleAPNSMessage(userInfo, applicationState: MobileMessaging.application.applicationState, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
 	}
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
