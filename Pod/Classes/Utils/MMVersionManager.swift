@@ -12,10 +12,10 @@ extension String {
 		let significantComponentsNumber = 3
 		let lhsComps = lhs.components(separatedBy: ".")
 		let rhsComps = rhs.components(separatedBy: ".")
-		if lhsComps.count != significantComponentsNnumber || rhsComps.count != significantComponentsNnumber {
+		if lhsComps.count != significantComponentsNumber || rhsComps.count != significantComponentsNumber {
 			throw VersionNumbersComparisonError.invalidParameters
 		}
-		for i in 0..<significantComponentsNnumber {
+		for i in 0..<significantComponentsNumber {
 			guard let lInt = Int(lhsComps[i]), let rInt = Int(rhsComps[i]) else {
 				throw VersionNumbersComparisonError.invalidParameters
 			}
