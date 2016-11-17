@@ -3,7 +3,6 @@
 //  MobileMessagingExample
 //
 //  Created by okoroleva on 14.10.16.
-//  Copyright © 2016 CocoaPods. All rights reserved.
 //
 
 import XCTest
@@ -46,6 +45,38 @@ class CheckVersionTests: MMTestCase {
 		MobileMessaging.sharedInstance?.start()
 		
 		waitForExpectations(timeout: 60, handler: nil)
+	}
+	
+	func testVersionComparison() {
+		do {
+			let v1 = "1.0.0"
+			let v2 = "2.0.0"
+			XCTAssert(try! String.compareVersionNumbers(v1, v2) == ComparisonResult.orderedAscending)
+		}
+		
+		do {
+			let v1 = "1.0.0"
+			let v2 = "1.0.1"
+			XCTAssert(try! String.compareVersionNumbers(v1, v2) == ComparisonResult.orderedAscending)
+		}
+		
+		do {
+			let v1 = "0.1.0"
+			let v2 = "0.1.1"
+			XCTAssert(try! String.compareVersionNumbers(v1, v2) == ComparisonResult.orderedAscending)
+		}
+		
+		do {
+			let v1 = "0.1.0"
+			let v2 = "0.1.0"
+			XCTAssert(try! String.compareVersionNumbers(v1, v2) == ComparisonResult.orderedSame)
+		}
+		
+		do {
+			let v1 = "0.0.1"
+			let v2 = "0.0.2"
+			XCTAssert(try! String.compareVersionNumbers(v1, v2) == ComparisonResult.orderedAscending)
+		}
 	}
 	
 }
