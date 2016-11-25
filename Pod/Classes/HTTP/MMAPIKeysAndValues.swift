@@ -71,6 +71,8 @@ struct GeoReportingAPIKeys {
 	static let campaignId = "campaignId"
 	static let messageId = "messageId"
 	static let timestampDelta = "timestampDelta"
+	static let finishedCampaignIds = "finishedCampaignIds"
+	static let suspendedCampaignIds = "suspendedCampaignIds"
 }
 
 struct APNSPayloadKeys {

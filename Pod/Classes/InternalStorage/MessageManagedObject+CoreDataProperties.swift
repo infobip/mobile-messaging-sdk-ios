@@ -20,4 +20,6 @@ extension MessageManagedObject {
 	@NSManaged var messageTypeValue: Int16
     @NSManaged var seenStatusValue: Int16
     @NSManaged var isSilent: Bool
+	@NSManaged var campaignStateValue: Int16
+	@NSManaged var campaignId: String?
 }

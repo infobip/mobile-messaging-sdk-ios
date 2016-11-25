@@ -20,6 +20,12 @@ enum MMMessageType : Int16 {
 	case Geo
 }
 
+@objc public enum CampaignState : Int16 {
+	case Active = 0
+	case Suspended
+	case Finished
+}
+
 final class MessageManagedObject: NSManagedObject, Fetchable {
 //	override func MM_awakeFromCreation() {
 //		self.creationDate = Date()
@@ -31,5 +37,10 @@ final class MessageManagedObject: NSManagedObject, Fetchable {
 	var messageType: MMMessageType {
 		get { return MMMessageType(rawValue: messageTypeValue) ?? .Default }
 		set { messageTypeValue = newValue.rawValue }
+	}
+	
+	var campaignState: CampaignState {
+		get { return CampaignState(rawValue: campaignStateValue) ?? .Active }
+		set { campaignStateValue = newValue.rawValue }
 	}
 }

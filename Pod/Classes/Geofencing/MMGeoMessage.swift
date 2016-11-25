@@ -65,7 +65,18 @@ final public class MMGeoMessage: MTMessage {
 	public let startTime: Date
 	public let expiryTime: Date
 	public var isNotExpired: Bool {
-		return Date().compare(expiryTime) == .orderedAscending && Date().compare(startTime) != .orderedAscending
+		return campaignState == .Active && Date().compare(expiryTime) == .orderedAscending && Date().compare(startTime) != .orderedAscending
+	}
+	
+	public var campaignState: CampaignState = .Active
+	
+	convenience init?(managedObject: MessageManagedObject) {
+		guard let payload = managedObject.payload else {
+			return nil
+		}
+		
+		self.init(payload: payload, createdDate: managedObject.creationDate)
+		self.campaignState = managedObject.campaignState
 	}
 	
 	public override init?(payload: APNSPayload, createdDate: Date) {

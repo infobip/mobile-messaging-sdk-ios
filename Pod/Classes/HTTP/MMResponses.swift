@@ -87,7 +87,18 @@ class MMHTTPEmptyResponse: MMHTTPResponse {
 
 final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
 final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
-final class MMHTTPGeoEventReportingResponse: MMHTTPEmptyResponse { }
+
+final class MMHTTPGeoEventReportingResponse: MMHTTPResponse {
+	let finishedCampaignIds: [String]?
+	let suspendedCampaignIds: [String]?
+
+	required init?(json value: JSON) {
+		self.finishedCampaignIds = value[GeoReportingAPIKeys.finishedCampaignIds].arrayObject as? [String]
+		self.suspendedCampaignIds = value[GeoReportingAPIKeys.suspendedCampaignIds].arrayObject as? [String]
+		super.init(json: value)
+	}
+}
+
 final class MMHTTPLibraryVersionResponse: MMHTTPResponse {
 
 	let platformType : String

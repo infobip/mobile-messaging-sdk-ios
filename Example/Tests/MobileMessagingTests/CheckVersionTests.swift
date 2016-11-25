@@ -14,6 +14,7 @@ class CheckVersionTests: MMTestCase {
 		super.setUp()
 		UserDefaults.standard.removeObject(forKey: "MMLibrary-LastCheckDateKey")
 		UserDefaults.standard.synchronize()
+		MMVersionManager.shared?.lastCheckDate = nil
 	}
 	
 	func testVersionCheck() {

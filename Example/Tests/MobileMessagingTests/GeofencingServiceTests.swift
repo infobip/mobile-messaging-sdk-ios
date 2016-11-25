@@ -99,17 +99,6 @@ var baseAPNSDict: APNSPayload {
 	]
 }
 
-var baseInternalDataDict: APNSPayload {
-	return
-		[
-			MMCampaignDataKeys.campaignId: expectedCampaignId,
-			MMCampaignDataKeys.startDate: expectedStartDateString,
-			MMCampaignDataKeys.expiryDate: expectedExpiryDateString,
-			APNSPayloadKeys.kInternalDataSilent: [APNSPayloadKeys.kBody: "campaign text"],
-			APNSPayloadKeys.kInternalDataMessageType: APNSPayloadKeys.kInternalDataMessageTypeGeo
-	]
-}
-
 let zagrebId = "6713245DA3638FDECFE448C550AD7681"
 let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
 
@@ -132,7 +121,7 @@ let modernPulaDict: APNSPayload = [
 ]
 
 var modernInternalDataWithZagrebPulaDict: APNSPayload {
-	var result = baseInternalDataDict
+	var result = makeBaseInternalDataDict(campaignId: expectedCampaignId)
 	result[APNSPayloadKeys.kInternalDataGeo] = [modernZagrebDict, modernPulaDict]
 	return result
 }
@@ -197,12 +186,26 @@ let jsonStrWithoutStartTime =
 		"}" +
 "}"
 
-func makeApnsPayloadWithoutRegionsDataDict() -> APNSPayload {
-	return (baseAPNSDict + [APNSPayloadKeys.kInternalData: baseInternalDataDict])!
+let suspendedCampaignId = "suspendedCampaignId"
+let finishedCampaignId = "finishedCampaignId"
+
+func makeBaseInternalDataDict(campaignId: String) -> APNSPayload {
+	return
+		[
+			MMCampaignDataKeys.campaignId: campaignId,
+			MMCampaignDataKeys.startDate: expectedStartDateString,
+			MMCampaignDataKeys.expiryDate: expectedExpiryDateString,
+			APNSPayloadKeys.kInternalDataSilent: [APNSPayloadKeys.kBody: "campaign text"],
+			APNSPayloadKeys.kInternalDataMessageType: APNSPayloadKeys.kInternalDataMessageTypeGeo
+	]
 }
 
-func makeApnsPayload(withEvents events: [APNSPayload]?, deliveryTime: APNSPayload?, regions: [APNSPayload]) -> APNSPayload {
-	var result = makeApnsPayloadWithoutRegionsDataDict()
+func makeApnsPayloadWithoutRegionsDataDict(campaignId: String) -> APNSPayload {
+	return (baseAPNSDict + [APNSPayloadKeys.kInternalData: makeBaseInternalDataDict(campaignId: campaignId)])!
+}
+
+func makeApnsPayload(withEvents events: [APNSPayload]?, deliveryTime: APNSPayload?, regions: [APNSPayload], campaignId: String = expectedCampaignId) -> APNSPayload {
+	var result = makeApnsPayloadWithoutRegionsDataDict(campaignId: campaignId)
 	var internalData = result[APNSPayloadKeys.kInternalData] as! APNSPayload
 	internalData[APNSPayloadKeys.kInternalDataGeo] = regions
 	internalData[APNSPayloadKeys.kInternalDataEvent] = events ?? [defaultEvent]
@@ -383,13 +386,15 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertFalse(message.isLive(for: .exit))
 		
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report1?.fulfill()
 		}
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertFalse(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report2?.fulfill()
 		}
 		XCTAssertFalse(message.isLive(for: .exit))
@@ -416,12 +421,14 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report1?.fulfill()
 		}
 		XCTAssertFalse(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report2?.fulfill()
 		}
 
@@ -438,7 +445,7 @@ class GeofencingServiceTests: MMTestCase {
 		let geoMsg = MMMessageFactory.makeMessage(with: geoMessagePayload, createdDate: Date())
 		XCTAssertTrue(geoMsg is MMGeoMessage)
 		
-		let regularMessagePayload = makeApnsPayloadWithoutRegionsDataDict()
+		let regularMessagePayload = makeApnsPayloadWithoutRegionsDataDict(campaignId: expectedCampaignId)
 		let msg = MMMessageFactory.makeMessage(with: regularMessagePayload, createdDate: Date())
 		XCTAssertFalse(msg is MMGeoMessage)
 	}
@@ -468,13 +475,15 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report1?.fulfill()
 		}
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report2?.fulfill()
 		}
 		XCTAssertFalse(message.isLive(for: .exit))
@@ -487,7 +496,8 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: zagrebObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: zagrebObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report3?.fulfill()
 		}
 		XCTAssertFalse(message.isLive(for: .entry))
@@ -520,7 +530,8 @@ class GeofencingServiceTests: MMTestCase {
 		
 		for _ in 0 ..< 10 {
 			group.enter()
-			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { state in
+				XCTAssertEqual(CampaignState.Active, state)
 				group.leave()
 			}
 			XCTAssertTrue(message.isLive(for: .entry))
@@ -557,13 +568,15 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report1?.fulfill()
 		}
 		XCTAssertFalse(message.isLive(for: .entry))
 		XCTAssertTrue(message.isLive(for: .exit))
 		
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report2?.fulfill()
 		}
 
@@ -805,11 +818,13 @@ class GeofencingServiceTests: MMTestCase {
 		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: remoteAPIMock )
 		
 		// simulate entry event
-		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report1?.fulfill()
 		}
 
-		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: zagrebObject.identifier, message: message) { _ in
+		MobileMessaging.geofencingService!.report(on: .exit, forRegionId: zagrebObject.identifier, message: message) { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			report2?.fulfill()
 		}
 		
@@ -834,11 +849,13 @@ class GeofencingServiceTests: MMTestCase {
 		reportSendingGroup.enter()
 		reportSendingGroup.enter()
 		
-		mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: {
+		mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			reportSendingGroup.leave()
 		})
 		
-		mobileMessagingInstance.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message, completion:  {
+		mobileMessagingInstance.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message, completion:  { state in
+			XCTAssertEqual(CampaignState.Active, state)
 			reportSendingGroup.leave()
 		})
 		
@@ -856,5 +873,70 @@ class GeofencingServiceTests: MMTestCase {
 		}
 		
 		self.waitForExpectations(timeout: 60, handler: nil)
+	}
+	
+	func testSuspendedCampaigns() {
+		weak var report1 = expectation(description: "report1")
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPICampaignStatesStub())
+		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict], campaignId: suspendedCampaignId)
+		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+			XCTFail()
+			return
+		}
+		let pulaObject = message.regions.findPula
+		mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
+			XCTAssertEqual(CampaignState.Suspended, state)
+			report1?.fulfill()
+		})
+		
+		waitForExpectations(timeout: 10, handler: nil)
+	}
+	
+	func testFinishedCampaigns() {
+		weak var report1 = expectation(description: "report1")
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPICampaignStatesStub())
+		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict], campaignId: finishedCampaignId)
+		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+			XCTFail()
+			return
+		}
+		
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload, newMessageReceivedCallback: nil, completion: { result in
+			//Should be in main because Geofencing service saves data asynchronously in main
+			DispatchQueue.main.async {
+				let pulaObject = message.regions.findPula
+				self.mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
+					XCTAssertEqual(CampaignState.Finished, state)
+					let context = self.storage.mainThreadManagedObjectContext!
+					let message = MessageManagedObject.MM_findFirstWithPredicate(NSPredicate(format: "self.campaignId == %@", finishedCampaignId), context: context)
+					XCTAssertEqual(CampaignState.Finished, message?.campaignState)
+					report1?.fulfill()
+				})
+			}
+		})
+		
+		waitForExpectations(timeout: 60, handler: nil)
+	}
+}
+
+final class MMRemoteAPICampaignStatesStub : MMRemoteAPIQueue {
+	
+	init() {
+		super.init(baseURL: "stub", applicationCode: "stub")
+	}
+	
+	override func perform<R : MMHTTPRequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+		var response = R.ResponseType(json: JSON(NSNull()))
+		if request.path == MMHTTPAPIPath.GeoEventsReports, let req = request as? MMGeoEventsReportingRequest {
+			if req.eventsDataList.first?.campaignId == suspendedCampaignId {
+				let jsonStr = "{\"suspendedCampaignIds\": [\"\(suspendedCampaignId)\"]}"
+				response = R.ResponseType(json: JSON.parse(jsonStr))
+			}
+			if req.eventsDataList.first?.campaignId == finishedCampaignId {
+				let jsonStr = "{\"finishedCampaignIds\": [\"\(finishedCampaignId)\"]}"
+				response = R.ResponseType(json: JSON.parse(jsonStr))
+			}
+		}
+		completion(Result.Success(response!))
 	}
 }

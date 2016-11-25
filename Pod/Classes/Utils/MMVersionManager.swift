@@ -34,7 +34,7 @@ class MMVersionManager {
 	var remoteApiQueue: MMRemoteAPIQueue
 	
 	private let kLastCheckDateKey = "MMLibrary-LastCheckDateKey"
-	private let lastCheckDate : Date?
+	var lastCheckDate : Date?
 	
 	init?() {
 		guard let remoteUrl = MobileMessaging.sharedInstance?.remoteAPIBaseURL,
@@ -80,7 +80,8 @@ class MMVersionManager {
 							MMLogDebug("[Checking versions] Your MobileMessaging library is up to date.")
 							
 							// save the date only if our version is the new one. Otherwise, we warn the dev in the console every time until he/she updates
-							UserDefaults.standard.set(Date(), forKey: self.kLastCheckDateKey)
+							self.lastCheckDate = Date()
+							UserDefaults.standard.set(self.lastCheckDate, forKey: self.kLastCheckDateKey)
 							UserDefaults.standard.synchronize()
 						}
 					} catch {

@@ -79,6 +79,8 @@ final class MessageHandlingOperation: Operation {
 				if let geoMessage = newMessage as? MMGeoMessage, let geoService = MobileMessaging.geofencingService, geoService.isRunning {
 					newDBMessage.payload = newMessage.originalPayload
 					newDBMessage.messageType = .Geo
+					newDBMessage.campaignState = CampaignState.Active
+					newDBMessage.campaignId = geoMessage.campaignId
 					geoService.add(message: geoMessage)
 				}
 			}

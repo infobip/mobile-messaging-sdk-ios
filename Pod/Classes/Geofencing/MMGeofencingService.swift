@@ -324,14 +324,24 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		}
 	}
 	
-	func report(on eventType: MMRegionEventType, forRegionId regionId: String, message: MMGeoMessage, completion: (() -> Void)? = nil) {
+	func report(on eventType: MMRegionEventType, forRegionId regionId: String, message: MMGeoMessage, completion: ((CampaignState) -> Void)?) {
 		message.events.filter{ $0.type == eventType }.first?.occur()
 		persistNewEvent(of: eventType, forRegionId: regionId, message: message)
-		reportOnEvents(completion: completion)
+		reportOnEvents { (suspendedCampaignIds, finishedCampaignIds) in
+			let campaignState: CampaignState
+			if let scIds = suspendedCampaignIds, scIds.contains(message.campaignId) {
+				campaignState = .Suspended
+			} else if let fcIds = finishedCampaignIds, fcIds.contains(message.campaignId) {
+				campaignState = .Finished
+			} else {
+				campaignState = .Active
+			}
+			completion?(campaignState)
+		}
 	}
 	
 	func syncWithServer() {
-		reportOnEvents()
+		reportOnEvents(completion: nil)
 	}
 	
 	// MARK: - Private
@@ -463,9 +473,17 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		eventsHandlingQueue.addOperation(GeoEventPersistingOperation(message: message, eventType: eventType, regionId: regionId, context: self.datasource.context))
 	}
 	
-	private func reportOnEvents(completion: (() -> Void)? = nil) {
-		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: self.datasource.context, remoteAPIQueue: remoteAPIQueue, finishBlock: { _ in
-			completion?()
+	typealias GeoEventReportingResult = (_ suspended: [String]?, _ finished: [String]?) -> Void
+	
+	private func reportOnEvents(completion: GeoEventReportingResult?) {
+		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: self.datasource.context, remoteAPIQueue: remoteAPIQueue, finishBlock: { (result) in
+			let finishedMessages = self.datasource.messages.filter({ (message) -> Bool in
+				return result.value?.finishedCampaignIds?.contains(message.campaignId) ?? false
+			})
+			finishedMessages.forEach({ (message) in
+				message.campaignState = .Finished
+			})
+			completion?(result.value?.suspendedCampaignIds, result.value?.finishedCampaignIds)
 		}))
 	}
 	
@@ -523,18 +541,20 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did enter circular region \(region)")
 		datasource.validRegionsForEntryEvent(with: region.identifier)?.forEach { datasourceRegion in
-			
-			if let message = datasourceRegion.message {
-				self.report(on: .entry, forRegionId: region.identifier, message: message)
+			guard let message = datasourceRegion.message else {
+				return
 			}
-			
-			MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion)")
-			delegate?.didEnterRegion(region: datasourceRegion)
-			MMGeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
-			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+			self.report(on: .entry, forRegionId: region.identifier, message: message, completion: { (state) in
+				MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion), campaign state: \(state.rawValue)")
+				if state == .Active {
+					self.delegate?.didEnterRegion(region: datasourceRegion)
+					MMGeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
+					NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+				}
+			})
 		}
 	}
-		
+	
 	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did fail with error \(error)")
