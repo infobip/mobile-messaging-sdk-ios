@@ -39,15 +39,6 @@ struct MMAPIKeys {
 	static let kUserDataExternalUserId = "externalUserId"
 	static let kUserDataFailures = "failures"
 	
-	//MARK: SystemData API
-	static let kSystemDataSDKVersion = "sdkVersion"
-	static let kSystemDataOSVer = "osVersion"
-	static let kSystemDataDeviceManufacturer = "deviceManufacturer"
-	static let kSystemDataDeviceModel = "deviceModel"
-	static let kSystemDataAppVer = "applicationVersion"
-	static let kSystemDataGeoAvailability = "geofencing"
-	
-	
 	//MARK: MO Messages API
 	static let kMOFailedMOMessageIDs = "failedMessageIDs"
 	static let kMOFrom = "from"
@@ -62,6 +53,17 @@ struct MMAPIKeys {
 	static let kLibraryVersionPlatformType = "platformType"
 	static let kLibraryVersionLibraryVersion = "libraryVersion"
 	static let kLibraryVersionUpdateUrl = "updateUrl"
+}
+
+struct SystemDataKeys {
+	//MARK: SystemData API
+	static let sdkVersion = "sdkVersion"
+	static let osVer = "osVersion"
+	static let deviceManufacturer = "deviceManufacturer"
+	static let deviceModel = "deviceModel"
+	static let appVer = "applicationVersion"
+	static let geofencingServiceEnabled = "geofencing"
+	static let notificationsEnabled = "notificationsEnabled"
 }
 
 struct GeoReportingAPIKeys {

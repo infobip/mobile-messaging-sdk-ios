@@ -12,20 +12,22 @@ func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
 }
 struct MMSystemData: Hashable {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
-	let geoAvailability: Bool
-	var dictionaryRepresentation: DictionaryRepresentation {
+	let isGeofencingServiceEnabled, notificationsEnabled: Bool
+	var dictionaryRepresentation: [String: AnyHashable] {
 		return [
-			MMAPIKeys.kSystemDataSDKVersion: SDKVersion,
-			MMAPIKeys.kSystemDataOSVer: OSVer,
-			MMAPIKeys.kSystemDataDeviceManufacturer: deviceManufacturer,
-			MMAPIKeys.kSystemDataDeviceModel: deviceModel,
-			MMAPIKeys.kSystemDataAppVer: appVer,
-			MMAPIKeys.kSystemDataGeoAvailability: geoAvailability
+			SystemDataKeys.sdkVersion: SDKVersion,
+			SystemDataKeys.osVer: OSVer,
+			SystemDataKeys.deviceManufacturer: deviceManufacturer,
+			SystemDataKeys.deviceModel: deviceModel,
+			SystemDataKeys.appVer: appVer,
+			SystemDataKeys.geofencingServiceEnabled: isGeofencingServiceEnabled,
+			SystemDataKeys.notificationsEnabled: notificationsEnabled
 		]
 	}
 	
 	var hashValue: Int {
-		return (SDKVersion + OSVer + deviceManufacturer + deviceModel + appVer + String(geoAvailability)).hash
+		//we care only about values!
+		return dictionaryRepresentation.valuesHash
 	}
 }
 
@@ -39,11 +41,18 @@ public class MMUserAgent: NSObject {
 	}
 	
 	var systemData: MMSystemData {
-		return MMSystemData(SDKVersion: libraryVersion, OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, geoAvailability: isGeoAvailable)
+		return MMSystemData(SDKVersion: libraryVersion, OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, isGeofencingServiceEnabled: isGeofencingServiceEnabled, notificationsEnabled: notificationsEnabled)
 	}
 	
-	public var isGeoAvailable: Bool {
+	public var isGeofencingServiceEnabled: Bool {
 		return (MobileMessaging.sharedInstance?.isGeoServiceEnabled ?? false) && MMGeofencingService.currentCapabilityStatus == .Authorized
+	}
+	
+	public var notificationsEnabled: Bool {
+		guard let settings = UIApplication.shared.currentUserNotificationSettings else {
+			return false
+		}
+		return !settings.types.isEmpty
 	}
 	
 	public var currentUserAgentString: String {

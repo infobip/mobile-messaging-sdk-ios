@@ -60,7 +60,6 @@ extension NSNull: UserDataSupportedTypes {}
 final public class MMUser: NSObject {
 	
 //MARK: - Public
-	
 	public override var description: String {
 		return "User:\n  Internal ID = \(internalId)\n    External ID = \(externalId)\n    Email = \(email)\n    MSISDN = \(msisdn)\n    Custom Data = \(customData)"
 	}
@@ -270,8 +269,7 @@ final public class MMInstallation: NSObject {
 		ManagedObjectNotificationCenter.defaultCenter.removeAllObservers()
 	}
 	
-//MARK: - Public
-	
+//MARK: - Public	
 	public override var description: String {
 		return "Installation:\n    Device token = \(deviceToken)\n    Badge number = \(badgeNumber)\n"
 	}

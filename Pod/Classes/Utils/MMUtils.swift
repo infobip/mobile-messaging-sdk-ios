@@ -60,6 +60,12 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: CustomUserDat
 	}
 }
 
+extension Dictionary where Key: Hashable, Value: Hashable {
+	var valuesHash: Int {
+		return Array(self.values).reduce(0) { $0.1.hashValue ^ $0.0 }
+	}
+}
+
 public extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 	public var mm_apsAlertBody: String? {
 		return (self as NSDictionary).mm_apsAlertBody

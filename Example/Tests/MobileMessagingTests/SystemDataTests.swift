@@ -33,12 +33,12 @@ class UserAgentStub: MMUserAgent {
 }
 
 class GeoAvailableUserAgentStub: UserAgentStub {
-	override var isGeoAvailable: Bool {
+	override var isGeofencingServiceEnabled: Bool {
 		return true
 	}
 }
 class GeoNotAvailableUserAgentStub: UserAgentStub {
-	override var isGeoAvailable: Bool {
+	override var isGeofencingServiceEnabled: Bool {
 		return false
 	}
 }
