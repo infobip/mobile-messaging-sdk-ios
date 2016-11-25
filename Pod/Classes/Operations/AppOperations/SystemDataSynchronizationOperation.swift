@@ -58,7 +58,7 @@ class SystemDataSynchronizationOperation: Operation {
 		}
 		
 		let request = MMPostSystemDataRequest(internalUserId: internalId, systemData: currentSystemData)
-		MMLogDebug("[System data sync] performing request...")
+		MMLogDebug("[System data sync] performing request... \(currentSystemData)")
 		remoteAPIQueue.perform(request: request) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)

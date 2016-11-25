@@ -57,6 +57,12 @@ FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidEnter;
  */
 FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidExit;
 
+/**
+ Posted when the Geofencing Service started.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationGeoServiceDidStart;
+
+
 
 //MARK: Notification keys
 

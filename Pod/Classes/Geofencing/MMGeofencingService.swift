@@ -377,6 +377,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.restartLocationManager()
 			self.refreshMonitoredRegions()
 			
+			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeoServiceDidStart, userInfo: nil)
+			
 			NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidFinishLaunching, object: nil, queue: nil, using:
 				{ [weak self] notification in
 					assert(Thread .isMainThread)

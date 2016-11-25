@@ -22,9 +22,12 @@ final class MMApplicationListener: NSObject {
 		
         super.init()
 		
-        NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppWillEnterForegroundNotification), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppDidFinishLaunchingNotification), name: NSNotification.Name.UIApplicationDidFinishLaunching, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppWillEnterForegroundNotification), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+		
+		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppDidFinishLaunchingNotification), name: NSNotification.Name.UIApplicationDidFinishLaunching, object: nil)
+		
+		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleGeoServiceDidStartNotification), name: NSNotification.Name(rawValue: MMNotificationGeoServiceDidStart), object: nil)
+		
     }
 	
 	//MARK: Internal
@@ -35,6 +38,10 @@ final class MMApplicationListener: NSObject {
 	func handleAppDidFinishLaunchingNotification() {
 		messageHandler.evictOldMessages()
 		triggerPeriodicalWork()
+	}
+	
+	func handleGeoServiceDidStartNotification() {
+		installation.syncWithServer()
 	}
 	
 	//MARK: Private
