@@ -30,6 +30,9 @@ class UserAgentStub: MMUserAgent {
 	override var deviceManufacturer: String {
 		return "GoogleApple"
 	}
+	override var notificationsEnabled: Bool {
+		return false
+	}
 }
 
 class GeoAvailableUserAgentStub: UserAgentStub {
