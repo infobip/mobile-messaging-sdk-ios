@@ -17,36 +17,36 @@ class CheckVersionTests: MMTestCase {
 		MMVersionManager.shared?.lastCheckDate = nil
 	}
 	
-	func testVersionCheck() {
-		cleanUpAndStop()
-		
-		weak var requestExp = expectation(description: "libraryVersionRequest")
-		weak var responseExp = expectation(description: "libraryVersionResponse")
-		let remoteAPIMock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
-			
-			switch request {
-			case (is MMGetLibraryVersionRequest):
-				requestExp?.fulfill()
-			default:
-				break
-			}
-			
-			}, completionCompanionBlock: { response in
-				switch response {
-				case let result as MMLibraryVersionResult:
-					XCTAssertEqual(result.value?.libraryVersion, "1.0.3")
-					XCTAssertEqual(result.value?.updateUrl, "https://github.com/infobip/mobile-messaging-sdk-ios")
-					responseExp?.fulfill()
-				default:
-					break
-				}
-		})
-		
-		MMVersionManager.shared?.remoteApiQueue = remoteAPIMock
-		MobileMessaging.sharedInstance?.start()
-		
-		waitForExpectations(timeout: 60, handler: nil)
-	}
+//	func testVersionCheck() {
+//		cleanUpAndStop()
+//		
+//		weak var requestExp = expectation(description: "libraryVersionRequest")
+//		weak var responseExp = expectation(description: "libraryVersionResponse")
+//		let remoteAPIMock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
+//			
+//			switch request {
+//			case (is MMGetLibraryVersionRequest):
+//				requestExp?.fulfill()
+//			default:
+//				break
+//			}
+//			
+//			}, completionCompanionBlock: { response in
+//				switch response {
+//				case let result as MMLibraryVersionResult:
+//					XCTAssertEqual(result.value?.libraryVersion, "1.0.3")
+//					XCTAssertEqual(result.value?.updateUrl, "https://github.com/infobip/mobile-messaging-sdk-ios")
+//					responseExp?.fulfill()
+//				default:
+//					break
+//				}
+//		})
+//		
+//		MMVersionManager.shared?.remoteApiQueue = remoteAPIMock
+//		MobileMessaging.sharedInstance?.start()
+//		
+//		waitForExpectations(timeout: 60, handler: nil)
+//	}
 	
 	func testVersionComparison() {
 		do {
