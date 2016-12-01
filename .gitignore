@@ -36,3 +36,4 @@ Example/*.app.*
 Example/*.ipa
 Example/tmp
 macos/
+.application-code

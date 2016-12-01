@@ -173,10 +173,6 @@ platform :ios do
             swift_version_path = ENV["WORKSPACE"]+"/Pod/Classes/MMVersion.swift"
             sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{version_number}/g;' #{swift_version_path}"
 
-            desc "Cleaning the application code occurrences"
-            swift_app_code_path = ENV["WORKSPACE"]+"/Example/MobileMessagingExample/AppDelegate.swift"
-            sh "perl -i -p -e 's/[\w]{32}-[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}/your_application_code/g;' #{swift_app_code_path}"
-
             desc "Comitting changes"
             sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\" \"#{swift_app_code_path}\""
 

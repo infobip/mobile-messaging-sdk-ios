@@ -328,11 +328,13 @@
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "MobileMessagingExample" */;
 			buildPhases = (
 				FDAE422B74F7B1991521A7F6 /* [CP] Check Pods Manifest.lock */,
+				5032AE431DF0240600158A29 /* Put in Application Code */,
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
 				01CAF011B264CFE80D8229A6 /* [CP] Embed Pods Frameworks */,
 				9D1E089F54493344AD24F040 /* [CP] Copy Pods Resources */,
+				5032AE441DF03EA500158A29 /* Put out Application Code */,
 			);
 			buildRules = (
 			);
@@ -484,6 +486,34 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		5032AE431DF0240600158A29 /* Put in Application Code */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Put in Application Code";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appDelegatePath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appDelegatePath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi";
+		};
+		5032AE441DF03EA500158A29 /* Put out Application Code */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Put out Application Code";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appDelegatePath\" ]; then\nperl -i -p -e \"s/[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}/<# your application code #>/g;\" \"$appDelegatePath\"\nelse\nexit 0\nfi";
 		};
 		6484EE09C60E59ED9A62C37B /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
