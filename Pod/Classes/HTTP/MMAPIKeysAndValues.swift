@@ -9,11 +9,6 @@ import Foundation
 
 struct MMAPIKeys {
 	static let kMessageId = "messageId"
-	
-    //MARK: registration
-    static let kPlatformType = "platformType"
-    static let kRegistrationId = "registrationId"
-    static let kInternalRegistrationId = "deviceApplicationInstanceId"
     
     //MARK: delivery
     static let kMessageIDs = "messageIDs"
@@ -48,11 +43,21 @@ struct MMAPIKeys {
 	static let kMOCustomPayload = "customPayload"
 	static let kMOMessageId = "messageId"
 	static let kMOMessageSentStatusCode = "statusCode"
+}
 
+struct VersionCheck {
 	//MARK: Library Version API
-	static let kLibraryVersionPlatformType = "platformType"
-	static let kLibraryVersionLibraryVersion = "libraryVersion"
-	static let kLibraryVersionUpdateUrl = "updateUrl"
+	static let lastCheckDateKey = "com.mobile-messaging.library-version-check.last-check-date"
+	static let platformType = "platformType"
+	static let libraryVersion = "libraryVersion"
+	static let libraryVersionUpdateUrl = "updateUrl"
+}
+struct PushRegistration {
+	//MARK: Registration API
+	static let isEnabled = "pushRegistrationEnabled"
+	static let platform = "platformType"
+	static let deviceToken = "registrationId"
+	static let internalId = "deviceApplicationInstanceId"
 }
 
 struct SystemDataKeys {

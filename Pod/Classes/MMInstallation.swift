@@ -242,7 +242,7 @@ final public class MMUser: NSObject {
 //MARK: - Internal
 	
 	func syncWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		installationManager.syncUserWithServer(completion)
+		installationManager.syncUserDataWithServer(completion)
 	}
 
 	func set(data object: UserDataFoundationTypes?, forKey key: String, attributeName: String) {
@@ -250,11 +250,13 @@ final public class MMUser: NSObject {
 	}
 	
 	init(installation: MMInstallation) {
-		self.installationManager = installation.installationManager
+		installationManager = installation.installationManager
 	}
 	
 	func persist() {
-		installationManager.storageContext.MM_saveToPersistentStoreAndWait()
+		installationManager.registrationQueue.addOperation {
+			self.installationManager.storageContext.MM_saveToPersistentStoreAndWait()
+		}
 	}
 	
 	private let installationManager: MMInstallationManager
@@ -280,23 +282,14 @@ final public class MMInstallation: NSObject {
 		set { installationManager.setValueForKey("deviceToken", value: newValue) }
 	}
 	
-	/// Explicitly tries to save installation data on the server.
-	public func syncWithServer(completion: ((NSError?) -> Void)? = nil) {
-		installationManager.syncRegistrationWithServer(completion)
+	/// Explicitly tries to sync the entire installation (registration data, system data, user data) with the server.
+	public func syncInstallationWithServer(completion: ((NSError?) -> Void)? = nil) {
+		installationManager.syncInstallationWithServer(completion)
 	}
-	
-//MARK: - Observing
-
-	/// Registers `observer` to receive notifications for the specified key-path relative to the Installation.
-	///
-	/// `observer` is no retained. An object that calls this method must also call either the removeObserver:forKeyPath: or removeObserver:forKeyPath:context: method if needed.
-	/// - parameter observer: The object to register for notifications.
-	/// - parameter keyPath: The key path, relative to the Installation, of the property to observe.
-	/// - parameter handler: The block/closure that is called when the value of `keyPath` changes.
-	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: @escaping ObservationHandler) {
-		if isKeyObservable(key: keyPath) {
-			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
-		}
+		
+	/// Explicitly tries to sync the system data with the server.
+	public func syncSystemDataWithServer(completion: ((NSError?) -> Void)? = nil) {
+		installationManager.sendSystemDataToServer(completion)
 	}
 	
 	/// The number currently set as the badge of the app icon in Springboard.
@@ -311,6 +304,20 @@ final public class MMInstallation: NSObject {
 		set {
 			MobileMessaging.application.applicationIconBadgeNumber = newValue
 			installationManager.setValueForKey("badgeNumber", value: newValue)
+		}
+	}
+	
+//MARK: - Observing
+
+	/// Registers `observer` to receive notifications for the specified key-path relative to the Installation.
+	///
+	/// `observer` is no retained. An object that calls this method must also call either the removeObserver:forKeyPath: or removeObserver:forKeyPath:context: method if needed.
+	/// - parameter observer: The object to register for notifications.
+	/// - parameter keyPath: The key path, relative to the Installation, of the property to observe.
+	/// - parameter handler: The block/closure that is called when the value of `keyPath` changes.
+	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: @escaping ObservationHandler) {
+		if isKeyObservable(key: keyPath) {
+			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
 		}
 	}
 	
@@ -332,13 +339,12 @@ final public class MMInstallation: NSObject {
 //MARK: Internal
 	let installationManager: MMInstallationManager
 	
-	convenience init(storage: MMCoreDataStorage, baseURL: String, applicationCode: String) {
-		let registrationRemoteAPI = MMRemoteAPIQueue(baseURL: baseURL, applicationCode: applicationCode)
-		self.init(storage: storage, registrationRemoteAPI: registrationRemoteAPI)
+	init(storage: MMCoreDataStorage) {
+		self.installationManager = MMInstallationManager(storage: storage)
 	}
 	
-	init(storage: MMCoreDataStorage, registrationRemoteAPI: MMRemoteAPIQueue) {
-		self.installationManager = MMInstallationManager(storage: storage, registrationRemoteAPI: registrationRemoteAPI)
+	func updateRegistrationEnabledStatus(value: Bool, completion: ((NSError?) -> Void)? = nil) {
+		installationManager.updateRegistrationEnabledStatus(withValue: value, completion: completion)
 	}
 	
 	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {

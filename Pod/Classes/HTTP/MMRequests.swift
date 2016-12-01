@@ -6,22 +6,7 @@
 //
 //
 
-typealias RequestBody = [String: Any]
-typealias RequestParameters = [String: Any]
-typealias RequestHeaders = [String: String]
-
-enum MMHTTPRequestError: Error {
-	case EmptyDeviceToken
-	case IncorrectApplicationCode
-}
-
-enum MMHTTPMethod {
-	case POST
-	case PUT
-	case GET
-}
-
-enum MMHTTPAPIPath: String {
+enum APIPath: String {
 	case Registration = "/mobile/2/registration"
 	case SeenMessages = "/mobile/1/messages/seen"
 	case SyncMessages = "/mobile/3/messages"
@@ -32,117 +17,35 @@ enum MMHTTPAPIPath: String {
 	case GeoEventsReports = "/mobile/3/geo/event"
 }
 
-protocol MMHTTPRequestResponsable {
-	associatedtype ResponseType: JSONDecodable
-	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void)
-}
-
-protocol MMHTTPRequestData: MMHTTPRequestResponsable {
-	var method: MMHTTPMethod {get}
-	var path: MMHTTPAPIPath {get}
-	var parameters: RequestParameters? {get}
-	var headers: RequestHeaders? {get}
-	var retryLimit: Int {get}
-	var body: RequestBody? {get}
-}
-
-protocol MMHTTPGetRequest: MMHTTPRequestData { }
-extension MMHTTPGetRequest {
-	var method: MMHTTPMethod { return .GET }
-}
-
-protocol MMHTTPPostRequest: MMHTTPRequestData { }
-extension MMHTTPPostRequest {
-	var method: MMHTTPMethod { return .POST }
-}
-
-extension MMHTTPRequestData {
-	var retryLimit: Int { return 0 }
-	var headers: RequestHeaders? { return nil }
-	var body: RequestBody? { return nil }
-	var parameters: RequestParameters? { return nil }
-	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void) {
-		let manager = MM_AFHTTPSessionManager(baseURL: URL(string: baseURL), sessionConfiguration: URLSessionConfiguration.default)
-		manager.requestSerializer = MMHTTPRequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
-		manager.responseSerializer = MMResponseSerializer<ResponseType>()
-		
-		MMLogDebug("Sending request \(type(of: self))\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
-		
-		let successBlock = { (task: URLSessionDataTask, obj: Any?) -> Void in
-			if let obj = obj as? ResponseType {
-				completion(Result.Success(obj))
-			} else {
-                let error = NSError(domain: AFURLResponseSerializationErrorDomain, code: NSURLErrorCannotDecodeContentData, userInfo:[NSLocalizedFailureReasonErrorKey : "Request succeeded with no return value or return value wasn't a ResponseType value."])
-				completion(Result.Failure(error))
-			}
-		}
-		
-		let failureBlock = { (task: URLSessionDataTask?, error: Error) -> Void in
-			completion(Result<ResponseType>.Failure(error as NSError?))
-		}
-		
-		let urlString = manager.baseURL!.absoluteString + self.path.rawValue
-		switch self.method {
-		case .POST:
-			manager.post(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
-		case .PUT:
-			manager.put(urlString, parameters: parameters, success: successBlock, failure: failureBlock)
-		case .GET:
-			manager.get(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
-		}
-	}
-}
-
-struct MMPostRegistrationRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPRegistrationResponse
-	
+struct RegistrationRequest: PostRequest {
+	typealias ResponseType = RegistrationResponse
 	var retryLimit: Int { return 3 }
-	var path: MMHTTPAPIPath { return .Registration }
+	var path: APIPath { return .Registration }
 	var parameters: RequestParameters? {
-		var params = [MMAPIKeys.kRegistrationId: currentDeviceToken,
-		              MMAPIKeys.kPlatformType: MMAPIValues.kPlatformType]
-		params[MMAPIKeys.kInternalRegistrationId] = internalId
+		var params: RequestParameters = [PushRegistration.deviceToken: deviceToken,
+										 PushRegistration.platform: MMAPIValues.kPlatformType]
+		params[PushRegistration.internalId] = internalId
+		if let isEnabled = isEnabled {
+			params[PushRegistration.isEnabled] = isEnabled ? 1 : 0
+		}
 		return params
 	}
-	let currentDeviceToken: String
+	let deviceToken: String
+	let isEnabled: Bool?
 	let internalId: String?
 	
-	init(internalId: String?, deviceToken: String) {
+	init(deviceToken: String, internalId: String? = nil, isEnabled: Bool? = nil) {
 		self.internalId = internalId
-		self.currentDeviceToken = deviceToken
+		self.deviceToken = deviceToken
+		self.isEnabled = isEnabled
 	}
 }
 
-extension Date {
-	var timestampDelta: UInt {
-		return UInt(max(0, Date().timeIntervalSinceReferenceDate - self.timeIntervalSinceReferenceDate))
-	}
-}
-
-struct SeenData: DictionaryRepresentable {
-	let messageId: String
-	let seenDate: Date
-	init(messageId: String, seenDate: Date) {
-		self.messageId = messageId
-		self.seenDate = seenDate
-	}
-	init?(dictRepresentation dict: DictionaryRepresentation) {
-		return nil // unused
-	}
-	var dictionaryRepresentation: DictionaryRepresentation {
-		return [MMAPIKeys.kMessageId: messageId,
-		        MMAPIKeys.kSeenTimestampDelta: seenDate.timestampDelta]
-	}
-	static func requestBody(seenList: [SeenData]) -> RequestBody {
-		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dictionaryRepresentation } ]
-	}
-}
-
-struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPSeenMessagesResponse
-	
-	var path: MMHTTPAPIPath { return .SeenMessages }
+struct SeenStatusSendingRequest: PostRequest {
+	typealias ResponseType = SeenStatusSendingResponse
+	var path: APIPath { return .SeenMessages }
 	var parameters: RequestParameters? { return nil }
+	
 	let seenList: [SeenData]
 	var body: RequestBody? { return SeenData.requestBody(seenList: seenList) }
 	
@@ -151,24 +54,19 @@ struct MMPostSeenMessagesRequest: MMHTTPPostRequest {
 	}
 }
 
-struct MMGetLibraryVersionRequest: MMHTTPGetRequest {
-	typealias ResponseType = MMHTTPLibraryVersionResponse
-
-	var path: MMHTTPAPIPath { return .LibraryVersion }
-	var parameters: [String: Any]? = [MMAPIKeys.kPlatformType: MMAPIValues.kPlatformType]
-
-	init() {
-	}
+struct LibraryVersionRequest: GetRequest {
+	typealias ResponseType = LibraryVersionResponse
+	var path: APIPath { return .LibraryVersion }
+	var parameters: [String: Any]? = [PushRegistration.platform: MMAPIValues.kPlatformType]
 }
 
-struct MMPostSyncRequest: MMHTTPPostRequest {
-
-	typealias ResponseType = MMHTTPSyncMessagesResponse
-	var path: MMHTTPAPIPath { return .SyncMessages }
+struct MessagesSyncRequest: PostRequest {
+	typealias ResponseType = MessagesSyncResponse
+	var path: APIPath { return .SyncMessages }
 	var parameters: RequestParameters? {
 		var params = RequestParameters()
-		params[MMAPIKeys.kInternalRegistrationId] = internalId
-		params[MMAPIKeys.kPlatformType] = MMAPIValues.kPlatformType
+		params[PushRegistration.internalId] = internalId
+		params[PushRegistration.platform] = MMAPIValues.kPlatformType
 		return params
 	}
 	
@@ -190,12 +88,12 @@ struct MMPostSyncRequest: MMHTTPPostRequest {
 	}
 }
 
-struct MMPostUserDataRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPUserDataSyncResponse
-	typealias UserDataDictionary = [String: Any]
-	var path: MMHTTPAPIPath { return .UserData }
+typealias UserDataDictionary = [String: Any]
+struct UserDataRequest: PostRequest {
+	typealias ResponseType = UserDataSyncResponse
+	var path: APIPath { return .UserData }
 	var parameters: RequestParameters? {
-		var params = [MMAPIKeys.kInternalRegistrationId: internalUserId]
+		var params = [PushRegistration.internalId: internalUserId]
 		if let externalUserId = externalUserId {
 			params[MMAPIKeys.kUserDataExternalUserId] = externalUserId
 		}
@@ -231,11 +129,11 @@ struct MMPostUserDataRequest: MMHTTPPostRequest {
 	}
 }
 
-struct MMPostSystemDataRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPSystemDataSyncResponse
-	var path: MMHTTPAPIPath { return .SystemData }
+struct SystemDataSyncRequest: PostRequest {
+	typealias ResponseType = SystemDataSyncResponse
+	var path: APIPath { return .SystemData }
 	var parameters: RequestParameters? {
-		return [MMAPIKeys.kInternalRegistrationId: internalUserId]
+		return [PushRegistration.internalId: internalUserId]
 	}
 	var body: RequestBody? {
 		return systemData.dictionaryRepresentation
@@ -250,12 +148,11 @@ struct MMPostSystemDataRequest: MMHTTPPostRequest {
 	}
 }
 
-struct MMPostMessageRequest: MMHTTPPostRequest {
-
-	typealias ResponseType = MMHTTPMOMessageResponse
-	var path: MMHTTPAPIPath { return .MOMessage }
+struct MOMessageSendingRequest: PostRequest {
+	typealias ResponseType = MOMessageSendingResponse
+	var path: APIPath { return .MOMessage }
 	var parameters: RequestParameters? {
-		return [MMAPIKeys.kPlatformType : MMAPIValues.kPlatformType]
+		return [PushRegistration.platform : MMAPIValues.kPlatformType]
 	}
 	var body: RequestBody? {
 		var result = RequestBody()
@@ -271,12 +168,97 @@ struct MMPostMessageRequest: MMHTTPPostRequest {
 	let internalUserId: String
 	let messages: [MOMessage]
 	
-	init?(internalUserId: String, messages: [MOMessage]) {
-		guard !messages.isEmpty else {
-			return nil
-		}
+	init(internalUserId: String, messages: [MOMessage]) {
 		self.internalUserId = internalUserId
 		self.messages = messages
+	}
+}
+
+struct GeoEventReportingRequest: PostRequest {
+	typealias ResponseType = GeoEventReportingResponse
+	
+	var path: APIPath { return .GeoEventsReports }
+	var parameters: RequestParameters? { return nil }
+	let eventsDataList: [GeoEventReportData]
+	var body: RequestBody? { return GeoEventReportData.requestBody(reportList: eventsDataList) }
+	
+	init(eventsDataList: [GeoEventReportData]) {
+		self.eventsDataList = eventsDataList
+	}
+}
+
+
+
+//MARK: - Base
+
+typealias RequestBody = [String: Any]
+typealias RequestParameters = [String: Any]
+typealias RequestHeaders = [String: String]
+
+enum Method {
+	case POST
+	case PUT
+	case GET
+}
+
+protocol RequestResponsable {
+	associatedtype ResponseType: JSONDecodable
+	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void)
+}
+
+protocol RequestData: RequestResponsable {
+	var method: Method {get}
+	var path: APIPath {get}
+	var parameters: RequestParameters? {get}
+	var headers: RequestHeaders? {get}
+	var retryLimit: Int {get}
+	var body: RequestBody? {get}
+}
+
+protocol GetRequest: RequestData { }
+extension GetRequest {
+	var method: Method { return .GET }
+}
+
+protocol PostRequest: RequestData { }
+extension PostRequest {
+	var method: Method { return .POST }
+}
+
+extension RequestData {
+	var retryLimit: Int { return 0 }
+	var headers: RequestHeaders? { return nil }
+	var body: RequestBody? { return nil }
+	var parameters: RequestParameters? { return nil }
+	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void) {
+		let manager = MM_AFHTTPSessionManager(baseURL: URL(string: baseURL), sessionConfiguration: URLSessionConfiguration.default)
+		manager.requestSerializer = RequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
+		manager.responseSerializer = MMResponseSerializer<ResponseType>()
+		
+		MMLogDebug("Sending request \(type(of: self))\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
+		
+		let successBlock = { (task: URLSessionDataTask, obj: Any?) -> Void in
+			if let obj = obj as? ResponseType {
+				completion(Result.Success(obj))
+			} else {
+				let error = NSError(domain: AFURLResponseSerializationErrorDomain, code: NSURLErrorCannotDecodeContentData, userInfo:[NSLocalizedFailureReasonErrorKey : "Request succeeded with no return value or return value wasn't a ResponseType value."])
+				completion(Result.Failure(error))
+			}
+		}
+		
+		let failureBlock = { (task: URLSessionDataTask?, error: Error) -> Void in
+			completion(Result<ResponseType>.Failure(error as NSError?))
+		}
+		
+		let urlString = manager.baseURL!.absoluteString + self.path.rawValue
+		switch self.method {
+		case .POST:
+			manager.post(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
+		case .PUT:
+			manager.put(urlString, parameters: parameters, success: successBlock, failure: failureBlock)
+		case .GET:
+			manager.get(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
+		}
 	}
 }
 
@@ -305,7 +287,7 @@ struct GeoEventReportData: DictionaryRepresentable {
 		        GeoReportingAPIKeys.geoAreaId: geoAreaId,
 		        GeoReportingAPIKeys.event: eventType.rawValue,
 		        GeoReportingAPIKeys.messageId: messageId
-				]
+		]
 	}
 	
 	static func requestBody(reportList: [GeoEventReportData]) -> RequestBody {
@@ -313,18 +295,21 @@ struct GeoEventReportData: DictionaryRepresentable {
 	}
 }
 
-struct MMGeoEventsReportingRequest: MMHTTPPostRequest {
-	typealias ResponseType = MMHTTPGeoEventReportingResponse
-	
-	var path: MMHTTPAPIPath { return .GeoEventsReports }
-	var parameters: RequestParameters? { return nil }
-	let eventsDataList: [GeoEventReportData]
-	var body: RequestBody? { return GeoEventReportData.requestBody(reportList: eventsDataList) }
-	
-	init?(eventsDataList: [GeoEventReportData]) {
-		guard !eventsDataList.isEmpty else {
-			return nil
-		}
-		self.eventsDataList = eventsDataList
+struct SeenData: DictionaryRepresentable {
+	let messageId: String
+	let seenDate: Date
+	init(messageId: String, seenDate: Date) {
+		self.messageId = messageId
+		self.seenDate = seenDate
+	}
+	init?(dictRepresentation dict: DictionaryRepresentation) {
+		return nil // unused
+	}
+	var dictionaryRepresentation: DictionaryRepresentation {
+		return [MMAPIKeys.kMessageId: messageId,
+		        MMAPIKeys.kSeenTimestampDelta: seenDate.timestampDelta]
+	}
+	static func requestBody(seenList: [SeenData]) -> RequestBody {
+		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dictionaryRepresentation } ]
 	}
 }

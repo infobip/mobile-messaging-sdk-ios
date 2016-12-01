@@ -16,7 +16,7 @@ func date(withDay d: Int) -> NSDate {
 }
 
 class CoreDataHelpersTests: MMTestCase {
-    func testExample() {
+    func testFetchingLimits() {
 		let ctx = self.storage.mainThreadManagedObjectContext!
 		let summaryMessagesNumber = 100
 		let fetchLimit = 10

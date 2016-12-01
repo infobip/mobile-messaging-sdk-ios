@@ -34,17 +34,15 @@ struct MessageMeta : MMMessageMetadata {
 final class MessageHandlingOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?) -> Void)?
-	let remoteAPIQueue: MMRemoteAPIQueue
 	let messagesToHandle: [MTMessage]
 	let messagesDeliveryMethod: MessageDeliveryMethod
 	var hasNewMessages: Bool = false
 	let messageHandler: MessageHandling
 	let applicationState: UIApplicationState
 	
-	init(messagesToHandle: [MTMessage], messagesDeliveryMethod: MessageDeliveryMethod, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, messageHandler: MessageHandling, applicationState: UIApplicationState, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(messagesToHandle: [MTMessage], messagesDeliveryMethod: MessageDeliveryMethod, context: NSManagedObjectContext, messageHandler: MessageHandling, applicationState: UIApplicationState, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
-		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 		self.messagesDeliveryMethod = messagesDeliveryMethod
 		self.messageHandler = messageHandler
@@ -176,7 +174,7 @@ final class MessageHandlingOperation: Operation {
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message handling] Message handling finished with errors: \(errors)")
 		if hasNewMessages && errors.isEmpty {
-			let messageFetching = MessageFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue, finishBlock: { result in
+			let messageFetching = MessageFetchingOperation(context: context, finishBlock: { result in
 				self.finishBlock?(result.error)
 			})
 			self.produceOperation(messageFetching)

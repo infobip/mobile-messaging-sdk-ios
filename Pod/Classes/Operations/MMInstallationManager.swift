@@ -10,7 +10,6 @@ import CoreData
 
 final class MMInstallationManager {
 	//MARK: Internal
-	var registrationRemoteAPI: MMRemoteAPIQueue
 	lazy var registrationQueue = OperationQueue.mm_newSerialQueue
 	let storage: MMCoreDataStorage
 	let storageContext: NSManagedObjectContext
@@ -19,8 +18,7 @@ final class MMInstallationManager {
 		registrationQueue.cancelAllOperations()
 	}
 	
-	init(storage: MMCoreDataStorage, registrationRemoteAPI: MMRemoteAPIQueue) {
-		self.registrationRemoteAPI = registrationRemoteAPI
+	init(storage: MMCoreDataStorage) {
 		self.storage = storage
 		self.storageContext = storage.newPrivateContext()
 		_currentInstallation = installationObject
@@ -57,25 +55,43 @@ final class MMInstallationManager {
 		}
 	}
 	
+	func syncInstallationWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		let newRegOp = InstallationDataSynchronizationOperation(context: storageContext, finishBlock: completion)
+		registrationQueue.addOperation(newRegOp)
+	}
+	
     func syncRegistrationWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-        let newRegOp = RegistrationOperation(context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
+        let newRegOp = SyncRegistrationOperation(context: storageContext, finishBlock: completion)
         registrationQueue.addOperation(newRegOp)
     }
 	
-	func fetchUserWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		let op = UserDataSynchronizationOperation(fetchingOperationWithContext: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
+	func sendSystemDataToServer(_ completion: ((NSError?) -> Void)? = nil) {
+		let op = SystemDataSynchronizationOperation(сontext: storageContext, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
 	
-	func syncUserWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		let op = UserDataSynchronizationOperation(syncOperationWithContext: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
+	func syncUserDataWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		let op = UserDataSynchronizationOperation(syncOperationWithContext: storageContext, finishBlock: completion)
 		registrationQueue.addOperation(op)
+	}
+	
+	func fetchUserWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		let op = UserDataSynchronizationOperation(fetchingOperationWithContext: storageContext, finishBlock: completion)
+		registrationQueue.addOperation(op)
+	}
+	
+	func updateRegistrationEnabledStatus(withValue value: Bool, completion: ((NSError?) -> Void)? = nil) {
+		storageContext.performAndWait {
+			self.installationObject.setRegistrationEnabledIfDifferent(flag: value)
+		}
+		syncRegistrationWithServer(completion)
 	}
 	
 	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {
-		let newRegOp = RegistrationOperation(newDeviceToken: token, context: storageContext, remoteAPIQueue: registrationRemoteAPI, finishBlock: completion)
-		registrationQueue.addOperation(newRegOp)
-		syncUserWithServer()
+		storageContext.performAndWait {
+			self.installationObject.setDeviceTokenIfDifferent(token: token.mm_toHexString)
+		}
+		syncRegistrationWithServer(completion)
 	}
 	
 	func save(_ completion: ((Void) -> Void)? = nil) {

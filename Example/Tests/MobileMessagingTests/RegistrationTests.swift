@@ -7,7 +7,8 @@
 
 import XCTest
 @testable import MobileMessaging
-
+import SwiftyJSON
+import CoreLocation
 
 final class RegistrationTests: MMTestCase {
 	
@@ -27,7 +28,8 @@ final class RegistrationTests: MMTestCase {
 		waitForExpectations(timeout: 100, handler: { err in
 			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
 			
-			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
+			let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
+			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
 				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".mm_toHexademicalString(), "Most recent token must be persisted")
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Device token must be synced with server")
@@ -66,7 +68,8 @@ final class RegistrationTests: MMTestCase {
         
         self.waitForExpectations(timeout: 60) { _ in
 			assert(MMQueue.Main.queue.isCurrentQueue)
-			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
+			let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
+			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 			
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "current installation must be synchronized")
 				XCTAssertEqual(installation.internalUserId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(installation.internalUserId))")
@@ -92,7 +95,8 @@ final class RegistrationTests: MMTestCase {
 		}
 		self.waitForExpectations(timeout: 60) { _ in
 			assert(MMQueue.Main.queue.isCurrentQueue)
-			if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
+			let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
+			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 			
 				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalUserId, nil, "Internal id must be nil, server denied the application code")
@@ -103,15 +107,14 @@ final class RegistrationTests: MMTestCase {
 		}
 	}
 	
-
 	var requestSentCounter = 0
-    func testTokenNotSendsTwice() {
+    func testTokenSendsTwice() {
 		MobileMessaging.userAgent = UserAgentStub()
 		
-		MobileMessaging.currentInstallation?.installationManager.registrationRemoteAPI = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
+		MobileMessaging.sharedInstance?.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
 			
 			switch request {
-			case (is MMPostRegistrationRequest):
+			case (is RegistrationRequest):
 				DispatchQueue.main.async {
 					self.requestSentCounter += 1
 				}
@@ -133,26 +136,185 @@ final class RegistrationTests: MMTestCase {
             }
         }
 		
-        self.waitForExpectations(timeout:100) { error in
-			DispatchQueue.main.async {
-				XCTAssertEqual(self.requestSentCounter, 1)
-			}
+        self.waitForExpectations(timeout: 60) { error in
+			XCTAssertEqual(self.requestSentCounter, 2)
         }
     }
 	
     func testRegistrationDataNotSendsWithoutToken() {
-        weak var sync1 = expectation(description: "sync1")
+        weak var syncInstallationWithServer = expectation(description: "sync1")
+		var requestSentCounter = 0
+		let requestPerformCompanion: (Any) -> Void = { request in
+			if let _ = request as? RegistrationRequest {
+				DispatchQueue.main.async {
+					requestSentCounter += 1
+				}
+			}
+		}
+		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+																					  appCode: MMTestConstants.kTestWrongApplicationCode,
+																					  performRequestCompanionBlock: requestPerformCompanion,
+																					  completionCompanionBlock: nil,
+																					  responseSubstitution: nil)
 		
 		if MobileMessaging.currentInstallation == nil {
 			XCTFail("Installation is nil")
-			sync1?.fulfill()
+			syncInstallationWithServer?.fulfill()
 		}
 		
-        MobileMessaging.currentInstallation?.syncWithServer(completion: { (error) -> Void in
-            XCTAssertNotNil(error)
-            sync1?.fulfill()
+        MobileMessaging.currentInstallation?.syncInstallationWithServer(completion: { (error) -> Void in
+            syncInstallationWithServer?.fulfill()
         })
 		
-        self.waitForExpectations(timeout: 60, handler: nil)
+		self.waitForExpectations(timeout: 60, handler: { err in
+			XCTAssertEqual(requestSentCounter, 0)
+		})
     }
+	
+	func testThatRegistrationEnabledStatusIsBeingSyncedAfterChanged() {
+		weak var tokenSynced = self.expectation(description: "registration sent")
+		weak var regDisabledStatusSynced = self.expectation(description: "registration sent")
+		weak var regEnabledStatusSynced = self.expectation(description: "registration sent")
+		weak var regEnabled2StatusSynced = self.expectation(description: "registration sent")
+		
+		var requestSentCounter = 0
+		
+		let requestPerformCompanion: (Any) -> Void = { request in
+			if let request = request as? RegistrationRequest, request.isEnabled != nil {
+				DispatchQueue.main.async {
+					requestSentCounter += 1
+				}
+			}
+		}
+		
+		let responseStub: (Any) -> JSON? = { request -> JSON? in
+			if let request = request as? RegistrationRequest {
+				let isEnabled = request.isEnabled ?? true
+				let jsonStr = "{\"pushRegistrationEnabled\": \(isEnabled ? "true": "false")," +
+					"\"deviceApplicationInstanceId\": \"stub\"," +
+					"\"registrationId\": \"stub\"," +
+				"\"platformType\": \"string\"}"
+				return JSON.parse(jsonStr)
+			} else {
+				return nil
+			}
+		}
+		
+		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+		                                                                              appCode: MMTestConstants.kTestWrongApplicationCode,
+		                                                                              performRequestCompanionBlock: requestPerformCompanion,
+		                                                                              completionCompanionBlock: nil,
+		                                                                              responseSubstitution: responseStub)
+		
+		self.mobileMessagingInstance.currentInstallation.deviceToken = "stub"
+		self.mobileMessagingInstance.currentInstallation.syncInstallationWithServer(completion: { err in
+			tokenSynced?.fulfill() // requestSentCounter = 0
+			
+			MobileMessaging.disablePushRegistration() { err in
+				regDisabledStatusSynced?.fulfill() // requestSentCounter + 1 (1)
+				
+				MobileMessaging.enablePushRegistration() { err in
+					regEnabledStatusSynced?.fulfill() // requestSentCounter + 1 (2)
+					
+					MobileMessaging.enablePushRegistration() { err in
+						regEnabled2StatusSynced?.fulfill() // requestSentCounter same (2)
+					}
+				}
+			}
+		})
+		self.waitForExpectations(timeout: 60) { error in
+			XCTAssertEqual(requestSentCounter, 2)
+		}
+	}
+
+	func testThatRegistrationEnabledStatusIsAppliedToSubservicesStatus() {
+		cleanUpAndStop()
+		// Message handling and Geofencing subservices must be stopped once the push reg status disabled
+		// and started once push reg status enabled
+		
+		weak var registrationSynced = self.expectation(description: "registration synced")
+		
+		let responseStatusDisabledStub: (Any) -> JSON? = { request -> JSON? in
+			if request is RegistrationRequest {
+				let jsonStr = "{\"pushRegistrationEnabled\": false," +
+					"\"deviceApplicationInstanceId\": \"stub\"," +
+					"\"registrationId\": \"stub\"," +
+				"\"platformType\": \"string\"}"
+				return JSON.parse(jsonStr)
+			} else {
+				return nil
+			}
+		}
+		
+		let mm = MobileMessaging.withApplicationCode("stub", notificationType: [], backendBaseURL: "stub")!.withGeofencingService()
+		mm.geofencingService = GeofencingServiceStartStopMock(storage: storage)
+		mm.start()
+		
+		mm.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+		                                                                             appCode: MMTestConstants.kTestWrongApplicationCode,
+		                                                                             performRequestCompanionBlock: nil,
+		                                                                             completionCompanionBlock: nil,
+		                                                                             responseSubstitution: responseStatusDisabledStub)
+		
+		XCTAssertTrue(mm.messageHandler.isRunning)
+		XCTAssertTrue(mm.geofencingService.isRunning)
+		XCTAssertTrue(MobileMessaging.isPushRegistrationEnabled)
+		
+		mm.currentInstallation.deviceToken = "stub"
+		mm.currentInstallation.syncInstallationWithServer(completion: { err in
+			// we got disabled status, now message handling must be stopped
+			XCTAssertFalse(mm.messageHandler.isRunning)
+			XCTAssertFalse(mm.geofencingService.isRunning)
+			XCTAssertFalse(MobileMessaging.isPushRegistrationEnabled)
+			registrationSynced?.fulfill()
+		})
+		self.waitForExpectations(timeout: 60, handler: nil)
+	}
+}
+
+class NotificationsEnabledMock: UIApplicationProtocol {
+	var applicationState: UIApplicationState { return .active }
+	
+	var applicationIconBadgeNumber: Int {
+		get { return 0 }
+		set {}
+	}
+	
+	var isRegisteredForRemoteNotifications: Bool { return true }
+	func unregisterForRemoteNotifications() {}
+	func registerForRemoteNotifications() {}
+	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
+	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
+	var currentUserNotificationSettings: UIUserNotificationSettings? { return UIUserNotificationSettings(types: .alert, categories: nil) }
+}
+
+class NotificationsDisabledMock: UIApplicationProtocol {
+	var applicationState: UIApplicationState { return .active }
+	
+	var applicationIconBadgeNumber: Int {
+		get { return 0 }
+		set {}
+	}
+	
+	var isRegisteredForRemoteNotifications: Bool { return true }
+	func unregisterForRemoteNotifications() {}
+	func registerForRemoteNotifications() {}
+	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
+	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
+	var currentUserNotificationSettings: UIUserNotificationSettings? { return UIUserNotificationSettings(types: [], categories: nil) }
+}
+
+
+class GeofencingServiceStartStopMock: MMGeofencingService {
+	override func stop(_ completion: ((Bool) -> Void)?) {
+		isRunning = false
+	}
+	override func start(_ completion: ((Bool) -> Void)?) {
+		isRunning = true
+	}
+	override func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
+		completion(.Authorized)
+	}
+	
+	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
 }

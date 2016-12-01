@@ -62,7 +62,7 @@ public protocol MMGeofencingServiceDelegate: class {
 	func didExitRegion(region: MMRegion)
 }
 
-public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
+public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMessagingService {
 	let kDistanceFilter: CLLocationDistance = 100
 	let kMonitoringRegionsLimit: Int = 20
 	static let kGeofencingPreferableUsage = MMLocationServiceUsage.Always
@@ -73,7 +73,6 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	var datasource: MMGeofencingDatasource!
 	var isRunning = false
 	let serviceQueue = MMQueue.Main.queue
-	var remoteAPIQueue: MMRemoteAPIQueue!
 	lazy var eventsHandlingQueue = OperationQueue.mm_newSerialQueue
 	
 	// MARK: - Public
@@ -108,7 +107,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	/// During the startup process, the service automatically asks user to grant the appropriate permissions
 	/// Once the user granted the permissions, the service succesfully lauches.
 	/// - parameter completion: A block that will be triggered once the startup process is finished. Contains a Bool flag parameter, that indicates whether the startup succeded.
-	public func start(completion: ((Bool) -> Void)? = nil) {
+	public func start(_ completion: ((Bool) -> Void)? = nil) {
 		MMLogDebug("[GeofencingService] starting ...")
 		serviceQueue.executeAsync() {
 			guard self.isRunning == false else
@@ -145,7 +144,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	}
 	
 	/// Stops the Geofencing Service
-	public func stop() {
+	public func stop(_ completion: ((Bool) -> Void)? = nil) {
 		eventsHandlingQueue.cancelAllOperations()
 		serviceQueue.executeAsync() {
 			guard self.isRunning == true else
@@ -159,6 +158,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.stopMonitoringMonitoredRegions()
 			NotificationCenter.default.removeObserver(self)
 			MMLogDebug("[GeofencingService] stopped.")
+			completion?(true)
 		}
 	}
 	
@@ -196,7 +196,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	
 	// MARK: - Internal
 	//FIXME: use background queue. (initialize separate NSThread which lives as long as geo service running)
-	init (storage: MMCoreDataStorage, remoteAPIQueue: MMRemoteAPIQueue) {
+	init (storage: MMCoreDataStorage) {
 		super.init()
 		serviceQueue.executeSync() {
 			self.locationManager = CLLocationManager()
@@ -205,7 +205,6 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
 			self.datasource = MMGeofencingDatasource(storage: storage)
 			self.previousLocation = MobileMessaging.currentInstallation?.location
-			self.remoteAPIQueue = remoteAPIQueue
 		}
 	}
 	
@@ -478,7 +477,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate {
 	typealias GeoEventReportingResult = (_ suspended: [String]?, _ finished: [String]?) -> Void
 	
 	private func reportOnEvents(completion: GeoEventReportingResult?) {
-		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: self.datasource.context, remoteAPIQueue: remoteAPIQueue, finishBlock: { (result) in
+		// we don't consider isRunning status here because
+		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: self.datasource.context, finishBlock: { (result) in
 			let finishedMessages = self.datasource.messages.filter({ (message) -> Bool in
 				return result.value?.finishedCampaignIds?.contains(message.campaignId) ?? false
 			})

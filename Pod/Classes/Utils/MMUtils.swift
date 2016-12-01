@@ -299,3 +299,13 @@ protocol DictionaryRepresentable {
 	init?(dictRepresentation dict: DictionaryRepresentation)
 	var dictionaryRepresentation: DictionaryRepresentation {get}
 }
+
+extension Date {
+	var timestampDelta: UInt {
+		return UInt(max(0, Date().timeIntervalSinceReferenceDate - self.timeIntervalSinceReferenceDate))
+	}
+}
+
+var isTestingProcessRunning: Bool {
+	return ProcessInfo.processInfo.arguments.contains("-IsDeviceStartedToRunTests")
+}

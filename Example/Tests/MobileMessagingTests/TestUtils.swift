@@ -38,7 +38,7 @@ final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
 		super.init(baseURL: "stub", applicationCode: "stub")
 	}
 
-	override func perform<R : MMHTTPRequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	override func perform<R : RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		completion(Result.Failure(nil))
 		completionCompanionBlock?(request)
 	}
@@ -52,30 +52,42 @@ final class MMRemoteAPIAlwaysSucceeding : MMRemoteAPIQueue {
 		super.init(baseURL: "stub", applicationCode: "stub")
 	}
 	
-	override func perform<R : MMHTTPRequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	override func perform<R : RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		let response = R.ResponseType(json: JSON(NSNull()))
 		completion(Result.Success(response!))
 		completionCompanionBlock?(request)
 	}
 }
 
-final class MMRemoteAPIMock : MMRemoteAPIQueue {
+class MMRemoteAPIMock: MMRemoteAPIQueue {
 	
-	var performRequestCompanionBlock : (Any) -> Void
-	var completionCompanionBlock : ((Any) -> Void)?
+	var responseSubstitution: ((_ request: Any) -> JSON?)? // (Request) -> (JSON)
+	var performRequestCompanionBlock: ((Any) -> Void)?
+	var completionCompanionBlock: ((Any) -> Void)?
 	
-	init(baseURLString: String, appCode: String, performRequestCompanionBlock: @escaping ((Any) -> Void), completionCompanionBlock: ((Any) -> Void)? = nil) {
+	init(baseURLString: String, appCode: String, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
 		self.completionCompanionBlock = completionCompanionBlock
+		self.responseSubstitution = responseSubstitution
 		super.init(baseURL: baseURLString, applicationCode: appCode)
 	}
 	
-	override func perform<R: MMHTTPRequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		super.perform(request: request) { (response) in
-			completion(response)
-			self.completionCompanionBlock?(response)
+	override func perform<R: RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+		if let responseSubstitution = responseSubstitution {
+			
+			if let responseJSON = responseSubstitution(request), let response = R.ResponseType(json: responseJSON) {
+				completion(Result.Success(response))
+			} else {
+				completion(Result.Failure(nil))
+			}
+			
+		} else {
+			super.perform(request: request) { (response) in
+				completion(response)
+				self.completionCompanionBlock?(response)
+			}
 		}
-		performRequestCompanionBlock(request)
+		performRequestCompanionBlock?(request)
 	}
 }
 

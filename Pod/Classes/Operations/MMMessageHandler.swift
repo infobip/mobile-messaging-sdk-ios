@@ -9,7 +9,23 @@
 import Foundation
 import CoreData
 
-final class MMMessageHandler {
+protocol MobileMessagingService {
+	var isRunning: Bool { get }
+	func start(_ completion: ((Bool) -> Void)?)
+	func stop(_ completion: ((Bool) -> Void)?)
+}
+
+final class MMMessageHandler: MobileMessagingService {
+	var isRunning: Bool = true
+	func start(_ completion: ((Bool) -> Void)? = nil) {
+		isRunning = true
+		completion?(true)
+	}
+	func stop(_ completion: ((Bool) -> Void)? = nil) {
+		isRunning = false
+		completion?(true)
+	}
+	
 	lazy var messageHandlingQueue = OperationQueue.mm_newSerialQueue
 	lazy var messageSendingQueue = OperationQueue()
 	lazy var seenPostponer = MMPostponer(executionQueue: DispatchQueue.main)
@@ -18,53 +34,62 @@ final class MMMessageHandler {
 		messageHandlingQueue.cancelAllOperations()
 	}
 	
-	var storage: MMCoreDataStorage
-    convenience init(storage: MMCoreDataStorage, baseURL: String, applicationCode: String) {
-        let remoteAPI = MMRemoteAPIQueue(baseURL: baseURL, applicationCode: applicationCode)
-        let seenSenderRemoteAPI = MMRemoteAPIQueue(baseURL: baseURL, applicationCode: applicationCode)
-        self.init(storage: storage, remoteApi: remoteAPI, seenSenderRemoteAPI: seenSenderRemoteAPI)
-    }
+	let storage: MMCoreDataStorage
     
-    init(storage: MMCoreDataStorage, remoteApi: MMRemoteAPIQueue, seenSenderRemoteAPI: MMRemoteAPIQueue) {
-        self.messageSyncRemoteAPI = remoteApi
-        self.seenSenderRemoteAPI = seenSenderRemoteAPI
+	init(storage: MMCoreDataStorage) {
 		self.storage = storage
         self.evictOldMessages()
     }
 
     //MARK: Intenal
 	func handleAPNSMessage(_ userInfo: APNSPayload, applicationState: UIApplicationState, newMessageReceivedCallback: ((APNSPayload) -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
+		guard isRunning == true else {
+			completion?(nil)
+			return
+		}
 		if let msg = MMMessageFactory.makeMessage(with: userInfo, createdDate: Date()) {
-			self.messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: [msg], messagesDeliveryMethod: .push, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, messageHandler: MobileMessaging.messageHandling, applicationState: applicationState, finishBlock: completion))
+			messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: [msg], messagesDeliveryMethod: .push, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, applicationState: applicationState, finishBlock: completion))
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
+			completion?(NSError.init(type: .UnknownError))
 		}
 	}
 	
 	func syncWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		self.messageHandlingQueue.addOperation(MessagesSyncOperation(context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, finishBlock: completion))
+		guard isRunning == true else {
+			completion?(nil)
+			return
+		}
+		messageHandlingQueue.addOperation(MessagesSyncOperation(context: storage.newPrivateContext(), finishBlock: completion))
 	}
 	
 	func evictOldMessages(_ messageAge: TimeInterval? = nil, completion:((Void) -> Void)? = nil) {
-		self.messageHandlingQueue.addOperation(MessagesEvictionOperation(context: self.storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
+		guard isRunning == true else {
+			completion?()
+			return
+		}
+		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
     }
 	
-	
-    func setSeen(_ messageIds: [String], completion: ((MMSeenMessagesResult) -> Void)? = nil) {
-		self.messageHandlingQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: self.storage.newPrivateContext()))
+    func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+		guard isRunning == true else {
+			completion?(SeenStatusSendingResult.Cancel)
+			return
+		}
+		messageHandlingQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext()))
 		seenPostponer.postponeBlock() {
-			self.messageHandlingQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), remoteAPIQueue: self.seenSenderRemoteAPI, finishBlock: completion))
+			self.messageHandlingQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), finishBlock: completion))
 		}
     }
 	
 	func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		self.messageSendingQueue.addOperation(MessagePostingOperation(messages: messages, context: self.storage.newPrivateContext(), remoteAPIQueue: self.messageSyncRemoteAPI, finishBlock: { (result: MMMOMessageResult) in
+		guard isRunning == true else {
+			completion?(nil, nil)
+			return
+		}
+		messageSendingQueue.addOperation(MessagePostingOperation(messages: messages, context: storage.newPrivateContext(), finishBlock: { (result: MOMessageSendingResult) in
 			
 			completion?(result.value?.messages, result.error)
 		}))
 	}
-	
-	//MARK: Private
-    private var messageSyncRemoteAPI: MMRemoteAPIQueue
-    private var seenSenderRemoteAPI: MMRemoteAPIQueue
 }

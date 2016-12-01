@@ -49,7 +49,7 @@ public class MMUserAgent: NSObject {
 	}
 	
 	public var notificationsEnabled: Bool {
-		guard let settings = UIApplication.shared.currentUserNotificationSettings else {
+		guard let settings = MobileMessaging.application.currentUserNotificationSettings else {
 			return false
 		}
 		return !settings.types.isEmpty
@@ -76,7 +76,7 @@ public class MMUserAgent: NSObject {
 	}
 	
 	public var libraryVersion: String {
-		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? libVersion
+		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion
 	}
 	
 	public var libraryName: String {

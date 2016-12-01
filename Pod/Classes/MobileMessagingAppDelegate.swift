@@ -37,25 +37,25 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	
 	//MARK: Public
 	public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
-		if !isTesting {
+		if !isTestingProcessRunning {
 			var session = MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType)
 			if geofencingServiceEnabled {
-				session = session.withGeofencingService()
+				session = session?.withGeofencingService()
 			}
-			session.start()
+			session?.start()
 		}
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)
 	}
 	
 	public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-		if !isTesting {
+		if !isTestingProcessRunning {
 			MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
 		}
 		mm_application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
 	}
 	
 	public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		if !isTesting {
+		if !isTestingProcessRunning {
 			MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: { (result) in
 				completionHandler(result)
 			})
@@ -64,7 +64,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	}
 
 	public func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
-		if !isTesting {
+		if !isTestingProcessRunning {
 			MobileMessaging.didReceiveLocalNotification(notification)
 		}
 		mm_application(application, didReceiveLocalNotification: notification)
@@ -96,10 +96,5 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	/// You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the running app receives a local notification.
 	@nonobjc open func mm_application(_ application: UIApplication, didReceiveLocalNotification n: UILocalNotification) {
 		// override this callback in your AppDelegate if needed
-	}
-	
-	//MARK: Private
-	private var isTesting: Bool {
-		return ProcessInfo.processInfo.arguments.contains("-IsDeviceStartedToRunTests")
 	}
 }

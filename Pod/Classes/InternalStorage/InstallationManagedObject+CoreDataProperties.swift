@@ -23,4 +23,5 @@ extension InstallationManagedObject {
 	@NSManaged var predefinedUserData: DictionaryRepresentation?
 	@NSManaged var systemDataHash: Int64
 	@NSManaged var location: AnyObject?
+	@NSManaged var isRegistrationEnabled: Bool
 }

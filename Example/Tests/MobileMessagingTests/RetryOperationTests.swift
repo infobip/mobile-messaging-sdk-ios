@@ -30,7 +30,7 @@ final class MMTestCounterOperation: MMRetryableOperation {
 	}
 }
 
-final class MMTestRechabilityOperation<RequestType: MMHTTPRequestData>: MMRetryableRequestOperation<RequestType> {
+final class MMTestRechabilityOperation<RequestType: RequestData>: MMRetryableRequestOperation<RequestType> {
 	required init(retryLimit: Int, completion: @escaping MMRetryableOperationCompletion) {
 		super.init(retryLimit: retryLimit, completion: completion)
 	}
@@ -45,7 +45,7 @@ final class RetryOperationTests: XCTestCase {
 	
 	func testReachabilityLogic() {
 		weak var expectation = self.expectation(description: "Retryable operation finished")
-		let r = MMPostRegistrationRequest(internalId: nil, deviceToken: "stub")
+		let r = RegistrationRequest(deviceToken: "stub", internalId: nil)
 		
 		let op = MMTestRechabilityOperation(request: r, applicationCode: "stub", baseURL: "stub") { op in
 			expectation?.fulfill()

@@ -14,16 +14,17 @@ public final class MobileMessaging: NSObject {
 	/// Fabric method for Mobile Messaging session.
 	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
 	/// - parameter applicationCode: The application code of your Application from Push Portal website.
-	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType) -> MobileMessaging {
-		sharedInstance = MobileMessaging(applicationCode: code, notificationType: notificationType)
-		return sharedInstance!
+	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType) -> MobileMessaging? {
+		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: MMAPIValues.kProdBaseURLString)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
+	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter applicationCode: The application code of your Application from Push Portal website.
 	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
-	public func withBackendBaseURL(_ urlString: String) -> MobileMessaging {
-		self.remoteAPIBaseURL = urlString
-		return self
+	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
+		sharedInstance = MobileMessaging(applicationCode: code, notificationType: notificationType, backendBaseURL: backendBaseURL)
+		return sharedInstance
 	}
 	
 	/// Fabric method for Mobile Messaging session.
@@ -53,56 +54,61 @@ public final class MobileMessaging: NSObject {
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
 	public func start(_ completion: ((Void) -> Void)? = nil) {
-		MMLogDebug("Starting MobileMessaging service...")
-		do {
-			var storage: MMCoreDataStorage?
-			switch self.storageType {
-			case .InMemory:
-				storage = try MMCoreDataStorage.makeInMemoryStorage()
-			case .SQLite:
-				storage = try MMCoreDataStorage.makeSQLiteInternalStorage()
-			}
-			if let storage = storage {
-				self.internalStorage = storage
-				let installation = MMInstallation(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
-				self.currentInstallation = installation
-				let user = MMUser(installation: installation)
-				self.currentUser = user
-				let messageHandler = MMMessageHandler(storage: storage, baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
-				self.messageHandler = messageHandler
-				self.startMessageStorage()
-				
-				if isGeoServiceEnabled {
-					self.geofencingService = MMGeofencingService(storage: storage, remoteAPIQueue: MMRemoteAPIQueue(baseURL: self.remoteAPIBaseURL, applicationCode: self.applicationCode))
-					self.geofencingService?.start()
-				}
-				self.appListener = MMApplicationListener(messageHandler: messageHandler, installation: installation, user: user, geofencingService: self.geofencingService)
-				MMLogInfo("MobileMessaging SDK service successfully initialized.")
-			}
-		} catch {
-			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error.")
-		}
+		MMLogDebug("Starting service...")
+
+		messageStorage?.start()
 		
-		if MobileMessaging.application.isRegisteredForRemoteNotifications && self.currentInstallation?.deviceToken == nil {
+		if MobileMessaging.isPushRegistrationEnabled {
+			messageHandler.start()
+			if isGeoServiceEnabled {
+				self.geofencingService.start()
+			}
+		}
+
+		if MobileMessaging.application.isRegisteredForRemoteNotifications && currentInstallation.deviceToken == nil {
 			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 			MobileMessaging.application.unregisterForRemoteNotifications()
 		}
-		
-		MobileMessaging.application.registerUserNotificationSettings(UIUserNotificationSettings(types: self.userNotificationType, categories: nil))
+	
+		MobileMessaging.application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType, categories: nil))
 		
 		if MobileMessaging.application.isRegisteredForRemoteNotifications == false {
 			MMLogDebug("Registering for remote notifications...")
 			MobileMessaging.application.registerForRemoteNotifications()
 		}
-        
-        #if DEBUG
-        MMVersionManager.shared?.validateVersion()
-        #endif
-        
+		
+		if !isTestingProcessRunning {
+			#if DEBUG
+				VersionManager.shared.validateVersion()
+			#endif
+		}
+		
 		completion?()
+		MMLogDebug("Service started!")
 	}
 	
-	/// Stops the currently running Mobile Messaging session.
+	/// Current push registration status.
+	/// The status defines whether the device is allowed to be receiving push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
+	/// MobileMessaging SDK has the push registration enabled by default.
+	public static var isPushRegistrationEnabled: Bool {
+		return MobileMessaging.sharedInstance?.isPushRegistrationEnabled ?? true
+	}
+	
+	/// Enables the push registration so the device can receive push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
+	/// MobileMessaging SDK has the push registration enabled by default.
+	public static func enablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
+		MobileMessaging.sharedInstance?.updateRegistrationEnabledStatus(true, completion: completion)
+	}
+	
+	/// Disables the push registration so the device no longer receives any push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
+	/// MobileMessaging SDK has the push registration enabled by default.
+	public static func disablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
+		MobileMessaging.sharedInstance?.updateRegistrationEnabledStatus(false, completion: completion)
+	}
+	
+	/// Stops all the currently running Mobile Messaging services.
+	/// - Parameter cleanUpData: defines whether the Mobile Messaging internal storage will be dropped. False by default.
+	/// - Attention: This function doesn't disable push notifications, they are still being received by the OS.
 	public class func stop(_ cleanUpData: Bool = false) {
 		if cleanUpData {
 			MobileMessaging.sharedInstance?.cleanUpAndStop()
@@ -216,14 +222,14 @@ public final class MobileMessaging: NSObject {
 	let applicationCode: String
 	
 	var	storageType: MMStorageType = .SQLite
-	var remoteAPIBaseURL: String = MMAPIValues.kProdBaseURLString
+	let remoteAPIBaseURL: String
 	var isGeoServiceEnabled: Bool = false
 	
 	func cleanUpAndStop() {
 		MMLogDebug("Cleaning up MobileMessaging service...")
-		self.internalStorage?.drop()
+		internalStorage.drop()
 		(MobileMessaging.sharedInstance?.messageStorage as? MMDefaultMessageStorage)?.coreDataStorage?.drop()
-		self.stop()
+		stop()
 	}
 	
 	func stop() {
@@ -232,53 +238,88 @@ public final class MobileMessaging: NSObject {
 			MobileMessaging.application.unregisterForRemoteNotifications()
 		}
 
-		self.internalStorage = nil
-		self.currentInstallation = nil
-		self.appListener = nil
-		self.messageHandler = nil
-		self.currentUser = nil
-		self.messageStorage?.stop()
-		self.messageStorage = nil
+		messageStorage?.stop()
+
 		MobileMessaging.application = UIApplication.shared
 		MobileMessaging.notificationTapHandler = nil
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
-		MobileMessaging.geofencingService?.stop()
-		self.geofencingService = nil
+		
+		geofencingService.stop()
+		messageHandler.stop()
 	}
 	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], newMessageReceivedCallback: (([AnyHashable : Any]) -> Void)? = nil, completion: ((NSError?) -> Void)? = nil) {
 		MMLogDebug("New remote notification received \(userInfo)")
-		self.messageHandler?.handleAPNSMessage(userInfo, applicationState: MobileMessaging.application.applicationState, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
+		messageHandler.handleAPNSMessage(userInfo, applicationState: MobileMessaging.application.applicationState, newMessageReceivedCallback: newMessageReceivedCallback, completion: completion)
 	}
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
 		MMLogDebug("Application did register with device token \(token.mm_toHexString)")
 		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
-		self.currentInstallation?.updateDeviceToken(token: token, completion: completion)
+		currentInstallation.updateDeviceToken(token: token, completion: completion)
 	}
 	
-	func setSeen(_ messageIds: [String], completion: ((MMSeenMessagesResult) -> Void)? = nil) {
+	func updateRegistrationEnabledStatus(_ value: Bool, completion: ((NSError?) -> Void)? = nil) {
+		currentInstallation.updateRegistrationEnabledStatus(value: value, completion: completion)
+		updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled: value)
+	}
+	
+	func updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled value: Bool) {
+		if value == false {
+			geofencingService.stop()
+			messageHandler.stop()
+		} else {
+			messageHandler.start()
+			if isGeoServiceEnabled {
+				geofencingService.start()
+			}
+		}
+	}
+
+	func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
 		MMLogDebug("Setting seen status: \(messageIds)")
-		self.messageHandler?.setSeen(messageIds, completion: completion)
+		messageHandler.setSeen(messageIds, completion: completion)
 	}
 	
 	func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MMLogDebug("Sending mobile originated messages...")
-		self.messageHandler?.sendMessages(messages, completion: completion)
+		messageHandler.sendMessages(messages, completion: completion)
+	}
+	
+	var isPushRegistrationEnabled: Bool {
+		return (self.currentInstallation.installationManager.getValueForKey("isRegistrationEnabled") as? Bool) ?? true
 	}
 	
 	//MARK: Private
-	private func startMessageStorage() {
-		self.messageStorage?.start()
-	}
 	
-	private init(applicationCode: String, notificationType: UIUserNotificationType) {
+	private init?(applicationCode: String, notificationType: UIUserNotificationType, backendBaseURL: String) {
 		self.applicationCode = applicationCode
-		self.userNotificationType = notificationType
+		userNotificationType = notificationType
+		self.remoteAPIBaseURL = backendBaseURL
+		
+		let storage: MMCoreDataStorage?
+		switch self.storageType {
+		case .InMemory:
+			storage = try? MMCoreDataStorage.makeInMemoryStorage()
+		case .SQLite:
+			storage = try? MMCoreDataStorage.makeSQLiteInternalStorage()
+		}
+		if let storage = storage {
+			self.internalStorage = storage
+			self.remoteApiManager = RemoteAPIManager(baseUrl: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
+			self.currentInstallation = MMInstallation(storage: storage)
+			self.currentUser = MMUser(installation: self.currentInstallation)
+			self.messageHandler = MMMessageHandler(storage: storage)
+			self.geofencingService = MMGeofencingService(storage: storage)
+			self.appListener = MMApplicationListener(messageHandler: self.messageHandler, installation: self.currentInstallation, user: self.currentUser, geofencingService: self.geofencingService)
+			
+			MMLogInfo("SDK successfully initialized!")
+		} else {
+			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
+			return nil
+		}
 	}
 
-
-	
 	class var messageStorage: MessageStorage? {
 		return MobileMessaging.sharedInstance?.messageStorage
 	}
@@ -289,12 +330,13 @@ public final class MobileMessaging: NSObject {
 			messageStorageAdapter = MMMessageStorageQueuedAdapter(adapteeStorage: messageStorage)
 		}
 	}
-	private(set) var internalStorage: MMCoreDataStorage?
-	private(set) var currentInstallation: MMInstallation?
-	private(set) var currentUser: MMUser?
-	private(set) var appListener: MMApplicationListener?
-	private(set) var messageHandler: MMMessageHandler?
-	internal(set) var geofencingService: MMGeofencingService?
+	let internalStorage: MMCoreDataStorage
+	let currentInstallation: MMInstallation
+	let currentUser: MMUser
+	let appListener: MMApplicationListener
+	let messageHandler: MMMessageHandler
+	var geofencingService: MMGeofencingService // variable only for testing purposes
+	let remoteApiManager: RemoteAPIManager
 	static var application: UIApplicationProtocol = UIApplication.shared
 }
 
@@ -308,4 +350,5 @@ protocol UIApplicationProtocol {
 	func registerForRemoteNotifications()
 	func presentLocalNotificationNow(_ notification: UILocalNotification)
 	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings)
+	var currentUserNotificationSettings: UIUserNotificationSettings? { get }
 }

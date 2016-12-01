@@ -57,7 +57,7 @@ class UserDataTests: MMTestCase {
 		
 		// number
 		do {
-			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["bootsize": CustomUserDataValue(double: 9.5)])
+			let request = UserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["bootsize": CustomUserDataValue(double: 9.5)])
 			let expectedDict: NSDictionary = [
 				MMAPIKeys.kUserDataPredefinedUserData: [
 					"name": "JohnDow"
@@ -74,7 +74,7 @@ class UserDataTests: MMTestCase {
 		
 		// null
 		do {
-			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(null: NSNull())])
+			let request = UserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(null: NSNull())])
 			let expectedDict = [
 				MMAPIKeys.kUserDataPredefinedUserData: [
 					"name": "JohnDow"
@@ -111,7 +111,8 @@ class UserDataTests: MMTestCase {
 		
 		XCTAssertEqual(Date(timeIntervalSince1970: 1468593199).toJSON(), "2016-07-15")
 		
-		if let installation = InstallationManagedObject.MM_findFirstInContext(self.storage.mainThreadManagedObjectContext!) {
+		let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
+		if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 			
 			XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.externalUserId))
 			XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.predefinedUserData))
@@ -134,7 +135,7 @@ class UserDataTests: MMTestCase {
 		weak var expectation = self.expectation(description: "save completed")
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		let currentUser = MobileMessaging.currentUser!
 
@@ -181,7 +182,7 @@ class UserDataTests: MMTestCase {
 		weak var expectation = self.expectation(description: "data received")
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		let currentUser = MobileMessaging.currentUser!
 		currentUser.msisdn = nil
@@ -216,7 +217,7 @@ class UserDataTests: MMTestCase {
 		weak var expectation = self.expectation(description: "data received")
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser?.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		let currentUser = MobileMessaging.currentUser!
 		

@@ -53,6 +53,12 @@ enum MMAPS {
 	}
 }
 
+
+protocol MMMessageMetadata: Hashable {
+	var isSilent: Bool {get}
+	var messageId: String {get}
+}
+
 public class BaseMessage: NSObject {
 	public let messageId: String
 	public let direction: MessageDirection
@@ -85,6 +91,10 @@ public class BaseMessage: NSObject {
 	public func isEqual(object: AnyObject?) -> Bool {
 		return self.hash == object?.hash
 	}
+}
+
+func ==(lhs: MTMessage, rhs: MTMessage) -> Bool {
+	return lhs.messageId == rhs.messageId
 }
 
 /// Incapsulates all the attributes related to the remote notifications.

@@ -7,46 +7,87 @@
 
 import XCTest
 @testable import MobileMessaging
+import SwiftyJSON
 
-class CheckVersionTests: MMTestCase {
-	
-	override func setUp() {
-		super.setUp()
-		UserDefaults.standard.removeObject(forKey: "MMLibrary-LastCheckDateKey")
-		UserDefaults.standard.synchronize()
-		MMVersionManager.shared?.lastCheckDate = nil
+class VersionCheckRemoteAPIManagerMock: RemoteAPIManager {
+	init(onlineVersion: String) {
+		super.init(baseUrl: "", applicationCode: "")
+		self.versionFetchingQueue = MMRemoteAPIMock(baseURLString: "", appCode: "", performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+			return JSON.parse("{\"platformType\": \"APNS\", \"libraryVersion\": \"\(onlineVersion)\", \"updateUrl\": \"https://github.com/infobip/mobile-messaging-sdk-ios\"}")
+		})
+	}
+}
+
+class VersionManagerMock: VersionManager {
+	var newVersionWarningShowUpBlock: (() -> Void)?
+	var upToDateCaseBlock: (() -> Void)?
+	var waitBlock: (() -> Void)?
+	init(onlineVersion: String) {
+		super.init()
+		self.remoteApiManager = VersionCheckRemoteAPIManagerMock(onlineVersion: onlineVersion)
 	}
 	
-//	func testVersionCheck() {
-//		cleanUpAndStop()
-//		
-//		weak var requestExp = expectation(description: "libraryVersionRequest")
-//		weak var responseExp = expectation(description: "libraryVersionResponse")
-//		let remoteAPIMock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
-//			
-//			switch request {
-//			case (is MMGetLibraryVersionRequest):
-//				requestExp?.fulfill()
-//			default:
-//				break
-//			}
-//			
-//			}, completionCompanionBlock: { response in
-//				switch response {
-//				case let result as MMLibraryVersionResult:
-//					XCTAssertEqual(result.value?.libraryVersion, "1.0.3")
-//					XCTAssertEqual(result.value?.updateUrl, "https://github.com/infobip/mobile-messaging-sdk-ios")
-//					responseExp?.fulfill()
-//				default:
-//					break
-//				}
-//		})
-//		
-//		MMVersionManager.shared?.remoteApiQueue = remoteAPIMock
-//		MobileMessaging.sharedInstance?.start()
-//		
-//		waitForExpectations(timeout: 60, handler: nil)
-//	}
+	override func showNewVersionWarning(localVersion: String, response: LibraryVersionResponse) {
+		newVersionWarningShowUpBlock?()
+	}
+	
+	override func waitUntilItsTime() {
+		super.waitUntilItsTime()
+		waitBlock?()
+	}
+	
+	override func handleUpToDateCase() {
+		super.handleUpToDateCase()
+		upToDateCaseBlock?()
+	}
+}
+
+class CheckVersionTests: MMTestCase {
+	let distantFutureVersion = "99.0.0"
+	override func setUp() {
+		UserDefaults.standard.removeObject(forKey: VersionCheck.lastCheckDateKey)
+		UserDefaults.standard.synchronize()
+		VersionManagerMock.shared.lastCheckDate = nil
+	}
+	
+	func testThatValidationTimeoutWorks() {
+		weak var expectationUpToDate = self.expectation(description: "up to date case")
+		weak var expectationCheckedAgain = self.expectation(description: "check again")
+		weak var expectationWait = self.expectation(description: "must wait")
+		weak var expectationAlertShown = self.expectation(description: "alert shown")
+		
+		
+		// initially we are up to data:
+		let versionManager = VersionManagerMock(onlineVersion: mobileMessagingVersion)
+		versionManager.upToDateCaseBlock = {
+			expectationUpToDate?.fulfill()
+		}
+		versionManager.waitBlock = {
+			expectationWait?.fulfill()
+		}
+		versionManager.newVersionWarningShowUpBlock = {
+			expectationCheckedAgain?.fulfill()
+			expectationAlertShown?.fulfill()
+		}
+		
+		versionManager.validateVersion() {
+			
+			// then version increases
+			versionManager.remoteApiManager = VersionCheckRemoteAPIManagerMock(onlineVersion: self.distantFutureVersion)
+			
+			// if we validate again immediately after we discovered Up To Date status, we'll end up with a timeout
+			versionManager.validateVersion() {
+				
+				// but after the timeout is expired (we move to the future here)
+				versionManager.lastCheckDate =  versionManager.lastCheckDate?.addingTimeInterval(-versionManager.defaultTimeout)
+				
+				// we can validate again
+				versionManager.validateVersion()
+			}
+		}
+		
+		waitForExpectations(timeout: 60, handler: nil)
+	}
 	
 	func testVersionComparison() {
 		do {

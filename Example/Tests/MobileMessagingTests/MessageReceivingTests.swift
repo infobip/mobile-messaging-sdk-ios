@@ -120,6 +120,31 @@ class MessageReceivingTests: MMTestCase {
 		})
 	}
 	
+	func testMessagesPersistingForDisabledRegistration() {
+		weak var expectation = self.expectation(description: "Check finished")
+		let expectedMessagesCount: Int = 5
+		var iterationCounter: Int = 0
+		
+		MobileMessaging.disablePushRegistration { _ in
+			
+			sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
+				
+				self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
+					DispatchQueue.main.async {
+						iterationCounter += 1
+						if iterationCounter == expectedMessagesCount {
+							expectation?.fulfill()
+						}
+					}
+				})
+			}
+			
+		}
+		self.waitForExpectations(timeout: 60, handler: { error in
+			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any message in db, since we disabled the registration")
+		})
+	}
+
 	func testThatSilentMessagesEvenWorks() {
 		let expectedEventsCount: Int = 5
 		var eventsCounter: Int = 0

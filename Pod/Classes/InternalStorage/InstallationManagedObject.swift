@@ -15,6 +15,7 @@ enum SyncableAttributes: String {
 	case CustomUserData = "customUserData"
 	case PredefinedUserData = "predefinedUserData"
 	case ExternalUserId = "externalUserId"
+	case RegistrationEnabled = "isRegistrationEnabled"
 	
 	static var userData: Int32 {
 		return	SyncableAttributes.CustomUserData.integerValue | SyncableAttributes.PredefinedUserData.integerValue | SyncableAttributes.ExternalUserId.integerValue
@@ -30,6 +31,8 @@ enum SyncableAttributes: String {
 			return 1 << 2
 		case .ExternalUserId:
 			return 1 << 3
+		case .RegistrationEnabled:
+			return 1 << 4
 		}
 	}
 }
@@ -49,16 +52,21 @@ struct SyncableAttributesSet: OptionSet {
 				return SyncableAttributesSet.customUserData
 			case .ExternalUserId:
 				return SyncableAttributesSet.externalUserId
+			case .RegistrationEnabled:
+				return SyncableAttributesSet.isRegistrationEnabled
 			}
 		}
 		return nil
 	}
 	static let deviceToken	= SyncableAttributesSet(rawValue: SyncableAttributes.DeviceToken.integerValue)
+	static let isRegistrationEnabled	= SyncableAttributesSet(rawValue: SyncableAttributes.RegistrationEnabled.integerValue)
 	static let customUserData = SyncableAttributesSet(rawValue: SyncableAttributes.CustomUserData.integerValue)
 	static let predefinedUserData = SyncableAttributesSet(rawValue: SyncableAttributes.PredefinedUserData.integerValue)
 	static let externalUserId = SyncableAttributesSet(rawValue: SyncableAttributes.ExternalUserId.integerValue)
 	
 	static let userData = SyncableAttributesSet(rawValue: SyncableAttributes.userData)
+	
+	static let registrationAttributes = SyncableAttributesSet([SyncableAttributesSet.isRegistrationEnabled, SyncableAttributesSet.deviceToken])
 }
 
 
@@ -72,13 +80,17 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
     func setDeviceTokenIfDifferent(token: String?) {
         setValueIfDifferent(token, forKey: SyncableAttributes.DeviceToken.rawValue)
     }
+	
+	func setRegistrationEnabledIfDifferent(flag: Bool) {
+		setValueIfDifferent(flag, forKey: SyncableAttributes.RegistrationEnabled.rawValue)
+	}
 
 	var dirtyAttributesSet: SyncableAttributesSet {
 		return SyncableAttributesSet(rawValue: dirtyAttributes)
 	}
 
 	func resetDirtyRegistration() {
-		resetDirtyAttribute(attributes: SyncableAttributesSet.deviceToken)
+		resetDirtyAttribute(attributes: SyncableAttributesSet.registrationAttributes)
 	}
 
 	func resetDirtyAttribute(attributes: SyncableAttributesSet) {

@@ -14,7 +14,7 @@ final class MMApplicationListener: NSObject {
         NotificationCenter.default.removeObserver(self)
     }
     
-	init(messageHandler: MMMessageHandler, installation: MMInstallation, user: MMUser, geofencingService: MMGeofencingService?) {
+	init(messageHandler: MMMessageHandler, installation: MMInstallation, user: MMUser, geofencingService: MMGeofencingService) {
         self.messageHandler = messageHandler
         self.installation = installation
 		self.user = user
@@ -36,24 +36,23 @@ final class MMApplicationListener: NSObject {
 	}
 	
 	func handleAppDidFinishLaunchingNotification() {
-		messageHandler.evictOldMessages()
+		messageHandler?.evictOldMessages()
 		triggerPeriodicalWork()
 	}
 	
 	func handleGeoServiceDidStartNotification() {
-		installation.syncWithServer()
+		installation?.syncSystemDataWithServer()
 	}
 	
 	//MARK: Private
-	private var messageHandler: MMMessageHandler
-	private var installation: MMInstallation
-	private var user: MMUser
-	private var geofencingService: MMGeofencingService?
+	weak private var messageHandler: MMMessageHandler?
+	weak private var installation: MMInstallation?
+	weak private var user: MMUser?
+	weak private var geofencingService: MMGeofencingService?
 	
 	private func triggerPeriodicalWork() {
-		installation.syncWithServer()
-		user.syncWithServer()
-		messageHandler.syncWithServer()
+		installation?.syncInstallationWithServer()
+		messageHandler?.syncWithServer()
 		geofencingService?.syncWithServer()
 	}
 }

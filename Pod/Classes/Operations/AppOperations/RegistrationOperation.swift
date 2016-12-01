@@ -8,91 +8,72 @@
 import UIKit
 import CoreData
 
-final class RegistrationOperation: Operation {
-
-	var context: NSManagedObjectContext
+final class SyncRegistrationOperation: Operation {
+	let context: NSManagedObjectContext
 	var installationObject: InstallationManagedObject!
-	var finishBlock: ((NSError?) -> Void)?
-	var remoteAPIQueue: MMRemoteAPIQueue
-	var newDeviceToken: String?
+	let finishBlock: ((NSError?) -> Void)?
 	
-    init(newDeviceToken: Data? = nil, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)?) {
+    init(context: NSManagedObjectContext, finishBlock: ((NSError?) -> Void)?) {
 		self.context = context
-		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
-		self.newDeviceToken = newDeviceToken?.mm_toHexString
-        
 		super.init()
 	}
 	
 	override func execute() {
+		MMLogDebug("[Registration] Started...")
 		context.perform {
 			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
 				self.finish()
 				return
 			}
 			
-            if self.newDeviceToken != nil { // only store new token values
-                installation.setDeviceTokenIfDifferent(token: self.newDeviceToken)
-            }
-			
 			self.installationObject = installation
-			
-            if (self.installationHasChanges) {
-                MMLogDebug("[Registration] Saving installation locally...")
-                self.context.MM_saveToPersistentStoreAndWait()
-            } else {
-                MMLogDebug("[Registration] No need to save installation locally.")
-            }
             
 			self.sendRegistrationIfNeeded()
 		}
 	}
     
-    private var installationHasChanges: Bool {
-        return installationObject.changedValues().count > 0
-    }
-	
-	private var registrationDataChanged: Bool {
-		return installationObject.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken)
+	private var registrationStatusChanged: Bool {
+		return !installationObject.dirtyAttributesSet.intersection(SyncableAttributesSet.isRegistrationEnabled).isEmpty
 	}
 	
 	private func sendRegistrationIfNeeded() {
-		if self.registrationDataChanged {
-			MMLogDebug("[Registration] Sending the registration updates to server...")
-			self.sendRegistration()
-		} else {
-			MMLogDebug("[Registration] No need to send the installation on server.")
-			finish()
-		}
+		MMLogDebug("[Registration] Posting registration to server...")
+		self.sendRegistration()
 	}
 	
 	private func sendRegistration() {
         guard let deviceToken = installationObject.deviceToken else {
-            self.finish()
+			MMLogDebug("[Registration] There is no device token. Finishing...")
+            self.finish([NSError(type: MMInternalErrorType.UnknownError)])
             return
         }
-        
-		let request = MMPostRegistrationRequest(internalId: installationObject.internalUserId, deviceToken: deviceToken)
 		
-		self.remoteAPIQueue.perform(request: request) { result in
+		let isPushRegistrationEnabled: Bool? = registrationStatusChanged ? installationObject.isRegistrationEnabled : nil // send value only if changed
+		MobileMessaging.sharedInstance?.remoteApiManager.syncRegistration(internalId: installationObject.internalUserId, deviceToken: deviceToken, isEnabled: isPushRegistrationEnabled) { result in
 			self.handleRegistrationResult(result)
 			self.finishWithError(result.error)
 		}
 	}
 	
-	private func handleRegistrationResult(_ result: MMRegistrationResult) {
+	private func handleRegistrationResult(_ result: RegistrationResult) {
 		self.context.performAndWait {
 			guard let installationObject = self.installationObject else {
 				return
 			}
 			switch result {
 			case .Success(let regResponse):
-				MMLogDebug("[Registration] Installation updated on server for internal ID \(regResponse.internalUserId). Updating local version...")
+				MMLogDebug("[Registration] Installation updated on server for internal ID \(regResponse.internalId). Updating local version...")
+				if (regResponse.isEnabled != installationObject.isRegistrationEnabled) {
+					MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled: regResponse.isEnabled)
+				}
+				
+				installationObject.internalUserId = regResponse.internalId
+				installationObject.isRegistrationEnabled = regResponse.isEnabled
+				
 				installationObject.resetDirtyRegistration()
-				installationObject.internalUserId = regResponse.internalUserId
-				self.context.MM_saveToPersistentStoreAndWait()
-				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalUserId])
+ 				self.context.MM_saveToPersistentStoreAndWait()
+				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalId])
 			case .Failure(let error):
 				MMLogError("[Registration] request failed with error: \(error)")
 			case .Cancel:
@@ -103,13 +84,6 @@ final class RegistrationOperation: Operation {
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Registration] finished with errors: \(errors)")
-		if errors.isEmpty {
-			let systemDataSync = SystemDataSynchronizationOperation(сontext: self.context, remoteAPIQueue: remoteAPIQueue, finishBlock: { error in
-				self.finishBlock?(error)
-			})
-			self.produceOperation(systemDataSync)
-		} else {
-			finishBlock?(errors.first)
-		}
+		finishBlock?(errors.first)
 	}
 }

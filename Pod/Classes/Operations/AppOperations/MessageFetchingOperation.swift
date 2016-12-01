@@ -9,13 +9,11 @@ import CoreData
 
 final class MessageFetchingOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: ((MMFetchMessagesResult) -> Void)?
-	let remoteAPIQueue: MMRemoteAPIQueue
-	var result = MMFetchMessagesResult.Cancel
+	let finishBlock: ((MessagesSyncResult) -> Void)?
+	var result = MessagesSyncResult.Cancel
 	
-	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMFetchMessagesResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
 		self.context = context
-		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 		
 		super.init()
@@ -42,16 +40,15 @@ final class MessageFetchingOperation: Operation {
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
 			
-			let request = MMPostSyncRequest(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
 			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
-
-			self.remoteAPIQueue.perform(request: request) { result in
+			
+			MobileMessaging.sharedInstance?.remoteApiManager.syncMessages(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
 				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
 			}
 		}
 	}
 
-	private func handleRequestResponse(result: MMFetchMessagesResult, nonReportedMessageIds: [String]?) {
+	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?) {
 		self.result = result
 		
 		self.context.performAndWait {
@@ -103,14 +100,13 @@ final class MessageFetchingOperation: Operation {
 		return MessageHandlingOperation(messagesToHandle: messages,
 		                                messagesDeliveryMethod: .pull,
 		                                context: self.context,
-		                                remoteAPIQueue: self.remoteAPIQueue,
 		                                messageHandler: MobileMessaging.messageHandling,
 		                                applicationState: MobileMessaging.application.applicationState,
 		                                finishBlock: { error in
 											
 											var finalResult = self.result
 											if let error = error {
-												finalResult = MMFetchMessagesResult.Failure(error)
+												finalResult = MessagesSyncResult.Failure(error)
 											}
 											self.finishBlock?(finalResult)
 		})
@@ -118,10 +114,10 @@ final class MessageFetchingOperation: Operation {
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message fetching] finished with errors: \(errors)")
-		let finishResult = errors.isEmpty ? result : MMFetchMessagesResult.Failure(errors.first)
+		let finishResult = errors.isEmpty ? result : MessagesSyncResult.Failure(errors.first)
 		switch finishResult {
 		case .Success(let fetchResponse):
-			if let messages = fetchResponse.messages , messages.count > 0 {
+			if let messages = fetchResponse.messages , !messages.isEmpty {
 				self.produceOperation(handleMessageOperation(messages: messages))
 			} else {
 				self.finishBlock?(result)

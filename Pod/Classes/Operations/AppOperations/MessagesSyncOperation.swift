@@ -9,20 +9,18 @@ import UIKit
 import CoreData
 
 final class MessagesSyncOperation: GroupOperation {
-	var context: NSManagedObjectContext
-	var finishBlock: ((NSError?) -> Void)?
-	var remoteAPIQueue: MMRemoteAPIQueue
+	let context: NSManagedObjectContext
+	let finishBlock: ((NSError?) -> Void)?
 	
-	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
-		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 
-		let seenStatusSending = SeenStatusSendingOperation(context: context, remoteAPIQueue: remoteAPIQueue)
+		let seenStatusSending = SeenStatusSendingOperation(context: context)
 		
 		super.init(operations: [seenStatusSending])
 		
-		let messageFetching = MessageFetchingOperation(context: context, remoteAPIQueue: remoteAPIQueue)
+		let messageFetching = MessageFetchingOperation(context: context)
 		messageFetching.addDependency(seenStatusSending)
 		self.addOperation(messageFetching)
 	}

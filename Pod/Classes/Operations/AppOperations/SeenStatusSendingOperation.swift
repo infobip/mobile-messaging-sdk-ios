@@ -9,14 +9,12 @@ import UIKit
 import CoreData
 
 class SeenStatusSendingOperation: Operation {
-	var context: NSManagedObjectContext
-	var finishBlock: ((MMSeenMessagesResult) -> Void)?
-	var remoteAPIQueue: MMRemoteAPIQueue
-	var result = MMSeenMessagesResult.Cancel
+	let context: NSManagedObjectContext
+	let finishBlock: ((SeenStatusSendingResult) -> Void)?
+	var result = SeenStatusSendingResult.Cancel
 	
-	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMSeenMessagesResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, finishBlock: ((SeenStatusSendingResult) -> Void)? = nil) {
 		self.context = context
-		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 	}
 	
@@ -36,15 +34,14 @@ class SeenStatusSendingOperation: Operation {
 				return SeenData(messageId: msg.messageId, seenDate: seenDate)
 			}
 			
-			let request = MMPostSeenMessagesRequest(seenList: seenStatusesToSend)
-			self.remoteAPIQueue.perform(request: request) { result in
+			MobileMessaging.sharedInstance?.remoteApiManager.sendSeenStatus(seenList: seenStatusesToSend) { result in
 				self.handleSeenResult(result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
 				self.finishWithError(result.error)
 			}
 		}
 	}
 	
-	private func handleSeenResult(_ result: MMSeenMessagesResult, seenMessageIds:[String]) {
+	private func handleSeenResult(_ result: SeenStatusSendingResult, seenMessageIds:[String]) {
 		self.result = result
 		switch result {
 		case .Success(_):
@@ -74,7 +71,7 @@ class SeenStatusSendingOperation: Operation {
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Seen status reporting] finished: \(errors)")
 		if let error = errors.first {
-			result = MMSeenMessagesResult.Failure(error)
+			result = SeenStatusSendingResult.Failure(error)
 		}
 		finishBlock?(result)
 	}

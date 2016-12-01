@@ -29,71 +29,69 @@ extension String {
 		return .orderedSame
 	}
 }
-class MMVersionManager {
-	static let shared = MMVersionManager()
-	var remoteApiQueue: MMRemoteAPIQueue
-	
-	private let kLastCheckDateKey = "MMLibrary-LastCheckDateKey"
+
+class VersionManager {
+	static let shared = VersionManager()
 	var lastCheckDate : Date?
+	var remoteApiManager: RemoteAPIManager?
+	let defaultTimeout: Double = 60 * 60 * 24 // a day
 	
-	init?() {
-		guard let remoteUrl = MobileMessaging.sharedInstance?.remoteAPIBaseURL,
-			  let appCode = MobileMessaging.sharedInstance?.applicationCode else {
-				return nil
-		}
-		
-		lastCheckDate = UserDefaults.standard.object(forKey: kLastCheckDateKey) as? Date
-		remoteApiQueue = MMRemoteAPIQueue(baseURL: remoteUrl, applicationCode: appCode)
+	init() {
+		lastCheckDate = UserDefaults.standard.object(forKey: VersionCheck.lastCheckDateKey) as? Date
+		remoteApiManager = MobileMessaging.sharedInstance?.remoteApiManager
 	}
 	
-	func validateVersion() {
+	func validateVersion(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("[Checking versions] started...")
 		
-		var shouldCheckVersion = true
-		
-		if lastCheckDate != nil {
-			let advancedDate = lastCheckDate?.addingTimeInterval(60 /* to minutes */ * 60 /* to hours */ * 24 /* to days */)
-			shouldCheckVersion = (advancedDate?.compare(Date()) == ComparisonResult.orderedAscending)
-		}
-		
-		guard shouldCheckVersion else {
-			MMLogDebug("There's no need to check the library version at this time.")
+		guard lastCheckDate == nil || (lastCheckDate?.addingTimeInterval(defaultTimeout).compare(Date()) == ComparisonResult.orderedAscending) else
+		{
+			self.waitUntilItsTime()
+			completion?()
 			return
 		}
 		
-		let handlingQueue = OperationQueue.mm_newSerialQueue
-		
-		handlingQueue.addOperation(LibraryVersionFetchingOperation(remoteAPIQueue: remoteApiQueue) { [unowned self] (result: MMLibraryVersionResult) in
-			if result.error == nil {
-				if let onlineVersion = result.value?.libraryVersion,
-					let updateUrl = result.value?.updateUrl {
-					do {
-						if try String.compareVersionNumbers(onlineVersion, libVersion) == .orderedDescending {
-							// Make sure that this is displayed in the console (this code can easily execute before the devs set up the logging in the MM_ methods)
-							let warningMessage = "\n****\n\tMobileMessaging SDK version \(onlineVersion) is available. You are currently using the \(libVersion) version.\n\tWe recommend using the latest version.\n\tYou can update using 'pod update' or by downloading the latest version at: \(updateUrl)\n****\n"
-							if MobileMessaging.logger.logLevel == MMLogLevel.Off {
-								NSLog(warningMessage)
-							} else {
-								MMLogWarn(warningMessage)
-							}
-						} else {
-							MMLogDebug("[Checking versions] Your MobileMessaging library is up to date.")
-							
-							// save the date only if our version is the new one. Otherwise, we warn the dev in the console every time until he/she updates
-							self.lastCheckDate = Date()
-							UserDefaults.standard.set(self.lastCheckDate, forKey: self.kLastCheckDateKey)
-							UserDefaults.standard.synchronize()
-						}
-					} catch {
-						MMLogError("[Checking versions] Exceprion arose while comparing versions")
-					}
-				}
-			} else {
-				if let error = result.error {
-					MMLogError("[Checking versions] An error occurred while trying to validate library version: \(error)")
-				}
-			}
-		})
+		remoteApiManager?.fetchRecentLibraryVersion {
+			self.handleResult(result: $0)
+			completion?()
+		}
 	}
 	
+	func shouldShowNewVersionWarning(onlineVersion: String, localVersion: String) -> Bool {
+		return (try? String.compareVersionNumbers(onlineVersion, localVersion) == .orderedDescending) ?? false
+	}
+	
+	func showNewVersionWarning(localVersion: String, response: LibraryVersionResponse) {
+		// Make sure that this is displayed in the console (this code can easily execute before the devs set up the logging in the MM_ methods)
+		let warningMessage = "\n****\n\tMobileMessaging SDK version \(response.libraryVersion) is available. You are currently using the \(localVersion) version.\n\tWe recommend using the latest version.\n\tYou can update using 'pod update' or by downloading the latest version at: \(response.updateUrl)\n****\n"
+		if MobileMessaging.logger.logLevel == MMLogLevel.Off {
+			NSLog(warningMessage)
+		} else {
+			MMLogWarn(warningMessage)
+		}
+	}
+	
+	func waitUntilItsTime() {
+		MMLogDebug("There's no need to check the library version at this time.")
+	}
+	
+	func handleUpToDateCase() {
+		MMLogDebug("[Checking versions] Your MobileMessaging library is up to date.")
+		// save the date only if our version is the new one. Otherwise, we warn the dev in the console every time until he/she updates
+		self.lastCheckDate = Date()
+		UserDefaults.standard.set(self.lastCheckDate, forKey: VersionCheck.lastCheckDateKey)
+		UserDefaults.standard.synchronize()
+	}
+
+	func handleResult(result: LibraryVersionResult) {
+		if let response = result.value {
+			if shouldShowNewVersionWarning(onlineVersion: response.libraryVersion, localVersion: mobileMessagingVersion) {
+				showNewVersionWarning(localVersion: mobileMessagingVersion, response: response)
+			} else {
+				handleUpToDateCase()
+			}
+		} else {
+			MMLogError("[Checking versions] An error occurred while trying to validate library version: \(result.error)")
+		}
+	}
 }

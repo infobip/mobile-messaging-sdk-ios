@@ -5,7 +5,7 @@
 
 import Foundation
 
-class MMRetryableRequestOperation<RequestType: MMHTTPRequestData>: MMRetryableOperation {
+class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperation {
 	typealias ResponseTypeResult = Result<RequestType.ResponseType>
 	private var operationQueue = MMQueue.Serial.New.RetryableRequest.queue
 	private var operationResult: ResponseTypeResult = ResponseTypeResult.Failure(nil)

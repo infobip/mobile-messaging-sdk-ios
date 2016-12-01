@@ -10,15 +10,13 @@ import CoreData
 
 class MessagePostingOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: ((MMMOMessageResult) -> Void)?
-	var result = MMMOMessageResult.Cancel
-	let remoteAPIQueue: MMRemoteAPIQueue
+	let finishBlock: ((MOMessageSendingResult) -> Void)?
+	var result = MOMessageSendingResult.Cancel
 	var messagesToSend: Set<MOMessage>?
 	var resultMessages: [MOMessage]?
 	
-	init(messages: [MOMessage]?, context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMMOMessageResult) -> Void)? = nil) {
+	init(messages: [MOMessage]?, context: NSManagedObjectContext, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
 		self.context = context
-		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 		if let messages = messages, !messages.isEmpty {
 			self.messagesToSend = Set(messages)
@@ -37,12 +35,11 @@ class MessagePostingOperation: Operation {
 			return
 		}
 		self.context.performAndWait {
-			if let request = MMPostMessageRequest(internalUserId: internalId, messages: Array(messagesToSend)) {
-				self.postWillSendNotification(messagesToSend: messagesToSend)
-				self.populateMessageStorage(with: messagesToSend)
-				self.remoteAPIQueue.perform(request: request) { result in
-					self.handleResult(result: result)
-				}
+			self.postWillSendNotification(messagesToSend: messagesToSend)
+			self.populateMessageStorage(with: messagesToSend)
+			
+			MobileMessaging.sharedInstance?.remoteApiManager.sendMessages(internalUserId: internalId, messages: Array(messagesToSend)) { result in
+				self.handleResult(result: result)
 			}
 		}
 	}
@@ -68,7 +65,7 @@ class MessagePostingOperation: Operation {
 		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesDidSend, userInfo: userInfo.isEmpty ? nil : userInfo)
 	}
 	
-	private func handleResult(result: MMMOMessageResult) {
+	private func handleResult(result: MOMessageSendingResult) {
 		self.result = result
 		context.performAndWait {
 			switch result {
@@ -92,7 +89,7 @@ class MessagePostingOperation: Operation {
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message posting] finished with errors: \(errors)")
-		let finishResult = errors.isEmpty ? result : MMMOMessageResult.Failure(errors.first)
+		let finishResult = errors.isEmpty ? result : MOMessageSendingResult.Failure(errors.first)
 		finishBlock?(finishResult)
 	}
 }

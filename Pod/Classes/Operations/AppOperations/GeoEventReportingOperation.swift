@@ -11,14 +11,11 @@ import CoreData
 class GeoEventReportingOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((MMGeoEventReportingResult) -> Void)?
-	let remoteAPIQueue: MMRemoteAPIQueue
 	var result = MMGeoEventReportingResult.Cancel
 	var sentIds = [NSManagedObjectID]()
 	
-	
-	init(context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((MMGeoEventReportingResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, finishBlock: ((MMGeoEventReportingResult) -> Void)? = nil) {
 		self.context = context
-		self.remoteAPIQueue = remoteAPIQueue
 		self.finishBlock = finishBlock
 	}
 	
@@ -41,8 +38,8 @@ class GeoEventReportingOperation: Operation {
 				return GeoEventReportData(geoAreaId: event.geoAreaId, eventType: eventType, campaignId: event.campaignId, eventDate: event.eventDate, messageId: event.messageId)
 			}
 			
-			if let request = MMGeoEventsReportingRequest(eventsDataList: geoEventReportsData) {
-				self.remoteAPIQueue.perform(request: request) { result in
+			if !geoEventReportsData.isEmpty {
+				MobileMessaging.sharedInstance?.remoteApiManager.sendGeoEventReports(eventsDataList: geoEventReportsData) { result in
 					self.handleRequestResult(result)
 					self.finishWithError(result.error)
 				}

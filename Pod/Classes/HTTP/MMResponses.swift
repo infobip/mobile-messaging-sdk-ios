@@ -8,29 +8,57 @@
 
 import SwiftyJSON
 
-typealias MMRegistrationResult = Result<MMHTTPRegistrationResponse>
-typealias MMFetchMessagesResult = Result<MMHTTPSyncMessagesResponse>
-typealias MMSeenMessagesResult = Result<MMHTTPSeenMessagesResponse>
-typealias MMUserDataSyncResult = Result<MMHTTPUserDataSyncResponse>
-typealias MMSystemDataSyncResult = Result<MMHTTPSystemDataSyncResponse>
-typealias MMMOMessageResult = Result<MMHTTPMOMessageResponse>
-typealias MMLibraryVersionResult = Result<MMHTTPLibraryVersionResponse>
-typealias MMGeoEventReportingResult = Result<MMHTTPGeoEventReportingResponse>
 
-public protocol JSONDecodable {
-	init?(json: JSON)
-}
-public protocol JSONEncodable {
-	func toJSON() -> JSON
-}
+//MARK: - Responses
+struct EmptyResponse { }
 
-extension Date: JSONEncodable {
-	public func toJSON() -> JSON {
-		return JSON(DateStaticFormatters.ContactsServiceDateFormatter.string(from: self))
-	}
+typealias SeenStatusSendingResponse = EmptyResponse
+
+typealias SystemDataSyncResponse = EmptyResponse
+
+struct RegistrationResponse {
+	let internalId: String
+	let isEnabled: Bool
+	let platform: String
+	let deviceToken: String
 }
 
-public struct MMRequestError {
+struct GeoEventReportingResponse {
+	let finishedCampaignIds: [String]?
+	let suspendedCampaignIds: [String]?
+}
+
+struct LibraryVersionResponse {
+	let platformType : String
+	let libraryVersion : String
+	let updateUrl : String
+}
+
+struct MessagesSyncResponse {
+	let messages: [MTMessage]?
+}
+
+struct UserDataSyncResponse {
+	let predefinedData: [String: Any]?
+	let customData: [CustomUserData]?
+	let error: RequestError?
+}
+
+struct MOMessageSendingResponse {
+	let messages: [MOMessage]
+}
+
+//MARK: - Request results
+typealias RegistrationResult = Result<RegistrationResponse>
+typealias MessagesSyncResult = Result<MessagesSyncResponse>
+typealias SeenStatusSendingResult = Result<SeenStatusSendingResponse>
+typealias UserDataSyncResult = Result<UserDataSyncResponse>
+typealias SystemDataSyncResult = Result<SystemDataSyncResponse>
+typealias MOMessageSendingResult = Result<MOMessageSendingResponse>
+typealias LibraryVersionResult = Result<LibraryVersionResponse>
+typealias MMGeoEventReportingResult = Result<GeoEventReportingResponse>
+
+public struct RequestError {
 	public var isUNAUTHORIZED: Bool {
 		return messageId == "UNAUTHORIZED"
 	}
@@ -48,8 +76,27 @@ public struct MMRequestError {
 	}
 }
 
-extension MMRequestError: JSONDecodable {
-	public init?(json value: JSON) {
+//MARK: - JSON encoding/decoding
+protocol JSONDecodable {
+	init?(json: JSON)
+}
+
+protocol JSONEncodable {
+	func toJSON() -> JSON
+}
+
+extension EmptyResponse: JSONDecodable {
+	init?(json value: JSON) { }
+}
+
+extension Date: JSONEncodable {
+	public func toJSON() -> JSON {
+		return JSON(DateStaticFormatters.ContactsServiceDateFormatter.string(from: self))
+	}
+}
+
+extension RequestError: JSONDecodable {
+	init?(json value: JSON) {
 		let serviceException = value[MMAPIKeys.kRequestError][MMAPIKeys.kServiceException]
 		guard
 			let text = serviceException[MMAPIKeys.kErrorText].string,
@@ -63,84 +110,49 @@ extension MMRequestError: JSONDecodable {
 	}
 }
 
-class MMHTTPResponse: JSONDecodable {
-	required init?(json value: JSON) {
-	}
-}
-
-//MARK: API Responses
-final class MMHTTPRegistrationResponse: MMHTTPResponse {
-    let internalUserId: String
-
-	required init?(json value: JSON) {
-		if let internalUserId = value[MMAPIKeys.kInternalRegistrationId].string {
-			self.internalUserId = internalUserId
-		} else {
+extension RegistrationResponse: JSONDecodable {
+	init?(json value: JSON) {
+		guard let internalId = value[PushRegistration.internalId].string
+			else
+		{
 			return nil
 		}
-		super.init(json: value)
+		
+		self.internalId = internalId
+		self.isEnabled = value[PushRegistration.isEnabled].bool ?? true
+		self.platform = value[PushRegistration.platform].string ?? "APNS"
+		self.deviceToken = value[PushRegistration.deviceToken].string ?? "stub"
 	}
 }
 
-class MMHTTPEmptyResponse: MMHTTPResponse {
-}
-
-final class MMHTTPUserDataUpdateResponse: MMHTTPEmptyResponse { }
-final class MMHTTPSeenMessagesResponse: MMHTTPEmptyResponse { }
-
-final class MMHTTPGeoEventReportingResponse: MMHTTPResponse {
-	let finishedCampaignIds: [String]?
-	let suspendedCampaignIds: [String]?
-
-	required init?(json value: JSON) {
+extension GeoEventReportingResponse: JSONDecodable {
+	init?(json value: JSON) {
 		self.finishedCampaignIds = value[GeoReportingAPIKeys.finishedCampaignIds].arrayObject as? [String]
 		self.suspendedCampaignIds = value[GeoReportingAPIKeys.suspendedCampaignIds].arrayObject as? [String]
-		super.init(json: value)
 	}
 }
 
-final class MMHTTPLibraryVersionResponse: MMHTTPResponse {
-
-	let platformType : String
-	let libraryVersion : String
-	let updateUrl : String
-	
-	required init?(json value: JSON) {
-		
-		guard let platformType = value[MMAPIKeys.kLibraryVersionPlatformType].rawString(),
-			let libraryVersion = value[MMAPIKeys.kLibraryVersionLibraryVersion].rawString(),
-			let updateUrl = value[MMAPIKeys.kLibraryVersionUpdateUrl].rawString() else {
+extension LibraryVersionResponse: JSONDecodable {
+	init?(json value: JSON) {
+		guard let platformType = value[VersionCheck.platformType].rawString(),
+			let libraryVersion = value[VersionCheck.libraryVersion].rawString(),
+			let updateUrl = value[VersionCheck.libraryVersionUpdateUrl].rawString() else {
 				return nil
 		}
-		
 		self.platformType = platformType
 		self.libraryVersion = libraryVersion
 		self.updateUrl = updateUrl
-		
-		super.init(json: value)
 	}
 }
 
-final class MMHTTPSyncMessagesResponse: MMHTTPResponse {
-    let messages: [MTMessage]?
-	required init?(json value: JSON) {
+extension MessagesSyncResponse: JSONDecodable{
+	init?(json value: JSON) {
 		self.messages = value[APNSPayloadKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
-		super.init(json: value)
 	}
 }
 
-final class MMHTTPSystemDataSyncResponse: MMHTTPEmptyResponse { }
-
-final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
-	typealias ErrorMessage = String
-	typealias AttributeName = String
-	typealias ValueType = Any
-	
-	let predefinedData: [AttributeName: ValueType]?
-	let customData: [CustomUserData]?
-	let error: MMRequestError?
-	
-	required init?(json value: JSON) {
+extension UserDataSyncResponse: JSONDecodable {
+	init?(json value: JSON) {
 		self.predefinedData = value[MMAPIKeys.kUserDataPredefinedUserData].dictionaryObject
 		self.customData = value[MMAPIKeys.kUserDataCustomUserData].dictionaryObject?.reduce([CustomUserData](), { (result, pair) -> [CustomUserData] in
 			if let element = CustomUserData(dictRepresentation: [pair.0: pair.1]) {
@@ -149,27 +161,12 @@ final class MMHTTPUserDataSyncResponse: MMHTTPResponse {
 				return result
 			}
 		})
-		
-		self.error = MMRequestError(json: value)
-		super.init(json: value)
+		self.error = RequestError(json: value)
 	}
 }
-final class MMHTTPMOMessageResponse: MMHTTPResponse {
-	let messages: [MOMessage]
-	
-	required init?(json value: JSON) {
+
+extension MOMessageSendingResponse: JSONDecodable {
+	init?(json value: JSON) {
 		self.messages = value[MMAPIKeys.kMOMessages].arrayValue.flatMap(MOMessage.init)
-		super.init(json: value)
 	}
-}
-
-
-//MARK: Other
-func ==(lhs: MTMessage, rhs: MTMessage) -> Bool {
-	return lhs.messageId == rhs.messageId
-}
-
-protocol MMMessageMetadata: Hashable {
-	var isSilent: Bool {get}
-	var messageId: String {get}
 }

@@ -26,22 +26,15 @@ extension Set where Element: MMRegion {
 
 class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
 	override var isRunning: Bool {
-		set {
-			
-		}
-		get {
-			return true
-		}
+		set {}
+		get { return true }
 	}
 	
 	override func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
 		completion(.Authorized)
 	}
 	
-	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-		
-	}
-
+	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
 }
 
 let expectedCampaignId = "campaign 1"
@@ -235,7 +228,7 @@ var defaultEvent = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry
 class GeofencingServiceTests: MMTestCase {
 	
 	func testThatGeoPushIsPassedToTheGeoService() {
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIQueue(baseURL: MMTestConstants.kTestBaseURLString, applicationCode: MMTestConstants.kTestCorrectApplicationCode))
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		
 		weak var expectation = self.expectation(description: "Check finished")
 		
@@ -372,7 +365,8 @@ class GeofencingServiceTests: MMTestCase {
 	func testDefaultEventsSettings() {
 		weak var report1 = expectation(description: "report1")
 		weak var report2 = expectation(description: "report2")
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPIAlwaysSucceeding()
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else
 		{
@@ -408,7 +402,8 @@ class GeofencingServiceTests: MMTestCase {
 		weak var report1 = expectation(description: "report1")
 		weak var report2 = expectation(description: "report2")
 		
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPIAlwaysSucceeding()
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		let events = [makeEventDict(ofType: .exit, limit: 1, timeout: 0)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		
@@ -455,7 +450,8 @@ class GeofencingServiceTests: MMTestCase {
 		weak var report2 = expectation(description: "report2")
 		weak var report3 = expectation(description: "report3")
 		
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPIAlwaysSucceeding()
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		
 		let timeoutInMins: Int = 1
 		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins),
@@ -509,7 +505,8 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testEventLimitZero() {
 		
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPIAlwaysSucceeding()
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 
 		let events = [makeEventDict(ofType: .entry, limit: 0, timeout: 0),
 		              makeEventDict(ofType: .exit, limit: 0, timeout: 0)]
@@ -551,7 +548,8 @@ class GeofencingServiceTests: MMTestCase {
 		weak var report1 = expectation(description: "report1")
 		weak var report2 = expectation(description: "report2")
 		
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPIAlwaysSucceeding())
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPIAlwaysSucceeding()
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 
 		let events = [makeEventDict(ofType: .entry, limit: 1),
 		              makeEventDict(ofType: .exit, limit: 1)]
@@ -752,13 +750,11 @@ class GeofencingServiceTests: MMTestCase {
 	func testGeoEventsStorageSuccessfullyReported() {
 		// triggers 2 events and mocks successfull reportings wich ends up with an empty events storage
 		generalTestForPersistingEventReports(with: MMRemoteAPIAlwaysSucceeding(), expectedEventsCount: 0)
-		
 	}
 	
 	func testGeoEventsStorageUnsuccessfullyReported() {
 		// triggers 2 events and mocks failed reportings wich ends up with an events storage containing 2 records
 		generalTestForPersistingEventReports(with: MMRemoteAPIAlwaysFailing(), expectedEventsCount: 2)
-		
 	}
 
 	func testThatReportsAreBeingSentToTheServerWithCorrectData() {
@@ -784,7 +780,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		// expect remote api queue called
 		let remoteAPIMock = MMRemoteAPIAlwaysSucceeding() { (request) in
-			if let request = request as? MMGeoEventsReportingRequest {
+			if let request = request as? GeoEventReportingRequest {
 				if let report = request.eventsDataList.first {
 					sentCampaignIds.insert(report.campaignId)
 					sentGeoAreaIds.insert(report.geoAreaId)
@@ -815,7 +811,8 @@ class GeofencingServiceTests: MMTestCase {
 				eventReported?.fulfill()
 			}
 		}
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: remoteAPIMock )
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = remoteAPIMock
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		
 		// simulate entry event
 		MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { state in
@@ -842,19 +839,20 @@ class GeofencingServiceTests: MMTestCase {
 		let pulaObject = message.regions.findPula
 		
 		// expect remote api queue called
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: apiMock )
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = apiMock
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		
 		// simulate entry event
 		let reportSendingGroup = DispatchGroup()
 		reportSendingGroup.enter()
 		reportSendingGroup.enter()
 		
-		mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
+		mobileMessagingInstance.geofencingService.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
 			XCTAssertEqual(CampaignState.Active, state)
 			reportSendingGroup.leave()
 		})
 		
-		mobileMessagingInstance.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, message: message, completion:  { state in
+		mobileMessagingInstance.geofencingService.report(on: .exit, forRegionId: pulaObject.identifier, message: message, completion:  { state in
 			XCTAssertEqual(CampaignState.Active, state)
 			reportSendingGroup.leave()
 		})
@@ -877,14 +875,15 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testSuspendedCampaigns() {
 		weak var report1 = expectation(description: "report1")
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPICampaignStatesStub())
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPICampaignStatesStub()
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict], campaignId: suspendedCampaignId)
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
 			XCTFail()
 			return
 		}
 		let pulaObject = message.regions.findPula
-		mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
+		mobileMessagingInstance.geofencingService.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
 			XCTAssertEqual(CampaignState.Suspended, state)
 			report1?.fulfill()
 		})
@@ -894,7 +893,8 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testFinishedCampaigns() {
 		weak var report1 = expectation(description: "report1")
-		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, remoteAPIQueue: MMRemoteAPICampaignStatesStub())
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPICampaignStatesStub()
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict], campaignId: finishedCampaignId)
 		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
 			XCTFail()
@@ -905,7 +905,7 @@ class GeofencingServiceTests: MMTestCase {
 			//Should be in main because Geofencing service saves data asynchronously in main
 			DispatchQueue.main.async {
 				let pulaObject = message.regions.findPula
-				self.mobileMessagingInstance.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
+				self.mobileMessagingInstance.geofencingService.report(on: .entry, forRegionId: pulaObject.identifier, message: message, completion: { state in
 					XCTAssertEqual(CampaignState.Finished, state)
 					let context = self.storage.mainThreadManagedObjectContext!
 					let message = MessageManagedObject.MM_findFirstWithPredicate(NSPredicate(format: "self.campaignId == %@", finishedCampaignId), context: context)
@@ -919,24 +919,24 @@ class GeofencingServiceTests: MMTestCase {
 	}
 }
 
-final class MMRemoteAPICampaignStatesStub : MMRemoteAPIQueue {
+final class MMRemoteAPICampaignStatesStub : MMRemoteAPIMock {
 	
-	init() {
-		super.init(baseURL: "stub", applicationCode: "stub")
-	}
-	
-	override func perform<R : MMHTTPRequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		var response = R.ResponseType(json: JSON(NSNull()))
-		if request.path == MMHTTPAPIPath.GeoEventsReports, let req = request as? MMGeoEventsReportingRequest {
-			if req.eventsDataList.first?.campaignId == suspendedCampaignId {
-				let jsonStr = "{\"suspendedCampaignIds\": [\"\(suspendedCampaignId)\"]}"
-				response = R.ResponseType(json: JSON.parse(jsonStr))
+	convenience init() {
+		self.init(baseURLString: "stub", appCode: "stub", performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+			
+			if let request = request as? GeoEventReportingRequest, request.path == APIPath.GeoEventsReports{
+				let jsonStr: String
+				if request.eventsDataList.first?.campaignId == suspendedCampaignId {
+					jsonStr = "{\"suspendedCampaignIds\": [\"\(suspendedCampaignId)\"]}"
+				} else if request.eventsDataList.first?.campaignId == finishedCampaignId {
+					jsonStr = "{\"finishedCampaignIds\": [\"\(finishedCampaignId)\"]}"
+				} else {
+					return nil
+				}
+				return JSON.parse(jsonStr)
+			} else {
+				return nil
 			}
-			if req.eventsDataList.first?.campaignId == finishedCampaignId {
-				let jsonStr = "{\"finishedCampaignIds\": [\"\(finishedCampaignId)\"]}"
-				response = R.ResponseType(json: JSON.parse(jsonStr))
-			}
-		}
-		completion(Result.Success(response!))
+		})
 	}
 }

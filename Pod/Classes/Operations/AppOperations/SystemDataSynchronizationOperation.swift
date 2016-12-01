@@ -12,7 +12,6 @@ import Security
 class SystemDataSynchronizationOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?) -> Void)?
-	let remoteAPIQueue: MMRemoteAPIQueue
 	private var installationObject: InstallationManagedObject!
 	
 	lazy var currentSystemData: MMSystemData = {
@@ -23,10 +22,9 @@ class SystemDataSynchronizationOperation: Operation {
 		return Int64(self.currentSystemData.hashValue)
 	}()
 	
-	init(сontext context: NSManagedObjectContext, remoteAPIQueue: MMRemoteAPIQueue, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(сontext context: NSManagedObjectContext, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
-		self.remoteAPIQueue = remoteAPIQueue
 		super.init()
 	}
 	
@@ -56,16 +54,16 @@ class SystemDataSynchronizationOperation: Operation {
 			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
+
+		MMLogDebug("[System data sync] performing request...")
 		
-		let request = MMPostSystemDataRequest(internalUserId: internalId, systemData: currentSystemData)
-		MMLogDebug("[System data sync] performing request... \(currentSystemData)")
-		remoteAPIQueue.perform(request: request) { result in
+		MobileMessaging.sharedInstance?.remoteApiManager.syncSystemData(internalUserId: internalId, systemData: currentSystemData) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}
 	}
 	
-	private func handleResult(_ result: MMSystemDataSyncResult) {
+	private func handleResult(_ result: SystemDataSyncResult) {
 		context.performAndWait {
 			switch result {
 			case .Success:

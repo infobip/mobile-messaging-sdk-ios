@@ -16,21 +16,16 @@ class ActiveApplicationMock: UIApplicationProtocol {
 	}
 	
 	var applicationIconBadgeNumber: Int {
-		get {
-			return 0
-		}
-		set {
-			
-		}
+		get { return 0 }
+		set {}
 	}
 	
-	var isRegisteredForRemoteNotifications: Bool {
-		return true
-	}
+	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
 	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
 	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
+	var currentUserNotificationSettings: UIUserNotificationSettings? { return nil }
 }
 
 
@@ -40,46 +35,38 @@ class InactiveApplicationMock: UIApplicationProtocol {
 	}
 	
 	var applicationIconBadgeNumber: Int {
-		get {
-			return 0
-		}
-		set {
-			
-		}
+		get { return 0 }
+		set {}
 	}
 
-	var isRegisteredForRemoteNotifications: Bool {
-		return true
-	}
+	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
 	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
 	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
+	var currentUserNotificationSettings: UIUserNotificationSettings? { return nil }
 }
 
 class MMTestCase: XCTestCase {
     var mobileMessagingInstance: MobileMessaging {
-        var result: MobileMessaging? = nil
-        result = MobileMessaging.sharedInstance
-        return result!
+        return MobileMessaging.sharedInstance!
     }
     
     var storage: MMCoreDataStorage {
-        var result: MMCoreDataStorage? = nil
-        result = self.mobileMessagingInstance.internalStorage
-        return result!
+        return self.mobileMessagingInstance.internalStorage
     }
     
     override func setUp() {
         super.setUp()
-        MobileMessaging.logger.logOutput = .None
-        MobileMessaging.logger.logLevel = .Off
+        MobileMessaging.logger.logOutput = .Console
+        MobileMessaging.logger.logLevel = .All
         MobileMessaging.stop(true)
         startWithCorrectApplicationCode()
     }
     
     func cleanUpAndStop() {
         MobileMessaging.stop(true)
+		MobileMessaging.sharedInstance = nil
     }
     
     override func tearDown() {
@@ -105,15 +92,15 @@ class MMTestCase: XCTestCase {
         return count
     }
     
-    func startWithApplicationCode(_ code: String) {
-        MobileMessaging.withApplicationCode(code, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+	func startWithApplicationCode(_ code: String) {
+		MobileMessaging.withApplicationCode(code, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.start()
     }
     
     func startWithCorrectApplicationCode() {
-        MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.start()
     }
     
     func startWithWrongApplicationCode() {
-        MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: []).withBackendBaseURL(MMTestConstants.kTestBaseURLString).start()
+        MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.start()
     }
 }

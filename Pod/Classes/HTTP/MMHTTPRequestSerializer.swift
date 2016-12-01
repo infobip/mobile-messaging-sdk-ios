@@ -1,11 +1,11 @@
 //
-//  MMHTTPRequestSerializer.swift
+//  RequestSerializer.swift
 //  MobileMessaging
 //
 //  Created by okoroleva on 07.03.16.
 //
 
-final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
+final class RequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String
     private var jsonBody: [String: Any]?
 	private var headers: [String: String]?
@@ -69,7 +69,7 @@ final class MMHTTPRequestSerializer : MM_AFHTTPRequestSerializer {
 	func makeURL(withQueryParameters parameters: Any?, url: String) -> URL? {
 		var completeURLString = url
 		if let dictParams = parameters as? [String : AnyObject] {
-			completeURLString += "?" + MMHTTPRequestSerializer.query(fromParameters: dictParams);
+			completeURLString += "?" + RequestSerializer.query(fromParameters: dictParams);
 		}
 		return URL(string: completeURLString)
 	}
