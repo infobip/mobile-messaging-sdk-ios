@@ -28,7 +28,7 @@ class RemoteAPIManager {
 	}
 	
 	func fetchUserData(internalUserId: String, externalUserId: String?, completion: @escaping (UserDataSyncResult) -> Void) {
-		let request = UserDataRequest(internalUserId: internalUserId, externalUserId: internalUserId)
+		let request = UserDataRequest(internalUserId: internalUserId, externalUserId: externalUserId)
 		registrationQueue.perform(request: request, completion: completion)
 	}
 	
