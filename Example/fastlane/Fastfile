@@ -174,7 +174,7 @@ platform :ios do
             sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{version_number}/g;' #{swift_version_path}"
 
             desc "Comitting changes"
-            sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\" \"#{swift_app_code_path}\""
+            sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\""
 
             desc "Pushing to Stash repo master"
             sh "git push origin HEAD:master --tags"
