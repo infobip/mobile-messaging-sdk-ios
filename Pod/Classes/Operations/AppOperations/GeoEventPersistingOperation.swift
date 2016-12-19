@@ -31,6 +31,7 @@ class GeoEventPersistingOperation: Operation {
 				var internalData = payload[APNSPayloadKeys.kInternalData] as? DictionaryRepresentation
 			{
 				internalData += [APNSPayloadKeys.kInternalDataGeo: self.message.regions.map{ $0.dictionaryRepresentation }]
+				internalData += [APNSPayloadKeys.kInternalDataEvent: self.message.events.map{ $0.dictionaryRepresentation}]
 				payload.updateValue(internalData, forKey: APNSPayloadKeys.kInternalData)
 				msg.payload = payload
 			}

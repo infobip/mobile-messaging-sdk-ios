@@ -60,9 +60,6 @@ class MMGeofencingDatasource {
 	}
 	
 //MARK: - Private
-	private func addRegions(regions: Set<MMRegion>) {
-		regions.forEach{ regionsDictionary[$0.identifier] = $0 }
-	}
 	
 	private func loadMessages() {
 		context.performAndWait {
@@ -73,7 +70,7 @@ class MMGeofencingDatasource {
 	}
 	
 	private func addRegions(from message: MMGeoMessage) {
-		message.regions.forEach{ regionsDictionary[$0.identifier] = $0 }
+		message.regions.forEach{ regionsDictionary[$0.dataSourceIdentifier] = $0 }
 	}
 	
 	private func removeRegions(withMessageId messageId: String) {
@@ -81,7 +78,7 @@ class MMGeofencingDatasource {
 			return $0.messageId == messageId
 		}).forEach {
 			$0.regions.forEach {
-				regionsDictionary[$0.identifier] = nil
+				regionsDictionary[$0.dataSourceIdentifier] = nil
 			}
 		}
 	}

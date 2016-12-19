@@ -24,20 +24,65 @@ extension Set where Element: MMRegion {
 	}
 }
 
+class LocationManagerMock: CLLocationManager {
+	var mockedLocation: CLLocation?
+	var monitoredRegionsArray = [CLRegion]()
+	override var monitoredRegions: Set<CLRegion> {
+		get { return Set(monitoredRegionsArray)}
+		set {}
+	}
+	
+	override var location: CLLocation? {
+		return mockedLocation ?? super.location
+	}
+	override func startMonitoring(for region: CLRegion) {
+		monitoredRegionsArray.append(region)
+	}
+	
+	override func stopMonitoring(for region: CLRegion) {
+		if let index = monitoredRegionsArray.index(of: region) {
+			monitoredRegionsArray.remove(at: index)
+		}
+	}
+}
+
 class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
+	var didEnterRegionCallback: ((MMRegion) -> Void)?
 	override var isRunning: Bool {
 		set {}
 		get { return true }
 	}
+	
+	override var locationManager: CLLocationManager! {
+		set {}
+		get {
+			return mockedLocationManager
+		}
+	}
+	
+	var mockedLocationManager: LocationManagerMock = {
+		return LocationManagerMock()
+	}()
 	
 	override func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
 		completion(.Authorized)
 	}
 	
 	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
+	
+	override func locationManager(_ manager: CLLocationManager, didEnterDatasourceRegion datasourceRegion: MMRegion) {
+		self.didEnterRegionCallback?(datasourceRegion)
+	}
+	
+	override func stop(_ completion: ((Bool) -> Void)?) {
+		eventsHandlingQueue.cancelAllOperations()
+		self.isRunning = false
+		mockedLocationManager.monitoredRegionsArray = [CLRegion]()
+	}
 }
 
 let expectedCampaignId = "campaign 1"
+let expectedMessageId = "message 1"
 
 let expectedStartDateString = "2016-08-05T12:20:16+03:00"
 
@@ -82,10 +127,10 @@ var notExpectedDate: Date {
 	return comps.date!
 }
 
-var baseAPNSDict: APNSPayload {
+func baseAPNSDict(messageId: String = expectedMessageId) -> APNSPayload {
 	return
 		[
-			APNSPayloadKeys.kMessageId: "123",
+			APNSPayloadKeys.kMessageId: messageId,
 			APNSPayloadKeys.kAps: [
 				APNSPayloadKeys.kContentAvailable: 1
 			]
@@ -120,7 +165,7 @@ var modernInternalDataWithZagrebPulaDict: APNSPayload {
 }
 
 var modernAPNSPayloadZagrebPulaDict: APNSPayload {
-	return (baseAPNSDict + [APNSPayloadKeys.kInternalData: modernInternalDataWithZagrebPulaDict])!
+	return (baseAPNSDict() + [APNSPayloadKeys.kInternalData: modernInternalDataWithZagrebPulaDict])!
 }
 
 // jsons
@@ -193,12 +238,12 @@ func makeBaseInternalDataDict(campaignId: String) -> APNSPayload {
 	]
 }
 
-func makeApnsPayloadWithoutRegionsDataDict(campaignId: String) -> APNSPayload {
-	return (baseAPNSDict + [APNSPayloadKeys.kInternalData: makeBaseInternalDataDict(campaignId: campaignId)])!
+func makeApnsPayloadWithoutRegionsDataDict(campaignId: String, messageId: String) -> APNSPayload {
+	return (baseAPNSDict(messageId: messageId) + [APNSPayloadKeys.kInternalData: makeBaseInternalDataDict(campaignId: campaignId)])!
 }
 
-func makeApnsPayload(withEvents events: [APNSPayload]?, deliveryTime: APNSPayload?, regions: [APNSPayload], campaignId: String = expectedCampaignId) -> APNSPayload {
-	var result = makeApnsPayloadWithoutRegionsDataDict(campaignId: campaignId)
+func makeApnsPayload(withEvents events: [APNSPayload]?, deliveryTime: APNSPayload?, regions: [APNSPayload], campaignId: String = expectedCampaignId, messageId: String = expectedMessageId) -> APNSPayload {
+	var result = makeApnsPayloadWithoutRegionsDataDict(campaignId: campaignId, messageId: messageId)
 	var internalData = result[APNSPayloadKeys.kInternalData] as! APNSPayload
 	internalData[APNSPayloadKeys.kInternalDataGeo] = regions
 	internalData[APNSPayloadKeys.kInternalDataEvent] = events ?? [defaultEvent]
@@ -440,7 +485,7 @@ class GeofencingServiceTests: MMTestCase {
 		let geoMsg = MMMessageFactory.makeMessage(with: geoMessagePayload, createdDate: Date())
 		XCTAssertTrue(geoMsg is MMGeoMessage)
 		
-		let regularMessagePayload = makeApnsPayloadWithoutRegionsDataDict(campaignId: expectedCampaignId)
+		let regularMessagePayload = makeApnsPayloadWithoutRegionsDataDict(campaignId: expectedCampaignId, messageId: expectedMessageId)
 		let msg = MMMessageFactory.makeMessage(with: regularMessagePayload, createdDate: Date())
 		XCTAssertFalse(msg is MMGeoMessage)
 	}
@@ -805,7 +850,7 @@ class GeofencingServiceTests: MMTestCase {
 				XCTAssertEqual(sentEventTypes.count, 2)
 				
 				print(sentMessageIds)
-				XCTAssertTrue(sentMessageIds.contains("123"))
+				XCTAssertTrue(sentMessageIds.contains(expectedMessageId))
 				XCTAssertEqual(sentMessageIds.count, 1)
 				
 				eventReported?.fulfill()
@@ -914,6 +959,134 @@ class GeofencingServiceTests: MMTestCase {
 				})
 			}
 		})
+		
+		waitForExpectations(timeout: 60, handler: nil)
+	}
+	
+	func testEventNotOccuredAgaingAfterRestartTheService() {
+		weak var messageExp = expectation(description: "messageExp")
+		weak var reportExp = expectation(description: "reportExp")
+		
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPIAlwaysSucceeding()
+		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage)
+		let oldDatasource = mobileMessagingInstance.geofencingService.datasource
+		
+		let timeoutInMins: Int = 1
+		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins)]
+		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
+		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+			XCTFail()
+			return
+		}
+		
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload, newMessageReceivedCallback: nil, completion: { result in
+			messageExp?.fulfill()
+			
+			let pulaObject = message.regions.findPula
+			
+			XCTAssertTrue(message.isLive(for: .entry))
+			
+			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, message: message) { state in
+				XCTAssertEqual(CampaignState.Active, state)
+				
+				//Check that occurence count was saved in DB
+				DispatchQueue.main.async {
+					MobileMessaging.geofencingService?.datasource = MMGeofencingDatasource(storage: self.storage)
+					XCTAssertFalse(oldDatasource! === MobileMessaging.geofencingService!.datasource)
+					let messageAfterEvent = MobileMessaging.geofencingService?.datasource.messages.first
+					let region = messageAfterEvent?.regions.first
+					XCTAssertNotNil(region)
+					XCTAssertEqual(region!.radius, pulaObject.radius)
+					XCTAssertEqual(region!.identifier, pulaObject.identifier)
+					XCTAssertEqual(region!.message?.events.first?.occuringCounter, 1)
+					XCTAssertNotNil(region!.message?.events.first?.lastOccuring)
+					XCTAssertFalse(messageAfterEvent!.isLive(for: .entry))
+					reportExp?.fulfill()
+				}
+			}
+		})
+		waitForExpectations(timeout: 60, handler: nil)
+	}
+	
+	func testThatDidEnterRegionTriggers2EventsFor2CampaignsWithSameRegions() {
+		weak var didEnterRegionExp = expectation(description: "didEnterRegionExp")
+		
+		var didEnterRegionCount = 0
+		let timeoutInMins: Int = 1
+		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins)]
+		let payloadOfCampaign1 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict], campaignId: "campaignId1", messageId: "messageId1")
+		let payloadOfCampaign2 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict], campaignId: "campaignId2", messageId: "messageId2")
+		
+		guard let message1 = MMGeoMessage(payload: payloadOfCampaign1, createdDate: Date()),
+			let message2 = MMGeoMessage(payload: payloadOfCampaign2, createdDate: Date()) else {
+				XCTFail()
+				return
+		}
+		
+		var enteredDatasourceRegions = [MMRegion]()
+		
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPIAlwaysSucceeding()
+		let geoServiceMock: GeofencingServiceAlwaysRunningStub = GeofencingServiceAlwaysRunningStub(storage: storage)
+		geoServiceMock.didEnterRegionCallback = { (region) in
+			didEnterRegionCount += 1
+			enteredDatasourceRegions.append(region)
+			if didEnterRegionCount == 2 {
+				XCTAssertTrue(enteredDatasourceRegions.contains(message1.regions.first!))
+				XCTAssertTrue(enteredDatasourceRegions.contains(message2.regions.first!))
+				didEnterRegionExp?.fulfill()
+			}
+		}
+		
+		mobileMessagingInstance.geofencingService = geoServiceMock
+		geoServiceMock.mockedLocationManager.mockedLocation = CLLocation(latitude: 45.80869126677998, longitude: 15.97206115722656)
+		geoServiceMock.add(message: message1)
+		geoServiceMock.add(message: message2)
+		
+		geoServiceMock.locationManager(geoServiceMock.mockedLocationManager, didEnterRegion: message1.regions.findPula.circularRegion)
+
+		
+		waitForExpectations(timeout: 60, handler: nil)
+	}
+	
+	func testThatRegionsAreNotDuplicatedInTheMonitoredRegions() {
+		weak var didEnterRegionExp = expectation(description: "didEnterRegionExp")
+		
+		var didEnterRegionCount = 0
+		let timeoutInMins: Int = 1
+		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins)]
+		let payloadOfCampaign1 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict], campaignId: "campaignId1", messageId: "messageId3")
+		let payloadOfCampaign2 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict], campaignId: "campaignId2", messageId: "messageId4")
+		
+		guard let message1 = MMGeoMessage(payload: payloadOfCampaign1, createdDate: Date()),
+			let message2 = MMGeoMessage(payload: payloadOfCampaign2, createdDate: Date()) else {
+				XCTFail()
+				return
+		}
+		
+		let pulaObject1 = message1.regions.findPula
+		let pulaObject2 = message2.regions.findPula
+		
+		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = MMRemoteAPIAlwaysSucceeding()
+		let geoServiceMock: GeofencingServiceAlwaysRunningStub = GeofencingServiceAlwaysRunningStub(storage: storage)
+		geoServiceMock.didEnterRegionCallback = { (region) in
+			didEnterRegionCount += 1
+			if didEnterRegionCount == 1 {
+				XCTAssertEqual(region.dataSourceIdentifier, pulaObject1.dataSourceIdentifier)
+				let monitoredRegionsArray = geoServiceMock.mockedLocationManager.monitoredRegionsArray
+				XCTAssertEqual(monitoredRegionsArray.count, 1)
+			} else  if didEnterRegionCount == 2 {
+				XCTAssertEqual(region.dataSourceIdentifier, pulaObject2.dataSourceIdentifier)
+				let monitoredRegionsArray = geoServiceMock.mockedLocationManager.monitoredRegionsArray
+				print("!!! \(monitoredRegionsArray)")
+				XCTAssertEqual(monitoredRegionsArray.count, 1)
+				didEnterRegionExp?.fulfill()
+			}
+		}
+		
+		mobileMessagingInstance.geofencingService = geoServiceMock
+		geoServiceMock.mockedLocationManager.mockedLocation = CLLocation(latitude: pulaObject1.center.latitude, longitude: pulaObject1.center.longitude)
+		geoServiceMock.add(message: message1)
+		geoServiceMock.add(message: message2)
 		
 		waitForExpectations(timeout: 60, handler: nil)
 	}

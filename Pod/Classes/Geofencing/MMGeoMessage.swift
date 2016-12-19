@@ -281,6 +281,9 @@ public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 
 final public class MMRegion: NSObject, DictionaryRepresentable {
 	public let identifier: String
+	var dataSourceIdentifier: String {
+		return "\((message?.campaignId) ?? "")_\(identifier)"
+	}
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
@@ -302,7 +305,7 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	}
 	
 	public override var description: String {
-		return "\(title), radius \(radius)m: \(center.longitude) \(center.latitude)"
+		return "id \(dataSourceIdentifier), \(title), radius \(radius)m: \(center.longitude) \(center.latitude)"
 	}
 	
 	public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
@@ -332,12 +335,16 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	}
 	
 	public override var hashValue: Int {
-		return identifier.hashValue
+		return dataSourceIdentifier.hashValue
+	}
+	
+	public override var hash: Int {
+		return dataSourceIdentifier.hash
 	}
 }
 
 public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
-	return lhs.identifier == rhs.identifier
+	return lhs.dataSourceIdentifier == rhs.dataSourceIdentifier
 }
 
 final class MMRegionEvent: DictionaryRepresentable {

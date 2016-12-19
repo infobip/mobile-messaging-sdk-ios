@@ -176,7 +176,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 			self.datasource.add(message: message)
 			self.delegate?.didAddMessage(message: message)
 			MMLogDebug("[GeofencingService] added a message\n\(message)")
-			self.refreshMonitoredRegions()
+			self.refreshMonitoredRegions(newRegions: message.regions)
 		}
 	}
 	
@@ -265,12 +265,29 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 		}
 	}
 	
-	var closestLiveRegions: Set<CLCircularRegion> {
+	func regionsToStopMonitoring(monitoredRegions: Set<CLCircularRegion>) -> Set<CLCircularRegion> {
+		assert(Thread.isMainThread)
+		let regionsWeAreInside: Set<CLCircularRegion> = Set(monitoredRegions.filter {
+			guard let currentCoordinate = self.locationManager.location?.coordinate else {
+				return false
+			}
+			return $0.contains(currentCoordinate)
+			}
+		)
+		
+		let deadRegions: Set<CLCircularRegion> = Set(monitoredRegions.filter {
+			self.dataSourceRegions(from: [$0]).contains(where: { $0.message?.isNotExpired ?? false}) == false
+			}
+		)
+		return monitoredRegions.subtracting(regionsWeAreInside).union(deadRegions)
+	}
+	
+	func regionsToStartMonitoring(monitoredRegions: Set<CLCircularRegion>) -> Set<CLCircularRegion> {
 		assert(Thread.isMainThread)
 		let notExpiredRegions = Set(self.datasource.liveRegions.map { $0.circularRegion })
-		let number = self.kMonitoringRegionsLimit - self.locationManager.monitoredRegions.count
+		let number = self.kMonitoringRegionsLimit - monitoredRegions.count
 		let location = self.locationManager.location ?? previousLocation
-		let array = MMGeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { self.locationManager.monitoredRegions.contains($0) == false })
+		let array = MMGeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { monitoredRegions.contains($0) == false })
 		return Set(array)
 	}
 	
@@ -421,52 +438,54 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 		}
 	}
 	
-	private func refreshMonitoredRegions() {
+	private func dataSourceRegions(from circularRegions: Set<CLCircularRegion>) -> [MMRegion] {
+		var resultRegions = [MMRegion]()
+		return circularRegions.reduce([MMRegion]()) { (result, region) -> [MMRegion] in
+			return self.datasource.regionsDictionary.filter{ (key, value) -> Bool in
+				return key.hasSuffix("_\(region.identifier)")
+				}.map{$0.1}
+		}
+	}
+	
+	private func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil) {
 		serviceQueue.executeAsync() {
-			MMLogDebug("[GeofencingService] refreshing regions...")
 			
-			let closestLiveRegions = self.closestLiveRegions
-			MMLogDebug("[GeofencingService] datasource regions: \n\(self.datasource.regionsDictionary.values)")
+			var monitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap { $0 as? CLCircularRegion })
+			MMLogDebug("[GeofencingService] refreshing monitored regions: \n\(monitoredRegions) \n datasource regions: \n \(self.datasource.regionsDictionary)")
 			
-			let currentlyMonitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap { $0 as? CLCircularRegion })
-			MMLogDebug("[GeofencingService] currently monitored regions \n\(currentlyMonitoredRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
+			//check what to stop
+			let regionsToStopMonitoring = self.regionsToStopMonitoring(monitoredRegions: monitoredRegions)
+			MMLogDebug("[GeofencingService] will stop monitoring regions: \n\(self.dataSourceRegions(from: regionsToStopMonitoring))")
+			regionsToStopMonitoring.forEach{self.locationManager.stopMonitoring(for: $0)}
+			monitoredRegions.subtract(regionsToStopMonitoring)
 			
-			let regionsWeAreInside: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
-					if let currentCoordinate = self.locationManager.location?.coordinate {
-						return $0.contains(currentCoordinate)
-					} else {
-						return false
-					}
-				}
-			)
-			MMLogDebug("[GeofencingService] regions we are inside: \n\(regionsWeAreInside.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
-			
-			let deadRegions: Set<CLCircularRegion> = Set(currentlyMonitoredRegions.filter {
-				return self.datasource.regionsDictionary[$0.identifier]?.message?.isNotExpired == false
-				}
-			)
-			MMLogDebug("[GeofencingService] dead monitored regions: \n\(deadRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
-			
-			let regionsToStopMonitoring = currentlyMonitoredRegions.subtracting(regionsWeAreInside).union(deadRegions)
-			MMLogDebug("[GeofencingService] regions to stop monitoring: \n\(regionsToStopMonitoring.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
-			
-			for region in regionsToStopMonitoring {
-				self.locationManager.stopMonitoring(for: region)
-			}
-			
-			MMLogDebug("[GeofencingService] regions to start monitoring: \n\(closestLiveRegions.flatMap { return self.datasource.regionsDictionary[$0.identifier] })")
-			
-			for region in closestLiveRegions {
+			//check what to start
+			let regionsToStartMonitoring = self.regionsToStartMonitoring(monitoredRegions: monitoredRegions)
+			MMLogDebug("[GeofencingService] will start monitoring regions: \n\(self.dataSourceRegions(from: regionsToStartMonitoring))")
+			regionsToStartMonitoring.forEach({ (region) in
 				region.notifyOnEntry = true
 				region.notifyOnExit = true
 				self.locationManager.startMonitoring(for: region)
-				
-				//check if aleady in region
-				if let currentCoordinate = self.locationManager.location?.coordinate , region.contains(currentCoordinate) {
-					MMLogDebug("[GeofencingService] detected a region in which we currently are \(self.datasource.regionsDictionary[region.identifier])")
-					self.locationManager(self.locationManager, didEnterRegion: region)
-				}
+			})
+			monitoredRegions.formUnion(regionsToStartMonitoring)
+			
+			//try to enter, if we are already inside added region
+			guard let newRegions = newRegions else {
+				return
 			}
+			let monitoredDatasourceRegions = Set(self.dataSourceRegions(from: monitoredRegions))
+			let intersection = monitoredDatasourceRegions.filter({ (region) -> Bool in
+				return newRegions.contains(where: {$0.dataSourceIdentifier == region.dataSourceIdentifier})
+			})
+			
+			intersection.forEach({ (region) in
+				if let currentCoordinate = self.locationManager.location?.coordinate , region.circularRegion.contains(currentCoordinate) {
+					if region.message?.isNowAppropriateTimeForEntryNotification ?? false {
+						MMLogDebug("[GeofencingService] already inside new region: \(region)")
+						self.locationManager(self.locationManager, didEnterDatasourceRegion: region)
+					}
+				}
+			})
 		}
 	}
 	
@@ -536,25 +555,31 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	
 	public func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
 		assert(Thread.isMainThread)
-		MMLogDebug("[GeofencingService] did start monitoring \(region)")
+		MMLogDebug("[GeofencingService] did start monitoring for region: \(region)")
 	}
 	
 	public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
 		assert(Thread.isMainThread)
-		MMLogDebug("[GeofencingService] did enter circular region \(region)")
+		MMLogDebug("[GeofencingService] will enter region \(region)")
 		datasource.validRegionsForEntryEvent(with: region.identifier)?.forEach { datasourceRegion in
-			guard let message = datasourceRegion.message else {
-				return
-			}
-			self.report(on: .entry, forRegionId: region.identifier, message: message, completion: { (state) in
-				MMLogDebug("[GeofencingService] did enter datasource region \(datasourceRegion), campaign state: \(state.rawValue)")
-				if state == .Active {
-					self.delegate?.didEnterRegion(region: datasourceRegion)
-					MMGeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
-					NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
-				}
-			})
+			locationManager(manager, didEnterDatasourceRegion: datasourceRegion)
 		}
+	}
+	
+	func locationManager(_ manager: CLLocationManager, didEnterDatasourceRegion datasourceRegion: MMRegion) {
+		assert(Thread.isMainThread)
+		guard let message = datasourceRegion.message else {
+			return
+		}
+		self.report(on: .entry, forRegionId: datasourceRegion.identifier, message: message, completion: { (state) in
+			MMLogDebug("[GeofencingService] did enter region \(datasourceRegion), campaign state: \(state.rawValue)")
+			if state == .Active {
+				self.delegate?.didEnterRegion(region: datasourceRegion)
+				MMGeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
+				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+			}
+		})
+
 	}
 	
 	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
