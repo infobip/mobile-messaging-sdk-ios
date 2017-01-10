@@ -31,7 +31,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
 	```ruby
 	source 'https://github.com/CocoaPods/Specs.git'
-	platform :ios, '8.0'
+	platform :ios, '8.4'
 	use_frameworks!
 	pod 'MobileMessaging'
 	```
