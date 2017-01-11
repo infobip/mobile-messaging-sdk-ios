@@ -6,9 +6,6 @@
 //  
 //
 
-import SwiftyJSON
-
-
 //MARK: - Responses
 struct EmptyResponse { }
 
@@ -90,7 +87,7 @@ extension EmptyResponse: JSONDecodable {
 }
 
 extension Date: JSONEncodable {
-	public func toJSON() -> JSON {
+	func toJSON() -> JSON {
 		return JSON(DateStaticFormatters.ContactsServiceDateFormatter.string(from: self))
 	}
 }

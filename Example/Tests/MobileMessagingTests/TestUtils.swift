@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftyJSON
 @testable import MobileMessaging
 
 struct MMTestConstants {

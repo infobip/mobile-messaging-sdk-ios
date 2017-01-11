@@ -5,8 +5,6 @@
 //  Created by Andrey K. on 29/02/16.
 //
 
-
-import SwiftyJSON
 import XCTest
 @testable import MobileMessaging
 

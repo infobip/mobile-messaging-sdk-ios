@@ -7,7 +7,6 @@
 
 import XCTest
 import CoreLocation
-import SwiftyJSON
 @testable import MobileMessaging
 
 

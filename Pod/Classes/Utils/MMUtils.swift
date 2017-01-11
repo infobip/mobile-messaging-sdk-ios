@@ -8,6 +8,8 @@
 
 import Foundation
 import CoreData
+import MobileMessaging.Private
+import SystemConfiguration
 
 struct DateStaticFormatters {
 	static var ContactsServiceDateFormatter: DateFormatter = {

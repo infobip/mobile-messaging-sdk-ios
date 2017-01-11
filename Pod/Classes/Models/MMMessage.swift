@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftyJSON
 
 @objc public enum MessageDeliveryMethod: Int16 {
 	case undefined = 0, push, pull
@@ -98,7 +97,7 @@ func ==(lhs: MTMessage, rhs: MTMessage) -> Bool {
 }
 
 /// Incapsulates all the attributes related to the remote notifications.
-public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
+public class MTMessage: BaseMessage, MMMessageMetadata {
 	
 	/// Defines the origin of a message.
 	///
@@ -129,7 +128,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata, JSONDecodable {
 	let aps: MMAPS
 	let silentData: StringKeyPayload?
 	
-	convenience required public init?(json: JSON) {
+	convenience init?(json: JSON) {
 		if let payload = json.dictionaryObject {
 			self.init(payload: payload, createdDate: Date())
 		} else {

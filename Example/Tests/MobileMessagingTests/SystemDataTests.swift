@@ -7,7 +7,6 @@
 
 import XCTest
 @testable import MobileMessaging
-import SwiftyJSON
 
 class UserAgentStub: MMUserAgent {
 	override var libraryVersion: String {

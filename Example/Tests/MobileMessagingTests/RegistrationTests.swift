@@ -7,7 +7,6 @@
 
 import XCTest
 @testable import MobileMessaging
-import SwiftyJSON
 import CoreLocation
 
 final class RegistrationTests: MMTestCase {

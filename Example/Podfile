@@ -13,9 +13,15 @@ end
 
 post_install do |installer|
 	installer.pods_project.targets.each do |target|
+		if target.name == 'MobileMessaging'
+			target.build_configurations.each do |config|
+				config.build_settings['ENABLE_TESTABILITY'] = 'YES' # for this particular project we want the SDK to be testable
+			end
+		end
+		
 		if target.name == 'SwiftyJSON'
 			target.build_configurations.each do |config|
-				config.build_settings['SWIFT_VERSION'] = '3.0.1'
+				config.build_settings['SWIFT_VERSION'] = '3.0.1' # SwiftyJSON wasn't ready for new Xcode, this attribute was missing
 			end
 		end
 	end
