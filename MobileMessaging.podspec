@@ -34,8 +34,14 @@ Pod::Spec.new do |s|
     end
 
     s.subspec 'CocoaLumberjack' do |cl|
+        cl.frameworks = 'CoreData', 'CoreTelephony', 'SystemConfiguration'
+        cl.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld'
+        
+        cl.public_header_files = 'Pod/Classes/**/*.h'
+        cl.private_header_files = 'Pod/Classes/Vendor/**/*.h'
         cl.source_files = 'Pod/Classes/**/*.{h,m,swift}'
         cl.exclude_files = "Pod/Classes/Logging/DummyLogger/**"
+
         cl.dependency 'CocoaLumberjack', '~> 3.0'
     end
 end
