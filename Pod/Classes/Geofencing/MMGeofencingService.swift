@@ -439,7 +439,6 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	}
 	
 	private func dataSourceRegions(from circularRegions: Set<CLCircularRegion>) -> [MMRegion] {
-		var resultRegions = [MMRegion]()
 		return circularRegions.reduce([MMRegion]()) { (result, region) -> [MMRegion] in
 			return self.datasource.regionsDictionary.filter{ (key, value) -> Bool in
 				return key.hasSuffix("_\(region.identifier)")

@@ -221,7 +221,7 @@ public final class MobileMessaging: NSObject {
 	let userNotificationType: UIUserNotificationType
 	let applicationCode: String
 	
-	var	storageType: MMStorageType = .SQLite
+	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
 	var isGeoServiceEnabled: Bool = false
 	
@@ -291,31 +291,41 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	//MARK: Private
-	
 	private init?(applicationCode: String, notificationType: UIUserNotificationType, backendBaseURL: String) {
+		var storage: MMCoreDataStorage? = try? MMCoreDataStorage.makeInternalStorage(self.storageType)
+		
+		let logCoreDataInitializationError = {
+			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
+		}
+		
+		guard let unwrappedStorage = storage else {
+			logCoreDataInitializationError()
+			return nil
+		}
+		
+		if MMInstallation(storage: unwrappedStorage).applicationCodeChanged(applicationCode) {
+			MMLogWarn("Data will be cleaned up due to change of the application code.")
+			MobileMessaging.stop(true)
+			storage = try? MMCoreDataStorage.makeInternalStorage(self.storageType)
+		}
+		
 		self.applicationCode = applicationCode
 		userNotificationType = notificationType
 		self.remoteAPIBaseURL = backendBaseURL
 		
-		let storage: MMCoreDataStorage?
-		switch self.storageType {
-		case .InMemory:
-			storage = try? MMCoreDataStorage.makeInMemoryStorage()
-		case .SQLite:
-			storage = try? MMCoreDataStorage.makeSQLiteInternalStorage()
-		}
-		if let storage = storage {
-			self.internalStorage = storage
+		if let unwrappedStorage = storage {
+			self.internalStorage = unwrappedStorage
 			self.remoteApiManager = RemoteAPIManager(baseUrl: self.remoteAPIBaseURL, applicationCode: self.applicationCode)
-			self.currentInstallation = MMInstallation(storage: storage)
+			self.currentInstallation = MMInstallation(storage: unwrappedStorage)
+			self.currentInstallation.applicationCode = applicationCode
 			self.currentUser = MMUser(installation: self.currentInstallation)
-			self.messageHandler = MMMessageHandler(storage: storage)
-			self.geofencingService = MMGeofencingService(storage: storage)
+			self.messageHandler = MMMessageHandler(storage: unwrappedStorage)
+			self.geofencingService = MMGeofencingService(storage: unwrappedStorage)
 			self.appListener = MMApplicationListener(messageHandler: self.messageHandler, installation: self.currentInstallation, user: self.currentUser, geofencingService: self.geofencingService)
 			
 			MMLogInfo("SDK successfully initialized!")
 		} else {
-			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
+			logCoreDataInitializationError()
 			return nil
 		}
 	}

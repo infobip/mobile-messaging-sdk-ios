@@ -58,6 +58,15 @@ final class MMCoreDataStorage {
 		return try MMCoreDataStorage(settings: MMStorageSettings.SQLiteMessageStorageSettings)
 	}
 	
+	class func makeInternalStorage(_ type: MMStorageType) throws -> MMCoreDataStorage {
+		switch type {
+		case .InMemory:
+			return try MMCoreDataStorage.makeInMemoryStorage()
+		case .SQLite:
+			return try MMCoreDataStorage.makeSQLiteInternalStorage()
+		}
+	}
+	
 	var mainThreadManagedObjectContext: NSManagedObjectContext? {
 		guard _mainThreadManagedObjectContext == nil else {
 			return _mainThreadManagedObjectContext

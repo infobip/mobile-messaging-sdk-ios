@@ -269,6 +269,22 @@ final class RegistrationTests: MMTestCase {
 		})
 		self.waitForExpectations(timeout: 60, handler: nil)
 	}
+	
+	func testThatRegistrationCleanedIfAppCodeChanged() {
+		weak var finished = self.expectation(description: "finished")
+		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
+			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentUser.internalId)
+			self.startWithApplicationCode("newApplicationCode")
+			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, "newApplicationCode")
+			XCTAssertNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
+			XCTAssertNil(self.mobileMessagingInstance.currentUser.internalId)
+			finished?.fulfill()
+		}
+
+		waitForExpectations(timeout: 10, handler: nil)
+	}
 }
 
 class NotificationsEnabledMock: UIApplicationProtocol {

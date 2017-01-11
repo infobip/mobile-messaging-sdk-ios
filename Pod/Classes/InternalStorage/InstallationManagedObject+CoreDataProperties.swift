@@ -24,4 +24,5 @@ extension InstallationManagedObject {
 	@NSManaged var systemDataHash: Int64
 	@NSManaged var location: AnyObject?
 	@NSManaged var isRegistrationEnabled: Bool
+	@NSManaged var applicationCode: String?
 }

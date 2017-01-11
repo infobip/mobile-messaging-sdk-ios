@@ -350,6 +350,15 @@ final public class MMInstallation: NSObject {
 	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {
 		installationManager.updateDeviceToken(token: token, completion: completion)
 	}
+	
+	func applicationCodeChanged(_ newApplicationCode: String) -> Bool {
+		return applicationCode != nil ? applicationCode != newApplicationCode : false
+	}
+	
+	var applicationCode: String? {
+		get { return installationManager.getValueForKey("applicationCode") as? String }
+		set { installationManager.setValueForKey("applicationCode", value: newValue) }
+	}
     
 //MARK: - Private
 	var location: CLLocation? {
