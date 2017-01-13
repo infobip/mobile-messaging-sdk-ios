@@ -55,7 +55,7 @@ final class MessageFetchingOperation: Operation {
 			switch result {
 			case .Success(let fetchResponse):
 				let fetchedMessages = fetchResponse.messages
-				MMLogDebug("[Message fetching] succeded: received \(fetchedMessages?.count) new messages: \(fetchedMessages)")
+				MMLogDebug("[Message fetching] succeded: received \(fetchedMessages?.count)")
 				
 				if let nonReportedMessageIds = nonReportedMessageIds {
 					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds)
