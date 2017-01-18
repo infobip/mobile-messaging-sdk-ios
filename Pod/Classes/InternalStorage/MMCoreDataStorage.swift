@@ -67,6 +67,11 @@ final class MMCoreDataStorage {
 		}
 	}
 	
+	class func dropStorages(internalStorage: MMCoreDataStorage, messageStorage: MMDefaultMessageStorage?) {
+		internalStorage.drop()
+		messageStorage?.coreDataStorage?.drop()
+	}
+	
 	var mainThreadManagedObjectContext: NSManagedObjectContext? {
 		guard _mainThreadManagedObjectContext == nil else {
 			return _mainThreadManagedObjectContext

@@ -225,10 +225,13 @@ public final class MobileMessaging: NSObject {
 	let remoteAPIBaseURL: String
 	var isGeoServiceEnabled: Bool = false
 	
-	func cleanUpAndStop() {
+	/// - parameter clearKeychain: Bool, true by default, used in unit tests
+	func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		MMLogDebug("Cleaning up MobileMessaging service...")
-		internalStorage.drop()
-		(MobileMessaging.sharedInstance?.messageStorage as? MMDefaultMessageStorage)?.coreDataStorage?.drop()
+		MMCoreDataStorage.dropStorages(internalStorage: internalStorage, messageStorage: messageStorage as? MMDefaultMessageStorage)
+		if (clearKeychain) {
+			keychain.clear()
+		}
 		stop()
 	}
 	
@@ -305,7 +308,7 @@ public final class MobileMessaging: NSObject {
 		
 		if MMInstallation(storage: unwrappedStorage).applicationCodeChanged(applicationCode) {
 			MMLogWarn("Data will be cleaned up due to change of the application code.")
-			MobileMessaging.stop(true)
+			MMCoreDataStorage.dropStorages(internalStorage: unwrappedStorage, messageStorage: messageStorage as? MMDefaultMessageStorage)
 			storage = try? MMCoreDataStorage.makeInternalStorage(self.storageType)
 		}
 		
@@ -319,6 +322,7 @@ public final class MobileMessaging: NSObject {
 			self.currentInstallation = MMInstallation(storage: unwrappedStorage)
 			self.currentInstallation.applicationCode = applicationCode
 			self.currentUser = MMUser(installation: self.currentInstallation)
+			self.keychain = MMKeychain(applicationCode: self.applicationCode)
 			self.messageHandler = MMMessageHandler(storage: unwrappedStorage)
 			self.geofencingService = MMGeofencingService(storage: unwrappedStorage)
 			self.appListener = MMApplicationListener(messageHandler: self.messageHandler, installation: self.currentInstallation, user: self.currentUser, geofencingService: self.geofencingService)
@@ -348,6 +352,7 @@ public final class MobileMessaging: NSObject {
 	var geofencingService: MMGeofencingService // variable only for testing purposes
 	let remoteApiManager: RemoteAPIManager
 	static var application: UIApplicationProtocol = UIApplication.shared
+	let keychain: MMKeychain
 }
 
 extension UIApplication: UIApplicationProtocol {}

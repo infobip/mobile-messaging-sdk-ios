@@ -280,9 +280,60 @@ final class RegistrationTests: MMTestCase {
 			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, "newApplicationCode")
 			XCTAssertNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
 			XCTAssertNil(self.mobileMessagingInstance.currentUser.internalId)
+			XCTAssertNil(self.mobileMessagingInstance.keychain.internalId)
 			finished?.fulfill()
 		}
 
+		waitForExpectations(timeout: 10, handler: nil)
+	}
+	
+	func testThatAfterAppReinstallInternalIdStillTheSame(){
+		weak var finished = self.expectation(description: "finished")
+
+		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
+			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
+			let internalId = self.mobileMessagingInstance.currentUser.internalId
+			XCTAssertNotNil(internalId)
+			self.mobileMessagingInstance.cleanUpAndStop(false)
+			MobileMessaging.sharedInstance = nil
+			self.startWithCorrectApplicationCode()
+			
+			let mock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+			                appCode: MMTestConstants.kTestWrongApplicationCode,
+			                performRequestCompanionBlock: nil,
+			                completionCompanionBlock: nil,
+			                responseSubstitution: nil)
+			mock.performRequestCompanionBlock = { request in
+				if let request = request as? RegistrationRequest {
+					XCTAssertEqual(request.internalId, self.mobileMessagingInstance.keychain.internalId)
+					finished?.fulfill()
+				}
+			}
+			
+			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
+			}
+			self.mobileMessagingInstance.remoteApiManager.registrationQueue = mock
+		}
+	
+		waitForExpectations(timeout: 10, handler: nil)
+	}
+	
+	func testThatAfterAppReinstallWithOtherAppCodeKeychainCleared(){
+		weak var finished = self.expectation(description: "finished")
+		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
+			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
+			let internalId = self.mobileMessagingInstance.currentUser.internalId
+			XCTAssertNotNil(internalId)
+			self.mobileMessagingInstance.cleanUpAndStop(false)
+			MobileMessaging.sharedInstance = nil
+			self.startWithApplicationCode("otherApplicationCode")
+			XCTAssertNil(self.mobileMessagingInstance.keychain.internalId)
+			XCTAssertEqual(self.mobileMessagingInstance.keychain.get(KeychainKeys.applicationCode), "otherApplicationCode")
+			finished?.fulfill()
+		}
+		
 		waitForExpectations(timeout: 10, handler: nil)
 	}
 }

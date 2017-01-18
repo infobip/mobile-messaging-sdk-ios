@@ -50,7 +50,8 @@ final class SyncRegistrationOperation: Operation {
         }
 		
 		let isPushRegistrationEnabled: Bool? = registrationStatusChanged ? installationObject.isRegistrationEnabled : nil // send value only if changed
-		MobileMessaging.sharedInstance?.remoteApiManager.syncRegistration(internalId: installationObject.internalUserId, deviceToken: deviceToken, isEnabled: isPushRegistrationEnabled) { result in
+		let internalId = installationObject.internalUserId ?? MobileMessaging.sharedInstance?.keychain.internalId
+		MobileMessaging.sharedInstance?.remoteApiManager.syncRegistration(internalId: internalId, deviceToken: deviceToken, isEnabled: isPushRegistrationEnabled) { result in
 			self.handleRegistrationResult(result)
 			self.finishWithError(result.error)
 		}
@@ -70,6 +71,9 @@ final class SyncRegistrationOperation: Operation {
 				
 				installationObject.internalUserId = regResponse.internalId
 				installationObject.isRegistrationEnabled = regResponse.isEnabled
+				if let keychain = MobileMessaging.sharedInstance?.keychain {
+					keychain.internalId = regResponse.internalId
+				}
 				
 				installationObject.resetDirtyRegistration()
  				self.context.MM_saveToPersistentStoreAndWait()

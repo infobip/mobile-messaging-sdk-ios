@@ -27,7 +27,7 @@ final class InstallationDataSynchronizationOperation: GroupOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Message syncing] finished with errors: \(errors)")
+		MMLogDebug("[Installation syncing] finished with errors: \(errors)")
 		finishBlock?(errors.first)
 	}
 }
