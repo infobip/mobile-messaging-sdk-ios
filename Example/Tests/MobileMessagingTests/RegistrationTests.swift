@@ -319,6 +319,7 @@ final class RegistrationTests: MMTestCase {
 		waitForExpectations(timeout: 10, handler: nil)
 	}
 	
+	//https://openradar.appspot.com/29489461
 	func testThatAfterAppReinstallWithOtherAppCodeKeychainCleared(){
 		weak var finished = self.expectation(description: "finished")
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in

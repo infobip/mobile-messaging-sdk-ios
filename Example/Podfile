@@ -11,6 +11,10 @@ target 'MobileMessagingExample_Tests' do
     pod $podName, :path => '../'
 end
 
+target 'MobileMessagingExample_Tests_Device' do
+	pod $podName, :path => '../'
+end
+
 post_install do |installer|
 	installer.pods_project.targets.each do |target|
 		if target.name == 'MobileMessaging'
