@@ -413,6 +413,9 @@
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
+							com.apple.Keychain = {
+								enabled = 0;
+							};
 							com.apple.Push = {
 								enabled = 1;
 							};
@@ -421,7 +424,8 @@
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = T6U248P7YM;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
 					8EFABFC71CEB3B9400510762 = {
 						DevelopmentTeam = T6U248P7YM;
@@ -904,7 +908,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1A41897B331345BD8CCA7A98 /* Pods-MobileMessagingExample_Tests.debug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -920,6 +926,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = MobileMessagingExample;
 				SWIFT_VERSION = 3.0.1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample.app/MobileMessagingExample";
 			};
 			name = Debug;
 		};
@@ -927,6 +934,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1D93C6035BDE54E261787219 /* Pods-MobileMessagingExample_Tests.release.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -940,6 +948,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = MobileMessagingExample;
 				SWIFT_VERSION = 3.0.1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample.app/MobileMessagingExample";
 			};
 			name = Release;
 		};
