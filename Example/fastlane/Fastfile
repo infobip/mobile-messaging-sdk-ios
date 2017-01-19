@@ -7,7 +7,7 @@ platform :ios do
             `osascript -e 'tell app "Simulator" to quit'`
             `osascript -e 'tell app "Xcode" to quit'`
             sleep(5)
-            ENV["DEVELOPER_DIR"] = "/Applications/Xcode8.2.1.app"
+            ENV["DEVELOPER_DIR"] = "/Applications/Xcode.app"
             wait_xcrun
     end
 
