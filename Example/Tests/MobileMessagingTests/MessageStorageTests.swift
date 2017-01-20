@@ -64,6 +64,7 @@ class MessageStorageTests: MMTestCase {
 		cleanUpAndStop()
 		weak var expectation1 = expectation(description: "Sending 1 finished")
 		weak var expectation2 = expectation(description: "Sending 2 finished")
+		weak var expectation3 = expectation(description: "async message storage")
 		let mockMessageStorage = MockMessageStorage()
 		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
 		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
@@ -81,6 +82,11 @@ class MessageStorageTests: MMTestCase {
 			MobileMessaging.sendMessages([moMessage]) { (messages, error) in
 				expectation2?.fulfill()
 			}
+		}
+		
+		// workaround. we wait for message storage to be appended asynchronously
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
+			expectation3?.fulfill()
 		}
 		
 		waitForExpectations(timeout: 60, handler: { error in
