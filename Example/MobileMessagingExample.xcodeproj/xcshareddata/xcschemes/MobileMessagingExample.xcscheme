@@ -64,7 +64,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-UseIAMMocks 1"
+            argument = "-IsStartedToRunTests 1"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

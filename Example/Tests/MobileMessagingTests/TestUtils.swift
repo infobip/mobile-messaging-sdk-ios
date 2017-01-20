@@ -19,8 +19,7 @@ struct MMTestConstants {
 	static let kTestWrongApplicationCode = "someWrongApplicationID"
 	static let kTestCurrentRegistrationId = "fffe73006f006d00650054006f006b0065006e003200"
 	static let kTestOldRegistrationId = "fffe73006f006d00650054006f006b0065006e00"
-//	static let kTestBaseURLString = "http://127.0.0.1:18080"
-	static let kTestBaseURLString = "https://oneapi2.infobip.com"
+	static let kTestBaseURLString = "http://stub.stub.com"
 }
 
 enum TestResult {
@@ -58,7 +57,7 @@ final class MMRemoteAPIAlwaysSucceeding : MMRemoteAPIQueue {
 	}
 }
 
-class MMRemoteAPIMock: MMRemoteAPIQueue {
+class MMRemoteAPIMock: MMRemoteAPILocalMocks {
 	
 	var responseSubstitution: ((_ request: Any) -> JSON?)? // (Request) -> (JSON)
 	var performRequestCompanionBlock: ((Any) -> Void)?
@@ -68,12 +67,11 @@ class MMRemoteAPIMock: MMRemoteAPIQueue {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
 		self.completionCompanionBlock = completionCompanionBlock
 		self.responseSubstitution = responseSubstitution
-		super.init(baseURL: baseURLString, applicationCode: appCode)
+		super.init(baseURLString: baseURLString, appCode: appCode)
 	}
 	
 	override func perform<R: RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		if let responseSubstitution = responseSubstitution {
-			
 			if let responseJSON = responseSubstitution(request), let response = R.ResponseType(json: responseJSON) {
 				completion(Result.Success(response))
 			} else {
@@ -87,6 +85,37 @@ class MMRemoteAPIMock: MMRemoteAPIQueue {
 			}
 		}
 		performRequestCompanionBlock?(request)
+	}
+}
+
+extension MobileMessaging {
+	func setupMockedQueues() {
+		remoteApiManager.registrationQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.seenStatusQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.messageSyncQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.geofencingServiceQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.versionFetchingQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+	}
+}
+
+class MMRemoteAPILocalMocks: MMRemoteAPIQueue {
+	
+	init(baseURLString: String, appCode: String) {
+		super.init(baseURL: baseURLString, applicationCode: appCode)
+	}
+	
+	override func perform<R: RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: applicationCode) {
+			if let requestError = RequestError(json: responseJSON) {
+				completion(Result.Failure(requestError.foundationError))
+			} else if let response = R.ResponseType(json: responseJSON) {
+				completion(Result.Success(response))
+			} else {
+				completion(Result.Failure(nil))
+			}
+		} else {
+			completion(Result.Failure(nil))
+		}
 	}
 }
 

@@ -91,16 +91,25 @@ class MMTestCase: XCTestCase {
         }
         return count
     }
-    
+	
 	func startWithApplicationCode(_ code: String) {
-		MobileMessaging.withApplicationCode(code, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.start()
-    }
-    
-    func startWithCorrectApplicationCode() {
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.start()
-    }
-    
-    func startWithWrongApplicationCode() {
-        MobileMessaging.withApplicationCode(MMTestConstants.kTestWrongApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.start()
-    }
+		let mm = mockedMMInstanceWithApplicationCode(code)
+		mm?.start()
+	}
+	
+	func mockedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
+		let mm = MobileMessaging.withApplicationCode(code, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)
+		mm?.setupMockedQueues()
+		return mm
+	}
+	
+	func startWithCorrectApplicationCode() {
+		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
+		mm?.start()
+	}
+	
+	func startWithWrongApplicationCode() {
+		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestWrongApplicationCode)
+		mm?.start()
+	}
 }

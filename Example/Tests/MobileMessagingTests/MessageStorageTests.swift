@@ -66,9 +66,7 @@ class MessageStorageTests: MMTestCase {
 		weak var expectation2 = expectation(description: "Sending 2 finished")
 		let mockMessageStorage = MockMessageStorage()
 		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
-		
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.withMessageStorage(mockMessageStorage).start()
-		
+		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
 		do {
@@ -116,7 +114,7 @@ class MessageStorageTests: MMTestCase {
 		})
 		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
 		
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.withMessageStorage(mockMessageStorage).start()
+		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
 
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
@@ -137,7 +135,8 @@ class MessageStorageTests: MMTestCase {
 	
     func testDefaultStoragePersistingAndFetching() {
 		cleanUpAndStop()
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.withDefaultMessageStorage().start()
+		
+		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
 		
 		weak var expectation1 = expectation(description: "Check finished")
 		self.defaultMessageStorage?.findAllMessages { results in
@@ -172,7 +171,8 @@ class MessageStorageTests: MMTestCase {
 		cleanUpAndStop()
 		
 		let mockMessageStorage = MockMessageStorage()
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.withMessageStorage(mockMessageStorage).start()
+		
+		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
 		
 		XCTAssertEqual(mockMessageStorage.mtMessages.count, 0)
 		
@@ -199,7 +199,8 @@ class MessageStorageTests: MMTestCase {
 	
 	func testQuery() {
 		cleanUpAndStop()
-		MobileMessaging.withApplicationCode(MMTestConstants.kTestCorrectApplicationCode, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)?.withDefaultMessageStorage().start()
+
+		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
 		
 		let messageReceivingGroup = DispatchGroup()
 		weak var expectation = self.expectation(description: "Check finished")

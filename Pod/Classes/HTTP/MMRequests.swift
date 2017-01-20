@@ -195,7 +195,7 @@ typealias RequestBody = [String: Any]
 typealias RequestParameters = [String: Any]
 typealias RequestHeaders = [String: String]
 
-enum Method {
+enum Method: String {
 	case POST
 	case PUT
 	case GET

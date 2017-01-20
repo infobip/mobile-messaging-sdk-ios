@@ -1,0 +1,49 @@
+{
+  "method": "POST",
+  "path": "/mobile/1/messages/seen",
+  "mocks": [
+    {
+      "responseStatus": 200,
+      "headers": {
+        "authorization": "App someCorrectApplicationID"
+      },
+      "responseBody": {
+        "message": "OK"
+      }
+    },
+    {
+      "responseStatus": 401,
+      "headers": {
+        "authorization": "App someWrongApplicationID"
+      },
+      "responseBody": {
+        "requestError": {
+          "serviceException": {
+            "text": "Invalid Application Id",
+            "messageId": "1"
+          }
+        }
+      }
+    },
+    {
+      "responseStatus": 200,
+      "headers": {
+        "authorization": "App CorrectIdMergeSynchronization"
+      },
+      "responseBody": {
+        "message": "OK"
+      }
+    },
+    {
+      "default": true,
+      "responseStatus": 200,
+      "headers": {
+        "authorization": "App someCorrectApplicationID"
+      },
+      "responseBody": {
+        "message": "OK"
+      }
+    }
+  ],
+  "outputType": "SeenMessagesResponse"
+}

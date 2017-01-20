@@ -309,5 +309,5 @@ extension Date {
 }
 
 var isTestingProcessRunning: Bool {
-	return ProcessInfo.processInfo.arguments.contains("-IsDeviceStartedToRunTests")
+	return ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests")
 }

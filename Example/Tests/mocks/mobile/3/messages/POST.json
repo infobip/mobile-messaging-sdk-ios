@@ -1,0 +1,249 @@
+{
+  "method": "POST",
+  "path": "/mobile/3/messages",
+  "mocks": [{
+    "responseStatus": 200,
+    "headers": {
+      "authorization": "App someCorrectApplicationID"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someExistingInternalID",
+      "platformType": "APNS"
+    },
+    "requestBody": {
+      "drIDs": [
+        "m1"
+      ]
+    },
+    "responseBody": {
+      "payloads": []
+    }
+  }, {
+    "responseStatus": 200,
+    "headers": {
+      "authorization": "App someCorrectApplicationID"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someExistingInternalID",
+      "platformType": "APNS"
+    },
+    "responseBody": {
+      "payloads": [{
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "messageId": "m1",
+        "customPayload": ""
+      }, {
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "messageId": "m2",
+        "customPayload": ""
+      }, {
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "messageId": "m3",
+        "customPayload": ""
+      }]
+    }
+  }, {
+    "responseStatus": 200,
+    "headers": {
+      "authorization": "App CorrectIdMergeSynchronization"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someExistingInternalID",
+      "platformType": "APNS"
+    },
+    "requestBody": {
+      "drIDs": [
+        "m2"
+      ]
+    },
+    "responseBody": {
+      "payloads": []
+    }
+  }, {
+    "responseStatus": 200,
+    "headers": {
+      "authorization": "App CorrectIdMergeSynchronization"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someExistingInternalID",
+      "platformType": "APNS"
+    },
+    "requestBody": {
+      "drIDs": [
+        "m1"
+      ]
+    },
+    "responseBody": {
+      "payloads": []
+    }
+  }, {
+    "responseStatus": 200,
+    "headers": {
+      "authorization": "App CorrectIdMergeSynchronization"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someExistingInternalID",
+      "platformType": "APNS"
+    },
+    "requestBody": {
+      "drIDs": [
+        "m1","m2"
+      ]
+    },
+    "responseBody": {
+      "payloads": [{
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "messageId": "m1",
+        "customPayload": ""
+      }, {
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "messageId": "m4",
+        "customPayload": ""
+      }, {
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "messageId": "m3",
+        "customPayload": ""
+      }]
+    }
+  }, {
+    "responseStatus": 200,
+    "headers": {
+      "authorization": "App CorrectIdNothingToSynchronize"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someExistingInternalID",
+      "platformType": "APNS"
+    },
+    "responseBody": {
+      "payloads": []
+    }
+  }, {
+    "responseStatus": 401,
+    "headers": {
+      "authorization": "App someWrongApplicationID"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someExistingInternalID",
+      "platformType": "APNS"
+    },
+    "requestBody": {
+      "drIDs": ["m2"]
+    },
+    "responseBody": {
+      "requestError": {
+        "serviceException": {
+          "text": "Invalid Application Id",
+          "messageId": "1"
+        }
+      }
+    }
+  }, {
+    "responseStatus": 400,
+    "headers": {
+      "authorization": "App someCorrectApplicationID"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someNonexistentInternalID",
+      "platformType": "APNS"
+    },
+    "responseBody": {
+      "requestError": {
+        "serviceException": {
+          "text": "Invalid Internal Registration Id",
+          "messageId": "7"
+        }
+      }
+    }
+  }, {
+    "responseStatus": 200,
+    "headers": {
+      "authorization": "App SilentMessagesSynchronization"
+    },
+    "parameters": {
+      "deviceApplicationInstanceId": "someExistingInternalID",
+      "platformType": "APNS"
+    },
+    "responseBody": {
+      "payloads": [{
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "silent": true,
+        "messageId": "mS1",
+        "customPayload": ""
+      }, {
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "silent": true,
+        "messageId": "mS2",
+        "customPayload": ""
+      }, {
+        "aps": {
+          "alert": {
+            "body": "test text"
+          },
+          "sound": "default",
+          "badge": 0
+        },
+        "silent": true,
+        "messageId": "mS3",
+        "customPayload": ""
+      }]
+    }
+  }, {
+    "default": true,
+    "responseStatus": 200,
+    "headers": {
+      "authorization": "App someCorrectApplicationID"
+    },
+    "responseBody": {
+      "payloads": []
+    }
+  }],
+  "outputType": "model.messages.MessagesResponse"
+}

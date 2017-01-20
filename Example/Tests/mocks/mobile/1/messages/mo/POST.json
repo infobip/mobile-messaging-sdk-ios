@@ -1,0 +1,168 @@
+{
+  "method": "POST",
+  "path": "/mobile/1/messages/mo",
+  "mocks": [
+    {
+      "responseStatus": 200,
+      "headers": {
+        "authorization": "App someCorrectApplicationID"
+      },
+      "parameters": {
+        "platformType": "APNS"
+      },
+      "requestBody": {
+        "from": "someExistingInternalID",
+        "messages": [
+          {
+            "text": "message1",
+            "messageId": "m1",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue1"
+            }
+          },
+          {
+            "text": "message2",
+            "messageId": "m2",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue2"
+            }
+          }
+        ]
+      },
+      "responseBody": {
+        "messages": [
+          {
+            "messageId": "m1",
+            "status": "Message Sent",
+            "statusCode": 0,
+            "text": "message1",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue1"
+            }
+          },
+          {
+            "messageId": "m2",
+            "status": "Message not Sent",
+            "statusCode": 1,
+            "text": "message2",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue2"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "responseStatus": 200,
+      "headers": {
+        "authorization": "App someCorrectApplicationID"
+      },
+      "parameters": {
+        "platformType": "APNS"
+      },
+      "requestBody": {
+        "from": "someExistingInternalID",
+        "messages": [
+          {
+            "text": "message2",
+            "messageId": "m2",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue2"
+            }
+          },
+          {
+            "text": "message1",
+            "messageId": "m1",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue1"
+            }
+          }
+        ]
+      },
+      "responseBody": {
+        "messages": [
+          {
+            "messageId": "m1",
+            "status": "Message Sent",
+            "statusCode": 0,
+            "text": "message1",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue1"
+            }
+          },
+          {
+            "messageId": "m2",
+            "status": "Message not Sent",
+            "statusCode": 1,
+            "text": "message2",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue2"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "responseStatus": 200,
+      "headers": {
+        "authorization": "App someCorrectApplicationID"
+      },
+      "parameters": {
+        "platformType": "GCM"
+      },
+      "requestBody": {
+        "from": "someExistingInternalID",
+        "messages": [
+          {
+            "text": "message1",
+            "messageId": "m1",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue1"
+            }
+          },
+          {
+            "text": "message2",
+            "messageId": "m2",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue2"
+            }
+          }
+        ]
+      },
+      "responseBody": {
+        "messages": [
+          {
+            "messageId": "m1",
+            "status": "Message Sent",
+            "statusCode": 0,
+            "text": "message1",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue1"
+            }
+          },
+          {
+            "messageId": "m2",
+            "status": "Message not Sent",
+            "statusCode": 1,
+            "text": "message2",
+            "destination": "someCorrectApplicationID",
+            "customPayload": {
+              "customKey": "customValue2"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
