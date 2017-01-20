@@ -49,7 +49,7 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	private func sendRequest() {
-		guard let user = MobileMessaging.currentUser, let internalId = user.internalId else
+		guard let internalId = self.installationObject.internalUserId else
 		{
 			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return

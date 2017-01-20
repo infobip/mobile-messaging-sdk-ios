@@ -18,7 +18,7 @@ extension InstallationManagedObject {
     @NSManaged var deviceToken: String?
     @NSManaged var dirtyAttributes: Int32
     @NSManaged var internalUserId: String?
-	@NSManaged var externallUserId: String?
+	@NSManaged var externalUserId: String?
     @NSManaged var customUserData: DictionaryRepresentation?
 	@NSManaged var predefinedUserData: DictionaryRepresentation?
 	@NSManaged var systemDataHash: Int64

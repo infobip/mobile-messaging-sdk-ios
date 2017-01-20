@@ -56,26 +56,25 @@ final class MMInstallationManager {
 	}
 	
 	func syncInstallationWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		MMLogDebug("[Installation management] sync installation with server")
 		let newRegOp = InstallationDataSynchronizationOperation(context: storageContext, finishBlock: completion)
 		registrationQueue.addOperation(newRegOp)
 	}
 	
-    func syncRegistrationWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-        let newRegOp = SyncRegistrationOperation(context: storageContext, finishBlock: completion)
-        registrationQueue.addOperation(newRegOp)
-    }
-	
 	func sendSystemDataToServer(_ completion: ((NSError?) -> Void)? = nil) {
+		MMLogDebug("[Installation management] send system data to server")
 		let op = SystemDataSynchronizationOperation(сontext: storageContext, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
 	
 	func syncUserDataWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		MMLogDebug("[Installation management] sync user data with server")
 		let op = UserDataSynchronizationOperation(syncOperationWithContext: storageContext, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
 	
 	func fetchUserWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		MMLogDebug("[Installation management] fetch user with server")
 		let op = UserDataSynchronizationOperation(fetchingOperationWithContext: storageContext, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
@@ -84,14 +83,14 @@ final class MMInstallationManager {
 		storageContext.performAndWait {
 			self.installationObject.setRegistrationEnabledIfDifferent(flag: value)
 		}
-		syncRegistrationWithServer(completion)
+		syncInstallationWithServer(completion)
 	}
 	
 	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {
 		storageContext.performAndWait {
 			self.installationObject.setDeviceTokenIfDifferent(token: token.mm_toHexString)
 		}
-		syncRegistrationWithServer(completion)
+		syncInstallationWithServer(completion)
 	}
 	
 	func save(_ completion: ((Void) -> Void)? = nil) {

@@ -43,7 +43,6 @@ class UserDataSynchronizationOperation: Operation {
 				self.finish()
 				return
 			}
-			
 			self.installationObject = installation
 			self.dirtyAttributes = installation.dirtyAttributesSet
 			
@@ -67,41 +66,40 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	private func sendUserDataIfNeeded() {
+		guard let internalId = installationObject.internalUserId
+			else
+		{
+			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		
 		if onlyFetching {
 			MMLogDebug("[User data sync] fetching from server...")
-			self.fetchUserData()
+			self.fetchUserData(internalId: internalId)
 		} else if shouldSync {
 			MMLogDebug("[User data sync] sending user data updates to the server...")
-			self.syncUserData()
+			self.syncUserData(internalId: internalId)
 		} else {
 			MMLogDebug("[User data sync] has no changes, no need to send to the server.")
 			finish()
 		}
 	}
 	
-	private func fetchUserData() {
-		guard let internalId = MobileMessaging.currentUser?.internalId
-			else
-		{
-			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
-		}
-		
+	private func fetchUserData(internalId: String) {
 		MobileMessaging.sharedInstance?.remoteApiManager.fetchUserData(internalUserId: internalId, externalUserId: MobileMessaging.currentUser?.externalId, completion: { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		})
 	}
 	
-	private func syncUserData() {
-		guard let user = MobileMessaging.currentUser, let internalId = user.internalId
-			else
-		{
-			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
-		}
+	private func syncUserData(internalId: String) {
+		let customUserData = (installationObject.customUserData as? [String: UserDataFoundationTypes])?.customUserDataValues
 		
-		MobileMessaging.sharedInstance?.remoteApiManager.syncUserData(internalUserId: internalId, externalUserId: user.externalId, predefinedUserData: user.predefinedData, customUserData: user.customData) { result in
+		MobileMessaging.sharedInstance?.remoteApiManager.syncUserData(internalUserId: internalId,
+																	  externalUserId: installationObject.externalUserId,
+																	  predefinedUserData: installationObject.predefinedUserData,
+																	  customUserData: customUserData)
+		{ result in
 			self.handleResult(result)
 			self.finishWithError(result.error ?? result.value?.error?.foundationError)
 		}
