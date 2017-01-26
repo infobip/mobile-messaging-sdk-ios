@@ -137,7 +137,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 					}
 				}
 			case .Denied, .NotAvailable:
-				MMLogDebug("[GeofencingService] capability is \(currentCapability). Canceling the startup.")
+				MMLogDebug("[GeofencingService] capability is \(currentCapability.rawValue). Canceling the startup.")
 				completion?(false)
 			}
 		}
