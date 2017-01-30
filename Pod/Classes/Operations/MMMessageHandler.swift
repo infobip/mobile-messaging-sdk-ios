@@ -64,18 +64,10 @@ final class MMMessageHandler: MobileMessagingService {
 	}
 	
 	func evictOldMessages(_ messageAge: TimeInterval? = nil, completion:((Void) -> Void)? = nil) {
-		guard isRunning == true else {
-			completion?()
-			return
-		}
 		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
     }
 	
     func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
-		guard isRunning == true else {
-			completion?(SeenStatusSendingResult.Cancel)
-			return
-		}
 		messageHandlingQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext()))
 		seenPostponer.postponeBlock() {
 			self.messageHandlingQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), finishBlock: completion))
@@ -83,10 +75,6 @@ final class MMMessageHandler: MobileMessagingService {
     }
 	
 	func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		guard isRunning == true else {
-			completion?(nil, nil)
-			return
-		}
 		messageSendingQueue.addOperation(MessagePostingOperation(messages: messages, context: storage.newPrivateContext(), finishBlock: { (result: MOMessageSendingResult) in
 			
 			completion?(result.value?.messages, result.error)
