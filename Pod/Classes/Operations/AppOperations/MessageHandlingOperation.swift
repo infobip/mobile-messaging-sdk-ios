@@ -72,6 +72,8 @@ final class MessageHandlingOperation: Operation {
 				newDBMessage.messageId = newMessage.messageId
 				newDBMessage.creationDate = newMessage.createdDate
 				newDBMessage.isSilent = newMessage.isSilent
+				newDBMessage.reportSent = newMessage.isDeliveryReportSent
+				newDBMessage.messageType = .Default
 				
 				// Add new regions for geofencing
 				if let geoMessage = newMessage as? MMGeoMessage, let geoService = MobileMessaging.geofencingService, geoService.isRunning {
@@ -85,18 +87,22 @@ final class MessageHandlingOperation: Operation {
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		
-		self.handleNewMessages()
-		self.populateMessageStorageWithNewMessages()
-		self.finish()
+		let notGeoMessages: [MTMessage] = newMessages.filter { !($0 is MMGeoMessage) }
+		notifyAboutNewMessages(notGeoMessages)
+		populateMessageStorageWithNewMessages(notGeoMessages)
+		finish()
 	}
 	
-	private func populateMessageStorageWithNewMessages() {
-		MobileMessaging.sharedInstance?.messageStorageAdapter?.insert(incoming: self.newMessages)
+	private func populateMessageStorageWithNewMessages(_ messages: [MTMessage]) {
+		guard !messages.isEmpty else { return }
+		MobileMessaging.sharedInstance?.messageStorageAdapter?.insert(incoming: messages)
 	}
+
 	
-	private func handleNewMessages() {
+	private func notifyAboutNewMessages(_ messages: [MTMessage]) {
+		guard !messages.isEmpty else { return }
 		MMQueue.Main.queue.executeAsync {
-			self.handleNewMessageTappedIfNeeded()
+			self.handleNewMessageTappedIfNeeded(messages)
 			self.newMessages.forEach { message in
 				self.messageHandler.didReceiveNewMessage(message: message)
 				self.postNotificationForObservers(with: message)
@@ -123,8 +129,8 @@ final class MessageHandlingOperation: Operation {
 		handleNotificationTappedIfNeeded(with: existentMessage)
 	}
 	
-	private func handleNewMessageTappedIfNeeded() {
-		guard let newMessage = newMessages.first else { return }
+	private func handleNewMessageTappedIfNeeded(_ messages: [MTMessage]) {
+		guard let newMessage = messages.first else { return }
 		handleNotificationTappedIfNeeded(with: newMessage)
 	}
 	
@@ -147,10 +153,10 @@ final class MessageHandlingOperation: Operation {
 		return result
 	}()
 	
-	private lazy var newMessages: [MTMessage] = {
-		guard !self.messagesToHandle.isEmpty else { return [MTMessage]() }
+	private lazy var newMessages: Set<MTMessage> = {
+		guard !self.messagesToHandle.isEmpty else { return Set<MTMessage>() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MessageMeta.init))
-		return messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) }
+		return Set(messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) })
 	}()
 	
 	private lazy var intersectingMessages: [MTMessage] = {
