@@ -10,7 +10,7 @@ import CoreData
 
 final class MMInstallationManager {
 	//MARK: Internal
-	lazy var registrationQueue = OperationQueue.mm_newSerialQueue
+	lazy var registrationQueue = MMOperationQueue.newSerialQueue
 	let storage: MMCoreDataStorage
 	let storageContext: NSManagedObjectContext
 

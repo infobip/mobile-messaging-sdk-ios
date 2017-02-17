@@ -36,7 +36,7 @@ final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
 		super.init(baseURL: "stub", applicationCode: "stub")
 	}
 
-	override func perform<R : RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		completion(Result.Failure(nil))
 		completionCompanionBlock?(request)
 	}
@@ -50,7 +50,7 @@ final class MMRemoteAPIAlwaysSucceeding : MMRemoteAPIQueue {
 		super.init(baseURL: "stub", applicationCode: "stub")
 	}
 	
-	override func perform<R : RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		let response = R.ResponseType(json: JSON(NSNull()))
 		completion(Result.Success(response!))
 		completionCompanionBlock?(request)
@@ -63,6 +63,11 @@ class MMRemoteAPIMock: MMRemoteAPILocalMocks {
 	var performRequestCompanionBlock: ((Any) -> Void)?
 	var completionCompanionBlock: ((Any) -> Void)?
 	
+	convenience init(performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
+		
+		self.init(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseSubstitution)
+	}
+	
 	init(baseURLString: String, appCode: String, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
 		self.completionCompanionBlock = completionCompanionBlock
@@ -70,7 +75,7 @@ class MMRemoteAPIMock: MMRemoteAPILocalMocks {
 		super.init(baseURLString: baseURLString, appCode: appCode)
 	}
 	
-	override func perform<R: RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		if let responseSubstitution = responseSubstitution {
 			if let responseJSON = responseSubstitution(request), let response = R.ResponseType(json: responseJSON) {
 				completion(Result.Success(response))
@@ -100,11 +105,11 @@ extension MobileMessaging {
 
 class MMRemoteAPILocalMocks: MMRemoteAPIQueue {
 	
-	init(baseURLString: String, appCode: String) {
+	init(baseURLString: String = MMTestConstants.kTestBaseURLString, appCode: String = MMTestConstants.kTestCorrectApplicationCode) {
 		super.init(baseURL: baseURLString, applicationCode: appCode)
 	}
 	
-	override func perform<R: RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: applicationCode) {
 			if let requestError = RequestError(json: responseJSON) {
 				completion(Result.Failure(requestError.foundationError))

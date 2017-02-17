@@ -61,7 +61,9 @@ struct LibraryVersionRequest: GetRequest {
 }
 
 struct MessagesSyncRequest: PostRequest {
+	
 	typealias ResponseType = MessagesSyncResponse
+	var retryLimit: Int = 2
 	var path: APIPath { return .SyncMessages }
 	var parameters: RequestParameters? {
 		var params = RequestParameters()
@@ -213,6 +215,7 @@ protocol RequestData: RequestResponsable {
 	var headers: RequestHeaders? {get}
 	var retryLimit: Int {get}
 	var body: RequestBody? {get}
+	func mustRetryOnResponseError(_ error: NSError) -> Bool
 }
 
 protocol GetRequest: RequestData { }
@@ -226,6 +229,9 @@ extension PostRequest {
 }
 
 extension RequestData {
+	func mustRetryOnResponseError(_ error: NSError) -> Bool {
+		return retryLimit > 0 && error.mm_isRetryable
+	}
 	var retryLimit: Int { return 0 }
 	var headers: RequestHeaders? { return nil }
 	var body: RequestBody? { return nil }

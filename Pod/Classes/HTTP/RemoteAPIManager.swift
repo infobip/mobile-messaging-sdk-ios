@@ -54,7 +54,7 @@ class RemoteAPIManager {
 	
 	func syncMessages(internalId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void) {
 		let request = MessagesSyncRequest(internalId: internalId, archiveMsgIds: archiveMsgIds, dlrMsgIds: dlrMsgIds)
-		messageSyncQueue.perform(request: request, completion: completion)
+		messageSyncQueue.perform(request: request, exclusively: true, completion: completion)
 	}
 	
 	func sendGeoEventReports(eventsDataList: [GeoEventReportData], completion: @escaping (MMGeoEventReportingResult) -> Void) {

@@ -45,6 +45,10 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 		sendRequest()
 	}
 	
+	override func isErrorRetryable(_ error: NSError) -> Bool {
+		return request?.mustRetryOnResponseError(error) ?? false
+	}
+	
 	private func sendRequest() {
 		guard self.isCancelled == false else {
 			finish(Result.Cancel)
@@ -54,9 +58,9 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 			finish(Result.Failure(NSError(type: MMInternalErrorType.UnknownError)))
 			return
 		}
-		request?.responseObject(applicationCode: applicationCode, baseURL: baseURL) { result in
+		request?.responseObject(applicationCode: applicationCode, baseURL: baseURL, completion: { result in
 			self.operationQueue.executeSync { self.handleResult(result: result) }
-		}
+		})
 	}
 	
 	private func handleResult(result: ResponseTypeResult) {
@@ -66,7 +70,7 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 		}
 		if let error = result.error {
 			MMLogError("Failed request \(type(of: request)) on attempt #\(retryCounter) with error: \(error).")
-			if reachabilityManager.currentlyReachable() == false {
+			if let request = request, request.retryLimit > 0, self.reachabilityManager.currentlyReachable() == false {
 				MMLogDebug("Network is not reachable now \(reachabilityManager.localizedNetworkReachabilityStatusString). Setting up a reachability listener...")
 				reachabilityManager.setReachabilityStatusChangeBlock {[weak self] status in
 					MMLogDebug("Network Status Changed: \(self?.reachabilityManager.localizedNetworkReachabilityStatusString). Retrying request \(self?.request.self)...")

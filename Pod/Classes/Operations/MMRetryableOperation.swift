@@ -29,13 +29,23 @@ class MMRetryableOperation: Operation {
 	private var attemptObservers = [MMBlockObserver]()
 	var finishCompletion: MMRetryableOperationCompletion
 	
+	// Override me
 	func copyAttributes(from operation: MMRetryableOperation) {
 		retryCounter = operation.retryCounter
+	}
+	
+	// Override me
+	func isErrorRetryable(_ error: NSError) -> Bool {
+		return false
 	}
 	
 	required init(retryLimit: Int, completion: @escaping MMRetryableOperationCompletion) {
 		self.retryLimit = retryLimit
 		self.finishCompletion = completion
+	}
+	
+	class func delay(forAttempt attempt: Int) -> Int {
+		return Int(pow(Double(attempt), 2))
 	}
 	
 	class func makeSuccessor(withPredecessor predecessorOperation: MMRetryableOperation) -> MMRetryableOperation? {
@@ -50,7 +60,7 @@ class MMRetryableOperation: Operation {
 	private func shouldRetry(afterError error: NSError?) -> Bool {
 		var isErrorOkToRetry = false
 		switch error {
-		case .some(let err) where err.mm_isRetryable:
+		case .some(let err) where isErrorRetryable(err):
 			isErrorOkToRetry = true
 		case .none:
 			isErrorOkToRetry = false

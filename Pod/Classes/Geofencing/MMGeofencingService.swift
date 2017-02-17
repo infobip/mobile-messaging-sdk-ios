@@ -73,7 +73,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	var datasource: MMGeofencingDatasource!
 	var isRunning = false
 	let serviceQueue = MMQueue.Main.queue
-	lazy var eventsHandlingQueue = OperationQueue.mm_newSerialQueue
+	lazy var eventsHandlingQueue = MMOperationQueue.newSerialQueue
 	
 	// MARK: - Public
 	

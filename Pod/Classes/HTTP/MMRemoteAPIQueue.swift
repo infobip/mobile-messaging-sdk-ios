@@ -10,19 +10,6 @@ enum Result<ValueType> {
 	case Success(ValueType)
 	case Failure(NSError?)
 	case Cancel
-
-	var isFailure: Bool {
-		return !isSuccess
-	}
-	
-	var isSuccess: Bool {
-		switch self {
-		case .Success:
-			return true
-		case .Failure, .Cancel:
-			return false
-		}
-	}
 	
 	var value: ValueType? {
 		switch self {
@@ -58,12 +45,19 @@ class MMRemoteAPIQueue {
         self.applicationCode = applicationCode
     }
 	
-	func perform<R: RequestData>(request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		let requestOperation = MMRetryableRequestOperation<R>(request: request, applicationCode: applicationCode, baseURL: baseURL) { responseResult in
 			completion(responseResult)
 			self.postErrorNotificationIfNeeded(error: responseResult.error)
 		}
-		queue.addOperation(requestOperation)
+		if exclusively {
+			if queue.addOperationExclusively(requestOperation) == false {
+				MMLogDebug("\(type(of: request)) cancelled due to non-exclusive condition.")
+				completion(Result.Cancel)
+			}
+		} else {
+			queue.addOperation(requestOperation)
+		}
 	}
 
 	//MARK: Private

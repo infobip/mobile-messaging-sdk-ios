@@ -28,7 +28,7 @@ struct MMBlockObserver: MMOperationObserver {
     }
 }
 
-class MMRetryOperationQueue: OperationQueue {
+class MMRetryOperationQueue: MMOperationQueue {
 	override init() {
 		super.init()
 		self.name = "com.mobile-messaging.retryable-operation-queue"
@@ -52,9 +52,9 @@ class MMRetryOperationQueue: OperationQueue {
 	private func scheduleRetry(for operation: MMRetryableOperation) {
 		if let newOperation = type(of: operation).makeSuccessor(withPredecessor: operation) {
 			let retryNumber = newOperation.retryCounter + 1
-			let delay = pow(Double(retryNumber), 2)
+			let delay = type(of: operation).delay(forAttempt: retryNumber)
 			MMLogDebug("Scheduled retry attempt #\(retryNumber) for request \(type(of: newOperation)) in \(delay) seconds.")
-			DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: {
+			DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(delay), execute: {
 				self.addOperation(newOperation)
 			})
 		}

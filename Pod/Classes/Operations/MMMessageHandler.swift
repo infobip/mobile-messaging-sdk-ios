@@ -26,8 +26,11 @@ final class MMMessageHandler: MobileMessagingService {
 		completion?(true)
 	}
 	
-	lazy var messageHandlingQueue = OperationQueue.mm_newSerialQueue
-	lazy var messageSendingQueue = OperationQueue()
+
+	lazy var messageHandlingQueue = MMOperationQueue.newSerialQueue
+	lazy var messageSendingQueue = MMOperationQueue()
+	lazy var messageSyncQueue = MMOperationQueue.newSerialQueue
+
 	lazy var seenPostponer = MMPostponer(executionQueue: DispatchQueue.main)
 	
 	deinit {
@@ -48,7 +51,14 @@ final class MMMessageHandler: MobileMessagingService {
 			return
 		}
 		if let msg = MMMessageFactory.makeMessage(with: userInfo, createdDate: Date()) {
-			messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: [msg], messagesDeliveryMethod: .push, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, applicationState: applicationState, finishBlock: completion))
+			
+			messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: [msg], messagesDeliveryMethod: .push, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, applicationState: applicationState, finishBlock: { error in
+				
+				self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(), finishBlock: { result in
+					completion?(result.error)
+				}))
+			}))
+			
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
 			completion?(NSError.init(type: .UnknownError))
@@ -60,7 +70,7 @@ final class MMMessageHandler: MobileMessagingService {
 			completion?(nil)
 			return
 		}
-		messageHandlingQueue.addOperation(MessagesSyncOperation(context: storage.newPrivateContext(), finishBlock: completion))
+		messageSyncQueue.addOperation(MessagesSyncOperation(context: storage.newPrivateContext(), finishBlock: completion))
 	}
 	
 	func evictOldMessages(_ messageAge: TimeInterval? = nil, completion:((Void) -> Void)? = nil) {
@@ -70,13 +80,12 @@ final class MMMessageHandler: MobileMessagingService {
     func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
 		messageHandlingQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext()))
 		seenPostponer.postponeBlock() {
-			self.messageHandlingQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), finishBlock: completion))
+			self.messageSyncQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), finishBlock: completion))
 		}
     }
 	
 	func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		messageSendingQueue.addOperation(MessagePostingOperation(messages: messages, context: storage.newPrivateContext(), finishBlock: { (result: MOMessageSendingResult) in
-			
 			completion?(result.value?.messages, result.error)
 		}))
 	}

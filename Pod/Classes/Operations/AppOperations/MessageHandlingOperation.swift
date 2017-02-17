@@ -36,7 +36,6 @@ final class MessageHandlingOperation: Operation {
 	let finishBlock: ((NSError?) -> Void)?
 	let messagesToHandle: [MTMessage]
 	let messagesDeliveryMethod: MessageDeliveryMethod
-	var hasNewMessages: Bool = false
 	let messageHandler: MessageHandling
 	let applicationState: UIApplicationState
 	
@@ -66,7 +65,6 @@ final class MessageHandlingOperation: Operation {
 		MMLogDebug("[Message handling] There are \(newMessages.count) new messages to handle.")
 		
 		context.performAndWait {
-			self.hasNewMessages = true
 			self.newMessages.forEach { newMessage in
 				let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				newDBMessage.messageId = newMessage.messageId
@@ -179,13 +177,6 @@ final class MessageHandlingOperation: Operation {
 //MARK: -
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message handling] Message handling finished with errors: \(errors)")
-		if hasNewMessages && errors.isEmpty {
-			let messageFetching = MessageFetchingOperation(context: context, finishBlock: { result in
-				self.finishBlock?(result.error)
-			})
-			self.produceOperation(messageFetching)
-		} else {
-			self.finishBlock?(errors.first)
-		}
+		self.finishBlock?(errors.first)
 	}
 }

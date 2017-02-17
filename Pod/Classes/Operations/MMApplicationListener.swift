@@ -9,7 +9,6 @@
 import Foundation
 
 final class MMApplicationListener: NSObject {
-	
     deinit {
         NotificationCenter.default.removeObserver(self)
     }

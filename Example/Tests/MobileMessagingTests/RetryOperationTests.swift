@@ -12,6 +12,7 @@ var operationExecutionCounter: Int = Int.max
 let noReachabilityAttemptNumber = 1
 var reachabilityTesting = false
 
+
 final class MMTestNetworkReachabilityManager: MMNetworkReachabilityManager {
 	override func currentlyReachable() -> Bool {
 		if reachabilityTesting {
@@ -25,8 +26,13 @@ final class MMTestNetworkReachabilityManager: MMNetworkReachabilityManager {
 final class MMTestCounterOperation: MMRetryableOperation {
 	override func execute() {
 		super.execute()
+		
 		operationExecutionCounter += 1
 		finishWithError(NSError(domain: NSURLErrorDomain, code: 404, userInfo: [NSLocalizedDescriptionKey: "fake some retryable error"]))
+	}
+	
+	override func isErrorRetryable(_ error: NSError) -> Bool {
+		return true
 	}
 }
 
@@ -37,6 +43,7 @@ final class MMTestRechabilityOperation<RequestType: RequestData>: MMRetryableReq
 	
 	override func execute() {
 		super.execute()
+		
 		operationExecutionCounter += 1
 	}
 }
