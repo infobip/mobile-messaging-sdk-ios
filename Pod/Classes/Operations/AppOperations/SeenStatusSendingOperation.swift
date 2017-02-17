@@ -26,7 +26,6 @@ class SeenStatusSendingOperation: Operation {
 				self.finish()
 				return
 			}
-			
 			let seenStatusesToSend = seenNotSentMessages.flatMap { msg -> SeenData? in
 				guard let seenDate = msg.seenDate else {
 					return nil
@@ -35,27 +34,24 @@ class SeenStatusSendingOperation: Operation {
 			}
 			
 			MobileMessaging.sharedInstance?.remoteApiManager.sendSeenStatus(seenList: seenStatusesToSend) { result in
-				self.handleSeenResult(result, seenMessageIds: seenStatusesToSend.map { $0.messageId })
+				self.handleSeenResult(result, messages: seenNotSentMessages)
 				self.finishWithError(result.error)
 			}
 		}
 	}
 	
-	private func handleSeenResult(_ result: SeenStatusSendingResult, seenMessageIds:[String]) {
+	private func handleSeenResult(_ result: SeenStatusSendingResult, messages: [MessageManagedObject]) {
 		self.result = result
 		switch result {
 		case .Success(_):
 			MMLogDebug("[Seen status reporting] Request succeeded")
 
 			context.performAndWait {
-				if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format:"messageId IN %@", seenMessageIds), context: self.context), !messages.isEmpty
-				{
-					messages.forEach { message in
-						message.seenStatus = .SeenSent
-					}
-					self.context.MM_saveToPersistentStoreAndWait()
-					self.updateMessageStorage(with: messages)
+				messages.forEach { message in
+					message.seenStatus = .SeenSent
 				}
+				self.context.MM_saveToPersistentStoreAndWait()
+				self.updateMessageStorage(with: messages)
 			}
 		case .Failure(let error):
 			MMLogError("[Seen status reporting] Request failed with error: \(error)")

@@ -207,9 +207,14 @@ public final class MobileMessaging: NSObject {
 	/// An auxillary component provides the convinient access to the user agent data.
 	public static var userAgent = MMUserAgent()
 	
-	/// A block object to be executed when user opens the app by tapping on the notification alert. This block takes:
+	/// A block object to be executed when user opens the app by tapping on the notification alert. 
+	/// Default implementation marks the corresponding message as seen.
+	/// This block takes:
 	/// - single MTMessage object initialized from the Dictionary.
-	public static var notificationTapHandler: ((_ message: MTMessage) -> Void)?
+	public static var notificationTapHandler: ((_ message: MTMessage) -> Void)? = {
+		MMLogDebug("Notfication alert tapped.")
+		MobileMessaging.setSeen(messageIds: [$0.messageId])
+	}
 	
 	/// The message handling object defines the behaviour that is triggered during the message handling.
 	///

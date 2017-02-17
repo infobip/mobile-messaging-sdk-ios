@@ -30,7 +30,7 @@ final class SeenStatusPersistingOperation: Operation {
 			return
 		}
 		self.context.performAndWait {
-			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", self.messageIds), context: self.context), !dbMessages.isEmpty {
+			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@ AND seenStatusValue == \(MMSeenStatus.NotSeen.rawValue)", self.messageIds), context: self.context), !dbMessages.isEmpty {
 				dbMessages.forEach { message in
 					switch message.seenStatus {
 					case .NotSeen:
@@ -42,7 +42,6 @@ final class SeenStatusPersistingOperation: Operation {
 					}
 				}
 				self.context.MM_saveToPersistentStoreAndWait()
-				
 				self.updateMessageStorage(with: dbMessages)
 			}
 		}
