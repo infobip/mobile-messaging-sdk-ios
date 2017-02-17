@@ -56,10 +56,6 @@ typealias LibraryVersionResult = Result<LibraryVersionResponse>
 typealias MMGeoEventReportingResult = Result<GeoEventReportingResponse>
 
 public struct RequestError {
-	public var isUNAUTHORIZED: Bool {
-		return messageId == "UNAUTHORIZED"
-	}
-	
 	public let messageId: String
 	
 	public let text: String
