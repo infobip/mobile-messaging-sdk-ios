@@ -42,6 +42,6 @@ Pod::Spec.new do |s|
         cl.source_files = 'Pod/Classes/**/*.{h,m,swift}'
         cl.exclude_files = "Pod/Classes/Logging/DummyLogger/**"
 
-        cl.dependency 'CocoaLumberjack', '~> 3.0'
+        cl.dependency 'CocoaLumberjack', '~> 3.1'
     end
 end

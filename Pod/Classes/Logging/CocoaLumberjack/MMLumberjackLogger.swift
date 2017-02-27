@@ -135,15 +135,17 @@ public final class MMLogger: NSObject, MMLogging {
 		let lumberjackLogLvl = lumberjackLogLevel(from: logLevel)
 		
 		if logOutput.contains(options: .Console) {
-			let logger = DDTTYLogger.sharedInstance()
-			logger?.logFormatter = MMLogFormatter()
-			DDLog.add(logger, with: lumberjackLogLvl) //Console
+			if let logger = DDTTYLogger.sharedInstance {
+				logger.logFormatter = MMLogFormatter()
+				DDLog.add(logger, with: lumberjackLogLvl) //Console
+			}
 		}
 		
 		if logOutput.contains(options: .ASL) {
-			let logger = DDASLLogger.sharedInstance()
-			logger?.logFormatter = MMLogFormatter()
-			DDLog.add(logger, with: lumberjackLogLvl) //ASL
+			if let logger = DDASLLogger.sharedInstance {
+				logger.logFormatter = MMLogFormatter()
+				DDLog.add(logger, with: lumberjackLogLvl) //ASL
+			}
 		}
 		
 		if logOutput.contains(options: .File) {
@@ -152,8 +154,9 @@ public final class MMLogger: NSObject, MMLogging {
 				fileLogger.logFormatter = MMLogFormatter()
 				fileLogger.logFileManager.maximumNumberOfLogFiles = 10
 				fileLogger.rollingFrequency = TimeInterval(60*60*24) //24h
+				DDLog.add(fileLogger, with: lumberjackLogLvl)
 			}
-			DDLog.add(fileLogger, with: lumberjackLogLvl)
+			
 		}
 	}
 	
