@@ -1,1 +1,1 @@
-let mobileMessagingVersion = "2.3.0"
+let mobileMessagingVersion = "2.3.1"
