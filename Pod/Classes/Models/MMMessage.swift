@@ -123,7 +123,9 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	}
 	
 	public var seenStatus: MMSeenStatus
+	public var seenDate: Date?
 	public var isDeliveryReportSent: Bool
+	public var deliveryReportedDate: Date?
 	
 	let aps: MMAPS
 	let silentData: StringKeyPayload?
@@ -137,10 +139,12 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.deliveryMethod = .pull
 	}
 	
-	convenience init?(coreDataMessage: Message) {
+	convenience init?(coreDataMessage: Message) { // messages-storage-message to mtMessage
 		self.init(payload: coreDataMessage.payload, createdDate: coreDataMessage.createdDate)
 		self.seenStatus = MMSeenStatus(rawValue: coreDataMessage.seenStatusValue) ?? .NotSeen
+		self.seenDate = coreDataMessage.seenDate
 		self.isDeliveryReportSent = coreDataMessage.isDeliveryReportSent
+		self.deliveryReportedDate = coreDataMessage.deliveryReportedDate
 	}
 	
 	init?(payload: APNSPayload, createdDate: Date) {
@@ -164,7 +168,9 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.silentData = (payload[APNSPayloadKeys.kInternalData] as? StringKeyPayload)?[APNSPayloadKeys.kInternalDataSilent] as? StringKeyPayload
 		self.deliveryMethod = .push
 		self.seenStatus = .NotSeen
+		self.seenDate = nil
 		self.isDeliveryReportSent = false
+		self.deliveryReportedDate = nil
 		super.init(messageId: messageId, direction: .MT, originalPayload: payload, createdDate: createdDate)
 	}
 	

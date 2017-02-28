@@ -30,12 +30,12 @@ final class SeenStatusPersistingOperation: Operation {
 			return
 		}
 		self.context.performAndWait {
-			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@ AND seenStatusValue == \(MMSeenStatus.NotSeen.rawValue)", self.messageIds), context: self.context), !dbMessages.isEmpty {
+			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", self.messageIds), context: self.context), !dbMessages.isEmpty {
 				dbMessages.forEach { message in
 					switch message.seenStatus {
 					case .NotSeen:
 						message.seenStatus = .SeenNotSent
-						message.seenDate = Date()
+						message.seenDate = Date() // we store only the very first seen date, any repeated seen update is ignored
 					case .SeenSent:
 						message.seenStatus = .SeenNotSent
 					case .SeenNotSent: break

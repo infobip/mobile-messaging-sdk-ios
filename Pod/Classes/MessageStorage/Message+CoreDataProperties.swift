@@ -21,4 +21,6 @@ extension Message {
 	@NSManaged var deliveryMethod: Int16
 	@NSManaged var direction: Int16
 	@NSManaged var sentStatusValue: Int16
+	@NSManaged var deliveryReportedDate: Date?
+	@NSManaged var seenDate: Date?
 }

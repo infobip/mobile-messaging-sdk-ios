@@ -84,6 +84,7 @@ final class MessageFetchingOperation: Operation {
 		
 		messages.forEach { message in
 			message.reportSent = true
+			message.deliveryReportedDate = Date()
 		}
 		
 		MMLogDebug("[Message fetching] marked as delivered: \(messages.map{ $0.messageId })")

@@ -22,4 +22,5 @@ extension MessageManagedObject {
     @NSManaged var isSilent: Bool
 	@NSManaged var campaignStateValue: Int16
 	@NSManaged var campaignId: String?
+	@NSManaged var deliveryReportedDate: Date?
 }
