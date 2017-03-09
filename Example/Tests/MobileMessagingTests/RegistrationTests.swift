@@ -30,7 +30,7 @@ final class RegistrationTests: MMTestCase {
 			let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
 			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
-				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".mm_toHexademicalString(), "Most recent token must be persisted")
+				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".mm_toHexademicalString, "Most recent token must be persisted")
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Device token must be synced with server")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
@@ -72,7 +72,7 @@ final class RegistrationTests: MMTestCase {
 			
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "current installation must be synchronized")
 				XCTAssertEqual(installation.internalUserId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(installation.internalUserId))")
-				XCTAssertEqual(installation.deviceToken, "someToken2".mm_toHexademicalString(), "Device token must be mocked properly. (current is \(installation.deviceToken))")
+				XCTAssertEqual(installation.deviceToken, "someToken2".mm_toHexademicalString, "Device token must be mocked properly. (current is \(installation.deviceToken))")
 				XCTAssertEqual(installation.predefinedUserData?[MMUserPredefinedDataKeys.Email.name] as? String, MMTestConstants.kTestValidEmail, "")
 				XCTAssertEqual(installation.predefinedUserData?[MMUserPredefinedDataKeys.MSISDN.name] as? String, MMTestConstants.kTestValidMSISDN, "")
 				
@@ -99,7 +99,7 @@ final class RegistrationTests: MMTestCase {
 			
 				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalUserId, nil, "Internal id must be nil, server denied the application code")
-				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString(), "Device token must be mocked properly. (current is \(installation.deviceToken))")
+				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString, "Device token must be mocked properly. (current is \(installation.deviceToken))")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
 			}
@@ -110,7 +110,7 @@ final class RegistrationTests: MMTestCase {
     func testTokenSendsTwice() {
 		MobileMessaging.userAgent = UserAgentStub()
 		
-		MobileMessaging.sharedInstance?.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: { request in
+		MobileMessaging.sharedInstance?.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: { request in
 			
 			switch request {
 			case (is RegistrationRequest):
@@ -152,6 +152,7 @@ final class RegistrationTests: MMTestCase {
 		}
 		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
 																					  appCode: MMTestConstants.kTestWrongApplicationCode,
+																					  mmContext: self.mobileMessagingInstance,
 																					  performRequestCompanionBlock: requestPerformCompanion,
 																					  completionCompanionBlock: nil,
 																					  responseSubstitution: nil)
@@ -201,6 +202,7 @@ final class RegistrationTests: MMTestCase {
 		
 		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
 		                                                                              appCode: MMTestConstants.kTestWrongApplicationCode,
+		                                                                              mmContext: self.mobileMessagingInstance,
 		                                                                              performRequestCompanionBlock: requestPerformCompanion,
 		                                                                              completionCompanionBlock: nil,
 		                                                                              responseSubstitution: responseStub)
@@ -246,11 +248,12 @@ final class RegistrationTests: MMTestCase {
 		}
 		
 		let mm = MobileMessaging.withApplicationCode("stub", notificationType: [], backendBaseURL: "stub")!.withGeofencingService()
-		mm.geofencingService = GeofencingServiceStartStopMock(storage: storage)
+		mm.geofencingService = GeofencingServiceStartStopMock(storage: storage, mmContext: mm)
 		mm.start()
 		
 		mm.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
 		                                                                             appCode: MMTestConstants.kTestWrongApplicationCode,
+		                                                                             mmContext: mm,
 		                                                                             performRequestCompanionBlock: nil,
 		                                                                             completionCompanionBlock: nil,
 		                                                                             responseSubstitution: responseStatusDisabledStub)
@@ -305,6 +308,7 @@ final class RegistrationTests: MMTestCase {
 
 			let mock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
 			                appCode: MMTestConstants.kTestCorrectApplicationCode,
+			                mmContext: self.mobileMessagingInstance,
 			                performRequestCompanionBlock: nil,
 			                completionCompanionBlock: nil,
 			                responseSubstitution: nil)

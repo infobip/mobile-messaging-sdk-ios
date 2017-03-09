@@ -31,9 +31,9 @@ enum TestResult {
 final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
 	var completionCompanionBlock : ((Any) -> Void)?
 	
-	init(completionCompanionBlock: ((Any) -> Void)? = nil) {
+	init(mmContext: MobileMessaging, completionCompanionBlock: ((Any) -> Void)? = nil) {
 		self.completionCompanionBlock = completionCompanionBlock
-		super.init(baseURL: "stub", applicationCode: "stub")
+		super.init(mmContext: mmContext, baseURL: "stub", applicationCode: "stub")
 	}
 
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
@@ -42,40 +42,40 @@ final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
 	}
 }
 
-final class MMRemoteAPIAlwaysSucceeding : MMRemoteAPIQueue {
+final class MMGeoRemoteAPIAlwaysSucceeding : MMRemoteAPIQueue {
 	var completionCompanionBlock : ((Any) -> Void)?
 	
-	init(completionCompanionBlock: ((Any) -> Void)? = nil) {
+	init(mmContext: MobileMessaging, completionCompanionBlock: ((Any) -> Void)? = nil) {
 		self.completionCompanionBlock = completionCompanionBlock
-		super.init(baseURL: "stub", applicationCode: "stub")
+		super.init(mmContext: mmContext, baseURL: "stub", applicationCode: "stub")
 	}
 	
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		let response = R.ResponseType(json: JSON(NSNull()))
+		let response = R.ResponseType(json: JSON.parse("{ \"messageIds\": {\"tm1\": \"m1\", \"tm2\": \"m2\", \"tm3\": \"m3\"} }"))
 		completion(Result.Success(response!))
 		completionCompanionBlock?(request)
 	}
 }
 
 class MMRemoteAPIMock: MMRemoteAPILocalMocks {
-	
 	var responseSubstitution: ((_ request: Any) -> JSON?)? // (Request) -> (JSON)
 	var performRequestCompanionBlock: ((Any) -> Void)?
 	var completionCompanionBlock: ((Any) -> Void)?
 	
-	convenience init(performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
+	convenience init(mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
 		
-		self.init(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseSubstitution)
+		self.init(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: mmContext, performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseSubstitution)
 	}
 	
-	init(baseURLString: String, appCode: String, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
+	init(baseURLString: String, appCode: String, mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
 		self.completionCompanionBlock = completionCompanionBlock
 		self.responseSubstitution = responseSubstitution
-		super.init(baseURLString: baseURLString, appCode: appCode)
+		super.init(mmContext: mmContext, baseURLString: baseURLString, appCode: appCode)
 	}
 	
-	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	override func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
+        performRequestCompanionBlock?(request)
 		if let responseSubstitution = responseSubstitution {
 			if let responseJSON = responseSubstitution(request), let response = R.ResponseType(json: responseJSON) {
 				completion(Result.Success(response))
@@ -89,24 +89,23 @@ class MMRemoteAPIMock: MMRemoteAPILocalMocks {
 				self.completionCompanionBlock?(response)
 			}
 		}
-		performRequestCompanionBlock?(request)
 	}
 }
 
 extension MobileMessaging {
-	func setupMockedQueues() {
-		remoteApiManager.registrationQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.seenStatusQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.messageSyncQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.geofencingServiceQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.versionFetchingQueue = MMRemoteAPILocalMocks(baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+	func setupMockedQueues(mmContext: MobileMessaging) {
+		remoteApiManager.registrationQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.seenStatusQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.messageSyncQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.geofencingServiceQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.versionFetchingQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
 	}
 }
 
 class MMRemoteAPILocalMocks: MMRemoteAPIQueue {
 	
-	init(baseURLString: String = MMTestConstants.kTestBaseURLString, appCode: String = MMTestConstants.kTestCorrectApplicationCode) {
-		super.init(baseURL: baseURLString, applicationCode: appCode)
+	init(mmContext: MobileMessaging, baseURLString: String, appCode: String) {
+		super.init(mmContext: mmContext, baseURL: baseURLString, applicationCode: appCode)
 	}
 	
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
@@ -133,3 +132,16 @@ func timeTravel(to date: Date, block: () -> Void) {
 	block()
 	method_setImplementation(method, oldImplementation)
 }
+
+final class MMReachabilityManagerStub: MMNetworkReachabilityManager {
+	let isReachable: Bool
+	
+	init(isReachable: Bool) {
+		self.isReachable = isReachable
+	}
+	
+	override func currentlyReachable() -> Bool {
+		return isReachable
+	}
+}
+

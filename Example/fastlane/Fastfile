@@ -101,8 +101,10 @@ platform :ios do
         unless only_build
             clean_build_artifacts
             
-            desc "Pushing to Github repo master"
-            sh "git push github HEAD:master"
+            unless options[:no_github]
+                desc "Pushing to Github repo master"
+                sh "git push github HEAD:master"
+            end
         end
     end
 
@@ -179,20 +181,22 @@ platform :ios do
             desc "Pushing to Stash repo master"
             sh "git push origin HEAD:master --tags"
 
-            desc "Pushing to Github repo master"
-            sh "git push github HEAD:master"
+            unless options[:no_github]
+                desc "Pushing to Github repo master"
+                sh "git push github HEAD:master"
 
-            set_github_release(
-                repository_name: "infobip/mobile-messaging-sdk-ios",
-                api_token: ENV["GITHUB_API_TOKEN"],
-                tag_name: version_number,
-                name: version_number
-            )
+                set_github_release(
+                    repository_name: "infobip/mobile-messaging-sdk-ios",
+                    api_token: ENV["GITHUB_API_TOKEN"],
+                    tag_name: version_number,
+                    name: version_number
+                )
 
-            pod_push(
-                path: podspec_path,
-                allow_warnings: true
-            )
+                pod_push(
+                    path: podspec_path,
+                    allow_warnings: true
+                )
+            end
         end
     end
 end

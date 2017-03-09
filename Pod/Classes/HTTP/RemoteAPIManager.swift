@@ -14,12 +14,12 @@ class RemoteAPIManager {
 	internal(set) var seenStatusQueue: MMRemoteAPIQueue
 	internal(set) var geofencingServiceQueue: MMRemoteAPIQueue
 	
-	init(baseUrl: String, applicationCode: String) {
-		registrationQueue = MMRemoteAPIQueue(baseURL: baseUrl, applicationCode: applicationCode)
-		seenStatusQueue = MMRemoteAPIQueue(baseURL: baseUrl, applicationCode: applicationCode)
-		messageSyncQueue = MMRemoteAPIQueue(baseURL: baseUrl, applicationCode: applicationCode)
-		geofencingServiceQueue = MMRemoteAPIQueue(baseURL: baseUrl, applicationCode: applicationCode)
-		versionFetchingQueue = MMRemoteAPIQueue(baseURL: baseUrl, applicationCode: applicationCode)
+	init(baseUrl: String, applicationCode: String, mmContext: MobileMessaging) {
+		registrationQueue = MMRemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
+		seenStatusQueue = MMRemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
+		messageSyncQueue = MMRemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
+		geofencingServiceQueue = MMRemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
+		versionFetchingQueue = MMRemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
 	}
 	
 	func syncRegistration(internalId: String?, deviceToken: String, isEnabled: Bool?, completion: @escaping (RegistrationResult) -> Void) {
@@ -57,8 +57,8 @@ class RemoteAPIManager {
 		messageSyncQueue.perform(request: request, exclusively: true, completion: completion)
 	}
 	
-	func sendGeoEventReports(eventsDataList: [GeoEventReportData], completion: @escaping (MMGeoEventReportingResult) -> Void) {
-		let request = GeoEventReportingRequest(eventsDataList: eventsDataList)
+	func sendGeoEventReports(internalId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage], completion: @escaping (MMGeoEventReportingResult) -> Void) {
+		let request = GeoEventReportingRequest(internalUserId: internalId, eventsDataList: eventsDataList, geoMessages: geoMessages)
 		geofencingServiceQueue.perform(request: request, completion: completion)
 	}
 	

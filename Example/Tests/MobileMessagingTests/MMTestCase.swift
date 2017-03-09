@@ -1,4 +1,4 @@
-//
+
 //  MMTestCase.swift
 //  MobileMessaging
 //
@@ -62,6 +62,7 @@ class MMTestCase: XCTestCase {
         MobileMessaging.logger.logLevel = .All
         MobileMessaging.stop(true)
         startWithCorrectApplicationCode()
+		self.mobileMessagingInstance.reachabilityManager = MMReachabilityManagerStub(isReachable: true)
     }
     
     func cleanUpAndStop() {
@@ -71,7 +72,8 @@ class MMTestCase: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-		self.cleanUpAndStop()
+		cleanUpAndStop()
+		MMGeofencingService.currentDate = nil
 	}
     
     func nonReportedStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
@@ -99,7 +101,7 @@ class MMTestCase: XCTestCase {
 	
 	func mockedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
 		let mm = MobileMessaging.withApplicationCode(code, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)
-		mm?.setupMockedQueues()
+		mm?.setupMockedQueues(mmContext: self.mobileMessagingInstance)
 		return mm
 	}
 	

@@ -155,7 +155,7 @@ class MessageStorageTests: MMTestCase {
 		
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { result in
 				
 				DispatchQueue.main.async {
 					iterationCounter += 1
@@ -186,7 +186,7 @@ class MessageStorageTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Check finished")
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { result in
 				DispatchQueue.main.async {
 					iterationCounter += 1
 					if iterationCounter == expectedMessagesCount {
@@ -214,7 +214,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("001")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -222,7 +222,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("002")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -230,7 +230,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("003")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -238,7 +238,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("004")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -246,7 +246,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("005")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
 				messageReceivingGroup.leave()
 			})
 		}

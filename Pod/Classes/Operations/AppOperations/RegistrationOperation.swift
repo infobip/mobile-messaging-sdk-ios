@@ -12,17 +12,20 @@ final class SyncRegistrationOperation: Operation {
 	let context: NSManagedObjectContext
 	var installationObject: InstallationManagedObject!
 	let finishBlock: ((NSError?) -> Void)?
+	let mmContext: MobileMessaging
 	
-    init(context: NSManagedObjectContext, finishBlock: ((NSError?) -> Void)?) {
+    init(context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
 		self.context = context
 		self.finishBlock = finishBlock
+		self.mmContext = mmContext
 		super.init()
 	}
 	
 	override func execute() {
 		MMLogDebug("[Registration] Started...")
 		context.perform {
-			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
+			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else
+            {
 				self.finish()
 				return
 			}
@@ -43,15 +46,16 @@ final class SyncRegistrationOperation: Operation {
 	}
 	
 	private func sendRegistration() {
-        guard let deviceToken = installationObject.deviceToken else {
+        guard let deviceToken = installationObject.deviceToken else
+        {
 			MMLogDebug("[Registration] There is no device token. Finishing...")
             self.finish([NSError(type: MMInternalErrorType.UnknownError)])
             return
         }
 		
 		let isPushRegistrationEnabled: Bool? = registrationStatusChanged ? installationObject.isRegistrationEnabled : nil // send value only if changed
-		let internalId = installationObject.internalUserId ?? MobileMessaging.sharedInstance?.keychain.internalId
-		MobileMessaging.sharedInstance?.remoteApiManager.syncRegistration(internalId: internalId, deviceToken: deviceToken, isEnabled: isPushRegistrationEnabled) { result in
+		let internalId = installationObject.internalUserId ?? mmContext.keychain.internalId
+		mmContext.remoteApiManager.syncRegistration(internalId: internalId, deviceToken: deviceToken, isEnabled: isPushRegistrationEnabled) { result in
 			self.handleRegistrationResult(result)
 			self.finishWithError(result.error)
 		}
@@ -59,23 +63,19 @@ final class SyncRegistrationOperation: Operation {
 	
 	private func handleRegistrationResult(_ result: RegistrationResult) {
 		self.context.performAndWait {
-			guard let installationObject = self.installationObject else {
-				return
-			}
 			switch result {
 			case .Success(let regResponse):
 				MMLogDebug("[Registration] Installation updated on server for internal ID \(regResponse.internalId). Updating local version...")
-				if (regResponse.isEnabled != installationObject.isRegistrationEnabled) {
-					MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled: regResponse.isEnabled)
+				if (regResponse.isEnabled != self.installationObject.isRegistrationEnabled) {
+					self.mmContext.updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled: regResponse.isEnabled)
 				}
 				
-				installationObject.internalUserId = regResponse.internalId
-				installationObject.isRegistrationEnabled = regResponse.isEnabled
-				if let keychain = MobileMessaging.sharedInstance?.keychain {
-					keychain.internalId = regResponse.internalId
-				}
+				self.installationObject.internalUserId = regResponse.internalId
+				self.installationObject.isRegistrationEnabled = regResponse.isEnabled
 				
-				installationObject.resetDirtyRegistration()
+				self.mmContext.keychain.internalId = regResponse.internalId
+				
+				self.installationObject.resetDirtyRegistration()
  				self.context.MM_saveToPersistentStoreAndWait()
 				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalId])
 			case .Failure(let error):

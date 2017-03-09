@@ -10,7 +10,7 @@ import XCTest
 
 class BaseSettingsTests: XCTestCase {
 	func testBaseSettings() {
-		XCTAssertEqual(MMAPIValues.kProdBaseURLString, "https://oneapi2.infobip.com")
-		XCTAssertEqual(MMAPIValues.kPlatformType, "APNS")
+		XCTAssertEqual(MMAPIValues.prodBaseURLString, "https://oneapi2.infobip.com")
+		XCTAssertEqual(MMAPIValues.platformType, "APNS")
 	}
 }

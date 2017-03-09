@@ -7,7 +7,6 @@
 
 import Foundation
 import CoreLocation
-import UIKit
 import CoreData
 
 /// Describes the kind of location service. Possible values:
@@ -62,17 +61,19 @@ public protocol MMGeofencingServiceDelegate: class {
 	func didExitRegion(region: MMRegion)
 }
 
-public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMessagingService {
-	let kDistanceFilter: CLLocationDistance = 100
-	let kMonitoringRegionsLimit: Int = 20
+public class MMGeofencingService: NSObject, MobileMessagingService {
+	static let kDistanceFilter: CLLocationDistance = 100
+    static let kRegionRefreshThreshold: CLLocationDistance = 200
+	static let kMonitoringRegionsLimit: Int = 20
 	static let kGeofencingPreferableUsage = MMLocationServiceUsage.Always
 	static let kGeofencingMinimumAllowedUsage = MMLocationServiceUsage.WhenInUse
 	static let kGeofencingSupportedAuthStatuses = [CLAuthorizationStatus.authorizedWhenInUse, CLAuthorizationStatus.authorizedAlways]
-	
+
 	var locationManager: CLLocationManager!
-	var datasource: MMGeofencingDatasource!
+	var datasource: GeofencingDatasource!
 	var isRunning = false
-	let serviceQueue = MMQueue.Main.queue
+	let locationManagerQueue = MMQueue.Main.queue
+	var mmContext: MobileMessaging!
 	lazy var eventsHandlingQueue = MMOperationQueue.newSerialQueue
 	
 	// MARK: - Public
@@ -84,7 +85,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	/// Returns all the regions available in the Geofencing Service storage.
 	public var allRegions: Array<MMRegion> {
 		var result = Array<MMRegion>()
-		serviceQueue.executeSync() {
+		locationManagerQueue.executeSync() {
 			result = self.datasource.allRegions
 		}
 		return result
@@ -109,7 +110,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	/// - parameter completion: A block that will be triggered once the startup process is finished. Contains a Bool flag parameter, that indicates whether the startup succeded.
 	public func start(_ completion: ((Bool) -> Void)? = nil) {
 		MMLogDebug("[GeofencingService] starting ...")
-		serviceQueue.executeAsync() {
+		locationManagerQueue.executeAsync() {
 			guard self.isRunning == false else
 			{
 				MMLogDebug("[GeofencingService] isRunning = \(self.isRunning))")
@@ -146,7 +147,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	/// Stops the Geofencing Service
 	public func stop(_ completion: ((Bool) -> Void)? = nil) {
 		eventsHandlingQueue.cancelAllOperations()
-		serviceQueue.executeAsync() {
+		locationManagerQueue.executeAsync() {
 			guard self.isRunning == true else
 			{
 				return
@@ -165,7 +166,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	/// Accepts a geo message, which contains regions that should be monitored.
 	/// - parameter message: A message object to add to the monitoring. Object of `MMGeoMessage` class.
 	public func add(message: MMGeoMessage) {
-		serviceQueue.executeAsync() {
+		locationManagerQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] trying to add a message")
 			guard self.isRunning == true else
 			{
@@ -182,7 +183,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	
 	/// Removes a message from the monitoring.
 	public func removeMessage(withId messageId: String) {
-		serviceQueue.executeAsync() {
+		locationManagerQueue.executeAsync() {
 			self.datasource.removeMessage(withId: messageId)
 			MMLogDebug("[GeofencingService] message removed \(messageId)")
 			self.refreshMonitoredRegions()
@@ -192,18 +193,19 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	/// The geo event handling object defines the behaviour that is triggered during the geo event.
 	///
 	/// You can implement your own geo event handling either by subclassing `MMDefaultGeoEventHandling` or implementing the `GeoEventHandling` protocol.
-	public static var geoEventsHandler: GeoEventHandling? = MMDefaultGeoEventHandling()
+	public static var geoEventsHandler: GeoEventHandling?
 	
 	// MARK: - Internal
 	//FIXME: use background queue. (initialize separate NSThread which lives as long as geo service running)
-	init (storage: MMCoreDataStorage) {
+	init (storage: MMCoreDataStorage, mmContext: MobileMessaging) {
 		super.init()
-		serviceQueue.executeSync() {
+		locationManagerQueue.executeSync() {
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
-			self.locationManager.distanceFilter = self.kDistanceFilter
+			self.locationManager.distanceFilter = MMGeofencingService.kDistanceFilter
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-			self.datasource = MMGeofencingDatasource(storage: storage)
+			self.datasource = GeofencingDatasource(storage: storage)
+			self.mmContext = mmContext
 			self.previousLocation = MobileMessaging.currentInstallation?.location
 		}
 	}
@@ -221,7 +223,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	}
 	
 	func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
-		serviceQueue.executeAsync() {
+		locationManagerQueue.executeAsync() {
 			guard self.capabilityCompletion == nil else
 			{
 				fatalError("Attempting to authorize location when a request is already in-flight")
@@ -268,24 +270,23 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	func regionsToStopMonitoring(monitoredRegions: Set<CLCircularRegion>) -> Set<CLCircularRegion> {
 		assert(Thread.isMainThread)
 		let regionsWeAreInside: Set<CLCircularRegion> = Set(monitoredRegions.filter {
-			guard let currentCoordinate = self.locationManager.location?.coordinate else {
+			guard let currentCoordinate = self.locationManager.location?.coordinate else
+            {
 				return false
 			}
 			return $0.contains(currentCoordinate)
-			}
-		)
+        })
 		
 		let deadRegions: Set<CLCircularRegion> = Set(monitoredRegions.filter {
 			self.dataSourceRegions(from: [$0]).contains(where: { $0.message?.isNotExpired ?? false}) == false
-			}
-		)
+        })
 		return monitoredRegions.subtracting(regionsWeAreInside).union(deadRegions)
 	}
 	
 	func regionsToStartMonitoring(monitoredRegions: Set<CLCircularRegion>) -> Set<CLCircularRegion> {
 		assert(Thread.isMainThread)
 		let notExpiredRegions = Set(self.datasource.liveRegions.map { $0.circularRegion })
-		let number = self.kMonitoringRegionsLimit - monitoredRegions.count
+		let number = MMGeofencingService.kMonitoringRegionsLimit - monitoredRegions.count
 		let location = self.locationManager.location ?? previousLocation
 		let array = MMGeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { monitoredRegions.contains($0) == false })
 		return Set(array)
@@ -340,33 +341,13 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 		}
 	}
 	
-	func report(on eventType: MMRegionEventType, forRegionId regionId: String, message: MMGeoMessage, completion: ((CampaignState) -> Void)?) {
-		message.events.filter{ $0.type == eventType }.first?.occur()
-		persistNewEvent(of: eventType, forRegionId: regionId, message: message)
-		reportOnEvents { (suspendedCampaignIds, finishedCampaignIds) in
-			let campaignState: CampaignState
-			if let scIds = suspendedCampaignIds, scIds.contains(message.campaignId) {
-				campaignState = .Suspended
-			} else if let fcIds = finishedCampaignIds, fcIds.contains(message.campaignId) {
-				campaignState = .Finished
-			} else {
-				campaignState = .Active
-			}
-			completion?(campaignState)
-		}
-	}
-	
-	func syncWithServer() {
-		reportOnEvents(completion: nil)
-	}
-	
 	// MARK: - Private
-	private var desirableUsageKind = MMLocationServiceUsage.WhenInUse
+	fileprivate var desirableUsageKind = MMLocationServiceUsage.WhenInUse
 	
-	private var capabilityCompletion: ((MMCapabilityStatus) -> Void)?
+	fileprivate var capabilityCompletion: ((MMCapabilityStatus) -> Void)?
 	
-	private func restartLocationManager() {
-		if MobileMessaging.application.applicationState == UIApplicationState.active {
+	fileprivate func restartLocationManager() {
+		if mmContext.application.applicationState == UIApplicationState.active {
 			if CLLocationManager.significantLocationChangeMonitoringAvailable() {
 				self.locationManager.stopMonitoringSignificantLocationChanges()
 				MMLogDebug("[GeofencingService] stopped updating significant location changes")
@@ -383,8 +364,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 		}
 	}
 	
-	private func startService() {
-		serviceQueue.executeAsync() {
+	fileprivate func startService() {
+		locationManagerQueue.executeAsync() {
 			guard self.isRunning == false else
 			{
 				return
@@ -429,8 +410,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 		}
 	}
 	
-	private func stopMonitoringMonitoredRegions() {
-		serviceQueue.executeAsync() {
+	fileprivate func stopMonitoringMonitoredRegions() {
+		locationManagerQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] stopping monitoring all regions")
 			for monitoredRegion in self.locationManager.monitoredRegions {
 				self.locationManager.stopMonitoring(for: monitoredRegion)
@@ -438,7 +419,7 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 		}
 	}
 	
-	private func dataSourceRegions(from circularRegions: Set<CLCircularRegion>) -> [MMRegion] {
+	fileprivate func dataSourceRegions(from circularRegions: Set<CLCircularRegion>) -> [MMRegion] {
 		return circularRegions.reduce([MMRegion]()) { (result, region) -> [MMRegion] in
 			return self.datasource.regionsDictionary.filter{ (key, value) -> Bool in
 				return key.hasSuffix("_\(region.identifier)")
@@ -446,8 +427,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 		}
 	}
 	
-	private func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil) {
-		serviceQueue.executeAsync() {
+	fileprivate func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil) {
+		locationManagerQueue.executeAsync() {
 			
 			var monitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap { $0 as? CLCircularRegion })
 			MMLogDebug("[GeofencingService] refreshing monitored regions: \n\(monitoredRegions) \n datasource regions: \n \(self.datasource.regionsDictionary)")
@@ -481,47 +462,58 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 				if let currentCoordinate = self.locationManager.location?.coordinate , region.circularRegion.contains(currentCoordinate) {
 					if region.message?.isNowAppropriateTimeForEntryNotification ?? false {
 						MMLogDebug("[GeofencingService] already inside new region: \(region)")
-						self.locationManager(self.locationManager, didEnterDatasourceRegion: region)
+						self.onEnter(datasourceRegion: region)
 					}
 				}
 			})
 		}
 	}
 	
-	private func persistNewEvent(of eventType: MMRegionEventType, forRegionId regionId: String, message: MMGeoMessage) {
-		eventsHandlingQueue.addOperation(GeoEventPersistingOperation(message: message, eventType: eventType, regionId: regionId, context: self.datasource.context))
+	fileprivate var previousLocation: CLLocation?
+}
+
+
+extension MMGeofencingService {
+	@nonobjc static var currentDate: Date? // @nonobjc is to shut up the "A declaration cannot be both 'final' and 'dynamic'" error
+	
+	static func isGeoCampaignNotExpired(campaign: MMGeoMessage) -> Bool {
+		let now = MMGeofencingService.currentDate ?? Date()
+		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && now.compare(campaign.startTime) != .orderedAscending
 	}
 	
-	typealias GeoEventReportingResult = (_ suspended: [String]?, _ finished: [String]?) -> Void
-	
-	private func reportOnEvents(completion: GeoEventReportingResult?) {
-		// we don't consider isRunning status here because
-		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: self.datasource.context, finishBlock: { (result) in
-			let finishedMessages = self.datasource.messages.filter({ (message) -> Bool in
-				return result.value?.finishedCampaignIds?.contains(message.campaignId) ?? false
-			})
-			finishedMessages.forEach({ (message) in
-				message.campaignState = .Finished
-			})
-			completion?(result.value?.suspendedCampaignIds, result.value?.finishedCampaignIds)
-		}))
-	}
-	
-	private var previousLocation: CLLocation?
-	let kRegionRefreshThreshold: CLLocationDistance = 200
-	private func shouldRefreshRegionsWithNewLocation(location: CLLocation) -> Bool {
-		assert(Thread.isMainThread)
-		guard let previousLocation = previousLocation else {
+	static func isNowAppropriateDay(forDeliveryTime dt: DeliveryTime) -> Bool {
+		guard let days = dt.days, !days.isEmpty else {
 			return true
 		}
-		let monitorableRegionsCount = self.datasource.liveRegions.count
-		let distanceFromPreviousPoint = location.distance(from: previousLocation)
-		MMLogDebug("[GeofencingService] distance from previous point = \(distanceFromPreviousPoint), monitorableRegionsCount = \(monitorableRegionsCount)")
-		return distanceFromPreviousPoint > self.kRegionRefreshThreshold && monitorableRegionsCount > self.kMonitoringRegionsLimit
+		let now = MMGeofencingService.currentDate ?? Date()
+		let calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+		let comps = calendar.dateComponents(Set([Calendar.Component.weekday]), from: now)
+		if let systemWeekDay = comps.weekday {
+			let isoWeekdayNumber = systemWeekDay == 1 ? 7 : Int8(systemWeekDay - 1)
+			if let day = MMDay(rawValue: isoWeekdayNumber) {
+				return days.contains(day)
+			} else {
+				return false
+			}
+		}
+		return false
 	}
 	
+	static func isNowAppropriateTime(forDeliveryTimeInterval dti: DeliveryTimeInterval) -> Bool {
+		let now = MMGeofencingService.currentDate ?? Date()
+		return DeliveryTimeInterval.isTime(now, between: dti.fromTime, and: dti.toTime)
+	}
+	
+	static func isValidRegionEvent(_ regionEvent: RegionEvent) -> Bool {
+		if regionEvent.limit != 0 && regionEvent.occuringCounter >= regionEvent.limit {
+			return false
+		}
+		let now = MMGeofencingService.currentDate ?? Date()
+		return regionEvent.lastOccuring?.addingTimeInterval(TimeInterval(regionEvent.timeout * 60)).compare(now) != .orderedDescending
+	}
+}
 
-// MARK: - Location Manager delegate
+extension MMGeofencingService: CLLocationManagerDelegate {
 	public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] locationManager did change the authorization status \(status.rawValue)")
@@ -561,24 +553,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] will enter region \(region)")
 		datasource.validRegionsForEntryEvent(with: region.identifier)?.forEach { datasourceRegion in
-			locationManager(manager, didEnterDatasourceRegion: datasourceRegion)
+			onEnter(datasourceRegion: datasourceRegion)
 		}
-	}
-	
-	func locationManager(_ manager: CLLocationManager, didEnterDatasourceRegion datasourceRegion: MMRegion) {
-		assert(Thread.isMainThread)
-		guard let message = datasourceRegion.message else {
-			return
-		}
-		self.report(on: .entry, forRegionId: datasourceRegion.identifier, message: message, completion: { (state) in
-			MMLogDebug("[GeofencingService] did enter region \(datasourceRegion), campaign state: \(state.rawValue)")
-			if state == .Active {
-				self.delegate?.didEnterRegion(region: datasourceRegion)
-				MMGeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
-				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
-			}
-		})
-
 	}
 	
 	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -589,7 +565,8 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 	public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] did update locations")
-		guard let location = locations.last else {
+		guard let location = locations.last else
+        {
 			return
 		}
 		if self.shouldRefreshRegionsWithNewLocation(location: location) {
@@ -597,21 +574,89 @@ public class MMGeofencingService: NSObject, CLLocationManagerDelegate, MobileMes
 			self.refreshMonitoredRegions()
 		}
 	}
+	
+    private func shouldRefreshRegionsWithNewLocation(location: CLLocation) -> Bool {
+        assert(Thread.isMainThread)
+        guard let previousLocation = previousLocation else
+        {
+            return true
+        }
+        let monitorableRegionsCount = self.datasource.liveRegions.count
+        let distanceFromPreviousPoint = location.distance(from: previousLocation)
+        MMLogDebug("[GeofencingService] distance from previous point = \(distanceFromPreviousPoint), monitorableRegionsCount = \(monitorableRegionsCount)")
+        return distanceFromPreviousPoint > MMGeofencingService.kRegionRefreshThreshold && monitorableRegionsCount > MMGeofencingService.kMonitoringRegionsLimit
+    }
 }
 
-@objc public protocol GeoEventHandling {
-	/// This callback is triggered after the geo event occurs. Default behaviour is implemented by `MMDefaultGeoEventHandling` class.
-	func didEnter(region: MMRegion)
-}
 
-public class MMDefaultGeoEventHandling: GeoEventHandling {
-	@objc public func didEnter(region: MMRegion) {
-		if let message = region.message {
-			self.presentLocalNotificationAlert(with: message)
+extension MMGeofencingService {
+	
+	func onEnter(datasourceRegion: MMRegion) {
+		assert(Thread.isMainThread)
+		guard let message = datasourceRegion.message else {
+			return
+		}
+		
+		report(on: .entry, forRegionId: datasourceRegion.identifier, geoMessage: message, completion: { campaignState in
+			MMLogDebug("[GeofencingService] did enter region \(datasourceRegion), campaign state: \(campaignState.rawValue)")
+			if campaignState == .Active {
+				self.didEnterActiveCampaignRegion(datasourceRegion)
+			}
+		})
+	}
+	
+	func report(on eventType: RegionEventType, forRegionId regionId: String, geoMessage: MMGeoMessage, completion: ((CampaignState) -> Void)?) {
+		
+		eventsHandlingQueue.addOperation {
+			let ctx = self.datasource.context
+			ctx.performAndWait {
+				GeoEventReportObject.createEntity(withCampaignId: geoMessage.campaignId, eventType: eventType.rawValue, regionId: regionId, messageId: geoMessage.messageId, in: ctx)
+			}
+			ctx.MM_saveToPersistentStoreAndWait()
+		}
+		
+        reportOnEvents { eventsReportingResponse in
+
+            self.refreshDatasource()
+            
+			let campaignState: CampaignState
+			if let scIds = eventsReportingResponse?.suspendedCampaignIds, scIds.contains(geoMessage.campaignId) {
+				campaignState = .Suspended
+			} else if let fcIds = eventsReportingResponse?.finishedCampaignIds, fcIds.contains(geoMessage.campaignId) {
+				campaignState = .Finished
+			} else {
+				campaignState = .Active
+			}
+			
+			completion?(campaignState)
 		}
 	}
 	
-	func presentLocalNotificationAlert(with message: MTMessage) {
-		MMLocalNotification.presentLocalNotification(with: message)
+	private func didEnterActiveCampaignRegion(_ datasourceRegion: MMRegion) {
+		delegate?.didEnterRegion(region: datasourceRegion)
+		
+		MMGeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
+		
+		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
 	}
+	
+	private func reportOnEvents(completion: ((GeoEventReportingResponse?) -> ())?) {
+		// we don't consider isRunning status here on purpose
+		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: self.datasource.context, mmContext: mmContext, finishBlock: { result in
+			completion?(result.value)
+		}))
+	}
+	
+    private func refreshDatasource() {
+        datasource.reload()
+    }
+	
+	func syncWithServer(completion: ((GeoEventReportingResponse?) -> ())? = nil) {
+		reportOnEvents(completion: completion)
+	}
+}
+
+@objc public protocol GeoEventHandling {
+    /// This callback is triggered after the geo event occurs. Default behaviour is implemented by `MMDefaultGeoEventHandling` class.
+    func didEnter(region: MMRegion)
 }

@@ -9,9 +9,9 @@ import XCTest
 @testable import MobileMessaging
 
 class VersionCheckRemoteAPIManagerMock: RemoteAPIManager {
-	init(onlineVersion: String) {
-		super.init(baseUrl: "", applicationCode: "")
-		self.versionFetchingQueue = MMRemoteAPIMock(baseURLString: "", appCode: "", performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+	init(mmContext: MobileMessaging, onlineVersion: String) {
+		super.init(baseUrl: "", applicationCode: "", mmContext: mmContext)
+		self.versionFetchingQueue = MMRemoteAPIMock(baseURLString: "", appCode: "", mmContext: mmContext, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
 			return JSON.parse("{\"platformType\": \"APNS\", \"libraryVersion\": \"\(onlineVersion)\", \"updateUrl\": \"https://github.com/infobip/mobile-messaging-sdk-ios\"}")
 		})
 	}
@@ -21,9 +21,8 @@ class VersionManagerMock: VersionManager {
 	var newVersionWarningShowUpBlock: (() -> Void)?
 	var upToDateCaseBlock: (() -> Void)?
 	var waitBlock: (() -> Void)?
-	init(onlineVersion: String) {
-		super.init()
-		self.remoteApiManager = VersionCheckRemoteAPIManagerMock(onlineVersion: onlineVersion)
+	init(mmContext: MobileMessaging, onlineVersion: String) {
+		super.init(remoteApiManager: VersionCheckRemoteAPIManagerMock(mmContext: mmContext, onlineVersion: onlineVersion))
 	}
 	
 	override func showNewVersionWarning(localVersion: String, response: LibraryVersionResponse) {
@@ -43,10 +42,15 @@ class VersionManagerMock: VersionManager {
 
 class CheckVersionTests: MMTestCase {
 	let distantFutureVersion = "99.0.0"
+	var versionManager: VersionManagerMock!
+	
 	override func setUp() {
+		super.setUp()
 		UserDefaults.standard.removeObject(forKey: VersionCheck.lastCheckDateKey)
 		UserDefaults.standard.synchronize()
-		VersionManagerMock.shared.lastCheckDate = nil
+		
+		versionManager = VersionManagerMock(mmContext: self.mobileMessagingInstance, onlineVersion: mobileMessagingVersion)
+		versionManager.lastCheckDate = nil
 	}
 	
 	func testThatValidationTimeoutWorks() {
@@ -57,7 +61,6 @@ class CheckVersionTests: MMTestCase {
 		
 		
 		// initially we are up to data:
-		let versionManager = VersionManagerMock(onlineVersion: mobileMessagingVersion)
 		versionManager.upToDateCaseBlock = {
 			expectationUpToDate?.fulfill()
 		}
@@ -72,16 +75,16 @@ class CheckVersionTests: MMTestCase {
 		versionManager.validateVersion() {
 			
 			// then version increases
-			versionManager.remoteApiManager = VersionCheckRemoteAPIManagerMock(onlineVersion: self.distantFutureVersion)
+			self.versionManager.remoteApiManager = VersionCheckRemoteAPIManagerMock(mmContext: self.mobileMessagingInstance, onlineVersion: self.distantFutureVersion)
 			
 			// if we validate again immediately after we discovered Up To Date status, we'll end up with a timeout
-			versionManager.validateVersion() {
+			self.versionManager.validateVersion() {
 				
 				// but after the timeout is expired (we move to the future here)
-				versionManager.lastCheckDate =  versionManager.lastCheckDate?.addingTimeInterval(-versionManager.defaultTimeout)
+				self.versionManager.lastCheckDate =  self.versionManager.lastCheckDate?.addingTimeInterval(-self.versionManager.defaultTimeout)
 				
 				// we can validate again
-				versionManager.validateVersion()
+				self.versionManager.validateVersion()
 			}
 		}
 		

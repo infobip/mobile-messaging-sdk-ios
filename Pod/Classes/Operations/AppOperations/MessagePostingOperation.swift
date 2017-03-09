@@ -14,42 +14,50 @@ class MessagePostingOperation: Operation {
 	var result = MOMessageSendingResult.Cancel
 	var messagesToSend: Set<MOMessage>?
 	var resultMessages: [MOMessage]?
+	let mmContext: MobileMessaging
 	
-	init(messages: [MOMessage]?, context: NSManagedObjectContext, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
+	init(messages: [MOMessage]?, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		if let messages = messages, !messages.isEmpty {
 			self.messagesToSend = Set(messages)
 		}
+		self.mmContext = mmContext
 		super.init()
 	}
 	
 	override func execute() {
 		MMLogDebug("[Message posting] started...")
-		guard let internalId = MobileMessaging.currentUser?.internalId else {
+		context.reset()
+		guard let internalId = MobileMessaging.currentUser?.internalId else
+        {
 			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
-		guard let messagesToSend = self.messagesToSend, !messagesToSend.isEmpty else {
+		guard let messagesToSend = self.messagesToSend, !messagesToSend.isEmpty else
+        {
 			self.finish()
 			return
 		}
+        
 		self.context.performAndWait {
 			self.postWillSendNotification(messagesToSend: messagesToSend)
 			self.populateMessageStorage(with: messagesToSend)
 			
-			MobileMessaging.sharedInstance?.remoteApiManager.sendMessages(internalUserId: internalId, messages: Array(messagesToSend)) { result in
-				self.handleResult(result: result)
-			}
+            self.mmContext.remoteApiManager.sendMessages(internalUserId: internalId, messages: Array(messagesToSend)) { result in
+                self.result = result
+                self.handleResult(result: result)
+                self.finishWithError(result.error)
+            }
 		}
 	}
 	
 	private func populateMessageStorage(with messages: Set<MOMessage>) {
-		MobileMessaging.sharedInstance?.messageStorageAdapter?.insert(outgoing: Array(messages))
+		mmContext.messageStorageAdapter?.insert(outgoing: Array(messages))
 	}
 	
 	private func updateMessageStorage(with messages: [MOMessage]) {
-		messages.forEach({ MobileMessaging.sharedInstance?.messageStorageAdapter?.update(messageSentStatus: $0.sentStatus, for: $0.messageId) })
+		messages.forEach({ mmContext.messageStorageAdapter?.update(messageSentStatus: $0.sentStatus, for: $0.messageId) })
 	}
 	
 	private func postWillSendNotification(messagesToSend: Set<MOMessage>) {
@@ -66,7 +74,6 @@ class MessagePostingOperation: Operation {
 	}
 	
 	private func handleResult(result: MOMessageSendingResult) {
-		self.result = result
 		context.performAndWait {
 			switch result {
 			case .Success(let response):
@@ -79,7 +86,6 @@ class MessagePostingOperation: Operation {
 				MMLogError("[Message posting] cancelled")
 			}
 		}
-		self.finishWithError(result.error)
 	}
 	
 	private func handleSuccess(messages : [MOMessage]) {

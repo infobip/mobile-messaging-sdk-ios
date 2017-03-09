@@ -8,11 +8,11 @@
 import UIKit
 import CoreData
 
-func == (lhs: MessageMeta, rhs: MessageMeta) -> Bool {
+func == (lhs: MMMessageMeta, rhs: MMMessageMeta) -> Bool {
 	return lhs.hashValue == rhs.hashValue
 }
 
-struct MessageMeta : MMMessageMetadata {
+struct MMMessageMeta : MMMessageMetadata {
 	let isSilent: Bool
 	let messageId: String
 	
@@ -35,17 +35,17 @@ final class MessageHandlingOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?) -> Void)?
 	let messagesToHandle: [MTMessage]
-	let messagesDeliveryMethod: MessageDeliveryMethod
 	let messageHandler: MessageHandling
 	let applicationState: UIApplicationState
+	let mmContext: MobileMessaging
 	
-	init(messagesToHandle: [MTMessage], messagesDeliveryMethod: MessageDeliveryMethod, context: NSManagedObjectContext, messageHandler: MessageHandling, applicationState: UIApplicationState, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, messageHandler: MessageHandling, applicationState: UIApplicationState, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.finishBlock = finishBlock
-		self.messagesDeliveryMethod = messagesDeliveryMethod
 		self.messageHandler = messageHandler
 		self.applicationState = applicationState
+		self.mmContext = mmContext
 		super.init()
 		
 		self.userInitiated = true
@@ -53,12 +53,12 @@ final class MessageHandlingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message handling] Starting message handling operation...")
-		
+		context.reset()
 		guard !newMessages.isEmpty else
 		{
 			MMLogDebug("[Message handling] There is no new messages to handle.")
 			handleExistentMessageTappedIdNeeded()
-			self.finish()
+			finish()
 			return
 		}
 		
@@ -77,7 +77,7 @@ final class MessageHandlingOperation: Operation {
 				if let geoMessage = newMessage as? MMGeoMessage, let geoService = MobileMessaging.geofencingService, geoService.isRunning {
 					newDBMessage.payload = newMessage.originalPayload
 					newDBMessage.messageType = .Geo
-					newDBMessage.campaignState = CampaignState.Active
+					newDBMessage.campaignState = .Active
 					newDBMessage.campaignId = geoMessage.campaignId
 					geoService.add(message: geoMessage)
 				}
@@ -93,7 +93,7 @@ final class MessageHandlingOperation: Operation {
 	
 	private func populateMessageStorageWithNewMessages(_ messages: [MTMessage]) {
 		guard !messages.isEmpty else { return }
-		MobileMessaging.sharedInstance?.messageStorageAdapter?.insert(incoming: messages)
+		mmContext.messageStorageAdapter?.insert(incoming: messages)
 	}
 
 	
@@ -101,7 +101,7 @@ final class MessageHandlingOperation: Operation {
 		guard !messages.isEmpty else { return }
 		MMQueue.Main.queue.executeAsync {
 			self.handleNewMessageTappedIfNeeded(messages)
-			self.newMessages.forEach { message in
+			messages.forEach { message in
 				self.messageHandler.didReceiveNewMessage(message: message)
 				self.postNotificationForObservers(with: message)
 			}
@@ -140,12 +140,12 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 //MARK: - Lazy message collections
-	private lazy var storedMessageMetasSet: Set<MessageMeta> = {
-		var result: Set<MessageMeta> = Set()
+	private lazy var storedMessageMetasSet: Set<MMMessageMeta> = {
+		var result: Set<MMMessageMeta> = Set()
 		//TODO: optimization needed, it may be too many of db messages
 		self.context.performAndWait {
 			if let storedMessages = MessageManagedObject.MM_findAllInContext(self.context) {
-				result = Set(storedMessages.map(MessageMeta.init))
+				result = Set(storedMessages.map(MMMessageMeta.init))
 			}
 		}
 		return result
@@ -153,18 +153,18 @@ final class MessageHandlingOperation: Operation {
 	
 	private lazy var newMessages: Set<MTMessage> = {
 		guard !self.messagesToHandle.isEmpty else { return Set<MTMessage>() }
-		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MessageMeta.init))
+		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
 		return Set(messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) })
 	}()
 	
 	private lazy var intersectingMessages: [MTMessage] = {
 		guard !self.messagesToHandle.isEmpty else { return [MTMessage]() }
-		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MessageMeta.init))
+		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
 		return messagesToHandleMetasSet.intersection(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) }
 	}()
 	
 //MARK: - Lazy message collections
-	private func mtMessage(from meta: MessageMeta) -> MTMessage? {
+	private func mtMessage(from meta: MMMessageMeta) -> MTMessage? {
 		if let message = self.messagesToHandle.filter({ (msg: MTMessage) -> Bool in
 			return msg.messageId == meta.messageId
 		}).first {

@@ -13,11 +13,11 @@ import Foundation
 import CoreData
 
 extension GeoEventReportObject {
-
     @NSManaged var geoAreaId: String
     @NSManaged var eventDate: Date
     @NSManaged var eventType: String
     @NSManaged var campaignId: String
 	@NSManaged var messageId: String
-
+	@NSManaged var sdkMessageId: String
+	@NSManaged var messageShown: Bool
 }

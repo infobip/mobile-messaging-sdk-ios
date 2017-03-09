@@ -14,7 +14,7 @@ enum APIPath: String {
 	case MOMessage = "/mobile/1/messages/mo"
 	case SystemData = "/mobile/1/data/system"
 	case LibraryVersion = "/mobile/3/version"
-	case GeoEventsReports = "/mobile/3/geo/event"
+	case GeoEventsReports = "/mobile/4/geo/event"
 }
 
 struct RegistrationRequest: PostRequest {
@@ -23,7 +23,7 @@ struct RegistrationRequest: PostRequest {
 	var path: APIPath { return .Registration }
 	var parameters: RequestParameters? {
 		var params: RequestParameters = [PushRegistration.deviceToken: deviceToken,
-										 PushRegistration.platform: MMAPIValues.kPlatformType]
+										 PushRegistration.platform: MMAPIValues.platformType]
 		params[PushRegistration.internalId] = internalId
 		if let isEnabled = isEnabled {
 			params[PushRegistration.isEnabled] = isEnabled ? 1 : 0
@@ -57,7 +57,7 @@ struct SeenStatusSendingRequest: PostRequest {
 struct LibraryVersionRequest: GetRequest {
 	typealias ResponseType = LibraryVersionResponse
 	var path: APIPath { return .LibraryVersion }
-	var parameters: [String: Any]? = [PushRegistration.platform: MMAPIValues.kPlatformType]
+	var parameters: [String: Any]? = [PushRegistration.platform: MMAPIValues.platformType]
 }
 
 struct MessagesSyncRequest: PostRequest {
@@ -68,7 +68,7 @@ struct MessagesSyncRequest: PostRequest {
 	var parameters: RequestParameters? {
 		var params = RequestParameters()
 		params[PushRegistration.internalId] = internalId
-		params[PushRegistration.platform] = MMAPIValues.kPlatformType
+		params[PushRegistration.platform] = MMAPIValues.platformType
 		return params
 	}
 	
@@ -154,7 +154,7 @@ struct MOMessageSendingRequest: PostRequest {
 	typealias ResponseType = MOMessageSendingResponse
 	var path: APIPath { return .MOMessage }
 	var parameters: RequestParameters? {
-		return [PushRegistration.platform : MMAPIValues.kPlatformType]
+		return [PushRegistration.platform : MMAPIValues.platformType]
 	}
 	var body: RequestBody? {
 		var result = RequestBody()
@@ -180,12 +180,23 @@ struct GeoEventReportingRequest: PostRequest {
 	typealias ResponseType = GeoEventReportingResponse
 	
 	var path: APIPath { return .GeoEventsReports }
-	var parameters: RequestParameters? { return nil }
-	let eventsDataList: [GeoEventReportData]
-	var body: RequestBody? { return GeoEventReportData.requestBody(reportList: eventsDataList) }
+	var body: RequestBody? {
+		return [
+            PushRegistration.platform: MMAPIValues.platformType,
+            PushRegistration.internalId: internalUserId,
+            GeoReportingAPIKeys.reports: eventsDataList.map { $0.dictionaryRepresentation },
+            GeoReportingAPIKeys.messages: geoMessages.map { $0.geoEventReportFormat }
+        ]
+	}
 	
-	init(eventsDataList: [GeoEventReportData]) {
+    let internalUserId: String
+	let eventsDataList: [GeoEventReportData]
+	let geoMessages: [MMGeoMessage]
+	
+	init(internalUserId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage]) {
+        self.internalUserId = internalUserId
 		self.eventsDataList = eventsDataList
+		self.geoMessages = geoMessages
 	}
 }
 
@@ -273,14 +284,16 @@ struct GeoEventReportData: DictionaryRepresentable {
 	let eventDate: Date
 	let geoAreaId: String
 	let messageId: String
-	let eventType: MMRegionEventType
+	let sdkMessageId: String
+	let eventType: RegionEventType
 	
-	init(geoAreaId: String, eventType: MMRegionEventType, campaignId: String, eventDate: Date, messageId: String) {
+	init(geoAreaId: String, eventType: RegionEventType, campaignId: String, eventDate: Date, sdkMessageId: String, messageId: String) {
 		self.campaignId = campaignId
 		self.eventDate = eventDate
 		self.geoAreaId = geoAreaId
 		self.eventType = eventType
 		self.messageId = messageId
+		self.sdkMessageId = sdkMessageId
 	}
 	
 	init?(dictRepresentation dict: DictionaryRepresentation) {
@@ -292,12 +305,9 @@ struct GeoEventReportData: DictionaryRepresentable {
 		        GeoReportingAPIKeys.timestampDelta: eventDate.timestampDelta,
 		        GeoReportingAPIKeys.geoAreaId: geoAreaId,
 		        GeoReportingAPIKeys.event: eventType.rawValue,
-		        GeoReportingAPIKeys.messageId: messageId
+		        GeoReportingAPIKeys.messageId: messageId,
+		        GeoReportingAPIKeys.sdkMessageId: sdkMessageId
 		]
-	}
-	
-	static func requestBody(reportList: [GeoEventReportData]) -> RequestBody {
-		return [GeoReportingAPIKeys.reports: reportList.map{ $0.dictionaryRepresentation } ]
 	}
 }
 

@@ -11,24 +11,25 @@ import CoreData
 class UserDataSynchronizationOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?) -> Void)?
+	let mmContext: MobileMessaging
 	
 	private var installationObject: InstallationManagedObject!
 	private var dirtyAttributes = SyncableAttributesSet(rawValue: 0)
-	private let onlyFetching: Bool //TODO: remove for v2 User Data API.
+	private let onlyFetching: Bool
 	
-	convenience init(fetchingOperationWithContext context: NSManagedObjectContext, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.init(context: context, onlyFetching: true, finishBlock: finishBlock)
+	convenience init(fetchingOperationWithContext context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+		self.init(context: context, onlyFetching: true, mmContext: mmContext, finishBlock: finishBlock)
 	}
 	
-	convenience init(syncOperationWithContext context: NSManagedObjectContext, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.init(context: context, onlyFetching: false, finishBlock: finishBlock)
+	convenience init(syncOperationWithContext context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+		self.init(context: context, onlyFetching: false, mmContext: mmContext, finishBlock: finishBlock)
 	}
 	
-	private init(context: NSManagedObjectContext, onlyFetching: Bool, finishBlock: ((NSError?) -> Void)? = nil) {
+	private init(context: NSManagedObjectContext, onlyFetching: Bool, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.onlyFetching = onlyFetching
-		
+		self.mmContext = mmContext
 		super.init()
 	}
 	
@@ -86,7 +87,10 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	private func fetchUserData(internalId: String) {
-		MobileMessaging.sharedInstance?.remoteApiManager.fetchUserData(internalUserId: internalId, externalUserId: MobileMessaging.currentUser?.externalId, completion: { result in
+		mmContext.remoteApiManager.fetchUserData(internalUserId: internalId,
+		                                  externalUserId: MobileMessaging.currentUser?.externalId,
+		                                  completion:
+        { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		})
@@ -95,10 +99,10 @@ class UserDataSynchronizationOperation: Operation {
 	private func syncUserData(internalId: String) {
 		let customUserData = (installationObject.customUserData as? [String: UserDataFoundationTypes])?.customUserDataValues
 		
-		MobileMessaging.sharedInstance?.remoteApiManager.syncUserData(internalUserId: internalId,
-																	  externalUserId: installationObject.externalUserId,
-																	  predefinedUserData: installationObject.predefinedUserData,
-																	  customUserData: customUserData)
+		mmContext.remoteApiManager.syncUserData(internalUserId: internalId,
+		                                 externalUserId: installationObject.externalUserId,
+		                                 predefinedUserData: installationObject.predefinedUserData,
+		                                 customUserData: customUserData)
 		{ result in
 			self.handleResult(result)
 			self.finishWithError(result.error ?? result.value?.error?.foundationError)
@@ -109,16 +113,12 @@ class UserDataSynchronizationOperation: Operation {
 		self.context.performAndWait {
 			switch result {
 			case .Success(let response):
-				guard let installationObject = self.installationObject else {
-					return
-				}
-
-				installationObject.customUserData = response.customData?.reduce(nil, { (result, element) -> [String: AnyObject]? in
+                self.installationObject.customUserData = response.customData?.reduce(nil, { (result, element) -> [String: AnyObject]? in
 					return result + element.mapToCoreDataCompatibleDictionary()
 				}) ?? nil
-				installationObject.predefinedUserData = response.predefinedData
+				self.installationObject.predefinedUserData = response.predefinedData
 				
-				installationObject.resetDirtyAttribute(attributes: SyncableAttributesSet.userData) // all user data now in sync
+				self.installationObject.resetDirtyAttribute(attributes: SyncableAttributesSet.userData) // all user data now in sync
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("[User data sync] successfully synced")
 				

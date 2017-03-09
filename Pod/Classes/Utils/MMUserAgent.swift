@@ -49,7 +49,7 @@ public class MMUserAgent: NSObject {
 	}
 	
 	public var notificationsEnabled: Bool {
-		guard let settings = MobileMessaging.application.currentUserNotificationSettings else {
+		guard let settings = MobileMessaging.sharedInstance?.application.currentUserNotificationSettings else {
 			return false
 		}
 		return !settings.types.isEmpty

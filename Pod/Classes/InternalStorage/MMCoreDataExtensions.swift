@@ -25,7 +25,7 @@ struct MMContextSaveOptions: OptionSet {
 	static let SaveParent		= MMContextSaveOptions(rawValue: 1 << 1)
 }
 
-protocol Fetchable : NSFetchRequestResult {
+protocol Fetchable: NSFetchRequestResult {
 	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<Self>
 	static func MM_executeRequest(_ request: NSFetchRequest<Self>, inContext ctx: NSManagedObjectContext) -> [Self]?
 	static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext)
@@ -41,8 +41,36 @@ protocol Fetchable : NSFetchRequestResult {
 	static func MM_findAll(withPredicate predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, skip: Int?, inContext context: NSManagedObjectContext) -> [Self]?
 }
 
-extension Fetchable where Self : NSManagedObject {
+protocol Updatable: NSFetchRequestResult {
+	static func MM_batchUpdate(propertiesToUpdate: [AnyHashable: Any], predicate: NSPredicate?, inContext ctx: NSManagedObjectContext) -> NSBatchUpdateResult?
+}
+
+extension Updatable where Self: NSManagedObject {
+	@discardableResult
+	static func MM_batchUpdate(propertiesToUpdate: [AnyHashable: Any], predicate: NSPredicate?, inContext ctx: NSManagedObjectContext) -> NSBatchUpdateResult? {
+		let request = self.MM_batchUpdateRequest(predicate, propertiesToUpdate: propertiesToUpdate)
+		let result: NSPersistentStoreResult?
+		
+		do {
+			result = try ctx.execute(request)
+		}
+		catch let error as NSError {
+			result = nil
+			MMLogError("[Core Data] batch update error: \(error)")
+		}
+		return result as? NSBatchUpdateResult
+	}
 	
+	static func MM_batchUpdateRequest(_ predicate: NSPredicate?, propertiesToUpdate: [AnyHashable: Any]) -> NSBatchUpdateRequest {
+		let r =  NSBatchUpdateRequest(entityName: self.MM_entityName)
+		r.predicate = predicate
+		r.propertiesToUpdate = propertiesToUpdate
+		r.resultType = .statusOnlyResultType
+		return r
+	}
+}
+
+extension Fetchable where Self: NSManagedObject {
 	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<Self> {
 		let r = NSFetchRequest<Self>(entityName: self.MM_entityName)
 		r.predicate = predicate
@@ -56,7 +84,8 @@ extension Fetchable where Self : NSManagedObject {
 				results = try ctx.fetch(request)
 			}
 			catch let error as NSError {
-				print("Fetching error: \(error)")
+				results = nil
+				MMLogError("[Core Data] Fetching error: \(error)")
 			}
 		}
 		if ctx.concurrencyType == NSManagedObjectContextConcurrencyType.confinementConcurrencyType {
@@ -69,7 +98,7 @@ extension Fetchable where Self : NSManagedObject {
 	
 
 	static func MM_findAllWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> [Self]? {
-		let r : NSFetchRequest<Self> = self.MM_requestAll(predicate)
+		let r: NSFetchRequest<Self> = self.MM_requestAll(predicate)
 		return self.MM_executeRequest(r, inContext: context)
 	}
 	
@@ -165,11 +194,11 @@ extension Fetchable where Self : NSManagedObject {
 		r.fetchOffset = skip ?? 0
 		return self.MM_executeRequest(r, inContext: context)
 	}
+	
 }
 
 
 extension NSManagedObject {
-	
 	class var MM_entityName: String {
 		return NSStringFromClass(self).components(separatedBy: ".").last!
 	}

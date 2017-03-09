@@ -31,14 +31,13 @@ extension String {
 }
 
 class VersionManager {
-	static let shared = VersionManager()
 	var lastCheckDate : Date?
-	var remoteApiManager: RemoteAPIManager?
+	var remoteApiManager: RemoteAPIManager
 	let defaultTimeout: Double = 60 * 60 * 24 // a day
 	
-	init() {
-		lastCheckDate = UserDefaults.standard.object(forKey: VersionCheck.lastCheckDateKey) as? Date
-		remoteApiManager = MobileMessaging.sharedInstance?.remoteApiManager
+	init(remoteApiManager: RemoteAPIManager) {
+		self.lastCheckDate = UserDefaults.standard.object(forKey: VersionCheck.lastCheckDateKey) as? Date
+		self.remoteApiManager = remoteApiManager
 	}
 	
 	func validateVersion(_ completion: (() -> Void)? = nil) {
@@ -51,7 +50,7 @@ class VersionManager {
 			return
 		}
 		
-		remoteApiManager?.fetchRecentLibraryVersion {
+		remoteApiManager.fetchRecentLibraryVersion {
 			self.handleResult(result: $0)
 			completion?()
 		}

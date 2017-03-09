@@ -77,13 +77,13 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 		for (key, value) in parameters {
 			switch value {
 			case let _value as String :
-				escapedPairs.append("\(key.mm_escapeString())=\(_value.mm_escapeString())")
+				escapedPairs.append("\(key.mm_urlSafeString)=\(_value.mm_urlSafeString)")
 			case (let _values as [String]) :
 				for arrayValue in _values {
-					escapedPairs.append("\(key.mm_escapeString())=\(arrayValue.mm_escapeString())")
+					escapedPairs.append("\(key.mm_urlSafeString)=\(arrayValue.mm_urlSafeString)")
 				}
 			default:
-				escapedPairs.append("\(key.mm_escapeString())=\(String(describing: value).mm_escapeString())")
+				escapedPairs.append("\(key.mm_urlSafeString)=\(String(describing: value).mm_urlSafeString)")
 			}
 		}
 		return escapedPairs.joined(separator: "&")

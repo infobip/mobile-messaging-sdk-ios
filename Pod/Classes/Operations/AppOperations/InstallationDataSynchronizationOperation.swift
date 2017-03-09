@@ -11,14 +11,16 @@ import CoreData
 final class InstallationDataSynchronizationOperation: GroupOperation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?) -> Void)?
+	let mmContext: MobileMessaging
 	
-	init(context: NSManagedObjectContext, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
+		self.mmContext = mmContext
 		
-		let regOp = SyncRegistrationOperation(context: context, finishBlock: nil)
-		let systemDataOp = SystemDataSynchronizationOperation(сontext: context, finishBlock: nil)
-		let userDataOp = UserDataSynchronizationOperation(syncOperationWithContext: context, finishBlock: nil)
+		let regOp = SyncRegistrationOperation(context: context, mmContext: mmContext, finishBlock: nil)
+		let systemDataOp = SystemDataSynchronizationOperation(сontext: context, mmContext: mmContext, finishBlock: nil)
+		let userDataOp = UserDataSynchronizationOperation(syncOperationWithContext: context, mmContext: mmContext, finishBlock: nil)
 
 		systemDataOp.addDependency(regOp)
 		userDataOp.addDependency(regOp)

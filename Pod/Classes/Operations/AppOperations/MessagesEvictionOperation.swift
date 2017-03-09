@@ -23,7 +23,8 @@ final class MessagesEvictionOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message eviction] started...")
-		self.context.performAndWait {
+		context.reset()
+		context.performAndWait {
 			let dateToCompare = NSDate().addingTimeInterval(-self.messageMaximumAge)
 			
 			MessageManagedObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "creationDate <= %@", dateToCompare), inContext: self.context)

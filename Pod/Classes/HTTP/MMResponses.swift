@@ -23,6 +23,7 @@ struct RegistrationResponse {
 struct GeoEventReportingResponse {
 	let finishedCampaignIds: [String]?
 	let suspendedCampaignIds: [String]?
+	let tempMessageIdRealMessageId: [String: String]
 }
 
 struct LibraryVersionResponse {
@@ -120,6 +121,10 @@ extension RegistrationResponse: JSONDecodable {
 
 extension GeoEventReportingResponse: JSONDecodable {
 	init?(json value: JSON) {
+		guard let tempMessageIdRealMessageId = value[GeoReportingAPIKeys.messageIdsMap].dictionaryObject as? [String: String] else {
+			return nil
+		}
+		self.tempMessageIdRealMessageId = tempMessageIdRealMessageId
 		self.finishedCampaignIds = value[GeoReportingAPIKeys.finishedCampaignIds].arrayObject as? [String]
 		self.suspendedCampaignIds = value[GeoReportingAPIKeys.suspendedCampaignIds].arrayObject as? [String]
 	}
@@ -140,7 +145,7 @@ extension LibraryVersionResponse: JSONDecodable {
 
 extension MessagesSyncResponse: JSONDecodable{
 	init?(json value: JSON) {
-		self.messages = value[APNSPayloadKeys.kPayloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
+		self.messages = value[APNSPayloadKeys.payloads].arrayValue.flatMap { MMMessageFactory.makeMessage(with: $0) }
 	}
 }
 

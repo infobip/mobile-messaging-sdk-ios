@@ -8,106 +8,110 @@
 import Foundation
 
 struct MMAPIKeys {
-	static let kMessageId = "messageId"
+    static let kMessageId = "messageId"
     
     //MARK: delivery
     static let kMessageIDs = "messageIDs"
-	
+    
     //MARK: serviceErrors
-	static let kBackendErrorDomain = "com.mobile-messaging.backend"
+    static let kBackendErrorDomain = "com.mobile-messaging.backend"
     static let kRequestError = "requestError"
     static let kServiceException = "serviceException"
     static let kErrorText = "text"
-	static let kErrorMessageId = "messageId"
-
-	//MARK: seenMessages
+    static let kErrorMessageId = "messageId"
+    
+    //MARK: seenMessages
     static let kSeenMessages = "messages"
     static let kSeenTimestampDelta = "timestampDelta"
-	
-	//MARK: Sync API
-	static let kArchiveMsgIds = "mIDs"
-	static let kDLRMsgIds = "drIDs"
-	
-	//MARK: UserData API
-	static let kUserDataPredefinedUserData = "predefinedUserData"
-	static let kUserDataCustomUserData = "customUserData"
-	static let kUserDataExternalUserId = "externalUserId"
-	static let kUserDataFailures = "failures"
-	
-	//MARK: MO Messages API
-	static let kMOFailedMOMessageIDs = "failedMessageIDs"
-	static let kMOFrom = "from"
-	static let kMOMessages = "messages"
-	static let kMODestination = "destination"
-	static let kMOText = "text"
-	static let kMOCustomPayload = "customPayload"
-	static let kMOMessageId = "messageId"
-	static let kMOMessageSentStatusCode = "statusCode"
+    
+    //MARK: Sync API
+    static let kArchiveMsgIds = "mIDs"
+    static let kDLRMsgIds = "drIDs"
+    
+    //MARK: UserData API
+    static let kUserDataPredefinedUserData = "predefinedUserData"
+    static let kUserDataCustomUserData = "customUserData"
+    static let kUserDataExternalUserId = "externalUserId"
+    static let kUserDataFailures = "failures"
+    
+    //MARK: MO Messages API
+    static let kMOFailedMOMessageIDs = "failedMessageIDs"
+    static let kMOFrom = "from"
+    static let kMOMessages = "messages"
+    static let kMODestination = "destination"
+    static let kMOText = "text"
+    static let kMOCustomPayload = "customPayload"
+    static let kMOMessageId = "messageId"
+    static let kMOMessageSentStatusCode = "statusCode"
 }
 
 struct VersionCheck {
-	//MARK: Library Version API
-	static let lastCheckDateKey = "com.mobile-messaging.library-version-check.last-check-date"
-	static let platformType = "platformType"
-	static let libraryVersion = "libraryVersion"
-	static let libraryVersionUpdateUrl = "updateUrl"
+    //MARK: Library Version API
+    static let lastCheckDateKey = "com.mobile-messaging.library-version-check.last-check-date"
+    static let platformType = "platformType"
+    static let libraryVersion = "libraryVersion"
+    static let libraryVersionUpdateUrl = "updateUrl"
 }
 struct PushRegistration {
-	//MARK: Registration API
-	static let isEnabled = "pushRegistrationEnabled"
-	static let platform = "platformType"
-	static let deviceToken = "registrationId"
-	static let internalId = "deviceApplicationInstanceId"
+    //MARK: Registration API
+    static let isEnabled = "pushRegistrationEnabled"
+    static let platform = "platformType"
+    static let deviceToken = "registrationId"
+    static let internalId = "deviceApplicationInstanceId"
 }
 
 struct SystemDataKeys {
-	//MARK: SystemData API
-	static let sdkVersion = "sdkVersion"
-	static let osVer = "osVersion"
-	static let deviceManufacturer = "deviceManufacturer"
-	static let deviceModel = "deviceModel"
-	static let appVer = "applicationVersion"
-	static let geofencingServiceEnabled = "geofencing"
-	static let notificationsEnabled = "notificationsEnabled"
+    //MARK: SystemData API
+    static let sdkVersion = "sdkVersion"
+    static let osVer = "osVersion"
+    static let deviceManufacturer = "deviceManufacturer"
+    static let deviceModel = "deviceModel"
+    static let appVer = "applicationVersion"
+    static let geofencingServiceEnabled = "geofencing"
+    static let notificationsEnabled = "notificationsEnabled"
 }
 
 struct GeoReportingAPIKeys {
-	static let reports = "reports"
-	static let event = "event"
-	static let geoAreaId = "geoAreaId"
-	static let campaignId = "campaignId"
-	static let messageId = "messageId"
-	static let timestampDelta = "timestampDelta"
-	static let finishedCampaignIds = "finishedCampaignIds"
-	static let suspendedCampaignIds = "suspendedCampaignIds"
+    static let reports = "reports"
+    static let event = "event"
+    static let geoAreaId = "geoAreaId"
+    static let campaignId = "campaignId"
+    static let messageId = "messageId"
+    static let timestampDelta = "timestampDelta"
+    static let finishedCampaignIds = "finishedCampaignIds"
+    static let suspendedCampaignIds = "suspendedCampaignIds"
+    static let messageIdsMap = "messageIds"
+    static let sdkMessageId = "sdkMessageId"
+    static let messages = "messages"
+}
+
+struct InternalDataKeys {
+    static let event = "event"
+    static let deliveryTime = "deliveryTime"
+    static let silent: String = "silent"
+    static let geo = "geo"
+    static let messageTypeGeo = "geo"
+    static let messageType = "messageType"
 }
 
 struct APNSPayloadKeys {
-	//MARK: Internal Data Keys
-	static let kInternalDataEvent = "event"
-	static let kInternalDataDeliveryTime = "deliveryTime"
-	static let kInternalData: String = "internalData"
-	static let kInternalDataSilent: String = "silent"
-	static let kInternalDataGeo = "geo"
-	static let kInternalDataMessageTypeGeo = "geo"
-	static let kInternalDataMessageType = "messageType"
-	
-	//MARK: APNs
-	static let kPayloads = "payloads"
-	static let kAps = "aps"
-	static let kAlert = "alert"
-	static let kTitle = "title"
-	static let kBody = "body"
-	static let kBadge = "badge"
-	static let kSound = "sound"
-	static let kCustomPayload = "customPayload"
-	static let kContentAvailable = "content-available"
-	
-	//MARK: Common fields
-	static let kMessageId = "messageId"
+    //MARK: APNs
+    static let payloads = "payloads"
+    static let aps = "aps"
+    static let alert = "alert"
+    static let title = "title"
+    static let body = "body"
+    static let badge = "badge"
+    static let sound = "sound"
+    static let customPayload = "customPayload"
+    static let internalData = "internalData"
+    static let contentAvailable = "content-available"
+    
+    //MARK: Common fields
+    static let messageId = "messageId"
 }
 
 struct MMAPIValues {
-	static let kProdBaseURLString = "https://oneapi2.infobip.com"
-	static let kPlatformType = "APNS"
+    static let prodBaseURLString = "https://oneapi2.infobip.com"
+    static let platformType = "APNS"
 }

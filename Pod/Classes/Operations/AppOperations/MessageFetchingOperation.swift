@@ -11,22 +11,24 @@ final class MessageFetchingOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((MessagesSyncResult) -> Void)?
 	var result = MessagesSyncResult.Cancel
+	let mmContext: MobileMessaging
 	
-	init(context: NSManagedObjectContext, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
-		
+		self.mmContext = mmContext
 		super.init()
 	}
 	
 	override func execute() {
 		MMLogDebug("[Message fetching] Starting operation...")
-		self.syncMessages()
+		context.reset()
+		syncMessages()
 	}
 	
 	private func syncMessages() {
 		guard let internalId = MobileMessaging.currentUser?.internalId else
-		{
+        {
 			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
@@ -42,15 +44,15 @@ final class MessageFetchingOperation: Operation {
 			
 			MMLogDebug("Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
 			
-			MobileMessaging.sharedInstance?.remoteApiManager.syncMessages(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
-				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
-			}
+           self.mmContext.remoteApiManager.syncMessages(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
+                self.result = result
+                self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
+                self.finishWithError(result.error as NSError?)
+            }
 		}
 	}
 
 	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?) {
-		self.result = result
-		
 		self.context.performAndWait {
 			switch result {
 			case .Success(let fetchResponse):
@@ -64,21 +66,18 @@ final class MessageFetchingOperation: Operation {
 						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
 				}
-				
 			case .Failure(_):
 				MMLogError("[Message fetching] request failed")
 			case .Cancel:
 				MMLogDebug("[Message fetching] cancelled")
 			}
 		}
-		self.finishWithError(result.error as NSError?)
 	}
 	
 	private func dequeueDeliveryReports(messageIDs: [String]) {
 		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), context: context)
-			, !messages.isEmpty
-			else
-		{
+			, !messages.isEmpty else
+        {
 			return
 		}
 		
@@ -94,15 +93,15 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func updateMessageStorage(with messages: [MessageManagedObject]) {
-		messages.forEach({ MobileMessaging.sharedInstance?.messageStorageAdapter?.update(deliveryReportStatus: $0.reportSent , for: $0.messageId) })
+		messages.forEach({ mmContext.messageStorageAdapter?.update(deliveryReportStatus: $0.reportSent , for: $0.messageId) })
 	}
 	
 	private func handleMessageOperation(messages: [MTMessage]) -> MessageHandlingOperation {
 		return MessageHandlingOperation(messagesToHandle: messages,
-		                                messagesDeliveryMethod: .pull,
-		                                context: self.context,
+		                                context: context,
 		                                messageHandler: MobileMessaging.messageHandling,
-		                                applicationState: MobileMessaging.application.applicationState,
+		                                applicationState: mmContext.application.applicationState,
+		                                mmContext: mmContext,
 		                                finishBlock: { error in
 											
 											var finalResult = self.result

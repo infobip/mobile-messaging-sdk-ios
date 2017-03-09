@@ -1,5 +1,5 @@
 //
-//  MMGeoMessage.swift
+//  GeoMessage.swift
 //
 //  Created by Ivan Cigic on 06/07/16.
 //
@@ -9,7 +9,7 @@ import Foundation
 import CoreLocation
 import CoreData
 
-struct MMCampaignDataKeys {
+struct CampaignDataKeys {
 	static let id = "id"
 	static let title = "title"
 	static let message = "message"
@@ -21,7 +21,7 @@ struct MMCampaignDataKeys {
 	static let campaignId = "campaignId"
 }
 
-struct MMRegionDataKeys {
+struct RegionDataKeys {
 	static let latitude = "latitude"
 	static let longitude = "longitude"
 	static let radius = "radiusInMeters"
@@ -29,12 +29,12 @@ struct MMRegionDataKeys {
 	static let identifier = "id"
 }
 
-struct MMRegionDeliveryTimeKeys {
+struct RegionDeliveryTimeKeys {
 	static let days = "days"
 	static let timeInterval = "timeInterval"
 }
 
-struct MMRegionEventDataKeys {
+struct RegionEventDataKeys {
 	static let eventType = "type"
 	static let eventLimit = "limit"
 	static let eventTimeout = "timeoutInMinutes"
@@ -42,22 +42,13 @@ struct MMRegionEventDataKeys {
 	static let eventLastOccur = "lastOccur"
 }
 
-enum MMRegionEventType: String {
+enum RegionEventType: String {
 	case entry
 	case exit
 }
 
 
 public typealias DictionaryRepresentation = [String: Any]
-extension MTMessage {
-	convenience init?(managedObject: MessageManagedObject) {
-		guard let payload = managedObject.payload else {
-			return nil
-		}
-		
-		self.init(payload: payload, createdDate: managedObject.creationDate)
-	}
-}
 
 final public class MMGeoMessage: MTMessage {
 	public let campaignId: String
@@ -65,7 +56,7 @@ final public class MMGeoMessage: MTMessage {
 	public let startTime: Date
 	public let expiryTime: Date
 	public var isNotExpired: Bool {
-		return campaignState == .Active && Date().compare(expiryTime) == .orderedAscending && Date().compare(startTime) != .orderedAscending
+		return MMGeofencingService.isGeoCampaignNotExpired(campaign: self)
 	}
 	
 	public var campaignState: CampaignState = .Active
@@ -79,16 +70,24 @@ final public class MMGeoMessage: MTMessage {
 		self.campaignState = managedObject.campaignState
 	}
 	
+	func onEventOccur(ofType eventType: RegionEventType) {
+		events.filter { $0.type == eventType }.first?.occur()
+		if var internalData = originalPayload[APNSPayloadKeys.internalData] as? DictionaryRepresentation {
+			internalData += [InternalDataKeys.event: events.map { $0.dictionaryRepresentation }]
+			originalPayload.updateValue(internalData, forKey: APNSPayloadKeys.internalData)
+		}
+	}
+	
 	public override init?(payload: APNSPayload, createdDate: Date) {
 		guard
-			let internalData = payload[APNSPayloadKeys.kInternalData] as? StringKeyPayload,
-			let geoRegionsData = internalData[APNSPayloadKeys.kInternalDataGeo] as? [StringKeyPayload],
-			let expiryTimeString = internalData[MMCampaignDataKeys.expiryDate] as? String,
+			let internalData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload,
+			let geoRegionsData = internalData[InternalDataKeys.geo] as? [StringKeyPayload],
+			let expiryTimeString = internalData[CampaignDataKeys.expiryDate] as? String,
 
-			let startTimeString = internalData[MMCampaignDataKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date(timeIntervalSinceReferenceDate: 0)) as String?,
+			let startTimeString = internalData[CampaignDataKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date(timeIntervalSinceReferenceDate: 0)) as String?,
 			let expiryTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryTimeString),
 			let startTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: startTimeString),
-			let campaignId = internalData[MMCampaignDataKeys.campaignId] as? String
+			let campaignId = internalData[CampaignDataKeys.campaignId] as? String
 			else
 		{
 			return nil
@@ -97,18 +96,18 @@ final public class MMGeoMessage: MTMessage {
 		self.expiryTime = expiryTime
 		self.startTime = startTime
 		
-		let deliveryTime: MMDeliveryTime?
-		if let deliveryTimeDict = internalData[APNSPayloadKeys.kInternalDataDeliveryTime] as? DictionaryRepresentation {
-			deliveryTime = MMDeliveryTime(dictRepresentation: deliveryTimeDict)
+		let deliveryTime: DeliveryTime?
+		if let deliveryTimeDict = internalData[InternalDataKeys.deliveryTime] as? DictionaryRepresentation {
+			deliveryTime = DeliveryTime(dictRepresentation: deliveryTimeDict)
 		} else {
 			deliveryTime = nil
 		}
 		
-		let evs: [MMRegionEvent]
-		if let eventDicts = internalData[APNSPayloadKeys.kInternalDataEvent] as? [DictionaryRepresentation] {
-			evs = eventDicts.flatMap(MMRegionEvent.init)
+		let evs: [RegionEvent]
+		if let eventDicts = internalData[InternalDataKeys.event] as? [DictionaryRepresentation] {
+			evs = eventDicts.flatMap { return RegionEvent(dictRepresentation: $0) }
 		} else {
-			evs = [MMRegionEvent.defaultEvent]
+			evs = [RegionEvent.defaultEvent]
 		}
 		
 		self.deliveryTime = deliveryTime
@@ -127,9 +126,9 @@ final public class MMGeoMessage: MTMessage {
 	}
 	
 	//MARK: - Internal
-	let deliveryTime: MMDeliveryTime?
+	let deliveryTime: DeliveryTime?
 	
-	func isLive(for type: MMRegionEventType) -> Bool {
+	func isLive(for type: RegionEventType) -> Bool {
 		guard events.contains(where: {$0.type == type}) else {
 			return false
 		}
@@ -137,15 +136,38 @@ final public class MMGeoMessage: MTMessage {
 		return !containsAnInvalidEvent && isNotExpired
 	}
 	
-	func isNowAppropriateTimeForNotification(for type: MMRegionEventType) -> Bool {
+	func isNowAppropriateTimeForNotification(for type: RegionEventType) -> Bool {
 		return deliveryTime?.isNow ?? true && isLive(for: type)
 	}
 	
-	let events: [MMRegionEvent]
+	let events: [RegionEvent]
+    
+    var geoEventReportFormat: StringKeyPayload {
+        var geoEventReportFormat: [String: Any] = ["messageId": messageId,
+                                                   "body": text ?? "",
+                                                   "silent": isSilent,
+                                                   "alert": text ?? ""]
+        
+        geoEventReportFormat["badge"] = aps.badge
+        geoEventReportFormat["sound"] = sound
+        geoEventReportFormat["title"] = nil
+        
+        if let customPayload = customPayload {
+            let json = JSON(customPayload)
+            geoEventReportFormat["customPayload"] = json.stringValue
+        }
+        
+        if let internalData = internalData {
+            let json = JSON(internalData)
+            geoEventReportFormat["internalData"] = json.stringValue
+        }
+        
+        return geoEventReportFormat
+    }
 }
 
-public class MMDeliveryTime: NSObject, DictionaryRepresentable {
-	public let timeInterval: MMDeliveryTimeInterval?
+public class DeliveryTime: NSObject, DictionaryRepresentable {
+	public let timeInterval: DeliveryTimeInterval?
 	public let days: Set<MMDay>?
 	var isNow: Bool {
 		return isNowAppropriateTime && isNowAppropriateDay
@@ -159,28 +181,14 @@ public class MMDeliveryTime: NSObject, DictionaryRepresentable {
 	}
 	
 	private var isNowAppropriateDay: Bool {
-		guard let days = days, !days.isEmpty else {
-			return true
-		}
-		let calendar = Calendar(identifier: Calendar.Identifier.gregorian)
-		let now = NSDate() as Date // don't change this, NSDate is needed since unit tests swizzle it
-		let comps = calendar.dateComponents(Set([Calendar.Component.weekday]), from: now)
-		if let systemWeekDay = comps.weekday {
-			let isoWeekdayNumber = systemWeekDay == 1 ? 7 : Int8(systemWeekDay - 1)
-			if let day = MMDay(rawValue: isoWeekdayNumber) {
-				return days.contains(day)
-			} else {
-				return false
-			}
-		}
-		return false
+		return MMGeofencingService.isNowAppropriateDay(forDeliveryTime: self)
 	}
 	
 	required public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
-		let interval = MMDeliveryTimeInterval(dictRepresentation: dict)
+		let interval = DeliveryTimeInterval(dictRepresentation: dict)
 		let days: Set<MMDay>?
 
-		if let daysArray = (dict[MMRegionDeliveryTimeKeys.days] as? String)?.components(separatedBy: ",") {
+		if let daysArray = (dict[RegionDeliveryTimeKeys.days] as? String)?.components(separatedBy: ",") {
 			days = Set(daysArray.flatMap ({ (dayNumString) -> MMDay? in
 				if let dayNumInt8 = Int8(dayNumString) {
 					return MMDay(rawValue: dayNumInt8)
@@ -198,13 +206,13 @@ public class MMDeliveryTime: NSObject, DictionaryRepresentable {
 		var result = DictionaryRepresentation()
 		result += timeInterval?.dictionaryRepresentation
 		if let days = days , !days.isEmpty {
-			result[MMRegionDeliveryTimeKeys.days] = Array(days).flatMap({ String($0.rawValue) }).joined(separator: ",")
+			result[RegionDeliveryTimeKeys.days] = Array(days).flatMap({ String($0.rawValue) }).joined(separator: ",")
 		}
-		assert(MMDeliveryTime(dictRepresentation: result) != nil, "The dictionary representation is invalid")
+		assert(DeliveryTime(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
 	
-	init(timeInterval: MMDeliveryTimeInterval?, days: Set<MMDay>?) {
+	init(timeInterval: DeliveryTimeInterval?, days: Set<MMDay>?) {
 		self.timeInterval = timeInterval
 		self.days = days
 	}
@@ -216,7 +224,7 @@ public class MMDeliveryTime: NSObject, DictionaryRepresentable {
 	case mo = 1, tu = 2, we = 3, th = 4, fr = 5, sa = 6, su = 7
 }
 
-public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
+public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	static let timeIntervalSeparator = "/"
 	let fromTime: String
 	let toTime: String
@@ -227,8 +235,7 @@ public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	}
 	
 	var isNow: Bool {
-		let now = NSDate() as Date // don't change this, NSDate is needed since unit tests swizzle it
-		return MMDeliveryTimeInterval.isTime(now, between: fromTime, and: toTime)
+		return MMGeofencingService.isNowAppropriateTime(forDeliveryTimeInterval: self)
 	}
 	
 	/// Checks if `time` is in the interval defined with two time strings `fromTime` and `toTime` in ISO 8601 formats: `hhmm`
@@ -261,7 +268,7 @@ public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	}
 
 	convenience public required init?(dictRepresentation dict: DictionaryRepresentation) {
-		if let comps = (dict[MMRegionDeliveryTimeKeys.timeInterval] as? String)?.components(separatedBy: MMDeliveryTimeInterval.timeIntervalSeparator),
+		if let comps = (dict[RegionDeliveryTimeKeys.timeInterval] as? String)?.components(separatedBy: DeliveryTimeInterval.timeIntervalSeparator),
 			let from = comps.first,
 			let to = comps.last , comps.count == 2
 		{
@@ -273,8 +280,8 @@ public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	
 	var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[MMRegionDeliveryTimeKeys.timeInterval] = "\(fromTime)\(MMDeliveryTimeInterval.timeIntervalSeparator)\(toTime)"
-		assert(MMDeliveryTimeInterval(dictRepresentation: result) != nil, "The dictionary representation is invalid")
+		result[RegionDeliveryTimeKeys.timeInterval] = "\(fromTime)\(DeliveryTimeInterval.timeIntervalSeparator)\(toTime)"
+		assert(DeliveryTimeInterval(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
 }
@@ -287,7 +294,7 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	public let center: CLLocationCoordinate2D
 	public let radius: Double
 	public let title: String
-	public weak var message: MMGeoMessage?
+	weak var message: MMGeoMessage?
 	
 	public var circularRegion: CLCircularRegion {
 		return CLCircularRegion(center: center, radius: radius, identifier: identifier)
@@ -310,11 +317,11 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	
 	public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard
-			let lat = dict[MMRegionDataKeys.latitude] as? Double,
-			let lon = dict[MMRegionDataKeys.longitude] as? Double,
-			let title = dict[MMRegionDataKeys.title] as? String,
-			let identifier = dict[MMRegionDataKeys.identifier] as? String,
-			let radius = dict[MMRegionDataKeys.radius] as? Double
+			let lat = dict[RegionDataKeys.latitude] as? Double,
+			let lon = dict[RegionDataKeys.longitude] as? Double,
+			let title = dict[RegionDataKeys.title] as? String,
+			let identifier = dict[RegionDataKeys.identifier] as? String,
+			let radius = dict[RegionDataKeys.radius] as? Double
 			else
 		{
 			return nil
@@ -325,11 +332,11 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	
 	public var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[MMRegionDataKeys.latitude] = center.latitude
-		result[MMRegionDataKeys.longitude] = center.longitude
-		result[MMRegionDataKeys.radius] = radius
-		result[MMRegionDataKeys.title] = title
-		result[MMRegionDataKeys.identifier] = identifier
+		result[RegionDataKeys.latitude] = center.latitude
+		result[RegionDataKeys.longitude] = center.longitude
+		result[RegionDataKeys.radius] = radius
+		result[RegionDataKeys.title] = title
+		result[RegionDataKeys.identifier] = identifier
 		assert(MMRegion(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
@@ -347,59 +354,56 @@ public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
 	return lhs.dataSourceIdentifier == rhs.dataSourceIdentifier
 }
 
-final class MMRegionEvent: DictionaryRepresentable {
-	let type: MMRegionEventType
+final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
+	let type: RegionEventType
 	let limit: Int					//how many times this event can occur, 0 means unlimited
 	let timeout: Int			    //minutes till next possible event
 	var occuringCounter: Int = 0
 	var lastOccuring: Date?
 	
+	var description: String {
+		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(lastOccuring), isValid: \(isValid)"
+	}
 	var isValid: Bool {
-		if limit != 0 && occuringCounter >= limit {
-			return false
-		}
-		
-		return lastOccuring?.addingTimeInterval(TimeInterval(timeout * 60)).compare(Date()) != .orderedDescending
+		return MMGeofencingService.isValidRegionEvent(self)
 	}
 	
-	func occur() {
+	fileprivate func occur() {
 		occuringCounter += 1
 		lastOccuring = Date()
 	}
-	
 
 	init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard
-			let typeString = dict[MMRegionEventDataKeys.eventType] as? String,
-			let type = MMRegionEventType(rawValue: typeString),
-			let limit = dict[MMRegionEventDataKeys.eventLimit] as? Int
+			let typeString = dict[RegionEventDataKeys.eventType] as? String,
+			let type = RegionEventType(rawValue: typeString),
+			let limit = dict[RegionEventDataKeys.eventLimit] as? Int
 			else
 		{
 			return nil
 		}
 		self.type = type
 		self.limit = limit
-		self.timeout = dict[MMRegionEventDataKeys.eventTimeout] as? Int ?? 0
-		self.occuringCounter = dict[MMRegionEventDataKeys.occuringCounter] as? Int ?? 0
-		self.lastOccuring = dict[MMRegionEventDataKeys.eventLastOccur] as? Date ?? nil
+		self.timeout = dict[RegionEventDataKeys.eventTimeout] as? Int ?? 0
+		self.occuringCounter = dict[RegionEventDataKeys.occuringCounter] as? Int ?? 0
+		self.lastOccuring = dict[RegionEventDataKeys.eventLastOccur] as? Date ?? nil
 	}
 	
 	var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[MMRegionEventDataKeys.eventType] = type.rawValue
-		result[MMRegionEventDataKeys.eventLimit] = limit
-		result[MMRegionEventDataKeys.eventTimeout] = timeout
-		result[MMRegionEventDataKeys.occuringCounter] = occuringCounter
-		result[MMRegionEventDataKeys.eventLastOccur] = lastOccuring
-		assert(MMRegionEvent(dictRepresentation: result) != nil, "The dictionary representation is invalid")
+		result[RegionEventDataKeys.eventType] = type.rawValue
+		result[RegionEventDataKeys.eventLimit] = limit
+		result[RegionEventDataKeys.eventTimeout] = timeout
+		result[RegionEventDataKeys.occuringCounter] = occuringCounter
+		result[RegionEventDataKeys.eventLastOccur] = lastOccuring
+		assert(RegionEvent(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
-	
 
-	fileprivate class var defaultEvent: MMRegionEvent {
-		let defaultDict: DictionaryRepresentation = [MMRegionEventDataKeys.eventType: MMRegionEventType.entry.rawValue,
-		                                             MMRegionEventDataKeys.eventLimit: 1,
-		                                             MMRegionEventDataKeys.eventTimeout: 0]
-		return MMRegionEvent(dictRepresentation: defaultDict)!
+	fileprivate class var defaultEvent: RegionEvent {
+		let defaultDict: DictionaryRepresentation = [RegionEventDataKeys.eventType: RegionEventType.entry.rawValue,
+		                                             RegionEventDataKeys.eventLimit: 1,
+		                                             RegionEventDataKeys.eventTimeout: 0]
+		return RegionEvent(dictRepresentation: defaultDict)!
 	}
 }

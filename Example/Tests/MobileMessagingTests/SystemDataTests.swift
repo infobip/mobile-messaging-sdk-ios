@@ -65,7 +65,7 @@ class SystemDataTests: MMTestCase {
 			return nil
 		}
 		
-		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
+		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
 		
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
@@ -119,24 +119,24 @@ class SystemDataTests: MMTestCase {
 			}
 			return nil
 		}
-		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, performRequestCompanionBlock: requestCompanionBlock, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
+		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: requestCompanionBlock, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
 		
 		//requirements
 		self.mobileMessagingInstance.currentInstallation.deviceToken = "stub"
 		self.mobileMessagingInstance.currentUser.internalId = "stub"
 		
 		MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
-		MobileMessaging.application = NotificationsEnabledMock()
+		self.mobileMessagingInstance.application = NotificationsEnabledMock()
 		
 		// system data request sending is expected (initial) +1
 		self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
 			
-			MobileMessaging.application = NotificationsDisabledMock()
+			self.mobileMessagingInstance.application = NotificationsDisabledMock()
 			// system data request sending is expected (notification settings changed) +1
 			self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
 
 				
-				MobileMessaging.application = NotificationsDisabledMock()
+				self.mobileMessagingInstance.application = NotificationsDisabledMock()
 				// system data request sending not expected (notification settings the same)
 				self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
 					expectation?.fulfill()

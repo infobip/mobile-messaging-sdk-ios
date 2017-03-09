@@ -8,21 +8,26 @@
 import Foundation
 import CoreData
 
+
+
 final class MMInstallationManager {
 	//MARK: Internal
 	lazy var registrationQueue = MMOperationQueue.newSerialQueue
 	let storage: MMCoreDataStorage
 	let storageContext: NSManagedObjectContext
-
+	let mmContext: MobileMessaging?
+	
 	deinit {
 		registrationQueue.cancelAllOperations()
 	}
 	
-	init(storage: MMCoreDataStorage) {
+	init(storage: MMCoreDataStorage, mmContext: MobileMessaging?) {
 		self.storage = storage
 		self.storageContext = storage.newPrivateContext()
+		self.mmContext = mmContext
 		_currentInstallation = installationObject
 	}
+	
 	
 	func getValueForKey(_ key: String) -> Any? {
 		var result: Any?
@@ -56,26 +61,42 @@ final class MMInstallationManager {
 	}
 	
 	func syncInstallationWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		guard let mmContext = mmContext else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
 		MMLogDebug("[Installation management] sync installation with server")
-		let newRegOp = InstallationDataSynchronizationOperation(context: storageContext, finishBlock: completion)
+		let newRegOp = InstallationDataSynchronizationOperation(context: storageContext, mmContext: mmContext, finishBlock: completion)
 		registrationQueue.addOperation(newRegOp)
 	}
 	
 	func sendSystemDataToServer(_ completion: ((NSError?) -> Void)? = nil) {
+		guard let mmContext = mmContext else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
 		MMLogDebug("[Installation management] send system data to server")
-		let op = SystemDataSynchronizationOperation(сontext: storageContext, finishBlock: completion)
+		let op = SystemDataSynchronizationOperation(сontext: storageContext, mmContext: mmContext, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
 	
 	func syncUserDataWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		guard let mmContext = mmContext else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
 		MMLogDebug("[Installation management] sync user data with server")
-		let op = UserDataSynchronizationOperation(syncOperationWithContext: storageContext, finishBlock: completion)
+		let op = UserDataSynchronizationOperation(syncOperationWithContext: storageContext, mmContext: mmContext, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
 	
 	func fetchUserWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		guard let mmContext = mmContext else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
 		MMLogDebug("[Installation management] fetch user with server")
-		let op = UserDataSynchronizationOperation(fetchingOperationWithContext: storageContext, finishBlock: completion)
+		let op = UserDataSynchronizationOperation(fetchingOperationWithContext: storageContext, mmContext: mmContext, finishBlock: completion)
 		registrationQueue.addOperation(op)
 	}
 	

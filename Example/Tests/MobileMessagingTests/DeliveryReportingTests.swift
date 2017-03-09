@@ -12,9 +12,7 @@ class DeliveryReportingTests: MMTestCase {
     func testSendingDeliveryStatusSuccess() {
         weak var expectation = self.expectation(description: "Delivery sending completed")
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], newMessageReceivedCallback: { _ in
-			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
-			}, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], completion: { error in
 				XCTAssertNil(error, "Delivery reporting request failed with error")
 				XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 				expectation?.fulfill()
@@ -30,10 +28,7 @@ class DeliveryReportingTests: MMTestCase {
 		
         weak var expectation = self.expectation(description: "Delivery sending completed")
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], newMessageReceivedCallback: { _ in
-			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
-			
-		}, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], completion: { error in
 		
 			XCTAssertNotNil(error)
 			XCTAssertEqual(error?.localizedDescription, "Invalid Application Id")

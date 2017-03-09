@@ -12,28 +12,33 @@ class SeenStatusSendingOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((SeenStatusSendingResult) -> Void)?
 	var result = SeenStatusSendingResult.Cancel
+	let mmContext: MobileMessaging
 	
-	init(context: NSManagedObjectContext, finishBlock: ((SeenStatusSendingResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((SeenStatusSendingResult) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
+		self.mmContext = mmContext
 	}
 	
 	override func execute() {
-		self.context.perform {
-			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue)"), context: self.context), !seenNotSentMessages.isEmpty else
+		context.reset()
+		context.perform {
+			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue) AND NOT(messageId MATCHES [c] '\(String.mm_UUIDRegexPattern)')"), context: self.context), !seenNotSentMessages.isEmpty else
 			{
 				MMLogDebug("[Seen status reporting] There is no non-seen meessages to send to the server. Finishing...")
 				self.finish()
 				return
 			}
 			let seenStatusesToSend = seenNotSentMessages.flatMap { msg -> SeenData? in
-				guard let seenDate = msg.seenDate else {
+				guard let seenDate = msg.seenDate else
+                {
 					return nil
 				}
 				return SeenData(messageId: msg.messageId, seenDate: seenDate)
 			}
 			
-			MobileMessaging.sharedInstance?.remoteApiManager.sendSeenStatus(seenList: seenStatusesToSend) { result in
+			self.mmContext.remoteApiManager.sendSeenStatus(seenList: seenStatusesToSend) { result in
+                self.result = result
 				self.handleSeenResult(result, messages: seenNotSentMessages)
 				self.finishWithError(result.error)
 			}
@@ -41,7 +46,6 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	private func handleSeenResult(_ result: SeenStatusSendingResult, messages: [MessageManagedObject]) {
-		self.result = result
 		switch result {
 		case .Success(_):
 			MMLogDebug("[Seen status reporting] Request succeeded")
@@ -61,7 +65,7 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	private func updateMessageStorage(with messages: [MessageManagedObject]) {
-		messages.forEach { MobileMessaging.messageStorage?.update(messageSeenStatus: $0.seenStatus , for: $0.messageId) }
+		messages.forEach { mmContext.messageStorage?.update(messageSeenStatus: $0.seenStatus , for: $0.messageId) }
 	}
 	
 	override func finished(_ errors: [NSError]) {

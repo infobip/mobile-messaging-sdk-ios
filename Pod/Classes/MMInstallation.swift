@@ -297,12 +297,12 @@ final public class MMInstallation: NSObject {
 	/// Set to 0 (zero) to hide the badge number. The default value of this property is 0.
 	public var badgeNumber: Int {
 		get {
-			let appBadge = MobileMessaging.application.applicationIconBadgeNumber
+			let appBadge = mmContext?.application.applicationIconBadgeNumber ?? 0
 			installationManager.setValueForKey("badgeNumber", value: appBadge)
 			return appBadge
 		}
 		set {
-			MobileMessaging.application.applicationIconBadgeNumber = newValue
+			mmContext?.application.applicationIconBadgeNumber = newValue
 			installationManager.setValueForKey("badgeNumber", value: newValue)
 		}
 	}
@@ -338,9 +338,14 @@ final public class MMInstallation: NSObject {
 
 //MARK: Internal
 	let installationManager: MMInstallationManager
-	
-	init(storage: MMCoreDataStorage) {
-		self.installationManager = MMInstallationManager(storage: storage)
+	let mmContext: MobileMessaging?
+    init(storage: MMCoreDataStorage, mmContext: MobileMessaging?, applicationCode: String? = nil) {
+		self.installationManager = MMInstallationManager(storage: storage, mmContext: mmContext)
+		self.mmContext = mmContext
+        super.init()
+        if applicationCode != nil {
+            self.applicationCode = applicationCode
+        }
 	}
 	
 	func updateRegistrationEnabledStatus(value: Bool, completion: ((NSError?) -> Void)? = nil) {
@@ -351,8 +356,10 @@ final public class MMInstallation: NSObject {
 		installationManager.updateDeviceToken(token: token, completion: completion)
 	}
 	
-	func applicationCodeChanged(_ newApplicationCode: String) -> Bool {
-		return applicationCode != nil ? applicationCode != newApplicationCode : false
+	class func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: String) -> Bool {
+		let im = MMInstallationManager(storage: storage, mmContext: nil)
+		let currentApplicationCode = im.getValueForKey("applicationCode") as? String
+        return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
 	}
 	
 	var applicationCode: String? {

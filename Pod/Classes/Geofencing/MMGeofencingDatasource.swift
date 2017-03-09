@@ -9,7 +9,7 @@ import Foundation
 import CoreLocation
 import CoreData
 
-class MMGeofencingDatasource {
+class GeofencingDatasource {
 	
 	let storage: MMCoreDataStorage
 	let context: NSManagedObjectContext
@@ -34,7 +34,7 @@ class MMGeofencingDatasource {
 	init(storage: MMCoreDataStorage) {
 		self.storage = storage
 		self.context = storage.newPrivateContext()
-		loadMessages()
+		self.reload()
 	}
 	
 	func validRegionsForEntryEvent(with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
@@ -59,13 +59,18 @@ class MMGeofencingDatasource {
 		}
 	}
 	
+    func reload() {
+        loadMessages()
+    }
+    
 //MARK: - Private
 	
 	private func loadMessages() {
+		context.reset()
 		context.performAndWait {
-			let msgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == %i", MMMessageType.Geo.rawValue), context: self.context)
+			let msgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), context: self.context)
 			
-			self.messages = Set(msgs?.flatMap(MMGeoMessage.init).filter({ $0.isNotExpired }) ?? [MMGeoMessage]())
+			self.messages = Set(msgs?.flatMap({ return MMGeoMessage(managedObject: $0) }).filter { $0.isNotExpired } ?? [MMGeoMessage]())
 		}
 	}
 	
@@ -89,7 +94,7 @@ class MMGeofencingDatasource {
 		})
 	}
 	
-	private func validRegions(for event: MMRegionEventType, with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
+	private func validRegions(for event: RegionEventType, with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
 		return messages.filter({ $0.isNowAppropriateTimeForNotification(for: event) }).flatMap{ $0.regions.filter({ $0.identifier == regionIdentifier }).first }
 	}
 }

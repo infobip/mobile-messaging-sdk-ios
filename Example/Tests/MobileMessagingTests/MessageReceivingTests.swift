@@ -9,11 +9,11 @@ import XCTest
 @testable import MobileMessaging
 
 func backendJSONSilentMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"\(APNSPayloadKeys.kInternalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.kCustomPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"\(APNSPayloadKeys.internalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(APNSPayloadKeys.kInternalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.kCustomPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(APNSPayloadKeys.internalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -22,8 +22,8 @@ func apnsNormalMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 	return [
 		"messageId": messageId,
 		"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-		APNSPayloadKeys.kInternalData: ["internalKey": "internalValue"],
-		APNSPayloadKeys.kCustomPayload: ["customKey": "customValue"]
+		APNSPayloadKeys.internalData: ["internalKey": "internalValue"],
+		APNSPayloadKeys.customPayload: ["customKey": "customValue"]
 	]
 }
 
@@ -31,8 +31,8 @@ func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 	return [
 		"messageId": messageId,
 		"aps": ["content-available": 1, "badge": 6],
-		APNSPayloadKeys.kInternalData: ["silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
-		APNSPayloadKeys.kCustomPayload: ["customKey": "customValue"]
+		APNSPayloadKeys.internalData: ["silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
+		APNSPayloadKeys.customPayload: ["customKey": "customValue"]
 	]
 }
 
@@ -54,8 +54,8 @@ class MessageReceivingTests: MMTestCase {
 		let resultDict = [
 							"messageId": "m1",
 							"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-							APNSPayloadKeys.kInternalData: ["internalKey1": "internalValue1"],
-							APNSPayloadKeys.kCustomPayload: ["customKey" : "customValue"]
+							APNSPayloadKeys.internalData: ["internalKey1": "internalValue1"],
+							APNSPayloadKeys.customPayload: ["customKey" : "customValue"]
 						] as APNSPayload
 		let message = MTMessage(json: JSON.parse(jsonstring))
 		
@@ -70,8 +70,8 @@ class MessageReceivingTests: MMTestCase {
 			"messageId": "m1",
 			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
 			"silent": 1,
-			APNSPayloadKeys.kInternalData: ["internalKey1": "internalValue1"],
-			APNSPayloadKeys.kCustomPayload : ["customKey" : "customValue"]
+			APNSPayloadKeys.internalData: ["internalKey1": "internalValue1"],
+			APNSPayloadKeys.customPayload : ["customKey" : "customValue"]
 		]
 		
 		let message = MTMessage(json: JSON.parse(jsonstring))
@@ -104,7 +104,7 @@ class MessageReceivingTests: MMTestCase {
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { result in
 				DispatchQueue.main.async {
 					iterationCounter += 1
 					if iterationCounter == expectedMessagesCount {
@@ -127,7 +127,7 @@ class MessageReceivingTests: MMTestCase {
 			
 			sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 				
-				self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, newMessageReceivedCallback: nil, completion: { result in
+				self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { result in
 					DispatchQueue.main.async {
 						iterationCounter += 1
 						if iterationCounter == expectedMessagesCount {
@@ -215,7 +215,7 @@ class MessageReceivingTests: MMTestCase {
 
 		var tappedMessages = [MTMessage]()
 		
-		MobileMessaging.application = application
+		self.mobileMessagingInstance.application = application
 		MobileMessaging.notificationTapHandler = { message in
 			tappedMessages.append(message)
 		}
@@ -223,20 +223,20 @@ class MessageReceivingTests: MMTestCase {
 		let payload1 = apnsNormalMessagePayload("m1")
 		let payload2 = apnsNormalMessagePayload("m2")
 		
-		self.mobileMessagingInstance.didReceiveRemoteNotification(payload1, newMessageReceivedCallback: nil, completion: { result in
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { result in
 			messageReceived1?.fulfill()
 			
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { result in
 				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
 				Thread.sleep(forTimeInterval: 1)
 				messageReceived3?.fulfill()
 			})
 		})
 		
-		self.mobileMessagingInstance.didReceiveRemoteNotification(payload2, newMessageReceivedCallback: nil, completion: { result in
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { result in
 			messageReceived2?.fulfill()
 			
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2, newMessageReceivedCallback: nil, completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { result in
 				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
 				Thread.sleep(forTimeInterval: 1)
 				messageReceived4?.fulfill()

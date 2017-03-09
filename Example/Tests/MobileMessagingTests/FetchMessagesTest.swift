@@ -29,12 +29,10 @@ class FetchMessagesTest: MMTestCase {
 		
 		weak var expectation = self.expectation(description: "Sync finished")
         XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
-                
-        let messageHandler = mobileMessagingInstance.messageHandler
 		
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
-		messageHandler.syncWithServer { error in
+		mobileMessagingInstance.messageHandler.syncWithServer { error in
 			
 			XCTAssertNil(error)
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
@@ -64,7 +62,7 @@ class FetchMessagesTest: MMTestCase {
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"],  completion: { error in
 			prepconditionExpectation?.fulfill()
 		})
 		
@@ -73,7 +71,7 @@ class FetchMessagesTest: MMTestCase {
 			seenExpectation?.fulfill()
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil, completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"],  completion: { error in
 			newMsgExpectation?.fulfill()
 		})
 

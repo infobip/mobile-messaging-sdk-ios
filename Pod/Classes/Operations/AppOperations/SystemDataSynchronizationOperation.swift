@@ -11,6 +11,7 @@ import Security
 
 class SystemDataSynchronizationOperation: Operation {
 	let context: NSManagedObjectContext
+	let mmContext: MobileMessaging
 	let finishBlock: ((NSError?) -> Void)?
 	private var installationObject: InstallationManagedObject!
 	
@@ -22,9 +23,10 @@ class SystemDataSynchronizationOperation: Operation {
 		return Int64(self.currentSystemData.hashValue)
 	}()
 	
-	init(сontext context: NSManagedObjectContext, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(сontext context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
+		self.mmContext = mmContext
 		super.init()
 	}
 	
@@ -49,15 +51,15 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	private func sendRequest() {
-		guard let internalId = self.installationObject.internalUserId else
+		guard let internalId = installationObject.internalUserId else
 		{
 			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
-
+        
 		MMLogDebug("[System data sync] performing request...")
 		
-		MobileMessaging.sharedInstance?.remoteApiManager.syncSystemData(internalUserId: internalId, systemData: currentSystemData) { result in
+		mmContext.remoteApiManager.syncSystemData(internalUserId: internalId, systemData: currentSystemData) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}
@@ -67,11 +69,7 @@ class SystemDataSynchronizationOperation: Operation {
 		context.performAndWait {
 			switch result {
 			case .Success:
-				guard let installationObject = self.installationObject else {
-					return
-				}
-
-				installationObject.systemDataHash = self.currentSystemDataHash
+				self.installationObject.systemDataHash = self.currentSystemDataHash
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("[System data sync] successfully synced")
 			case .Failure(let error):

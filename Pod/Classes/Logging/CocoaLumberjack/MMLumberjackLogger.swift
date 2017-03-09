@@ -156,7 +156,6 @@ public final class MMLogger: NSObject, MMLogging {
 				fileLogger.rollingFrequency = TimeInterval(60*60*24) //24h
 				DDLog.add(fileLogger, with: lumberjackLogLvl)
 			}
-			
 		}
 	}
 	

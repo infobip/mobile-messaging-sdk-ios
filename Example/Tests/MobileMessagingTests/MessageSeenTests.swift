@@ -16,7 +16,7 @@ class MessageSeenTests: MMTestCase {
 		weak var seenRequestCompleted = expectation(description: "seen request completed")
 		let messageId = "m1"
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": messageId], newMessageReceivedCallback: nil) { err in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": messageId]) { err in
 			self.mobileMessagingInstance.setSeen([messageId], completion: { result in
 				 seenRequestCompleted?.fulfill()
 			})
@@ -38,7 +38,7 @@ class MessageSeenTests: MMTestCase {
     func testSendEmpty() {
         weak var expectation = self.expectation(description: "expectation")
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], newMessageReceivedCallback: nil) { err in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"]) { err in
 			self.mobileMessagingInstance.setSeen([], completion: { result in
 				expectation?.fulfill()
 			})
@@ -64,7 +64,7 @@ class MessageSeenTests: MMTestCase {
 		
 		for mId in ["m1", "m2", "m3"] {
 			messageReceivingGroup.enter()
-			mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": mId], newMessageReceivedCallback: nil, completion: { (err) in
+			mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": mId],  completion: { (err) in
 				messageReceivingGroup.leave()
 			})
 		}

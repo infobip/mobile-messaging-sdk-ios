@@ -11,10 +11,9 @@ public let MMInternalErrorDomain = "com.mobile-messaging"
 
 
 public enum MMInternalErrorType: Error {
-    case UnknownError
+    case UnknownError //TODO: check all occurences and replace with meaningful errors
 	case NoRegistration
 	case StorageInitializationError
-	
     
     fileprivate var errorCode: Int {
         switch self {
@@ -24,7 +23,7 @@ public enum MMInternalErrorType: Error {
 			return 1
 		case .StorageInitializationError:
 			return 2
-        }
+		}
     }
 
 	var userInfo: [String: String] {

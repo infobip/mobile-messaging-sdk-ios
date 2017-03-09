@@ -8,7 +8,7 @@
 import Foundation
 
 @objc public enum MessageDeliveryMethod: Int16 {
-	case undefined = 0, push, pull
+	case undefined = 0, push, pull, generatedLocally
 }
 
 @objc public enum MessageDirection: Int16 {
@@ -61,7 +61,7 @@ protocol MMMessageMetadata: Hashable {
 public class BaseMessage: NSObject {
 	public let messageId: String
 	public let direction: MessageDirection
-	public let originalPayload: StringKeyPayload
+	public var originalPayload: StringKeyPayload
 	public let createdDate: Date
 	
 	class func makeMessage(coreDataMessage: Message) -> BaseMessage? {
@@ -102,7 +102,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	/// Defines the origin of a message.
 	///
 	/// Message may be either pushed by APNS or pulled from the server.
-	public private(set) var deliveryMethod: MessageDeliveryMethod
+	public fileprivate(set) var deliveryMethod: MessageDeliveryMethod
 	
 	/// Defines if a message is silent. Silent messages have neither text nor sound attributes.
 	public let isSilent: Bool
@@ -111,6 +111,8 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	///
 	/// See also: [Custom message payload](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Custom-message-payload)
 	public let customPayload: StringKeyPayload?
+    
+    let internalData: StringKeyPayload?
 	
 	/// Text of a message.
 	public var text: String? {
@@ -148,13 +150,13 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	}
 	
 	init?(payload: APNSPayload, createdDate: Date) {
-		guard let payload = payload as? StringKeyPayload, let messageId = payload[APNSPayloadKeys.kMessageId] as? String, let nativeAPS = payload[APNSPayloadKeys.kAps] as? StringKeyPayload else {
+		guard let payload = payload as? StringKeyPayload, let messageId = payload[APNSPayloadKeys.messageId] as? String, let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload else {
 			return nil
 		}
 		
 		self.isSilent = MTMessage.isSilent(payload: payload)
 		if (self.isSilent) {
-			if let silentAPS = (payload[APNSPayloadKeys.kInternalData] as? StringKeyPayload)?[APNSPayloadKeys.kInternalDataSilent] as? StringKeyPayload {
+			if let silentAPS = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.silent] as? StringKeyPayload {
 				self.aps = MMAPS.SilentAPS(MTMessage.apsByMerging(nativeAPS: nativeAPS, withSilentAPS: silentAPS))
 			} else {
 				self.aps = MMAPS.NativeAPS(nativeAPS)
@@ -164,8 +166,9 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		}
 
 		//TODO: refactor all these `as` by extending Dictionary.
-		self.customPayload = payload[APNSPayloadKeys.kCustomPayload] as? StringKeyPayload
-		self.silentData = (payload[APNSPayloadKeys.kInternalData] as? StringKeyPayload)?[APNSPayloadKeys.kInternalDataSilent] as? StringKeyPayload
+		self.customPayload = payload[APNSPayloadKeys.customPayload] as? StringKeyPayload
+        self.internalData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload
+		self.silentData = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.silent] as? StringKeyPayload
 		self.deliveryMethod = .push
 		self.seenStatus = .NotSeen
 		self.seenDate = nil
@@ -176,30 +179,45 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	
 	private static func isSilent(payload: APNSPayload?) -> Bool {
 		//if payload APNS originated:
-		if ((payload?[APNSPayloadKeys.kInternalData] as? [AnyHashable: Any])?[APNSPayloadKeys.kInternalDataSilent] as? [AnyHashable: Any]) != nil {
+		if ((payload?[APNSPayloadKeys.internalData] as? [AnyHashable: Any])?[InternalDataKeys.silent] as? [AnyHashable: Any]) != nil {
 			return true
 		}
 		//if payload Server originated:
-		return payload?[APNSPayloadKeys.kInternalDataSilent] as? Bool ?? false
+		return payload?[InternalDataKeys.silent] as? Bool ?? false
 	}
 	
 	private static func apsByMerging(nativeAPS: StringKeyPayload?, withSilentAPS silentAPS: StringKeyPayload) -> StringKeyPayload {
 		var resultAps = nativeAPS ?? StringKeyPayload()
 		var alert = StringKeyPayload()
 		
-		if let body = silentAPS[APNSPayloadKeys.kBody] as? String {
-			alert[APNSPayloadKeys.kBody] = body
+		if let body = silentAPS[APNSPayloadKeys.body] as? String {
+			alert[APNSPayloadKeys.body] = body
 		}
-		if let title = silentAPS[APNSPayloadKeys.kTitle] as? String {
-			alert[APNSPayloadKeys.kTitle] = title
+		if let title = silentAPS[APNSPayloadKeys.title] as? String {
+			alert[APNSPayloadKeys.title] = title
 		}
 		
-		resultAps[APNSPayloadKeys.kAlert] = alert
+		resultAps[APNSPayloadKeys.alert] = alert
 		
-		if let sound = silentAPS[APNSPayloadKeys.kSound] as? String {
-			resultAps[APNSPayloadKeys.kSound] = sound
+		if let sound = silentAPS[APNSPayloadKeys.sound] as? String {
+			resultAps[APNSPayloadKeys.sound] = sound
 		}
 		return resultAps
+	}
+}
+
+extension MTMessage {
+	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String) -> MTMessage? {
+		var payload = geoMessage.originalPayload
+		let aps = payload["aps"] as? [String: Any]
+		let silentAps = (payload["internalData"] as? [String: Any])?["silent"] as? [String: Any]
+		payload["aps"] = aps + silentAps
+		payload["internalData"] = nil
+		payload["messageId"] = messageId
+		var result = MTMessage(payload: payload, createdDate: Date())
+		result?.deliveryMethod = .generatedLocally
+		result?.isDeliveryReportSent = true
+		return result
 	}
 }
 

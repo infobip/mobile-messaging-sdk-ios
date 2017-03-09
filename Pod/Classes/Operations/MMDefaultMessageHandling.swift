@@ -17,8 +17,13 @@ import Foundation
 
 public class MMDefaultMessageHandling: MessageHandling {
 	@objc public func didReceiveNewMessage(message: MTMessage) {
-		if message.deliveryMethod == .pull && !message.isSilent {
-			self.presentLocalNotificationAlert(with: message)
+		switch message.deliveryMethod {
+		case .pull, .generatedLocally:
+			if !message.isSilent {
+				self.presentLocalNotificationAlert(with: message)
+			}
+		case .push, .undefined:
+			break
 		}
 	}
 	

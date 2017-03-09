@@ -3,7 +3,7 @@
 //  MobileMessaging
 //
 //  Created by Andrey K. on 17/02/16.
-//  
+//
 //
 
 import Foundation
@@ -109,7 +109,15 @@ extension NotificationCenter {
 	}
 }
 
-class MMNetworkReachabilityManager {
+extension OperationQueue {
+	class var mm_newSerialQueue: OperationQueue {
+		let newQ = OperationQueue()
+		newQ.maxConcurrentOperationCount = 1
+		return newQ
+	}
+}
+
+class MMNetworkReachabilityManager: ReachabilityManagerProtocol {
 	static let sharedInstance = MMNetworkReachabilityManager()
 	private let manager: MM_AFNetworkReachabilityManager
 	init() {
@@ -124,7 +132,7 @@ class MMNetworkReachabilityManager {
 	var reachable: Bool { return manager.isReachable }
 	
 	func currentlyReachable() -> Bool {
-        var zeroAddress = sockaddr_in()
+		var zeroAddress = sockaddr_in()
 		zeroAddress.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
 		zeroAddress.sin_family = sa_family_t(AF_INET)
 		
@@ -158,12 +166,31 @@ extension UIApplication {
 }
 
 extension Data {
-    var mm_toHexString: String {
+	var mm_toHexString: String {
 		return reduce("") {$0 + String(format: "%02x", $1)}
-    }
+	}
 }
 
 extension String {
+	
+	static let mm_UUIDRegexPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+	
+	func mm_matches(toRegexPattern: String, options: NSRegularExpression.Options = []) -> Bool {
+		if let regex = try? NSRegularExpression(pattern: toRegexPattern, options: options), let _ = regex.firstMatch(in: self, options: NSRegularExpression.MatchingOptions.withoutAnchoringBounds, range: NSRange(0..<self.characters.count)) {
+			return true
+		} else {
+			return false
+		}
+	}
+	
+	var mm_isSdkGeneratedMessageId: Bool {
+		return mm_isUUID
+	}
+	
+	var mm_isUUID: Bool {
+		return mm_matches(toRegexPattern: String.mm_UUIDRegexPattern, options: .caseInsensitive)
+	}
+	
 	func mm_breakWithMaxLength(maxLenght: Int) -> String {
 		var result: String = self
 		let currentLen = self.characters.count
@@ -176,35 +203,35 @@ extension String {
 		return result
 	}
 	
-    func mm_toHexademicalString() -> String? {
-        if let data: Data = self.data(using: String.Encoding.utf16) {
-            return data.mm_toHexString
-        } else {
-            return nil
-        }
-    }
-    
-    func mm_fromHexademicalString() -> String? {
-        if let data = self.mm_dataFromHexadecimalString() {
-            return String.init(data: data, encoding: String.Encoding.utf16)
-        } else {
-            return nil
-        }
-    }
-    
-    func mm_dataFromHexadecimalString() -> Data? {
+	var mm_toHexademicalString: String? {
+		if let data: Data = self.data(using: String.Encoding.utf16) {
+			return data.mm_toHexString
+		} else {
+			return nil
+		}
+	}
+	
+	var mm_fromHexademicalString: String? {
+		if let data = self.mm_dataFromHexadecimalString {
+			return String.init(data: data, encoding: String.Encoding.utf16)
+		} else {
+			return nil
+		}
+	}
+	
+	var mm_dataFromHexadecimalString: Data? {
 		let trimmedString = self.trimmingCharacters(in: CharacterSet.init(charactersIn:"<> ")).replacingOccurrences(of: " ", with: "")
-        
-        // make sure the cleaned up string consists solely of hex digits, and that we have even number of them
-        
-        let regex = try! NSRegularExpression(pattern: "^[0-9a-f]*$", options: .caseInsensitive)
-        
-        let found = regex.firstMatch(in: trimmedString, options: [], range: NSMakeRange(0, trimmedString.characters.count))
-        if found == nil || found?.range.location == NSNotFound || trimmedString.characters.count % 2 != 0 {
-            return nil
-        }
-        
-        // everything ok, so now let's build NSData
+		
+		// make sure the cleaned up string consists solely of hex digits, and that we have even number of them
+		
+		let regex = try! NSRegularExpression(pattern: "^[0-9a-f]*$", options: .caseInsensitive)
+		
+		let found = regex.firstMatch(in: trimmedString, options: [], range: NSMakeRange(0, trimmedString.characters.count))
+		if found == nil || found?.range.location == NSNotFound || trimmedString.characters.count % 2 != 0 {
+			return nil
+		}
+		
+		// everything ok, so now let's build NSData
 		var data = Data()
 		
 		var index = trimmedString.startIndex
@@ -212,15 +239,15 @@ extension String {
 		while index < trimmedString.endIndex {
 			let range:Range<Index> = index..<trimmedString.index(index, offsetBy: 2)
 			let byteString = trimmedString.substring(with: range)
-            let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
-            data.append([num] as [UInt8], count: 1)
+			let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
+			data.append([num] as [UInt8], count: 1)
 			index = trimmedString.index(index, offsetBy: 2)
-        }
+		}
 		
-        return data
-    }
-
-	func mm_escapeString() -> String {
+		return data
+	}
+	
+	var mm_urlSafeString: String {
 		let raw: String = self
 		var urlFragmentAllowed = CharacterSet.urlFragmentAllowed
 		urlFragmentAllowed.remove(charactersIn: "!*'();:@&=+$,/?%#[]")
@@ -272,6 +299,18 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> D
 	}
 }
 
+func +<Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
+	switch (l, r) {
+	case (.none, .none):
+		return [Element]()
+	case (.some(let left), .none):
+		return left
+	case (.none, .some(let right)):
+		return right
+	case (.some(let left), .some(let right)):
+		return left + right
+	}
+}
 
 func ==(lhs : [AnyHashable : UserDataFoundationTypes], rhs: [AnyHashable : UserDataFoundationTypes]) -> Bool {
 	return NSDictionary(dictionary: lhs).isEqual(to: rhs)
