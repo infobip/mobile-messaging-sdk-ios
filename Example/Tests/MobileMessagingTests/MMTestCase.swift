@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 @testable import MobileMessaging
 
-class ActiveApplicationMock: UIApplicationProtocol {
+class ActiveApplicationMock: MMApplication {
 	var applicationState: UIApplicationState {
 		return .active
 	}
@@ -29,7 +29,7 @@ class ActiveApplicationMock: UIApplicationProtocol {
 }
 
 
-class InactiveApplicationMock: UIApplicationProtocol {
+class InactiveApplicationMock: MMApplication {
 	var applicationState: UIApplicationState {
 		return .inactive
 	}

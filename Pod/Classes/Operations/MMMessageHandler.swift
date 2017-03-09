@@ -70,7 +70,8 @@ final class MMMessageHandler: MobileMessagingService {
 			completion?(nil)
 			return
 		}
-		if let msg = MMMessageFactory.makeMessage(with: userInfo, createdDate: Date()) {
+
+		if let msg = MMMessageFactory.makeMessage(with: userInfo, createdDate: MobileMessaging.date.now) {
 
 			handleMTMessages([msg], completion: completion)
 

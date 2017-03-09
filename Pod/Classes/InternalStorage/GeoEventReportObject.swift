@@ -18,7 +18,7 @@ final class GeoEventReportObject: NSManagedObject, Fetchable {
 		let newEvent = GeoEventReportObject.MM_createEntityInContext(context: context)
 		newEvent.campaignId = campaignId
 		newEvent.eventType = eventType
-		newEvent.eventDate = Date()
+		newEvent.eventDate = MobileMessaging.date.now
 		newEvent.geoAreaId = regionId
 		newEvent.messageId = messageId
 		newEvent.sdkMessageId = UUID().uuidString

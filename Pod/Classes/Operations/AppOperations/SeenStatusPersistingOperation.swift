@@ -38,7 +38,7 @@ final class SeenStatusPersistingOperation: Operation {
 					switch message.seenStatus {
 					case .NotSeen:
 						message.seenStatus = .SeenNotSent
-						message.seenDate = Date() // we store only the very first seen date, any repeated seen update is ignored
+						message.seenDate = MobileMessaging.date.now // we store only the very first seen date, any repeated seen update is ignored
 					case .SeenSent:
 						message.seenStatus = .SeenNotSent
 					case .SeenNotSent: break

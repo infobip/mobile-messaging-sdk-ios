@@ -43,7 +43,7 @@ class VersionManager {
 	func validateVersion(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("[Checking versions] started...")
 		
-		guard lastCheckDate == nil || (lastCheckDate?.addingTimeInterval(defaultTimeout).compare(Date()) == ComparisonResult.orderedAscending) else
+		guard lastCheckDate == nil || (lastCheckDate?.addingTimeInterval(defaultTimeout).compare(MobileMessaging.date.now) == ComparisonResult.orderedAscending) else
 		{
 			self.waitUntilItsTime()
 			completion?()
@@ -77,7 +77,7 @@ class VersionManager {
 	func handleUpToDateCase() {
 		MMLogDebug("[Checking versions] Your MobileMessaging library is up to date.")
 		// save the date only if our version is the new one. Otherwise, we warn the dev in the console every time until he/she updates
-		self.lastCheckDate = Date()
+		self.lastCheckDate = MobileMessaging.date.now
 		UserDefaults.standard.set(self.lastCheckDate, forKey: VersionCheck.lastCheckDateKey)
 		UserDefaults.standard.synchronize()
 	}

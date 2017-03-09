@@ -362,14 +362,38 @@ public final class MobileMessaging: NSObject {
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var geofencingService: MMGeofencingService! = MMGeofencingService(storage: self.internalStorage, mmContext: self)
 	lazy var remoteApiManager: RemoteAPIManager! = RemoteAPIManager(baseUrl: self.remoteAPIBaseURL, applicationCode: self.applicationCode, mmContext: self)
-	lazy var application: UIApplicationProtocol! = UIApplication.shared
+	lazy var application: MMApplication! = UIApplication.shared
 	lazy var reachabilityManager: ReachabilityManagerProtocol! = MMNetworkReachabilityManager.sharedInstance
 	lazy var keychain: MMKeychain! = MMKeychain(applicationCode: self.applicationCode)
+
+	static var date: MMDate = MMDate() // testability
 }
 
-extension UIApplication: UIApplicationProtocol {}
+extension UIApplication: MMApplication {}
 
-protocol UIApplicationProtocol {
+class MMDate {
+	var now: Date {
+		return Date()
+	}
+	
+	func timeInterval(sinceNow timeInterval: TimeInterval) -> Date {
+		return Date(timeIntervalSinceNow: timeInterval)
+	}
+	
+	func timeInterval(since1970 timeInterval: TimeInterval) -> Date {
+		return Date(timeIntervalSince1970: timeInterval)
+	}
+	
+	func timeInterval(sinceReferenceDate timeInterval: TimeInterval) -> Date {
+		return Date(timeIntervalSinceReferenceDate: timeInterval)
+	}
+	
+	func timeInterval(_ timeInterval: TimeInterval, since date: Date) -> Date {
+		return Date(timeInterval: timeInterval, since: date)
+	}
+}
+
+protocol MMApplication {
 	var applicationIconBadgeNumber: Int { get set }
 	var applicationState: UIApplicationState { get }
 	var isRegisteredForRemoteNotifications: Bool { get }

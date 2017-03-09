@@ -134,7 +134,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	
 	convenience init?(json: JSON) {
 		if let payload = json.dictionaryObject {
-			self.init(payload: payload, createdDate: Date())
+			self.init(payload: payload, createdDate: MobileMessaging.date.now)
 		} else {
 			return nil
 		}
@@ -214,7 +214,7 @@ extension MTMessage {
 		payload["aps"] = aps + silentAps
 		payload["internalData"] = nil
 		payload["messageId"] = messageId
-		var result = MTMessage(payload: payload, createdDate: Date())
+		var result = MTMessage(payload: payload, createdDate: MobileMessaging.date.now)
 		result?.deliveryMethod = .generatedLocally
 		result?.isDeliveryReportSent = true
 		return result
@@ -280,7 +280,7 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		
 		let mId = NSUUID().uuidString
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: mId, sentStatus: .Undefined).dictRepresentation
-		super.init(messageId: mId, direction: .MO, originalPayload: dict, createdDate: Date())
+		super.init(messageId: mId, direction: .MO, originalPayload: dict, createdDate: MobileMessaging.date.now)
 	}
 
 	convenience init?(coreDataMessage: Message) {
@@ -302,7 +302,7 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.text = text
 		
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
-		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: Date())
+		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: MobileMessaging.date.now)
 	}
 	
 	var dictRepresentation: DictionaryRepresentation {
@@ -323,6 +323,6 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.text = text
 		
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
-		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: Date())
+		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: MobileMessaging.date.now)
 	}
 }

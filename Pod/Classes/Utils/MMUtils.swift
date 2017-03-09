@@ -23,6 +23,7 @@ struct DateStaticFormatters {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")
 		result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+		result.timeZone = TimeZone(secondsFromGMT: 0)
 		return result
 	}()
 	
@@ -335,7 +336,7 @@ protocol DictionaryRepresentable {
 
 extension Date {
 	var timestampDelta: UInt {
-		return UInt(max(0, Date().timeIntervalSinceReferenceDate - self.timeIntervalSinceReferenceDate))
+		return UInt(max(0, MobileMessaging.date.now.timeIntervalSinceReferenceDate - self.timeIntervalSinceReferenceDate))
 	}
 }
 

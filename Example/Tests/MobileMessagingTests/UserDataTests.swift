@@ -26,34 +26,33 @@ class UserDataTests: MMTestCase {
 	
 	
 	func testCustomUserDataPayloadConstructors() {
-		//FIXME: on jenkins machine this fails because of different timezones.
 		//date
-//		do {
-//			let comps = NSDateComponents()
-//			comps.year = 2016
-//			comps.month = 12
-//			comps.day = 31
-//			comps.hour = 23
-//			comps.minute = 55
-//			comps.second = 00
-//			comps.timeZone = NSTimeZone(forSecondsFromGMT: 3*60*60) // has expected timezone
-//			comps.calendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)
-//			let date = comps.date!
-//			let request = MMPostUserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(date: date)])
-//			
-//			let expectedDict: NSDictionary = [
-//				MMAPIKeys.kUserDataPredefinedUserData: [
-//					"name": "JohnDow"
-//				],
-//				MMAPIKeys.kUserDataCustomUserData: [
-//					"registrationDate" : [
-//						"type": "Date",
-//						"value": "2016-12-31T23:55:00+03:00"
-//					]
-//				]
-//			]
-//			XCTAssertTrue((request.body! as NSDictionary).isEqual(expectedDict))
-//		}
+		do {
+			let comps = NSDateComponents()
+			comps.year = 2016
+			comps.month = 12
+			comps.day = 31
+			comps.hour = 23
+			comps.minute = 55
+			comps.second = 00
+			comps.timeZone = TimeZone(secondsFromGMT: 5*60*60) // has expected timezone
+			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+			let date = comps.date!
+			let request = UserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(date: date as NSDate)])
+			
+			let expectedDict: NSDictionary = [
+				MMAPIKeys.kUserDataPredefinedUserData: [
+					"name": "JohnDow"
+				],
+				MMAPIKeys.kUserDataCustomUserData: [
+					"registrationDate" : [
+						"type": "Date",
+						"value": "2016-12-31T18:55:00Z"
+					]
+				]
+			]
+			XCTAssertTrue((request.body! as NSDictionary).isEqual(expectedDict))
+		}
 		
 		// number
 		do {
