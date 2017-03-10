@@ -11,7 +11,7 @@ import CoreData
 final class Message: NSManagedObject, Fetchable {
 
 	override func MM_awakeFromCreation() {
-		self.createdDate = Date()
+		self.createdDate = MobileMessaging.date.now
 	}
 	
 	var baseMessage: BaseMessage? {

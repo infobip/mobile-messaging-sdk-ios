@@ -795,144 +795,144 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertFalse(message.isNowAppropriateTimeForExitNotification)
 	}
 	
-	//	func testParticularDeliveryWindows() {
-	//
-	//		let testDate: NSDate = {
-	//			let comps = NSDateComponents()
-	//			comps.year = 2016
-	//			comps.month = 10
-	//			comps.day = 9
-	//			comps.hour = 12
-	//			comps.minute = 20
-	//			comps.timeZone = NSTimeZone(forSecondsFromGMT: 3*60*60) // has expected timezone
-	//			comps.calendar = NSCalendar(identifier: NSCalendarIdentifierGregorian)
-	//			return comps.date!
-	//		}()
-	//
-	//		let sunday = "7"
-	//		let thursdaySunday = "4,7"
-	//		let monday = "1"
-	//
-	//		timeTravel(to: testDate) {
-	//			// appropriate day, time not set
-	//			do {
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//			do {
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//			// appropriate time, day not set
-	//			do {
-	//				let timeIntervalString = "1200/1230"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: nil), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//			do {
-	//				let timeIntervalString = "2300/1230"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: nil), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//			// appropriate day and time
-	//			do {
-	//				let timeIntervalString = "1200/1230"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: thursdaySunday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//			do {
-	//				let timeIntervalString = "2300/1230"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: thursdaySunday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//
-	//			// inappropriate day
-	//			do {
-	//				let timeIntervalString = "1200/1230"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//			do {
-	//				let timeIntervalString = "2300/1230"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//
-	//			// inappropriate time
-	//			do {
-	//				let timeIntervalString = "0000/1215"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: sunday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//
-	//			do {
-	//				let timeIntervalString = "1230/2335"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: sunday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//
-	//			// inappropriate day and time
-	//			do {
-	//				let timeIntervalString = "0000/1215"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//			do {
-	//				let timeIntervalString = "1230/2335"
-	//				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [makeNonExpiringRegion(modernPulaDict), makeNonExpiringRegion(modernZagrebDict)])
-	//				guard let message = GeoMessage(payload: payload, createdDate: NSDate()) else {
-	//					XCTFail()
-	//					return
-	//				}
-	//				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
-	//			}
-	//
-	//		}
-	//	}
+
+	func testParticularDeliveryWindows() {
+
+		let testDate: Date = {
+			let comps = NSDateComponents()
+			comps.year = 2016
+			comps.month = 10
+			comps.day = 9
+			comps.hour = 12
+			comps.minute = 20
+			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+			return comps.date!
+		}()
+
+		let sunday = "7"
+		let thursdaySunday = "4,7"
+		let monday = "1"
+
+		timeTravel(to: testDate) {
+			// appropriate day, time not set
+			do {
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
+			}
+			// appropriate time, day not set
+			do {
+				let timeIntervalString = "1200/1230"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: nil), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let timeIntervalString = "2300/1230"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: nil), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
+			}
+			// appropriate day and time
+			do {
+				let timeIntervalString = "1200/1230"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let timeIntervalString = "2300/1230"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertTrue(message.isNowAppropriateTimeForEntryNotification)
+			}
+
+			// inappropriate day
+			do {
+				let timeIntervalString = "1200/1230"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let timeIntervalString = "2300/1230"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
+			}
+
+			// inappropriate time
+			do {
+				let timeIntervalString = "0000/1215"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: sunday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
+			}
+
+			do {
+				let timeIntervalString = "1230/2335"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: sunday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
+			}
+
+			// inappropriate day and time
+			do {
+				let timeIntervalString = "0000/1215"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
+			}
+			do {
+				let timeIntervalString = "1230/2335"
+				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [modernPulaDict, modernZagrebDict])
+				guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+					XCTFail()
+					return
+				}
+				XCTAssertFalse(message.isNowAppropriateTimeForEntryNotification)
+			}
+
+		}
+	}
 	
 	func testTimeWindowDictRepresentations() {
 		let timeIntervalString = "0000/1215"

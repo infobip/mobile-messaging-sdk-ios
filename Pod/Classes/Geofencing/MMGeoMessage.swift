@@ -84,7 +84,8 @@ final public class MMGeoMessage: MTMessage {
 			let geoRegionsData = internalData[InternalDataKeys.geo] as? [StringKeyPayload],
 			let expiryTimeString = internalData[CampaignDataKeys.expiryDate] as? String,
 
-			let startTimeString = internalData[CampaignDataKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date(timeIntervalSinceReferenceDate: 0)) as String?,
+			let startTimeString = internalData[CampaignDataKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: MobileMessaging.date.timeInterval(sinceReferenceDate: 0)) as String?,
+
 			let expiryTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryTimeString),
 			let startTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: startTimeString),
 			let campaignId = internalData[CampaignDataKeys.campaignId] as? String
@@ -370,7 +371,7 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	
 	fileprivate func occur() {
 		occuringCounter += 1
-		lastOccuring = Date()
+		lastOccuring = MobileMessaging.date.now
 	}
 
 	init?(dictRepresentation dict: DictionaryRepresentation) {

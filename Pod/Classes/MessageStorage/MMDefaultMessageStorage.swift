@@ -91,7 +91,7 @@ import CoreData
 		updateMessage(foundWith: NSPredicate(format: "messageId == %@", messageId)) { message in
 			message.seenStatusValue = status.rawValue
 			if message.seenDate == nil && (status == .SeenNotSent || status == .SeenSent) {
-				message.seenDate = Date()
+				message.seenDate = MobileMessaging.date.now
 			} else if status == .NotSeen {
 				message.seenDate = nil
 			}
@@ -101,7 +101,7 @@ import CoreData
 	public func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId) {
 		updateMessage(foundWith: NSPredicate(format: "messageId == %@", messageId)) { message in
 			message.isDeliveryReportSent = isDelivered
-			message.deliveryReportedDate = isDelivered ? Date() : nil
+			message.deliveryReportedDate = isDelivered ? MobileMessaging.date.now : nil
 		}
 	}
 	

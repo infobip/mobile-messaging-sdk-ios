@@ -207,7 +207,7 @@ class MessageReceivingTests: MMTestCase {
 		}
 	}
 	
-	private func collectSixTappedMessages(forApplication application: UIApplicationProtocol, assertionsBlock: @escaping ([MTMessage]) -> Void) {
+	private func collectSixTappedMessages(forApplication application: MMApplication, assertionsBlock: @escaping ([MTMessage]) -> Void) {
 		weak var messageReceived1 = self.expectation(description: "message received")
 		weak var messageReceived2 = self.expectation(description: "message received")
 		weak var messageReceived3 = self.expectation(description: "message received")

@@ -477,7 +477,7 @@ extension MMGeofencingService {
 	@nonobjc static var currentDate: Date? // @nonobjc is to shut up the "A declaration cannot be both 'final' and 'dynamic'" error
 	
 	static func isGeoCampaignNotExpired(campaign: MMGeoMessage) -> Bool {
-		let now = MMGeofencingService.currentDate ?? Date()
+		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
 		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && now.compare(campaign.startTime) != .orderedAscending
 	}
 	
@@ -485,7 +485,7 @@ extension MMGeofencingService {
 		guard let days = dt.days, !days.isEmpty else {
 			return true
 		}
-		let now = MMGeofencingService.currentDate ?? Date()
+		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
 		let calendar = Calendar(identifier: Calendar.Identifier.gregorian)
 		let comps = calendar.dateComponents(Set([Calendar.Component.weekday]), from: now)
 		if let systemWeekDay = comps.weekday {
@@ -500,7 +500,7 @@ extension MMGeofencingService {
 	}
 	
 	static func isNowAppropriateTime(forDeliveryTimeInterval dti: DeliveryTimeInterval) -> Bool {
-		let now = MMGeofencingService.currentDate ?? Date()
+		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
 		return DeliveryTimeInterval.isTime(now, between: dti.fromTime, and: dti.toTime)
 	}
 	
@@ -508,7 +508,7 @@ extension MMGeofencingService {
 		if regionEvent.limit != 0 && regionEvent.occuringCounter >= regionEvent.limit {
 			return false
 		}
-		let now = MMGeofencingService.currentDate ?? Date()
+		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
 		return regionEvent.lastOccuring?.addingTimeInterval(TimeInterval(regionEvent.timeout * 60)).compare(now) != .orderedDescending
 	}
 }

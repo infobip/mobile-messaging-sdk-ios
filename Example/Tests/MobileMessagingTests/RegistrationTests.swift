@@ -350,7 +350,7 @@ final class RegistrationTests: MMTestCase {
 	}
 }
 
-class NotificationsEnabledMock: UIApplicationProtocol {
+class NotificationsEnabledMock: MMApplication {
 	var applicationState: UIApplicationState { return .active }
 	
 	var applicationIconBadgeNumber: Int {
@@ -366,7 +366,7 @@ class NotificationsEnabledMock: UIApplicationProtocol {
 	var currentUserNotificationSettings: UIUserNotificationSettings? { return UIUserNotificationSettings(types: .alert, categories: nil) }
 }
 
-class NotificationsDisabledMock: UIApplicationProtocol {
+class NotificationsDisabledMock: MMApplication {
 	var applicationState: UIApplicationState { return .active }
 	
 	var applicationIconBadgeNumber: Int {

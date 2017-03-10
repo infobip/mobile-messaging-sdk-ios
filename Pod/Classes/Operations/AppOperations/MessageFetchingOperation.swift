@@ -34,10 +34,10 @@ final class MessageFetchingOperation: Operation {
 		}
 		
 		self.context.performAndWait {
-			let date = NSDate(timeIntervalSinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
+			let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
 			let fetchLimit = 100 // consider 100 most recent messages
 			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
-			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true && creationDate > %@", date), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
+			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true && creationDate > %@", date as CVarArg), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
 			
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
@@ -83,7 +83,7 @@ final class MessageFetchingOperation: Operation {
 		
 		messages.forEach { message in
 			message.reportSent = true
-			message.deliveryReportedDate = Date()
+			message.deliveryReportedDate = MobileMessaging.date.now
 		}
 		
 		MMLogDebug("[Message fetching] marked as delivered: \(messages.map{ $0.messageId })")

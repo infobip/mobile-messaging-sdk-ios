@@ -123,14 +123,20 @@ class MMRemoteAPILocalMocks: MMRemoteAPIQueue {
 	}
 }
 
+class MMDateMock: MMDate {
+	let nowStub: Date
+	init(nowStub: Date) {
+		self.nowStub = nowStub
+	}
+	override var now: Date {
+		return nowStub
+	}
+}
+
 func timeTravel(to date: Date, block: () -> Void) {
-	let customDateBlock: @convention(block) (AnyObject) -> Date = { _ in date }
-	let implementation = imp_implementationWithBlock(unsafeBitCast(customDateBlock, to: AnyObject.self))
-	let method = class_getInstanceMethod(NSClassFromString("__NSPlaceholderDate"), #selector(NSObject.init))
-	let oldImplementation = method_getImplementation(method)
-	method_setImplementation(method, implementation)
+	MobileMessaging.date = MMDateMock(nowStub: date)
 	block()
-	method_setImplementation(method, oldImplementation)
+	MobileMessaging.date = MMDate()
 }
 
 final class MMReachabilityManagerStub: MMNetworkReachabilityManager {
