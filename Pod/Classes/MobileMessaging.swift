@@ -63,6 +63,8 @@ public final class MobileMessaging: NSObject {
 
 		messageStorage?.start()
 		
+		self.appListener = MMApplicationListener(messageHandler: self.messageHandler, installation: self.currentInstallation, user: self.currentUser, geofencingService: self.geofencingService)
+		
 		if MobileMessaging.isPushRegistrationEnabled {
 			messageHandler.start()
 			if isGeoServiceEnabled {
@@ -358,7 +360,7 @@ public final class MobileMessaging: NSObject {
 	
 	lazy var currentInstallation: MMInstallation! = MMInstallation(storage: self.internalStorage, mmContext: self, applicationCode: self.applicationCode)
 	lazy var currentUser: MMUser! = MMUser(installation: self.currentInstallation)
-	lazy var appListener: MMApplicationListener! = MMApplicationListener(messageHandler: self.messageHandler, installation: self.currentInstallation, user: self.currentUser, geofencingService: self.geofencingService)
+	var appListener: MMApplicationListener!
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var geofencingService: MMGeofencingService! = MMGeofencingService(storage: self.internalStorage, mmContext: self)
 	lazy var remoteApiManager: RemoteAPIManager! = RemoteAPIManager(baseUrl: self.remoteAPIBaseURL, applicationCode: self.applicationCode, mmContext: self)

@@ -805,7 +805,6 @@ class GeofencingServiceTests: MMTestCase {
 			comps.day = 9
 			comps.hour = 12
 			comps.minute = 20
-			comps.timeZone = TimeZone(secondsFromGMT: 3 * 60 * 60) // has expected timezone
 			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
 			return comps.date!
 		}()
