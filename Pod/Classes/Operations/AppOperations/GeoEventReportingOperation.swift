@@ -147,17 +147,20 @@ class GeoEventReportingOperation: Operation {
 			if let mtMessagesDatasource = mtMessagesDatasource, !mtMessagesDatasource.isEmpty {
 				
 				completionsGroup.enter()
+				MMLogDebug("[Geo event reporting] updating stored payloads...")
 				self.mmContext.messageHandler.updateOiginalPayloadsWithGeoMessages(geoSignalingMessages: geoSignalingMessages, completion: {
 					completionsGroup.leave()
 				})
 				
 				completionsGroup.enter()
+				MMLogDebug("[Geo event reporting] generating geo campaign messages...")
 				self.mmContext.messageHandler.generateAndHandleGeoVirtualMessages(withDatasource: mtMessagesDatasource, completion: {
 					completionsGroup.leave()
 				})
 			}
 			
 			completionsGroup.enter()
+			MMLogDebug("[Geo event reporting] syncing seen status...")
 			self.mmContext.messageHandler.syncSeenStatusUpdates({ _ in
 				completionsGroup.leave()
 			})
