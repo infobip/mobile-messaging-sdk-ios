@@ -505,15 +505,15 @@ extension MMGeofencingService {
 		return DeliveryTimeInterval.isTime(now, between: dti.fromTime, and: dti.toTime)
 	}
 	
-	static func isValidRegionEventNow(_ regionEvent: RegionEvent) -> Bool {
-		if regionEvent.hasReachedTheOccuringLimit {
+	static func isRegionEventValidNow(_ regionEvent: RegionEvent) -> Bool {
+		guard MMGeofencingService.isRegionEventValidInGeneral(regionEvent) else {
 			return false
 		}
 		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
 		return regionEvent.lastOccuring?.addingTimeInterval(TimeInterval(regionEvent.timeout * 60)).compare(now) != .orderedDescending
 	}
 	
-	static func isValidRegionEventInGeneral(_ regionEvent: RegionEvent) -> Bool {
+	static func isRegionEventValidInGeneral(_ regionEvent: RegionEvent) -> Bool {
 		return !regionEvent.hasReachedTheOccuringLimit
 	}
 }

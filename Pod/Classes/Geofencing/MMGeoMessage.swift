@@ -377,12 +377,13 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	var description: String {
 		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(lastOccuring), isValidNow: \(isValidNow), isValidInGeneral: \(isValidInGeneral)"
 	}
+	
 	var isValidNow: Bool {
-		return MMGeofencingService.isValidRegionEventNow(self)
+		return MMGeofencingService.isRegionEventValidNow(self)
 	}
 	
 	var isValidInGeneral: Bool {
-		return MMGeofencingService.isValidRegionEventInGeneral(self)
+		return MMGeofencingService.isRegionEventValidInGeneral(self)
 	}
 	
 	fileprivate func occur() {
