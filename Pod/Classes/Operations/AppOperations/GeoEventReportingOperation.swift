@@ -41,7 +41,6 @@ class GeoEventReportingOperation: Operation {
 				return
 			}
 			
-			MMLogDebug("[Geo event reporting] starting...")
 			let geoEventReportsData = happenedEvents.flatMap { event -> GeoEventReportData? in
 				guard let eventType = RegionEventType(rawValue: event.eventType) else {
 					return nil
@@ -54,6 +53,7 @@ class GeoEventReportingOperation: Operation {
 			let originGeoMessagesValues = Array(self.signalingGeoMessages.values)
 			
 			if !originGeoMessagesValues.isEmpty, !geoEventReportsData.isEmpty {
+				MMLogDebug("[Geo event reporting] reporting started for \(geoEventReportsData.count) geo events from \(originGeoMessagesValues.count) campaigns.")
 				self.mmContext.remoteApiManager.sendGeoEventReports(internalId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues) { result in
 					self.result = result
 					self.handleRequestResult(result) {
