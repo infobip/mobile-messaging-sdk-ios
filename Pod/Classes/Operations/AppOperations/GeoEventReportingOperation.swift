@@ -9,14 +9,14 @@ import UIKit
 import CoreData
 
 class GeoEventReportingOperation: Operation {
-    typealias CampaignId = String
-    typealias CampaignsDictionary = [CampaignId: MMGeoMessage]
+	typealias CampaignId = String
+	typealias CampaignsDictionary = [CampaignId: MMGeoMessage]
 	typealias MessageId = String
 	let context: NSManagedObjectContext
 	let finishBlock: ((MMGeoEventReportingResult) -> Void)?
 	var result = MMGeoEventReportingResult.Cancel
 	var happenedEventObjectIds = [NSManagedObjectID]()
-    var signalingGeoMessages = CampaignsDictionary()
+	var signalingGeoMessages = CampaignsDictionary()
 	let mmContext: MobileMessaging
 	
 	init(context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MMGeoEventReportingResult) -> Void)? = nil) {
@@ -27,13 +27,13 @@ class GeoEventReportingOperation: Operation {
 	
 	override func execute() {
 		context.perform {
-            guard let internalId = self.mmContext.currentUser.internalId else
-            {
-                MMLogDebug("[Geo event reporting] installation object not found, finishing the operation...")
-                self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-                return
-            }
-            
+			guard let internalId = self.mmContext.currentUser.internalId else
+			{
+				MMLogDebug("[Geo event reporting] installation object not found, finishing the operation...")
+				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+				return
+			}
+			
 			guard let happenedEvents = GeoEventReportObject.MM_findAllInContext(self.context), !happenedEvents.isEmpty else
 			{
 				MMLogDebug("[Geo event reporting] There is no non-reported geo events to send to the server. Finishing...")
@@ -49,14 +49,15 @@ class GeoEventReportingOperation: Operation {
 				return GeoEventReportData(geoAreaId: event.geoAreaId, eventType: eventType, campaignId: event.campaignId, eventDate: event.eventDate, sdkMessageId: event.sdkMessageId, messageId: event.messageId)
 			}
 			
-            self.signalingGeoMessages = self.findGeoSignalingMessages(forHappenedEvents: happenedEvents)
-            let originGeoMessagesValues = Array(self.signalingGeoMessages.values)
-            
-            if !originGeoMessagesValues.isEmpty, !geoEventReportsData.isEmpty {
-                self.mmContext.remoteApiManager.sendGeoEventReports(internalId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues) { result in
+			self.signalingGeoMessages = self.findGeoSignalingMessages(forHappenedEvents: happenedEvents)
+			let originGeoMessagesValues = Array(self.signalingGeoMessages.values)
+			
+			if !originGeoMessagesValues.isEmpty, !geoEventReportsData.isEmpty {
+				self.mmContext.remoteApiManager.sendGeoEventReports(internalId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues) { result in
 					self.result = result
-					self.handleRequestResult(result)
-					self.finishWithError(result.error)
+					self.handleRequestResult(result) {
+						self.finishWithError(result.error)
+					}
 				}
 			} else {
 				MMLogDebug("[Geo event reporting] There is no non-reported geo events to send to the server. Finishing...")
@@ -66,23 +67,23 @@ class GeoEventReportingOperation: Operation {
 	}
 	
 	private func findGeoSignalingMessages(forHappenedEvents happenedEvents: [GeoEventReportObject]) -> CampaignsDictionary {
-        let campaignIds = Set(happenedEvents.map { $0.campaignId })
-        let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "campaignId IN %@", campaignIds), context: context)
-        return messages?.reduce(CampaignsDictionary(), { (result, messageObject) -> CampaignsDictionary in
-            guard let campaigId = messageObject.campaignId else {
-                return result
-            }
-            var result = result
-            result[campaigId] = MMGeoMessage(managedObject: messageObject)
-            return result
-        }) ?? CampaignsDictionary()
+		let campaignIds = Set(happenedEvents.map { $0.campaignId })
+		let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "campaignId IN %@", campaignIds), context: context)
+		return messages?.reduce(CampaignsDictionary(), { (result, messageObject) -> CampaignsDictionary in
+			guard let campaigId = messageObject.campaignId else {
+				return result
+			}
+			var result = result
+			result[campaigId] = MMGeoMessage(managedObject: messageObject)
+			return result
+		}) ?? CampaignsDictionary()
 	}
 	
-	private func handleRequestResult(_ result: MMGeoEventReportingResult) {
+	private func handleRequestResult(_ result: MMGeoEventReportingResult, completion: @escaping () -> Void) {
 		context.performAndWait {
 			let completionsGroup = DispatchGroup()
 			var geoSignalingMessages = [MessageId: MMGeoMessage]()
-
+			
 			switch result {
 			case .Success(let response):
 				if let finishedCampaignIds = response.finishedCampaignIds, !finishedCampaignIds.isEmpty {
@@ -104,7 +105,7 @@ class GeoEventReportingOperation: Operation {
 				guard let geoCampaign = self.signalingGeoMessages[event.campaignId] else {
 					return datasourceResult
 				}
-
+				
 				let ret: [MessageId: MMGeoMessage]
 				
 				switch result {
@@ -149,12 +150,14 @@ class GeoEventReportingOperation: Operation {
 				completionsGroup.enter()
 				MMLogDebug("[Geo event reporting] updating stored payloads...")
 				self.mmContext.messageHandler.updateOiginalPayloadsWithGeoMessages(geoSignalingMessages: geoSignalingMessages, completion: {
+					MMLogDebug("[Geo event reporting] stopped updating stored payloads.")
 					completionsGroup.leave()
 				})
 				
 				completionsGroup.enter()
 				MMLogDebug("[Geo event reporting] generating geo campaign messages...")
 				self.mmContext.messageHandler.generateAndHandleGeoVirtualMessages(withDatasource: mtMessagesDatasource, completion: {
+					MMLogDebug("[Geo event reporting] stopped generating geo campaign messages.")
 					completionsGroup.leave()
 				})
 			}
@@ -162,15 +165,17 @@ class GeoEventReportingOperation: Operation {
 			completionsGroup.enter()
 			MMLogDebug("[Geo event reporting] syncing seen status...")
 			self.mmContext.messageHandler.syncSeenStatusUpdates({ _ in
+				MMLogDebug("[Geo event reporting] stopped syncing seen status.")
 				completionsGroup.leave()
 			})
-			completionsGroup.wait()
+			
+			completionsGroup.notify(queue: DispatchQueue.global(qos: .background), execute: completion)
 		}
 	}
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Geo event reporting] finished with errors: \(errors)")
-
+		
 		if let error = errors.first {
 			result = MMGeoEventReportingResult.Failure(error)
 		}

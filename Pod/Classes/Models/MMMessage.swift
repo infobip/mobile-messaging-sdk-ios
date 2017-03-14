@@ -209,12 +209,18 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 extension MTMessage {
 	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String) -> MTMessage? {
 		var payload = geoMessage.originalPayload
-		let aps = payload["aps"] as? [String: Any]
-		let silentAps = (payload["internalData"] as? [String: Any])?["silent"] as? [String: Any]
-		payload["aps"] = aps + silentAps
+		guard let aps = payload["aps"] as? [String: Any], let internalData = payload["internalData"] as? [String: Any], var silentAps = internalData["silent"] as? [String: Any], let body = silentAps["body"] as? String else {
+			
+			return nil
+		}
+
+		silentAps["alert"] = ["body": body]
+		silentAps["body"] = nil
+		let apsConcat = aps + silentAps
+		payload["aps"] = apsConcat
 		payload["internalData"] = nil
 		payload["messageId"] = messageId
-		var result = MTMessage(payload: payload, createdDate: MobileMessaging.date.now)
+		let result = MTMessage(payload: payload, createdDate: MobileMessaging.date.now)
 		result?.deliveryMethod = .generatedLocally
 		result?.isDeliveryReportSent = true
 		return result
