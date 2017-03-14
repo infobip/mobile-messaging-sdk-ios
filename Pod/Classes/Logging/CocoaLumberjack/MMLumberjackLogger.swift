@@ -190,6 +190,6 @@ final class MMLogFormatter: NSObject, DDLogFormatter {
 			sign = ""
 		}
 		
-		return "\(sign) \(date) [MobileMessaging] \(logMessage.message)"
+		return "\(date) [MobileMessaging] \(sign) \(logMessage.message)"
 	}
 }
