@@ -93,6 +93,7 @@ final class MessageHandlingOperation: Operation {
 	
 	private func populateMessageStorageWithNewMessages(_ messages: [MTMessage]) {
 		guard !messages.isEmpty else { return }
+		MMLogDebug("[Message handling] inserting messages in message storage: \(messages)")
 		mmContext.messageStorageAdapter?.insert(incoming: messages)
 	}
 
@@ -102,6 +103,7 @@ final class MessageHandlingOperation: Operation {
 		MMQueue.Main.queue.executeAsync {
 			self.handleNewMessageTappedIfNeeded(messages)
 			messages.forEach { message in
+				MMLogDebug("[Message handling] calling message handling didReceiveNewMessage")
 				self.messageHandler.didReceiveNewMessage(message: message)
 				self.postNotificationForObservers(with: message)
 			}
