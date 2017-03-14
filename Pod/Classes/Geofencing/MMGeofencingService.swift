@@ -514,7 +514,7 @@ extension MMGeofencingService {
 	}
 	
 	static func isValidRegionEventInGeneral(_ regionEvent: RegionEvent) -> Bool {
-		return regionEvent.hasReachedTheOccuringLimit
+		return !regionEvent.hasReachedTheOccuringLimit
 	}
 }
 
