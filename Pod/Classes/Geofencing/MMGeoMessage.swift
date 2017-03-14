@@ -56,11 +56,17 @@ final public class MMGeoMessage: MTMessage {
 	public let startTime: Date
 	public let expiryTime: Date
 	public var isNotExpired: Bool {
-		return MMGeofencingService.isGeoCampaignNotExpired(campaign: self) && hasValidEvents
+		return MMGeofencingService.isGeoCampaignNotExpired(campaign: self)
 	}
-	var hasValidEvents: Bool {
-		return events.filter({ $0.isValid }).isEmpty == false
+	
+	var hasValidEventsStateForNow: Bool {
+		return events.filter({ $0.isValidNow }).isEmpty == false
 	}
+	
+	var hasValidEventsStateInGeneral: Bool {
+		return events.filter({ $0.isValidInGeneral }).isEmpty == false
+	}
+	
 	public var campaignState: CampaignState = .Active
 	
 	convenience init?(managedObject: MessageManagedObject) {
@@ -131,16 +137,16 @@ final public class MMGeoMessage: MTMessage {
 	//MARK: - Internal
 	let deliveryTime: DeliveryTime?
 	
-	func isLive(for type: RegionEventType) -> Bool {
+	func isLiveNow(for type: RegionEventType) -> Bool {
 		guard events.contains(where: {$0.type == type}) else {
 			return false
 		}
-		let containsAnInvalidEvent = events.contains(where: {$0.isValid == false && $0.type == type})
+		let containsAnInvalidEvent = events.contains(where: {$0.isValidNow == false && $0.type == type})
 		return !containsAnInvalidEvent && isNotExpired
 	}
 	
 	func isNowAppropriateTimeForNotification(for type: RegionEventType) -> Bool {
-		return deliveryTime?.isNow ?? true && isLive(for: type)
+		return deliveryTime?.isNow ?? true && isLiveNow(for: type)
 	}
 	
 	let events: [RegionEvent]
@@ -369,10 +375,14 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	}
 	
 	var description: String {
-		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(lastOccuring), isValid: \(isValid)"
+		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(lastOccuring), isValidNow: \(isValidNow), isValidInGeneral: \(isValidInGeneral)"
 	}
-	var isValid: Bool {
-		return MMGeofencingService.isValidRegionEvent(self)
+	var isValidNow: Bool {
+		return MMGeofencingService.isValidRegionEventNow(self)
+	}
+	
+	var isValidInGeneral: Bool {
+		return MMGeofencingService.isValidRegionEventInGeneral(self)
 	}
 	
 	fileprivate func occur() {

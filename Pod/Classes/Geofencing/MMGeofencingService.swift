@@ -479,7 +479,7 @@ extension MMGeofencingService {
 	static func isGeoCampaignNotExpired(campaign: MMGeoMessage) -> Bool {
 		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
 		
-		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && now.compare(campaign.startTime) != .orderedAscending && campaign.hasValidEvents
+		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && now.compare(campaign.startTime) != .orderedAscending && campaign.hasValidEventsStateInGeneral
 	}
 	
 	static func isNowAppropriateDay(forDeliveryTime dt: DeliveryTime) -> Bool {
@@ -505,12 +505,16 @@ extension MMGeofencingService {
 		return DeliveryTimeInterval.isTime(now, between: dti.fromTime, and: dti.toTime)
 	}
 	
-	static func isValidRegionEvent(_ regionEvent: RegionEvent) -> Bool {
+	static func isValidRegionEventNow(_ regionEvent: RegionEvent) -> Bool {
 		if regionEvent.hasReachedTheOccuringLimit {
 			return false
 		}
 		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
 		return regionEvent.lastOccuring?.addingTimeInterval(TimeInterval(regionEvent.timeout * 60)).compare(now) != .orderedDescending
+	}
+	
+	static func isValidRegionEventInGeneral(_ regionEvent: RegionEvent) -> Bool {
+		return regionEvent.hasReachedTheOccuringLimit
 	}
 }
 
@@ -553,7 +557,7 @@ extension MMGeofencingService: CLLocationManagerDelegate {
 	public func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] will enter region \(region)")
-		datasource.validRegionsForEntryEvent(with: region.identifier)?.forEach { datasourceRegion in
+		datasource.validRegionsForEntryEventNow(with: region.identifier)?.forEach { datasourceRegion in
 			onEnter(datasourceRegion: datasourceRegion)
 		}
 	}

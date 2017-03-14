@@ -37,12 +37,12 @@ class GeofencingDatasource {
 		self.reload()
 	}
 	
-	func validRegionsForEntryEvent(with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
-		return validRegions(for: .entry, with: regionIdentifier)
+	func validRegionsForEntryEventNow(with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
+		return validRegionsNow(for: .entry, with: regionIdentifier)
 	}
 	
-	func validRegionsForExitEvent(with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
-		return validRegions(for: .exit, with: regionIdentifier)
+	func validRegionsForExitEventNow(with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
+		return validRegionsNow(for: .exit, with: regionIdentifier)
 	}
 	
 	func add(message: MMGeoMessage) {
@@ -94,7 +94,7 @@ class GeofencingDatasource {
 		})
 	}
 	
-	private func validRegions(for event: RegionEventType, with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
+	private func validRegionsNow(for event: RegionEventType, with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
 		return messages.filter({ $0.isNowAppropriateTimeForNotification(for: event) }).flatMap{ $0.regions.filter({ $0.identifier == regionIdentifier }).first }
 	}
 }
