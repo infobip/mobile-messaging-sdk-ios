@@ -56,9 +56,11 @@ final public class MMGeoMessage: MTMessage {
 	public let startTime: Date
 	public let expiryTime: Date
 	public var isNotExpired: Bool {
-		return MMGeofencingService.isGeoCampaignNotExpired(campaign: self)
+		return MMGeofencingService.isGeoCampaignNotExpired(campaign: self) && hasValidEvents
 	}
-	
+	var hasValidEvents: Bool {
+		return events.filter({ $0.isValid }).isEmpty == false
+	}
 	public var campaignState: CampaignState = .Active
 	
 	convenience init?(managedObject: MessageManagedObject) {
@@ -361,6 +363,10 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	let timeout: Int			    //minutes till next possible event
 	var occuringCounter: Int = 0
 	var lastOccuring: Date?
+	
+	var hasReachedTheOccuringLimit: Bool {
+		return limit != 0 && occuringCounter >= limit
+	}
 	
 	var description: String {
 		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(lastOccuring), isValid: \(isValid)"

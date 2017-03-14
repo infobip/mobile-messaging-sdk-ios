@@ -478,7 +478,8 @@ extension MMGeofencingService {
 	
 	static func isGeoCampaignNotExpired(campaign: MMGeoMessage) -> Bool {
 		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
-		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && now.compare(campaign.startTime) != .orderedAscending
+		
+		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && now.compare(campaign.startTime) != .orderedAscending && campaign.hasValidEvents
 	}
 	
 	static func isNowAppropriateDay(forDeliveryTime dt: DeliveryTime) -> Bool {
@@ -505,7 +506,7 @@ extension MMGeofencingService {
 	}
 	
 	static func isValidRegionEvent(_ regionEvent: RegionEvent) -> Bool {
-		if regionEvent.limit != 0 && regionEvent.occuringCounter >= regionEvent.limit {
+		if regionEvent.hasReachedTheOccuringLimit {
 			return false
 		}
 		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
