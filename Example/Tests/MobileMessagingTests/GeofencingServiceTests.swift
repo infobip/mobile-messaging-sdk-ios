@@ -426,8 +426,8 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let pulaObject = message.regions.findPula
 		
-		XCTAssertTrue(message.isLive(for: .entry))
-		XCTAssertFalse(message.isLive(for: .exit))
+		XCTAssertTrue(message.isLiveNow(for: .entry))
+		XCTAssertFalse(message.isLiveNow(for: .exit))
 		
 		var sentSdkMessageId: String!
 		
@@ -469,8 +469,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 				let msg = MobileMessaging.geofencingService!.datasource.messages.first
 				
-				XCTAssertFalse(msg!.isLive(for: .entry))
-				XCTAssertFalse(msg!.isLive(for: .exit))
+				XCTAssertNil(msg)
 			}
 			
 			
@@ -480,7 +479,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 				let msg = MobileMessaging.geofencingService!.datasource.messages.first
 				
-				XCTAssertFalse(msg!.isLive(for: .exit))
+				XCTAssertNil(msg)
 			}
 		})
 		
@@ -500,8 +499,8 @@ class GeofencingServiceTests: MMTestCase {
 		}
 		let pulaObject = message.regions.findPula
 		
-		XCTAssertFalse(message.isLive(for: .entry))
-		XCTAssertTrue(message.isLive(for: .exit))
+		XCTAssertFalse(message.isLiveNow(for: .entry))
+		XCTAssertTrue(message.isLiveNow(for: .exit))
 		
 		var sentSdkMessageId: String!
 		
@@ -542,7 +541,7 @@ class GeofencingServiceTests: MMTestCase {
 				report1?.fulfill()
 				
 				let msg = MobileMessaging.geofencingService!.datasource.messages.first
-				XCTAssertFalse(msg!.isLive(for: .exit))
+				XCTAssertNil(msg)
 			}
 			
 			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message) { state in
@@ -550,7 +549,7 @@ class GeofencingServiceTests: MMTestCase {
 				report2?.fulfill()
 				
 				let msg = MobileMessaging.geofencingService!.datasource.messages.first
-				XCTAssertFalse(msg!.isLive(for: .entry))
+				XCTAssertNil(msg)
 			}
 		})
 		
@@ -584,8 +583,8 @@ class GeofencingServiceTests: MMTestCase {
 		let pulaObject = message.regions.findPula
 		let zagrebObject = message.regions.findZagreb
 		
-		XCTAssertTrue(message.isLive(for: .entry))
-		XCTAssertTrue(message.isLive(for: .exit))
+		XCTAssertTrue(message.isLiveNow(for: .entry))
+		XCTAssertTrue(message.isLiveNow(for: .exit))
 		
 		var sentSdkMessageId: String!
 		
@@ -629,8 +628,8 @@ class GeofencingServiceTests: MMTestCase {
 				XCTAssertEqual(CampaignState.Active, state)
 				
 				let msg = MobileMessaging.geofencingService!.datasource.messages.first
-				XCTAssertFalse(msg!.isLive(for: .entry))
-				XCTAssertTrue(msg!.isLive(for: .exit))
+				XCTAssertFalse(msg!.isLiveNow(for: .entry))
+				XCTAssertTrue(msg!.isLiveNow(for: .exit))
 				
 				report1?.fulfill()
 				group.leave()
@@ -640,8 +639,8 @@ class GeofencingServiceTests: MMTestCase {
 				XCTAssertEqual(CampaignState.Active, state)
 				
 				let msg = MobileMessaging.geofencingService!.datasource.messages.first
-				XCTAssertFalse(msg!.isLive(for: .entry))
-				XCTAssertFalse(msg!.isLive(for: .exit))
+				XCTAssertFalse(msg!.isLiveNow(for: .entry))
+				XCTAssertFalse(msg!.isLiveNow(for: .exit))
 				
 				report2?.fulfill()
 				group.leave()
@@ -654,16 +653,16 @@ class GeofencingServiceTests: MMTestCase {
 				MMGeofencingService.currentDate = Date(timeIntervalSinceNow: Double(timeoutInMins) * Double(60))
 				
 				// so that they look alive again
-				XCTAssertTrue(message.isLive(for: .entry))
-				XCTAssertTrue(message.isLive(for: .exit))
+				XCTAssertTrue(message.isLiveNow(for: .entry))
+				XCTAssertTrue(message.isLiveNow(for: .exit))
 				
 				MobileMessaging.geofencingService!.report(on: .entry, forRegionId: zagrebObject.identifier, geoMessage: message) { state in
 					XCTAssertEqual(CampaignState.Active, state)
 				
 					
 					let msg = MobileMessaging.geofencingService!.datasource.messages.first
-					XCTAssertFalse(msg!.isLive(for: .entry))
-					XCTAssertTrue(msg!.isLive(for: .exit))
+					XCTAssertFalse(msg!.isLiveNow(for: .entry))
+					XCTAssertTrue(msg!.isLiveNow(for: .exit))
 					
 					report3?.fulfill()
 				}
@@ -690,8 +689,8 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let pulaObject = message.regions.findPula
 		
-		XCTAssertTrue(message.isLive(for: .entry))
-		XCTAssertTrue(message.isLive(for: .exit))
+		XCTAssertTrue(message.isLiveNow(for: .entry))
+		XCTAssertTrue(message.isLiveNow(for: .exit))
 		
 		let group = DispatchGroup()
 		
@@ -701,8 +700,8 @@ class GeofencingServiceTests: MMTestCase {
 				XCTAssertEqual(CampaignState.Active, state)
 				group.leave()
 			}
-			XCTAssertTrue(message.isLive(for: .entry))
-			XCTAssertTrue(message.isLive(for: .exit))
+			XCTAssertTrue(message.isLiveNow(for: .entry))
+			XCTAssertTrue(message.isLiveNow(for: .exit))
 		}
 		
 		
@@ -726,8 +725,8 @@ class GeofencingServiceTests: MMTestCase {
 		}
 		let pulaObject = message.regions.findPula
 		
-		XCTAssertTrue(message.isLive(for: .entry))
-		XCTAssertTrue(message.isLive(for: .exit))
+		XCTAssertTrue(message.isLiveNow(for: .entry))
+		XCTAssertTrue(message.isLiveNow(for: .exit))
 		
 		var sentSdkMessageId: String!
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
@@ -765,8 +764,8 @@ class GeofencingServiceTests: MMTestCase {
 				XCTAssertEqual(CampaignState.Active, state)
 				
 				let msg = MobileMessaging.geofencingService!.datasource.messages.first
-				XCTAssertFalse(msg!.isLive(for: .entry))
-				XCTAssertTrue(msg!.isLive(for: .exit))
+				XCTAssertFalse(msg!.isLiveNow(for: .entry))
+				XCTAssertTrue(msg!.isLiveNow(for: .exit))
 				report1?.fulfill()
 			}
 			
@@ -775,7 +774,7 @@ class GeofencingServiceTests: MMTestCase {
 				XCTAssertEqual(CampaignState.Active, state)
 				
 				let msg = MobileMessaging.geofencingService!.datasource.messages.first
-				XCTAssertFalse(msg!.isLive(for: .exit))
+				XCTAssertNil(msg)
 				report2?.fulfill()
 			}
 		})
@@ -1190,7 +1189,7 @@ class GeofencingServiceTests: MMTestCase {
 			
 			let pulaObject = message.regions.findPula
 			
-			XCTAssertTrue(message.isLive(for: .entry))
+			XCTAssertTrue(message.isLiveNow(for: .entry))
 			
 			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message) { state in
 				XCTAssertEqual(CampaignState.Active, state)
@@ -1206,7 +1205,7 @@ class GeofencingServiceTests: MMTestCase {
 					XCTAssertEqual(region!.identifier, pulaObject.identifier)
 					XCTAssertEqual(region!.message?.events.first?.occuringCounter, 1)
 					XCTAssertNotNil(region!.message?.events.first?.lastOccuring)
-					XCTAssertFalse(messageAfterEvent!.isLive(for: .entry))
+					XCTAssertFalse(messageAfterEvent!.isLiveNow(for: .entry))
 					reportExp?.fulfill()
 				}
 			}
