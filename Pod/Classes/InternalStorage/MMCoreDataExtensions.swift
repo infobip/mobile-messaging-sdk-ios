@@ -261,6 +261,11 @@ extension NSManagedObjectContext {
 			var optionsSummary = ""
 			optionsSummary = optionsSummary.appending(saveParentContexts ? "Save Parents" : "")
 			optionsSummary = optionsSummary.appending(saveSynchronously ? "Sync Save" : "")
+			let numberOfInsertedObjects = self.insertedObjects.count
+			let numberOfUpdatedObjects = self.updatedObjects.count
+			let numberOfDeletedObjects = self.deletedObjects.count
+			
+			MMLogVerbose("Objects - Inserted \(numberOfInsertedObjects), Updated \(numberOfUpdatedObjects), Deleted \(numberOfDeletedObjects)")
 			
 			MMLogVerbose("→ Saving \(self.MM_description) [\(optionsSummary)]")
 			
@@ -286,12 +291,6 @@ extension NSManagedObjectContext {
 					} else {
 						// If we are not the default context (And therefore need to save the root context, do the completion action if one was specified
 						MMLogDebug("→ Finished saving: \(self.MM_description)")
-						
-						let numberOfInsertedObjects = self.insertedObjects.count
-						let numberOfUpdatedObjects = self.updatedObjects.count
-						let numberOfDeletedObjects = self.deletedObjects.count
-						
-						MMLogVerbose("Objects - Inserted \(numberOfInsertedObjects), Updated \(numberOfUpdatedObjects), Deleted \(numberOfDeletedObjects)")
 						completion?(saved, error)
 					}
 				}
