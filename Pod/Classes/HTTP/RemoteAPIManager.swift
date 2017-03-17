@@ -22,8 +22,8 @@ class RemoteAPIManager {
 		versionFetchingQueue = MMRemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
 	}
 	
-	func syncRegistration(internalId: String?, deviceToken: String, isEnabled: Bool?, completion: @escaping (RegistrationResult) -> Void) {
-		let request = RegistrationRequest(deviceToken: deviceToken, internalId: internalId, isEnabled: isEnabled)
+	func syncRegistration(internalId: String?, deviceToken: String, isEnabled: Bool?, expiredInternalId: String?, completion: @escaping (RegistrationResult) -> Void) {
+		let request = RegistrationRequest(deviceToken: deviceToken, internalId: internalId, isEnabled: isEnabled, expiredInternalId: expiredInternalId)
 		registrationQueue.perform(request: request, completion: completion)
 	}
 	

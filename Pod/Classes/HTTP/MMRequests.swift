@@ -25,6 +25,7 @@ struct RegistrationRequest: PostRequest {
 		var params: RequestParameters = [PushRegistration.deviceToken: deviceToken,
 										 PushRegistration.platform: APIValues.platformType]
 		params[PushRegistration.internalId] = internalId
+		params[PushRegistration.expiredInternalId] = expiredInternalId
 		if let isEnabled = isEnabled {
 			params[PushRegistration.isEnabled] = isEnabled ? 1 : 0
 		}
@@ -33,11 +34,13 @@ struct RegistrationRequest: PostRequest {
 	let deviceToken: String
 	let isEnabled: Bool?
 	let internalId: String?
+	let expiredInternalId: String?
 	
-	init(deviceToken: String, internalId: String? = nil, isEnabled: Bool? = nil) {
+	init(deviceToken: String, internalId: String?, isEnabled: Bool?, expiredInternalId: String?) {
 		self.internalId = internalId
 		self.deviceToken = deviceToken
 		self.isEnabled = isEnabled
+		self.expiredInternalId = expiredInternalId
 	}
 }
 

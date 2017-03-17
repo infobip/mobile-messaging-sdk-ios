@@ -292,42 +292,6 @@ final class RegistrationTests: MMTestCase {
 		waitForExpectations(timeout: 10, handler: nil)
 	}
 	
-	func testThatAfterAppReinstallInternalIdStillTheSame(){
-		weak var finished1 = self.expectation(description: "finished")
-		weak var finished2 = self.expectation(description: "finished")
-
-		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
-			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-			let internalId = self.mobileMessagingInstance.currentUser.internalId
-			XCTAssertNotNil(internalId)
-			self.mobileMessagingInstance.cleanUpAndStop(false)
-			MobileMessaging.sharedInstance = nil
-			self.startWithCorrectApplicationCode()
-			XCTAssertEqual(internalId, self.mobileMessagingInstance.keychain.internalId)
-
-			let mock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
-			                appCode: MMTestConstants.kTestCorrectApplicationCode,
-			                mmContext: self.mobileMessagingInstance,
-			                performRequestCompanionBlock: nil,
-			                completionCompanionBlock: nil,
-			                responseSubstitution: nil)
-			mock.performRequestCompanionBlock = { request in
-				if let request = request as? RegistrationRequest {
-					XCTAssertEqual(request.internalId, internalId)
-					finished1?.fulfill()
-				}
-			}
-			
-			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
-				finished2?.fulfill()
-			}
-			self.mobileMessagingInstance.remoteApiManager.registrationQueue = mock
-		}
-	
-		waitForExpectations(timeout: 10, handler: nil)
-	}
-	
 	//https://openradar.appspot.com/29489461
 	func testThatAfterAppReinstallWithOtherAppCodeKeychainCleared(){
 		weak var finished = self.expectation(description: "finished")
@@ -343,6 +307,72 @@ final class RegistrationTests: MMTestCase {
 				XCTAssertNil(self.mobileMessagingInstance.keychain.internalId)
 				XCTAssertEqual(self.mobileMessagingInstance.keychain.get(KeychainKeys.applicationCode), "otherApplicationCode")
 				finished?.fulfill()
+			}
+		}
+		
+		waitForExpectations(timeout: 10, handler: nil)
+	}
+	
+	func testThatExpireRequestBeingSentAfterReinstallation(){
+		weak var registrationRequest2MockDone = self.expectation(description: "registrationRequestMockDone")
+		weak var registrationRequest3MockDone = self.expectation(description: "registrationRequestMockDone")
+		weak var registration2Done = self.expectation(description: "registration2Done")
+		weak var registration3Done = self.expectation(description: "registration3Done")
+		
+		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
+			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
+			let firstInternalId = self.mobileMessagingInstance.currentUser.internalId
+			XCTAssertNotNil(firstInternalId)
+			self.mobileMessagingInstance.cleanUpAndStop(false)
+			MobileMessaging.sharedInstance = nil
+			
+			self.startWithCorrectApplicationCode()
+			XCTAssertEqual(firstInternalId, self.mobileMessagingInstance.keychain.internalId)
+			
+			let reg2mock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+			                           appCode: MMTestConstants.kTestCorrectApplicationCode,
+			                           mmContext: self.mobileMessagingInstance,
+			                           performRequestCompanionBlock: nil,
+			                           completionCompanionBlock: nil,
+			                           responseSubstitution: nil)
+			reg2mock.performRequestCompanionBlock = { request in
+				if let request = request as? RegistrationRequest {
+					XCTAssertNil(request.internalId)
+					XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, firstInternalId)
+					XCTAssertEqual(request.expiredInternalId, firstInternalId)
+					registrationRequest2MockDone?.fulfill()
+				}
+			}
+			self.mobileMessagingInstance.remoteApiManager.registrationQueue = reg2mock
+			
+			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
+				XCTAssertNotEqual(self.mobileMessagingInstance.keychain.internalId, firstInternalId)
+				XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, self.mobileMessagingInstance.currentUser.internalId)
+				registration2Done?.fulfill()
+				
+				
+				let reg3mock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+				                           appCode: MMTestConstants.kTestCorrectApplicationCode,
+				                           mmContext: self.mobileMessagingInstance,
+				                           performRequestCompanionBlock: nil,
+				                           completionCompanionBlock: nil,
+				                           responseSubstitution: nil)
+				reg3mock.performRequestCompanionBlock = { request in
+					if let request = request as? RegistrationRequest {
+						XCTAssertNotNil(request.internalId)
+						XCTAssertEqual(request.internalId, self.mobileMessagingInstance.keychain.internalId)
+						XCTAssertNil(request.expiredInternalId)
+						registrationRequest3MockDone?.fulfill()
+					}
+				}
+				self.mobileMessagingInstance.remoteApiManager.registrationQueue = reg3mock
+				
+				self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
+					XCTAssertNotEqual(self.mobileMessagingInstance.keychain.internalId, firstInternalId)
+					XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, self.mobileMessagingInstance.currentUser.internalId)
+					registration3Done?.fulfill()
+				}
 			}
 		}
 		

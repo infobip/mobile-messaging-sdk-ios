@@ -62,6 +62,7 @@ struct PushRegistration {
     static let platform = "platformType"
     static let deviceToken = "registrationId"
     static let internalId = "deviceApplicationInstanceId"
+	static let expiredInternalId = "expiredDeviceApplicationInstanceId"
 }
 
 struct SystemDataKeys {

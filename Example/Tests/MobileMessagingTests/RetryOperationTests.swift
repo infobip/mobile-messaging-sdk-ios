@@ -51,7 +51,7 @@ final class RetryOperationTests: XCTestCase {
 	
 	func testReachabilityLogic() {
 		weak var expectation = self.expectation(description: "Retryable operation finished")
-		let r = RegistrationRequest(deviceToken: "stub", internalId: nil)
+		let r = RegistrationRequest(deviceToken: "stub", internalId: nil, isEnabled: nil, expiredInternalId: nil)
 		
 		let op = MMTestRechabilityOperation(request: r, reachabilityManager: MMStubNetworkReachabilityManager(), applicationCode: "stub", baseURL: "stub") { op in
 			expectation?.fulfill()

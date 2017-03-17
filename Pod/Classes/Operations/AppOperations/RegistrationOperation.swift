@@ -54,8 +54,14 @@ final class SyncRegistrationOperation: Operation {
         }
 		
 		let isPushRegistrationEnabled: Bool? = registrationStatusChanged ? installationObject.isRegistrationEnabled : nil // send value only if changed
-		let internalId = installationObject.internalUserId ?? mmContext.keychain.internalId
-		mmContext.remoteApiManager.syncRegistration(internalId: internalId, deviceToken: deviceToken, isEnabled: isPushRegistrationEnabled) { result in
+		let actualInternalId = installationObject.internalUserId
+		let keychainInternalId = mmContext.keychain.internalId
+		let expiredInternalId = actualInternalId == nil ? keychainInternalId : nil
+		mmContext.remoteApiManager.syncRegistration(internalId: actualInternalId,
+		                                            deviceToken: deviceToken,
+		                                            isEnabled: isPushRegistrationEnabled,
+		                                            expiredInternalId: expiredInternalId)
+		{ result in
 			self.handleRegistrationResult(result)
 			self.finishWithError(result.error)
 		}
@@ -70,6 +76,10 @@ final class SyncRegistrationOperation: Operation {
 					self.mmContext.updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled: regResponse.isEnabled)
 				}
 				
+				if self.installationObject.internalUserId != regResponse.internalId {
+					// this is to force system data sync for the new registration
+					self.installationObject.systemDataHash = 0
+				}
 				self.installationObject.internalUserId = regResponse.internalId
 				self.installationObject.isRegistrationEnabled = regResponse.isEnabled
 				
