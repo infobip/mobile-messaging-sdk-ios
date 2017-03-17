@@ -263,11 +263,11 @@ struct MOAttributes: MOMessageAttributes {
 	
 	var dictRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[MMAPIKeys.kMODestination] = destination
-		result[MMAPIKeys.kMOText] = text
-		result[MMAPIKeys.kMOCustomPayload] = customPayload
-		result[MMAPIKeys.kMOMessageId] = messageId
-		result[MMAPIKeys.kMOMessageSentStatusCode] = NSNumber(value: sentStatus.rawValue)
+		result[APIKeys.kMODestination] = destination
+		result[APIKeys.kMOText] = text
+		result[APIKeys.kMOCustomPayload] = customPayload
+		result[APIKeys.kMOMessageId] = messageId
+		result[APIKeys.kMOMessageSentStatusCode] = NSNumber(value: sentStatus.rawValue)
 		return result
 	}
 }
@@ -316,16 +316,16 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 	}
 	
 	init?(payload: DictionaryRepresentation) {
-		guard let messageId = payload[MMAPIKeys.kMOMessageId] as? String,
-			let text = payload[MMAPIKeys.kMOText] as? String,
-			let status = payload[MMAPIKeys.kMOMessageSentStatusCode] as? Int else
+		guard let messageId = payload[APIKeys.kMOMessageId] as? String,
+			let text = payload[APIKeys.kMOText] as? String,
+			let status = payload[APIKeys.kMOMessageSentStatusCode] as? Int else
 		{
 			return nil
 		}
 	
-		self.destination = payload[MMAPIKeys.kMODestination] as? String
+		self.destination = payload[APIKeys.kMODestination] as? String
 		self.sentStatus = MOMessageSentStatus(rawValue: Int16(status)) ?? MOMessageSentStatus.Undefined
-		self.customPayload = payload[MMAPIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
+		self.customPayload = payload[APIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
 		self.text = text
 		
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation

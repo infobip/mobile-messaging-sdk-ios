@@ -15,7 +15,7 @@ public final class MobileMessaging: NSObject {
 	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
 	/// - parameter applicationCode: The application code of your Application from Push Portal website.
 	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType) -> MobileMessaging? {
-		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: MMAPIValues.prodBaseURLString)
+		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
@@ -404,4 +404,10 @@ protocol MMApplication {
 	func presentLocalNotificationNow(_ notification: UILocalNotification)
 	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings)
 	var currentUserNotificationSettings: UIUserNotificationSettings? { get }
+}
+
+extension MMApplication {
+	var isInForegroundState: Bool {
+		return applicationState != .background
+	}
 }

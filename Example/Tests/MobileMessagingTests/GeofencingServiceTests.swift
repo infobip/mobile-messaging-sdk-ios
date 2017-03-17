@@ -1368,7 +1368,7 @@ class GeofencingServiceTests: MMTestCase {
                     let message = (body[GeoReportingAPIKeys.messages] as? [DictionaryRepresentation])?.first
                 {
                     XCTAssertEqual(body[PushRegistration.internalId] as? String, MMTestConstants.kTestCorrectInternalID)
-                    XCTAssertEqual(body[PushRegistration.platform] as? String, MMAPIValues.platformType)
+                    XCTAssertEqual(body[PushRegistration.platform] as? String, APIValues.platformType)
                     XCTAssertEqual(report[GeoReportingAPIKeys.campaignId] as? String, expectedCampaignId)
                     XCTAssertEqual(report[GeoReportingAPIKeys.geoAreaId] as? String, pulaObject.identifier)
                     XCTAssertEqual(report[GeoReportingAPIKeys.event] as? String, RegionEventType.entry.rawValue)

@@ -23,7 +23,7 @@ struct RegistrationRequest: PostRequest {
 	var path: APIPath { return .Registration }
 	var parameters: RequestParameters? {
 		var params: RequestParameters = [PushRegistration.deviceToken: deviceToken,
-										 PushRegistration.platform: MMAPIValues.platformType]
+										 PushRegistration.platform: APIValues.platformType]
 		params[PushRegistration.internalId] = internalId
 		if let isEnabled = isEnabled {
 			params[PushRegistration.isEnabled] = isEnabled ? 1 : 0
@@ -57,7 +57,7 @@ struct SeenStatusSendingRequest: PostRequest {
 struct LibraryVersionRequest: GetRequest {
 	typealias ResponseType = LibraryVersionResponse
 	var path: APIPath { return .LibraryVersion }
-	var parameters: [String: Any]? = [PushRegistration.platform: MMAPIValues.platformType]
+	var parameters: [String: Any]? = [PushRegistration.platform: APIValues.platformType]
 }
 
 struct MessagesSyncRequest: PostRequest {
@@ -68,7 +68,7 @@ struct MessagesSyncRequest: PostRequest {
 	var parameters: RequestParameters? {
 		var params = RequestParameters()
 		params[PushRegistration.internalId] = internalId
-		params[PushRegistration.platform] = MMAPIValues.platformType
+		params[PushRegistration.platform] = APIValues.platformType
 		return params
 	}
 	
@@ -78,8 +78,8 @@ struct MessagesSyncRequest: PostRequest {
 
 	var body: RequestBody? {
 		var result = RequestBody()
-		result[MMAPIKeys.kArchiveMsgIds] = (archiveMsgIds?.isEmpty ?? true) ? nil : archiveMsgIds
-		result[MMAPIKeys.kDLRMsgIds] = (dlrMsgIds?.isEmpty ?? true) ? nil : dlrMsgIds
+		result[APIKeys.kArchiveMsgIds] = (archiveMsgIds?.isEmpty ?? true) ? nil : archiveMsgIds
+		result[APIKeys.kDLRMsgIds] = (dlrMsgIds?.isEmpty ?? true) ? nil : dlrMsgIds
 		return result
 	}
 	
@@ -97,19 +97,19 @@ struct UserDataRequest: PostRequest {
 	var parameters: RequestParameters? {
 		var params = [PushRegistration.internalId: internalUserId]
 		if let externalUserId = externalUserId {
-			params[MMAPIKeys.kUserDataExternalUserId] = externalUserId
+			params[APIKeys.kUserDataExternalUserId] = externalUserId
 		}
 		return params
 	}
 	var body: RequestBody? {
 		var result = RequestBody()
-		result[MMAPIKeys.kUserDataPredefinedUserData] = predefinedUserData ?? UserDataDictionary()
+		result[APIKeys.kUserDataPredefinedUserData] = predefinedUserData ?? UserDataDictionary()
 		if let customUserData = customUserData {
-			result[MMAPIKeys.kUserDataCustomUserData] = customUserData.reduce(UserDataDictionary(), { (result, element) -> UserDataDictionary in
+			result[APIKeys.kUserDataCustomUserData] = customUserData.reduce(UserDataDictionary(), { (result, element) -> UserDataDictionary in
 				return result + element.dictionaryRepresentation
 			})
 		} else {
-			result[MMAPIKeys.kUserDataCustomUserData] = UserDataDictionary()
+			result[APIKeys.kUserDataCustomUserData] = UserDataDictionary()
 		}
 		return result
 	}
@@ -154,14 +154,14 @@ struct MOMessageSendingRequest: PostRequest {
 	typealias ResponseType = MOMessageSendingResponse
 	var path: APIPath { return .MOMessage }
 	var parameters: RequestParameters? {
-		return [PushRegistration.platform : MMAPIValues.platformType]
+		return [PushRegistration.platform : APIValues.platformType]
 	}
 	var body: RequestBody? {
 		var result = RequestBody()
-		result[MMAPIKeys.kMOFrom] = internalUserId
-		result[MMAPIKeys.kMOMessages] = messages.map { msg -> RequestBody in
+		result[APIKeys.kMOFrom] = internalUserId
+		result[APIKeys.kMOMessages] = messages.map { msg -> RequestBody in
 			var dict = msg.dictRepresentation
-			dict[MMAPIKeys.kMOMessageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
+			dict[APIKeys.kMOMessageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
 			return dict
 		}
 		return result
@@ -182,7 +182,7 @@ struct GeoEventReportingRequest: PostRequest {
 	var path: APIPath { return .GeoEventsReports }
 	var body: RequestBody? {
 		return [
-            PushRegistration.platform: MMAPIValues.platformType,
+            PushRegistration.platform: APIValues.platformType,
             PushRegistration.internalId: internalUserId,
             GeoReportingAPIKeys.reports: eventsDataList.map { $0.dictionaryRepresentation },
             GeoReportingAPIKeys.messages: geoMessages.map { $0.geoEventReportFormat }
@@ -322,10 +322,10 @@ struct SeenData: DictionaryRepresentable {
 		return nil // unused
 	}
 	var dictionaryRepresentation: DictionaryRepresentation {
-		return [MMAPIKeys.kMessageId: messageId,
-		        MMAPIKeys.kSeenTimestampDelta: seenDate.timestampDelta]
+		return [APIKeys.kMessageId: messageId,
+		        APIKeys.kSeenTimestampDelta: seenDate.timestampDelta]
 	}
 	static func requestBody(seenList: [SeenData]) -> RequestBody {
-		return [MMAPIKeys.kSeenMessages: seenList.map{ $0.dictionaryRepresentation } ]
+		return [APIKeys.kSeenMessages: seenList.map{ $0.dictionaryRepresentation } ]
 	}
 }

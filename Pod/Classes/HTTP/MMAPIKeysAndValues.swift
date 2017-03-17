@@ -1,5 +1,5 @@
 //
-//  MMAPIKeysAndValues.swift
+//  APIKeysAndValues.swift
 //  MobileMessaging
 //
 //  Created by okoroleva on 08.03.16.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MMAPIKeys {
+struct APIKeys {
     static let kMessageId = "messageId"
     
     //MARK: delivery
@@ -43,6 +43,10 @@ struct MMAPIKeys {
     static let kMOCustomPayload = "customPayload"
     static let kMOMessageId = "messageId"
     static let kMOMessageSentStatusCode = "statusCode"
+}
+
+struct APIHeaders {
+	static let foreground = "foreground"
 }
 
 struct VersionCheck {
@@ -111,7 +115,7 @@ struct APNSPayloadKeys {
     static let messageId = "messageId"
 }
 
-struct MMAPIValues {
+struct APIValues {
     static let prodBaseURLString = "https://oneapi2.infobip.com"
     static let platformType = "APNS"
 }

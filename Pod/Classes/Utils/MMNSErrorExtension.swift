@@ -47,11 +47,11 @@ public enum MMInternalErrorType: Error {
 
 extension NSError {
 	public var mm_message: String? {
-		return userInfo[MMAPIKeys.kErrorText] as? String
+		return userInfo[APIKeys.kErrorText] as? String
 	}
 	
 	public var mm_code: String? {
-		return userInfo[MMAPIKeys.kErrorMessageId] as? String
+		return userInfo[APIKeys.kErrorMessageId] as? String
 	}
 	
 	var mm_isRetryable: Bool {

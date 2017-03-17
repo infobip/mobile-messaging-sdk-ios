@@ -64,9 +64,9 @@ public struct RequestError {
 	var foundationError: NSError {
 		var userInfo = [AnyHashable: Any]()
 		userInfo[NSLocalizedDescriptionKey] = text
-		userInfo[MMAPIKeys.kErrorText] = text
-		userInfo[MMAPIKeys.kErrorMessageId] = messageId
-		return NSError(domain: MMAPIKeys.kBackendErrorDomain, code: Int(messageId) ?? 0, userInfo: userInfo)
+		userInfo[APIKeys.kErrorText] = text
+		userInfo[APIKeys.kErrorMessageId] = messageId
+		return NSError(domain: APIKeys.kBackendErrorDomain, code: Int(messageId) ?? 0, userInfo: userInfo)
 	}
 }
 
@@ -91,10 +91,10 @@ extension Date: JSONEncodable {
 
 extension RequestError: JSONDecodable {
 	init?(json value: JSON) {
-		let serviceException = value[MMAPIKeys.kRequestError][MMAPIKeys.kServiceException]
+		let serviceException = value[APIKeys.kRequestError][APIKeys.kServiceException]
 		guard
-			let text = serviceException[MMAPIKeys.kErrorText].string,
-			let messageId = serviceException[MMAPIKeys.kErrorMessageId].string
+			let text = serviceException[APIKeys.kErrorText].string,
+			let messageId = serviceException[APIKeys.kErrorMessageId].string
 		else {
 			return nil
 		}
@@ -151,8 +151,8 @@ extension MessagesSyncResponse: JSONDecodable{
 
 extension UserDataSyncResponse: JSONDecodable {
 	init?(json value: JSON) {
-		self.predefinedData = value[MMAPIKeys.kUserDataPredefinedUserData].dictionaryObject
-		self.customData = value[MMAPIKeys.kUserDataCustomUserData].dictionaryObject?.reduce([CustomUserData](), { (result, pair) -> [CustomUserData] in
+		self.predefinedData = value[APIKeys.kUserDataPredefinedUserData].dictionaryObject
+		self.customData = value[APIKeys.kUserDataCustomUserData].dictionaryObject?.reduce([CustomUserData](), { (result, pair) -> [CustomUserData] in
 			if let element = CustomUserData(dictRepresentation: [pair.0: pair.1]) {
 				return result + [element]
 			} else {
@@ -165,6 +165,6 @@ extension UserDataSyncResponse: JSONDecodable {
 
 extension MOMessageSendingResponse: JSONDecodable {
 	init?(json value: JSON) {
-		self.messages = value[MMAPIKeys.kMOMessages].arrayValue.flatMap(MOMessage.init)
+		self.messages = value[APIKeys.kMOMessages].arrayValue.flatMap(MOMessage.init)
 	}
 }

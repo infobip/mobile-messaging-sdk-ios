@@ -41,10 +41,10 @@ class UserDataTests: MMTestCase {
 			let request = UserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(date: date as NSDate)])
 			
 			let expectedDict: NSDictionary = [
-				MMAPIKeys.kUserDataPredefinedUserData: [
+				APIKeys.kUserDataPredefinedUserData: [
 					"name": "JohnDow"
 				],
-				MMAPIKeys.kUserDataCustomUserData: [
+				APIKeys.kUserDataCustomUserData: [
 					"registrationDate" : [
 						"type": "Date",
 						"value": "2016-12-31T18:55:00Z"
@@ -58,10 +58,10 @@ class UserDataTests: MMTestCase {
 		do {
 			let request = UserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["bootsize": CustomUserDataValue(double: 9.5)])
 			let expectedDict: NSDictionary = [
-				MMAPIKeys.kUserDataPredefinedUserData: [
+				APIKeys.kUserDataPredefinedUserData: [
 					"name": "JohnDow"
 				],
-				MMAPIKeys.kUserDataCustomUserData: [
+				APIKeys.kUserDataCustomUserData: [
 					"bootsize" : [
 						"type": "Number",
 						"value": 9.5
@@ -75,10 +75,10 @@ class UserDataTests: MMTestCase {
 		do {
 			let request = UserDataRequest(internalUserId: "any", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(null: NSNull())])
 			let expectedDict = [
-				MMAPIKeys.kUserDataPredefinedUserData: [
+				APIKeys.kUserDataPredefinedUserData: [
 					"name": "JohnDow"
 				],
-				MMAPIKeys.kUserDataCustomUserData: [
+				APIKeys.kUserDataCustomUserData: [
 					"registrationDate" : NSNull()
 				]
 			]
