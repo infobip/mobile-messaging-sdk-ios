@@ -1,5 +1,5 @@
 //
-//  APIKeysAndValues.swift
+//  MMAPIKeysAndValues.swift
 //  MobileMessaging
 //
 //  Created by okoroleva on 08.03.16.
