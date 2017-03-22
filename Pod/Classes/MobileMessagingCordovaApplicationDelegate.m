@@ -7,7 +7,6 @@
 
 @interface MobileMessagingCordovaApplicationDelegate() {
 	id<UIApplicationDelegate> _applicationDelegate;
-	UIBackgroundTaskIdentifier _backgroundTask;
 }
 @end
 
@@ -33,8 +32,6 @@
 		UIResponder *responder = (UIResponder *) _applicationDelegate;
 		self.window = [responder valueForKey:@"window"];
 		[[UIApplication sharedApplication] setDelegate:self];
-		
-		_backgroundTask = UIBackgroundTaskInvalid;
 		_installed = YES;
 	}
 }
