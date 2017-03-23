@@ -111,12 +111,7 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	private func postNotificationForObservers(with message: MTMessage) {
-		var userInfo: DictionaryRepresentation = [ MMNotificationKeyMessage: message, MMNotificationKeyMessagePayload: message.originalPayload, MMNotificationKeyMessageIsPush: message.deliveryMethod == .push, MMNotificationKeyMessageIsSilent: message.isSilent ]
-		if let customPayload = message.customPayload {
-			userInfo[MMNotificationKeyMessageCustomPayload] = customPayload
-		}
-		
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: userInfo)
+		NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: [MMNotificationKeyMessage: message])
 	}
 	
 //MARK: - Notification tap handling

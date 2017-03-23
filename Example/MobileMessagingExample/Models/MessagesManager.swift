@@ -108,8 +108,8 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	func handleNewMessageReceivedNotification(_ notification: Notification) {
 		guard let userInfo = notification.userInfo,
-			let messageUserInfo = userInfo[MMNotificationKeyMessagePayload] as? [String : Any],
-			let message = Message.make(from: messageUserInfo) else
+			let mtmessage = userInfo[MMNotificationKeyMessage] as? MTMessage,
+			let message = Message.make(from: mtmessage.originalPayload) else
 		{
 			return
 		}

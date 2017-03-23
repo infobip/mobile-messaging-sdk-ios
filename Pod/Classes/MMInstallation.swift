@@ -10,17 +10,6 @@ import CoreData
 import Foundation
 import CoreLocation
 
-@available(*, deprecated, message: "Use `CustomUserDataValue` class to wrap the custom user data value.")
-@objc public protocol UserDataSupportedTypes: AnyObject {}
-@available(*, deprecated)
-extension NSDate: UserDataSupportedTypes {}
-@available(*, deprecated)
-extension NSString: UserDataSupportedTypes {}
-@available(*, deprecated)
-extension NSNumber: UserDataSupportedTypes {}
-@available(*, deprecated)
-extension NSNull: UserDataSupportedTypes {}
-
 @objc public enum MMUserGenderValues: Int {
 	case Female
 	case Male
