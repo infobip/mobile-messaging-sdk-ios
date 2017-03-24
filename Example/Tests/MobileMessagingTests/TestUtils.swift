@@ -37,7 +37,7 @@ final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
 	}
 
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		completion(Result.Failure(nil))
+		completion(Result.Failure(NSError(type: MMInternalErrorType.UnknownError)))
 		completionCompanionBlock?(request)
 	}
 }

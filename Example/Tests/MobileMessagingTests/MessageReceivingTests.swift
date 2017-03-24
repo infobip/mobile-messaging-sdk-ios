@@ -104,7 +104,7 @@ class MessageReceivingTests: MMTestCase {
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { _ in
 				DispatchQueue.main.async {
 					iterationCounter += 1
 					if iterationCounter == expectedMessagesCount {
@@ -127,7 +127,7 @@ class MessageReceivingTests: MMTestCase {
 			
 			sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 				
-				self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { result in
+				self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { _ in
 					DispatchQueue.main.async {
 						iterationCounter += 1
 						if iterationCounter == expectedMessagesCount {
@@ -223,20 +223,20 @@ class MessageReceivingTests: MMTestCase {
 		let payload1 = apnsNormalMessagePayload("m1")
 		let payload2 = apnsNormalMessagePayload("m2")
 		
-		self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { result in
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
 			messageReceived1?.fulfill()
 			
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
 				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
 				Thread.sleep(forTimeInterval: 1)
 				messageReceived3?.fulfill()
 			})
 		})
 		
-		self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { result in
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { _ in
 			messageReceived2?.fulfill()
 			
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { result in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { _ in
 				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
 				Thread.sleep(forTimeInterval: 1)
 				messageReceived4?.fulfill()

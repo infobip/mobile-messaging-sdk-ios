@@ -164,7 +164,7 @@ public final class MobileMessaging: NSObject {
 	/// - parameter fetchCompletionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
 	public class func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(userInfo, completion: { result in
-			completionHandler(.newData)
+			completionHandler(result.backgroundFetchResult)
 		})
 	}
 	
@@ -277,7 +277,7 @@ public final class MobileMessaging: NSObject {
 		messageHandler.stop()
 	}
 	
-	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: ((NSError?) -> Void)? = nil) {
+	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: ((MessageHandlingResult) -> Void)? = nil) {
 		MMLogDebug("New remote notification received \(userInfo)")
 		messageHandler.handleAPNSMessage(userInfo, completion: completion)
 	}

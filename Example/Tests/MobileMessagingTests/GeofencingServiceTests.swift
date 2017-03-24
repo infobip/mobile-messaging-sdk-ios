@@ -284,7 +284,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		weak var expectation = self.expectation(description: "Check finished")
 		
-		self.mobileMessagingInstance.didReceiveRemoteNotification(modernAPNSPayloadZagrebPulaDict,  completion: { result in
+		self.mobileMessagingInstance.didReceiveRemoteNotification(modernAPNSPayloadZagrebPulaDict,  completion: { _ in
 			//Should be in main because Geofensing service saves data asynchronously in main
 			DispatchQueue.main.async {
 				expectation?.fulfill()
@@ -461,7 +461,7 @@ class GeofencingServiceTests: MMTestCase {
 		})
 		
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 			
 			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message) { state in
 				XCTAssertEqual(CampaignState.Active, state)
@@ -534,7 +534,7 @@ class GeofencingServiceTests: MMTestCase {
 				return result
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 		
 			MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, geoMessage: message) { state in
 				XCTAssertEqual(CampaignState.Active, state)
@@ -618,7 +618,7 @@ class GeofencingServiceTests: MMTestCase {
 		})
 		
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 			
 			let group = DispatchGroup()
 			group.enter()
@@ -759,7 +759,7 @@ class GeofencingServiceTests: MMTestCase {
 		})
 		
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message) { state in
 				XCTAssertEqual(CampaignState.Active, state)
 				
@@ -1015,7 +1015,7 @@ class GeofencingServiceTests: MMTestCase {
 		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = remoteAPIMock
 		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, mmContext: self.mobileMessagingInstance)
 		
-        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
             // simulate entry event
             MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message) { state in
                 XCTAssertEqual(CampaignState.Active, state)
@@ -1049,7 +1049,7 @@ class GeofencingServiceTests: MMTestCase {
 		mobileMessagingInstance.remoteApiManager.geofencingServiceQueue = apiMock
 		mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, mmContext: self.mobileMessagingInstance)
         
-        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
     
             messageReceived?.fulfill()
             
@@ -1096,7 +1096,7 @@ class GeofencingServiceTests: MMTestCase {
 		}
 		let pulaObject = message.regions.findPula
         
-        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
             
             messageReceived?.fulfill()
             
@@ -1119,7 +1119,7 @@ class GeofencingServiceTests: MMTestCase {
 			return
 		}
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 			//Should be in main because Geofencing service saves data asynchronously in main
 			DispatchQueue.main.async {
 				let pulaObject = message.regions.findPula
@@ -1184,7 +1184,7 @@ class GeofencingServiceTests: MMTestCase {
 		})
 		
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 			messageExp?.fulfill()
 			
 			let pulaObject = message.regions.findPula
@@ -1407,7 +1407,7 @@ class GeofencingServiceTests: MMTestCase {
         })
         
         mobileMessagingInstance.geofencingService = GeofencingServiceAlwaysRunningStub(storage: storage, mmContext: self.mobileMessagingInstance)
-        mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+        mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
             //Should be in main because Geofencing service saves data asynchronously in main
             DispatchQueue.main.async {
                 self.mobileMessagingInstance.geofencingService.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message, completion: { state in
@@ -1509,7 +1509,7 @@ class GeofencingServiceTests: MMTestCase {
 			}
 		)
 
-		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 			//Should be in main because Geofencing service saves data asynchronously in main
 			DispatchQueue.main.async {
 				// at this point there must be no internet:
@@ -1647,7 +1647,7 @@ class GeofencingServiceTests: MMTestCase {
 		})
 		
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 			//Should be in main because Geofencing service saves data asynchronously in main
 			DispatchQueue.main.async {
 				// at this point there must be no internet:

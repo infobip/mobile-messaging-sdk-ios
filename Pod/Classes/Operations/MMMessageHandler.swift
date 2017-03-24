@@ -9,6 +9,42 @@
 import Foundation
 import CoreData
 
+enum MessageHandlingResult {
+	case newData
+	case noData
+	case failed(NSError?)
+	
+	var error: NSError? {
+		switch self {
+		case .noData, .newData:
+			return nil
+		case .failed(let error):
+			return error
+		}
+	}
+	
+	var backgroundFetchResult: UIBackgroundFetchResult {
+		switch self {
+		case .newData: return .newData
+		case .noData: return .noData
+		case .failed: return .failed
+		}
+	}
+	
+	init(_ result: MessagesSyncResult) {
+		switch result {
+		case .Success(let value) :
+			guard let messages = value.messages, !messages.isEmpty else {
+				self = .noData
+				return
+			}
+			self = .newData
+		case .Failure(let error) : self = .failed(error)
+		default: self = .noData
+		}
+	}
+}
+
 protocol MobileMessagingService {
 	var isRunning: Bool { get }
 	func start(_ completion: ((Bool) -> Void)?)
@@ -65,9 +101,9 @@ final class MMMessageHandler: MobileMessagingService {
 		})
 	}
 	
-	func handleAPNSMessage(_ userInfo: APNSPayload, completion: ((NSError?) -> Void)? = nil) {
+	func handleAPNSMessage(_ userInfo: APNSPayload, completion: ((MessageHandlingResult) -> Void)? = nil) {
 		guard isRunning == true else {
-			completion?(nil)
+			completion?(.noData)
 			return
 		}
 
@@ -77,21 +113,22 @@ final class MMMessageHandler: MobileMessagingService {
 
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
-			completion?(NSError.init(type: .UnknownError))
+			completion?(.failed(NSError.init(type: .UnknownError)))
 		}
 	}
 	
-	func handleMTMessages(_ messages: [MTMessage], completion: ((NSError?) -> Void)? = nil) {
+	func handleMTMessages(_ messages: [MTMessage], completion: ((MessageHandlingResult) -> Void)? = nil) {
 		guard isRunning == true, !messages.isEmpty else {
-			completion?(nil)
+			completion?(.noData)
 			return
 		}
 		
 		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, applicationState: mmContext.application.applicationState, mmContext: mmContext, finishBlock: { error in
 			
-			self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(), mmContext: self.mmContext, finishBlock: { result in
-				completion?(result.error)
-			}))
+			self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(),
+			                                                            mmContext: self.mmContext,
+			                                                            finishBlock: { completion?(MessageHandlingResult($0))})
+			)
 		}))
 	}
 	

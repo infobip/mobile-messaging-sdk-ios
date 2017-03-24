@@ -10,25 +10,25 @@ import XCTest
 @testable import MobileMessaging
 
 struct SyncTestAppIds {
-    static let kCorrectIdNothingToSynchronize = "CorrectIdNothingToSynchronize"
-    static let kCorrectIdMergeSynchronization = "CorrectIdMergeSynchronization"
+	static let kCorrectIdNothingToSynchronize = "CorrectIdNothingToSynchronize"
+	static let kCorrectIdMergeSynchronization = "CorrectIdMergeSynchronization"
 }
 
 class FetchMessagesTest: MMTestCase {
-    /**Conditions:
-    1. Empty DB
-    2. synchronization request was sent
-    3. empty mIds response received
-     
-     Expected result:
-     nothing changed in DB
-    */
-    func testNothingToSynchronize() {
+	/**Conditions:
+	1. Empty DB
+	2. synchronization request was sent
+	3. empty mIds response received
+	
+	Expected result:
+	nothing changed in DB
+	*/
+	func testNothingToSynchronize() {
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
 		
 		weak var expectation = self.expectation(description: "Sync finished")
-        XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
+		XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 		
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
@@ -37,10 +37,10 @@ class FetchMessagesTest: MMTestCase {
 			XCTAssertNil(error)
 			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 			expectation?.fulfill()
-        }
-        
-        waitForExpectations(timeout: 60, handler: nil)
-    }
+		}
+		
+		waitForExpectations(timeout: 60, handler: nil)
+	}
 	
 	/**
 	Preconditions:
@@ -56,13 +56,13 @@ class FetchMessagesTest: MMTestCase {
 		weak var seenExpectation = expectation(description: "Seen request finished")
 		weak var syncExpectation = expectation(description: "Sync finished")
 		weak var newMsgExpectation = expectation(description: "New message received")
-
+		
 		cleanUpAndStop()
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
 		//Precondiotions
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"],  completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"],  completion: { _ in
 			prepconditionExpectation?.fulfill()
 		})
 		
@@ -71,10 +71,10 @@ class FetchMessagesTest: MMTestCase {
 			seenExpectation?.fulfill()
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"],  completion: { error in
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"],  completion: { _ in
 			newMsgExpectation?.fulfill()
 		})
-
+		
 		mobileMessagingInstance.messageHandler.syncWithServer({ error in
 			syncExpectation?.fulfill()
 		})
@@ -96,6 +96,63 @@ class FetchMessagesTest: MMTestCase {
 				}
 			}
 		}
+	}
+}
+
+class FetchMessagesCompletionTests: MMTestCase {
+	
+	override func setUp() {
+		super.setUp()
+		self.mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+	}
+	
+	func testThatNewDataFetched() {
+		weak var exp = expectation(description: "Handler called")
+		self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
+			{ (request) -> JSON? in
+				if request is MessagesSyncRequest {
+					return JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]])
+				}
+				return nil
+		}
+		)
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
+			XCTAssertEqual(result.backgroundFetchResult, .newData)
+			exp?.fulfill()
+		})
+		
+		waitForExpectations(timeout: 60) {_ in }
+	}
+	
+	func testThatNoDataFetched() {
+		weak var exp = expectation(description: "Handler called")
+		self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
+			{ (request) -> JSON? in
+				if request is MessagesSyncRequest {
+					return JSON(["payloads": []])
+				}
+				return nil
+		}
+		)
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "noData"],  completion: { result in
+			XCTAssertEqual(result.backgroundFetchResult, .noData)
+			exp?.fulfill()
+		})
+		
+		waitForExpectations(timeout: 10) {_ in }
+	}
+	
+	func testThatDataFetchFailed() {
+		weak var exp = expectation(description: "Handler called")
+		self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: self.mobileMessagingInstance)
+		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "Failed"],  completion: { result in
+			XCTAssertEqual(result.backgroundFetchResult, .failed)
+			XCTAssertNotNil(result.error)
+			XCTAssertEqual(result.error, NSError(type: MMInternalErrorType.UnknownError))
+			exp?.fulfill()
+		})
+		
+		waitForExpectations(timeout: 60) {_ in }
 	}
 }
 

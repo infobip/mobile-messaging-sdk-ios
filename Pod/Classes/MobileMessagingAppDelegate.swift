@@ -56,7 +56,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	
 	public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		if !isTestingProcessRunning {
-			MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: { (result) in
+			MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: { result in
 				completionHandler(result)
 			})
 		}
