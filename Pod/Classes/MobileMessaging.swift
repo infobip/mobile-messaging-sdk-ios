@@ -240,6 +240,12 @@ public final class MobileMessaging: NSObject {
 	/// You can implement your own message handling either by subclassing `MMDefaultMessageHandling` or implementing the `MessageHandling` protocol.
 	public static var messageHandling: MessageHandling = MMDefaultMessageHandling()
 	
+	/// The `URLSessionConfiguration` used for all url connections in the SDK
+	///
+	/// Default value is `URLSessionConfiguration.default`.
+	/// You can provide your own configuration to define a custom NSURLProtocol, policies etc.
+	public static var urlSessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
+	
 //MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UIUserNotificationType

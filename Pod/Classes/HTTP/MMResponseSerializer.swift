@@ -6,7 +6,7 @@
 //
 
 
-final class MMResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
+final class ResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override init() {
 		super.init()
 		self.acceptableStatusCodes = IndexSet(integersIn: 200..<300)

@@ -251,9 +251,9 @@ extension RequestData {
 	var body: RequestBody? { return nil }
 	var parameters: RequestParameters? { return nil }
 	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void) {
-		let manager = MM_AFHTTPSessionManager(baseURL: URL(string: baseURL), sessionConfiguration: URLSessionConfiguration.default)
+		let manager = MM_AFHTTPSessionManager(baseURL: URL(string: baseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration)
 		manager.requestSerializer = RequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
-		manager.responseSerializer = MMResponseSerializer<ResponseType>()
+		manager.responseSerializer = ResponseSerializer<ResponseType>()
 		
 		MMLogDebug("Sending request \(type(of: self))\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
 		
