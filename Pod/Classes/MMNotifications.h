@@ -62,6 +62,11 @@ FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidExit;
  */
 FOUNDATION_EXPORT NSString* MMNotificationGeoServiceDidStart;
 
+/**
+ Posted when the User tapped notification.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationMessageTapped;
+
 
 
 //MARK: Notification keys

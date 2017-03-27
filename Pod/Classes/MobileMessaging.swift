@@ -179,9 +179,7 @@ public final class MobileMessaging: NSObject {
 				let createdDate = userInfo[LocalNotificationKeys.createdDate] as? Date,
 				let message = MTMessage(payload: payload, createdDate: createdDate)
 			{
-				MMQueue.Main.queue.executeAsync {
-					MobileMessaging.notificationTapHandler?(message)
-				}
+				MMMessageHandler.handleNotificationTap(with: message)
 			}
 		}
 	}
@@ -369,6 +367,7 @@ public final class MobileMessaging: NSObject {
 	lazy var keychain: MMKeychain! = MMKeychain(applicationCode: self.applicationCode)
 
 	static var date: MMDate = MMDate() // testability
+	
 }
 
 extension UIApplication: MMApplication {}

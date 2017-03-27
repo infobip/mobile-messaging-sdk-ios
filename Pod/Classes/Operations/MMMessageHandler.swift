@@ -230,4 +230,14 @@ final class MMMessageHandler: MobileMessagingService {
 			completion?(result.value?.messages, result.error)
 		}))
 	}
+	
+}
+
+extension MMMessageHandler {
+	static func handleNotificationTap(with message: MTMessage) {
+		MMQueue.Main.queue.executeAsync {
+			NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageTapped), object: nil, userInfo: [MMNotificationKeyMessage: message])
+			MobileMessaging.notificationTapHandler?(message)
+		}
+	}
 }

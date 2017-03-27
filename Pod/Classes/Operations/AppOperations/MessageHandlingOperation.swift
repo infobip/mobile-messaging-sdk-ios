@@ -130,10 +130,8 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	private func handleNotificationTappedIfNeeded(with message: MTMessage) {
-		guard let tapHandler = MobileMessaging.notificationTapHandler, isNotificationTapped else { return }
-		MMQueue.Main.queue.executeAsync {
-			tapHandler(message)
-		}
+		guard isNotificationTapped else { return }
+		MMMessageHandler.handleNotificationTap(with: message)
 	}
 	
 //MARK: - Lazy message collections
