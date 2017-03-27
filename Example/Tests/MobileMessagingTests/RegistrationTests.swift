@@ -284,7 +284,6 @@ final class RegistrationTests: MMTestCase {
 				XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, "newApplicationCode")
 				XCTAssertNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
 				XCTAssertNil(self.mobileMessagingInstance.currentUser.internalId)
-				XCTAssertNil(self.mobileMessagingInstance.keychain.internalId)
 				finished?.fulfill()
 			}
 		}
@@ -293,26 +292,6 @@ final class RegistrationTests: MMTestCase {
 	}
 	
 	//https://openradar.appspot.com/29489461
-	func testThatAfterAppReinstallWithOtherAppCodeKeychainCleared(){
-		weak var finished = self.expectation(description: "finished")
-		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
-			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-			let internalId = self.mobileMessagingInstance.currentUser.internalId
-			XCTAssertNotNil(internalId)
-			DispatchQueue.main.async {
-				self.mobileMessagingInstance.cleanUpAndStop(false)
-				MobileMessaging.sharedInstance = nil
-				self.startWithApplicationCode("otherApplicationCode")
-				XCTAssertNil(self.mobileMessagingInstance.keychain.internalId)
-				XCTAssertEqual(self.mobileMessagingInstance.keychain.get(KeychainKeys.applicationCode), "otherApplicationCode")
-				finished?.fulfill()
-			}
-		}
-		
-		waitForExpectations(timeout: 10, handler: nil)
-	}
-	
 	func testThatExpireRequestBeingSentAfterReinstallation(){
 		weak var registrationRequest2MockDone = self.expectation(description: "registrationRequestMockDone")
 		weak var registrationRequest3MockDone = self.expectation(description: "registrationRequestMockDone")

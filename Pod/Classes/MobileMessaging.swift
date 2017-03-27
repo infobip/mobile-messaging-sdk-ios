@@ -364,7 +364,7 @@ public final class MobileMessaging: NSObject {
 	lazy var remoteApiManager: RemoteAPIManager! = RemoteAPIManager(baseUrl: self.remoteAPIBaseURL, applicationCode: self.applicationCode, mmContext: self)
 	lazy var application: MMApplication! = UIApplication.shared
 	lazy var reachabilityManager: ReachabilityManagerProtocol! = MMNetworkReachabilityManager.sharedInstance
-	lazy var keychain: MMKeychain! = MMKeychain(applicationCode: self.applicationCode)
+	lazy var keychain: MMKeychain! = MMKeychain()
 
 	static var date: MMDate = MMDate() // testability
 	
