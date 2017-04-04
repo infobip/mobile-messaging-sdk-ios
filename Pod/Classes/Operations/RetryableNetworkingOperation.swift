@@ -22,7 +22,7 @@ class RetryableNetworkingOperation: MMRetryableOperation {
 		if reachabilityManager.currentlyReachable() == false {
 			MMLogDebug("Network is not reachable now \(reachabilityManager.localizedNetworkReachabilityStatusString). Setting up a reachability listener...")
 			reachabilityManager.setReachabilityStatusChangeBlock {[weak self] status in
-				MMLogDebug("Network Status Changed: \(self?.reachabilityManager.localizedNetworkReachabilityStatusString). Retrying...")
+				MMLogDebug("Network Status Changed: \(String(describing: self?.reachabilityManager.localizedNetworkReachabilityStatusString)). Retrying...")
 				if self?.reachabilityManager.reachable ?? false {
 					self?.reachabilityManager.stopMonitoring()
 					self?.executeAttempt()

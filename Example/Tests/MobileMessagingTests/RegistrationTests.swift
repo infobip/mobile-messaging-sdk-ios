@@ -71,8 +71,8 @@ final class RegistrationTests: MMTestCase {
 			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 			
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "current installation must be synchronized")
-				XCTAssertEqual(installation.internalUserId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(installation.internalUserId))")
-				XCTAssertEqual(installation.deviceToken, "someToken2".mm_toHexademicalString, "Device token must be mocked properly. (current is \(installation.deviceToken))")
+				XCTAssertEqual(installation.internalUserId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(String(describing: installation.internalUserId)))")
+				XCTAssertEqual(installation.deviceToken, "someToken2".mm_toHexademicalString, "Device token must be mocked properly. (current is \(String(describing: installation.deviceToken)))")
 				XCTAssertEqual(installation.predefinedUserData?[MMUserPredefinedDataKeys.Email.name] as? String, MMTestConstants.kTestValidEmail, "")
 				XCTAssertEqual(installation.predefinedUserData?[MMUserPredefinedDataKeys.MSISDN.name] as? String, MMTestConstants.kTestValidMSISDN, "")
 				
@@ -99,7 +99,7 @@ final class RegistrationTests: MMTestCase {
 			
 				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalUserId, nil, "Internal id must be nil, server denied the application code")
-				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString, "Device token must be mocked properly. (current is \(installation.deviceToken))")
+				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString, "Device token must be mocked properly. (current is \(String(describing: installation.deviceToken)))")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
 			}
@@ -289,6 +289,27 @@ final class RegistrationTests: MMTestCase {
 		}
 
 		waitForExpectations(timeout: 10, handler: nil)
+	}
+	
+	func testThatRegistrationIsNotCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
+	
+		MobileMessaging.privacySettings.applicationCodePersistingDisabled = true
+		
+		weak var finished = self.expectation(description: "finished")
+		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
+			XCTAssertNil(self.mobileMessagingInstance.currentInstallation.applicationCode)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentUser.internalId)
+			DispatchQueue.main.async {
+				self.startWithApplicationCode("newApplicationCode")
+				XCTAssertNil(self.mobileMessagingInstance.currentInstallation.applicationCode)
+				XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
+				XCTAssertNotNil(self.mobileMessagingInstance.currentUser.internalId)
+				finished?.fulfill()
+			}
+		}
+		
+		waitForExpectations(timeout: 100000, handler: nil)
 	}
 	
 	//https://openradar.appspot.com/29489461

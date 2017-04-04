@@ -90,7 +90,7 @@ class VersionManager {
 				handleUpToDateCase()
 			}
 		} else {
-			MMLogError("[Checking versions] An error occurred while trying to validate library version: \(result.error)")
+			MMLogError("[Checking versions] An error occurred while trying to validate library version: \(String(describing: result.error))")
 		}
 	}
 }

@@ -50,7 +50,7 @@ final public class MMUser: NSObject {
 	
 //MARK: - Public
 	public override var description: String {
-		return "User:\n  Internal ID = \(internalId)\n    External ID = \(externalId)\n    Email = \(email)\n    MSISDN = \(msisdn)\n    Custom Data = \(customData)"
+		return "User:\n  Internal ID = \(String(describing: internalId))\n    External ID = \(String(describing: externalId))\n    Email = \(String(describing: email))\n    MSISDN = \(String(describing: msisdn))\n    Custom Data = \(String(describing: customData))"
 	}
 	
 	/// A read-only identifier provided by server to uniquely identify the current app instance on a specific device.
@@ -248,7 +248,7 @@ final public class MMUser: NSObject {
 		}
 	}
 	
-	private let installationManager: MMInstallationManager
+	private let installationManager: InstallationManager
 }
 
 //MARK: -
@@ -262,7 +262,7 @@ final public class MMInstallation: NSObject {
 	
 //MARK: - Public	
 	public override var description: String {
-		return "Installation:\n    Device token = \(deviceToken)\n    Badge number = \(badgeNumber)\n"
+		return "Installation:\n    Device token = \(String(describing: deviceToken))\n    Badge number = \(badgeNumber)\n"
 	}
 	
 	/// A read-only opaque identifier assigned by APNs to a specific app on a specific device. Each app instance receives its unique token when it registers with APNs and must share this token with its provider.
@@ -286,12 +286,12 @@ final public class MMInstallation: NSObject {
 	/// Set to 0 (zero) to hide the badge number. The default value of this property is 0.
 	public var badgeNumber: Int {
 		get {
-			let appBadge = mmContext?.application.applicationIconBadgeNumber ?? 0
+			let appBadge = mmContext.application.applicationIconBadgeNumber
 			installationManager.setValueForKey("badgeNumber", value: appBadge)
 			return appBadge
 		}
 		set {
-			mmContext?.application.applicationIconBadgeNumber = newValue
+			mmContext.application.applicationIconBadgeNumber = newValue
 			installationManager.setValueForKey("badgeNumber", value: newValue)
 		}
 	}
@@ -326,10 +326,10 @@ final public class MMInstallation: NSObject {
 	
 
 //MARK: Internal
-	let installationManager: MMInstallationManager
-	let mmContext: MobileMessaging?
-    init(storage: MMCoreDataStorage, mmContext: MobileMessaging?, applicationCode: String? = nil) {
-		self.installationManager = MMInstallationManager(storage: storage, mmContext: mmContext)
+	let installationManager: InstallationManager
+	let mmContext: MobileMessaging
+    init(storage: MMCoreDataStorage, mmContext: MobileMessaging, applicationCode: String? = nil) {
+		self.installationManager = InstallationManager(storage: storage, mmContext: mmContext)
 		self.mmContext = mmContext
         super.init()
         if applicationCode != nil {
@@ -343,12 +343,6 @@ final public class MMInstallation: NSObject {
 	
 	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {
 		installationManager.updateDeviceToken(token: token, completion: completion)
-	}
-	
-	class func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: String) -> Bool {
-		let im = MMInstallationManager(storage: storage, mmContext: nil)
-		let currentApplicationCode = im.getValueForKey("applicationCode") as? String
-        return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
 	}
 	
 	var applicationCode: String? {

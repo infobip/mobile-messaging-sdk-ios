@@ -42,7 +42,7 @@ final class MessageFetchingOperation: Operation {
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
 			
-			MMLogDebug("[Message fetching] Found \(nonReportedMessageIds?.count) not reported messages. \(archivedMessages?.count) archive messages.")
+			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archivedMessages?.count)) archive messages.")
 			
            self.mmContext.remoteApiManager.syncMessages(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
                 self.result = result
@@ -57,7 +57,7 @@ final class MessageFetchingOperation: Operation {
 			switch result {
 			case .Success(let fetchResponse):
 				let fetchedMessages = fetchResponse.messages
-				MMLogDebug("[Message fetching] succeded: received \(fetchedMessages?.count)")
+				MMLogDebug("[Message fetching] succeded: received \(String(describing: fetchedMessages?.count))")
 				
 				if let nonReportedMessageIds = nonReportedMessageIds {
 					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds)

@@ -10,7 +10,8 @@ import CoreData
 
 
 
-final class MMInstallationManager {
+final class InstallationManager {
+	
 	//MARK: Internal
 	lazy var registrationQueue = MMOperationQueue.newSerialQueue
 	let storage: MMCoreDataStorage
@@ -28,8 +29,23 @@ final class MMInstallationManager {
 		_currentInstallation = installationObject
 	}
 	
+	class func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: String) -> Bool {
+		let im = InstallationManager(storage: storage, mmContext: nil)
+		let currentApplicationCode = im.getValueForKey("applicationCode") as? String
+		return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
+	}
+	
+	func shouldPersistKey(_ key: String) -> Bool {
+		if key == "applicationCode" && MobileMessaging.privacySettings.applicationCodePersistingDisabled {
+			return false
+		}
+		return true
+	}
 	
 	func getValueForKey(_ key: String) -> Any? {
+		guard shouldPersistKey(key) else {
+			return nil
+		}
 		var result: Any?
 		storageContext.performAndWait {
 			result = self.installationObject.value(forKey: key)
@@ -39,18 +55,27 @@ final class MMInstallationManager {
 	
 	//FIXME: duplication of setValueForKey methods
 	func setValueForKey<Value: Equatable>(_ key: String, value: Value?) {
+		guard shouldPersistKey(key) else {
+			return
+		}
 		storageContext.perform {
 			self.installationObject.setValueIfDifferent(value, forKey: key)
 		}
 	}
 	
 	func setValueForKey(_ key: String, value: [AnyHashable: UserDataFoundationTypes]? ) {
+		guard shouldPersistKey(key) else {
+			return
+		}
 		storageContext.perform {
 			self.installationObject.setValueIfDifferent(value, forKey: key)
 		}
 	}
 	
 	func set(_ value: UserDataFoundationTypes?, key: AnyHashable, attribute: String) {
+		guard let skey = key as? String, shouldPersistKey(skey) else {
+			return
+		}
 		storageContext.perform {
 			var dictValue : [AnyHashable : UserDataFoundationTypes]? = [key: value ?? NSNull()]
 			if let dictionaryValue = self.getValueForKey(attribute) as? [AnyHashable : UserDataFoundationTypes] {
@@ -141,7 +166,6 @@ final class MMInstallationManager {
 		return installationObject.changedValues().count > 0
 	}
 	private var _currentInstallation: InstallationManagedObject?
-	
 	
 	private func fetchOrCreateCurrentInstallation() -> InstallationManagedObject {
 		if let existingInstallation = findCurrentInstallation() {

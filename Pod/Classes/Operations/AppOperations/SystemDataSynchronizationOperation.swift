@@ -73,7 +73,7 @@ class SystemDataSynchronizationOperation: Operation {
 				self.context.MM_saveToPersistentStoreAndWait()
 				MMLogDebug("[System data sync] successfully synced")
 			case .Failure(let error):
-				MMLogError("[System data sync] sync request failed with error: \(error)")
+				MMLogError("[System data sync] sync request failed with error: \(String(describing: error))")
 			case .Cancel:
 				MMLogError("[System data sync] sync request cancelled.")
 			}

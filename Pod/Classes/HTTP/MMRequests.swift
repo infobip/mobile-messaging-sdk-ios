@@ -255,7 +255,7 @@ extension RequestData {
 		manager.requestSerializer = RequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
 		manager.responseSerializer = ResponseSerializer<ResponseType>()
 		
-		MMLogDebug("Sending request \(type(of: self))\nparameters: \(parameters)\nbody: \(body)\nto \(baseURL + path.rawValue)")
+		MMLogDebug("Sending request \(type(of: self))\nparameters: \(String(describing: parameters))\nbody: \(String(describing: body))\nto \(baseURL + path.rawValue)")
 		
 		let successBlock = { (task: URLSessionDataTask, obj: Any?) -> Void in
 			if let obj = obj as? ResponseType {

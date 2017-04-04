@@ -81,7 +81,7 @@ class MessagePostingOperation: Operation {
 				self.updateMessageStorage(with: response.messages)
 				MMLogDebug("[Message posting] successfuly finished")
 			case .Failure(let error):
-				MMLogError("[Message posting] request failed with error: \(error)")
+				MMLogError("[Message posting] request failed with error: \(String(describing: error))")
 			case .Cancel:
 				MMLogError("[Message posting] cancelled")
 			}

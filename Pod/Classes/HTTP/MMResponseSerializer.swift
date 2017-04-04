@@ -25,7 +25,7 @@ final class ResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 		}
 		let dataString = String(data: data, encoding: String.Encoding.utf8)
 		
-		MMLogDebug("Response received: \(response)\n\(dataString)")
+		MMLogDebug("Response received: \(response)\n\(String(describing: dataString))")
 		
 		let json = JSON(data: data)
 		if let requestError = RequestError(json: json) ,response.isFailureHTTPREsponse {

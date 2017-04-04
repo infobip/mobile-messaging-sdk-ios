@@ -19,17 +19,20 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/// Fabric method for Mobile Messaging session.
-	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
-	/// - parameter applicationCode: The application code of your Application from Push Portal website.
+	/// - parameter code: The application code of your Application from Push Portal website.
+	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter forceCleanup: Defines whether the SDK must be cleaned up on startup.
+	/// - warning: The cleanup (parameter `forceCleanup = true`) must be performed manually if you changed the application code while `PrivacySettings.applicationCodePersistingDisabled` is set to `true`.
+	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
+		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString, forceCleanup: forceCleanup)
+	}
+	
+	/// Fabric method for Mobile Messaging session.
+	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter code: The application code of your Application from Push Portal website.
 	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
 	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
-		if let sharedInstance = sharedInstance, sharedInstance.applicationCode != code || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
-			
-			MobileMessaging.stop()
-			
-		}
-		sharedInstance = MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: backendBaseURL)
-		return sharedInstance
+		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: false)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
@@ -101,6 +104,13 @@ public final class MobileMessaging: NSObject {
 		return MobileMessaging.sharedInstance?.isPushRegistrationEnabled ?? true
 	}
 	
+	/// Cleans up all internal persisted data.
+	///
+	/// Use this method in order to completely drop any data persisted by the SDK (i.e. internal SDK data, optional user data, optional messages metadata).
+	public static func cleanUpAndStop() {
+		MobileMessaging.sharedInstance?.cleanUpAndStop()
+	}
+
 	/// Enables the push registration so the device can receive push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
 	/// MobileMessaging SDK has the push registration enabled by default.
 	public static func enablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
@@ -213,16 +223,6 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.sendMessages(messages, completion: completion)
 	}
 	
-	/// A boolean variable that indicates whether the library will be sending the carrier information to the server.
-	///
-	/// Default value is `false`.
-	public static var carrierInfoSendingDisabled: Bool = false
-	
-	/// A boolean variable that indicates whether the library will be sending the system information such as OS version, device model, application version to the server.
-	///
-	/// Default value is `false`.
-	public static var systemInfoSendingDisabled: Bool = false
-	
 	/// An auxillary component provides the convinient access to the user agent data.
 	public static var userAgent = MMUserAgent()
 	
@@ -246,6 +246,9 @@ public final class MobileMessaging: NSObject {
 	/// You can provide your own configuration to define a custom NSURLProtocol, policies etc.
 	public static var urlSessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
 	
+	/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
+	public static let privacySettings = PrivacySettings()
+	
 //MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UIUserNotificationType
@@ -254,6 +257,15 @@ public final class MobileMessaging: NSObject {
 	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
 	var isGeoServiceEnabled: Bool = false
+	
+	class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
+		
+		if let sharedInstance = sharedInstance, sharedInstance.applicationCode != code || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
+			MobileMessaging.stop()
+		}
+		sharedInstance = MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: forceCleanup)
+		return sharedInstance
+	}
 	
 	/// - parameter clearKeychain: Bool, true by default, used in unit tests
 	func cleanUpAndStop(_ clearKeychain: Bool = true) {
@@ -324,7 +336,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	//MARK: Private
-	private init?(appCode: String, notificationType: UIUserNotificationType, backendBaseURL: String) {
+	private init?(appCode: String, notificationType: UIUserNotificationType, backendBaseURL: String, forceCleanup: Bool) {
 		
 		let logCoreDataInitializationError = {
 			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
@@ -335,7 +347,7 @@ public final class MobileMessaging: NSObject {
 			return nil
 		}
         
-		if MMInstallation.applicationCodeChanged(storage: storage, newApplicationCode: appCode) {
+		if forceCleanup || InstallationManager.applicationCodeChanged(storage: storage, newApplicationCode: appCode) {
 			MMLogDebug("Data will be cleaned up due to the application code change.")
 			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorage: messageStorage as? MMDefaultMessageStorage)
 			do {
@@ -353,12 +365,12 @@ public final class MobileMessaging: NSObject {
 		MMLogInfo("SDK successfully initialized!")
 	}
 	
-	var messageStorageAdapter: MMMessageStorageQueuedAdapter?
 	private(set) var messageStorage: MessageStorage? {
 		didSet {
 			messageStorageAdapter = MMMessageStorageQueuedAdapter(adapteeStorage: messageStorage)
 		}
 	}
+	var messageStorageAdapter: MMMessageStorageQueuedAdapter?
 	
 	let internalStorage: MMCoreDataStorage
 	
@@ -373,10 +385,28 @@ public final class MobileMessaging: NSObject {
 	lazy var keychain: MMKeychain! = MMKeychain()
 
 	static var date: MMDate = MMDate() // testability
-	
 }
 
 extension UIApplication: MMApplication {}
+
+/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
+public class PrivacySettings: NSObject {
+	/// A boolean variable that indicates whether the library will be sending the carrier information to the server.
+	///
+	/// Default value is `false`.
+	public var carrierInfoSendingDisabled: Bool = false
+	
+	/// A boolean variable that indicates whether the library will be sending the system information such as OS version, device model, application version to the server.
+	///
+	/// Default value is `false`.
+	public var systemInfoSendingDisabled: Bool = false
+	
+	/// A boolean variable that indicates whether the library will be persisting the application code locally. This feature is a convenience to maintain SDK viability during debugging and possible application code changes.
+	///
+	/// Default value is `false`.
+	/// - Warning: there might be situation when you want to switch between different Application Codes during development/testing. If you disable the application code persisting (value `true`), the SDK won't detect the application code changes, thus won't cleanup the old application code related data. You should manually invoke `MobileMessaging.cleanUpAndStop()` prior to start otherwise the SDK would not detect the application code change
+	public var applicationCodePersistingDisabled: Bool = false
+}
 
 class MMDate {
 	var now: Date {

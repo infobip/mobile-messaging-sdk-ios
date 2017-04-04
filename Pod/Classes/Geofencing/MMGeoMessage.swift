@@ -375,7 +375,7 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	}
 	
 	var description: String {
-		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(lastOccuring), isValidNow: \(isValidNow), isValidInGeneral: \(isValidInGeneral)"
+		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(String(describing: lastOccuring)), isValidNow: \(isValidNow), isValidInGeneral: \(isValidInGeneral)"
 	}
 	
 	var isValidNow: Bool {

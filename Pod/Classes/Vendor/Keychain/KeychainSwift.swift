@@ -136,7 +136,7 @@ class KeychainSwift {
 	func get(_ key: String) -> String? {
 		if let data = getData(key) {
 			
-			if let currentString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) as? String {
+			if let currentString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) as String? {
 				return currentString
 			}
 			

@@ -125,7 +125,7 @@ class UserDataSynchronizationOperation: Operation {
 				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationUserDataSynced, userInfo: nil)
 				
 			case .Failure(let error):
-				MMLogError("[User data sync] sync request failed with error: \(error)")
+				MMLogError("[User data sync] sync request failed with error: \(String(describing: error))")
 				return
 			case .Cancel:
 				MMLogError("[User data sync] sync request cancelled.")

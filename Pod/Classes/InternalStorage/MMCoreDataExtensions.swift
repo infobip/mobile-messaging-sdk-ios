@@ -250,7 +250,7 @@ extension NSManagedObjectContext {
 		if hasChanges == false {
 			MMLogDebug("NO CHANGES IN ** \(MM_workingName) ** CONTEXT - NOT SAVING")
 			if (saveParentContexts && parent != nil) {
-				MMLogVerbose("Proceeding to save parent context \(parent?.MM_description)")
+				MMLogVerbose("Proceeding to save parent context \(String(describing: parent?.MM_description))")
 			} else {
 				completion?(true, nil)
 				return
