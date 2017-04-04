@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
     s.source        = { :git => "https://github.com/infobip/mobile-messaging-sdk-ios.git", :tag => s.version }
     
     s.social_media_url = 'https://twitter.com/infobip'
-    s.platform      = :ios, '8.4'
+    s.platform      = :ios, '8.0'
     s.requires_arc  = true
     s.pod_target_xcconfig =  {
 		'SWIFT_VERSION' => '3.0.1',
