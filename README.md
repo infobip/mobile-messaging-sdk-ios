@@ -9,7 +9,7 @@ The document describes library integration steps.
 
 ## Requirements
 - Xcode 8.1+
-- iOS 8.4+
+- iOS 8.0+
 
 <!-- ## Usage -->
 ## Quick start guide
@@ -31,7 +31,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
 	```ruby
 	source 'https://github.com/CocoaPods/Specs.git'
-	platform :ios, '8.4'
+	platform :ios, '8.0'
 	use_frameworks!
 	pod 'MobileMessaging'
 	```
