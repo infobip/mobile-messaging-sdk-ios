@@ -27,11 +27,11 @@ final class RegistrationTests: MMTestCase {
 		waitForExpectations(timeout: 100, handler: { err in
 			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
 			
-			let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
+			let ctx = (self.mobileMessagingInstance.internalStorage.mainThreadManagedObjectContext!)
 			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
 				XCTAssertEqual(installation.deviceToken, "token\(maxCount-1)".mm_toHexademicalString, "Most recent token must be persisted")
-				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Device token must be synced with server")
+				XCTAssertFalse(installation.dirtyAttributesSet.contains(AttributesSet.deviceToken), "Device token must be synced with server")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
 			}
@@ -52,8 +52,6 @@ final class RegistrationTests: MMTestCase {
 		
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken2".data(using: String.Encoding.utf16)!) {  error in
 				
-				token2Saved?.fulfill()
-				
 				currentUser.email = MMTestConstants.kTestValidEmail
 				currentUser.msisdn = MMTestConstants.kTestValidMSISDN
 				
@@ -62,24 +60,18 @@ final class RegistrationTests: MMTestCase {
 					validEmailSaved?.fulfill()
 					validMsisdnSaved?.fulfill()
 				}
+				
+				token2Saved?.fulfill()
 			}
 		}
         
         self.waitForExpectations(timeout: 60) { _ in
-			assert(MMQueue.Main.queue.isCurrentQueue)
-			let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
-			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 			
-				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "current installation must be synchronized")
-				XCTAssertEqual(installation.internalUserId, MMTestConstants.kTestCorrectInternalID, "internal id must be mocked properly. (current is \(String(describing: installation.internalUserId)))")
-				XCTAssertEqual(installation.deviceToken, "someToken2".mm_toHexademicalString, "Device token must be mocked properly. (current is \(String(describing: installation.deviceToken)))")
-				XCTAssertEqual(installation.predefinedUserData?[MMUserPredefinedDataKeys.Email.name] as? String, MMTestConstants.kTestValidEmail, "")
-				XCTAssertEqual(installation.predefinedUserData?[MMUserPredefinedDataKeys.MSISDN.name] as? String, MMTestConstants.kTestValidMSISDN, "")
-				
-				XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "")
-			} else {
-				XCTFail("There must be atleast one installation object in database")
-			}
+			XCTAssertFalse(self.mobileMessagingInstance.currentInstallation.isRegistrationStatusNeedSync)
+			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.deviceToken, "someToken2".mm_toHexademicalString)
+			XCTAssertEqual(self.mobileMessagingInstance.currentUser.internalId, MMTestConstants.kTestCorrectInternalID)
+			XCTAssertEqual(self.mobileMessagingInstance.currentUser.email, MMTestConstants.kTestValidEmail)
+			XCTAssertEqual(self.mobileMessagingInstance.currentUser.msisdn, MMTestConstants.kTestValidMSISDN)
         }
     }
 	
@@ -93,11 +85,10 @@ final class RegistrationTests: MMTestCase {
 			expectation?.fulfill()
 		}
 		self.waitForExpectations(timeout: 60) { _ in
-			assert(MMQueue.Main.queue.isCurrentQueue)
-			let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
+			let ctx = (self.mobileMessagingInstance.internalStorage.mainThreadManagedObjectContext!)
 			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 			
-				XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.deviceToken), "Dirty flag may be false only after success registration")
+				XCTAssertTrue(installation.dirtyAttributesSet.contains(AttributesSet.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalUserId, nil, "Internal id must be nil, server denied the application code")
 				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString, "Device token must be mocked properly. (current is \(String(describing: installation.deviceToken)))")
 			} else {
@@ -293,23 +284,46 @@ final class RegistrationTests: MMTestCase {
 	
 	func testThatRegistrationIsNotCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
 	
-		MobileMessaging.privacySettings.applicationCodePersistingDisabled = true
-		
 		weak var finished = self.expectation(description: "finished")
+		
+		// registration gets updated:
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-			XCTAssertNil(self.mobileMessagingInstance.currentInstallation.applicationCode)
+			
+			// assertions:
+			let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
+			ctx.performAndWait {
+				let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
+				XCTAssertNotNil(installation.applicationCode, "application code must be persisted")
+			}
 			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
 			XCTAssertNotNil(self.mobileMessagingInstance.currentUser.internalId)
+			
 			DispatchQueue.main.async {
+				
+				// user want to stop persisting application code:
+				MobileMessaging.privacySettings.applicationCodePersistingDisabled = true
+				
+				// user must call cleanUpAndStop manually before using newApplicationCode:
+				self.mobileMessagingInstance.cleanUpAndStop()
+				
+				// then restart with new application code:
 				self.startWithApplicationCode("newApplicationCode")
-				XCTAssertNil(self.mobileMessagingInstance.currentInstallation.applicationCode)
-				XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-				XCTAssertNotNil(self.mobileMessagingInstance.currentUser.internalId)
-				finished?.fulfill()
+				
+				// registration gets updated:
+				self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!, completion: { error in
+					
+					// assertions:
+					let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
+					ctx.performAndWait {
+						let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
+						XCTAssertNil(installation.applicationCode, "application code must not be persisted")
+					}
+					XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, "newApplicationCode", "Application code available in-memory")
+					finished?.fulfill()
+				})
 			}
 		}
-		
-		waitForExpectations(timeout: 100000, handler: nil)
+		waitForExpectations(timeout: 60, handler: nil)
 	}
 	
 	//https://openradar.appspot.com/29489461

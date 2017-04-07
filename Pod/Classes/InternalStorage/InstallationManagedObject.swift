@@ -9,64 +9,104 @@
 import Foundation
 import CoreData
 
-enum SyncableAttributes: String {
+enum Attributes: String {
 	
-	case DeviceToken = "deviceToken"
-	case CustomUserData = "customUserData"
-	case PredefinedUserData = "predefinedUserData"
-	case ExternalUserId = "externalUserId"
-	case RegistrationEnabled = "isRegistrationEnabled"
+	case deviceToken		= "deviceToken"
+	case customUserData		= "customUserData"
+	case predefinedUserData = "predefinedUserData"
+	case externalUserId		= "externalUserId"
+	case registrationEnabled = "isRegistrationEnabled"
+	case applicationCode	= "applicationCode"
+	case badgeNumber		= "badgeNumber"
+	case systemDataHash		= "systemDataHash"
+	case location			= "location"
+	case internalUserId		= "internalUserId"
 	
-	static var userData: Int32 {
-		return	SyncableAttributes.CustomUserData.integerValue | SyncableAttributes.PredefinedUserData.integerValue | SyncableAttributes.ExternalUserId.integerValue
+	static var userDataAttributes: Int32 {
+		return	Attributes.customUserData.integerValue |
+			Attributes.predefinedUserData.integerValue |
+			Attributes.externalUserId.integerValue
+	}
+	
+	static var registrationAttributes: Int32 {
+		return	Attributes.deviceToken.integerValue |
+			Attributes.registrationEnabled.integerValue
 	}
 	
 	var integerValue: Int32 {
 		switch self {
-		case .DeviceToken:
+		case .deviceToken:
 			return 1 << 0
-		case .CustomUserData:
+		case .customUserData:
 			return 1 << 1
-		case .PredefinedUserData:
+		case .predefinedUserData:
 			return 1 << 2
-		case .ExternalUserId:
+		case .externalUserId:
 			return 1 << 3
-		case .RegistrationEnabled:
+		case .registrationEnabled:
 			return 1 << 4
+		case .applicationCode:
+			return 1 << 5
+		case .badgeNumber:
+			return 1 << 6
+		case .systemDataHash:
+			return 1 << 7
+		case .location:
+			return 1 << 8
+		case .internalUserId:
+			return 1 << 9
 		}
+	}
+	
+	var asSet: AttributesSet {
+		return AttributesSet(rawValue: integerValue)
 	}
 }
 
-struct SyncableAttributesSet: OptionSet {
+struct AttributesSet: OptionSet {
 	let rawValue : Int32
 	init(rawValue: Int32) { self.rawValue = rawValue }
 	
-	static func withAttribute(name: String) -> SyncableAttributesSet? {
-		if let attr = SyncableAttributes(rawValue: name) {
+	static func withAttribute(name: String) -> AttributesSet? {
+		if let attr = Attributes(rawValue: name) {
 			switch attr {
-			case .DeviceToken:
-				return SyncableAttributesSet.deviceToken
-			case .PredefinedUserData:
-				return SyncableAttributesSet.predefinedUserData
-			case .CustomUserData:
-				return SyncableAttributesSet.customUserData
-			case .ExternalUserId:
-				return SyncableAttributesSet.externalUserId
-			case .RegistrationEnabled:
-				return SyncableAttributesSet.isRegistrationEnabled
+			case .deviceToken:
+				return AttributesSet.deviceToken
+			case .predefinedUserData:
+				return AttributesSet.predefinedUserData
+			case .customUserData:
+				return AttributesSet.customUserData
+			case .externalUserId:
+				return AttributesSet.externalUserId
+			case .registrationEnabled:
+				return AttributesSet.isRegistrationEnabled
+			case .applicationCode:
+				return AttributesSet.applicationCode
+			case .badgeNumber:
+				return AttributesSet.badgeNumber
+			case .systemDataHash:
+				return AttributesSet.systemDataHash
+			case .location:
+				return AttributesSet.location
+			case .internalUserId:
+				return AttributesSet.internalUserId
 			}
 		}
 		return nil
 	}
-	static let deviceToken	= SyncableAttributesSet(rawValue: SyncableAttributes.DeviceToken.integerValue)
-	static let isRegistrationEnabled	= SyncableAttributesSet(rawValue: SyncableAttributes.RegistrationEnabled.integerValue)
-	static let customUserData = SyncableAttributesSet(rawValue: SyncableAttributes.CustomUserData.integerValue)
-	static let predefinedUserData = SyncableAttributesSet(rawValue: SyncableAttributes.PredefinedUserData.integerValue)
-	static let externalUserId = SyncableAttributesSet(rawValue: SyncableAttributes.ExternalUserId.integerValue)
+	static let deviceToken				= Attributes.deviceToken.asSet
+	static let isRegistrationEnabled	= Attributes.registrationEnabled.asSet
+	static let customUserData			= Attributes.customUserData.asSet
+	static let predefinedUserData		= Attributes.predefinedUserData.asSet
+	static let externalUserId			= Attributes.externalUserId.asSet
+	static let applicationCode			= Attributes.applicationCode.asSet
+	static let badgeNumber				= Attributes.badgeNumber.asSet
+	static let systemDataHash			= Attributes.systemDataHash.asSet
+	static let location					= Attributes.location.asSet
+	static let internalUserId			= Attributes.internalUserId.asSet
 	
-	static let userData = SyncableAttributesSet(rawValue: SyncableAttributes.userData)
-	
-	static let registrationAttributes = SyncableAttributesSet([SyncableAttributesSet.isRegistrationEnabled, SyncableAttributesSet.deviceToken])
+	static let userData					= AttributesSet(rawValue: Attributes.userDataAttributes)
+	static let registrationAttributes	= AttributesSet(rawValue: Attributes.registrationAttributes)
 }
 
 
@@ -76,31 +116,19 @@ final class InstallationManagedObject: NSManagedObject, Fetchable {
 		super.didChangeValue(forKey: key)
 		setDirtyAttribute(attrName: key)
     }
+
+	var dirtyAttributesSet: AttributesSet {
+		return AttributesSet(rawValue: dirtyAttributes)
+	}
 	
-    func setDeviceTokenIfDifferent(token: String?) {
-        setValueIfDifferent(token, forKey: SyncableAttributes.DeviceToken.rawValue)
-    }
-	
-	func setRegistrationEnabledIfDifferent(flag: Bool) {
-		setValueIfDifferent(flag, forKey: SyncableAttributes.RegistrationEnabled.rawValue)
-	}
-
-	var dirtyAttributesSet: SyncableAttributesSet {
-		return SyncableAttributesSet(rawValue: dirtyAttributes)
-	}
-
-	func resetDirtyRegistration() {
-		resetDirtyAttribute(attributes: SyncableAttributesSet.registrationAttributes)
-	}
-
-	func resetDirtyAttribute(attributes: SyncableAttributesSet) {
+	func resetDirtyAttribute(attributes: AttributesSet) {
 		var newSet = dirtyAttributesSet
 		newSet.remove(attributes)
 		dirtyAttributes = newSet.rawValue
 	}
-	
+
 	private func setDirtyAttribute(attrName: String) {
-		if let dirtyAttribute = SyncableAttributesSet.withAttribute(name: attrName) {
+		if let dirtyAttribute = AttributesSet.withAttribute(name: attrName) {
 			var updatedSet = dirtyAttributesSet
 			updatedSet.insert(dirtyAttribute)
 			dirtyAttributes = updatedSet.rawValue

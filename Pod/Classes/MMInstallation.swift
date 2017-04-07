@@ -47,22 +47,55 @@ import CoreLocation
 }
 
 final public class MMUser: NSObject {
+	var mmContext: MobileMessaging?
+	var coreDataProvider: CoreDataProvider
+	var inMemoryProvider: InMemoryDataProvider
+	
+	func persist() {
+		coreDataProvider.persist()
+		inMemoryProvider.persist()
+	}
+	
+	func resetNeedToSync() {
+		resolveProvider(forAttributesSet: AttributesSet.userData).resetDirtyAttribute(AttributesSet.userData)
+	}
+
+	func shouldPersistData(forAttribute attrSet: AttributesSet) -> Bool {
+		return MobileMessaging.privacySettings.userDataPersistingDisabled == false || attrSet.intersection(AttributesSet.userData).isEmpty
+	}
+	
+	func resolveProvider(forAttributesSet attrSet: AttributesSet) -> InstallationDataProvider {
+		if !shouldPersistData(forAttribute: attrSet) {
+			return inMemoryProvider
+		}
+		return coreDataProvider
+	}
+	
+	func resolveProvider(forKey: String, attributeName: String) -> InstallationDataProvider {
+		guard let attrSet = AttributesSet.withAttribute(name: attributeName) else {
+			return coreDataProvider
+		}
+		if !shouldPersistData(forAttribute: attrSet) {
+			return inMemoryProvider
+		}
+		return coreDataProvider
+	}
 	
 //MARK: - Public
 	public override var description: String {
-		return "User:\n  Internal ID = \(String(describing: internalId))\n    External ID = \(String(describing: externalId))\n    Email = \(String(describing: email))\n    MSISDN = \(String(describing: msisdn))\n    Custom Data = \(String(describing: customData))"
+		return "User:\n  Internal ID = \(String(describing: internalId))\n    External ID = \(String(describing: externalId))\n    Email = \(String(describing: email))\n    MSISDN = \(String(describing: msisdn))\n    Custom Data = \(String(describing: customData))\n    Predefined Data = \(String(describing: predefinedData))"
 	}
 	
 	/// A read-only identifier provided by server to uniquely identify the current app instance on a specific device.
 	public internal(set) var internalId: String? {
-		get { return installationManager.getValueForKey("internalUserId") as? String }
-		set { installationManager.setValueForKey("internalUserId", value: newValue) }
+		get { return resolveProvider(forAttributesSet: AttributesSet.internalUserId).getValueForKey(Attributes.internalUserId.rawValue) as? String }
+		set { resolveProvider(forAttributesSet: AttributesSet.internalUserId).setValueForKey(Attributes.internalUserId.rawValue, value: newValue) }
 	}
 	
 	/// The user's id you can provide in order to link your own unique user identifier with Mobile Messaging user id, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var externalId: String? {
-		get { return installationManager.getValueForKey("externalUserId") as? String }
-		set { installationManager.setValueForKey("externalUserId", value: newValue) }
+		get { return resolveProvider(forAttributesSet: AttributesSet.externalUserId).getValueForKey(Attributes.externalUserId.rawValue) as? String }
+		set { resolveProvider(forAttributesSet: AttributesSet.externalUserId).setValueForKey(Attributes.externalUserId.rawValue, value: newValue) }
 	}
 	
 	/// Saves the External User Id on the server asynchronously and executes the given callback block.
@@ -70,12 +103,6 @@ final public class MMUser: NSObject {
 	/// - parameter completion: The block to execute after the server responded.
 	public func save(externalId: String, completion: @escaping (NSError?) -> Void) {
 		self.externalId = externalId
-		save(completion)
-	}
-	
-	@available(*, deprecated, renamed: "MMUser.save(externalId:completion:)")
-	public func saveExternalId(id: String, completion: @escaping (NSError?) -> Void) {
-		self.externalId = id
 		save(completion)
 	}
 	
@@ -106,24 +133,18 @@ final public class MMUser: NSObject {
 		self.msisdn = msisdn
 		save(completion)
 	}
-
-
-	@available(*, deprecated, renamed: "MMUser.save(msisdn:completion:)")
-	public func saveMSISDN(msisdn: String, completion: @escaping (NSError?) -> Void) {
-		save(msisdn: msisdn, completion: completion)
-	}
 	
 //MARK: - CUSTOM DATA
 	
 	/// Returns user's custom data. Arbitrary attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var customData: [String: CustomUserDataValue]? {
 		get {
-			let foundationDict = installationManager.getValueForKey("customUserData") as? [String: UserDataFoundationTypes]
+			let foundationDict = resolveProvider(forAttributesSet: AttributesSet.customUserData).getValueForKey(Attributes.customUserData.rawValue) as? [String: UserDataFoundationTypes]
 			return foundationDict?.customUserDataValues
 		}
 		set {
 			let foundationValues = newValue?.userDataFoundationTypes
-			installationManager.setValueForKey("customUserData", value: foundationValues)
+			resolveProvider(forAttributesSet: AttributesSet.customUserData).setValueForKey(Attributes.customUserData.rawValue, value: foundationValues)
 		}
 	}
 	
@@ -173,8 +194,8 @@ final public class MMUser: NSObject {
 	
 	/// Returns user's predefined attributes (all possible attributes are described in the `MMUserPredefinedDataKeys` enum). Predefined attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var predefinedData: [String: String]? {
-		get { return installationManager.getValueForKey("predefinedUserData") as? [String: String] }
-		set { installationManager.setValueForKey("predefinedUserData", value: newValue as [AnyHashable: UserDataFoundationTypes]?) }
+		get { return rawPredefinedData as? [String: String] }
+		set { resolveProvider(forAttributesSet: AttributesSet.predefinedUserData).setValueForKey(Attributes.predefinedUserData.rawValue, value: newValue as [AnyHashable: UserDataFoundationTypes]?) }
 	}
 	
 	/// Saves the user's attributes on the server asynchronously and executes the given callback block.
@@ -217,39 +238,46 @@ final public class MMUser: NSObject {
 		syncWithServer(completion)
 	}
 	
-	/// Explicitly resets the unsaved user data.
-	public func reset() {
-		installationManager.resetContext()
-	}
-	
 	/// Tries to fetch the user data from the server.
 	/// - parameter completion: The block to execute after the server responded.
 	public func fetchFromServer(completion: ((NSError?) -> Void)? = nil) {
-		installationManager.fetchUserWithServer(completion)
+		guard let mmContext = mmContext else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
+		MMLogDebug("[Installation management] fetch user with server")
+		let op = UserDataSynchronizationOperation(fetchingOperationWithUser: self, mmContext: mmContext, finishBlock: completion)
+		installationQueue.addOperation(op)
 	}
 	
 //MARK: - Internal
 	
+	var rawPredefinedData: [String: Any]? {
+		return resolveProvider(forAttributesSet: AttributesSet.predefinedUserData).getValueForKey(Attributes.predefinedUserData.rawValue) as? [String: Any]
+	}
+	
 	func syncWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		installationManager.syncUserDataWithServer(completion)
+		guard let mmContext = mmContext else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
+		MMLogDebug("[Installation management] sync user data with server")
+		let op = UserDataSynchronizationOperation(syncOperationWithUser: self, mmContext: mmContext, finishBlock: completion)
+		installationQueue.addOperation(op)
 	}
 
 	func set(data object: UserDataFoundationTypes?, forKey key: String, attributeName: String) {
-		installationManager.set(object, key: key, attribute: attributeName)
+		resolveProvider(forKey: key, attributeName: attributeName).set(object, key: key, attribute: attributeName)
 	}
 	
-	init(installation: MMInstallation) {
-		installationManager = installation.installationManager
+	init(inMemoryProvider: InMemoryDataProvider, coreDataProvider: CoreDataProvider, mmContext: MobileMessaging) {
+		self.inMemoryProvider = inMemoryProvider
+		self.coreDataProvider = coreDataProvider
+		self.mmContext = mmContext
 	}
-	
-	func persist() {
-		installationManager.registrationQueue.addOperation {
-			self.installationManager.storageContext.MM_saveToPersistentStoreAndWait()
-		}
-	}
-	
-	private let installationManager: InstallationManager
 }
+
+let installationQueue = MMOperationQueue.newSerialQueue
 
 //MARK: -
 //MARK: -
@@ -267,18 +295,30 @@ final public class MMInstallation: NSObject {
 	
 	/// A read-only opaque identifier assigned by APNs to a specific app on a specific device. Each app instance receives its unique token when it registers with APNs and must share this token with its provider.
 	public internal(set) var deviceToken: String? {
-		get { return installationManager.getValueForKey("deviceToken") as? String }
-		set { installationManager.setValueForKey("deviceToken", value: newValue) }
+		get { return resolveProvider(forAttributesSet: AttributesSet.deviceToken).getValueForKey(Attributes.deviceToken.rawValue) as? String }
+		set { resolveProvider(forAttributesSet: AttributesSet.deviceToken).setValueForKey(Attributes.deviceToken.rawValue, value: newValue) }
 	}
 	
 	/// Explicitly tries to sync the entire installation (registration data, system data, user data) with the server.
 	public func syncInstallationWithServer(completion: ((NSError?) -> Void)? = nil) {
-		installationManager.syncInstallationWithServer(completion)
+		guard let user = MobileMessaging.currentUser else { //TODO: check if this user getter valid
+			completion?(nil)
+			return
+		}
+		MMLogDebug("[Installation management] sync installation with server")
+		let newRegOp = InstallationDataSynchronizationOperation(installation: self, user: user, mmContext: mmContext, finishBlock: completion)
+		installationQueue.addOperation(newRegOp)
 	}
 		
 	/// Explicitly tries to sync the system data with the server.
 	public func syncSystemDataWithServer(completion: ((NSError?) -> Void)? = nil) {
-		installationManager.sendSystemDataToServer(completion)
+		guard let user = MobileMessaging.currentUser else { //TODO: check if this user getter valid
+			completion?(nil)
+			return
+		}
+		MMLogDebug("[Installation management] send system data to server")
+		let op = SystemDataSynchronizationOperation(installation: self, user: user, mmContext: mmContext, finishBlock: completion)
+		installationQueue.addOperation(op)
 	}
 	
 	/// The number currently set as the badge of the app icon in Springboard.
@@ -287,95 +327,81 @@ final public class MMInstallation: NSObject {
 	public var badgeNumber: Int {
 		get {
 			let appBadge = mmContext.application.applicationIconBadgeNumber
-			installationManager.setValueForKey("badgeNumber", value: appBadge)
+			resolveProvider(forAttributesSet: AttributesSet.badgeNumber).setValueForKey(Attributes.badgeNumber.rawValue, value: appBadge)
 			return appBadge
 		}
 		set {
 			mmContext.application.applicationIconBadgeNumber = newValue
-			installationManager.setValueForKey("badgeNumber", value: newValue)
+			resolveProvider(forAttributesSet: AttributesSet.badgeNumber).setValueForKey(Attributes.badgeNumber.rawValue, value: newValue)
 		}
 	}
-	
-//MARK: - Observing
-
-	/// Registers `observer` to receive notifications for the specified key-path relative to the Installation.
-	///
-	/// `observer` is no retained. An object that calls this method must also call either the removeObserver:forKeyPath: or removeObserver:forKeyPath:context: method if needed.
-	/// - parameter observer: The object to register for notifications.
-	/// - parameter keyPath: The key path, relative to the Installation, of the property to observe.
-	/// - parameter handler: The block/closure that is called when the value of `keyPath` changes.
-	public func addObserver(observer: NSObject, forKeyPath keyPath: String, handler: @escaping ObservationHandler) {
-		if isKeyObservable(key: keyPath) {
-			ManagedObjectNotificationCenter.defaultCenter.addObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath, handler: handler)
-		}
-	}
-	
-	public override func addObserver(_ observer: NSObject, forKeyPath keyPath: String, options: NSKeyValueObservingOptions, context: UnsafeMutableRawPointer?) {
-		addObserver(observer: observer, forKeyPath: keyPath) { (keyPath, newValue) in
-			observer.observeValue(forKeyPath: keyPath, of: self, change: [NSKeyValueChangeKey.newKey: newValue], context: context)
-		}
-	}
-	
-	public override func removeObserver(_ observer: NSObject, forKeyPath keyPath: String) {
-		ManagedObjectNotificationCenter.defaultCenter.removeObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath)
-	}
-	
-	public override func removeObserver(_ observer: NSObject, forKeyPath keyPath: String, context:UnsafeMutableRawPointer?) {
-		ManagedObjectNotificationCenter.defaultCenter.removeObserver(observer: observer, observee: installationManager.installationObject, forKeyPath: keyPath)
-	}
-	
 
 //MARK: Internal
-	let installationManager: InstallationManager
-	let mmContext: MobileMessaging
-    init(storage: MMCoreDataStorage, mmContext: MobileMessaging, applicationCode: String? = nil) {
-		self.installationManager = InstallationManager(storage: storage, mmContext: mmContext)
+	var mmContext: MobileMessaging
+	var coreDataProvider: CoreDataProvider
+	var inMemoryProvider: InMemoryDataProvider
+	
+	func resolveProvider(forAttributesSet attrSet: AttributesSet) -> InstallationDataProvider {
+		if MobileMessaging.privacySettings.applicationCodePersistingDisabled == true && attrSet == AttributesSet.applicationCode {
+			return inMemoryProvider
+		}
+		return coreDataProvider
+	}
+	
+	func persist() {
+		coreDataProvider.persist()
+		inMemoryProvider.persist()
+	}
+	
+	func resetNeedToSync() {
+		resolveProvider(forAttributesSet: AttributesSet.registrationAttributes).resetDirtyAttribute(AttributesSet.registrationAttributes)
+	}
+	
+    init(inMemoryProvider: InMemoryDataProvider, coreDataProvider: CoreDataProvider, storage: MMCoreDataStorage, mmContext: MobileMessaging, applicationCode: String? = nil) {
+		
 		self.mmContext = mmContext
-        super.init()
+		self.coreDataProvider = coreDataProvider
+		self.inMemoryProvider = inMemoryProvider
+		
+		super.init()
         if applicationCode != nil {
             self.applicationCode = applicationCode
         }
 	}
 	
 	func updateRegistrationEnabledStatus(value: Bool, completion: ((NSError?) -> Void)? = nil) {
-		installationManager.updateRegistrationEnabledStatus(withValue: value, completion: completion)
+		isPushRegistrationEnabled = value
+		syncInstallationWithServer(completion: completion)
 	}
 	
 	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {
-		installationManager.updateDeviceToken(token: token, completion: completion)
+		deviceToken = token.mm_toHexString
+		syncInstallationWithServer(completion: completion)
 	}
 	
 	var applicationCode: String? {
-		get { return installationManager.getValueForKey("applicationCode") as? String }
-		set { installationManager.setValueForKey("applicationCode", value: newValue) }
+		get { return resolveProvider(forAttributesSet: AttributesSet.applicationCode).getValueForKey(Attributes.applicationCode.rawValue) as? String }
+		set { resolveProvider(forAttributesSet: AttributesSet.applicationCode).setValueForKey(Attributes.applicationCode.rawValue, value: newValue) }
 	}
     
 //MARK: - Private
-	var location: CLLocation? {
-		get { return installationManager.getValueForKey("location") as? CLLocation }
-		set { installationManager.setValueForKey("location", value: newValue) }
+	
+	var systemDataHash: Int64 {
+		get { return (resolveProvider(forAttributesSet: AttributesSet.systemDataHash).getValueForKey(Attributes.systemDataHash.rawValue) as? Int64) ?? 0 }
+		set { resolveProvider(forAttributesSet: AttributesSet.systemDataHash).setValueForKey(Attributes.systemDataHash.rawValue, value: newValue) }
 	}
 	
-	private func isKeyObservable(key: String) -> Bool {
-		func propertiesForClass(cl: AnyClass) -> Set<String> {
-			var count = UInt32()
-			let classToInspect: AnyClass = cl
-			let properties : UnsafeMutablePointer <objc_property_t?> = class_copyPropertyList(classToInspect, &count)
-			var propertyNames = Set<String>()
-			let intCount = Int(count)
-			for i in 0..<intCount {
-				if let property = properties[i] {
-					guard let propertyName = String(utf8String: property_getName(property)) else {
-						debugPrint("Couldn't unwrap property name for \(property)")
-						break
-					}
-					propertyNames.insert(propertyName)
-				}
-			}
-			free(properties)
-			return propertyNames
-		}
-		
-		return propertiesForClass(cl: MMInstallation.self).intersection(propertiesForClass(cl: InstallationManagedObject.self)).contains(key)
+	var location: CLLocation? {
+		get { return resolveProvider(forAttributesSet: AttributesSet.location).getValueForKey(Attributes.location.rawValue) as? CLLocation }
+		set { resolveProvider(forAttributesSet: AttributesSet.location).setValueForKey(Attributes.location.rawValue, value: newValue) }
+	}
+	
+	var isPushRegistrationEnabled: Bool {
+		get { return (resolveProvider(forAttributesSet: AttributesSet.isRegistrationEnabled).getValueForKey(Attributes.registrationEnabled.rawValue) as? Bool) ?? true }
+		set { resolveProvider(forAttributesSet: AttributesSet.isRegistrationEnabled).setValueForKey(Attributes.registrationEnabled.rawValue, value: newValue) }
+	}
+	
+	var isRegistrationStatusNeedSync: Bool {
+		return resolveProvider(forAttributesSet: AttributesSet.isRegistrationEnabled).isAttributeDirty(AttributesSet.isRegistrationEnabled)
 	}
 }

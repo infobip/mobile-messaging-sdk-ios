@@ -23,8 +23,6 @@ var darthVaderDateOfDeath: NSDate {
 
 
 class UserDataTests: MMTestCase {
-	
-	
 	func testCustomUserDataPayloadConstructors() {
 		//date
 		do {
@@ -109,21 +107,22 @@ class UserDataTests: MMTestCase {
 		
 		
 		XCTAssertEqual(Date(timeIntervalSince1970: 1468593199).toJSON(), "2016-07-15")
-		
-		let ctx = self.mobileMessagingInstance.currentInstallation.installationManager.storageContext
+
+		let ctx = (self.mobileMessagingInstance.internalStorage.mainThreadManagedObjectContext!)
+		ctx.reset()
 		if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 			
-			XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.externalUserId))
-			XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.predefinedUserData))
-			XCTAssertTrue(installation.dirtyAttributesSet.contains(SyncableAttributesSet.customUserData))
+			XCTAssertTrue(installation.dirtyAttributesSet.contains(AttributesSet.externalUserId))
+			XCTAssertTrue(installation.dirtyAttributesSet.contains(AttributesSet.predefinedUserData))
+			XCTAssertTrue(installation.dirtyAttributesSet.contains(AttributesSet.customUserData))
 			
 			XCTAssertEqual(installation.customUserData?["nickname"] as? String, "Crusher")
 			XCTAssertEqual(installation.predefinedUserData![MMUserPredefinedDataKeys.MSISDN.name] as? String, "123")
 			XCTAssertEqual(installation.predefinedUserData![MMUserPredefinedDataKeys.Email.name] as? String, "some@mail.com")
 			XCTAssertTrue(currentUser.predefinedData!["nickname"] == nil, "custom data has nothing to do with predefined data")
 			
-			installation.resetDirtyAttribute(attributes: SyncableAttributesSet.customUserData)
-			XCTAssertFalse(installation.dirtyAttributesSet.contains(SyncableAttributesSet.customUserData))
+			installation.resetDirtyAttribute(attributes: AttributesSet.customUserData)
+			XCTAssertFalse(installation.dirtyAttributesSet.contains(AttributesSet.customUserData))
 			
 		} else {
 			XCTFail("There must be atleast one installation object in database")
@@ -209,7 +208,7 @@ class UserDataTests: MMTestCase {
 			expectation?.fulfill()
 		}
 		
-		waitForExpectations(timeout: 10, handler: nil)
+		waitForExpectations(timeout: 60, handler: nil)
 	}
 	
 	func testGetPredefinedAndCustomData() {
@@ -242,13 +241,6 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testSetPredefinedData() {
-		MobileMessaging.currentInstallation?.installationManager.setValueForKey("predefinedUserData", value:
-			[
-				MMUserPredefinedDataKeys.LastName.name: "Darth" as UserDataFoundationTypes,
-				MMUserPredefinedDataKeys.Gender.name: "F" as UserDataFoundationTypes,
-				MMUserPredefinedDataKeys.Telephone.name: "89999999999" as UserDataFoundationTypes
-			]
-		)
 		
 		let currentUser = MobileMessaging.currentUser!
 		
@@ -269,5 +261,47 @@ class UserDataTests: MMTestCase {
 		XCTAssertEqual(currentUser.predefinedData?.count, 2)
 		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.FirstName.name], "Luke")
 		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.Email.name], "luke@starwars.com")
+	}
+	
+	func testThatUserDataIsNotPersistedIfPricacySettingsSpecified() {
+		MobileMessaging.privacySettings.userDataPersistingDisabled = true
+		
+		let currentUser = MobileMessaging.currentUser!
+		
+		currentUser.predefinedData = [
+			MMUserPredefinedDataKeys.LastName.name: "Skywalker",
+			MMUserPredefinedDataKeys.Gender.name: "M",
+		]
+		currentUser.email = "luke@starwars.com"
+		currentUser.msisdn = "123"
+		currentUser.internalId = "123"
+		currentUser.externalId = "123"
+		
+		currentUser.set(customData: "Death Star", forKey: "home")
+		
+		currentUser.persist()
+		
+		// assertions:
+		let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
+		ctx.performAndWait {
+			let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
+			XCTAssertNil(installation.predefinedUserData, "userdata must not be persisted")
+			XCTAssertNil(installation.customUserData, "userdata must not be persisted")
+			XCTAssertNil(installation.externalUserId, "userdata must not be persisted")
+			XCTAssertEqual(installation.internalUserId, "123", "internal id must be persisted, since it's not an user data")
+		}
+		
+		XCTAssertEqual(currentUser.internalId, "123")
+		XCTAssertEqual(currentUser.email, "luke@starwars.com")
+		XCTAssertEqual(currentUser.msisdn, "123")
+		XCTAssertEqual(currentUser.externalId, "123")
+		XCTAssertEqual(currentUser.predefinedData!, [
+			MMUserPredefinedDataKeys.LastName.name: "Skywalker",
+			MMUserPredefinedDataKeys.Gender.name: "M",
+			MMUserPredefinedDataKeys.Email.name: "luke@starwars.com",
+			MMUserPredefinedDataKeys.MSISDN.name: "123"
+		])
+		
+		XCTAssertEqual(currentUser.customData(forKey: "home")?.string, "Death Star")
 	}
 }

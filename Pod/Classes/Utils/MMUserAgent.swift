@@ -60,7 +60,6 @@ public class MMUserAgent: NSObject {
 		if !(MobileMessaging.privacySettings.systemInfoSendingDisabled) {
 			options.append(MMUserAgent.DataOptions.System)
 		}
-		
 		if !(MobileMessaging.privacySettings.carrierInfoSendingDisabled) {
 			options.append(MMUserAgent.DataOptions.Carrier)
 		}

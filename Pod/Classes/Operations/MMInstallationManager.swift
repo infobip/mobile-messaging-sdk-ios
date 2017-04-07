@@ -8,76 +8,104 @@
 import Foundation
 import CoreData
 
+protocol InstallationDataProvider {
+	func getValueForKey(_ key: String) -> Any?
+	func setValueForKey<Value: Equatable>(_ key: String, value: Value?)
+	func setValueForKey(_ key: String, value: [AnyHashable: UserDataFoundationTypes]? )
+	func set(_ value: UserDataFoundationTypes?, key: AnyHashable, attribute: String)
+	func resetChanges()
+	func persist()
 
+	func resetDirtyAttribute(_ attributes: AttributesSet)
+	func isAttributeDirty(_ attributes: AttributesSet) -> Bool
+}
 
-final class InstallationManager {
+class InMemoryDataProvider: InstallationDataProvider {
+	var storage: [AnyHashable: Any] = [:]
 	
-	//MARK: Internal
-	lazy var registrationQueue = MMOperationQueue.newSerialQueue
-	let storage: MMCoreDataStorage
-	let storageContext: NSManagedObjectContext
-	let mmContext: MobileMessaging?
-	
-	deinit {
-		registrationQueue.cancelAllOperations()
+	func resetDirtyAttribute(_ attributes: AttributesSet) {
+		return
 	}
 	
-	init(storage: MMCoreDataStorage, mmContext: MobileMessaging?) {
-		self.storage = storage
-		self.storageContext = storage.newPrivateContext()
-		self.mmContext = mmContext
-		_currentInstallation = installationObject
-	}
-	
-	class func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: String) -> Bool {
-		let im = InstallationManager(storage: storage, mmContext: nil)
-		let currentApplicationCode = im.getValueForKey("applicationCode") as? String
-		return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
-	}
-	
-	func shouldPersistKey(_ key: String) -> Bool {
-		if key == "applicationCode" && MobileMessaging.privacySettings.applicationCodePersistingDisabled {
-			return false
-		}
+	func isAttributeDirty(_ attributes: AttributesSet) -> Bool {
 		return true
 	}
 	
 	func getValueForKey(_ key: String) -> Any? {
-		guard shouldPersistKey(key) else {
-			return nil
+		return storage[key]
+	}
+	
+	func setValueForKey<Value: Equatable>(_ key: String, value: Value?) {
+		storage[key] = value
+	}
+	
+	func setValueForKey(_ key: String, value: [AnyHashable: UserDataFoundationTypes]? ) {
+		storage[key] = value
+	}
+	
+	func set(_ value: UserDataFoundationTypes?, key: AnyHashable, attribute: String) {
+		var dictValue: [AnyHashable: UserDataFoundationTypes]? = [key: value ?? NSNull()]
+		if let dictionaryValue = self.getValueForKey(attribute) as? [AnyHashable : UserDataFoundationTypes] {
+			dictValue = dictionaryValue + dictValue
 		}
+		storage[attribute] = dictValue
+	}
+	
+	func resetChanges() {
+		return
+	}
+	
+	func persist() {
+		return
+	}
+}
+
+class CoreDataProvider: InstallationDataProvider {
+	let coreDataStorage: MMCoreDataStorage
+	let context: NSManagedObjectContext
+	
+	required init(storage: MMCoreDataStorage) {
+		self.coreDataStorage = storage
+		self.context = storage.newPrivateContext()
+	}
+	
+	func resetDirtyAttribute(_ attributes: AttributesSet) {
+		context.performAndWait {
+			self.installationObject.resetDirtyAttribute(attributes: attributes)
+		}
+	}
+	
+	func isAttributeDirty(_ attributes: AttributesSet) -> Bool {
+		var result: Bool = false
+		context.performAndWait {
+			result = self.installationObject.dirtyAttributesSet.intersection(attributes).isEmpty == false
+		}
+		return result
+	}
+	
+	func getValueForKey(_ key: String) -> Any? {
 		var result: Any?
-		storageContext.performAndWait {
+		context.performAndWait {
 			result = self.installationObject.value(forKey: key)
 		}
 		return result
 	}
 	
-	//FIXME: duplication of setValueForKey methods
 	func setValueForKey<Value: Equatable>(_ key: String, value: Value?) {
-		guard shouldPersistKey(key) else {
-			return
-		}
-		storageContext.perform {
+		context.performAndWait {
 			self.installationObject.setValueIfDifferent(value, forKey: key)
 		}
 	}
 	
 	func setValueForKey(_ key: String, value: [AnyHashable: UserDataFoundationTypes]? ) {
-		guard shouldPersistKey(key) else {
-			return
-		}
-		storageContext.perform {
+		context.performAndWait {
 			self.installationObject.setValueIfDifferent(value, forKey: key)
 		}
 	}
 	
 	func set(_ value: UserDataFoundationTypes?, key: AnyHashable, attribute: String) {
-		guard let skey = key as? String, shouldPersistKey(skey) else {
-			return
-		}
-		storageContext.perform {
-			var dictValue : [AnyHashable : UserDataFoundationTypes]? = [key: value ?? NSNull()]
+		context.performAndWait {
+			var dictValue: [AnyHashable: UserDataFoundationTypes]? = [key: value ?? NSNull()]
 			if let dictionaryValue = self.getValueForKey(attribute) as? [AnyHashable : UserDataFoundationTypes] {
 				dictValue = dictionaryValue + dictValue
 			}
@@ -85,74 +113,16 @@ final class InstallationManager {
 		}
 	}
 	
-	func syncInstallationWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		guard let mmContext = mmContext else {
-			completion?(NSError(type: MMInternalErrorType.UnknownError))
-			return
-		}
-		MMLogDebug("[Installation management] sync installation with server")
-		let newRegOp = InstallationDataSynchronizationOperation(context: storageContext, mmContext: mmContext, finishBlock: completion)
-		registrationQueue.addOperation(newRegOp)
+	func resetChanges() {
+		context.reset()
 	}
 	
-	func sendSystemDataToServer(_ completion: ((NSError?) -> Void)? = nil) {
-		guard let mmContext = mmContext else {
-			completion?(NSError(type: MMInternalErrorType.UnknownError))
-			return
-		}
-		MMLogDebug("[Installation management] send system data to server")
-		let op = SystemDataSynchronizationOperation(сontext: storageContext, mmContext: mmContext, finishBlock: completion)
-		registrationQueue.addOperation(op)
+	func persist() {
+		context.MM_saveToPersistentStoreAndWait()
 	}
 	
-	func syncUserDataWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		guard let mmContext = mmContext else {
-			completion?(NSError(type: MMInternalErrorType.UnknownError))
-			return
-		}
-		MMLogDebug("[Installation management] sync user data with server")
-		let op = UserDataSynchronizationOperation(syncOperationWithContext: storageContext, mmContext: mmContext, finishBlock: completion)
-		registrationQueue.addOperation(op)
-	}
-	
-	func fetchUserWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		guard let mmContext = mmContext else {
-			completion?(NSError(type: MMInternalErrorType.UnknownError))
-			return
-		}
-		MMLogDebug("[Installation management] fetch user with server")
-		let op = UserDataSynchronizationOperation(fetchingOperationWithContext: storageContext, mmContext: mmContext, finishBlock: completion)
-		registrationQueue.addOperation(op)
-	}
-	
-	func updateRegistrationEnabledStatus(withValue value: Bool, completion: ((NSError?) -> Void)? = nil) {
-		storageContext.performAndWait {
-			self.installationObject.setRegistrationEnabledIfDifferent(flag: value)
-		}
-		syncInstallationWithServer(completion)
-	}
-	
-	func updateDeviceToken(token: Data, completion: ((NSError?) -> Void)? = nil) {
-		storageContext.performAndWait {
-			self.installationObject.setDeviceTokenIfDifferent(token: token.mm_toHexString)
-		}
-		syncInstallationWithServer(completion)
-	}
-	
-	func save(_ completion: ((Void) -> Void)? = nil) {
-		storageContext.perform {
-			self.storageContext.MM_saveToPersistentStoreAndWait()
-			completion?()
-		}
-	}
-	
-	func resetContext() {
-		storageContext.perform {
-			self.storageContext.rollback()
-		}
-	}
-
-	var installationObject: InstallationManagedObject {
+	//MARK: Private
+	private var installationObject: InstallationManagedObject {
 		if let installation = _currentInstallation {
 			return installation
 		} else {
@@ -161,10 +131,6 @@ final class InstallationManager {
 		}
 	}
 	
-	//MARK: Private
-	private var installationHasChanges: Bool {
-		return installationObject.changedValues().count > 0
-	}
 	private var _currentInstallation: InstallationManagedObject?
 	
 	private func fetchOrCreateCurrentInstallation() -> InstallationManagedObject {
@@ -177,19 +143,18 @@ final class InstallationManager {
 	
 	private func createInstallation() -> InstallationManagedObject {
 		var result: InstallationManagedObject?
-		storageContext.performAndWait {
-			result = InstallationManagedObject.MM_createEntityInContext(context: self.storageContext)
-			self.storageContext.MM_saveToPersistentStoreAndWait()
+		context.performAndWait {
+			result = InstallationManagedObject.MM_createEntityInContext(context: self.context)
+			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		return result!
 	}
 	
 	private func findCurrentInstallation() -> InstallationManagedObject? {
 		var result: InstallationManagedObject?
-		storageContext.performAndWait {
-			result = InstallationManagedObject.MM_findFirstInContext(self.storageContext)
+		context.performAndWait {
+			result = InstallationManagedObject.MM_findFirstInContext(self.context)
 		}
 		return result
 	}
-	
 }

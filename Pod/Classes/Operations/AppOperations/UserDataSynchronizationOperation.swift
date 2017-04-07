@@ -9,100 +9,65 @@ import UIKit
 import CoreData
 
 class UserDataSynchronizationOperation: Operation {
-	let context: NSManagedObjectContext
+	let user: MMUser
 	let finishBlock: ((NSError?) -> Void)?
 	let mmContext: MobileMessaging
 	
-	private var installationObject: InstallationManagedObject!
-	private var dirtyAttributes = SyncableAttributesSet(rawValue: 0)
 	private let onlyFetching: Bool
 	
-	convenience init(fetchingOperationWithContext context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.init(context: context, onlyFetching: true, mmContext: mmContext, finishBlock: finishBlock)
+	convenience init(fetchingOperationWithUser user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+		self.init(user: user, onlyFetching: true, mmContext: mmContext, finishBlock: finishBlock)
 	}
 	
-	convenience init(syncOperationWithContext context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.init(context: context, onlyFetching: false, mmContext: mmContext, finishBlock: finishBlock)
+	convenience init(syncOperationWithUser user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+		self.init(user: user, onlyFetching: false, mmContext: mmContext, finishBlock: finishBlock)
 	}
 	
-	private init(context: NSManagedObjectContext, onlyFetching: Bool, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.context = context
+	private init(user: MMUser, onlyFetching: Bool, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+		self.user = user
 		self.finishBlock = finishBlock
 		self.onlyFetching = onlyFetching
 		self.mmContext = mmContext
 		super.init()
 	}
 	
-	private var installationHasChanges: Bool {
-		return installationObject.changedValues().isEmpty == false
-	}
-	
 	override func execute() {
 		MMLogDebug("[User data sync] Started...")
-		context.perform {
-			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else {
-				self.finish()
-				return
-			}
-			self.installationObject = installation
-			self.dirtyAttributes = installation.dirtyAttributesSet
-			
-			if (self.installationHasChanges) {
-				MMLogDebug("[User data sync] saving data locally...")
-				self.context.MM_saveToPersistentStoreAndWait()
-			} else {
-				MMLogDebug("[User data sync] has no changes. No need to save locally.")
-			}
-			
-			self.sendUserDataIfNeeded()
-		}
-	}
-	
-	private var userDataChanged: Bool {
-		return installationObject.dirtyAttributesSet.intersection(SyncableAttributesSet.userData).isEmpty == false
-	}
-	
-	private var shouldSync: Bool {
-		return userDataChanged
+		user.persist()
+		self.sendUserDataIfNeeded()
 	}
 	
 	private func sendUserDataIfNeeded() {
-		guard let internalId = installationObject.internalUserId
-			else
-		{
-			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+		guard let internalId = user.internalId else {
+			MMLogDebug("[User data sync] There is no registration. Finishing...")
+			finish()
 			return
 		}
-		
+	
 		if onlyFetching {
 			MMLogDebug("[User data sync] fetching from server...")
-			self.fetchUserData(internalId: internalId)
-		} else if shouldSync {
+			self.fetchUserData(internalId: internalId, externalId: user.externalId)
+		} else  {
 			MMLogDebug("[User data sync] sending user data updates to the server...")
-			self.syncUserData(internalId: internalId)
-		} else {
-			MMLogDebug("[User data sync] has no changes, no need to send to the server.")
-			finish()
+			self.syncUserData(customUserDataValues: user.customData, internalId: internalId, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
 		}
 	}
 	
-	private func fetchUserData(internalId: String) {
+	private func fetchUserData(internalId: String, externalId: String?) {
 		mmContext.remoteApiManager.fetchUserData(internalUserId: internalId,
-		                                  externalUserId: MobileMessaging.currentUser?.externalId,
-		                                  completion:
+		                                         externalUserId: externalId,
+		                                         completion:
         { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		})
 	}
 	
-	private func syncUserData(internalId: String) {
-		let customUserData = (installationObject.customUserData as? [String: UserDataFoundationTypes])?.customUserDataValues
-		
+	private func syncUserData(customUserDataValues: [String: CustomUserDataValue]?, internalId: String, externalId: String?, predefinedUserData: UserDataDictionary?) {
 		mmContext.remoteApiManager.syncUserData(internalUserId: internalId,
-		                                 externalUserId: installationObject.externalUserId,
-		                                 predefinedUserData: installationObject.predefinedUserData,
-		                                 customUserData: customUserData)
+		                                 externalUserId: externalId,
+		                                 predefinedUserData: predefinedUserData,
+		                                 customUserData: customUserDataValues)
 		{ result in
 			self.handleResult(result)
 			self.finishWithError(result.error ?? result.value?.error?.foundationError)
@@ -110,27 +75,33 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	private func handleResult(_ result: UserDataSyncResult) {
-		self.context.performAndWait {
-			switch result {
-			case .Success(let response):
-                self.installationObject.customUserData = response.customData?.reduce(nil, { (result, element) -> [String: AnyObject]? in
-					return result + element.mapToCoreDataCompatibleDictionary()
-				}) ?? nil
-				self.installationObject.predefinedUserData = response.predefinedData
-				
-				self.installationObject.resetDirtyAttribute(attributes: SyncableAttributesSet.userData) // all user data now in sync
-				self.context.MM_saveToPersistentStoreAndWait()
-				MMLogDebug("[User data sync] successfully synced")
-				
-				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationUserDataSynced, userInfo: nil)
-				
-			case .Failure(let error):
-				MMLogError("[User data sync] sync request failed with error: \(String(describing: error))")
-				return
-			case .Cancel:
-				MMLogError("[User data sync] sync request cancelled.")
-				return
-			}
+		switch result {
+		case .Success(let response):
+			
+			let newCustomUserData = response.customData?.reduce(nil, { (result: [String: CustomUserDataValue]?, element: CustomUserData) -> [String: CustomUserDataValue]? in
+				if let value = element.dataValue {
+					var result = result ?? [:]
+					result[element.dataKey] = value
+					return result
+				} else {
+					return result
+				}
+			}) ?? nil
+			
+			user.customData = newCustomUserData
+			user.predefinedData = response.predefinedData as? [String: String]
+			user.resetNeedToSync()
+			user.persist()
+			
+			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationUserDataSynced, userInfo: nil)
+			MMLogDebug("[User data sync] successfully synced")
+			
+		case .Failure(let error):
+			MMLogError("[User data sync] sync request failed with error: \(String(describing: error))")
+			return
+		case .Cancel:
+			MMLogError("[User data sync] sync request cancelled.")
+			return
 		}
 	}
 	
@@ -165,7 +136,6 @@ struct CustomUserData: DictionaryRepresentable {
 		}
 	}
 	
-
 	var dictionaryRepresentation: DictionaryRepresentation {
 		if let dataValue = dataValue, let valueDict = dataValue.jsonDictRepresentation {
 			return [dataKey: valueDict]
@@ -217,7 +187,6 @@ extension NSNull: UserDataFoundationTypes {}
 public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
 	let dataType: UserDataServiceTypes?
 	let dataValue: UserDataFoundationTypes
-	
 	
 //MARK: - Accessors
 	public var string: String? {

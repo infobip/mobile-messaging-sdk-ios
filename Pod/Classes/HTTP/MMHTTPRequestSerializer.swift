@@ -4,7 +4,6 @@
 //
 //  Created by okoroleva on 07.03.16.
 //
-import MobileMessaging.Private
 
 final class RequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String

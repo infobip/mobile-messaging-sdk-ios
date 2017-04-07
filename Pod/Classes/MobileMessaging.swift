@@ -332,7 +332,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	var isPushRegistrationEnabled: Bool {
-		return (self.currentInstallation.installationManager.getValueForKey("isRegistrationEnabled") as? Bool) ?? true
+		return currentInstallation.isPushRegistrationEnabled
 	}
 	
 	//MARK: Private
@@ -347,7 +347,7 @@ public final class MobileMessaging: NSObject {
 			return nil
 		}
         
-		if forceCleanup || InstallationManager.applicationCodeChanged(storage: storage, newApplicationCode: appCode) {
+		if forceCleanup || applicationCodeChanged(storage: storage, newApplicationCode: appCode) {
 			MMLogDebug("Data will be cleaned up due to the application code change.")
 			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorage: messageStorage as? MMDefaultMessageStorage)
 			do {
@@ -373,9 +373,10 @@ public final class MobileMessaging: NSObject {
 	var messageStorageAdapter: MMMessageStorageQueuedAdapter?
 	
 	let internalStorage: MMCoreDataStorage
-	
-	lazy var currentInstallation: MMInstallation! = MMInstallation(storage: self.internalStorage, mmContext: self, applicationCode: self.applicationCode)
-	lazy var currentUser: MMUser! = MMUser(installation: self.currentInstallation)
+	lazy var coreDataProvider: CoreDataProvider = CoreDataProvider(storage: self.internalStorage)
+	lazy var inMemoryDataProvider: InMemoryDataProvider = InMemoryDataProvider()
+	lazy var currentInstallation: MMInstallation! = MMInstallation(inMemoryProvider: self.inMemoryDataProvider, coreDataProvider: self.coreDataProvider, storage: self.internalStorage, mmContext: self, applicationCode: self.applicationCode)
+	lazy var currentUser: MMUser! = MMUser(inMemoryProvider: self.inMemoryDataProvider, coreDataProvider: self.coreDataProvider, mmContext: self)
 	var appListener: MMApplicationListener!
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var geofencingService: MMGeofencingService! = MMGeofencingService(storage: self.internalStorage, mmContext: self)
@@ -401,11 +402,16 @@ public class PrivacySettings: NSObject {
 	/// Default value is `false`.
 	public var systemInfoSendingDisabled: Bool = false
 	
-	/// A boolean variable that indicates whether the library will be persisting the application code locally. This feature is a convenience to maintain SDK viability during debugging and possible application code changes.
+	/// A boolean variable that indicates whether the MobileMessaging SDK will be persisting the application code locally. This feature is a convenience to maintain SDK viability during debugging and possible application code changes.
 	///
 	/// Default value is `false`.
-	/// - Warning: there might be situation when you want to switch between different Application Codes during development/testing. If you disable the application code persisting (value `true`), the SDK won't detect the application code changes, thus won't cleanup the old application code related data. You should manually invoke `MobileMessaging.cleanUpAndStop()` prior to start otherwise the SDK would not detect the application code change
+	/// - Warning: there might be situation when you want to switch between different Application Codes during development/testing. If you disable the application code persisting (value `true`), the SDK won't detect the application code changes, thus won't cleanup the old application code related data. You should manually invoke `MobileMessaging.cleanUpAndStop()` prior to start otherwise the SDK would not detect the application code change.
 	public var applicationCodePersistingDisabled: Bool = false
+	
+	/// A boolean variable that indicates whether the MobileMessaging SDK will be persisting the user data locally. Persisting user data locally gives you quick access to the data and eliminates a need to implement it yourself.
+	///
+	/// Default value is `false`.
+	public var userDataPersistingDisabled: Bool = false
 }
 
 class MMDate {
@@ -445,4 +451,10 @@ extension MMApplication {
 	var isInForegroundState: Bool {
 		return applicationState != .background
 	}
+}
+
+func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: String) -> Bool {
+	let dataProvider = CoreDataProvider(storage: storage)
+	let currentApplicationCode = dataProvider.getValueForKey("applicationCode") as? String
+	return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
 }

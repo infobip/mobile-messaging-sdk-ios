@@ -10,10 +10,10 @@ import CoreData
 import Security
 
 class SystemDataSynchronizationOperation: Operation {
-	let context: NSManagedObjectContext
+	let installation: MMInstallation
+	let user: MMUser
 	let mmContext: MobileMessaging
 	let finishBlock: ((NSError?) -> Void)?
-	private var installationObject: InstallationManagedObject!
 	
 	lazy var currentSystemData: MMSystemData = {
 		return MobileMessaging.userAgent.systemData
@@ -23,8 +23,9 @@ class SystemDataSynchronizationOperation: Operation {
 		return Int64(self.currentSystemData.hashValue)
 	}()
 	
-	init(сontext context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.context = context
+	init(installation: MMInstallation, user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+		self.installation = installation
+		self.user = user
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		super.init()
@@ -32,33 +33,21 @@ class SystemDataSynchronizationOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[System data sync] starting synchronization...")
-		context.perform {
-			guard let installation = InstallationManagedObject.MM_findFirstInContext(self.context) else
-			{
-				MMLogDebug("[System data sync] installation object not found, finishing the operation...")
-				self.finish()
-				return
-			}
-			self.installationObject = installation
-			
-			if installation.systemDataHash != self.currentSystemDataHash {
-				self.sendRequest()
-			} else {
-				MMLogDebug("[System data sync] no changes to send to the server")
-				self.finish()
-			}
-		}
-	}
-	
-	private func sendRequest() {
-		guard let internalId = installationObject.internalUserId else
+		guard let internalId = user.internalId else
 		{
 			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
-        
+		if installation.systemDataHash != currentSystemDataHash {
+			self.sendRequest(internalId: internalId)
+		} else {
+			MMLogDebug("[System data sync] no changes to send to the server")
+			self.finish()
+		}
+	}
+	
+	private func sendRequest(internalId: String) {
 		MMLogDebug("[System data sync] performing request...")
-		
 		mmContext.remoteApiManager.syncSystemData(internalUserId: internalId, systemData: currentSystemData) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
@@ -66,17 +55,16 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	private func handleResult(_ result: SystemDataSyncResult) {
-		context.performAndWait {
-			switch result {
-			case .Success:
-				self.installationObject.systemDataHash = self.currentSystemDataHash
-				self.context.MM_saveToPersistentStoreAndWait()
-				MMLogDebug("[System data sync] successfully synced")
-			case .Failure(let error):
-				MMLogError("[System data sync] sync request failed with error: \(String(describing: error))")
-			case .Cancel:
-				MMLogError("[System data sync] sync request cancelled.")
-			}
+		switch result {
+		case .Success:
+			installation.systemDataHash = currentSystemDataHash
+			installation.persist()
+			
+			MMLogDebug("[System data sync] successfully synced")
+		case .Failure(let error):
+			MMLogError("[System data sync] sync request failed with error: \(String(describing: error))")
+		case .Cancel:
+			MMLogError("[System data sync] sync request cancelled.")
 		}
 	}
 	
