@@ -392,12 +392,12 @@ extension UIApplication: MMApplication {}
 
 /// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
 public class PrivacySettings: NSObject {
-	/// A boolean variable that indicates whether the library will be sending the carrier information to the server.
+	/// A boolean variable that indicates whether the MobileMessaging SDK will be sending the carrier information to the server.
 	///
 	/// Default value is `false`.
 	public var carrierInfoSendingDisabled: Bool = false
 	
-	/// A boolean variable that indicates whether the library will be sending the system information such as OS version, device model, application version to the server.
+	/// A boolean variable that indicates whether the MobileMessaging SDK will be sending the system information such as OS version, device model, application version to the server.
 	///
 	/// Default value is `false`.
 	public var systemInfoSendingDisabled: Bool = false
