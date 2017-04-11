@@ -57,7 +57,7 @@ final class MessageHandlingOperation: Operation {
 		guard !newMessages.isEmpty else
 		{
 			MMLogDebug("[Message handling] There is no new messages to handle.")
-			handleExistentMessageTappedIdNeeded()
+			handleExistentMessageTappedIfNeeded()
 			finish()
 			return
 		}
@@ -119,7 +119,7 @@ final class MessageHandlingOperation: Operation {
 		return applicationState == .inactive && messagesToHandle.count == 1
 	}
 	
-	private func handleExistentMessageTappedIdNeeded() {
+	private func handleExistentMessageTappedIfNeeded() {
 		guard let existentMessage = intersectingMessages.first else { return }
 		handleNotificationTappedIfNeeded(with: existentMessage)
 	}
@@ -130,7 +130,7 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	private func handleNotificationTappedIfNeeded(with message: MTMessage) {
-		guard isNotificationTapped else { return }
+		guard isNotificationTapped && message.deliveryMethod == .push else { return }
 		MMMessageHandler.handleNotificationTap(with: message)
 	}
 	
