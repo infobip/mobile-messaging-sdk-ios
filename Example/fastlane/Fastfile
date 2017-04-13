@@ -110,8 +110,14 @@ platform :ios do
 
     desc "Build a release version, publish to Cocoapods"
     lane :release do |options|
-        load_keys
+    	release_notes = options[:release_notes]
+		
+		if release_notes.to_s.strip.empty?
+			desc "You have not provided release notes!"
+			return
+		end
 
+        load_keys
         only_build = options[:only_build]
 
         unless only_build
@@ -186,6 +192,7 @@ platform :ios do
                 sh "git push github HEAD:master"
 
                 set_github_release(
+                	description: release_notes,
                     repository_name: "infobip/mobile-messaging-sdk-ios",
                     api_token: ENV["GITHUB_API_TOKEN"],
                     tag_name: version_number,
@@ -193,8 +200,8 @@ platform :ios do
                 )
 
                 pod_push(
-                    path: podspec_path,
-                    allow_warnings: true
+                     path: podspec_path,
+                     allow_warnings: true
                 )
             end
         end
