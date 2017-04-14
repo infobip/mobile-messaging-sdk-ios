@@ -22,23 +22,23 @@ class RemoteAPIManager {
 		versionFetchingQueue = MMRemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
 	}
 	
-	func syncRegistration(internalId: String?, deviceToken: String, isEnabled: Bool?, expiredInternalId: String?, completion: @escaping (RegistrationResult) -> Void) {
-		let request = RegistrationRequest(deviceToken: deviceToken, internalId: internalId, isEnabled: isEnabled, expiredInternalId: expiredInternalId)
+	func syncRegistration(deviceToken: String, isEnabled: Bool?, expiredInternalId: String?, completion: @escaping (RegistrationResult) -> Void) {
+		let request = RegistrationRequest(deviceToken: deviceToken, isEnabled: isEnabled, expiredInternalId: expiredInternalId)
 		registrationQueue.perform(request: request, completion: completion)
 	}
 	
-	func fetchUserData(internalUserId: String, externalUserId: String?, completion: @escaping (UserDataSyncResult) -> Void) {
-		let request = UserDataRequest(internalUserId: internalUserId, externalUserId: externalUserId)
+	func fetchUserData(externalUserId: String?, completion: @escaping (UserDataSyncResult) -> Void) {
+		let request = UserDataRequest(externalUserId: externalUserId)
 		registrationQueue.perform(request: request, completion: completion)
 	}
 	
-	func syncUserData(internalUserId: String, externalUserId: String?, predefinedUserData: UserDataDictionary? = nil, customUserData: [String: CustomUserDataValue]? = nil, completion: @escaping (UserDataSyncResult) -> Void) {
-		let request = UserDataRequest(internalUserId: internalUserId, externalUserId: externalUserId, predefinedUserData: predefinedUserData, customUserData: customUserData)
+	func syncUserData(externalUserId: String?, predefinedUserData: UserDataDictionary? = nil, customUserData: [String: CustomUserDataValue]? = nil, completion: @escaping (UserDataSyncResult) -> Void) {
+		let request = UserDataRequest(externalUserId: externalUserId, predefinedUserData: predefinedUserData, customUserData: customUserData)
 		registrationQueue.perform(request: request, completion: completion)
 	}
 	
-	func syncSystemData(internalUserId: String, systemData: MMSystemData, completion: @escaping (SystemDataSyncResult) -> Void) {
-		let request = SystemDataSyncRequest(internalUserId: internalUserId, systemData: systemData)
+	func syncSystemData(systemData: MMSystemData, completion: @escaping (SystemDataSyncResult) -> Void) {
+		let request = SystemDataSyncRequest(systemData: systemData)
 		registrationQueue.perform(request: request, completion: completion)
 	}
 	
@@ -52,8 +52,8 @@ class RemoteAPIManager {
 		messageSyncQueue.perform(request: request, completion: completion)
 	}
 	
-	func syncMessages(internalId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void) {
-		let request = MessagesSyncRequest(internalId: internalId, archiveMsgIds: archiveMsgIds, dlrMsgIds: dlrMsgIds)
+	func syncMessages(archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void) {
+		let request = MessagesSyncRequest(archiveMsgIds: archiveMsgIds, dlrMsgIds: dlrMsgIds)
 		messageSyncQueue.perform(request: request, exclusively: true, completion: completion)
 	}
 	

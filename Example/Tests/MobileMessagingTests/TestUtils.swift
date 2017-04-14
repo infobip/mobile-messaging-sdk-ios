@@ -82,7 +82,6 @@ class MMRemoteAPIMock: MMRemoteAPILocalMocks {
 			} else {
 				completion(Result.Failure(nil))
 			}
-			
 		} else {
 			super.perform(request: request) { (response) in
 				completion(response)
@@ -151,3 +150,8 @@ final class MMReachabilityManagerStub: MMNetworkReachabilityManager {
 	}
 }
 
+extension RequestData {
+	var pushRegistrationIdHeader: String? {
+		return headers?[APIHeaders.pushRegistrationId]
+	}
+}

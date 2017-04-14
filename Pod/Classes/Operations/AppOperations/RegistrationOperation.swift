@@ -43,8 +43,7 @@ final class SyncRegistrationOperation: Operation {
 	private func sendRegistration(internalUserId: String?, isRegistrationEnabled: Bool?, deviceToken: String) {
 		let keychainInternalId = mmContext.keychain.internalId
 		let expiredInternalId = internalUserId == nil ? keychainInternalId : nil
-		mmContext.remoteApiManager.syncRegistration(internalId: internalUserId,
-		                                            deviceToken: deviceToken,
+		mmContext.remoteApiManager.syncRegistration(deviceToken: deviceToken,
 		                                            isEnabled: isRegistrationEnabled,
 		                                            expiredInternalId: expiredInternalId)
 		{ result in

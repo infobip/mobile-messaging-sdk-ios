@@ -36,26 +36,25 @@ class UserDataSynchronizationOperation: Operation {
 		user.persist()
 		self.sendUserDataIfNeeded()
 	}
-	
+
 	private func sendUserDataIfNeeded() {
 		guard let internalId = user.internalId else {
 			MMLogDebug("[User data sync] There is no registration. Finishing...")
 			finish()
 			return
 		}
-	
+
 		if onlyFetching {
 			MMLogDebug("[User data sync] fetching from server...")
-			self.fetchUserData(internalId: internalId, externalId: user.externalId)
+			self.fetchUserData(externalId: user.externalId)
 		} else  {
 			MMLogDebug("[User data sync] sending user data updates to the server...")
 			self.syncUserData(customUserDataValues: user.customData, internalId: internalId, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
 		}
 	}
 	
-	private func fetchUserData(internalId: String, externalId: String?) {
-		mmContext.remoteApiManager.fetchUserData(internalUserId: internalId,
-		                                         externalUserId: externalId,
+	private func fetchUserData(externalId: String?) {
+		mmContext.remoteApiManager.fetchUserData(externalUserId: externalId,
 		                                         completion:
         { result in
 			self.handleResult(result)
@@ -64,8 +63,7 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	private func syncUserData(customUserDataValues: [String: CustomUserDataValue]?, internalId: String, externalId: String?, predefinedUserData: UserDataDictionary?) {
-		mmContext.remoteApiManager.syncUserData(internalUserId: internalId,
-		                                 externalUserId: externalId,
+		mmContext.remoteApiManager.syncUserData(externalUserId: externalId,
 		                                 predefinedUserData: predefinedUserData,
 		                                 customUserData: customUserDataValues)
 		{ result in
@@ -73,7 +71,7 @@ class UserDataSynchronizationOperation: Operation {
 			self.finishWithError(result.error ?? result.value?.error?.foundationError)
 		}
 	}
-	
+
 	private func handleResult(_ result: UserDataSyncResult) {
 		switch result {
 		case .Success(let response):
@@ -104,7 +102,7 @@ class UserDataSynchronizationOperation: Operation {
 			return
 		}
 	}
-	
+
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[User data sync] finished with errors: \(errors)")
 		self.finishBlock?(errors.first)
@@ -114,7 +112,7 @@ class UserDataSynchronizationOperation: Operation {
 struct CustomUserData: DictionaryRepresentable {
 	let dataKey: String
 	let dataValue: CustomUserDataValue?
-	
+
 	init(dataKey: String, dataValue: UserDataFoundationTypes) {
 		self.dataKey = dataKey
 		if dataValue is NSNull {
@@ -135,7 +133,7 @@ struct CustomUserData: DictionaryRepresentable {
 			self.dataValue = nil
 		}
 	}
-	
+
 	var dictionaryRepresentation: DictionaryRepresentation {
 		if let dataValue = dataValue, let valueDict = dataValue.jsonDictRepresentation {
 			return [dataKey: valueDict]
@@ -143,7 +141,7 @@ struct CustomUserData: DictionaryRepresentable {
 			return [dataKey: NSNull()]
 		}
 	}
-	
+
 	func mapToCoreDataCompatibleDictionary() -> [String: AnyObject]? {
 		var result: [String: AnyObject]?
 		if let value = self.dataValue, let type = value.dataType {
@@ -187,7 +185,7 @@ extension NSNull: UserDataFoundationTypes {}
 public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
 	let dataType: UserDataServiceTypes?
 	let dataValue: UserDataFoundationTypes
-	
+
 //MARK: - Accessors
 	public var string: String? {
 		guard let type = dataType, let stringValue = dataValue as? NSString , type == .string else {
@@ -223,23 +221,23 @@ public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, Ex
 	convenience public init(integerLiteral value: Int) {
 		self.init(integer: value)
 	}
-	
+
 	convenience public init(floatLiteral value: Double) {
 		self.init(double: value)
 	}
-	
+
 	convenience public init(stringLiteral value: String) {
 		self.init(string: value)
 	}
-	
+
 	convenience public init(extendedGraphemeClusterLiteral value: String) {
 		self.init(string: value)
 	}
-	
+
 	convenience public init(unicodeScalarLiteral value: String) {
 		self.init(string: value)
 	}
-	
+
 //MARK: - Init
 	init(dataType: UserDataServiceTypes, dataValue: UserDataFoundationTypes) {
 		self.dataValue = dataValue
@@ -265,11 +263,11 @@ public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, Ex
 		dataValue = null
 		dataType = nil
 	}
-	
+
 	static func isInteger(number: NSNumber) -> Bool {
 		return floor(number.doubleValue) == number.doubleValue
 	}
-	
+
 	convenience init?(withFoundationValue value: UserDataFoundationTypes) {
 		switch value {
 		case let string as NSString:
@@ -288,7 +286,7 @@ public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, Ex
 			return nil
 		}
 	}
-	
+
 	convenience init?(withJSONDict valueDict: [String: AnyObject]) {
 		guard	let value = valueDict["value"] as? UserDataFoundationTypes,
 				let dataTypeString = valueDict["type"] as? String,
@@ -297,7 +295,7 @@ public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, Ex
 		{
 			return nil
 		}
-	
+
 		switch type {
 		case .date:
 			if let value = value as? String, let date = DateStaticFormatters.ISO8601SecondsFormatter.date(from: value) {
@@ -317,7 +315,7 @@ public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, Ex
 		}
 		return nil
 	}
-	
+
 	var jsonDictRepresentation: [String: AnyObject]? {
 		guard let dataType = dataType else {
 			return nil

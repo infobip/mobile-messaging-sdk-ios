@@ -49,7 +49,6 @@ class SystemDataTests: MMTestCase {
     func testSystemDataUpdates() {
 		weak var requestsCompleted = expectation(description: "requestsCompleted")
 		let ctx = self.storage.mainThreadManagedObjectContext!
-		
 	
 		let responseStubBlock: (Any) -> JSON? = { request -> JSON? in
 			if request is RegistrationRequest {
@@ -79,15 +78,16 @@ class SystemDataTests: MMTestCase {
 		var updatedSystemDataHash: Int64!
 		MobileMessaging.userAgent = GeoAvailableUserAgentStub()
 		MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
-			ctx.reset()
-			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-				updatedSystemDataHash = installation.systemDataHash
+			ctx.perform {
+				ctx.reset()
+				if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
+					updatedSystemDataHash = installation.systemDataHash
+				}
+				MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
+				MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
+					requestsCompleted?.fulfill()
+				})
 			}
-			
-			MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
-			MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
-				requestsCompleted?.fulfill()
-			})
 		})
 		
 		self.waitForExpectations(timeout: 60) { _ in

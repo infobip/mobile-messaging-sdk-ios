@@ -1,0 +1,41 @@
+{
+  "method": "POST",
+  "path": "/mobile/2/data/system",
+  "mocks": [
+    {
+      "headers": {
+        "authorization": "App someCorrectApplicationID",
+        "pushregistrationid": "someExistingInternalID"
+      },
+      "requestBody": {
+        "sdkVersion": "1.0.0",
+        "osVersion": "1.0",
+        "deviceManufacturer": "GoogleApple",
+        "deviceModel": "iPhone Galaxy",
+        "applicationVersion": "1.0",
+        "geofencing": false,
+        "notificationsEnabled": false
+      },
+
+      "responseStatus": 200,
+      "responseBody": { }
+    },
+    {
+      "headers": {
+        "authorization": "App someCorrectApplicationID",
+        "pushregistrationid": "someExistingInternalID"
+      },
+      "requestBody": {
+        "sdkVersion": "1.0.0",
+        "osVersion": "1.0",
+        "deviceManufacturer": "GoogleApple",
+        "deviceModel": "iPhone Galaxy",
+        "applicationVersion": "1.0",
+        "geofencing": true,
+        "notificationsEnabled": false
+      },
+      "responseStatus": 200,
+      "responseBody": { }
+    }
+  ]
+}

@@ -27,12 +27,6 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func syncMessages() {
-		guard let internalId = MobileMessaging.currentUser?.internalId else
-        {
-			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
-		}
-		
 		self.context.performAndWait {
 			let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
 			let fetchLimit = 100 // consider 100 most recent messages
@@ -44,7 +38,7 @@ final class MessageFetchingOperation: Operation {
 			
 			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archivedMessages?.count)) archive messages.")
 			
-           self.mmContext.remoteApiManager.syncMessages(internalId: internalId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
+           self.mmContext.remoteApiManager.syncMessages(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
                 self.result = result
                 self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
                 self.finishWithError(result.error as NSError?)

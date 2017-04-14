@@ -39,9 +39,11 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 		request.addValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
 		request.addValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: "User-Agent")
 		request.addValue(String(UIApplication.shared.isInForegroundState), forHTTPHeaderField: APIHeaders.foreground)
+		if let internalId = MobileMessaging.currentUser?.internalId {
+			request.addValue(internalId, forHTTPHeaderField: APIHeaders.pushRegistrationId)
+		}
 	}
 	
-
 	override func request(withMethod method: String, urlString URLString: String, parameters: Any?, error: NSErrorPointer) -> NSMutableURLRequest {
         var request = NSMutableURLRequest()
 		request.timeoutInterval = 20
@@ -66,7 +68,7 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 	
 	func makeURL(withQueryParameters parameters: Any?, url: String) -> URL? {
 		var completeURLString = url
-		if let dictParams = parameters as? [String : AnyObject] {
+		if let dictParams = parameters as? [String: AnyObject] {
 			completeURLString += "?" + RequestSerializer.query(fromParameters: dictParams);
 		}
 		return URL(string: completeURLString)
