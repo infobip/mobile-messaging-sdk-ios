@@ -203,8 +203,6 @@ class SystemDataTests: MMTestCase {
 			expectationE?.fulfill()
 		}
 		
-		self.waitForExpectations(timeout: 60) { _ in
-			MobileMessaging.privacySettings.systemInfoSendingDisabled = false
-		}
+		self.waitForExpectations(timeout: 60, handler: nil)
 	}
 }
