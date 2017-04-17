@@ -37,13 +37,13 @@ extension JSON {
 		guard
 			let requestWoHeaders = { _ -> [String: JSON]? in
 				var ret = self.dictionary
-				ret?.removeValue(forKey: "headers")
+				_ = ret?.removeValue(forKey: "headers")
 				return ret
 			}(),
 			
 			let requestMockWoHeaders = { _ -> [String: JSON]? in
 				var ret = requestJsonMock
-				ret?.removeValue(forKey: "headers")
+				_ = ret?.removeValue(forKey: "headers")
 				return ret
 			}()
 		

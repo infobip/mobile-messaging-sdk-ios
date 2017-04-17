@@ -73,6 +73,7 @@ class MMTestCase: XCTestCase {
     override func tearDown() {
         super.tearDown()
 		cleanUpAndStop()
+		MobileMessaging.privacySettings = PrivacySettings()
 		MMGeofencingService.currentDate = nil
 	}
     

@@ -14,20 +14,23 @@ struct MMSystemData: Hashable {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
 	let isGeofencingServiceEnabled, notificationsEnabled: Bool
 	var dictionaryRepresentation: [String: AnyHashable] {
-		return [
-			SystemDataKeys.sdkVersion: SDKVersion,
-			SystemDataKeys.osVer: OSVer,
-			SystemDataKeys.deviceManufacturer: deviceManufacturer,
-			SystemDataKeys.deviceModel: deviceModel,
-			SystemDataKeys.appVer: appVer,
-			SystemDataKeys.geofencingServiceEnabled: isGeofencingServiceEnabled,
-			SystemDataKeys.notificationsEnabled: notificationsEnabled
-		]
+		var result : [String: AnyHashable] = [
+												SystemDataKeys.geofencingServiceEnabled: isGeofencingServiceEnabled,
+												SystemDataKeys.notificationsEnabled: notificationsEnabled,
+												SystemDataKeys.sdkVersion: SDKVersion
+										     ]
+		if (!MobileMessaging.privacySettings.systemInfoSendingDisabled) {
+			result[SystemDataKeys.osVer] = OSVer
+			result[SystemDataKeys.deviceManufacturer] = deviceManufacturer
+			result[SystemDataKeys.deviceModel] = deviceModel
+			result[SystemDataKeys.appVer] = appVer
+		}
+		return result
 	}
 	
 	var hashValue: Int {
 		//we care only about values!
-		return dictionaryRepresentation.valuesHash
+		return dictionaryRepresentation.keyValuesHash
 	}
 }
 
@@ -172,11 +175,8 @@ public class MMUserAgent: NSObject {
 			let deviceManufacturer = ""
 			let outputHostingAppName = allowed ? hostingAppName : ""
 			let outputHostingAppVersion = allowed ? hostingAppVersion : ""
-			let currCarrierName = ""
-			let currMNC = ""
-			let currMCC = ""
 			
-			let result = "\(libraryName)/\(libraryVersion)(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion);\(currCarrierName);\(currMNC);\(currMCC)"
+			let result = "\(libraryName)/\(libraryVersion)(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion)"
 			
 			return result
 		}

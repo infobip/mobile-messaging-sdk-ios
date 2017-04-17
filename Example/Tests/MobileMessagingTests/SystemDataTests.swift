@@ -150,4 +150,61 @@ class SystemDataTests: MMTestCase {
 			XCTAssertTrue(sentSettings.contains(false))
 		}
 	}
+	
+	func testThatSystemDataNotSentWhenDisabled() {
+		weak var expectationD = self.expectation(description: "system data sync completed disabled")
+		weak var expectationE = self.expectation(description: "system data sync completed enabled")
+
+		
+		MobileMessaging.privacySettings.systemInfoSendingDisabled = true
+		
+		let requestCompanionBlockDisabled: (Any) -> Void = { request in
+			if let request = request as? SystemDataSyncRequest {
+				XCTAssertNil(request.body?[SystemDataKeys.appVer])
+				XCTAssertNil(request.body?[SystemDataKeys.deviceManufacturer])
+				XCTAssertNil(request.body?[SystemDataKeys.deviceModel])
+				XCTAssertNil(request.body?[SystemDataKeys.osVer])
+				XCTAssertNotNil(request.body?[SystemDataKeys.sdkVersion])
+				XCTAssertNotNil(request.body?[SystemDataKeys.geofencingServiceEnabled])
+				XCTAssertNotNil(request.body?[SystemDataKeys.notificationsEnabled])
+			}
+		}
+		
+		let requestCompanionBlockEnabled: (Any) -> Void = { request in
+			if let request = request as? SystemDataSyncRequest {
+				XCTAssertNotNil(request.body?[SystemDataKeys.appVer])
+				XCTAssertNotNil(request.body?[SystemDataKeys.deviceManufacturer])
+				XCTAssertNotNil(request.body?[SystemDataKeys.deviceModel])
+				XCTAssertNotNil(request.body?[SystemDataKeys.osVer])
+				XCTAssertNotNil(request.body?[SystemDataKeys.sdkVersion])
+				XCTAssertNotNil(request.body?[SystemDataKeys.geofencingServiceEnabled])
+				XCTAssertNotNil(request.body?[SystemDataKeys.notificationsEnabled])
+			}
+		}
+		
+		self.mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+		                                                                             appCode: MMTestConstants.kTestCorrectApplicationCode,
+		                                                                             mmContext: self.mobileMessagingInstance,
+		                                                                             performRequestCompanionBlock: requestCompanionBlockDisabled,
+		                                                                             completionCompanionBlock: nil,
+		                                                                             responseSubstitution: nil)
+		self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer { (error) in
+			expectationD?.fulfill()
+		}
+		
+		MobileMessaging.privacySettings.systemInfoSendingDisabled = false
+		self.mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+		                                                                                  appCode: MMTestConstants.kTestCorrectApplicationCode,
+		                                                                                  mmContext: self.mobileMessagingInstance,
+		                                                                                  performRequestCompanionBlock: requestCompanionBlockEnabled,
+		                                                                                  completionCompanionBlock: nil,
+		                                                                                  responseSubstitution: nil)
+		self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer { (error) in
+			expectationE?.fulfill()
+		}
+		
+		self.waitForExpectations(timeout: 60) { _ in
+			MobileMessaging.privacySettings.systemInfoSendingDisabled = false
+		}
+	}
 }

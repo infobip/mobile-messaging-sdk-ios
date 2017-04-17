@@ -224,7 +224,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/// An auxillary component provides the convinient access to the user agent data.
-	public static var userAgent = MMUserAgent()
+	public internal(set) static var userAgent = MMUserAgent()
 	
 	/// A block object to be executed when user opens the app by tapping on the notification alert. 
 	/// Default implementation marks the corresponding message as seen.
@@ -247,7 +247,7 @@ public final class MobileMessaging: NSObject {
 	public static var urlSessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
 	
 	/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
-	public static let privacySettings = PrivacySettings()
+	public internal(set) static var privacySettings = PrivacySettings()
 	
 //MARK: Internal
 	static var sharedInstance: MobileMessaging?
