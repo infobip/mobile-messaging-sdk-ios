@@ -146,6 +146,9 @@ class MessageReceivingTests: MMTestCase {
 	func testThatSilentMessagesEvenWorks() {
 		let expectedEventsCount: Int = 5
 		var eventsCounter: Int = 0
+		var messageHandlingCounter: Int = 0
+		
+		weak var messageHandlingFinished = self.expectation(description: "messages handling finished")
 		
 		expectation(forNotification: MMNotificationMessageReceived, object: nil) { (notification) -> Bool in
 			if let message = notification.userInfo?[MMNotificationKeyMessage] as? MTMessage, message.isSilent == true {
@@ -155,7 +158,12 @@ class MessageReceivingTests: MMTestCase {
 		}
 		
 		sendPushes(apnsSilentMessagePayload, count: expectedEventsCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo)
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { (error) in
+				messageHandlingCounter += 1
+				if (messageHandlingCounter == 5) {
+					messageHandlingFinished?.fulfill()
+				}
+			})
 		}
 		
 		self.waitForExpectations(timeout: 60, handler: { _ in
