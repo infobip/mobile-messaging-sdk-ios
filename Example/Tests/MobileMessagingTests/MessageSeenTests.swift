@@ -46,6 +46,7 @@ class MessageSeenTests: MMTestCase {
 		
 		self.waitForExpectations(timeout: 60) { _ in
 			let ctx = self.storage.mainThreadManagedObjectContext!
+			ctx.reset()
 			ctx.performAndWait {
 				if let messages = MessageManagedObject.MM_findAllInContext(ctx) {
 					let m1 = messages.filter({$0.messageId == "m1"}).first!

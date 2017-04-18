@@ -238,7 +238,7 @@ final class RegistrationTests: MMTestCase {
 			}
 		}
 		
-		let mm = MobileMessaging.withApplicationCode("stub", notificationType: [], backendBaseURL: "stub")!.withGeofencingService()
+		let mm = mockedMMInstanceWithApplicationCode("stub")!.withGeofencingService()
 		mm.geofencingService = GeofencingServiceStartStopMock(storage: storage, mmContext: mm)
 		mm.start()
 		

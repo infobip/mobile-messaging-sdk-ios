@@ -46,6 +46,16 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8EFABFC71CEB3B9400510762"
+               BuildableName = "MobileMessagingExample_Tests_Device.xctest"
+               BlueprintName = "MobileMessagingExample_Tests_Device"
+               ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
                BuildableName = "MobileMessagingExample.xctest"
                BlueprintName = "MobileMessagingExample_Tests"
