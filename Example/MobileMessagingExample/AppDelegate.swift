@@ -22,7 +22,7 @@ class AppDelegate: MobileMessagingAppDelegate {
 	}
 	
 	func setupLogging() {
-		MobileMessaging.logger.logOutput = MMLogOutput.Console
-		MobileMessaging.logger.logLevel = .All
+		MobileMessaging.logger?.logOutput = MMLogOutput.Console
+		MobileMessaging.logger?.logLevel = .All
 	}
 }

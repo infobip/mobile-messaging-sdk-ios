@@ -47,16 +47,13 @@ enum RegionEventType: String {
 	case exit
 }
 
-
-public typealias DictionaryRepresentation = [String: Any]
-
 final public class MMGeoMessage: MTMessage {
 	public let campaignId: String
 	public let regions: Set<MMRegion>
 	public let startTime: Date
 	public let expiryTime: Date
 	public var isNotExpired: Bool {
-		return MMGeofencingService.isGeoCampaignNotExpired(campaign: self)
+		return GeofencingService.isGeoCampaignNotExpired(campaign: self)
 	}
 	
 	var hasValidEventsStateForNow: Bool {
@@ -91,9 +88,7 @@ final public class MMGeoMessage: MTMessage {
 			let internalData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload,
 			let geoRegionsData = internalData[InternalDataKeys.geo] as? [StringKeyPayload],
 			let expiryTimeString = internalData[CampaignDataKeys.expiryDate] as? String,
-
 			let startTimeString = internalData[CampaignDataKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: MobileMessaging.date.timeInterval(sinceReferenceDate: 0)) as String?,
-
 			let expiryTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryTimeString),
 			let startTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: startTimeString),
 			let campaignId = internalData[CampaignDataKeys.campaignId] as? String
@@ -161,12 +156,12 @@ final public class MMGeoMessage: MTMessage {
         geoEventReportFormat["sound"] = sound
         geoEventReportFormat["title"] = nil
         
-        if let customPayload = customPayload {
+        if let customPayload = customPayload, !customPayload.isEmpty {
             let json = JSON(customPayload)
             geoEventReportFormat["customPayload"] = json.stringValue
         }
         
-        if let internalData = internalData {
+        if let internalData = internalData, !internalData.isEmpty {
             let json = JSON(internalData)
             geoEventReportFormat["internalData"] = json.stringValue
         }
@@ -190,7 +185,7 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 	}
 	
 	private var isNowAppropriateDay: Bool {
-		return MMGeofencingService.isNowAppropriateDay(forDeliveryTime: self)
+		return GeofencingService.isNowAppropriateDay(forDeliveryTime: self)
 	}
 	
 	required public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
@@ -244,7 +239,7 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	}
 	
 	var isNow: Bool {
-		return MMGeofencingService.isNowAppropriateTime(forDeliveryTimeInterval: self)
+		return GeofencingService.isNowAppropriateTime(forDeliveryTimeInterval: self)
 	}
 	
 	/// Checks if `time` is in the interval defined with two time strings `fromTime` and `toTime` in ISO 8601 formats: `hhmm`
@@ -379,11 +374,11 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	}
 	
 	var isValidNow: Bool {
-		return MMGeofencingService.isRegionEventValidNow(self)
+		return GeofencingService.isRegionEventValidNow(self)
 	}
 	
 	var isValidInGeneral: Bool {
-		return MMGeofencingService.isRegionEventValidInGeneral(self)
+		return GeofencingService.isRegionEventValidInGeneral(self)
 	}
 	
 	fileprivate func occur() {
@@ -423,5 +418,26 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 		                                             RegionEventDataKeys.eventLimit: 1,
 		                                             RegionEventDataKeys.eventTimeout: 0]
 		return RegionEvent(dictRepresentation: defaultDict)!
+	}
+}
+
+extension MTMessage {
+	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String) -> MTMessage? {
+		var payload = geoMessage.originalPayload
+		guard let aps = payload["aps"] as? [String: Any], let internalData = payload["internalData"] as? [String: Any], var silentAps = internalData["silent"] as? [String: Any], let body = silentAps["body"] as? String else {
+			
+			return nil
+		}
+		
+		silentAps["alert"] = ["body": body]
+		silentAps["body"] = nil
+		let apsConcat = aps + silentAps
+		payload["aps"] = apsConcat
+		payload["internalData"] = nil
+		payload["messageId"] = messageId
+		let result = MTMessage(payload: payload, createdDate: MobileMessaging.date.now)
+		result?.deliveryMethod = .generatedLocally
+		result?.isDeliveryReportSent = true
+		return result
 	}
 }

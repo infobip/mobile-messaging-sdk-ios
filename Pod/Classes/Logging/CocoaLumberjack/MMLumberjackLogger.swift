@@ -1,6 +1,12 @@
 
 import CocoaLumberjack
 
+extension MMLoggerFactory {
+	public func createLogger() -> MMLogging {
+		return MMLogger()
+	}
+}
+
 extension DDLogFlag {
 	public static func fromLogLevel(logLevel: DDLogLevel) -> DDLogFlag {
 		return DDLogFlag(rawValue: logLevel.rawValue)

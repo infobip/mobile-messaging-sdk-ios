@@ -68,9 +68,9 @@ class GeofencingDatasource {
 	private func loadMessages() {
 		context.reset()
 		context.performAndWait {
-			let msgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), context: self.context)
+			let geomsgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), context: self.context)
 			
-			self.messages = Set(msgs?.flatMap({ return MMGeoMessage(managedObject: $0) }).filter { $0.isNotExpired } ?? [MMGeoMessage]())
+			self.messages = Set(geomsgs?.flatMap({ return MMGeoMessage(managedObject: $0) }).filter { $0.isNotExpired } ?? [MMGeoMessage]())
 		}
 	}
 	

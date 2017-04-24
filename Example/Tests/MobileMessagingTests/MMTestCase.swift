@@ -58,8 +58,8 @@ class MMTestCase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        MobileMessaging.logger.logOutput = .Console
-        MobileMessaging.logger.logLevel = .All
+        MobileMessaging.logger?.logOutput = .Console
+        MobileMessaging.logger?.logLevel = .All
         MobileMessaging.stop(true)
         startWithCorrectApplicationCode()
 		self.mobileMessagingInstance.reachabilityManager = MMReachabilityManagerStub(isReachable: true)
@@ -74,7 +74,7 @@ class MMTestCase: XCTestCase {
         super.tearDown()
 		cleanUpAndStop()
 		MobileMessaging.privacySettings = PrivacySettings()
-		MMGeofencingService.currentDate = nil
+		GeofencingService.currentDate = nil
 	}
     
     func nonReportedStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {

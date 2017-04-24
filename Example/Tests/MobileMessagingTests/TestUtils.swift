@@ -96,7 +96,6 @@ extension MobileMessaging {
 		remoteApiManager.registrationQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
 		remoteApiManager.seenStatusQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
 		remoteApiManager.messageSyncQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.geofencingServiceQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
 		remoteApiManager.versionFetchingQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
 	}
 }

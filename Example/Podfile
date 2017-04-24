@@ -2,17 +2,21 @@ source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
 $podName = 'MobileMessaging'
+$geoPodName = 'MobileMessaging/Geofencing'
 
 target 'MobileMessagingExample' do
     pod $podName, :path => '../'
+	pod $geoPodName, :path => '../'
 end
 
 target 'MobileMessagingExample_Tests' do
     pod $podName, :path => '../'
+	pod $geoPodName, :path => '../'
 end
 
 target 'MobileMessagingExample_Tests_Device' do
 	pod $podName, :path => '../'
+	pod $geoPodName, :path => '../'
 end
 
 post_install do |installer|

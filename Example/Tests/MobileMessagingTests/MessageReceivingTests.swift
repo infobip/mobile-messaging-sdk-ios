@@ -254,8 +254,9 @@ class MessageReceivingTests: MMTestCase {
 		let createdDate = Date()
 		let m1 = MTMessage(payload: payload1, createdDate: createdDate)!
 		let m2 = MTMessage(payload: payload2, createdDate: createdDate)!
-		MobileMessaging.didReceiveLocalNotification(MMLocalNotification.localNotification(with: m1))
-		MobileMessaging.didReceiveLocalNotification(MMLocalNotification.localNotification(with: m2))
+	
+		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: m1))
+		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: m2))
 		
 		self.waitForExpectations(timeout: 60, handler: { error in
 			assertionsBlock(tappedMessages)

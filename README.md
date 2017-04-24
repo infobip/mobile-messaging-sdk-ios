@@ -35,10 +35,14 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	use_frameworks!
 	pod 'MobileMessaging'
 	```
-5. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
-
 	> ### Notice 
 	> MobileMessaging SDK has geofencing service disabled by default. In order to enable the service follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service).
+
+	> ### Notice 
+	> CocoaLumberjack logging used by default, in order to use other logging or switch it off follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/How-to-install-the-SDK-without-CocoaLumberjack%3F).
+
+5. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
+
 
 ### App Delegate Inheritance
 The simplest approach to integrate Mobile Messaging with an existing app is by inheriting your app delegate from `MobileMessagingAppDelegate`. If you prefer a more advanced way: [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition).

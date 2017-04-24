@@ -32,24 +32,11 @@ class UserAgentStub: MMUserAgent {
 	}
 }
 
-class GeoAvailableUserAgentStub: UserAgentStub {
-	override var isGeofencingServiceEnabled: Bool {
-		return true
-	}
-}
-class GeoNotAvailableUserAgentStub: UserAgentStub {
-	override var isGeofencingServiceEnabled: Bool {
-		return false
-	}
-}
-
-
 class SystemDataTests: MMTestCase {
 
     func testSystemDataUpdates() {
 		weak var requestsCompleted = expectation(description: "requestsCompleted")
-		let ctx = self.storage.mainThreadManagedObjectContext!
-	
+
 		let responseStubBlock: (Any) -> JSON? = { request -> JSON? in
 			if request is RegistrationRequest {
 				return JSON(["pushRegistrationEnabled": true,
@@ -65,39 +52,35 @@ class SystemDataTests: MMTestCase {
 		}
 		
 		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
-		
 		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
-		var initialSystemDataHash: Int64!
-		MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
+		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
+		GeofencingService.sharedInstance!.start()
 		
-		if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-			initialSystemDataHash = installation.systemDataHash
-		}
+		let geoDisabledSystemDataHash = MobileMessaging.currentInstallation!.systemDataHash
+		var geoEnabledSystemDataHash: Int64!
 		
-		var updatedSystemDataHash: Int64!
-		MobileMessaging.userAgent = GeoAvailableUserAgentStub()
+		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: mobileMessagingInstance)
+		GeofencingService.sharedInstance!.start()
+		
 		MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
-			ctx.perform {
-				ctx.reset()
-				if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-					updatedSystemDataHash = installation.systemDataHash
-				}
-				MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
-				MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
-					requestsCompleted?.fulfill()
-				})
-			}
+
+			geoEnabledSystemDataHash = MobileMessaging.currentInstallation!.systemDataHash
+
+			GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: self.mobileMessagingInstance)
+			GeofencingService.sharedInstance!.start()
+			
+			MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
+				print(MobileMessaging.userAgent.systemData.dictionaryRepresentation) // must be disabled
+				requestsCompleted?.fulfill()
+			})
 		})
 		
 		self.waitForExpectations(timeout: 60) { _ in
-			ctx.reset()
-			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-				XCTAssertEqual(initialSystemDataHash, 0)
-				XCTAssertNotEqual(initialSystemDataHash, updatedSystemDataHash)
-				XCTAssertNotEqual(installation.systemDataHash, initialSystemDataHash)
-				XCTAssertNotEqual(installation.systemDataHash, updatedSystemDataHash)
-			}
+			XCTAssertEqual(geoDisabledSystemDataHash, 0)
+			XCTAssertNotEqual(geoDisabledSystemDataHash, geoEnabledSystemDataHash)
+			XCTAssertNotEqual(MobileMessaging.currentInstallation!.systemDataHash, geoDisabledSystemDataHash)
+			XCTAssertNotEqual(MobileMessaging.currentInstallation!.systemDataHash, geoEnabledSystemDataHash)
 		}
     }
 	
@@ -125,7 +108,7 @@ class SystemDataTests: MMTestCase {
 		self.mobileMessagingInstance.currentInstallation.deviceToken = "stub"
 		self.mobileMessagingInstance.currentUser.internalId = "stub"
 		
-		MobileMessaging.userAgent = GeoNotAvailableUserAgentStub()
+		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
 		self.mobileMessagingInstance.application = NotificationsEnabledMock()
 		
 		// system data request sending is expected (initial) +1

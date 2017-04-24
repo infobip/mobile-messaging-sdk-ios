@@ -21,27 +21,21 @@ Pod::Spec.new do |s|
 
     s.subspec 'Core' do |core|
         core.frameworks = 'CoreData', 'CoreTelephony', 'SystemConfiguration'
-        core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld'
-        
-        core.public_header_files = 'Pod/Classes/**/*.h'
+        core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/Core/InternalStorage/*.xcdatamodeld'
+        core.public_header_files = 'Pod/Classes/Core/**/*.h'
         core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
-        core.source_files = 'Pod/Classes/**/*.{h,m,swift}'
-        core.exclude_files = "Pod/Classes/Logging/CocoaLumberjack/**"
-    end
-
-    s.subspec 'DummyLogger' do |dl|
-        dl.dependency 'MobileMessaging/Core'
+        core.source_files = 'Pod/Classes/Core/**/*.{h,m,swift}', 'Pod/Classes/Vendor/**/*.{h,m,swift}', 'Pod/Classes/MessageStorage/**/*.{h,m,swift}'
     end
 
     s.subspec 'CocoaLumberjack' do |cl|
-        cl.frameworks = 'CoreData', 'CoreTelephony', 'SystemConfiguration'
-        cl.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/InternalStorage/*.xcdatamodeld'
-        
-        cl.public_header_files = 'Pod/Classes/**/*.h'
-        cl.private_header_files = 'Pod/Classes/Vendor/**/*.h'
-        cl.source_files = 'Pod/Classes/**/*.{h,m,swift}'
-        cl.exclude_files = "Pod/Classes/Logging/DummyLogger/**"
-
+	cl.dependency 'MobileMessaging/Core'
+        cl.source_files = 'Pod/Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
         cl.dependency 'CocoaLumberjack', '~> 3.1'
+    end
+
+    s.subspec 'Geofencing' do |geo|
+	geo.dependency 'MobileMessaging/Core'
+        geo.frameworks = 'CoreLocation'
+        geo.source_files = 'Pod/Classes/Geofencing/**'
     end
 end

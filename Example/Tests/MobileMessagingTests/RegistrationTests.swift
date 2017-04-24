@@ -237,9 +237,11 @@ final class RegistrationTests: MMTestCase {
 				return nil
 			}
 		}
-		
+
 		let mm = mockedMMInstanceWithApplicationCode("stub")!.withGeofencingService()
-		mm.geofencingService = GeofencingServiceStartStopMock(storage: storage, mmContext: mm)
+		GeofencingService.sharedInstance = GeofencingServiceStartStopMock(mmContext: mm)
+		GeofencingService.sharedInstance!.start()
+		
 		mm.start()
 		
 		mm.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
@@ -250,14 +252,14 @@ final class RegistrationTests: MMTestCase {
 		                                                                             responseSubstitution: responseStatusDisabledStub)
 		
 		XCTAssertTrue(mm.messageHandler.isRunning)
-		XCTAssertTrue(mm.geofencingService.isRunning)
+		XCTAssertTrue(GeofencingService.sharedInstance!.isRunning)
 		XCTAssertTrue(MobileMessaging.isPushRegistrationEnabled)
 		
 		mm.currentInstallation.deviceToken = "stub"
 		mm.currentInstallation.syncInstallationWithServer(completion: { err in
 			// we got disabled status, now message handling must be stopped
 			XCTAssertFalse(mm.messageHandler.isRunning)
-			XCTAssertFalse(mm.geofencingService.isRunning)
+			XCTAssertFalse(MobileMessaging.geofencingService!.isRunning)
 			XCTAssertFalse(MobileMessaging.isPushRegistrationEnabled)
 			registrationSynced?.fulfill()
 		})
@@ -431,16 +433,20 @@ class NotificationsDisabledMock: MMApplication {
 }
 
 
-class GeofencingServiceStartStopMock: MMGeofencingService {
+class GeofencingServiceStartStopMock: GeofencingService {
 	override func stop(_ completion: ((Bool) -> Void)?) {
 		isRunning = false
 	}
 	override func start(_ completion: ((Bool) -> Void)?) {
 		isRunning = true
 	}
-	override func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMCapabilityStatus) -> Void) {
-		completion(.Authorized)
+	override func authorizeService(kind: LocationServiceKind, usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
+		completion(.authorized)
 	}
 	
 	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
+	
+	override public class var currentCapabilityStatus: GeofencingCapabilityStatus {
+		return GeofencingCapabilityStatus.authorized
+	}
 }
