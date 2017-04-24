@@ -71,7 +71,6 @@ class SystemDataTests: MMTestCase {
 			GeofencingService.sharedInstance!.start()
 			
 			MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
-				print(MobileMessaging.userAgent.systemData.dictionaryRepresentation) // must be disabled
 				requestsCompleted?.fulfill()
 			})
 		})
