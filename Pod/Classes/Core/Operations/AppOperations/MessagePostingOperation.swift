@@ -28,19 +28,20 @@ class MessagePostingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message posting] started...")
+		guard let internalId = mmContext.currentUser?.internalId else
+        {
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		
+		guard let messagesToSend = messagesToSend, !messagesToSend.isEmpty else
+        {
+			finish()
+			return
+		}
+		
 		context.reset()
-		guard let internalId = MobileMessaging.currentUser?.internalId else
-        {
-			self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
-		}
-		guard let messagesToSend = self.messagesToSend, !messagesToSend.isEmpty else
-        {
-			self.finish()
-			return
-		}
-        
-		self.context.performAndWait {
+		context.performAndWait {
 			self.postWillSendNotification(messagesToSend: messagesToSend)
 			self.populateMessageStorage(with: messagesToSend)
 			

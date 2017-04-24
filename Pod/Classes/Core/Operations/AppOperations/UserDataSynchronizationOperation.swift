@@ -34,22 +34,22 @@ class UserDataSynchronizationOperation: Operation {
 	override func execute() {
 		MMLogDebug("[User data sync] Started...")
 		user.persist()
-		self.sendUserDataIfNeeded()
+		sendUserDataIfNeeded()
 	}
 
 	private func sendUserDataIfNeeded() {
-		guard let internalId = user.internalId else {
+		guard user.internalId != nil else {
 			MMLogDebug("[User data sync] There is no registration. Finishing...")
-			finish()
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 
 		if onlyFetching {
 			MMLogDebug("[User data sync] fetching from server...")
-			self.fetchUserData(externalId: user.externalId)
+			fetchUserData(externalId: user.externalId)
 		} else  {
 			MMLogDebug("[User data sync] sending user data updates to the server...")
-			self.syncUserData(customUserDataValues: user.customData, internalId: internalId, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
+			syncUserData(customUserDataValues: user.customData, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
 		}
 	}
 	
@@ -62,7 +62,7 @@ class UserDataSynchronizationOperation: Operation {
 		})
 	}
 	
-	private func syncUserData(customUserDataValues: [String: CustomUserDataValue]?, internalId: String, externalId: String?, predefinedUserData: UserDataDictionary?) {
+	private func syncUserData(customUserDataValues: [String: CustomUserDataValue]?, externalId: String?, predefinedUserData: UserDataDictionary?) {
 		mmContext.remoteApiManager.syncUserData(externalUserId: externalId,
 		                                 predefinedUserData: predefinedUserData,
 		                                 customUserData: customUserDataValues)
@@ -105,7 +105,7 @@ class UserDataSynchronizationOperation: Operation {
 
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[User data sync] finished with errors: \(errors)")
-		self.finishBlock?(errors.first)
+		finishBlock?(errors.first)
 	}
 }
 
@@ -126,11 +126,11 @@ struct CustomUserData: DictionaryRepresentable {
 		guard let key = dict.first?.0 else {
 			return nil
 		}
-		self.dataKey = key
+		dataKey = key
 		if	let valueDict = dict.first?.1 as? [String: AnyObject] {
-			self.dataValue = CustomUserDataValue(withJSONDict: valueDict)
+			dataValue = CustomUserDataValue(withJSONDict: valueDict)
 		} else {
-			self.dataValue = nil
+			dataValue = nil
 		}
 	}
 
@@ -144,7 +144,7 @@ struct CustomUserData: DictionaryRepresentable {
 
 	func mapToCoreDataCompatibleDictionary() -> [String: AnyObject]? {
 		var result: [String: AnyObject]?
-		if let value = self.dataValue, let type = value.dataType {
+		if let value = dataValue, let type = value.dataType {
 			var dict = [String: AnyObject]()
 			switch type {
 			case .string:

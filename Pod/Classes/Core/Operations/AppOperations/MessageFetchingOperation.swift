@@ -22,12 +22,16 @@ final class MessageFetchingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message fetching] Starting operation...")
-		context.reset()
+		guard mmContext.currentUser?.internalId != nil else {
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
 		syncMessages()
 	}
 	
 	private func syncMessages() {
-		self.context.performAndWait {
+		context.reset()
+		context.performAndWait {
 			let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
 			let fetchLimit = 100 // consider 100 most recent messages
 			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
@@ -38,7 +42,7 @@ final class MessageFetchingOperation: Operation {
 			
 			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archivedMessages?.count)) archive messages.")
 			
-           self.mmContext.remoteApiManager.syncMessages(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
+			self.mmContext.remoteApiManager.syncMessages(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
                 self.result = result
                 self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
                 self.finishWithError(result.error as NSError?)
@@ -47,7 +51,7 @@ final class MessageFetchingOperation: Operation {
 	}
 
 	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?) {
-		self.context.performAndWait {
+		context.performAndWait {
 			switch result {
 			case .Success(let fetchResponse):
 				let fetchedMessages = fetchResponse.messages
@@ -83,7 +87,7 @@ final class MessageFetchingOperation: Operation {
 		MMLogDebug("[Message fetching] marked as delivered: \(messages.map{ $0.messageId })")
 		context.MM_saveToPersistentStoreAndWait()
 		
-		self.updateMessageStorage(with: messages)
+		updateMessageStorage(with: messages)
 	}
 	
 	private func updateMessageStorage(with messages: [MessageManagedObject]) {

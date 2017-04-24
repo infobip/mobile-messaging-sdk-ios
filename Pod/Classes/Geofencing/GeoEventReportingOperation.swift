@@ -28,14 +28,14 @@ class GeoEventReportingOperation: Operation {
 	}
 	
 	override func execute() {
+		guard let internalId = mmContext.currentUser.internalId else
+		{
+			MMLogDebug("[Geo event reporting] installation object not found, finishing the operation...")
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		
 		context.perform {
-			guard let internalId = self.mmContext.currentUser.internalId else
-			{
-				MMLogDebug("[Geo event reporting] installation object not found, finishing the operation...")
-				self.finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-				return
-			}
-			
 			guard let happenedEvents = GeoEventReportObject.MM_findAllInContext(self.context), !happenedEvents.isEmpty else
 			{
 				MMLogDebug("[Geo event reporting] There is no non-reported geo events to send to the server. Finishing...")

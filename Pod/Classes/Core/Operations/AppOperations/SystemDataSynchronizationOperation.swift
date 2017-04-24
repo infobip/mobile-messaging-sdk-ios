@@ -35,14 +35,19 @@ class SystemDataSynchronizationOperation: Operation {
 		MMLogDebug("[System data sync] starting synchronization...")
 		
 		if installation.systemDataHash != currentSystemDataHash {
-			self.sendRequest()
+			sendRequest()
 		} else {
 			MMLogDebug("[System data sync] no changes to send to the server")
-			self.finish()
+			finish()
 		}
 	}
 	
 	private func sendRequest() {
+		guard user.internalId != nil else {
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		
 		MMLogDebug("[System data sync] performing request...")
 		mmContext.remoteApiManager.syncSystemData(systemData: currentSystemData) { result in
 			self.handleResult(result)
@@ -66,6 +71,6 @@ class SystemDataSynchronizationOperation: Operation {
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[System data sync] finished with errors: \(errors)")
-		self.finishBlock?(errors.first)
+		finishBlock?(errors.first)
 	}
 }

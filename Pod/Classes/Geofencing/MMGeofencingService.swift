@@ -72,7 +72,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	}
 	
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) {
-		guard let geoSignalingMessage = MMGeoMessage(payload: originalMessage.originalPayload, createdDate: Date()) else {
+		guard let geoSignalingMessage = MMGeoMessage(payload: originalMessage.originalPayload, createdDate: MobileMessaging.date.now) else {
 			return
 		}
 		
@@ -110,7 +110,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	}
 
 	public static var isGeofencingServiceEnabled: Bool {
-		return self.currentCapabilityStatus == GeofencingCapabilityStatus.authorized
+		return currentCapabilityStatus == GeofencingCapabilityStatus.authorized
 	}
 	
 	static var isGeoServiceNeedsToStart: Bool = false
@@ -257,7 +257,6 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			self.datasource = GeofencingDatasource(storage: mmContext.internalStorage)
 			self.mmContext = mmContext
 			self.previousLocation = MobileMessaging.currentInstallation?.location
-		
 		}
 	}
 	
@@ -337,9 +336,9 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	func regionsToStartMonitoring(monitoredRegions: Set<CLCircularRegion>) -> Set<CLCircularRegion> {
 		assert(Thread.isMainThread)
-		let notExpiredRegions = Set(self.datasource.liveRegions.map { $0.circularRegion })
+		let notExpiredRegions = Set(datasource.liveRegions.map { $0.circularRegion })
 		let number = GeofencingConstants.monitoringRegionsLimit - monitoredRegions.count
-		let location = self.locationManager.location ?? previousLocation
+		let location = locationManager.location ?? previousLocation
 		let array = GeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { monitoredRegions.contains($0) == false })
 		return Set(array)
 	}
