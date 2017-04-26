@@ -64,15 +64,16 @@ class SystemDataTests: MMTestCase {
 		GeofencingService.sharedInstance!.start()
 		
 		MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
-
-			geoEnabledSystemDataHash = MobileMessaging.currentInstallation!.systemDataHash
-
-			GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: self.mobileMessagingInstance)
-			GeofencingService.sharedInstance!.start()
-			
-			MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
-				requestsCompleted?.fulfill()
-			})
+			DispatchQueue.main.async {
+				geoEnabledSystemDataHash = MobileMessaging.currentInstallation!.systemDataHash
+				
+				GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: self.mobileMessagingInstance)
+				GeofencingService.sharedInstance!.start()
+				
+				MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
+					requestsCompleted?.fulfill()
+				})
+			}
 		})
 		
 		self.waitForExpectations(timeout: 60) { _ in

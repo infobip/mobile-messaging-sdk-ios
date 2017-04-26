@@ -219,7 +219,7 @@ final class MMMessageHandler: MobileMessagingService {
 	
 	func start(_ completion: ((Bool) -> Void)? = nil) {
 		isRunning = true
-		evictOldMessages()
+//		evictOldMessages()
 		completion?(true)
 	}
 	
