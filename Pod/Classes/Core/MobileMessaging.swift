@@ -110,8 +110,9 @@ public final class MobileMessaging: NSObject {
 	/// Cleans up all internal persisted data.
 	///
 	/// Use this method in order to completely drop any data persisted by the SDK (i.e. internal SDK data, optional user data, optional messages metadata).
-	public static func cleanUpAndStop() {
-		MobileMessaging.sharedInstance?.cleanUpAndStop()
+	/// - Parameter clearKeychain: defines whether the internalId in keychain will be cleaned. True by default.
+	public static func cleanUpAndStop(_ clearKeychain: Bool = true) {
+		MobileMessaging.sharedInstance?.cleanUpAndStop(clearKeychain)
 	}
 
 	/// Enables the push registration so the device can receive push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
@@ -294,6 +295,7 @@ public final class MobileMessaging: NSObject {
 		application = UIApplication.shared
 		MobileMessaging.notificationTapHandler = nil
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
+		self.appListener = nil
 		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingDidStop(self)

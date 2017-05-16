@@ -61,6 +61,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
 		stop()
+		GeofencingService.sharedInstance = nil
 	}
 
 	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
@@ -414,7 +415,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			}
 		}
 	}
-	
+
 	fileprivate func startService() {
 		locationManagerQueue.executeAsync() {
 			guard self.isRunning == false else
@@ -427,34 +428,9 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			
 			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeoServiceDidStart, userInfo: nil)
 			
-			NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidFinishLaunching, object: nil, queue: nil, using:
-				{ [weak self] notification in
-					assert(Thread .isMainThread)
-					if notification.userInfo?[UIApplicationLaunchOptionsKey.location] != nil {
-						MMLogDebug("[GeofencingService] The app relaunched by the OS.")
-						self?.restartLocationManager()
-					}
-				}
-			)
-			
-			NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidEnterBackground, object: nil, queue: nil, using:
-				{ [weak self] notification in
-					MMLogDebug("[GeofencingService] App did enter background.")
-					assert(Thread .isMainThread)
-					self?.restartLocationManager()
-					if let previousLocation = self?.previousLocation {
-						MobileMessaging.currentInstallation?.location = previousLocation
-					}
-				}
-			)
-			
-			NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidBecomeActive, object: nil, queue: nil, using:
-				{ [weak self] note in
-					MMLogDebug("[GeofencingService] App did become active.")
-					assert(Thread .isMainThread)
-					self?.restartLocationManager()
-				}
-			)
+			NotificationCenter.default.addObserver(self, selector: #selector(GeofencingService.handleApplicationDidFinishLaunchingNotification(_:)), name: NSNotification.Name.UIApplicationDidFinishLaunching, object: nil)
+			NotificationCenter.default.addObserver(self, selector: #selector(GeofencingService.handleApplicationDidEnterBackgroundNotification(_:)), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+			NotificationCenter.default.addObserver(self, selector: #selector(GeofencingService.handleApplicationDidBecomeActiveNotification(_:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
 			
 			self.isRunning = true
 			MMLogDebug("[GeofencingService] started.")
@@ -521,6 +497,31 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	}
 	
 	fileprivate var previousLocation: CLLocation?
+	
+	//MARK: Notifications handling
+	
+	func handleApplicationDidFinishLaunchingNotification(_ notification: Notification) {
+		assert(Thread .isMainThread)
+		if notification.userInfo?[UIApplicationLaunchOptionsKey.location] != nil {
+			MMLogDebug("[GeofencingService] The app relaunched by the OS.")
+			restartLocationManager()
+		}
+	}
+	
+	func handleApplicationDidEnterBackgroundNotification(_ notification: Notification) {
+		MMLogDebug("[GeofencingService] App did enter background.")
+		assert(Thread .isMainThread)
+		restartLocationManager()
+		if let previousLocation = previousLocation {
+			MobileMessaging.currentInstallation?.location = previousLocation
+		}
+	}
+	
+	func handleApplicationDidBecomeActiveNotification(_ notification: Notification) {
+		MMLogDebug("[GeofencingService] App did become active.")
+		assert(Thread .isMainThread)
+		restartLocationManager()
+	}
 }
 
 
