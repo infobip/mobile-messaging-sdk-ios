@@ -86,6 +86,9 @@ class GeoEventReportingOperation: Operation {
 		}) ?? CampaignsDictionary()
 	}
 	
+	typealias AreaId = String
+	typealias MTMessagesDatasource = [MessageId: (MMGeoMessage, AreaId)]
+	
 	private func handleRequestResult(_ result: MMGeoEventReportingResult, completion: @escaping () -> Void) {
 		context.performAndWait {
 			let messagesUpdatingGroup = DispatchGroup()
@@ -109,13 +112,14 @@ class GeoEventReportingOperation: Operation {
 			
 			messagesUpdatingGroup.notify(queue: DispatchQueue.global(qos: .background), execute: {
 				let completionsGroup = DispatchGroup()
-				let mtMessagesDatasource = GeoEventReportObject.MM_findAllWithPredicate(NSPredicate(format: "SELF IN %@", self.happenedEventObjectIds), context: self.context)?.reduce([MessageId: MMGeoMessage](), { (datasourceResult, event) -> [MessageId: MMGeoMessage] in
+				let mtMessagesDatasource = GeoEventReportObject.MM_findAllWithPredicate(NSPredicate(format: "SELF IN %@", self.happenedEventObjectIds), context: self.context)?.reduce(MTMessagesDatasource(), { (datasourceResult, event) -> MTMessagesDatasource in
 					
+		
 					guard let geoCampaign = self.signalingGeoMessages[event.campaignId] else {
 						return datasourceResult
 					}
 					
-					let ret: [MessageId: MMGeoMessage]
+					let ret: MTMessagesDatasource
 					
 					switch result {
 					case .Success(let response):
@@ -124,7 +128,7 @@ class GeoEventReportingOperation: Operation {
 						// we are about to generate a mt message only for active campaigns
 						if let key = response.tempMessageIdRealMessageId[event.sdkMessageId], (response.finishedCampaignIds + response.suspendedCampaignIds).contains(event.campaignId) == false, event.messageShown == false
 						{
-							ret = datasourceResult + [key: geoCampaign]
+							ret = datasourceResult + [key: (geoCampaign, event.geoAreaId)]
 							geoCampaign.onEventOccur(ofType: RegionEventType(rawValue: event.eventType) ?? .entry)
 							geoSignalingMessages = geoSignalingMessages + [geoCampaign.messageId: geoCampaign]
 						} else {
@@ -137,7 +141,7 @@ class GeoEventReportingOperation: Operation {
 						if event.messageShown == false {
 							// if we had a failed request, we should generate a message for the campaign immediately regardless the campaign status
 							// we'll use the sdk generated message id to generate a mt message with it further in `generateAndHandleGeoVirtualMessages`
-							ret = datasourceResult + [event.sdkMessageId: geoCampaign]
+							ret = datasourceResult + [event.sdkMessageId: (geoCampaign, event.geoAreaId)]
 							geoCampaign.onEventOccur(ofType: RegionEventType(rawValue: event.eventType) ?? .entry)
 							geoSignalingMessages = geoSignalingMessages + [geoCampaign.messageId: geoCampaign]
 							
@@ -158,14 +162,16 @@ class GeoEventReportingOperation: Operation {
 					
 					completionsGroup.enter()
 					MMLogDebug("[Geo event reporting] updating stored payloads...")
-					self.mmContext.messageHandler.updateOiginalPayloadsWithMessages(messages: geoSignalingMessages, completion: {
+					self.mmContext.messageHandler.updateOriginalPayloadsWithMessages(messages: geoSignalingMessages, completion: {
 						MMLogDebug("[Geo event reporting] stopped updating stored payloads.")
 						completionsGroup.leave()
 					})
 					
-					let locallyGeneratedMessages = mtMessagesDatasource.reduce([MTMessage]()) { (result, kv: (mId: MessageId, campaign: MMGeoMessage)) -> [MTMessage] in
-						if let mtMessage = MTMessage.make(fromGeoMessage: kv.campaign, messageId: kv.mId) {
-							return result + [mtMessage]
+					let locallyGeneratedMessages = mtMessagesDatasource.reduce([MTMessage]()) { (result, kv: (mId: MessageId, messageData: (campaign: MMGeoMessage, areaId: AreaId))) -> [MTMessage] in
+						if let region = kv.messageData.campaign.regions.filter({ return $0.identifier == kv.messageData.areaId }).first {
+							if let mtMessage = MTMessage.make(fromGeoMessage: kv.messageData.campaign, messageId: kv.mId, region: region) {
+								return result + [mtMessage]
+							}
 						}
 						return result
 					}

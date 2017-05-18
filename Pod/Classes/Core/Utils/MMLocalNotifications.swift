@@ -14,7 +14,7 @@ struct LocalNotificationKeys {
 
 extension UILocalNotification {
 	class func mm_presentLocalNotification(with message: MTMessage) {
-		guard !message.isSilent || (message.isGeoMessage) else {
+		guard !message.isSilent || (message.isGeoSignalingMessage) else {
 			return
 		}
 		

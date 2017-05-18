@@ -123,7 +123,7 @@ final class MMMessageHandler: MobileMessagingService {
 		self.messageSyncQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
 	}
 	
-	func updateOiginalPayloadsWithMessages(messages: [MessageId: MTMessage], completion: ((Void) -> Void)?) {
+	func updateOriginalPayloadsWithMessages(messages: [MessageId: MTMessage], completion: ((Void) -> Void)?) {
 		guard !messages.isEmpty else
 		{
 			completion?()
@@ -199,7 +199,7 @@ final class MMMessageHandler: MobileMessagingService {
 	}
 	
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) {
-		guard !originalMessage.isGeoMessage else {
+		guard !originalMessage.isGeoSignalingMessage else {
 			return
 		}
 		
@@ -209,6 +209,7 @@ final class MMMessageHandler: MobileMessagingService {
 		message.isSilent = originalMessage.isSilent
 		message.reportSent = originalMessage.isDeliveryReportSent
 		message.messageType = .Default
+		message.payload = originalMessage.originalPayload
 	}
 	
 	var isRunning: Bool = true

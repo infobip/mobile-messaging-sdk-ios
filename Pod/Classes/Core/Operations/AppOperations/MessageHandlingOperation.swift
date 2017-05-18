@@ -74,7 +74,7 @@ final class MessageHandlingOperation: Operation {
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		
-		let regularMessages: [MTMessage] = newMessages.filter { !$0.isGeoMessage } //workaround. The message handling must not know about geo messages. Redesign needed.
+		let regularMessages: [MTMessage] = newMessages.filter { !$0.isGeoSignalingMessage } //workaround. The message handling must not know about geo messages. Redesign needed.
 		handleNotificationTappedIfNeeded(regularMessages)
 		notifyAboutNewMessages(regularMessages)
 		populateMessageStorageWithNewMessages(regularMessages)

@@ -1359,6 +1359,32 @@ class GeofencingServiceTests: MMTestCase {
 		})
     }
 	
+	func testThatVirtualGeoMessageHasGeoAreaData() {
+		weak var e = expectation(description: "test finished")
+		testVirtualGeoMessages(suspendedCampaignId: "none", finishedCampaignId: "none") {
+			e?.fulfill()
+		}
+		
+		waitForExpectations(timeout: 60, handler: { er in
+			
+			let ctx = self.storage.mainThreadManagedObjectContext!
+			ctx.performAndWait {
+				ctx.reset()
+				if let allMsgs = MessageManagedObject.MM_findAllInContext(ctx) {
+					
+					let msg = allMsgs.filter({ (msg) -> Bool in
+						return msg.messageId == "ipcoremessageid" && msg.payload != nil && msg.reportSent == true && msg.isSilent == false && msg.messageType == MMMessageType.Default && msg.seenStatus == MMSeenStatus.NotSeen && msg.campaignId == nil
+					}).first
+					
+					XCTAssertNotNil((msg?.payload?["internalData"] as? DictionaryRepresentation)?["geo"] as? [DictionaryRepresentation])
+				} else {
+					XCTFail()
+				}
+			}
+			
+		})
+	}
+	
     func testThatVirtualGeoMessagesNotCreatedForSuspendedCampaign() {
 		weak var e = expectation(description: "test finished")
 		testVirtualGeoMessages(suspendedCampaignId: expectedCampaignId, finishedCampaignId: "none") {
@@ -1393,7 +1419,7 @@ class GeofencingServiceTests: MMTestCase {
 				}).count, 1)
 				
 				XCTAssertEqual(allMsgs.filter({ (msg) -> Bool in
-					return msg.messageId == "ipcoremessageid" && msg.reportSent == true && msg.isSilent == false && msg.messageType == MMMessageType.Default && msg.seenStatus == MMSeenStatus.NotSeen && msg.campaignId == nil
+					return msg.messageId == "ipcoremessageid" && msg.payload != nil && msg.reportSent == true && msg.isSilent == false && msg.messageType == MMMessageType.Default && msg.seenStatus == MMSeenStatus.NotSeen && msg.campaignId == nil
 				}).count, expectedVirtualMessagesCount)
 			} else {
 				XCTFail()
@@ -1404,12 +1430,12 @@ class GeofencingServiceTests: MMTestCase {
 	func testVirtualGeoMessages(suspendedCampaignId: String, finishedCampaignId: String, completion: @escaping () -> Void) {
 		
         let events = [makeEventDict(ofType: .entry, limit: 2, timeout: 1)]
-        let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-        guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+        let geoSignalingMessagePayload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
+        guard let geoSignalingMessage = MMGeoMessage(payload: geoSignalingMessagePayload, createdDate: Date()) else {
             XCTFail()
             return
         }
-        let pulaObject = message.regions.findPula
+        let pulaObject = geoSignalingMessage.regions.findPula
         var sentSdkMessageId: String!
         
         mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
@@ -1461,10 +1487,10 @@ class GeofencingServiceTests: MMTestCase {
                 return result
         })
 		
-        mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
+        mobileMessagingInstance.didReceiveRemoteNotification(geoSignalingMessagePayload,  completion: { _ in
             //Should be in main because Geofencing service saves data asynchronously in main
             DispatchQueue.main.async {
-                MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message, completion: { state in
+                MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: geoSignalingMessage, completion: { state in
                     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1), execute: {
                         completion()
                     })

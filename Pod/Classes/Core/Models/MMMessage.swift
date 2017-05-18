@@ -101,7 +101,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	
 	/// Defines the origin of a message.
 	///
-	/// Message may be either pushed by APNS or pulled from the server.
+	/// Message may be either pushed by APNS, generated locally or pulled from the server.
 	public internal(set) var deliveryMethod: MessageDeliveryMethod
 	
 	/// Defines if a message is silent. Silent messages have neither text nor sound attributes.
@@ -205,9 +205,9 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		return resultAps
 	}
 	
-	var isGeoMessage: Bool {
+	var isGeoSignalingMessage: Bool {
 		//TODO: this is a workaround. MobileMessaging must not know anything about geofencing feature. message type attriute needed?
-		return internalData?[InternalDataKeys.geo] != nil
+		return internalData?[InternalDataKeys.geo] != nil && isSilent
 	}
 }
 
