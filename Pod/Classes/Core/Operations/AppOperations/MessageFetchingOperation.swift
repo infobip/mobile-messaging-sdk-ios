@@ -98,7 +98,6 @@ final class MessageFetchingOperation: Operation {
 		return MessageHandlingOperation(messagesToHandle: messages,
 		                                context: context,
 		                                messageHandler: MobileMessaging.messageHandling,
-		                                applicationState: mmContext.application.applicationState,
 		                                mmContext: mmContext,
 		                                finishBlock: { error in
 											

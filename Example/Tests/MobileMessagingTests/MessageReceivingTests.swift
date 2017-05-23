@@ -215,7 +215,13 @@ class MessageReceivingTests: MMTestCase {
 		}
 	}
 	
-	private func collectSixTappedMessages(forApplication application: MMApplication, assertionsBlock: @escaping ([MTMessage]) -> Void) {
+	func testTapHandlerCalledIfUserInfoContainsApplicationLaunchedByNotificationKey() {
+		collectSixTappedMessages(forApplication: ActiveApplicationMock(), additionalPayload: [ApplicationLaunchedByNotification_Key: true]) { (tappedMessages) in
+			XCTAssertEqual(tappedMessages.count, 6)
+		}
+	}
+	
+	private func collectSixTappedMessages(forApplication application: MMApplication, additionalPayload: [AnyHashable: Any] = [:], assertionsBlock: @escaping ([MTMessage]) -> Void) {
 		weak var messageReceived1 = self.expectation(description: "message received")
 		weak var messageReceived2 = self.expectation(description: "message received")
 		weak var messageReceived3 = self.expectation(description: "message received")
@@ -228,8 +234,8 @@ class MessageReceivingTests: MMTestCase {
 			tappedMessages.append(message)
 		}
 		
-		let payload1 = apnsNormalMessagePayload("m1")
-		let payload2 = apnsNormalMessagePayload("m2")
+		let payload1 = apnsNormalMessagePayload("m1") + additionalPayload
+		let payload2 = apnsNormalMessagePayload("m2") + additionalPayload
 		
 		self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
 			messageReceived1?.fulfill()
@@ -251,15 +257,23 @@ class MessageReceivingTests: MMTestCase {
 			})
 		})
 		
-		let createdDate = Date()
-		let m1 = MTMessage(payload: payload1, createdDate: createdDate)!
-		let m2 = MTMessage(payload: payload2, createdDate: createdDate)!
-	
-		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: m1))
-		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: m2))
+		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1, createdDate: Date()))
+		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1, createdDate: Date()))
 		
 		self.waitForExpectations(timeout: 60, handler: { error in
 			assertionsBlock(tappedMessages)
 		})
+	}
+}
+
+extension UILocalNotification {
+	class func mm_localNotification(with payload: [AnyHashable: Any], createdDate: Date) -> UILocalNotification {
+		let m = MTMessage(payload: payload, createdDate: createdDate)!
+		let localNotification = UILocalNotification()
+		localNotification.userInfo = [LocalNotificationKeys.pushPayload: payload,
+		                              LocalNotificationKeys.createdDate: createdDate]
+		localNotification.alertBody = m.text
+		localNotification.soundName = m.sound
+		return localNotification
 	}
 }

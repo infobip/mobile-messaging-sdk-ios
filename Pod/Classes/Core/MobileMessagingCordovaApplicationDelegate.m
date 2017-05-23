@@ -5,8 +5,11 @@
 #import "MobileMessagingCordovaApplicationDelegate.h"
 #import <MobileMessaging/MobileMessaging-Swift.h>
 
+NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.application-launched-by-notification";
+
 @interface MobileMessagingCordovaApplicationDelegate() {
 	id<UIApplicationDelegate> _applicationDelegate;
+	id<NotificationsCaching> _notificationsCacher;
 }
 @end
 
@@ -22,12 +25,13 @@
 	return _sharedInstaller;
 }
 
-+ (void)install {
-	[[self sharedInstaller] install];
++ (void)install:(id<NotificationsCaching>)notificationsCacher {
+	[[self sharedInstaller] install:notificationsCacher];
 }
 
-- (void)install {
+- (void)install:(id<NotificationsCaching>)notificationsCacher {
 	if (!self.installed){
+		_notificationsCacher = notificationsCacher;
 		_applicationDelegate = [UIApplication sharedApplication].delegate;
 		UIResponder *responder = (UIResponder *) _applicationDelegate;
 		self.window = [responder valueForKey:@"window"];
@@ -39,9 +43,19 @@
 #pragma mark - Application Delegate Methods
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+	[_notificationsCacher didReceiveRemoteNotification:[self extendUserInfoIfNeeded:userInfo] fetchCompletionHandler:completionHandler];
 	[MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 	if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
 		[_applicationDelegate application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+	}
+}
+
+- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+	notification.userInfo = [self extendUserInfoIfNeeded: notification.userInfo];
+	[_notificationsCacher didReceiveLocalNotification:notification];
+	[MobileMessaging didReceiveLocalNotification:notification];
+	if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didReceiveLocalNotification:)]) {
+		[_applicationDelegate application:application didReceiveLocalNotification:notification];
 	}
 }
 
@@ -73,6 +87,16 @@
 	}
 	
 	return methodSignature;
+}
+
+#pragma mark - Utils
+
+- (NSDictionary *)extendUserInfoIfNeeded:(NSDictionary *)userInfo {
+	NSMutableDictionary *result = userInfo.mutableCopy;
+	if ([UIApplication sharedApplication].applicationState == UIApplicationStateInactive) {
+		[result setValue:@YES forKey:ApplicationLaunchedByNotification_Key];
+	}
+	return result.copy;
 }
 
 @end

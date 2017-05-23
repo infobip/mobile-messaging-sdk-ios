@@ -74,20 +74,20 @@ final class MMMessageHandler: MobileMessagingService {
 		}
 
 		if let msg = MTMessage(payload: userInfo, createdDate: MobileMessaging.date.now) {
-			handleMTMessages([msg], completion: completion)
+			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(msg, applicationState: mmContext.application.applicationState),completion: completion)
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
 			completion?(.failed(NSError.init(type: .UnknownError)))
 		}
 	}
 	
-	func handleMTMessages(_ messages: [MTMessage], completion: ((MessageHandlingResult) -> Void)? = nil) {
+	func handleMTMessages(_ messages: [MTMessage], notificationTapped: Bool = false, completion: ((MessageHandlingResult) -> Void)? = nil) {
 		guard isRunning == true, !messages.isEmpty else {
 			completion?(.noData)
 			return
 		}
 		
-		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, applicationState: mmContext.application.applicationState, mmContext: mmContext, finishBlock: { error in
+		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock: { error in
 			
 			self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(),
 			                                                            mmContext: self.mmContext,
@@ -251,6 +251,10 @@ final class MMMessageHandler: MobileMessagingService {
 		} else {
 			start()
 		}
+	}
+	
+	static func isNotificationTapped(_ message: MTMessage, applicationState: UIApplicationState) -> Bool {
+		return applicationState == .inactive || message.isMessageLaunchingApplication == true
 	}
 }
 

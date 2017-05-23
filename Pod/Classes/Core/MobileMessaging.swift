@@ -178,16 +178,16 @@ public final class MobileMessaging: NSObject {
 	///
 	/// - parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
 	public class func didReceiveLocalNotification(_ notification: UILocalNotification) {
-		let wasNotificationTapped = MobileMessaging.sharedInstance?.application.applicationState == .inactive
-		if wasNotificationTapped {
-			if	let userInfo = notification.userInfo,
-				let payload = userInfo[LocalNotificationKeys.pushPayload] as? APNSPayload,
-				let createdDate = userInfo[LocalNotificationKeys.createdDate] as? Date,
-				let message = MTMessage(payload: payload, createdDate: createdDate)
-			{
-				MMMessageHandler.handleNotificationTap(with: message)
-			}
+		
+		guard let userInfo = notification.userInfo,
+			let payload = userInfo[LocalNotificationKeys.pushPayload] as? APNSPayload,
+			let createdDate = userInfo[LocalNotificationKeys.createdDate] as? Date,
+			let message = MTMessage(payload: payload, createdDate: createdDate),
+			let applicationState = MobileMessaging.sharedInstance?.application.applicationState,
+			MMMessageHandler.isNotificationTapped(message, applicationState: applicationState) else {
+				return
 		}
+		MMMessageHandler.handleNotificationTap(with: message)
 	}
 	
 	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.

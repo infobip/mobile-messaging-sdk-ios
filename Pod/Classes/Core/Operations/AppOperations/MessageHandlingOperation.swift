@@ -36,15 +36,15 @@ final class MessageHandlingOperation: Operation {
 	let finishBlock: ((NSError?) -> Void)?
 	let messagesToHandle: [MTMessage]
 	let messageHandler: MessageHandling
-	let applicationState: UIApplicationState
+	let isNotificationTapped: Bool
 	let mmContext: MobileMessaging
 	
-	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, messageHandler: MessageHandling, applicationState: UIApplicationState, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, messageHandler: MessageHandling, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.finishBlock = finishBlock
 		self.messageHandler = messageHandler
-		self.applicationState = applicationState
+		self.isNotificationTapped = isNotificationTapped
 		self.mmContext = mmContext
 		super.init()
 		
@@ -104,9 +104,6 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 //MARK: - Notification tap handling
-	private var isNotificationTapped: Bool {
-		return applicationState == .inactive && messagesToHandle.count == 1
-	}
 	
 	private func handleExistentMessageTappedIfNeeded() {
 		guard let existentMessage = intersectingMessages.first else { return }

@@ -150,7 +150,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	}
 	
 	init?(payload: APNSPayload, createdDate: Date) {
-		guard let payload = payload as? StringKeyPayload, let messageId = payload[APNSPayloadKeys.messageId] as? String, let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload else {
+		guard var payload = payload as? StringKeyPayload, let messageId = payload[APNSPayloadKeys.messageId] as? String, let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload else {
 			return nil
 		}
 		
@@ -174,6 +174,11 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.seenDate = nil
 		self.isDeliveryReportSent = false
 		self.deliveryReportedDate = nil
+		
+		//workaround for cordova
+		self.isMessageLaunchingApplication = payload[ApplicationLaunchedByNotification_Key] != nil
+		payload.removeValue(forKey: ApplicationLaunchedByNotification_Key)
+		
 		super.init(messageId: messageId, direction: .MT, originalPayload: payload, createdDate: createdDate)
 	}
 	
@@ -209,6 +214,8 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		//TODO: this is a workaround. MobileMessaging must not know anything about geofencing feature. message type attriute needed?
 		return internalData?[InternalDataKeys.geo] != nil && isSilent
 	}
+	
+	let isMessageLaunchingApplication: Bool
 }
 
 @objc public enum MOMessageSentStatus : Int16 {
