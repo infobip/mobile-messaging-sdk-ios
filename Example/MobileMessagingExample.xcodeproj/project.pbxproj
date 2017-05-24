@@ -874,7 +874,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample;
-				PROVISIONING_PROFILE = "56a4abfd-1436-4588-95ea-1d5c88e9f48f";
+				PROVISIONING_PROFILE = "4aaea8b9-b39c-4690-9571-86af1428dcaf";
 				PROVISIONING_PROFILE_SPECIFIER = "Mobile Messaging Example - Development";
 				SWIFT_VERSION = 3.0.1;
 			};

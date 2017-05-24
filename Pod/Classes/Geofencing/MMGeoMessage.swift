@@ -423,19 +423,23 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 
 extension MTMessage {
 	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String, region: MMRegion) -> MTMessage? {
-		var payload = geoMessage.originalPayload
-		guard let aps = payload[APNSPayloadKeys.aps] as? [String: Any], let internalData = payload[APNSPayloadKeys.internalData] as? [String: Any], var silentAps = internalData[InternalDataKeys.silent] as? [String: Any], let body = silentAps[APNSPayloadKeys.body] as? String else {
-			
+		guard let aps = geoMessage.originalPayload[APNSPayloadKeys.aps] as? [String: Any], let internalData = geoMessage.originalPayload[APNSPayloadKeys.internalData] as? [String: Any], var silentAps = internalData[InternalDataKeys.silent] as? [String: Any], let body = silentAps[APNSPayloadKeys.body] as? String else
+		{
 			return nil
 		}
 		
 		silentAps[APNSPayloadKeys.alert] = [APNSPayloadKeys.body: body]
 		silentAps[APNSPayloadKeys.body] = nil
 		let apsConcat = aps + silentAps
-		payload[APNSPayloadKeys.aps] = apsConcat
-		payload[APNSPayloadKeys.internalData] = [InternalDataKeys.geo: [region.dictionaryRepresentation]]
-		payload[APNSPayloadKeys.messageId] = messageId
-		let result = MTMessage(payload: payload, createdDate: MobileMessaging.date.now)
+		var newInternalData: [String: Any] = [InternalDataKeys.geo: [region.dictionaryRepresentation]]
+		newInternalData["atts"] = geoMessage.internalData?["atts"]
+		
+		var newpayload = geoMessage.originalPayload
+		newpayload[APNSPayloadKeys.aps] = apsConcat
+		newpayload[APNSPayloadKeys.internalData] = newInternalData
+		newpayload[APNSPayloadKeys.messageId] = messageId
+		
+		let result = MTMessage(payload: newpayload, createdDate: MobileMessaging.date.now)
 		result?.deliveryMethod = .generatedLocally
 		result?.isDeliveryReportSent = true
 		return result

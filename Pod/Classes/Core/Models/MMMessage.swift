@@ -52,7 +52,6 @@ enum MMAPS {
 	}
 }
 
-
 protocol MMMessageMetadata: Hashable {
 	var isSilent: Bool {get}
 	var messageId: String {get}
@@ -64,15 +63,15 @@ public class BaseMessage: NSObject {
 	public var originalPayload: StringKeyPayload
 	public let createdDate: Date
 	
-	class func makeMessage(coreDataMessage: Message) -> BaseMessage? {
-		guard let direction = MessageDirection(rawValue: coreDataMessage.direction) else {
+	class func makeMessage(withMessageStorageMessageManagedObject m: Message) -> BaseMessage? {
+		guard let direction = MessageDirection(rawValue: m.direction) else {
 			return nil
 		}
 		switch direction {
 		case .MO:
-			return MOMessage(coreDataMessage: coreDataMessage)
+			return MOMessage(messageStorageMessageManagedObject: m)
 		case .MT:
-			return MTMessage(coreDataMessage: coreDataMessage)
+			return MTMessage(messageStorageMessageManagedObject: m)
 		}
 	}
 	
@@ -124,6 +123,8 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		return aps.sound
 	}
 	
+	public let contentUrl: String?
+	
 	public var seenStatus: MMSeenStatus
 	public var seenDate: Date?
 	public var isDeliveryReportSent: Bool
@@ -141,12 +142,13 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.deliveryMethod = .pull
 	}
 	
-	convenience init?(coreDataMessage: Message) { // messages-storage-message to mtMessage
-		self.init(payload: coreDataMessage.payload, createdDate: coreDataMessage.createdDate)
-		self.seenStatus = MMSeenStatus(rawValue: coreDataMessage.seenStatusValue) ?? .NotSeen
-		self.seenDate = coreDataMessage.seenDate
-		self.isDeliveryReportSent = coreDataMessage.isDeliveryReportSent
-		self.deliveryReportedDate = coreDataMessage.deliveryReportedDate
+	/// Iitializes the MTMessage from Message storage's message
+	convenience init?(messageStorageMessageManagedObject m: Message) {
+		self.init(payload: m.payload, createdDate: m.createdDate)
+		self.seenStatus = MMSeenStatus(rawValue: m.seenStatusValue) ?? .NotSeen
+		self.seenDate = m.seenDate
+		self.isDeliveryReportSent = m.isDeliveryReportSent
+		self.deliveryReportedDate = m.deliveryReportedDate
 	}
 	
 	init?(payload: APNSPayload, createdDate: Date) {
@@ -165,10 +167,10 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 			self.aps = MMAPS.NativeAPS(nativeAPS)
 		}
 
-		//TODO: refactor all these `as` by extending Dictionary.
+		let internData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload
 		self.customPayload = payload[APNSPayloadKeys.customPayload] as? StringKeyPayload
-        self.internalData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload
-		self.silentData = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.silent] as? StringKeyPayload
+        self.internalData = internData
+		self.silentData = internData?[InternalDataKeys.silent] as? StringKeyPayload
 		self.deliveryMethod = .push
 		self.seenStatus = .NotSeen
 		self.seenDate = nil
@@ -179,6 +181,12 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.isMessageLaunchingApplication = payload[ApplicationLaunchedByNotification_Key] != nil
 		payload.removeValue(forKey: ApplicationLaunchedByNotification_Key)
 		
+		
+		if let atts = internData?[InternalDataKeys.attachments] as? [StringKeyPayload], let firstOne = atts.first {
+			self.contentUrl = firstOne[AttachmentsKeys.url] as? String
+		} else {
+			self.contentUrl = nil
+		}
 		super.init(messageId: messageId, direction: .MT, originalPayload: payload, createdDate: createdDate)
 	}
 	
@@ -271,8 +279,9 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		super.init(messageId: mId, direction: .MO, originalPayload: dict, createdDate: MobileMessaging.date.now)
 	}
 
-	convenience init?(coreDataMessage: Message) {
-		self.init(payload: coreDataMessage.payload)
+	/// Iitializes the MOMessage from Message storage's message
+	convenience init?(messageStorageMessageManagedObject m: Message) {
+		self.init(payload: m.payload)
 	}
 	
 	convenience init?(json: JSON) {

@@ -174,6 +174,8 @@ public final class MobileMessaging: NSObject {
 		})
 	}
 	
+	
+	
 	/// This method is called when a running app receives a local notification. The method should be called from AppDelegate's `application(_:didReceiveLocalNotification:)` or `application(_:didReceive:)` callback.
 	///
 	/// - parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.

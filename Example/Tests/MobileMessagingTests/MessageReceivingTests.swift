@@ -13,7 +13,7 @@ func backendJSONSilentMessage(messageId: String) -> String {
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(APNSPayloadKeys.internalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(APNSPayloadKeys.internalData)\": {\"internalKey1\": \"internalValue1\", \"atts\": [{\"url\":\"pic.url\",\"t\":\"string\"}]}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -94,6 +94,7 @@ class MessageReceivingTests: MMTestCase {
 			XCTAssertEqual(origPayload["badge"] as! Int, 6, "badger must be parsed")
 
 			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
+			XCTAssertEqual(message.contentUrl, "pic.url")
 		} else {
 			XCTFail("Message decoding failed")
 		}

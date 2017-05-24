@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UserNotifications
 
 struct LocalNotificationKeys {
 	static let pushPayload = "com.mobile-messaging.ln.k.pushPayload"
@@ -17,16 +18,51 @@ extension UILocalNotification {
 		guard !message.isSilent || (message.isGeoSignalingMessage) else {
 			return
 		}
-		
-		UIApplication.shared.presentLocalNotificationNow(mm_localNotification(with: message))
+
+		if #available(iOS 10.0, *) {
+			mm_scheduleUserNotification(with: message)
+		} else {
+			UIApplication.shared.presentLocalNotificationNow(mm_localNotification(with: message))
+		}
 	}
-	
+
 	class func mm_localNotification(with message: MTMessage) -> UILocalNotification {
 		let localNotification = UILocalNotification()
 		localNotification.userInfo = [LocalNotificationKeys.pushPayload: message.originalPayload,
-		                              LocalNotificationKeys.createdDate: message.createdDate]
+									  LocalNotificationKeys.createdDate: message.createdDate]
 		localNotification.alertBody = message.text
 		localNotification.soundName = message.sound
 		return localNotification
 	}
+}
+
+@available(iOS 10.0, *)
+func mm_scheduleUserNotification(with message: MTMessage) {
+	guard let txt = message.text else {
+		return
+	}
+	let content = UNMutableNotificationContent()
+	content.title = ""
+	content.body = txt
+	content.userInfo = [LocalNotificationKeys.pushPayload: message.originalPayload, LocalNotificationKeys.createdDate: message.createdDate]
+	if let sound = message.sound {
+		if sound == "default" {
+			content.sound = UNNotificationSound.default()
+		} else {
+			content.sound = UNNotificationSound.init(named: sound)
+		}
+	}
+	
+	message.downloadImageAttachment(completion: { (url, error) in
+		if let fileUrl = url {
+			do {
+				let att = try UNNotificationAttachment(identifier: fileUrl.absoluteString, url: fileUrl)
+				content.attachments = [att]
+			} catch let e {
+				MMLogError("Error while building local notification attachment: \(e as? String)")
+			}
+		}
+		let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)
+		UNUserNotificationCenter.current().add(req, withCompletionHandler: nil)
+	})
 }

@@ -15,7 +15,7 @@ final class Message: NSManagedObject, Fetchable {
 	}
 	
 	var baseMessage: BaseMessage? {
-		return BaseMessage.makeMessage(coreDataMessage: self)
+		return BaseMessage.makeMessage(withMessageStorageMessageManagedObject: self)
 	}
 	
 	var mtMessage: MTMessage? {
