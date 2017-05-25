@@ -15,6 +15,7 @@ enum APIPath: String {
 	case SystemData = "/mobile/2/data/system"
 	case LibraryVersion = "/mobile/3/version"
 	case GeoEventsReports = "/mobile/4/geo/event"
+	case DeliveryReport = "/mobile/1/messages/deliveryreport"
 }
 
 struct RegistrationRequest: PostRequest {
@@ -84,6 +85,20 @@ struct MessagesSyncRequest: PostRequest {
 	init(archiveMsgIds: [String]?, dlrMsgIds: [String]?) {
 		self.archiveMsgIds = archiveMsgIds
 		self.dlrMsgIds = dlrMsgIds
+	}
+}
+
+struct DeliveryReportRequest: PostRequest {
+	typealias ResponseType = DeliveryReportResponse
+	var path: APIPath { return .DeliveryReport }
+	let dlrIds: [String]
+	var body: RequestBody? { return [DeliveryReport.dlrMessageIds: dlrIds] }
+	
+	init?(dlrIds: [String]?) {
+		guard let dlrIds = dlrIds else {
+			return nil
+		}
+		self.dlrIds = dlrIds
 	}
 }
 

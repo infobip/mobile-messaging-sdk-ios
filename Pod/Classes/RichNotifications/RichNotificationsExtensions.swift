@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import UserNotifications
 
 extension MTMessage {
 	
 	static let attachmentsUrlSessionManager = MM_AFHTTPSessionManager(sessionConfiguration: MobileMessaging.urlSessionConfiguration)
 	
-	@discardableResult public func downloadImageAttachment(completion: @escaping (URL?, Error?) -> Void) -> URLSessionDownloadTask? {
+	@discardableResult func downloadImageAttachment(completion: @escaping (URL?, Error?) -> Void) -> URLSessionDownloadTask? {
 		guard let contentUrlString = contentUrl, let contentURL = URL.init(string: contentUrlString) else {
 			completion(nil, nil)
 			return nil
@@ -39,4 +40,58 @@ extension MTMessage {
 		task.resume()
 		return task
 	}
+}
+
+@available(iOS 10.0, *)
+final public class MobileMessagingNotificationServiceExtension: NSObject {
+	
+	public class func startWithApplicationCode(_ code: String) {
+		if sharedInstance == nil {
+			sharedInstance = MobileMessagingNotificationServiceExtension(appCode: code)
+		}
+	}
+	
+	public class func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+		guard let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: Date()) else {
+				contentHandler(request.content)
+				return
+		}
+		sharedInstance?.reportDelivery(mtMessage)
+		sharedInstance?.currentTask = mtMessage.downloadImageAttachment { (url, error) in
+			guard let url = url,
+				let mContent = (request.content.mutableCopy() as? UNMutableNotificationContent),
+				let attachment = try? UNNotificationAttachment(identifier: url.lastPathComponent, url: url, options: nil) else {
+					contentHandler(request.content)
+					return
+			}
+			
+			mContent.attachments = [attachment]
+			
+			let result: UNNotificationContent
+			if let contentWithAttach = mContent.copy() as? UNNotificationContent {
+				result = contentWithAttach
+			} else {
+				result = request.content
+			}
+			contentHandler(result)
+		}
+	}
+	
+	public class func serviceExtensionTimeWillExpire() {
+		sharedInstance?.currentTask?.cancel()
+	}
+	
+	//MARK: Internal
+	static var sharedInstance: MobileMessagingNotificationServiceExtension?
+	private init(appCode: String) {
+		self.applicationCode = appCode
+	}
+	
+	private func reportDelivery(_ message: MTMessage) {
+		DeliveryReportRequest(dlrIds: [message.messageId])?.responseObject(applicationCode: applicationCode, baseURL: remoteAPIBaseURL) { _ in}
+	}
+	
+	let applicationCode: String
+	let remoteAPIBaseURL = APIValues.prodBaseURLString
+	var currentTask: URLSessionDownloadTask?
 }

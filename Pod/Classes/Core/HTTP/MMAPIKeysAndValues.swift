@@ -106,6 +106,10 @@ struct AttachmentsKeys {
 	static let type = "t"
 }
 
+struct DeliveryReport {
+	static let dlrMessageIds = "dlrIds"
+}
+
 struct APNSPayloadKeys {
 	//MARK: APNs
 	static let payloads = "payloads"

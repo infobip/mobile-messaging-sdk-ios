@@ -46,6 +46,8 @@ struct MOMessageSendingResponse {
 	let messages: [MOMessage]
 }
 
+typealias DeliveryReportResponse = EmptyResponse
+
 //MARK: - Request results
 typealias RegistrationResult = Result<RegistrationResponse>
 typealias MessagesSyncResult = Result<MessagesSyncResponse>
