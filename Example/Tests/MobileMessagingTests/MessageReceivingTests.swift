@@ -54,8 +54,8 @@ class MessageReceivingTests: MMTestCase {
 		let resultDict = [
 							"messageId": "m1",
 							"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-							APNSPayloadKeys.internalData: ["internalKey1": "internalValue1"],
-							APNSPayloadKeys.customPayload: ["customKey" : "customValue"]
+							APNSPayloadKeys.internalData: ["internalKey1": "internalValue1", InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
+							APNSPayloadKeys.customPayload: ["customKey" : "customValue"],
 						] as APNSPayload
 		let message = MTMessage(json: JSON.parse(jsonstring))
 		
