@@ -36,6 +36,8 @@ struct MMSystemData: Hashable {
 }
 
 public class MMUserAgent: NSObject {
+	public var cordovaPluginVersion: String?
+	
 	struct DataOptions : OptionSet {
 		let rawValue: Int
 		init(rawValue: Int = 0) { self.rawValue = rawValue }
@@ -45,7 +47,7 @@ public class MMUserAgent: NSObject {
 	}
 	
 	var systemData: MMSystemData {
-		return MMSystemData(SDKVersion: libraryVersion, OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, notificationsEnabled: notificationsEnabled)
+		return MMSystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, notificationsEnabled: notificationsEnabled)
 	}
 	
 	public var notificationsEnabled: Bool {
@@ -75,7 +77,7 @@ public class MMUserAgent: NSObject {
 	}
 	
 	public var libraryVersion: String {
-		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion
+		return (Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion)
 	}
 	
 	public var libraryName: String {
@@ -191,7 +193,7 @@ public class MMUserAgent: NSObject {
 			let outputHostingAppName = allowed ? hostingAppName : ""
 			let outputHostingAppVersion = allowed ? hostingAppVersion : ""
 			
-			let result = "\(libraryName)/\(libraryVersion)(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion)"
+			let result = "\(libraryName)/\(libraryVersion.appending(cordovaPluginVersion == nil ? "" : "-cordova-\(cordovaPluginVersion!)"))(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion)"
 			
 			return result
 		}
@@ -204,10 +206,10 @@ public class MMUserAgent: NSObject {
 			let mobileCountryCode = carrier?.mobileCountryCode ?? ""
 			let mobileNetworkCode = carrier?.mobileNetworkCode ?? ""
 			
-			return ";\(mobileCarrierName);\(mobileNetworkCode);\(mobileCountryCode))"
+			return ";\(mobileCarrierName);\(mobileNetworkCode);\(mobileCountryCode)"
 		}
 		
-		return systemDataString(allowed: options.contains(MMUserAgent.DataOptions.System)) + carrierDataString(allowed: options.contains(MMUserAgent.DataOptions.Carrier))
+		return systemDataString(allowed: options.contains(MMUserAgent.DataOptions.System)) + carrierDataString(allowed: options.contains(MMUserAgent.DataOptions.Carrier)) + ")"
 	}
 }
 
