@@ -52,18 +52,19 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	}
 	
 	public class func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-		guard let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: Date()) else
+		guard let sharedInstance = sharedInstance, let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: Date()) else
 		{
 			contentHandler(request.content)
 			return
 		}
-		sharedInstance?.reportDelivery(mtMessage)
-		sharedInstance?.currentTask = mtMessage.downloadImageAttachment { (url, error) in
+		sharedInstance.reportDelivery(mtMessage)
+		sharedInstance.currentTask = mtMessage.downloadImageAttachment { (url, error) in
 			guard let url = url,
 				let mContent = (request.content.mutableCopy() as? UNMutableNotificationContent),
-				let attachment = try? UNNotificationAttachment(identifier: url.lastPathComponent, url: url, options: nil) else {
-					contentHandler(request.content)
-					return
+				let attachment = try? UNNotificationAttachment(identifier: String(url.absoluteString.hash), url: url, options: nil) else
+			{
+				contentHandler(request.content)
+				return
 			}
 			
 			mContent.attachments = [attachment]
