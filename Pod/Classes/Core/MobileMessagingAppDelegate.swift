@@ -28,6 +28,10 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 		fatalError("Application code not set. Please override `applicationCode` variable in your subclass of `MobileMessagingAppDelegate`.")
 	}
 	
+	open var appGroupId: String? {
+		return nil
+	}
+	
 	/// Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	/// 
 	/// You should override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
@@ -39,7 +43,10 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	//MARK: Public
 	public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
 		if !isTestingProcessRunning {
-			let session = MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType)
+			var session = MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType)
+			if let appGroupId = appGroupId {
+				session = session?.withAppGroupId(appGroupId)
+			}
 			session?.start()
 		}
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)

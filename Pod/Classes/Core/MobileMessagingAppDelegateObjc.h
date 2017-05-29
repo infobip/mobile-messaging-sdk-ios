@@ -14,6 +14,8 @@
 */
 @property (nonnull, nonatomic, readonly) NSString * applicationCode;
 
+@property (nullable, nonatomic, readonly) NSString * appGroupId;
+	
 /**
 	Preferable notification types that indicating how the app alerts the user when a  push notification arrives. You should override this property in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
 	- remark: For now, Mobile Messaging SDK doesn't support badge. You should handle the badge counter by yourself.

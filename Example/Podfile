@@ -7,6 +7,9 @@ $geoPodName = 'MobileMessaging/Geofencing'
 target 'MobileMessagingExample' do
     pod $podName, :path => '../'
 	pod $geoPodName, :path => '../'
+	target 'NotificationServiceExtension' do
+		inherit! :search_paths
+	end
 end
 
 target 'MobileMessagingExample_Tests' do

@@ -26,7 +26,9 @@
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	MobileMessaging * session = [MobileMessaging withApplicationCode:self.applicationCode notificationType:self.userNotificationType];
-
+	if (self.appGroupId != nil) {
+		session = [session withAppGroupId: self.appGroupId];
+	}
 	[session start: nil];
 	return [self mm_application:application didFinishLaunchingWithOptions:launchOptions];
 }

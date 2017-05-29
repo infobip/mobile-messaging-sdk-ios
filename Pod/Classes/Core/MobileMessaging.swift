@@ -50,6 +50,11 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
+	public func withAppGroupId(_ appGroupId: String) -> MobileMessaging {
+		self.appGroupId = appGroupId
+		return self
+	}
+	
 	/// Starts a new Mobile Messaging session.
 	///
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
@@ -274,6 +279,9 @@ public final class MobileMessaging: NSObject {
 	/// - parameter clearKeychain: Bool, true by default, used in unit tests
 	func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		MMLogDebug("Cleaning up MobileMessaging service...")
+		if #available(iOS 10.0, *) {
+			UserDefaults.cleanupNotificationServiceExtensionContainer(forApplicationCode: applicationCode)
+		}
 		MMCoreDataStorage.dropStorages(internalStorage: internalStorage, messageStorage: messageStorage as? MMDefaultMessageStorage)
 		if (clearKeychain) {
 			keychain.clear()
@@ -410,7 +418,7 @@ public final class MobileMessaging: NSObject {
 	lazy var application: MMApplication! = UIApplication.shared
 	lazy var reachabilityManager: ReachabilityManagerProtocol! = MMNetworkReachabilityManager.sharedInstance
 	lazy var keychain: MMKeychain! = MMKeychain()
-
+	var appGroupId: String?
 	static var date: MMDate = MMDate() // testability
 	
 }

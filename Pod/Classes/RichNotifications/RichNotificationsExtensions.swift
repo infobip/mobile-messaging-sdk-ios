@@ -45,16 +45,17 @@ extension MTMessage {
 @available(iOS 10.0, *)
 final public class MobileMessagingNotificationServiceExtension: NSObject {
 	
-	public class func startWithApplicationCode(_ code: String) {
+	public class func startWithApplicationCode(_ code: String, appGroupId: String) {
 		if sharedInstance == nil {
-			sharedInstance = MobileMessagingNotificationServiceExtension(appCode: code)
+			sharedInstance = MobileMessagingNotificationServiceExtension(appCode: code, appGroupId: appGroupId)
 		}
 	}
 	
 	public class func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-		guard let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: Date()) else {
-				contentHandler(request.content)
-				return
+		guard let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: Date()) else
+		{
+			contentHandler(request.content)
+			return
 		}
 		sharedInstance?.reportDelivery(mtMessage)
 		sharedInstance?.currentTask = mtMessage.downloadImageAttachment { (url, error) in
@@ -83,14 +84,28 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	
 	//MARK: Internal
 	static var sharedInstance: MobileMessagingNotificationServiceExtension?
-	private init(appCode: String) {
+	private init(appCode: String, appGroupId: String) {
 		self.applicationCode = appCode
+		self.appGroupId = appGroupId
 	}
 	
 	private func reportDelivery(_ message: MTMessage) {
-		DeliveryReportRequest(dlrIds: [message.messageId])?.responseObject(applicationCode: applicationCode, baseURL: remoteAPIBaseURL) { _ in}
+		DeliveryReportRequest(dlrIds: [message.messageId])?.responseObject(applicationCode: applicationCode, baseURL: remoteAPIBaseURL) { response in
+			self.persistMessage(message, isDelivered: response.error == nil)
+		}
 	}
 	
+	private func persistMessage(_ message: MTMessage, isDelivered: Bool) {
+		guard let ud = UserDefaults.notificationServiceExtensionContainer else {
+			return
+		}
+		var savedMessageDicts = ud.object(forKey: applicationCode) as? [StringKeyPayload] ?? []
+		savedMessageDicts.append(["p": message.originalPayload, "d": message.createdDate, "dlr": isDelivered])
+		ud.set(savedMessageDicts, forKey: applicationCode)
+		ud.synchronize()
+	}
+	
+	let appGroupId: String
 	let applicationCode: String
 	let remoteAPIBaseURL = APIValues.prodBaseURLString
 	var currentTask: URLSessionDownloadTask?

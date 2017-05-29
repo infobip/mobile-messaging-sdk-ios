@@ -12,7 +12,9 @@ class AppDelegate: MobileMessagingAppDelegate {
 	
 	var window: UIWindow?
 	
-	override var applicationCode: String { return "<# your application code #>" }
+	override var appGroupId: String { return "group.com.mobile-messaging.notification-service-extension" }
+	
+	override var applicationCode: String { return <# your application code #> }
 	
 	override var userNotificationType: UIUserNotificationType { return [.alert, .sound] }
 		
