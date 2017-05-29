@@ -2,9 +2,6 @@
 //  NotificationService.swift
 //  NotificationServiceExtension
 //
-//  Created by okoroleva on 26.05.17.
-//  Copyright © 2017 CocoaPods. All rights reserved.
-//
 
 import UserNotifications
 import MobileMessaging
