@@ -624,7 +624,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appDelegatePath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/<# your application code #>/\\\"$applicationCode\\\"/g;\" \"$appDelegatePath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi";
+			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appDelegatePath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appDelegatePath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi";
 		};
 		5032AE441DF03EA500158A29 /* Put out Application Code */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -638,7 +638,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\nappExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appDelegatePath\" ]; then\nperl -i -p -e \"s/\\\"[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}\\\"/<# your application code #>/g;\" \"$appDelegatePath\"\nelse\nexit 0\nfi";
+			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\nappExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appDelegatePath\" ]; then\nperl -i -p -e \"s/\\\"[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}\\\"/\\\"<# your application code #>\\\"/g;\" \"$appDelegatePath\"\nelse\nexit 0\nfi";
 		};
 		566A509E2179CDA32BBE50BC /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -682,7 +682,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appExtensionPath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/<# your application code #>/\\\"$applicationCode\\\"/g;\" \"$appExtensionPath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi";
+			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appExtensionPath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appExtensionPath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi";
 		};
 		769C30F21EDC12C700BCC235 /* Put out app code */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -696,7 +696,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appExtensionPath\" ]; then\nperl -i -p -e \"s/\\\"[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}\\\"/<# your application code #>/g;\" \"$appExtensionPath\"\nelse\nexit 0\nfi";
+			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appExtensionPath\" ]; then\nperl -i -p -e \"s/\\\"[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}\\\"/\\\"<# your application code #>\\\"/g;\" \"$appExtensionPath\"\nelse\nexit 0\nfi";
 		};
 		97D11742B30FDCA630E99055 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
