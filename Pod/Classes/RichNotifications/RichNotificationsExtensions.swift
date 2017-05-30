@@ -49,6 +49,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		if sharedInstance == nil {
 			sharedInstance = MobileMessagingNotificationServiceExtension(appCode: code, appGroupId: appGroupId)
 		}
+		sharedInstance?.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: code, appGroupId: appGroupId)
 	}
 	
 	public class func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
@@ -57,7 +58,11 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 			contentHandler(request.content)
 			return
 		}
-		sharedInstance.reportDelivery(mtMessage)
+		
+		sharedInstance.reportDelivery(mtMessage) { result in
+			sharedInstance.persistMessage(mtMessage, isDelivered: result.error == nil)
+		}
+		
 		sharedInstance.currentTask = mtMessage.downloadImageAttachment { (url, error) in
 			guard let url = url,
 				let mContent = (request.content.mutableCopy() as? UNMutableNotificationContent),
@@ -90,14 +95,62 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		self.appGroupId = appGroupId
 	}
 	
-	private func reportDelivery(_ message: MTMessage) {
-		DeliveryReportRequest(dlrIds: [message.messageId])?.responseObject(applicationCode: applicationCode, baseURL: remoteAPIBaseURL) { response in
-			self.persistMessage(message, isDelivered: response.error == nil)
-		}
+	private func reportDelivery(_ message: MTMessage, completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
+		deliveryReporter.report(messageIds: [message.messageId], completion: completion)
 	}
 	
 	private func persistMessage(_ message: MTMessage, isDelivered: Bool) {
-		guard let ud = UserDefaults.notificationServiceExtensionContainer else {
+		sharedNotificationExtensionStorage?.save(message: message, isDelivered: isDelivered)
+	}
+	
+	let appGroupId: String
+	let applicationCode: String
+	let remoteAPIBaseURL = APIValues.prodBaseURLString
+	var currentTask: URLSessionDownloadTask?
+	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
+	lazy var deliveryReporter: DeliveryReporting! = DeliveryReporter(applicationCode: self.applicationCode, baseUrl: self.remoteAPIBaseURL)
+}
+
+protocol DeliveryReporting {
+	init(applicationCode: String, baseUrl: String)
+	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void)
+}
+
+class DeliveryReporter: DeliveryReporting {
+	let applicationCode: String, baseUrl: String
+	
+	required init(applicationCode: String, baseUrl: String) {
+		self.applicationCode = applicationCode
+		self.baseUrl = baseUrl
+	}
+	
+	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
+		guard let dlr = DeliveryReportRequest(dlrIds: messageIds) else {
+			completion(Result.Cancel)
+			return
+		}
+		dlr.responseObject(applicationCode: applicationCode, baseURL: baseUrl, completion: completion)
+	}
+}
+
+protocol AppGroupMessageStorage {
+	init?(applicationCode: String, appGroupId: String)
+	func save(message: MTMessage, isDelivered: Bool)
+	func retrieveMessages() -> [MTMessage]
+	func cleanupMessages()
+}
+
+@available(iOS 10.0, *)
+class DefaultSharedDataStorage: AppGroupMessageStorage {
+	let applicationCode: String
+	let appGroupId: String
+	required init?(applicationCode: String, appGroupId: String) {
+		self.appGroupId = appGroupId
+		self.applicationCode = applicationCode
+	}
+	
+	func save(message: MTMessage, isDelivered: Bool) {
+		guard let ud = UserDefaults.init(suiteName: appGroupId) else {
 			return
 		}
 		var savedMessageDicts = ud.object(forKey: applicationCode) as? [StringKeyPayload] ?? []
@@ -106,8 +159,26 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		ud.synchronize()
 	}
 	
-	let appGroupId: String
-	let applicationCode: String
-	let remoteAPIBaseURL = APIValues.prodBaseURLString
-	var currentTask: URLSessionDownloadTask?
+	func retrieveMessages() -> [MTMessage] {
+		guard let ud = UserDefaults.init(suiteName: appGroupId), let messageDataDicts = ud.array(forKey: applicationCode) as? [StringKeyPayload] else
+		{
+			return []
+		}
+		let messages = messageDataDicts.flatMap({ messageDataTuple -> MTMessage? in
+			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let date = messageDataTuple["d"] as? Date, let dlrSent =  messageDataTuple["dlr"] as? Bool else {
+				return nil
+			}
+			let newMessage = MTMessage(payload: payload, createdDate: date)
+			newMessage?.isDeliveryReportSent = dlrSent
+			return newMessage
+		})
+		return messages
+	}
+	
+	func cleanupMessages() {
+		guard let ud = UserDefaults.init(suiteName: appGroupId) else {
+			return
+		}
+		ud.removeObject(forKey: applicationCode)
+	}
 }

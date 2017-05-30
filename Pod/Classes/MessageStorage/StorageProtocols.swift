@@ -96,21 +96,6 @@ public typealias FetchResultBlock = ([BaseMessage]?) -> Void
 	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId)
 }
 
-extension UserDefaults {
-	@available(iOS 10.0, *)
-	class var notificationServiceExtensionContainer: UserDefaults? {
-		guard let appGroupId = MobileMessagingNotificationServiceExtension.sharedInstance?.appGroupId ?? MobileMessaging.sharedInstance?.appGroupId else {
-			return nil
-		}
-		return UserDefaults.init(suiteName: appGroupId)
-	}
-	
-	@available(iOS 10.0, *)
-	class func cleanupNotificationServiceExtensionContainer(forApplicationCode: String) {
-		UserDefaults.notificationServiceExtensionContainer?.removeObject(forKey: forApplicationCode)
-	}
-}
-
 /// The adapter dispatches all adaptee method calls into the adaptee's queue,
 /// and checks for existing messages to avoid duplications, that's all.
 class MMMessageStorageQueuedAdapter: MessageStorage {

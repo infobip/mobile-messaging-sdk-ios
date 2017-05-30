@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import UserNotifications
 @testable import MobileMessaging
 
 class MockMessageStorage: NSObject, MessageStorage {
@@ -18,21 +19,21 @@ class MockMessageStorage: NSObject, MessageStorage {
 	var queue: DispatchQueue {
 		return DispatchQueue.main
 	}
-	var mtMessages = [String]()
-	var moMessages = [String]()
+	var mtMessages = [MTMessage]()
+	var moMessages = [MOMessage]()
 	func insert(incoming messages: [MTMessage]) {
 		messages.forEach { (message) in
-			self.mtMessages.append(message.messageId)
+			self.mtMessages.append(message)
 		}
 	}
 	func insert(outgoing messages: [MOMessage]) {
 		messages.forEach { (message) in
-			self.moMessages.append(message.messageId)
+			self.moMessages.append(message)
 		}
 	}
 	func findMessage(withId messageId: MessageId) -> BaseMessage? {
-		if let idx = moMessages.index(where: { $0 == messageId }) {
-			return BaseMessage(messageId: moMessages[idx], direction: .MO, originalPayload: ["messageId": moMessages[idx]], createdDate: Date())
+		if let idx = moMessages.index(where: { $0.messageId == messageId }) {
+			return BaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId], createdDate: Date())
 		} else {
 			return nil
 		}
@@ -273,8 +274,86 @@ class MessageStorageTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: nil)
 	}
 	
+	@available(iOS 10.0, *)
+	func testThatMessageStorageIsBeingPopulatedWithNotificationExtensionHandledMessages() {
+		guard #available(iOS 10.0, *) else {
+			return
+		}
+		
+		cleanUpAndStop()
+		
+		let content = UNMutableNotificationContent()
+		content.userInfo = [
+			"messageId": "mid1",
+			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default", "mutable-content": 1]
+		]
+		let request = UNNotificationRequest(identifier: "id1", content: content, trigger: nil)
+		let contentHandler: (UNNotificationContent) -> Void = { content in
+			
+		}
+		let sharedStorageMock = SharedMessageStorageMock(applicationCode: "appCode", appGroupId: "groupId")!
+		
+
+		MobileMessagingNotificationServiceExtension.startWithApplicationCode("appCode", appGroupId: "groupId")
+		MobileMessagingNotificationServiceExtension.sharedInstance?.deliveryReporter = SuccessfullDeliveryReporterMock(applicationCode: "appCode", baseUrl: "groupId")
+		MobileMessagingNotificationServiceExtension.sharedInstance?.sharedNotificationExtensionStorage = sharedStorageMock
+		MobileMessagingNotificationServiceExtension.didReceive(request, withContentHandler: contentHandler)
+		
+		XCTAssertEqual(sharedStorageMock.retrieveMessages().count, 1)
+		
+		let mockMessageStorage = MockMessageStorage()
+		XCTAssertEqual(mockMessageStorage.mtMessages.count, 0)
+		
+		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(mockMessageStorage)
+		mm.sharedNotificationExtensionStorage = sharedStorageMock
+		mm.start()
+		
+		weak var expectation = self.expectation(description: "")
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+			mm.cleanUpAndStop()
+			XCTAssertEqual(sharedStorageMock.retrieveMessages().count, 0)
+
+			expectation?.fulfill()
+		}
+		self.waitForExpectations(timeout: 60, handler: { _ in
+			XCTAssertEqual(mockMessageStorage.mtMessages.count, 1)
+		})
+	}
+	
 	override func tearDown() {
 		self.defaultMessageStorage?.coreDataStorage?.drop()
 		super.tearDown()
+	}
+}
+
+class SuccessfullDeliveryReporterMock: DeliveryReporting {
+	required init(applicationCode: String, baseUrl: String) {
+		
+	}
+	
+	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
+		completion(Result.Success(DeliveryReportResponse.init()))
+	}
+}
+
+class SharedMessageStorageMock: AppGroupMessageStorage {
+	var inMemStorage = [String: Any]()
+	let applicationCode: String
+	required init?(applicationCode: String, appGroupId: String) {
+		self.applicationCode = applicationCode
+	}
+	
+	func save(message: MTMessage, isDelivered: Bool) {
+		var msgs = (inMemStorage[applicationCode] as? [MTMessage]) ?? [MTMessage]()
+		msgs.append(message)
+		inMemStorage[applicationCode] = msgs
+	}
+	
+	func retrieveMessages() -> [MTMessage] {
+		return (inMemStorage[applicationCode] as? [MTMessage]) ?? [MTMessage]()
+	}
+	
+	func cleanupMessages() {
+		inMemStorage[applicationCode] = nil
 	}
 }

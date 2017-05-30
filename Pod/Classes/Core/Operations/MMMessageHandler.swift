@@ -83,19 +83,10 @@ final class MMMessageHandler: MobileMessagingService {
 	
 	@available(iOS 10.0, *)
 	func handleStorageFromNotificationServiceExtensionGroupContainer() {
-		guard let ud = UserDefaults.notificationServiceExtensionContainer, let mm = MobileMessaging.sharedInstance, let messageDataDicts = ud.array(forKey: mm.applicationCode) as? [StringKeyPayload] else
+		guard let mm = MobileMessaging.sharedInstance, let messages = mm.sharedNotificationExtensionStorage?.retrieveMessages() else
 		{
 			return
 		}
-		let messages = messageDataDicts.flatMap({ messageDataTuple -> MTMessage? in
-			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let date = messageDataTuple["d"] as? Date, let dlrSent =  messageDataTuple["dlr"] as? Bool else {
-				return nil
-			}
-			let newMessage = MTMessage(payload: payload, createdDate: date)
-			newMessage?.isDeliveryReportSent = dlrSent
-			return newMessage
-		})
-		ud.removeObject(forKey: mm.applicationCode)
 		handleMTMessages(messages, notificationTapped: false, completion: nil)
 	}
 	

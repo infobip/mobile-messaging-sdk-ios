@@ -44,8 +44,11 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
 		if !isTestingProcessRunning {
 			var session = MobileMessaging.withApplicationCode(applicationCode, notificationType: userNotificationType)
-			if let appGroupId = appGroupId {
-				session = session?.withAppGroupId(appGroupId)
+			
+			if #available(iOS 10.0, *) {
+				if let appGroupId = appGroupId {
+					session = session?.withAppGroupId(appGroupId)
+				}
 			}
 			session?.start()
 		}

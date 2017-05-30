@@ -87,7 +87,6 @@ final class RegistrationTests: MMTestCase {
 		self.waitForExpectations(timeout: 60) { _ in
 			let ctx = (self.mobileMessagingInstance.internalStorage.mainThreadManagedObjectContext!)
 			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-			
 				XCTAssertTrue(installation.dirtyAttributesSet.contains(AttributesSet.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalUserId, nil, "Internal id must be nil, server denied the application code")
 				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString, "Device token must be mocked properly. (current is \(String(describing: installation.deviceToken)))")

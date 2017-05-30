@@ -50,8 +50,10 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
+	@available(iOS 10.0, *)
 	public func withAppGroupId(_ appGroupId: String) -> MobileMessaging {
 		self.appGroupId = appGroupId
+		self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
 		return self
 	}
 	
@@ -280,7 +282,7 @@ public final class MobileMessaging: NSObject {
 	func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		MMLogDebug("Cleaning up MobileMessaging service...")
 		if #available(iOS 10.0, *) {
-			UserDefaults.cleanupNotificationServiceExtensionContainer(forApplicationCode: applicationCode)
+			sharedNotificationExtensionStorage?.cleanupMessages()
 		}
 		MMCoreDataStorage.dropStorages(internalStorage: internalStorage, messageStorage: messageStorage as? MMDefaultMessageStorage)
 		if (clearKeychain) {
@@ -418,9 +420,11 @@ public final class MobileMessaging: NSObject {
 	lazy var application: MMApplication! = UIApplication.shared
 	lazy var reachabilityManager: ReachabilityManagerProtocol! = MMNetworkReachabilityManager.sharedInstance
 	lazy var keychain: MMKeychain! = MMKeychain()
-	var appGroupId: String?
+	
 	static var date: MMDate = MMDate() // testability
 	
+	var appGroupId: String?
+	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 }
 
 extension UIApplication: MMApplication {}
