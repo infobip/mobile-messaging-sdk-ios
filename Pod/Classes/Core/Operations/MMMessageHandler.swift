@@ -90,7 +90,7 @@ final class MMMessageHandler: MobileMessagingService {
 		handleMTMessages(messages, notificationTapped: false, completion: nil)
 	}
 	
-	func handleMTMessages(_ messages: [MTMessage], notificationTapped: Bool = false, completion: ((MessageHandlingResult) -> Void)? = nil) {
+	func handleMTMessages(_ messages: [MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: ((MessageHandlingResult) -> Void)? = nil) {
 		guard isRunning == true, !messages.isEmpty else {
 			completion?(.noData)
 			return
@@ -100,7 +100,8 @@ final class MMMessageHandler: MobileMessagingService {
 			
 			self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(),
 			                                                            mmContext: self.mmContext,
-			                                                            finishBlock: { completion?(MessageHandlingResult($0))})
+			                                                            handlingIteration: handlingIteration,
+			                                                            finishBlock: { completion?(MessageHandlingResult($0)) })
 			)
 		}))
 	}

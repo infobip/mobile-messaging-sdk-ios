@@ -7,23 +7,32 @@
 import Foundation
 import CoreData
 
+struct MessageFetchingSettings {
+	static let messageArchiveLengthDays: Double = 7  // consider messages not older than 7 days
+	static let fetchLimit = 100 // consider 100 most recent messages
+	static let fetchingIterationLimit = 2 // fetching may trigger message handling, which in turn may trigger message fetching. This constant is here to break possible inifinite recursion.
+}
+
 final class MessageFetchingOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((MessagesSyncResult) -> Void)?
 	var result = MessagesSyncResult.Cancel
 	let mmContext: MobileMessaging
+	let handlingIteration: Int
 	
-	init(context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, mmContext: MobileMessaging, handlingIteration: Int = 0, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
+		self.handlingIteration = handlingIteration
 		super.init()
 	}
 	
 	override func execute() {
 		MMLogDebug("[Message fetching] Starting operation...")
 		guard mmContext.currentUser?.internalId != nil else {
-			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			self.result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
+			finish()
 			return
 		}
 		syncMessages()
@@ -32,10 +41,10 @@ final class MessageFetchingOperation: Operation {
 	private func syncMessages() {
 		context.reset()
 		context.performAndWait {
-			let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * 7) // consider messages not older than 7 days
-			let fetchLimit = 100 // consider 100 most recent messages
+			let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * MessageFetchingSettings.messageArchiveLengthDays)
+			
 			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
-			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true && creationDate > %@", date as CVarArg), fetchLimit: fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
+			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true && creationDate > %@", date as CVarArg), fetchLimit: MessageFetchingSettings.fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
 			
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
@@ -45,7 +54,7 @@ final class MessageFetchingOperation: Operation {
 			self.mmContext.remoteApiManager.syncMessages(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
                 self.result = result
                 self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
-                self.finishWithError(result.error as NSError?)
+                self.finish()
             }
 		}
 	}
@@ -94,30 +103,18 @@ final class MessageFetchingOperation: Operation {
 		messages.forEach({ mmContext.messageStorageAdapter?.update(deliveryReportStatus: $0.reportSent , for: $0.messageId) })
 	}
 	
-	private func handleMessageOperation(messages: [MTMessage]) -> MessageHandlingOperation {
-		return MessageHandlingOperation(messagesToHandle: messages,
-		                                context: context,
-		                                messageHandler: MobileMessaging.messageHandling,
-		                                mmContext: mmContext,
-		                                finishBlock: { error in
-											
-											var finalResult = self.result
-											if let error = error {
-												finalResult = MessagesSyncResult.Failure(error)
-											}
-											self.finishBlock?(finalResult)
-		})
-	}
-	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message fetching] finished with errors: \(errors)")
-		let finishResult = errors.isEmpty ? result : MessagesSyncResult.Failure(errors.first)
-		switch finishResult {
+
+		switch result {
 		case .Success(let fetchResponse):
-			if let messages = fetchResponse.messages , !messages.isEmpty {
-				self.produceOperation(handleMessageOperation(messages: messages))
+			if let messages = fetchResponse.messages, !messages.isEmpty, handlingIteration < MessageFetchingSettings.fetchingIterationLimit {
+				MMLogDebug("[Message fetching] triggering handling for fetched messages \(messages.count)...")
+				self.mmContext.messageHandler.handleMTMessages(messages, notificationTapped: false, handlingIteration: handlingIteration + 1, completion: { _ in
+					self.finishBlock?(self.result)
+				})
 			} else {
-				self.finishBlock?(result)
+				fallthrough
 			}
 		default:
 			self.finishBlock?(result)

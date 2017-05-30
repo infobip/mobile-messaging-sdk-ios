@@ -110,8 +110,12 @@ class FetchMessagesCompletionTests: MMTestCase {
 		weak var exp = expectation(description: "Handler called")
 		self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
 			{ (request) -> JSON? in
-				if request is MessagesSyncRequest {
-					return JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]])
+				if let request = request as? MessagesSyncRequest {
+					if (request.dlrMsgIds ?? [String]()) == ["newData"]  {
+						return JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]])
+					} else {
+						return JSON(["payloads": []])
+					}
 				}
 				return nil
 		}
