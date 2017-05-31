@@ -45,6 +45,14 @@ extension MTMessage {
 @available(iOS 10.0, *)
 final public class MobileMessagingNotificationServiceExtension: NSObject {
 	
+	/// Starts a new Mobile Messaging Notification Service Extension session.
+	///
+	/// This method should be called form `didReceive(_:, withContentHandler:)` of your subclass of UNNotificationServiceExtension.
+	/// - parameter code: The application code of your Application from Push Portal website.
+	/// - parameter appGroupId: An ID of an App Group. App Groups used to share data among app Notification Extension and the main application itself. Provide the appropriate App Group ID for both application and application extension in order to keep them in sync.
+	/// - remark: If you are facing with the following error in your console:
+	/// `[User Defaults] Failed to read values in CFPrefsPlistSource<0xXXXXXXX> (Domain: ..., User: kCFPreferencesAnyUser, ByHost: Yes, Container: (null)): Using kCFPreferencesAnyUser with a container is only allowed for SystemContainers, detaching from cfprefsd`.
+	/// Although this warning doesn't mean that our code doesn't work, you can shut it up by prefixing your App Group ID with a Team ID of a certificate that you are signing the build with. For example: `"9S95Y6XXXX.group.com.mobile-messaging.notification-service-extension"`. The App Group ID itself doesn't need to be changed though.
 	public class func startWithApplicationCode(_ code: String, appGroupId: String) {
 		if sharedInstance == nil {
 			sharedInstance = MobileMessagingNotificationServiceExtension(appCode: code, appGroupId: appGroupId)
@@ -52,38 +60,40 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		sharedInstance?.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: code, appGroupId: appGroupId)
 	}
 	
+	/// This method handles an incoming notification on the Notification Service Extensions side. It performs message delivery reporting and downloads data from `contentUrl` if provided. This method must be called within `UNNotificationServiceExtension.didReceive(_: withContentHandler:)` callback.
+	///
+	/// - parameter request: The original notification request. Use this object to get the original content of the notification.
+	/// - parameter contentHandler: The block to execute with the modified content. The block will be called after the delivery reporting and contend downloading finished.
 	public class func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+		
+		var result: UNNotificationContent = request.content
+		
 		guard let sharedInstance = sharedInstance, let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: Date()) else
 		{
-			contentHandler(request.content)
+			contentHandler(result)
 			return
 		}
 		
+		let handlingGroup = DispatchGroup()
+		
+		handlingGroup.enter()
 		sharedInstance.reportDelivery(mtMessage) { result in
 			sharedInstance.persistMessage(mtMessage, isDelivered: result.error == nil)
+			handlingGroup.leave()
 		}
 		
-		sharedInstance.currentTask = mtMessage.downloadImageAttachment { (url, error) in
-			guard let url = url,
-				let mContent = (request.content.mutableCopy() as? UNMutableNotificationContent),
-				let attachment = try? UNNotificationAttachment(identifier: String(url.absoluteString.hash), url: url, options: nil) else
-			{
-				contentHandler(request.content)
-				return
-			}
-			
-			mContent.attachments = [attachment]
-			
-			let result: UNNotificationContent
-			if let contentWithAttach = mContent.copy() as? UNNotificationContent {
-				result = contentWithAttach
-			} else {
-				result = request.content
-			}
+		handlingGroup.enter()
+		sharedInstance.retrieveNotificationContent(for: mtMessage, originalContent: result) { updatedContent in
+			result = updatedContent
+			handlingGroup.leave()
+		}
+		
+		handlingGroup.notify(queue: DispatchQueue.main) {
 			contentHandler(result)
 		}
 	}
-	
+
+	// This method finishes the MobileMessaging SDK internal procedures in order to prepare for termination. This method must be called within your `UNNotificationServiceExtension.serviceExtensionTimeWillExpire()` callback.
 	public class func serviceExtensionTimeWillExpire() {
 		sharedInstance?.currentTask?.cancel()
 	}
@@ -93,6 +103,22 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	private init(appCode: String, appGroupId: String) {
 		self.applicationCode = appCode
 		self.appGroupId = appGroupId
+	}
+	
+	private func retrieveNotificationContent(for message: MTMessage, originalContent: UNNotificationContent, completion: @escaping (UNNotificationContent) -> Void) {
+		
+		currentTask = message.downloadImageAttachment { (url, error) in
+			guard let url = url,
+				let mContent = (originalContent.mutableCopy() as? UNMutableNotificationContent),
+				let attachment = try? UNNotificationAttachment(identifier: String(url.absoluteString.hash), url: url, options: nil) else
+			{
+				completion(originalContent)
+				return
+			}
+			
+			mContent.attachments = [attachment]
+			completion((mContent.copy() as? UNNotificationContent) ?? originalContent)
+		}
 	}
 	
 	private func reportDelivery(_ message: MTMessage, completion: @escaping (Result<DeliveryReportResponse>) -> Void) {

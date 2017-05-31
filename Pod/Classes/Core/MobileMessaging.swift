@@ -50,9 +50,15 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
+	/// Fabric method for Mobile Messaging session.
+	///
+	/// App Groups used to share data among app Notification Extension and the main application itself. Provide the appropriate App Group ID for both application and application extension in order to keep them in sync.
+	/// - parameter appGroupId: An ID of an App Group
+	/// - remark: If you are facing with the following error in your console:
+	/// `[User Defaults] Failed to read values in CFPrefsPlistSource<0xXXXXXXX> (Domain: ..., User: kCFPreferencesAnyUser, ByHost: Yes, Container: (null)): Using kCFPreferencesAnyUser with a container is only allowed for SystemContainers, detaching from cfprefsd`.
+	/// Although this warning doesn't mean that our code doesn't work, you can shut it up by prefixing your App Group ID with a Team ID of a certificate that you are signing the build with. For example: `"9S95Y6XXXX.group.com.mobile-messaging.notification-service-extension"`. The App Group ID itself doesn't need to be changed though.
 	@available(iOS 10.0, *)
 	public func withAppGroupId(_ appGroupId: String) -> MobileMessaging {
-		self.appGroupId = appGroupId
 		self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
 		return self
 	}
@@ -144,7 +150,6 @@ public final class MobileMessaging: NSObject {
 			MobileMessaging.sharedInstance?.stop()
 		}
 		
-		
 		// just to break retain cycles:
 		MobileMessaging.sharedInstance?.currentInstallation = nil
 		MobileMessaging.sharedInstance?.currentUser = nil
@@ -154,6 +159,7 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.application = nil
 		MobileMessaging.sharedInstance?.reachabilityManager = nil
 		MobileMessaging.sharedInstance?.keychain = nil
+		MobileMessaging.sharedInstance?.sharedNotificationExtensionStorage = nil
 		
 		MobileMessaging.sharedInstance = nil
 	}
@@ -423,7 +429,6 @@ public final class MobileMessaging: NSObject {
 	
 	static var date: MMDate = MMDate() // testability
 	
-	var appGroupId: String?
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 }
 
