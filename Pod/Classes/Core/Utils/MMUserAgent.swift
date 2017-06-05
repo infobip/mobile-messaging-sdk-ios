@@ -6,13 +6,14 @@
 
 import Foundation
 import CoreTelephony
+import LocalAuthentication
 
 func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
 	return lhs.hashValue == rhs.hashValue
 }
 struct MMSystemData: Hashable {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
-	let notificationsEnabled: Bool
+	let notificationsEnabled, deviceSecure: Bool
 	var dictionaryRepresentation: [String: AnyHashable] {
 
 		var result : [String: AnyHashable] = [
@@ -20,11 +21,12 @@ struct MMSystemData: Hashable {
 												SystemDataKeys.notificationsEnabled: notificationsEnabled,
 												SystemDataKeys.sdkVersion: SDKVersion
 										     ]
-		if (!MobileMessaging.privacySettings.systemInfoSendingDisabled) {
+        if (!MobileMessaging.privacySettings.systemInfoSendingDisabled) {
 			result[SystemDataKeys.osVer] = OSVer
 			result[SystemDataKeys.deviceManufacturer] = deviceManufacturer
 			result[SystemDataKeys.deviceModel] = deviceModel
 			result[SystemDataKeys.appVer] = appVer
+            result[SystemDataKeys.deviceSecure] = deviceSecure
 		}
 		return (result as [String: AnyHashable]).mm_applySubservicesSystemData()
 	}
@@ -47,7 +49,7 @@ public class MMUserAgent: NSObject {
 	}
 	
 	var systemData: MMSystemData {
-		return MMSystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, notificationsEnabled: notificationsEnabled)
+        return MMSystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
 	}
 	
 	public var notificationsEnabled: Bool {
@@ -182,7 +184,31 @@ public class MMUserAgent: NSObject {
 			return UIDevice.current.localizedModel
 		}
 	}
-	
+    
+    public var deviceSecure: Bool {
+        if #available(iOS 9.0, *) {
+            return LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
+            
+        } else {
+            if let secret = "Device has passcode set?".data(using: String.Encoding.utf8, allowLossyConversion: false) {
+                let attributes = [kSecClass as String:kSecClassGenericPassword,
+                                  kSecAttrService as String:"LocalDeviceServices",
+                                  kSecAttrAccount as String:"NoAccount",
+                                  kSecValueData as String:secret,
+                                  kSecAttrAccessible as String:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly] as [String : Any]
+                
+                let status = SecItemAdd(attributes as CFDictionary, nil)
+                if status == 0 {
+                    SecItemDelete(attributes as CFDictionary)
+                    return true
+                }
+
+            }
+            
+            return false
+        }
+    }
+    
 	func userAgentString(withOptions options: [DataOptions]) -> String {
 		func systemDataString(allowed: Bool) -> String {
 			let outputOSName = allowed ? osName : ""

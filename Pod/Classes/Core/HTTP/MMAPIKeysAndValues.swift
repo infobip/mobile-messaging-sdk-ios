@@ -75,6 +75,7 @@ struct SystemDataKeys {
 	static let appVer = "applicationVersion"
 	static let geofencingServiceEnabled = "geofencing"
 	static let notificationsEnabled = "notificationsEnabled"
+    static let deviceSecure = "deviceSecure"
 }
 
 struct GeoReportingAPIKeys {

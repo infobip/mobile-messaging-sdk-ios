@@ -150,6 +150,7 @@ class SystemDataTests: MMTestCase {
 				XCTAssertNotNil(request.body?[SystemDataKeys.sdkVersion])
 				XCTAssertNotNil(request.body?[SystemDataKeys.geofencingServiceEnabled])
 				XCTAssertNotNil(request.body?[SystemDataKeys.notificationsEnabled])
+                XCTAssertNil(request.body?[SystemDataKeys.deviceSecure])
 			}
 		}
 		
@@ -162,6 +163,7 @@ class SystemDataTests: MMTestCase {
 				XCTAssertNotNil(request.body?[SystemDataKeys.sdkVersion])
 				XCTAssertNotNil(request.body?[SystemDataKeys.geofencingServiceEnabled])
 				XCTAssertNotNil(request.body?[SystemDataKeys.notificationsEnabled])
+                XCTAssertNotNil(request.body?[SystemDataKeys.deviceSecure])
 			}
 		}
 		
