@@ -9,7 +9,6 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 
 @interface MobileMessagingCordovaApplicationDelegate() {
 	id<UIApplicationDelegate> _applicationDelegate;
-	id<NotificationsCaching> _notificationsCacher;
 }
 @end
 
@@ -25,13 +24,12 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 	return _sharedInstaller;
 }
 
-+ (void)install:(id<NotificationsCaching>)notificationsCacher {
-	[[self sharedInstaller] install:notificationsCacher];
++ (void)install {
+	[[self sharedInstaller] install];
 }
 
-- (void)install:(id<NotificationsCaching>)notificationsCacher {
+- (void)install {
 	if (!self.installed){
-		_notificationsCacher = notificationsCacher;
 		_applicationDelegate = [UIApplication sharedApplication].delegate;
 		UIResponder *responder = (UIResponder *) _applicationDelegate;
 		self.window = [responder valueForKey:@"window"];
@@ -43,7 +41,6 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 #pragma mark - Application Delegate Methods
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-	[_notificationsCacher didReceiveRemoteNotification:[self extendUserInfoIfNeeded:userInfo] fetchCompletionHandler:completionHandler];
 	[MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 	if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
 		[_applicationDelegate application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
@@ -52,7 +49,6 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
 	notification.userInfo = [self extendUserInfoIfNeeded: notification.userInfo];
-	[_notificationsCacher didReceiveLocalNotification:notification];
 	[MobileMessaging didReceiveLocalNotification:notification];
 	if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didReceiveLocalNotification:)]) {
 		[_applicationDelegate application:application didReceiveLocalNotification:notification];
