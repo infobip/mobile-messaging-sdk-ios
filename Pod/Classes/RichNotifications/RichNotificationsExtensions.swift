@@ -68,7 +68,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		
 		var result: UNNotificationContent = request.content
 		
-		guard let sharedInstance = sharedInstance, let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: Date()) else
+		guard let sharedInstance = sharedInstance, let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: MobileMessaging.date.now) else
 		{
 			contentHandler(result)
 			return
@@ -78,7 +78,9 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		
 		handlingGroup.enter()
 		sharedInstance.reportDelivery(mtMessage) { result in
-			sharedInstance.persistMessage(mtMessage, isDelivered: result.error == nil)
+			mtMessage.isDeliveryReportSent = result.error == nil
+			mtMessage.deliveryReportedDate = mtMessage.isDeliveryReportSent ? MobileMessaging.date.now : nil
+			sharedInstance.sharedNotificationExtensionStorage?.save(message: mtMessage)
 			handlingGroup.leave()
 		}
 		
@@ -125,10 +127,6 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		deliveryReporter.report(messageIds: [message.messageId], completion: completion)
 	}
 	
-	private func persistMessage(_ message: MTMessage, isDelivered: Bool) {
-		sharedNotificationExtensionStorage?.save(message: message, isDelivered: isDelivered)
-	}
-	
 	let appGroupId: String
 	let applicationCode: String
 	let remoteAPIBaseURL = APIValues.prodBaseURLString
@@ -161,7 +159,7 @@ class DeliveryReporter: DeliveryReporting {
 
 protocol AppGroupMessageStorage {
 	init?(applicationCode: String, appGroupId: String)
-	func save(message: MTMessage, isDelivered: Bool)
+	func save(message: MTMessage)
 	func retrieveMessages() -> [MTMessage]
 	func cleanupMessages()
 }
@@ -175,12 +173,14 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 		self.applicationCode = applicationCode
 	}
 	
-	func save(message: MTMessage, isDelivered: Bool) {
+	func save(message: MTMessage) {
 		guard let ud = UserDefaults.init(suiteName: appGroupId) else {
 			return
 		}
-		var savedMessageDicts = ud.object(forKey: applicationCode) as? [StringKeyPayload] ?? []
-		savedMessageDicts.append(["p": message.originalPayload, "d": message.createdDate, "dlr": isDelivered])
+		var savedMessageDicts = ud.object(forKey: applicationCode) as? [StringKeyPayload] ?? [StringKeyPayload]()
+		var msgDict: StringKeyPayload = ["p": message.originalPayload, "d": message.createdDate, "dlr": message.isDeliveryReportSent]
+		msgDict["dlrd"] = message.deliveryReportedDate
+		savedMessageDicts.append(msgDict)
 		ud.set(savedMessageDicts, forKey: applicationCode)
 		ud.synchronize()
 	}
@@ -191,11 +191,13 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 			return []
 		}
 		let messages = messageDataDicts.flatMap({ messageDataTuple -> MTMessage? in
-			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let date = messageDataTuple["d"] as? Date, let dlrSent =  messageDataTuple["dlr"] as? Bool else {
+			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let date = messageDataTuple["d"] as? Date, let dlrSent =  messageDataTuple["dlr"] as? Bool else
+			{
 				return nil
 			}
 			let newMessage = MTMessage(payload: payload, createdDate: date)
 			newMessage?.isDeliveryReportSent = dlrSent
+			newMessage?.deliveryReportedDate = messageDataTuple["dlrd"] as? Date
 			return newMessage
 		})
 		return messages

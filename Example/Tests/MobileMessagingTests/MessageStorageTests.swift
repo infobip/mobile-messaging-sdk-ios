@@ -300,7 +300,11 @@ class MessageStorageTests: MMTestCase {
 		MobileMessagingNotificationServiceExtension.didReceive(request, withContentHandler: contentHandler)
 		
 		XCTAssertEqual(sharedStorageMock.retrieveMessages().count, 1)
+		let firstMessage = sharedStorageMock.retrieveMessages().first
+		XCTAssertNotNil(firstMessage!.deliveryReportedDate)
+		XCTAssertTrue(firstMessage!.isDeliveryReportSent)
 		
+		// starting the SDK
 		let mockMessageStorage = MockMessageStorage()
 		XCTAssertEqual(mockMessageStorage.mtMessages.count, 0)
 		
@@ -343,7 +347,7 @@ class SharedMessageStorageMock: AppGroupMessageStorage {
 		self.applicationCode = applicationCode
 	}
 	
-	func save(message: MTMessage, isDelivered: Bool) {
+	func save(message: MTMessage) {
 		var msgs = (inMemStorage[applicationCode] as? [MTMessage]) ?? [MTMessage]()
 		msgs.append(message)
 		inMemStorage[applicationCode] = msgs

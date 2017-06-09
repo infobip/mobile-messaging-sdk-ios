@@ -61,6 +61,7 @@ import CoreData
 				newMessage.messageId = message.messageId
 				newMessage.direction = MessageDirection.MT.rawValue
 				newMessage.deliveryMethod = message.deliveryMethod.rawValue
+				newMessage.deliveryReportedDate = message.deliveryReportedDate
 				newMessages.append(newMessage)
 			}
 			context.MM_saveToPersistentStoreAndWait()

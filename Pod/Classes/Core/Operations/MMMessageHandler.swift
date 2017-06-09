@@ -87,6 +87,7 @@ final class MMMessageHandler: MobileMessagingService {
 		{
 			return
 		}
+		MMLogDebug("[Message Handler] Retrieved \(messages.count) messages from notification extension storage.")
 		handleMTMessages(messages, notificationTapped: false, completion: nil)
 	}
 	
@@ -218,6 +219,7 @@ final class MMMessageHandler: MobileMessagingService {
 		message.creationDate = originalMessage.createdDate
 		message.isSilent = originalMessage.isSilent
 		message.reportSent = originalMessage.isDeliveryReportSent
+		message.deliveryReportedDate = originalMessage.deliveryReportedDate
 		message.messageType = .Default
 		message.payload = originalMessage.originalPayload
 	}
