@@ -119,14 +119,6 @@ extension NotificationCenter {
 	}
 }
 
-extension OperationQueue {
-	class var mm_newSerialQueue: OperationQueue {
-		let newQ = OperationQueue()
-		newQ.maxConcurrentOperationCount = 1
-		return newQ
-	}
-}
-
 class MMNetworkReachabilityManager: ReachabilityManagerProtocol {
 	static let sharedInstance = MMNetworkReachabilityManager()
 	private let manager: MM_AFNetworkReachabilityManager

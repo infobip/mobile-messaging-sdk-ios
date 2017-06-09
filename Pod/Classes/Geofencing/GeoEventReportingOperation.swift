@@ -110,7 +110,7 @@ class GeoEventReportingOperation: Operation {
 			default: break
 			}
 			
-			messagesUpdatingGroup.notify(queue: DispatchQueue.global(qos: .background), execute: {
+			messagesUpdatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: {
 				let completionsGroup = DispatchGroup()
 				let mtMessagesDatasource = GeoEventReportObject.MM_findAllWithPredicate(NSPredicate(format: "SELF IN %@", self.happenedEventObjectIds), context: self.context)?.reduce(MTMessagesDatasource(), { (datasourceResult, event) -> MTMessagesDatasource in
 					
@@ -191,7 +191,7 @@ class GeoEventReportingOperation: Operation {
 					completionsGroup.leave()
 				})
 				
-				completionsGroup.notify(queue: DispatchQueue.global(qos: .background), execute: completion)
+				completionsGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
 			})
 		}
 	}

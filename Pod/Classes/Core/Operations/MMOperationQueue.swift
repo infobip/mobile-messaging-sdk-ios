@@ -18,9 +18,25 @@ class MMOperationQueue: OperationQueue {
 		return true
 	}
 	
+	override init() {
+		super.init()
+		self.name = self.operationName
+	}
+	
+	var operationName: String {
+		return "com.mobile-messaging.default-queue"
+	}
+	
 	class var newSerialQueue: MMOperationQueue {
 		let newQ = MMOperationQueue()
 		newQ.maxConcurrentOperationCount = 1
+		newQ.qualityOfService = .default
+		return newQ
+	}
+	
+	class var userInitiatedQueue: MMOperationQueue {
+		let newQ = MMOperationQueue()
+		newQ.qualityOfService = .userInitiated
 		return newQ
 	}
 }

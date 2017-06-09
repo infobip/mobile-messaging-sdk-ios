@@ -94,7 +94,7 @@ struct OperationConditionEvaluator {
 		}
 		
 		// After all the conditions have evaluated, this block will execute.
-		conditionGroup.notify(queue: DispatchQueue.global(qos: DispatchQoS.QoSClass.default)) {
+		conditionGroup.notify(queue: DispatchQueue.global(qos: .default)) {
 			// Aggregate the errors that occurred, in order.
 			var failures = results.flatMap { $0?.error }
 			

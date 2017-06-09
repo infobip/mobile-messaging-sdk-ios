@@ -29,9 +29,15 @@ struct MMBlockObserver: MMOperationObserver {
 }
 
 class MMRetryOperationQueue: MMOperationQueue {
-	override init() {
-		super.init()
-		self.name = "com.mobile-messaging.retryable-operation-queue"
+	override class var newSerialQueue: MMRetryOperationQueue {
+		let newQ = MMRetryOperationQueue()
+		newQ.maxConcurrentOperationCount = 1
+		newQ.qualityOfService = .default
+		return newQ
+	}
+	
+	override var operationName: String {
+		return "com.mobile-messaging.retryable-operation-queue"
 	}
 	
 	override func addOperation(_ operation: Foundation.Operation) {

@@ -36,9 +36,7 @@ class MMRemoteAPIQueue {
 	let mmContext: MobileMessaging
 	
 	lazy var queue: MMRetryOperationQueue = {
-		let q = MMRetryOperationQueue()
-		q.maxConcurrentOperationCount = 1
-		return q
+		return MMRetryOperationQueue.newSerialQueue
 	}()
 	
 	init(mmContext: MobileMessaging, baseURL: String, applicationCode: String) {

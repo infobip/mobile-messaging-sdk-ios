@@ -47,7 +47,7 @@ enum MessageHandlingResult {
 
 final class MMMessageHandler: MobileMessagingService {
 	lazy var messageHandlingQueue = MMOperationQueue.newSerialQueue
-	lazy var messageSendingQueue = MMOperationQueue()
+	lazy var messageSendingQueue = MMOperationQueue.userInitiatedQueue
 	lazy var messageSyncQueue = MMOperationQueue.newSerialQueue
 
 	lazy var seenPostponer = MMPostponer(executionQueue: DispatchQueue.main)
