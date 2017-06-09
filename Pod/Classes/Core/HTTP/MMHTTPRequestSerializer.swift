@@ -12,7 +12,7 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
     
     init(applicationCode: String, jsonBody: [String: Any]?, headers: [String: String]?) {
 		self.applicationCode = applicationCode
-        self.jsonBody = jsonBody
+        self.jsonBody = jsonBody?.nilIfEmpty
 		self.headers = headers
 		super.init()
 	}
@@ -31,10 +31,8 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 	}
 	
 	func applyHeaders(_ request: inout NSMutableURLRequest) {
-		if let headers = headers {
-			for (header, value) in headers {
-				request.addValue(value, forHTTPHeaderField: header)
-			}
+		headers?.forEach { (hv) in
+			request.addValue(hv.value, forHTTPHeaderField: hv.key)
 		}
 		request.addValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
 		request.addValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: "User-Agent")
@@ -52,22 +50,20 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 		applyHeaders(&request)
 		
         if let jsonBody = jsonBody , method == "POST" {
-            var data : Data?
             do {
-                data = try SanitizedJSONSerialization.data(withJSONObject: jsonBody, options: [])
-                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                request.addValue("application/json", forHTTPHeaderField: "Accept")
-                request.httpBody = data
+                request.httpBody = try SanitizedJSONSerialization.data(withJSONObject: jsonBody, options: [])
+				request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+				request.addValue("application/json", forHTTPHeaderField: "Accept")
             } catch let error as NSError {
                 MMLogError("RequestSerializer can't serialize json body: \(jsonBody) with error: \(error)")
             }
         }
-        
+		
         return request;
     }
 	
 	func makeURL(withQueryParameters parameters: Any?, url: String) -> URL? {
-		var completeURLString = url
+		var completeURLString: String = url
 		if let dictParams = parameters as? [String: AnyObject] {
 			completeURLString += "?" + RequestSerializer.query(fromParameters: dictParams);
 		}

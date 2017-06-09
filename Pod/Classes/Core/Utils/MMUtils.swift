@@ -71,6 +71,13 @@ extension Dictionary where Key: Hashable, Value: Hashable {
 	}
 }
 
+extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
+	var nilIfEmpty: [Key: Value]? {
+		return self.isEmpty ? nil : self
+	}
+}
+
+
 public extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 	public var mm_apsAlertBody: String? {
 		return (self as NSDictionary).mm_apsAlertBody
