@@ -10,9 +10,7 @@ import UserNotifications
 
 extension MTMessage {
 	
-	static let attachmentsUrlSessionManager = MM_AFHTTPSessionManager(sessionConfiguration: MobileMessaging.urlSessionConfiguration)
-	
-	@discardableResult func downloadImageAttachment(completion: @escaping (URL?, Error?) -> Void) -> URLSessionDownloadTask? {
+	@discardableResult func downloadImageAttachment(completion: @escaping (URL?, Error?) -> Void) -> RetryableDownloadTask? {
 		guard let contentUrlString = contentUrl, let contentURL = URL.init(string: contentUrlString) else {
 			completion(nil, nil)
 			return nil
@@ -32,14 +30,13 @@ extension MTMessage {
 			}
 			return destinationFolderURL.appendingPathComponent(String(url.absoluteString.hashValue) + "." + contentURL.pathExtension)
 		}
-		MTMessage.attachmentsUrlSessionManager.session.configuration.timeoutIntervalForResource = 20 //this will help to avoid too long downloading task (in case of big pictures)
-		MTMessage.attachmentsUrlSessionManager.session.configuration.timeoutIntervalForRequest = 20
-		let task = MTMessage.attachmentsUrlSessionManager.downloadTask(with: URLRequest(url: contentURL), progress: nil, destination: destination) { (urlResponse, url, error) in
-			completion(url, error)
-		}
+	
+		let task = RetryableDownloadTask(attemptsCount: 3, request: URLRequest(url: contentURL), destination: destination, completion: completion)
 		task.resume()
+		
 		return task
 	}
+
 }
 
 @available(iOS 10.0, *)
@@ -119,6 +116,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 			}
 			
 			mContent.attachments = [attachment]
+			
 			completion((mContent.copy() as? UNNotificationContent) ?? originalContent)
 		}
 	}
@@ -130,7 +128,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	let appGroupId: String
 	let applicationCode: String
 	let remoteAPIBaseURL = APIValues.prodBaseURLString
-	var currentTask: URLSessionDownloadTask?
+	var currentTask: RetryableDownloadTask?
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 	lazy var deliveryReporter: DeliveryReporting! = DeliveryReporter(applicationCode: self.applicationCode, baseUrl: self.remoteAPIBaseURL)
 }

@@ -75,7 +75,7 @@ extension NSError {
 		retryableCodes.insert(NSURLErrorCannotDecodeContentData)
 		retryableCodes.insert(NSURLErrorCannotParseResponse)
 		
-		return domain == NSURLErrorDomain && retryableCodes.contains(code)
+		return (domain == NSURLErrorDomain || domain == AFURLResponseSerializationErrorDomain) && retryableCodes.contains(code)
 	}
 
     public convenience init(type: MMInternalErrorType) {
