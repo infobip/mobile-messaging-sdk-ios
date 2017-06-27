@@ -135,10 +135,7 @@
         "authorization": "App someCorrectApplicationID",
         "pushregistrationid": "someExistingInternalID"
       },
-      "requestBody": {
-        "predefinedUserData":{},
-        "customUserData":{}
-      },
+      "requestBody": null,
       "responseBody": {
         "predefinedUserData": {
           "firstName": "Darth",
@@ -185,8 +182,7 @@
         "predefinedUserData":{
           "email": "john@mail.com",
           "msisdn" : "79697162937"
-        },
-        "customUserData":{}
+        }	
       },
       "responseBody": {
         "predefinedUserData": {
@@ -206,7 +202,7 @@
           "email": "john@mail,com",
           "msisdn" : "9697162937"
         },
-        "customUserData":{}
+        "customUserData":null
       },
       "responseBody": {
         "requestError": {

@@ -115,15 +115,15 @@ struct UserDataRequest: PostRequest {
 	}
 	var body: RequestBody? {
 		var result = RequestBody()
-		result[APIKeys.kUserDataPredefinedUserData] = predefinedUserData ?? UserDataDictionary()
-		if let customUserData = customUserData {
+		if let predefinedUserData = predefinedUserData, !predefinedUserData.isEmpty {
+			result[APIKeys.kUserDataPredefinedUserData] = predefinedUserData
+		}
+		if let customUserData = customUserData, !customUserData.isEmpty {
 			result[APIKeys.kUserDataCustomUserData] = customUserData.reduce(UserDataDictionary(), { (result, element) -> UserDataDictionary in
 				return result + element.dictionaryRepresentation
 			})
-		} else {
-			result[APIKeys.kUserDataCustomUserData] = UserDataDictionary()
 		}
-		return result
+		return result.isEmpty == true ? nil : result
 	}
 
 	let externalUserId: String?
