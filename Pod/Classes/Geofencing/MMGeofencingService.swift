@@ -448,9 +448,8 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	fileprivate func dataSourceRegions(from circularRegions: Set<CLCircularRegion>) -> [MMRegion] {
 		return circularRegions.reduce([MMRegion]()) { (result, region) -> [MMRegion] in
-			return self.datasource.regionsDictionary.filter{ (key, value) -> Bool in
-				return key.hasSuffix("_\(region.identifier)")
-				}.map{$0.1}
+			return result +
+				self.datasource.regionsDictionary.filter { $0.0.hasSuffix(region.identifier) }.map{ $0.1 }
 		}
 	}
 	
@@ -469,6 +468,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			//check what to start
 			let regionsToStartMonitoring = self.regionsToStartMonitoring(monitoredRegions: monitoredRegions)
 			MMLogDebug("[GeofencingService] will start monitoring regions: \n\(self.dataSourceRegions(from: regionsToStartMonitoring))")
+			
 			regionsToStartMonitoring.forEach({ (region) in
 				region.notifyOnEntry = true
 				region.notifyOnExit = true
@@ -480,7 +480,8 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			guard let newRegions = newRegions else {
 				return
 			}
-			let monitoredDatasourceRegions = Set(self.dataSourceRegions(from: monitoredRegions))
+			let monitoredDataSourceRegionsArr = self.dataSourceRegions(from: monitoredRegions)
+			let monitoredDatasourceRegions = Set(monitoredDataSourceRegionsArr) // assert 2
 			let intersection = monitoredDatasourceRegions.filter({ (region) -> Bool in
 				return newRegions.contains(where: {$0.dataSourceIdentifier == region.dataSourceIdentifier})
 			})
