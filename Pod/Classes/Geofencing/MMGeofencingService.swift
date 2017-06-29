@@ -87,8 +87,18 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		message.campaignState = .Active
 		message.campaignId = geoSignalingMessage.campaignId
 		
-		add(message: geoSignalingMessage)
 	}
+	
+	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: ((MessageHandlingResult) -> Void)? = nil) {
+		guard let geoSignalingMessage = MMGeoMessage(payload: message.originalPayload, createdDate: message.createdDate) else {
+			completion?(.noData)
+			return
+		}
+		add(message: geoSignalingMessage) { 
+			completion?(.noData)
+		}
+	}
+
 	
 	private var _isRunning: Bool = false
 	var isRunning: Bool  {
@@ -213,19 +223,20 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	/// Accepts a geo message, which contains regions that should be monitored.
 	/// - parameter message: A message object to add to the monitoring. Object of `MMGeoMessage` class.
-	public func add(message: MMGeoMessage) {
+	public func add(message: MMGeoMessage, completion: (() -> Void)? = nil) {
 		locationManagerQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] trying to add a message")
 			guard self.isRunning == true else
 			{
 				MMLogDebug("[GeofencingService] isRunning = \(self.isRunning). Cancelling...")
+				completion?()
 				return
 			}
 			
 			self.datasource.add(message: message)
 			self.delegate?.didAddMessage(message: message)
 			MMLogDebug("[GeofencingService] added a message\n\(message)")
-			self.refreshMonitoredRegions(newRegions: message.regions)
+			self.refreshMonitoredRegions(newRegions: message.regions, completion: completion)
 		}
 	}
 	
@@ -453,7 +464,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		}
 	}
 	
-	fileprivate func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil) {
+	fileprivate func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil, completion: (() -> Void)? = nil) {
 		locationManagerQueue.executeAsync() {
 			
 			var monitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap { $0 as? CLCircularRegion })
@@ -486,13 +497,21 @@ public class GeofencingService: NSObject, MobileMessagingService {
 				return newRegions.contains(where: {$0.dataSourceIdentifier == region.dataSourceIdentifier})
 			})
 			
+			let group = DispatchGroup()
+			group.enter()
+			group.leave()
 			intersection.forEach({ (region) in
 				if let currentCoordinate = self.locationManager.location?.coordinate , region.circularRegion.contains(currentCoordinate) {
 					if region.message?.isNowAppropriateTimeForEntryNotification ?? false {
 						MMLogDebug("[GeofencingService] already inside new region: \(region)")
-						self.onEnter(datasourceRegion: region)
+						group.enter()
+						self.onEnter(datasourceRegion: region) { group.leave() }
 					}
 				}
+			})
+			
+			group.notify(queue: DispatchQueue.global(qos: .default), execute: { 
+				completion?()
 			})
 		}
 	}
@@ -649,9 +668,10 @@ extension GeofencingService: CLLocationManagerDelegate {
 
 extension GeofencingService {
 	
-	func onEnter(datasourceRegion: MMRegion) {
+	func onEnter(datasourceRegion: MMRegion, completion: (() -> Void)? = nil) {
 		assert(Thread.isMainThread)
 		guard let message = datasourceRegion.message else {
+			completion?()
 			return
 		}
 		
@@ -660,6 +680,7 @@ extension GeofencingService {
 			if campaignState == .Active {
 				self.didEnterActiveCampaignRegion(datasourceRegion)
 			}
+			completion?()
 		})
 	}
 	

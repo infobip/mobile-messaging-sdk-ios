@@ -14,15 +14,17 @@ struct LocalNotificationKeys {
 }
 
 extension UILocalNotification {
-	class func mm_presentLocalNotification(with message: MTMessage) {
+	class func mm_presentLocalNotification(with message: MTMessage, completion: (() -> Void)?) {
 		guard !message.isSilent || (message.isGeoSignalingMessage) else {
+			completion?()
 			return
 		}
 
 		if #available(iOS 10.0, *) {
-			mm_scheduleUserNotification(with: message)
+			mm_scheduleUserNotification(with: message, completion: completion)
 		} else {
 			UIApplication.shared.presentLocalNotificationNow(mm_localNotification(with: message))
+			completion?()
 		}
 	}
 
@@ -37,8 +39,9 @@ extension UILocalNotification {
 }
 
 @available(iOS 10.0, *)
-func mm_scheduleUserNotification(with message: MTMessage) {
+func mm_scheduleUserNotification(with message: MTMessage, completion: (() -> Void)?) {
 	guard let txt = message.text else {
+		completion?()
 		return
 	}
 	let content = UNMutableNotificationContent()
@@ -64,5 +67,6 @@ func mm_scheduleUserNotification(with message: MTMessage) {
 		}
 		let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)
 		UNUserNotificationCenter.current().add(req, withCompletionHandler: nil)
+		completion?()
 	})
 }

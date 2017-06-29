@@ -9,20 +9,21 @@ import Foundation
 
 @objc public protocol MessageHandling {
 	/// This callback is triggered after the new message is received. Default behaviour is implemented by `MMDefaultMessageHandling` class.
-	func didReceiveNewMessage(message: MTMessage)
+	func didReceiveNewMessage(message: MTMessage, completion: (() -> Void)?)
 }
 
 public class MMDefaultMessageHandling: MessageHandling {
-	@objc public func didReceiveNewMessage(message: MTMessage) {
+	@objc public func didReceiveNewMessage(message: MTMessage, completion: (() -> Void)?) {
 		switch message.deliveryMethod {
 		case .pull, .generatedLocally:
-			self.presentLocalNotificationAlert(with: message)
+			self.presentLocalNotificationAlert(with: message, completion: completion)
 		case .push, .undefined:
+			completion?()
 			break
 		}
 	}
 	
-	func presentLocalNotificationAlert(with message: MTMessage) {
-		UILocalNotification.mm_presentLocalNotification(with: message)
+	func presentLocalNotificationAlert(with message: MTMessage, completion: (() -> Void)?) {
+		UILocalNotification.mm_presentLocalNotification(with: message, completion: completion)
 	}
 }

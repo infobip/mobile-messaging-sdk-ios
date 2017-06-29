@@ -91,19 +91,41 @@ final class MMMessageHandler: MobileMessagingService {
 		handleMTMessages(messages, notificationTapped: false, completion: nil)
 	}
 	
+	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: ((MessageHandlingResult) -> Void)? = nil) {
+		handleMTMessages([message], notificationTapped: notificationTapped, handlingIteration: handlingIteration, completion: completion)
+	}
+	
 	func handleMTMessages(_ messages: [MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: ((MessageHandlingResult) -> Void)? = nil) {
 		guard isRunning == true, !messages.isEmpty else {
 			completion?(.noData)
 			return
 		}
 		
-		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock: { error in
-			
+		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock: { error, newMessages in
+			let group =  DispatchGroup()
+			group.enter()
+			newMessages?.forEach{ m in
+				for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
+					group.enter()
+					MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start message handling")
+					subservice.handleMTMessage(m, notificationTapped: false, handlingIteration: 0, completion: { (result) in
+						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop message handling")
+						group.leave()
+					})
+				}
+			}
+			var result = MessageHandlingResult.noData
 			self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(),
 			                                                            mmContext: self.mmContext,
 			                                                            handlingIteration: handlingIteration,
-			                                                            finishBlock: { completion?(MessageHandlingResult($0)) })
-			)
+			                                                            finishBlock: { res in
+																			result = MessageHandlingResult(res)
+																			group.leave()
+			}))
+			group.notify(queue: DispatchQueue.global(qos: .default)) {
+				MMLogDebug("[Message Handler] message handling finished")
+				completion?(result)
+			}
 		}))
 	}
 	

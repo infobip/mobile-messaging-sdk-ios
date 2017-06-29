@@ -78,7 +78,7 @@ class GeofencingServiceAlwaysRunningStub: GeofencingService {
 	
 	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
 	
-    override func onEnter(datasourceRegion: MMRegion) {
+	override func onEnter(datasourceRegion: MMRegion, completion: (() -> Void)?) {
 		self.didEnterRegionCallback?(datasourceRegion)
 	}
 	
@@ -120,7 +120,7 @@ class GeofencingServiceDisabledStub: GeofencingService {
 	
 	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
 	
-	override func onEnter(datasourceRegion: MMRegion) {
+	override func onEnter(datasourceRegion: MMRegion, completion: (() -> Void)?) {
 		self.didEnterRegionCallback?(datasourceRegion)
 	}
 	
@@ -857,6 +857,75 @@ class GeofencingServiceTests: MMTestCase {
 			}
 		})
 		waitForExpectations(timeout: 20, handler: nil)
+	}
+	
+	func testReportSentOnlyOnce() {
+		weak var report1 = expectation(description: "report1")
+		weak var report2 = expectation(description: "report2")
+		let events = [makeEventDict(ofType: .entry, limit: 1)]
+		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
+		guard let message = MMGeoMessage(payload: payload, createdDate: Date()) else {
+			XCTFail()
+			return
+		}
+		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
+		GeofencingService.sharedInstance!.start()
+		GeofencingService.sharedInstance!.geofencingServiceQueue = geofencingServiceQueueMock()
+		mobileMessagingInstance.didReceiveRemoteNotification(payload) { _ in
+			let validEntryRegions = GeofencingService.sharedInstance?.datasource.validRegionsForEntryEventNow(with: pulaId)
+			XCTAssertEqual(validEntryRegions?.count, 1)
+			XCTAssertEqual(validEntryRegions?.first?.dataSourceIdentifier, message.regions.first?.dataSourceIdentifier)
+			
+			MobileMessaging.geofencingService?.report(on: .entry, forRegionId: pulaId, geoMessage: message, completion: { (s) in
+				report1?.fulfill()
+			})
+			
+			MobileMessaging.geofencingService?.syncWithServer(completion: { (result) in
+				if let result = result {
+					switch result {
+					case .Cancel: report2?.fulfill()
+					default: XCTFail()
+					}
+				} else { XCTFail() }
+			})
+		}
+		
+		waitForExpectations(timeout: 20) { _ in
+			if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
+				XCTAssertEqual(events.count, 0)
+			}
+		}
+	}
+	
+	func geofencingServiceQueueMock() -> MMRemoteAPIMock {
+		var sentSdkMessageId: String = ""
+		return MMRemoteAPIMock(mmContext: self.mobileMessagingInstance,
+		                       performRequestCompanionBlock:
+			{ r in
+				
+				if let geoEventReportRequest = r as? GeoEventReportingRequest {
+					if  let body = geoEventReportRequest.body,
+						let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+					{
+						sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String
+					}
+				}
+				
+		}, completionCompanionBlock: { _ in
+			
+		}, responseSubstitution: { r -> JSON? in
+			let jsonStr  =
+				"{" +
+					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+					"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+					"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+					"\"\(sentSdkMessageId)\": \"ipcoremessageid\"" +
+					"}" +
+			"}"
+			let result = JSON.parse(jsonStr)
+			return result
+		})
 	}
 	
 	//MARK: - delivery time tests
@@ -1802,6 +1871,44 @@ class GeofencingServiceTests: MMTestCase {
 		})
 		
 		waitForExpectations(timeout: 60, handler: nil)
+	}
+	
+	func testHandlingOfFetchedGeoPayload() {
+		let regionId = "7867EB6623F628AE2EC71EF3135A2B29"
+		let jsonFromPushUp = "{\"messageId\": \"rCpFVUbewlXjnHGu4ZmnuDQTEtvX7moFrWM80jYMhEE=\",\"customPayload\": {},\"internalData\": {\"geo\": [{\"id\": \"\(regionId)\",\"title\": \"SPB Office\",\"radiusInMeters\": 102,\"latitude\": 59.96102588813523,\"longitude\": 30.304096912685168,\"favorite\": false}],\"messageType\": \"geo\",\"campaignId\": \"770789\",\"expiryTime\": \"2017-06-29T10:15:00+00:00\",\"silent\": {\"body\": \"fetching geo test 111\",\"sound\": \"default\"}},\"aps\": {\"alert\": {\"body\": \"fetching geo test 111\"}},\"silent\": true}"
+		
+		
+		guard let payload = JSON.parse(jsonFromPushUp).dictionaryObject,
+			let message = MTMessage(payload: payload, createdDate: Date.init()),
+			let geoMessage = MMGeoMessage(payload: payload, createdDate: Date.init()) else {
+				XCTFail()
+				return
+		}
+		
+		weak var report1 = expectation(description: "report1")
+		weak var report2 = expectation(description: "report2")
+		
+		MobileMessaging.messageHandling = MessageHandlingMock(localNotificationShownBlock: { _m in
+			XCTAssertEqual(_m.text, message.text)
+			report2?.fulfill()
+		})
+		
+		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
+		GeofencingService.sharedInstance!.start()
+		GeofencingService.sharedInstance!.geofencingServiceQueue = geofencingServiceQueueMock()
+		mobileMessagingInstance.didReceiveRemoteNotification(payload) { _ in
+			MobileMessaging.geofencingService?.report(on: .entry, forRegionId: regionId, geoMessage: geoMessage, completion: { result in
+				report1?.fulfill()
+			})
+		}
+		
+		waitForExpectations(timeout: 30) { error in
+			if error != nil { XCTFail() }
+			if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
+				XCTAssertEqual(events.count, 0)
+			}
+		}
 	}
 }
 

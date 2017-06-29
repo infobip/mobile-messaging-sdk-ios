@@ -90,112 +90,98 @@ class GeoEventReportingOperation: Operation {
 	typealias MTMessagesDatasource = [MessageId: (MMGeoMessage, AreaId)]
 	
 	private func handleRequestResult(_ result: MMGeoEventReportingResult, completion: @escaping () -> Void) {
-		context.performAndWait {
-			let messagesUpdatingGroup = DispatchGroup()
-			var geoSignalingMessages = [MessageId: MMGeoMessage]()
-			
-			switch result {
-			case .Success(let response):
-				if let finishedCampaignIds = response.finishedCampaignIds, !finishedCampaignIds.isEmpty {
-					messagesUpdatingGroup.enter()
-					self.mmContext.messageHandler.updateDbMessagesCampaignFinishedState(forCampaignIds:finishedCampaignIds, completion: {
-						messagesUpdatingGroup.leave()
-					})
-				}
-				
+		let messagesUpdatingGroup = DispatchGroup()
+		switch result {
+		case .Success(let response):
+			if let finishedCampaignIds = response.finishedCampaignIds, !finishedCampaignIds.isEmpty {
 				messagesUpdatingGroup.enter()
-				self.mmContext.messageHandler.updateSdkGeneratedTemporaryMessageIds(withMap: response.tempMessageIdRealMessageId, completion: {
+				self.mmContext.messageHandler.updateDbMessagesCampaignFinishedState(forCampaignIds:finishedCampaignIds, completion: {
 					messagesUpdatingGroup.leave()
 				})
-			default: break
 			}
 			
-			messagesUpdatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: {
-				let completionsGroup = DispatchGroup()
-				let mtMessagesDatasource = GeoEventReportObject.MM_findAllWithPredicate(NSPredicate(format: "SELF IN %@", self.happenedEventObjectIds), context: self.context)?.reduce(MTMessagesDatasource(), { (datasourceResult, event) -> MTMessagesDatasource in
-					
+			messagesUpdatingGroup.enter()
+			self.mmContext.messageHandler.updateSdkGeneratedTemporaryMessageIds(withMap: response.tempMessageIdRealMessageId, completion: {
+				messagesUpdatingGroup.leave()
+			})
+		default: break
+		}
 		
-					guard let geoCampaign = self.signalingGeoMessages[event.campaignId] else {
-						return datasourceResult
-					}
-					
-					let ret: MTMessagesDatasource
-					
-					switch result {
-					case .Success(let response):
-						MMLogDebug("[Geo event reporting] Geo event reporting request succeeded.")
-						
-						// we are about to generate a mt message only for active campaigns
-						if let key = response.tempMessageIdRealMessageId[event.sdkMessageId], (response.finishedCampaignIds + response.suspendedCampaignIds).contains(event.campaignId) == false, event.messageShown == false
-						{
-							ret = datasourceResult + [key: (geoCampaign, event.geoAreaId)]
-							geoCampaign.onEventOccur(ofType: RegionEventType(rawValue: event.eventType) ?? .entry)
-							geoSignalingMessages = geoSignalingMessages + [geoCampaign.messageId: geoCampaign]
-						} else {
-							ret = datasourceResult
-						}
-						self.context.delete(event)
-						
-					case .Failure(let error):
-						MMLogError("[Geo event reporting] Geo event reporting request failed with error: \(String(describing: error))")
-						if event.messageShown == false {
-							// if we had a failed request, we should generate a message for the campaign immediately regardless the campaign status
-							// we'll use the sdk generated message id to generate a mt message with it further in `generateAndHandleGeoVirtualMessages`
-							ret = datasourceResult + [event.sdkMessageId: (geoCampaign, event.geoAreaId)]
-							geoCampaign.onEventOccur(ofType: RegionEventType(rawValue: event.eventType) ?? .entry)
-							geoSignalingMessages = geoSignalingMessages + [geoCampaign.messageId: geoCampaign]
-							
-							event.messageShown = true
-						} else {
-							ret = datasourceResult
-						}
-					default:
+		var changedSigMessages = [MessageId: MMGeoMessage]()
+		var mtMessagesDatasource: MTMessagesDatasource?
+		context.performAndWait {
+			mtMessagesDatasource = GeoEventReportObject.MM_findAllWithPredicate(NSPredicate(format: "SELF IN %@", self.happenedEventObjectIds), context: self.context)?.reduce(MTMessagesDatasource(), { (datasourceResult, event) -> MTMessagesDatasource in
+				guard let geoCampaign = self.signalingGeoMessages[event.campaignId] else {
+					return datasourceResult
+				}
+				
+				let ret: MTMessagesDatasource
+				
+				let onEventOccur: (String) -> MTMessagesDatasource  = { messageId in
+					geoCampaign.onEventOccur(ofType: RegionEventType(rawValue: event.eventType) ?? .entry)
+					changedSigMessages += [geoCampaign.messageId: geoCampaign]
+					return [messageId: (geoCampaign, event.geoAreaId)]
+				}
+				
+				switch result {
+				case .Success(let response):
+					MMLogDebug("[Geo event reporting] Geo event reporting request succeeded.")
+					// we are about to generate a mt message only for active campaigns
+					if let key = response.tempMessageIdRealMessageId[event.sdkMessageId],
+						   (response.finishedCampaignIds + response.suspendedCampaignIds).contains(event.campaignId) == false,
+						   event.messageShown == false {
+						ret = datasourceResult + onEventOccur(key)
+					} else {
 						ret = datasourceResult
 					}
+					self.context.delete(event)
 					
-					return ret
-				})
-				
-				self.context.MM_saveToPersistentStoreAndWait()
-				
-				if let mtMessagesDatasource = mtMessagesDatasource, !mtMessagesDatasource.isEmpty {
-					
-					completionsGroup.enter()
-					MMLogDebug("[Geo event reporting] updating stored payloads...")
-					self.mmContext.messageHandler.updateOriginalPayloadsWithMessages(messages: geoSignalingMessages, completion: {
-						MMLogDebug("[Geo event reporting] stopped updating stored payloads.")
-						completionsGroup.leave()
-					})
-					
-					let locallyGeneratedMessages = mtMessagesDatasource.reduce([MTMessage]()) { (result, kv: (mId: MessageId, messageData: (campaign: MMGeoMessage, areaId: AreaId))) -> [MTMessage] in
-						if let region = kv.messageData.campaign.regions.filter({ return $0.identifier == kv.messageData.areaId }).first {
-							if let mtMessage = MTMessage.make(fromGeoMessage: kv.messageData.campaign, messageId: kv.mId, region: region) {
-								return result + [mtMessage]
-							}
-						}
-						return result
+				case .Failure(let error):
+					MMLogError("[Geo event reporting] Geo event reporting request failed with error: \(String(describing: error))")
+					if event.messageShown == false {
+						// if we had a failed request, we should generate a message for the campaign immediately regardless the campaign status
+						// we'll use the sdk generated message id to generate a mt message with it further in `generateAndHandleGeoVirtualMessages`
+						ret = datasourceResult + onEventOccur(event.sdkMessageId)
+						event.messageShown = true
+					} else {
+						ret = datasourceResult
 					}
-					
-					completionsGroup.enter()
-					MMLogDebug("[Geo event reporting] generating geo campaign messages...")
-					self.mmContext.messageHandler.handleMTMessages(locallyGeneratedMessages, completion: { res in
-						MMLogDebug("[Geo event reporting] stopped generating geo campaign messages.")
-						completionsGroup.leave()
-					})
+				default: ret = datasourceResult
+				}
+				return ret
+			})
+			self.context.MM_saveToPersistentStoreAndWait()
+		}
+		
+		messagesUpdatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: {
+			let completionsGroup = DispatchGroup()
+			if let mtMessagesDatasource = mtMessagesDatasource, !mtMessagesDatasource.isEmpty {
+				completionsGroup.enter()
+				MMLogDebug("[Geo event reporting] updating stored payloads...")
+				self.mmContext.messageHandler.updateOriginalPayloadsWithMessages(messages: changedSigMessages) {
+					MMLogDebug("[Geo event reporting] stopped updating stored payloads.")
+					completionsGroup.leave()
 				}
 				
 				completionsGroup.enter()
-				MMLogDebug("[Geo event reporting] syncing seen status...")
-				self.mmContext.messageHandler.syncSeenStatusUpdates({ _ in
-					MMLogDebug("[Geo event reporting] stopped syncing seen status.")
+				MMLogDebug("[Geo event reporting] generating geo campaign messages...")
+				self.generateMessages(mtMessagesDatasource) { _ in
+					MMLogDebug("[Geo event reporting] stopped generating geo campaign messages.")
 					completionsGroup.leave()
-				})
-				
-				completionsGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
+				}
+			}
+			
+			completionsGroup.enter()
+			MMLogDebug("[Geo event reporting] syncing seen status...")
+			self.mmContext.messageHandler.syncSeenStatusUpdates({ _ in
+				MMLogDebug("[Geo event reporting] stopped syncing seen status.")
+				completionsGroup.leave()
 			})
-		}
+			
+			completionsGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
+		})
 	}
-	
+
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Geo event reporting] finished with errors: \(errors)")
 		
@@ -203,5 +189,18 @@ class GeoEventReportingOperation: Operation {
 			result = MMGeoEventReportingResult.Failure(error)
 		}
 		finishBlock?(result)
+	}
+	
+	//MARK: Utils
+	func generateMessages(_ mtMessagesDatasource: MTMessagesDatasource, completion: @escaping (MessageHandlingResult) -> Void ) {
+		let locallyGeneratedMessages = mtMessagesDatasource.reduce([MTMessage]()) { (result, kv: (mId: MessageId, messageData: (campaign: MMGeoMessage, areaId: AreaId))) -> [MTMessage] in
+			if let region = kv.messageData.campaign.regions.filter({ return $0.identifier == kv.messageData.areaId }).first {
+				if let mtMessage = MTMessage.make(fromGeoMessage: kv.messageData.campaign, messageId: kv.mId, region: region) {
+					return result + [mtMessage]
+				}
+			}
+			return result
+		}
+		self.mmContext.messageHandler.handleMTMessages(locallyGeneratedMessages, completion: completion)
 	}
 }

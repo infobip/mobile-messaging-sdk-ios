@@ -367,6 +367,8 @@ protocol MobileMessagingService {
 	*/
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage)
 	
+	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool, handlingIteration: Int, completion: ((MessageHandlingResult) -> Void)?)
+
 	func mobileMessagingWillStart(_ mmContext: MobileMessaging)
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging)
 	

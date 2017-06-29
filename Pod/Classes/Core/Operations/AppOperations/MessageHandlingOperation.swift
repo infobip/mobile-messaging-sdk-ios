@@ -33,13 +33,13 @@ struct MMMessageMeta : MMMessageMetadata {
 
 final class MessageHandlingOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: ((NSError?) -> Void)?
+	let finishBlock: ((NSError?, Set<MTMessage>?) -> Void)?
 	let messagesToHandle: [MTMessage]
 	let messageHandler: MessageHandling
 	let isNotificationTapped: Bool
 	let mmContext: MobileMessaging
 	
-	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, messageHandler: MessageHandling, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, messageHandler: MessageHandling, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: ((NSError?, Set<MTMessage>?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.finishBlock = finishBlock
@@ -76,9 +76,15 @@ final class MessageHandlingOperation: Operation {
 		
 		let regularMessages: [MTMessage] = newMessages.filter { !$0.isGeoSignalingMessage } //workaround. The message handling must not know about geo messages. Redesign needed.
 		handleNotificationTappedIfNeeded(regularMessages)
-		notifyAboutNewMessages(regularMessages)
+		let completionDispatchGroup = DispatchGroup()
+		completionDispatchGroup.enter()
+		notifyAboutNewMessages(regularMessages) {
+			completionDispatchGroup.leave()
+		}
 		populateMessageStorageWithNewMessages(regularMessages)
-		finish()
+		completionDispatchGroup.notify(queue: DispatchQueue.global(qos: .default)) { 
+			self.finish()
+		}
 	}
 	
 	private func populateMessageStorageWithNewMessages(_ messages: [MTMessage]) {
@@ -92,14 +98,26 @@ final class MessageHandlingOperation: Operation {
 		handleNotificationTappedIfNeeded(with: newMessage)
 	}
 	
-	private func notifyAboutNewMessages(_ messages: [MTMessage]) {
-		guard !messages.isEmpty else { return }
+	private func notifyAboutNewMessages(_ messages: [MTMessage], completion: (() -> Void)? = nil) {
+		guard !messages.isEmpty else {
+			completion?()
+			return
+		}
 		MMQueue.Main.queue.executeAsync {
+			let group = DispatchGroup()
+			group.enter()
 			messages.forEach { message in
 				MMLogDebug("[Message handling] calling message handling didReceiveNewMessage")
-				self.messageHandler.didReceiveNewMessage(message: message)
+				group.enter()
+				self.messageHandler.didReceiveNewMessage(message: message) {
+					group.leave()
+				}
 				NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: [MMNotificationKeyMessage: message])
 			}
+			group.leave()
+			group.notify(queue: DispatchQueue.global(qos: .default), execute: { 
+				completion?()
+			})
 		}
 	}
 	
@@ -155,6 +173,6 @@ final class MessageHandlingOperation: Operation {
 //MARK: -
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message handling] Message handling finished with errors: \(errors)")
-		self.finishBlock?(errors.first)
+		self.finishBlock?(errors.first, newMessages)
 	}
 }

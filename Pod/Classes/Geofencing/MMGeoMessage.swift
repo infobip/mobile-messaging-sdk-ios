@@ -439,6 +439,9 @@ extension MTMessage {
 		newpayload[APNSPayloadKeys.internalData] = newInternalData
 		newpayload[APNSPayloadKeys.messageId] = messageId
 		
+		//cut silent:true in case of fetched message
+		newpayload.removeValue(forKey: InternalDataKeys.silent)
+		
 		let result = MTMessage(payload: newpayload, createdDate: MobileMessaging.date.now)
 		result?.deliveryMethod = .generatedLocally
 		result?.isDeliveryReportSent = true

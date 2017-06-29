@@ -161,11 +161,13 @@ class FetchMessagesCompletionTests: MMTestCase {
 }
 
 class MessageHandlingMock : MMDefaultMessageHandling {
-	let localNotificationShownBlock: (Void) -> Void
-	init(localNotificationShownBlock: @escaping (Void) -> Void) {
+	let localNotificationShownBlock: (MTMessage) -> Void
+	init(localNotificationShownBlock: @escaping (MTMessage) -> Void) {
 		self.localNotificationShownBlock = localNotificationShownBlock
+		super.init()
 	}
-	override func presentLocalNotificationAlert(with message: MTMessage) {
-		self.localNotificationShownBlock()
+	override func presentLocalNotificationAlert(with message: MTMessage, completion:(() -> Void)?) {
+		self.localNotificationShownBlock(message)
+		super.presentLocalNotificationAlert(with: message, completion: completion)
 	}
 }
