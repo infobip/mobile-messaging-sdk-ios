@@ -32,41 +32,15 @@ import CoreData
 	}
 	
 	public func insert(outgoing messages: [MOMessage]) {
-		guard let context = context, !messages.isEmpty else {
-			return
+		persist(messages) { (baseMessage, context) -> Message? in
+			return Message.makeMoMessage(from: baseMessage, context: context)
 		}
-		var newMessages = [Message]()
-		context.performAndWait {
-			messages.forEach { message in
-				let newMessage = Message.MM_createEntityInContext(context: context)
-				newMessage.payload = message.dictRepresentation
-				newMessage.messageId = message.messageId
-				newMessage.direction = MessageDirection.MO.rawValue
-				newMessages.append(newMessage)
-			}
-			context.MM_saveToPersistentStoreAndWait()
-		}
-		self.callDelegateIfNeeded { self.delegate?.didInsertNewMessages(newMessages.baseMessages) }
 	}
 	
 	public func insert(incoming messages: [MTMessage]) {
-		guard let context = context, !messages.isEmpty else {
-			return
+		persist(messages) { (baseMessage, context) -> Message? in
+			return Message.makeMtMessage(from: baseMessage, context: context)
 		}
-		var newMessages = [Message]()
-		context.performAndWait {
-			messages.forEach { message in
-				let newMessage = Message.MM_createEntityInContext(context: context)
-				newMessage.payload = message.originalPayload
-				newMessage.messageId = message.messageId
-				newMessage.direction = MessageDirection.MT.rawValue
-				newMessage.deliveryMethod = message.deliveryMethod.rawValue
-				newMessage.deliveryReportedDate = message.deliveryReportedDate
-				newMessages.append(newMessage)
-			}
-			context.MM_saveToPersistentStoreAndWait()
-		}
-		self.callDelegateIfNeeded { self.delegate?.didInsertNewMessages(newMessages.baseMessages) }
 	}
 	
 	public func findMessage(withId messageId: MessageId) -> BaseMessage? {
@@ -195,6 +169,21 @@ import CoreData
 	var context: NSManagedObjectContext?
 	
 	// MARK: - Private
+	private func persist(_ messages: [BaseMessage], makeStorageMessageFrom: @escaping (BaseMessage, NSManagedObjectContext) -> Message?) {
+		guard let context = self.context, !messages.isEmpty else {
+			return
+		}
+		
+		var newMessages = [Message]()
+		context.performAndWait {
+			newMessages = messages.flatMap { makeStorageMessageFrom($0, context) }
+			context.MM_saveToPersistentStoreAndWait()
+		}
+		callDelegateIfNeeded {
+			self.delegate?.didInsertNewMessages(newMessages.baseMessages)
+		}
+	}
+	
 	private let serialQueue: DispatchQueue = MMQueue.Serial.Reusable.MessageStorageQueue.queue.queue
 	
 	private func delete(messages: [Message]) {
