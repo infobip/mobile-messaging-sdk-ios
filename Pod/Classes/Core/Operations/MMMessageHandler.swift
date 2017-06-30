@@ -87,6 +87,9 @@ final class MMMessageHandler: MobileMessagingService {
 		{
 			return
 		}
+		if !messages.isEmpty {
+			mm.sharedNotificationExtensionStorage?.cleanupMessages()
+		}
 		MMLogDebug("[Message Handler] Retrieved \(messages.count) messages from notification extension storage.")
 		handleMTMessages(messages, notificationTapped: false, completion: nil)
 	}
