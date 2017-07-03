@@ -489,6 +489,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			
 			//try to enter, if we are already inside added region
 			guard let newRegions = newRegions else {
+				completion?()
 				return
 			}
 			let monitoredDataSourceRegionsArr = self.dataSourceRegions(from: monitoredRegions)
@@ -501,9 +502,11 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			group.enter()
 			group.leave()
 			intersection.forEach({ (region) in
+				MMLogDebug("[GeofencingService] start checking new added region \(region)")
 				if let currentCoordinate = self.locationManager.location?.coordinate , region.circularRegion.contains(currentCoordinate) {
+					MMLogDebug("[GeofencingService] we are inside new added region \(region)")
 					if region.message?.isNowAppropriateTimeForEntryNotification ?? false {
-						MMLogDebug("[GeofencingService] already inside new region: \(region)")
+						MMLogDebug("[GeofencingService] time is appropriate for region: \(region)")
 						group.enter()
 						self.onEnter(datasourceRegion: region) { group.leave() }
 					}
