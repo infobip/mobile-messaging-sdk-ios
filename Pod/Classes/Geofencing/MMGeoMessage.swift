@@ -141,7 +141,8 @@ final public class MMGeoMessage: MTMessage {
 	}
 	
 	func isNowAppropriateTimeForNotification(for type: RegionEventType) -> Bool {
-		return deliveryTime?.isNow ?? true && isLiveNow(for: type)
+		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
+		return deliveryTime?.isNow ?? true && isLiveNow(for: type) && now.compare(startTime) != .orderedAscending
 	}
 	
 	let events: [RegionEvent]

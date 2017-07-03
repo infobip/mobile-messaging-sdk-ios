@@ -551,7 +551,7 @@ extension GeofencingService {
 	static func isGeoCampaignNotExpired(campaign: MMGeoMessage) -> Bool {
 		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
 		
-		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && now.compare(campaign.startTime) != .orderedAscending && campaign.hasValidEventsStateInGeneral
+		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && campaign.hasValidEventsStateInGeneral
 	}
 	
 	static func isNowAppropriateDay(forDeliveryTime dt: DeliveryTime) -> Bool {
