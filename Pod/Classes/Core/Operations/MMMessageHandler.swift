@@ -111,7 +111,7 @@ final class MMMessageHandler: MobileMessagingService {
 				for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
 					group.enter()
 					MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start message handling")
-					subservice.handleMTMessage(m, notificationTapped: false, handlingIteration: 0, completion: { (result) in
+					subservice.handleMTMessage(m, notificationTapped: false, handlingIteration: handlingIteration, completion: { (result) in
 						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop message handling")
 						group.leave()
 					})

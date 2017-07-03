@@ -201,6 +201,6 @@ class GeoEventReportingOperation: Operation {
 			}
 			return result
 		}
-		self.mmContext.messageHandler.handleMTMessages(locallyGeneratedMessages, completion: completion)
+		self.mmContext.messageHandler.handleMTMessages(locallyGeneratedMessages, handlingIteration: 2, completion: completion)
 	}
 }
