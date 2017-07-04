@@ -235,6 +235,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 @objc public protocol CustomPayloadSupportedTypes: AnyObject {}
 extension NSString: CustomPayloadSupportedTypes {}
 extension NSNull: CustomPayloadSupportedTypes {}
+extension NSNumber: CustomPayloadSupportedTypes {}
 
 protocol MOMessageAttributes {
 	var destination: String? {get}
