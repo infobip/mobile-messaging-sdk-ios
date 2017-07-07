@@ -335,6 +335,47 @@ var defaultEvent = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry
 
 class GeofencingServiceTests: MMTestCase {
 	
+	func testRealSignalingPayloadParsing() {
+		
+		let p: APNSPayload =
+			[
+				"messageId": "kOvQTcsXuLlLiD4jrB+tGqF1aPOoY+WbLi98ftMvlh0=",
+				"internalData": [
+					"geo": [
+						[
+							"id": "E35D739EDB3AF20F265AB567AE60485E",
+							"title": "SPB Office LARGE",
+							"radiusInMeters": 290,
+							"latitude": 59.961086185895155,
+							"longitude": 30.303305643050862
+						]
+				],
+				"messageType": "geo",
+				"campaignId": "803487",
+				"expiryTime": "2017-07-04T17:00:00Z",
+				"events": [
+					[
+						"type": "entry",
+						"limit": 0,
+						"timeoutInMinutes": 0
+					]
+				],
+				"silent": [
+					"body": "Text2"
+				]
+				],
+			 "aps": [
+				"alert": [
+					"body": "Text2"
+				]
+				],
+			 "silent": true
+		]
+		
+		XCTAssertNotNil(MMGeoMessage(payload: p, createdDate: Date()))
+		
+	}
+	
 	func testThatTwoSequentalCampaignsAppearTwice() {
 		weak var expectationCampaign = self.expectation(description: "")
 		GeofencingService.currentDate = expectedStartDate

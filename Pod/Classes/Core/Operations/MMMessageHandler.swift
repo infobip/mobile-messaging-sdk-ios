@@ -110,9 +110,9 @@ final class MMMessageHandler: MobileMessagingService {
 			newMessages?.forEach{ m in
 				for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
 					group.enter()
-					MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start message handling")
+					MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start message handling \(m.messageId)")
 					subservice.handleMTMessage(m, notificationTapped: false, handlingIteration: handlingIteration, completion: { (result) in
-						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop message handling")
+						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop message handling \(m.messageId)")
 						group.leave()
 					})
 				}
@@ -234,9 +234,10 @@ final class MMMessageHandler: MobileMessagingService {
 		return nil
 	}
 	
-	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) {
+	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
 		guard !originalMessage.isGeoSignalingMessage else {
-			return
+			MMLogDebug("[Message Handler] cannot populate message \(message.messageId)")
+			return false
 		}
 		
 		// this code must perfrom only for non
@@ -247,6 +248,8 @@ final class MMMessageHandler: MobileMessagingService {
 		message.deliveryReportedDate = originalMessage.deliveryReportedDate
 		message.messageType = .Default
 		message.payload = originalMessage.originalPayload
+		MMLogDebug("[Message Handler] attributes fulfilled for message \(message.messageId)")
+		return true
 	}
 	
 	var isRunning: Bool = true

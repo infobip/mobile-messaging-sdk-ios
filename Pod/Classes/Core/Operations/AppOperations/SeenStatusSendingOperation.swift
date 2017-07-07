@@ -39,13 +39,14 @@ class SeenStatusSendingOperation: Operation {
 			
 			self.mmContext.remoteApiManager.sendSeenStatus(seenList: seenStatusesToSend) { result in
                 self.result = result
-				self.handleSeenResult(result, messages: seenNotSentMessages)
-				self.finishWithError(result.error)
+				self.handleSeenResult(result, messages: seenNotSentMessages) {
+					self.finishWithError(result.error)
+				}
 			}
 		}
 	}
 	
-	private func handleSeenResult(_ result: SeenStatusSendingResult, messages: [MessageManagedObject]) {
+	private func handleSeenResult(_ result: SeenStatusSendingResult, messages: [MessageManagedObject], completion: @escaping () -> Void) {
 		switch result {
 		case .Success(_):
 			MMLogDebug("[Seen status reporting] Request succeeded")
@@ -55,17 +56,23 @@ class SeenStatusSendingOperation: Operation {
 					message.seenStatus = .SeenSent
 				}
 				self.context.MM_saveToPersistentStoreAndWait()
-				self.updateMessageStorage(with: messages)
+				self.updateMessageStorage(with: messages, completion: completion)
 			}
 		case .Failure(let error):
 			MMLogError("[Seen status reporting] Request failed with error: \(String(describing: error))")
+			completion()
 		case .Cancel:
+			completion()
 			break
 		}
 	}
 	
-	private func updateMessageStorage(with messages: [MessageManagedObject]) {
-		messages.forEach { mmContext.messageStorage?.update(messageSeenStatus: $0.seenStatus , for: $0.messageId) }
+	private func updateMessageStorage(with messages: [MessageManagedObject], completion: @escaping () -> Void) {
+		guard let storage = mmContext.messageStorage, !messages.isEmpty else {
+			completion()
+			return
+		}
+		storage.batchSeenStatusUpdate(messages: messages, completion: completion)
 	}
 	
 	override func finished(_ errors: [NSError]) {

@@ -43,22 +43,31 @@ class MessagePostingOperation: Operation {
 		context.reset()
 		context.performAndWait {
 			self.postWillSendNotification(messagesToSend: messagesToSend)
-			self.populateMessageStorage(with: messagesToSend)
-			
-            self.mmContext.remoteApiManager.sendMessages(internalUserId: internalId, messages: Array(messagesToSend)) { result in
-                self.result = result
-                self.handleResult(result: result)
-                self.finishWithError(result.error)
-            }
+			self.populateMessageStorage(with: messagesToSend) {
+				self.mmContext.remoteApiManager.sendMessages(internalUserId: internalId, messages: Array(messagesToSend)) { result in
+					self.result = result
+					self.handleResult(result: result) {
+						self.finishWithError(result.error)
+					}
+				}
+			}
 		}
 	}
 	
-	private func populateMessageStorage(with messages: Set<MOMessage>) {
-		mmContext.messageStorageAdapter?.insert(outgoing: Array(messages))
+	private func populateMessageStorage(with messages: Set<MOMessage>, completion: @escaping () -> Void) {
+		guard let storage = mmContext.messageStorageAdapter else {
+			completion()
+			return
+		}
+		storage.insert(outgoing: Array(messages), completion: completion)
 	}
 	
-	private func updateMessageStorage(with messages: [MOMessage]) {
-		messages.forEach({ mmContext.messageStorageAdapter?.update(messageSentStatus: $0.sentStatus, for: $0.messageId) })
+	private func updateMessageStorage(with messages: [MOMessage], completion: @escaping () -> Void) {
+		guard let storage = mmContext.messageStorageAdapter, !messages.isEmpty else {
+			completion()
+			return
+		}
+		storage.batchSentStatusUpdate(messages: messages, completion: completion)
 	}
 	
 	private func postWillSendNotification(messagesToSend: Set<MOMessage>) {
@@ -74,24 +83,24 @@ class MessagePostingOperation: Operation {
 		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesDidSend, userInfo: userInfo.isEmpty ? nil : userInfo)
 	}
 	
-	private func handleResult(result: MOMessageSendingResult) {
+	private func handleResult(result: MOMessageSendingResult, completion: @escaping () -> Void) {
 		context.performAndWait {
 			switch result {
 			case .Success(let response):
-				self.handleSuccess(messages: response.messages)
-				self.updateMessageStorage(with: response.messages)
+				self.resultMessages = response.messages
+				self.updateMessageStorage(with: response.messages) {
+					self.postDidSendNotification(resultMessages: response.messages)
+					completion()
+				}
 				MMLogDebug("[Message posting] successfuly finished")
 			case .Failure(let error):
 				MMLogError("[Message posting] request failed with error: \(String(describing: error))")
+				completion()
 			case .Cancel:
 				MMLogError("[Message posting] cancelled")
+				completion()
 			}
 		}
-	}
-	
-	private func handleSuccess(messages : [MOMessage]) {
-		resultMessages = messages
-		self.postDidSendNotification(resultMessages: messages)
 	}
 	
 	override func finished(_ errors: [NSError]) {

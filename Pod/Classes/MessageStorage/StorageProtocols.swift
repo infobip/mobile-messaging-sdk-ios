@@ -71,10 +71,10 @@ public typealias FetchResultBlock = ([BaseMessage]?) -> Void
 	func stop()
 	
 	/// This method is called whenever a new mobile originated message is about to be sent to the server.
-	func insert(outgoing messages: [MOMessage])
+	func insert(outgoing messages: [MOMessage], completion: @escaping () -> Void)
 	
-	/// This method is called whenever a new mobile terminated message (either push/remote notifictaion or fetched message) is received by the Mobile Messaging SDK.
-	func insert(incoming messages: [MTMessage])
+	/// This method is called whenever a new mobile terminated message (either push(remote) notifictaion or fetched message) is received by the Mobile Messaging SDK.
+	func insert(incoming messages: [MTMessage], completion: @escaping () -> Void)
 	
 	/// This method is used by the Mobile Messaging SDK in order to detect duplicated messages persisted in the Message Storage. It is strongly recommended to implement this method in your custom Message Storage.
 	/// - parameter messageId: unique identifier of a MT message. Consider this identifier as a primary key.
@@ -83,22 +83,23 @@ public typealias FetchResultBlock = ([BaseMessage]?) -> Void
 	/// This method is called whenever the seen status is updated for a particular mobile terminated (MT) message.
 	/// - parameter status: actual seen status for a message
 	/// - parameter messageId: unique identifier of a MT message
-	func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId)
+	func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void)
 	
 	/// This method is called whenever the delivery report is updated for a particular mobile terminated (MT) message.
 	/// - parameter isDelivered: boolean flag which defines whether the delivery report for a message was successfully sent
 	/// - parameter messageId: unique identifier of a MT message
-	func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId)
+	func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId, completion: @escaping () -> Void)
 	
 	/// This method is called whenever the sending status is updated for a particular mobile originated (MO) message.
 	/// - parameter status: actual sending status for a MO message
 	/// - parameter messageId: unique identifier of a MO message
-	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId)
+	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void)
 }
 
 /// The adapter dispatches all adaptee method calls into the adaptee's queue,
 /// and checks for existing messages to avoid duplications, that's all.
 class MMMessageStorageQueuedAdapter: MessageStorage {
+
 	let adapteeStorage: MessageStorage
 	
 	init?(adapteeStorage: MessageStorage?) {
@@ -112,22 +113,23 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 		return adapteeStorage.queue
 	}
 	
-	@objc func insert(outgoing messages: [MOMessage]) {
+	@objc func insert(outgoing messages: [MOMessage], completion: @escaping () -> Void) {
 		guard !messages.isEmpty else {
+			completion()
 			return
 		}
-		
 		queue.async() {
-			self.adapteeStorage.insert(outgoing: messages.filter({ return self.findMessage(withId: $0.messageId) == nil }))
+			self.adapteeStorage.insert(outgoing: messages.filter({ return self.findMessage(withId: $0.messageId) == nil }), completion: completion)
 		}
 	}
 	
-	@objc func insert(incoming messages: [MTMessage]) {
+	@objc func insert(incoming messages: [MTMessage], completion: @escaping () -> Void) {
 		guard !messages.isEmpty else {
+			completion()
 			return
 		}
 		queue.async() {
-			self.adapteeStorage.insert(incoming: messages)
+			self.adapteeStorage.insert(incoming: messages, completion: completion)
 		}
 	}
 	
@@ -135,21 +137,21 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 		return self.adapteeStorage.findMessage(withId: messageId)
 	}
 	
-	@objc func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId) {
+	@objc func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
 		queue.async() {
-			self.adapteeStorage.update(messageSentStatus: status, for: messageId)
+			self.adapteeStorage.update(messageSentStatus: status, for: messageId, completion: completion)
 		}
 	}
 	
-	@objc func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId) {
+	@objc func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void) {
 		queue.async() {
-			self.adapteeStorage.update(messageSeenStatus: status, for: messageId)
+			self.adapteeStorage.update(messageSeenStatus: status, for: messageId, completion: completion)
 		}
 	}
 	
-	@objc func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId) {
+	@objc func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId, completion: @escaping () -> Void) {
 		queue.async() {
-			self.adapteeStorage.update(deliveryReportStatus: isDelivered, for: messageId)
+			self.adapteeStorage.update(deliveryReportStatus: isDelivered, for: messageId, completion: completion)
 		}
 	}
 	

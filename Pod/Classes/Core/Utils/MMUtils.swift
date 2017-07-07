@@ -365,7 +365,7 @@ protocol MobileMessagingService {
 	/**
 		Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk
 	*/
-	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage)
+	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool
 	
 	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool, handlingIteration: Int, completion: ((MessageHandlingResult) -> Void)?)
 
@@ -383,3 +383,21 @@ extension MobileMessagingService {
 		mmContext.registerSubservice(self)
 	}
 }
+
+extension Sequence {
+	func forEachAsync(_ work: @escaping (Self.Iterator.Element) -> Void, completion: @escaping () -> Void) {
+		let loopGroup = DispatchGroup()
+		self.forEach { (el) in
+			loopGroup.enter()
+			
+			work(el)
+			
+			loopGroup.leave()
+		}
+		
+		loopGroup.notify(queue: DispatchQueue.global(qos: .default), execute: {
+			completion()
+		})
+	}
+}
+

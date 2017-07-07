@@ -354,11 +354,6 @@ public final class MobileMessaging: NSObject {
 		messageHandler.sendMessages(messages, completion: completion)
 	}
 	
-	func notificationTapped(_ message: MTMessage) {
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageTapped), object: self, userInfo: [MMNotificationKeyMessage: message])
-		MobileMessaging.notificationTapHandler?(message)
-	}
-	
 	var isPushRegistrationEnabled: Bool {
 		return currentInstallation.isPushRegistrationEnabled
 	}

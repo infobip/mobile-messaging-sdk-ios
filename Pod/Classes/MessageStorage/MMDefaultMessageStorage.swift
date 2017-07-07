@@ -31,16 +31,20 @@ import CoreData
 		delegate = nil
 	}
 	
-	public func insert(outgoing messages: [MOMessage]) {
-		persist(messages) { (baseMessage, context) -> Message? in
-			return Message.makeMoMessage(from: baseMessage, context: context)
-		}
+	public func insert(outgoing messages: [MOMessage], completion: @escaping () -> Void) {
+		persist(messages,
+		        storageMessageConstructor: { (baseMessage, context) -> Message? in
+					return Message.makeMoMessage(from: baseMessage, context: context)
+				},
+		        completion: completion)
 	}
 	
-	public func insert(incoming messages: [MTMessage]) {
-		persist(messages) { (baseMessage, context) -> Message? in
-			return Message.makeMtMessage(from: baseMessage, context: context)
-		}
+	public func insert(incoming messages: [MTMessage], completion: @escaping () -> Void) {
+		persist(messages,
+		        storageMessageConstructor: { (baseMessage, context) -> Message? in
+					return Message.makeMtMessage(from: baseMessage, context: context)
+				},
+		        completion: completion)
 	}
 	
 	public func findMessage(withId messageId: MessageId) -> BaseMessage? {
@@ -56,28 +60,34 @@ import CoreData
 		return result
 	}
 	
-	public func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId) {
-		updateMessage(foundWith: NSPredicate(format: "messageId == %@", messageId)) { message in
-			message.sentStatusValue = status.rawValue
-		}
+	public func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
+		updateMessage(	foundWith: NSPredicate(format: "messageId == %@", messageId),
+						applyChanges: { message in
+							message.sentStatusValue = status.rawValue
+						},
+						completion: completion)
 	}
 	
-	public func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId) {
-		updateMessage(foundWith: NSPredicate(format: "messageId == %@", messageId)) { message in
-			message.seenStatusValue = status.rawValue
-			if message.seenDate == nil && (status == .SeenNotSent || status == .SeenSent) {
-				message.seenDate = MobileMessaging.date.now
-			} else if status == .NotSeen {
-				message.seenDate = nil
-			}
-		}
+	public func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void) {
+		updateMessage(	foundWith: NSPredicate(format: "messageId == %@", messageId),
+						applyChanges: { message in
+							message.seenStatusValue = status.rawValue
+							if message.seenDate == nil && (status == .SeenNotSent || status == .SeenSent) {
+								message.seenDate = MobileMessaging.date.now
+							} else if status == .NotSeen {
+								message.seenDate = nil
+							}
+						},
+						completion: completion)
 	}
 	
-	public func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId) {
-		updateMessage(foundWith: NSPredicate(format: "messageId == %@", messageId)) { message in
-			message.isDeliveryReportSent = isDelivered
-			message.deliveryReportedDate = isDelivered ? MobileMessaging.date.now : nil
-		}
+	public func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId, completion: @escaping () -> Void) {
+		updateMessage(	foundWith: NSPredicate(format: "messageId == %@", messageId),
+		              	applyChanges: { message in
+							message.isDeliveryReportSent = isDelivered
+							message.deliveryReportedDate = isDelivered ? MobileMessaging.date.now : nil
+						},
+						completion: completion)
 	}
 	
 	//MARK: - Convenience
@@ -169,16 +179,18 @@ import CoreData
 	var context: NSManagedObjectContext?
 	
 	// MARK: - Private
-	private func persist(_ messages: [BaseMessage], makeStorageMessageFrom: @escaping (BaseMessage, NSManagedObjectContext) -> Message?) {
+	private func persist(_ messages: [BaseMessage], storageMessageConstructor: @escaping (BaseMessage, NSManagedObjectContext) -> Message?, completion: () -> Void) {
 		guard let context = self.context, !messages.isEmpty else {
+			completion()
 			return
 		}
 		
 		var newMessages = [Message]()
 		context.performAndWait {
-			newMessages = messages.flatMap { makeStorageMessageFrom($0, context) }
+			newMessages = messages.flatMap { storageMessageConstructor($0, context) }
 			context.MM_saveToPersistentStoreAndWait()
 		}
+		completion()
 		callDelegateIfNeeded {
 			self.delegate?.didInsertNewMessages(newMessages.baseMessages)
 		}
@@ -209,16 +221,20 @@ import CoreData
 		}
 	}
 	
-	private func updateMessage(foundWith predicate: NSPredicate, applyChanges block: @escaping (Message) -> Void) {
+	private func updateMessage(foundWith predicate: NSPredicate, applyChanges: @escaping (Message) -> Void, completion: @escaping () -> Void) {
 		guard let context = context else {
+			completion()
 			return
 		}
 		context.performAndWait {
-			if let message = Message.MM_findFirstWithPredicate(predicate, context: context) {
-				block(message)
-				context.MM_saveToPersistentStore()
-				self.didUpdate(message: message)
+			guard let message = Message.MM_findFirstWithPredicate(predicate, context: context) else {
+				completion()
+				return
 			}
+			applyChanges(message)
+			context.MM_saveToPersistentStoreAndWait()
+			completion()
+			self.didUpdate(message: message)
 		}
 	}
 	
@@ -226,6 +242,41 @@ import CoreData
 		if self.delegate != nil {
 			delegateQueue.async(execute: block)
 		}
+	}
+}
+
+extension MessageStorage {
+	func batchDeliveryStatusUpdate(messages: [MessageManagedObject], completion: @escaping () -> Void) {
+		let updatingGroup = DispatchGroup()
+		messages.forEach {
+			updatingGroup.enter()
+			self.update(deliveryReportStatus: $0.reportSent, for: $0.messageId, completion: {
+				updatingGroup.leave()
+			})
+		}
+		updatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
+	}
+	
+	func batchSentStatusUpdate(messages: [MOMessage], completion: @escaping () -> Void) {
+		let updatingGroup = DispatchGroup()
+		messages.forEach {
+			updatingGroup.enter()
+			self.update(messageSentStatus: $0.sentStatus, for: $0.messageId, completion: {
+				updatingGroup.leave()
+			})
+		}
+		updatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
+	}
+	
+	func batchSeenStatusUpdate(messages: [MessageManagedObject], completion: @escaping () -> Void) {
+		let updatingGroup = DispatchGroup()
+		messages.forEach {
+			updatingGroup.enter()
+			self.update(messageSeenStatus: $0.seenStatus, for: $0.messageId, completion: {
+				updatingGroup.leave()
+			})
+		}
+		updatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
 	}
 }
 

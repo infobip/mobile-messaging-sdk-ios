@@ -33,26 +33,35 @@ final class SeenStatusPersistingOperation: Operation {
 			return
 		}
 		self.context.performAndWait {
-			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.NotSeen.rawValue) AND messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId IN %@", self.messageIds), context: self.context), !dbMessages.isEmpty {
-				dbMessages.forEach { message in
-					switch message.seenStatus {
-					case .NotSeen:
-						message.seenStatus = .SeenNotSent
-						message.seenDate = MobileMessaging.date.now // we store only the very first seen date, any repeated seen update is ignored
-					case .SeenSent:
-						message.seenStatus = .SeenNotSent
-					case .SeenNotSent: break
-					}
+			guard let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.NotSeen.rawValue) AND messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId  IN %@", self.messageIds), context: self.context), !dbMessages.isEmpty else
+			{
+				self.finish()
+				return
+			}
+			
+			dbMessages.forEach { message in
+				switch message.seenStatus {
+				case .NotSeen:
+					message.seenStatus = .SeenNotSent
+					message.seenDate = MobileMessaging.date.now // we store only the very first seen date, any repeated seen update is ignored
+				case .SeenSent:
+					message.seenStatus = .SeenNotSent
+				case .SeenNotSent: break
 				}
-				self.context.MM_saveToPersistentStoreAndWait()
-				self.updateMessageStorage(with: dbMessages)
+			}
+			self.context.MM_saveToPersistentStoreAndWait()
+			self.updateMessageStorage(with: dbMessages) {
+				self.finish()
 			}
 		}
-		finish()
 	}
 	
-	private func updateMessageStorage(with messages: [MessageManagedObject]) {
-		messages.forEach { mmContext.messageStorageAdapter?.update(messageSeenStatus: $0.seenStatus , for: $0.messageId) }
+	private func updateMessageStorage(with messages: [MessageManagedObject], completion: @escaping () -> Void) {
+		guard let storage = mmContext.messageStorageAdapter, !messages.isEmpty else {
+			completion()
+			return
+		}
+		storage.batchSeenStatusUpdate(messages: messages, completion: completion)
 	}
 	
 	override func finished(_ errors: [NSError]) {

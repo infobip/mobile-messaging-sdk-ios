@@ -66,63 +66,68 @@ final class MessageHandlingOperation: Operation {
 		
 		context.performAndWait {
 			self.newMessages.forEach { newMessage in
+				var messageWasPopulatedBySubservice = false
 				var newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 				self.mmContext.performForEachSubservice { subservice in
-					subservice.populateNewPersistedMessage(&newDBMessage, originalMessage: newMessage)
+					messageWasPopulatedBySubservice = subservice.populateNewPersistedMessage(&newDBMessage, originalMessage: newMessage) || messageWasPopulatedBySubservice
+				}
+				if !messageWasPopulatedBySubservice {
+					MMLogDebug("[Message handling] message \(newMessage.messageId) was not populated by any subservice")
+					self.context.delete(newDBMessage)
+					self.newMessages.remove(newMessage)
 				}
 			}
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		
 		let regularMessages: [MTMessage] = newMessages.filter { !$0.isGeoSignalingMessage } //workaround. The message handling must not know about geo messages. Redesign needed.
-		handleNotificationTappedIfNeeded(regularMessages)
-		let completionDispatchGroup = DispatchGroup()
-		completionDispatchGroup.enter()
-		notifyAboutNewMessages(regularMessages) {
-			completionDispatchGroup.leave()
-		}
-		populateMessageStorageWithNewMessages(regularMessages)
-		completionDispatchGroup.notify(queue: DispatchQueue.global(qos: .default)) { 
-			self.finish()
+		populateMessageStorageWithNewMessages(regularMessages) {
+			self.notifyAboutNewMessages(regularMessages) {
+				self.handleNotificationTappedIfNeeded(regularMessages)
+				self.finish()
+			}
 		}
 	}
 	
-	private func populateMessageStorageWithNewMessages(_ messages: [MTMessage]) {
-		guard !messages.isEmpty else { return }
+	private func populateMessageStorageWithNewMessages(_ messages: [MTMessage], completion: @escaping () -> Void) {
+		guard !messages.isEmpty, let storage = mmContext.messageStorageAdapter else
+		{
+			completion()
+			return
+		}
 		MMLogDebug("[Message handling] inserting messages in message storage: \(messages)")
-		mmContext.messageStorageAdapter?.insert(incoming: messages)
-	}
-
-	private func handleNotificationTappedIfNeeded(_ messages: [MTMessage]) {
-		guard let newMessage = messages.first else { return }
-		handleNotificationTappedIfNeeded(with: newMessage)
+		storage.insert(incoming: messages, completion: completion)
 	}
 	
 	private func notifyAboutNewMessages(_ messages: [MTMessage], completion: (() -> Void)? = nil) {
-		guard !messages.isEmpty else {
+		guard !messages.isEmpty else
+		{
 			completion?()
 			return
 		}
 		MMQueue.Main.queue.executeAsync {
 			let group = DispatchGroup()
-			group.enter()
 			messages.forEach { message in
-				MMLogDebug("[Message handling] calling message handling didReceiveNewMessage")
+				MMLogDebug("[Message handling] calling back for didReceiveNewMessage \(message.messageId)")
 				group.enter()
 				self.messageHandler.didReceiveNewMessage(message: message) {
 					group.leave()
 				}
 				NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: [MMNotificationKeyMessage: message])
 			}
-			group.leave()
-			group.notify(queue: DispatchQueue.global(qos: .default), execute: { 
+			group.notify(queue: DispatchQueue.global(qos: .default)) {
 				completion?()
-			})
+			}
 		}
 	}
 	
 //MARK: - Notification tap handling
 	
+	private func handleNotificationTappedIfNeeded(_ messages: [MTMessage]) {
+		guard let newMessage = messages.first else { return }
+		handleNotificationTappedIfNeeded(with: newMessage)
+	}
+
 	private func handleExistentMessageTappedIfNeeded() {
 		guard let existentMessage = intersectingMessages.first else { return }
 		handleNotificationTappedIfNeeded(with: existentMessage)
@@ -150,13 +155,13 @@ final class MessageHandlingOperation: Operation {
 	private lazy var newMessages: Set<MTMessage> = {
 		guard !self.messagesToHandle.isEmpty else { return Set<MTMessage>() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
-		return Set(messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) })
+		return Set(messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).flatMap { return self.mtMessage(from: $0) })
 	}()
 	
 	private lazy var intersectingMessages: [MTMessage] = {
 		guard !self.messagesToHandle.isEmpty else { return [MTMessage]() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
-		return messagesToHandleMetasSet.intersection(self.storedMessageMetasSet).flatMap{ return self.mtMessage(from: $0) }
+		return messagesToHandleMetasSet.intersection(self.storedMessageMetasSet).flatMap { return self.mtMessage(from: $0) }
 	}()
 	
 //MARK: - Lazy message collections

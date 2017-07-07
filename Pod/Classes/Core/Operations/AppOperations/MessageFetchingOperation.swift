@@ -53,13 +53,14 @@ final class MessageFetchingOperation: Operation {
 			
 			self.mmContext.remoteApiManager.syncMessages(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
                 self.result = result
-                self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds)
-                self.finish()
+				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds) {
+					self.finish()
+				}
             }
 		}
 	}
 
-	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?) {
+	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?, completion: @escaping () -> Void) {
 		context.performAndWait {
 			switch result {
 			case .Success(let fetchResponse):
@@ -67,40 +68,51 @@ final class MessageFetchingOperation: Operation {
 				MMLogDebug("[Message fetching] succeded: received \(String(describing: fetchedMessages?.count))")
 				
 				if let nonReportedMessageIds = nonReportedMessageIds {
-					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds)
+					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds, completion: completion)
 					MMLogDebug("[Message fetching] delivery report sent for messages: \(nonReportedMessageIds)")
 					if !nonReportedMessageIds.isEmpty {
 						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 					}
+				} else {
+					completion()
 				}
 			case .Failure(_):
 				MMLogError("[Message fetching] request failed")
+				completion()
 			case .Cancel:
 				MMLogDebug("[Message fetching] cancelled")
+				completion()
 			}
 		}
 	}
 	
-	private func dequeueDeliveryReports(messageIDs: [String]) {
+	private func dequeueDeliveryReports(messageIDs: [String], completion: @escaping () -> Void) {
 		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), context: context)
 			, !messages.isEmpty else
         {
+			completion()
 			return
 		}
 		
-		messages.forEach { message in
-			message.reportSent = true
-			message.deliveryReportedDate = MobileMessaging.date.now
+		messages.forEach {
+			$0.reportSent = true
+			$0.deliveryReportedDate = MobileMessaging.date.now
 		}
 		
 		MMLogDebug("[Message fetching] marked as delivered: \(messages.map{ $0.messageId })")
 		context.MM_saveToPersistentStoreAndWait()
 		
-		updateMessageStorage(with: messages)
+		updateMessageStorage(with: messages, completion: completion)
 	}
 	
-	private func updateMessageStorage(with messages: [MessageManagedObject]) {
-		messages.forEach({ mmContext.messageStorageAdapter?.update(deliveryReportStatus: $0.reportSent , for: $0.messageId) })
+	private func updateMessageStorage(with messages: [MessageManagedObject], completion: @escaping () -> Void) {
+		guard let storage = mmContext.messageStorageAdapter, !messages.isEmpty else
+		{
+			completion()
+			return
+		}
+		
+		storage.batchDeliveryStatusUpdate(messages: messages, completion: completion)
 	}
 	
 	override func finished(_ errors: [NSError]) {

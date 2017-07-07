@@ -21,15 +21,17 @@ class MockMessageStorage: NSObject, MessageStorage {
 	}
 	var mtMessages = [MTMessage]()
 	var moMessages = [MOMessage]()
-	func insert(incoming messages: [MTMessage]) {
+	func insert(incoming messages: [MTMessage], completion: @escaping () -> Void) {
 		messages.forEach { (message) in
 			self.mtMessages.append(message)
 		}
+		completion()
 	}
-	func insert(outgoing messages: [MOMessage]) {
+	func insert(outgoing messages: [MOMessage], completion: @escaping () -> Void) {
 		messages.forEach { (message) in
 			self.moMessages.append(message)
 		}
+		completion()
 	}
 	func findMessage(withId messageId: MessageId) -> BaseMessage? {
 		if let idx = moMessages.index(where: { $0.messageId == messageId }) {
@@ -38,14 +40,15 @@ class MockMessageStorage: NSObject, MessageStorage {
 			return nil
 		}
 	}
-	func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId) {
-		
+	func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId, completion: @escaping () -> Void) {
+		completion()
 	}
-	func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId) {
-		
+	func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void) {
+		completion()
 	}
-	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId) {
+	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
 		updateMessageSentStatusHook?(status)
+		completion()
 	}
 	func start() {
 		
@@ -65,7 +68,6 @@ class MessageStorageTests: MMTestCase {
 		cleanUpAndStop()
 		weak var expectation1 = expectation(description: "Sending 1 finished")
 		weak var expectation2 = expectation(description: "Sending 2 finished")
-		weak var expectation3 = expectation(description: "async message storage")
 		let mockMessageStorage = MockMessageStorage()
 		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
 		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
@@ -83,11 +85,6 @@ class MessageStorageTests: MMTestCase {
 			MobileMessaging.sendMessages([moMessage]) { (messages, error) in
 				expectation2?.fulfill()
 			}
-		}
-		
-		// workaround. we wait for message storage to be appended asynchronously
-		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(500)) {
-			expectation3?.fulfill()
 		}
 		
 		waitForExpectations(timeout: 60, handler: { error in
@@ -276,10 +273,6 @@ class MessageStorageTests: MMTestCase {
 	
 	@available(iOS 10.0, *)
 	func testThatMessageStorageIsBeingPopulatedWithNotificationExtensionHandledMessages() {
-		guard #available(iOS 10.0, *) else {
-			return
-		}
-		
 		cleanUpAndStop()
 		
 		let content = UNMutableNotificationContent()
@@ -314,9 +307,7 @@ class MessageStorageTests: MMTestCase {
 		
 		weak var expectation = self.expectation(description: "")
 		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
-			mm.cleanUpAndStop()
 			XCTAssertEqual(sharedStorageMock.retrieveMessages().count, 0)
-
 			expectation?.fulfill()
 		}
 		self.waitForExpectations(timeout: 60, handler: { _ in
