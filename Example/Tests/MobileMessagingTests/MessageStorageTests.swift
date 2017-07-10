@@ -273,6 +273,11 @@ class MessageStorageTests: MMTestCase {
 	
 	@available(iOS 10.0, *)
 	func testThatMessageStorageIsBeingPopulatedWithNotificationExtensionHandledMessages() {
+		
+		guard #available(iOS 10.0, *) else {
+			return
+		}
+		
 		cleanUpAndStop()
 		
 		let content = UNMutableNotificationContent()
