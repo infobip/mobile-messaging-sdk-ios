@@ -257,6 +257,17 @@ extension MessageStorage {
 		updatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
 	}
 	
+	func batchFailedSentStatusUpdate(messageIds: [String], completion: @escaping () -> Void) {
+		let updatingGroup = DispatchGroup()
+		messageIds.forEach {
+			updatingGroup.enter()
+			self.update(messageSentStatus: MOMessageSentStatus.SentWithFailure, for: $0, completion: {
+				updatingGroup.leave()
+			})
+		}
+		updatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
+	}
+	
 	func batchSentStatusUpdate(messages: [MOMessage], completion: @escaping () -> Void) {
 		let updatingGroup = DispatchGroup()
 		messages.forEach {

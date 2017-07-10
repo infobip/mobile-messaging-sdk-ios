@@ -46,7 +46,7 @@ class MessagePostingOperation: Operation {
 			self.populateMessageStorage(with: messagesToSend) {
 				self.mmContext.remoteApiManager.sendMessages(internalUserId: internalId, messages: Array(messagesToSend)) { result in
 					self.result = result
-					self.handleResult(result: result) {
+					self.handleResult(result: result, originalMessagesToSend: messagesToSend) {
 						self.finishWithError(result.error)
 					}
 				}
@@ -70,6 +70,14 @@ class MessagePostingOperation: Operation {
 		storage.batchSentStatusUpdate(messages: messages, completion: completion)
 	}
 	
+	private func updateMessageStorageOnFailure(with messageIds: [String], completion: @escaping () -> Void) {
+		guard let storage = mmContext.messageStorageAdapter, !messageIds.isEmpty else {
+			completion()
+			return
+		}
+		storage.batchFailedSentStatusUpdate(messageIds: messageIds, completion: completion)
+	}
+	
 	private func postWillSendNotification(messagesToSend: Set<MOMessage>) {
 		var userInfo = DictionaryRepresentation()
 
@@ -83,7 +91,7 @@ class MessagePostingOperation: Operation {
 		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesDidSend, userInfo: userInfo.isEmpty ? nil : userInfo)
 	}
 	
-	private func handleResult(result: MOMessageSendingResult, completion: @escaping () -> Void) {
+	private func handleResult(result: MOMessageSendingResult, originalMessagesToSend: Set<MOMessage>, completion: @escaping () -> Void) {
 		context.performAndWait {
 			switch result {
 			case .Success(let response):
@@ -95,7 +103,9 @@ class MessagePostingOperation: Operation {
 				MMLogDebug("[Message posting] successfuly finished")
 			case .Failure(let error):
 				MMLogError("[Message posting] request failed with error: \(String(describing: error))")
-				completion()
+				self.updateMessageStorageOnFailure(with: originalMessagesToSend.map { $0.messageId } , completion: {
+					completion()
+				})
 			case .Cancel:
 				MMLogError("[Message posting] cancelled")
 				completion()
