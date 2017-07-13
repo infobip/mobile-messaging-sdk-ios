@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/cocoapods/l/MobileMessaging.svg?style=flat)](http://cocoapods.org/pods/MobileMessaging)
 [![Platform](https://img.shields.io/cocoapods/p/MobileMessaging.svg?style=flat)](http://cocoapods.org/pods/MobileMessaging)
 
-Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in your application and access to the features of [Infobip IP Messaging Platform](https://portal.infobip.com/push/). The document describes library integration steps. Additional information can be found in our [wiki](https://github.com/infobip/mobile-messaging-sdk-ios/wiki).
+Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in your application and access to the features of [Infobip IP Messaging Platform](https://portal.infobip.com/push/). This document describes library integration steps. Additional information on advanced topics can be found in our [wiki page](https://github.com/infobip/mobile-messaging-sdk-ios/wiki).
 
 ## Requirements
 - Xcode 8.3.2
@@ -34,14 +34,15 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	use_frameworks!
 	pod 'MobileMessaging'
 	```
-	> ### Notice 
-	> MobileMessaging SDK has geofencing service disabled by default. In order to enable the service follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service).
 
 	> ### Notice 
 	> CocoaLumberjack logging used by default, in order to use other logging or switch it off follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/How-to-install-the-SDK-without-CocoaLumberjack%3F).
 
 5. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
 
+6. At this step you are all set for receiving regular push notifications. There are several advanced features that you may find really useful for your product, though:
+	- [Rich Notifications and better delivery reporting(available with iOS 10)](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Using-Notification-Service-Extension-for-Rich-Notifications-and-better-delivery-reporting-on-iOS-10)
+	- [Geofencing Service](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service)
 
 ### App Delegate Inheritance
 The simplest approach to integrate Mobile Messaging with an existing app is by inheriting your app delegate from `MobileMessagingAppDelegate`. If you prefer a more advanced way: [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition).
@@ -104,7 +105,6 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 	* `mm_application(:didRegisterForRemoteNotificationsWithDeviceToken:)`
 	* `mm_application(:didReceiveRemoteNotification:fetchCompletionHandler:)`
 	* `mm_application(:didReceiveLocalNotification:)`
-
 
 ## Mobile Messaging APIs
 
