@@ -63,6 +63,16 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
+	/// Fabric method for Mobile Messaging session.
+	///
+	///- parameter categories: Set of categories that indicating which buttons will be displayed and behavour of these buttons when a push notification arrives.
+	///- remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
+
+	public func withInteractiveCategories(_ categories: Set<MMInteractiveCategory>) -> MobileMessaging {
+		self.interactiveCategories = categories
+		return self
+	}
+	
 	/// Starts a new Mobile Messaging session.
 	///
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
@@ -86,8 +96,8 @@ public final class MobileMessaging: NSObject {
 			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 			self.application.unregisterForRemoteNotifications()
 		}
-	
-		application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType, categories: nil))
+		
+		application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType, categories: self.interactiveCategories?.uiUserNotificationCategoriesSet))
 		
 		if application.isRegisteredForRemoteNotifications == false {
 			MMLogDebug("Registering for remote notifications...")
@@ -160,6 +170,7 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.reachabilityManager = nil
 		MobileMessaging.sharedInstance?.keychain = nil
 		MobileMessaging.sharedInstance?.sharedNotificationExtensionStorage = nil
+		MobileMessaging.sharedInstance?.interactiveCategories = nil
 		
 		MobileMessaging.sharedInstance = nil
 	}
@@ -187,8 +198,6 @@ public final class MobileMessaging: NSObject {
 		})
 	}
 	
-	
-	
 	/// This method is called when a running app receives a local notification. The method should be called from AppDelegate's `application(_:didReceiveLocalNotification:)` or `application(_:didReceive:)` callback.
 	///
 	/// - parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
@@ -203,6 +212,32 @@ public final class MobileMessaging: NSObject {
 				return
 		}
 		MMMessageHandler.handleNotificationTap(with: message)
+	}
+	
+	
+	///This method handles actions of interactive notification and triggers procedure for performing handling block that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:localNotification:completionHandler:)` callback.
+	///
+	/// - parameter identifier: The identifier associated with the action of interactive notification.
+	/// - parameter localNotification: `UILocalNotification` object, which specifies notification that was scheduled.
+	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
+	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [NSObject : AnyObject]?, completionHandler: @escaping () -> Void) {
+		guard let info = localNotification.userInfo,
+			let payload = info[LocalNotificationKeys.pushPayload] as? [String: Any],
+			let date = info[LocalNotificationKeys.createdDate] as? Date else {
+				completionHandler()
+				return
+		}
+		
+		handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload, createdDate: date), completionHandler: completionHandler)
+	}
+	
+	///This method handles actions of interactive notification and triggers procedure for performing operations that are defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback.
+	
+	/// - parameter identifier: The identifier associated with the action of interactive notification.
+	/// - parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
+	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
+	public class func handleActionWithIdentifier(identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], responseInfo: [NSObject : AnyObject]?, completionHandler: @escaping () -> Void) {
+		handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo, createdDate: Date()), completionHandler: completionHandler)
 	}
 	
 	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
@@ -425,6 +460,20 @@ public final class MobileMessaging: NSObject {
 	static var date: MMDate = MMDate() // testability
 	
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
+	var interactiveCategories: Set<MMInteractiveCategory>?
+	
+	private class func handleActionWithIdentifier(identifier: String?, message: MTMessage?, completionHandler: @escaping () -> Void) {
+		guard let identifier = identifier,
+			let message = message,
+			let categoryId = message.aps.categoryId,
+			let registeredCategories = MobileMessaging.sharedInstance?.interactiveCategories,
+			let category = registeredCategories.first(where: {return $0.identifier == categoryId}),
+			let action = category.actions.first(where: {return $0.identifier == identifier}) else {
+				completionHandler()
+				return
+		}
+		action.handlingBlock(message, completionHandler)
+	}
 }
 
 extension UIApplication: MMApplication {}

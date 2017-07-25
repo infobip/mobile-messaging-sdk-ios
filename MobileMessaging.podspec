@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
         core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/Core/InternalStorage/*.xcdatamodeld'
         core.public_header_files = 'Pod/Classes/Core/**/*.h'
         core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
-        core.source_files = 'Pod/Classes/Core/**/*.{h,m,swift}', 'Pod/Classes/Vendor/**/*.{h,m,swift}', 'Pod/Classes/MessageStorage/**/*.{h,m,swift}', 'Pod/Classes/RichNotifications/**'
+        core.source_files = 'Pod/Classes/Core/**/*.{h,m,swift}', 'Pod/Classes/Vendor/**/*.{h,m,swift}', 'Pod/Classes/MessageStorage/**/*.{h,m,swift}', 'Pod/Classes/RichNotifications/**', 'Pod/Classes/InteractiveNotifications/**'
     end
 
     s.subspec 'CocoaLumberjack' do |cl|

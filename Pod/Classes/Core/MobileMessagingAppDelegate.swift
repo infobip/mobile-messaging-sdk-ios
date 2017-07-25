@@ -40,6 +40,15 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 		fatalError("UserNotificationType not set. Please override `userNotificationType` variable in your subclass of `MobileMessagingAppDelegate`.")
 	}
 	
+	///Set of categories that indicating which buttons will be displayed and behavour of these buttons when a push notification arrives.
+	///
+	///You can override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
+	///Once application started, provided categories will be registered.
+	///- remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
+	open var interactiveCategories: Set<MMInteractiveCategory>? {
+		return nil
+	}
+	
 	//MARK: Public
 	public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]? = nil) -> Bool {
 		if !isTestingProcessRunning {
@@ -50,6 +59,11 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 					session = session?.withAppGroupId(appGroupId)
 				}
 			}
+			
+			if let interactiveCategories = interactiveCategories {
+				session = session?.withInteractiveCategories(interactiveCategories)
+			}
+			
 			session?.start()
 		}
 		return mm_application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -78,6 +92,34 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 		mm_application(application, didReceiveLocalNotification: notification)
 	}
 	
+	public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
+		if !isTestingProcessRunning {
+			MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: nil, completionHandler: completionHandler)
+		}
+		mm_application(application, handleActionWithIdentifier: identifier, for: notification, completionHandler: completionHandler)
+	}
+	
+	public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+		if !isTestingProcessRunning {
+			MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: nil, completionHandler: completionHandler)
+		}
+		mm_application(application, handleActionWithIdentifier: identifier, forRemoteNotification: userInfo, completionHandler: completionHandler)
+	}
+	
+	/// This is substitution for standart `application(:handleActionWithIdentifier:for:completionHandler)`
+	///
+	///You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
+	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
+		// override this callback in your AppDelegate if needed
+	}
+	
+	/// This is substitution for standart `application(:handleActionWithIdentifier:handleActionWithIdentifier:completionHandler)`
+	///
+	///You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
+	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+		// override this callback in your AppDelegate if needed
+	}
+	
 	/// This is a substitution for the standard `application(:didFinishLaunchingWithOptions:)`.
 	///
 	/// You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the launch process is almost done and the app is almost ready to run.
@@ -95,7 +137,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	/// This is a substitution for the standard `application(:didReceiveRemoteNotification:fetchCompletionHandler:)`.
 	///
 	/// You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when a remote notification arrived that indicates there is data to be fetched.
-	@nonobjc open func mm_application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+	@nonobjc open func mm_application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		// override this callback in your AppDelegate if needed
 	}
 	

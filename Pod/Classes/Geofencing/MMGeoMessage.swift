@@ -353,10 +353,13 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	public override var hash: Int {
 		return dataSourceIdentifier.hash
 	}
-}
-
-public func ==(lhs: MMRegion, rhs: MMRegion) -> Bool {
-	return lhs.dataSourceIdentifier == rhs.dataSourceIdentifier
+	
+	public override func isEqual(_ object: Any?) -> Bool {
+		guard let obj = object as? MMRegion else {
+			return false
+		}
+		return obj.dataSourceIdentifier == self.dataSourceIdentifier
+	}
 }
 
 final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {

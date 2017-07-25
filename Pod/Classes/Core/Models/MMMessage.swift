@@ -50,6 +50,14 @@ enum MMAPS {
 			return alert?["body"] as? String
 		}
 	}
+	var categoryId: String? {
+		switch self {
+		case .NativeAPS(let dict):
+			return dict["category"] as? String
+		case .SilentAPS(let dict):
+			return dict["category"] as? String
+		}
+	}
 }
 
 protocol MMMessageMetadata: Hashable {
