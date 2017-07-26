@@ -45,7 +45,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	///You can override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
 	///Once application started, provided categories will be registered.
 	///- remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
-	open var interactiveCategories: Set<MMInteractiveCategory>? {
+	open var interactiveNotificationCategories: Set<MMNotificationCategory>? {
 		return nil
 	}
 	
@@ -60,8 +60,8 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 				}
 			}
 			
-			if let interactiveCategories = interactiveCategories {
-				session = session?.withInteractiveCategories(interactiveCategories)
+			if let categories = interactiveNotificationCategories {
+				session = session?.withInteractiveNotificationCategories(categories)
 			}
 			
 			session?.start()

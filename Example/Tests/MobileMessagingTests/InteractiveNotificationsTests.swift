@@ -16,18 +16,18 @@ class InteractiveNotificationsTests: MMTestCase {
 	func testActionHandlerCalled() {
 		weak var actionHandlerCalled = expectation(description: "action handler called")
 		weak var testCompleted = expectation(description: "testCompleted")
-		let action = MMCategoryAction(identifier: actionId, title: "Action", options: nil) { (message, completion) in
+		let action = MMNotificationAction(identifier: actionId, title: "Action", options: nil) { (message, completion) in
 			actionHandlerCalled?.fulfill()
 			completion()
 		}
 		
-		let category = MMInteractiveCategory(identifier: categoryId, actions: [action!])
-		var set = Set<MMInteractiveCategory>()
+		let category = MMNotificationCategory(identifier: categoryId, actions: [action!])
+		var set = Set<MMNotificationCategory>()
 		set.insert(category!)
 		
 		cleanUpAndStop()
 		var mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
-		mm = mm?.withInteractiveCategories(set)
+		mm = mm?.withInteractiveNotificationCategories(set)
 		mm?.start()
 		
 		MobileMessaging.handleActionWithIdentifier(identifier: actionId, forRemoteNotification: ["messageId": "1", "aps": ["alert": ["body": "text"], "category": categoryId]], responseInfo: nil) {

@@ -5,10 +5,10 @@
 //
 //
 
-public final class MMInteractiveCategory: NSObject {
+public final class MMNotificationCategory: NSObject {
 	let identifier: String
-	let actions: [MMCategoryAction]
-	public init?(identifier: String, actions: [MMCategoryAction]) {
+	let actions: [MMNotificationAction]
+	public init?(identifier: String, actions: [MMNotificationAction]) {
 		guard !identifier.hasPrefix("mm_") else {
 			return nil
 		}
@@ -29,27 +29,27 @@ public final class MMInteractiveCategory: NSObject {
 	}
 	
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let obj = object as? MMInteractiveCategory else {
+		guard let obj = object as? MMNotificationCategory else {
 			return false
 		}
 		return identifier == obj.identifier
 	}
 }
 
-extension Set where Element: MMInteractiveCategory {
+extension Set where Element: MMNotificationCategory {
 	var uiUserNotificationCategoriesSet: Set<UIUserNotificationCategory>? {
 		return Set<UIUserNotificationCategory>(self.map{$0.uiUserNotificationCategory})
 	}
 }
 
 
-public final class MMCategoryAction: NSObject {
+public final class MMNotificationAction: NSObject {
 	let identifier: String
 	let title: String
-	let options: [MMCategoryActionOptions]?
+	let options: [MMNotificationActionOptions]?
 	let handlingBlock: (MTMessage, () -> Void) -> Void
 	
-	public init?(identifier: String, title: String, options: [MMCategoryActionOptions]?, handlingBlock: @escaping (MTMessage, () -> Void) -> Void) {
+	public init?(identifier: String, title: String, options: [MMNotificationActionOptions]?, handlingBlock: @escaping (MTMessage, () -> Void) -> Void) {
 		guard !identifier.hasPrefix("mm_") else {
 			return nil
 		}
@@ -73,10 +73,10 @@ public final class MMCategoryAction: NSObject {
 	}
 }
 
-public final class MMCategoryActionOptions : NSObject {
+public final class MMNotificationActionOptions : NSObject {
 	let rawValue: Int
 	init(rawValue: Int) { self.rawValue = rawValue }
-	public init(options: [MMCategoryActionOptions]) {
+	public init(options: [MMNotificationActionOptions]) {
 		let totalValue = options.reduce(0) { (total, option) -> Int in
 			return total | option.rawValue
 		}
@@ -85,9 +85,9 @@ public final class MMCategoryActionOptions : NSObject {
 	public func contains(options: MMLogOutput) -> Bool {
 		return rawValue & options.rawValue != 0
 	}
-	public static let foreground = MMCategoryActionOptions(rawValue: 0) //available starting from iOS 9.0
-	public static let destructive = MMCategoryActionOptions(rawValue: 1 << 0)
-	public static let requireAuthentification = MMCategoryActionOptions(rawValue: 1 << 1)
+	public static let foreground = MMNotificationActionOptions(rawValue: 0) //available starting from iOS 9.0
+	public static let destructive = MMNotificationActionOptions(rawValue: 1 << 0)
+	public static let requireAuthentification = MMNotificationActionOptions(rawValue: 1 << 1)
 }
 
 

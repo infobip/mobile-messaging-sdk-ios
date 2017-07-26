@@ -68,8 +68,8 @@ public final class MobileMessaging: NSObject {
 	///- parameter categories: Set of categories that indicating which buttons will be displayed and behavour of these buttons when a push notification arrives.
 	///- remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
 
-	public func withInteractiveCategories(_ categories: Set<MMInteractiveCategory>) -> MobileMessaging {
-		self.interactiveCategories = categories
+	public func withInteractiveNotificationCategories(_ categories: Set<MMNotificationCategory>) -> MobileMessaging {
+		self.interactiveNotificationCategories = categories
 		return self
 	}
 	
@@ -97,7 +97,7 @@ public final class MobileMessaging: NSObject {
 			self.application.unregisterForRemoteNotifications()
 		}
 		
-		application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType, categories: self.interactiveCategories?.uiUserNotificationCategoriesSet))
+		application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType, categories: self.interactiveNotificationCategories?.uiUserNotificationCategoriesSet))
 		
 		if application.isRegisteredForRemoteNotifications == false {
 			MMLogDebug("Registering for remote notifications...")
@@ -170,7 +170,7 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.reachabilityManager = nil
 		MobileMessaging.sharedInstance?.keychain = nil
 		MobileMessaging.sharedInstance?.sharedNotificationExtensionStorage = nil
-		MobileMessaging.sharedInstance?.interactiveCategories = nil
+		MobileMessaging.sharedInstance?.interactiveNotificationCategories = nil
 		
 		MobileMessaging.sharedInstance = nil
 	}
@@ -460,13 +460,13 @@ public final class MobileMessaging: NSObject {
 	static var date: MMDate = MMDate() // testability
 	
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
-	var interactiveCategories: Set<MMInteractiveCategory>?
+	var interactiveNotificationCategories: Set<MMNotificationCategory>?
 	
 	private class func handleActionWithIdentifier(identifier: String?, message: MTMessage?, completionHandler: @escaping () -> Void) {
 		guard let identifier = identifier,
 			let message = message,
 			let categoryId = message.aps.categoryId,
-			let registeredCategories = MobileMessaging.sharedInstance?.interactiveCategories,
+			let registeredCategories = MobileMessaging.sharedInstance?.interactiveNotificationCategories,
 			let category = registeredCategories.first(where: {return $0.identifier == categoryId}),
 			let action = category.actions.first(where: {return $0.identifier == identifier}) else {
 				completionHandler()
