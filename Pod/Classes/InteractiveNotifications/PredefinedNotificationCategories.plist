@@ -27,6 +27,8 @@
 			<false/>
 			<key>authenticationRequired</key>
 			<true/>
+			<key>destructive</key>
+			<true/>
 		</dict>
 	</array>
 </dict>
