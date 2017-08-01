@@ -50,7 +50,7 @@ enum MMAPS {
 			return alert?["body"] as? String
 		}
 	}
-	var categoryId: String? {
+	var category: String? {
 		switch self {
 		case .NativeAPS(let dict):
 			return dict["category"] as? String
@@ -131,6 +131,11 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		return aps.sound
 	}
 	
+	/// Interactive category Id
+	public var category: String? {
+		return aps.category
+	}
+	
 	public let contentUrl: String?
 	
 	public var seenStatus: MMSeenStatus
@@ -140,6 +145,8 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	
 	let aps: MMAPS
 	let silentData: StringKeyPayload?
+	
+	var interactiveActionClicked: MMNotificationAction?
 	
 	convenience init?(json: JSON) {
 		if let payload = json.dictionaryObject {

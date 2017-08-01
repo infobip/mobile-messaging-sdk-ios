@@ -34,7 +34,7 @@ extension UILocalNotification {
 									  LocalNotificationKeys.createdDate: message.createdDate]
 		localNotification.alertBody = message.text
 		localNotification.soundName = message.sound
-		localNotification.category = message.aps.categoryId
+		localNotification.category = message.aps.category
 		return localNotification
 	}
 }
@@ -46,7 +46,7 @@ func mm_scheduleUserNotification(with message: MTMessage, completion: (() -> Voi
 		return
 	}
 	let content = UNMutableNotificationContent()
-	if let categoryId = message.aps.categoryId {
+	if let categoryId = message.aps.category {
 		content.categoryIdentifier = categoryId
 	}
 	content.title = ""

@@ -97,6 +97,10 @@ public final class MobileMessaging: NSObject {
 			self.application.unregisterForRemoteNotifications()
 		}
 		
+		if let predefinedCategories = MMNotificationCategories().predefinedCategories {
+			interactiveNotificationCategories = interactiveNotificationCategories != nil ? interactiveNotificationCategories?.union(predefinedCategories) : predefinedCategories
+		}
+		
 		application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType, categories: self.interactiveNotificationCategories?.uiUserNotificationCategoriesSet))
 		
 		if application.isRegisteredForRemoteNotifications == false {
@@ -223,12 +227,13 @@ public final class MobileMessaging: NSObject {
 	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [NSObject : AnyObject]?, completionHandler: @escaping () -> Void) {
 		guard let info = localNotification.userInfo,
 			let payload = info[LocalNotificationKeys.pushPayload] as? [String: Any],
-			let date = info[LocalNotificationKeys.createdDate] as? Date else {
+			let date = info[LocalNotificationKeys.createdDate] as? Date,
+			let mm = MobileMessaging.sharedInstance else {
 				completionHandler()
 				return
 		}
 		
-		handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload, createdDate: date), completionHandler: completionHandler)
+		mm.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload, createdDate: date), completionHandler: completionHandler)
 	}
 	
 	///This method handles actions of interactive notification and triggers procedure for performing operations that are defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback.
@@ -237,7 +242,11 @@ public final class MobileMessaging: NSObject {
 	/// - parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
 	public class func handleActionWithIdentifier(identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], responseInfo: [NSObject : AnyObject]?, completionHandler: @escaping () -> Void) {
-		handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo, createdDate: Date()), completionHandler: completionHandler)
+		guard let mm = MobileMessaging.sharedInstance else {
+			completionHandler()
+			return
+		}
+		mm.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo, createdDate: Date()), completionHandler: completionHandler)
 	}
 	
 	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
@@ -294,6 +303,11 @@ public final class MobileMessaging: NSObject {
 	
 	/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
 	public internal(set) static var privacySettings = PrivacySettings()
+	
+	/// The `notificationActionHandler` object defines the behaviour that is triggered during the notification action handling.
+	///
+	/// Implement your own notification action hander class by implementing the `NotificationActionHandling` protocol.
+	public static var notificationActionHandler: NotificationActionHandling?
 	
 //MARK: Internal
 	static var sharedInstance: MobileMessaging?
@@ -462,17 +476,22 @@ public final class MobileMessaging: NSObject {
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 	var interactiveNotificationCategories: Set<MMNotificationCategory>?
 	
-	private class func handleActionWithIdentifier(identifier: String?, message: MTMessage?, completionHandler: @escaping () -> Void) {
+	private func handleActionWithIdentifier(identifier: String?, message: MTMessage?, completionHandler: @escaping () -> Void) {
 		guard let identifier = identifier,
 			let message = message,
-			let categoryId = message.aps.categoryId,
+			let categoryId = message.aps.category,
 			let registeredCategories = MobileMessaging.sharedInstance?.interactiveNotificationCategories,
 			let category = registeredCategories.first(where: {return $0.identifier == categoryId}),
 			let action = category.actions.first(where: {return $0.identifier == identifier}) else {
 				completionHandler()
 				return
 		}
-		action.handlingBlock(message, completionHandler)
+		message.interactiveActionClicked = action
+		messageHandler.handleMTMessage(message, notificationTapped: false, completion: { (result) in
+			self.setSeen([message.messageId], completion: { _ in
+				completionHandler()
+			})
+		})
 	}
 }
 

@@ -117,6 +117,14 @@ final class MMMessageHandler: MobileMessagingService {
 					})
 				}
 			}
+			
+			if let message = messages.first, messages.count == 1 {
+				group.enter()
+				self.handleInteractiveActionForExistingMessage(message: message, completion: {
+					group.leave()
+				})
+			}
+		
 			var result = MessageHandlingResult.noData
 			self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(),
 			                                                            mmContext: self.mmContext,
@@ -307,4 +315,18 @@ extension MMMessageHandler {
 			MobileMessaging.notificationTapHandler?(message)
 		}
 	}
+}
+
+extension MMMessageHandler {
+	func handleInteractiveActionForExistingMessage(message: MTMessage, completion: @escaping () -> Void) {
+		guard let interactiveAction = message.interactiveActionClicked,
+			let actionHandler = MobileMessaging.notificationActionHandler else {
+				completion()
+				return
+		}
+		actionHandler.handle(action: interactiveAction, forMessage: message) {
+			completion()
+		}
+	}
+	
 }
