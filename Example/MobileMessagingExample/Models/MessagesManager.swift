@@ -80,9 +80,25 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	fileprivate func startObservingNotifications() {
-		NotificationCenter.default.addObserver(self, selector: #selector(MessagesManager.appWillTerminate), name: NSNotification.Name.UIApplicationWillTerminate, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(MessagesManager.handleNewMessageReceivedNotification(_:)), name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(MessagesManager.handleDeliveryReportSentNotification(_:)), name: NSNotification.Name(rawValue: MMNotificationDeliveryReportSent), object: nil)
+		NotificationCenter.default.addObserver(self,
+		                                       selector: #selector(MessagesManager.appWillTerminate),
+		                                       name: NSNotification.Name.UIApplicationWillTerminate,
+		                                       object: nil)
+		
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(MessagesManager.handleNewMessageReceivedNotification(_:)),
+                                               name: NSNotification.Name(rawValue: MMNotificationMessageReceived),
+                                               object: nil)
+        
+		NotificationCenter.default.addObserver(self,
+		                                       selector: #selector(MessagesManager.handleDeliveryReportSentNotification(_:)),
+		                                       name: NSNotification.Name(rawValue: MMNotificationDeliveryReportSent),
+		                                       object: nil)
+        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(MessagesManager.handleTapNotification),
+                                               name: NSNotification.Name(rawValue: MMNotificationMessageTapped),
+                                               object: nil)
 	}
 	
 	fileprivate func archiveMessages() {
@@ -133,6 +149,24 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 			}
 		}
 	}
+    
+    func handleTapNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+            let message = userInfo[MMNotificationKeyMessage] as? MTMessage
+            else {
+                return
+        }
+        
+        // checking if we have "url" in custom payload
+        guard let url = message.customPayload?["url"] as? String else {
+            return
+        }
+        
+        let webViewController = WebViewController()
+        webViewController.url = url
+        
+        UIApplication.shared.keyWindow?.visibleViewController?.present(webViewController, animated: true)
+    }
 
 	//MARK: UITableViewDataSource
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

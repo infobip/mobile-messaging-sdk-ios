@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		2499E18FB6EBAD6C8F7A7620 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F5E69FCAC421EB2E25ED816 /* Pods_MobileMessagingExample_Tests.framework */; };
-		5000030C1CCB7B2F00C91479 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		5000030D1CCB7B2F00C91479 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		500003101CCB7B3C00C91479 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		500003111CCB7B3C00C91479 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		5000030C1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		5000030D1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		500003101CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		500003111CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502129421CEEF450007CEF8E /* MessagesManager.swift */; };
 		5087EDA71CEEF82500B85546 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDA61CEEF82500B85546 /* MessageCell.swift */; };
 		5087EDB01CEF067100B85546 /* InfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAC1CEF067100B85546 /* InfoTableViewController.swift */; };
@@ -22,6 +22,8 @@
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		64B5396ED08E89CBD3AFDA62 /* Pods_MobileMessagingExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 376FE5BF2A1CDFF94C44A504 /* Pods_MobileMessagingExample.framework */; };
+		6E3B11C11F3472EF00C48B92 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3B11C01F3472EF00C48B92 /* WebViewController.swift */; };
+		6E3B11C31F34D4C800C48B92 /* WindowExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */; };
 		767B84791EA8A6EC00CCD81F /* CoreDataHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */; };
 		767B847A1EA8A6EC00CCD81F /* MessageStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */; };
 		767B847B1EA8A6EC00CCD81F /* EscapingQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */; };
@@ -142,6 +144,8 @@
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6527DBE41CAD144F00526BE7 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		6527DBE51CAD144F00526BE7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		6E3B11C01F3472EF00C48B92 /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
+		6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowExtension.swift; sourceTree = "<group>"; };
 		854CAD8A86B9610693BA4BC7 /* MobileMessaging.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = MobileMessaging.podspec; path = ../MobileMessaging.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MobileMessagingExample_Tests_Device-Info.plist"; sourceTree = "<group>"; };
 		8EFABFDD1CEB3B9400510762 /* MobileMessagingExample_Tests_Device.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileMessagingExample_Tests_Device.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -250,6 +254,7 @@
 				5087EDAD1CEF067100B85546 /* ListViewController.swift */,
 				5087EDAE1CEF067100B85546 /* MessageDetailsViewController.swift */,
 				5087EDAF1CEF067100B85546 /* SettingsViewController.swift */,
+				6E3B11C01F3472EF00C48B92 /* WebViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -275,6 +280,7 @@
 			isa = PBXGroup;
 			children = (
 				A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */,
+				6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -563,14 +569,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0DB0FBD1E2F8FC0005F5979 /* mocks in Resources */,
-				500003111CCB7B3C00C91479 /* BuildFile in Resources */,
+				500003111CCB7B3C00C91479 /* (null) in Resources */,
 				50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */,
-				500003101CCB7B3C00C91479 /* BuildFile in Resources */,
+				500003101CCB7B3C00C91479 /* (null) in Resources */,
 				A0953C291CAD1C660076488D /* Main.storyboard in Resources */,
 				8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */,
-				5000030D1CCB7B2F00C91479 /* BuildFile in Resources */,
+				5000030D1CCB7B2F00C91479 /* (null) in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
-				5000030C1CCB7B2F00C91479 /* BuildFile in Resources */,
+				5000030C1CCB7B2F00C91479 /* (null) in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -758,7 +764,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		E29CA7FF694F6C884B7A4A81 /* [CP] Copy Pods Resources */ = {
@@ -788,7 +794,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		FDAE422B74F7B1991521A7F6 /* [CP] Check Pods Manifest.lock */ = {
@@ -803,7 +809,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		FF4C78924BA3EAE65513FDC6 /* [CP] Check Pods Manifest.lock */ = {
@@ -818,7 +824,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -831,8 +837,10 @@
 				5087EDA71CEEF82500B85546 /* MessageCell.swift in Sources */,
 				A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */,
 				502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */,
+				6E3B11C11F3472EF00C48B92 /* WebViewController.swift in Sources */,
 				5087EDB21CEF067100B85546 /* MessageDetailsViewController.swift in Sources */,
 				5087EDB01CEF067100B85546 /* InfoTableViewController.swift in Sources */,
+				6E3B11C31F34D4C800C48B92 /* WindowExtension.swift in Sources */,
 				A047BFD81CB4EB5C00A6859F /* CopyableCell.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				5087EDB11CEF067100B85546 /* ListViewController.swift in Sources */,

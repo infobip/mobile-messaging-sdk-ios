@@ -20,6 +20,13 @@ class AppDelegate: MobileMessagingAppDelegate {
 		
 	override func mm_application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]?) -> Bool {
 		setupLogging()
+        
+        UIToolbar.appearance().barTintColor = UIColor(red: 0xF0 / 255.0,
+                                                      green: 0x7D / 255.0,
+                                                      blue: 0x15 / 255.0,
+                                                      alpha: 1.0)
+        UIToolbar.appearance().tintColor = UIColor.white
+        
 		return true
 	}
 	
