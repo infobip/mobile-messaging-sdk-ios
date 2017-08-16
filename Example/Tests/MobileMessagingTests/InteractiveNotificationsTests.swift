@@ -93,7 +93,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		weak var testCompleted = expectation(description: "testCompleted")
 		XCTAssertEqual(NotificationsInteractionService.sharedInstance?.userNotificationCategories?.count, PredefinedCategoriesTest().categoriesIds?.count)
 		
-		let allActions = NotificationsInteractionService.sharedInstance?.interactiveNotificationCategories?.reduce([String: XCTestExpectation](), { (result, category) -> [String: XCTestExpectation] in
+		let allActions = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.reduce([String: XCTestExpectation](), { (result, category) -> [String: XCTestExpectation] in
 			return result + category.actions.reduce([String: XCTestExpectation](), { (result, action) -> [String: XCTestExpectation] in
 				return result + ["\(category.identifier)+\(action.identifier)": expectation(description: "\(category.identifier)+\(action.identifier)")]
 			})
@@ -105,7 +105,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		
 		mobileMessagingInstance.messageHandler = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		
-		NotificationsInteractionService.sharedInstance?.interactiveNotificationCategories?.forEach { category in
+		NotificationsInteractionService.sharedInstance?.allNotificationCategories?.forEach { category in
 			category.actions.forEach { action in
 				MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: nil) {
 					// do nothing
