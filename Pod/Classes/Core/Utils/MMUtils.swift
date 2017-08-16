@@ -301,7 +301,20 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> D
 	}
 }
 
-func +<Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
+func + <Element: Any>(l: Set<Element>?, r: Set<Element>?) -> Set<Element>? {
+    switch (l, r) {
+    case (.none, .none):
+        return nil
+    case (.some(let left), .none):
+        return left
+    case (.none, .some(let right)):
+        return right
+    case (.some(let left), .some(let right)):
+        return left.union(right)
+    }
+}
+
+func + <Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
 	switch (l, r) {
 	case (.none, .none):
 		return [Element]()
@@ -352,19 +365,13 @@ protocol MobileMessagingService {
 	func stop(_ completion: ((Bool) -> Void)?)
 	func syncWithServer(_ completion: ((NSError?) -> Void)?)
 	
-	/**
-		A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
-	*/
+	/// A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
 	var systemData: [String: AnyHashable]? { get }
 
-	/**
-		A subservice must implement this method in order to let MobileMessaging be aware of the subservice plugged in.
-	*/
+	/// A subservice must implement this method in order to let MobileMessaging be aware of the subservice plugged in.
 	func registerSelfAsSubservice(of mmContext: MobileMessaging)
 	
-	/**
-		Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk
-	*/
+	/// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool
 	
 	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool, handlingIteration: Int, completion: ((MessageHandlingResult) -> Void)?)

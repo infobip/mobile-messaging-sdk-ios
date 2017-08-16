@@ -18,7 +18,7 @@ class AppDelegate: MobileMessagingAppDelegate {
 	
 	override var userNotificationType: UIUserNotificationType { return [.alert, .sound] }
 		
-	override func mm_application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey : Any]?) -> Bool {
+	override func mm_application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 		setupLogging()
         
         UIToolbar.appearance().barTintColor = UIColor(red: 0xF0 / 255.0,

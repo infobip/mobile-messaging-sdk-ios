@@ -18,7 +18,7 @@ public final class MMNotificationCategory: NSObject {
 	/// - parameter identifier: category identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
 	/// - parameter actions: Actions in the order to be displayed for available contexts.
 	public init?(identifier: String, actions: [MMNotificationAction]) {
-		guard !identifier.hasPrefix(NotificationCategoryKeys.mm_prefix) else {
+		guard !identifier.hasPrefix(NotificationCategoryConstants.categoryNamePrefix) else {
 			return nil
 		}
 		self.identifier = identifier
@@ -26,15 +26,18 @@ public final class MMNotificationCategory: NSObject {
 	}
 	
 	init?(dictionary: [String: Any]) {
-		guard dictionary.keys.count == 1,
-			let identifier = dictionary.keys.first,
-			let actionsArray = dictionary[identifier] as? [[String : Any]] else {
-				return nil
+		guard let identifier = dictionary[NotificationCategoryConstants.identifier] as? String,
+			let actionDicts = (dictionary[NotificationCategoryConstants.actions] as? [[String: Any]]) else
+		{
+			return nil
 		}
 		
+		self.actions = actionDicts.flatMap(MMNotificationAction.init)
 		self.identifier = identifier
-		self.actions = actionsArray.flatMap(MMNotificationAction.init)
-		if self.actions.count == 0 { return nil } //Category should contain actions
+		
+		if self.actions.isEmpty {
+			return nil
+		}
 	}
 	
 	var uiUserNotificationCategory: UIUserNotificationCategory {
@@ -59,24 +62,27 @@ public final class MMNotificationCategory: NSObject {
 
 extension Set where Element: MMNotificationCategory {
 	var uiUserNotificationCategoriesSet: Set<UIUserNotificationCategory>? {
-		return Set<UIUserNotificationCategory>(self.map{$0.uiUserNotificationCategory})
+		return Set<UIUserNotificationCategory>(self.map{ $0.uiUserNotificationCategory })
 	}
 }
 
-class MMNotificationCategories {
-	var path: String? {
-		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.path(forResource: "PredefinedNotificationCategories", ofType: "plist")
+struct MMNotificationCategories {
+	static var path: String? {
+		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.path(forResource: NotificationCategoryConstants.plistName, ofType: "plist")
 	}
-	var predefinedCategories: Set<MMNotificationCategory>? {
-		if let path = path,
-			let categoriesDict = NSDictionary(contentsOfFile: path) as? [String: Any] {
-			return Set(categoriesDict.flatMap({MMNotificationCategory.init(dictionary: [$0: $1])}))
+	static var predefinedCategories: Set<MMNotificationCategory>? {
+		
+		if let path = path, let categories = NSArray(contentsOfFile: path) as? [[String: Any]] {
+			return Set(categories.flatMap(MMNotificationCategory.init))
 		}
 		return nil
 	}
 }
 
-struct NotificationCategoryKeys {
-	static let mm_prefix = "mm_"
+struct NotificationCategoryConstants {
+	static let categoryNamePrefix = "mm_"
+	static let identifier = "identifier"
+	static let actions = "actions"
+	static let plistName = "PredefinedNotificationCategories"
 }
 

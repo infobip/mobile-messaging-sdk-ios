@@ -43,9 +43,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		})
 	}
 	
-	func mobileMessagingWillStart(_ mmContext: MobileMessaging) {
-		
-	}
+	func mobileMessagingWillStart(_ mmContext: MobileMessaging) { }
 	
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
 		guard GeofencingService.isGeoServiceNeedsToStart && mmContext.isPushRegistrationEnabled else {
@@ -55,9 +53,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		start(nil)
 	}
 	
-	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
-		
-	}
+	func mobileMessagingWillStop(_ mmContext: MobileMessaging) { }
 	
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
 		stop()

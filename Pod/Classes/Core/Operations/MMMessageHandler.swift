@@ -45,7 +45,7 @@ enum MessageHandlingResult {
 	}
 }
 
-final class MMMessageHandler: MobileMessagingService {
+class MMMessageHandler: MobileMessagingService {
 	lazy var messageHandlingQueue = MMOperationQueue.newSerialQueue
 	lazy var messageSendingQueue = MMOperationQueue.userInitiatedQueue
 	lazy var messageSyncQueue = MMOperationQueue.newSerialQueue
@@ -104,39 +104,31 @@ final class MMMessageHandler: MobileMessagingService {
 			return
 		}
 		
-		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock: { error, newMessages in
-			let group =  DispatchGroup()
-			group.enter()
-			newMessages?.forEach{ m in
-				for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
-					group.enter()
-					MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start message handling \(m.messageId)")
-					subservice.handleMTMessage(m, notificationTapped: false, handlingIteration: handlingIteration, completion: { (result) in
-						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop message handling \(m.messageId)")
-						group.leave()
-					})
-				}
-			}
-			
-			if let message = messages.first, messages.count == 1 {
+		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
+			{ error, newMessages in
+				let group =  DispatchGroup()
 				group.enter()
-				self.handleInteractiveActionForExistingMessage(message: message, completion: {
-					group.leave()
-				})
-			}
+				newMessages?.forEach { m in
+					for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
+						group.enter()
+						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start message handling \(m.messageId)")
+						subservice.handleMTMessage(m, notificationTapped: false, handlingIteration: handlingIteration, completion: { result in
+							MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop message handling \(m.messageId)")
+							group.leave()
+						})
+					}
+				}
 		
-			var result = MessageHandlingResult.noData
-			self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(),
-			                                                            mmContext: self.mmContext,
-			                                                            handlingIteration: handlingIteration,
-			                                                            finishBlock: { res in
-																			result = MessageHandlingResult(res)
-																			group.leave()
-			}))
-			group.notify(queue: DispatchQueue.global(qos: .default)) {
-				MMLogDebug("[Message Handler] message handling finished")
-				completion?(result)
-			}
+				var result = MessageHandlingResult.noData
+				self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(), mmContext: self.mmContext, handlingIteration: handlingIteration, finishBlock: { res in
+					result = MessageHandlingResult(res)
+					group.leave()
+				}))
+				
+				group.notify(queue: DispatchQueue.global(qos: .default)) {
+					MMLogDebug("[Message Handler] message handling finished")
+					completion?(result)
+				}
 		}))
 	}
 	
@@ -238,9 +230,7 @@ final class MMMessageHandler: MobileMessagingService {
 		}))
 	}
 	
-	var systemData: [String: AnyHashable]? {
-		return nil
-	}
+	var systemData: [String: AnyHashable]? { return nil }
 	
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
 		guard !originalMessage.isGeoSignalingMessage else {
@@ -279,17 +269,11 @@ final class MMMessageHandler: MobileMessagingService {
 		completion?(true)
 	}
 	
-	func mobileMessagingWillStart(_ mmContext: MobileMessaging) {
-		
-	}
+	func mobileMessagingWillStart(_ mmContext: MobileMessaging) { }
 	
-	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
-		
-	}
+	func mobileMessagingDidStart(_ mmContext: MobileMessaging) { }
 	
-	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
-		
-	}
+	func mobileMessagingWillStop(_ mmContext: MobileMessaging) { }
 	
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
 		stop()
@@ -315,18 +299,4 @@ extension MMMessageHandler {
 			MobileMessaging.notificationTapHandler?(message)
 		}
 	}
-}
-
-extension MMMessageHandler {
-	func handleInteractiveActionForExistingMessage(message: MTMessage, completion: @escaping () -> Void) {
-		guard let interactiveAction = message.interactiveActionClicked,
-			let actionHandler = MobileMessaging.notificationActionHandler else {
-				completion()
-				return
-		}
-		actionHandler.handle(action: interactiveAction, forMessage: message) {
-			completion()
-		}
-	}
-	
 }
