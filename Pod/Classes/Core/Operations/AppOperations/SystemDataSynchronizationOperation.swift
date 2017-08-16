@@ -59,8 +59,10 @@ class SystemDataSynchronizationOperation: Operation {
 		switch result {
 		case .Success:
 			installation.systemDataHash = currentSystemDataHash
+			guard !isCancelled else {
+				return
+			}
 			installation.persist()
-			
 			MMLogDebug("[System data sync] successfully synced")
 		case .Failure(let error):
 			MMLogError("[System data sync] sync request failed with error: \(String(describing: error))")

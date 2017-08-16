@@ -10,7 +10,7 @@ import Foundation
 
 public final class MobileMessaging: NSObject {
 	//MARK: Public
-
+	
 	/// Fabric method for Mobile Messaging session.
 	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
 	/// - parameter applicationCode: The application code of your Application from Push Portal website.
@@ -69,13 +69,13 @@ public final class MobileMessaging: NSObject {
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
 	public func start(_ completion: ((Void) -> Void)? = nil) {
 		MMLogDebug("Starting service...")
-
+		
 		startСomponents()
 		
 		performForEachSubservice {
 			$0.mobileMessagingWillStart(self)
 		}
-
+		
 		registerToAPNS()
 		
 		performForEachSubservice {
@@ -106,7 +106,7 @@ public final class MobileMessaging: NSObject {
 	public static func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		MobileMessaging.sharedInstance?.cleanUpAndStop(clearKeychain)
 	}
-
+	
 	/// Enables the push registration so the device can receive push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
 	/// MobileMessaging SDK has the push registration enabled by default.
 	public static func enablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
@@ -128,19 +128,6 @@ public final class MobileMessaging: NSObject {
 		} else {
 			MobileMessaging.sharedInstance?.stop()
 		}
-		
-		// just to break retain cycles:
-		MobileMessaging.sharedInstance?.currentInstallation = nil
-		MobileMessaging.sharedInstance?.currentUser = nil
-		MobileMessaging.sharedInstance?.appListener = nil
-		MobileMessaging.sharedInstance?.messageHandler = nil
-		MobileMessaging.sharedInstance?.remoteApiManager = nil
-		MobileMessaging.sharedInstance?.application = nil
-		MobileMessaging.sharedInstance?.reachabilityManager = nil
-		MobileMessaging.sharedInstance?.keychain = nil
-		MobileMessaging.sharedInstance?.sharedNotificationExtensionStorage = nil
-		
-		MobileMessaging.sharedInstance = nil
 	}
 	
 	/// Logging utility is used for:
@@ -192,7 +179,7 @@ public final class MobileMessaging: NSObject {
 	public class var defaultMessageStorage: MMDefaultMessageStorage? {
 		return MobileMessaging.sharedInstance?.messageStorage as? MMDefaultMessageStorage
 	}
-
+	
 	/// Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
 	public class var currentUser: MMUser? {
 		return MobileMessaging.sharedInstance?.currentUser
@@ -215,7 +202,7 @@ public final class MobileMessaging: NSObject {
 	/// An auxillary component provides the convinient access to the user agent data.
 	public internal(set) static var userAgent = MMUserAgent()
 	
-	/// A block object to be executed when user opens the app by tapping on the notification alert. 
+	/// A block object to be executed when user opens the app by tapping on the notification alert.
 	/// Default implementation marks the corresponding message as seen.
 	/// This block takes:
 	/// - single MTMessage object initialized from the Dictionary.
@@ -238,7 +225,7 @@ public final class MobileMessaging: NSObject {
 	/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
 	public internal(set) static var privacySettings = PrivacySettings()
 	
-//MARK: Internal
+	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UIUserNotificationType
 	let applicationCode: String
@@ -285,19 +272,33 @@ public final class MobileMessaging: NSObject {
 		if application.isRegisteredForRemoteNotifications {
 			application.unregisterForRemoteNotifications()
 		}
-
+		
 		messageStorage?.stop()
-
+		
 		application = UIApplication.shared
 		MobileMessaging.notificationTapHandler = nil
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
-		self.appListener = nil
 		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingDidStop(self)
 		}
 		
 		cleanupSubservices()
+		
+		// just to break retain cycles:
+		installationQueue.cancelAllOperations()
+		appListener = nil
+		currentInstallation = nil
+		currentUser = nil
+		appListener = nil
+		messageHandler = nil
+		remoteApiManager = nil
+		application = nil
+		reachabilityManager = nil
+		keychain = nil
+		sharedNotificationExtensionStorage = nil
+		
+		MobileMessaging.sharedInstance = nil
 	}
 	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: ((MessageHandlingResult) -> Void)? = nil) {
@@ -321,7 +322,7 @@ public final class MobileMessaging: NSObject {
 			subservice.pushRegistrationStatusDidChange(self)
 		}
 	}
-
+	
 	func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
 		MMLogDebug("Setting seen status: \(messageIds)")
 		messageHandler.setSeen(messageIds, completion: completion)
@@ -361,7 +362,7 @@ public final class MobileMessaging: NSObject {
 			logCoreDataInitializationError()
 			return nil
 		}
-        
+		
 		if forceCleanup || applicationCodeChanged(storage: storage, newApplicationCode: appCode) {
 			MMLogDebug("Data will be cleaned up due to the application code change.")
 			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorage: messageStorage as? MMDefaultMessageStorage)
@@ -399,7 +400,7 @@ public final class MobileMessaging: NSObject {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
 			registerSubservice(NotificationsInteractionService.sharedInstance!)
 		}
-	
+		
 		appListener = MMApplicationListener(mmContext: self)
 		messageStorage?.start()
 		

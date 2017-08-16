@@ -89,8 +89,10 @@ class UserDataSynchronizationOperation: Operation {
 			user.customData = newCustomUserData
 			user.predefinedData = response.predefinedData as? [String: String]
 			user.resetNeedToSync()
+			guard !isCancelled else {
+				return
+			}
 			user.persist()
-			
 			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationUserDataSynced, userInfo: nil)
 			MMLogDebug("[User data sync] successfully synced")
 			
