@@ -65,6 +65,9 @@ final class SyncRegistrationOperation: Operation {
 			user.internalId = regResponse.internalId
 			installation.isPushRegistrationEnabled = regResponse.isEnabled
 			installation.resetNeedToSync()
+			guard !isCancelled else {
+				return
+			}
 			user.persist()
 			installation.persist()
 			
