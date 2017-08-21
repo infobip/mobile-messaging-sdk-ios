@@ -32,6 +32,7 @@ extension MTMessage {
 		}
 	
 		let task = RetryableDownloadTask(attemptsCount: 3, request: URLRequest(url: contentURL), destination: destination, completion: completion)
+		MMLogDebug("[Rich Notification] Downloading rich content for message...")
 		task.resume()
 		
 		return task

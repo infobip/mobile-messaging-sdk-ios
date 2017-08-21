@@ -1221,7 +1221,7 @@ class GeofencingServiceTests: MMTestCase {
 	}
 	
 	//MARK: - Private helpers
-	private func generalTestForPersistingEventReports(with apiMock: MMRemoteAPIQueue, expectedEventsCount: Int) {
+	private func generalTestForPersistingEventReports(with apiMock: RemoteAPIQueue, expectedEventsCount: Int) {
         
         weak var eventsDatabaseCheck1 = self.expectation(description: "eventsDatabaseCheck1")
         weak var messageReceived = self.expectation(description: "messageReceived")
@@ -1899,7 +1899,7 @@ class GeofencingServiceTests: MMTestCase {
 							checkSeenPersistanceExpectations()
 							seenForSdkGeneratedIdCompleted?.fulfill()
 							
-							self.mobileMessagingInstance.remoteApiManager.seenStatusQueue = MMRemoteAPILocalMocks(mmContext: self.mobileMessagingInstance, baseURLString: MMTestConstants.kTestBaseURLString, appCode: "_")
+							self.mobileMessagingInstance.remoteApiManager.seenStatusQueue = RemoteAPILocalMocks(mmContext: self.mobileMessagingInstance, baseURLString: MMTestConstants.kTestBaseURLString, appCode: "_")
 							// now sync geo service to report on non-reported geo events and get real message ids
 							MobileMessaging.geofencingService!.syncWithServer(completion: { _ in
 								checkSeenPersistanceAfterSuccessfullEventReportingExpectations()

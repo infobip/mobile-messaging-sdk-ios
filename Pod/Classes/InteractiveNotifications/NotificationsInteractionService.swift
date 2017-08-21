@@ -11,7 +11,7 @@ import Foundation
 	/// This method will be triggered during the notification action handling.
 	/// - parameter action: `MMNotificationAction` object defining the action which was triggered.
 	/// - parameter message: `MTMessage` message, for which action button was displayed, you can use `message.categoryId` in order to check the categoryId for action.
-	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
+	/// - parameter completionHandler: The block to execute when specified action performing is finished. You must call this block once the work is completed. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
 	func handle(action: MMNotificationAction, forMessage message: MTMessage, withCompletionHandler completionHandler: @escaping () -> Void)
 }
 
@@ -67,6 +67,10 @@ extension MobileMessaging {
 }
 
 class NotificationsInteractionService: MobileMessagingService {
+	struct Constants {
+		static let actionHandlingTimeout = 20
+	}
+	
 	let mmContext: MobileMessaging
 	
 	let customNotificationCategories: Set<MMNotificationCategory>?
@@ -112,17 +116,14 @@ class NotificationsInteractionService: MobileMessagingService {
 
 //MARK: - Protocol implementation (MobileMessagingService)
 extension NotificationsInteractionService {
+	var uniqueIdentifier: String {
+		return "com.mobile-messaging.subservice.NotificationsInteractionService"
+	}
 
-	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) { }
-	
-	func mobileMessagingWillStop(_ mmContext: MobileMessaging) { }
-	
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
 		stop()
 		NotificationsInteractionService.sharedInstance = nil
 	}
-	
-	func mobileMessagingWillStart(_ mmContext: MobileMessaging) { }
 	
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
 		guard let cs = allNotificationCategories, !cs.isEmpty else {
@@ -131,33 +132,41 @@ extension NotificationsInteractionService {
 		start(nil)
 	}
 	
-	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool, handlingIteration: Int, completion: ((MessageHandlingResult) -> Void)?) {
+	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
 		guard isRunning, let category = message.category, let appliedAction = message.appliedAction else {
 			completion?(.noData)
 			return
 		}
 		
-		mmContext.messageHandler.setSeen([message.messageId])
+		let dispatchGroup = DispatchGroup()
+		
+		dispatchGroup.enter()
+		mmContext.setSeen([message.messageId]) { _ in
+			dispatchGroup.leave()
+		}
 		
 		if appliedAction.options.contains(.moRequired) {
-			self.mmContext.messageHandler.sendMessages([MOMessage(destination: nil, text: "\(category) \(appliedAction.identifier)", customPayload: nil)])
+			dispatchGroup.enter()
+			self.mmContext.sendMessagesSDKInitiated([MOMessage(destination: nil, text: "\(category) \(appliedAction.identifier)", customPayload: nil)]) { msgs, error in
+				dispatchGroup.leave()
+			}
 		}
-		MobileMessaging.notificationActionHandler?.handle(action: appliedAction, forMessage: message, withCompletionHandler: {
-			// I don't care about this callback and I don't call `completion?(.noData)` deliberately. If user impelements his own `handle` for action handler, he may forget to call the `completionHandler` at all. Too risky.
-		})
 		
+		dispatchGroup.enter()
+		DispatchQueue.global(qos: .default).async {
+			MobileMessaging.notificationActionHandler?.handle(action: appliedAction, forMessage: message, withCompletionHandler: {
+				dispatchGroup.leave()
+			})
+		}
+		
+		_ = dispatchGroup.wait(timeout: DispatchTime.now() + DispatchTimeInterval.seconds(NotificationsInteractionService.Constants.actionHandlingTimeout))
 		completion?(.noData)
 	}
 	
-	/**
-	Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk
-	*/
-	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
-		return false
-	}
-	
 	func syncWithServer(_ completion: ((NSError?) -> Void)?) {
-		//TODO: implement retries for actionable notifications MO
+		self.mmContext.retryMoMessageSending() { (_, error) in
+			completion?(error)
+		}
 	}
 	
 	func stop(_ completion: ((Bool) -> Void)? = nil) {
@@ -166,14 +175,5 @@ extension NotificationsInteractionService {
 	
 	func start(_ completion: ((Bool) -> Void)? = nil) {
 		isRunning = true
-	}
-	
-	var uniqueIdentifier: String { return "com.mobile-messaging.subservice.NotificationsInteractionService" }
-	
-	/**
-	A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
-	*/
-	var systemData: [String: AnyHashable]? {
-		return nil
 	}
 }

@@ -1,5 +1,5 @@
 //
-//  MMRemoteAPIQueue.swift
+//  RemoteAPIQueue.swift
 //  MobileMessaging
 //
 //  Created by Andrey K. on 19/02/16.
@@ -30,7 +30,7 @@ enum Result<ValueType> {
 	}
 }
 
-class MMRemoteAPIQueue {
+class RemoteAPIQueue {
 	private(set) var baseURL: String
 	private(set) var applicationCode: String
 	let mmContext: MobileMessaging

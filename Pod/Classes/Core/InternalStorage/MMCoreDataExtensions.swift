@@ -210,6 +210,7 @@ extension NSManagedObject {
 	class func MM_createEntityInContext(_ entityDescription: NSEntityDescription? = nil, context: NSManagedObjectContext) -> Self {
 		let entity = entityDescription ?? self.MM_entityDescription(inContext: context)
 		let managedObject = self.init(entity: entity, insertInto: context)
+		
 		managedObject.MM_awakeFromCreation()
 		return managedObject
 	}

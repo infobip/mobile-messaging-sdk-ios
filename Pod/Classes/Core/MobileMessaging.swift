@@ -191,12 +191,11 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.setSeen(messageIds)
 	}
 	
-	//FIXME: MOMEssage should be replaced with something lighter
 	/// This method sends mobile originated messages to the server.
 	/// - parameter messages: Array of objects of `MOMessage` class that need to be sent.
 	/// - parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
 	public class func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		MobileMessaging.sharedInstance?.sendMessages(messages, completion: completion)
+		MobileMessaging.sharedInstance?.sendMessagesUserInitiated(messages, completion: completion)
 	}
 	
 	/// An auxillary component provides the convinient access to the user agent data.
@@ -328,9 +327,19 @@ public final class MobileMessaging: NSObject {
 		messageHandler.setSeen(messageIds, completion: completion)
 	}
 	
-	func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		MMLogDebug("Sending mobile originated messages...")
-		messageHandler.sendMessages(messages, completion: completion)
+	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+		MMLogDebug("Sending mobile originated messages (SDK initiated)...")
+		messageHandler.sendMessages(messages, isUserInitiated: false, completion: completion)
+	}
+	
+	func retryMoMessageSending(completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+		MMLogDebug("Retrying sending mobile originated messages...")
+		messageHandler.sendMessages([], isUserInitiated: false, completion: completion)
+	}
+	
+	func sendMessagesUserInitiated(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+		MMLogDebug("Sending mobile originated messages (User initiated)...")
+		messageHandler.sendMessages(messages, isUserInitiated: true, completion: completion)
 	}
 	
 	var isPushRegistrationEnabled: Bool {

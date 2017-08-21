@@ -374,7 +374,8 @@ protocol MobileMessagingService {
 	/// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool
 	
-	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool, handlingIteration: Int, completion: ((MessageHandlingResult) -> Void)?)
+	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?)
+	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?)
 
 	func mobileMessagingWillStart(_ mmContext: MobileMessaging)
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging)
@@ -386,9 +387,22 @@ protocol MobileMessagingService {
 }
 
 extension MobileMessagingService {
-	func registerSelfAsSubservice(of mmContext: MobileMessaging) {
-		mmContext.registerSubservice(self)
-	}
+	var systemData: [String: AnyHashable]? { return nil }
+	
+	func registerSelfAsSubservice(of mmContext: MobileMessaging) { mmContext.registerSubservice(self) }
+	
+	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) { completion?(.noData) }
+	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) { completion?(.noData) }
+	
+	func mobileMessagingWillStart(_ mmContext: MobileMessaging) {}
+	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {}
+	
+	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {}
+	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {}
+	
+	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {}
+	
+	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool { return false }
 }
 
 extension Sequence {

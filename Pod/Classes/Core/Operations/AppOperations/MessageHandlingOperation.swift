@@ -29,6 +29,11 @@ struct MMMessageMeta : MMMessageMetadata {
 		self.messageId = message.messageId
 		self.isSilent = message.isSilent
 	}
+	
+	init(message: MOMessage) {
+		self.messageId = message.messageId
+		self.isSilent = false
+	}
 }
 
 final class MessageHandlingOperation: Operation {
@@ -166,12 +171,8 @@ final class MessageHandlingOperation: Operation {
 	
 //MARK: - Lazy message collections
 	private func mtMessage(from meta: MMMessageMeta) -> MTMessage? {
-		if let message = self.messagesToHandle.filter({ (msg: MTMessage) -> Bool in
+		return messagesToHandle.first() { msg -> Bool in
 			return msg.messageId == meta.messageId
-		}).first {
-			return message
-		} else {
-			return nil
 		}
 	}
 	

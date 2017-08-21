@@ -300,6 +300,14 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.init(payload: m.payload)
 	}
 	
+	convenience init?(messageManagedObject: MessageManagedObject) {
+		if let p = messageManagedObject.payload {
+			self.init(payload: p)
+		} else {
+			return nil
+		}
+	}
+	
 	convenience init?(json: JSON) {
 		if let dictionary = json.dictionaryObject {
 			self.init(payload: dictionary)

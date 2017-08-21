@@ -42,9 +42,9 @@ final class MessageFetchingOperation: Operation {
 		context.reset()
 		context.performAndWait {
 			let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * MessageFetchingSettings.messageArchiveLengthDays)
-			
-			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false"), context: self.context)
-			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true && creationDate > %@", date as CVarArg), fetchLimit: MessageFetchingSettings.fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
+			let messageTypesFilter = [MMMessageType.Default.rawValue, MMMessageType.Geo.rawValue]
+			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false AND messageTypeValue IN %@", messageTypesFilter), context: self.context)
+			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true AND creationDate > %@ AND messageTypeValue IN %@", date as CVarArg, messageTypesFilter), fetchLimit: MessageFetchingSettings.fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
 			
 			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
 			let archveMessageIds = archivedMessages?.map{ $0.messageId }
@@ -87,7 +87,7 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func dequeueDeliveryReports(messageIDs: [String], completion: @escaping () -> Void) {
-		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), context: context)
+		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId IN %@", messageIDs), context: context)
 			, !messages.isEmpty else
         {
 			completion()
