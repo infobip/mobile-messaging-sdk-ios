@@ -35,7 +35,7 @@ class OperationQueue: Foundation.OperationQueue {
 	weak var delegate: OperationQueueDelegate?
 	
 	override   func addOperation(_ operation: Foundation.Operation) {
-		DispatchQueue.global(qos: .default).async {
+		DispatchQueue.global(qos: .default).sync {
 			if let op = operation as? Operation {
 				
 				// Set up a `BlockObserver` to invoke the `OperationQueueDelegate` method.

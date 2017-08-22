@@ -609,7 +609,6 @@ class GeofencingServiceTests: MMTestCase {
 			}
 		})
 		
-		
 		waitForExpectations(timeout: 60, handler: nil)
 	}
 	
@@ -887,7 +886,6 @@ class GeofencingServiceTests: MMTestCase {
 				XCTAssertTrue(msg!.isLiveNow(for: .exit))
 				report1?.fulfill()
 			}
-			
 			
 			MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, geoMessage: message) { state in
 				XCTAssertEqual(CampaignState.Active, state)
