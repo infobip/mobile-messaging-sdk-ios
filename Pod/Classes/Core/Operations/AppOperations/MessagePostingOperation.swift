@@ -17,7 +17,7 @@ class MessagePostingOperation: Operation {
 	var sentMessageObjectIds = [NSManagedObjectID]()
 	var operationResult = MOMessageSendingResult.Cancel
 	
-	init?(messages: [MOMessage]?, isUserInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
+	init(messages: [MOMessage]?, isUserInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
 		self.isUserInitiated = isUserInitiated
 		self.context = context
 		self.finishBlock = finishBlock
@@ -128,16 +128,16 @@ class MessagePostingOperation: Operation {
 		storage.insert(outgoing: Array(messages), completion: completion)
 	}
 	
-	private func updateMessageStorage(with messages: [MOMessage], completion: @escaping () -> Void) {
-		guard let storage = mmContext.messageStorageAdapter, !messages.isEmpty else {
+	private func updateMessageStorageIfNeeded(with messages: [MOMessage], completion: @escaping () -> Void) {
+		guard let storage = mmContext.messageStorageAdapter, !messages.isEmpty, isUserInitiated else {
 			completion()
 			return
 		}
 		storage.batchSentStatusUpdate(messages: messages, completion: completion)
 	}
 	
-	private func updateMessageStorageOnFailure(with messageIds: [String], completion: @escaping () -> Void) {
-		guard let storage = mmContext.messageStorageAdapter, !messageIds.isEmpty else {
+	private func updateMessageStorageOnFailureIfNeeded(with messageIds: [String], completion: @escaping () -> Void) {
+		guard let storage = mmContext.messageStorageAdapter, !messageIds.isEmpty, isUserInitiated else {
 			completion()
 			return
 		}
@@ -168,14 +168,14 @@ class MessagePostingOperation: Operation {
 				}
 				
 				self.context.MM_saveToPersistentStoreAndWait()
-				self.updateMessageStorage(with: response.messages) {
+				self.updateMessageStorageIfNeeded(with: response.messages) {
 					self.postDidSendNotification(messages: response.messages)
 					completion()
 				}
 				MMLogDebug("[Message posting] successfuly finished")
 			case .Failure(let error):
 				MMLogError("[Message posting] request failed with error: \(String(describing: error))")
-				self.updateMessageStorageOnFailure(with: originalMessagesToSend.map { $0.messageId } , completion: {
+				self.updateMessageStorageOnFailureIfNeeded(with: originalMessagesToSend.map { $0.messageId } , completion: {
 					completion()
 				})
 			case .Cancel:
@@ -188,6 +188,6 @@ class MessagePostingOperation: Operation {
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message posting] finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? operationResult : MOMessageSendingResult.Failure(errors.first)
-		finishBlock?(finishResult)
+		self.finishBlock?(finishResult)
 	}
 }

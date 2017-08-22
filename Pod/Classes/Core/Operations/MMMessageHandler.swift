@@ -231,19 +231,15 @@ class MMMessageHandler: MobileMessagingService {
 	}
 	
 	func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		if let operation = MessagePostingOperation(messages: messages,
-		                                           isUserInitiated: isUserInitiated,
-		                                           context: storage.newPrivateContext(),
-		                                           mmContext: mmContext,
-		                                           finishBlock:
+		messageSendingQueue.addOperation(MessagePostingOperation(messages: messages,
+		                                                         isUserInitiated: isUserInitiated,
+		                                                         context: storage.newPrivateContext(),
+		                                                         mmContext: mmContext,
+		                                                         finishBlock:
 			{ (result: MOMessageSendingResult) in
 				completion?(result.value?.messages, result.error)
-			})
-		{
-			messageSendingQueue.addOperation(operation)
-		} else {
-			completion?(nil, nil)
-		}
+			}
+		))
 	}
 	
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {

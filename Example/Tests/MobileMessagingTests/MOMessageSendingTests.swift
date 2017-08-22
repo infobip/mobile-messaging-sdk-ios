@@ -20,29 +20,6 @@ class MOMessageSendingTests: MMTestCase {
 		}
 	}
 	
-	func testUserInitiatedMO() {
-		weak var expectation = self.expectation(description: "Sending finished")
-		//Precondiotions
-		mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
-		
-		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
-		
-		self.assertMoMessagesCount(0)
-		
-		// we try first time and fail due to mocked MMRemoteAPIAlwaysFailing
-		MobileMessaging.sendMessages([moMessage1, moMessage2]) { (messages, error) in
-			XCTAssertNotNil(error)
-			
-			// for users API there must be no persisting for MO
-			self.assertMoMessagesCount(0)
-			expectation?.fulfill()
-		}
-		
-		waitForExpectations(timeout: 20, handler: nil)
-	}
-	
 	func testInteractionMOAndRetries() {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
@@ -99,6 +76,19 @@ class MOMessageSendingTests: MMTestCase {
 		waitForExpectations(timeout: 20, handler: nil)
 	}
 	
+	func testMOMessageConstructors() {
+		let mo1 = MOMessage(destination: "destination", text: "text", customPayload: ["meal": "pizza" as NSString])
+		let dict1 = mo1.dictRepresentation
+		
+		let mo2 = MOMessage(payload: dict1)
+		XCTAssertNotNil(mo2)
+		let dict2 = mo2?.dictRepresentation
+		
+		let d1 = dict1 as NSDictionary
+		let d2 = dict2! as NSDictionary
+		XCTAssertTrue(d1.isEqual(d2))
+	}
+	
     func testSendMOMessageSuccessfully() {
 		
 		weak var expectation = self.expectation(description: "Sending finished")
@@ -133,18 +123,27 @@ class MOMessageSendingTests: MMTestCase {
 		
 		waitForExpectations(timeout: 20, handler: nil)
     }
-
-	func testMOMessageConstructors() {
-		let mo1 = MOMessage(destination: "destination", text: "text", customPayload: ["meal": "pizza" as NSString])
-		let dict1 = mo1.dictRepresentation
+	
+	func testUserInitiatedMO() {
+		weak var expectation = self.expectation(description: "Sending finished")
+		//Precondiotions
+		mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
+		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
 		
-		let mo2 = MOMessage(payload: dict1)
-		XCTAssertNotNil(mo2)
-		let dict2 = mo2?.dictRepresentation
+		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
+		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
 		
-		let d1 = dict1 as NSDictionary
-		let d2 = dict2! as NSDictionary
-		XCTAssertTrue(d1.isEqual(d2))
+		self.assertMoMessagesCount(0)
 		
+		// we try first time and fail due to mocked MMRemoteAPIAlwaysFailing
+		MobileMessaging.sendMessages([moMessage1, moMessage2]) { (messages, error) in
+			XCTAssertNotNil(error)
+			
+			// for users API there must be no persisting for MO
+			self.assertMoMessagesCount(0)
+			expectation?.fulfill()
+		}
+		
+		waitForExpectations(timeout: 20, handler: nil)
 	}
 }
