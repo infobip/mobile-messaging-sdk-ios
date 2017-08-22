@@ -8,7 +8,7 @@
 import XCTest
 @testable import MobileMessaging
 
-class UserAgentStub: MMUserAgent {
+class UserAgentStub: UserAgent {
 	override var libraryVersion: String {
 		return "1.0.0"
 	}

@@ -35,7 +35,7 @@ class RemoteAPIManager {
 		registrationQueue.perform(request: request, completion: completion)
 	}
 	
-	func syncSystemData(systemData: MMSystemData, completion: @escaping (SystemDataSyncResult) -> Void) {
+	func syncSystemData(systemData: SystemData, completion: @escaping (SystemDataSyncResult) -> Void) {
 		let request = SystemDataSyncRequest(systemData: systemData)
 		registrationQueue.perform(request: request, completion: completion)
 	}

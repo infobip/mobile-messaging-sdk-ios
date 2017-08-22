@@ -34,7 +34,7 @@ class InteractiveNotificationsTests: MMTestCase {
 	func testActionHandlerCalledAndMOSent() {
 		weak var testCompleted = expectation(description: "testCompleted")
 		
-		let action = MMNotificationAction(identifier: actionId, title: "Action", options: [.moRequired])!
+		let action = NotificationAction(identifier: actionId, title: "Action", options: [.moRequired])!
 		let category = MMNotificationCategory(identifier: categoryId, actions: [action])!
 		var set = Set<MMNotificationCategory>()
 		set.insert(category)
@@ -72,8 +72,8 @@ class InteractiveNotificationsTests: MMTestCase {
 	
 	func testActionOptions() {
 		
-		let checkingBlock: ([MMNotificationActionOptions]) -> Void = { options in
-			let action = MMNotificationAction(identifier: "actionId1", title: "Action", options: options)
+		let checkingBlock: ([NotificationActionOptions]) -> Void = { options in
+			let action = NotificationAction(identifier: "actionId1", title: "Action", options: options)
 			XCTAssertTrue(action != nil)
 			let userNotificationAction = action!.uiUserNotificationAction
 			XCTAssertTrue(userNotificationAction.isAuthenticationRequired == options.contains(.authenticationRequired))
@@ -141,12 +141,12 @@ class PredefinedCategoriesTest {
 }
 
 class NotificationActionHandlerMock: NotificationActionHandling {
-	let handlingBlock: (_ action: MMNotificationAction, _ message: MTMessage, _ completion: () -> Void) -> Void
-	init(handlingBlock: @escaping (_ action: MMNotificationAction, _ message: MTMessage, _ completion: () -> Void) -> Void) {
+	let handlingBlock: (_ action: NotificationAction, _ message: MTMessage, _ completion: () -> Void) -> Void
+	init(handlingBlock: @escaping (_ action: NotificationAction, _ message: MTMessage, _ completion: () -> Void) -> Void) {
 		self.handlingBlock = handlingBlock
 	}
 	
-	func handle(action: MMNotificationAction, forMessage message: MTMessage, withCompletionHandler completionHandler: @escaping () -> Void) {
+	func handle(action: NotificationAction, forMessage message: MTMessage, withCompletionHandler completionHandler: @escaping () -> Void) {
 		handlingBlock(action, message, completionHandler)
 	}
 }

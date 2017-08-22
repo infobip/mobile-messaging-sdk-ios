@@ -146,7 +146,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	let aps: MMAPS
 	let silentData: StringKeyPayload?
 	
-	var appliedAction: MMNotificationAction?
+	var appliedAction: NotificationAction?
 	
 	convenience init?(json: JSON) {
 		if let payload = json.dictionaryObject {

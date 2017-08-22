@@ -1,20 +1,20 @@
 //
-//  MMNotificationAction.swift
+//  NotificationAction.swift
 //
 //  Created by okoroleva on 27.07.17.
 //
 //
 
-public final class MMNotificationAction: NSObject {
+public final class NotificationAction: NSObject {
 	public let identifier: String
 	public let title: String
-	public let options: [MMNotificationActionOptions]
+	public let options: [NotificationActionOptions]
 	
-	/// Initializes the `MMNotificationAction`
+	/// Initializes the `NotificationAction`
 	/// - parameter identifier: action identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
 	/// - parameter title: Title of the button which will be displayed.
 	/// - parameter options: Options with which to perform the action.
-	public init?(identifier: String, title: String, options: [MMNotificationActionOptions]?) {
+	public init?(identifier: String, title: String, options: [NotificationActionOptions]?) {
 		guard !identifier.hasPrefix(NotificationActionKeys.mm_prefix) else {
 			return nil
 		}
@@ -31,7 +31,7 @@ public final class MMNotificationAction: NSObject {
 			return nil
 		}
 		
-		var opts = [MMNotificationActionOptions]()
+		var opts = [NotificationActionOptions]()
 		if let isForeground = dictionary[NotificationActionKeys.foreground] as? Bool, isForeground {
 			opts.append(.foreground)
 		}
@@ -65,21 +65,21 @@ public final class MMNotificationAction: NSObject {
 	}
 	
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let object = object as? MMNotificationAction else {
+		guard let object = object as? NotificationAction else {
 			return false
 		}
 		return identifier == object.identifier
 	}
 }
 
-public final class MMNotificationActionOptions : NSObject {
+public final class NotificationActionOptions : NSObject {
 	let rawValue: Int
     
 	init(rawValue: Int) {
         self.rawValue = rawValue
     }
     
-	public init(options: [MMNotificationActionOptions]) {
+	public init(options: [NotificationActionOptions]) {
         self.rawValue = options.reduce(0) { (total, option) -> Int in
             return total | option.rawValue
         }
@@ -90,17 +90,17 @@ public final class MMNotificationActionOptions : NSObject {
 	}
 	
 	/// Causes the launch of the application.
-	public static let foreground = MMNotificationActionOptions(rawValue: 0)
+	public static let foreground = NotificationActionOptions(rawValue: 0)
 	
 	/// Marks the action button as destructive.
-	public static let destructive = MMNotificationActionOptions(rawValue: 1 << 0)
+	public static let destructive = NotificationActionOptions(rawValue: 1 << 0)
 	
 	/// Requires the device to be unlocked.
 	/// - remark: If the action options contains `.foreground`, then the action is considered as requiring authentication automatically.
-	public static let authenticationRequired = MMNotificationActionOptions(rawValue: 1 << 1)
+	public static let authenticationRequired = NotificationActionOptions(rawValue: 1 << 1)
 	
 	/// Indicates whether the SDK must generate MO message to report on users interaction.
-	public static let moRequired = MMNotificationActionOptions(rawValue: 1 << 2)
+	public static let moRequired = NotificationActionOptions(rawValue: 1 << 2)
 }
 
 struct NotificationActionKeys {

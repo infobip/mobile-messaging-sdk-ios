@@ -12,12 +12,12 @@ public final class MMNotificationCategory: NSObject {
 	
 	///Actions in the order to be displayed for available contexts.
 	/// - remark: If there are more than four action objects in the array, the notification displays only the first four. When displaying banner notifications, the system displays only the first two actions.
-	public let actions: [MMNotificationAction]
+	public let actions: [NotificationAction]
 	
 	///Initializes the `MMNotificationCategory`
 	/// - parameter identifier: category identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
 	/// - parameter actions: Actions in the order to be displayed for available contexts.
-	public init?(identifier: String, actions: [MMNotificationAction]) {
+	public init?(identifier: String, actions: [NotificationAction]) {
 		guard !identifier.hasPrefix(NotificationCategoryConstants.categoryNamePrefix) else {
 			return nil
 		}
@@ -32,7 +32,7 @@ public final class MMNotificationCategory: NSObject {
 			return nil
 		}
 		
-		self.actions = actionDicts.flatMap(MMNotificationAction.init)
+		self.actions = actionDicts.flatMap(NotificationAction.init)
 		self.identifier = identifier
 		
 		if self.actions.isEmpty {

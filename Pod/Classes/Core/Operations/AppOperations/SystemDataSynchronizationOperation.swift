@@ -15,7 +15,7 @@ class SystemDataSynchronizationOperation: Operation {
 	let mmContext: MobileMessaging
 	let finishBlock: ((NSError?) -> Void)?
 	
-	lazy var currentSystemData: MMSystemData = {
+	lazy var currentSystemData: SystemData = {
 		return MobileMessaging.userAgent.systemData
 	}()
 	

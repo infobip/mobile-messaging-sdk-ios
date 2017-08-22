@@ -199,7 +199,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/// An auxillary component provides the convinient access to the user agent data.
-	public internal(set) static var userAgent = MMUserAgent()
+	public internal(set) static var userAgent = UserAgent()
 	
 	/// A block object to be executed when user opens the app by tapping on the notification alert.
 	/// Default implementation marks the corresponding message as seen.
