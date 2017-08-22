@@ -62,6 +62,7 @@ class InteractiveNotificationsTests: MMTestCase {
 			if _action == action {
 				testCompleted?.fulfill()
 			}
+			completionHandler()
 		})
 		
 		MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: nil) {}
@@ -101,6 +102,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		
 		MobileMessaging.notificationActionHandler = NotificationActionHandlerMock(handlingBlock: { (_action, message, completionHandler) in
 			allActions?["\(message.category!)+\(_action.identifier)"]?.fulfill()
+			completionHandler()
 		})
 		
 		mobileMessagingInstance.messageHandler = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)

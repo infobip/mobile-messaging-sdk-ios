@@ -152,11 +152,13 @@ extension NotificationsInteractionService {
 			}
 		}
 		
-		dispatchGroup.enter()
-		DispatchQueue.global(qos: .default).async {
-			MobileMessaging.notificationActionHandler?.handle(action: appliedAction, forMessage: message, withCompletionHandler: {
-				dispatchGroup.leave()
-			})
+		if let notificationActionHanler = MobileMessaging.notificationActionHandler {
+			dispatchGroup.enter()
+			DispatchQueue.global(qos: .default).async {
+				notificationActionHanler.handle(action: appliedAction, forMessage: message, withCompletionHandler: {
+					dispatchGroup.leave()
+				})
+			}
 		}
 		
 		_ = dispatchGroup.wait(timeout: DispatchTime.now() + DispatchTimeInterval.seconds(NotificationsInteractionService.Constants.actionHandlingTimeout))
