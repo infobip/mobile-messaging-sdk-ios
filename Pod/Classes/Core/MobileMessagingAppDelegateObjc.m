@@ -19,9 +19,9 @@
     return nil;
 }
 
--(UIUserNotificationType)userNotificationType {
+-(UserNotificationType *)userNotificationType {
 	[NSException raise:NSInternalInconsistencyException format:@"UserNotificationType not set. Please override `userNotificationType` variable in your subclass of `MobileMessagingAppDelegate`."];
-    return UIUserNotificationTypeNone;
+    return [[UserNotificationType alloc] initWithOptions: @[]];
 }
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {

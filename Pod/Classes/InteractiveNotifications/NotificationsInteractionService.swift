@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UserNotifications
 
 @objc public protocol NotificationActionHandling {
 	/// This method will be triggered during the notification action handling.
@@ -25,7 +26,7 @@ extension MobileMessaging {
 	///
 	/// - parameter categories: Set of categories to define which buttons to display and their behavour.
 	/// - remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
-	public func withInteractiveNotificationCategories(_ categories: Set<MMNotificationCategory>) -> MobileMessaging {
+	public func withInteractiveNotificationCategories(_ categories: Set<NotificationCategory>) -> MobileMessaging {
 		if !categories.isEmpty {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: categories)
 		}
@@ -73,19 +74,15 @@ class NotificationsInteractionService: MobileMessagingService {
 	
 	let mmContext: MobileMessaging
 	
-	let customNotificationCategories: Set<MMNotificationCategory>?
+	let customNotificationCategories: Set<NotificationCategory>?
 
-	var allNotificationCategories: Set<MMNotificationCategory>? {
-		return customNotificationCategories + MMNotificationCategories.predefinedCategories
-	}
-	
-	var userNotificationCategories: Set<UIUserNotificationCategory>? {
-		return allNotificationCategories?.uiUserNotificationCategoriesSet
+	var allNotificationCategories: Set<NotificationCategory>? {
+		return customNotificationCategories + NotificationCategories.predefinedCategories
 	}
 	
 	static var sharedInstance: NotificationsInteractionService?
 	
-	init(mmContext: MobileMessaging, categories: Set<MMNotificationCategory>?) {
+	init(mmContext: MobileMessaging, categories: Set<NotificationCategory>?) {
 		self.customNotificationCategories = categories
 		self.mmContext = mmContext
 		registerSelfAsSubservice(of: mmContext)
@@ -94,20 +91,30 @@ class NotificationsInteractionService: MobileMessagingService {
 	func handleActionWithIdentifier(identifier: String?, message: MTMessage?, completionHandler: @escaping () -> Void) {
 		guard isRunning,
 			let identifier = identifier,
-			let message = message,
-			let categoryId = message.aps.category,
-			let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
-			let action = category.actions.first(where: { $0.identifier == identifier }) else
+			let message = message else
 		{
 			completionHandler()
 			return
 		}
 		
-		message.appliedAction = action
+		let handleAction: (NotificationAction) -> Void = { action in
+			message.appliedAction = action
+			self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: false, completion: { _ in
+				completionHandler()
+			})
+		}
 		
-		mmContext.messageHandler.handleMTMessage(message, notificationTapped: false, completion: { _ in
+		if #available(iOS 10.0, *),
+			identifier == UNNotificationDismissActionIdentifier,
+			let systemDefinedDismissAction = NotificationAction(identifier: identifier, title: "Dismiss system-defined", options: nil) {
+			handleAction(systemDefinedDismissAction)
+		} else if let categoryId = message.aps.category,
+			let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
+			let action = category.actions.first(where: { $0.identifier == identifier }) {
+			handleAction(action)
+		} else {
 			completionHandler()
-		})
+		}
 	}
 	
 	//MARK: - Protocol requirements (MobileMessagingService)

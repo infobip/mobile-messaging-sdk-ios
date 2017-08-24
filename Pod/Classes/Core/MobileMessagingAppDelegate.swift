@@ -36,7 +36,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	/// 
 	/// You should override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
 	/// - remark: For now, Mobile Messaging SDK doesn't support badge. You should handle the badge counter by yourself.
-	open var userNotificationType: UIUserNotificationType {
+	open var userNotificationType: UserNotificationType {
 		fatalError("UserNotificationType not set. Please override `userNotificationType` variable in your subclass of `MobileMessagingAppDelegate`.")
 	}
 	
@@ -45,7 +45,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	///You can override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
 	///Once application started, provided categories will be registered.
 	///- remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
-	open var interactiveNotificationCategories: Set<MMNotificationCategory>? {
+	open var interactiveNotificationCategories: Set<NotificationCategory>? {
 		return nil
 	}
 	

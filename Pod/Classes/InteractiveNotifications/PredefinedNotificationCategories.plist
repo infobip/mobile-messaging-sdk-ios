@@ -11,6 +11,20 @@
 				<key>moRequired</key>
 				<true/>
 				<key>identifier</key>
+				<string>mm_accept</string>
+				<key>title</key>
+				<string>Accept</string>
+				<key>titleLocalizationKey</key>
+				<string>mm_button_accept</string>
+				<key>foreground</key>
+				<true/>
+				<key>authenticationRequired</key>
+				<true/>
+			</dict>
+			<dict>
+				<key>moRequired</key>
+				<true/>
+				<key>identifier</key>
 				<string>mm_decline</string>
 				<key>title</key>
 				<string>Decline</string>
@@ -21,20 +35,6 @@
 				<key>authenticationRequired</key>
 				<true/>
 				<key>destructive</key>
-				<true/>
-			</dict>
-			<dict>
-				<key>moRequired</key>
-				<true/>
-				<key>identifier</key>
-				<string>mm_accept</string>
-				<key>title</key>
-				<string>Accept</string>
-				<key>titleLocalizationKey</key>
-				<string>mm_button_accept</string>
-				<key>foreground</key>
-				<true/>
-				<key>authenticationRequired</key>
 				<true/>
 			</dict>
 		</array>

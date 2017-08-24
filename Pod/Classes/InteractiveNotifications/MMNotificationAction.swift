@@ -4,6 +4,7 @@
 //  Created by okoroleva on 27.07.17.
 //
 //
+import UserNotifications
 
 public final class NotificationAction: NSObject {
 	public let identifier: String
@@ -50,6 +51,7 @@ public final class NotificationAction: NSObject {
 		self.options = opts
 	}
 	
+	@available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
 	var uiUserNotificationAction: UIUserNotificationAction {
 		let action = UIMutableUserNotificationAction()
 		action.identifier = identifier
@@ -58,6 +60,21 @@ public final class NotificationAction: NSObject {
 		action.isDestructive = options.contains(.destructive)
 		action.isAuthenticationRequired = options.contains(.authenticationRequired)
 		return action
+	}
+	
+	@available(iOS 10.0, *)
+	var unUserNotificationAction: UNNotificationAction {
+		var actionOptions: UNNotificationActionOptions = []
+		if options.contains(.foreground) {
+			actionOptions.insert(.foreground)
+		}
+		if options.contains(.destructive) {
+			actionOptions.insert(.destructive)
+		}
+		if options.contains(.authenticationRequired) {
+			actionOptions.insert(.authenticationRequired)
+		}
+		return UNNotificationAction(identifier: identifier, title: title, options: actionOptions)
 	}
 	
 	public override var hash: Int {

@@ -7,31 +7,32 @@
 //
 
 import Foundation
+import UserNotifications
 
 public final class MobileMessaging: NSObject {
 	//MARK: Public
 	
 	/// Fabric method for Mobile Messaging session.
-	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	/// - parameter applicationCode: The application code of your Application from Push Portal website.
-	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
 	/// - parameter code: The application code of your Application from Push Portal website.
-	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	/// - parameter forceCleanup: Defines whether the SDK must be cleaned up on startup.
 	/// - warning: The cleanup (parameter `forceCleanup = true`) must be performed manually if you changed the application code while `PrivacySettings.applicationCodePersistingDisabled` is set to `true`.
-	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString, forceCleanup: forceCleanup)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
-	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	/// - parameter code: The application code of your Application from Push Portal website.
 	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
-	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: false)
 	}
 	
@@ -76,7 +77,7 @@ public final class MobileMessaging: NSObject {
 			$0.mobileMessagingWillStart(self)
 		}
 		
-		registerToAPNS()
+		registerForRemoteNotifications()
 		
 		performForEachSubservice {
 			$0.mobileMessagingDidStart(self)
@@ -226,13 +227,13 @@ public final class MobileMessaging: NSObject {
 	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
-	let userNotificationType: UIUserNotificationType
+	let userNotificationType: UserNotificationType
 	let applicationCode: String
 	
 	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
 	
-	class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
+	class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
 		
 		if let sharedInstance = sharedInstance, sharedInstance.applicationCode != code || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
 			MobileMessaging.stop()
@@ -361,7 +362,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	//MARK: Private
-	private init?(appCode: String, notificationType: UIUserNotificationType, backendBaseURL: String, forceCleanup: Bool) {
+	private init?(appCode: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool) {
 		
 		let logCoreDataInitializationError = {
 			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
@@ -390,17 +391,32 @@ public final class MobileMessaging: NSObject {
 		MMLogInfo("SDK successfully initialized!")
 	}
 	
-	private func registerToAPNS() {
+	private func registerForRemoteNotifications() {
 		if application.isRegisteredForRemoteNotifications && currentInstallation.deviceToken == nil {
 			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 			application.unregisterForRemoteNotifications()
 		}
-		
-		application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType, categories: NotificationsInteractionService.sharedInstance?.userNotificationCategories))
-		
-		if application.isRegisteredForRemoteNotifications == false {
-			MMLogDebug("Registering for remote notifications...")
-			application.registerForRemoteNotifications()
+		registerNotificationSettings()
+		guard self.application.isRegisteredForRemoteNotifications == false else {
+			return
+		}
+		MMLogDebug("Registering for remote notifications...")
+		self.application.registerForRemoteNotifications()
+	}
+	
+	private func registerNotificationSettings() {
+		if #available(iOS 10.0, *) {
+			UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
+				guard granted else {
+					MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
+					return
+				}
+				if let categories = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.unNotificationCategories {
+					UNUserNotificationCenter.current().setNotificationCategories(categories)
+				}
+			}
+		} else {
+			application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType.uiUserNotificationType, categories: NotificationsInteractionService.sharedInstance?.allNotificationCategories?.uiUserNotificationCategories))
 		}
 	}
 	
