@@ -78,8 +78,8 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 	override var applicationCode: String {
 		return <# your application code #>
 	}
-	override var userNotificationType: UIUserNotificationType {
-		return <# your notification types preference, i.e. [.Alert, .Sound] #>
+	override var userNotificationType: UserNotificationType {
+		return <#your notification types preference, i.e. UserNotificationType(options: [.alert, .sound])#>
 	}
 	```
 
@@ -88,8 +88,8 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 	-(NSString *)applicationCode {
 		return <# your application code #>";
 	}
-	-(UIUserNotificationType)userNotificationType {
-		return <# your notification types preference, i.e. UIUserNotificationTypeAlert | UIUserNotificationTypeSound #>;
+	-(UserNotificationType)userNotificationType {
+		<#return your notification types preference, i.e. [[UserNotificationType alloc] initWithOptions: @[UserNotificationType.alert, UserNotificationType.sound]];#>
 	}
 	```
 4. If you have any of following application callbacks implemented in your AppDelegate:
