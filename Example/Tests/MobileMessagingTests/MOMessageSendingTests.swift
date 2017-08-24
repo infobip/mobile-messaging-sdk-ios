@@ -10,13 +10,21 @@ import XCTest
 
 class MOMessageSendingTests: MMTestCase {
 
-	private func assertMoMessagesCount(_ cnt: Int) {
+	private func assertMoMessagesCount(_ cnt: Int, completion: (() -> Void)? = nil) {
 		let ctx = self.storage.mainThreadManagedObjectContext!
 		ctx.reset()
-		ctx.performAndWait {
+		
+		let work = {
 			if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.MO.rawValue)"), context: ctx) {
 				XCTAssertEqual(messages.count, cnt, "there should be \(cnt) messages")
 			}
+			completion?()
+		}
+		
+		if Thread.isMainThread {
+			work()
+		} else {
+			ctx.perform(work)
 		}
 	}
 	
@@ -36,44 +44,44 @@ class MOMessageSendingTests: MMTestCase {
 		self.mobileMessagingInstance.sendMessagesSDKInitiated([moMessage1, moMessage2]) { (messages, error) in
 			XCTAssertNotNil(error)
 			
-			self.assertMoMessagesCount(2)
+			self.assertMoMessagesCount(2) {
 			
-			self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = messageSyncQ
-			
-			// we re-try next time and succeed
-			self.mobileMessagingInstance.retryMoMessageSending() { (messages, error) in
-				XCTAssertNotNil(messages)
-				XCTAssertEqual(messages?.count, 2)
+				self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = messageSyncQ
 				
-				XCTAssertEqual(messages?.first?.messageId, "m1")
-				XCTAssertEqual(messages?.first?.text, "message1")
-				XCTAssertEqual(messages?.first?.destination, MMTestConstants.kTestCorrectApplicationCode)
-				XCTAssertEqual(messages?.first?.customPayload as! [String: String], ["customKey" : "customValue1"])
-				XCTAssertEqual(messages?.first?.sentStatus, MOMessageSentStatus.SentSuccessfully)
-				
-				XCTAssertEqual(messages?.last?.messageId, "m2")
-				XCTAssertEqual(messages?.last?.text, "message2")
-				XCTAssertEqual(messages?.last?.destination, MMTestConstants.kTestCorrectApplicationCode)
-				XCTAssertEqual(messages?.last?.customPayload as! [String: String], ["customKey" : "customValue2"])
-				XCTAssertEqual(messages?.last?.sentStatus, MOMessageSentStatus.SentWithFailure)
-				
-				XCTAssertNil(error)
-				
-				self.assertMoMessagesCount(0)
-				
-				// we re-try again next time just to make sure it works fine
+				// we re-try next time and succeed
 				self.mobileMessagingInstance.retryMoMessageSending() { (messages, error) in
-					XCTAssertNil(messages)
+					XCTAssertNotNil(messages)
+					XCTAssertEqual(messages?.count, 2)
+					
+					XCTAssertEqual(messages?.first?.messageId, "m1")
+					XCTAssertEqual(messages?.first?.text, "message1")
+					XCTAssertEqual(messages?.first?.destination, MMTestConstants.kTestCorrectApplicationCode)
+					XCTAssertEqual(messages?.first?.customPayload as! [String: String], ["customKey" : "customValue1"])
+					XCTAssertEqual(messages?.first?.sentStatus, MOMessageSentStatus.SentSuccessfully)
+					
+					XCTAssertEqual(messages?.last?.messageId, "m2")
+					XCTAssertEqual(messages?.last?.text, "message2")
+					XCTAssertEqual(messages?.last?.destination, MMTestConstants.kTestCorrectApplicationCode)
+					XCTAssertEqual(messages?.last?.customPayload as! [String: String], ["customKey" : "customValue2"])
+					XCTAssertEqual(messages?.last?.sentStatus, MOMessageSentStatus.SentWithFailure)
+					
 					XCTAssertNil(error)
 					
-					self.assertMoMessagesCount(0)
-					
-					expectation?.fulfill()
+					// we re-try again next time just to make sure it works fine
+					self.mobileMessagingInstance.retryMoMessageSending() { (messages, error) in
+						XCTAssertNil(messages)
+						XCTAssertNil(error)
+						self.assertMoMessagesCount(0) {
+							expectation?.fulfill()
+						}
+					}
 				}
 			}
 		}
 		
-		waitForExpectations(timeout: 20, handler: nil)
+		waitForExpectations(timeout: 20, handler: { _ in
+			
+		})
 	}
 	
 	func testMOMessageConstructors() {
@@ -116,12 +124,12 @@ class MOMessageSendingTests: MMTestCase {
 			XCTAssertEqual(messages?.last?.customPayload as! [String: String], ["customKey" : "customValue2"])
 			XCTAssertEqual(messages?.last?.sentStatus, MOMessageSentStatus.SentWithFailure)
 			
-			self.assertMoMessagesCount(0)
-			
 			expectation?.fulfill()
 		}
 		
-		waitForExpectations(timeout: 20, handler: nil)
+		waitForExpectations(timeout: 20, handler: { _ in
+			self.assertMoMessagesCount(0)
+		})
     }
 	
 	func testUserInitiatedMO() {
@@ -140,10 +148,12 @@ class MOMessageSendingTests: MMTestCase {
 			XCTAssertNotNil(error)
 			
 			// for users API there must be no persisting for MO
-			self.assertMoMessagesCount(0)
+			
 			expectation?.fulfill()
 		}
 		
-		waitForExpectations(timeout: 20, handler: nil)
+		waitForExpectations(timeout: 20, handler: { _ in
+			self.assertMoMessagesCount(0)
+		})
 	}
 }
