@@ -137,7 +137,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	}
 	
 	public let contentUrl: String?
-	
+	public let sendDateTime: TimeInterval
 	public var seenStatus: MMSeenStatus
 	public var seenDate: Date?
 	public var isDeliveryReportSent: Bool
@@ -191,7 +191,11 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.seenDate = nil
 		self.isDeliveryReportSent = false
 		self.deliveryReportedDate = nil
-		
+		if let sendDateTimeMillis = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.sendDateTime] as? Double {
+			self.sendDateTime = sendDateTimeMillis/1000
+		} else {
+			self.sendDateTime = Date().timeIntervalSince1970
+		}
 		//workaround for cordova
 		self.isMessageLaunchingApplication = payload[ApplicationLaunchedByNotification_Key] != nil
 		payload.removeValue(forKey: ApplicationLaunchedByNotification_Key)
