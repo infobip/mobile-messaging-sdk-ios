@@ -38,7 +38,7 @@ extension MobileMessaging {
 	/// - parameter identifier: The identifier associated with the action of interactive notification.
 	/// - parameter localNotification: `UILocalNotification` object, which specifies notification that was scheduled.
 	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
-	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [NSObject: AnyObject]?, completionHandler: @escaping () -> Void) {
+	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let info = localNotification.userInfo,
 			let payload = info[LocalNotificationKeys.pushPayload] as? [String: Any],
 			let date = info[LocalNotificationKeys.createdDate] as? Date,
@@ -48,7 +48,7 @@ extension MobileMessaging {
 			return
 		}
 		
-		service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload, createdDate: date), completionHandler: completionHandler)
+        service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload, createdDate: date), responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
 	/// This method handles interactive notifications actions and performs work that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback.
@@ -56,14 +56,14 @@ extension MobileMessaging {
 	/// - parameter identifier: The identifier associated with the action of interactive notification.
 	/// - parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
-	public class func handleActionWithIdentifier(identifier: String?, forRemoteNotification userInfo: [AnyHashable: Any], responseInfo: [NSObject: AnyObject]?, completionHandler: @escaping () -> Void) {
+	public class func handleActionWithIdentifier(identifier: String?, forRemoteNotification userInfo: [AnyHashable: Any], responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let service = NotificationsInteractionService.sharedInstance else
 		{
 			completionHandler()
 			return
 		}
 		
-		service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo, createdDate: Date()), completionHandler: completionHandler)
+		service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo, createdDate: Date()), responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 }
 
@@ -88,7 +88,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		registerSelfAsSubservice(of: mmContext)
 	}
 	
-	func handleActionWithIdentifier(identifier: String?, message: MTMessage?, completionHandler: @escaping () -> Void) {
+    func handleActionWithIdentifier(identifier: String?, message: MTMessage?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard isRunning,
 			let identifier = identifier,
 			let message = message else
@@ -111,12 +111,21 @@ class NotificationsInteractionService: MobileMessagingService {
 		} else if let categoryId = message.aps.category,
 			let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
 			let action = category.actions.first(where: { $0.identifier == identifier }) {
-			handleAction(action)
+			
+			if #available(iOS 9.0, *),
+				let responseInfo = responseInfo,
+				let action = action as? TextInputNotificationAction,
+				let typedText = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String {
+				action.typedText = typedText
+				handleAction(action)
+			} else {
+				handleAction(action)
+			}
 		} else {
 			completionHandler()
 		}
 	}
-	
+
 	//MARK: - Protocol requirements (MobileMessagingService)
 	var isRunning: Bool = false
 }

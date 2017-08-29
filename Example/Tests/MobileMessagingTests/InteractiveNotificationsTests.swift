@@ -34,8 +34,35 @@ class InteractiveNotificationsTests: MMTestCase {
 	
 	func testActionHandlerCalledAndMOSent() {
 		weak var testCompleted = expectation(description: "testCompleted")
-		
 		let action = NotificationAction(identifier: actionId, title: "Action", options: [.moRequired])!
+		checkActionHandlerCalledAndMoSent(withAction: action, responseInfo: nil) { _action, completionHandler in
+			if _action == action {
+				testCompleted?.fulfill()
+			}
+			completionHandler()
+		}
+		waitForExpectations(timeout: 10, handler: nil)
+	}
+	
+	func testTextInputActionHandlerCalledAndMOSent() {
+		guard #available(iOS 9.0, *) else {
+			return
+		}
+		let typedText = "Hello world!"
+		weak var testCompleted = expectation(description: "testCompleted")
+		let textInputAction = TextInputNotificationAction(identifier: "textInputActionId", title: "Reply", options: [.moRequired], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print text here")!
+		checkActionHandlerCalledAndMoSent(withAction: textInputAction, responseInfo: [UIUserNotificationActionResponseTypedTextKey: typedText]) { _action, completionHandler in
+			if let _textInputAction = _action as? TextInputNotificationAction,
+				_textInputAction == textInputAction {
+				XCTAssertEqual(typedText, _textInputAction.typedText)
+				testCompleted?.fulfill()
+			}
+			completionHandler()
+		}
+		waitForExpectations(timeout: 10, handler: nil)
+	}
+	
+	func checkActionHandlerCalledAndMoSent(withAction action: NotificationAction, responseInfo: [AnyHashable: Any]?, completion: @escaping (NotificationAction, () -> Void) -> Void) {
 		let category = NotificationCategory(identifier: categoryId, actions: [action], options: nil, intentIdentifiers: nil)!
 		var set = Set<NotificationCategory>()
 		set.insert(category)
@@ -52,7 +79,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		weak var seenCalled = expectation(description: "seenCalled")
 		weak var sendMessageCalled = expectation(description: "sendMessageCalled")
 		msgHandlerMock.sendMessageWasCalled = { messages in
-			XCTAssertEqual(messages.first!.text, "\(self.categoryId) \(self.actionId)")
+			XCTAssertEqual(messages.first!.text, "\(self.categoryId) \(action.identifier)")
 			sendMessageCalled?.fulfill()
 		}
 		msgHandlerMock.setSeenWasCalled = { seenCalled?.fulfill() }
@@ -60,15 +87,10 @@ class InteractiveNotificationsTests: MMTestCase {
 		
 		
 		MobileMessaging.notificationActionHandler = NotificationActionHandlerMock(handlingBlock: { (_action, message, completionHandler) in
-			if _action == action {
-				testCompleted?.fulfill()
-			}
-			completionHandler()
+			completion(_action, completionHandler)
 		})
 		
-		MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: nil) {}
-		
-		waitForExpectations(timeout: 10, handler: nil)
+		MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: responseInfo) {}
 	}
 	
 	func testActionOptions() {

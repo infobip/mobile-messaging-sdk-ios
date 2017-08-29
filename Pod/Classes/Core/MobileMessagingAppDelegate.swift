@@ -96,27 +96,41 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 		if !isTestingProcessRunning {
 			MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: nil, completionHandler: completionHandler)
 		}
-		mm_application(application, handleActionWithIdentifier: identifier, for: notification, completionHandler: completionHandler)
+        mm_application(application, handleActionWithIdentifier: identifier, for: notification, withResponseInfo: nil, completionHandler: completionHandler)
 	}
 	
 	public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
 		if !isTestingProcessRunning {
 			MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: nil, completionHandler: completionHandler)
 		}
-		mm_application(application, handleActionWithIdentifier: identifier, forRemoteNotification: userInfo, completionHandler: completionHandler)
+		mm_application(application, handleActionWithIdentifier: identifier, forRemoteNotification: userInfo, withResponseInfo: nil, completionHandler: completionHandler)
 	}
+    
+    public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+        if !isTestingProcessRunning {
+            MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: responseInfo, completionHandler: completionHandler)
+        }
+        mm_application(application, handleActionWithIdentifier: identifier, for: notification, withResponseInfo: responseInfo, completionHandler: completionHandler)
+    }
+    
+    public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+        if !isTestingProcessRunning {
+            MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
+        }
+        mm_application(application, handleActionWithIdentifier: identifier, forRemoteNotification: userInfo, withResponseInfo: responseInfo, completionHandler: completionHandler)
+    }
 	
 	/// This is substitution for standart `application(:handleActionWithIdentifier:for:completionHandler)`
 	///
 	///You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
-	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
+	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any]?,completionHandler: @escaping () -> Void) {
 		// override this callback in your AppDelegate if needed
 	}
 	
 	/// This is substitution for standart `application(:handleActionWithIdentifier:handleActionWithIdentifier:completionHandler)`
 	///
 	///You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
-	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], withResponseInfo responseInfo: [AnyHashable : Any]?, completionHandler: @escaping () -> Void) {
 		// override this callback in your AppDelegate if needed
 	}
 	

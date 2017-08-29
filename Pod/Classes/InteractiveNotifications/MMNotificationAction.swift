@@ -6,7 +6,7 @@
 //
 import UserNotifications
 
-public final class NotificationAction: NSObject {
+public class NotificationAction: NSObject {
 	public let identifier: String
 	public let title: String
 	public let options: [NotificationActionOptions]
@@ -87,6 +87,59 @@ public final class NotificationAction: NSObject {
 		}
 		return identifier == object.identifier
 	}
+}
+
+/// Allows text input from the user
+@available(iOS 9.0, *)
+public final class TextInputNotificationAction: NotificationAction {
+    public let textInputActionButtonTitle: String
+    public let textInputPlaceholder: String
+    
+    ///Text which was entered in response to action.
+    public var typedText: String?
+    
+    /// Initializes the `TextInputNotificationAction`
+    /// - parameter identifier: action identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
+    /// - parameter title: Title of the button which will be displayed.
+    /// - parameter options: Options with which to perform the action.
+    /// - parameter textInputActionButtonTitle: Title of the text input action button
+    /// - parameter textInputPlaceholder: Placeholder in the text input field.
+    public init?(identifier: String, title: String, options: [NotificationActionOptions]?, textInputActionButtonTitle: String, textInputPlaceholder: String) {
+        guard !identifier.hasPrefix(NotificationActionKeys.mm_prefix) else {
+            return nil
+        }
+        self.textInputActionButtonTitle = textInputActionButtonTitle
+        self.textInputPlaceholder = textInputPlaceholder
+        super.init(identifier: identifier, title: title, options: options)
+    }
+    
+    @available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
+    override var uiUserNotificationAction: UIUserNotificationAction {
+        let action = UIMutableUserNotificationAction()
+        action.identifier = identifier
+        action.title = title
+        action.activationMode = options.contains(.foreground) ? .foreground : .background
+        action.isDestructive = options.contains(.destructive)
+        action.isAuthenticationRequired = options.contains(.authenticationRequired)
+        action.behavior = .textInput
+        action.parameters = [UIUserNotificationTextInputActionButtonTitleKey : textInputActionButtonTitle]
+        return action
+    }
+    
+    @available(iOS 10.0, *)
+    override var unUserNotificationAction: UNNotificationAction {
+        var actionOptions: UNNotificationActionOptions = []
+        if options.contains(.foreground) {
+            actionOptions.insert(.foreground)
+        }
+        if options.contains(.destructive) {
+            actionOptions.insert(.destructive)
+        }
+        if options.contains(.authenticationRequired) {
+            actionOptions.insert(.authenticationRequired)
+        }
+        return UNTextInputNotificationAction(identifier: identifier, title: title, options: actionOptions, textInputButtonTitle: textInputActionButtonTitle, textInputPlaceholder: textInputPlaceholder)
+    }
 }
 
 public final class NotificationActionOptions : NSObject {
