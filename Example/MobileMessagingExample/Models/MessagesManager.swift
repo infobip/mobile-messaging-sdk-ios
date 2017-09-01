@@ -154,19 +154,10 @@ final class MessagesManager: NSObject, UITableViewDataSource {
         guard let userInfo = notification.userInfo,
             let message = userInfo[MMNotificationKeyMessage] as? MTMessage
             else {
-                return
-        }
-        
-        // checking if we have "url" in custom payload
-        guard let url = message.customPayload?["url"] as? String else {
-            return
-        }
-        
-        let webViewController = WebViewController()
-        webViewController.url = url
-        
-        UIApplication.shared.keyWindow?.visibleViewController?.present(webViewController, animated: true)
-    }
+				return
+		}
+		LinksHandler.handleLinks(fromMessage: message)
+	}
 
 	//MARK: UITableViewDataSource
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

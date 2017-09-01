@@ -33,4 +33,8 @@ class AppDelegate: MobileMessagingAppDelegate {
 	override var interactiveNotificationCategories: Set<NotificationCategory>? {
 		return customCategories
 	}
+	
+	func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+		return LinksHandler.openDeeplink(url: url, withMessage: nil)
+	}
 }

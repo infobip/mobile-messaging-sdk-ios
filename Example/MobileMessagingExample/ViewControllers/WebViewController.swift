@@ -7,35 +7,30 @@
 
 import UIKit
 
-class WebViewController: UIViewController, UIWebViewDelegate {
-    private static let toolbarHeight: CGFloat = 64
-    public var url: String?
+class WebViewController: ViewControllerWithToolbar, UIWebViewDelegate {
+    let url: URL
+	
+	init(url: URL) {
+		self.url = url
+		super.init(nibName: nil, bundle: nil)
+	}
+	
+	required init?(coder aDecoder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        guard let url = url,
-            let targetUrl = URL(string: url)  else {
-                print("URL is missing")
-                return
-        }
-        
-        // init toolbar
-        let toolbarView = UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: WebViewController.toolbarHeight))
-        toolbarView.autoresizingMask = [.flexibleWidth]
-        toolbarView.setItems([UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(close))],
-                             animated: true)
-        view.addSubview(toolbarView)
         
         // init web-view
         let webView = UIWebView()
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         webView.frame = CGRect(x: 0,
-                               y: WebViewController.toolbarHeight,
+                               y: ViewControllerWithToolbar.toolbarHeight,
                                width: view.frame.width,
                                height: view.frame.height - WebViewController.toolbarHeight)
         
-        webView.loadRequest(URLRequest(url: targetUrl))
+        webView.loadRequest(URLRequest(url: url))
         webView.delegate = self
         view.addSubview(webView)
     }
@@ -46,9 +41,5 @@ class WebViewController: UIViewController, UIWebViewDelegate {
     
     func webViewDidStartLoad(_ webView: UIWebView) {
         print("Page loaded successfully")
-    }
-    
-    func close() {
-        dismiss(animated: true)
     }
 }
