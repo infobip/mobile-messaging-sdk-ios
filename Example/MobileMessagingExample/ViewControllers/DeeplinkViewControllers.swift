@@ -29,6 +29,7 @@ class RedViewController: ViewControllerWithToolbar, DeeplinkLandingViewControlle
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		self.view.backgroundColor = UIColor.red
 		showLabel(withText: message?.text)
 	}
 }
@@ -49,6 +50,7 @@ class GreenViewController: ViewControllerWithToolbar, DeeplinkLandingViewControl
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		self.view.backgroundColor = UIColor.green
 		showLabel(withText: message?.text)
 	}
 }
@@ -69,6 +71,7 @@ class BlueViewController: ViewControllerWithToolbar, DeeplinkLandingViewControll
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		self.view.backgroundColor = UIColor.blue
 		showLabel(withText: message?.text)
 	}
 }
@@ -79,7 +82,6 @@ protocol LabelPresentor {
 
 extension LabelPresentor where Self: UIViewController {
 	func showLabel(withText text: String?) {
-		view.backgroundColor = UIColor.blue
 		let label = UILabel(frame: self.view.frame)
 		label.textAlignment = .center
 		label.numberOfLines = 0
