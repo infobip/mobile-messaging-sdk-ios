@@ -29,26 +29,47 @@ class LinksHandler {
 	
 	class func openDeeplink(url: URL, withMessage message: MTMessage?) -> Bool {
 		let supportedSchemes = ["com.infobip.mobilemessaging"]
+		
+		//check do we support scheme in the URL
 		guard let scheme = url.scheme,
 			supportedSchemes.contains(scheme) else {
 				print("Scheme \(String(describing: url.scheme)) not supported")
 				return false
 		}
 		
-		guard let viewControllerType = supportedViewControllers.first(where: {url.pathComponents.contains($0.deeplinkIdentifier)}) as? UIViewController.Type else {
-			print("Unable to find deeplink-compatible view controller for deeplink: \(url.path)")
-			return false
-		}
-		
-		let viewController = viewControllerType.init()
-		if let viewController = viewController as? DeeplinkLandingViewController,
-			let message = message {
-			viewController.handle(message: message)
-		}
-		
-		UIApplication.shared.keyWindow?.visibleViewController?.present(viewController, animated: false)
+		openViewControllers(fromPathComponents: url.pathComponents, message: message)
 		
 		return true
+	}
+	
+	class func openViewControllers(fromPathComponents pathComponents: [String], message: MTMessage?) {
+		guard !pathComponents.isEmpty else {
+			return
+		}
+		
+		let openNext: ([String]) -> Void = { pathComponents in
+			var nextPathComponents = pathComponents
+			nextPathComponents.removeFirst()
+			self.openViewControllers(fromPathComponents: nextPathComponents, message: message)
+		}
+		
+		//check do we have viewController with `deeplinkIdentifier`, provided as URL pathComponent
+		guard let viewControllerType = supportedViewControllers.first(where: {pathComponents.first == $0.deeplinkIdentifier}) as? UIViewController.Type else {
+			openNext(pathComponents)
+			return
+		}
+		
+		//create viewController from type`
+		let viewController = viewControllerType.init()
+		
+		//present viewController modally
+		UIApplication.shared.keyWindow?.visibleViewController?.present(viewController, animated: true, completion: {
+			if let viewController = viewController as? DeeplinkLandingViewController,
+				let message = message {
+				viewController.handle(message: message)
+			}
+			openNext(pathComponents)
+		})
 	}
 }
 
