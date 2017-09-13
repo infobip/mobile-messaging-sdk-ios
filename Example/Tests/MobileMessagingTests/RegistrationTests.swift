@@ -69,7 +69,7 @@ final class RegistrationTests: MMTestCase {
 			
 			XCTAssertFalse(self.mobileMessagingInstance.currentInstallation.isRegistrationStatusNeedSync)
 			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.deviceToken, "someToken2".mm_toHexademicalString)
-			XCTAssertEqual(self.mobileMessagingInstance.currentUser.internalId, MMTestConstants.kTestCorrectInternalID)
+			XCTAssertEqual(self.mobileMessagingInstance.currentUser.pushRegistrationId, MMTestConstants.kTestCorrectInternalID)
 			XCTAssertEqual(self.mobileMessagingInstance.currentUser.email, MMTestConstants.kTestValidEmail)
 			XCTAssertEqual(self.mobileMessagingInstance.currentUser.msisdn, MMTestConstants.kTestValidMSISDN)
         }
@@ -270,12 +270,12 @@ final class RegistrationTests: MMTestCase {
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
 			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
 			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-			XCTAssertNotNil(self.mobileMessagingInstance.currentUser.internalId)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentUser.pushRegistrationId)
 			DispatchQueue.main.async {
 				self.startWithApplicationCode("newApplicationCode")
 				XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, "newApplicationCode")
 				XCTAssertNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-				XCTAssertNil(self.mobileMessagingInstance.currentUser.internalId)
+				XCTAssertNil(self.mobileMessagingInstance.currentUser.pushRegistrationId)
 				finished?.fulfill()
 			}
 		}
@@ -297,7 +297,7 @@ final class RegistrationTests: MMTestCase {
 				XCTAssertNotNil(installation.applicationCode, "application code must be persisted")
 			}
 			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-			XCTAssertNotNil(self.mobileMessagingInstance.currentUser.internalId)
+			XCTAssertNotNil(self.mobileMessagingInstance.currentUser.pushRegistrationId)
 			
 			DispatchQueue.main.async {
 				
@@ -337,7 +337,7 @@ final class RegistrationTests: MMTestCase {
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
 			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
 			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-			let firstInternalId = self.mobileMessagingInstance.currentUser.internalId
+			let firstInternalId = self.mobileMessagingInstance.currentUser.pushRegistrationId
 			XCTAssertNotNil(firstInternalId)
 			
 			self.mobileMessagingInstance.cleanUpAndStop(false)
@@ -365,7 +365,7 @@ final class RegistrationTests: MMTestCase {
 			
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
 				XCTAssertNotEqual(self.mobileMessagingInstance.keychain.internalId, firstInternalId)
-				XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, self.mobileMessagingInstance.currentUser.internalId)
+				XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, self.mobileMessagingInstance.currentUser.pushRegistrationId)
 				registration2Done?.fulfill()
 				
 				
@@ -389,7 +389,7 @@ final class RegistrationTests: MMTestCase {
 				
 				self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
 					
-					XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, self.mobileMessagingInstance.currentUser.internalId)
+					XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, self.mobileMessagingInstance.currentUser.pushRegistrationId)
 					registration3Done?.fulfill()
 				}
 			}

@@ -52,7 +52,7 @@ class SystemDataTests: MMTestCase {
 		}
 		
 		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start()
@@ -106,7 +106,7 @@ class SystemDataTests: MMTestCase {
 		
 		//requirements
 		self.mobileMessagingInstance.currentInstallation.deviceToken = "stub"
-		self.mobileMessagingInstance.currentUser.internalId = "stub"
+		self.mobileMessagingInstance.currentUser.pushRegistrationId = "stub"
 		
 		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
 		self.mobileMessagingInstance.application = NotificationsEnabledMock()

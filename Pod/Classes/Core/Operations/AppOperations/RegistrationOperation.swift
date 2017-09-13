@@ -33,7 +33,7 @@ final class SyncRegistrationOperation: Operation {
 		MMLogDebug("[Registration] Posting registration to server...")
 		
 		let isRegistrationEnabled = installation.isRegistrationStatusNeedSync ? isRegistrationEnabledLocally : nil // send value only if changed
-		self.sendRegistration(internalUserId: user.internalId, isRegistrationEnabled: isRegistrationEnabled, deviceToken: deviceToken)
+		self.sendRegistration(internalUserId: user.pushRegistrationId, isRegistrationEnabled: isRegistrationEnabled, deviceToken: deviceToken)
 	}
 	
 	private var isRegistrationEnabledLocally: Bool {
@@ -58,11 +58,11 @@ final class SyncRegistrationOperation: Operation {
 			MMLogDebug("[Registration] Installation updated on server for internal ID \(regResponse.internalId). Updating local version...")
 			
 			let registrationStatusChanged = regResponse.isEnabled != isRegistrationEnabledLocally
-			if regResponse.internalId != user.internalId {
+			if regResponse.internalId != user.pushRegistrationId {
 				// this is to force system data sync for the new registration
 				installation.systemDataHash = 0
 			}
-			user.internalId = regResponse.internalId
+			user.pushRegistrationId = regResponse.internalId
 			installation.isPushRegistrationEnabled = regResponse.isEnabled
 			installation.resetNeedToSync()
 			guard !isCancelled else {

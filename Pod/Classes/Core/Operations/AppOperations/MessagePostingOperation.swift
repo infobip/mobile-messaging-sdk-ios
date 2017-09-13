@@ -32,7 +32,7 @@ class MessagePostingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message posting] started...")
-		guard let internalId = mmContext.currentUser?.internalId else {
+		guard let internalId = mmContext.currentUser?.pushRegistrationId else {
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}

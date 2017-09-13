@@ -38,7 +38,7 @@ class UserDataSynchronizationOperation: Operation {
 	}
 
 	private func sendUserDataIfNeeded() {
-		guard user.internalId != nil else {
+		guard user.pushRegistrationId != nil else {
 			MMLogDebug("[User data sync] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return

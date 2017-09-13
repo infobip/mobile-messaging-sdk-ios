@@ -30,7 +30,7 @@ final class MessageFetchingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message fetching] Starting operation...")
-		guard mmContext.currentUser?.internalId != nil else {
+		guard mmContext.currentUser?.pushRegistrationId != nil else {
 			self.result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
 			finish()
 			return

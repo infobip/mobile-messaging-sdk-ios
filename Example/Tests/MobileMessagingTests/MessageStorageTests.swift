@@ -71,7 +71,7 @@ class MessageStorageTests: MMTestCase {
 		let mockMessageStorage = MockMessageStorage()
 		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
 		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		do {
 			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString])
@@ -120,7 +120,7 @@ class MessageStorageTests: MMTestCase {
 		
 		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
 
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString])
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey": "customValue2" as NSString])

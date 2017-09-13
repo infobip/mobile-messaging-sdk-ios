@@ -43,7 +43,7 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	private func sendRequest() {
-		guard user.internalId != nil else {
+		guard user.pushRegistrationId != nil else {
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}

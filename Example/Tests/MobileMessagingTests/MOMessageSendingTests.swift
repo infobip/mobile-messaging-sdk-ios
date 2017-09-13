@@ -33,7 +33,7 @@ class MOMessageSendingTests: MMTestCase {
 		//Precondiotions
 		let messageSyncQ = mobileMessagingInstance.remoteApiManager.messageSyncQueue
 		mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
@@ -102,7 +102,7 @@ class MOMessageSendingTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Sending finished")
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
@@ -136,7 +136,7 @@ class MOMessageSendingTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
 		mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])

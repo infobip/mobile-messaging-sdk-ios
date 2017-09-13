@@ -28,7 +28,7 @@ class GeoEventReportingOperation: Operation {
 	}
 	
 	override func execute() {
-		guard let internalId = mmContext.currentUser.internalId else
+		guard let internalId = mmContext.currentUser.pushRegistrationId else
 		{
 			MMLogDebug("[Geo event reporting] installation object not found, finishing the operation...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
