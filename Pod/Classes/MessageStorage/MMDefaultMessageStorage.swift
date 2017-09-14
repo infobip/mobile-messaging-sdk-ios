@@ -238,7 +238,7 @@ import CoreData
 		}
 	}
 	
-	private func callDelegateIfNeeded(block: @escaping ((Void) -> Void)) {
+	private func callDelegateIfNeeded(block: @escaping (() -> Void)) {
 		if self.delegate != nil {
 			delegateQueue.async(execute: block)
 		}

@@ -68,7 +68,7 @@ public final class MobileMessaging: NSObject {
 	///
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
-	public func start(_ completion: ((Void) -> Void)? = nil) {
+	public func start(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("Starting service...")
 		
 		startСomponents()

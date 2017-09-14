@@ -155,14 +155,22 @@ class InteractiveNotificationsTests: MMTestCase {
 		weak var testCompleted = expectation(description: "testCompleted")
 		XCTAssertEqual(NotificationsInteractionService.sharedInstance?.allNotificationCategories?.count, PredefinedCategoriesTest().categoriesIds?.count)
 		
-		let allActions = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.reduce([String: XCTestExpectation](), { (result, category) -> [String: XCTestExpectation] in
-			return result + category.actions.reduce([String: XCTestExpectation](), { (result, action) -> [String: XCTestExpectation] in
-				return result + ["\(category.identifier)+\(action.identifier)": expectation(description: "\(category.identifier)+\(action.identifier)")]
+		
+		let allActions = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.reduce([String](), { (result, category) -> [String] in
+			return result + category.actions.reduce([String](), { (result, action) -> [String] in
+				return result + ["\(category.identifier)+\(action.identifier)"]
 			})
 		})
 		
+		var actionsWithExpectations = [String: XCTestExpectation]()
+		
+		for action in allActions! {
+			weak var actionHandled = expectation(description: action)
+			actionsWithExpectations[action] = actionHandled
+		}
+		
 		MobileMessaging.notificationActionHandler = NotificationActionHandlerMock(handlingBlock: { (_action, message, completionHandler) in
-			allActions?["\(message.category!)+\(_action.identifier)"]?.fulfill()
+			actionsWithExpectations["\(message.category!)+\(_action.identifier)"]?.fulfill()
 			completionHandler()
 		})
 		

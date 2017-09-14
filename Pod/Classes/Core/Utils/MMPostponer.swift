@@ -6,7 +6,7 @@
 
 import Foundation
 class MMPostponer: NSObject {
-	private var block: ((Void) -> Void)?
+	private var block: (() -> Void)?
 	private var schedulerQueue = MMQueue.Serial.newQueue(queueName: "com.mobile-messaging.queue.serial.postponer")
 	private var timer: DispatchSourceTimer?
 	private var executionQueue: DispatchQueue
@@ -15,7 +15,7 @@ class MMPostponer: NSObject {
 		self.executionQueue = executionQueue
 	}
 	
-	func postponeBlock(delay: Double = 2, block: @escaping (Void) -> Void) {
+	func postponeBlock(delay: Double = 2, block: @escaping () -> Void) {
 		schedulerQueue.executeAsync {
 			self.invalidateTimer()
 			self.block = block

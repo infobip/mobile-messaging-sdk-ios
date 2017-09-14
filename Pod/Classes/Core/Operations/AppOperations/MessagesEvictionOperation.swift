@@ -13,9 +13,9 @@ final class MessagesEvictionOperation: Operation {
 	static let defaultMessageMaxAge: TimeInterval = 7 * 24 * 60 * 60; //one week
 	var messageMaximumAge: TimeInterval
 	var context: NSManagedObjectContext
-	var finishBlock: ((Void) -> Void)?
+	var finishBlock: (() -> Void)?
 	
-	init(context: NSManagedObjectContext, messageMaximumAge: TimeInterval? = nil, finishBlock: ((Void) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, messageMaximumAge: TimeInterval? = nil, finishBlock: (() -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.messageMaximumAge = messageMaximumAge ?? MessagesEvictionOperation.defaultMessageMaxAge
