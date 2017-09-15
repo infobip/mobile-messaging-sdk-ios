@@ -101,7 +101,7 @@ class MMTestCase: XCTestCase {
 	}
 	
 	func mockedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
-		let mm = MobileMessaging.withApplicationCode(code, notificationType: [], backendBaseURL: MMTestConstants.kTestBaseURLString)
+		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: MMTestConstants.kTestBaseURLString)
 		mm?.setupMockedQueues(mmContext: self.mobileMessagingInstance)
 		mm?.application = ActiveApplicationMock()
 		return mm

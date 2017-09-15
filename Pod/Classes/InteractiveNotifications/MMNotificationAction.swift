@@ -1,62 +1,80 @@
 //
-//  MMNotificationAction.swift
+//  NotificationAction.swift
 //
 //  Created by okoroleva on 27.07.17.
 //
 //
+import UserNotifications
 
-public final class MMNotificationAction: NSObject {
+public class NotificationAction: NSObject {
 	public let identifier: String
 	public let title: String
-	public let options: [MMNotificationActionOptions]?
+	public let options: [NotificationActionOptions]
 	
-	///Initializes the `MMNotificationAction`
+	/// Initializes the `NotificationAction`
 	/// - parameter identifier: action identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
 	/// - parameter title: Title of the button which will be displayed.
 	/// - parameter options: Options with which to perform the action.
-	public init?(identifier: String, title: String, options: [MMNotificationActionOptions]?) {
+	public init?(identifier: String, title: String, options: [NotificationActionOptions]?) {
 		guard !identifier.hasPrefix(NotificationActionKeys.mm_prefix) else {
 			return nil
 		}
 		self.identifier = identifier
 		self.title = title
-		self.options = options
+		self.options = options ?? []
 	}
 	
 	init?(dictionary: [String: Any]) {
 		guard let identifier = dictionary[NotificationActionKeys.identifier] as? String,
 			let title = dictionary[NotificationActionKeys.title] as? String,
-			let title_localization_key = dictionary[NotificationActionKeys.title_localization_key] as? String else {
-				return nil
+			let titleLocalizationKey = dictionary[NotificationActionKeys.titleLocalizationKey] as? String else
+		{
+			return nil
 		}
 		
-		var _options = [MMNotificationActionOptions]()
-		if let foreground = dictionary[NotificationActionKeys.foreground] as? Bool, foreground {
-			_options.append(.foreground)
+		var opts = [NotificationActionOptions]()
+		if let isForeground = dictionary[NotificationActionKeys.foreground] as? Bool, isForeground {
+			opts.append(.foreground)
 		}
-		if let authRequired = dictionary[NotificationActionKeys.authenticationRequired] as? Bool, authRequired {
-			_options.append(.authenticationRequired)
+		if let isAuthRequired = dictionary[NotificationActionKeys.authenticationRequired] as? Bool, isAuthRequired {
+			opts.append(.authenticationRequired)
 		}
-		if let destructive = dictionary[NotificationActionKeys.destructive] as? Bool, destructive {
-			_options.append(.destructive)
+		if let isDestructive = dictionary[NotificationActionKeys.destructive] as? Bool, isDestructive {
+			opts.append(.destructive)
+		}
+		if let isMoRequired = dictionary[NotificationActionKeys.moRequired] as? Bool, isMoRequired {
+			opts.append(.moRequired)
 		}
 		
 		self.identifier = identifier
-		self.title = MMLocalization.localizedString(forKey: title_localization_key, defaultString: title)
-		self.options = _options
+		self.title = MMLocalization.localizedString(forKey: titleLocalizationKey, defaultString: title)
+		self.options = opts
 	}
 	
+	@available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
 	var uiUserNotificationAction: UIUserNotificationAction {
 		let action = UIMutableUserNotificationAction()
 		action.identifier = identifier
 		action.title = title
-		
-		if let options = options {
-			action.activationMode = options.contains(.foreground) ? .foreground : .background
-			action.isDestructive = options.contains(.destructive) ? true : false
-			action.isAuthenticationRequired = options.contains(.authenticationRequired) ? true : false
-		}
+		action.activationMode = options.contains(.foreground) ? .foreground : .background
+		action.isDestructive = options.contains(.destructive)
+		action.isAuthenticationRequired = options.contains(.authenticationRequired)
 		return action
+	}
+	
+	@available(iOS 10.0, *)
+	var unUserNotificationAction: UNNotificationAction {
+		var actionOptions: UNNotificationActionOptions = []
+		if options.contains(.foreground) {
+			actionOptions.insert(.foreground)
+		}
+		if options.contains(.destructive) {
+			actionOptions.insert(.destructive)
+		}
+		if options.contains(.authenticationRequired) {
+			actionOptions.insert(.authenticationRequired)
+		}
+		return UNNotificationAction(identifier: identifier, title: title, options: actionOptions)
 	}
 	
 	public override var hash: Int {
@@ -64,43 +82,104 @@ public final class MMNotificationAction: NSObject {
 	}
 	
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let obj = object as? MMNotificationAction else {
+		guard let object = object as? NotificationAction else {
 			return false
 		}
-		return identifier == obj.identifier
+		return identifier == object.identifier
 	}
 }
 
-public final class MMNotificationActionOptions : NSObject {
+/// Allows text input from the user
+@available(iOS 9.0, *)
+public final class TextInputNotificationAction: NotificationAction {
+    public let textInputActionButtonTitle: String
+    public let textInputPlaceholder: String
+    
+    ///Text which was entered in response to action.
+    public var typedText: String?
+    
+    /// Initializes the `TextInputNotificationAction`
+    /// - parameter identifier: action identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
+    /// - parameter title: Title of the button which will be displayed.
+    /// - parameter options: Options with which to perform the action.
+    /// - parameter textInputActionButtonTitle: Title of the text input action button
+    /// - parameter textInputPlaceholder: Placeholder in the text input field.
+    public init?(identifier: String, title: String, options: [NotificationActionOptions]?, textInputActionButtonTitle: String, textInputPlaceholder: String) {
+        guard !identifier.hasPrefix(NotificationActionKeys.mm_prefix) else {
+            return nil
+        }
+        self.textInputActionButtonTitle = textInputActionButtonTitle
+        self.textInputPlaceholder = textInputPlaceholder
+        super.init(identifier: identifier, title: title, options: options)
+    }
+    
+    @available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
+    override var uiUserNotificationAction: UIUserNotificationAction {
+        let action = UIMutableUserNotificationAction()
+        action.identifier = identifier
+        action.title = title
+        action.activationMode = options.contains(.foreground) ? .foreground : .background
+        action.isDestructive = options.contains(.destructive)
+        action.isAuthenticationRequired = options.contains(.authenticationRequired)
+        action.behavior = .textInput
+        action.parameters = [UIUserNotificationTextInputActionButtonTitleKey : textInputActionButtonTitle]
+        return action
+    }
+    
+    @available(iOS 10.0, *)
+    override var unUserNotificationAction: UNNotificationAction {
+        var actionOptions: UNNotificationActionOptions = []
+        if options.contains(.foreground) {
+            actionOptions.insert(.foreground)
+        }
+        if options.contains(.destructive) {
+            actionOptions.insert(.destructive)
+        }
+        if options.contains(.authenticationRequired) {
+            actionOptions.insert(.authenticationRequired)
+        }
+        return UNTextInputNotificationAction(identifier: identifier, title: title, options: actionOptions, textInputButtonTitle: textInputActionButtonTitle, textInputPlaceholder: textInputPlaceholder)
+    }
+}
+
+public final class NotificationActionOptions : NSObject {
 	let rawValue: Int
-	init(rawValue: Int) { self.rawValue = rawValue }
-	public init(options: [MMNotificationActionOptions]) {
-		let totalValue = options.reduce(0) { (total, option) -> Int in
-			return total | option.rawValue
-		}
-		self.rawValue = totalValue
+    
+	init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+    
+	public init(options: [NotificationActionOptions]) {
+        self.rawValue = options.reduce(0) { (total, option) -> Int in
+            return total | option.rawValue
+        }
 	}
+    
 	public func contains(options: MMLogOutput) -> Bool {
 		return rawValue & options.rawValue != 0
 	}
 	
-	///Causes the launch of the application.
-	public static let foreground = MMNotificationActionOptions(rawValue: 0)
+	/// Causes the launch of the application.
+	public static let foreground = NotificationActionOptions(rawValue: 0)
 	
-	///Marks the action button as destructive.
-	public static let destructive = MMNotificationActionOptions(rawValue: 1 << 0)
+	/// Marks the action button as destructive.
+	public static let destructive = NotificationActionOptions(rawValue: 1 << 0)
 	
-	///Requires the device to be unlocked.
+	/// Requires the device to be unlocked.
 	/// - remark: If the action options contains `.foreground`, then the action is considered as requiring authentication automatically.
-	public static let authenticationRequired = MMNotificationActionOptions(rawValue: 1 << 1)
+	public static let authenticationRequired = NotificationActionOptions(rawValue: 1 << 1)
+	
+	/// Indicates whether the SDK must generate MO message to report on users interaction.
+	public static let moRequired = NotificationActionOptions(rawValue: 1 << 2)
 }
 
 struct NotificationActionKeys {
 	static let identifier = "identifier"
 	static let title = "title"
-	static let title_localization_key = "title_localization_key"
+	static let titleLocalizationKey = "titleLocalizationKey"
 	static let foreground = "foreground"
 	static let authenticationRequired = "authenticationRequired"
+	static let moRequired = "moRequired"
 	static let destructive = "destructive"
 	static let mm_prefix = "mm_"
 }

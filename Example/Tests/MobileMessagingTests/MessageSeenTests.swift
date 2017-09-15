@@ -93,7 +93,7 @@ class MessageSeenTests: MMTestCase {
 				}
 				
 				self.mobileMessagingInstance.setSeen(["m1", "m2", "m3"], completion: { result in
-					
+
 					let ctx = self.storage.mainThreadManagedObjectContext!
 					ctx.reset()
 					ctx.performAndWait {

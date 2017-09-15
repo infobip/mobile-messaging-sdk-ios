@@ -19,9 +19,9 @@
     return nil;
 }
 
--(UIUserNotificationType)userNotificationType {
+-(UserNotificationType *)userNotificationType {
 	[NSException raise:NSInternalInconsistencyException format:@"UserNotificationType not set. Please override `userNotificationType` variable in your subclass of `MobileMessagingAppDelegate`."];
-    return UIUserNotificationTypeNone;
+    return [[UserNotificationType alloc] initWithOptions: @[]];
 }
 
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -66,18 +66,30 @@
 }
 
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
-	[self mm_application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+    [MobileMessaging handleActionWithIdentifierWithIdentifier:identifier localNotification:notification responseInfo:nil completionHandler:completionHandler];
+	[self mm_application:application handleActionWithIdentifier:identifier forLocalNotification:notification withResponseInfo:nil completionHandler:completionHandler];
 }
 
--(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
+-(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
+    [MobileMessaging handleActionWithIdentifierWithIdentifier:identifier localNotification:notification responseInfo:responseInfo completionHandler:completionHandler];
+    [self mm_application:application handleActionWithIdentifier:identifier forLocalNotification:notification withResponseInfo:responseInfo completionHandler:completionHandler];
+}
+
+-(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
 	// override in your AppDelegate if needed
 }
 
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-	[self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+    [MobileMessaging handleActionWithIdentifierWithIdentifier:identifier forRemoteNotification:userInfo responseInfo:nil completionHandler:completionHandler];
+	[self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:nil completionHandler:completionHandler];
 }
 
--(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
+-(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
+    [MobileMessaging handleActionWithIdentifierWithIdentifier:identifier forRemoteNotification:userInfo responseInfo:responseInfo completionHandler:completionHandler];
+    [self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
+}
+
+-(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
 	// override in your AppDelegate if needed
 }
 

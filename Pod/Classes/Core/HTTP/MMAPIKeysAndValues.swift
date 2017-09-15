@@ -100,6 +100,7 @@ struct InternalDataKeys {
 	static let messageTypeGeo = "geo"
 	static let messageType = "messageType"
 	static let attachments = "atts"
+	static let sendDateTime = "sendDateTime"
 }
 
 struct AttachmentsKeys {

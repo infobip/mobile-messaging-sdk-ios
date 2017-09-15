@@ -73,7 +73,7 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
 		case SettingsCell.deviceToken.rawValue:
 			settingValue = MobileMessaging.currentInstallation?.deviceToken
 		case SettingsCell.internalId.rawValue:
-			settingValue = MobileMessaging.currentUser?.internalId
+			settingValue = MobileMessaging.currentUser?.pushRegistrationId
 		default: break
 		}
 		

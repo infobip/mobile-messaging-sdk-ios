@@ -148,9 +148,9 @@ struct SystemDataSyncRequest: PostRequest {
 		return systemData.dictionaryRepresentation
 	}
 
-	let systemData: MMSystemData
+	let systemData: SystemData
 
-	init(systemData: MMSystemData) {
+	init(systemData: SystemData) {
 		self.systemData = systemData
 	}
 }

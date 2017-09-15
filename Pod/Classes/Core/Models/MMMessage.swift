@@ -137,7 +137,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	}
 	
 	public let contentUrl: String?
-	
+	public let sendDateTime: TimeInterval
 	public var seenStatus: MMSeenStatus
 	public var seenDate: Date?
 	public var isDeliveryReportSent: Bool
@@ -146,7 +146,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	let aps: MMAPS
 	let silentData: StringKeyPayload?
 	
-	var interactiveActionClicked: MMNotificationAction?
+	var appliedAction: NotificationAction?
 	
 	convenience init?(json: JSON) {
 		if let payload = json.dictionaryObject {
@@ -191,7 +191,11 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.seenDate = nil
 		self.isDeliveryReportSent = false
 		self.deliveryReportedDate = nil
-		
+		if let sendDateTimeMillis = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.sendDateTime] as? Double {
+			self.sendDateTime = sendDateTimeMillis/1000
+		} else {
+			self.sendDateTime = Date().timeIntervalSince1970
+		}
 		//workaround for cordova
 		self.isMessageLaunchingApplication = payload[ApplicationLaunchedByNotification_Key] != nil
 		payload.removeValue(forKey: ApplicationLaunchedByNotification_Key)
@@ -298,6 +302,14 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 	/// Iitializes the MOMessage from Message storage's message
 	convenience init?(messageStorageMessageManagedObject m: Message) {
 		self.init(payload: m.payload)
+	}
+	
+	convenience init?(messageManagedObject: MessageManagedObject) {
+		if let p = messageManagedObject.payload {
+			self.init(payload: p)
+		} else {
+			return nil
+		}
 	}
 	
 	convenience init?(json: JSON) {

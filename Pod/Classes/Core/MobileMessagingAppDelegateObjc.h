@@ -6,6 +6,7 @@
 //
 
 #import <UIKit/UIKit.h>
+@class UserNotificationType;
 
 @interface MobileMessagingAppDelegateObjc : UIResponder <UIApplicationDelegate>
 
@@ -20,7 +21,7 @@
 	Preferable notification types that indicating how the app alerts the user when a  push notification arrives. You should override this property in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
 	- remark: For now, Mobile Messaging SDK doesn't support badge. You should handle the badge counter by yourself.
 */
-@property (nonatomic, readonly) UIUserNotificationType userNotificationType;
+@property (nonatomic, readonly) UserNotificationType * _Nonnull userNotificationType;
 
 /**
 	Defines whether the Geofencing service is enabled. Default value is `FALSE` (The service is enabled by default). If you want to disable the Geofencing service you override this property in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `TRUE`.
@@ -55,12 +56,12 @@
 	This is a substitution for the `application(:handleActionWithIdentifier:forLocalNotification:completionHandler:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a local notification.
  */
--(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forLocalNotification:(UILocalNotification * _Nonnull)notification completionHandler:(void (^_Nullable)())completionHandler;
+-(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forLocalNotification:(UILocalNotification * _Nonnull)notification withResponseInfo:(NSDictionary * _Nullable)responseInfo completionHandler:(void (^_Nullable)())completionHandler;
 
 /**
 	This is a substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:completionHandler:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a remote notification.
  */
--(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forRemoteNotification:(NSDictionary *_Nullable)userInfo completionHandler:(void (^_Nullable)())completionHandler;
+-(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forRemoteNotification:(NSDictionary *_Nullable)userInfo withResponseInfo:(NSDictionary * _Nullable)responseInfo completionHandler:(void (^_Nullable)())completionHandler;
 
 @end

@@ -1,5 +1,5 @@
 //
-//  MMUserAgent.swift
+//  UserAgent.swift
 //
 //  Created by Andrey K. on 08/07/16.
 //
@@ -8,10 +8,10 @@ import Foundation
 import CoreTelephony
 import LocalAuthentication
 
-func ==(lhs: MMSystemData, rhs: MMSystemData) -> Bool {
+func ==(lhs: SystemData, rhs: SystemData) -> Bool {
 	return lhs.hashValue == rhs.hashValue
 }
-struct MMSystemData: Hashable {
+struct SystemData: Hashable {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
 	let notificationsEnabled, deviceSecure: Bool
 	var dictionaryRepresentation: [String: AnyHashable] {
@@ -37,7 +37,7 @@ struct MMSystemData: Hashable {
 	}
 }
 
-public class MMUserAgent: NSObject {
+public class UserAgent: NSObject {
 	public var cordovaPluginVersion: String?
 	
 	struct DataOptions : OptionSet {
@@ -48,8 +48,8 @@ public class MMUserAgent: NSObject {
 		static let Carrier = DataOptions(rawValue: 1 << 1)
 	}
 	
-	var systemData: MMSystemData {
-        return MMSystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
+	var systemData: SystemData {
+        return SystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
 	}
 	
 	public var notificationsEnabled: Bool {
@@ -60,12 +60,12 @@ public class MMUserAgent: NSObject {
 	}
 	
 	public var currentUserAgentString: String {
-		var options = [MMUserAgent.DataOptions.None]
+		var options = [UserAgent.DataOptions.None]
 		if !(MobileMessaging.privacySettings.systemInfoSendingDisabled) {
-			options.append(MMUserAgent.DataOptions.System)
+			options.append(UserAgent.DataOptions.System)
 		}
 		if !(MobileMessaging.privacySettings.carrierInfoSendingDisabled) {
-			options.append(MMUserAgent.DataOptions.Carrier)
+			options.append(UserAgent.DataOptions.Carrier)
 		}
 		return userAgentString(withOptions: options)
 	}
@@ -235,7 +235,7 @@ public class MMUserAgent: NSObject {
 			return ";\(mobileCarrierName);\(mobileNetworkCode);\(mobileCountryCode)"
 		}
 		
-		return systemDataString(allowed: options.contains(MMUserAgent.DataOptions.System)) + carrierDataString(allowed: options.contains(MMUserAgent.DataOptions.Carrier)) + ")"
+		return systemDataString(allowed: options.contains(UserAgent.DataOptions.System)) + carrierDataString(allowed: options.contains(UserAgent.DataOptions.Carrier)) + ")"
 	}
 }
 

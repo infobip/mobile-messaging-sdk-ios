@@ -28,7 +28,7 @@ enum TestResult {
 	case cancel
 }
 
-final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
+final class MMRemoteAPIAlwaysFailing : RemoteAPIQueue {
 	var completionCompanionBlock : ((Any) -> Void)?
 	
 	init(mmContext: MobileMessaging, completionCompanionBlock: ((Any) -> Void)? = nil) {
@@ -42,7 +42,7 @@ final class MMRemoteAPIAlwaysFailing : MMRemoteAPIQueue {
 	}
 }
 
-final class MMGeoRemoteAPIAlwaysSucceeding : MMRemoteAPIQueue {
+final class MMGeoRemoteAPIAlwaysSucceeding : RemoteAPIQueue {
 	var completionCompanionBlock : ((Any) -> Void)?
 	
 	init(mmContext: MobileMessaging, completionCompanionBlock: ((Any) -> Void)? = nil) {
@@ -57,7 +57,7 @@ final class MMGeoRemoteAPIAlwaysSucceeding : MMRemoteAPIQueue {
 	}
 }
 
-class MMRemoteAPIMock: MMRemoteAPILocalMocks {
+class MMRemoteAPIMock: RemoteAPILocalMocks {
 	var responseSubstitution: ((_ request: Any) -> JSON?)? // (Request) -> (JSON)
 	var performRequestCompanionBlock: ((Any) -> Void)?
 	var completionCompanionBlock: ((Any) -> Void)?
@@ -93,14 +93,14 @@ class MMRemoteAPIMock: MMRemoteAPILocalMocks {
 
 extension MobileMessaging {
 	func setupMockedQueues(mmContext: MobileMessaging) {
-		remoteApiManager.registrationQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.seenStatusQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.messageSyncQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.versionFetchingQueue = MMRemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.registrationQueue = RemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.seenStatusQueue = RemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.messageSyncQueue = RemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiManager.versionFetchingQueue = RemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
 	}
 }
 
-class MMRemoteAPILocalMocks: MMRemoteAPIQueue {
+class RemoteAPILocalMocks: RemoteAPIQueue {
 	
 	init(mmContext: MobileMessaging, baseURLString: String, appCode: String) {
 		super.init(mmContext: mmContext, baseURL: baseURLString, applicationCode: appCode)

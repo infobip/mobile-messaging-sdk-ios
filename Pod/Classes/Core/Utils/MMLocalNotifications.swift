@@ -23,6 +23,7 @@ extension UILocalNotification {
 		if #available(iOS 10.0, *) {
 			mm_scheduleUserNotification(with: message, completion: completion)
 		} else {
+			MMLogDebug("[Local Notification] presenting notification for \(message.messageId)")
 			UIApplication.shared.presentLocalNotificationNow(mm_localNotification(with: message))
 			completion?()
 		}
@@ -59,7 +60,7 @@ func mm_scheduleUserNotification(with message: MTMessage, completion: (() -> Voi
 			content.sound = UNNotificationSound.init(named: sound)
 		}
 	}
-	
+
 	message.downloadImageAttachment(completion: { (url, error) in
 		if let fileUrl = url {
 			do {
@@ -70,6 +71,7 @@ func mm_scheduleUserNotification(with message: MTMessage, completion: (() -> Voi
 			}
 		}
 		let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)
+		MMLogDebug("[Local Notification] scheduling notification for \(message.messageId)")
 		UNUserNotificationCenter.current().add(req, withCompletionHandler: nil)
 		completion?()
 	})

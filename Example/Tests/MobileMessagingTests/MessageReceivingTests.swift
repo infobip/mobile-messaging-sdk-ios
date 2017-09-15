@@ -8,12 +8,14 @@
 import XCTest
 @testable import MobileMessaging
 
+let sendDateTimeMillis = 1503583689984 as Double
+
 func backendJSONSilentMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"\(APNSPayloadKeys.internalData)\": {\"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"\(APNSPayloadKeys.internalData)\": {\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(APNSPayloadKeys.internalData)\": {\"internalKey1\": \"internalValue1\", \"atts\": [{\"url\":\"pic.url\",\"t\":\"string\"}]}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(APNSPayloadKeys.internalData)\": {\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\", \"atts\": [{\"url\":\"pic.url\",\"t\":\"string\"}]}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -22,7 +24,7 @@ func apnsNormalMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 	return [
 		"messageId": messageId,
 		"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-		APNSPayloadKeys.internalData: ["internalKey": "internalValue"],
+		APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey": "internalValue"],
 		APNSPayloadKeys.customPayload: ["customKey": "customValue"]
 	]
 }
@@ -31,7 +33,7 @@ func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 	return [
 		"messageId": messageId,
 		"aps": ["content-available": 1, "badge": 6],
-		APNSPayloadKeys.internalData: ["silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
+		APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
 		APNSPayloadKeys.customPayload: ["customKey": "customValue"]
 	]
 }
@@ -54,7 +56,7 @@ class MessageReceivingTests: MMTestCase {
 		let resultDict = [
 							"messageId": "m1",
 							"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-							APNSPayloadKeys.internalData: ["internalKey1": "internalValue1", InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
+							APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey1": "internalValue1", InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
 							APNSPayloadKeys.customPayload: ["customKey" : "customValue"],
 						] as APNSPayload
 		let message = MTMessage(json: JSON.parse(jsonstring))
@@ -70,7 +72,7 @@ class MessageReceivingTests: MMTestCase {
 			"messageId": "m1",
 			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
 			"silent": 1,
-			APNSPayloadKeys.internalData: ["internalKey1": "internalValue1"],
+			APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey1": "internalValue1"],
 			APNSPayloadKeys.customPayload : ["customKey" : "customValue"]
 		]
 		
@@ -95,6 +97,9 @@ class MessageReceivingTests: MMTestCase {
 
 			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
 			XCTAssertEqual(message.contentUrl, "pic.url")
+			print(Date(timeIntervalSince1970: message.sendDateTime))
+			
+			XCTAssertEqualWithAccuracy(message.sendDateTime, sendDateTimeMillis/1000, accuracy: 0.0001)
 		} else {
 			XCTFail("Message decoding failed")
 		}

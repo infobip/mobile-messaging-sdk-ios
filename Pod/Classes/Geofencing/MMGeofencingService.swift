@@ -33,18 +33,15 @@ extension MobileMessaging {
 }
 
 public class GeofencingService: NSObject, MobileMessagingService {
+	
 	var uniqueIdentifier: String {
-		return "com.mobile-messaging.subservice.geofencing"
+		return "com.mobile-messaging.subservice.GeofencingService"
 	}
 	
 	public func syncWithServer(_ completion: ((NSError?) -> Void)?) {
 		syncWithServer(completion: { (result) in
 			completion?(result?.error)
 		})
-	}
-	
-	func mobileMessagingWillStart(_ mmContext: MobileMessaging) {
-		
 	}
 	
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
@@ -54,11 +51,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		GeofencingService.isGeoServiceNeedsToStart = false
 		start(nil)
 	}
-	
-	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
-		
-	}
-	
+
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
 		stop()
 		GeofencingService.sharedInstance = nil
@@ -91,16 +84,15 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		return true
 	}
 	
-	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: ((MessageHandlingResult) -> Void)? = nil) {
+	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
 		guard let geoSignalingMessage = MMGeoMessage(payload: message.originalPayload, createdDate: message.createdDate) else {
 			completion?(.noData)
 			return
 		}
-		add(message: geoSignalingMessage) { 
+		add(message: geoSignalingMessage) {
 			completion?(.noData)
 		}
 	}
-
 	
 	private var _isRunning: Bool = false
 	var isRunning: Bool  {
@@ -128,7 +120,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	static var isGeoServiceNeedsToStart: Bool = false
 	static var sharedInstance: GeofencingService?
-	var geofencingServiceQueue: MMRemoteAPIQueue!
+	var geofencingServiceQueue: RemoteAPIQueue!
 	var locationManager: CLLocationManager!
 	var datasource: GeofencingDatasource!
 	let locationManagerQueue = MMQueue.Main.queue
@@ -263,7 +255,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		registerSelfAsSubservice(of: mmContext)
 		
 		locationManagerQueue.executeSync() {
-			self.geofencingServiceQueue = MMRemoteAPIQueue(mmContext: mmContext, baseURL: mmContext.remoteAPIBaseURL, applicationCode: mmContext.applicationCode)
+			self.geofencingServiceQueue = RemoteAPIQueue(mmContext: mmContext, baseURL: mmContext.remoteAPIBaseURL, applicationCode: mmContext.applicationCode)
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = GeofencingConstants.distanceFilter

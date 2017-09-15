@@ -133,7 +133,7 @@ class UserDataTests: MMTestCase {
 		weak var expectation = self.expectation(description: "save completed")
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let currentUser = MobileMessaging.currentUser!
 
@@ -180,7 +180,7 @@ class UserDataTests: MMTestCase {
 		weak var expectation = self.expectation(description: "data received")
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let currentUser = MobileMessaging.currentUser!
 		currentUser.msisdn = nil
@@ -215,7 +215,7 @@ class UserDataTests: MMTestCase {
 		weak var expectation = self.expectation(description: "data received")
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let currentUser = MobileMessaging.currentUser!
 		
@@ -274,7 +274,7 @@ class UserDataTests: MMTestCase {
 		]
 		currentUser.email = "luke@starwars.com"
 		currentUser.msisdn = "123"
-		currentUser.internalId = "123"
+		currentUser.pushRegistrationId = "123"
 		currentUser.externalId = "123"
 		
 		currentUser.set(customData: "Death Star", forKey: "home")
@@ -291,7 +291,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(installation.internalUserId, "123", "internal id must be persisted, since it's not an user data")
 		}
 		
-		XCTAssertEqual(currentUser.internalId, "123")
+		XCTAssertEqual(currentUser.pushRegistrationId, "123")
 		XCTAssertEqual(currentUser.email, "luke@starwars.com")
 		XCTAssertEqual(currentUser.msisdn, "123")
 		XCTAssertEqual(currentUser.externalId, "123")

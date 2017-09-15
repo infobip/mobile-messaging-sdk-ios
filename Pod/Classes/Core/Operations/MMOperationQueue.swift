@@ -37,6 +37,7 @@ class MMOperationQueue: OperationQueue {
 	class var userInitiatedQueue: MMOperationQueue {
 		let newQ = MMOperationQueue()
 		newQ.qualityOfService = .userInitiated
+		newQ.maxConcurrentOperationCount = 1
 		return newQ
 	}
 }

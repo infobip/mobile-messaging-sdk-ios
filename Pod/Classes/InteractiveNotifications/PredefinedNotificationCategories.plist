@@ -1,35 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>mm_accept_decline</key>
-	<array>
-		<dict>
-			<key>identifier</key>
-			<string>mm_accept</string>
-			<key>title</key>
-			<string>Accept</string>
-			<key>title_localization_key</key>
-			<string>mm_button_accept</string>
-			<key>foreground</key>
-			<true/>
-			<key>authenticationRequired</key>
-			<true/>
-		</dict>
-		<dict>
-			<key>identifier</key>
-			<string>mm_decline</string>
-			<key>title</key>
-			<string>Decline</string>
-			<key>title_localization_key</key>
-			<string>mm_button_decline</string>
-			<key>foreground</key>
-			<false/>
-			<key>authenticationRequired</key>
-			<true/>
-			<key>destructive</key>
-			<true/>
-		</dict>
-	</array>
-</dict>
+<array>
+	<dict>
+		<key>identifier</key>
+		<string>mm_accept_decline</string>
+		<key>actions</key>
+		<array>
+			<dict>
+				<key>moRequired</key>
+				<true/>
+				<key>identifier</key>
+				<string>mm_accept</string>
+				<key>title</key>
+				<string>Accept</string>
+				<key>titleLocalizationKey</key>
+				<string>mm_button_accept</string>
+				<key>foreground</key>
+				<true/>
+				<key>authenticationRequired</key>
+				<true/>
+			</dict>
+			<dict>
+				<key>moRequired</key>
+				<true/>
+				<key>identifier</key>
+				<string>mm_decline</string>
+				<key>title</key>
+				<string>Decline</string>
+				<key>titleLocalizationKey</key>
+				<string>mm_button_decline</string>
+				<key>foreground</key>
+				<false/>
+				<key>authenticationRequired</key>
+				<true/>
+				<key>destructive</key>
+				<true/>
+			</dict>
+		</array>
+	</dict>
+</array>
 </plist>

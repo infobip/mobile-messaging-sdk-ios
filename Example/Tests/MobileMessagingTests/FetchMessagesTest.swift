@@ -30,7 +30,7 @@ class FetchMessagesTest: MMTestCase {
 		weak var expectation = self.expectation(description: "Sync finished")
 		XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 		
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		mobileMessagingInstance.messageHandler.syncWithServer { error in
 			
@@ -61,7 +61,7 @@ class FetchMessagesTest: MMTestCase {
 		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"],  completion: { _ in
 			prepconditionExpectation?.fulfill()
 		})
@@ -103,7 +103,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	override func setUp() {
 		super.setUp()
-		self.mobileMessagingInstance.currentUser.internalId = MMTestConstants.kTestCorrectInternalID
+		self.mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 	}
 	
 	func testThatNewDataFetched() {

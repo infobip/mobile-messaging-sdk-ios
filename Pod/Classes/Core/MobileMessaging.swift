@@ -7,31 +7,32 @@
 //
 
 import Foundation
+import UserNotifications
 
 public final class MobileMessaging: NSObject {
 	//MARK: Public
-
+	
 	/// Fabric method for Mobile Messaging session.
-	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	/// - parameter applicationCode: The application code of your Application from Push Portal website.
-	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
 	/// - parameter code: The application code of your Application from Push Portal website.
-	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	/// - parameter forceCleanup: Defines whether the SDK must be cleaned up on startup.
 	/// - warning: The cleanup (parameter `forceCleanup = true`) must be performed manually if you changed the application code while `PrivacySettings.applicationCodePersistingDisabled` is set to `true`.
-	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString, forceCleanup: forceCleanup)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
-	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a  push notification arrives.
+	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	/// - parameter code: The application code of your Application from Push Portal website.
 	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
-	public class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: false)
 	}
 	
@@ -63,62 +64,27 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
-	/// Fabric method for Mobile Messaging session.
-	///
-	///- parameter categories: Set of categories that indicating which buttons will be displayed and behavour of these buttons when a push notification arrives.
-	///- remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
-
-	public func withInteractiveNotificationCategories(_ categories: Set<MMNotificationCategory>) -> MobileMessaging {
-		self.interactiveNotificationCategories = categories
-		return self
-	}
-	
 	/// Starts a new Mobile Messaging session.
 	///
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
-	public func start(_ completion: ((Void) -> Void)? = nil) {
+	public func start(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("Starting service...")
-
-		performForEachSubservice { subservice in
-			subservice.mobileMessagingWillStart(self)
+		
+		startСomponents()
+		
+		performForEachSubservice {
+			$0.mobileMessagingWillStart(self)
 		}
 		
-		messageStorage?.start()
+		registerForRemoteNotifications()
 		
-		self.appListener = MMApplicationListener(mmContext: self)
-		
-		if MobileMessaging.isPushRegistrationEnabled {
-			messageHandler.start()
-		}
-
-		if application.isRegisteredForRemoteNotifications && currentInstallation.deviceToken == nil {
-			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
-			self.application.unregisterForRemoteNotifications()
-		}
-		
-		if let predefinedCategories = MMNotificationCategories().predefinedCategories {
-			interactiveNotificationCategories = interactiveNotificationCategories != nil ? interactiveNotificationCategories?.union(predefinedCategories) : predefinedCategories
-		}
-		
-		application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType, categories: self.interactiveNotificationCategories?.uiUserNotificationCategoriesSet))
-		
-		if application.isRegisteredForRemoteNotifications == false {
-			MMLogDebug("Registering for remote notifications...")
-			application.registerForRemoteNotifications()
-		}
-		
-		if !isTestingProcessRunning {
-			#if DEBUG
-				VersionManager(remoteApiManager: self.remoteApiManager).validateVersion()
-			#endif
-		}
-		
-		performForEachSubservice { subservice in
-			subservice.mobileMessagingDidStart(self)
+		performForEachSubservice {
+			$0.mobileMessagingDidStart(self)
 		}
 		
 		completion?()
+		
 		MMLogDebug("Service started!")
 	}
 	
@@ -141,7 +107,7 @@ public final class MobileMessaging: NSObject {
 	public static func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		MobileMessaging.sharedInstance?.cleanUpAndStop(clearKeychain)
 	}
-
+	
 	/// Enables the push registration so the device can receive push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
 	/// MobileMessaging SDK has the push registration enabled by default.
 	public static func enablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
@@ -163,20 +129,6 @@ public final class MobileMessaging: NSObject {
 		} else {
 			MobileMessaging.sharedInstance?.stop()
 		}
-		
-		// just to break retain cycles:
-		MobileMessaging.sharedInstance?.currentInstallation = nil
-		MobileMessaging.sharedInstance?.currentUser = nil
-		MobileMessaging.sharedInstance?.appListener = nil
-		MobileMessaging.sharedInstance?.messageHandler = nil
-		MobileMessaging.sharedInstance?.remoteApiManager = nil
-		MobileMessaging.sharedInstance?.application = nil
-		MobileMessaging.sharedInstance?.reachabilityManager = nil
-		MobileMessaging.sharedInstance?.keychain = nil
-		MobileMessaging.sharedInstance?.sharedNotificationExtensionStorage = nil
-		MobileMessaging.sharedInstance?.interactiveNotificationCategories = nil
-		
-		MobileMessaging.sharedInstance = nil
 	}
 	
 	/// Logging utility is used for:
@@ -212,41 +164,11 @@ public final class MobileMessaging: NSObject {
 			let createdDate = userInfo[LocalNotificationKeys.createdDate] as? Date,
 			let message = MTMessage(payload: payload, createdDate: createdDate),
 			let applicationState = MobileMessaging.sharedInstance?.application.applicationState,
-			MMMessageHandler.isNotificationTapped(message, applicationState: applicationState) else {
-				return
-		}
-		MMMessageHandler.handleNotificationTap(with: message)
-	}
-	
-	
-	///This method handles actions of interactive notification and triggers procedure for performing handling block that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:localNotification:completionHandler:)` callback.
-	///
-	/// - parameter identifier: The identifier associated with the action of interactive notification.
-	/// - parameter localNotification: `UILocalNotification` object, which specifies notification that was scheduled.
-	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
-	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [NSObject : AnyObject]?, completionHandler: @escaping () -> Void) {
-		guard let info = localNotification.userInfo,
-			let payload = info[LocalNotificationKeys.pushPayload] as? [String: Any],
-			let date = info[LocalNotificationKeys.createdDate] as? Date,
-			let mm = MobileMessaging.sharedInstance else {
-				completionHandler()
-				return
-		}
-		
-		mm.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload, createdDate: date), completionHandler: completionHandler)
-	}
-	
-	///This method handles actions of interactive notification and triggers procedure for performing operations that are defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback.
-	
-	/// - parameter identifier: The identifier associated with the action of interactive notification.
-	/// - parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
-	public class func handleActionWithIdentifier(identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], responseInfo: [NSObject : AnyObject]?, completionHandler: @escaping () -> Void) {
-		guard let mm = MobileMessaging.sharedInstance else {
-			completionHandler()
+			MMMessageHandler.isNotificationTapped(message, applicationState: applicationState) else
+		{
 			return
 		}
-		mm.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo, createdDate: Date()), completionHandler: completionHandler)
+		MMMessageHandler.handleNotificationTap(with: message)
 	}
 	
 	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
@@ -258,7 +180,7 @@ public final class MobileMessaging: NSObject {
 	public class var defaultMessageStorage: MMDefaultMessageStorage? {
 		return MobileMessaging.sharedInstance?.messageStorage as? MMDefaultMessageStorage
 	}
-
+	
 	/// Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
 	public class var currentUser: MMUser? {
 		return MobileMessaging.sharedInstance?.currentUser
@@ -270,18 +192,17 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.setSeen(messageIds)
 	}
 	
-	//FIXME: MOMEssage should be replaced with something lighter
 	/// This method sends mobile originated messages to the server.
 	/// - parameter messages: Array of objects of `MOMessage` class that need to be sent.
 	/// - parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
 	public class func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		MobileMessaging.sharedInstance?.sendMessages(messages, completion: completion)
+		MobileMessaging.sharedInstance?.sendMessagesUserInitiated(messages, completion: completion)
 	}
 	
 	/// An auxillary component provides the convinient access to the user agent data.
-	public internal(set) static var userAgent = MMUserAgent()
+	public internal(set) static var userAgent = UserAgent()
 	
-	/// A block object to be executed when user opens the app by tapping on the notification alert. 
+	/// A block object to be executed when user opens the app by tapping on the notification alert.
 	/// Default implementation marks the corresponding message as seen.
 	/// This block takes:
 	/// - single MTMessage object initialized from the Dictionary.
@@ -304,20 +225,15 @@ public final class MobileMessaging: NSObject {
 	/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
 	public internal(set) static var privacySettings = PrivacySettings()
 	
-	/// The `notificationActionHandler` object defines the behaviour that is triggered during the notification action handling.
-	///
-	/// Implement your own notification action hander class by implementing the `NotificationActionHandling` protocol.
-	public static var notificationActionHandler: NotificationActionHandling?
-	
-//MARK: Internal
+	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
-	let userNotificationType: UIUserNotificationType
+	let userNotificationType: UserNotificationType
 	let applicationCode: String
 	
 	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
 	
-	class func withApplicationCode(_ code: String, notificationType: UIUserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
+	class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
 		
 		if let sharedInstance = sharedInstance, sharedInstance.applicationCode != code || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
 			MobileMessaging.stop()
@@ -356,19 +272,33 @@ public final class MobileMessaging: NSObject {
 		if application.isRegisteredForRemoteNotifications {
 			application.unregisterForRemoteNotifications()
 		}
-
+		
 		messageStorage?.stop()
-
+		
 		application = UIApplication.shared
 		MobileMessaging.notificationTapHandler = nil
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
-		self.appListener = nil
 		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingDidStop(self)
 		}
 		
 		cleanupSubservices()
+		
+		// just to break retain cycles:
+		installationQueue.cancelAllOperations()
+		appListener = nil
+		currentInstallation = nil
+		currentUser = nil
+		appListener = nil
+		messageHandler = nil
+		remoteApiManager = nil
+		application = nil
+		reachabilityManager = nil
+		keychain = nil
+		sharedNotificationExtensionStorage = nil
+		
+		MobileMessaging.sharedInstance = nil
 	}
 	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: ((MessageHandlingResult) -> Void)? = nil) {
@@ -392,15 +322,25 @@ public final class MobileMessaging: NSObject {
 			subservice.pushRegistrationStatusDidChange(self)
 		}
 	}
-
+	
 	func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
 		MMLogDebug("Setting seen status: \(messageIds)")
 		messageHandler.setSeen(messageIds, completion: completion)
 	}
 	
-	func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		MMLogDebug("Sending mobile originated messages...")
-		messageHandler.sendMessages(messages, completion: completion)
+	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+		MMLogDebug("Sending mobile originated messages (SDK initiated)...")
+		messageHandler.sendMessages(messages, isUserInitiated: false, completion: completion)
+	}
+	
+	func retryMoMessageSending(completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+		MMLogDebug("Retrying sending mobile originated messages...")
+		messageHandler.sendMessages([], isUserInitiated: false, completion: completion)
+	}
+	
+	func sendMessagesUserInitiated(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+		MMLogDebug("Sending mobile originated messages (User initiated)...")
+		messageHandler.sendMessages(messages, isUserInitiated: true, completion: completion)
 	}
 	
 	var isPushRegistrationEnabled: Bool {
@@ -422,7 +362,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	//MARK: Private
-	private init?(appCode: String, notificationType: UIUserNotificationType, backendBaseURL: String, forceCleanup: Bool) {
+	private init?(appCode: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool) {
 		
 		let logCoreDataInitializationError = {
 			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
@@ -432,7 +372,7 @@ public final class MobileMessaging: NSObject {
 			logCoreDataInitializationError()
 			return nil
 		}
-        
+		
 		if forceCleanup || applicationCodeChanged(storage: storage, newApplicationCode: appCode) {
 			MMLogDebug("Data will be cleaned up due to the application code change.")
 			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorage: messageStorage as? MMDefaultMessageStorage)
@@ -449,6 +389,55 @@ public final class MobileMessaging: NSObject {
 		self.remoteAPIBaseURL       = backendBaseURL
 		
 		MMLogInfo("SDK successfully initialized!")
+	}
+	
+	private func registerForRemoteNotifications() {
+		if application.isRegisteredForRemoteNotifications && currentInstallation.deviceToken == nil {
+			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
+			application.unregisterForRemoteNotifications()
+		}
+		registerNotificationSettings()
+		guard self.application.isRegisteredForRemoteNotifications == false else {
+			return
+		}
+		MMLogDebug("Registering for remote notifications...")
+		self.application.registerForRemoteNotifications()
+	}
+	
+	private func registerNotificationSettings() {
+		if #available(iOS 10.0, *) {
+			UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
+				guard granted else {
+					MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
+					return
+				}
+				if let categories = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.unNotificationCategories {
+					UNUserNotificationCenter.current().setNotificationCategories(categories)
+				}
+			}
+		} else {
+			application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType.uiUserNotificationType, categories: NotificationsInteractionService.sharedInstance?.allNotificationCategories?.uiUserNotificationCategories))
+		}
+	}
+	
+	private func startСomponents() {
+		if NotificationsInteractionService.sharedInstance == nil {
+			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
+			registerSubservice(NotificationsInteractionService.sharedInstance!)
+		}
+		
+		appListener = MMApplicationListener(mmContext: self)
+		messageStorage?.start()
+		
+		if MobileMessaging.isPushRegistrationEnabled {
+			messageHandler.start()
+		}
+		
+		if !isTestingProcessRunning {
+			#if DEBUG
+				VersionManager(remoteApiManager: self.remoteApiManager).validateVersion()
+			#endif
+		}
 	}
 	
 	private(set) var messageStorage: MessageStorage? {
@@ -474,25 +463,6 @@ public final class MobileMessaging: NSObject {
 	static var date: MMDate = MMDate() // testability
 	
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
-	var interactiveNotificationCategories: Set<MMNotificationCategory>?
-	
-	private func handleActionWithIdentifier(identifier: String?, message: MTMessage?, completionHandler: @escaping () -> Void) {
-		guard let identifier = identifier,
-			let message = message,
-			let categoryId = message.aps.category,
-			let registeredCategories = MobileMessaging.sharedInstance?.interactiveNotificationCategories,
-			let category = registeredCategories.first(where: {return $0.identifier == categoryId}),
-			let action = category.actions.first(where: {return $0.identifier == identifier}) else {
-				completionHandler()
-				return
-		}
-		message.interactiveActionClicked = action
-		messageHandler.handleMTMessage(message, notificationTapped: false, completion: { (result) in
-			self.setSeen([message.messageId], completion: { _ in
-				completionHandler()
-			})
-		})
-	}
 }
 
 extension UIApplication: MMApplication {}

@@ -18,6 +18,7 @@ import CoreData
 enum MMMessageType : Int16 {
 	case Default = 0
 	case Geo
+	case MO
 }
 
 @objc public enum CampaignState : Int16 {

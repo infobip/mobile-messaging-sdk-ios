@@ -30,8 +30,7 @@ class SeenStatusSendingOperation: Operation {
 				return
 			}
 			let seenStatusesToSend = seenNotSentMessages.flatMap { msg -> SeenData? in
-				guard let seenDate = msg.seenDate else
-                {
+				guard let seenDate = msg.seenDate else {
 					return nil
 				}
 				return SeenData(messageId: msg.messageId, seenDate: seenDate)

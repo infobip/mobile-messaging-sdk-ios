@@ -15,7 +15,7 @@ class SystemDataSynchronizationOperation: Operation {
 	let mmContext: MobileMessaging
 	let finishBlock: ((NSError?) -> Void)?
 	
-	lazy var currentSystemData: MMSystemData = {
+	lazy var currentSystemData: SystemData = {
 		return MobileMessaging.userAgent.systemData
 	}()
 	
@@ -43,7 +43,7 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	private func sendRequest() {
-		guard user.internalId != nil else {
+		guard user.pushRegistrationId != nil else {
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
@@ -59,8 +59,10 @@ class SystemDataSynchronizationOperation: Operation {
 		switch result {
 		case .Success:
 			installation.systemDataHash = currentSystemDataHash
+			guard !isCancelled else {
+				return
+			}
 			installation.persist()
-			
 			MMLogDebug("[System data sync] successfully synced")
 		case .Failure(let error):
 			MMLogError("[System data sync] sync request failed with error: \(String(describing: error))")

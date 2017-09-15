@@ -122,7 +122,7 @@ public final class MMLogger: NSObject, MMLogging {
 			objectsToShare.append("APNS device token: \(dt)")
 		}
 		
-		if let id = MobileMessaging.currentUser?.internalId {
+		if let id = MobileMessaging.currentUser?.pushRegistrationId {
 			objectsToShare.append("Push registration ID: \(id)")
 		}
 		

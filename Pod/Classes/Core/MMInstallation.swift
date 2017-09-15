@@ -83,11 +83,11 @@ final public class MMUser: NSObject {
 	
 //MARK: - Public
 	public override var description: String {
-		return "User:\n  Internal ID = \(String(describing: internalId))\n    External ID = \(String(describing: externalId))\n    Email = \(String(describing: email))\n    MSISDN = \(String(describing: msisdn))\n    Custom Data = \(String(describing: customData))\n    Predefined Data = \(String(describing: predefinedData))"
+		return "User:\n  Internal ID = \(String(describing: pushRegistrationId))\n    External ID = \(String(describing: externalId))\n    Email = \(String(describing: email))\n    MSISDN = \(String(describing: msisdn))\n    Custom Data = \(String(describing: customData))\n    Predefined Data = \(String(describing: predefinedData))"
 	}
 	
-	/// A read-only identifier provided by server to uniquely identify the current app instance on a specific device.
-	public internal(set) var internalId: String? {
+	/// Unique push registration identifier issued by server. This identifier matches one to one with APNS cloud token of the particular application installation. This identifier is only available after `MMNotificationRegistrationUpdated` event.
+	public internal(set) var pushRegistrationId: String? {
 		get { return resolveProvider(forAttributesSet: AttributesSet.internalUserId).getValueForKey(Attributes.internalUserId.rawValue) as? String }
 		set { resolveProvider(forAttributesSet: AttributesSet.internalUserId).setValueForKey(Attributes.internalUserId.rawValue, value: newValue) }
 	}
