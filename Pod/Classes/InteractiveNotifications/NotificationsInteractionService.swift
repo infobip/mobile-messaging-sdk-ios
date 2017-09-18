@@ -41,14 +41,13 @@ extension MobileMessaging {
 	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let info = localNotification.userInfo,
 			let payload = info[LocalNotificationKeys.pushPayload] as? [String: Any],
-			let date = info[LocalNotificationKeys.createdDate] as? Date,
 			let service = NotificationsInteractionService.sharedInstance else
 		{
 			completionHandler()
 			return
 		}
 		
-        service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload, createdDate: date), responseInfo: responseInfo, completionHandler: completionHandler)
+        service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload), responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
 	/// This method handles interactive notifications actions and performs work that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback.
@@ -63,7 +62,7 @@ extension MobileMessaging {
 			return
 		}
 		
-		service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo, createdDate: Date()), responseInfo: responseInfo, completionHandler: completionHandler)
+		service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo), responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 }
 
@@ -97,31 +96,37 @@ class NotificationsInteractionService: MobileMessagingService {
 			return
 		}
 		
-		let handleAction: (NotificationAction) -> Void = { action in
+		let handleAction: (NotificationAction?) -> Void = { action in
 			message.appliedAction = action
-			self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: false, completion: { _ in
+			self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: action == nil, completion: { _ in
 				completionHandler()
 			})
-		}
+		}	
 		
-		if #available(iOS 10.0, *),
-			identifier == UNNotificationDismissActionIdentifier,
-			let systemDefinedDismissAction = NotificationAction(identifier: identifier, title: "Dismiss system-defined", options: nil) {
-			handleAction(systemDefinedDismissAction)
-		} else if let categoryId = message.aps.category,
-			let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
-			let action = category.actions.first(where: { $0.identifier == identifier }) {
-			
-			if #available(iOS 9.0, *),
+		if #available(iOS 10.0, *), identifier == UNNotificationDismissActionIdentifier
+		{
+			handleAction(NotificationAction.dismissAction)
+		}
+		else if #available(iOS 10.0, *), identifier == UNNotificationDefaultActionIdentifier
+		{
+			handleAction(nil)
+		}
+		else if	let categoryId = message.aps.category,
+					let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
+					let action = category.actions.first(where: { $0.identifier == identifier })
+		{
+			if	#available(iOS 9.0, *),
 				let responseInfo = responseInfo,
 				let action = action as? TextInputNotificationAction,
-				let typedText = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String {
+				let typedText = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String
+			{
 				action.typedText = typedText
 				handleAction(action)
 			} else {
 				handleAction(action)
 			}
-		} else {
+		}
+		else {
 			completionHandler()
 		}
 	}

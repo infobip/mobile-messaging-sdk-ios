@@ -52,7 +52,6 @@ class MessagePostingOperation: Operation {
 					messagesToSend.forEach { originalMessage in
 						let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 						newDBMessage.messageId = originalMessage.messageId
-						newDBMessage.creationDate = originalMessage.createdDate
 						newDBMessage.isSilent = false
 						newDBMessage.reportSent = false
 						newDBMessage.deliveryReportedDate = nil

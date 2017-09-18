@@ -66,7 +66,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	}
 	
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
-		guard let geoSignalingMessage = MMGeoMessage(payload: originalMessage.originalPayload, createdDate: MobileMessaging.date.now) else {
+		guard let geoSignalingMessage = MMGeoMessage(payload: originalMessage.originalPayload) else {
 			MMLogDebug("[GeofencingService] cannot populate message \(message.messageId)")
 			return false
 		}
@@ -74,7 +74,6 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		//this code must perform only for geo signaling messages
 		message.messageId = originalMessage.messageId
 		message.reportSent = originalMessage.isDeliveryReportSent
-		message.creationDate = originalMessage.createdDate
 		message.payload = geoSignalingMessage.originalPayload
 		message.messageType = .Geo
 		message.isSilent = originalMessage.isSilent
@@ -85,7 +84,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	}
 	
 	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
-		guard let geoSignalingMessage = MMGeoMessage(payload: message.originalPayload, createdDate: message.createdDate) else {
+		guard let geoSignalingMessage = MMGeoMessage(payload: message.originalPayload) else {
 			completion?(.noData)
 			return
 		}

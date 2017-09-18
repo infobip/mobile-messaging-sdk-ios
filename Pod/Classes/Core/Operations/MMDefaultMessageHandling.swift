@@ -16,7 +16,7 @@ public class MMDefaultMessageHandling: MessageHandling {
 	@objc public func didReceiveNewMessage(message: MTMessage, completion: (() -> Void)?) {
 		switch message.deliveryMethod {
 		case .pull, .generatedLocally:
-			self.presentLocalNotificationAlert(with: message, completion: completion)
+			presentLocalNotificationAlert(with: message, completion: completion)
 		case .push, .undefined:
 			completion?()
 			break
@@ -24,6 +24,6 @@ public class MMDefaultMessageHandling: MessageHandling {
 	}
 	
 	func presentLocalNotificationAlert(with message: MTMessage, completion: (() -> Void)?) {
-		UILocalNotification.mm_presentLocalNotification(with: message, completion: completion)
+		LocalNotifications.presentLocalNotification(with: message, completion: completion)
 	}
 }

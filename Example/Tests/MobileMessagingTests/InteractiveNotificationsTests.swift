@@ -67,13 +67,10 @@ class InteractiveNotificationsTests: MMTestCase {
 		var set = Set<NotificationCategory>()
 		set.insert(category)
 		
-		
 		cleanUpAndStop()
-		
 		
 		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
 		mm.start()
-		
 		
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		weak var seenCalled = expectation(description: "seenCalled")
@@ -84,7 +81,6 @@ class InteractiveNotificationsTests: MMTestCase {
 		}
 		msgHandlerMock.setSeenWasCalled = { seenCalled?.fulfill() }
 		mm.messageHandler = msgHandlerMock
-		
 		
 		MobileMessaging.notificationActionHandler = NotificationActionHandlerMock(handlingBlock: { (_action, message, completionHandler) in
 			completion(_action, completionHandler)

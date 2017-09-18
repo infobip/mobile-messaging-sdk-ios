@@ -69,7 +69,6 @@ public class BaseMessage: NSObject {
 	public let messageId: String
 	public let direction: MessageDirection
 	public var originalPayload: StringKeyPayload
-	public let createdDate: Date
 	
 	class func makeMessage(withMessageStorageMessageManagedObject m: Message) -> BaseMessage? {
 		guard let direction = MessageDirection(rawValue: m.direction) else {
@@ -83,11 +82,10 @@ public class BaseMessage: NSObject {
 		}
 	}
 	
-	public init(messageId: String, direction: MessageDirection, originalPayload: StringKeyPayload, createdDate: Date) {
+	public init(messageId: String, direction: MessageDirection, originalPayload: StringKeyPayload) {
 		self.messageId = messageId
 		self.originalPayload = originalPayload
 		self.direction = direction
-		self.createdDate = createdDate
 	}
 	
 	public override var hash: Int {
@@ -150,7 +148,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	
 	convenience init?(json: JSON) {
 		if let payload = json.dictionaryObject {
-			self.init(payload: payload, createdDate: MobileMessaging.date.now)
+			self.init(payload: payload)
 		} else {
 			return nil
 		}
@@ -159,14 +157,14 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	
 	/// Iitializes the MTMessage from Message storage's message
 	convenience init?(messageStorageMessageManagedObject m: Message) {
-		self.init(payload: m.payload, createdDate: m.createdDate)
+		self.init(payload: m.payload)
 		self.seenStatus = MMSeenStatus(rawValue: m.seenStatusValue) ?? .NotSeen
 		self.seenDate = m.seenDate
 		self.isDeliveryReportSent = m.isDeliveryReportSent
 		self.deliveryReportedDate = m.deliveryReportedDate
 	}
 	
-	init?(payload: APNSPayload, createdDate: Date) {
+	init?(payload: APNSPayload) {
 		guard var payload = payload as? StringKeyPayload, let messageId = payload[APNSPayloadKeys.messageId] as? String, let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload else {
 			return nil
 		}
@@ -206,7 +204,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		} else {
 			self.contentUrl = nil
 		}
-		super.init(messageId: messageId, direction: .MT, originalPayload: payload, createdDate: createdDate)
+		super.init(messageId: messageId, direction: .MT, originalPayload: payload)
 	}
 	
 	private static func isSilent(payload: APNSPayload?) -> Bool {
@@ -296,7 +294,7 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		
 		let mId = NSUUID().uuidString
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: mId, sentStatus: .Undefined).dictRepresentation
-		super.init(messageId: mId, direction: .MO, originalPayload: dict, createdDate: MobileMessaging.date.now)
+		super.init(messageId: mId, direction: .MO, originalPayload: dict)
 	}
 
 	/// Iitializes the MOMessage from Message storage's message
@@ -327,7 +325,7 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.text = text
 		
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
-		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: MobileMessaging.date.now)
+		super.init(messageId: messageId, direction: .MO, originalPayload: dict)
 	}
 	
 	var dictRepresentation: DictionaryRepresentation {
@@ -348,6 +346,6 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.text = text
 		
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
-		super.init(messageId: messageId, direction: .MO, originalPayload: dict, createdDate: MobileMessaging.date.now)
+		super.init(messageId: messageId, direction: .MO, originalPayload: dict)
 	}
 }

@@ -422,3 +422,11 @@ extension Sequence {
 	}
 }
 
+public extension UIDevice {
+	public func SYSTEM_VERSION_LESS_THAN(_ version: String) -> Bool {
+		return self.systemVersion.compare(version, options: .numeric) == .orderedAscending
+	}
+	
+	public var IS_IOS_BEFORE_10: Bool { return SYSTEM_VERSION_LESS_THAN("10.0") }
+}
+

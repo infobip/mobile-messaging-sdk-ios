@@ -161,8 +161,7 @@ public final class MobileMessaging: NSObject {
 		
 		guard let userInfo = notification.userInfo,
 			let payload = userInfo[LocalNotificationKeys.pushPayload] as? APNSPayload,
-			let createdDate = userInfo[LocalNotificationKeys.createdDate] as? Date,
-			let message = MTMessage(payload: payload, createdDate: createdDate),
+			let message = MTMessage(payload: payload),
 			let applicationState = MobileMessaging.sharedInstance?.application.applicationState,
 			MMMessageHandler.isNotificationTapped(message, applicationState: applicationState) else
 		{
@@ -299,6 +298,9 @@ public final class MobileMessaging: NSObject {
 		sharedNotificationExtensionStorage = nil
 		
 		MobileMessaging.sharedInstance = nil
+		if #available(iOS 10.0, *) {
+			UNUserNotificationCenter.current().delegate = nil
+		}
 	}
 	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: ((MessageHandlingResult) -> Void)? = nil) {
@@ -397,15 +399,16 @@ public final class MobileMessaging: NSObject {
 			application.unregisterForRemoteNotifications()
 		}
 		registerNotificationSettings()
-		guard self.application.isRegisteredForRemoteNotifications == false else {
+		guard application.isRegisteredForRemoteNotifications == false else {
 			return
 		}
 		MMLogDebug("Registering for remote notifications...")
-		self.application.registerForRemoteNotifications()
+		application.registerForRemoteNotifications()
 	}
 	
 	private func registerNotificationSettings() {
 		if #available(iOS 10.0, *) {
+			UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
 			UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
 				guard granted else {
 					MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")

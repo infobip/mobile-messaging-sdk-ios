@@ -35,7 +35,7 @@ class MockMessageStorage: NSObject, MessageStorage {
 	}
 	func findMessage(withId messageId: MessageId) -> BaseMessage? {
 		if let idx = moMessages.index(where: { $0.messageId == messageId }) {
-			return BaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId], createdDate: Date())
+			return BaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId])
 		} else {
 			return nil
 		}
