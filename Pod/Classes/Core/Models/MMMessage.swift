@@ -135,7 +135,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	}
 	
 	public let contentUrl: String?
-	public let sendDateTime: TimeInterval
+	public let sendDateTime: TimeInterval // seconds
 	public var seenStatus: MMSeenStatus
 	public var seenDate: Date?
 	public var isDeliveryReportSent: Bool
@@ -285,12 +285,14 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 	public let text: String
 	public let customPayload: [String: CustomPayloadSupportedTypes]?
 	public let sentStatus: MOMessageSentStatus
+	public let composedDate: Date
 	
-	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
+	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedDate: Date) {
 		self.destination = destination
 		self.sentStatus = .Undefined
 		self.customPayload = customPayload
 		self.text = text
+		self.composedDate = composedDate
 		
 		let mId = NSUUID().uuidString
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: mId, sentStatus: .Undefined).dictRepresentation
@@ -299,12 +301,12 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 
 	/// Iitializes the MOMessage from Message storage's message
 	convenience init?(messageStorageMessageManagedObject m: Message) {
-		self.init(payload: m.payload)
+		self.init(payload: m.payload, composedDate: m.createdDate)
 	}
 	
 	convenience init?(messageManagedObject: MessageManagedObject) {
 		if let p = messageManagedObject.payload {
-			self.init(payload: p)
+			self.init(payload: p, composedDate: messageManagedObject.creationDate)
 		} else {
 			return nil
 		}
@@ -312,17 +314,18 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 	
 	convenience init?(json: JSON) {
 		if let dictionary = json.dictionaryObject {
-			self.init(payload: dictionary)
+			self.init(payload: dictionary, composedDate: MobileMessaging.date.now) // workaround: `now` is put as a composed date only because there is no Composed Date field in a JSON model. however this data is not used from anywhere in SDK.
 		} else {
 			return nil
 		}
 	}
 
-	init(messageId: String, destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?) {
+	init(messageId: String, destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedDate: Date) {
 		self.destination = destination
 		self.customPayload = customPayload
 		self.sentStatus = .Undefined
 		self.text = text
+		self.composedDate = composedDate
 		
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
 		super.init(messageId: messageId, direction: .MO, originalPayload: dict)
@@ -332,19 +335,19 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		return MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: sentStatus).dictRepresentation
 	}
 	
-	init?(payload: DictionaryRepresentation) {
+	init?(payload: DictionaryRepresentation, composedDate: Date) {
 		guard let messageId = payload[APIKeys.kMOMessageId] as? String,
 			let text = payload[APIKeys.kMOText] as? String,
 			let status = payload[APIKeys.kMOMessageSentStatusCode] as? Int else
 		{
 			return nil
 		}
-	
+		
 		self.destination = payload[APIKeys.kMODestination] as? String
 		self.sentStatus = MOMessageSentStatus(rawValue: Int16(status)) ?? MOMessageSentStatus.Undefined
 		self.customPayload = payload[APIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
 		self.text = text
-		
+		self.composedDate = composedDate
 		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
 		super.init(messageId: messageId, direction: .MO, originalPayload: dict)
 	}

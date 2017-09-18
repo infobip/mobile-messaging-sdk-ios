@@ -72,6 +72,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		}
 		
 		//this code must perform only for geo signaling messages
+		message.creationDate = Date(timeIntervalSince1970: originalMessage.sendDateTime)
 		message.messageId = originalMessage.messageId
 		message.reportSent = originalMessage.isDeliveryReportSent
 		message.payload = geoSignalingMessage.originalPayload

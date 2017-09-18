@@ -249,6 +249,7 @@ class MMMessageHandler: MobileMessagingService {
 		}
 		
 		// this code must perfrom only for non
+		message.creationDate = Date(timeIntervalSince1970: originalMessage.sendDateTime)
 		message.messageId = originalMessage.messageId
 		message.isSilent = originalMessage.isSilent
 		message.reportSent = originalMessage.isDeliveryReportSent

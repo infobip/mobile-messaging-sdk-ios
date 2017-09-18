@@ -28,10 +28,6 @@ enum MMMessageType : Int16 {
 }
 
 final class MessageManagedObject: NSManagedObject, Fetchable, Updatable {
-	override func MM_awakeFromCreation() {
-		self.creationDate = MobileMessaging.date.now
-	}
-	
     var seenStatus: MMSeenStatus {
 		get { return MMSeenStatus(rawValue: seenStatusValue) ?? .NotSeen }
 		set { seenStatusValue = newValue.rawValue }

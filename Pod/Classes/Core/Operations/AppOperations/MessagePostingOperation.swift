@@ -45,7 +45,7 @@ class MessagePostingOperation: Operation {
 			if let messages = self.messages {
 				
 				// new messages sending
-				messagesToSend = MessagePostingOperation.newMOMessages(among: messages, inContext: self.context)
+				messagesToSend = MessagePostingOperation.findNewMOMessages(among: messages, inContext: self.context)
 				
 				// if not user-initiated we must guarantee retries, thus persist the MOs
 				if !self.isUserInitiated {
@@ -57,6 +57,7 @@ class MessagePostingOperation: Operation {
 						newDBMessage.deliveryReportedDate = nil
 						newDBMessage.messageType = .MO
 						newDBMessage.payload = originalMessage.originalPayload
+						newDBMessage.creationDate = originalMessage.composedDate
 						do { try self.context.obtainPermanentIDs(for: [newDBMessage]) } catch (_) { }
 						self.sentMessageObjectIds.append(newDBMessage.objectID)
 					}
@@ -93,7 +94,7 @@ class MessagePostingOperation: Operation {
 		}
 	}
 	
-	static func newMOMessages(among messages: Set<MOMessage>, inContext context: NSManagedObjectContext) -> [MOMessage] {
+	static func findNewMOMessages(among messages: Set<MOMessage>, inContext context: NSManagedObjectContext) -> [MOMessage] {
 		return Set(messages.map(MMMessageMeta.init)).subtracting(MessagePostingOperation.persistedMessageMetas(inContext: context)).flatMap { meta in
 				return messages.first() { msg -> Bool in
 					return msg.messageId == meta.messageId
