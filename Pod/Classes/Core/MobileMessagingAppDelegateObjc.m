@@ -66,12 +66,16 @@
 }
 
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
-    [MobileMessaging handleActionWithIdentifierWithIdentifier:identifier localNotification:notification responseInfo:nil completionHandler:completionHandler];
+	if (UIDevice.currentDevice.IS_IOS_BEFORE_10) {
+		[MobileMessaging handleActionWithIdentifierWithIdentifier:identifier localNotification:notification responseInfo:nil completionHandler:completionHandler];
+	}
 	[self mm_application:application handleActionWithIdentifier:identifier forLocalNotification:notification withResponseInfo:nil completionHandler:completionHandler];
 }
 
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
-    [MobileMessaging handleActionWithIdentifierWithIdentifier:identifier localNotification:notification responseInfo:responseInfo completionHandler:completionHandler];
+	if (UIDevice.currentDevice.IS_IOS_BEFORE_10) {
+		[MobileMessaging handleActionWithIdentifierWithIdentifier:identifier localNotification:notification responseInfo:responseInfo completionHandler:completionHandler];
+	}
     [self mm_application:application handleActionWithIdentifier:identifier forLocalNotification:notification withResponseInfo:responseInfo completionHandler:completionHandler];
 }
 
@@ -80,12 +84,17 @@
 }
 
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
-    [MobileMessaging handleActionWithIdentifierWithIdentifier:identifier forRemoteNotification:userInfo responseInfo:nil completionHandler:completionHandler];
+	
+	if (UIDevice.currentDevice.IS_IOS_BEFORE_10) {
+		[MobileMessaging handleActionWithIdentifierWithIdentifier:identifier forRemoteNotification:userInfo responseInfo:nil completionHandler:completionHandler];
+	}
 	[self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:nil completionHandler:completionHandler];
 }
 
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
-    [MobileMessaging handleActionWithIdentifierWithIdentifier:identifier forRemoteNotification:userInfo responseInfo:responseInfo completionHandler:completionHandler];
+	if (UIDevice.currentDevice.IS_IOS_BEFORE_10) {
+		[MobileMessaging handleActionWithIdentifierWithIdentifier:identifier forRemoteNotification:userInfo responseInfo:responseInfo completionHandler:completionHandler];
+	}
     [self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
 }
 

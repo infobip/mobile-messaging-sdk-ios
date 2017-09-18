@@ -21,6 +21,7 @@ final class Message: NSManagedObject, Fetchable {
 		newMessage.deliveryMethod = mtMessage.deliveryMethod.rawValue
 		newMessage.deliveryReportedDate = mtMessage.deliveryReportedDate
 		newMessage.isDeliveryReportSent = mtMessage.deliveryReportedDate != nil
+		newMessage.createdDate = Date(timeIntervalSince1970: mtMessage.sendDateTime)
 		return newMessage
 	}
 	
@@ -32,11 +33,8 @@ final class Message: NSManagedObject, Fetchable {
 		newMessage.payload = moMessage.dictRepresentation
 		newMessage.messageId = moMessage.messageId
 		newMessage.direction = MessageDirection.MO.rawValue
+		newMessage.createdDate = moMessage.composedDate
 		return newMessage
-	}
-	
-	override func MM_awakeFromCreation() {
-		self.createdDate = MobileMessaging.date.now
 	}
 	
 	var baseMessage: BaseMessage? {

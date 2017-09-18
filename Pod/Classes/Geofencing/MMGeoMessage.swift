@@ -71,7 +71,7 @@ final public class MMGeoMessage: MTMessage {
 			return nil
 		}
 		
-		self.init(payload: payload, createdDate: managedObject.creationDate)
+		self.init(payload: payload)
 		self.campaignState = managedObject.campaignState
 	}
 	
@@ -83,7 +83,7 @@ final public class MMGeoMessage: MTMessage {
 		}
 	}
 	
-	public override init?(payload: APNSPayload, createdDate: Date) {
+	public override init?(payload: APNSPayload) {
 		guard
 			let internalData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload,
 			let geoRegionsData = internalData[InternalDataKeys.geo] as? [StringKeyPayload],
@@ -117,7 +117,7 @@ final public class MMGeoMessage: MTMessage {
 		self.deliveryTime = deliveryTime
 		self.events = evs
 		self.regions = Set(geoRegionsData.flatMap(MMRegion.init))
-		super.init(payload: payload, createdDate: createdDate)
+		super.init(payload: payload)
 		self.regions.forEach({ $0.message = self })
 	}
 	
@@ -446,7 +446,7 @@ extension MTMessage {
 		//cut silent:true in case of fetched message
 		newpayload.removeValue(forKey: InternalDataKeys.silent)
 		
-		let result = MTMessage(payload: newpayload, createdDate: MobileMessaging.date.now)
+		let result = MTMessage(payload: newpayload)
 		result?.deliveryMethod = .generatedLocally
 		result?.isDeliveryReportSent = true
 		return result

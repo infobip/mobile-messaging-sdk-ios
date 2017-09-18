@@ -35,8 +35,8 @@ class MOMessageSendingTests: MMTestCase {
 		mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
+		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date())
+		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date())
 		
 		self.assertMoMessagesCount(0)
 		
@@ -85,10 +85,10 @@ class MOMessageSendingTests: MMTestCase {
 	}
 	
 	func testMOMessageConstructors() {
-		let mo1 = MOMessage(destination: "destination", text: "text", customPayload: ["meal": "pizza" as NSString])
+		let mo1 = MOMessage(destination: "destination", text: "text", customPayload: ["meal": "pizza" as NSString], composedDate: Date())
 		let dict1 = mo1.dictRepresentation
 		
-		let mo2 = MOMessage(payload: dict1)
+		let mo2 = MOMessage(payload: dict1, composedDate: Date())
 		XCTAssertNotNil(mo2)
 		let dict2 = mo2?.dictRepresentation
 		
@@ -104,8 +104,8 @@ class MOMessageSendingTests: MMTestCase {
 		//Precondiotions
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
+		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date())
+		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date())
 
 		self.assertMoMessagesCount(0)
 		
@@ -138,8 +138,8 @@ class MOMessageSendingTests: MMTestCase {
 		mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes])
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes])
+		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date())
+		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date())
 		
 		self.assertMoMessagesCount(0)
 		

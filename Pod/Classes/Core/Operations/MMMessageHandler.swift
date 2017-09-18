@@ -69,7 +69,7 @@ class MMMessageHandler: MobileMessagingService {
 			return
 		}
 
-		if let msg = MTMessage(payload: userInfo, createdDate: MobileMessaging.date.now) {
+		if let msg = MTMessage(payload: userInfo) {
 			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(msg, applicationState: mmContext.application.applicationState),completion: completion)
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
@@ -249,8 +249,8 @@ class MMMessageHandler: MobileMessagingService {
 		}
 		
 		// this code must perfrom only for non
+		message.creationDate = Date(timeIntervalSince1970: originalMessage.sendDateTime)
 		message.messageId = originalMessage.messageId
-		message.creationDate = originalMessage.createdDate
 		message.isSilent = originalMessage.isSilent
 		message.reportSent = originalMessage.isDeliveryReportSent
 		message.deliveryReportedDate = originalMessage.deliveryReportedDate

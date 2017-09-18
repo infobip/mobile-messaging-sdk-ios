@@ -66,7 +66,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		
 		var result: UNNotificationContent = request.content
 		
-		guard let sharedInstance = sharedInstance, let mtMessage = MTMessage(payload: request.content.userInfo, createdDate: MobileMessaging.date.now) else
+		guard let sharedInstance = sharedInstance, let mtMessage = MTMessage(payload: request.content.userInfo) else
 		{
 			contentHandler(result)
 			return
@@ -177,7 +177,7 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 			return
 		}
 		var savedMessageDicts = ud.object(forKey: applicationCode) as? [StringKeyPayload] ?? [StringKeyPayload]()
-		var msgDict: StringKeyPayload = ["p": message.originalPayload, "d": message.createdDate, "dlr": message.isDeliveryReportSent]
+		var msgDict: StringKeyPayload = ["p": message.originalPayload, "dlr": message.isDeliveryReportSent]
 		msgDict["dlrd"] = message.deliveryReportedDate
 		savedMessageDicts.append(msgDict)
 		ud.set(savedMessageDicts, forKey: applicationCode)
@@ -190,11 +190,11 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 			return []
 		}
 		let messages = messageDataDicts.flatMap({ messageDataTuple -> MTMessage? in
-			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let date = messageDataTuple["d"] as? Date, let dlrSent =  messageDataTuple["dlr"] as? Bool else
+			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let dlrSent =  messageDataTuple["dlr"] as? Bool else
 			{
 				return nil
 			}
-			let newMessage = MTMessage(payload: payload, createdDate: date)
+			let newMessage = MTMessage(payload: payload)
 			newMessage?.isDeliveryReportSent = dlrSent
 			newMessage?.deliveryReportedDate = messageDataTuple["dlrd"] as? Date
 			return newMessage

@@ -40,11 +40,11 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 		fatalError("UserNotificationType not set. Please override `userNotificationType` variable in your subclass of `MobileMessagingAppDelegate`.")
 	}
 	
-	///Set of categories that indicating which buttons will be displayed and behavour of these buttons when a push notification arrives.
+	/// Set of categories that indicating which buttons will be displayed and behavour of these buttons when a push notification arrives.
 	///
-	///You can override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
-	///Once application started, provided categories will be registered.
-	///- remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
+	/// You can override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.
+	/// Once application started, provided categories will be registered.
+	/// - remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
 	open var interactiveNotificationCategories: Set<NotificationCategory>? {
 		return nil
 	}
@@ -93,43 +93,43 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	}
 	
 	public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
-		if !isTestingProcessRunning {
+		if UIDevice.current.IS_IOS_BEFORE_10 && !isTestingProcessRunning {
 			MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: nil, completionHandler: completionHandler)
 		}
         mm_application(application, handleActionWithIdentifier: identifier, for: notification, withResponseInfo: nil, completionHandler: completionHandler)
 	}
 	
 	public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
-		if !isTestingProcessRunning {
+		if UIDevice.current.IS_IOS_BEFORE_10 && !isTestingProcessRunning {
 			MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: nil, completionHandler: completionHandler)
 		}
 		mm_application(application, handleActionWithIdentifier: identifier, forRemoteNotification: userInfo, withResponseInfo: nil, completionHandler: completionHandler)
 	}
     
     public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
-        if !isTestingProcessRunning {
-            MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: responseInfo, completionHandler: completionHandler)
+		if UIDevice.current.IS_IOS_BEFORE_10 && !isTestingProcessRunning {
+			MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: responseInfo, completionHandler: completionHandler)
         }
         mm_application(application, handleActionWithIdentifier: identifier, for: notification, withResponseInfo: responseInfo, completionHandler: completionHandler)
     }
     
     public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
-        if !isTestingProcessRunning {
-            MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
+		if UIDevice.current.IS_IOS_BEFORE_10 && !isTestingProcessRunning {
+			MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
         }
         mm_application(application, handleActionWithIdentifier: identifier, forRemoteNotification: userInfo, withResponseInfo: responseInfo, completionHandler: completionHandler)
     }
 	
 	/// This is substitution for standart `application(:handleActionWithIdentifier:for:completionHandler)`
 	///
-	///You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
+	/// You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
 	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any]?,completionHandler: @escaping () -> Void) {
 		// override this callback in your AppDelegate if needed
 	}
 	
 	/// This is substitution for standart `application(:handleActionWithIdentifier:handleActionWithIdentifier:completionHandler)`
 	///
-	///You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
+	/// You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
 	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], withResponseInfo responseInfo: [AnyHashable : Any]?, completionHandler: @escaping () -> Void) {
 		// override this callback in your AppDelegate if needed
 	}

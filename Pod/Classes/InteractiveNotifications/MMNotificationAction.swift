@@ -15,16 +15,14 @@ public class NotificationAction: NSObject {
 	/// - parameter identifier: action identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
 	/// - parameter title: Title of the button which will be displayed.
 	/// - parameter options: Options with which to perform the action.
-	public init?(identifier: String, title: String, options: [NotificationActionOptions]?) {
+	convenience public init?(identifier: String, title: String, options: [NotificationActionOptions]?) {
 		guard !identifier.hasPrefix(NotificationActionKeys.mm_prefix) else {
 			return nil
 		}
-		self.identifier = identifier
-		self.title = title
-		self.options = options ?? []
+		self.init(actionIdentifier: identifier, title: title, options: options)
 	}
 	
-	init?(dictionary: [String: Any]) {
+	convenience init?(dictionary: [String: Any]) {
 		guard let identifier = dictionary[NotificationActionKeys.identifier] as? String,
 			let title = dictionary[NotificationActionKeys.title] as? String,
 			let titleLocalizationKey = dictionary[NotificationActionKeys.titleLocalizationKey] as? String else
@@ -45,10 +43,19 @@ public class NotificationAction: NSObject {
 		if let isMoRequired = dictionary[NotificationActionKeys.moRequired] as? Bool, isMoRequired {
 			opts.append(.moRequired)
 		}
-		
-		self.identifier = identifier
-		self.title = MMLocalization.localizedString(forKey: titleLocalizationKey, defaultString: title)
-		self.options = opts
+
+		self.init(actionIdentifier: identifier, title: MMLocalization.localizedString(forKey: titleLocalizationKey, defaultString: title), options: opts)
+	}
+	
+	init(actionIdentifier: String, title: String, options: [NotificationActionOptions]?) {
+		self.identifier = actionIdentifier
+		self.title = title
+		self.options = options ?? []
+	}
+	
+	@available(iOS 10.0, *)
+	class var dismissAction: NotificationAction {
+		return NotificationAction(actionIdentifier: UNNotificationDismissActionIdentifier, title: "Dismiss system-defined", options: nil)
 	}
 	
 	@available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
@@ -104,13 +111,13 @@ public final class TextInputNotificationAction: NotificationAction {
     /// - parameter options: Options with which to perform the action.
     /// - parameter textInputActionButtonTitle: Title of the text input action button
     /// - parameter textInputPlaceholder: Placeholder in the text input field.
-    public init?(identifier: String, title: String, options: [NotificationActionOptions]?, textInputActionButtonTitle: String, textInputPlaceholder: String) {
+	public init?(identifier: String, title: String, options: [NotificationActionOptions]?, textInputActionButtonTitle: String, textInputPlaceholder: String) {
         guard !identifier.hasPrefix(NotificationActionKeys.mm_prefix) else {
             return nil
         }
         self.textInputActionButtonTitle = textInputActionButtonTitle
         self.textInputPlaceholder = textInputPlaceholder
-        super.init(identifier: identifier, title: title, options: options)
+		super.init(actionIdentifier: identifier, title: title, options: options)
     }
     
     @available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")

@@ -41,7 +41,7 @@ func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 func sendPushes(_ preparingFunc:(String) -> [AnyHashable: Any], count: Int, receivingHandler: ([AnyHashable: Any]) -> Void) {
     for _ in 0..<count {
 		let newMessageId = UUID().uuidString
-		if let payload = MTMessage(payload: preparingFunc(newMessageId), createdDate: Date())?.originalPayload {
+		if let payload = MTMessage(payload: preparingFunc(newMessageId))?.originalPayload {
             receivingHandler(payload)
         } else {
             XCTFail()
@@ -263,8 +263,8 @@ class MessageReceivingTests: MMTestCase {
 			})
 		})
 		
-		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1, createdDate: Date()))
-		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1, createdDate: Date()))
+		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1))
+		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1))
 		
 		self.waitForExpectations(timeout: 60, handler: { error in
 			assertionsBlock(tappedMessages)
@@ -273,11 +273,10 @@ class MessageReceivingTests: MMTestCase {
 }
 
 extension UILocalNotification {
-	class func mm_localNotification(with payload: [AnyHashable: Any], createdDate: Date) -> UILocalNotification {
-		let m = MTMessage(payload: payload, createdDate: createdDate)!
+	class func mm_localNotification(with payload: [AnyHashable: Any]) -> UILocalNotification {
+		let m = MTMessage(payload: payload)!
 		let localNotification = UILocalNotification()
-		localNotification.userInfo = [LocalNotificationKeys.pushPayload: payload,
-		                              LocalNotificationKeys.createdDate: createdDate]
+		localNotification.userInfo = [LocalNotificationKeys.pushPayload: payload]
 		localNotification.alertBody = m.text
 		localNotification.soundName = m.sound
 		return localNotification
