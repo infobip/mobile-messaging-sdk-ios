@@ -155,7 +155,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.deliveryMethod = .pull
 	}
 	
-	/// Iitializes the MTMessage from Message storage's message
+	/// Initializes the MTMessage from Message storage's message
 	convenience init?(messageStorageMessageManagedObject m: Message) {
 		self.init(payload: m.payload)
 		self.seenStatus = MMSeenStatus(rawValue: m.seenStatusValue) ?? .NotSeen
@@ -164,7 +164,8 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.deliveryReportedDate = m.deliveryReportedDate
 	}
 	
-	init?(payload: APNSPayload) {
+    /// Initializes the MTMessage from original payload.
+	public init?(payload: APNSPayload) {
 		guard var payload = payload as? StringKeyPayload, let messageId = payload[APNSPayloadKeys.messageId] as? String, let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload else {
 			return nil
 		}
