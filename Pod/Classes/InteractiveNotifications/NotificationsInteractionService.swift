@@ -184,7 +184,8 @@ extension NotificationsInteractionService {
 		
 		if appliedAction.options.contains(.moRequired) {
 			dispatchGroup.enter()
-			self.mmContext.sendMessagesSDKInitiated([MOMessage(destination: nil, text: "\(category) \(appliedAction.identifier)", customPayload: nil, composedDate: MobileMessaging.date.now)]) { msgs, error in
+            self.mmContext.sendMessagesSDKInitiated([MOMessage(destination: nil, text: "\(category) \(appliedAction.identifier)", customPayload: nil, composedDate: MobileMessaging.date.now,
+                                                               bulkId: message.internalData?[InternalDataKeys.bulkId] as? String, initialMessageId: message.messageId)]) { msgs, error in
 				dispatchGroup.leave()
 			}
 		}
