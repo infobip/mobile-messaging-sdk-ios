@@ -43,6 +43,8 @@ struct APIKeys {
 	static let kMOCustomPayload = "customPayload"
 	static let kMOMessageId = "messageId"
 	static let kMOMessageSentStatusCode = "statusCode"
+    static let kMOBulkId = "bulkId"
+    static let kMOInitialMessageId = "initialMessageId"
 }
 
 struct APIHeaders {
@@ -101,6 +103,7 @@ struct InternalDataKeys {
 	static let messageType = "messageType"
 	static let attachments = "atts"
 	static let sendDateTime = "sendDateTime"
+    static let bulkId = "bulkId"
 }
 
 struct AttachmentsKeys {

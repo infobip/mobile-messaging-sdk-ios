@@ -155,7 +155,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.deliveryMethod = .pull
 	}
 	
-	/// Iitializes the MTMessage from Message storage's message
+	/// Initializes the MTMessage from Message storage's message
 	convenience init?(messageStorageMessageManagedObject m: Message) {
 		self.init(payload: m.payload)
 		self.seenStatus = MMSeenStatus(rawValue: m.seenStatusValue) ?? .NotSeen
@@ -164,7 +164,8 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.deliveryReportedDate = m.deliveryReportedDate
 	}
 	
-	init?(payload: APNSPayload) {
+    /// Initializes the MTMessage from original payload.
+	public init?(payload: APNSPayload) {
 		guard var payload = payload as? StringKeyPayload, let messageId = payload[APNSPayloadKeys.messageId] as? String, let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload else {
 			return nil
 		}
@@ -260,6 +261,8 @@ protocol MOMessageAttributes {
 	var customPayload: [String: CustomPayloadSupportedTypes]? {get}
 	var messageId: String {get}
 	var sentStatus: MOMessageSentStatus {get}
+    var bulkId: String? {get}
+    var initialMessageId: String? {get}
 }
 
 struct MOAttributes: MOMessageAttributes {
@@ -268,6 +271,8 @@ struct MOAttributes: MOMessageAttributes {
 	let customPayload: [String: CustomPayloadSupportedTypes]?
 	let messageId: String
 	let sentStatus: MOMessageSentStatus
+    let bulkId: String?
+    let initialMessageId: String?
 	
 	var dictRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
@@ -276,6 +281,8 @@ struct MOAttributes: MOMessageAttributes {
 		result[APIKeys.kMOCustomPayload] = customPayload
 		result[APIKeys.kMOMessageId] = messageId
 		result[APIKeys.kMOMessageSentStatusCode] = NSNumber(value: sentStatus.rawValue)
+        result[APIKeys.kMOBulkId] = bulkId
+        result[APIKeys.kMOInitialMessageId] = initialMessageId
 		return result
 	}
 }
@@ -286,17 +293,12 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 	public let customPayload: [String: CustomPayloadSupportedTypes]?
 	public let sentStatus: MOMessageSentStatus
 	public let composedDate: Date
+    public let bulkId: String?
+    public let initialMessageId: String?
 	
-	public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedDate: Date) {
-		self.destination = destination
-		self.sentStatus = .Undefined
-		self.customPayload = customPayload
-		self.text = text
-		self.composedDate = composedDate
-		
+    convenience public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil) {
 		let mId = NSUUID().uuidString
-		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: mId, sentStatus: .Undefined).dictRepresentation
-		super.init(messageId: mId, direction: .MO, originalPayload: dict)
+        self.init(messageId: mId, destination: destination, text: text, customPayload: customPayload, composedDate: composedDate, bulkId: bulkId, initialMessageId: initialMessageId)
 	}
 
 	/// Iitializes the MOMessage from Message storage's message
@@ -320,19 +322,21 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		}
 	}
 
-	init(messageId: String, destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedDate: Date) {
+	init(messageId: String, destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil) {
 		self.destination = destination
 		self.customPayload = customPayload
 		self.sentStatus = .Undefined
 		self.text = text
 		self.composedDate = composedDate
-		
-		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
+        self.bulkId = bulkId
+        self.initialMessageId = initialMessageId
+        
+		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus, bulkId: bulkId, initialMessageId: initialMessageId).dictRepresentation
 		super.init(messageId: messageId, direction: .MO, originalPayload: dict)
 	}
 	
 	var dictRepresentation: DictionaryRepresentation {
-		return MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: sentStatus).dictRepresentation
+		return MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: sentStatus, bulkId: bulkId, initialMessageId: initialMessageId).dictRepresentation
 	}
 	
 	init?(payload: DictionaryRepresentation, composedDate: Date) {
@@ -348,7 +352,9 @@ public class MOMessage: BaseMessage, MOMessageAttributes {
 		self.customPayload = payload[APIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
 		self.text = text
 		self.composedDate = composedDate
-		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus).dictRepresentation
+        self.bulkId = payload[APIKeys.kMOBulkId] as? String
+        self.initialMessageId = payload[APIKeys.kMOInitialMessageId] as? String
+		let dict = MOAttributes(destination: destination, text: text, customPayload: customPayload, messageId: messageId, sentStatus: self.sentStatus, bulkId: bulkId, initialMessageId: initialMessageId).dictRepresentation
 		super.init(messageId: messageId, direction: .MO, originalPayload: dict)
 	}
 }

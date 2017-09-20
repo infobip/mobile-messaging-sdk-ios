@@ -33,36 +33,52 @@ extension MobileMessaging {
 		return self
 	}
 	
-	/// This method handles interactive notifications actions and performs work that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:localNotification:completionHandler:)` callback.
+	/// This method handles interactive notifications actions and performs work that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:for:withResponseInfo:completionHandler:)` callback.
 	///
-	/// - parameter identifier: The identifier associated with the action of interactive notification.
-	/// - parameter localNotification: `UILocalNotification` object, which specifies notification that was scheduled.
-	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
+	/// - parameter identifier: The identifier for the interactive notification action.
+	/// - parameter localNotification: The local notification object that was triggered.
+    /// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
+	/// - parameter completionHandler: A block that you must call when you are finished performing the action. It is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:for:withResponseInfo:completionHandler:)` callback as a `completionHandler` parameter.
 	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let info = localNotification.userInfo,
-			let payload = info[LocalNotificationKeys.pushPayload] as? [String: Any],
-			let service = NotificationsInteractionService.sharedInstance else
+			let payload = info[LocalNotificationKeys.pushPayload] as? [String: Any] else
 		{
 			completionHandler()
 			return
 		}
 		
-        service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload), responseInfo: responseInfo, completionHandler: completionHandler)
+        handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload), responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
-	/// This method handles interactive notifications actions and performs work that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback.
+	/// This method handles interactive notifications actions and performs work that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` callback.
 	///
-	/// - parameter identifier: The identifier associated with the action of interactive notification.
-	/// - parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	/// - parameter completionHandler: The block to execute when specified action performing finished. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
+	/// - parameter identifier: The identifier for the interactive notification action.
+    /// - parameter userInfo: A dictionary that contains information related to the remote notification. This dictionary originates from the provider as a JSON-defined dictionary, which iOS converts to an NSDictionary object before calling this method. The contents of the dictionary are the remote notification payload, which consists only of property-list objects plus NSNull
+    /// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
+	/// - parameter completionHandler: A block that you must call when you are finished performing the action. It is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` callback as a `completionHandler` parameter.
 	public class func handleActionWithIdentifier(identifier: String?, forRemoteNotification userInfo: [AnyHashable: Any], responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
+		handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo), responseInfo: responseInfo, completionHandler: completionHandler)
+	}
+	
+    /// This method handles interactive notifications actions and performs work that is defined for this action.
+    ///
+    /// - parameter identifier: The identifier for the interactive notification action.
+    /// - parameter message: The `MTMessage` object the action associated with.
+    /// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
+    /// - parameter completionHandler: A block that you must call when you are finished performing the action.
+	public class func handleActionWithIdentifier(identifier: String?, message: MTMessage?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let service = NotificationsInteractionService.sharedInstance else
 		{
 			completionHandler()
 			return
 		}
-		
-		service.handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo), responseInfo: responseInfo, completionHandler: completionHandler)
+		service.handleActionWithIdentifier(identifier: identifier, message: message, responseInfo: responseInfo, completionHandler: completionHandler)
+	}
+	
+	/// Returns `NotificationCategory` object for provided category Id. Category Id can be obtained from `MTMessage` object with `MTMessage.category` method.
+	/// - parameter identifier: The identifier associated with the category of interactive notification
+	public class func category(withId identifier: String) -> NotificationCategory? {
+		return NotificationsInteractionService.sharedInstance?.allNotificationCategories?.first(where: {$0.identifier == identifier})
 	}
 }
 
@@ -168,7 +184,8 @@ extension NotificationsInteractionService {
 		
 		if appliedAction.options.contains(.moRequired) {
 			dispatchGroup.enter()
-			self.mmContext.sendMessagesSDKInitiated([MOMessage(destination: nil, text: "\(category) \(appliedAction.identifier)", customPayload: nil, composedDate: MobileMessaging.date.now)]) { msgs, error in
+            self.mmContext.sendMessagesSDKInitiated([MOMessage(destination: nil, text: "\(category) \(appliedAction.identifier)", customPayload: nil, composedDate: MobileMessaging.date.now,
+                                                               bulkId: message.internalData?[InternalDataKeys.bulkId] as? String, initialMessageId: message.messageId)]) { msgs, error in
 				dispatchGroup.leave()
 			}
 		}
