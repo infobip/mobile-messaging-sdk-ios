@@ -19,7 +19,9 @@
             "destination": "someCorrectApplicationID",
             "customPayload": {
               "customKey": "customValue1"
-            }
+            },
+            "bulkId": "bulkId1",
+            "initialMessageId": "initialMessageId1"
           },
           {
             "text": "message2",
@@ -27,7 +29,9 @@
             "destination": "someCorrectApplicationID",
             "customPayload": {
               "customKey": "customValue2"
-            }
+            },
+            "bulkId": "bulkId2",
+            "initialMessageId": "initialMessageId2"
           }
         ]
       },
@@ -73,7 +77,9 @@
             "destination": "someCorrectApplicationID",
             "customPayload": {
               "customKey": "customValue2"
-            }
+            },
+            "bulkId": "bulkId2",
+            "initialMessageId": "initialMessageId2"
           },
           {
             "text": "message1",
@@ -81,7 +87,9 @@
             "destination": "someCorrectApplicationID",
             "customPayload": {
               "customKey": "customValue1"
-            }
+            },
+            "bulkId": "bulkId1",
+            "initialMessageId": "initialMessageId1"
           }
         ]
       },

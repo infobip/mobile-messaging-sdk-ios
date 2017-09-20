@@ -117,16 +117,12 @@ class MOMessageSendingTests: MMTestCase {
 			XCTAssertEqual(messages?.first?.destination, MMTestConstants.kTestCorrectApplicationCode)
 			XCTAssertEqual(messages?.first?.customPayload as! [String: String], ["customKey" : "customValue1"])
 			XCTAssertEqual(messages?.first?.sentStatus, MOMessageSentStatus.SentSuccessfully)
-            XCTAssertEqual(messages?.first?.bulkId, "bulkId1")
-            XCTAssertEqual(messages?.first?.initialMessageId, "initialMessageId1")
 			
 			XCTAssertEqual(messages?.last?.messageId, "m2")
 			XCTAssertEqual(messages?.last?.text, "message2")
 			XCTAssertEqual(messages?.last?.destination, MMTestConstants.kTestCorrectApplicationCode)
 			XCTAssertEqual(messages?.last?.customPayload as! [String: String], ["customKey" : "customValue2"])
 			XCTAssertEqual(messages?.last?.sentStatus, MOMessageSentStatus.SentWithFailure)
-            XCTAssertEqual(messages?.last?.bulkId, "bulkId2")
-            XCTAssertEqual(messages?.last?.initialMessageId, "initialMessageId2")
 			
 			expectation?.fulfill()
 		}
