@@ -1,0 +1,15 @@
+framework module MobileMessaging {
+	umbrella header "MobileMessaging-umbrella.h"
+	
+	export *
+	
+	explicit module Private {
+		private header "AFHTTPSessionManager.h"
+		private header "AFNetworking.h"
+		private header "AFNetworkReachabilityManager.h"
+		private header "AFSecurityPolicy.h"
+		private header "AFURLRequestSerialization.h"
+		private header "AFURLResponseSerialization.h"
+		private header "AFURLSessionManager.h"
+	}
+}
