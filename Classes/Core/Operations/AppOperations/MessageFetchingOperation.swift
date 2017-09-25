@@ -8,12 +8,13 @@ import Foundation
 import CoreData
 
 struct MessageFetchingSettings {
-	static let messageArchiveLengthDays: Double = 7  // consider messages not older than 7 days
-	static let fetchLimit = 100 // consider 100 most recent messages
+	static let messageArchiveLengthDays: Double = 7 // consider messages not older than N days
+	static let fetchLimit = 100 // consider N most recent messages
 	static let fetchingIterationLimit = 2 // fetching may trigger message handling, which in turn may trigger message fetching. This constant is here to break possible inifinite recursion.
 }
 
 final class MessageFetchingOperation: Operation {
+	
 	let context: NSManagedObjectContext
 	let finishBlock: ((MessagesSyncResult) -> Void)?
 	var result = MessagesSyncResult.Cancel
@@ -38,18 +39,25 @@ final class MessageFetchingOperation: Operation {
 		syncMessages()
 	}
 	
+	let messageTypesFilter = [MMMessageType.Default.rawValue, MMMessageType.Geo.rawValue]
+	
+	fileprivate func getArchiveMessageIds() -> [String]? {
+		let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * MessageFetchingSettings.messageArchiveLengthDays)
+		return MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true AND creationDate > %@ AND messageTypeValue IN %@", date as CVarArg, messageTypesFilter), fetchLimit: MessageFetchingSettings.fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)?.map{ $0.messageId }
+	}
+	
+	fileprivate func getNonReportedMessageIds() -> [String]? {
+		return MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false AND messageTypeValue IN %@", messageTypesFilter), context: self.context)?.map{ $0.messageId }
+	}
+	
 	private func syncMessages() {
 		context.reset()
 		context.performAndWait {
-			let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * MessageFetchingSettings.messageArchiveLengthDays)
-			let messageTypesFilter = [MMMessageType.Default.rawValue, MMMessageType.Geo.rawValue]
-			let nonReportedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false AND messageTypeValue IN %@", messageTypesFilter), context: self.context)
-			let archivedMessages = MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true AND creationDate > %@ AND messageTypeValue IN %@", date as CVarArg, messageTypesFilter), fetchLimit: MessageFetchingSettings.fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)
 			
-			let nonReportedMessageIds = nonReportedMessages?.map{ $0.messageId }
-			let archveMessageIds = archivedMessages?.map{ $0.messageId }
+			let nonReportedMessageIds = getNonReportedMessageIds()
+			let archveMessageIds = getArchiveMessageIds()
 			
-			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archivedMessages?.count)) archive messages.")
+			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
 			
 			self.mmContext.remoteApiManager.syncMessages(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
                 self.result = result
@@ -64,8 +72,7 @@ final class MessageFetchingOperation: Operation {
 		context.performAndWait {
 			switch result {
 			case .Success(let fetchResponse):
-				let fetchedMessages = fetchResponse.messages
-				MMLogDebug("[Message fetching] succeded: received \(String(describing: fetchedMessages?.count))")
+				MMLogDebug("[Message fetching] succeded: received \(String(describing: fetchResponse.messages?.count))")
 				
 				if let nonReportedMessageIds = nonReportedMessageIds {
 					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds, completion: completion)

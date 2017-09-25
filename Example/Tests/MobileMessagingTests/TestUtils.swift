@@ -121,7 +121,7 @@ class RemoteAPILocalMocks: RemoteAPIQueue {
 	}
 }
 
-class MMDateMock: MMDate {
+class DateStub: MMDate {
 	let nowStub: Date
 	init(nowStub: Date) {
 		self.nowStub = nowStub
@@ -132,7 +132,7 @@ class MMDateMock: MMDate {
 }
 
 func timeTravel(to date: Date, block: () -> Void) {
-	MobileMessaging.date = MMDateMock(nowStub: date)
+	MobileMessaging.date = DateStub(nowStub: date)
 	block()
 	MobileMessaging.date = MMDate()
 }

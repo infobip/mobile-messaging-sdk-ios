@@ -99,7 +99,7 @@ class MessageReceivingTests: MMTestCase {
 			XCTAssertEqual(message.contentUrl, "pic.url")
 			print(Date(timeIntervalSince1970: message.sendDateTime))
 			
-			XCTAssertEqualWithAccuracy(message.sendDateTime, sendDateTimeMillis/1000, accuracy: 0.0001)
+			XCTAssertEqual(message.sendDateTime, sendDateTimeMillis/1000, accuracy: 0.0001)
 		} else {
 			XCTFail("Message decoding failed")
 		}
@@ -190,7 +190,7 @@ class MessageReceivingTests: MMTestCase {
 	}
 	
 	func testTapHandlingForInactiveApplication() {
-		collectSixTappedMessages(forApplication: InactiveApplicationMock()) { tappedMessages in
+		collectSixTappedMessages(forApplication: InactiveApplicationStub()) { tappedMessages in
 		
 			XCTAssertEqual(tappedMessages.count, 6)
 			
@@ -216,13 +216,13 @@ class MessageReceivingTests: MMTestCase {
 	}
 	
 	func testTapHandlingForActiveApplication() {
-		collectSixTappedMessages(forApplication: ActiveApplicationMock()) { tappedMessages in
+		collectSixTappedMessages(forApplication: ActiveApplicationStub()) { tappedMessages in
 			XCTAssertEqual(tappedMessages.count, 0)
 		}
 	}
 	
 	func testTapHandlerCalledIfUserInfoContainsApplicationLaunchedByNotificationKey() {
-		collectSixTappedMessages(forApplication: ActiveApplicationMock(), additionalPayload: [ApplicationLaunchedByNotification_Key: true]) { (tappedMessages) in
+		collectSixTappedMessages(forApplication: ActiveApplicationStub(), additionalPayload: [ApplicationLaunchedByNotification_Key: true]) { (tappedMessages) in
 			XCTAssertEqual(tappedMessages.count, 6)
 		}
 	}

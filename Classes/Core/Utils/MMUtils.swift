@@ -10,6 +10,7 @@ import Foundation
 import CoreData
 import CoreLocation
 import SystemConfiguration
+import UserNotifications
 
 public typealias DictionaryRepresentation = [String: Any]
 
@@ -158,12 +159,6 @@ class MMNetworkReachabilityManager: ReachabilityManagerProtocol {
 	}
 	func setReachabilityStatusChangeBlock(block: ((AFNetworkReachabilityStatus) -> Void)?) {
 		manager.setReachabilityStatusChange(block)
-	}
-}
-
-extension UIApplication {
-	var mm_isCurrentAppRegisteredForRemoteNotifications: Bool {
-		return UIApplication.shared.isRegisteredForRemoteNotifications
 	}
 }
 
@@ -428,5 +423,67 @@ public extension UIDevice {
 	}
 	
 	public var IS_IOS_BEFORE_10: Bool { return SYSTEM_VERSION_LESS_THAN("10.0") }
+}
+
+class MMDate {
+	var now: Date {
+		return Date()
+	}
+	
+	func timeInterval(sinceNow timeInterval: TimeInterval) -> Date {
+		return Date(timeIntervalSinceNow: timeInterval)
+	}
+	
+	func timeInterval(since1970 timeInterval: TimeInterval) -> Date {
+		return Date(timeIntervalSince1970: timeInterval)
+	}
+	
+	func timeInterval(sinceReferenceDate timeInterval: TimeInterval) -> Date {
+		return Date(timeIntervalSinceReferenceDate: timeInterval)
+	}
+	
+	func timeInterval(_ timeInterval: TimeInterval, since date: Date) -> Date {
+		return Date(timeInterval: timeInterval, since: date)
+	}
+}
+
+protocol UserNotificationCenterStorage {
+	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void)
+}
+
+class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
+	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
+		if #available(iOS 10.0, *) {
+			UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+				let messages = notifications.flatMap({ return MTMessage(payload: $0.request.content.userInfo) })
+				completionHandler(messages)
+			}
+		} else {
+			return completionHandler([])
+		}
+	}
+}
+
+protocol MMApplication {
+	var applicationIconBadgeNumber: Int { get set }
+	var applicationState: UIApplicationState { get }
+	var isRegisteredForRemoteNotifications: Bool { get }
+	func unregisterForRemoteNotifications()
+	func registerForRemoteNotifications()
+	func presentLocalNotificationNow(_ notification: UILocalNotification)
+	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings)
+	var currentUserNotificationSettings: UIUserNotificationSettings? { get }
+}
+
+extension MMApplication {
+	var isInForegroundState: Bool {
+		return applicationState != .background
+	}
+}
+
+func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: String) -> Bool {
+	let dataProvider = CoreDataProvider(storage: storage)
+	let currentApplicationCode = dataProvider.getValueForKey("applicationCode") as? String
+	return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
 }
 

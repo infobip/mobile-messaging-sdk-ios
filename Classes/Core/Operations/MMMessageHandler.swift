@@ -49,7 +49,6 @@ class MMMessageHandler: MobileMessagingService {
 	lazy var messageHandlingQueue = MMOperationQueue.newSerialQueue
 	lazy var messageSendingQueue = MMOperationQueue.userInitiatedQueue
 	lazy var messageSyncQueue = MMOperationQueue.newSerialQueue
-
 	lazy var seenPostponer = MMPostponer(executionQueue: DispatchQueue.main)
 	
 	let storage: MMCoreDataStorage
@@ -75,19 +74,6 @@ class MMMessageHandler: MobileMessagingService {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
 			completion?(.failed(NSError.init(type: .UnknownError)))
 		}
-	}
-	
-	@available(iOS 10.0, *)
-	func handleStorageFromNotificationServiceExtensionGroupContainer() {
-		guard let mm = MobileMessaging.sharedInstance, let messages = mm.sharedNotificationExtensionStorage?.retrieveMessages() else
-		{
-			return
-		}
-		if !messages.isEmpty {
-			mm.sharedNotificationExtensionStorage?.cleanupMessages()
-		}
-		MMLogDebug("[Message Handler] Retrieved \(messages.count) messages from notification extension storage.")
-		handleMTMessages(messages, notificationTapped: false, completion: nil)
 	}
 	
 	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: ((MessageHandlingResult) -> Void)? = nil) {
@@ -124,8 +110,8 @@ class MMMessageHandler: MobileMessagingService {
 					}
 				}
 		
-				group.enter()
 				var result = MessageHandlingResult.noData
+				group.enter()
 				self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(), mmContext: self.mmContext, handlingIteration: handlingIteration, finishBlock: { res in
 					result = MessageHandlingResult(res)
 					group.leave()
@@ -135,7 +121,17 @@ class MMMessageHandler: MobileMessagingService {
 					MMLogDebug("[Message Handler] message handling finished")
 					completion?(result)
 				}
-		}))
+			}))
+	}
+	
+	func syncMessagesWithOuterLocalSources(completion: @escaping () -> Void) {
+		if !messageSyncQueue.addOperationExclusively(LocalMessageFetchingOperation(userNotificationCenterStorage: mmContext.userNotificationCenterStorage, notificationExtensionStorage: mmContext.sharedNotificationExtensionStorage, finishBlock: { messages in
+			self.handleMTMessages(messages, notificationTapped: false, handlingIteration: 0, completion: { _ in
+				completion()
+			})
+		})) {
+			completion()
+		}
 	}
 	
 	public func syncWithServer(_ completion: ((NSError?) -> Void)? = nil) {
@@ -143,6 +139,12 @@ class MMMessageHandler: MobileMessagingService {
 			completion?(nil)
 			return
 		}
+		syncMessagesWithOuterLocalSources() {
+			self.syncMessagesWithServer(completion)
+		}
+	}
+	
+	func syncMessagesWithServer(_ completion: ((NSError?) -> Void)? = nil) {
 		messageSyncQueue.addOperation(MessagesSyncOperation(context: storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
 	}
 	
@@ -268,9 +270,6 @@ class MMMessageHandler: MobileMessagingService {
 	
 	func start(_ completion: ((Bool) -> Void)? = nil) {
 		isRunning = true
-		if #available(iOS 10.0, *) {
-			handleStorageFromNotificationServiceExtensionGroupContainer()
-		}
 		completion?(true)
 	}
 	

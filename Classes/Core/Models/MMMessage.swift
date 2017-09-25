@@ -93,7 +93,7 @@ public class BaseMessage: NSObject {
 	}
 	
 	public func isEqual(object: AnyObject?) -> Bool {
-		return self.hash == object?.hash
+		return self.messageId == object?.messageId
 	}
 }
 

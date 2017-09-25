@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 @testable import MobileMessaging
 
-class ActiveApplicationMock: MMApplication {
+class ActiveApplicationStub: MMApplication {
 	var applicationState: UIApplicationState {
 		return .active
 	}
@@ -29,7 +29,7 @@ class ActiveApplicationMock: MMApplication {
 }
 
 
-class InactiveApplicationMock: MMApplication {
+class InactiveApplicationStub: MMApplication {
 	var applicationState: UIApplicationState {
 		return .inactive
 	}
@@ -96,24 +96,24 @@ class MMTestCase: XCTestCase {
     }
 	
 	func startWithApplicationCode(_ code: String) {
-		let mm = mockedMMInstanceWithApplicationCode(code)
+		let mm = stubbedMMInstanceWithApplicationCode(code)
 		mm?.start()
 	}
 	
-	func mockedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
+	func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
 		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: MMTestConstants.kTestBaseURLString)
 		mm?.setupMockedQueues(mmContext: self.mobileMessagingInstance)
-		mm?.application = ActiveApplicationMock()
+		mm?.application = ActiveApplicationStub()
 		return mm
 	}
 	
 	func startWithCorrectApplicationCode() {
-		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
+		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
 		mm?.start()
 	}
 	
 	func startWithWrongApplicationCode() {
-		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestWrongApplicationCode)
+		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestWrongApplicationCode)
 		mm?.start()
 	}
 }

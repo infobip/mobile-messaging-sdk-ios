@@ -6,6 +6,7 @@
 
 import UIKit
 import MobileMessaging
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: MobileMessagingAppDelegate {

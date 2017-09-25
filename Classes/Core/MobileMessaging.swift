@@ -51,19 +51,6 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
-	/// Fabric method for Mobile Messaging session.
-	///
-	/// App Groups used to share data among app Notification Extension and the main application itself. Provide the appropriate App Group ID for both application and application extension in order to keep them in sync.
-	/// - parameter appGroupId: An ID of an App Group
-	/// - remark: If you are facing with the following error in your console:
-	/// `[User Defaults] Failed to read values in CFPrefsPlistSource<0xXXXXXXX> (Domain: ..., User: kCFPreferencesAnyUser, ByHost: Yes, Container: (null)): Using kCFPreferencesAnyUser with a container is only allowed for SystemContainers, detaching from cfprefsd`.
-	/// Although this warning doesn't mean that our code doesn't work, you can shut it up by prefixing your App Group ID with a Team ID of a certificate that you are signing the build with. For example: `"9S95Y6XXXX.group.com.mobile-messaging.notification-service-extension"`. The App Group ID itself doesn't need to be changed though.
-	@available(iOS 10.0, *)
-	public func withAppGroupId(_ appGroupId: String) -> MobileMessaging {
-		self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
-		return self
-	}
-	
 	/// Starts a new Mobile Messaging session.
 	///
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
@@ -158,16 +145,14 @@ public final class MobileMessaging: NSObject {
 	///
 	/// - parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
 	public class func didReceiveLocalNotification(_ notification: UILocalNotification) {
-		
-		guard let userInfo = notification.userInfo,
+		if let userInfo = notification.userInfo,
 			let payload = userInfo[LocalNotificationKeys.pushPayload] as? APNSPayload,
 			let message = MTMessage(payload: payload),
 			let applicationState = MobileMessaging.sharedInstance?.application.applicationState,
-			MMMessageHandler.isNotificationTapped(message, applicationState: applicationState) else
+			MMMessageHandler.isNotificationTapped(message, applicationState: applicationState)
 		{
-			return
+			MMMessageHandler.handleNotificationTap(with: message)
 		}
-		MMMessageHandler.handleNotificationTap(with: message)
 	}
 	
 	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
@@ -205,7 +190,8 @@ public final class MobileMessaging: NSObject {
 	/// Default implementation marks the corresponding message as seen.
 	/// This block takes:
 	/// - single MTMessage object initialized from the Dictionary.
-	public static var notificationTapHandler: ((_ message: MTMessage) -> Void)? = {
+	public static var notificationTapHandler: ((_ message: MTMessage) -> Void)? = defaultNotificationTapHandler
+	private static let defaultNotificationTapHandler: ((_ message: MTMessage) -> Void) = {
 		MMLogDebug("Notfication alert tapped.")
 		MobileMessaging.setSeen(messageIds: [$0.messageId])
 	}
@@ -275,8 +261,9 @@ public final class MobileMessaging: NSObject {
 		messageStorage?.stop()
 		
 		application = UIApplication.shared
-		MobileMessaging.notificationTapHandler = nil
+		
 		MobileMessaging.messageHandling = MMDefaultMessageHandling()
+		MobileMessaging.notificationTapHandler = MobileMessaging.defaultNotificationTapHandler
 		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingDidStop(self)
@@ -292,7 +279,6 @@ public final class MobileMessaging: NSObject {
 		appListener = nil
 		messageHandler = nil
 		remoteApiManager = nil
-		application = nil
 		reachabilityManager = nil
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
@@ -466,6 +452,7 @@ public final class MobileMessaging: NSObject {
 	static var date: MMDate = MMDate() // testability
 	
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
+	lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()
 }
 
 extension UIApplication: MMApplication {}
@@ -492,49 +479,4 @@ public class PrivacySettings: NSObject {
 	///
 	/// Default value is `false`.
 	public var userDataPersistingDisabled: Bool = false
-}
-
-class MMDate {
-	var now: Date {
-		return Date()
-	}
-	
-	func timeInterval(sinceNow timeInterval: TimeInterval) -> Date {
-		return Date(timeIntervalSinceNow: timeInterval)
-	}
-	
-	func timeInterval(since1970 timeInterval: TimeInterval) -> Date {
-		return Date(timeIntervalSince1970: timeInterval)
-	}
-	
-	func timeInterval(sinceReferenceDate timeInterval: TimeInterval) -> Date {
-		return Date(timeIntervalSinceReferenceDate: timeInterval)
-	}
-	
-	func timeInterval(_ timeInterval: TimeInterval, since date: Date) -> Date {
-		return Date(timeInterval: timeInterval, since: date)
-	}
-}
-
-protocol MMApplication {
-	var applicationIconBadgeNumber: Int { get set }
-	var applicationState: UIApplicationState { get }
-	var isRegisteredForRemoteNotifications: Bool { get }
-	func unregisterForRemoteNotifications()
-	func registerForRemoteNotifications()
-	func presentLocalNotificationNow(_ notification: UILocalNotification)
-	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings)
-	var currentUserNotificationSettings: UIUserNotificationSettings? { get }
-}
-
-extension MMApplication {
-	var isInForegroundState: Bool {
-		return applicationState != .background
-	}
-}
-
-func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: String) -> Bool {
-	let dataProvider = CoreDataProvider(storage: storage)
-	let currentApplicationCode = dataProvider.getValueForKey("applicationCode") as? String
-	return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
 }

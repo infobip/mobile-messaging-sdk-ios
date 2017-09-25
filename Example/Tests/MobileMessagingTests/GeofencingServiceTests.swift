@@ -23,12 +23,12 @@ extension Set where Element: MMRegion {
 	}
 }
 
-class LocationManagerMock: CLLocationManager {
-	var mockedLocation: CLLocation?
+class LocationManagerStub: CLLocationManager {
+	var locationStub: CLLocation?
 	var monitoredRegionsArray = [CLRegion]()
 	
-	init(mockedLocation: CLLocation? = nil) {
-		self.mockedLocation = mockedLocation
+	init(locationStub: CLLocation? = nil) {
+		self.locationStub = locationStub
 		super.init()
 	}
 	
@@ -38,7 +38,7 @@ class LocationManagerMock: CLLocationManager {
 	}
 	
 	override var location: CLLocation? {
-		return mockedLocation ?? super.location
+		return locationStub ?? super.location
 	}
 	override func startMonitoring(for region: CLRegion) {
 		monitoredRegionsArray.append(region)
@@ -52,8 +52,8 @@ class LocationManagerMock: CLLocationManager {
 }
 
 class GeofencingServiceAlwaysRunningStub: GeofencingService {
-	init(mmContext: MobileMessaging, mockedLocationManager: LocationManagerMock = LocationManagerMock()) {
-		self.mockedLocationManager = mockedLocationManager
+	init(mmContext: MobileMessaging, locationManagerStub: LocationManagerStub = LocationManagerStub()) {
+		self.stubbedLocationManager = locationManagerStub
 		super.init(mmContext: mmContext)
 	}
 	
@@ -66,11 +66,11 @@ class GeofencingServiceAlwaysRunningStub: GeofencingService {
 	override var locationManager: CLLocationManager! {
 		set {}
 		get {
-			return mockedLocationManager
+			return stubbedLocationManager
 		}
 	}
 	
-	var mockedLocationManager: LocationManagerMock
+	var stubbedLocationManager: LocationManagerStub
 	
 	override func authorizeService(kind: LocationServiceKind, usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
 		completion(.authorized)
@@ -85,7 +85,7 @@ class GeofencingServiceAlwaysRunningStub: GeofencingService {
 	override func stop(_ completion: ((Bool) -> Void)?) {
 		eventsHandlingQueue.cancelAllOperations()
 		self.isRunning = false
-		mockedLocationManager.monitoredRegionsArray = [CLRegion]()
+		stubbedLocationManager.monitoredRegionsArray = [CLRegion]()
 	}
 	
 	override public class var currentCapabilityStatus: GeofencingCapabilityStatus {
@@ -94,8 +94,8 @@ class GeofencingServiceAlwaysRunningStub: GeofencingService {
 }
 
 class GeofencingServiceDisabledStub: GeofencingService {
-	init(mmContext: MobileMessaging, mockedLocationManager: LocationManagerMock = LocationManagerMock()) {
-		self.mockedLocationManager = mockedLocationManager
+	init(mmContext: MobileMessaging, locationManagerStub: LocationManagerStub = LocationManagerStub()) {
+		self.locationManagerStub = locationManagerStub
 		super.init(mmContext: mmContext)
 	}
 	
@@ -108,11 +108,11 @@ class GeofencingServiceDisabledStub: GeofencingService {
 	override var locationManager: CLLocationManager! {
 		set {}
 		get {
-			return mockedLocationManager
+			return locationManagerStub
 		}
 	}
 	
-	var mockedLocationManager: LocationManagerMock
+	var locationManagerStub: LocationManagerStub
 	
 	override func authorizeService(kind: LocationServiceKind, usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
 		completion(.denied)
@@ -127,7 +127,7 @@ class GeofencingServiceDisabledStub: GeofencingService {
 	override func stop(_ completion: ((Bool) -> Void)?) {
 		eventsHandlingQueue.cancelAllOperations()
 		self.isRunning = false
-		mockedLocationManager.monitoredRegionsArray = [CLRegion]()
+		locationManagerStub.monitoredRegionsArray = [CLRegion]()
 	}
 	
 	override public class var currentCapabilityStatus: GeofencingCapabilityStatus {
@@ -381,7 +381,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.currentDate = expectedStartDate
 		var counter = 0
 		let zagreb = CLLocation(latitude: 45.80869126677998, longitude: 15.97206115722656)
-		let geoStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance, mockedLocationManager: LocationManagerMock(mockedLocation: zagreb))
+		let geoStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance, locationManagerStub: LocationManagerStub(locationStub: zagreb))
 		geoStub.didEnterRegionCallback = { region in
 			counter += 1
 			if counter == 2 {
@@ -445,8 +445,8 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertNotEqual(zagrebObject.message!.expiryTime, notExpectedDate)
 			XCTAssertEqual(zagrebObject.message!.startTime, expectedStartDate)
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, modernZagrebDict[RegionDataKeys.latitude] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, modernZagrebDict[RegionDataKeys.longitude] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.center.latitude, modernZagrebDict[RegionDataKeys.latitude] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.center.longitude, modernZagrebDict[RegionDataKeys.longitude] as! Double, accuracy: 0.000000000001)
 			XCTAssertEqual(zagrebObject.radius, modernZagrebDict[RegionDataKeys.radius] as? CLLocationDistance)
 			XCTAssertEqual(zagrebObject.title, modernZagrebDict[RegionDataKeys.title] as? String)
 			XCTAssertFalse(zagrebObject.message!.isNotExpired)
@@ -457,8 +457,8 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertNotEqual(pulaObject.message!.expiryTime, notExpectedDate)
 			XCTAssertEqual(pulaObject.message!.startTime, expectedStartDate)
 			XCTAssertEqual(pulaObject.identifier, pulaId)
-			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, modernPulaDict[RegionDataKeys.latitude] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, modernPulaDict[RegionDataKeys.longitude] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.center.latitude, modernPulaDict[RegionDataKeys.latitude] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.center.longitude, modernPulaDict[RegionDataKeys.longitude] as! Double, accuracy: 0.000000000001)
 			XCTAssertEqual(pulaObject.radius, modernPulaDict[RegionDataKeys.radius] as? CLLocationDistance)
 			XCTAssertEqual(pulaObject.title, modernPulaDict[RegionDataKeys.title] as? String)
 			XCTAssertFalse(pulaObject.message!.isNotExpired)
@@ -477,8 +477,8 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(zagrebObject.message!.expiryTime, expectedExpiryDate)
 			XCTAssertNotEqual(zagrebObject.message!.expiryTime, notExpectedDate)
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
 			XCTAssertEqual(zagrebObject.radius, 9492.0)
 			XCTAssertEqual(zagrebObject.title, "Zagreb")
 			XCTAssertFalse(zagrebObject.message!.isNotExpired)
@@ -488,8 +488,8 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(pulaObject.message!.expiryTime, expectedExpiryDate)
 			XCTAssertNotEqual(pulaObject.message!.expiryTime, notExpectedDate)
 			XCTAssertEqual(pulaObject.identifier, pulaId)
-			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
 			XCTAssertEqual(pulaObject.radius, 5257.0)
 			XCTAssertEqual(pulaObject.title, "Pula")
 			XCTAssertFalse(pulaObject.message!.isNotExpired)
@@ -509,8 +509,8 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(zagrebObject.message!.expiryTime, expectedExpiryDate)
 			XCTAssertNotEqual(zagrebObject.message!.expiryTime, notExpectedDate)
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.center.latitude, 45.80869126677998, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.center.longitude, 15.97206115722656, accuracy: 0.000000000001)
 			XCTAssertEqual(zagrebObject.radius, 9492.0)
 			XCTAssertEqual(zagrebObject.title, "Zagreb")
 			XCTAssertFalse(zagrebObject.message!.isNotExpired)
@@ -520,8 +520,8 @@ class GeofencingServiceTests: MMTestCase {
 			XCTAssertEqual(pulaObject.message!.expiryTime, expectedExpiryDate)
 			XCTAssertNotEqual(pulaObject.message!.expiryTime, notExpectedDate)
 			XCTAssertEqual(pulaObject.identifier, pulaId)
-			XCTAssertEqualWithAccuracy(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
-			XCTAssertEqualWithAccuracy(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.center.latitude, 44.86803631018752, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.center.longitude, 13.84586334228516, accuracy: 0.000000000001)
 			XCTAssertEqual(pulaObject.radius, 5257.0)
 			XCTAssertEqual(pulaObject.title, "Pula")
 			XCTAssertFalse(pulaObject.message!.isNotExpired)
@@ -1427,8 +1427,8 @@ class GeofencingServiceTests: MMTestCase {
 		
 		var enteredDatasourceRegions = [MMRegion]()
 		
-		let geoServiceMock = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
-		geoServiceMock.didEnterRegionCallback = { (region) in
+		let geoServiceStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
+		geoServiceStub.didEnterRegionCallback = { (region) in
 			didEnterRegionCount += 1
 			enteredDatasourceRegions.append(region)
 			if didEnterRegionCount == 2 {
@@ -1438,14 +1438,14 @@ class GeofencingServiceTests: MMTestCase {
 			}
 		}
 		
-		GeofencingService.sharedInstance = geoServiceMock
+		GeofencingService.sharedInstance = geoServiceStub
 		GeofencingService.sharedInstance!.start()
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMGeoRemoteAPIAlwaysSucceeding(mmContext: self.mobileMessagingInstance)
-		geoServiceMock.mockedLocationManager.mockedLocation = CLLocation(latitude: 45.80869126677998, longitude: 15.97206115722656)
-		geoServiceMock.add(message: message1)
-		geoServiceMock.add(message: message2)
+		geoServiceStub.stubbedLocationManager.locationStub = CLLocation(latitude: 45.80869126677998, longitude: 15.97206115722656)
+		geoServiceStub.add(message: message1)
+		geoServiceStub.add(message: message2)
 		
-		geoServiceMock.locationManager(geoServiceMock.mockedLocationManager, didEnterRegion: message1.regions.findPula.circularRegion)
+		geoServiceStub.locationManager(geoServiceStub.stubbedLocationManager, didEnterRegion: message1.regions.findPula.circularRegion)
 
 		
 		waitForExpectations(timeout: 60, handler: nil)
@@ -1470,29 +1470,29 @@ class GeofencingServiceTests: MMTestCase {
 		let pulaObject2 = message2.regions.findPula
 		
 		
-		let geoServiceMock: GeofencingServiceAlwaysRunningStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
-		geoServiceMock.didEnterRegionCallback = { (region) in
+		let geoServiceStub: GeofencingServiceAlwaysRunningStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
+		geoServiceStub.didEnterRegionCallback = { (region) in
 			didEnterRegionCount += 1
 			if didEnterRegionCount == 1 {
 				XCTAssertEqual(region.dataSourceIdentifier, pulaObject1.dataSourceIdentifier)
-				let monitoredRegionsArray = geoServiceMock.mockedLocationManager.monitoredRegionsArray
+				let monitoredRegionsArray = geoServiceStub.stubbedLocationManager.monitoredRegionsArray
 				XCTAssertEqual(monitoredRegionsArray.count, 1)
 			} else  if didEnterRegionCount == 2 {
 				XCTAssertEqual(region.dataSourceIdentifier, pulaObject2.dataSourceIdentifier)
-				let monitoredRegionsArray = geoServiceMock.mockedLocationManager.monitoredRegionsArray
+				let monitoredRegionsArray = geoServiceStub.stubbedLocationManager.monitoredRegionsArray
 				print("!!! \(monitoredRegionsArray)")
 				XCTAssertEqual(monitoredRegionsArray.count, 1)
 				didEnterRegionExp?.fulfill()
 			}
 		}
 		
-		GeofencingService.sharedInstance = geoServiceMock
+		GeofencingService.sharedInstance = geoServiceStub
 		GeofencingService.sharedInstance!.start()
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMGeoRemoteAPIAlwaysSucceeding(mmContext: self.mobileMessagingInstance)
 		
-		geoServiceMock.mockedLocationManager.mockedLocation = CLLocation(latitude: pulaObject1.center.latitude, longitude: pulaObject1.center.longitude)
-		geoServiceMock.add(message: message1)
-		geoServiceMock.add(message: message2)
+		geoServiceStub.stubbedLocationManager.locationStub = CLLocation(latitude: pulaObject1.center.latitude, longitude: pulaObject1.center.longitude)
+		geoServiceStub.add(message: message1)
+		geoServiceStub.add(message: message2)
 		
 		waitForExpectations(timeout: 60, handler: nil)
 	}

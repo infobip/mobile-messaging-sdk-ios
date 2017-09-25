@@ -89,7 +89,7 @@ final class RegistrationTests: MMTestCase {
 			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
 				XCTAssertTrue(installation.dirtyAttributesSet.contains(AttributesSet.deviceToken), "Dirty flag may be false only after success registration")
 				XCTAssertEqual(installation.internalUserId, nil, "Internal id must be nil, server denied the application code")
-				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString, "Device token must be mocked properly. (current is \(String(describing: installation.deviceToken)))")
+				XCTAssertEqual(installation.deviceToken, "someToken".mm_toHexademicalString, "Device token must be stubbed properly. (current is \(String(describing: installation.deviceToken)))")
 			} else {
 				XCTFail("There must be atleast one installation object in database")
 			}
@@ -237,7 +237,7 @@ final class RegistrationTests: MMTestCase {
 			}
 		}
 
-		let mm = mockedMMInstanceWithApplicationCode("stub")!.withGeofencingService()
+		let mm = stubbedMMInstanceWithApplicationCode("stub")!.withGeofencingService()
 		GeofencingService.sharedInstance = GeofencingServiceStartStopMock(mmContext: mm)
 		GeofencingService.sharedInstance!.start()
 		

@@ -13,6 +13,15 @@ class MessagHandlerMock: MMMessageHandler {
 	var setSeenWasCalled: (() -> Void)?
 	var sendMessageWasCalled: (([MOMessage]) -> Void)?
 	
+	override var isRunning: Bool {
+		get {
+			return true
+		}
+		set {
+			
+		}
+	}
+	
 	convenience init(originalHandler: MMMessageHandler) {
 		self.init(storage: originalHandler.storage, mmContext: originalHandler.mmContext)
 	}
@@ -31,6 +40,27 @@ class MessagHandlerMock: MMMessageHandler {
 class InteractiveNotificationsTests: MMTestCase {
 	let actionId = "actionId"
 	let categoryId = "categoryId"
+	
+	func testThatNotificationTapTriggersSeen() {
+		var isSeenSet = false
+		weak var seenCalled = self.expectation(description: "seenCalled")
+		weak var messageReceived = self.expectation(description: "messageReceived")
+		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
+		msgHandlerMock.setSeenWasCalled = {
+			isSeenSet = true
+			seenCalled?.fulfill()
+		}
+		mobileMessagingInstance.messageHandler = msgHandlerMock
+	
+		mobileMessagingInstance.application = InactiveApplicationStub()
+		MobileMessaging.didReceiveRemoteNotification(apnsNormalMessagePayload("m1")) { _ in
+			messageReceived?.fulfill()
+		}
+		
+		waitForExpectations(timeout: 10, handler: { err in
+			XCTAssertTrue(isSeenSet)
+		})
+	}
 	
 	func testActionHandlerCalledAndMOSent() {
 		weak var testCompleted = expectation(description: "testCompleted")
@@ -69,7 +99,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		
 		cleanUpAndStop()
 		
-		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
+		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
 		mm.start()
 		
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
@@ -196,7 +226,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		
 		cleanUpAndStop()
 		
-		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
+		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
 		mm.start()
 		
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)

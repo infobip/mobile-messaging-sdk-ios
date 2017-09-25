@@ -9,7 +9,7 @@ import XCTest
 import UserNotifications
 @testable import MobileMessaging
 
-class MockMessageStorage: NSObject, MessageStorage {
+class MessageStorageStub: NSObject, MessageStorage {
 	let updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)?
 	
 	init(updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)? = nil) {
@@ -68,9 +68,9 @@ class MessageStorageTests: MMTestCase {
 		cleanUpAndStop()
 		weak var expectation1 = expectation(description: "Sending 1 finished")
 		weak var expectation2 = expectation(description: "Sending 2 finished")
-		let mockMessageStorage = MockMessageStorage()
-		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
-		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
+		let messageStorageStub = MessageStorageStub()
+		XCTAssertEqual(messageStorageStub.moMessages.count, 0)
+		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		do {
@@ -88,7 +88,7 @@ class MessageStorageTests: MMTestCase {
 		}
 		
 		waitForExpectations(timeout: 60, handler: { error in
-			XCTAssertEqual(mockMessageStorage.moMessages.count, 1)
+			XCTAssertEqual(messageStorageStub.moMessages.count, 1)
 		})
 	}
 	
@@ -100,7 +100,7 @@ class MessageStorageTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Sending finished")
 		weak var expectation2 = self.expectation(description: "Sent status updated")
 		var updateSentStatusCounter = 0
-		let mockMessageStorage = MockMessageStorage(updateMessageSentStatusHook: { status in
+		let messageStorageStub = MessageStorageStub(updateMessageSentStatusHook: { status in
 			updateSentStatusCounter += 1
 			
 			switch status {
@@ -116,9 +116,9 @@ class MessageStorageTests: MMTestCase {
 				expectation2?.fulfill()
 			}
 		})
-		XCTAssertEqual(mockMessageStorage.moMessages.count, 0)
+		XCTAssertEqual(messageStorageStub.moMessages.count, 0)
 		
-		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
+		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
 
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
@@ -132,7 +132,7 @@ class MessageStorageTests: MMTestCase {
 		waitForExpectations(timeout: 10, handler: { error in
 			XCTAssertTrue(isSentSuccessfully)
 			XCTAssertTrue(isSentWithFailure)
-			XCTAssertEqual(mockMessageStorage.moMessages.count, 2)
+			XCTAssertEqual(messageStorageStub.moMessages.count, 2)
 			XCTAssertEqual(updateSentStatusCounter, 2)
 		})
 	}
@@ -140,7 +140,7 @@ class MessageStorageTests: MMTestCase {
     func testDefaultStoragePersistingAndFetching() {
 		cleanUpAndStop()
 		
-		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
 		
 		weak var expectation1 = expectation(description: "Check finished")
 		self.defaultMessageStorage?.findAllMessages { results in
@@ -174,11 +174,11 @@ class MessageStorageTests: MMTestCase {
 	func testCustomPersistingAndFetching() {
 		cleanUpAndStop()
 		
-		let mockMessageStorage = MockMessageStorage()
+		let messageStorageStub = MessageStorageStub()
 		
-		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(mockMessageStorage).start()
+		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
 		
-		XCTAssertEqual(mockMessageStorage.mtMessages.count, 0)
+		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
 		let expectedMessagesCount = 5
 		weak var expectation = self.expectation(description: "Check finished")
@@ -195,7 +195,7 @@ class MessageStorageTests: MMTestCase {
 		}
 		
 		self.waitForExpectations(timeout: 60, handler: { _ in
-			XCTAssertEqual(mockMessageStorage.mtMessages.count, expectedMessagesCount)
+			XCTAssertEqual(messageStorageStub.mtMessages.count, expectedMessagesCount)
 			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
 	}
@@ -204,7 +204,7 @@ class MessageStorageTests: MMTestCase {
 	func testQuery() {
 		cleanUpAndStop()
 
-		mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
 		
 		let messageReceivingGroup = DispatchGroup()
 		weak var expectation = self.expectation(description: "Check finished")
@@ -289,34 +289,34 @@ class MessageStorageTests: MMTestCase {
 		let contentHandler: (UNNotificationContent) -> Void = { content in
 			
 		}
-		let sharedStorageMock = SharedMessageStorageMock(applicationCode: "appCode", appGroupId: "groupId")!
+		let notificationExtensionStorageStub = NotificationExtensionMessageStorageStub(applicationCode: "appCode", appGroupId: "groupId")!
 		
 
 		MobileMessagingNotificationServiceExtension.startWithApplicationCode("appCode", appGroupId: "groupId")
-		MobileMessagingNotificationServiceExtension.sharedInstance?.deliveryReporter = SuccessfullDeliveryReporterMock(applicationCode: "appCode", baseUrl: "groupId")
-		MobileMessagingNotificationServiceExtension.sharedInstance?.sharedNotificationExtensionStorage = sharedStorageMock
+		MobileMessagingNotificationServiceExtension.sharedInstance?.deliveryReporter = SuccessfullDeliveryReporterStub(applicationCode: "appCode", baseUrl: "groupId")
+		MobileMessagingNotificationServiceExtension.sharedInstance?.sharedNotificationExtensionStorage = notificationExtensionStorageStub
 		MobileMessagingNotificationServiceExtension.didReceive(request, withContentHandler: contentHandler)
 		
-		XCTAssertEqual(sharedStorageMock.retrieveMessages().count, 1)
-		let firstMessage = sharedStorageMock.retrieveMessages().first
+		XCTAssertEqual(notificationExtensionStorageStub.retrieveMessages().count, 1)
+		let firstMessage = notificationExtensionStorageStub.retrieveMessages().first
 		XCTAssertNotNil(firstMessage!.deliveryReportedDate)
 		XCTAssertTrue(firstMessage!.isDeliveryReportSent)
 		
 		// starting the SDK
-		let mockMessageStorage = MockMessageStorage()
-		XCTAssertEqual(mockMessageStorage.mtMessages.count, 0)
+		let messageStorageStub = MessageStorageStub()
+		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
-		let mm = mockedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(mockMessageStorage)
-		mm.sharedNotificationExtensionStorage = sharedStorageMock
+		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(messageStorageStub)
+		mm.sharedNotificationExtensionStorage = notificationExtensionStorageStub
 		mm.start()
 		
 		weak var expectation = self.expectation(description: "")
 		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
-			XCTAssertEqual(sharedStorageMock.retrieveMessages().count, 0)
+			XCTAssertEqual(notificationExtensionStorageStub.retrieveMessages().count, 0)
 			expectation?.fulfill()
 		}
 		self.waitForExpectations(timeout: 60, handler: { _ in
-			XCTAssertEqual(mockMessageStorage.mtMessages.count, 1)
+			XCTAssertEqual(messageStorageStub.mtMessages.count, 1)
 		})
 	}
 	
@@ -326,7 +326,7 @@ class MessageStorageTests: MMTestCase {
 	}
 }
 
-class SuccessfullDeliveryReporterMock: DeliveryReporting {
+class SuccessfullDeliveryReporterStub: DeliveryReporting {
 	required init(applicationCode: String, baseUrl: String) {
 		
 	}
@@ -336,7 +336,7 @@ class SuccessfullDeliveryReporterMock: DeliveryReporting {
 	}
 }
 
-class SharedMessageStorageMock: AppGroupMessageStorage {
+class NotificationExtensionMessageStorageStub: AppGroupMessageStorage {
 	var inMemStorage = [String: Any]()
 	let applicationCode: String
 	required init?(applicationCode: String, appGroupId: String) {
