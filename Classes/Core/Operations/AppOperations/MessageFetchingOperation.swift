@@ -54,8 +54,8 @@ final class MessageFetchingOperation: Operation {
 		context.reset()
 		context.performAndWait {
 			
-			let nonReportedMessageIds = getNonReportedMessageIds()
-			let archveMessageIds = getArchiveMessageIds()
+			let nonReportedMessageIds = self.getNonReportedMessageIds()
+			let archveMessageIds = self.getArchiveMessageIds()
 			
 			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
 			
