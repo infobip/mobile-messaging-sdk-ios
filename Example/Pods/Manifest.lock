@@ -1,21 +1,10 @@
 PODS:
-  - CocoaLumberjack (3.2.1):
-    - CocoaLumberjack/Default (= 3.2.1)
-    - CocoaLumberjack/Extensions (= 3.2.1)
-  - CocoaLumberjack/Default (3.2.1)
-  - CocoaLumberjack/Extensions (3.2.1):
-    - CocoaLumberjack/Default
-  - MobileMessaging (2.8.4):
-    - MobileMessaging/CocoaLumberjack (= 2.8.4)
-  - MobileMessaging/CocoaLumberjack (2.8.4):
-    - CocoaLumberjack (~> 3.1)
-    - MobileMessaging/Core
   - MobileMessaging/Core (2.8.4)
   - MobileMessaging/Geofencing (2.8.4):
     - MobileMessaging/Core
 
 DEPENDENCIES:
-  - MobileMessaging (from `../`)
+  - MobileMessaging/Core (from `../`)
   - MobileMessaging/Geofencing (from `../`)
 
 EXTERNAL SOURCES:
@@ -23,9 +12,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  CocoaLumberjack: 2800c03334042fe80589423c8d80e582dcaec482
   MobileMessaging: 32cdf3c4f294db9760271dcd005a182b70431ca4
 
-PODFILE CHECKSUM: 87580f6b68805ba886e007c32f6c4e46fe99b8ff
+PODFILE CHECKSUM: f5020dd21edd28ca4681e6a43a1a059ccf4149fa
 
 COCOAPODS: 1.2.0
