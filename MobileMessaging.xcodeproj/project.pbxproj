@@ -1,0 +1,1080 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0ECABD2F10663827D649C473E329D109 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */; };
+		170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */; };
+		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
+		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
+		3BB0594CCA9D40ADAC4C3716491BE06B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */; };
+		7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		764556731F78FF5800B8F14B /* MMInstallation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560A1F78FF4F00B8F14B /* MMInstallation.swift */; };
+		764556741F78FF5800B8F14B /* MMKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560B1F78FF4F00B8F14B /* MMKeychain.swift */; };
+		764556751F78FF5800B8F14B /* MMLoggingUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560C1F78FF4F00B8F14B /* MMLoggingUtil.swift */; };
+		764556761F78FF5800B8F14B /* MMNotifications.h in Headers */ = {isa = PBXBuildFile; fileRef = 7645560D1F78FF4F00B8F14B /* MMNotifications.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		764556771F78FF5800B8F14B /* MMNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 7645560E1F78FF4F00B8F14B /* MMNotifications.m */; };
+		764556781F78FF5800B8F14B /* MMVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560F1F78FF4F00B8F14B /* MMVersion.swift */; };
+		7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556111F78FF4F00B8F14B /* MobileMessaging.swift */; };
+		7645567B1F78FF5800B8F14B /* MobileMessagingAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556121F78FF4F00B8F14B /* MobileMessagingAppDelegate.swift */; };
+		7645567C1F78FF5800B8F14B /* MobileMessagingAppDelegateObjc.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556131F78FF4F00B8F14B /* MobileMessagingAppDelegateObjc.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7645567D1F78FF5800B8F14B /* MobileMessagingAppDelegateObjc.m in Sources */ = {isa = PBXBuildFile; fileRef = 764556141F78FF4F00B8F14B /* MobileMessagingAppDelegateObjc.m */; };
+		7645567E1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556151F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7645567F1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 764556161F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.m */; };
+		764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D61F78FF4E00B8F14B /* MMAPIKeysAndValues.swift */; };
+		764556811F78FF5D00B8F14B /* MMHTTPRequestSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D71F78FF4E00B8F14B /* MMHTTPRequestSerializer.swift */; };
+		764556821F78FF5D00B8F14B /* MMRemoteAPIQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D81F78FF4E00B8F14B /* MMRemoteAPIQueue.swift */; };
+		764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D91F78FF4E00B8F14B /* MMRequests.swift */; };
+		764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DA1F78FF4E00B8F14B /* MMResponses.swift */; };
+		764556851F78FF5D00B8F14B /* MMResponseSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DB1F78FF4E00B8F14B /* MMResponseSerializer.swift */; };
+		764556861F78FF5D00B8F14B /* RemoteAPIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DC1F78FF4E00B8F14B /* RemoteAPIManager.swift */; };
+		764556871F78FF6500B8F14B /* GeoEventReportObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DE1F78FF4E00B8F14B /* GeoEventReportObject+CoreDataProperties.swift */; };
+		764556881F78FF6500B8F14B /* GeoEventReportObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DF1F78FF4E00B8F14B /* GeoEventReportObject.swift */; };
+		764556891F78FF6500B8F14B /* InstallationManagedObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E01F78FF4E00B8F14B /* InstallationManagedObject+CoreDataProperties.swift */; };
+		7645568A1F78FF6500B8F14B /* InstallationManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E11F78FF4E00B8F14B /* InstallationManagedObject.swift */; };
+		7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E21F78FF4E00B8F14B /* MessageManagedObject+CoreDataProperties.swift */; };
+		7645568C1F78FF6500B8F14B /* MessageManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E31F78FF4E00B8F14B /* MessageManagedObject.swift */; };
+		7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E41F78FF4E00B8F14B /* MMCoreDataExtensions.swift */; };
+		7645568E1F78FF6500B8F14B /* MMCoreDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E51F78FF4E00B8F14B /* MMCoreDataStorage.swift */; };
+		7645568F1F78FF6700B8F14B /* MMInternalStorageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 764555E61F78FF4E00B8F14B /* MMInternalStorageModel.xcdatamodeld */; };
+		764556901F78FF7300B8F14B /* MMMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556181F78FF4F00B8F14B /* MMMessage.swift */; };
+		764556911F78FF7F00B8F14B /* MMApplicationListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556271F78FF4F00B8F14B /* MMApplicationListener.swift */; };
+		764556921F78FF7F00B8F14B /* MMDefaultMessageHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556281F78FF4F00B8F14B /* MMDefaultMessageHandling.swift */; };
+		764556931F78FF7F00B8F14B /* MMInstallationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556291F78FF4F00B8F14B /* MMInstallationManager.swift */; };
+		764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562A1F78FF4F00B8F14B /* MMMessageHandler.swift */; };
+		764556951F78FF7F00B8F14B /* MMOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562B1F78FF4F00B8F14B /* MMOperationQueue.swift */; };
+		764556961F78FF7F00B8F14B /* MMRetryableOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562C1F78FF4F00B8F14B /* MMRetryableOperation.swift */; };
+		764556971F78FF7F00B8F14B /* MMRetryableRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562D1F78FF4F00B8F14B /* MMRetryableRequestOperation.swift */; };
+		764556981F78FF7F00B8F14B /* MMRetryOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562E1F78FF4F00B8F14B /* MMRetryOperationQueue.swift */; };
+		764556991F78FF7F00B8F14B /* RetryableNetworkingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562F1F78FF4F00B8F14B /* RetryableNetworkingOperation.swift */; };
+		7645569A1F78FF8500B8F14B /* InstallationDataSynchronizationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561B1F78FF4F00B8F14B /* InstallationDataSynchronizationOperation.swift */; };
+		7645569B1F78FF8500B8F14B /* MessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561C1F78FF4F00B8F14B /* MessageFetchingOperation.swift */; };
+		7645569C1F78FF8500B8F14B /* MessageHandlingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561D1F78FF4F00B8F14B /* MessageHandlingOperation.swift */; };
+		7645569D1F78FF8500B8F14B /* MessagePostingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561E1F78FF4F00B8F14B /* MessagePostingOperation.swift */; };
+		7645569E1F78FF8500B8F14B /* MessagesEvictionOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561F1F78FF4F00B8F14B /* MessagesEvictionOperation.swift */; };
+		7645569F1F78FF8500B8F14B /* MessagesSyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556201F78FF4F00B8F14B /* MessagesSyncOperation.swift */; };
+		764556A01F78FF8500B8F14B /* RegistrationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556211F78FF4F00B8F14B /* RegistrationCondition.swift */; };
+		764556A11F78FF8500B8F14B /* RegistrationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556221F78FF4F00B8F14B /* RegistrationOperation.swift */; };
+		764556A21F78FF8500B8F14B /* SeenStatusPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556231F78FF4F00B8F14B /* SeenStatusPersistingOperation.swift */; };
+		764556A31F78FF8500B8F14B /* SeenStatusSendingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556241F78FF4F00B8F14B /* SeenStatusSendingOperation.swift */; };
+		764556A41F78FF8500B8F14B /* SystemDataSynchronizationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556251F78FF4F00B8F14B /* SystemDataSynchronizationOperation.swift */; };
+		764556A51F78FF8500B8F14B /* UserDataSynchronizationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556261F78FF4F00B8F14B /* UserDataSynchronizationOperation.swift */; };
+		764556A61F78FF8B00B8F14B /* UserNotificationCenterDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556301F78FF4F00B8F14B /* UserNotificationCenterDelegate.swift */; };
+		764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556321F78FF4F00B8F14B /* MMGCD.swift */; };
+		764556A81F78FF8F00B8F14B /* MMLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556331F78FF4F00B8F14B /* MMLocalization.swift */; };
+		764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556341F78FF4F00B8F14B /* MMLocalNotifications.swift */; };
+		764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556351F78FF4F00B8F14B /* MMNSErrorExtension.swift */; };
+		764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556361F78FF4F00B8F14B /* MMPostponer.swift */; };
+		764556AC1F78FF8F00B8F14B /* MMUserAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556371F78FF4F00B8F14B /* MMUserAgent.swift */; };
+		764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556381F78FF4F00B8F14B /* MMUtils.swift */; };
+		764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556391F78FF4F00B8F14B /* MMVersionManager.swift */; };
+		764556AF1F78FF8F00B8F14B /* UserNotificationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645563A1F78FF4F00B8F14B /* UserNotificationType.swift */; };
+		764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556491F78FF4F00B8F14B /* GeoEventReportingOperation.swift */; };
+		764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564A1F78FF4F00B8F14B /* MMGeofencingDatasource.swift */; };
+		764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564B1F78FF4F00B8F14B /* MMGeofencingDeclarations.swift */; };
+		764556B31F78FF9500B8F14B /* MMGeofencingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564C1F78FF4F00B8F14B /* MMGeofencingService.swift */; };
+		764556B41F78FF9500B8F14B /* MMGeoMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564D1F78FF4F00B8F14B /* MMGeoMessage.swift */; };
+		764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564E1F78FF4F00B8F14B /* MMGeoRequests.swift */; };
+		764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */; };
+		764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */; };
+		764556B81F78FF9D00B8F14B /* NotificationsInteractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */; };
+		764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645563F1F78FF4F00B8F14B /* Message+CoreDataProperties.swift */; };
+		764556BA1F78FFB200B8F14B /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556401F78FF4F00B8F14B /* Message.swift */; };
+		764556BB1F78FFB200B8F14B /* MMDefaultMessageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556411F78FF4F00B8F14B /* MMDefaultMessageStorage.swift */; };
+		764556BC1F78FFB400B8F14B /* MMMessageStorageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 764556421F78FF4F00B8F14B /* MMMessageStorageModel.xcdatamodeld */; };
+		764556BD1F78FFB700B8F14B /* StorageProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556441F78FF4F00B8F14B /* StorageProtocols.swift */; };
+		764556BE1F78FFCB00B8F14B /* RetryableDownloadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645563C1F78FF4F00B8F14B /* RetryableDownloadTask.swift */; };
+		764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645563D1F78FF4F00B8F14B /* RichNotificationsExtensions.swift */; };
+		764556C01F78FFD300B8F14B /* AFHTTPSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556511F78FF4F00B8F14B /* AFHTTPSessionManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		764556C11F78FFD300B8F14B /* AFHTTPSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 764556521F78FF4F00B8F14B /* AFHTTPSessionManager.m */; };
+		764556C21F78FFD300B8F14B /* AFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556531F78FF4F00B8F14B /* AFNetworking.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		764556C31F78FFD300B8F14B /* AFNetworkReachabilityManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556541F78FF4F00B8F14B /* AFNetworkReachabilityManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		764556C41F78FFD300B8F14B /* AFNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 764556551F78FF4F00B8F14B /* AFNetworkReachabilityManager.m */; };
+		764556C51F78FFD300B8F14B /* AFSecurityPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556561F78FF4F00B8F14B /* AFSecurityPolicy.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		764556C61F78FFD300B8F14B /* AFSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 764556571F78FF4F00B8F14B /* AFSecurityPolicy.m */; };
+		764556C71F78FFD300B8F14B /* AFURLRequestSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556581F78FF4F00B8F14B /* AFURLRequestSerialization.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		764556C81F78FFD300B8F14B /* AFURLRequestSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 764556591F78FF4F00B8F14B /* AFURLRequestSerialization.m */; };
+		764556C91F78FFD300B8F14B /* AFURLResponseSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = 7645565A1F78FF4F00B8F14B /* AFURLResponseSerialization.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		764556CA1F78FFD300B8F14B /* AFURLResponseSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 7645565B1F78FF4F00B8F14B /* AFURLResponseSerialization.m */; };
+		764556CB1F78FFD300B8F14B /* AFURLSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 7645565C1F78FF4F00B8F14B /* AFURLSessionManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		764556CC1F78FFD300B8F14B /* AFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7645565D1F78FF4F00B8F14B /* AFURLSessionManager.m */; };
+		764556CD1F78FFD900B8F14B /* KeychainSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645565F1F78FF4F00B8F14B /* KeychainSwift.swift */; };
+		764556CE1F78FFD900B8F14B /* KeychainSwiftAccessOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556601F78FF4F00B8F14B /* KeychainSwiftAccessOptions.swift */; };
+		764556CF1F78FFD900B8F14B /* TegKeychainConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556611F78FF4F00B8F14B /* TegKeychainConstants.swift */; };
+		764556D01F78FFE000B8F14B /* BlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556631F78FF4F00B8F14B /* BlockObserver.swift */; };
+		764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556641F78FF4F00B8F14B /* BlockOperation.swift */; };
+		764556D21F78FFE000B8F14B /* Dictionary+Operations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556651F78FF4F00B8F14B /* Dictionary+Operations.swift */; };
+		764556D31F78FFE000B8F14B /* ExclusivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556661F78FF4F00B8F14B /* ExclusivityController.swift */; };
+		764556D41F78FFE000B8F14B /* GroupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556671F78FF4F00B8F14B /* GroupOperation.swift */; };
+		764556D51F78FFE700B8F14B /* NSLock+Operations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556691F78FF4F00B8F14B /* NSLock+Operations.swift */; };
+		764556D61F78FFE700B8F14B /* NSOperation+Operations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566A1F78FF4F00B8F14B /* NSOperation+Operations.swift */; };
+		764556D71F78FFE700B8F14B /* Operation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566B1F78FF4F00B8F14B /* Operation.swift */; };
+		764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566C1F78FF4F00B8F14B /* OperationCondition.swift */; };
+		764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566D1F78FF4F00B8F14B /* OperationErrors.swift */; };
+		764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566E1F78FF4F00B8F14B /* OperationObserver.swift */; };
+		764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566F1F78FF4F00B8F14B /* OperationQueue.swift */; };
+		764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556711F78FF4F00B8F14B /* SwiftyJSON.swift */; };
+		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MobileMessaging.xcconfig; sourceTree = "<group>"; };
+		37333A54A8B807D53AD68E200638BAC7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MobileMessaging-dummy.m"; sourceTree = "<group>"; };
+		67D34D6EBA51E58A87E7A34D766E7A15 /* MobileMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MobileMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNotificationAction.swift; sourceTree = "<group>"; };
+		764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNotificationCategory.swift; sourceTree = "<group>"; };
+		764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsInteractionService.swift; sourceTree = "<group>"; };
+		764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PredefinedNotificationCategories.plist; sourceTree = "<group>"; };
+		764555D61F78FF4E00B8F14B /* MMAPIKeysAndValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMAPIKeysAndValues.swift; sourceTree = "<group>"; };
+		764555D71F78FF4E00B8F14B /* MMHTTPRequestSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMHTTPRequestSerializer.swift; sourceTree = "<group>"; };
+		764555D81F78FF4E00B8F14B /* MMRemoteAPIQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRemoteAPIQueue.swift; sourceTree = "<group>"; };
+		764555D91F78FF4E00B8F14B /* MMRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRequests.swift; sourceTree = "<group>"; };
+		764555DA1F78FF4E00B8F14B /* MMResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMResponses.swift; sourceTree = "<group>"; };
+		764555DB1F78FF4E00B8F14B /* MMResponseSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMResponseSerializer.swift; sourceTree = "<group>"; };
+		764555DC1F78FF4E00B8F14B /* RemoteAPIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAPIManager.swift; sourceTree = "<group>"; };
+		764555DE1F78FF4E00B8F14B /* GeoEventReportObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeoEventReportObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		764555DF1F78FF4E00B8F14B /* GeoEventReportObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoEventReportObject.swift; sourceTree = "<group>"; };
+		764555E01F78FF4E00B8F14B /* InstallationManagedObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InstallationManagedObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		764555E11F78FF4E00B8F14B /* InstallationManagedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationManagedObject.swift; sourceTree = "<group>"; };
+		764555E21F78FF4E00B8F14B /* MessageManagedObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageManagedObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		764555E31F78FF4E00B8F14B /* MessageManagedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageManagedObject.swift; sourceTree = "<group>"; };
+		764555E41F78FF4E00B8F14B /* MMCoreDataExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMCoreDataExtensions.swift; sourceTree = "<group>"; };
+		764555E51F78FF4E00B8F14B /* MMCoreDataStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMCoreDataStorage.swift; sourceTree = "<group>"; };
+		764555E71F78FF4E00B8F14B /* MMStorageModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel.xcdatamodel; sourceTree = "<group>"; };
+		764555EA1F78FF4E00B8F14B /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555EB1F78FF4E00B8F14B /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555EC1F78FF4E00B8F14B /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555ED1F78FF4E00B8F14B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555EE1F78FF4E00B8F14B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555EF1F78FF4E00B8F14B /* es-419 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-419"; path = "es-419.lproj/MobileMessaging.strings"; sourceTree = "<group>"; };
+		764555F01F78FF4E00B8F14B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F11F78FF4E00B8F14B /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F21F78FF4E00B8F14B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F31F78FF4E00B8F14B /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F41F78FF4E00B8F14B /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F51F78FF4E00B8F14B /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F61F78FF4E00B8F14B /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F71F78FF4E00B8F14B /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F81F78FF4E00B8F14B /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555F91F78FF4E00B8F14B /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555FA1F78FF4E00B8F14B /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555FB1F78FF4E00B8F14B /* ms */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ms; path = ms.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555FC1F78FF4E00B8F14B /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555FD1F78FF4E00B8F14B /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555FE1F78FF4E00B8F14B /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764555FF1F78FF4E00B8F14B /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/MobileMessaging.strings"; sourceTree = "<group>"; };
+		764556001F78FF4E00B8F14B /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764556011F78FF4F00B8F14B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764556021F78FF4F00B8F14B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764556031F78FF4F00B8F14B /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764556041F78FF4F00B8F14B /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764556051F78FF4F00B8F14B /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764556061F78FF4F00B8F14B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764556071F78FF4F00B8F14B /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		764556081F78FF4F00B8F14B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MobileMessaging.strings"; sourceTree = "<group>"; };
+		764556091F78FF4F00B8F14B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/MobileMessaging.strings"; sourceTree = "<group>"; };
+		7645560A1F78FF4F00B8F14B /* MMInstallation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMInstallation.swift; sourceTree = "<group>"; };
+		7645560B1F78FF4F00B8F14B /* MMKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMKeychain.swift; sourceTree = "<group>"; };
+		7645560C1F78FF4F00B8F14B /* MMLoggingUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLoggingUtil.swift; sourceTree = "<group>"; };
+		7645560D1F78FF4F00B8F14B /* MMNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MMNotifications.h; sourceTree = "<group>"; };
+		7645560E1F78FF4F00B8F14B /* MMNotifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MMNotifications.m; sourceTree = "<group>"; };
+		7645560F1F78FF4F00B8F14B /* MMVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMVersion.swift; sourceTree = "<group>"; };
+		764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MobileMessaging-umbrella.h"; path = "Classes/MobileMessaging-umbrella.h"; sourceTree = "<group>"; };
+		764556111F78FF4F00B8F14B /* MobileMessaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileMessaging.swift; sourceTree = "<group>"; };
+		764556121F78FF4F00B8F14B /* MobileMessagingAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileMessagingAppDelegate.swift; sourceTree = "<group>"; };
+		764556131F78FF4F00B8F14B /* MobileMessagingAppDelegateObjc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileMessagingAppDelegateObjc.h; sourceTree = "<group>"; };
+		764556141F78FF4F00B8F14B /* MobileMessagingAppDelegateObjc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MobileMessagingAppDelegateObjc.m; sourceTree = "<group>"; };
+		764556151F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileMessagingCordovaApplicationDelegate.h; sourceTree = "<group>"; };
+		764556161F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MobileMessagingCordovaApplicationDelegate.m; sourceTree = "<group>"; };
+		764556181F78FF4F00B8F14B /* MMMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMMessage.swift; sourceTree = "<group>"; };
+		7645561B1F78FF4F00B8F14B /* InstallationDataSynchronizationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationDataSynchronizationOperation.swift; sourceTree = "<group>"; };
+		7645561C1F78FF4F00B8F14B /* MessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFetchingOperation.swift; sourceTree = "<group>"; };
+		7645561D1F78FF4F00B8F14B /* MessageHandlingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHandlingOperation.swift; sourceTree = "<group>"; };
+		7645561E1F78FF4F00B8F14B /* MessagePostingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagePostingOperation.swift; sourceTree = "<group>"; };
+		7645561F1F78FF4F00B8F14B /* MessagesEvictionOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesEvictionOperation.swift; sourceTree = "<group>"; };
+		764556201F78FF4F00B8F14B /* MessagesSyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesSyncOperation.swift; sourceTree = "<group>"; };
+		764556211F78FF4F00B8F14B /* RegistrationCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationCondition.swift; sourceTree = "<group>"; };
+		764556221F78FF4F00B8F14B /* RegistrationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationOperation.swift; sourceTree = "<group>"; };
+		764556231F78FF4F00B8F14B /* SeenStatusPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenStatusPersistingOperation.swift; sourceTree = "<group>"; };
+		764556241F78FF4F00B8F14B /* SeenStatusSendingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenStatusSendingOperation.swift; sourceTree = "<group>"; };
+		764556251F78FF4F00B8F14B /* SystemDataSynchronizationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemDataSynchronizationOperation.swift; sourceTree = "<group>"; };
+		764556261F78FF4F00B8F14B /* UserDataSynchronizationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataSynchronizationOperation.swift; sourceTree = "<group>"; };
+		764556271F78FF4F00B8F14B /* MMApplicationListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMApplicationListener.swift; sourceTree = "<group>"; };
+		764556281F78FF4F00B8F14B /* MMDefaultMessageHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMDefaultMessageHandling.swift; sourceTree = "<group>"; };
+		764556291F78FF4F00B8F14B /* MMInstallationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMInstallationManager.swift; sourceTree = "<group>"; };
+		7645562A1F78FF4F00B8F14B /* MMMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMMessageHandler.swift; sourceTree = "<group>"; };
+		7645562B1F78FF4F00B8F14B /* MMOperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMOperationQueue.swift; sourceTree = "<group>"; };
+		7645562C1F78FF4F00B8F14B /* MMRetryableOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRetryableOperation.swift; sourceTree = "<group>"; };
+		7645562D1F78FF4F00B8F14B /* MMRetryableRequestOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRetryableRequestOperation.swift; sourceTree = "<group>"; };
+		7645562E1F78FF4F00B8F14B /* MMRetryOperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRetryOperationQueue.swift; sourceTree = "<group>"; };
+		7645562F1F78FF4F00B8F14B /* RetryableNetworkingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryableNetworkingOperation.swift; sourceTree = "<group>"; };
+		764556301F78FF4F00B8F14B /* UserNotificationCenterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationCenterDelegate.swift; sourceTree = "<group>"; };
+		764556321F78FF4F00B8F14B /* MMGCD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGCD.swift; sourceTree = "<group>"; };
+		764556331F78FF4F00B8F14B /* MMLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLocalization.swift; sourceTree = "<group>"; };
+		764556341F78FF4F00B8F14B /* MMLocalNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLocalNotifications.swift; sourceTree = "<group>"; };
+		764556351F78FF4F00B8F14B /* MMNSErrorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNSErrorExtension.swift; sourceTree = "<group>"; };
+		764556361F78FF4F00B8F14B /* MMPostponer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMPostponer.swift; sourceTree = "<group>"; };
+		764556371F78FF4F00B8F14B /* MMUserAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMUserAgent.swift; sourceTree = "<group>"; };
+		764556381F78FF4F00B8F14B /* MMUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMUtils.swift; sourceTree = "<group>"; };
+		764556391F78FF4F00B8F14B /* MMVersionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMVersionManager.swift; sourceTree = "<group>"; };
+		7645563A1F78FF4F00B8F14B /* UserNotificationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationType.swift; sourceTree = "<group>"; };
+		7645563C1F78FF4F00B8F14B /* RetryableDownloadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryableDownloadTask.swift; sourceTree = "<group>"; };
+		7645563D1F78FF4F00B8F14B /* RichNotificationsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichNotificationsExtensions.swift; sourceTree = "<group>"; };
+		7645563F1F78FF4F00B8F14B /* Message+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Message+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		764556401F78FF4F00B8F14B /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		764556411F78FF4F00B8F14B /* MMDefaultMessageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMDefaultMessageStorage.swift; sourceTree = "<group>"; };
+		764556431F78FF4F00B8F14B /* MMMessageStorage.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMMessageStorage.xcdatamodel; sourceTree = "<group>"; };
+		764556441F78FF4F00B8F14B /* StorageProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageProtocols.swift; sourceTree = "<group>"; };
+		764556471F78FF4F00B8F14B /* MMLumberjackLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLumberjackLogger.swift; sourceTree = "<group>"; };
+		764556491F78FF4F00B8F14B /* GeoEventReportingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoEventReportingOperation.swift; sourceTree = "<group>"; };
+		7645564A1F78FF4F00B8F14B /* MMGeofencingDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeofencingDatasource.swift; sourceTree = "<group>"; };
+		7645564B1F78FF4F00B8F14B /* MMGeofencingDeclarations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeofencingDeclarations.swift; sourceTree = "<group>"; };
+		7645564C1F78FF4F00B8F14B /* MMGeofencingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeofencingService.swift; sourceTree = "<group>"; };
+		7645564D1F78FF4F00B8F14B /* MMGeoMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeoMessage.swift; sourceTree = "<group>"; };
+		7645564E1F78FF4F00B8F14B /* MMGeoRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeoRequests.swift; sourceTree = "<group>"; };
+		764556511F78FF4F00B8F14B /* AFHTTPSessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AFHTTPSessionManager.h; sourceTree = "<group>"; };
+		764556521F78FF4F00B8F14B /* AFHTTPSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AFHTTPSessionManager.m; sourceTree = "<group>"; };
+		764556531F78FF4F00B8F14B /* AFNetworking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
+		764556541F78FF4F00B8F14B /* AFNetworkReachabilityManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AFNetworkReachabilityManager.h; sourceTree = "<group>"; };
+		764556551F78FF4F00B8F14B /* AFNetworkReachabilityManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AFNetworkReachabilityManager.m; sourceTree = "<group>"; };
+		764556561F78FF4F00B8F14B /* AFSecurityPolicy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AFSecurityPolicy.h; sourceTree = "<group>"; };
+		764556571F78FF4F00B8F14B /* AFSecurityPolicy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AFSecurityPolicy.m; sourceTree = "<group>"; };
+		764556581F78FF4F00B8F14B /* AFURLRequestSerialization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AFURLRequestSerialization.h; sourceTree = "<group>"; };
+		764556591F78FF4F00B8F14B /* AFURLRequestSerialization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AFURLRequestSerialization.m; sourceTree = "<group>"; };
+		7645565A1F78FF4F00B8F14B /* AFURLResponseSerialization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AFURLResponseSerialization.h; sourceTree = "<group>"; };
+		7645565B1F78FF4F00B8F14B /* AFURLResponseSerialization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AFURLResponseSerialization.m; sourceTree = "<group>"; };
+		7645565C1F78FF4F00B8F14B /* AFURLSessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AFURLSessionManager.h; sourceTree = "<group>"; };
+		7645565D1F78FF4F00B8F14B /* AFURLSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AFURLSessionManager.m; sourceTree = "<group>"; };
+		7645565F1F78FF4F00B8F14B /* KeychainSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwift.swift; sourceTree = "<group>"; };
+		764556601F78FF4F00B8F14B /* KeychainSwiftAccessOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwiftAccessOptions.swift; sourceTree = "<group>"; };
+		764556611F78FF4F00B8F14B /* TegKeychainConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TegKeychainConstants.swift; sourceTree = "<group>"; };
+		764556631F78FF4F00B8F14B /* BlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockObserver.swift; sourceTree = "<group>"; };
+		764556641F78FF4F00B8F14B /* BlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockOperation.swift; sourceTree = "<group>"; };
+		764556651F78FF4F00B8F14B /* Dictionary+Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Operations.swift"; sourceTree = "<group>"; };
+		764556661F78FF4F00B8F14B /* ExclusivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExclusivityController.swift; sourceTree = "<group>"; };
+		764556671F78FF4F00B8F14B /* GroupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupOperation.swift; sourceTree = "<group>"; };
+		764556681F78FF4F00B8F14B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		764556691F78FF4F00B8F14B /* NSLock+Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSLock+Operations.swift"; sourceTree = "<group>"; };
+		7645566A1F78FF4F00B8F14B /* NSOperation+Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSOperation+Operations.swift"; sourceTree = "<group>"; };
+		7645566B1F78FF4F00B8F14B /* Operation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Operation.swift; sourceTree = "<group>"; };
+		7645566C1F78FF4F00B8F14B /* OperationCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationCondition.swift; sourceTree = "<group>"; };
+		7645566D1F78FF4F00B8F14B /* OperationErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationErrors.swift; sourceTree = "<group>"; };
+		7645566E1F78FF4F00B8F14B /* OperationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationObserver.swift; sourceTree = "<group>"; };
+		7645566F1F78FF4F00B8F14B /* OperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationQueue.swift; sourceTree = "<group>"; };
+		764556711F78FF4F00B8F14B /* SwiftyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
+		8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
+		87D23AEB9B8E45723819ED8B7152EBC5 /* MobileMessaging-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MobileMessaging-prefix.pch"; sourceTree = "<group>"; };
+		90D97F4115E4ED0FAB0D933212A2ECFA /* MobileMessaging.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; name = MobileMessaging.modulemap; path = ../MobileMessaging.modulemap; sourceTree = "<group>"; };
+		A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
+		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0979C61CC24B570CCB03438437464D2A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3BB0594CCA9D40ADAC4C3716491BE06B /* CoreData.framework in Frameworks */,
+				0ECABD2F10663827D649C473E329D109 /* CoreLocation.framework in Frameworks */,
+				2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */,
+				170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */,
+				AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1EB0AEE32DF73E58AC174D599FA44DFB /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		1EC852B12152CDB7042DD88F7126A70F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				67D34D6EBA51E58A87E7A34D766E7A15 /* MobileMessaging.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		20B56609144CE204DFA8221F742B2D76 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				833AC1D7495E23FDE30ED37A0C13E6F4 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2FB18F86E2573DD8606B5CBC82A58E04 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				37333A54A8B807D53AD68E200638BAC7 /* Info.plist */,
+				90D97F4115E4ED0FAB0D933212A2ECFA /* MobileMessaging.modulemap */,
+				1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */,
+				678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */,
+				87D23AEB9B8E45723819ED8B7152EBC5 /* MobileMessaging-prefix.pch */,
+			);
+			name = "Support Files";
+			path = Framework;
+			sourceTree = "<group>";
+		};
+		764555CF1F78FF4E00B8F14B /* InteractiveNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */,
+				764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */,
+				764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */,
+				764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */,
+			);
+			name = InteractiveNotifications;
+			path = Classes/InteractiveNotifications;
+			sourceTree = "<group>";
+		};
+		764555D41F78FF4E00B8F14B /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				764555D51F78FF4E00B8F14B /* HTTP */,
+				764555DD1F78FF4E00B8F14B /* InternalStorage */,
+				764555E81F78FF4E00B8F14B /* Localization */,
+				7645560A1F78FF4F00B8F14B /* MMInstallation.swift */,
+				7645560B1F78FF4F00B8F14B /* MMKeychain.swift */,
+				7645560C1F78FF4F00B8F14B /* MMLoggingUtil.swift */,
+				7645560D1F78FF4F00B8F14B /* MMNotifications.h */,
+				7645560E1F78FF4F00B8F14B /* MMNotifications.m */,
+				7645560F1F78FF4F00B8F14B /* MMVersion.swift */,
+				764556111F78FF4F00B8F14B /* MobileMessaging.swift */,
+				764556121F78FF4F00B8F14B /* MobileMessagingAppDelegate.swift */,
+				764556131F78FF4F00B8F14B /* MobileMessagingAppDelegateObjc.h */,
+				764556141F78FF4F00B8F14B /* MobileMessagingAppDelegateObjc.m */,
+				764556151F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.h */,
+				764556161F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.m */,
+				764556171F78FF4F00B8F14B /* Models */,
+				764556191F78FF4F00B8F14B /* Operations */,
+				764556301F78FF4F00B8F14B /* UserNotificationCenterDelegate.swift */,
+				764556311F78FF4F00B8F14B /* Utils */,
+			);
+			name = Core;
+			path = Classes/Core;
+			sourceTree = "<group>";
+		};
+		764555D51F78FF4E00B8F14B /* HTTP */ = {
+			isa = PBXGroup;
+			children = (
+				764555D61F78FF4E00B8F14B /* MMAPIKeysAndValues.swift */,
+				764555D71F78FF4E00B8F14B /* MMHTTPRequestSerializer.swift */,
+				764555D81F78FF4E00B8F14B /* MMRemoteAPIQueue.swift */,
+				764555D91F78FF4E00B8F14B /* MMRequests.swift */,
+				764555DA1F78FF4E00B8F14B /* MMResponses.swift */,
+				764555DB1F78FF4E00B8F14B /* MMResponseSerializer.swift */,
+				764555DC1F78FF4E00B8F14B /* RemoteAPIManager.swift */,
+			);
+			path = HTTP;
+			sourceTree = "<group>";
+		};
+		764555DD1F78FF4E00B8F14B /* InternalStorage */ = {
+			isa = PBXGroup;
+			children = (
+				764555DE1F78FF4E00B8F14B /* GeoEventReportObject+CoreDataProperties.swift */,
+				764555DF1F78FF4E00B8F14B /* GeoEventReportObject.swift */,
+				764555E01F78FF4E00B8F14B /* InstallationManagedObject+CoreDataProperties.swift */,
+				764555E11F78FF4E00B8F14B /* InstallationManagedObject.swift */,
+				764555E21F78FF4E00B8F14B /* MessageManagedObject+CoreDataProperties.swift */,
+				764555E31F78FF4E00B8F14B /* MessageManagedObject.swift */,
+				764555E41F78FF4E00B8F14B /* MMCoreDataExtensions.swift */,
+				764555E51F78FF4E00B8F14B /* MMCoreDataStorage.swift */,
+				764555E61F78FF4E00B8F14B /* MMInternalStorageModel.xcdatamodeld */,
+			);
+			path = InternalStorage;
+			sourceTree = "<group>";
+		};
+		764555E81F78FF4E00B8F14B /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				764555E91F78FF4E00B8F14B /* MobileMessaging.strings */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
+		764556171F78FF4F00B8F14B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				764556181F78FF4F00B8F14B /* MMMessage.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		764556191F78FF4F00B8F14B /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				7645561A1F78FF4F00B8F14B /* AppOperations */,
+				764556271F78FF4F00B8F14B /* MMApplicationListener.swift */,
+				764556281F78FF4F00B8F14B /* MMDefaultMessageHandling.swift */,
+				764556291F78FF4F00B8F14B /* MMInstallationManager.swift */,
+				7645562A1F78FF4F00B8F14B /* MMMessageHandler.swift */,
+				7645562B1F78FF4F00B8F14B /* MMOperationQueue.swift */,
+				7645562C1F78FF4F00B8F14B /* MMRetryableOperation.swift */,
+				7645562D1F78FF4F00B8F14B /* MMRetryableRequestOperation.swift */,
+				7645562E1F78FF4F00B8F14B /* MMRetryOperationQueue.swift */,
+				7645562F1F78FF4F00B8F14B /* RetryableNetworkingOperation.swift */,
+			);
+			path = Operations;
+			sourceTree = "<group>";
+		};
+		7645561A1F78FF4F00B8F14B /* AppOperations */ = {
+			isa = PBXGroup;
+			children = (
+				7645561B1F78FF4F00B8F14B /* InstallationDataSynchronizationOperation.swift */,
+				7645561C1F78FF4F00B8F14B /* MessageFetchingOperation.swift */,
+				7645561D1F78FF4F00B8F14B /* MessageHandlingOperation.swift */,
+				7645561E1F78FF4F00B8F14B /* MessagePostingOperation.swift */,
+				7645561F1F78FF4F00B8F14B /* MessagesEvictionOperation.swift */,
+				764556201F78FF4F00B8F14B /* MessagesSyncOperation.swift */,
+				764556211F78FF4F00B8F14B /* RegistrationCondition.swift */,
+				764556221F78FF4F00B8F14B /* RegistrationOperation.swift */,
+				764556231F78FF4F00B8F14B /* SeenStatusPersistingOperation.swift */,
+				764556241F78FF4F00B8F14B /* SeenStatusSendingOperation.swift */,
+				764556251F78FF4F00B8F14B /* SystemDataSynchronizationOperation.swift */,
+				764556261F78FF4F00B8F14B /* UserDataSynchronizationOperation.swift */,
+			);
+			path = AppOperations;
+			sourceTree = "<group>";
+		};
+		764556311F78FF4F00B8F14B /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				764556321F78FF4F00B8F14B /* MMGCD.swift */,
+				764556331F78FF4F00B8F14B /* MMLocalization.swift */,
+				764556341F78FF4F00B8F14B /* MMLocalNotifications.swift */,
+				764556351F78FF4F00B8F14B /* MMNSErrorExtension.swift */,
+				764556361F78FF4F00B8F14B /* MMPostponer.swift */,
+				764556371F78FF4F00B8F14B /* MMUserAgent.swift */,
+				764556381F78FF4F00B8F14B /* MMUtils.swift */,
+				764556391F78FF4F00B8F14B /* MMVersionManager.swift */,
+				7645563A1F78FF4F00B8F14B /* UserNotificationType.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		7645563B1F78FF4F00B8F14B /* RichNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				7645563C1F78FF4F00B8F14B /* RetryableDownloadTask.swift */,
+				7645563D1F78FF4F00B8F14B /* RichNotificationsExtensions.swift */,
+			);
+			name = RichNotifications;
+			path = Classes/RichNotifications;
+			sourceTree = "<group>";
+		};
+		7645563E1F78FF4F00B8F14B /* MessageStorage */ = {
+			isa = PBXGroup;
+			children = (
+				7645563F1F78FF4F00B8F14B /* Message+CoreDataProperties.swift */,
+				764556401F78FF4F00B8F14B /* Message.swift */,
+				764556411F78FF4F00B8F14B /* MMDefaultMessageStorage.swift */,
+				764556421F78FF4F00B8F14B /* MMMessageStorageModel.xcdatamodeld */,
+				764556441F78FF4F00B8F14B /* StorageProtocols.swift */,
+			);
+			name = MessageStorage;
+			path = Classes/MessageStorage;
+			sourceTree = "<group>";
+		};
+		764556451F78FF4F00B8F14B /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				764556461F78FF4F00B8F14B /* CocoaLumberjack */,
+			);
+			name = Logging;
+			path = Classes/Logging;
+			sourceTree = "<group>";
+		};
+		764556461F78FF4F00B8F14B /* CocoaLumberjack */ = {
+			isa = PBXGroup;
+			children = (
+				764556471F78FF4F00B8F14B /* MMLumberjackLogger.swift */,
+			);
+			path = CocoaLumberjack;
+			sourceTree = "<group>";
+		};
+		764556481F78FF4F00B8F14B /* Geofencing */ = {
+			isa = PBXGroup;
+			children = (
+				764556491F78FF4F00B8F14B /* GeoEventReportingOperation.swift */,
+				7645564A1F78FF4F00B8F14B /* MMGeofencingDatasource.swift */,
+				7645564B1F78FF4F00B8F14B /* MMGeofencingDeclarations.swift */,
+				7645564C1F78FF4F00B8F14B /* MMGeofencingService.swift */,
+				7645564D1F78FF4F00B8F14B /* MMGeoMessage.swift */,
+				7645564E1F78FF4F00B8F14B /* MMGeoRequests.swift */,
+			);
+			name = Geofencing;
+			path = Classes/Geofencing;
+			sourceTree = "<group>";
+		};
+		7645564F1F78FF4F00B8F14B /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				764556501F78FF4F00B8F14B /* AFNetworking */,
+				7645565E1F78FF4F00B8F14B /* Keychain */,
+				764556621F78FF4F00B8F14B /* PSOperations */,
+				764556701F78FF4F00B8F14B /* SwiftyJSON */,
+			);
+			name = Vendor;
+			path = Classes/Vendor;
+			sourceTree = "<group>";
+		};
+		764556501F78FF4F00B8F14B /* AFNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				764556511F78FF4F00B8F14B /* AFHTTPSessionManager.h */,
+				764556521F78FF4F00B8F14B /* AFHTTPSessionManager.m */,
+				764556531F78FF4F00B8F14B /* AFNetworking.h */,
+				764556541F78FF4F00B8F14B /* AFNetworkReachabilityManager.h */,
+				764556551F78FF4F00B8F14B /* AFNetworkReachabilityManager.m */,
+				764556561F78FF4F00B8F14B /* AFSecurityPolicy.h */,
+				764556571F78FF4F00B8F14B /* AFSecurityPolicy.m */,
+				764556581F78FF4F00B8F14B /* AFURLRequestSerialization.h */,
+				764556591F78FF4F00B8F14B /* AFURLRequestSerialization.m */,
+				7645565A1F78FF4F00B8F14B /* AFURLResponseSerialization.h */,
+				7645565B1F78FF4F00B8F14B /* AFURLResponseSerialization.m */,
+				7645565C1F78FF4F00B8F14B /* AFURLSessionManager.h */,
+				7645565D1F78FF4F00B8F14B /* AFURLSessionManager.m */,
+			);
+			path = AFNetworking;
+			sourceTree = "<group>";
+		};
+		7645565E1F78FF4F00B8F14B /* Keychain */ = {
+			isa = PBXGroup;
+			children = (
+				7645565F1F78FF4F00B8F14B /* KeychainSwift.swift */,
+				764556601F78FF4F00B8F14B /* KeychainSwiftAccessOptions.swift */,
+				764556611F78FF4F00B8F14B /* TegKeychainConstants.swift */,
+			);
+			path = Keychain;
+			sourceTree = "<group>";
+		};
+		764556621F78FF4F00B8F14B /* PSOperations */ = {
+			isa = PBXGroup;
+			children = (
+				764556631F78FF4F00B8F14B /* BlockObserver.swift */,
+				764556641F78FF4F00B8F14B /* BlockOperation.swift */,
+				764556651F78FF4F00B8F14B /* Dictionary+Operations.swift */,
+				764556661F78FF4F00B8F14B /* ExclusivityController.swift */,
+				764556671F78FF4F00B8F14B /* GroupOperation.swift */,
+				764556681F78FF4F00B8F14B /* Info.plist */,
+				764556691F78FF4F00B8F14B /* NSLock+Operations.swift */,
+				7645566A1F78FF4F00B8F14B /* NSOperation+Operations.swift */,
+				7645566B1F78FF4F00B8F14B /* Operation.swift */,
+				7645566C1F78FF4F00B8F14B /* OperationCondition.swift */,
+				7645566D1F78FF4F00B8F14B /* OperationErrors.swift */,
+				7645566E1F78FF4F00B8F14B /* OperationObserver.swift */,
+				7645566F1F78FF4F00B8F14B /* OperationQueue.swift */,
+			);
+			path = PSOperations;
+			sourceTree = "<group>";
+		};
+		764556701F78FF4F00B8F14B /* SwiftyJSON */ = {
+			isa = PBXGroup;
+			children = (
+				764556711F78FF4F00B8F14B /* SwiftyJSON.swift */,
+			);
+			path = SwiftyJSON;
+			sourceTree = "<group>";
+		};
+		7DB346D0F39D3F0E887471402A8071AB = {
+			isa = PBXGroup;
+			children = (
+				764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */,
+				764555D41F78FF4E00B8F14B /* Core */,
+				764556481F78FF4F00B8F14B /* Geofencing */,
+				764555CF1F78FF4E00B8F14B /* InteractiveNotifications */,
+				764556451F78FF4F00B8F14B /* Logging */,
+				7645563E1F78FF4F00B8F14B /* MessageStorage */,
+				7645563B1F78FF4F00B8F14B /* RichNotifications */,
+				7645564F1F78FF4F00B8F14B /* Vendor */,
+				2FB18F86E2573DD8606B5CBC82A58E04 /* Support Files */,
+				20B56609144CE204DFA8221F742B2D76 /* Frameworks */,
+				1EC852B12152CDB7042DD88F7126A70F /* Products */,
+				1EB0AEE32DF73E58AC174D599FA44DFB /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		833AC1D7495E23FDE30ED37A0C13E6F4 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */,
+				8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */,
+				B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */,
+				C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */,
+				5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		F0FB3783C9DE8717FC987CFCD9463D9C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				764556761F78FF5800B8F14B /* MMNotifications.h in Headers */,
+				7645567C1F78FF5800B8F14B /* MobileMessagingAppDelegateObjc.h in Headers */,
+				7645567E1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.h in Headers */,
+				764556CB1F78FFD300B8F14B /* AFURLSessionManager.h in Headers */,
+				764556C71F78FFD300B8F14B /* AFURLRequestSerialization.h in Headers */,
+				764556C31F78FFD300B8F14B /* AFNetworkReachabilityManager.h in Headers */,
+				7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */,
+				764556C01F78FFD300B8F14B /* AFHTTPSessionManager.h in Headers */,
+				764556C21F78FFD300B8F14B /* AFNetworking.h in Headers */,
+				764556C51F78FFD300B8F14B /* AFSecurityPolicy.h in Headers */,
+				764556C91F78FFD300B8F14B /* AFURLResponseSerialization.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		1C50A4BD39D1229FF35E12B933CD40D6 /* MobileMessaging */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A7F83A827E1952844EA68119D288CDDF /* Build configuration list for PBXNativeTarget "MobileMessaging" */;
+			buildPhases = (
+				0749E698D7B061A5301B9612FB001C7F /* Sources */,
+				0979C61CC24B570CCB03438437464D2A /* Frameworks */,
+				F0FB3783C9DE8717FC987CFCD9463D9C /* Headers */,
+				C654DC9AE51EAB0DE46B0924280E45D8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MobileMessaging;
+			productName = MobileMessaging;
+			productReference = 67D34D6EBA51E58A87E7A34D766E7A15 /* MobileMessaging.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D41D8CD98F00B204E9800998ECF8427E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0700;
+			};
+			buildConfigurationList = 2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "MobileMessaging" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				ar,
+				cs,
+				da,
+				de,
+				"es-419",
+				es,
+				fi,
+				fr,
+				he,
+				hi,
+				hr,
+				hu,
+				id,
+				it,
+				ja,
+				ko,
+				ms,
+				nb,
+				nl,
+				pl,
+				"pt-PT",
+				pt,
+				ro,
+				ru,
+				sk,
+				sv,
+				th,
+				tr,
+				vi,
+				"zh-Hans",
+				"zh-Hant",
+			);
+			mainGroup = 7DB346D0F39D3F0E887471402A8071AB;
+			productRefGroup = 1EC852B12152CDB7042DD88F7126A70F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1C50A4BD39D1229FF35E12B933CD40D6 /* MobileMessaging */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C654DC9AE51EAB0DE46B0924280E45D8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0749E698D7B061A5301B9612FB001C7F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				764556CF1F78FFD900B8F14B /* TegKeychainConstants.swift in Sources */,
+				764556781F78FF5800B8F14B /* MMVersion.swift in Sources */,
+				764556A81F78FF8F00B8F14B /* MMLocalization.swift in Sources */,
+				764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */,
+				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,
+				7645569B1F78FF8500B8F14B /* MessageFetchingOperation.swift in Sources */,
+				764556D41F78FFE000B8F14B /* GroupOperation.swift in Sources */,
+				764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */,
+				764556BB1F78FFB200B8F14B /* MMDefaultMessageStorage.swift in Sources */,
+				764556AC1F78FF8F00B8F14B /* MMUserAgent.swift in Sources */,
+				764556A11F78FF8500B8F14B /* RegistrationOperation.swift in Sources */,
+				764556951F78FF7F00B8F14B /* MMOperationQueue.swift in Sources */,
+				764556771F78FF5800B8F14B /* MMNotifications.m in Sources */,
+				764556911F78FF7F00B8F14B /* MMApplicationListener.swift in Sources */,
+				764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */,
+				764556C11F78FFD300B8F14B /* AFHTTPSessionManager.m in Sources */,
+				764556BE1F78FFCB00B8F14B /* RetryableDownloadTask.swift in Sources */,
+				764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */,
+				764556A41F78FF8500B8F14B /* SystemDataSynchronizationOperation.swift in Sources */,
+				764556D51F78FFE700B8F14B /* NSLock+Operations.swift in Sources */,
+				764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */,
+				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
+				7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */,
+				764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */,
+				764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */,
+				764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */,
+				7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */,
+				764556CA1F78FFD300B8F14B /* AFURLResponseSerialization.m in Sources */,
+				764556B31F78FF9500B8F14B /* MMGeofencingService.swift in Sources */,
+				764556D21F78FFE000B8F14B /* Dictionary+Operations.swift in Sources */,
+				764556971F78FF7F00B8F14B /* MMRetryableRequestOperation.swift in Sources */,
+				764556A01F78FF8500B8F14B /* RegistrationCondition.swift in Sources */,
+				764556CC1F78FFD300B8F14B /* AFURLSessionManager.m in Sources */,
+				764556B41F78FF9500B8F14B /* MMGeoMessage.swift in Sources */,
+				7645567B1F78FF5800B8F14B /* MobileMessagingAppDelegate.swift in Sources */,
+				764556D01F78FFE000B8F14B /* BlockObserver.swift in Sources */,
+				764556991F78FF7F00B8F14B /* RetryableNetworkingOperation.swift in Sources */,
+				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
+				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
+				764556921F78FF7F00B8F14B /* MMDefaultMessageHandling.swift in Sources */,
+				764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */,
+				764556961F78FF7F00B8F14B /* MMRetryableOperation.swift in Sources */,
+				7645568A1F78FF6500B8F14B /* InstallationManagedObject.swift in Sources */,
+				764556A21F78FF8500B8F14B /* SeenStatusPersistingOperation.swift in Sources */,
+				764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */,
+				764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */,
+				764556821F78FF5D00B8F14B /* MMRemoteAPIQueue.swift in Sources */,
+				29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */,
+				7645569F1F78FF8500B8F14B /* MessagesSyncOperation.swift in Sources */,
+				764556901F78FF7300B8F14B /* MMMessage.swift in Sources */,
+				764556981F78FF7F00B8F14B /* MMRetryOperationQueue.swift in Sources */,
+				764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */,
+				764556861F78FF5D00B8F14B /* RemoteAPIManager.swift in Sources */,
+				764556C61F78FFD300B8F14B /* AFSecurityPolicy.m in Sources */,
+				764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */,
+				764556931F78FF7F00B8F14B /* MMInstallationManager.swift in Sources */,
+				764556AF1F78FF8F00B8F14B /* UserNotificationType.swift in Sources */,
+				764556C81F78FFD300B8F14B /* AFURLRequestSerialization.m in Sources */,
+				764556881F78FF6500B8F14B /* GeoEventReportObject.swift in Sources */,
+				764556871F78FF6500B8F14B /* GeoEventReportObject+CoreDataProperties.swift in Sources */,
+				764556811F78FF5D00B8F14B /* MMHTTPRequestSerializer.swift in Sources */,
+				764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */,
+				764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */,
+				7645568C1F78FF6500B8F14B /* MessageManagedObject.swift in Sources */,
+				764556D31F78FFE000B8F14B /* ExclusivityController.swift in Sources */,
+				764556851F78FF5D00B8F14B /* MMResponseSerializer.swift in Sources */,
+				764556A31F78FF8500B8F14B /* SeenStatusSendingOperation.swift in Sources */,
+				764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */,
+				764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */,
+				7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */,
+				7645568E1F78FF6500B8F14B /* MMCoreDataStorage.swift in Sources */,
+				764556A61F78FF8B00B8F14B /* UserNotificationCenterDelegate.swift in Sources */,
+				764556B81F78FF9D00B8F14B /* NotificationsInteractionService.swift in Sources */,
+				764556891F78FF6500B8F14B /* InstallationManagedObject+CoreDataProperties.swift in Sources */,
+				764556751F78FF5800B8F14B /* MMLoggingUtil.swift in Sources */,
+				764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */,
+				764556731F78FF5800B8F14B /* MMInstallation.swift in Sources */,
+				764556D61F78FFE700B8F14B /* NSOperation+Operations.swift in Sources */,
+				7645569A1F78FF8500B8F14B /* InstallationDataSynchronizationOperation.swift in Sources */,
+				764556C41F78FFD300B8F14B /* AFNetworkReachabilityManager.m in Sources */,
+				7645569D1F78FF8500B8F14B /* MessagePostingOperation.swift in Sources */,
+				7645568F1F78FF6700B8F14B /* MMInternalStorageModel.xcdatamodeld in Sources */,
+				7645569E1F78FF8500B8F14B /* MessagesEvictionOperation.swift in Sources */,
+				7645567F1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.m in Sources */,
+				764556CD1F78FFD900B8F14B /* KeychainSwift.swift in Sources */,
+				764556BA1F78FFB200B8F14B /* Message.swift in Sources */,
+				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
+				7645569C1F78FF8500B8F14B /* MessageHandlingOperation.swift in Sources */,
+				764556A51F78FF8500B8F14B /* UserDataSynchronizationOperation.swift in Sources */,
+				764556BD1F78FFB700B8F14B /* StorageProtocols.swift in Sources */,
+				764556741F78FF5800B8F14B /* MMKeychain.swift in Sources */,
+				764556BC1F78FFB400B8F14B /* MMMessageStorageModel.xcdatamodeld in Sources */,
+				7645567D1F78FF5800B8F14B /* MobileMessagingAppDelegateObjc.m in Sources */,
+				764556CE1F78FFD900B8F14B /* KeychainSwiftAccessOptions.swift in Sources */,
+				764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */,
+				764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		764555E91F78FF4E00B8F14B /* MobileMessaging.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				764555EA1F78FF4E00B8F14B /* ar */,
+				764555EB1F78FF4E00B8F14B /* cs */,
+				764555EC1F78FF4E00B8F14B /* da */,
+				764555ED1F78FF4E00B8F14B /* de */,
+				764555EE1F78FF4E00B8F14B /* en */,
+				764555EF1F78FF4E00B8F14B /* es-419 */,
+				764555F01F78FF4E00B8F14B /* es */,
+				764555F11F78FF4E00B8F14B /* fi */,
+				764555F21F78FF4E00B8F14B /* fr */,
+				764555F31F78FF4E00B8F14B /* he */,
+				764555F41F78FF4E00B8F14B /* hi */,
+				764555F51F78FF4E00B8F14B /* hr */,
+				764555F61F78FF4E00B8F14B /* hu */,
+				764555F71F78FF4E00B8F14B /* id */,
+				764555F81F78FF4E00B8F14B /* it */,
+				764555F91F78FF4E00B8F14B /* ja */,
+				764555FA1F78FF4E00B8F14B /* ko */,
+				764555FB1F78FF4E00B8F14B /* ms */,
+				764555FC1F78FF4E00B8F14B /* nb */,
+				764555FD1F78FF4E00B8F14B /* nl */,
+				764555FE1F78FF4E00B8F14B /* pl */,
+				764555FF1F78FF4E00B8F14B /* pt-PT */,
+				764556001F78FF4E00B8F14B /* pt */,
+				764556011F78FF4F00B8F14B /* ro */,
+				764556021F78FF4F00B8F14B /* ru */,
+				764556031F78FF4F00B8F14B /* sk */,
+				764556041F78FF4F00B8F14B /* sv */,
+				764556051F78FF4F00B8F14B /* th */,
+				764556061F78FF4F00B8F14B /* tr */,
+				764556071F78FF4F00B8F14B /* vi */,
+				764556081F78FF4F00B8F14B /* zh-Hans */,
+				764556091F78FF4F00B8F14B /* zh-Hant */,
+			);
+			name = MobileMessaging.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		015A368F878AC3E2CEAE21DDE8026304 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE_SPECIFIER = NO_SIGNING/;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Debug;
+		};
+		44CDBB6D11DE06DB64D6268622BDC47E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				PROVISIONING_PROFILE_SPECIFIER = NO_SIGNING/;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "${SRCROOT}/../build";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		4F6B90CF449966875E453B5B95355DEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "Framework/MobileMessaging-prefix.pch";
+				INFOPLIST_FILE = "$(SRCROOT)/Framework/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = MobileMessaging.modulemap;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = org.infobip.MobileMessaging;
+				PRODUCT_NAME = MobileMessaging;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		C62993E7A128E22D3E61EB805F993412 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = "Framework/MobileMessaging-prefix.pch";
+				INFOPLIST_FILE = "$(SRCROOT)/Framework/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = MobileMessaging.modulemap;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.infobip.MobileMessaging;
+				PRODUCT_NAME = MobileMessaging;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0.1;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "MobileMessaging" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				015A368F878AC3E2CEAE21DDE8026304 /* Debug */,
+				44CDBB6D11DE06DB64D6268622BDC47E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A7F83A827E1952844EA68119D288CDDF /* Build configuration list for PBXNativeTarget "MobileMessaging" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C62993E7A128E22D3E61EB805F993412 /* Debug */,
+				4F6B90CF449966875E453B5B95355DEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		764555E61F78FF4E00B8F14B /* MMInternalStorageModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				764555E71F78FF4E00B8F14B /* MMStorageModel.xcdatamodel */,
+			);
+			currentVersion = 764555E71F78FF4E00B8F14B /* MMStorageModel.xcdatamodel */;
+			path = MMInternalStorageModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		764556421F78FF4F00B8F14B /* MMMessageStorageModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				764556431F78FF4F00B8F14B /* MMMessageStorage.xcdatamodel */,
+			);
+			currentVersion = 764556431F78FF4F00B8F14B /* MMMessageStorage.xcdatamodel */;
+			path = MMMessageStorageModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+}

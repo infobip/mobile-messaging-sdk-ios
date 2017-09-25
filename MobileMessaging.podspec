@@ -17,25 +17,25 @@ Pod::Spec.new do |s|
     }
 
     s.default_subspec = 'CocoaLumberjack'
-    s.module_map = 'Pod/MobileMessaging.modulemap'
+    s.module_map = 'MobileMessaging.modulemap'
 
     s.subspec 'Core' do |core|
         core.frameworks = 'CoreData', 'CoreTelephony', 'SystemConfiguration'
-        core.resources = 'Pod/Classes/MessageStorage/*.xcdatamodeld', 'Pod/Classes/Core/InternalStorage/*.xcdatamodeld', 'Pod/Classes/InteractiveNotifications/*.plist', 'Pod/Classes/Core/Localization/**/*.strings'
-        core.public_header_files = 'Pod/Classes/Core/**/*.h'
-        core.private_header_files = 'Pod/Classes/Vendor/**/*.h'
-        core.source_files = 'Pod/Classes/Core/**/*.{h,m,swift}', 'Pod/Classes/Vendor/**/*.{h,m,swift}', 'Pod/Classes/MessageStorage/**/*.{h,m,swift}', 'Pod/Classes/RichNotifications/**', 'Pod/Classes/InteractiveNotifications/**/*.{h,m,swift}'
+        core.resources = 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings'
+        core.public_header_files = 'Classes/Core/**/*.h','Classes/MobileMessaging-umbrella.h'
+        core.private_header_files = 'Classes/Vendor/**/*.h'
+        core.source_files = 'Classes/Core/**/*.{h,m,swift}', 'Classes/Vendor/**/*.{h,m,swift}', 'Classes/MessageStorage/**/*.{h,m,swift}', 'Classes/RichNotifications/**', 'Classes/InteractiveNotifications/**/*.{h,m,swift}', 'Classes/MobileMessaging-umbrella.h'
     end
 
     s.subspec 'CocoaLumberjack' do |cl|
 		cl.dependency 'MobileMessaging/Core'
-        cl.source_files = 'Pod/Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
+        cl.source_files = 'Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
         cl.dependency 'CocoaLumberjack', '~> 3.1'
     end
 
     s.subspec 'Geofencing' do |geo|
 		geo.dependency 'MobileMessaging/Core'
         geo.frameworks = 'CoreLocation'
-        geo.source_files = 'Pod/Classes/Geofencing/**'
+        geo.source_files = 'Classes/Geofencing/**'
     end
 end
