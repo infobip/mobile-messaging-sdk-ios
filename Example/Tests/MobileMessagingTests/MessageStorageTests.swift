@@ -271,7 +271,6 @@ class MessageStorageTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: nil)
 	}
 	
-	@available(iOS 10.0, *)
 	func testThatMessageStorageIsBeingPopulatedWithNotificationExtensionHandledMessages() {
 		
 		guard #available(iOS 10.0, *) else {
@@ -309,6 +308,7 @@ class MessageStorageTests: MMTestCase {
 		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(messageStorageStub)
 		mm.sharedNotificationExtensionStorage = notificationExtensionStorageStub
 		mm.start()
+		mm.sync()
 		
 		weak var expectation = self.expectation(description: "")
 		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {

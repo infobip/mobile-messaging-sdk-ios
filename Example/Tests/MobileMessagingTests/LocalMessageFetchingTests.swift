@@ -33,7 +33,7 @@ class NotificationExtensionStorageStub: AppGroupMessageStorage {
 }
 
 class LocalMessageFetchingTests : MMTestCase {
-	@available(iOS 10.0, *)
+	
 	func testThatMessagesFetchedLocallyAreConsideredAsDelivered() {
 		if #available(iOS 10.0, *) {
 			weak var expectation = self.expectation(description: "server sync finished")
