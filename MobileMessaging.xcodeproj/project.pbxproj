@@ -118,6 +118,7 @@
 		764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566E1F78FF4F00B8F14B /* OperationObserver.swift */; };
 		764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566F1F78FF4F00B8F14B /* OperationQueue.swift */; };
 		764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556711F78FF4F00B8F14B /* SwiftyJSON.swift */; };
+		76FFC27C1F7A64D2009C6A2A /* LocalMessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
 
@@ -268,6 +269,7 @@
 		7645566E1F78FF4F00B8F14B /* OperationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationObserver.swift; sourceTree = "<group>"; };
 		7645566F1F78FF4F00B8F14B /* OperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationQueue.swift; sourceTree = "<group>"; };
 		764556711F78FF4F00B8F14B /* SwiftyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
+		76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingOperation.swift; sourceTree = "<group>"; };
 		8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
 		87D23AEB9B8E45723819ED8B7152EBC5 /* MobileMessaging-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MobileMessaging-prefix.pch"; sourceTree = "<group>"; };
 		90D97F4115E4ED0FAB0D933212A2ECFA /* MobileMessaging.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; name = MobileMessaging.modulemap; path = ../MobileMessaging.modulemap; sourceTree = "<group>"; };
@@ -433,6 +435,7 @@
 		7645561A1F78FF4F00B8F14B /* AppOperations */ = {
 			isa = PBXGroup;
 			children = (
+				76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */,
 				7645561B1F78FF4F00B8F14B /* InstallationDataSynchronizationOperation.swift */,
 				7645561C1F78FF4F00B8F14B /* MessageFetchingOperation.swift */,
 				7645561D1F78FF4F00B8F14B /* MessageHandlingOperation.swift */,
@@ -765,6 +768,7 @@
 				764556D21F78FFE000B8F14B /* Dictionary+Operations.swift in Sources */,
 				764556971F78FF7F00B8F14B /* MMRetryableRequestOperation.swift in Sources */,
 				764556A01F78FF8500B8F14B /* RegistrationCondition.swift in Sources */,
+				76FFC27C1F7A64D2009C6A2A /* LocalMessageFetchingOperation.swift in Sources */,
 				764556CC1F78FFD300B8F14B /* AFURLSessionManager.m in Sources */,
 				764556B41F78FF9500B8F14B /* MMGeoMessage.swift in Sources */,
 				7645567B1F78FF5800B8F14B /* MobileMessagingAppDelegate.swift in Sources */,
