@@ -183,7 +183,7 @@ platform :ios do
 
             desc "Bumping lib version variable"
 
-            swift_version_path = ENV["WORKSPACE"]+"/Pod/Classes/Core/MMVersion.swift"
+            swift_version_path = ENV["WORKSPACE"]+"/Classes/Core/MMVersion.swift"
             sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{version_number}/g;' #{swift_version_path}"
 
             desc "Comitting changes"
