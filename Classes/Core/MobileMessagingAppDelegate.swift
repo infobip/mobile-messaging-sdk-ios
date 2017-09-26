@@ -12,15 +12,7 @@ The Application Delegate inheritance - is a way to integrate Mobile Messaging SD
 To implement this way, you should inherit your Application Delegate from `MobileMessagingAppDelegate`.
 */
 open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
-	
-	/// Defines whether the Geofencing service is enabled.
-	///
-	/// Default value is `false` (The service is disabled by default). If you want to enable the Geofencing service you override this variable in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `true`.
-	@available(*, unavailable, message: "Please use `MobileMessaging.geofencingService.start(completion:)` or `MobileMessaging.withApplicationCode(:notificationType:).withGeofencing().start(:)` in order to enable and start Geofencing services features.")
-	open var geofencingServiceEnabled: Bool {
-		return false
-	}
-	
+		
 	/// Passes your Application Code to the Mobile Messaging SDK.
 	///
 	/// In order to provide your own unique Application Code, you override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.

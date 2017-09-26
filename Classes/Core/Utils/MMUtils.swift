@@ -66,7 +66,7 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: CustomUserDat
 	}
 }
 
-extension Dictionary where Key: Hashable, Value: Hashable {
+extension Dictionary where Value: Hashable {
 	var keyValuesHash: Int {
 		return self.reduce("", {"\($0.0),\($0.1)"}).hash
 	}

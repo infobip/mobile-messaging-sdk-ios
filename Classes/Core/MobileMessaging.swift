@@ -13,8 +13,8 @@ public final class MobileMessaging: NSObject {
 	//MARK: Public
 	
 	/// Fabric method for Mobile Messaging session.
-	/// - parameter userNotificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
-	/// - parameter applicationCode: The application code of your Application from Push Portal website.
+	/// - parameter code: The application code of your Application from Push Portal website.
+	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString)
 	}
@@ -134,7 +134,7 @@ public final class MobileMessaging: NSObject {
 	/// This method handles incoming remote notifications and triggers sending procedure for delivery reports. The method should be called from AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback.
 	///
 	/// - parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
-	/// - parameter fetchCompletionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
+	/// - parameter completionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
 	public class func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(userInfo, completion: { result in
 			completionHandler(result.backgroundFetchResult)

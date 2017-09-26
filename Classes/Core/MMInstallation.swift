@@ -99,7 +99,7 @@ final public class MMUser: NSObject {
 	}
 	
 	/// Saves the External User Id on the server asynchronously and executes the given callback block.
-	/// - parameter id: The id you want to link with the current user.
+	/// - parameter externalId: The id you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
 	public func save(externalId: String, completion: @escaping (NSError?) -> Void) {
 		self.externalId = externalId
@@ -151,7 +151,7 @@ final public class MMUser: NSObject {
 	//MARK: Save
 	
 	/// Saves the user's custom data on the server asynchronously and executes the given callback block.
-	/// - parameter data: The dictionary representing data you want to link with the current user.
+	/// - parameter customData: The dictionary representing data you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
 	public func save(customData: [String: CustomUserDataValue], completion: @escaping (NSError?) -> Void) {
 		self.customData = customData
@@ -199,7 +199,7 @@ final public class MMUser: NSObject {
 	}
 	
 	/// Saves the user's attributes on the server asynchronously and executes the given callback block.
-	/// - parameter data: The dictionary representing data you want to link with the current user.
+	/// - parameter predefinedData: The dictionary representing data you want to link with the current user.
 	/// - parameter completion: The block to execute after the server responded.
 	public func save(predefinedData: [String: String], completion: @escaping (NSError?) -> Void) {
 		self.predefinedData = predefinedData

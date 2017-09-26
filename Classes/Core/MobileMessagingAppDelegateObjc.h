@@ -24,11 +24,6 @@
 @property (nonatomic, readonly) UserNotificationType * _Nonnull userNotificationType;
 
 /**
-	Defines whether the Geofencing service is enabled. Default value is `FALSE` (The service is enabled by default). If you want to disable the Geofencing service you override this property in your application delegate (the one you inherit from `MobileMessagingAppDelegate`) and return `TRUE`.
-*/
-@property (nonatomic, readonly) BOOL geofencingServiceEnabled; __attribute__((unavailable("Please use `MobileMessaging.geofencingService.start(completion:)` or `MobileMessaging.withApplicationCode(:notificationType:).withGeofencing().start(:)` in order to enable and start Geofencing services features.")));
-
-/**
 	This is a substitution for the standard `application(:didFinishLaunchingWithOptions:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the launch process is almost done and the app is almost ready to run.
 */
@@ -56,12 +51,12 @@
 	This is a substitution for the `application(:handleActionWithIdentifier:forLocalNotification:completionHandler:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a local notification.
  */
--(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forLocalNotification:(UILocalNotification * _Nonnull)notification withResponseInfo:(NSDictionary * _Nullable)responseInfo completionHandler:(void (^_Nullable)())completionHandler;
+-(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forLocalNotification:(UILocalNotification * _Nonnull)notification withResponseInfo:(NSDictionary * _Nullable)responseInfo completionHandler:(void (^_Nullable)(void))completionHandler;
 
 /**
 	This is a substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:completionHandler:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a remote notification.
  */
--(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forRemoteNotification:(NSDictionary *_Nullable)userInfo withResponseInfo:(NSDictionary * _Nullable)responseInfo completionHandler:(void (^_Nullable)())completionHandler;
+-(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forRemoteNotification:(NSDictionary *_Nullable)userInfo withResponseInfo:(NSDictionary * _Nullable)responseInfo completionHandler:(void (^_Nullable)(void))completionHandler;
 
 @end
