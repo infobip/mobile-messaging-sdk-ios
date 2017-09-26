@@ -83,7 +83,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 		}
 		mm_application(application, didReceiveLocalNotification: notification)
 	}
-	
+
 	public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
 		if UIDevice.current.IS_IOS_BEFORE_10 && !isTestingProcessRunning {
 			MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: nil, completionHandler: completionHandler)
@@ -97,8 +97,8 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 		}
 		mm_application(application, handleActionWithIdentifier: identifier, forRemoteNotification: userInfo, withResponseInfo: nil, completionHandler: completionHandler)
 	}
-    
-    public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+
+	public func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
 		if UIDevice.current.IS_IOS_BEFORE_10 && !isTestingProcessRunning {
 			MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: responseInfo, completionHandler: completionHandler)
         }
@@ -115,6 +115,7 @@ open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
 	/// This is substitution for standart `application(:handleActionWithIdentifier:for:completionHandler)`
 	///
 	/// You can override this method in your own application delegate in case you have choosen th Application Delegate inheritance way to integrate with Mobile Messaging SDK.
+	
 	@nonobjc public func mm_application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any]?,completionHandler: @escaping () -> Void) {
 		// override this callback in your AppDelegate if needed
 	}

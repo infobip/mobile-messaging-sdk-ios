@@ -73,7 +73,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	//MARK: Private
-	fileprivate func synced(_ lock: AnyObject, closure: (Void) -> Void) {
+	fileprivate func synced(_ lock: AnyObject, closure: () -> Void) {
 		objc_sync_enter(lock)
 		closure()
 		objc_sync_exit(lock)

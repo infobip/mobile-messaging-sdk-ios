@@ -45,13 +45,18 @@
 	This is a substitution for the standard `application(:didReceiveLocalNotification:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the running app receives a local notification.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 -(void)mm_application:(UIApplication * _Nonnull)application didReceiveLocalNotification:(UILocalNotification * _Nonnull)notification;
-
+#pragma GCC diagnostic pop
 /**
 	This is a substitution for the `application(:handleActionWithIdentifier:forLocalNotification:completionHandler:)`.
 	You override this method in your own application delegate in case you have chosen the Application Delegate inheritance way to integrate with Mobile Messaging SDK and you have some work to be done when the user taps an action button in an alert displayed in response to a local notification.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 -(void)mm_application:(UIApplication * _Nonnull)application handleActionWithIdentifier:(NSString *_Nullable)identifier forLocalNotification:(UILocalNotification * _Nonnull)notification withResponseInfo:(NSDictionary * _Nullable)responseInfo completionHandler:(void (^_Nullable)(void))completionHandler;
+#pragma GCC diagnostic pop
 
 /**
 	This is a substitution for the `application(:handleActionWithIdentifier:forRemoteNotification:completionHandler:)`.

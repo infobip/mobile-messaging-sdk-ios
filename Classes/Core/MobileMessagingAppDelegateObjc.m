@@ -47,14 +47,20 @@
 	// override this callback in your AppDelegate if needed
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 -(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
 	[MobileMessaging didReceiveLocalNotification:notification];
 	[self mm_application:application didReceiveLocalNotification:notification];
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 -(void)mm_application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
 	// override this callback in your AppDelegate if needed
 }
+#pragma GCC diagnostic pop
 
 -(void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
 	[MobileMessaging didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
@@ -65,23 +71,32 @@
 	// override in your AppDelegate if needed
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
 	if (UIDevice.currentDevice.IS_IOS_BEFORE_10) {
 		[MobileMessaging handleActionWithIdentifierWithIdentifier:identifier localNotification:notification responseInfo:nil completionHandler:completionHandler];
 	}
 	[self mm_application:application handleActionWithIdentifier:identifier forLocalNotification:notification withResponseInfo:nil completionHandler:completionHandler];
 }
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
 	if (UIDevice.currentDevice.IS_IOS_BEFORE_10) {
 		[MobileMessaging handleActionWithIdentifierWithIdentifier:identifier localNotification:notification responseInfo:responseInfo completionHandler:completionHandler];
 	}
     [self mm_application:application handleActionWithIdentifier:identifier forLocalNotification:notification withResponseInfo:responseInfo completionHandler:completionHandler];
 }
+#pragma GCC diagnostic pop
 
--(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+-(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)(void))completionHandler {
 	// override in your AppDelegate if needed
 }
+#pragma GCC diagnostic pop
 
 -(void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void (^)())completionHandler {
 	
@@ -98,7 +113,7 @@
     [self mm_application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
 }
 
--(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
+-(void)mm_application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)(void))completionHandler {
 	// override in your AppDelegate if needed
 }
 
