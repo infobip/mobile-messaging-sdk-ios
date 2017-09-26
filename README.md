@@ -26,7 +26,10 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 3. Configure your project to support Push Notifications:
 	1. Click on "Capabilities", then turn on Push Notifications. Entitlements file should be automatically created by XCode with set 'aps-environment' value.
 	2. Turn on Background Modes and check the Remote notifications checkbox.
-4. To integrate MobileMessaging into your Xcode project using [CocoaPods](https://guides.cocoapods.org/using/getting-started.html#getting-started), specify it in your Podfile:
+4. Installation
+
+	#### CocoaPods
+	To integrate MobileMessaging into your Xcode project using [CocoaPods](https://guides.cocoapods.org/using/getting-started.html#getting-started), specify it in your `Podfile`:
 
 	```ruby
 	source 'https://github.com/CocoaPods/Specs.git'
@@ -37,6 +40,15 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
 	> ### Notice 
 	> CocoaLumberjack logging used by default, in order to use other logging or switch it off follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/How-to-install-the-SDK-without-CocoaLumberjack%3F).
+
+	#### Carthage
+	If you use [Carthage](https://github.com/Carthage/Carthage/#readme) to manage your dependencies, just add MobileMessaging to your `Cartfile`:
+
+	```
+	github "infobip/mobile-messaging-sdk-ios" ~> 2.0
+	```
+
+	If you use Carthage to build your dependencies, make sure you have added `MobileMessaging.framework` to the "Linked Frameworks and Libraries" section of your target, and have included them in your Carthage framework copying build phase (as described in [Carthage documentation](https://github.com/Carthage/Carthage/blob/master/README.md)).
 
 5. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
 
