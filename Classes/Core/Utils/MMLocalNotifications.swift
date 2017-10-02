@@ -38,7 +38,9 @@ class LocalNotifications {
 		if let categoryId = message.aps.category {
 			content.categoryIdentifier = categoryId
 		}
-		content.title = ""
+		if let title = message.title {
+			content.title = title
+		}
 		content.body = txt
 		content.userInfo = [LocalNotificationKeys.pushPayload: message.originalPayload]
 		if let sound = message.sound {
@@ -72,6 +74,9 @@ extension UILocalNotification {
 		localNotification.userInfo = [LocalNotificationKeys.pushPayload: message.originalPayload]
 		localNotification.alertBody = message.text
 		localNotification.soundName = message.sound
+		if #available(iOS 8.2, *) {
+			localNotification.alertTitle = message.title
+		}
 		localNotification.category = message.aps.category
 		return localNotification
 	}

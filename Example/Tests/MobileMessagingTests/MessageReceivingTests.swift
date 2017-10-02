@@ -51,6 +51,35 @@ func sendPushes(_ preparingFunc:(String) -> [AnyHashable: Any], count: Int, rece
 
 class MessageReceivingTests: MMTestCase {
 	
+	func testLocalizedUserNotificationStringOrFallback() {
+		XCTAssertEqual(String.localizedUserNotificationStringOrFallback(key: "LOCALIZABLE_MESSAGE_KEY", args: ["args"], fallback: "fallback"), "A localizable message with a placeholder args")
+		XCTAssertEqual(String.localizedUserNotificationStringOrFallback(key: "LOCALIZABLE_MESSAGE_KEY", args: nil, 		fallback: "fallback"), "A localizable message with a placeholder %@")
+		XCTAssertEqual(String.localizedUserNotificationStringOrFallback(key: "NON_EXISTENT_KEY", 		args: ["args"], fallback: "fallback"), "NON_EXISTENT_KEY")
+		XCTAssertEqual(String.localizedUserNotificationStringOrFallback(key: "NON_EXISTENT_KEY", 		args: nil, 		fallback: "fallback"), "NON_EXISTENT_KEY")
+		XCTAssertEqual(String.localizedUserNotificationStringOrFallback(key: nil, 						args: ["Foo"], 	fallback: "fallback"), "fallback")
+	}
+	
+	func testMessageLocalization() {
+		let jsonStr  = """
+						{
+							"messageId": "messageId",
+							"aps": {
+								"badge": 6,
+								"sound": "default",
+								"alert": {
+									"title-loc-key": "LOCALIZABLE_MESSAGE_KEY",
+									"title-loc-args": ["title args"],
+									"loc-key": "LOCALIZABLE_MESSAGE_KEY",
+									"loc-args": ["text args"]
+								}
+							}
+						}
+						"""
+		let message = MTMessage(json: JSON.parse(jsonStr))
+		XCTAssertEqual(message!.text!, "A localizable message with a placeholder text args")
+		XCTAssertEqual(message!.title!, "A localizable message with a placeholder title args")
+	}
+	
 	func testJSONToNSObjects() {
 		let jsonstring = backendJSONRegularMessage(messageId: "m1")
 		let resultDict = [

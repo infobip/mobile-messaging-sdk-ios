@@ -18,7 +18,7 @@ import Foundation
 public typealias APNSPayload = [AnyHashable: Any]
 public typealias StringKeyPayload = [String: Any]
 
-enum MMAPS {
+enum PushPayloadAPS {
 	case SilentAPS([AnyHashable: Any])
 	case NativeAPS([AnyHashable: Any])
 	
@@ -50,6 +50,62 @@ enum MMAPS {
 			return alert?["body"] as? String
 		}
 	}
+	
+	var title: String? {
+		switch self {
+		case .NativeAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["title"] as? String
+		case .SilentAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["title"] as? String
+		}
+	}
+	
+	var loc_key: String? {
+		switch self {
+		case .NativeAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["loc-key"] as? String
+		case .SilentAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["loc-key"] as? String
+		}
+	}
+	
+	var loc_args: [String]? {
+		switch self {
+		case .NativeAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["loc-args"] as? [String]
+		case .SilentAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["loc-args"] as? [String]
+		}
+	}
+	
+	var title_loc_key: String? {
+		switch self {
+		case .NativeAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["title-loc-key"] as? String
+		case .SilentAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["title-loc-key"] as? String
+		}
+	}
+	
+	var title_loc_args: [String]? {
+		switch self {
+		case .NativeAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["title-loc-args"] as? [String]
+		case .SilentAPS(let dict):
+			let alert = dict["alert"] as? APNSPayload
+			return alert?["title-loc-args"] as? [String]
+		}
+	}
+	
 	var category: String? {
 		switch self {
 		case .NativeAPS(let dict):
@@ -119,20 +175,30 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
     
     let internalData: StringKeyPayload?
 	
-	/// Text of a message.
-	public var text: String? {
-		return aps.text
-	}
 	
-	/// Sound of a message.
-	public var sound: String? {
-		return aps.sound
-	}
+	/// Title of the message. If message title may be localized ("alert.title-loc-key" attribute is present and refers to an existing localized string), the localized string is returned, otherwise the value of "alert.title" attribute is returned if present.
+	public var title: String? { return String.localizedUserNotificationStringOrFallback(key: title_loc_key, args: title_loc_args, fallback: aps.title) }
+	
+	/// Text of a message. If message may be localized ("alert.loc-key" attribute is present and refers to an existing localized string), the localized string is returned, otherwise the value of "alert.body" attribute is returned if present.
+	public var text: String? { return String.localizedUserNotificationStringOrFallback(key: loc_key, args: loc_args, fallback: aps.text) }
+	
+	/// Localization key of the message title.
+	public var title_loc_key: String? { return aps.title_loc_key }
+	
+	/// Localization args of the message title.
+	public var title_loc_args: [String]? { return aps.title_loc_args }
+	
+	/// Localization key of the message text.
+	public var loc_key: String? { return aps.loc_key }
+	
+	/// Localization args of the message.
+	public var loc_args: [String]? { return aps.loc_args }
+	
+	/// Sound of the message.
+	public var sound: String? { return aps.sound }
 	
 	/// Interactive category Id
-	public var category: String? {
-		return aps.category
-	}
+	public var category: String? { return aps.category }
 	
 	public let contentUrl: String?
 	public let sendDateTime: TimeInterval // seconds
@@ -141,7 +207,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 	public var isDeliveryReportSent: Bool
 	public var deliveryReportedDate: Date?
 	
-	let aps: MMAPS
+	let aps: PushPayloadAPS
 	let silentData: StringKeyPayload?
 	
 	var appliedAction: NotificationAction?
@@ -173,12 +239,12 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		self.isSilent = MTMessage.isSilent(payload: payload)
 		if (self.isSilent) {
 			if let silentAPS = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.silent] as? StringKeyPayload {
-				self.aps = MMAPS.SilentAPS(MTMessage.apsByMerging(nativeAPS: nativeAPS, withSilentAPS: silentAPS))
+				self.aps = PushPayloadAPS.SilentAPS(MTMessage.apsByMerging(nativeAPS: nativeAPS, withSilentAPS: silentAPS))
 			} else {
-				self.aps = MMAPS.NativeAPS(nativeAPS)
+				self.aps = PushPayloadAPS.NativeAPS(nativeAPS)
 			}
 		} else {
-			self.aps = MMAPS.NativeAPS(nativeAPS)
+			self.aps = PushPayloadAPS.NativeAPS(nativeAPS)
 		}
 
 		let internData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload

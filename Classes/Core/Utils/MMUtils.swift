@@ -487,3 +487,27 @@ func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: Stri
 	return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
 }
 
+extension String {
+	static func localizedUserNotificationStringOrFallback(key: String?, args: [String]?, fallback: String?) -> String? {
+		let ret: String?
+		if let key = key {
+			if #available(iOS 10.0, *) {
+				if let args = args {
+					ret = NSString.localizedUserNotificationString(forKey: key, arguments: args)
+				} else {
+					ret = NSLocalizedString(key, comment: "") as String
+				}
+			} else {
+				let localizedString = NSLocalizedString(key, comment: "")
+				if let args = args {
+					ret = String(format: localizedString as String, arguments: args)
+				} else {
+					ret = localizedString as String
+				}
+			}
+		} else {
+			ret = fallback
+		}
+		return ret
+	}
+}

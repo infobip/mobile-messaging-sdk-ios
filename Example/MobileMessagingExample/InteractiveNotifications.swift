@@ -29,40 +29,41 @@ extension AppDelegate {
         let shareAction = NotificationAction(identifier: "share",
                                              title: "Share",
                                              options: [.foreground, .authenticationRequired])
-        
-        
-        guard let _cancelAction = cancelAction,
-            let _shareAction = shareAction else {
-                return nil
-        }
-        let category: NotificationCategory?
-        if #available(iOS 10.0, *) {
-            category = NotificationCategory(identifier: "category_share_cancel",
-                                                       actions: [_shareAction, _cancelAction],
-                                                       options: [.customDismissAction],
-                                                       intentIdentifiers: nil)
-        } else {
-            category = NotificationCategory(identifier: "category_share_cancel",
-                                                       actions: [_shareAction, _cancelAction],
-                                                       options: nil,
-                                                       intentIdentifiers: nil)
-        }
-        return category
+		
+        if let cancelAction = cancelAction, let shareAction = shareAction {
+			let category: NotificationCategory?
+			if #available(iOS 10.0, *) {
+				category = NotificationCategory(identifier: "category_share_cancel",
+				                                actions: [shareAction, cancelAction],
+				                                options: [.customDismissAction],
+				                                intentIdentifiers: nil)
+			} else {
+				category = NotificationCategory(identifier: "category_share_cancel",
+				                                actions: [shareAction, cancelAction],
+				                                options: nil,
+				                                intentIdentifiers: nil)
+			}
+			return category
+		} else {
+			return nil
+		}
     }
     
     var replyCategory: NotificationCategory? {
-		if #available(iOS 9.0, *) {
-			let replyAction = TextInputNotificationAction(identifier: "reply", title: "Reply", options: [], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print reply here")
-			guard let _replyAction = replyAction else {
-				return nil
-        }
-        return NotificationCategory(identifier: "category_reply",
-                                    actions: [_replyAction],
-                                    options: nil,
-                                    intentIdentifiers: nil)
-        } else {
-            return nil
-        }
+		if #available(iOS 9.0, *),
+			let replyAction = TextInputNotificationAction(	identifier: "reply",
+			                                              	title: "Reply",
+			                                              	options: [],
+			                                              	textInputActionButtonTitle: "Reply",
+			                                              	textInputPlaceholder: "print reply here")
+		{
+			return NotificationCategory(identifier: "category_reply",
+										actions: [replyAction],
+										options: nil,
+										intentIdentifiers: nil)
+		} else {
+			return nil
+		}
     }
 }
 
@@ -70,8 +71,7 @@ class CustomActionHandler: NotificationActionHandling {
 	func handle(action: NotificationAction, forMessage message: MTMessage, withCompletionHandler completionHandler: @escaping () -> Void) {
 		print(action.identifier)
         if #available(iOS 9.0, *) {
-            if let textInputAction = action as? TextInputNotificationAction,
-               let typedText = textInputAction.typedText {
+            if let textInputAction = action as? TextInputNotificationAction, let typedText = textInputAction.typedText {
                 print(typedText)
             }
         }
