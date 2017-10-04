@@ -78,40 +78,6 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 	}
 }
 
-
-public extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
-	public var mm_apsAlertBody: String? {
-		return (self as NSDictionary).mm_apsAlertBody
-	}
-	
-	public var mm_messageId: String? {
-		return (self as NSDictionary).mm_messageId
-	}
-}
-
-public extension NSDictionary {
-	public var mm_apsAlertBody: String? {
-		var messageDict: NSDictionary
-		if let aps = self["aps"] as? NSDictionary {
-			messageDict = aps
-		} else {
-			messageDict = self
-		}
-		
-		if let alert = messageDict["alert"] as? String {
-			return alert
-		} else if let alert = messageDict["alert"] as? NSDictionary, let body = alert["body"] as? String {
-			return body
-		} else {
-			return nil
-		}
-	}
-	
-	public var mm_messageId: String? {
-		return self["messageId"] as? String
-	}
-}
-
 extension NotificationCenter {
 	class func mm_postNotificationFromMainThread(name: String, userInfo: [AnyHashable: Any]?) {
 		MMQueue.Main.queue.executeAsync {

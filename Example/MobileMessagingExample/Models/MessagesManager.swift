@@ -41,12 +41,11 @@ class Message: NSObject, NSCoding {
 	}
 	
 	//MARK: Util
-	class func make(from apnsPayload: APNSPayload) -> Message? {
-		guard let messageId = apnsPayload.mm_messageId, let text = apnsPayload.mm_apsAlertBody else
-		{
+	class func make(from mtMessage: MTMessage) -> Message? {
+		guard let text = mtMessage.text else {
 			return nil
 		}
-		return Message(text: text, messageId: messageId)
+		return Message(text: text, messageId: mtMessage.messageId)
 	}
 }
 
@@ -125,7 +124,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	func handleNewMessageReceivedNotification(_ notification: Notification) {
 		guard let userInfo = notification.userInfo,
 			let mtmessage = userInfo[MMNotificationKeyMessage] as? MTMessage,
-			let message = Message.make(from: mtmessage.originalPayload) else
+			let message = Message.make(from: mtmessage) else
 		{
 			return
 		}
