@@ -182,7 +182,7 @@
         "predefinedUserData":{
           "email": "john@mail.com",
           "msisdn" : "79697162937"
-        } 
+        }	
       },
       "responseBody": {
         "predefinedUserData": {
@@ -199,10 +199,34 @@
       },
       "requestBody": {
         "predefinedUserData":{
+			     "msisdn" : "9697162937",
+			     "email": "john@mail,com"
+        }
+      },
+      "responseBody": {
+    		"predefinedUserData":{
+    			"email": "john@mail.com",
+    			"msisdn" : "79697162937"
+    		},
+        "requestError": {
+          "serviceException": {
+            "text": "Invalid email format [50017]",
+            "messageId": "17"
+          }
+        }
+      }
+    },
+    {
+      "responseStatus": 200,
+      "headers": {
+        "authorization": "App someCorrectApplicationID",
+        "pushregistrationid": "someExistingInternalID"
+      },
+      "requestBody": {
+        "predefinedUserData":{
           "email": "john@mail,com",
           "msisdn" : "9697162937"
-        },
-        "customUserData":null
+        }
       },
       "responseBody": {
         "requestError": {

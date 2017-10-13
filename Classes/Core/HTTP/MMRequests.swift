@@ -10,7 +10,7 @@ enum APIPath: String {
 	case Registration = "/mobile/4/registration"
 	case SeenMessages = "/mobile/1/messages/seen"
 	case SyncMessages = "/mobile/5/messages"
-	case UserData = "/mobile/4/data/user"
+	case UserData = "/mobile/5/data/user"
 	case MOMessage = "/mobile/1/messages/mo"
 	case SystemData = "/mobile/2/data/system"
 	case LibraryVersion = "/mobile/3/version"

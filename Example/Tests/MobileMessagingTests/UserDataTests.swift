@@ -211,6 +211,27 @@ class UserDataTests: MMTestCase {
 		waitForExpectations(timeout: 60, handler: nil)
 	}
 	
+	func testThatInvalidPredefinedDataHandledProperly() {
+		weak var expectation = self.expectation(description: "data received")
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		
+		let currentUser = MobileMessaging.currentUser!
+
+		currentUser.msisdn = "9697162937"
+		currentUser.email = "john@mail,com"
+		
+		currentUser.save { (error) in
+			XCTAssert(error!.localizedDescription.contains("50017") && error!.localizedDescription.contains("Invalid email"))
+			
+			// these two assertions assure us that user data response was consideded successfull and server state response was saved
+			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.MSISDN.name], "79697162937")
+			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Email.name], "john@mail.com")
+			expectation?.fulfill()
+		}
+		
+		waitForExpectations(timeout: 60, handler: nil)
+	}
+	
 	func testGetPredefinedAndCustomData() {
 		weak var expectation = self.expectation(description: "data received")
 		

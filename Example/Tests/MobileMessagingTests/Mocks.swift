@@ -12,9 +12,7 @@ extension JSON {
 		var requestJsonMock = requestResponseMock.requestJson.dictionary
 		
 		if var mockHeaders = requestJsonMock?["headers"]?.dictionaryObject as? [String: String], var selfHeaders = self["headers"].dictionaryObject as? [String: String] {
-			
-			
-			
+		
 			selfHeaders = selfHeaders.reduce([:], { (result, kv: (key: String, value: String)) -> [String: String] in
 				var result = result
 				result[kv.key.lowercased()] = kv.value.lowercased()
@@ -52,23 +50,6 @@ extension JSON {
 			return false
 		}
 		return requestWoHeaders == requestMockWoHeaders
-		
-/*
-		po requestJsonMock.debugDescription
-		"{\n  \"headers\" : {\n    \"authorization\" : \"App someCorrectApplicationID\",\n    \"pushregistrationid\" : \"someExistingInternalID\"\n  },\n  \"requestBody\" : {\n    \"drIDs\" : [\n      \"m1\"\n    ]\n  },\n  \"parameters\" : {\n    \"platformType\" : \"APNS\"\n  }\n}"
-
-*/
-//		let selfDict = self.dictionary
-//		if let requestJsonMockDict = requestJsonMock.dictionary {
-//			for (key, val) in requestJsonMockDict {
-//				if selfDict?[key] != val {
-//					return false
-//				}
-//			}
-//		} else {
-//			return false
-//		}
-//		return true
 	}
 }
 

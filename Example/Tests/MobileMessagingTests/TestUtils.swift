@@ -108,11 +108,24 @@ class RemoteAPILocalMocks: RemoteAPIQueue {
 	
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
 		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: applicationCode) {
-			if let requestError = RequestError(json: responseJSON) {
-				completion(Result.Failure(requestError.foundationError))
-			} else if let response = R.ResponseType(json: responseJSON) {
-				completion(Result.Success(response))
-			} else {
+			
+			let statusCode = responseJSON[MockKeys.responseStatus].intValue
+			switch statusCode {
+			case 0..<400:
+				if let response = R.ResponseType(json: responseJSON) {
+					completion(Result.Success(response))
+				} else {
+					print("Could not create response object. Figure out the workaround.")
+					completion(Result.Failure(nil))
+				}
+			case 400..<600:
+				if let requestError = RequestError(json: responseJSON) {
+					completion(Result.Failure(requestError.foundationError))
+				} else {
+					completion(Result.Failure(nil))
+				}
+			default:
+				print("Unexpected mocked status code: \(responseJSON)")
 				completion(Result.Failure(nil))
 			}
 		} else {
