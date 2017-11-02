@@ -18,6 +18,14 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 			completionHandler()
 			return
 		}
-		service.handleActionWithIdentifier(identifier: response.actionIdentifier, message: MTMessage(payload: response.notification.request.content.userInfo), responseInfo: nil, completionHandler: completionHandler)
+        
+        let responseInfo: [AnyHashable: Any]?
+        if let userText = (response as? UNTextInputNotificationResponse)?.userText {
+            responseInfo = [UIUserNotificationActionResponseTypedTextKey : userText]
+        } else {
+            responseInfo = nil
+        }
+        
+		service.handleActionWithIdentifier(identifier: response.actionIdentifier, message: MTMessage(payload: response.notification.request.content.userInfo), responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 }
