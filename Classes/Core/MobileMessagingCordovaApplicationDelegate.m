@@ -62,9 +62,10 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 	}
 }
 
-#pragma mark - Unknown method handlers
+#pragma mark - forwardInvocation
 
-// These methods likely won't be needed, but are added here so any Obj-C calls that are aimed at the original ApplicationDelegate will be forwarded
+// These methods are used to forward not implemented method calls to the original Application Delegate
+
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
 	NSObject *appDelegateObject = (NSObject *)_applicationDelegate;
 	if ([super respondsToSelector:[anInvocation selector]]) {
@@ -72,6 +73,11 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 	} else if (appDelegateObject && [appDelegateObject respondsToSelector:[anInvocation selector]]){
 		[anInvocation invokeWithTarget:appDelegateObject];
 	}
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector {
+    BOOL res = [super respondsToSelector:aSelector] || [_applicationDelegate respondsToSelector: aSelector];
+    return res;
 }
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
