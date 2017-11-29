@@ -43,6 +43,10 @@ public enum MMInternalErrorType: Error {
         }
         return [NSLocalizedDescriptionKey: errorDescription]
     }
+	
+	var foundationError: NSError {
+		return NSError(type: self)
+	}
 }
 
 extension NSError {
@@ -52,6 +56,10 @@ extension NSError {
 	
 	public var mm_code: String? {
 		return userInfo[APIKeys.kErrorMessageId] as? String
+	}
+	
+	var mm_isCannotFindHost: Bool {
+		return domain == NSURLErrorDomain && code == NSURLErrorCannotFindHost
 	}
 	
 	var mm_isRetryable: Bool {

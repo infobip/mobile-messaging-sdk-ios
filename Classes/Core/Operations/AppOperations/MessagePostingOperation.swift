@@ -86,7 +86,7 @@ class MessagePostingOperation: Operation {
 	
 	func sendMessages(_ msgs: [MOMessage], internalId: String) {
 		self.postWillSendNotification(messagesToSend: msgs)
-		self.mmContext.remoteApiManager.sendMessages(internalUserId: internalId, messages: msgs) { result in
+		self.mmContext.remoteApiProvider.sendMessages(internalUserId: internalId, messages: msgs) { result in
 			self.operationResult = result
 			self.handleResult(result: result, originalMessagesToSend: msgs) {
 				self.finishWithError(result.error)

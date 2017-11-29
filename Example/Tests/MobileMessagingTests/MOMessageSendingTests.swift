@@ -31,8 +31,8 @@ class MOMessageSendingTests: MMTestCase {
 	func testInteractionMOAndRetries() {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
-		let messageSyncQ = mobileMessagingInstance.remoteApiManager.messageSyncQueue
-		mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
+		let messageSyncQ = mobileMessagingInstance.remoteApiProvider.messageSyncQueue
+		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1")
@@ -46,7 +46,7 @@ class MOMessageSendingTests: MMTestCase {
 			
 			self.assertMoMessagesCount(2) {
 			
-				self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = messageSyncQ
+				self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = messageSyncQ
 				
 				// we re-try next time and succeed
 				self.mobileMessagingInstance.retryMoMessageSending() { (messages, error) in
@@ -135,7 +135,7 @@ class MOMessageSendingTests: MMTestCase {
 	func testUserInitiatedMO() {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
-		mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
+		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1")

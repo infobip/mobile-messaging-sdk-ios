@@ -24,9 +24,9 @@ final class MMStubNetworkReachabilityManager: MMNetworkReachabilityManager {
 
 final class MMTestCounterOperation: MMRetryableOperation {
 	override func execute() {
+		operationExecutionCounter += 1
 		super.execute()
 		
-		operationExecutionCounter += 1
 		finishWithError(NSError(domain: NSURLErrorDomain, code: 404, userInfo: [NSLocalizedDescriptionKey: "fake some retryable error"]))
 	}
 	
@@ -41,28 +41,25 @@ final class MMTestRechabilityOperation<RequestType: RequestData>: MMRetryableReq
 	}
 	
 	override func execute() {
-		super.execute()
-		
 		operationExecutionCounter += 1
+		super.execute()
 	}
 }
 
-final class RetryOperationTests: XCTestCase {
+final class RetryOperationTests: MMTestCase {
 	
 	func testReachabilityLogic() {
 		weak var expectation = self.expectation(description: "Retryable operation finished")
 		let r = RegistrationRequest(deviceToken: "stub", isEnabled: nil, expiredInternalId: nil)
 		
-		let op = MMTestRechabilityOperation(request: r, reachabilityManager: MMStubNetworkReachabilityManager(), applicationCode: "stub", baseURL: "stub") { op in
+		let op = MMTestRechabilityOperation(request: r, reachabilityManager: MMStubNetworkReachabilityManager(), sessionManager: mobileMessagingInstance.httpSessionManager) { op in
 			expectation?.fulfill()
 		}
 		let retryOpQ = MMRetryOperationQueue()
 		retryOpQ.addOperation(op)
 		
 		self.waitForExpectations(timeout: 60) { _ in
-			
 			XCTAssertEqual(operationExecutionCounter, 2, "Operation must be executed 2 times: 1st - initial, 2nd - after we get reachable status")
-			
 		}
 	}
 	
@@ -77,9 +74,7 @@ final class RetryOperationTests: XCTestCase {
 		opQ.addOperation(op)
 		
 		self.waitForExpectations(timeout: 60) { _ in
-			
 			XCTAssertEqual(operationExecutionCounter, retryLimit + 1, "Operation must be executed \(retryLimit + 1) times as we set retry limit \(retryLimit)")
-			
 		}
     }
 	

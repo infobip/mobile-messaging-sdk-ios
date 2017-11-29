@@ -19,7 +19,6 @@ struct MMTestConstants {
 	static let kTestWrongApplicationCode = "someWrongApplicationID"
 	static let kTestCurrentRegistrationId = "fffe73006f006d00650054006f006b0065006e003200"
 	static let kTestOldRegistrationId = "fffe73006f006d00650054006f006b0065006e00"
-	static let kTestBaseURLString = "http://stub.stub.com"
 }
 
 enum TestResult {
@@ -33,7 +32,7 @@ final class MMRemoteAPIAlwaysFailing : RemoteAPIQueue {
 	
 	init(mmContext: MobileMessaging, completionCompanionBlock: ((Any) -> Void)? = nil) {
 		self.completionCompanionBlock = completionCompanionBlock
-		super.init(mmContext: mmContext, baseURL: "stub", applicationCode: "stub")
+		super.init(mmContext: mmContext)
 	}
 
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
@@ -47,7 +46,7 @@ final class MMGeoRemoteAPIAlwaysSucceeding : RemoteAPIQueue {
 	
 	init(mmContext: MobileMessaging, completionCompanionBlock: ((Any) -> Void)? = nil) {
 		self.completionCompanionBlock = completionCompanionBlock
-		super.init(mmContext: mmContext, baseURL: "stub", applicationCode: "stub")
+		super.init(mmContext: mmContext)
 	}
 	
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
@@ -64,14 +63,14 @@ class MMRemoteAPIMock: RemoteAPILocalMocks {
 	
 	convenience init(mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
 		
-		self.init(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: mmContext, performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseSubstitution)
+		self.init(appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: mmContext, performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseSubstitution)
 	}
 	
-	init(baseURLString: String, appCode: String, mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
+	init(appCode: String, mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
 		self.completionCompanionBlock = completionCompanionBlock
 		self.responseSubstitution = responseSubstitution
-		super.init(mmContext: mmContext, baseURLString: baseURLString, appCode: appCode)
+		super.init(mmContext: mmContext, appCode: appCode)
 	}
 	
 	override func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
@@ -93,21 +92,22 @@ class MMRemoteAPIMock: RemoteAPILocalMocks {
 
 extension MobileMessaging {
 	func setupMockedQueues(mmContext: MobileMessaging) {
-		remoteApiManager.registrationQueue = RemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.seenStatusQueue = RemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.messageSyncQueue = RemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
-		remoteApiManager.versionFetchingQueue = RemoteAPILocalMocks(mmContext: mmContext, baseURLString: remoteAPIBaseURL, appCode: applicationCode)
+		remoteApiProvider.registrationQueue = RemoteAPILocalMocks(mmContext: mmContext, appCode: applicationCode)
+		remoteApiProvider.seenStatusQueue = RemoteAPILocalMocks(mmContext: mmContext, appCode: applicationCode)
+		remoteApiProvider.messageSyncQueue = RemoteAPILocalMocks(mmContext: mmContext, appCode: applicationCode)
+		remoteApiProvider.versionFetchingQueue = RemoteAPILocalMocks(mmContext: mmContext, appCode: applicationCode)
 	}
 }
 
 class RemoteAPILocalMocks: RemoteAPIQueue {
-	
-	init(mmContext: MobileMessaging, baseURLString: String, appCode: String) {
-		super.init(mmContext: mmContext, baseURL: baseURLString, applicationCode: appCode)
+	let appCode: String
+	init(mmContext: MobileMessaging, appCode: String) {
+		self.appCode = appCode
+		super.init(mmContext: mmContext)
 	}
 	
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: applicationCode) {
+		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: self.appCode) {
 			
 			let statusCode = responseJSON[MockKeys.responseStatus].intValue
 			switch statusCode {

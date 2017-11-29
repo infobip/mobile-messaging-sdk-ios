@@ -100,7 +100,7 @@ final class RegistrationTests: MMTestCase {
     func testTokenSendsTwice() {
 		MobileMessaging.userAgent = UserAgentStub()
 		
-		MobileMessaging.sharedInstance?.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: { request in
+		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: { request in
 			
 			switch request {
 			case (is RegistrationRequest):
@@ -140,8 +140,7 @@ final class RegistrationTests: MMTestCase {
 				}
 			}
 		}
-		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
-																					  appCode: MMTestConstants.kTestWrongApplicationCode,
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode,
 																					  mmContext: self.mobileMessagingInstance,
 																					  performRequestCompanionBlock: requestPerformCompanion,
 																					  completionCompanionBlock: nil,
@@ -190,8 +189,7 @@ final class RegistrationTests: MMTestCase {
 			}
 		}
 		
-		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
-		                                                                              appCode: MMTestConstants.kTestWrongApplicationCode,
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode,
 		                                                                              mmContext: self.mobileMessagingInstance,
 		                                                                              performRequestCompanionBlock: requestPerformCompanion,
 		                                                                              completionCompanionBlock: nil,
@@ -243,8 +241,7 @@ final class RegistrationTests: MMTestCase {
 		
 		mm.start()
 		
-		mm.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
-		                                                                             appCode: MMTestConstants.kTestWrongApplicationCode,
+		mm.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode,
 		                                                                             mmContext: mm,
 		                                                                             performRequestCompanionBlock: nil,
 		                                                                             completionCompanionBlock: nil,
@@ -346,7 +343,7 @@ final class RegistrationTests: MMTestCase {
 			
 			XCTAssertEqual(firstInternalId, self.mobileMessagingInstance.keychain.internalId)
 			
-			let reg2mock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
+			let reg2mock = MMRemoteAPIMock(
 			                           appCode: MMTestConstants.kTestCorrectApplicationCode,
 			                           mmContext: self.mobileMessagingInstance,
 			                           performRequestCompanionBlock: nil,
@@ -354,14 +351,12 @@ final class RegistrationTests: MMTestCase {
 			                           responseSubstitution: nil)
 			reg2mock.performRequestCompanionBlock = { request in
 				if let request = request as? RegistrationRequest {
-					//TODO: implement networking mocks on NSURLProtocol
-//					XCTAssertEqual(request.pushRegistrationIdHeader, "unregistered")
 					XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, firstInternalId)
 					XCTAssertEqual(request.expiredInternalId, firstInternalId)
 					registrationRequest2MockDone?.fulfill()
 				}
 			}
-			self.mobileMessagingInstance.remoteApiManager.registrationQueue = reg2mock
+			self.mobileMessagingInstance.remoteApiProvider.registrationQueue = reg2mock
 			
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
 				XCTAssertNotEqual(self.mobileMessagingInstance.keychain.internalId, firstInternalId)
@@ -369,8 +364,7 @@ final class RegistrationTests: MMTestCase {
 				registration2Done?.fulfill()
 				
 				
-				let reg3mock = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
-				                           appCode: MMTestConstants.kTestCorrectApplicationCode,
+				let reg3mock = MMRemoteAPIMock(appCode: MMTestConstants.kTestCorrectApplicationCode,
 				                           mmContext: self.mobileMessagingInstance,
 				                           performRequestCompanionBlock: nil,
 				                           completionCompanionBlock: nil,
@@ -378,14 +372,11 @@ final class RegistrationTests: MMTestCase {
 				
 				reg3mock.performRequestCompanionBlock = { request in
 					if let request = request as? RegistrationRequest {
-						//TODO: implement networking mocks on NSURLProtocol
-//						XCTAssertNotEqual(request.pushRegistrationIdHeader, "unregistered")
-//						XCTAssertEqual(request.pushRegistrationIdHeader, self.mobileMessagingInstance.keychain.internalId)
 						XCTAssertNil(request.expiredInternalId)
 						registrationRequest3MockDone?.fulfill()
 					}
 				}
-				self.mobileMessagingInstance.remoteApiManager.registrationQueue = reg3mock
+				self.mobileMessagingInstance.remoteApiProvider.registrationQueue = reg3mock
 				
 				self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
 					

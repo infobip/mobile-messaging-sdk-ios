@@ -21,6 +21,9 @@ enum APIPath: String {
 struct RegistrationRequest: PostRequest {
 	typealias ResponseType = RegistrationResponse
 	var retryLimit: Int { return 3 }
+	func mustRetryOnResponseError(_ error: NSError) -> Bool {
+		return retryLimit > 0 && error.mm_isRetryable
+	}
 	var path: APIPath { return .Registration }
 	var parameters: RequestParameters? {
 		var params: RequestParameters = [PushRegistration.deviceToken: deviceToken,
@@ -62,9 +65,11 @@ struct LibraryVersionRequest: GetRequest {
 }
 
 struct MessagesSyncRequest: PostRequest {
-
 	typealias ResponseType = MessagesSyncResponse
 	var retryLimit: Int = 2
+	func mustRetryOnResponseError(_ error: NSError) -> Bool {
+		return retryLimit > 0 && error.mm_isRetryable
+	}
 	var path: APIPath { return .SyncMessages }
 	var parameters: RequestParameters? {
 		var params = RequestParameters()
@@ -195,7 +200,6 @@ enum Method: String {
 
 protocol RequestResponsable {
 	associatedtype ResponseType: JSONDecodable
-	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void)
 }
 
 protocol RequestData: RequestResponsable {
@@ -220,41 +224,12 @@ extension PostRequest {
 
 extension RequestData {
 	func mustRetryOnResponseError(_ error: NSError) -> Bool {
-		return retryLimit > 0 && error.mm_isRetryable
+		return retryLimit > 0 && error.mm_isCannotFindHost
 	}
-	var retryLimit: Int { return 0 }
+	var retryLimit: Int { return 1 }
 	var headers: RequestHeaders? { return nil }
 	var body: RequestBody? { return nil }
 	var parameters: RequestParameters? { return nil }
-	func responseObject(applicationCode: String, baseURL: String, completion: @escaping (Result<ResponseType>) -> Void) {
-		let manager = MM_AFHTTPSessionManager(baseURL: URL(string: baseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration)
-		manager.requestSerializer = RequestSerializer(applicationCode: applicationCode, jsonBody: body, headers: headers)
-		manager.responseSerializer = ResponseSerializer<ResponseType>()
-		MMLogDebug("Sending request \(type(of: self))\nparameters: \(String(describing: parameters))\nbody: \(String(describing: body))\nto \(baseURL + path.rawValue)")
-		
-		let successBlock = { (task: URLSessionDataTask, obj: Any?) -> Void in
-			if let obj = obj as? ResponseType {
-				completion(Result.Success(obj))
-			} else {
-				let error = NSError(domain: AFURLResponseSerializationErrorDomain, code: NSURLErrorCannotDecodeContentData, userInfo:[NSLocalizedFailureReasonErrorKey : "Request succeeded with no return value or return value wasn't a ResponseType value."])
-				completion(Result.Failure(error))
-			}
-		}
-
-		let failureBlock = { (task: URLSessionDataTask?, error: Error) -> Void in
-			completion(Result<ResponseType>.Failure(error as NSError?))
-		}
-
-		let urlString = manager.baseURL!.absoluteString + self.path.rawValue
-		switch self.method {
-		case .POST:
-			manager.post(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
-		case .PUT:
-			manager.put(urlString, parameters: parameters, success: successBlock, failure: failureBlock)
-		case .GET:
-			manager.get(urlString, parameters: parameters, progress: nil, success: successBlock, failure: failureBlock)
-		}
-	}
 }
 
 struct SeenData: DictionaryRepresentable {

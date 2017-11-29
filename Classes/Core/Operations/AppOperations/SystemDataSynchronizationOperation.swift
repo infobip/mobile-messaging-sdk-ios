@@ -49,7 +49,7 @@ class SystemDataSynchronizationOperation: Operation {
 		}
 		
 		MMLogDebug("[System data sync] performing request...")
-		mmContext.remoteApiManager.syncSystemData(systemData: currentSystemData) { result in
+		mmContext.remoteApiProvider.syncSystemData(systemData: currentSystemData) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}

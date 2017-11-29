@@ -133,6 +133,7 @@ struct APNSPayloadKeys {
 }
 
 struct APIValues {
-	static let prodBaseURLString = "https://oneapi2.infobip.com"
+	static let prodDynamicBaseURLString = "https://mobile.infobip.com"
+	static let prodBaseURLString = "https://oneapi2.infobip.com" // not in use afte migration on https://mobile.infobip.com
 	static let platformType = "APNS"
 }

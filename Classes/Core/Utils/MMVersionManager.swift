@@ -32,12 +32,12 @@ extension String {
 
 class VersionManager {
 	var lastCheckDate : Date?
-	var remoteApiManager: RemoteAPIManager
+	var remoteApiProvider: RemoteAPIProvider
 	let defaultTimeout: Double = 60 * 60 * 24 // a day
 	
-	init(remoteApiManager: RemoteAPIManager) {
+	init(remoteApiProvider: RemoteAPIProvider) {
 		self.lastCheckDate = UserDefaults.standard.object(forKey: VersionCheck.lastCheckDateKey) as? Date
-		self.remoteApiManager = remoteApiManager
+		self.remoteApiProvider = remoteApiProvider
 	}
 	
 	func validateVersion(_ completion: (() -> Void)? = nil) {
@@ -50,7 +50,7 @@ class VersionManager {
 			return
 		}
 		
-		remoteApiManager.fetchRecentLibraryVersion {
+		remoteApiProvider.fetchRecentLibraryVersion {
 			self.handleResult(result: $0)
 			completion?()
 		}

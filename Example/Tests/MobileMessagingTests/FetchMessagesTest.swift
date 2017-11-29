@@ -108,7 +108,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	func testThatNewDataFetched() {
 		weak var exp = expectation(description: "Handler called")
-		self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
+		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
 			{ (request) -> JSON? in
 				if let request = request as? MessagesSyncRequest {
 					if (request.dlrMsgIds ?? [String]()) == ["newData"]  {
@@ -130,7 +130,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	func testThatNoDataFetched() {
 		weak var exp = expectation(description: "Handler called")
-		self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
+		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
 			{ (request) -> JSON? in
 				if request is MessagesSyncRequest {
 					return JSON(["payloads": []])
@@ -148,7 +148,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	func testThatDataFetchFailed() {
 		weak var exp = expectation(description: "Handler called")
-		self.mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: self.mobileMessagingInstance)
+		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: self.mobileMessagingInstance)
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "Failed"],  completion: { result in
 			XCTAssertEqual(result.backgroundFetchResult, .failed)
 			XCTAssertNotNil(result.error)

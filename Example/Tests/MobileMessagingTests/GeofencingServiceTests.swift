@@ -1834,7 +1834,7 @@ class GeofencingServiceTests: MMTestCase {
 		}
 		
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.remoteApiManager.seenStatusQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: { (r) in
+		mobileMessagingInstance.remoteApiProvider.seenStatusQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: { (r) in
 			XCTFail() // the seen must not be sent, there are only sdk generated message ids
 		}, completionCompanionBlock: { (r) in
 			XCTFail()
@@ -1897,7 +1897,7 @@ class GeofencingServiceTests: MMTestCase {
 							checkSeenPersistanceExpectations()
 							seenForSdkGeneratedIdCompleted?.fulfill()
 							
-							self.mobileMessagingInstance.remoteApiManager.seenStatusQueue = RemoteAPILocalMocks(mmContext: self.mobileMessagingInstance, baseURLString: MMTestConstants.kTestBaseURLString, appCode: "_")
+							self.mobileMessagingInstance.remoteApiProvider.seenStatusQueue = RemoteAPILocalMocks(mmContext: self.mobileMessagingInstance, appCode: "_")
 							// now sync geo service to report on non-reported geo events and get real message ids
 							MobileMessaging.geofencingService!.syncWithServer(completion: { _ in
 								checkSeenPersistanceAfterSuccessfullEventReportingExpectations()
@@ -1956,7 +1956,7 @@ final class MMRemoteAPICampaignStatesStub : MMRemoteAPIMock {
 	convenience init(mobileMessagingContext: MobileMessaging, suspendedCampaignId: String, finishedCampaignId: String) {
 		
 		
-		self.init(baseURLString: "stub", appCode: "stub", mmContext: mobileMessagingContext, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+		self.init(appCode: "stub", mmContext: mobileMessagingContext, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
 			
 			if let request = request as? GeoEventReportingRequest, request.path == APIPath.GeoEventsReports{
 				let jsonStr: String

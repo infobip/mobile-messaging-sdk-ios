@@ -18,6 +18,7 @@ extension MobileMessaging {
 	/// - parameter appGroupId: An ID of an App Group
 	@available(iOS 10.0, *)
 	public func withAppGroupId(_ appGroupId: String) -> MobileMessaging {
+		self.appGroupId = appGroupId
 		self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
 		return self
 	}
@@ -114,10 +115,12 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	}
 	
 	//MARK: Internal
+	let sessionManager: DynamicBaseUrlHTTPSessionManager
 	static var sharedInstance: MobileMessagingNotificationServiceExtension?
 	private init(appCode: String, appGroupId: String) {
 		self.applicationCode = appCode
 		self.appGroupId = appGroupId
+		self.sessionManager = DynamicBaseUrlHTTPSessionManager(applicationCode: appCode, baseURL: URL(string: APIValues.prodDynamicBaseURLString), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 	}
 	
 	private func retrieveNotificationContent(for message: MTMessage, originalContent: UNNotificationContent, completion: @escaping (UNNotificationContent) -> Void) {
@@ -143,31 +146,25 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	
 	let appGroupId: String
 	let applicationCode: String
-	let remoteAPIBaseURL = APIValues.prodBaseURLString
+	let remoteAPIBaseURL = APIValues.prodDynamicBaseURLString
 	var currentTask: RetryableDownloadTask?
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
-	lazy var deliveryReporter: DeliveryReporting! = DeliveryReporter(applicationCode: self.applicationCode, baseUrl: self.remoteAPIBaseURL)
+	lazy var deliveryReporter: DeliveryReporting! = DeliveryReporter()
 }
 
 protocol DeliveryReporting {
-	init(applicationCode: String, baseUrl: String)
 	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void)
 }
 
+@available(iOS 10.0, *)
 class DeliveryReporter: DeliveryReporting {
-	let applicationCode: String, baseUrl: String
-	
-	required init(applicationCode: String, baseUrl: String) {
-		self.applicationCode = applicationCode
-		self.baseUrl = baseUrl
-	}
-	
 	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
-		guard let dlr = DeliveryReportRequest(dlrIds: messageIds) else {
+		guard let dlr = DeliveryReportRequest(dlrIds: messageIds), let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance else
+		{
 			completion(Result.Cancel)
 			return
 		}
-		dlr.responseObject(applicationCode: applicationCode, baseURL: baseUrl, completion: completion)
+		extensionInstance.sessionManager.sendRequest(dlr, completion: completion)
 	}
 }
 
@@ -182,25 +179,27 @@ protocol AppGroupMessageStorage {
 class DefaultSharedDataStorage: AppGroupMessageStorage {
 	let applicationCode: String
 	let appGroupId: String
+	let storage: UserDefaults
 	required init?(applicationCode: String, appGroupId: String) {
+		guard let ud = UserDefaults.init(suiteName: appGroupId) else {
+			return nil
+		}
 		self.appGroupId = appGroupId
 		self.applicationCode = applicationCode
+		self.storage = ud
 	}
 	
 	func save(message: MTMessage) {
-		guard let ud = UserDefaults.init(suiteName: appGroupId) else {
-			return
-		}
-		var savedMessageDicts = ud.object(forKey: applicationCode) as? [StringKeyPayload] ?? [StringKeyPayload]()
+		var savedMessageDicts = storage.object(forKey: applicationCode) as? [StringKeyPayload] ?? [StringKeyPayload]()
 		var msgDict: StringKeyPayload = ["p": message.originalPayload, "dlr": message.isDeliveryReportSent]
 		msgDict["dlrd"] = message.deliveryReportedDate
 		savedMessageDicts.append(msgDict)
-		ud.set(savedMessageDicts, forKey: applicationCode)
-		ud.synchronize()
+		storage.set(savedMessageDicts, forKey: applicationCode)
+		storage.synchronize()
 	}
 	
 	func retrieveMessages() -> [MTMessage] {
-		guard let ud = UserDefaults.init(suiteName: appGroupId), let messageDataDicts = ud.array(forKey: applicationCode) as? [StringKeyPayload] else
+		guard let messageDataDicts = storage.array(forKey: applicationCode) as? [StringKeyPayload] else
 		{
 			return []
 		}
@@ -218,9 +217,6 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 	}
 	
 	func cleanupMessages() {
-		guard let ud = UserDefaults.init(suiteName: appGroupId) else {
-			return
-		}
-		ud.removeObject(forKey: applicationCode)
+		storage.removeObject(forKey: applicationCode)
 	}
 }

@@ -41,7 +41,7 @@ class LocalMessageFetchingTests : MMTestCase {
 			mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 			mobileMessagingInstance.userNotificationCenterStorage = UserNotificationCenterStorageStub()
 			mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
-			mobileMessagingInstance.remoteApiManager.messageSyncQueue = MMRemoteAPIMock(mmContext: mobileMessagingInstance, performRequestCompanionBlock: { request in
+			mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: mobileMessagingInstance, performRequestCompanionBlock: { request in
 				switch request {
 				case (let r as MessagesSyncRequest):
 					if let dls = r.dlrMsgIds {

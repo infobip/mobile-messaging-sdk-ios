@@ -19,34 +19,38 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 	typealias ResponseTypeResult = Result<RequestType.ResponseType>
 	private var operationQueue = MMQueue.Serial.New.RetryableRequest.queue
 	private var operationResult: ResponseTypeResult = ResponseTypeResult.Failure(nil)
-	private var request: RequestType?
-	private var applicationCode: String?
-	private var baseURL: String?
-	private var reachabilityManager: ReachabilityManagerProtocol?
 	
-	override func copyAttributes(from operation: MMRetryableOperation) {
-		super.copyAttributes(from: operation)
-		if let operation = operation as? MMRetryableRequestOperation {
-			self.request = operation.request
-            self.applicationCode = operation.applicationCode
-            self.baseURL = operation.baseURL
-			self.reachabilityManager = operation.reachabilityManager
+	// required attributes, must be copied
+	private var request: RequestType!
+	private var reachabilityManager: ReachabilityManagerProtocol!
+	private var sessionManager: DynamicBaseUrlHTTPSessionManager!
+	
+	deinit {
+		reachabilityManager.stopMonitoring()
+	}
+	
+	override func copy() -> Any {
+		let acopy = super.copy()
+		if let acopy = acopy as? MMRetryableRequestOperation {
+			acopy.request = self.request
+			acopy.sessionManager = self.sessionManager
+			acopy.reachabilityManager = self.reachabilityManager
 		}
+		return acopy
 	}
 	
 	required init(retryLimit: Int, completion: @escaping MMRetryableOperationCompletion) {
 		super.init(retryLimit: retryLimit, completion: completion)
 	}
 	
-	convenience init(request: RequestType, reachabilityManager: ReachabilityManagerProtocol?, applicationCode: String, baseURL: String, completion: @escaping (ResponseTypeResult) -> Void) {
+	convenience init(request: RequestType, reachabilityManager: ReachabilityManagerProtocol, sessionManager: DynamicBaseUrlHTTPSessionManager, completion: @escaping (ResponseTypeResult) -> Void) {
 		self.init(retryLimit: request.retryLimit) { finishedOperation in
 			if let op = finishedOperation as? MMRetryableRequestOperation {
 				completion(op.operationResult)
 			}
 		}
+		self.sessionManager = sessionManager
 		self.request = request
-		self.applicationCode = applicationCode
-		self.baseURL = baseURL
 		self.reachabilityManager = reachabilityManager
 		self.name = "com.mobile-messaging.retryable-request-" + String(describing: type(of: request))
 	}
@@ -57,7 +61,7 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 	}
 	
 	override func isErrorRetryable(_ error: NSError) -> Bool {
-		return request?.mustRetryOnResponseError(error) ?? false
+		return request.mustRetryOnResponseError(error)
 	}
 	
 	private func sendRequest() {
@@ -65,11 +69,7 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 			finish(Result.Cancel)
 			return
 		}
-		guard let applicationCode = applicationCode, let baseURL = baseURL else {
-			finish(Result.Failure(NSError(type: MMInternalErrorType.UnknownError)))
-			return
-		}
-		request?.responseObject(applicationCode: applicationCode, baseURL: baseURL, completion: { result in
+		sessionManager.sendRequest(request, completion: { result in
 			self.operationQueue.executeSync { self.handleResult(result: result) }
 		})
 	}
@@ -81,18 +81,19 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 		}
 		if let error = result.error {
 			MMLogError("Failed request \(type(of: request)) on attempt #\(retryCounter) with error: \(error).")
-
-			if let request = request, let rm = self.reachabilityManager, rm.currentlyReachable() == false, request.retryLimit > 0 {
-				MMLogDebug("Network is not reachable now \(rm.localizedNetworkReachabilityStatusString).")
+			if reachabilityManager.currentlyReachable() == false && request.retryLimit > 0 {
+				MMLogDebug("Network is not reachable now \(reachabilityManager.localizedNetworkReachabilityStatusString).")
 				MMLogDebug("Setting up a reachability listener...")
-				rm.setReachabilityStatusChangeBlock {[weak self] status in
-					MMLogDebug("Network Status Changed: \(rm.localizedNetworkReachabilityStatusString). Retrying request \(request.self)...")
-					if rm.reachable {
-						rm.stopMonitoring()
-						self?.execute()
+				reachabilityManager.setReachabilityStatusChangeBlock {[weak self] status in
+					if let rm = self?.reachabilityManager {
+						MMLogDebug("Network Status Changed: \(rm.localizedNetworkReachabilityStatusString). Retrying request \(String(describing: self?.request.self))...")
+						if rm.reachable {
+							rm.stopMonitoring()
+							self?.execute()
+						}
 					}
 				}
-				rm.startMonitoring()
+				reachabilityManager.startMonitoring()
 			} else {
 				finish(Result.Failure(error))
 			}

@@ -8,10 +8,10 @@
 import XCTest
 @testable import MobileMessaging
 
-class VersionCheckRemoteAPIManagerMock: RemoteAPIManager {
+class VersionCheckRemoteAPIManagerMock: RemoteAPIProvider {
 	init(mmContext: MobileMessaging, onlineVersion: String) {
-		super.init(baseUrl: "", applicationCode: "", mmContext: mmContext)
-		self.versionFetchingQueue = MMRemoteAPIMock(baseURLString: "", appCode: "", mmContext: mmContext, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+		super.init(mmContext: mmContext)
+		self.versionFetchingQueue = MMRemoteAPIMock(appCode: "", mmContext: mmContext, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
 			return JSON.parse("{\"platformType\": \"APNS\", \"libraryVersion\": \"\(onlineVersion)\", \"updateUrl\": \"https://github.com/infobip/mobile-messaging-sdk-ios\"}")
 		})
 	}
@@ -22,7 +22,7 @@ class VersionManagerMock: VersionManager {
 	var upToDateCaseBlock: (() -> Void)?
 	var waitBlock: (() -> Void)?
 	init(mmContext: MobileMessaging, onlineVersion: String) {
-		super.init(remoteApiManager: VersionCheckRemoteAPIManagerMock(mmContext: mmContext, onlineVersion: onlineVersion))
+		super.init(remoteApiProvider: VersionCheckRemoteAPIManagerMock(mmContext: mmContext, onlineVersion: onlineVersion))
 	}
 	
 	override func showNewVersionWarning(localVersion: String, response: LibraryVersionResponse) {
@@ -75,7 +75,7 @@ class CheckVersionTests: MMTestCase {
 		versionManager.validateVersion() {
 			
 			// then version increases
-			self.versionManager.remoteApiManager = VersionCheckRemoteAPIManagerMock(mmContext: self.mobileMessagingInstance, onlineVersion: self.distantFutureVersion)
+			self.versionManager.remoteApiProvider = VersionCheckRemoteAPIManagerMock(mmContext: self.mobileMessagingInstance, onlineVersion: self.distantFutureVersion)
 			
 			// if we validate again immediately after we discovered Up To Date status, we'll end up with a timeout
 			self.versionManager.validateVersion() {

@@ -255,7 +255,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		registerSelfAsSubservice(of: mmContext)
 		
 		locationManagerQueue.executeSync() {
-			self.geofencingServiceQueue = RemoteAPIQueue(mmContext: mmContext, baseURL: mmContext.remoteAPIBaseURL, applicationCode: mmContext.applicationCode)
+			self.geofencingServiceQueue = RemoteAPIQueue(mmContext: mmContext)
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = GeofencingConstants.distanceFilter

@@ -16,7 +16,7 @@ public final class MobileMessaging: NSObject {
 	/// - parameter code: The application code of your Application from Push Portal website.
 	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType) -> MobileMessaging? {
-		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString)
+		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodDynamicBaseURLString)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
@@ -25,13 +25,13 @@ public final class MobileMessaging: NSObject {
 	/// - parameter forceCleanup: Defines whether the SDK must be cleaned up on startup.
 	/// - warning: The cleanup (parameter `forceCleanup = true`) must be performed manually if you changed the application code while `PrivacySettings.applicationCodePersistingDisabled` is set to `true`.
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
-		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodBaseURLString, forceCleanup: forceCleanup)
+		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodDynamicBaseURLString, forceCleanup: forceCleanup)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
 	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	/// - parameter code: The application code of your Application from Push Portal website.
-	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is http://oneapi.infobip.com.
+	/// - parameter backendBaseURL: Your backend server base URL, optional parameter. Default is https://oneapi.infobip.com.
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: false)
 	}
@@ -278,7 +278,7 @@ public final class MobileMessaging: NSObject {
 		currentUser = nil
 		appListener = nil
 		messageHandler = nil
-		remoteApiManager = nil
+		remoteApiProvider = nil
 		reachabilityManager = nil
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
@@ -375,6 +375,7 @@ public final class MobileMessaging: NSObject {
 		self.applicationCode        = appCode
 		self.userNotificationType   = notificationType
 		self.remoteAPIBaseURL       = backendBaseURL
+		self.httpSessionManager		= DynamicBaseUrlHTTPSessionManager(applicationCode: appCode, baseURL: URL(string: backendBaseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 		
 		MMLogInfo("SDK successfully initialized!")
 	}
@@ -424,7 +425,7 @@ public final class MobileMessaging: NSObject {
 		
 		if !isTestingProcessRunning {
 			#if DEBUG
-				VersionManager(remoteApiManager: self.remoteApiManager).validateVersion()
+				VersionManager(remoteApiProvider: self.remoteApiProvider).validateVersion()
 			#endif
 		}
 	}
@@ -444,15 +445,18 @@ public final class MobileMessaging: NSObject {
 	var appListener: MMApplicationListener!
 	//TODO: continue decoupling. Move messageHandler to a subservice completely. (as GeofencingService)
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
-	lazy var remoteApiManager: RemoteAPIManager! = RemoteAPIManager(baseUrl: self.remoteAPIBaseURL, applicationCode: self.applicationCode, mmContext: self)
+	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(mmContext: self)
 	lazy var application: MMApplication! = UIApplication.shared
 	lazy var reachabilityManager: ReachabilityManagerProtocol! = MMNetworkReachabilityManager.sharedInstance
 	lazy var keychain: MMKeychain! = MMKeychain()
 	
 	static var date: MMDate = MMDate() // testability
 	
+	var appGroupId: String?
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 	lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()
+	
+	var httpSessionManager: DynamicBaseUrlHTTPSessionManager
 }
 
 extension UIApplication: MMApplication {}

@@ -5,7 +5,6 @@
 //
 //
 
-
 final class ResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override init() {
 		super.init()
@@ -19,16 +18,16 @@ final class ResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override func responseObject(for response: URLResponse?, data: Data?, error: NSErrorPointer) -> Any? {
 		super.responseObject(for: response, data: data, error: error)
 		
-		guard let response = response,
-			  let data = data else {
-				return nil
+		guard let response = response, let data = data else {
+			return nil
 		}
+		
 		let dataString = String(data: data, encoding: String.Encoding.utf8)
 		
 		MMLogDebug("Response received: \(response)\n\(String(describing: dataString))")
 		
 		let json = JSON(data: data)
-		if let requestError = RequestError(json: json) ,response.isFailureHTTPREsponse {
+		if let requestError = RequestError(json: json), response.isFailureHTTPResponse {
 			error?.pointee = requestError.foundationError
 		}
 		return T(json: json)
@@ -36,11 +35,11 @@ final class ResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 }
 
 extension URLResponse {
-	var isFailureHTTPREsponse: Bool {
-		var statusCodeIsError = false
+	var isFailureHTTPResponse: Bool {
 		if let httpResponse = self as? HTTPURLResponse {
-			statusCodeIsError = IndexSet(integersIn: 200..<300).contains(httpResponse.statusCode) == false
+			return IndexSet(integersIn: 200..<300).contains(httpResponse.statusCode) == false
+		} else {
+			return false
 		}
-		return statusCodeIsError
 	}
 }

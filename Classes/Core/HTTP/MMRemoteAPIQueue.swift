@@ -31,22 +31,19 @@ enum Result<ValueType> {
 }
 
 class RemoteAPIQueue {
-	private(set) var baseURL: String
-	private(set) var applicationCode: String
 	let mmContext: MobileMessaging
 	
 	lazy var queue: MMRetryOperationQueue = {
 		return MMRetryOperationQueue.newSerialQueue
 	}()
 	
-	init(mmContext: MobileMessaging, baseURL: String, applicationCode: String) {
+	init(mmContext: MobileMessaging) {
 		self.mmContext = mmContext
-        self.baseURL = baseURL
-        self.applicationCode = applicationCode
     }
 	
 	func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		let requestOperation = MMRetryableRequestOperation<R>(request: request, reachabilityManager: mmContext.reachabilityManager, applicationCode: applicationCode, baseURL: baseURL) { responseResult in
+		let requestOperation = MMRetryableRequestOperation<R>(request: request, reachabilityManager: mmContext.reachabilityManager, sessionManager: mmContext.httpSessionManager) { responseResult in
+			
 			completion(responseResult)
 			self.postErrorNotificationIfNeeded(error: responseResult.error)
 		}

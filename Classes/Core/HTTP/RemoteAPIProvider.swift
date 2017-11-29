@@ -1,5 +1,5 @@
 //
-//  RemoteAPIManager.swift
+//  RemoteAPIProvider.swift
 //
 //  Created by Andrey K. on 26/11/2016.
 //
@@ -7,17 +7,17 @@
 
 import Foundation
 
-class RemoteAPIManager {
+class RemoteAPIProvider {
 	internal(set) var versionFetchingQueue: RemoteAPIQueue
 	internal(set) var registrationQueue: RemoteAPIQueue
 	internal(set) var messageSyncQueue: RemoteAPIQueue
 	internal(set) var seenStatusQueue: RemoteAPIQueue
 	
-	init(baseUrl: String, applicationCode: String, mmContext: MobileMessaging) {
-		registrationQueue = RemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
-		seenStatusQueue = RemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
-		messageSyncQueue = RemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
-		versionFetchingQueue = RemoteAPIQueue(mmContext: mmContext, baseURL: baseUrl, applicationCode: applicationCode)
+	init(mmContext: MobileMessaging) {
+		registrationQueue = RemoteAPIQueue(mmContext: mmContext)
+		seenStatusQueue = RemoteAPIQueue(mmContext: mmContext)
+		messageSyncQueue = RemoteAPIQueue(mmContext: mmContext)
+		versionFetchingQueue = RemoteAPIQueue(mmContext: mmContext)
 	}
 	
 	func syncRegistration(deviceToken: String, isEnabled: Bool?, expiredInternalId: String?, completion: @escaping (RegistrationResult) -> Void) {

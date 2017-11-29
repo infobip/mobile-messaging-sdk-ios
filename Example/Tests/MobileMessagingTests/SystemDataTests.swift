@@ -51,7 +51,7 @@ class SystemDataTests: MMTestCase {
 			return nil
 		}
 		
-		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
@@ -102,7 +102,7 @@ class SystemDataTests: MMTestCase {
 			}
 			return nil
 		}
-		mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString, appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: requestCompanionBlock, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: requestCompanionBlock, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
 		
 		//requirements
 		self.mobileMessagingInstance.currentInstallation.deviceToken = "stub"
@@ -167,8 +167,7 @@ class SystemDataTests: MMTestCase {
 			}
 		}
 		
-		self.mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
-		                                                                             appCode: MMTestConstants.kTestCorrectApplicationCode,
+		self.mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestCorrectApplicationCode,
 		                                                                             mmContext: self.mobileMessagingInstance,
 		                                                                             performRequestCompanionBlock: requestCompanionBlockDisabled,
 		                                                                             completionCompanionBlock: nil,
@@ -178,8 +177,7 @@ class SystemDataTests: MMTestCase {
 		}
 		
 		MobileMessaging.privacySettings.systemInfoSendingDisabled = false
-		self.mobileMessagingInstance.remoteApiManager.registrationQueue = MMRemoteAPIMock(baseURLString: MMTestConstants.kTestBaseURLString,
-		                                                                                  appCode: MMTestConstants.kTestCorrectApplicationCode,
+		self.mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestCorrectApplicationCode,
 		                                                                                  mmContext: self.mobileMessagingInstance,
 		                                                                                  performRequestCompanionBlock: requestCompanionBlockEnabled,
 		                                                                                  completionCompanionBlock: nil,

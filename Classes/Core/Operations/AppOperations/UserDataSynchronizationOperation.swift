@@ -54,7 +54,7 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	private func fetchUserData(externalId: String?) {
-		mmContext.remoteApiManager.fetchUserData(externalUserId: externalId,
+		mmContext.remoteApiProvider.fetchUserData(externalUserId: externalId,
 		                                         completion:
         { result in
 			self.handleResult(result)
@@ -63,7 +63,7 @@ class UserDataSynchronizationOperation: Operation {
 	}
 	
 	private func syncUserData(customUserDataValues: [String: CustomUserDataValue]?, externalId: String?, predefinedUserData: UserDataDictionary?) {
-		mmContext.remoteApiManager.syncUserData(externalUserId: externalId,
+		mmContext.remoteApiProvider.syncUserData(externalUserId: externalId,
 		                                 predefinedUserData: predefinedUserData,
 		                                 customUserData: customUserDataValues)
 		{ result in
