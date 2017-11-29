@@ -136,6 +136,14 @@ public class UserAgent: NSObject {
 			"iPhone9,3":"iPhone 7 (GSM)",
 			"iPhone9,2":"iPhone 7 Plus (CDMA)",
 			"iPhone9,4":"iPhone 7 Plus (GSM)",
+            
+            "iPhone10,1":"iPhone 8 (CDMA+GSM/LTE)",
+            "iPhone10,4":"iPhone 8 (GSM/LTE)",
+            "iPhone10,2":"iPhone 8 Plus (CDMA+GSM/LTE)",
+            "iPhone10,5":"iPhone 8 Plus (GSM/LTE)",
+            
+            "iPhone10,3": "iPhone X (CDMA+GSM/LTE)",
+            "iPhone10,6": "iPhone X (GSM/LTE)",
 			
 			"iPad1,1":"iPad (Wifi)",
 			"iPad1,2":"iPad (Cellular)",
@@ -174,6 +182,13 @@ public class UserAgent: NSObject {
 			"iPad6,4":"iPad Pro 12.9\" (Cellular)",
 			"iPad6,7":"iPad Pro 9.7\" (WiFi)",
 			"iPad6,8":"iPad Pro 9.7\" (Cellular)",
+            
+            "iPad6,11":"iPad (5th gen, WiFi)",
+            "iPad6,12":"iPad (5th gen, LTE)",
+            "iPad7,1":"iPad Pro (12.9, 2nd gen, WiFi)",
+            "iPad7,2":"iPad Pro (12.9, 2nd gen, LTE)",
+            "iPad7,3":"iPad Pro (10.5, WiFi)",
+            "iPad7,4":"iPad Pro (10.5, LTE)",
 			
 			"i386":"32-bit Simulator",
 			"x86_64":"64-bit Simulator"
