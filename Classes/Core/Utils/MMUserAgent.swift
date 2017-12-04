@@ -37,6 +37,7 @@ struct SystemData: Hashable {
 	}
 }
 
+@objcMembers
 public class UserAgent: NSObject {
 	public var cordovaPluginVersion: String?
 	

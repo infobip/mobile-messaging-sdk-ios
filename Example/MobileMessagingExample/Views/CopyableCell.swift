@@ -24,7 +24,7 @@ class CopyableCell: UITableViewCell {
         addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(CopyableCell.showMenu(_:))))
     }
     
-    func showMenu(_ sender: Any?) {
+    @objc func showMenu(_ sender: Any?) {
 		guard textLabel?.text != nil else {
 			return
 		}

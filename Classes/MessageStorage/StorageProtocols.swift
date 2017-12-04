@@ -10,7 +10,8 @@ public typealias MessageId = String
 public typealias FetchResultBlock = ([BaseMessage]?) -> Void
 
 /// The class defines a query that is used to fetch messages from the Message Storage.
-@objc public class Query: NSObject {
+@objcMembers
+public class Query: NSObject {
 	/// A limit on the number of objects to return. The default limit is undefined (unlimited).
 	public var limit: Int?
 	

@@ -32,6 +32,7 @@ extension MobileMessaging {
 	}
 }
 
+@objcMembers
 public class GeofencingService: NSObject, MobileMessagingService {
 	
 	var uniqueIdentifier: String {
@@ -517,7 +518,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	//MARK: Notifications handling
 	
-	func handleApplicationDidFinishLaunchingNotification(_ notification: Notification) {
+	@objc func handleApplicationDidFinishLaunchingNotification(_ notification: Notification) {
 		assert(Thread .isMainThread)
 		if notification.userInfo?[UIApplicationLaunchOptionsKey.location] != nil {
 			MMLogDebug("[GeofencingService] The app relaunched by the OS.")
@@ -525,7 +526,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		}
 	}
 	
-	func handleApplicationDidEnterBackgroundNotification(_ notification: Notification) {
+	@objc func handleApplicationDidEnterBackgroundNotification(_ notification: Notification) {
 		MMLogDebug("[GeofencingService] App did enter background.")
 		assert(Thread .isMainThread)
 		restartLocationManager()
@@ -534,7 +535,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		}
 	}
 	
-	func handleApplicationDidBecomeActiveNotification(_ notification: Notification) {
+	@objc func handleApplicationDidBecomeActiveNotification(_ notification: Notification) {
 		MMLogDebug("[GeofencingService] App did become active.")
 		assert(Thread .isMainThread)
 		restartLocationManager()

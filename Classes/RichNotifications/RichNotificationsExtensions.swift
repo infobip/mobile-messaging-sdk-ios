@@ -57,6 +57,7 @@ extension MTMessage {
 }
 
 @available(iOS 10.0, *)
+@objcMembers
 final public class MobileMessagingNotificationServiceExtension: NSObject {
 	
 	/// Starts a new Mobile Messaging Notification Service Extension session.

@@ -7,6 +7,7 @@
 
 import UserNotifications
 
+@objcMembers
 public final class UserNotificationType: NSObject {
 	let rawValue: Int
 	

@@ -11,6 +11,7 @@ public let MMInternalErrorDomain = "com.mobile-messaging"
 
 
 public enum MMInternalErrorType: Error {
+    
     case UnknownError //TODO: check all occurences and replace with meaningful errors
 	case NoRegistration
 	case StorageInitializationError
@@ -50,11 +51,11 @@ public enum MMInternalErrorType: Error {
 }
 
 extension NSError {
-	public var mm_message: String? {
+	@objc public var mm_message: String? {
 		return userInfo[APIKeys.kErrorText] as? String
 	}
 	
-	public var mm_code: String? {
+	@objc public var mm_code: String? {
 		return userInfo[APIKeys.kErrorMessageId] as? String
 	}
 	

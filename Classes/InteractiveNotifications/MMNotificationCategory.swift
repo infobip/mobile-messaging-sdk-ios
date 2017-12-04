@@ -7,6 +7,7 @@
 
 import UserNotifications
 
+@objcMembers
 public final class NotificationCategory: NSObject {
 	typealias PredefinedCategoryPlistDict = [String: Any]
 	
@@ -91,6 +92,7 @@ public final class NotificationCategory: NSObject {
 	}
 }
 
+@objcMembers
 public final class NotificationCategoryOptions : NSObject {
 	let rawValue: Int
 	

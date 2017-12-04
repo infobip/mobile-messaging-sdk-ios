@@ -171,6 +171,7 @@ final public class MMGeoMessage: MTMessage {
     }
 }
 
+@objcMembers
 public class DeliveryTime: NSObject, DictionaryRepresentable {
 	public let timeInterval: DeliveryTimeInterval?
 	public let days: Set<MMDay>?
@@ -229,6 +230,7 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 	case mo = 1, tu = 2, we = 3, th = 4, fr = 5, sa = 6, su = 7
 }
 
+@objcMembers
 public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	static let timeIntervalSeparator = "/"
 	let fromTime: String
@@ -291,6 +293,7 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	}
 }
 
+@objcMembers
 final public class MMRegion: NSObject, DictionaryRepresentable {
 	public let identifier: String
 	var dataSourceIdentifier: String {

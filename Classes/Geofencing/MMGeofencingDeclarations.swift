@@ -10,6 +10,7 @@ import CoreLocation
 /// Describes the kind of location service. Possible values:
 /// - Location Updates
 /// - Region Monitoring
+@objcMembers
 public final class LocationServiceKind: NSObject {
 	let rawValue: Int
 	init(rawValue: Int) { self.rawValue = rawValue }

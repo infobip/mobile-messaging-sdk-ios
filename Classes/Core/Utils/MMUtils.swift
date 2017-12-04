@@ -68,7 +68,7 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: CustomUserDat
 
 extension Dictionary where Value: Hashable {
 	var keyValuesHash: Int {
-		return self.reduce("", {"\($0.0),\($0.1)"}).hash
+		return self.reduce("", {"\($0),\($1.1)"}).hash
 	}
 }
 
@@ -388,7 +388,7 @@ public extension UIDevice {
 		return self.systemVersion.compare(version, options: .numeric) == .orderedAscending
 	}
 	
-	public var IS_IOS_BEFORE_10: Bool { return SYSTEM_VERSION_LESS_THAN("10.0") }
+	@objc public var IS_IOS_BEFORE_10: Bool { return SYSTEM_VERSION_LESS_THAN("10.0") }
 }
 
 class MMDate {

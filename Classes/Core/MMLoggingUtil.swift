@@ -43,6 +43,7 @@ public func MMLogError(_ message: String) {
 	MobileMessaging.logger?.logError(message: message)
 }
 
+@objcMembers
 public final class MMLogOutput : NSObject {
 	let rawValue: Int
 	init(rawValue: Int) { self.rawValue = rawValue }

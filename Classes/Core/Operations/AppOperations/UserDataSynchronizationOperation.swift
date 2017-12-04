@@ -184,6 +184,7 @@ extension NSNumber: UserDataFoundationTypes {}
 extension NSString: UserDataFoundationTypes {}
 extension NSNull: UserDataFoundationTypes {}
 
+@objcMembers
 public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
 	let dataType: UserDataServiceTypes?
 	let dataValue: UserDataFoundationTypes

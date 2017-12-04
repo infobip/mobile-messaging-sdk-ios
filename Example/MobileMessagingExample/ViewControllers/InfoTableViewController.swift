@@ -47,7 +47,7 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
     }
     
     //MARK: Notification
-	func registrationChanged() {
+    @objc func registrationChanged() {
 		tableView.reloadData()
 	}
 	

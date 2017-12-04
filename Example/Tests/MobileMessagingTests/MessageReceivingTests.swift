@@ -185,7 +185,12 @@ class MessageReceivingTests: MMTestCase {
 		
 		weak var messageHandlingFinished = self.expectation(description: "messages handling finished")
 		
-		expectation(forNotification: MMNotificationMessageReceived, object: nil) { (notification) -> Bool in
+        #if swift(>=4)
+            let notificationName = NSNotification.Name(MMNotificationMessageReceived)
+        #else
+            let notificationName = MMNotificationMessageReceived
+        #endif
+		expectation(forNotification: notificationName, object: nil) { (notification) -> Bool in
 			if let message = notification.userInfo?[MMNotificationKeyMessage] as? MTMessage, message.isSilent == true {
 				eventsCounter += 1
 			}

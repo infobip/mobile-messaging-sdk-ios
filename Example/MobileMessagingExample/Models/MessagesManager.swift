@@ -16,8 +16,8 @@ class Message: NSObject, NSCoding {
 	typealias APNSPayload = [String: Any]
 	var text: String
 	var messageId: String
-	dynamic var deliveryReportSent: Bool = false
-	dynamic var seen : Bool = false
+    @objc dynamic var deliveryReportSent: Bool = false
+    @objc dynamic var seen : Bool = false
 	
 	required init(text: String, messageId: String){
 		self.text = text
@@ -117,11 +117,11 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	}
 	
 	//MARK: Handle notifications
-	func appWillTerminate() {
+    @objc func appWillTerminate() {
 		archiveMessages()
 	}
 	
-	func handleNewMessageReceivedNotification(_ notification: Notification) {
+    @objc func handleNewMessageReceivedNotification(_ notification: Notification) {
 		guard let userInfo = notification.userInfo,
 			let mtmessage = userInfo[MMNotificationKeyMessage] as? MTMessage,
 			let message = Message.make(from: mtmessage) else
@@ -136,7 +136,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		newMessageBlock?(message)
 	}
 	
-	func handleDeliveryReportSentNotification(_ notification: Notification) {
+    @objc func handleDeliveryReportSentNotification(_ notification: Notification) {
 		guard let userInfo = notification.userInfo,
 			let messageUserInfo = userInfo[MMNotificationKeyDLRMessageIDs] as? [String] else {
 				return
@@ -149,7 +149,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		}
 	}
     
-    func handleTapNotification(_ notification: Notification) {
+    @objc func handleTapNotification(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
             let message = userInfo[MMNotificationKeyMessage] as? MTMessage
             else {

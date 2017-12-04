@@ -9,6 +9,7 @@
 import Foundation
 import UserNotifications
 
+@objcMembers
 public final class MobileMessaging: NSObject {
 	//MARK: Public
 	
@@ -462,6 +463,7 @@ public final class MobileMessaging: NSObject {
 extension UIApplication: MMApplication {}
 
 /// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
+@objcMembers
 public class PrivacySettings: NSObject {
 	/// A boolean variable that indicates whether the MobileMessaging SDK will be sending the carrier information to the server.
 	///

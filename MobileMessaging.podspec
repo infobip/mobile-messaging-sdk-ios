@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
     s.platform      = :ios, '8.0'
     s.requires_arc  = true
     s.pod_target_xcconfig =  {
-		'SWIFT_VERSION' => '3.0.1',
+		'SWIFT_VERSION' => '4.0',
         'OTHER_SWIFT_FLAGS[config=Debug]' => '-DDEBUG'
     }
 

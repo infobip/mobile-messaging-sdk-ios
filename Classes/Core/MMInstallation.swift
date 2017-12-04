@@ -46,6 +46,7 @@ import CoreLocation
 	}
 }
 
+@objcMembers
 final public class MMUser: NSObject {
 	var mmContext: MobileMessaging?
 	var coreDataProvider: CoreDataProvider
@@ -282,6 +283,7 @@ let installationQueue = MMOperationQueue.newSerialQueue
 //MARK: -
 //MARK: -
 
+@objcMembers
 final public class MMInstallation: NSObject {
 	
 //MARK: - Public	

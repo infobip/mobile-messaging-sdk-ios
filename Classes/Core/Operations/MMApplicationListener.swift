@@ -26,11 +26,11 @@ final class MMApplicationListener: NSObject {
     }
 	
 	//MARK: Internal
-	func handleAppWillEnterForegroundNotification() {
+	@objc func handleAppWillEnterForegroundNotification() {
 		mmContext?.sync()
 	}
 	
-	func handleAppDidFinishLaunchingNotification(n: Notification) {
+	@objc func handleAppDidFinishLaunchingNotification(n: Notification) {
 		guard n.userInfo?[UIApplicationLaunchOptionsKey.remoteNotification] == nil else {
 			// we don't want to perfrom sync on launching when push received.
 			return
@@ -38,7 +38,7 @@ final class MMApplicationListener: NSObject {
 		mmContext?.sync()
 	}
 	
-	func handleGeoServiceDidStartNotification() {
+	@objc func handleGeoServiceDidStartNotification() {
 		mmContext?.currentInstallation?.syncSystemDataWithServer()
 	}
 	

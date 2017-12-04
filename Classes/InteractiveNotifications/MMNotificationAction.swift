@@ -6,6 +6,7 @@
 //
 import UserNotifications
 
+@objcMembers
 public class NotificationAction: NSObject {
 	public let identifier: String
 	public let title: String
@@ -149,6 +150,7 @@ public final class TextInputNotificationAction: NotificationAction {
     }
 }
 
+@objcMembers
 public final class NotificationActionOptions : NSObject {
 	let rawValue: Int
     

@@ -25,7 +25,7 @@ class ViewControllerWithToolbar: UIViewController {
 		view.addSubview(toolbarView)
 	}
 	
-	func close() {
+	@objc func close() {
 		dismiss(animated: true)
 	}
 }

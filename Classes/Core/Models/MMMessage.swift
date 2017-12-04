@@ -121,6 +121,7 @@ protocol MMMessageMetadata: Hashable {
 	var messageId: String {get}
 }
 
+@objcMembers
 public class BaseMessage: NSObject {
 	public let messageId: String
 	public let direction: MessageDirection
@@ -149,7 +150,10 @@ public class BaseMessage: NSObject {
 	}
 	
 	public func isEqual(object: AnyObject?) -> Bool {
-		return self.messageId == object?.messageId
+		guard let object = object as? BaseMessage else {
+			return false
+		}
+		return self.messageId == object.messageId
 	}
 }
 

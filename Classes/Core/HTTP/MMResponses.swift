@@ -64,7 +64,7 @@ public struct RequestError {
 	public let text: String
 	
 	var foundationError: NSError {
-		var userInfo = [AnyHashable: Any]()
+		var userInfo = [String: Any]()
 		userInfo[NSLocalizedDescriptionKey] = text
 		userInfo[APIKeys.kErrorText] = text
 		userInfo[APIKeys.kErrorMessageId] = messageId
