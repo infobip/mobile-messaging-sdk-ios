@@ -557,8 +557,8 @@ extension GeofencingService {
 			return true
 		}
 		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
-		let calendar = Calendar(identifier: Calendar.Identifier.gregorian)
-		let comps = calendar.dateComponents(Set([Calendar.Component.weekday]), from: now)
+		let calendar = MobileMessaging.calendar
+		let comps = calendar.dateComponents(in: MobileMessaging.timeZone, from: now)
 		if let systemWeekDay = comps.weekday {
 			let isoWeekdayNumber = systemWeekDay == 1 ? 7 : Int8(systemWeekDay - 1)
 			if let day = MMDay(rawValue: isoWeekdayNumber) {

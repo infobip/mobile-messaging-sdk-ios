@@ -183,6 +183,51 @@ var notExpectedDate: Date {
 	return comps.date!
 }
 
+var buddhistCalendarDate_06_08_2560__12_20_16: Date {
+	let comps = NSDateComponents()
+	comps.year = 2560
+	comps.month = 8
+	comps.day = 6
+	comps.hour = 12
+	comps.minute = 20
+	comps.second = 16
+	
+	comps.calendar = Calendar(identifier: Calendar.Identifier.buddhist)
+	comps.timeZone = TimeZone(secondsFromGMT: 0)
+	return comps.date!
+}
+
+var japCalendarDate_06_08_0029__12_20_16: Date {
+	let comps = NSDateComponents()
+	comps.year = 29
+	comps.month = 8
+	comps.day = 6
+	comps.hour = 12
+	comps.minute = 20
+	comps.second = 16
+	
+	comps.calendar = Calendar(identifier: Calendar.Identifier.japanese)
+	comps.timeZone = TimeZone(secondsFromGMT: 0)
+	return comps.date!
+}
+
+
+var gregorianCalendarDate_06_08_2017__12_20_16: Date {
+	let comps = NSDateComponents()
+	comps.year = 2017
+	comps.month = 8
+	comps.day = 6
+	comps.hour = 12
+	comps.minute = 20
+	comps.second = 16
+	
+	comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+	comps.timeZone = TimeZone(secondsFromGMT: 0)
+	return comps.date!
+}
+
+
+
 func baseAPNSDict(messageId: String = expectedMessageId) -> APNSPayload {
 	return
 		[
@@ -334,6 +379,64 @@ var defaultEvent = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry
 
 
 class GeofencingServiceTests: MMTestCase {
+	
+	func testDatesFromDifferentCalendarsCanBeCompared() {
+		cleanUpAndStop()
+		XCTAssertEqual(japCalendarDate_06_08_0029__12_20_16, gregorianCalendarDate_06_08_2017__12_20_16)
+		XCTAssertEqual(japCalendarDate_06_08_0029__12_20_16.compare(gregorianCalendarDate_06_08_2017__12_20_16), .orderedSame)
+		
+		XCTAssertEqual(buddhistCalendarDate_06_08_2560__12_20_16, gregorianCalendarDate_06_08_2017__12_20_16)
+		XCTAssertEqual(buddhistCalendarDate_06_08_2560__12_20_16.compare(gregorianCalendarDate_06_08_2017__12_20_16), .orderedSame)
+	}
+	
+	func testThatDifferentCalendarsSupported() {
+		cleanUpAndStop()
+		MobileMessaging.timeZone = TimeZone(abbreviation: "GMT")!
+		
+		MobileMessaging.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+		checkCampaignScheduleTravellingInTimeTo(date: gregorianCalendarDate_06_08_2017__12_20_16)
+		
+		MobileMessaging.calendar = Calendar(identifier: Calendar.Identifier.buddhist)
+		checkCampaignScheduleTravellingInTimeTo(date: buddhistCalendarDate_06_08_2560__12_20_16)
+		
+		MobileMessaging.calendar = Calendar(identifier: Calendar.Identifier.japanese)
+		checkCampaignScheduleTravellingInTimeTo(date: japCalendarDate_06_08_0029__12_20_16)
+	}
+	
+	private func checkCampaignScheduleTravellingInTimeTo(date: Date) {
+		timeTravel(to: date) {
+			let p: APNSPayload =
+				[
+					"messageId": "kOvQTcsXuLlLiD4jrB+tGqF1aPOoY+WbLi98ftMvlh0=",
+					"internalData": [
+						"geo": [
+							[
+								"id": "E35D739EDB3AF20F265AB567AE60485E",
+								"title": "SPB Office LARGE",
+								"radiusInMeters": 290,
+								"latitude": 59.961086185895155,
+								"longitude": 30.303305643050862
+							]
+						],
+						"deliveryTime": makeDeliveryTimeDict(withTimeIntervalString: "1200/1230", daysString: "7") as Any,
+						"messageType": "geo",
+						"campaignId": "803487",
+						"startTime": 	"2017-08-06T12:00:00+00:00",
+						"expiryTime": 	"2017-08-06T12:30:00+00:00",
+						"silent": [
+							"body": "Text2"
+						]
+					],
+					"aps": [
+						"alert": [
+							"body": "Text2"
+						]
+					]
+			]
+			let m = MMGeoMessage(payload: p)!
+			XCTAssertTrue(m.isNowAppropriateTimeForEntryNotification)
+		}
+	}
 	
 	func testRealSignalingPayloadParsing() {
 		
@@ -983,22 +1086,25 @@ class GeofencingServiceTests: MMTestCase {
 
 	func testParticularDeliveryWindows() {
 
-		let testDate: Date = {
+		let testDate_09_10_2016__12_20_GMT: Date = {
 			let comps = NSDateComponents()
 			comps.year = 2016
 			comps.month = 10
 			comps.day = 9
 			comps.hour = 12
 			comps.minute = 20
+			comps.timeZone = TimeZone(secondsFromGMT: 0)
 			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
 			return comps.date!
 		}()
-
+		
+		MobileMessaging.timeZone = TimeZone(abbreviation: "GMT")!
+		
 		let sunday = "7"
 		let thursdaySunday = "4,7"
 		let monday = "1"
 
-		timeTravel(to: testDate) {
+		timeTravel(to: testDate_09_10_2016__12_20_GMT) {
 			// appropriate day, time not set
 			do {
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
@@ -1190,7 +1296,6 @@ class GeofencingServiceTests: MMTestCase {
 				XCTAssertTrue(sentEventTypes.contains(RegionEventType.exit.rawValue))
 				XCTAssertEqual(sentEventTypes.count, 2)
 				
-				print(sentMessageIds)
 				XCTAssertTrue(sentMessageIds.contains(expectedMessageId))
 				XCTAssertEqual(sentMessageIds.count, 1)
 				
@@ -1480,7 +1585,6 @@ class GeofencingServiceTests: MMTestCase {
 			} else  if didEnterRegionCount == 2 {
 				XCTAssertEqual(region.dataSourceIdentifier, pulaObject2.dataSourceIdentifier)
 				let monitoredRegionsArray = geoServiceStub.stubbedLocationManager.monitoredRegionsArray
-				print("!!! \(monitoredRegionsArray)")
 				XCTAssertEqual(monitoredRegionsArray.count, 1)
 				didEnterRegionExp?.fulfill()
 			}

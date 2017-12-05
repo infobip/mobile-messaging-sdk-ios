@@ -452,7 +452,8 @@ public final class MobileMessaging: NSObject {
 	lazy var keychain: MMKeychain! = MMKeychain()
 	
 	static var date: MMDate = MMDate() // testability
-	
+	static var timeZone: TimeZone = TimeZone.current // for tests
+	static var calendar: Calendar = Calendar.current // for tests
 	var appGroupId: String?
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 	lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()

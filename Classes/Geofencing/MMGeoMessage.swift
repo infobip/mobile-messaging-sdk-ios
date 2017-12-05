@@ -142,7 +142,10 @@ final public class MMGeoMessage: MTMessage {
 	
 	func isNowAppropriateTimeForNotification(for type: RegionEventType) -> Bool {
 		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
-		return deliveryTime?.isNow ?? true && isLiveNow(for: type) && now.compare(startTime) != .orderedAscending
+		let isDeliveryTimeNow = deliveryTime?.isNow ?? true
+		let isCampaignNotExpired = isLiveNow(for: type)
+		let isCampaignStarted = now.compare(startTime) != .orderedAscending
+		return isDeliveryTimeNow && isCampaignNotExpired && isCampaignStarted
 	}
 	
 	let events: [RegionEvent]
@@ -176,7 +179,9 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 	public let timeInterval: DeliveryTimeInterval?
 	public let days: Set<MMDay>?
 	var isNow: Bool {
-		return isNowAppropriateTime && isNowAppropriateDay
+		let time = isNowAppropriateTime
+		let day = isNowAppropriateDay
+		return time && day
 	}
 	
 	private var isNowAppropriateTime: Bool {
@@ -247,10 +252,9 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	
 	/// Checks if `time` is in the interval defined with two time strings `fromTime` and `toTime` in ISO 8601 formats: `hhmm`
 	class func isTime(_ time: Date, between fromTime: String, and toTime: String) -> Bool {
-		let calendar = Calendar(identifier: Calendar.Identifier.gregorian)
-		let comps = calendar.dateComponents(Set([Calendar.Component.hour, Calendar.Component.minute]), from: time)
-		if let nowH = comps.hour, let nowM = comps.minute {
-			
+		let calendar = MobileMessaging.calendar
+		let nowComps = calendar.dateComponents(in: MobileMessaging.timeZone, from: time)
+		if let nowH = nowComps.hour, let nowM = nowComps.minute {
 			let fromTimeMinutesIdx = fromTime.index(fromTime.startIndex, offsetBy: 2)
 			let toTimeMinutesIdx = toTime.index(toTime.startIndex, offsetBy: 2)
 			guard let fromH = Int(fromTime.substring(with: fromTime.startIndex..<fromTimeMinutesIdx)),
