@@ -459,6 +459,8 @@ public final class MobileMessaging: NSObject {
 	lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()
 	
 	var httpSessionManager: DynamicBaseUrlHTTPSessionManager
+    
+    static let bundle = Bundle(for: MobileMessaging.self)
 }
 
 extension UIApplication: MMApplication {}

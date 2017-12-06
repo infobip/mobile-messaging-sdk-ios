@@ -134,9 +134,7 @@ extension Set where Element: NotificationCategory {
 }
 
 struct NotificationCategories {
-	static var path: String? {
-		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.path(forResource: NotificationCategoryConstants.plistName, ofType: "plist")
-	}
+	static let path: String? = MobileMessaging.bundle.path(forResource: NotificationCategoryConstants.plistName, ofType: "plist")
 	static var predefinedCategories: Set<NotificationCategory>? {
 		
 		if let path = path, let categories = NSArray(contentsOfFile: path) as? [[String: Any]] {

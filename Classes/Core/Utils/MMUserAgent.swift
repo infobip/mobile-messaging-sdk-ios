@@ -80,11 +80,11 @@ public class UserAgent: NSObject {
 	}
 	
 	public var libraryVersion: String {
-		return (Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion)
+        return (MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion)
 	}
 	
 	public var libraryName: String {
-		return Bundle(identifier:"org.cocoapods.MobileMessaging")?.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "MobileMessaging"
+		return MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "MobileMessaging"
 	}
 	
 	public var hostingAppVersion: String {
