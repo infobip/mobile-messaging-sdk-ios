@@ -30,7 +30,6 @@ import CoreLocation
 	case Gender
 	case Birthdate
 	case Email
-	case Telephone
 	
 	var name: String {
 		switch self {
@@ -41,7 +40,6 @@ import CoreLocation
 		case .Gender : return "gender"
 		case .Birthdate : return "birthdate"
 		case .Email : return "email"
-		case .Telephone : return "telephone"
 		}
 	}
 }
