@@ -5,6 +5,46 @@
 
 @objc class MMLoggerFactory: NSObject, MMLoggerFactoryProtocol {}
 
+// uncomment this if you need logs but don't like CocoaLumberjack. Simple MMDefaultLogger without filtering will be printing to the console for you.
+//extension MMLoggerFactory {
+//    public func createLogger() -> MMLogging {
+//        return MMDefaultLogger()
+//    }
+//}
+
+public final class MMDefaultLogger: NSObject, MMLogging {
+    public var logOutput: MMLogOutput = .Console
+    
+    public var logLevel: MMLogLevel = .All
+    
+    public var logFilePath: String? = nil
+    
+    public func sendLogs(fromViewController vc: UIViewController) {
+        
+    }
+    
+    public func logDebug(message: String) {
+        print("💬", message)
+    }
+    
+    public func logInfo(message: String) {
+        print("💬", message)
+    }
+    
+    public func logError(message: String) {
+        print("‼️", message)
+    }
+    
+    public func logWarn(message: String) {
+        print("⚠️", message)
+    }
+    
+    public func logVerbose(message: String) {
+        print("💬", message)
+    }
+    
+}
+
 @objc public protocol MMLogging {
 	var logOutput: MMLogOutput {set get}
 	var logLevel: MMLogLevel {set get}

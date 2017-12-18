@@ -43,6 +43,7 @@ extension MobileMessaging {
 		guard let info = localNotification.userInfo,
 			let payload = info[LocalNotificationKeys.pushPayload] as? [String: Any] else
 		{
+            MMLogWarn("Notification payload is absent, canceling action handling")
 			completionHandler()
 			return
 		}
@@ -69,6 +70,7 @@ extension MobileMessaging {
 	public class func handleActionWithIdentifier(identifier: String?, message: MTMessage?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let service = NotificationsInteractionService.sharedInstance else
 		{
+            MMLogWarn("NotificationsInteractionService is not initialized, canceling action handling")
 			completionHandler()
 			return
 		}
@@ -104,10 +106,12 @@ class NotificationsInteractionService: MobileMessagingService {
 	}
 	
     func handleActionWithIdentifier(identifier: String?, message: MTMessage?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
+        MMLogDebug("[Interaction Service] handling action \(identifier ?? "n/a") for message \(message?.messageId ?? "n/a"), resonse info \(responseInfo ?? [:])")
 		guard isRunning,
 			let identifier = identifier,
 			let message = message else
 		{
+            MMLogWarn("[Interaction Service] canceled handling")
 			completionHandler()
 			return
 		}
@@ -121,10 +125,12 @@ class NotificationsInteractionService: MobileMessagingService {
 		
 		if #available(iOS 10.0, *), identifier == UNNotificationDismissActionIdentifier
 		{
+            MMLogDebug("[Interaction Service] handling dismiss action")
 			handleAction(NotificationAction.dismissAction)
 		}
 		else if #available(iOS 10.0, *), identifier == UNNotificationDefaultActionIdentifier
 		{
+            MMLogDebug("[Interaction Service] handling default action")
 			handleAction(NotificationAction.defaultAction)
 		}
 		else if	let categoryId = message.aps.category,
@@ -136,13 +142,16 @@ class NotificationsInteractionService: MobileMessagingService {
 				let action = action as? TextInputNotificationAction,
 				let typedText = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String
 			{
+                MMLogDebug("[Interaction Service] handling text input")
 				action.typedText = typedText
 				handleAction(action)
 			} else {
+                MMLogDebug("[Interaction Service] handling regular action")
 				handleAction(action)
 			}
 		}
 		else {
+            MMLogDebug("[Interaction Service] nothing to handle")
 			completionHandler()
 		}
 	}
@@ -163,9 +172,9 @@ extension NotificationsInteractionService {
 	}
 	
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
-		guard let cs = allNotificationCategories, !cs.isEmpty else {
-			return
-		}
+        guard let cs = allNotificationCategories, !cs.isEmpty else {
+            return
+        }
 		start(nil)
 	}
 	
@@ -210,10 +219,12 @@ extension NotificationsInteractionService {
 	}
 	
 	func stop(_ completion: ((Bool) -> Void)? = nil) {
+        MMLogDebug("[Interaction Service] stopping")
 		isRunning = false
 	}
 	
 	func start(_ completion: ((Bool) -> Void)? = nil) {
+        MMLogDebug("[Interaction Service] starting")
 		isRunning = true
 	}
 }

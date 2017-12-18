@@ -73,7 +73,7 @@ public final class MobileMessaging: NSObject {
 		
 		completion?()
 		
-		MMLogDebug("Service started!")
+        MMLogDebug("Service started with subservices: \(subservices)")
 	}
 	
 	/// Syncronizes all available subservices with the server.
@@ -414,7 +414,6 @@ public final class MobileMessaging: NSObject {
 	private func startСomponents() {
 		if NotificationsInteractionService.sharedInstance == nil {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
-			registerSubservice(NotificationsInteractionService.sharedInstance!)
 		}
 		
 		appListener = MMApplicationListener(mmContext: self)

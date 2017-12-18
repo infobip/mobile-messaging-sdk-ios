@@ -3,7 +3,7 @@ import CocoaLumberjack
 
 extension MMLoggerFactory {
 	public func createLogger() -> MMLogging {
-		return MMLogger()
+		return MMLumberjackLogger()
 	}
 }
 
@@ -51,7 +51,7 @@ func lumberjackLogLevel(from mmLogLevel: MMLogLevel) -> DDLogLevel {
 /// Logging utility is used for:
 /// - setting up logging options and logging levels.
 /// - obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
-public final class MMLogger: NSObject, MMLogging {
+public final class MMLumberjackLogger: NSObject, MMLogging {
 	let context = "mobilemessaging".hash
 	
 

@@ -13,8 +13,10 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 	static let sharedInstance = UserNotificationCenterDelegate()
 	
 	public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
+        MMLogDebug("[Notification Center Delegate] received response")
 		guard let service = NotificationsInteractionService.sharedInstance else
 		{
+            MMLogDebug("[Notification Center Delegate] stopped due to unintialized iteraction service")
 			completionHandler()
 			return
 		}
