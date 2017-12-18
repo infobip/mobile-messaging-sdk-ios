@@ -58,6 +58,11 @@ public class NotificationAction: NSObject {
 	class var dismissAction: NotificationAction {
 		return NotificationAction(actionIdentifier: UNNotificationDismissActionIdentifier, title: "Dismiss system-defined", options: nil)
 	}
+    
+    @available(iOS 10.0, *)
+    class var defaultAction: NotificationAction {
+        return NotificationAction(actionIdentifier: UNNotificationDefaultActionIdentifier, title: "", options: nil)
+    }
 	
 	@available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
 	var uiUserNotificationAction: UIUserNotificationAction {

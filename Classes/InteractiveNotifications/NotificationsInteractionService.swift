@@ -125,7 +125,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 		else if #available(iOS 10.0, *), identifier == UNNotificationDefaultActionIdentifier
 		{
-			handleAction(nil)
+			handleAction(NotificationAction.defaultAction)
 		}
 		else if	let categoryId = message.aps.category,
 					let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
