@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import MobileMessaging
+import UserNotifications
 
 let sendDateTimeMillis = 1503583689984 as Double
 
@@ -304,6 +305,21 @@ class MessageReceivingTests: MMTestCase {
 			assertionsBlock(tappedMessages)
 		})
 	}
+    
+    @available(iOS 10.0, *)
+    func testThatNotificationCenterDelegateRecognizesTaps() {
+        weak var eventReceived = self.expectation(description: "eventReceived")
+        weak var tapHandled = self.expectation(description: "tapHandled")
+        
+        MobileMessaging.notificationTapHandler = { _ in
+            tapHandled?.fulfill()
+        }
+        
+        UserNotificationCenterDelegate.sharedInstance.handle(notificationUserInfo: apnsNormalMessagePayload("1"), actionId: UNNotificationDefaultActionIdentifier, userText: nil) {
+            eventReceived?.fulfill()
+        }
+        self.waitForExpectations(timeout: 60, handler: { error in })
+    }
 }
 
 extension UILocalNotification {
