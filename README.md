@@ -45,7 +45,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	If you use [Carthage](https://github.com/Carthage/Carthage/#readme) to manage your dependencies, just add MobileMessaging to your `Cartfile`:
 
 	```
-	github "infobip/mobile-messaging-sdk-ios" ~> 2.0
+	github "infobip/mobile-messaging-sdk-ios"
 	```
 
 	If you use Carthage to build your dependencies, make sure you have added `MobileMessaging.framework` to the "Linked Frameworks and Libraries" section of your target, and have included them in your Carthage framework copying build phase (as described in [Carthage documentation](https://github.com/Carthage/Carthage/blob/master/README.md)).
