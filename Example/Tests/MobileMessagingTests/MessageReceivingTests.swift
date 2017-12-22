@@ -308,6 +308,10 @@ class MessageReceivingTests: MMTestCase {
     
     @available(iOS 10.0, *)
     func testThatNotificationCenterDelegateRecognizesTaps() {
+        guard #available(iOS 10.0, *) else {
+            return
+        }
+        
         weak var eventReceived = self.expectation(description: "eventReceived")
         weak var tapHandled = self.expectation(description: "tapHandled")
         
