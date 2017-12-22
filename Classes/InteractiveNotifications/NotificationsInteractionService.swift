@@ -118,7 +118,13 @@ class NotificationsInteractionService: MobileMessagingService {
 		
 		let handleAction: (NotificationAction?) -> Void = { action in
 			message.appliedAction = action
-			self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: action == nil, completion: { _ in
+            let itIsTapOnNotification: Bool
+            if #available(iOS 10.0, *) {
+                itIsTapOnNotification = action?.identifier == UNNotificationDefaultActionIdentifier
+            } else {
+                itIsTapOnNotification = action == nil
+            }
+			self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: itIsTapOnNotification, completion: { _ in
 				completionHandler()
 			})
 		}	
