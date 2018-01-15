@@ -19,6 +19,7 @@ struct DateStaticFormatters {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")
 		result.dateFormat = "yyyy-MM-dd"
+        result.timeZone = TimeZone(secondsFromGMT: 0)
 		return result
 	}()
 	

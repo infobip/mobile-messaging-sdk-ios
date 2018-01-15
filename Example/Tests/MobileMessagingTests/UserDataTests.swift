@@ -21,6 +21,19 @@ var darthVaderDateOfDeath: NSDate {
 	return comps.date! as NSDate
 }
 
+var darthVaderDateOfBirth: Date {
+    let comps = NSDateComponents()
+    comps.year = 1980
+    comps.month = 12
+    comps.day = 12
+    comps.hour = 0
+    comps.minute = 0
+    comps.second = 0
+    comps.timeZone = TimeZone(secondsFromGMT: 0) // has expected timezone
+    comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+    return comps.date!
+}
+
 
 class UserDataTests: MMTestCase {
 	func testCustomUserDataPayloadConstructors() {
@@ -90,6 +103,7 @@ class UserDataTests: MMTestCase {
 		currentUser.externalId = "someExternalId"
 		currentUser.msisdn = "123"
 		currentUser.email = "some@mail.com"
+        currentUser.birthdate = darthVaderDateOfBirth
 		currentUser.persist()
 		
 		XCTAssertEqual(currentUser.customData(forKey: "nickname")?.string, "Crusher")
@@ -97,9 +111,8 @@ class UserDataTests: MMTestCase {
 		XCTAssertEqual(currentUser.externalId, "someExternalId")
 		XCTAssertEqual(currentUser.msisdn, "123")
 		XCTAssertEqual(currentUser.email, "some@mail.com")
-		XCTAssertEqual(currentUser.predefinedData(forKey: MMUserPredefinedDataKeys.Email), "some@mail.com")
-		XCTAssertEqual(currentUser.predefinedData(forKey: MMUserPredefinedDataKeys.MSISDN), "123")
-		XCTAssertTrue(currentUser.predefinedData!["gender"] == nil, "custom data has nothing to do with predefined data")
+		XCTAssertTrue(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name] == nil, "custom data has nothing to do with predefined data")
+        XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name], "1980-12-12")
 		
 		
 		currentUser.set(customData: nil, forKey: "nilElement")
@@ -118,6 +131,7 @@ class UserDataTests: MMTestCase {
 			
 			XCTAssertEqual(installation.customUserData?["nickname"] as? String, "Crusher")
 			XCTAssertEqual(installation.predefinedUserData![MMUserPredefinedDataKeys.MSISDN.name] as? String, "123")
+            XCTAssertEqual(installation.predefinedUserData![MMUserPredefinedDataKeys.Birthdate.name] as? String, "1980-12-12")
 			XCTAssertEqual(installation.predefinedUserData![MMUserPredefinedDataKeys.Email.name] as? String, "some@mail.com")
 			XCTAssertTrue(currentUser.predefinedData!["nickname"] == nil, "custom data has nothing to do with predefined data")
 			
@@ -142,10 +156,10 @@ class UserDataTests: MMTestCase {
 		currentUser.set(customData: "Pizza", forKey: "food")
 		currentUser.set(customData: 189.5, forKey: "height")
 		
-		currentUser.set(predefinedData: "Darth", forKey: MMUserPredefinedDataKeys.FirstName)
-		currentUser.set(predefinedData: "Vader", forKey: MMUserPredefinedDataKeys.LastName)
-		currentUser.set(predefinedData: "1980-12-12", forKey: MMUserPredefinedDataKeys.Birthdate)
-		currentUser.set(predefinedData: MMUserGenderValues.Male.name, forKey: MMUserPredefinedDataKeys.Gender)
+		currentUser.firstName = "Darth"
+		currentUser.lastName = "Vader"
+		currentUser.birthdate = darthVaderDateOfBirth
+		currentUser.gender = .Male
 
 		currentUser.msisdn = "79214444444"
 		currentUser.email = "darth@vader.com"
@@ -153,10 +167,10 @@ class UserDataTests: MMTestCase {
 		currentUser.save { (error) in
 			XCTAssertNil(error)
 			
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name], "Darth")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name], "Vader")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name], "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name)
+			XCTAssertEqual(currentUser.firstName, "Darth")
+			XCTAssertEqual(currentUser.lastName, "Vader")
+			XCTAssertEqual(currentUser.birthdate, darthVaderDateOfBirth)
+			XCTAssertEqual(currentUser.gender, .Male)
 			XCTAssertEqual(currentUser.msisdn, "79214444444")
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
@@ -184,17 +198,17 @@ class UserDataTests: MMTestCase {
 		
 		let currentUser = MobileMessaging.currentUser!
 		currentUser.msisdn = nil
-		currentUser.set(predefinedData: nil, forKey: MMUserPredefinedDataKeys.FirstName)
-		currentUser.set(predefinedData: nil, forKey: MMUserPredefinedDataKeys.Gender)
+		currentUser.firstName = nil
+		currentUser.gender = nil
 		currentUser.set(customData: nil, forKey: "height")
 		
 		currentUser.save { (error) in
 			XCTAssertNil(error)
 			
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name], "Darth")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name], "Vader")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name], "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name)
+			XCTAssertEqual(currentUser.firstName, "Darth")
+			XCTAssertEqual(currentUser.lastName, "Vader")
+			XCTAssertEqual(currentUser.birthdate, darthVaderDateOfBirth)
+			XCTAssertEqual(currentUser.gender, UserGender.Male)
 			XCTAssertNil(currentUser.msisdn)
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
@@ -224,8 +238,8 @@ class UserDataTests: MMTestCase {
 			XCTAssert(error!.localizedDescription.contains("50017") && error!.localizedDescription.contains("Invalid email"))
 			
 			// these two assertions assure us that user data response was consideded successfull and server state response was saved
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.MSISDN.name], "79697162937")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Email.name], "john@mail.com")
+			XCTAssertEqual(currentUser.msisdn, "79697162937")
+			XCTAssertEqual(currentUser.email, "john@mail.com")
 			expectation?.fulfill()
 		}
 		
@@ -243,10 +257,10 @@ class UserDataTests: MMTestCase {
 		currentUser.fetchFromServer { (error) in
 			XCTAssertNil(error)
 			
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.FirstName.name], "Darth")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.LastName.name], "Vader")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Birthdate.name], "1980-12-12")
-			XCTAssertEqual(currentUser.predefinedData![MMUserPredefinedDataKeys.Gender.name], MMUserGenderValues.Male.name)
+			XCTAssertEqual(currentUser.firstName, "Darth")
+			XCTAssertEqual(currentUser.lastName, "Vader")
+			XCTAssertEqual(currentUser.birthdate, darthVaderDateOfBirth)
+			XCTAssertEqual(currentUser.gender, UserGender.Male)
 			XCTAssertEqual(currentUser.email, "darth@vader.com")
 			
 			XCTAssertEqual(currentUser.customData?["nativePlace"]?.string, "Tatooine")
@@ -284,7 +298,7 @@ class UserDataTests: MMTestCase {
 		XCTAssertEqual(currentUser.predefinedData?[MMUserPredefinedDataKeys.Email.name], "luke@starwars.com")
 	}
 	
-	func testThatUserDataIsNotPersistedIfPricacySettingsSpecified() {
+	func testThatUserDataIsNotPersistedIfPrivacySettingsSpecified() {
 		MobileMessaging.privacySettings.userDataPersistingDisabled = true
 		
 		let currentUser = MobileMessaging.currentUser!

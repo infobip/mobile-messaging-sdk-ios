@@ -10,7 +10,7 @@ import CoreData
 import Foundation
 import CoreLocation
 
-@objc public enum MMUserGenderValues: Int {
+@objc public enum UserGender: Int {
 	case Female
 	case Male
 	
@@ -20,28 +20,39 @@ import CoreLocation
 		case .Male : return "M"
 		}
 	}
+    
+    static func make(with name: String) -> UserGender? {
+        switch name {
+        case "F":
+            return UserGender.Female
+        case "M":
+            return UserGender.Male
+        default:
+            return nil
+        }
+    }
 }
 
 @objc public enum MMUserPredefinedDataKeys: Int {
-	case MSISDN
-	case FirstName
-	case LastName
-	case MiddleName
-	case Gender
-	case Birthdate
-	case Email
-	
-	var name: String {
-		switch self {
-		case .MSISDN : return "msisdn"
-		case .FirstName : return "firstName"
-		case .LastName : return "lastName"
-		case .MiddleName : return "middleName"
-		case .Gender : return "gender"
-		case .Birthdate : return "birthdate"
-		case .Email : return "email"
-		}
-	}
+    case MSISDN
+    case FirstName
+    case LastName
+    case MiddleName
+    case Gender
+    case Birthdate
+    case Email
+
+    var name: String {
+        switch self {
+        case .MSISDN : return "msisdn"
+        case .FirstName : return "firstName"
+        case .LastName : return "lastName"
+        case .MiddleName : return "middleName"
+        case .Gender : return "gender"
+        case .Birthdate : return "birthdate"
+        case .Email : return "email"
+        }
+    }
 }
 
 @objcMembers
@@ -89,48 +100,6 @@ final public class MMUser: NSObject {
 	public internal(set) var pushRegistrationId: String? {
 		get { return resolveProvider(forAttributesSet: AttributesSet.internalUserId).getValueForKey(Attributes.internalUserId.rawValue) as? String }
 		set { resolveProvider(forAttributesSet: AttributesSet.internalUserId).setValueForKey(Attributes.internalUserId.rawValue, value: newValue) }
-	}
-	
-	/// The user's id you can provide in order to link your own unique user identifier with Mobile Messaging user id, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var externalId: String? {
-		get { return resolveProvider(forAttributesSet: AttributesSet.externalUserId).getValueForKey(Attributes.externalUserId.rawValue) as? String }
-		set { resolveProvider(forAttributesSet: AttributesSet.externalUserId).setValueForKey(Attributes.externalUserId.rawValue, value: newValue) }
-	}
-	
-	/// Saves the External User Id on the server asynchronously and executes the given callback block.
-	/// - parameter externalId: The id you want to link with the current user.
-	/// - parameter completion: The block to execute after the server responded.
-	public func save(externalId: String, completion: @escaping (NSError?) -> Void) {
-		self.externalId = externalId
-		save(completion)
-	}
-	
-	/// The user's email address. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var email: String? {
-		get { return predefinedData(forKey: MMUserPredefinedDataKeys.Email) }
-		set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.Email) }
-	}
-	
-	/// Saves the email on the server asynchronously and executes the given callback block.
-	/// - parameter email: The email you want to link with the current user.
-	/// - parameter completion: The block to execute after the server responded.
-	public func save(email: String, completion: @escaping (NSError?) -> Void) {
-		self.email = email
-		save(completion)
-	}
-	
-	/// A user's MSISDN. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var msisdn: String? {
-		get { return predefinedData(forKey: MMUserPredefinedDataKeys.MSISDN) }
-		set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.MSISDN) }
-	}
-	
-	/// Saves the MSISDN on the server asynchronously and executes the given callback block.
-	/// - parameter msisdn: The MSISDN you want to link with the current user.
-	/// - parameter completion: The block to execute after the server responded.
-	public func save(msisdn: String, completion: @escaping (NSError?) -> Void) {
-		self.msisdn = msisdn
-		save(completion)
 	}
 	
 //MARK: - CUSTOM DATA
@@ -191,46 +160,130 @@ final public class MMUser: NSObject {
 	
 //MARK: - PREDEFINED DATA
 	
-	/// Returns user's predefined attributes (all possible attributes are described in the `MMUserPredefinedDataKeys` enum). Predefined attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var predefinedData: [String: String]? {
-		get { return rawPredefinedData as? [String: String] }
-		set { resolveProvider(forAttributesSet: AttributesSet.predefinedUserData).setValueForKey(Attributes.predefinedUserData.rawValue, value: newValue as [AnyHashable: UserDataFoundationTypes]?) }
-	}
-	
-	/// Saves the user's attributes on the server asynchronously and executes the given callback block.
-	/// - parameter predefinedData: The dictionary representing data you want to link with the current user.
-	/// - parameter completion: The block to execute after the server responded.
-	public func save(predefinedData: [String: String], completion: @escaping (NSError?) -> Void) {
-		self.predefinedData = predefinedData
-		save(completion)
-	}
-	
-	/// Returns the user's attribute value associated with a given key.
-	/// - parameter key: The key of type `MMUserPredefinedDataKeys` for which to return the corresponding value.
-	public func predefinedData(forKey key: MMUserPredefinedDataKeys) -> String? {
-		var result: String? = nil
-		if let predefinedData = self.predefinedData {
-			result = predefinedData[key.name]
-		}
-		return result
-	}
-	
-	/// Sets the user's attribute value for a given key. To save data, call `save(completion:)` method of `MMUser` object.
-	/// - parameter key: The key of type `MMUserPredefinedDataKeys` for `object`.
-	/// - parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
-	public func set(predefinedData object: String?, forKey key: MMUserPredefinedDataKeys) {
-		set(data: object as UserDataFoundationTypes?, forKey: key.name, attributeName: "predefinedUserData")
-	}
-	
-	/// Sets the user's attribute value for a given key, immediately sends changes to the server asynchronously and executes the given callback block.
-	/// - parameter key: The key for `object`.
-	/// - parameter object: The object for `key` of type `MMUserPredefinedDataKeys`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
-	/// - parameter completion: The block to execute after the server responded.
-	public func save(predefinedData object: String?, forKey key: MMUserPredefinedDataKeys, completion: @escaping (NSError?) -> Void) {
-		set(predefinedData: object, forKey: key)
-		save(completion)
-	}
-	
+    /// The user's id you can provide in order to link your own unique user identifier with Mobile Messaging user id, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    public var externalId: String? {
+        get { return resolveProvider(forAttributesSet: AttributesSet.externalUserId).getValueForKey(Attributes.externalUserId.rawValue) as? String }
+        set { resolveProvider(forAttributesSet: AttributesSet.externalUserId).setValueForKey(Attributes.externalUserId.rawValue, value: newValue) }
+    }
+    
+    /// Saves the External User Id on the server asynchronously and executes the given callback block.
+    /// - parameter externalId: The id you want to link with the current user.
+    /// - parameter completion: The block to execute after the server responded.
+    public func save(externalId: String?, completion: @escaping (NSError?) -> Void) {
+        self.externalId = externalId
+        save(completion)
+    }
+    
+    /// The user's email address. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    public var email: String? {
+        get { return predefinedData(forKey: MMUserPredefinedDataKeys.Email) }
+        set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.Email) }
+    }
+    
+    /// Saves the email on the server asynchronously and executes the given callback block.
+    /// - parameter email: The email you want to link with the current user.
+    /// - parameter completion: The block to execute after the server responded.
+    public func save(email: String?, completion: @escaping (NSError?) -> Void) {
+        self.email = email
+        save(completion)
+    }
+    
+    /// A user's MSISDN. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    public var msisdn: String? {
+        get { return predefinedData(forKey: MMUserPredefinedDataKeys.MSISDN) }
+        set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.MSISDN) }
+    }
+    
+    /// Saves the MSISDN on the server asynchronously and executes the given callback block.
+    /// - parameter msisdn: The MSISDN you want to link with the current user.
+    /// - parameter completion: The block to execute after the server responded.
+    public func save(msisdn: String?, completion: @escaping (NSError?) -> Void) {
+        self.msisdn = msisdn
+        save(completion)
+    }
+    
+    /// The user's first name. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    public var firstName: String? {
+        get { return predefinedData(forKey: MMUserPredefinedDataKeys.FirstName) }
+        set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.FirstName) }
+    }
+    
+    /// Saves the first name on the server asynchronously and executes the given callback block.
+    /// - parameter firstName: The first name you want to link with the current user.
+    /// - parameter completion: The block to execute after the server responded.
+    public func save(firstName: String?, completion: @escaping (NSError?) -> Void) {
+        self.firstName = firstName
+        save(completion)
+    }
+    
+    /// A user's last name. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    public var lastName: String? {
+        get { return predefinedData(forKey: MMUserPredefinedDataKeys.LastName) }
+        set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.LastName) }
+    }
+    
+    /// Saves the last name on the server asynchronously and executes the given callback block.
+    /// - parameter lastName: The last name you want to link with the current user.
+    /// - parameter completion: The block to execute after the server responded.
+    public func save(lastName: String?, completion: @escaping (NSError?) -> Void) {
+        self.lastName = lastName
+        save(completion)
+    }
+    
+    /// A user's middle name. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    public var middleName: String? {
+        get { return predefinedData(forKey: MMUserPredefinedDataKeys.MiddleName) }
+        set { set(predefinedData: newValue, forKey: MMUserPredefinedDataKeys.MiddleName) }
+    }
+    
+    /// Saves the middle name on the server asynchronously and executes the given callback block.
+    /// - parameter middleName: The middle name you want to link with the current user.
+    /// - parameter completion: The block to execute after the server responded.
+    public func save(middleName: String?, completion: @escaping (NSError?) -> Void) {
+        self.middleName = middleName
+        save(completion)
+    }
+    
+    /// A user's gender. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    public var gender: UserGender? {
+        get {
+            if let strval = predefinedData(forKey: MMUserPredefinedDataKeys.Gender) {
+                return UserGender.make(with: strval)
+            } else {
+                return nil
+            }
+        }
+        set { set(predefinedData: newValue?.name, forKey: MMUserPredefinedDataKeys.Gender) }
+    }
+    
+    /// Saves the gender on the server asynchronously and executes the given callback block.
+    /// - parameter gender: The gender you want to link with the current user.
+    /// - parameter completion: The block to execute after the server responded.
+    public func save(gender: UserGender?, completion: @escaping (NSError?) -> Void) {
+        self.gender = gender
+        save(completion)
+    }
+    
+    /// A user's birthdate. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    public var birthdate: Date? {
+        get {
+            if let strval = predefinedData(forKey: MMUserPredefinedDataKeys.Birthdate) {
+                return DateStaticFormatters.ContactsServiceDateFormatter.date(from: strval)
+            } else {
+                return nil
+            }
+        }
+        set { set(predefinedData: newValue != nil ?  DateStaticFormatters.ContactsServiceDateFormatter.string(from: newValue!) : nil, forKey: MMUserPredefinedDataKeys.Birthdate) }
+    }
+
+    /// Saves the birthdate on the server asynchronously and executes the given callback block.
+    /// - parameter birthdate: The birthdate you want to link with the current user.
+    /// - parameter completion: The block to execute after the server responded.
+    public func save(birthdate: Date?, completion: @escaping (NSError?) -> Void) {
+        self.birthdate = birthdate
+        save(completion)
+    }
+
 	/// Explicitly tries to save all user data on the server.
 	/// - parameter completion: The block to execute after the server responded.
 	public func save(_ completion: ((NSError?) -> Void)? = nil) {
@@ -250,6 +303,38 @@ final public class MMUser: NSObject {
 	}
 	
 //MARK: - Internal
+    
+    /// Returns user's predefined attributes (all possible attributes are described in the `MMUserPredefinedDataKeys` enum). Predefined attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
+    internal var predefinedData: [String: String]? {
+        get { return rawPredefinedData as? [String: String] }
+        set { resolveProvider(forAttributesSet: AttributesSet.predefinedUserData).setValueForKey(Attributes.predefinedUserData.rawValue, value: newValue as [AnyHashable: UserDataFoundationTypes]?) }
+    }
+    
+    /// Returns the user's attribute value associated with a given key.
+    /// - parameter key: The key of type `MMUserPredefinedDataKeys` for which to return the corresponding value.
+    internal func predefinedData(forKey key: MMUserPredefinedDataKeys) -> String? {
+        var result: String? = nil
+        if let predefinedData = self.predefinedData {
+            result = predefinedData[key.name]
+        }
+        return result
+    }
+    
+    /// Sets the user's attribute value for a given key. To save data, call `save(completion:)` method of `MMUser` object.
+    /// - parameter key: The key of type `MMUserPredefinedDataKeys` for `object`.
+    /// - parameter object: The object for `key`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
+    internal func set(predefinedData object: String?, forKey key: MMUserPredefinedDataKeys) {
+        set(data: object as UserDataFoundationTypes?, forKey: key.name, attributeName: "predefinedUserData")
+    }
+    
+    /// Sets the user's attribute value for a given key, immediately sends changes to the server asynchronously and executes the given callback block.
+    /// - parameter key: The key for `object`.
+    /// - parameter object: The object for `key` of type `MMUserPredefinedDataKeys`. Pass `object` as either `nil` or `NSNull()` in order to remove the key-value pair on the server.
+    /// - parameter completion: The block to execute after the server responded.
+    internal func save(predefinedData object: String?, forKey key: MMUserPredefinedDataKeys, completion: @escaping (NSError?) -> Void) {
+        set(predefinedData: object, forKey: key)
+        save(completion)
+    }
 	
 	var rawPredefinedData: [String: Any]? {
 		return resolveProvider(forAttributesSet: AttributesSet.predefinedUserData).getValueForKey(Attributes.predefinedUserData.rawValue) as? [String: Any]
