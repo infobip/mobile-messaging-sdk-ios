@@ -69,6 +69,10 @@ final public class MMUser: NSObject {
 	func resetNeedToSync() {
 		resolveProvider(forAttributesSet: AttributesSet.userData).resetDirtyAttribute(AttributesSet.userData)
 	}
+    
+    public var isChanged: Bool {
+        return resolveProvider(forAttributesSet: AttributesSet.userData).isAttributeDirty(AttributesSet.userData)
+    }
 
 	func shouldPersistData(forAttribute attrSet: AttributesSet) -> Bool {
 		return MobileMessaging.privacySettings.userDataPersistingDisabled == false || attrSet.intersection(AttributesSet.userData).isEmpty
