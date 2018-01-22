@@ -104,8 +104,8 @@ class UserDataTests: MMTestCase {
 		currentUser.msisdn = "123"
 		currentUser.email = "some@mail.com"
         currentUser.birthdate = darthVaderDateOfBirth
-		currentUser.persist()
-		
+    	currentUser.persist()
+    	
 		XCTAssertEqual(currentUser.customData(forKey: "nickname")?.string, "Crusher")
 		XCTAssertEqual(currentUser.customData?["nickname"]?.string, "Crusher")
 		XCTAssertEqual(currentUser.externalId, "someExternalId")
@@ -117,7 +117,6 @@ class UserDataTests: MMTestCase {
 		
 		currentUser.set(customData: nil, forKey: "nilElement")
 		XCTAssertTrue(currentUser.customData?["nilElement"]?.dataValue is NSNull)
-		
 		
 		XCTAssertEqual(Date(timeIntervalSince1970: 1468593199).toJSON(), "2016-07-15")
 
@@ -163,10 +162,13 @@ class UserDataTests: MMTestCase {
 
 		currentUser.msisdn = "79214444444"
 		currentUser.email = "darth@vader.com"
-		
+	
+        XCTAssertTrue(currentUser.isChanged)
+        
 		currentUser.save { (error) in
 			XCTAssertNil(error)
-			
+            
+			XCTAssertFalse(currentUser.isChanged)
 			XCTAssertEqual(currentUser.firstName, "Darth")
 			XCTAssertEqual(currentUser.lastName, "Vader")
 			XCTAssertEqual(currentUser.birthdate, darthVaderDateOfBirth)
@@ -228,13 +230,11 @@ class UserDataTests: MMTestCase {
 	func testThatInvalidPredefinedDataHandledProperly() {
 		weak var expectation = self.expectation(description: "data received")
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		
 		let currentUser = MobileMessaging.currentUser!
-
 		currentUser.msisdn = "9697162937"
 		currentUser.email = "john@mail,com"
-		
 		currentUser.save { (error) in
+            
 			XCTAssert(error!.localizedDescription.contains("50017") && error!.localizedDescription.contains("Invalid email"))
 			
 			// these two assertions assure us that user data response was consideded successfull and server state response was saved
