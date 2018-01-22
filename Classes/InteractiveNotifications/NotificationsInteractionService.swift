@@ -8,20 +8,7 @@
 import Foundation
 import UserNotifications
 
-@objc public protocol NotificationActionHandling {
-	/// This method will be triggered during the notification action handling.
-	/// - parameter action: `NotificationAction` object defining the action which was triggered.
-	/// - parameter message: `MTMessage` message, for which action button was displayed, you can use `message.categoryId` in order to check the categoryId for action.
-	/// - parameter completionHandler: The block to execute when specified action performing is finished. You must call this block once the work is completed. The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
-	func handle(action: NotificationAction, forMessage message: MTMessage, withCompletionHandler completionHandler: @escaping () -> Void)
-}
-
 extension MobileMessaging {
-	/// The `notificationActionHandler` object defines the custom behaviour that is triggered while handling the interactive notifications action.
-	///
-	/// Implement your own notification action hander class by implementing the `NotificationActionHandling` protocol.
-	public static var notificationActionHandler: NotificationActionHandling?
-	
 	/// Fabric method for Mobile Messaging session.
 	///
 	/// - parameter categories: Set of categories to define which buttons to display and their behavour.
@@ -105,6 +92,13 @@ class NotificationsInteractionService: MobileMessagingService {
 		registerSelfAsSubservice(of: mmContext)
 	}
 	
+    func handleLocalNotificationTap(for message: MTMessage) {
+        DispatchQueue.global(qos: .default).async {
+            message.appliedAction = NotificationAction.defaultAction
+            self.handleAnyMessage(message, completion: { _ in})
+        }
+    }
+    
     func handleActionWithIdentifier(identifier: String?, message: MTMessage?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
         MMLogDebug("[Interaction Service] handling action \(identifier ?? "n/a") for message \(message?.messageId ?? "n/a"), resonse info \(responseInfo ?? [:])")
 		guard isRunning,
@@ -119,11 +113,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		let handleAction: (NotificationAction?) -> Void = { action in
 			message.appliedAction = action
             let itIsTapOnNotification: Bool
-            if #available(iOS 10.0, *) {
-                itIsTapOnNotification = action?.identifier == UNNotificationDefaultActionIdentifier
-            } else {
-                itIsTapOnNotification = action == nil
-            }
+            itIsTapOnNotification = action?.identifier == NotificationAction.DefaultActionId
 			self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: itIsTapOnNotification, completion: { _ in
 				completionHandler()
 			})
@@ -134,7 +124,7 @@ class NotificationsInteractionService: MobileMessagingService {
             MMLogDebug("[Interaction Service] handling dismiss action")
 			handleAction(NotificationAction.dismissAction)
 		}
-		else if #available(iOS 10.0, *), identifier == UNNotificationDefaultActionIdentifier
+		else if identifier == NotificationAction.DefaultActionId
 		{
             MMLogDebug("[Interaction Service] handling default action")
 			handleAction(NotificationAction.defaultAction)
@@ -185,37 +175,34 @@ extension NotificationsInteractionService {
 	}
 	
 	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
-		guard isRunning, let category = message.category, let appliedAction = message.appliedAction else {
+		guard isRunning, let appliedAction = message.appliedAction else
+        {
 			completion?(.noData)
 			return
 		}
 		
-		let dispatchGroup = DispatchGroup()
+        let dispatchGroup = DispatchGroup()
 		
-		dispatchGroup.enter()
-		mmContext.setSeen([message.messageId]) { _ in
-			dispatchGroup.leave()
-		}
+        dispatchGroup.enter()
+        self.mmContext.setSeenImmediately([message.messageId]) { _ in
+            dispatchGroup.leave()
+        }
 		
 		if appliedAction.options.contains(.moRequired) {
-			dispatchGroup.enter()
-            self.mmContext.sendMessagesSDKInitiated([MOMessage(destination: nil, text: "\(category) \(appliedAction.identifier)", customPayload: nil, composedDate: MobileMessaging.date.now,
-                                                               bulkId: message.internalData?[InternalDataKeys.bulkId] as? String, initialMessageId: message.messageId)]) { msgs, error in
-				dispatchGroup.leave()
-			}
+            dispatchGroup.enter()
+            self.mmContext.sendMessagesSDKInitiated([MOMessage(destination: nil, text: "\(message.category ?? "n/a") \(appliedAction.identifier)", customPayload: nil, composedDate: MobileMessaging.date.now, bulkId: message.internalData?[InternalDataKeys.bulkId] as? String, initialMessageId: message.messageId)]) { msgs, error in
+                dispatchGroup.leave()
+            }
 		}
-		
-		if let notificationActionHanler = MobileMessaging.notificationActionHandler {
-			dispatchGroup.enter()
-			DispatchQueue.global(qos: .default).async {
-				notificationActionHanler.handle(action: appliedAction, forMessage: message, withCompletionHandler: {
-					dispatchGroup.leave()
-				})
-			}
-		}
-		
-		_ = dispatchGroup.wait(timeout: DispatchTime.now() + DispatchTimeInterval.seconds(NotificationsInteractionService.Constants.actionHandlingTimeout))
-		completion?(.noData)
+        dispatchGroup.notify(queue: DispatchQueue.global(qos: .default)) {
+            if appliedAction.identifier == NotificationAction.DefaultActionId {
+                NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessageTapped, userInfo: [MMNotificationKeyMessage: message])
+            }
+            
+            self.mmContext.messageHandlingDelegate?.didPerform?(action: appliedAction, forMessage: message) {
+                completion?(.noData)
+            } ?? completion?(.noData)
+        }
 	}
 	
 	func syncWithServer(_ completion: ((NSError?) -> Void)?) {

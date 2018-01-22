@@ -151,8 +151,8 @@ public final class MobileMessaging: NSObject {
 			let message = MTMessage(payload: payload),
 			let applicationState = MobileMessaging.sharedInstance?.application.applicationState,
 			MMMessageHandler.isNotificationTapped(message, applicationState: applicationState)
-		{
-			MMMessageHandler.handleNotificationTap(with: message)
+        {
+            NotificationsInteractionService.sharedInstance?.handleLocalNotificationTap(for: message)
 		}
 	}
 	
@@ -186,21 +186,9 @@ public final class MobileMessaging: NSObject {
 	
 	/// An auxillary component provides the convinient access to the user agent data.
 	public internal(set) static var userAgent = UserAgent()
-	
-	/// A block object to be executed when user opens the app by tapping on the notification alert.
-	/// Default implementation marks the corresponding message as seen.
-	/// This block takes:
-	/// - single MTMessage object initialized from the Dictionary.
-	public static var notificationTapHandler: ((_ message: MTMessage) -> Void)? = defaultNotificationTapHandler
-	private static let defaultNotificationTapHandler: ((_ message: MTMessage) -> Void) = {
-		MMLogDebug("Notfication alert tapped.")
-		MobileMessaging.setSeen(messageIds: [$0.messageId])
-	}
-	
-	/// The message handling object defines the behaviour that is triggered during the message handling.
-	///
-	/// You can implement your own message handling either by subclassing `MMDefaultMessageHandling` or implementing the `MessageHandling` protocol.
-	public static var messageHandling: MessageHandling = MMDefaultMessageHandling()
+		
+	/// The `MessageHandlingDelegate` protocol defines methods for responding to actionable notifications and receiving new notifications. You assign your delegate object to the `messageHandlingDelegate` property of the `MobileMessaging.sharedInstance` object. The MobileMessaging SDK calls methods of your delegate at appropriate times to deliver information.
+    public var messageHandlingDelegate: MessageHandlingDelegate?
 	
 	/// The `URLSessionConfiguration` used for all url connections in the SDK
 	///
@@ -263,13 +251,12 @@ public final class MobileMessaging: NSObject {
 		
 		application = UIApplication.shared
 		
-		MobileMessaging.messageHandling = MMDefaultMessageHandling()
-		MobileMessaging.notificationTapHandler = MobileMessaging.defaultNotificationTapHandler
-		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingDidStop(self)
 		}
 		
+        messageHandlingDelegate = nil
+        
 		cleanupSubservices()
 		
 		// just to break retain cycles:
@@ -283,7 +270,6 @@ public final class MobileMessaging: NSObject {
 		reachabilityManager = nil
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
-		
 		MobileMessaging.sharedInstance = nil
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().delegate = nil
@@ -316,6 +302,11 @@ public final class MobileMessaging: NSObject {
 		MMLogDebug("Setting seen status: \(messageIds)")
 		messageHandler.setSeen(messageIds, completion: completion)
 	}
+    
+    func setSeenImmediately(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+        MMLogDebug("Setting seen status immediately: \(messageIds)")
+        messageHandler.setSeen(messageIds, immediately: true, completion: completion)
+    }
 	
 	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MMLogDebug("Sending mobile originated messages (SDK initiated)...")

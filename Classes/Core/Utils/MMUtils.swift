@@ -444,7 +444,7 @@ protocol MMApplication {
 
 extension MMApplication {
 	var isInForegroundState: Bool {
-		return applicationState != .background
+		return applicationState == .active
 	}
 }
 

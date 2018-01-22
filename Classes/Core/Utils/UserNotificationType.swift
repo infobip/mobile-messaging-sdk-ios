@@ -8,13 +8,18 @@
 import UserNotifications
 
 @objcMembers
-public final class UserNotificationType: NSObject {
+public final class UserNotificationType: NSObject, ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = UserNotificationType
 	let rawValue: Int
 	
 	init(rawValue: Int) {
 		self.rawValue = rawValue
 	}
 	
+    public convenience init(arrayLiteral: ArrayLiteralElement...) {
+        self.init(options: arrayLiteral)
+    }
+
 	public init(options: [UserNotificationType]) {
 		self.rawValue = options.reduce(0) { (total, option) -> Int in
 			return total | option.rawValue
@@ -40,7 +45,7 @@ public final class UserNotificationType: NSObject {
 	/// - remark: This option is available only for iOS 10+
 	@available(iOS 10.0, *)
 	public static let carPlay = UserNotificationType(rawValue: 1 << 3)
-	
+    
 	@available(iOS 10.0, *)
 	var unAuthorizationOptions: UNAuthorizationOptions {
 		var options: UNAuthorizationOptions = []

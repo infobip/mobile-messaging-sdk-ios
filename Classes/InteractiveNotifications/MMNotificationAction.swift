@@ -11,6 +11,9 @@ public class NotificationAction: NSObject {
 	public let identifier: String
 	public let title: String
 	public let options: [NotificationActionOptions]
+    public var isTapOnNotificationAlert: Bool {
+        return identifier == NotificationAction.DefaultActionId
+    }
 	
 	/// Initializes the `NotificationAction`
 	/// - parameter identifier: action identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
@@ -59,9 +62,16 @@ public class NotificationAction: NSObject {
 		return NotificationAction(actionIdentifier: UNNotificationDismissActionIdentifier, title: "Dismiss system-defined", options: nil)
 	}
     
-    @available(iOS 10.0, *)
+    static var DefaultActionId: String {
+        if #available(iOS 10.0, *) {
+            return UNNotificationDefaultActionIdentifier
+        } else {
+            return "UNNotificationDefaultActionIdentifier"
+        }
+    }
+    
     class var defaultAction: NotificationAction {
-        return NotificationAction(actionIdentifier: UNNotificationDefaultActionIdentifier, title: "", options: nil)
+        return NotificationAction(actionIdentifier: DefaultActionId, title: "", options: nil)
     }
 	
 	@available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")

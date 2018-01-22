@@ -86,7 +86,7 @@ class MMMessageHandler: MobileMessagingService {
 			return
 		}
 		
-		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), messageHandler: MobileMessaging.messageHandling, isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
+		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
 			{ error, newMessages in
 				let group =  DispatchGroup()
 				
@@ -153,14 +153,22 @@ class MMMessageHandler: MobileMessagingService {
     }
 	
     func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
-		guard !messageIds.isEmpty else {
-			completion?(SeenStatusSendingResult.Cancel)
-			return
-		}
-		messageHandlingQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext))
-		seenPostponer.postponeBlock() {
-			self.syncSeenStatusUpdates(completion)
-		}
+		setSeen(messageIds, immediately: false, completion: completion)
+    }
+    
+    func setSeen(_ messageIds: [String], immediately: Bool, completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+        guard !messageIds.isEmpty else {
+            completion?(SeenStatusSendingResult.Cancel)
+            return
+        }
+        messageHandlingQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext))
+        if immediately {
+            self.syncSeenStatusUpdates(completion)
+        } else {
+            seenPostponer.postponeBlock() {
+                self.syncSeenStatusUpdates(completion)
+            }
+        }
     }
 	
 	func syncSeenStatusUpdates(_ completion: ((SeenStatusSendingResult) -> Void)? = nil) {
@@ -295,14 +303,5 @@ class MMMessageHandler: MobileMessagingService {
 	
 	static func isNotificationTapped(_ message: MTMessage, applicationState: UIApplicationState) -> Bool {
 		return applicationState == .inactive || message.isMessageLaunchingApplication == true
-	}
-}
-
-extension MMMessageHandler {
-	static func handleNotificationTap(with message: MTMessage) {
-		MMQueue.Main.queue.executeAsync {
-			NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageTapped), object: nil, userInfo: [MMNotificationKeyMessage: message])
-			MobileMessaging.notificationTapHandler?(message)
-		}
 	}
 }

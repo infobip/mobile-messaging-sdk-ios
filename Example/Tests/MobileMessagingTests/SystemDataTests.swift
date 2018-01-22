@@ -8,30 +8,6 @@
 import XCTest
 @testable import MobileMessaging
 
-class UserAgentStub: UserAgent {
-	override var libraryVersion: String {
-		return "1.0.0"
-	}
-	override var osName: String {
-		return "mobile OS"
-	}
-	override var osVersion: String {
-		return "1.0"
-	}
-	override var deviceName: String {
-		return "iPhone Galaxy"
-	}
-	override var hostingAppName: String {
-		return "WheatherApp"
-	}
-	override var hostingAppVersion: String {
-		return "1.0"
-	}
-	override var deviceManufacturer: String {
-		return "GoogleApple"
-	}
-}
-
 class SystemDataTests: MMTestCase {
 
     func testSystemDataUpdates() {
@@ -53,7 +29,7 @@ class SystemDataTests: MMTestCase {
 		
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: responseStubBlock)
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		
+
 		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start()
 		

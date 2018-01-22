@@ -66,15 +66,3 @@ extension AppDelegate {
 		}
     }
 }
-
-class CustomActionHandler: NotificationActionHandling {
-	func handle(action: NotificationAction, forMessage message: MTMessage, withCompletionHandler completionHandler: @escaping () -> Void) {
-		print(action.identifier)
-        if #available(iOS 9.0, *) {
-            if let textInputAction = action as? TextInputNotificationAction, let typedText = textInputAction.typedText {
-                print(typedText)
-            }
-        }
-		completionHandler()
-	}
-}

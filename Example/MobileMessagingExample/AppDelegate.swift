@@ -21,7 +21,6 @@ class AppDelegate: MobileMessagingAppDelegate {
 	
 	override func mm_application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 		setupLogging()
-		MobileMessaging.notificationActionHandler = CustomActionHandler()
 		UIToolbar.setupAppearance()
 		return true
 	}

@@ -13,25 +13,19 @@ struct LocalNotificationKeys {
 }
 
 class LocalNotifications {
-	class func presentLocalNotification(with message: MTMessage, completion: (() -> Void)?) {
-		guard !message.isSilent || (message.isGeoSignalingMessage) else {
-			completion?()
-			return
-		}
-		
-		if #available(iOS 10.0, *) {
-			LocalNotifications.scheduleUserNotification(with: message, completion: completion)
-		} else {
-			MMLogDebug("[Local Notification] presenting notification for \(message.messageId)")
-			MobileMessaging.sharedInstance?.application.presentLocalNotificationNow(UILocalNotification.make(with: message))
-			completion?()
-		}
+	class func presentLocalNotification(with message: MTMessage) {
+        MobileMessaging.sharedInstance?.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
+        if #available(iOS 10.0, *) {
+            LocalNotifications.scheduleUserNotification(with: message)
+        } else {
+            MMLogDebug("[Local Notification] presenting notification for \(message.messageId)")
+            MobileMessaging.sharedInstance?.application.presentLocalNotificationNow(UILocalNotification.make(with: message))
+        }
 	}
 	
 	@available(iOS 10.0, *)
-	class func scheduleUserNotification(with message: MTMessage, completion: (() -> Void)?) {
+	class func scheduleUserNotification(with message: MTMessage) {
 		guard let txt = message.text else {
-			completion?()
 			return
 		}
 		let content = UNMutableNotificationContent()
@@ -63,7 +57,6 @@ class LocalNotifications {
 			let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)
 			MMLogDebug("[Local Notification] scheduling notification for \(message.messageId)")
 			UNUserNotificationCenter.current().add(req, withCompletionHandler: nil)
-			completion?()
 		})
 	}
 }

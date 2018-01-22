@@ -127,6 +127,34 @@ class FetchMessagesCompletionTests: MMTestCase {
 		
 		waitForExpectations(timeout: 60) {_ in }
 	}
+    
+    func testThatLocalNotificationScheduled() {
+        weak var messageHandled = expectation(description: "messageHandled")
+        weak var localNotificationScheduled = expectation(description: "localNotificationScheduled")
+        let messageHandlingDelegateMock = MessageHandlingDelegateMock()
+        messageHandlingDelegateMock.willScheduleLocalNotification = { m in
+            localNotificationScheduled?.fulfill()
+        }
+        mobileMessagingInstance.messageHandlingDelegate = messageHandlingDelegateMock
+        self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
+            { (request) -> JSON? in
+                if let request = request as? MessagesSyncRequest {
+                    if (request.dlrMsgIds ?? [String]()) == ["newData"]  {
+                        return JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]])
+                    } else {
+                        return JSON(["payloads": []])
+                    }
+                }
+                return nil
+        }
+        )
+        mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
+            XCTAssertEqual(result.backgroundFetchResult, .newData)
+            messageHandled?.fulfill()
+        })
+        
+        waitForExpectations(timeout: 60) {_ in }
+    }
 	
 	func testThatNoDataFetched() {
 		weak var exp = expectation(description: "Handler called")
@@ -157,17 +185,5 @@ class FetchMessagesCompletionTests: MMTestCase {
 		})
 		
 		waitForExpectations(timeout: 60) {_ in }
-	}
-}
-
-class MessageHandlingMock : MMDefaultMessageHandling {
-	let localNotificationShownBlock: (MTMessage) -> Void
-	init(localNotificationShownBlock: @escaping (MTMessage) -> Void) {
-		self.localNotificationShownBlock = localNotificationShownBlock
-		super.init()
-	}
-	override func presentLocalNotificationAlert(with message: MTMessage, completion:(() -> Void)?) {
-		self.localNotificationShownBlock(message)
-		super.presentLocalNotificationAlert(with: message, completion: completion)
 	}
 }

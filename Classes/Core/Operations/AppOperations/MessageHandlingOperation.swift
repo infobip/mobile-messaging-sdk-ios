@@ -40,15 +40,13 @@ final class MessageHandlingOperation: Operation {
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?, Set<MTMessage>?) -> Void)?
 	let messagesToHandle: [MTMessage]
-	let messageHandler: MessageHandling
 	let isNotificationTapped: Bool
 	let mmContext: MobileMessaging
 	
-	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, messageHandler: MessageHandling, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: ((NSError?, Set<MTMessage>?) -> Void)? = nil) {
+	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: ((NSError?, Set<MTMessage>?) -> Void)? = nil) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.finishBlock = finishBlock
-		self.messageHandler = messageHandler
 		self.isNotificationTapped = isNotificationTapped
 		self.mmContext = mmContext
 		super.init()
@@ -111,23 +109,26 @@ final class MessageHandlingOperation: Operation {
 			return
 		}
 		MMQueue.Main.queue.executeAsync {
-			let group = DispatchGroup()
 			messages.forEach { message in
 				MMLogDebug("[Message handling] calling back for didReceiveNewMessage \(message.messageId)")
-				group.enter()
-				self.messageHandler.didReceiveNewMessage(message: message) {
-					group.leave()
-				}
-				NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: [MMNotificationKeyMessage: message])
+                
+                self.presentLocalNotificationIfNeeded(with: message)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: [MMNotificationKeyMessage: message])
+				self.mmContext.messageHandlingDelegate?.didReceiveNewMessage?(message: message)
+                if self.mmContext.application.isInForegroundState {
+                    self.mmContext.messageHandlingDelegate?.didReceiveNewMessageInForeground?(message: message)
+                }
 			}
-			group.notify(queue: DispatchQueue.global(qos: .default)) {
-				completion?()
-			}
+            completion?()
 		}
 	}
 	
 //MARK: - Notification tap handling
-	
+    private func presentLocalNotificationIfNeeded(with message: MTMessage) {
+        guard (!message.isSilent || message.isGeoSignalingMessage) && (message.deliveryMethod == .pull || message.deliveryMethod == .generatedLocally) else { return }
+        LocalNotifications.presentLocalNotification(with: message)
+    }
+    
 	private func handleNotificationTappedIfNeeded(_ messages: [MTMessage]) {
 		guard let newMessage = messages.first else { return }
 		handleNotificationTappedIfNeeded(with: newMessage)
@@ -139,8 +140,9 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	private func handleNotificationTappedIfNeeded(with message: MTMessage) {
-		guard isNotificationTapped, message.deliveryMethod == .push else { return }
-		MMMessageHandler.handleNotificationTap(with: message)
+        guard isNotificationTapped, message.deliveryMethod == .push else { return }
+        
+        message.appliedAction = NotificationAction.defaultAction
 	}
 	
 //MARK: - Lazy message collections

@@ -26,7 +26,7 @@ class MessagHandlerMock: MMMessageHandler {
 		self.init(storage: originalHandler.storage, mmContext: originalHandler.mmContext)
 	}
 	
-	override func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)?) {
+    override func setSeen(_ messageIds: [String], immediately: Bool, completion: ((SeenStatusSendingResult) -> Void)?) {
 		setSeenWasCalled?()
 		completion?(SeenStatusSendingResult.Cancel)
 	}
@@ -104,17 +104,24 @@ class InteractiveNotificationsTests: MMTestCase {
 		
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		weak var seenCalled = expectation(description: "seenCalled")
+        weak var actionHandled = expectation(description: "actionHandled")
 		weak var sendMessageCalled = expectation(description: "sendMessageCalled")
 		msgHandlerMock.sendMessageWasCalled = { messages in
 			XCTAssertEqual(messages.first!.text, "\(self.categoryId) \(action.identifier)")
 			sendMessageCalled?.fulfill()
 		}
-		msgHandlerMock.setSeenWasCalled = { seenCalled?.fulfill() }
+		msgHandlerMock.setSeenWasCalled = {
+            seenCalled?.fulfill()
+            
+        }
 		mm.messageHandler = msgHandlerMock
 		
-		MobileMessaging.notificationActionHandler = NotificationActionHandlerMock(handlingBlock: { (_action, message, completionHandler) in
-			completion(_action, completionHandler)
-		})
+        let messageHandlingDelegateMock = MessageHandlingDelegateMock()
+        messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
+            actionHandled?.fulfill()
+            completion(action, {})
+        }
+        mm.messageHandlingDelegate = messageHandlingDelegateMock
 		
 		MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: responseInfo) {}
 	}
@@ -181,7 +188,6 @@ class InteractiveNotificationsTests: MMTestCase {
 		weak var testCompleted = expectation(description: "testCompleted")
 		XCTAssertEqual(NotificationsInteractionService.sharedInstance?.allNotificationCategories?.count, PredefinedCategoriesTest().categoriesIds?.count)
 		
-		
 		let allActions = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.reduce([String](), { (result, category) -> [String] in
 			return result + category.actions.reduce([String](), { (result, action) -> [String] in
 				return result + ["\(category.identifier)+\(action.identifier)"]
@@ -194,11 +200,12 @@ class InteractiveNotificationsTests: MMTestCase {
 			weak var actionHandled = expectation(description: action)
 			actionsWithExpectations[action] = actionHandled
 		}
-		
-		MobileMessaging.notificationActionHandler = NotificationActionHandlerMock(handlingBlock: { (_action, message, completionHandler) in
-			actionsWithExpectations["\(message.category!)+\(_action.identifier)"]?.fulfill()
-			completionHandler()
-		})
+
+        let messageHandlingDelegateMock = MessageHandlingDelegateMock()
+        messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
+            actionsWithExpectations["\(message.category!)+\(action.identifier)"]?.fulfill()
+        }
+        mobileMessagingInstance.messageHandlingDelegate = messageHandlingDelegateMock
 		
 		mobileMessagingInstance.messageHandler = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		
@@ -218,6 +225,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		guard #available(iOS 10.0, *) else {
 			return
 		}
+        weak var handlingCompleted = expectation(description: "handlingCompleted")
 		weak var testCompleted = expectation(description: "testCompleted")
 		
 		let category = NotificationCategory(identifier: categoryId, actions: [], options: [.customDismissAction], intentIdentifiers: nil)!
@@ -234,14 +242,17 @@ class InteractiveNotificationsTests: MMTestCase {
 		msgHandlerMock.setSeenWasCalled = { seenCalled?.fulfill() }
 		mm.messageHandler = msgHandlerMock
 		
-		MobileMessaging.notificationActionHandler = NotificationActionHandlerMock(handlingBlock: { (_action, message, completionHandler) in
-			if _action.identifier == UNNotificationDismissActionIdentifier {
-				testCompleted?.fulfill()
-			}
-			completionHandler()
-		})
+        let messageHandlingDelegateMock = MessageHandlingDelegateMock()
+        messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
+            if action.identifier == UNNotificationDismissActionIdentifier {
+                testCompleted?.fulfill()
+            }
+        }
+        mm.messageHandlingDelegate = messageHandlingDelegateMock
 		
-		MobileMessaging.handleActionWithIdentifier(identifier: UNNotificationDismissActionIdentifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: nil) {}
+		MobileMessaging.handleActionWithIdentifier(identifier: UNNotificationDismissActionIdentifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: nil) {
+            handlingCompleted?.fulfill()
+        }
 		
 		waitForExpectations(timeout: 10, handler: nil)
 	}
@@ -264,16 +275,5 @@ class PredefinedCategoriesTest {
 			return Set(catIds)
 		}
 		return nil
-	}
-}
-
-class NotificationActionHandlerMock: NotificationActionHandling {
-	let handlingBlock: (_ action: NotificationAction, _ message: MTMessage, _ completion: () -> Void) -> Void
-	init(handlingBlock: @escaping (_ action: NotificationAction, _ message: MTMessage, _ completion: () -> Void) -> Void) {
-		self.handlingBlock = handlingBlock
-	}
-	
-	func handle(action: NotificationAction, forMessage message: MTMessage, withCompletionHandler completionHandler: @escaping () -> Void) {
-		handlingBlock(action, message, completionHandler)
 	}
 }

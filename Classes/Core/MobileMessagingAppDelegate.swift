@@ -6,14 +6,13 @@
 //
 
 import Foundation
+import UserNotifications
 
-/**
-The Application Delegate inheritance - is a way to integrate Mobile Messaging SDK into your application.
-To implement this way, you should inherit your Application Delegate from `MobileMessagingAppDelegate`.
-*/
+/// The Application Delegate inheritance - is a way to integrate Mobile Messaging SDK into your application.
+/// To implement this way, you should inherit your Application Delegate from `MobileMessagingAppDelegate`.
 @objcMembers
 open class MobileMessagingAppDelegate: UIResponder, UIApplicationDelegate {
-		
+    
 	/// Passes your Application Code to the Mobile Messaging SDK.
 	///
 	/// In order to provide your own unique Application Code, you override this variable in your application delegate, that you inherit from `MobileMessagingAppDelegate`.

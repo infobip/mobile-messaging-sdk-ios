@@ -152,6 +152,7 @@ class MessageStorageTests: MMTestCase {
 		weak var expectation2 = expectation(description: "Check finished")
 		
 		var iterationCounter: Int = 0
+        
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
 				

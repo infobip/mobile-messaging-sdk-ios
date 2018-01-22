@@ -9,7 +9,7 @@ import XCTest
 @testable import MobileMessaging
 import UserNotifications
 
-let sendDateTimeMillis = 1503583689984 as Double
+
 
 func backendJSONSilentMessage(messageId: String) -> String {
 	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"\(APNSPayloadKeys.internalData)\": {\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
@@ -21,15 +21,6 @@ func backendJSONRegularMessage(messageId: String) -> String {
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
 
-func apnsNormalMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
-	return [
-		"messageId": messageId,
-		"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-		APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey": "internalValue"],
-		APNSPayloadKeys.customPayload: ["customKey": "customValue"]
-	]
-}
-
 func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 	return [
 		"messageId": messageId,
@@ -37,17 +28,6 @@ func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 		APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
 		APNSPayloadKeys.customPayload: ["customKey": "customValue"]
 	]
-}
-
-func sendPushes(_ preparingFunc:(String) -> [AnyHashable: Any], count: Int, receivingHandler: ([AnyHashable: Any]) -> Void) {
-    for _ in 0..<count {
-		let newMessageId = UUID().uuidString
-		if let payload = MTMessage(payload: preparingFunc(newMessageId))?.originalPayload {
-            receivingHandler(payload)
-        } else {
-            XCTFail()
-        }
-    }
 }
 
 class MessageReceivingTests: MMTestCase {
@@ -269,16 +249,20 @@ class MessageReceivingTests: MMTestCase {
 		weak var messageReceived4 = self.expectation(description: "message received")
 
 		var tappedMessages = [MTMessage]()
-		
-		self.mobileMessagingInstance.application = application
-		MobileMessaging.notificationTapHandler = { message in
-			tappedMessages.append(message)
-		}
-		
+		mobileMessagingInstance.application = application
+        
+        let delegateMock = MessageHandlingDelegateMock()
+        delegateMock.didPerformActionHandler = { action, message, _ in
+            if action.identifier == NotificationAction.DefaultActionId {
+                tappedMessages.append(message)
+            }
+        }
+        mobileMessagingInstance.messageHandlingDelegate = delegateMock
+        
 		let payload1 = apnsNormalMessagePayload("m1") + additionalPayload
 		let payload2 = apnsNormalMessagePayload("m2") + additionalPayload
 		
-		self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
 			messageReceived1?.fulfill()
 			
 			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
@@ -288,7 +272,7 @@ class MessageReceivingTests: MMTestCase {
 			})
 		})
 		
-		self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { _ in
+		mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { _ in
 			messageReceived2?.fulfill()
 			
 			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { _ in
@@ -314,10 +298,13 @@ class MessageReceivingTests: MMTestCase {
         
         weak var eventReceived = self.expectation(description: "eventReceived")
         weak var tapHandled = self.expectation(description: "tapHandled")
-        
-        MobileMessaging.notificationTapHandler = { _ in
-            tapHandled?.fulfill()
+        let delegateMock = MessageHandlingDelegateMock()
+        delegateMock.didPerformActionHandler = { action, message, _ in
+            if action.identifier == NotificationAction.DefaultActionId {
+                tapHandled?.fulfill()
+            }
         }
+        mobileMessagingInstance.messageHandlingDelegate = delegateMock
         
         UserNotificationCenterDelegate.sharedInstance.handle(notificationUserInfo: apnsNormalMessagePayload("1"), actionId: UNNotificationDefaultActionIdentifier, userText: nil) {
             eventReceived?.fulfill()

@@ -2030,11 +2030,13 @@ class GeofencingServiceTests: MMTestCase {
 		
 		weak var report1 = expectation(description: "report1")
 		weak var report2 = expectation(description: "report2")
-		
-		MobileMessaging.messageHandling = MessageHandlingMock(localNotificationShownBlock: { _m in
-			XCTAssertEqual(_m.text, message.text)
-			report2?.fulfill()
-		})
+        
+        let messageHandlingDelegateMock = MessageHandlingDelegateMock()
+        messageHandlingDelegateMock.willScheduleLocalNotification = { m in
+            XCTAssertEqual(m.text, message.text)
+            report2?.fulfill()
+        }
+        mobileMessagingInstance.messageHandlingDelegate = messageHandlingDelegateMock
 		
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
@@ -2046,7 +2048,7 @@ class GeofencingServiceTests: MMTestCase {
 			})
 		}
 		
-		waitForExpectations(timeout: 30) { error in
+		waitForExpectations(timeout: 5) { error in
 			if error != nil { XCTFail() }
 			if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
 				XCTAssertEqual(events.count, 0)
