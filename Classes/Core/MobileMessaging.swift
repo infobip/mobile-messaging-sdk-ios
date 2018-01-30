@@ -57,7 +57,16 @@ public final class MobileMessaging: NSObject {
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
 	public func start(_ completion: (() -> Void)? = nil) {
-		MMLogDebug("Starting service...")
+		start(doRegisterToApns: true, completion)
+	}
+	
+	/// Starts a new Mobile Messaging session.
+	///
+	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
+	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
+	/// - parameter doRegisterToApns: defines whether the user will be promt to allow receiving Push Notifications.
+	public func start(doRegisterToApns: Bool, _ completion: (() -> Void)? = nil) {
+		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
 		
 		startСomponents()
 		
@@ -65,7 +74,9 @@ public final class MobileMessaging: NSObject {
 			$0.mobileMessagingWillStart(self)
 		}
 		
-		registerForRemoteNotifications()
+		if doRegisterToApns == true {
+			registerForRemoteNotifications()
+		}
 		
 		performForEachSubservice {
 			$0.mobileMessagingDidStart(self)
@@ -73,7 +84,7 @@ public final class MobileMessaging: NSObject {
 		
 		completion?()
 		
-        MMLogDebug("Service started with subservices: \(subservices)")
+		MMLogDebug("Service started with subservices: \(subservices)")
 	}
 	
 	/// Syncronizes all available subservices with the server.
@@ -117,6 +128,11 @@ public final class MobileMessaging: NSObject {
 		} else {
 			MobileMessaging.sharedInstance?.stop()
 		}
+	}
+	
+	/// Call this method to initiate the registration process with Apple Push Notification service. User will be promt to allow receiving Push Notifications.
+	public class func registerForRemoteNotifications() {
+		MobileMessaging.sharedInstance?.registerForRemoteNotifications()
 	}
 	
 	/// Logging utility is used for:
