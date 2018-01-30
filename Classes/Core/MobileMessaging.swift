@@ -203,8 +203,8 @@ public final class MobileMessaging: NSObject {
 	/// An auxillary component provides the convinient access to the user agent data.
 	public internal(set) static var userAgent = UserAgent()
 		
-	/// The `MessageHandlingDelegate` protocol defines methods for responding to actionable notifications and receiving new notifications. You assign your delegate object to the `messageHandlingDelegate` property of the `MobileMessaging.sharedInstance` object. The MobileMessaging SDK calls methods of your delegate at appropriate times to deliver information.
-    public var messageHandlingDelegate: MessageHandlingDelegate?
+	/// The `MessageHandlingDelegate` protocol defines methods for responding to actionable notifications and receiving new notifications. You assign your delegate object to the `messageHandlingDelegate` property of the `MobileMessaging` class. The MobileMessaging SDK calls methods of your delegate at appropriate times to deliver information.
+	public static var messageHandlingDelegate: MessageHandlingDelegate? = nil
 	
 	/// The `URLSessionConfiguration` used for all url connections in the SDK
 	///
@@ -271,7 +271,7 @@ public final class MobileMessaging: NSObject {
 			subservice.mobileMessagingDidStop(self)
 		}
 		
-        messageHandlingDelegate = nil
+        MobileMessaging.messageHandlingDelegate = nil
         
 		cleanupSubservices()
 		

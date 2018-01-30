@@ -257,7 +257,7 @@ class MessageReceivingTests: MMTestCase {
                 tappedMessages.append(message)
             }
         }
-        mobileMessagingInstance.messageHandlingDelegate = delegateMock
+        MobileMessaging.messageHandlingDelegate = delegateMock
         
 		let payload1 = apnsNormalMessagePayload("m1") + additionalPayload
 		let payload2 = apnsNormalMessagePayload("m2") + additionalPayload
@@ -304,7 +304,7 @@ class MessageReceivingTests: MMTestCase {
                 tapHandled?.fulfill()
             }
         }
-        mobileMessagingInstance.messageHandlingDelegate = delegateMock
+        MobileMessaging.messageHandlingDelegate = delegateMock
         
         UserNotificationCenterDelegate.sharedInstance.handle(notificationUserInfo: apnsNormalMessagePayload("1"), actionId: UNNotificationDefaultActionIdentifier, userText: nil) {
             eventReceived?.fulfill()

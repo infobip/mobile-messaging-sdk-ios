@@ -199,7 +199,7 @@ extension NotificationsInteractionService {
                 NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessageTapped, userInfo: [MMNotificationKeyMessage: message])
             }
             
-            self.mmContext.messageHandlingDelegate?.didPerform?(action: appliedAction, forMessage: message) {
+            MobileMessaging.messageHandlingDelegate?.didPerform?(action: appliedAction, forMessage: message) {
                 completion?(.noData)
             } ?? completion?(.noData)
         }

@@ -42,7 +42,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
             return
         }
         
-        MobileMessaging.sharedInstance?.messageHandlingDelegate?.willPresentInForeground?(message: message) { (notificationType) in
+        MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: message) { (notificationType) in
             completionHandler(UNNotificationPresentationOptions.make(with: notificationType))
         } ?? completionHandler([])
         

@@ -2036,7 +2036,7 @@ class GeofencingServiceTests: MMTestCase {
             XCTAssertEqual(m.text, message.text)
             report2?.fulfill()
         }
-        mobileMessagingInstance.messageHandlingDelegate = messageHandlingDelegateMock
+        MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 		
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)

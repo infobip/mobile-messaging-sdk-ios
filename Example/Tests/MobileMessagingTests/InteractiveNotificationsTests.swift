@@ -121,7 +121,7 @@ class InteractiveNotificationsTests: MMTestCase {
             actionHandled?.fulfill()
             completion(action, {})
         }
-        mm.messageHandlingDelegate = messageHandlingDelegateMock
+        MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 		
 		MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: responseInfo) {}
 	}
@@ -205,7 +205,7 @@ class InteractiveNotificationsTests: MMTestCase {
         messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
             actionsWithExpectations["\(message.category!)+\(action.identifier)"]?.fulfill()
         }
-        mobileMessagingInstance.messageHandlingDelegate = messageHandlingDelegateMock
+        MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 		
 		mobileMessagingInstance.messageHandler = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		
@@ -248,7 +248,7 @@ class InteractiveNotificationsTests: MMTestCase {
                 testCompleted?.fulfill()
             }
         }
-        mm.messageHandlingDelegate = messageHandlingDelegateMock
+        MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 		
 		MobileMessaging.handleActionWithIdentifier(identifier: UNNotificationDismissActionIdentifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: nil) {
             handlingCompleted?.fulfill()

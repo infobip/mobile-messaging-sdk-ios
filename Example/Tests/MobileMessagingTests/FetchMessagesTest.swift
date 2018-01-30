@@ -135,7 +135,7 @@ class FetchMessagesCompletionTests: MMTestCase {
         messageHandlingDelegateMock.willScheduleLocalNotification = { m in
             localNotificationScheduled?.fulfill()
         }
-        mobileMessagingInstance.messageHandlingDelegate = messageHandlingDelegateMock
+        MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
         self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
             { (request) -> JSON? in
                 if let request = request as? MessagesSyncRequest {

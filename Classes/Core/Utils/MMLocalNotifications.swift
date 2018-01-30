@@ -14,7 +14,7 @@ struct LocalNotificationKeys {
 
 class LocalNotifications {
 	class func presentLocalNotification(with message: MTMessage) {
-        MobileMessaging.sharedInstance?.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
+        MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
         if #available(iOS 10.0, *) {
             LocalNotifications.scheduleUserNotification(with: message)
         } else {
