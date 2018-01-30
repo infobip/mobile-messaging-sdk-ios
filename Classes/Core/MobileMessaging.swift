@@ -52,39 +52,20 @@ public final class MobileMessaging: NSObject {
 		return self
 	}
 	
-	/// Starts a new Mobile Messaging session.
-	///
-	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
-	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
-	public func start(_ completion: (() -> Void)? = nil) {
-		start(doRegisterToApns: true, completion)
+	/// Fabric method for Mobile Messaging session.
+	/// It is possible to postpone the registration for Push Notifications. It is up to you to define when and where the user will be promt to allow receiving Push Notifications. By default the registration is being performed by `MobileMessaging.start()` call.
+	/// - remark: Don't forget to register for Push Notifications explicitly by calling `MobileMessaging.registerForRemoteNotifications()`.
+	public func withoutRegisteringForRemoteNotifications() -> MobileMessaging {
+		doRegisterToApns = false
+		return self
 	}
 	
 	/// Starts a new Mobile Messaging session.
 	///
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
-	/// - parameter doRegisterToApns: defines whether the user will be promt to allow receiving Push Notifications.
-	public func start(doRegisterToApns: Bool, _ completion: (() -> Void)? = nil) {
-		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
-		
-		startСomponents()
-		
-		performForEachSubservice {
-			$0.mobileMessagingWillStart(self)
-		}
-		
-		if doRegisterToApns == true {
-			registerForRemoteNotifications()
-		}
-		
-		performForEachSubservice {
-			$0.mobileMessagingDidStart(self)
-		}
-		
-		completion?()
-		
-		MMLogDebug("Service started with subservices: \(subservices)")
+	public func start(_ completion: (() -> Void)? = nil) {
+		start(doRegisterToApns: doRegisterToApns, completion)
 	}
 	
 	/// Syncronizes all available subservices with the server.
@@ -219,6 +200,7 @@ public final class MobileMessaging: NSObject {
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UserNotificationType
 	let applicationCode: String
+	var doRegisterToApns: Bool = true
 	
 	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
@@ -237,6 +219,28 @@ public final class MobileMessaging: NSObject {
 		performForEachSubservice { subservice in
 			subservice.syncWithServer(nil)
 		}
+	}
+	
+	func start(doRegisterToApns: Bool, _ completion: (() -> Void)? = nil) {
+		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
+		
+		startСomponents()
+		
+		performForEachSubservice {
+			$0.mobileMessagingWillStart(self)
+		}
+		
+		if doRegisterToApns == true {
+			registerForRemoteNotifications()
+		}
+		
+		performForEachSubservice {
+			$0.mobileMessagingDidStart(self)
+		}
+		
+		completion?()
+		
+		MMLogDebug("Service started with subservices: \(subservices)")
 	}
 	
 	/// - parameter clearKeychain: Bool, true by default, used in unit tests
@@ -277,6 +281,7 @@ public final class MobileMessaging: NSObject {
 		
 		// just to break retain cycles:
 		installationQueue.cancelAllOperations()
+		doRegisterToApns = true
 		appListener = nil
 		currentInstallation = nil
 		currentUser = nil
