@@ -106,9 +106,11 @@ struct InternalDataKeys {
     static let bulkId = "bulkId"
 }
 
-struct AttachmentsKeys {
-	static let url = "url"
-	static let type = "t"
+struct Attachments {
+	struct Keys {
+		static let url = "url"
+		static let type = "t"
+	}
 }
 
 struct DeliveryReport {

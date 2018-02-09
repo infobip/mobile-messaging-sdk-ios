@@ -271,7 +271,7 @@ public class MTMessage: BaseMessage, MMMessageMetadata {
 		
 		
 		if let atts = internData?[InternalDataKeys.attachments] as? [StringKeyPayload], let firstOne = atts.first {
-			self.contentUrl = firstOne[AttachmentsKeys.url] as? String
+			self.contentUrl = firstOne[Attachments.Keys.url] as? String
 		} else {
 			self.contentUrl = nil
 		}
