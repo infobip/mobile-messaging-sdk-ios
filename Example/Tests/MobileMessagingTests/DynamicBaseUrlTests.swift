@@ -8,19 +8,25 @@ import XCTest
 import Foundation
 @testable import MobileMessaging
 
-class DynamicBaseUrlStorageStub: DynamicBaseUrlStorage {
-	var dynamicUrl: URL? = nil
-	
-	func get() -> URL? {
+class DynamicBaseUrlBackingStorageStub: KVOperations {
+	func get(key: String) -> Any? {
 		return dynamicUrl
 	}
 	
-	func cleanUp() {
+	func cleanUp(forKey: String) {
 		dynamicUrl = nil
 	}
 	
-	func set(_ url: URL) {
-		dynamicUrl = url
+	func set(value: Any, key: String) {
+		dynamicUrl = value
+	}
+	
+	var dynamicUrl: Any? = nil
+}
+
+class DynamicBaseUrlStorageStub: DynamicBaseUrlStorage {
+	init() {
+		super.init(backingStorage: DynamicBaseUrlBackingStorageStub())
 	}
 }
 

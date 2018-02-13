@@ -426,6 +426,16 @@ final public class MMInstallation: NSObject {
 	var coreDataProvider: CoreDataProvider
 	var inMemoryProvider: InMemoryDataProvider
 	
+	func resetRegistration(completion: ((NSError?) -> Void)? = nil) {
+		guard let user = MobileMessaging.currentUser else {
+			completion?(nil)
+			return
+		}
+		MMLogDebug("[Installation management] resetting registration")
+		let op = RegistrationResetOperation(installation: self, user: user, mmContext: mmContext, finishBlock: completion)
+		installationQueue.addOperation(op)
+	}
+	
 	func resolveProvider(forAttributesSet attrSet: AttributesSet) -> InstallationDataProvider {
 		if MobileMessaging.privacySettings.applicationCodePersistingDisabled == true && attrSet == AttributesSet.applicationCode {
 			return inMemoryProvider

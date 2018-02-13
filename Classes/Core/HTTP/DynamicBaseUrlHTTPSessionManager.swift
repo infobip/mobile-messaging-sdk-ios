@@ -12,27 +12,15 @@ struct DynamicBaseUrlConsts {
 	static let storedDynamicBaseUrlKey = "com.mobile-messaging.dynamic-base-url"
 }
 
-protocol DynamicBaseUrlStorage {
-	func get() -> URL?
-
-	func cleanUp()
-	
-	func set(_ url: URL)
-}
-
-extension UserDefaults: DynamicBaseUrlStorage {
-	func get() -> URL? {
-		return object(forKey: DynamicBaseUrlConsts.storedDynamicBaseUrlKey) as? URL
+class DynamicBaseUrlStorage: SingleKVStorage {
+	var backingStorage: KVOperations = UserDefaults.standard
+	typealias ValueType = URL
+	var key: String {
+		return DynamicBaseUrlConsts.storedDynamicBaseUrlKey
 	}
 	
-	func cleanUp() {
-		removeObject(forKey: DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
-		synchronize()
-	}
-	
-	func set(_ url: URL) {
-		set(url, forKey: DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
-		synchronize()
+	init(backingStorage: KVOperations = UserDefaults.standard) {
+		self.backingStorage = backingStorage
 	}
 }
 
@@ -50,9 +38,9 @@ class DynamicBaseUrlHTTPSessionManager {
 		self.originalBaseUrl = url
 		self.appGroupId = appGroupId
 		if let appGroupId = appGroupId, let sharedUserDefaults = UserDefaults(suiteName: appGroupId) {
-			self.storage = sharedUserDefaults
+			self.storage = DynamicBaseUrlStorage(backingStorage: sharedUserDefaults)
 		} else {
-			self.storage = UserDefaults.standard
+			self.storage = DynamicBaseUrlStorage(backingStorage: UserDefaults.standard)
 		}
 		self.dynamicBaseUrl = getStoredDynamicBaseUrl() ?? url
 	}

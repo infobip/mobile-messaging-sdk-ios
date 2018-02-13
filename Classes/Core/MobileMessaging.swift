@@ -224,27 +224,42 @@ public final class MobileMessaging: NSObject {
 	func start(doRegisterToApns: Bool, _ completion: (() -> Void)? = nil) {
 		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
 		
-		startСomponents()
-		
-		performForEachSubservice {
-			$0.mobileMessagingWillStart(self)
+		resetRegistrationIfNeeded(completion: { _ in
+			self.startСomponents()
+			
+			self.performForEachSubservice {
+				$0.mobileMessagingWillStart(self)
+			}
+			
+			if doRegisterToApns == true {
+				self.registerForRemoteNotifications()
+			}
+			
+			self.performForEachSubservice {
+				$0.mobileMessagingDidStart(self)
+			}
+			
+			completion?()
+			
+			MMLogDebug("Service started with subservices: \(self.subservices)")
+		})
+	}
+	
+	func resetRegistrationIfNeeded(completion: ((NSError?) -> Void)? = nil) {
+		if (ReserveCopyRestoratioUtility.isBackupRestorationHappened(with: currentInstallation, user: currentUser)) {
+			currentInstallation.resetRegistration(completion: completion)
+		} else {
+			completion?(nil)
 		}
-		
-		if doRegisterToApns == true {
-			registerForRemoteNotifications()
-		}
-		
-		performForEachSubservice {
-			$0.mobileMessagingDidStart(self)
-		}
-		
-		completion?()
-		
-		MMLogDebug("Service started with subservices: \(subservices)")
 	}
 	
 	/// - parameter clearKeychain: Bool, true by default, used in unit tests
 	func cleanUpAndStop(_ clearKeychain: Bool = true) {
+		cleanUp(clearKeychain)
+		stop()
+	}
+	
+	func cleanUp(_ clearKeychain: Bool = true) {
 		MMLogDebug("Cleaning up MobileMessaging service...")
 		if #available(iOS 10.0, *) {
 			sharedNotificationExtensionStorage?.cleanupMessages()
@@ -253,7 +268,7 @@ public final class MobileMessaging: NSObject {
 		if (clearKeychain) {
 			keychain.clear()
 		}
-		stop()
+		ReserveCopyRestoratioUtility.cleanupFlag()
 	}
 	
 	func stop() {

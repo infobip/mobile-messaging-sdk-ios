@@ -117,9 +117,11 @@
 		764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566E1F78FF4F00B8F14B /* OperationObserver.swift */; };
 		764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566F1F78FF4F00B8F14B /* OperationQueue.swift */; };
 		764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556711F78FF4F00B8F14B /* SwiftyJSON.swift */; };
+		76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76531B3C2031F0150019A246 /* RegistrationResetOperation.swift */; };
 		765B9FBE2012126700B1E77A /* MessageHandlingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765B9FBD2012126700B1E77A /* MessageHandlingDelegate.swift */; };
 		7663A2721FC8262600903C12 /* DynamicBaseUrlHTTPSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */; };
 		766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A71FC824140047DA47 /* RemoteAPIProvider.swift */; };
+		76798CB020318C800005B0A7 /* DeviceTokenUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* DeviceTokenUtils.swift */; };
 		76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */ = {isa = PBXBuildFile; fileRef = 764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */; };
 		76FFC27C1F7A64D2009C6A2A /* LocalMessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
@@ -271,9 +273,11 @@
 		7645566E1F78FF4F00B8F14B /* OperationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationObserver.swift; sourceTree = "<group>"; };
 		7645566F1F78FF4F00B8F14B /* OperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationQueue.swift; sourceTree = "<group>"; };
 		764556711F78FF4F00B8F14B /* SwiftyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
+		76531B3C2031F0150019A246 /* RegistrationResetOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationResetOperation.swift; sourceTree = "<group>"; };
 		765B9FBD2012126700B1E77A /* MessageHandlingDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageHandlingDelegate.swift; sourceTree = "<group>"; };
 		766863A71FC824140047DA47 /* RemoteAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteAPIProvider.swift; sourceTree = "<group>"; };
 		766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlHTTPSessionManager.swift; sourceTree = "<group>"; };
+		76798CAF20318C800005B0A7 /* DeviceTokenUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceTokenUtils.swift; sourceTree = "<group>"; };
 		76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingOperation.swift; sourceTree = "<group>"; };
 		8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
 		87D23AEB9B8E45723819ED8B7152EBC5 /* MobileMessaging-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MobileMessaging-prefix.pch"; sourceTree = "<group>"; };
@@ -450,6 +454,7 @@
 				764556201F78FF4F00B8F14B /* MessagesSyncOperation.swift */,
 				764556211F78FF4F00B8F14B /* RegistrationCondition.swift */,
 				764556221F78FF4F00B8F14B /* RegistrationOperation.swift */,
+				76531B3C2031F0150019A246 /* RegistrationResetOperation.swift */,
 				764556231F78FF4F00B8F14B /* SeenStatusPersistingOperation.swift */,
 				764556241F78FF4F00B8F14B /* SeenStatusSendingOperation.swift */,
 				764556251F78FF4F00B8F14B /* SystemDataSynchronizationOperation.swift */,
@@ -470,6 +475,7 @@
 				764556381F78FF4F00B8F14B /* MMUtils.swift */,
 				764556391F78FF4F00B8F14B /* MMVersionManager.swift */,
 				7645563A1F78FF4F00B8F14B /* UserNotificationType.swift */,
+				76798CAF20318C800005B0A7 /* DeviceTokenUtils.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -765,9 +771,11 @@
 				764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */,
 				764556A41F78FF8500B8F14B /* SystemDataSynchronizationOperation.swift in Sources */,
 				764556D51F78FFE700B8F14B /* NSLock+Operations.swift in Sources */,
+				76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */,
 				764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */,
 				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
 				6C60A4A31FD6B169001744BC /* State.swift in Sources */,
+				76798CB020318C800005B0A7 /* DeviceTokenUtils.swift in Sources */,
 				7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */,
 				764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */,
 				764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */,

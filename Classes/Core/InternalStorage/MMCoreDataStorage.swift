@@ -145,7 +145,7 @@ final class MMCoreDataStorage {
             _persistentStore = try psc.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil, options: nil)
         }
     }
-	
+
 	private func persistentStoreDirectory(fileName: String) -> String {
 		let applicationSupportPaths = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)
 		let basePath = applicationSupportPaths.first ?? NSTemporaryDirectory()
