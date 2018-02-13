@@ -38,40 +38,19 @@ final class RegistrationTests: MMTestCase {
 		})
     }
 
-    func testRegisterForRemoteNotificationsWithDeviceToken() {
-		guard let currentUser = MobileMessaging.currentUser else {
-			XCTFail("Installation not initialized")
-			return
-		}
-		
+	func testRegisterForRemoteNotificationsWithDeviceToken() {
         weak var token2Saved = expectation(description: "token2 saved")
-		weak var validEmailSaved = expectation(description: "email saved")
-		weak var validMsisdnSaved = expectation(description: "msisdn saved")
 		
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
 		
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken2".data(using: String.Encoding.utf16)!) {  error in
-				
-				currentUser.email = MMTestConstants.kTestValidEmail
-				currentUser.msisdn = MMTestConstants.kTestValidMSISDN
-				
-				currentUser.save { err in
-					XCTAssertNil(err)
-					validEmailSaved?.fulfill()
-					validMsisdnSaved?.fulfill()
-				}
-				
 				token2Saved?.fulfill()
 			}
 		}
         
         self.waitForExpectations(timeout: 60) { _ in
-			
 			XCTAssertFalse(self.mobileMessagingInstance.currentInstallation.isRegistrationStatusNeedSync)
 			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.deviceToken, "someToken2".mm_toHexademicalString)
-			XCTAssertEqual(self.mobileMessagingInstance.currentUser.pushRegistrationId, MMTestConstants.kTestCorrectInternalID)
-			XCTAssertEqual(self.mobileMessagingInstance.currentUser.email, MMTestConstants.kTestValidEmail)
-			XCTAssertEqual(self.mobileMessagingInstance.currentUser.msisdn, MMTestConstants.kTestValidMSISDN)
         }
     }
 	

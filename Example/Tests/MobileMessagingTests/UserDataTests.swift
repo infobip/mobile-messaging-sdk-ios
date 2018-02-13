@@ -339,4 +339,6 @@ class UserDataTests: MMTestCase {
 		
 		XCTAssertEqual(currentUser.customData(forKey: "home")?.string, "Death Star")
 	}
+	
+	//TODO: test that user data is sent during unstallation sync only if changed
 }
