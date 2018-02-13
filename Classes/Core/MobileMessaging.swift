@@ -247,6 +247,7 @@ public final class MobileMessaging: NSObject {
 	
 	func resetRegistrationIfNeeded(completion: ((NSError?) -> Void)? = nil) {
 		if (ReserveCopyRestoratioUtility.isBackupRestorationHappened(with: currentInstallation, user: currentUser)) {
+			MMLogDebug("Backup restoration detected")
 			currentInstallation.resetRegistration(completion: completion)
 		} else {
 			completion?(nil)
