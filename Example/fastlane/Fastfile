@@ -77,15 +77,9 @@ platform :ios do
 	end
 
 	desc "Build a snapshot version"
-	lane :snapshot do |options|
+	lane :snapshot_build do |options|
 		load_keys
 		only_build = options[:only_build]
-
-		unless only_build
-			increment_build_number(
-			  build_number: (Time.new.to_r * 1000).round.to_s
-			)
-		end
 
 		cocoapods
 
