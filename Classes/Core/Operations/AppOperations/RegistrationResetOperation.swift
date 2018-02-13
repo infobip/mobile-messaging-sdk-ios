@@ -31,7 +31,7 @@ final class RegistrationResetOperation: Operation {
 		user.persist()
 		installation.persist()
 		
-		ReserveCopyRestoratioUtility.setFlagThatBackupRestorationHandled()
+		ReserveCopyRestorationUtility.setFlagThatBackupRestorationHandled()
 		
 		finish()
 	}

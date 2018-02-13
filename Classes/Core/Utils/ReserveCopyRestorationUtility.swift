@@ -1,5 +1,5 @@
 //
-//  ReserveCopyRestoratioUtility.swift
+//  ReserveCopyRestorationUtility.swift
 //  MobileMessaging
 //
 //  Created by Andrey Kadochnikov on 12/02/2018.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class ReserveCopyRestoratioUtility {
+class ReserveCopyRestorationUtility {
 	
 	private static let fileUrl: URL? = {
 		var url = URL(string: "com.mobile-messaging.database/lastReserveCopyDetectionDate", relativeTo: FileManager.default.urls(for: FileManager.SearchPathDirectory.applicationSupportDirectory, in: FileManager.SearchPathDomainMask.userDomainMask).first)
@@ -25,14 +25,14 @@ class ReserveCopyRestoratioUtility {
 	private static let encoding: String.Encoding = .utf8
 
 	static func isBackupRestorationHappened(with installation: MMInstallation, user: MMUser) -> Bool {
-		guard let fileUrl = ReserveCopyRestoratioUtility.fileUrl else {
+		guard let fileUrl = ReserveCopyRestorationUtility.fileUrl else {
 			MMLogError("[Backup restoration utils] flag url is invalid")
 			return false
 		}
 		
 		let flagValue: String?
 		do {
-			flagValue = try String.init(contentsOf: fileUrl, encoding: ReserveCopyRestoratioUtility.encoding)
+			flagValue = try String.init(contentsOf: fileUrl, encoding: ReserveCopyRestorationUtility.encoding)
 		} catch {
 			flagValue = nil
 			MMLogError("[Backup restoration utils] failed to read flag: \(error)")
@@ -56,20 +56,20 @@ class ReserveCopyRestoratioUtility {
 
 	static func setFlagThatBackupRestorationHandled() {
 		MMLogDebug("[Backup restoration utils] setting backup restoration detected flag")
-		guard let fileUrl = ReserveCopyRestoratioUtility.fileUrl else {
+		guard let fileUrl = ReserveCopyRestorationUtility.fileUrl else {
 			MMLogError("[Backup restoration utils] flag url is invalid")
 			return
 		}
 		let dateString = DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date())
 		do {
-			try dateString.write(to: fileUrl, atomically: true, encoding: ReserveCopyRestoratioUtility.encoding)
+			try dateString.write(to: fileUrl, atomically: true, encoding: ReserveCopyRestorationUtility.encoding)
 		} catch {
 			MMLogError("[Backup restoration utils] failed to write flag: \(error)")
 		}
 	}
 	
-	static func cleanupFlag() {
-		guard let fileUrl = ReserveCopyRestoratioUtility.fileUrl else {
+	static func cleanup() {
+		guard let fileUrl = ReserveCopyRestorationUtility.fileUrl else {
 			MMLogError("[Backup restoration utils] flag url is invalid")
 			return
 		}
