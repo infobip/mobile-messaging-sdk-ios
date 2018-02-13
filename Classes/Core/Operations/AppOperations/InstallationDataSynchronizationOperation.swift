@@ -18,8 +18,14 @@ final class InstallationDataSynchronizationOperation: GroupOperation {
 		
 		let regOp = SyncRegistrationOperation(installation: installation, user: user, mmContext: mmContext, finishBlock: nil)
 		let systemDataOp = SystemDataSynchronizationOperation(installation: installation, user: user, mmContext: mmContext, finishBlock: nil)
-		let userDataOp = UserDataSynchronizationOperation(syncOperationWithUser: user, mmContext: mmContext, finishBlock: nil)
-
+		
+		let userDataOp: UserDataSynchronizationOperation
+		if (user.isChanged) {
+			userDataOp = UserDataSynchronizationOperation(syncOperationWithUser: user, mmContext: mmContext, finishBlock: nil)
+		} else {
+			userDataOp = UserDataSynchronizationOperation(fetchingOperationWithUser: user, mmContext: mmContext, finishBlock: nil)
+		}
+		
 		systemDataOp.addDependency(regOp)
 		userDataOp.addDependency(regOp)
 		

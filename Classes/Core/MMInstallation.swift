@@ -350,6 +350,7 @@ final public class MMUser: NSObject {
 			return
 		}
 		MMLogDebug("[Installation management] sync user data with server")
+		
 		let op = UserDataSynchronizationOperation(syncOperationWithUser: self, mmContext: mmContext, finishBlock: completion)
 		installationQueue.addOperation(op)
 	}
