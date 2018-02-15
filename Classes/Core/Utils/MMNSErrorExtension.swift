@@ -50,6 +50,12 @@ public enum MMInternalErrorType: Error {
 	}
 }
 
+extension Error {
+	var mm_isNoSuchFile: Bool {
+		return (self as NSError).mm_isNoSuchFile
+	}
+}
+
 extension NSError {
 	@objc public var mm_message: String? {
 		return userInfo[APIKeys.kErrorText] as? String
@@ -57,6 +63,10 @@ extension NSError {
 	
 	@objc public var mm_code: String? {
 		return userInfo[APIKeys.kErrorMessageId] as? String
+	}
+	
+	var mm_isNoSuchFile: Bool {
+		return domain == NSCocoaErrorDomain && (code == NSFileNoSuchFileError || code == NSFileReadNoSuchFileError)
 	}
 	
 	var mm_isCannotFindHost: Bool {

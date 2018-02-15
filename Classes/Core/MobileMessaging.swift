@@ -224,34 +224,23 @@ public final class MobileMessaging: NSObject {
 	func start(doRegisterToApns: Bool, _ completion: (() -> Void)? = nil) {
 		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
 		
-		resetRegistrationIfNeeded(completion: { _ in
-			self.startСomponents()
-			
-			self.performForEachSubservice {
-				$0.mobileMessagingWillStart(self)
-			}
-			
-			if doRegisterToApns == true {
-				self.registerForRemoteNotifications()
-			}
-			
-			self.performForEachSubservice {
-				$0.mobileMessagingDidStart(self)
-			}
-			
-			completion?()
-			
-			MMLogDebug("Service started with subservices: \(self.subservices)")
-		})
-	}
-	
-	func resetRegistrationIfNeeded(completion: ((NSError?) -> Void)? = nil) {
-		if (ReserveCopyRestorationUtility.isBackupRestorationHappened(with: currentInstallation, user: currentUser)) {
-			MMLogDebug("Backup restoration detected")
-			currentInstallation.resetRegistration(completion: completion)
-		} else {
-			completion?(nil)
+		self.startСomponents()
+		
+		self.performForEachSubservice {
+			$0.mobileMessagingWillStart(self)
 		}
+		
+		if doRegisterToApns == true {
+			self.registerForRemoteNotifications()
+		}
+		
+		self.performForEachSubservice {
+			$0.mobileMessagingDidStart(self)
+		}
+		
+		completion?()
+		
+		MMLogDebug("Service started with subservices: \(self.subservices)")
 	}
 	
 	/// - parameter clearKeychain: Bool, true by default, used in unit tests
@@ -269,7 +258,7 @@ public final class MobileMessaging: NSObject {
 		if (clearKeychain) {
 			keychain.clear()
 		}
-		ReserveCopyRestorationUtility.cleanup()
+		apnsRegistrationManager.cleanup()
 	}
 	
 	func stop() {
@@ -297,6 +286,7 @@ public final class MobileMessaging: NSObject {
 		
 		// just to break retain cycles:
 		installationQueue.cancelAllOperations()
+		apnsRegistrationManager = nil
 		doRegisterToApns = true
 		appListener = nil
 		currentInstallation = nil
@@ -313,15 +303,13 @@ public final class MobileMessaging: NSObject {
 		}
 	}
 	
+	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
+		apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(token, completion: completion)
+	}
+	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: ((MessageHandlingResult) -> Void)? = nil) {
 		MMLogDebug("New remote notification received \(userInfo)")
 		messageHandler.handleAPNSMessage(userInfo, completion: completion)
-	}
-	
-	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
-		MMLogDebug("Application did register with device token \(token.mm_toHexString)")
-		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: token.mm_toHexString])
-		currentInstallation.updateDeviceToken(token: token, completion: completion)
 	}
 	
 	func updateRegistrationEnabledStatus(_ value: Bool, completion: ((NSError?) -> Void)? = nil) {
@@ -410,33 +398,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	private func registerForRemoteNotifications() {
-		if application.isRegisteredForRemoteNotifications && currentInstallation.deviceToken == nil {
-			MMLogDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
-			application.unregisterForRemoteNotifications()
-		}
-		registerNotificationSettings()
-		guard application.isRegisteredForRemoteNotifications == false else {
-			return
-		}
-		MMLogDebug("Registering for remote notifications...")
-		application.registerForRemoteNotifications()
-	}
-	
-	private func registerNotificationSettings() {
-		if #available(iOS 10.0, *) {
-			UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
-			UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
-				guard granted else {
-					MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
-					return
-				}
-				if let categories = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.unNotificationCategories {
-					UNUserNotificationCenter.current().setNotificationCategories(categories)
-				}
-			}
-		} else {
-			application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType.uiUserNotificationType, categories: NotificationsInteractionService.sharedInstance?.allNotificationCategories?.uiUserNotificationCategories))
-		}
+		apnsRegistrationManager.registerForRemoteNotifications()
 	}
 	
 	private func startСomponents() {
@@ -473,6 +435,7 @@ public final class MobileMessaging: NSObject {
 	var appListener: MMApplicationListener!
 	//TODO: continue decoupling. Move messageHandler to a subservice completely. (as GeofencingService)
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
+	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(mmContext: self)
 	lazy var application: MMApplication! = UIApplication.shared
 	lazy var reachabilityManager: ReachabilityManagerProtocol! = MMNetworkReachabilityManager.sharedInstance

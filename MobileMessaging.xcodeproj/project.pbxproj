@@ -121,7 +121,7 @@
 		765B9FBE2012126700B1E77A /* MessageHandlingDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765B9FBD2012126700B1E77A /* MessageHandlingDelegate.swift */; };
 		7663A2721FC8262600903C12 /* DynamicBaseUrlHTTPSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */; };
 		766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A71FC824140047DA47 /* RemoteAPIProvider.swift */; };
-		76798CB020318C800005B0A7 /* ReserveCopyRestorationUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ReserveCopyRestorationUtility.swift */; };
+		76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */; };
 		76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */ = {isa = PBXBuildFile; fileRef = 764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */; };
 		76FFC27C1F7A64D2009C6A2A /* LocalMessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
@@ -277,7 +277,7 @@
 		765B9FBD2012126700B1E77A /* MessageHandlingDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageHandlingDelegate.swift; sourceTree = "<group>"; };
 		766863A71FC824140047DA47 /* RemoteAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteAPIProvider.swift; sourceTree = "<group>"; };
 		766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlHTTPSessionManager.swift; sourceTree = "<group>"; };
-		76798CAF20318C800005B0A7 /* ReserveCopyRestorationUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReserveCopyRestorationUtility.swift; sourceTree = "<group>"; };
+		76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManager.swift; sourceTree = "<group>"; };
 		76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingOperation.swift; sourceTree = "<group>"; };
 		8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
 		87D23AEB9B8E45723819ED8B7152EBC5 /* MobileMessaging-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MobileMessaging-prefix.pch"; sourceTree = "<group>"; };
@@ -475,7 +475,7 @@
 				764556381F78FF4F00B8F14B /* MMUtils.swift */,
 				764556391F78FF4F00B8F14B /* MMVersionManager.swift */,
 				7645563A1F78FF4F00B8F14B /* UserNotificationType.swift */,
-				76798CAF20318C800005B0A7 /* ReserveCopyRestorationUtility.swift */,
+				76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -775,7 +775,7 @@
 				764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */,
 				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
 				6C60A4A31FD6B169001744BC /* State.swift in Sources */,
-				76798CB020318C800005B0A7 /* ReserveCopyRestorationUtility.swift in Sources */,
+				76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */,
 				7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */,
 				764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */,
 				764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */,

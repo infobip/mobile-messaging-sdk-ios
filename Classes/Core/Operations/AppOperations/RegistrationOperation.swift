@@ -24,12 +24,17 @@ final class SyncRegistrationOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Registration] Started...")
-		guard let deviceToken = installation.deviceToken else
-		{
+		guard let deviceToken = installation.deviceToken else {
 			MMLogDebug("[Registration] There is no device token. Finishing...")
-			self.finish([NSError(type: MMInternalErrorType.UnknownError)])
+			finish([NSError(type: MMInternalErrorType.UnknownError)])
 			return
 		}
+		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+			MMLogDebug("[Registration] Registration may be not healthy. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		
 		MMLogDebug("[Registration] Posting registration to server...")
 		
 		let isRegistrationEnabled = installation.isRegistrationStatusNeedSync ? isRegistrationEnabledLocally : nil // send value only if changed

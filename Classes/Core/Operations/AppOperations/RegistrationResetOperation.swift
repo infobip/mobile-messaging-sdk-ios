@@ -12,13 +12,13 @@ final class RegistrationResetOperation: Operation {
 	let installation: MMInstallation
 	let user: MMUser
 	let finishBlock: ((NSError?) -> Void)?
-	let mmContext: MobileMessaging
+	let apnsRegistrationManager: ApnsRegistrationManager
 	
-	init(installation: MMInstallation, user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
+	init(installation: MMInstallation, user: MMUser, apnsRegistrationManager: ApnsRegistrationManager, finishBlock: ((NSError?) -> Void)?) {
 		self.installation = installation
 		self.user = user
 		self.finishBlock = finishBlock
-		self.mmContext = mmContext
+		self.apnsRegistrationManager = apnsRegistrationManager
 		super.init()
 	}
 	
@@ -31,7 +31,7 @@ final class RegistrationResetOperation: Operation {
 		user.persist()
 		installation.persist()
 		
-		ReserveCopyRestorationUtility.setFlagThatBackupRestorationHandled()
+		apnsRegistrationManager.setRegistrationIsHealthy()
 		
 		finish()
 	}

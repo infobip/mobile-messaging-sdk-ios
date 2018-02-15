@@ -33,6 +33,12 @@ class MessagePostingOperation: Operation {
 	override func execute() {
 		MMLogDebug("[Message posting] started...")
 		guard let internalId = mmContext.currentUser?.pushRegistrationId else {
+			MMLogDebug("[Message posting] No registration. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+			MMLogDebug("[Message posting] Registration may be not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}

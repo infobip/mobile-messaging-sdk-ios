@@ -43,6 +43,11 @@ class UserDataSynchronizationOperation: Operation {
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
+		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+			MMLogDebug("[User data sync] Registration may be not healthy. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
 
 		if onlyFetching {
 			MMLogDebug("[User data sync] fetching from server...")

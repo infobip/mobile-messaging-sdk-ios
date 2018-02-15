@@ -32,8 +32,14 @@ final class MessageFetchingOperation: Operation {
 	override func execute() {
 		MMLogDebug("[Message fetching] Starting operation...")
 		guard mmContext.currentUser?.pushRegistrationId != nil else {
-			self.result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
+			MMLogDebug("[Message fetching] No registration. Finishing...")
+			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
 			finish()
+			return
+		}
+		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+			MMLogDebug("[Message fetching] Registration may be not healthy. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 		syncMessages()

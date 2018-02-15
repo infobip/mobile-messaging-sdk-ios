@@ -10,6 +10,17 @@ import Foundation
 import CoreData
 @testable import MobileMessaging
 
+
+class ApnsRegistrationManagerStub: ApnsRegistrationManager {
+	override var isRegistrationHealthy: Bool {
+		return true
+	}
+	
+	override func setRegistrationIsHealthy() {
+		
+	}
+}
+
 class MessageHandlingDelegateMock : MessageHandlingDelegate {
     var didReceiveNewMessageHandler: ((MTMessage) -> Void)?
     var willPresentInForegroundHandler: ((MTMessage) -> UserNotificationType)?
@@ -146,7 +157,7 @@ class MMTestCase: XCTestCase {
         MobileMessaging.logger?.logLevel = .All
         MobileMessaging.stop(true)
         startWithCorrectApplicationCode()
-		self.mobileMessagingInstance.reachabilityManager = MMReachabilityManagerStub(isReachable: true)
+		mobileMessagingInstance.reachabilityManager = MMReachabilityManagerStub(isReachable: true)
     }
     
     func cleanUpAndStop() {
@@ -185,9 +196,10 @@ class MMTestCase: XCTestCase {
 	}
 	
 	func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
-		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: "")
-		mm?.setupMockedQueues(mmContext: self.mobileMessagingInstance)
-		mm?.application = ActiveApplicationStub()
+		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: "")!
+		mm.setupMockedQueues(mmContext: self.mobileMessagingInstance)
+		mm.application = ActiveApplicationStub()
+		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
 		return mm
 	}
 	

@@ -433,7 +433,7 @@ final public class MMInstallation: NSObject {
 			return
 		}
 		MMLogDebug("[Installation management] resetting registration")
-		let op = RegistrationResetOperation(installation: self, user: user, mmContext: mmContext, finishBlock: completion)
+		let op = RegistrationResetOperation(installation: self, user: user, apnsRegistrationManager: mmContext.apnsRegistrationManager, finishBlock: completion)
 		installationQueue.addOperation(op)
 	}
 	

@@ -44,6 +44,12 @@ class SystemDataSynchronizationOperation: Operation {
 	
 	private func sendRequest() {
 		guard user.pushRegistrationId != nil else {
+			MMLogDebug("[System data sync] No registration. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
+		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+			MMLogDebug("[System data sync] Registration may be not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
