@@ -40,22 +40,27 @@ class ApnsRegistrationManager {
 		MMLogDebug("[APNS reg manager] Application did register with device token \(tokenStr)")
 		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: tokenStr])
 		
-		let updateDeviceTokenProcedure = { (error: NSError?) -> Void in
-			self.mmContext.currentInstallation.updateDeviceToken(token: token, completion: completion)
-		}
 		// in most cases we either get the same token we registered earlier or we are just starting
 		if mmContext.currentInstallation.deviceToken == nil || mmContext.currentInstallation.deviceToken == tokenStr {
 			setRegistrationIsHealthy()
-			updateDeviceTokenProcedure(nil)
+			updateDeviceToken(token, completion: completion)
 		} else {
 			// let's check if a special healthy flag is true. It may be false only due to iOS reserve copy restoration
 			if isRegistrationHealthy == false {
 				// if we face the reserve copy restoration we force a new registration
-				mmContext.currentInstallation.resetRegistration(completion: updateDeviceTokenProcedure)
+				resetRegistration { self.updateDeviceToken(token, completion: completion) }
 			} else { // in other cases it is the APNS changing the device token
-				updateDeviceTokenProcedure(nil)
+				updateDeviceToken(token, completion: completion)
 			}
 		}
+	}
+	
+	func resetRegistration(completion: @escaping () -> Void) {
+		mmContext.currentInstallation.resetRegistration(completion: { _ in completion() })
+	}
+	
+	func updateDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
+		mmContext.currentInstallation.updateDeviceToken(token: token, completion: completion)
 	}
 	
 	private var isRegistrationHealthy_cached: Bool?
