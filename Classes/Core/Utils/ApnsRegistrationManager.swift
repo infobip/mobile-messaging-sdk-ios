@@ -17,22 +17,18 @@ class ApnsRegistrationManager {
 	
 	func registerForRemoteNotifications() {
 		MMLogDebug("[APNS reg manager] Registering...")
-		guard let application = mmContext.application else {
-			MMLogDebug("[APNS reg manager] Register failed - no application")
-			return
-		}
-		registerNotificationSettings(application: application, userNotificationType: mmContext.userNotificationType)
+		registerNotificationSettings(application: MobileMessaging.application, userNotificationType: mmContext.userNotificationType)
 
 		if mmContext.currentInstallation.deviceToken == nil {
-			if application.isRegisteredForRemoteNotifications {
+			if MobileMessaging.application.isRegisteredForRemoteNotifications {
 				MMLogDebug("[APNS reg manager] The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
-				application.unregisterForRemoteNotifications()
+				MobileMessaging.application.unregisterForRemoteNotifications()
 			}
 			setRegistrationIsHealthy()
 		}
 		
 		// we always registering to avoid cases when the device token stored in SDK database becomes outdated (i.e. due to iOS reserve copy restoration). `didRegisterForRemoteNotificationsWithDeviceToken` will return us the most relevant token.
-		application.registerForRemoteNotifications()
+		MobileMessaging.application.registerForRemoteNotifications()
 	}
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
@@ -110,7 +106,7 @@ class ApnsRegistrationManager {
 	}
 	
 	func cleanup() {
-		MMLogError("[APNS reg manager] cleaning up...")
+		MMLogDebug("[APNS reg manager] cleaning up...")
 		guard let flagUrl = ApnsRegistrationManager.registrationHealthCheckFlagUrl else {
 			MMLogError("[APNS reg manager] failed to define urls for cleaning")
 			return
@@ -119,7 +115,9 @@ class ApnsRegistrationManager {
 		do {
 			try FileManager.default.removeItem(at: flagUrl)
 		} catch {
-			MMLogError("[APNS reg manager] failed to remove flag: \(error)")
+			if !error.mm_isNoSuchFile {
+				MMLogError("[APNS reg manager] failed to remove flag: \(error)")
+			}
 		}
 	}
 	

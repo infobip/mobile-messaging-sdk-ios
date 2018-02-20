@@ -69,7 +69,7 @@ class MMMessageHandler: MobileMessagingService {
 		}
 
 		if let msg = MTMessage(payload: userInfo) {
-			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(msg, applicationState: mmContext.application.applicationState),completion: completion)
+			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(msg, applicationState: MobileMessaging.application.applicationState),completion: completion)
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
 			completion?(.failed(NSError.init(type: .UnknownError)))

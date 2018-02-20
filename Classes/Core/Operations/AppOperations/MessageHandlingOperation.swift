@@ -115,7 +115,7 @@ final class MessageHandlingOperation: Operation {
                 self.presentLocalNotificationIfNeeded(with: message)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: [MMNotificationKeyMessage: message])
 				MobileMessaging.messageHandlingDelegate?.didReceiveNewMessage?(message: message)
-                if self.mmContext.application.isInForegroundState {
+                if MobileMessaging.application.isInForegroundState {
                     MobileMessaging.messageHandlingDelegate?.didReceiveNewMessageInForeground?(message: message)
                 }
 			}

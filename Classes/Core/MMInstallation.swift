@@ -412,12 +412,12 @@ final public class MMInstallation: NSObject {
 	/// Set to 0 (zero) to hide the badge number. The default value of this property is 0.
 	public var badgeNumber: Int {
 		get {
-			let appBadge = mmContext.application.applicationIconBadgeNumber
+			let appBadge = MobileMessaging.application.applicationIconBadgeNumber
 			resolveProvider(forAttributesSet: AttributesSet.badgeNumber).setValueForKey(Attributes.badgeNumber.rawValue, value: appBadge)
 			return appBadge
 		}
 		set {
-			mmContext.application.applicationIconBadgeNumber = newValue
+			MobileMessaging.application.applicationIconBadgeNumber = newValue
 			resolveProvider(forAttributesSet: AttributesSet.badgeNumber).setValueForKey(Attributes.badgeNumber.rawValue, value: newValue)
 		}
 	}

@@ -442,9 +442,55 @@ protocol MMApplication {
 	var currentUserNotificationSettings: UIUserNotificationSettings? { get }
 }
 
+extension UIApplication: MMApplication {}
+
 extension MMApplication {
 	var isInForegroundState: Bool {
 		return applicationState == .active
+	}
+}
+
+class MainThreadedUIApplication: MMApplication {
+	
+	init() {
+		
+	}
+	var app: UIApplication = UIApplication.shared
+	var applicationIconBadgeNumber: Int {
+		get {
+			return getFromMain(getter: { app.applicationIconBadgeNumber })
+		}
+		set {
+			inMainWait(block: { app.applicationIconBadgeNumber = newValue })
+		}
+	}
+	
+	var applicationState: UIApplicationState {
+		return getFromMain(getter: { app.applicationState })
+	}
+	
+	var isRegisteredForRemoteNotifications: Bool {
+		return getFromMain(getter: { app.isRegisteredForRemoteNotifications })
+	}
+	
+	func unregisterForRemoteNotifications() {
+		inMainWait { app.unregisterForRemoteNotifications() }
+	}
+	
+	func registerForRemoteNotifications() {
+		inMainWait { app.registerForRemoteNotifications() }
+	}
+	
+	func presentLocalNotificationNow(_ notification: UILocalNotification) {
+		inMainWait { app.presentLocalNotificationNow(notification) }
+	}
+	
+	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {
+		inMainWait { app.registerUserNotificationSettings(notificationSettings) }
+	}
+	
+	var currentUserNotificationSettings: UIUserNotificationSettings? {
+		return getFromMain(getter: { app.currentUserNotificationSettings })
 	}
 }
 

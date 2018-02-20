@@ -192,17 +192,7 @@ class MessageReceivingTests: MMTestCase {
 		})
 	}
 	
-	func testThatServerSilentMessageParsing() {
-		
-		let id = UUID().uuidString
-		let json = JSON.parse(backendJSONSilentMessage(messageId: id))
-		if let message = MTMessage(json: json) {
-			XCTAssertTrue(message.isSilent, "Message must be parsed as silent")
-			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
-		} else {
-			XCTFail("Message decoding failed")
-		}
-	}
+	
 	
 	func testTapHandlingForInactiveApplication() {
 		collectSixTappedMessages(forApplication: InactiveApplicationStub()) { tappedMessages in
@@ -249,8 +239,8 @@ class MessageReceivingTests: MMTestCase {
 		weak var messageReceived4 = self.expectation(description: "message received")
 
 		var tappedMessages = [MTMessage]()
-		mobileMessagingInstance.application = application
-        
+		MobileMessaging.application = application
+		
         let delegateMock = MessageHandlingDelegateMock()
         delegateMock.didPerformActionHandler = { action, message, _ in
             if action.identifier == NotificationAction.DefaultActionId {
@@ -258,7 +248,7 @@ class MessageReceivingTests: MMTestCase {
             }
         }
         MobileMessaging.messageHandlingDelegate = delegateMock
-        
+		
 		let payload1 = apnsNormalMessagePayload("m1") + additionalPayload
 		let payload2 = apnsNormalMessagePayload("m2") + additionalPayload
 		
@@ -289,7 +279,19 @@ class MessageReceivingTests: MMTestCase {
 			assertionsBlock(tappedMessages)
 		})
 	}
-    
+	
+	func testThatServerSilentMessageParsing() {
+		
+		let id = UUID().uuidString
+		let json = JSON.parse(backendJSONSilentMessage(messageId: id))
+		if let message = MTMessage(json: json) {
+			XCTAssertTrue(message.isSilent, "Message must be parsed as silent")
+			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
+		} else {
+			XCTFail("Message decoding failed")
+		}
+	}
+	
     @available(iOS 10.0, *)
     func testThatNotificationCenterDelegateRecognizesTaps() {
         guard #available(iOS 10.0, *) else {

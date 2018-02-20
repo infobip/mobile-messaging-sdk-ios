@@ -72,6 +72,18 @@ final class MMQueueObject: CustomStringConvertible {
         }
     }
 	
+	func getSync<T>(closure: () -> T) -> T {
+		if isCurrentQueue {
+			return closure()
+		} else {
+			var ret: T!
+			queue.sync(execute: {
+				ret = closure()
+			})
+			return ret!
+		}
+	}
+	
 	var description: String { return queue.label }
 }
 
@@ -137,4 +149,16 @@ enum MMQueue {
 			return MMQueueObject(queue: DispatchQueue(label: queueName, attributes: DispatchQueue.Attributes.concurrent))
 		}
 	}
+}
+
+func getFromMain<T>(getter: () -> T) -> T {
+	return MMQueue.Main.queue.getSync(closure: { getter() })
+}
+
+func inMainWait(block: () -> Void) {
+	return MMQueue.Main.queue.executeSync(closure: block)
+}
+
+func inMain(block: @escaping () -> Void) {
+	return MMQueue.Main.queue.executeAsync(closure: block)
 }

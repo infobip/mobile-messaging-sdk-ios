@@ -19,7 +19,7 @@ class LocalNotifications {
             LocalNotifications.scheduleUserNotification(with: message)
         } else {
             MMLogDebug("[Local Notification] presenting notification for \(message.messageId)")
-            MobileMessaging.sharedInstance?.application.presentLocalNotificationNow(UILocalNotification.make(with: message))
+            MobileMessaging.application.presentLocalNotificationNow(UILocalNotification.make(with: message))
         }
 	}
 	

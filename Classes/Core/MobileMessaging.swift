@@ -146,8 +146,7 @@ public final class MobileMessaging: NSObject {
 		if let userInfo = notification.userInfo,
 			let payload = userInfo[LocalNotificationKeys.pushPayload] as? APNSPayload,
 			let message = MTMessage(payload: payload),
-			let applicationState = MobileMessaging.sharedInstance?.application.applicationState,
-			MMMessageHandler.isNotificationTapped(message, applicationState: applicationState)
+			MMMessageHandler.isNotificationTapped(message, applicationState: MobileMessaging.application.applicationState)
         {
             NotificationsInteractionService.sharedInstance?.handleLocalNotificationTap(for: message)
 		}
@@ -240,7 +239,7 @@ public final class MobileMessaging: NSObject {
 		
 		completion?()
 		
-		MMLogDebug("Service started with subservices: \(self.subservices)")
+		MMLogDebug("Service started with subservices: \(String(describing: self.subservices))")
 	}
 	
 	/// - parameter clearKeychain: Bool, true by default, used in unit tests
@@ -268,13 +267,11 @@ public final class MobileMessaging: NSObject {
 			subservice.mobileMessagingWillStop(self)
 		}
 		
-		if application.isRegisteredForRemoteNotifications {
-			application.unregisterForRemoteNotifications()
+		if MobileMessaging.application.isRegisteredForRemoteNotifications {
+			MobileMessaging.application.unregisterForRemoteNotifications()
 		}
 		
 		messageStorage?.stop()
-		
-		application = UIApplication.shared
 		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingDidStop(self)
@@ -297,6 +294,7 @@ public final class MobileMessaging: NSObject {
 		reachabilityManager = nil
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
+		MobileMessaging.application = MainThreadedUIApplication()
 		MobileMessaging.sharedInstance = nil
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().delegate = nil
@@ -437,10 +435,10 @@ public final class MobileMessaging: NSObject {
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(mmContext: self)
-	lazy var application: MMApplication! = UIApplication.shared
 	lazy var reachabilityManager: ReachabilityManagerProtocol! = MMNetworkReachabilityManager.sharedInstance
 	lazy var keychain: MMKeychain! = MMKeychain()
 	
+	static var application: MMApplication! = MainThreadedUIApplication()
 	static var date: MMDate = MMDate() // testability
 	static var timeZone: TimeZone = TimeZone.current // for tests
 	static var calendar: Calendar = Calendar.current // for tests
@@ -452,8 +450,6 @@ public final class MobileMessaging: NSObject {
     
     static let bundle = Bundle(for: MobileMessaging.self)
 }
-
-extension UIApplication: MMApplication {}
 
 /// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
 @objcMembers

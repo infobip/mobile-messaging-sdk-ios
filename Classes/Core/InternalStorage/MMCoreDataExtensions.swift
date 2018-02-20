@@ -279,7 +279,7 @@ extension NSManagedObjectContext {
 				error = err
 				MMLogError("Unable to perform save: \(err)")
 			} catch {
-				MMLogError("Unable to perform save. Unknown exception.")
+				MMLogError("Unable to perform save: \(error)")
 			}
 			defer {
 				if saved == false {
@@ -361,6 +361,7 @@ extension NSPersistentStore {
 				MMLogError("An error occured while deleting persistent store files: \(error)")
 			}
 		}
+		
 		return removeItemResult;
 	}
 }

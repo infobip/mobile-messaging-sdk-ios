@@ -405,7 +405,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	fileprivate var capabilityCompletion: ((GeofencingCapabilityStatus) -> Void)?
 	
 	fileprivate func restartLocationManager() {
-		if mmContext.application.applicationState == UIApplicationState.active {
+		if MobileMessaging.application.applicationState == UIApplicationState.active {
 			if CLLocationManager.significantLocationChangeMonitoringAvailable() {
 				self.locationManager.stopMonitoringSignificantLocationChanges()
 				MMLogDebug("[GeofencingService] stopped updating significant location changes")

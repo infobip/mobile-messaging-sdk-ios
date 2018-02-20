@@ -198,7 +198,7 @@ class MMTestCase: XCTestCase {
 	func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
 		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: "")!
 		mm.setupMockedQueues(mmContext: self.mobileMessagingInstance)
-		mm.application = ActiveApplicationStub()
+		MobileMessaging.application = ActiveApplicationStub()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
 		return mm
 	}

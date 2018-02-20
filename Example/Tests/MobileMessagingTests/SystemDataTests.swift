@@ -85,17 +85,17 @@ class SystemDataTests: MMTestCase {
 		self.mobileMessagingInstance.currentUser.pushRegistrationId = "stub"
 		
 		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
-		self.mobileMessagingInstance.application = NotificationsEnabledMock()
+		MobileMessaging.application = NotificationsEnabledMock()
 		
 		// system data request sending is expected (initial) +1
 		self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
 			
-			self.mobileMessagingInstance.application = NotificationsDisabledMock()
+			MobileMessaging.application = NotificationsDisabledMock()
 			// system data request sending is expected (notification settings changed) +1
 			self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
 
 				
-				self.mobileMessagingInstance.application = NotificationsDisabledMock()
+				MobileMessaging.application = NotificationsDisabledMock()
 				// system data request sending not expected (notification settings the same)
 				self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
 					expectation?.fulfill()

@@ -52,7 +52,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		}
 		mobileMessagingInstance.messageHandler = msgHandlerMock
 	
-		mobileMessagingInstance.application = InactiveApplicationStub()
+		MobileMessaging.application = InactiveApplicationStub()
 		MobileMessaging.didReceiveRemoteNotification(apnsNormalMessagePayload("m1")) { _ in
 			messageReceived?.fulfill()
 		}
