@@ -4,11 +4,12 @@ default_platform :ios
 
 platform :ios do
 	before_all do
-			`osascript -e 'tell app "Simulator" to quit'`
-			`osascript -e 'tell app "Xcode" to quit'`
-			sleep(5)
-			ENV["DEVELOPER_DIR"] = "/Applications/Xcode.app"
-			wait_xcrun
+		`osascript -e 'tell app "Simulator" to quit'`
+		`osascript -e 'tell app "Xcode" to quit'`
+		sleep(5)
+		ENV["DEVELOPER_DIR"] = "/Applications/Xcode.app"
+		ENV["FASTLANE_EXPLICIT_OPEN_SIMULATOR"] = "2"
+		wait_xcrun
 	end
 
 	desc "Runs all the tests"
@@ -18,7 +19,7 @@ platform :ios do
 		sigh(
 			output_path: "./tmp",
 			development: true
-		)
+			)
 		test_on_simulator
 	end
 
@@ -55,7 +56,7 @@ platform :ios do
 				skip_build: true,
 				scheme: "MobileMessagingExample_Tests_Device",
 				destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
-			)
+				)
 		end
 	end
 
@@ -86,7 +87,7 @@ platform :ios do
 		sigh(
 			output_path: "./tmp",
 			development: true
-		)
+			)
 		
 		unless options[:no_tests]
 			test_on_simulator
@@ -157,7 +158,7 @@ platform :ios do
 		sigh(
 			output_path: "./tmp",
 			development: true
-		)
+			)
 
 		unless only_build
 			clean_build_artifacts
@@ -170,24 +171,24 @@ platform :ios do
 				force: true,
 				message: commit_msg,
 				xcodeproj: example_xcodeproj_path
-			)
+				)
 
 			commit_version_bump(
 				force: true,
 				message: commit_msg,
 				xcodeproj: carthage_xcodeproj_path
-			)
+				)
 
 			add_git_tag(
 				tag: new_version_tag
-			)
+				)
 
 			podspec_path = ENV["WORKSPACE"]+"/MobileMessaging.podspec"
-		
+			
 			version_bump_podspec(
 				path: podspec_path,
 				version_number: new_version_number
-			)
+				)
 
 			desc "Bumping lib version variable"
 
@@ -210,12 +211,12 @@ platform :ios do
 					api_token: ENV["GITHUB_API_TOKEN"],
 					tag_name: new_version_number,
 					name: new_version_number
-				)
+					)
 
 				pod_push(
-					 path: podspec_path,
-					 allow_warnings: true
-				)
+					path: podspec_path,
+					allow_warnings: true
+					)
 			end
 		end
 	end
