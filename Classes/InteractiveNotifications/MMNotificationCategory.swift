@@ -9,8 +9,6 @@ import UserNotifications
 
 @objcMembers
 public final class NotificationCategory: NSObject {
-	typealias PredefinedCategoryPlistDict = [String: Any]
-	
 	///The category identifier passed in a `MTMessage` object
 	public let identifier: String
 	
@@ -40,7 +38,7 @@ public final class NotificationCategory: NSObject {
 		self.intentIdentifiers = intentIdentifiers ?? []
 	}
 	
-	init?(dictionary: PredefinedCategoryPlistDict) {
+	public init?(dictionary: [String: Any]) {
 		guard let identifier = dictionary[NotificationCategoryConstants.identifier] as? String,
 			let actionDicts = (dictionary[NotificationCategoryConstants.actions] as? [[String: Any]]) else
 		{

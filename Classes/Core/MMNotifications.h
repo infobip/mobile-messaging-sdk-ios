@@ -67,6 +67,11 @@ FOUNDATION_EXPORT NSString* MMNotificationGeoServiceDidStart;
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessageTapped;
 
+/**
+ Posted when the User tapped performed notification action.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationActionTapped;
+
 
 //MARK: Notification keys
 
@@ -99,6 +104,8 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyAPIErrorUserInfo;
  Contains an object of class `MMMessage`.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessage;
+
+FOUNDATION_EXPORT NSString* MMNotificationKeyActionIdentifier;
 
 /**
  Key for entry in userInfo dictionary of `MMNotificationMessagesWillSend` and `MMNotificationMessagesDidSend` notification.

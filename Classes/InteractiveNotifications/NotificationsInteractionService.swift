@@ -197,7 +197,9 @@ extension NotificationsInteractionService {
         dispatchGroup.notify(queue: DispatchQueue.global(qos: .default)) {
             if appliedAction.identifier == NotificationAction.DefaultActionId {
                 NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessageTapped, userInfo: [MMNotificationKeyMessage: message])
-            }
+			} else {
+				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationActionTapped, userInfo: [MMNotificationKeyMessage: message, MMNotificationKeyActionIdentifier: appliedAction.identifier])
+			}
             
             MobileMessaging.messageHandlingDelegate?.didPerform?(action: appliedAction, forMessage: message) {
                 completion?(.noData)
