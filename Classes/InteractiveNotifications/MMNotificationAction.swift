@@ -28,8 +28,7 @@ public class NotificationAction: NSObject {
 	
 	convenience init?(dictionary: [String: Any]) {
 		guard let identifier = dictionary[NotificationActionKeys.identifier] as? String,
-			let title = dictionary[NotificationActionKeys.title] as? String,
-			let titleLocalizationKey = dictionary[NotificationActionKeys.titleLocalizationKey] as? String else
+			let title = dictionary[NotificationActionKeys.title] as? String else
 		{
 			return nil
 		}
@@ -47,8 +46,9 @@ public class NotificationAction: NSObject {
 		if let isMoRequired = dictionary[NotificationActionKeys.moRequired] as? Bool, isMoRequired {
 			opts.append(.moRequired)
 		}
-
-		self.init(actionIdentifier: identifier, title: MMLocalization.localizedString(forKey: titleLocalizationKey, defaultString: title), options: opts)
+		
+		let locTitleKey = dictionary[NotificationActionKeys.titleLocalizationKey] as? String
+		self.init(actionIdentifier: identifier, title: MMLocalization.localizedString(forKey: locTitleKey, defaultString: title), options: opts)
 	}
 	
 	init(actionIdentifier: String, title: String, options: [NotificationActionOptions]?) {
