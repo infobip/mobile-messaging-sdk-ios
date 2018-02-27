@@ -118,7 +118,7 @@ public final class TextInputNotificationAction: NotificationAction {
     public let textInputActionButtonTitle: String
     public let textInputPlaceholder: String
     
-    ///Text which was entered in response to action.
+    /// Text which was entered in response to action.
     public var typedText: String?
     
     /// Initializes the `TextInputNotificationAction`

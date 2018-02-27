@@ -23,7 +23,7 @@ class GeofencingDatasource {
 	var regions = [RegionIdentifier: MMRegion]()
 	var currentLocation: CLLocation?
 	var regionsDictionary = [RegionIdentifier: MMRegion]()
-	var liveRegions: [MMRegion] {
+	var notExpiredRegions: [MMRegion] {
 		return regions(from: Set(messages.filter({ $0.isNotExpired })))
 	}
 	

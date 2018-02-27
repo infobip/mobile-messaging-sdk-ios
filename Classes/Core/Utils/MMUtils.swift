@@ -140,7 +140,7 @@ extension String {
 	static let mm_UUIDRegexPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 	
 	func mm_matches(toRegexPattern: String, options: NSRegularExpression.Options = []) -> Bool {
-		if let regex = try? NSRegularExpression(pattern: toRegexPattern, options: options), let _ = regex.firstMatch(in: self, options: NSRegularExpression.MatchingOptions.withoutAnchoringBounds, range: NSRange(0..<self.characters.count)) {
+		if let regex = try? NSRegularExpression(pattern: toRegexPattern, options: options), let _ = regex.firstMatch(in: self, options: NSRegularExpression.MatchingOptions.withoutAnchoringBounds, range: NSRange(0..<self.count)) {
 			return true
 		} else {
 			return false
@@ -157,11 +157,11 @@ extension String {
 	
 	func mm_breakWithMaxLength(maxLenght: Int) -> String {
 		var result: String = self
-		let currentLen = self.characters.count
+		let currentLen = self.count
 		let doPutDots = maxLenght > 3
 		if currentLen > maxLenght {
 			if let index = self.index(self.startIndex, offsetBy: maxLenght - (doPutDots ? 3 : 0), limitedBy: self.endIndex) {
-				result = self.substring(to: index) + (doPutDots ? "..." : "")
+				result = self[..<index] + (doPutDots ? "..." : "")
 			}
 		}
 		return result
@@ -190,8 +190,8 @@ extension String {
 		
 		let regex = try! NSRegularExpression(pattern: "^[0-9a-f]*$", options: .caseInsensitive)
 		
-		let found = regex.firstMatch(in: trimmedString, options: [], range: NSMakeRange(0, trimmedString.characters.count))
-		if found == nil || found?.range.location == NSNotFound || trimmedString.characters.count % 2 != 0 {
+		let found = regex.firstMatch(in: trimmedString, options: [], range: NSMakeRange(0, trimmedString.count))
+		if found == nil || found?.range.location == NSNotFound || trimmedString.count % 2 != 0 {
 			return nil
 		}
 		
@@ -202,7 +202,7 @@ extension String {
 		
 		while index < trimmedString.endIndex {
 			let range:Range<Index> = index..<trimmedString.index(index, offsetBy: 2)
-			let byteString = trimmedString.substring(with: range)
+			let byteString = trimmedString[range]
 			let num = UInt8(byteString.withCString { strtoul($0, nil, 16) })
 			data.append([num] as [UInt8], count: 1)
 			index = trimmedString.index(index, offsetBy: 2)
