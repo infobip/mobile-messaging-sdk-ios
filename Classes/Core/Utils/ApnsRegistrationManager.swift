@@ -88,7 +88,6 @@ class ApnsRegistrationManager {
 	func setRegistrationIsHealthy() {
 		MMLogDebug("[APNS reg manager] setting healthy flag")
 		guard isRegistrationHealthy == false, var flagUrl = ApnsRegistrationManager.registrationHealthCheckFlagUrl else {
-			MMLogError("[APNS reg manager] health flag url is invalid")
 			return
 		}
 		

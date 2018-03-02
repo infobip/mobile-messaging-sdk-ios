@@ -88,11 +88,7 @@ extension Fetchable where Self: NSManagedObject {
 				MMLogError("[Core Data] Fetching error: \(error)")
 			}
 		}
-		if ctx.concurrencyType == NSManagedObjectContextConcurrencyType.confinementConcurrencyType {
-			requestBlock()
-		} else {
-			ctx.performAndWait(requestBlock)
-		}
+		ctx.performAndWait(requestBlock)
 		return results
 	}
 	
@@ -210,12 +206,9 @@ extension NSManagedObject {
 	class func MM_createEntityInContext(_ entityDescription: NSEntityDescription? = nil, context: NSManagedObjectContext) -> Self {
 		let entity = entityDescription ?? self.MM_entityDescription(inContext: context)
 		let managedObject = self.init(entity: entity, insertInto: context)
-		
-		managedObject.MM_awakeFromCreation()
 		return managedObject
 	}
 	
-	func MM_awakeFromCreation() {}
 	
 	var MM_isEntityDeleted: Bool {
 		return isDeleted || managedObjectContext == nil
@@ -234,22 +227,17 @@ extension NSManagedObject {
 	}
 }
 
-let kMMNSManagedObjectContextWorkingName = "kNSManagedObjectContextWorkingName"
-
 extension NSManagedObjectContext {
 	
 	func MM_saveWithOptions(_ options: MMContextSaveOptions, completion: ((Bool, NSError?) -> Void)?) {
 		let saveParentContexts = options.contains(.SaveParent)
 		let saveSynchronously = options.contains(.SaveSynchronously)
 		var ctxHasChanges: Bool = false
-		if concurrencyType == NSManagedObjectContextConcurrencyType.confinementConcurrencyType {
-			ctxHasChanges = hasChanges
-		} else {
-			performAndWait{ ctxHasChanges = self.hasChanges }
-		}
+		
+		performAndWait{ ctxHasChanges = self.hasChanges }
 		
 		if hasChanges == false {
-			MMLogDebug("NO CHANGES IN ** \(MM_workingName) ** CONTEXT - NOT SAVING")
+			MMLogDebug("NO CHANGES IN ** \(name ?? "UNNAMED") ** CONTEXT - NOT SAVING")
 			if (saveParentContexts && parent != nil) {
 				MMLogVerbose("Proceeding to save parent context \(String(describing: parent?.MM_description))")
 			} else {
@@ -298,22 +286,16 @@ extension NSManagedObjectContext {
 			}
 		}
 		
-		if concurrencyType == NSManagedObjectContextConcurrencyType.confinementConcurrencyType {
-			saveBlock()
-		} else if saveSynchronously == true {
+		if saveSynchronously == true {
 			performAndWait(saveBlock)
 		} else {
 			perform(saveBlock)
 		}
 	}
 	
-	var MM_workingName: String {
-		return (userInfo.object(forKey: kMMNSManagedObjectContextWorkingName) as? String) ?? "UNNAMED"
-	}
-	
 	var MM_description: String {
 		let thread = Thread.isMainThread ? "*** MAIN THREAD ***" : "*** BACKGROUND THREAD ***";
-		return "\(MM_workingName) on \(thread)"
+		return "\(name ?? "UNNAMED") on \(thread)"
 	}
 	
 	func MM_saveToPersistentStoreAndWait() {
