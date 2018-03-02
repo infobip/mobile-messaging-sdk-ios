@@ -57,11 +57,11 @@ final public class MMGeoMessage: MTMessage {
 	}
 	
 	var hasValidEventsStateForNow: Bool {
-		return events.filter({ $0.isItTimeToOccur }).isEmpty == false
+		return events.filter({ $0.isValidNow }).isEmpty == false
 	}
 	
 	var hasValidEventsStateInGeneral: Bool {
-		return events.filter({ $0.hasReachedOccuringLimit }).isEmpty == false
+		return events.filter({ $0.isValidInGeneral }).isEmpty == false
 	}
 	
 	public var campaignState: CampaignState = .Active
@@ -136,12 +136,11 @@ final public class MMGeoMessage: MTMessage {
 		guard events.contains(where: {$0.type == type}) else {
 			return false
 		}
-		let containsAnInvalidEvent = events.contains(where: {$0.isItTimeToOccur == false && $0.type == type})
+		let containsAnInvalidEvent = events.contains(where: {$0.isValidNow == false && $0.type == type})
 		return !containsAnInvalidEvent && isNotExpired
 	}
 	
 	func isNowAppropriateTimeForNotification(for type: RegionEventType) -> Bool {
-		// refactor - move all date checking logic to a separate manager
 		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
 		let isDeliveryTimeNow = deliveryTime?.isNow ?? true
 		let isCampaignNotExpired = isLiveNow(for: type)
@@ -258,10 +257,10 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 		if let nowH = nowComps.hour, let nowM = nowComps.minute {
 			let fromTimeMinutesIdx = fromTime.index(fromTime.startIndex, offsetBy: 2)
 			let toTimeMinutesIdx = toTime.index(toTime.startIndex, offsetBy: 2)
-			guard let fromH = Int(fromTime[fromTime.startIndex..<fromTimeMinutesIdx]),
-				let fromM = Int(fromTime[fromTimeMinutesIdx..<fromTime.endIndex]),
-				let toH = Int(toTime[toTime.startIndex..<toTimeMinutesIdx]),
-				let toM = Int(toTime[toTimeMinutesIdx..<toTime.endIndex]) else
+			guard let fromH = Int(fromTime.substring(with: fromTime.startIndex..<fromTimeMinutesIdx)),
+				let fromM = Int(fromTime.substring(with: fromTimeMinutesIdx..<fromTime.endIndex)),
+				let toH = Int(toTime.substring(with: toTime.startIndex..<toTimeMinutesIdx)),
+				let toM = Int(toTime.substring(with: toTimeMinutesIdx..<toTime.endIndex)) else
 			{
 				return false
 			}
@@ -377,16 +376,20 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	var occuringCounter: Int = 0
 	var lastOccuring: Date?
 	
+	var hasReachedTheOccuringLimit: Bool {
+		return limit != 0 && occuringCounter >= limit
+	}
+	
 	var description: String {
-		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(String(describing: lastOccuring)), isItTimeToOccur: \(isItTimeToOccur), hasReachedOccuringLimit: \(hasReachedOccuringLimit)"
+		return "type:\(type), limit: \(limit), timeout: \(timeout), occuringCounter: \(occuringCounter), lastOccuring: \(String(describing: lastOccuring)), isValidNow: \(isValidNow), isValidInGeneral: \(isValidInGeneral)"
 	}
 	
-	var isItTimeToOccur: Bool {
-		return GeofencingService.isItTimeForRegionEventToOccur(self)
+	var isValidNow: Bool {
+		return GeofencingService.isRegionEventValidNow(self)
 	}
 	
-	var hasReachedOccuringLimit: Bool {
-		return GeofencingService.isRegionReachedOccuringLimit(self)
+	var isValidInGeneral: Bool {
+		return GeofencingService.isRegionEventValidInGeneral(self)
 	}
 	
 	fileprivate func occur() {

@@ -343,7 +343,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	func regionsToStartMonitoring(monitoredRegions: Set<CLCircularRegion>) -> Set<CLCircularRegion> {
 		assert(Thread.isMainThread)
-		let notExpiredRegions = Set(datasource.notExpiredRegions.map { $0.circularRegion })
+		let notExpiredRegions = Set(datasource.liveRegions.map { $0.circularRegion })
 		let number = GeofencingConstants.monitoringRegionsLimit - monitoredRegions.count
 		let location = locationManager.location ?? previousLocation
 		let array = GeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { monitoredRegions.contains($0) == false })
@@ -575,16 +575,16 @@ extension GeofencingService {
 		return DeliveryTimeInterval.isTime(now, between: dti.fromTime, and: dti.toTime)
 	}
 	
-	static func isItTimeForRegionEventToOccur(_ regionEvent: RegionEvent) -> Bool {
-		guard GeofencingService.isRegionReachedOccuringLimit(regionEvent) else {
+	static func isRegionEventValidNow(_ regionEvent: RegionEvent) -> Bool {
+		guard GeofencingService.isRegionEventValidInGeneral(regionEvent) else {
 			return false
 		}
 		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
 		return regionEvent.lastOccuring?.addingTimeInterval(TimeInterval(regionEvent.timeout * 60)).compare(now) != .orderedDescending
 	}
 	
-	static func isRegionReachedOccuringLimit(_ regionEvent: RegionEvent) -> Bool {
-		return regionEvent.limit != 0 && regionEvent.occuringCounter >= regionEvent.limit
+	static func isRegionEventValidInGeneral(_ regionEvent: RegionEvent) -> Bool {
+		return !regionEvent.hasReachedTheOccuringLimit
 	}
 }
 
@@ -656,7 +656,7 @@ extension GeofencingService: CLLocationManagerDelegate {
         {
             return true
         }
-        let monitorableRegionsCount = self.datasource.notExpiredRegions.count
+        let monitorableRegionsCount = self.datasource.liveRegions.count
         let distanceFromPreviousPoint = location.distance(from: previousLocation)
         MMLogDebug("[GeofencingService] distance from previous point = \(distanceFromPreviousPoint), monitorableRegionsCount = \(monitorableRegionsCount)")
         return distanceFromPreviousPoint > GeofencingConstants.regionRefreshThreshold && monitorableRegionsCount > GeofencingConstants.monitoringRegionsLimit

@@ -39,9 +39,8 @@ class MMPostponer: NSObject {
 	
 	private func createDispatchTimer(_ delay: Double, queue: DispatchQueue, block: @escaping () -> Void) -> DispatchSourceTimer {
 		let timer : DispatchSourceTimer = DispatchSource.makeTimerSource(queue: queue)
-		timer.schedule(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(Int(delay)),
-						repeating: 0,
-						leeway: DispatchTimeInterval.seconds(0))
+		timer.scheduleOneshot(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(Int(delay)),
+		                      leeway: DispatchTimeInterval.seconds(0))
 		timer.setEventHandler(handler: block)
 		timer.resume()
 		return timer
