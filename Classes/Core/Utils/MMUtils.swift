@@ -422,7 +422,10 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-				let messages = notifications.flatMap({ return MTMessage(payload: $0.request.content.userInfo) })
+				let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-MessagesEvictionOperation.defaultMessageMaxAge).timeIntervalSince1970
+				let messages = notifications
+					.flatMap({ return MTMessage(payload: $0.request.content.userInfo) })
+					.filter({ return $0.sendDateTime > dateToCompare })
 				completionHandler(messages)
 			}
 		} else {
