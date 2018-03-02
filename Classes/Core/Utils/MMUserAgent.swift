@@ -105,12 +105,11 @@ public class UserAgent: NSObject {
 			name.deallocate(capacity: 1)
 		}
 		uname(name)
-		let machine = withUnsafePointer(to: &name.pointee.machine, { (machineNamePointer) -> String? in
-			return machineNamePointer.withMemoryRebound(to: Int8.self, capacity: 256, { (p) -> String? in
-				return String(validatingUTF8: p)
-			})
+		let machine = withUnsafePointer(to: &name.pointee.machine, { (ptr) -> String? in
+			let int8Ptr = unsafeBitCast(ptr, to: UnsafePointer<Int8>.self)
+			return String(validatingUTF8: int8Ptr)
 		})
-
+		
 		let machines = [
 			"iPod1,1":"iPod Touch",
 			"iPod2,1":"iPod Touch 2",
