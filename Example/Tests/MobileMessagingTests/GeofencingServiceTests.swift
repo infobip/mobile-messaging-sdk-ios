@@ -240,6 +240,7 @@ func baseAPNSDict(messageId: String = expectedMessageId) -> APNSPayload {
 
 let zagrebId = "6713245DA3638FDECFE448C550AD7681"
 let pulaId = "A277A2A0D0612AFB652E9D2D80E02BF2"
+let nestedPulaId = "M227A2A0D0612AFB652E9D2D80E0ZZ44"
 
 
 // modern:
@@ -257,6 +258,14 @@ let modernPulaDict: APNSPayload = [
 	RegionDataKeys.longitude: 13.84586334228516,
 	RegionDataKeys.radius: 5257.0,
 	RegionDataKeys.title: "Pula"
+]
+
+let nestedPulaDict: APNSPayload = [
+	RegionDataKeys.identifier: nestedPulaId,
+	RegionDataKeys.latitude: 44.868036310,
+	RegionDataKeys.longitude: 13.845863342,
+	RegionDataKeys.radius: 5157.0,
+	RegionDataKeys.title: "Pula smaller"
 ]
 
 var modernInternalDataWithZagrebPulaDict: APNSPayload {
@@ -1322,61 +1331,7 @@ class GeofencingServiceTests: MMTestCase {
         
         self.waitForExpectations(timeout: 10, handler: nil)
 	}
-	
-	//MARK: - Private helpers
-	private func generalTestForPersistingEventReports(with apiMock: RemoteAPIQueue, expectedEventsCount: Int) {
-        
-        weak var eventsDatabaseCheck1 = self.expectation(description: "eventsDatabaseCheck1")
-        weak var messageReceived = self.expectation(description: "messageReceived")
-        
-		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
-		guard let message = MMGeoMessage(payload: payload) else
-		{
-			XCTFail()
-			return
-		}
-		let pulaObject = message.regions.findPula
-		
-		// expect remote api queue called
-		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		
-		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
-		GeofencingService.sharedInstance!.start()
-		GeofencingService.sharedInstance!.geofencingServiceQueue = apiMock
-		
-        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
-    
-            messageReceived?.fulfill()
-            
-            // simulate entry event
-            let reportSendingGroup = DispatchGroup()
-            reportSendingGroup.enter()
-            reportSendingGroup.enter()
-			
-            MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message, completion: { state in
-                XCTAssertEqual(CampaignState.Active, state)
-                reportSendingGroup.leave()
-            })
-            
-            MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, geoMessage: message, completion:  { state in
-                XCTAssertEqual(CampaignState.Active, state)
-                reportSendingGroup.leave()
-            })
-            
-            reportSendingGroup.notify(queue: DispatchQueue.main) {
-                // check events database (must be 0)
-                if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
-                    XCTAssertEqual(events.count, expectedEventsCount)
-                    eventsDatabaseCheck1?.fulfill()
-                } else {
-                    XCTFail()
-                }
-            }
-        })
-        
-		self.waitForExpectations(timeout: 60, handler: nil)
-	}
-	
+
 	func testSuspendedCampaigns() {
 		weak var report1 = self.expectation(description: "report1")
         weak var messageReceived = self.expectation(description: "messageReceived")
@@ -1660,26 +1615,6 @@ class GeofencingServiceTests: MMTestCase {
 		})
 	}
 	
-	private func checkVirtualGeoMessagesStorageExpectations(expectedVirtualMessagesCount: Int, expectedAllMessagesCount: Int) {
-		let ctx = self.storage.mainThreadManagedObjectContext!
-		ctx.performAndWait {
-			ctx.reset()
-			if let allMsgs = MessageManagedObject.MM_findAllInContext(ctx) {
-				XCTAssertEqual(allMsgs.count, expectedAllMessagesCount)
-				
-				XCTAssertEqual(allMsgs.filter({ (msg) -> Bool in
-					return msg.messageId == expectedMessageId
-				}).count, 1)
-				
-				XCTAssertEqual(allMsgs.filter({ (msg) -> Bool in
-					return msg.messageId == "ipcoremessageid" && msg.payload != nil && msg.reportSent == true && msg.isSilent == false && msg.messageType == MMMessageType.Default && msg.seenStatus == MMSeenStatus.NotSeen && msg.campaignId == nil
-				}).count, expectedVirtualMessagesCount)
-			} else {
-				XCTFail()
-			}
-		}
-	}
-	
 	func testVirtualGeoMessages(suspendedCampaignId: String, finishedCampaignId: String, completion: @escaping () -> Void) {
 		
         let events = [makeEventDict(ofType: .entry, limit: 2, timeout: 1)]
@@ -1873,7 +1808,6 @@ class GeofencingServiceTests: MMTestCase {
 		waitForExpectations(timeout: 60, handler: nil)
 	}
 	
-	
 	func testSetSeenForSdkGeneratedMessages() {
 		// we expect that none seen status updates will be sent to the server until the real message id is retrieved
 		
@@ -2052,6 +1986,152 @@ class GeofencingServiceTests: MMTestCase {
 			if error != nil { XCTFail() }
 			if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
 				XCTAssertEqual(events.count, 0)
+			}
+		}
+	}
+	
+	func testThatAmongConcurringNestedAreasThatUserIsAlreadyInTheSmallestOneWins() {
+		weak var didEnterExpectation = self.expectation(description: "")
+		GeofencingService.currentDate = expectedStartDate
+		let pulaCaffeLocation = CLLocation(latitude: 44.86803631018752, longitude: 13.84586334228516)
+		let geoStub = GeofencingServiceAlwaysRunningStub(
+			mmContext: self.mobileMessagingInstance,
+			locationManagerStub: LocationManagerStub(locationStub: pulaCaffeLocation)
+		)
+		
+		var didEnterRegionCount = 0
+		let timeoutInMins: Int = 1
+		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins)]
+		let campaignPayload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, nestedPulaDict], campaignId: "nested_regions_campaign", messageId: "messageId1")
+		let message1 = MMGeoMessage(payload: campaignPayload)!
+		
+		geoStub.didEnterRegionCallback = { region in
+			didEnterRegionCount += 1
+		}
+		GeofencingService.sharedInstance = geoStub
+		GeofencingService.sharedInstance!.start()
+		
+		GeofencingService.sharedInstance?.add(message: message1)
+		
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(5), execute: {
+			didEnterExpectation?.fulfill()
+		})
+		
+		self.waitForExpectations(timeout: 500, handler: { _ in
+			XCTAssertEqual(1, didEnterRegionCount)
+		})
+		
+		/*
+		weak var didEnterRegionExp = expectation(description: "didEnterRegionExp")
+		
+		var didEnterRegionCount = 0
+		let timeoutInMins: Int = 1
+		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins)]
+		let payloadOfCampaign1 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, nestedPulaDict], campaignId: "campaignId1", messageId: "messageId1")
+		
+		guard let message1 = MMGeoMessage(payload: payloadOfCampaign1),
+			let message2 = MMGeoMessage(payload: payloadOfCampaign2) else {
+				XCTFail()
+				return
+		}
+		
+		var enteredDatasourceRegions = [MMRegion]()
+		
+		let geoServiceStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
+		geoServiceStub.didEnterRegionCallback = { (region) in
+			didEnterRegionCount += 1
+			enteredDatasourceRegions.append(region)
+			if didEnterRegionCount == 2 {
+				XCTAssertTrue(enteredDatasourceRegions.contains(message1.regions.first!))
+				XCTAssertTrue(enteredDatasourceRegions.contains(message2.regions.first!))
+				didEnterRegionExp?.fulfill()
+			}
+		}
+		
+		GeofencingService.sharedInstance = geoServiceStub
+		GeofencingService.sharedInstance!.start()
+		GeofencingService.sharedInstance!.geofencingServiceQueue = MMGeoRemoteAPIAlwaysSucceeding(mmContext: self.mobileMessagingInstance)
+		let pulaCaffeLocation = CLLocation(latitude: 44.86803631018752, longitude: 13.84586334228516)
+		geoServiceStub.stubbedLocationManager.locationStub = pulaCaffeLocation
+		geoServiceStub.add(message: message1)
+		
+		geoServiceStub.locationManager(geoServiceStub.stubbedLocationManager, didEnterRegion: message1.regions.findPula.circularRegion)
+		
+		
+		waitForExpectations(timeout: 60, handler: nil)
+*/
+	}
+	
+	//MARK: - Private helpers
+	private func generalTestForPersistingEventReports(with apiMock: RemoteAPIQueue, expectedEventsCount: Int) {
+		
+		weak var eventsDatabaseCheck1 = self.expectation(description: "eventsDatabaseCheck1")
+		weak var messageReceived = self.expectation(description: "messageReceived")
+		
+		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
+		guard let message = MMGeoMessage(payload: payload) else
+		{
+			XCTFail()
+			return
+		}
+		let pulaObject = message.regions.findPula
+		
+		// expect remote api queue called
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		
+		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
+		GeofencingService.sharedInstance!.start()
+		GeofencingService.sharedInstance!.geofencingServiceQueue = apiMock
+		
+		self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
+			
+			messageReceived?.fulfill()
+			
+			// simulate entry event
+			let reportSendingGroup = DispatchGroup()
+			reportSendingGroup.enter()
+			reportSendingGroup.enter()
+			
+			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message, completion: { state in
+				XCTAssertEqual(CampaignState.Active, state)
+				reportSendingGroup.leave()
+			})
+			
+			MobileMessaging.geofencingService!.report(on: .exit, forRegionId: pulaObject.identifier, geoMessage: message, completion:  { state in
+				XCTAssertEqual(CampaignState.Active, state)
+				reportSendingGroup.leave()
+			})
+			
+			reportSendingGroup.notify(queue: DispatchQueue.main) {
+				// check events database (must be 0)
+				if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
+					XCTAssertEqual(events.count, expectedEventsCount)
+					eventsDatabaseCheck1?.fulfill()
+				} else {
+					XCTFail()
+				}
+			}
+		})
+		
+		self.waitForExpectations(timeout: 60, handler: nil)
+	}
+	
+	private func checkVirtualGeoMessagesStorageExpectations(expectedVirtualMessagesCount: Int, expectedAllMessagesCount: Int) {
+		let ctx = self.storage.mainThreadManagedObjectContext!
+		ctx.performAndWait {
+			ctx.reset()
+			if let allMsgs = MessageManagedObject.MM_findAllInContext(ctx) {
+				XCTAssertEqual(allMsgs.count, expectedAllMessagesCount)
+				
+				XCTAssertEqual(allMsgs.filter({ (msg) -> Bool in
+					return msg.messageId == expectedMessageId
+				}).count, 1)
+				
+				XCTAssertEqual(allMsgs.filter({ (msg) -> Bool in
+					return msg.messageId == "ipcoremessageid" && msg.payload != nil && msg.reportSent == true && msg.isSilent == false && msg.messageType == MMMessageType.Default && msg.seenStatus == MMSeenStatus.NotSeen && msg.campaignId == nil
+				}).count, expectedVirtualMessagesCount)
+			} else {
+				XCTFail()
 			}
 		}
 	}

@@ -56,10 +56,6 @@ final public class MMGeoMessage: MTMessage {
 		return GeofencingService.isGeoCampaignNotExpired(campaign: self)
 	}
 	
-	var hasValidEventsStateForNow: Bool {
-		return events.filter({ $0.isValidNow }).isEmpty == false
-	}
-	
 	var hasValidEventsStateInGeneral: Bool {
 		return events.filter({ $0.isValidInGeneral }).isEmpty == false
 	}
@@ -257,10 +253,10 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 		if let nowH = nowComps.hour, let nowM = nowComps.minute {
 			let fromTimeMinutesIdx = fromTime.index(fromTime.startIndex, offsetBy: 2)
 			let toTimeMinutesIdx = toTime.index(toTime.startIndex, offsetBy: 2)
-			guard let fromH = Int(fromTime.substring(with: fromTime.startIndex..<fromTimeMinutesIdx)),
-				let fromM = Int(fromTime.substring(with: fromTimeMinutesIdx..<fromTime.endIndex)),
-				let toH = Int(toTime.substring(with: toTime.startIndex..<toTimeMinutesIdx)),
-				let toM = Int(toTime.substring(with: toTimeMinutesIdx..<toTime.endIndex)) else
+			guard let fromH = Int(fromTime[fromTime.startIndex..<fromTimeMinutesIdx]),
+				let fromM = Int(fromTime[fromTimeMinutesIdx..<fromTime.endIndex]),
+				let toH = Int(toTime[toTime.startIndex..<toTimeMinutesIdx]),
+				let toM = Int(toTime[toTimeMinutesIdx..<toTime.endIndex]) else
 			{
 				return false
 			}

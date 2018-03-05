@@ -459,6 +459,37 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		}
 	}
 	
+	fileprivate func triggerEventsForRegionsInCaseWeAreInside(_ monitoredNewRegions: Set<MMRegion>, completion: @escaping () -> Void) {
+		/// It was decided to implement following solution: Among concurring nested regions (within the same campaign) that user is already staying in, the smallest should win, the rest should not trigger. It's a temporary solution, more logical would be to trigger the area which has nearest center.
+		guard let currentCoordinate = self.locationManager.location?.coordinate else {
+			completion()
+			return
+		}
+		
+		let campaignsRegions = monitoredNewRegions.filter({ region in
+			return region.circularRegion.contains(currentCoordinate) && region.message?.isNowAppropriateTimeForEntryNotification ?? false
+		}).reduce(Dictionary<String, MMRegion>(), { (campaignsRegions, region) -> Dictionary<String, MMRegion> in
+			guard let campaignId = region.message?.campaignId else {
+				return campaignsRegions
+			}
+			
+			let ret: MMRegion
+			if let savedRegion = campaignsRegions[campaignId] {
+				ret = region.radius < savedRegion.radius ? region : savedRegion
+			} else {
+				ret = region
+			}
+			return [campaignId : ret]
+		})
+		
+		let group = DispatchGroup()
+		campaignsRegions.values.forEach { region in
+			group.enter()
+			self.onEnter(datasourceRegion: region) { group.leave() }
+		}
+		group.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
+	}
+	
 	fileprivate func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil, completion: (() -> Void)? = nil) {
 		locationManagerQueue.executeAsync() {
 			
@@ -489,28 +520,11 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			}
 			let monitoredDataSourceRegionsArr = self.dataSourceRegions(from: monitoredRegions)
 			let monitoredDatasourceRegions = Set(monitoredDataSourceRegionsArr) // assert 2
-			let intersection = monitoredDatasourceRegions.filter({ (region) -> Bool in
+			let monitoredNewRegions = monitoredDatasourceRegions.filter({ (region) -> Bool in
 				return newRegions.contains(where: {$0.dataSourceIdentifier == region.dataSourceIdentifier})
 			})
 			
-			let group = DispatchGroup()
-			group.enter()
-			group.leave()
-			intersection.forEach({ (region) in
-				MMLogDebug("[GeofencingService] start checking new added region \(region)")
-				if let currentCoordinate = self.locationManager.location?.coordinate , region.circularRegion.contains(currentCoordinate) {
-					MMLogDebug("[GeofencingService] we are inside new added region \(region)")
-					if region.message?.isNowAppropriateTimeForEntryNotification ?? false {
-						MMLogDebug("[GeofencingService] time is appropriate for region: \(region)")
-						group.enter()
-						self.onEnter(datasourceRegion: region) { group.leave() }
-					}
-				}
-			})
-			
-			group.notify(queue: DispatchQueue.global(qos: .default), execute: { 
-				completion?()
-			})
+			self.triggerEventsForRegionsInCaseWeAreInside(monitoredNewRegions, completion: completion ?? {})
 		}
 	}
 	
@@ -539,52 +553,6 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		MMLogDebug("[GeofencingService] App did become active.")
 		assert(Thread .isMainThread)
 		restartLocationManager()
-	}
-}
-
-
-extension GeofencingService {
-	@nonobjc static var currentDate: Date? // @nonobjc is to shut up the "A declaration cannot be both 'final' and 'dynamic'" error
-	
-	static func isGeoCampaignNotExpired(campaign: MMGeoMessage) -> Bool {
-		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
-		
-		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && campaign.hasValidEventsStateInGeneral
-	}
-	
-	static func isNowAppropriateDay(forDeliveryTime dt: DeliveryTime) -> Bool {
-		guard let days = dt.days, !days.isEmpty else {
-			return true
-		}
-		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
-		let calendar = MobileMessaging.calendar
-		let comps = calendar.dateComponents(in: MobileMessaging.timeZone, from: now)
-		if let systemWeekDay = comps.weekday {
-			let isoWeekdayNumber = systemWeekDay == 1 ? 7 : Int8(systemWeekDay - 1)
-			if let day = MMDay(rawValue: isoWeekdayNumber) {
-				return days.contains(day)
-			} else {
-				return false
-			}
-		}
-		return false
-	}
-	
-	static func isNowAppropriateTime(forDeliveryTimeInterval dti: DeliveryTimeInterval) -> Bool {
-		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
-		return DeliveryTimeInterval.isTime(now, between: dti.fromTime, and: dti.toTime)
-	}
-	
-	static func isRegionEventValidNow(_ regionEvent: RegionEvent) -> Bool {
-		guard GeofencingService.isRegionEventValidInGeneral(regionEvent) else {
-			return false
-		}
-		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
-		return regionEvent.lastOccuring?.addingTimeInterval(TimeInterval(regionEvent.timeout * 60)).compare(now) != .orderedDescending
-	}
-	
-	static func isRegionEventValidInGeneral(_ regionEvent: RegionEvent) -> Bool {
-		return !regionEvent.hasReachedTheOccuringLimit
 	}
 }
 
@@ -719,7 +687,7 @@ extension GeofencingService {
 	
 	private func reportOnEvents(completion: ((Result<GeoEventReportingResponse>?) -> ())?) {
 		// we don't consider isRunning status here on purpose
-		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: self.datasource.context, mmContext: mmContext, geoContext: self, finishBlock: { result in
+		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: datasource.context, mmContext: mmContext, geoContext: self, finishBlock: { result in
 			completion?(result)
 		}))
 	}

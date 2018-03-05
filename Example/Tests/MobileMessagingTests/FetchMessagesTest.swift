@@ -64,11 +64,11 @@ class FetchMessagesTest: MMTestCase {
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"],  completion: { _ in
 			prepconditionExpectation?.fulfill()
-		})
-		
-		//Actions
-		mobileMessagingInstance.setSeen(["m2"], completion: { result in
-			seenExpectation?.fulfill()
+			
+			//Actions
+			self.mobileMessagingInstance.setSeen(["m2"], completion: { result in
+				seenExpectation?.fulfill()
+			})
 		})
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"],  completion: { _ in

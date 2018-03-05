@@ -161,9 +161,9 @@ class MMMessageHandler: MobileMessagingService {
             completion?(SeenStatusSendingResult.Cancel)
             return
         }
-        messageHandlingQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext))
+        messageSyncQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext))
         if immediately {
-            self.syncSeenStatusUpdates(completion)
+            syncSeenStatusUpdates(completion)
         } else {
             seenPostponer.postponeBlock() {
                 self.syncSeenStatusUpdates(completion)
@@ -172,7 +172,7 @@ class MMMessageHandler: MobileMessagingService {
     }
 	
 	func syncSeenStatusUpdates(_ completion: ((SeenStatusSendingResult) -> Void)? = nil) {
-		self.messageSyncQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
+		messageSyncQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
 	}
 	
 	func updateOriginalPayloadsWithMessages(messages: [MessageId: MTMessage], completion: (() -> Void)?) {

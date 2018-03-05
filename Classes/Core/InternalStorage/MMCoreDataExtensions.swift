@@ -11,7 +11,7 @@ extension String {
 	/// Skips initial space characters (whitespaceSet). Returns true if the firsh character is one of "Y", "y", "T", "t".
 	var boolValue: Bool {
 		let trimmedString = self.trimmingCharacters(in: .whitespaces)
-		guard let firstChar = trimmedString.characters.first else {
+		guard let firstChar = trimmedString.first else {
 			return false
 		}
 		return ["t", "T", "y", "Y"].contains(firstChar)
