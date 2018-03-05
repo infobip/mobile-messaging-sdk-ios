@@ -15,6 +15,14 @@ public class NotificationAction: NSObject {
         return identifier == NotificationAction.DefaultActionId
     }
 	
+	class func makeAction(dictionary: [String: Any]) -> NotificationAction? {
+		if #available(iOS 9.0, *), let _ = dictionary[NotificationActionKeys.textInputActionButtonTitle] as? String, let _ = dictionary[NotificationActionKeys.textInputPlaceholder] as? String {
+			return TextInputNotificationAction(dictionary: dictionary)
+		} else {
+			return NotificationAction(dictionary: dictionary)
+		}
+	}
+	
 	/// Initializes the `NotificationAction`
 	/// - parameter identifier: action identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
 	/// - parameter title: Title of the button which will be displayed.
@@ -24,31 +32,6 @@ public class NotificationAction: NSObject {
 			return nil
 		}
 		self.init(actionIdentifier: identifier, title: title, options: options)
-	}
-	
-	convenience init?(dictionary: [String: Any]) {
-		guard let identifier = dictionary[NotificationActionKeys.identifier] as? String,
-			let title = dictionary[NotificationActionKeys.title] as? String else
-		{
-			return nil
-		}
-		
-		var opts = [NotificationActionOptions]()
-		if let isForeground = dictionary[NotificationActionKeys.foreground] as? Bool, isForeground {
-			opts.append(.foreground)
-		}
-		if let isAuthRequired = dictionary[NotificationActionKeys.authenticationRequired] as? Bool, isAuthRequired {
-			opts.append(.authenticationRequired)
-		}
-		if let isDestructive = dictionary[NotificationActionKeys.destructive] as? Bool, isDestructive {
-			opts.append(.destructive)
-		}
-		if let isMoRequired = dictionary[NotificationActionKeys.moRequired] as? Bool, isMoRequired {
-			opts.append(.moRequired)
-		}
-		
-		let locTitleKey = dictionary[NotificationActionKeys.titleLocalizationKey] as? String
-		self.init(actionIdentifier: identifier, title: MMLocalization.localizedString(forKey: locTitleKey, defaultString: title), options: opts)
 	}
 	
 	init(actionIdentifier: String, title: String, options: [NotificationActionOptions]?) {
@@ -110,6 +93,33 @@ public class NotificationAction: NSObject {
 		}
 		return identifier == object.identifier
 	}
+	
+	fileprivate init?(dictionary: [String: Any]) {
+		guard let identifier = dictionary[NotificationActionKeys.identifier] as? String,
+			let title = dictionary[NotificationActionKeys.title] as? String else
+		{
+			return nil
+		}
+		
+		var opts = [NotificationActionOptions]()
+		if let isForeground = dictionary[NotificationActionKeys.foreground] as? Bool, isForeground {
+			opts.append(.foreground)
+		}
+		if let isAuthRequired = dictionary[NotificationActionKeys.authenticationRequired] as? Bool, isAuthRequired {
+			opts.append(.authenticationRequired)
+		}
+		if let isDestructive = dictionary[NotificationActionKeys.destructive] as? Bool, isDestructive {
+			opts.append(.destructive)
+		}
+		if let isMoRequired = dictionary[NotificationActionKeys.moRequired] as? Bool, isMoRequired {
+			opts.append(.moRequired)
+		}
+		
+		let locTitleKey = dictionary[NotificationActionKeys.titleLocalizationKey] as? String
+		self.identifier = identifier
+		self.title = MMLocalization.localizedString(forKey: locTitleKey, defaultString: title)
+		self.options = opts
+	}
 }
 
 /// Allows text input from the user
@@ -135,7 +145,20 @@ public final class TextInputNotificationAction: NotificationAction {
         self.textInputPlaceholder = textInputPlaceholder
 		super.init(actionIdentifier: identifier, title: title, options: options)
     }
-    
+	
+	fileprivate override init?(dictionary: [String: Any]) {
+		guard let textInputActionButtonTitle = dictionary[NotificationActionKeys.textInputActionButtonTitle] as? String,
+			let textInputPlaceholder = dictionary[NotificationActionKeys.textInputPlaceholder] as? String else
+		{
+			return nil
+		}
+		
+		self.textInputActionButtonTitle = textInputActionButtonTitle
+		self.textInputPlaceholder = textInputPlaceholder
+		
+		super.init(dictionary: dictionary)
+	}
+	
     @available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
     override var uiUserNotificationAction: UIUserNotificationAction {
         let action = UIMutableUserNotificationAction()
@@ -206,4 +229,6 @@ struct NotificationActionKeys {
 	static let moRequired = "moRequired"
 	static let destructive = "destructive"
 	static let mm_prefix = "mm_"
+	static let textInputActionButtonTitle = "textInputActionButtonTitle"
+	static let textInputPlaceholder = "textInputPlaceholder"
 }

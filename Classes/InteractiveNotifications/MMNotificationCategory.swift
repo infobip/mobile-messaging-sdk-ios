@@ -39,19 +39,12 @@ public final class NotificationCategory: NSObject {
 	}
 	
 	public init?(dictionary: [String: Any]) {
-		guard let identifier = dictionary[NotificationCategoryConstants.identifier] as? String,
-			let actionDicts = (dictionary[NotificationCategoryConstants.actions] as? [[String: Any]]) else
+		guard let actions = (dictionary[NotificationCategoryConstants.actions] as? [[String: Any]])?.flatMap(NotificationAction.makeAction), !actions.isEmpty, let identifier = dictionary[NotificationCategoryConstants.identifier] as? String else
 		{
 			return nil
 		}
-		
-		self.actions = actionDicts.flatMap(NotificationAction.init)
+		self.actions = actions
 		self.identifier = identifier
-		
-		if self.actions.isEmpty {
-			return nil
-		}
-		
 		self.options = []
 		self.intentIdentifiers = []
 	}
@@ -60,7 +53,7 @@ public final class NotificationCategory: NSObject {
 	var uiUserNotificationCategory: UIUserNotificationCategory {
 		let category = UIMutableUserNotificationCategory()
 		category.identifier = identifier
-		let uiUserNotificationActions = actions.map{$0.uiUserNotificationAction}
+		let uiUserNotificationActions = actions.map { $0.uiUserNotificationAction }
 		category.setActions(uiUserNotificationActions, for: .default)
 		category.setActions(uiUserNotificationActions, for: .minimal)
 		return category
