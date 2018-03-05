@@ -524,7 +524,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 				return newRegions.contains(where: {$0.dataSourceIdentifier == region.dataSourceIdentifier})
 			})
 			
-			self.triggerEventsForRegionsInCaseWeAreInside(monitoredNewRegions, completion: completion ?? {})
+			self.triggerEventsForRegionsInCaseWeAreInside(Set(monitoredNewRegions), completion: completion ?? {})
 		}
 	}
 	
