@@ -28,6 +28,7 @@ NSString* MMNotificationKeyAPIErrorUserInfo = @"com.mobile-messaging.notificatio
 NSString* MMNotificationKeyMessage = @"com.mobile-messaging.notification.key.message";
 
 NSString* MMNotificationKeyActionIdentifier = @"com.mobile-messaging.notification.key.action-identifier";
+NSString* MMNotificationKeyActionTextInput = @"com.mobile-messaging.notification.key.text-input";
 
 NSString* MMNotificationKeyMessagePayload = @"com.mobile-messaging.notification.key.messagePayload";
 NSString* MMNotificationKeyMessageCustomPayload = @"com.mobile-messaging.notification.key.message-custom-payload";

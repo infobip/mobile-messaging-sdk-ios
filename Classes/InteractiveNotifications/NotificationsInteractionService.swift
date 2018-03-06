@@ -174,6 +174,26 @@ extension NotificationsInteractionService {
 		start(nil)
 	}
 	
+	fileprivate func postActionEventNotifications(_ appliedAction: NotificationAction, message: MTMessage) {
+		let name: String
+		let userInfo: [String: Any]
+		if appliedAction.identifier == NotificationAction.DefaultActionId {
+			name = MMNotificationActionTapped
+			userInfo = [MMNotificationKeyMessage: message]
+		} else {
+			var userInfo_ = [
+				MMNotificationKeyMessage: message,
+				MMNotificationKeyActionIdentifier: appliedAction.identifier
+				] as [String : Any]
+			if #available(iOS 9.0, *), let text = (appliedAction as? TextInputNotificationAction)?.typedText {
+				userInfo_[MMNotificationKeyActionTextInput] = text
+			}
+			userInfo = userInfo_
+			name = MMNotificationActionTapped
+		}
+		NotificationCenter.mm_postNotificationFromMainThread(name: name, userInfo: userInfo)
+	}
+	
 	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
 		guard isRunning, let appliedAction = message.appliedAction else
         {
@@ -195,12 +215,7 @@ extension NotificationsInteractionService {
             }
 		}
         dispatchGroup.notify(queue: DispatchQueue.global(qos: .default)) {
-            if appliedAction.identifier == NotificationAction.DefaultActionId {
-                NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessageTapped, userInfo: [MMNotificationKeyMessage: message])
-			} else {
-				NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationActionTapped, userInfo: [MMNotificationKeyMessage: message, MMNotificationKeyActionIdentifier: appliedAction.identifier])
-			}
-            
+			self.postActionEventNotifications(appliedAction, message: message)
             MobileMessaging.messageHandlingDelegate?.didPerform?(action: appliedAction, forMessage: message) {
                 completion?(.noData)
             } ?? completion?(.noData)
