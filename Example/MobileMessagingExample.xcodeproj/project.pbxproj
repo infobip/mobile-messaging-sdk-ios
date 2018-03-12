@@ -1149,8 +1149,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrei Kadochnikov (9S95Y64MNU)";
 				CURRENT_PROJECT_VERSION = 1460136653809;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -1169,8 +1168,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample;
-				PROVISIONING_PROFILE = "4dac93c9-dab2-44ce-bda7-d7a9486b38f2";
-				PROVISIONING_PROFILE_SPECIFIER = "Mobile Messaging Example - Development";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};
@@ -1183,8 +1181,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Andrei Kadochnikov (9S95Y64MNU)";
 				CURRENT_PROJECT_VERSION = 1460136653809;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -1203,8 +1200,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample;
-				PROVISIONING_PROFILE = "b96aad67-7d50-4d57-b7ee-b33df8ee9d87";
-				PROVISIONING_PROFILE_SPECIFIER = "Mobile Messaging Example - Development";
+				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
 			};

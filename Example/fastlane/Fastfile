@@ -4,6 +4,13 @@ default_platform :ios
 
 platform :ios do
 	before_all do
+		match(
+			git_url: "ssh://git@git.ib-ci.com:7999/mml/ios-certificates.git",
+			type: "development",
+			app_identifier: "com.infobip.mobilemessaging.example",
+			readonly: true,
+			username: ENV["APPLE_ID"]
+			)
 		`osascript -e 'tell app "Simulator" to quit'`
 		`osascript -e 'tell app "Xcode" to quit'`
 		sleep(5)
@@ -16,10 +23,6 @@ platform :ios do
 	lane :test do
 		load_keys
 		cocoapods
-		sigh(
-			output_path: "./tmp",
-			development: true
-			)
 		test_on_simulator
 	end
 
@@ -83,11 +86,6 @@ platform :ios do
 		only_build = options[:only_build]
 
 		cocoapods
-
-		sigh(
-			output_path: "./tmp",
-			development: true
-			)
 		
 		unless options[:no_tests]
 			test_on_simulator
@@ -154,11 +152,6 @@ platform :ios do
 		unless options[:no_device_tests]
 			test_on_device
 		end
-		
-		sigh(
-			output_path: "./tmp",
-			development: true
-			)
 
 		unless only_build
 			clean_build_artifacts
