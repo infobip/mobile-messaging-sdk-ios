@@ -26,12 +26,15 @@ class RetryableDownloadTask {
 	}
 	
 	func resume() {
+		MMLogDebug("[Notification Extension] starting downloading with request \(request)...")
 		currentTask = sessionManager.downloadTask(with: request, progress: nil, destination: destination)
 		{ (urlResponse, url, error) in
 			if let error = error, (error as NSError).mm_isRetryable, self.attemptsRemaining > 0 {
+				MMLogDebug("[Notification Extension] received error \(error), retrying...")
 				self.attemptsRemaining -= 1
 				self.resume()
 			} else {
+				MMLogDebug("[Notification Extension] finishing with error \(String(describing: error))")
 				self.completion(url, error)
 			}
 		}

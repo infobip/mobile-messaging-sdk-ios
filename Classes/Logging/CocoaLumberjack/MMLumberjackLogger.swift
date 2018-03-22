@@ -98,7 +98,7 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 		return filelogger.currentLogFileInfo.filePath
 	}
 	
-	init(logOutput: MMLogOutput, logLevel: MMLogLevel) {
+	public init(logOutput: MMLogOutput, logLevel: MMLogLevel) {
 		self.logOutput = logOutput
 		self.logLevel = logLevel
 		super.init()

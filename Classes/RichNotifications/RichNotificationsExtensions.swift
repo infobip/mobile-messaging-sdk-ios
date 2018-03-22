@@ -28,6 +28,7 @@ extension MTMessage {
 	
 	@discardableResult func downloadImageAttachment(completion: @escaping (URL?, Error?) -> Void) -> RetryableDownloadTask? {
 		guard let contentUrlString = contentUrl, let contentURL = URL.init(string: contentUrlString) else {
+			MMLogDebug("[Notification Extension] could not init content url to download")
 			completion(nil, nil)
 			return nil
 		}
@@ -48,7 +49,7 @@ extension MTMessage {
 		}
 	
 		let task = RetryableDownloadTask(attemptsCount: 3, request: URLRequest(url: contentURL), destination: destination, completion: completion)
-		MMLogDebug("[Rich Notification] Downloading rich content for message...")
+		MMLogDebug("[Notification Extension] downloading rich content for message...")
 		task.resume()
 		
 		return task
@@ -80,11 +81,12 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	/// - parameter request: The original notification request. Use this object to get the original content of the notification.
 	/// - parameter contentHandler: The block to execute with the modified content. The block will be called after the delivery reporting and contend downloading finished.
 	public class func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-		
+		MMLogDebug("[Notification Extension] did receive request \(request)")
 		var result: UNNotificationContent = request.content
 		
 		guard let sharedInstance = sharedInstance, let mtMessage = MTMessage(payload: request.content.userInfo) else
 		{
+			MMLogDebug("[Notification Extension] could not recognize message")
 			contentHandler(result)
 			return
 		}
@@ -95,6 +97,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		sharedInstance.reportDelivery(mtMessage) { result in
 			mtMessage.isDeliveryReportSent = result.error == nil
 			mtMessage.deliveryReportedDate = mtMessage.isDeliveryReportSent ? MobileMessaging.date.now : nil
+			MMLogDebug("[Notification Extension] saving message to shared storage \(String(describing: sharedInstance.sharedNotificationExtensionStorage))")
 			sharedInstance.sharedNotificationExtensionStorage?.save(message: mtMessage)
 			handlingGroup.leave()
 		}
@@ -106,6 +109,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		}
 		
 		handlingGroup.notify(queue: DispatchQueue.main) {
+			MMLogDebug("[Notification Extension] message handling finished")
 			contentHandler(result)
 		}
 	}
@@ -131,12 +135,14 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 				let mContent = (originalContent.mutableCopy() as? UNMutableNotificationContent),
 				let attachment = try? UNNotificationAttachment(identifier: String(url.absoluteString.hash), url: url, options: nil) else
 			{
+				MMLogDebug("[Notification Extension] rich content downloading completed, could not init content attachment")
 				completion(originalContent)
 				return
 			}
 			
 			mContent.attachments = [attachment]
 			
+			MMLogDebug("[Notification Extension] rich content downloading completed succesfully")
 			completion((mContent.copy() as? UNNotificationContent) ?? originalContent)
 		}
 	}
@@ -160,8 +166,10 @@ protocol DeliveryReporting {
 @available(iOS 10.0, *)
 class DeliveryReporter: DeliveryReporting {
 	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
+		MMLogDebug("[Notification Extension] reporting delivery for message ids \(messageIds)")
 		guard let dlr = DeliveryReportRequest(dlrIds: messageIds), let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance else
 		{
+			MMLogDebug("[Notification Extension] could not report delivery")
 			completion(Result.Cancel)
 			return
 		}
