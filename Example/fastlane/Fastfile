@@ -4,13 +4,7 @@ default_platform :ios
 
 platform :ios do
 	before_all do
-		match(
-			git_url: "ssh://git@git.ib-ci.com:7999/mml/ios-certificates.git",
-			type: "development",
-			app_identifier: "com.infobip.mobilemessaging.example",
-			readonly: true,
-			username: ENV["APPLE_ID"]
-			)
+		match
 		`osascript -e 'tell app "Simulator" to quit'`
 		`osascript -e 'tell app "Xcode" to quit'`
 		sleep(5)
