@@ -36,7 +36,7 @@ public class Query: NSObject {
 	/// An array of `NSSortDescriptor` objects to use to sort the results of the query.
 	public var sortDescriptors: [NSSortDescriptor]?
 	
-	override init() {
+	override public init() {
 		super.init()
 	}
 }
