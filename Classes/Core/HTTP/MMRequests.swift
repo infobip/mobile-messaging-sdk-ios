@@ -16,6 +16,7 @@ enum APIPath: String {
 	case LibraryVersion = "/mobile/3/version"
 	case GeoEventsReports = "/mobile/4/geo/event"
 	case DeliveryReport = "/mobile/1/messages/deliveryreport"
+	case Logout = "/mobile/1/data/logout"
 }
 
 struct RegistrationRequest: PostRequest {
@@ -158,6 +159,11 @@ struct SystemDataSyncRequest: PostRequest {
 	init(systemData: SystemData) {
 		self.systemData = systemData
 	}
+}
+
+struct LogoutRequest: PostRequest {
+	typealias ResponseType = LogoutResponse
+	var path: APIPath { return .Logout }
 }
 
 struct MOMessageSendingRequest: PostRequest {

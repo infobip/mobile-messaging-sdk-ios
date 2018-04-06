@@ -72,6 +72,11 @@ extension MobileMessaging {
 }
 
 class NotificationsInteractionService: MobileMessagingService {
+	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
+		// do nothing
+		completion(nil)
+	}
+	
 	struct Constants {
 		static let actionHandlingTimeout = 20
 	}

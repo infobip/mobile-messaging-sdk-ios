@@ -346,6 +346,8 @@ protocol MobileMessagingService {
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging)
 	
 	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging)
+	
+	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void))
 }
 
 extension MobileMessagingService {
@@ -365,23 +367,6 @@ extension MobileMessagingService {
 	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {}
 	
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool { return false }
-}
-
-extension Sequence {
-	func forEachAsync(_ work: @escaping (Self.Iterator.Element) -> Void, completion: @escaping () -> Void) {
-		let loopGroup = DispatchGroup()
-		self.forEach { (el) in
-			loopGroup.enter()
-			
-			work(el)
-			
-			loopGroup.leave()
-		}
-		
-		loopGroup.notify(queue: DispatchQueue.global(qos: .default), execute: {
-			completion()
-		})
-	}
 }
 
 public extension UIDevice {

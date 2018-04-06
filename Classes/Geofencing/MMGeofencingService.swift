@@ -35,9 +35,32 @@ extension MobileMessaging {
 @objcMembers
 public class GeofencingService: NSObject, MobileMessagingService {
 	
-	var uniqueIdentifier: String {
-		return "com.mobile-messaging.subservice.GeofencingService"
+	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
+		cancelOperations()
+		self.stopMonitoringMonitoredRegions() {
+			self.cleanup(completion)
+		}
 	}
+	
+	private func cancelOperations() {
+		eventsHandlingQueue.cancelAllOperations()
+	}
+	
+	private func cleanup(_ completion: @escaping ((NSError?) -> Void)) {
+		eventsHandlingQueue.addOperation {
+			self.datasource.cleanup()
+			
+			let ctx = self.datasource.context
+			ctx.performAndWait {
+				MessageManagedObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), inContext: ctx)
+				GeoEventReportObject.MM_deleteAllMatchingPredicate(nil, inContext: ctx)
+			}
+			ctx.MM_saveToPersistentStoreAndWait()
+			completion(nil)
+		}
+	}
+	
+	var uniqueIdentifier: String { return "com.mobile-messaging.subservice.GeofencingService" }
 	
 	public func syncWithServer(_ completion: ((NSError?) -> Void)?) {
 		syncWithServer(completion: { (result) in
@@ -123,7 +146,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	static var sharedInstance: GeofencingService?
 	var geofencingServiceQueue: RemoteAPIQueue!
 	var locationManager: CLLocationManager!
-	var datasource: GeofencingDatasource!
+	var datasource: GeofencingInMemoryDatasource!
 	let locationManagerQueue = MMQueue.Main.queue
 	var mmContext: MobileMessaging!
 	lazy var eventsHandlingQueue = MMOperationQueue.newSerialQueue
@@ -199,7 +222,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	/// Stops the Geofencing Service
 	public func stop(_ completion: ((Bool) -> Void)? = nil) {
-		eventsHandlingQueue.cancelAllOperations()
+		cancelOperations()
 		locationManagerQueue.executeAsync() {
 			guard self.isRunning == true else
 			{
@@ -209,10 +232,11 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			self.locationManager.delegate = nil
 			self.locationManager.stopMonitoringSignificantLocationChanges()
 			self.locationManager.stopUpdatingLocation()
-			self.stopMonitoringMonitoredRegions()
 			NotificationCenter.default.removeObserver(self)
+			self.stopMonitoringMonitoredRegions() {
+				completion?(true)
+			}
 			MMLogDebug("[GeofencingService] stopped.")
-			completion?(true)
 		}
 	}
 	
@@ -261,7 +285,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = GeofencingConstants.distanceFilter
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-			self.datasource = GeofencingDatasource(storage: mmContext.internalStorage)
+			self.datasource = GeofencingInMemoryDatasource(storage: mmContext.internalStorage)
 			self.mmContext = mmContext
 			self.previousLocation = MobileMessaging.currentInstallation?.location
 		}
@@ -269,7 +293,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	deinit {
 		NotificationCenter.default.removeObserver(self)
-		eventsHandlingQueue.cancelAllOperations()
+		cancelOperations()
 	}
 	
 	class var isDescriptionProvidedForWhenInUseUsage: Bool {
@@ -443,12 +467,13 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		}
 	}
 	
-	fileprivate func stopMonitoringMonitoredRegions() {
+	fileprivate func stopMonitoringMonitoredRegions(completion: @escaping () -> Void) {
 		locationManagerQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] stopping monitoring all regions")
 			for monitoredRegion in self.locationManager.monitoredRegions {
 				self.locationManager.stopMonitoring(for: monitoredRegion)
 			}
+			completion()
 		}
 	}
 	
@@ -651,7 +676,6 @@ extension GeofencingService {
 	}
 	
 	func report(on eventType: RegionEventType, forRegionId regionId: String, geoMessage: MMGeoMessage, completion: ((CampaignState) -> Void)?) {
-		
 		eventsHandlingQueue.addOperation {
 			let ctx = self.datasource.context
 			ctx.performAndWait {

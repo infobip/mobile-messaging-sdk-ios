@@ -84,7 +84,7 @@ public class UserAgent: NSObject {
 	}
 	
 	public var libraryName: String {
-		return MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "MobileMessaging"
+		return MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleIdentifier") as? String ?? "MobileMessaging"
 	}
 	
 	public var hostingAppVersion: String {
@@ -92,7 +92,7 @@ public class UserAgent: NSObject {
 	}
 	
 	public var hostingAppName: String {
-		return Bundle.main.infoDictionary?["CFBundleName"] as? String ?? ""
+		return Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? ""
 	}
 	
 	public var deviceManufacturer: String {

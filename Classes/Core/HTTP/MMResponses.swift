@@ -13,6 +13,8 @@ typealias SeenStatusSendingResponse = EmptyResponse
 
 typealias SystemDataSyncResponse = EmptyResponse
 
+typealias LogoutResponse = EmptyResponse
+
 struct RegistrationResponse {
 	let internalId: String
 	let isEnabled: Bool
@@ -54,6 +56,7 @@ typealias MessagesSyncResult = Result<MessagesSyncResponse>
 typealias SeenStatusSendingResult = Result<SeenStatusSendingResponse>
 typealias UserDataSyncResult = Result<UserDataSyncResponse>
 typealias SystemDataSyncResult = Result<SystemDataSyncResponse>
+typealias LogoutResult = Result<LogoutResponse>
 typealias MOMessageSendingResult = Result<MOMessageSendingResponse>
 typealias LibraryVersionResult = Result<LibraryVersionResponse>
 typealias MMGeoEventReportingResult = Result<GeoEventReportingResponse>

@@ -9,7 +9,32 @@ import XCTest
 import UserNotifications
 @testable import MobileMessaging
 
-class MessageStorageStub: NSObject, MessageStorage {
+class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
+	func removeAllMessages(completion: @escaping ([MessageId]) -> Void) {
+		mtMessages.removeAll()
+		moMessages.removeAll()
+	}
+	
+	func remove(withIds messageIds: [MessageId], completion: @escaping ([MessageId]) -> Void) {
+		
+	}
+	
+	func remove(withQuery query: Query, completion: @escaping ([MessageId]) -> Void) {
+		
+	}
+	
+	func findAllMessages(completion: @escaping FetchResultBlock) {
+		completion(mtMessages + moMessages)
+	}
+	
+	func findMessages(withIds messageIds: [MessageId], completion: @escaping FetchResultBlock) {
+		completion((mtMessages + moMessages).filter({ messageIds.contains($0.messageId) }))
+	}
+	
+	func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock) {
+		completion((mtMessages + moMessages).filter({ query.predicate?.evaluate(with: $0) ?? true }))
+	}
+	
 	let updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)?
 	
 	init(updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)? = nil) {

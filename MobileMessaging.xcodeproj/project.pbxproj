@@ -13,6 +13,7 @@
 		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
 		3BB0594CCA9D40ADAC4C3716491BE06B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */; };
 		6C60A4A31FD6B169001744BC /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C60A4A11FD6B169001744BC /* State.swift */; };
+		7614AD6C2073E1F6004A2F90 /* LogoutOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7614AD6B2073E1F6004A2F90 /* LogoutOperation.swift */; };
 		7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		764556731F78FF5800B8F14B /* MMInstallation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560A1F78FF4F00B8F14B /* MMInstallation.swift */; };
 		764556741F78FF5800B8F14B /* MMKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560B1F78FF4F00B8F14B /* MMKeychain.swift */; };
@@ -135,6 +136,7 @@
 		678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MobileMessaging-dummy.m"; sourceTree = "<group>"; };
 		67D34D6EBA51E58A87E7A34D766E7A15 /* MobileMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MobileMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C60A4A11FD6B169001744BC /* State.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = State.swift; sourceTree = "<group>"; };
+		7614AD6B2073E1F6004A2F90 /* LogoutOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutOperation.swift; sourceTree = "<group>"; };
 		764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNotificationAction.swift; sourceTree = "<group>"; };
 		764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNotificationCategory.swift; sourceTree = "<group>"; };
 		764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsInteractionService.swift; sourceTree = "<group>"; };
@@ -461,6 +463,7 @@
 				764556241F78FF4F00B8F14B /* SeenStatusSendingOperation.swift */,
 				764556251F78FF4F00B8F14B /* SystemDataSynchronizationOperation.swift */,
 				764556261F78FF4F00B8F14B /* UserDataSynchronizationOperation.swift */,
+				7614AD6B2073E1F6004A2F90 /* LogoutOperation.swift */,
 			);
 			path = AppOperations;
 			sourceTree = "<group>";
@@ -810,6 +813,7 @@
 				764556901F78FF7300B8F14B /* MMMessage.swift in Sources */,
 				764556981F78FF7F00B8F14B /* MMRetryOperationQueue.swift in Sources */,
 				764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */,
+				7614AD6C2073E1F6004A2F90 /* LogoutOperation.swift in Sources */,
 				764556C61F78FFD300B8F14B /* AFSecurityPolicy.m in Sources */,
 				764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */,
 				764556931F78FF7F00B8F14B /* MMInstallationManager.swift in Sources */,

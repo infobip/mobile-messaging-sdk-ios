@@ -91,13 +91,21 @@ public final class MobileMessaging: NSObject {
 	/// Enables the push registration so the device can receive push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
 	/// MobileMessaging SDK has the push registration enabled by default.
 	public static func enablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
-		MobileMessaging.sharedInstance?.updateRegistrationEnabledStatus(true, completion: completion)
+		guard let mm = MobileMessaging.sharedInstance else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
+		mm.updateRegistrationEnabledStatus(true, completion: completion)
 	}
 	
 	/// Disables the push registration so the device no longer receives any push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
 	/// MobileMessaging SDK has the push registration enabled by default.
 	public static func disablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
-		MobileMessaging.sharedInstance?.updateRegistrationEnabledStatus(false, completion: completion)
+		guard let mm = MobileMessaging.sharedInstance else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
+		mm.updateRegistrationEnabledStatus(false, completion: completion)
 	}
 	
 	/// Stops all the currently running Mobile Messaging services.
@@ -134,7 +142,11 @@ public final class MobileMessaging: NSObject {
 	/// - parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
 	/// - parameter completionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
 	public class func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(userInfo, completion: { result in
+		guard let mm = MobileMessaging.sharedInstance else {
+			completionHandler(UIBackgroundFetchResult.failed)
+			return
+		}
+		mm.didReceiveRemoteNotification(userInfo, completion: { result in
 			completionHandler(result.backgroundFetchResult)
 		})
 	}
@@ -170,14 +182,22 @@ public final class MobileMessaging: NSObject {
 	/// This method sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
 	/// - parameter messageIds: Array of identifiers of messages that need to be marked as seen.
 	public class func setSeen(messageIds: [String]) {
-		MobileMessaging.sharedInstance?.setSeen(messageIds)
+		guard let mm = MobileMessaging.sharedInstance else {
+			return
+		}
+		mm.setSeen(messageIds)
 	}
 	
 	/// This method sends mobile originated messages to the server.
 	/// - parameter messages: Array of objects of `MOMessage` class that need to be sent.
 	/// - parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
 	public class func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
-		MobileMessaging.sharedInstance?.sendMessagesUserInitiated(messages, completion: completion)
+		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
+		guard let mm = MobileMessaging.sharedInstance else {
+			completion?(nil, NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
+		mm.sendMessagesUserInitiated(messages, completion: completion)
 	}
 	
 	/// An auxillary component provides the convinient access to the user agent data.
@@ -194,6 +214,26 @@ public final class MobileMessaging: NSObject {
 	
 	/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
 	public internal(set) static var privacySettings = PrivacySettings()
+	
+	/// Erases currently stored UserData on SDK and server associated with push registration, along with messages in SDK storage.
+	/// User's data synced over MobileMessaging is by default associated with created push registration. Logging out user means that push registration along with device specific data will remain, but user's data (such as first name, custom data,...) will be wiped out.
+	/// If you log out user, there is no mechanism to log him in again since he's already subscribed for broadcast notifications from your app, but you might want to sync new user data to target this user specifically.
+	/// Use this method if:
+	/// - you're syncing user data to our server;
+	/// - your application has logout option;
+	/// - you don't want new logged in user to be targeted by other user's data, e.g. first name;
+	/// - you want logged out user to still receive broadcast notifications (if not, you need to call MobileMessaging.disablePushRegistration()).
+	///
+	/// - parameter completion: The block to execute after the logout procedure finished
+	public class func logout(completion: @escaping (NSError?) -> Void) {
+		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
+		guard let mm = MobileMessaging.sharedInstance else {
+			completion(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
+		mm.logout(completion: completion)
+	}
+	
 	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
@@ -282,7 +322,6 @@ public final class MobileMessaging: NSObject {
 		cleanupSubservices()
 		
 		// just to break retain cycles:
-		installationQueue.cancelAllOperations()
 		apnsRegistrationManager = nil
 		doRegisterToApns = true
 		appListener = nil
@@ -299,6 +338,10 @@ public final class MobileMessaging: NSObject {
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().delegate = nil
 		}
+	}
+	
+	func logout(completion: @escaping (NSError?) -> Void) {
+		_ = installationQueue.addOperationExclusively(LogoutOperation(mmContext: self, finishBlock: completion))
 	}
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
@@ -418,7 +461,7 @@ public final class MobileMessaging: NSObject {
 		}
 	}
 	
-	private(set) var messageStorage: MessageStorage? {
+	internal(set) var messageStorage: MessageStorage? {
 		didSet {
 			messageStorageAdapter = MMMessageStorageQueuedAdapter(adapteeStorage: messageStorage)
 		}

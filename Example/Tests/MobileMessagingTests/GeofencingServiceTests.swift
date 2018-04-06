@@ -1453,7 +1453,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 				//Check that occurence count was saved in DB
 				DispatchQueue.main.async {
-					MobileMessaging.geofencingService?.datasource = GeofencingDatasource(storage: self.storage)
+					MobileMessaging.geofencingService?.datasource = GeofencingInMemoryDatasource(storage: self.storage)
 					XCTAssertFalse(oldDatasource! === MobileMessaging.geofencingService!.datasource)
 					let messageAfterEvent = MobileMessaging.geofencingService?.datasource.messages.first
 					let region = messageAfterEvent?.regions.first

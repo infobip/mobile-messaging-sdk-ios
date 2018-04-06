@@ -54,9 +54,9 @@ public class Query: NSObject {
 }
 
 @objc public protocol MessageStorageRemovers {
-	func removeAllMessages()
-	func remove(withIds messageIds: [MessageId])
-	func remove(withQuery query: Query)
+	func removeAllMessages(completion: @escaping ([MessageId]) -> Void)
+	func remove(withIds messageIds: [MessageId], completion: @escaping ([MessageId]) -> Void)
+	func remove(withQuery query: Query, completion: @escaping ([MessageId]) -> Void)
 }
 
 /// The protocol describes implementation of the Message Storage. The Message Storage persists all the messages (both mobile originated and mobile terminated).

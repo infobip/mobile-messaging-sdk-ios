@@ -9,7 +9,7 @@ import Foundation
 import CoreLocation
 import CoreData
 
-class GeofencingDatasource {
+class GeofencingInMemoryDatasource {
 	
 	let storage: MMCoreDataStorage
 	let context: NSManagedObjectContext
@@ -20,7 +20,6 @@ class GeofencingDatasource {
 		}
 	}
 	typealias RegionIdentifier = String
-	var regions = [RegionIdentifier: MMRegion]()
 	var currentLocation: CLLocation?
 	var regionsDictionary = [RegionIdentifier: MMRegion]()
 	var liveRegions: [MMRegion] {
@@ -48,6 +47,11 @@ class GeofencingDatasource {
 	func add(message: MMGeoMessage) {
 		messages.insert(message)
 		addRegions(from: message)
+	}
+	
+	func cleanup() {
+		regionsDictionary.removeAll()
+		messages.removeAll()
 	}
 	
 	func removeMessage(withId messageId: String) {

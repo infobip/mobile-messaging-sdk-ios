@@ -135,42 +135,54 @@ import CoreData
 	}
 	
 	//MARK: - MessageStorageRemovers
-	public func removeAllMessages() {
+	public func removeAllMessages(completion: @escaping ([MessageId]) -> Void) {
 		queue.async() {
 			guard let context = self.context else {
+				completion([])
 				return
 			}
+			var removedMsgIds: [MessageId] = []
 			context.performAndWait {
 				if let messages = Message.MM_findAllInContext(context) {
+					removedMsgIds.append(contentsOf: messages.map({ $0.messageId }))
 					self.delete(messages: messages)
 				}
 			}
+			completion(removedMsgIds)
 		}
 	}
 	
-	public func remove(withIds messageIds: [MessageId]) {
+	public func remove(withIds messageIds: [MessageId], completion: @escaping ([MessageId]) -> Void) {
 		queue.async() {
 			guard let context = self.context , !messageIds.isEmpty else {
+				completion([])
 				return
 			}
+			var removedMsgIds: [MessageId] = []
 			context.performAndWait {
 				if let messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), context: context){
+					removedMsgIds.append(contentsOf: messages.map({ $0.messageId }))
 					self.delete(messages: messages)
 				}
 			}
+			completion(removedMsgIds)
 		}
 	}
 	
-	public func remove(withQuery query: Query) {
+	public func remove(withQuery query: Query, completion: @escaping ([MessageId]) -> Void) {
 		queue.async() {
 			guard let context = self.context else {
+				completion([])
 				return
 			}
+			var removedMsgIds: [MessageId] = []
 			context.performAndWait {
 				if let messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context) {
+					removedMsgIds.append(contentsOf: messages.map({ $0.messageId }))
 					self.delete(messages: messages)
 				}
 			}
+			completion(removedMsgIds)
 		}
 	}
 	

@@ -50,6 +50,10 @@ class RemoteAPIProvider {
 		messageSyncQueue.perform(request: request, completion: completion)
 	}
 	
+	func logout(completion: @escaping (LogoutResult) -> Void) {
+		registrationQueue.perform(request: LogoutRequest(), completion: completion)
+	}
+	
 	func syncMessages(archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void) {
 		let request = MessagesSyncRequest(archiveMsgIds: archiveMsgIds, dlrMsgIds: dlrMsgIds)
 		messageSyncQueue.perform(request: request, exclusively: true, completion: completion)

@@ -46,6 +46,7 @@ enum MessageHandlingResult {
 }
 
 class MMMessageHandler: MobileMessagingService {
+	
 	lazy var messageHandlingQueue = MMOperationQueue.newSerialQueue
 	lazy var messageSendingQueue = MMOperationQueue.userInitiatedQueue
 	lazy var messageSyncQueue = MMOperationQueue.newSerialQueue
@@ -53,7 +54,7 @@ class MMMessageHandler: MobileMessagingService {
 	
 	let storage: MMCoreDataStorage
 	let mmContext: MobileMessaging
-    
+	
 	init(storage: MMCoreDataStorage, mmContext: MobileMessaging) {
 		self.storage = storage
 		self.mmContext = mmContext
@@ -283,10 +284,27 @@ class MMMessageHandler: MobileMessagingService {
 	
 	func stop(_ completion: ((Bool) -> Void)? = nil) {
 		isRunning = false
+		cancelOperations()
+		completion?(true)
+	}
+	
+	private func cancelOperations() {
 		messageHandlingQueue.cancelAllOperations()
 		messageSendingQueue.cancelAllOperations()
 		messageSyncQueue.cancelAllOperations()
-		completion?(true)
+	}
+	
+	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
+		cancelOperations()
+		messageSyncQueue.addOperation {
+			if let defaultMessageStorage = mmContext.messageStorage as? MMDefaultMessageStorage {
+				defaultMessageStorage.removeAllMessages() { _ in
+					completion(nil)
+				}
+			} else {
+				completion(nil)
+			}
+		}
 	}
 	
 	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {

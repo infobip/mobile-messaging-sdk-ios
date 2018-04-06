@@ -56,7 +56,29 @@ import CoreLocation
 }
 
 @objcMembers
-final public class MMUser: NSObject {
+final public class MMUser: NSObject, MobileMessagingService {
+	var uniqueIdentifier: String { return "com.mobile-messaging.subservice.UserData" }
+	
+	var isRunning: Bool { return true }
+	
+	func start(_ completion: ((Bool) -> Void)?) {}
+	
+	func stop(_ completion: ((Bool) -> Void)?) {
+		cancelOperations()
+	}
+	
+	private func cancelOperations() {
+		installationQueue.cancelAllOperations()
+	}
+	
+	func logout(_ mmContext: MobileMessaging, completion: @escaping (NSError?) -> Void) {
+		customData = nil
+		predefinedData = nil
+		resetNeedToSync()
+		persist()
+		completion(nil)
+	}
+	
 	var mmContext: MobileMessaging?
 	var coreDataProvider: CoreDataProvider
 	var inMemoryProvider: InMemoryDataProvider
@@ -363,6 +385,8 @@ final public class MMUser: NSObject {
 		self.inMemoryProvider = inMemoryProvider
 		self.coreDataProvider = coreDataProvider
 		self.mmContext = mmContext
+		super.init()
+		self.registerSelfAsSubservice(of: mmContext)
 	}
 }
 

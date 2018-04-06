@@ -26,6 +26,8 @@
 		6E3B11C11F3472EF00C48B92 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3B11C01F3472EF00C48B92 /* WebViewController.swift */; };
 		6E3B11C31F34D4C800C48B92 /* WindowExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */; };
 		6EF274C256FB8EEF2D7D7BBA /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DB7987EEAC88D4F20D5BFE3 /* Pods_MobileMessagingExample_Tests.framework */; };
+		7614AD6F2075195A004A2F90 /* LogoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7614AD6D20751913004A2F90 /* LogoutTests.swift */; };
+		7614AD702075195B004A2F90 /* LogoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7614AD6D20751913004A2F90 /* LogoutTests.swift */; };
 		765B9FB72010B96F00B1E77A /* SystemDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509B06631D7444C900E2C065 /* SystemDataTests.swift */; };
 		765B9FB82010B97000B1E77A /* SystemDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509B06631D7444C900E2C065 /* SystemDataTests.swift */; };
 		765B9FB92010BB8100B1E77A /* InteractiveNotificationsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F6AAE21F262E7F0013A3E5 /* InteractiveNotificationsTests.swift */; };
@@ -155,6 +157,7 @@
 		6E3B11C01F3472EF00C48B92 /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowExtension.swift; sourceTree = "<group>"; };
 		6ED2AF48A4E8CB7E5DFD9FF3 /* Pods_NotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		7614AD6D20751913004A2F90 /* LogoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutTests.swift; sourceTree = "<group>"; };
 		76208A3EB90587B54FFE69EC /* Pods-MobileMessagingExample_Tests_Device.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests_Device/Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; sourceTree = "<group>"; };
 		766C1F2F1FC80E020058900C /* DynamicBaseUrlTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlTests.swift; sourceTree = "<group>"; };
 		76A1FD861F7D32E000924B51 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -414,6 +417,7 @@
 				76C31EEB1F73A9D0002CBF2D /* LocalMessageFetchingTests.swift */,
 				766C1F2F1FC80E020058900C /* DynamicBaseUrlTests.swift */,
 				76F3CAEC20359BBA008DF398 /* ApnsRegistrationManagerTests.swift */,
+				7614AD6D20751913004A2F90 /* LogoutTests.swift */,
 			);
 			path = MobileMessagingTests;
 			sourceTree = "<group>";
@@ -938,6 +942,7 @@
 				767B84941EA8AD1100CCD81F /* TestUtils.swift in Sources */,
 				769D06FF2010B88E004EDEE5 /* GeofencingServiceTests.swift in Sources */,
 				7698F5952010AC3500F9C5E6 /* MessageStorageTests.swift in Sources */,
+				7614AD6F2075195A004A2F90 /* LogoutTests.swift in Sources */,
 				7698F5972010AD0100F9C5E6 /* MessageReceivingTests.swift in Sources */,
 				767B849D1EA8AD1100CCD81F /* BaseSettingsTests.swift in Sources */,
 				767B84991EA8AD1100CCD81F /* MOMessageSendingTests.swift in Sources */,
@@ -967,6 +972,7 @@
 				767B848A1EA8A6EC00CCD81F /* BaseSettingsTests.swift in Sources */,
 				769D07002010B88E004EDEE5 /* GeofencingServiceTests.swift in Sources */,
 				7698F5962010AC3600F9C5E6 /* MessageStorageTests.swift in Sources */,
+				7614AD702075195B004A2F90 /* LogoutTests.swift in Sources */,
 				7698F5982010AD0200F9C5E6 /* MessageReceivingTests.swift in Sources */,
 				767B84861EA8A6EC00CCD81F /* MOMessageSendingTests.swift in Sources */,
 				766C1F321FC80E140058900C /* DynamicBaseUrlTests.swift in Sources */,
