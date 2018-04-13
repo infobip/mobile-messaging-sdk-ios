@@ -105,14 +105,14 @@ final public class MMGeoMessage: MTMessage {
 		
 		let evs: [RegionEvent]
 		if let eventDicts = internalData[InternalDataKeys.event] as? [DictionaryRepresentation] {
-			evs = eventDicts.flatMap { return RegionEvent(dictRepresentation: $0) }
+			evs = eventDicts.compactMap { return RegionEvent(dictRepresentation: $0) }
 		} else {
 			evs = [RegionEvent.defaultEvent]
 		}
 		
 		self.deliveryTime = deliveryTime
 		self.events = evs
-		self.regions = Set(geoRegionsData.flatMap(MMRegion.init))
+		self.regions = Set(geoRegionsData.compactMap(MMRegion.init))
 		super.init(payload: payload)
 		self.regions.forEach({ $0.message = self })
 	}
@@ -196,7 +196,7 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 		let days: Set<MMDay>?
 
 		if let daysArray = (dict[RegionDeliveryTimeKeys.days] as? String)?.components(separatedBy: ",") {
-			days = Set(daysArray.flatMap ({ (dayNumString) -> MMDay? in
+			days = Set(daysArray.compactMap ({ (dayNumString) -> MMDay? in
 				if let dayNumInt8 = Int8(dayNumString) {
 					return MMDay(rawValue: dayNumInt8)
 				} else {
@@ -213,7 +213,7 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 		var result = DictionaryRepresentation()
 		result += timeInterval?.dictionaryRepresentation
 		if let days = days , !days.isEmpty {
-			result[RegionDeliveryTimeKeys.days] = Array(days).flatMap({ String($0.rawValue) }).joined(separator: ",")
+			result[RegionDeliveryTimeKeys.days] = Array(days).compactMap({ String($0.rawValue) }).joined(separator: ",")
 		}
 		assert(DeliveryTime(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result

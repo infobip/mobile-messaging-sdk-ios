@@ -212,7 +212,7 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 		{
 			return []
 		}
-		let messages = messageDataDicts.flatMap({ messageDataTuple -> MTMessage? in
+		let messages = messageDataDicts.compactMap({ messageDataTuple -> MTMessage? in
 			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let dlrSent =  messageDataTuple["dlr"] as? Bool else
 			{
 				return nil

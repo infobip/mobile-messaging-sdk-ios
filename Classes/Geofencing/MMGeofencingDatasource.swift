@@ -74,7 +74,7 @@ class GeofencingInMemoryDatasource {
 		context.performAndWait {
 			let geomsgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), context: self.context)
 			
-			self.messages = Set(geomsgs?.flatMap({ return MMGeoMessage(managedObject: $0) }).filter { $0.isNotExpired } ?? [MMGeoMessage]())
+			self.messages = Set(geomsgs?.compactMap({ return MMGeoMessage(managedObject: $0) }).filter { $0.isNotExpired } ?? [MMGeoMessage]())
 		}
 	}
 	
@@ -99,7 +99,7 @@ class GeofencingInMemoryDatasource {
 	}
 	
 	private func validRegionsNow(for event: RegionEventType, with regionIdentifier: RegionIdentifier) -> [MMRegion]? {
-		return messages.filter({ $0.isNowAppropriateTimeForNotification(for: event) }).flatMap{ $0.regions.filter({ $0.identifier == regionIdentifier }).first }
+		return messages.filter({ $0.isNowAppropriateTimeForNotification(for: event) }).compactMap{ $0.regions.filter({ $0.identifier == regionIdentifier }).first }
 	}
 }
 

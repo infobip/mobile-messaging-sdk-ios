@@ -39,7 +39,7 @@ public final class NotificationCategory: NSObject {
 	}
 	
 	public init?(dictionary: [String: Any]) {
-		guard let actions = (dictionary[NotificationCategoryConstants.actions] as? [[String: Any]])?.flatMap(NotificationAction.makeAction), !actions.isEmpty, let identifier = dictionary[NotificationCategoryConstants.identifier] as? String else
+		guard let actions = (dictionary[NotificationCategoryConstants.actions] as? [[String: Any]])?.compactMap(NotificationAction.makeAction), !actions.isEmpty, let identifier = dictionary[NotificationCategoryConstants.identifier] as? String else
 		{
 			return nil
 		}
@@ -129,7 +129,7 @@ struct NotificationCategories {
 	static var predefinedCategories: Set<NotificationCategory>? {
 		
 		if let path = path, let categories = NSArray(contentsOfFile: path) as? [[String: Any]] {
-			return Set(categories.flatMap(NotificationCategory.init))
+			return Set(categories.compactMap(NotificationCategory.init))
 		}
 		return nil
 	}

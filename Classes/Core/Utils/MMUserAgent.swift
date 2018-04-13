@@ -102,7 +102,7 @@ public class UserAgent: NSObject {
 	public var deviceName : String {
 		let name = UnsafeMutablePointer<utsname>.allocate(capacity: 1)
 		defer {
-			name.deallocate(capacity: 1)
+			name.deallocate()
 		}
 		uname(name)
 		let machine = withUnsafePointer(to: &name.pointee.machine, { (machineNamePointer) -> String? in

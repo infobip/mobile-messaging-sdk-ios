@@ -29,7 +29,7 @@ class SeenStatusSendingOperation: Operation {
 				self.finish()
 				return
 			}
-			let seenStatusesToSend = seenNotSentMessages.flatMap { msg -> SeenData? in
+			let seenStatusesToSend = seenNotSentMessages.compactMap { msg -> SeenData? in
 				guard let seenDate = msg.seenDate else {
 					return nil
 				}

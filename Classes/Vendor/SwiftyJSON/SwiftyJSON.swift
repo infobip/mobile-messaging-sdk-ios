@@ -521,7 +521,7 @@ extension JSON: Swift.ExpressibleByDictionaryLiteral {
 
     internal init(dictionaryLiteral elements: [(String, Any)]) {
         let jsonFromDictionaryLiteral: ([String : Any]) -> JSON = { dictionary in
-            let initializeElement = Array(dictionary.keys).flatMap { key -> (String, Any)? in
+            let initializeElement = Array(dictionary.keys).compactMap { key -> (String, Any)? in
                 if let value = dictionary[key] {
                     return (key, value)
                 }

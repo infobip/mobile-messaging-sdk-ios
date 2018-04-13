@@ -78,7 +78,7 @@ class MessagePostingOperation: Operation {
 				// let's send persisted messages (retries)
 				let mmos = MessagePostingOperation.persistedMessages(inContext: self.context)
 				self.sentMessageObjectIds.append(contentsOf: mmos.map({$0.objectID}))
-				let messagesToSend = mmos.flatMap(MOMessage.init)
+				let messagesToSend = mmos.compactMap(MOMessage.init)
 				if !messagesToSend.isEmpty {
 					MMLogDebug("[Message posting] posting pending MO messages...")
 					self.sendMessages(Array(messagesToSend), internalId: internalId)
@@ -101,7 +101,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	static func findNewMOMessages(among messages: Set<MOMessage>, inContext context: NSManagedObjectContext) -> [MOMessage] {
-		return Set(messages.map(MMMessageMeta.init)).subtracting(MessagePostingOperation.persistedMessageMetas(inContext: context)).flatMap { meta in
+		return Set(messages.map(MMMessageMeta.init)).subtracting(MessagePostingOperation.persistedMessageMetas(inContext: context)).compactMap { meta in
 				return messages.first() { msg -> Bool in
 					return msg.messageId == meta.messageId
 				}
@@ -119,7 +119,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	static func persistedMoMessages(inContext ctx: NSManagedObjectContext) -> [MOMessage] {
-		return MessagePostingOperation.persistedMessages(inContext: ctx).flatMap(MOMessage.init)
+		return MessagePostingOperation.persistedMessages(inContext: ctx).compactMap(MOMessage.init)
 	}
 	
 	static func persistedMessageMetas(inContext ctx: NSManagedObjectContext) -> [MMMessageMeta] {

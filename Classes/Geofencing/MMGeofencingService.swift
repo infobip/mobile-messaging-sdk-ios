@@ -518,7 +518,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	fileprivate func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil, completion: (() -> Void)? = nil) {
 		locationManagerQueue.executeAsync() {
 			
-			var monitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.flatMap { $0 as? CLCircularRegion })
+			var monitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.compactMap { $0 as? CLCircularRegion })
 			MMLogDebug("[GeofencingService] refreshing monitored regions: \n\(monitoredRegions) \n datasource regions: \n \(self.datasource.regionsDictionary)")
 			
 			//check what to stop

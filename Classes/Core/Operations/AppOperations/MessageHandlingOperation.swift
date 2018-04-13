@@ -160,13 +160,13 @@ final class MessageHandlingOperation: Operation {
 	private lazy var newMessages: Set<MTMessage> = {
 		guard !self.messagesToHandle.isEmpty else { return Set<MTMessage>() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
-		return Set(messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).flatMap { return self.mtMessage(from: $0) })
+		return Set(messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).compactMap { return self.mtMessage(from: $0) })
 	}()
 	
 	private lazy var intersectingMessages: [MTMessage] = {
 		guard !self.messagesToHandle.isEmpty else { return [MTMessage]() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
-		return messagesToHandleMetasSet.intersection(self.storedMessageMetasSet).flatMap { return self.mtMessage(from: $0) }
+		return messagesToHandleMetasSet.intersection(self.storedMessageMetasSet).compactMap { return self.mtMessage(from: $0) }
 	}()
 	
 //MARK: - Lazy message collections

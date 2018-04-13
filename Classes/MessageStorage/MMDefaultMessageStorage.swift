@@ -199,7 +199,7 @@ import CoreData
 		
 		var newMessages = [Message]()
 		context.performAndWait {
-			newMessages = messages.flatMap { storageMessageConstructor($0, context) }
+			newMessages = messages.compactMap { storageMessageConstructor($0, context) }
 			context.MM_saveToPersistentStoreAndWait()
 		}
 		completion()
@@ -305,6 +305,6 @@ extension MessageStorage {
 
 extension Array where Element: Message {
 	fileprivate var baseMessages: [BaseMessage] {
-		return self.flatMap { $0.baseMessage }
+		return self.compactMap { $0.baseMessage }
 	}
 }

@@ -48,7 +48,7 @@ class GeoEventReportingOperation: Operation {
 				return
 			}
 			
-			let geoEventReportsData = happenedEvents.flatMap { event -> GeoEventReportData? in
+			let geoEventReportsData = happenedEvents.compactMap { event -> GeoEventReportData? in
 				guard let eventType = RegionEventType(rawValue: event.eventType) else {
 					return nil
 				}

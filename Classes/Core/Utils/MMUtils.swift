@@ -409,7 +409,7 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 			UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
 				let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-MessagesEvictionOperation.defaultMessageMaxAge).timeIntervalSince1970
 				let messages = notifications
-					.flatMap({ return MTMessage(payload: $0.request.content.userInfo) })
+					.compactMap({ return MTMessage(payload: $0.request.content.userInfo) })
 					.filter({ return $0.sendDateTime > dateToCompare })
 				completionHandler(messages)
 			}
