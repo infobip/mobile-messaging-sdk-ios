@@ -28,10 +28,16 @@ platform :ios do
 	desc "Runs all the tests on Simulators"
 	def test_on_simulator
 		begin
+			# Since Xcode 9.3 tests stopped starting on iOS 8.4 and earlier. No solution found except disabling tests.
+			# scan(
+			# 	skip_build: true,
+			# 	scheme: "MobileMessagingExample",
+			# 	devices: ["iPhone 5 (8.4)"]
+			# 	)
 			scan(
 				skip_build: true,
 				scheme: "MobileMessagingExample",
-				devices: ["iPhone 5 (8.4)"]
+				devices: ["iPhone 5 (9.3)"]
 				)
 			scan(
 				skip_build: true,
