@@ -37,17 +37,17 @@ platform :ios do
 			scan(
 				skip_build: true,
 				scheme: "MobileMessagingExample",
-				devices: ["iPhone 5 (9.3)"]
+				devices: ["iPhone 6 (9.3)"]
 				)
 			scan(
 				skip_build: true,
 				scheme: "MobileMessagingExample",
-				devices: ["iPhone 6 (10.0)"]
+				devices: ["iPhone 7 (10.0)"]
 				)
 			scan(
 				skip_build: true,
 				scheme: "MobileMessagingExample",
-				devices: ["iPhone 7 (11.0)"]
+				devices: ["iPhone 8 (11.3)"]
 				)
 		end
 	end
