@@ -27,7 +27,7 @@ enum MMMessageType : Int16 {
 	case Finished
 }
 
-final class MessageManagedObject: NSManagedObject, Fetchable, Updatable {
+final class MessageManagedObject: NSManagedObject, FetchableResult, UpdatableResult {
     var seenStatus: MMSeenStatus {
 		get { return MMSeenStatus(rawValue: seenStatusValue) ?? .NotSeen }
 		set { seenStatusValue = newValue.rawValue }

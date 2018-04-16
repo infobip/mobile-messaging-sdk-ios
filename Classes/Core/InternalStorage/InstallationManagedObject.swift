@@ -110,7 +110,7 @@ struct AttributesSet: OptionSet {
 }
 
 
-final class InstallationManagedObject: NSManagedObject, Fetchable {
+final class InstallationManagedObject: NSManagedObject, FetchableResult {
 
 	override func didChangeValue(forKey key: String) {
 		super.didChangeValue(forKey: key)

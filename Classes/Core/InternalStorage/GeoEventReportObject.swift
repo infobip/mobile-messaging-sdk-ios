@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 
-final class GeoEventReportObject: NSManagedObject, Fetchable {
+final class GeoEventReportObject: NSManagedObject, FetchableResult {
 
 // Insert code here to add functionality to your managed object subclass
 	@discardableResult

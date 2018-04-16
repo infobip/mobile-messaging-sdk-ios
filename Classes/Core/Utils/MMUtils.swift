@@ -556,3 +556,18 @@ extension UserDefaults: KVOperations {
 		set(value, forKey: key)
 	}
 }
+
+func memoize<T: Hashable, U>(work: @escaping (T)->U) -> (T)->U {
+	var memo = Dictionary<T, U>()
+	
+	return { x in
+		if let q = memo[x] { return q }
+		let r = work(x)
+		memo[x] = r
+		return r
+	}
+}
+
+let calculateAppCodeHash = memoize { (appCode: String) in
+	return String(appCode.sha1().prefix(10))
+}

@@ -50,6 +50,7 @@ struct APIKeys {
 struct APIHeaders {
 	static let foreground = "foreground"
 	static let pushRegistrationId = "pushregistrationid"
+	static let applicationcode = "applicationcode"
 }
 
 struct VersionCheck {

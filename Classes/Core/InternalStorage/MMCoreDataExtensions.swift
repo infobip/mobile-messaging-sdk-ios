@@ -25,7 +25,7 @@ struct MMContextSaveOptions: OptionSet {
 	static let SaveParent		= MMContextSaveOptions(rawValue: 1 << 1)
 }
 
-protocol Fetchable: NSFetchRequestResult {
+protocol FetchableResult: NSFetchRequestResult {
 	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<Self>
 	static func MM_executeRequest(_ request: NSFetchRequest<Self>, inContext ctx: NSManagedObjectContext) -> [Self]?
 	static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext)
@@ -41,11 +41,11 @@ protocol Fetchable: NSFetchRequestResult {
 	static func MM_findAll(withPredicate predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, skip: Int?, inContext context: NSManagedObjectContext) -> [Self]?
 }
 
-protocol Updatable: NSFetchRequestResult {
+protocol UpdatableResult: NSFetchRequestResult {
 	static func MM_batchUpdate(propertiesToUpdate: [AnyHashable: Any], predicate: NSPredicate?, inContext ctx: NSManagedObjectContext) -> NSBatchUpdateResult?
 }
 
-extension Updatable where Self: NSManagedObject {
+extension UpdatableResult where Self: NSManagedObject {
 	@discardableResult
 	static func MM_batchUpdate(propertiesToUpdate: [AnyHashable: Any], predicate: NSPredicate?, inContext ctx: NSManagedObjectContext) -> NSBatchUpdateResult? {
 		let request = self.MM_batchUpdateRequest(predicate, propertiesToUpdate: propertiesToUpdate)
@@ -70,7 +70,7 @@ extension Updatable where Self: NSManagedObject {
 	}
 }
 
-extension Fetchable where Self: NSManagedObject {
+extension FetchableResult where Self: NSManagedObject {
 	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<Self> {
 		let r = NSFetchRequest<Self>(entityName: self.MM_entityName)
 		r.predicate = predicate

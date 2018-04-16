@@ -123,6 +123,19 @@
 		7663A2721FC8262600903C12 /* DynamicBaseUrlHTTPSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */; };
 		766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A71FC824140047DA47 /* RemoteAPIProvider.swift */; };
 		76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */; };
+		769E1BB52084DB1E003EF549 /* SHA1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BB42084DB1E003EF549 /* SHA1.swift */; };
+		769E1BB72084DC93003EF549 /* UInt32+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BB62084DC93003EF549 /* UInt32+Extension.swift */; };
+		769E1BB92084DCBB003EF549 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BB82084DCBB003EF549 /* Utils.swift */; };
+		769E1BBB2084DCD3003EF549 /* DigestType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BBA2084DCD2003EF549 /* DigestType.swift */; };
+		769E1BBD2084DD14003EF549 /* Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BBC2084DD14003EF549 /* Updatable.swift */; };
+		769E1BBF2084E021003EF549 /* Int+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BBE2084E020003EF549 /* Int+Extension.swift */; };
+		769E1BC12084E042003EF549 /* BatchedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BC02084E042003EF549 /* BatchedCollection.swift */; };
+		769E1BC32084E076003EF549 /* Generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BC22084E076003EF549 /* Generics.swift */; };
+		769E1BC52084E092003EF549 /* Bit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BC42084E092003EF549 /* Bit.swift */; };
+		769E1BC72084E2FE003EF549 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BC62084E2FE003EF549 /* Array+Extension.swift */; };
+		769E1BC92084E32D003EF549 /* Digest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BC82084E32D003EF549 /* Digest.swift */; };
+		769E1BCB2084E39F003EF549 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BCA2084E39F003EF549 /* String+Extension.swift */; };
+		769E1BCD2084E402003EF549 /* Data+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BCC2084E402003EF549 /* Data+Extension.swift */; };
 		76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */ = {isa = PBXBuildFile; fileRef = 764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */; };
 		76E1D249204D5D26001456BD /* GeoDatesUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76E1D248204D5D26001456BD /* GeoDatesUtils.swift */; };
 		76FFC27C1F7A64D2009C6A2A /* LocalMessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */; };
@@ -281,6 +294,19 @@
 		766863A71FC824140047DA47 /* RemoteAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteAPIProvider.swift; sourceTree = "<group>"; };
 		766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlHTTPSessionManager.swift; sourceTree = "<group>"; };
 		76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManager.swift; sourceTree = "<group>"; };
+		769E1BB42084DB1E003EF549 /* SHA1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SHA1.swift; sourceTree = "<group>"; };
+		769E1BB62084DC93003EF549 /* UInt32+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UInt32+Extension.swift"; sourceTree = "<group>"; };
+		769E1BB82084DCBB003EF549 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		769E1BBA2084DCD2003EF549 /* DigestType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DigestType.swift; sourceTree = "<group>"; };
+		769E1BBC2084DD14003EF549 /* Updatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Updatable.swift; sourceTree = "<group>"; };
+		769E1BBE2084E020003EF549 /* Int+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Int+Extension.swift"; sourceTree = "<group>"; };
+		769E1BC02084E042003EF549 /* BatchedCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatchedCollection.swift; sourceTree = "<group>"; };
+		769E1BC22084E076003EF549 /* Generics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generics.swift; sourceTree = "<group>"; };
+		769E1BC42084E092003EF549 /* Bit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bit.swift; sourceTree = "<group>"; };
+		769E1BC62084E2FE003EF549 /* Array+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
+		769E1BC82084E32D003EF549 /* Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
+		769E1BCA2084E39F003EF549 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
+		769E1BCC2084E402003EF549 /* Data+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extension.swift"; sourceTree = "<group>"; };
 		76E1D248204D5D26001456BD /* GeoDatesUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoDatesUtils.swift; sourceTree = "<group>"; };
 		76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingOperation.swift; sourceTree = "<group>"; };
 		8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
@@ -358,6 +384,7 @@
 		764555D41F78FF4E00B8F14B /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				769E1BB32084DB0A003EF549 /* CryptoSwift */,
 				764555D51F78FF4E00B8F14B /* HTTP */,
 				764555DD1F78FF4E00B8F14B /* InternalStorage */,
 				764555E81F78FF4E00B8F14B /* Localization */,
@@ -611,6 +638,26 @@
 			path = SwiftyJSON;
 			sourceTree = "<group>";
 		};
+		769E1BB32084DB0A003EF549 /* CryptoSwift */ = {
+			isa = PBXGroup;
+			children = (
+				769E1BCA2084E39F003EF549 /* String+Extension.swift */,
+				769E1BC82084E32D003EF549 /* Digest.swift */,
+				769E1BC62084E2FE003EF549 /* Array+Extension.swift */,
+				769E1BC42084E092003EF549 /* Bit.swift */,
+				769E1BC22084E076003EF549 /* Generics.swift */,
+				769E1BC02084E042003EF549 /* BatchedCollection.swift */,
+				769E1BBE2084E020003EF549 /* Int+Extension.swift */,
+				769E1BBC2084DD14003EF549 /* Updatable.swift */,
+				769E1BB62084DC93003EF549 /* UInt32+Extension.swift */,
+				769E1BB42084DB1E003EF549 /* SHA1.swift */,
+				769E1BB82084DCBB003EF549 /* Utils.swift */,
+				769E1BBA2084DCD2003EF549 /* DigestType.swift */,
+				769E1BCC2084E402003EF549 /* Data+Extension.swift */,
+			);
+			path = CryptoSwift;
+			sourceTree = "<group>";
+		};
 		7DB346D0F39D3F0E887471402A8071AB = {
 			isa = PBXGroup;
 			children = (
@@ -759,6 +806,7 @@
 				764556CF1F78FFD900B8F14B /* TegKeychainConstants.swift in Sources */,
 				764556781F78FF5800B8F14B /* MMVersion.swift in Sources */,
 				764556A81F78FF8F00B8F14B /* MMLocalization.swift in Sources */,
+				769E1BC72084E2FE003EF549 /* Array+Extension.swift in Sources */,
 				764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */,
 				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,
 				76E1D249204D5D26001456BD /* GeoDatesUtils.swift in Sources */,
@@ -773,6 +821,7 @@
 				764556911F78FF7F00B8F14B /* MMApplicationListener.swift in Sources */,
 				764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */,
 				764556C11F78FFD300B8F14B /* AFHTTPSessionManager.m in Sources */,
+				769E1BC12084E042003EF549 /* BatchedCollection.swift in Sources */,
 				764556BE1F78FFCB00B8F14B /* RetryableDownloadTask.swift in Sources */,
 				765B9FBE2012126700B1E77A /* MessageHandlingDelegate.swift in Sources */,
 				764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */,
@@ -797,6 +846,7 @@
 				764556CC1F78FFD300B8F14B /* AFURLSessionManager.m in Sources */,
 				764556B41F78FF9500B8F14B /* MMGeoMessage.swift in Sources */,
 				7645567B1F78FF5800B8F14B /* MobileMessagingAppDelegate.swift in Sources */,
+				769E1BC32084E076003EF549 /* Generics.swift in Sources */,
 				764556D01F78FFE000B8F14B /* BlockObserver.swift in Sources */,
 				764556991F78FF7F00B8F14B /* RetryableNetworkingOperation.swift in Sources */,
 				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
@@ -811,14 +861,17 @@
 				29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */,
 				7645569F1F78FF8500B8F14B /* MessagesSyncOperation.swift in Sources */,
 				764556901F78FF7300B8F14B /* MMMessage.swift in Sources */,
+				769E1BCB2084E39F003EF549 /* String+Extension.swift in Sources */,
 				764556981F78FF7F00B8F14B /* MMRetryOperationQueue.swift in Sources */,
 				764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */,
 				7614AD6C2073E1F6004A2F90 /* LogoutOperation.swift in Sources */,
 				764556C61F78FFD300B8F14B /* AFSecurityPolicy.m in Sources */,
 				764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */,
 				764556931F78FF7F00B8F14B /* MMInstallationManager.swift in Sources */,
+				769E1BCD2084E402003EF549 /* Data+Extension.swift in Sources */,
 				764556AF1F78FF8F00B8F14B /* UserNotificationType.swift in Sources */,
 				764556C81F78FFD300B8F14B /* AFURLRequestSerialization.m in Sources */,
+				769E1BBF2084E021003EF549 /* Int+Extension.swift in Sources */,
 				764556881F78FF6500B8F14B /* GeoEventReportObject.swift in Sources */,
 				764556871F78FF6500B8F14B /* GeoEventReportObject+CoreDataProperties.swift in Sources */,
 				764556811F78FF5D00B8F14B /* MMHTTPRequestSerializer.swift in Sources */,
@@ -830,6 +883,8 @@
 				764556A31F78FF8500B8F14B /* SeenStatusSendingOperation.swift in Sources */,
 				764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */,
 				764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */,
+				769E1BBB2084DCD3003EF549 /* DigestType.swift in Sources */,
+				769E1BB52084DB1E003EF549 /* SHA1.swift in Sources */,
 				7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */,
 				7645568E1F78FF6500B8F14B /* MMCoreDataStorage.swift in Sources */,
 				764556A61F78FF8B00B8F14B /* UserNotificationCenterDelegate.swift in Sources */,
@@ -838,17 +893,22 @@
 				764556891F78FF6500B8F14B /* InstallationManagedObject+CoreDataProperties.swift in Sources */,
 				764556751F78FF5800B8F14B /* MMLoggingUtil.swift in Sources */,
 				766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */,
+				769E1BBD2084DD14003EF549 /* Updatable.swift in Sources */,
+				769E1BC92084E32D003EF549 /* Digest.swift in Sources */,
 				764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */,
 				764556731F78FF5800B8F14B /* MMInstallation.swift in Sources */,
 				764556D61F78FFE700B8F14B /* NSOperation+Operations.swift in Sources */,
 				7645569A1F78FF8500B8F14B /* InstallationDataSynchronizationOperation.swift in Sources */,
+				769E1BB72084DC93003EF549 /* UInt32+Extension.swift in Sources */,
 				764556C41F78FFD300B8F14B /* AFNetworkReachabilityManager.m in Sources */,
 				7645569D1F78FF8500B8F14B /* MessagePostingOperation.swift in Sources */,
 				7645568F1F78FF6700B8F14B /* MMInternalStorageModel.xcdatamodeld in Sources */,
 				7645569E1F78FF8500B8F14B /* MessagesEvictionOperation.swift in Sources */,
 				7645567F1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.m in Sources */,
 				764556CD1F78FFD900B8F14B /* KeychainSwift.swift in Sources */,
+				769E1BC52084E092003EF549 /* Bit.swift in Sources */,
 				764556BA1F78FFB200B8F14B /* Message.swift in Sources */,
+				769E1BB92084DCBB003EF549 /* Utils.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
 				7645569C1F78FF8500B8F14B /* MessageHandlingOperation.swift in Sources */,
 				764556A51F78FF8500B8F14B /* UserDataSynchronizationOperation.swift in Sources */,

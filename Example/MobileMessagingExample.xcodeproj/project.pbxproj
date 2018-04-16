@@ -70,6 +70,8 @@
 		7698F59A2010AFB900F9C5E6 /* FetchMessagesTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DF1CABA839001873B4 /* FetchMessagesTest.swift */; };
 		769D06FF2010B88E004EDEE5 /* GeofencingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */; };
 		769D07002010B88E004EDEE5 /* GeofencingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */; };
+		769E1BD02084E802003EF549 /* ApplicationCodeHashingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BCE2084E7B5003EF549 /* ApplicationCodeHashingTests.swift */; };
+		769E1BD12084E802003EF549 /* ApplicationCodeHashingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769E1BCE2084E7B5003EF549 /* ApplicationCodeHashingTests.swift */; };
 		76A1FD841F7D32E000924B51 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 76A1FD871F7D32E000924B51 /* Localizable.strings */; };
 		76A1FD851F7D32E000924B51 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 76A1FD871F7D32E000924B51 /* Localizable.strings */; };
 		76F3CAEE20359F60008DF398 /* ApnsRegistrationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F3CAEC20359BBA008DF398 /* ApnsRegistrationManagerTests.swift */; };
@@ -160,6 +162,7 @@
 		7614AD6D20751913004A2F90 /* LogoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutTests.swift; sourceTree = "<group>"; };
 		76208A3EB90587B54FFE69EC /* Pods-MobileMessagingExample_Tests_Device.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests_Device/Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; sourceTree = "<group>"; };
 		766C1F2F1FC80E020058900C /* DynamicBaseUrlTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlTests.swift; sourceTree = "<group>"; };
+		769E1BCE2084E7B5003EF549 /* ApplicationCodeHashingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCodeHashingTests.swift; sourceTree = "<group>"; };
 		76A1FD861F7D32E000924B51 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		76A1FD881F7D32E900924B51 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		76BD26561F7E449D00EB39C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -418,6 +421,7 @@
 				766C1F2F1FC80E020058900C /* DynamicBaseUrlTests.swift */,
 				76F3CAEC20359BBA008DF398 /* ApnsRegistrationManagerTests.swift */,
 				7614AD6D20751913004A2F90 /* LogoutTests.swift */,
+				769E1BCE2084E7B5003EF549 /* ApplicationCodeHashingTests.swift */,
 			);
 			path = MobileMessagingTests;
 			sourceTree = "<group>";
@@ -935,6 +939,7 @@
 				765B9FB72010B96F00B1E77A /* SystemDataTests.swift in Sources */,
 				76F3CAEE20359F60008DF398 /* ApnsRegistrationManagerTests.swift in Sources */,
 				767B84901EA8AD1100CCD81F /* RegistrationTests.swift in Sources */,
+				769E1BD02084E802003EF549 /* ApplicationCodeHashingTests.swift in Sources */,
 				767B84911EA8AD1100CCD81F /* RetryOperationTests.swift in Sources */,
 				767B849E1EA8AD1100CCD81F /* Mocks.swift in Sources */,
 				7698F5992010AFB800F9C5E6 /* FetchMessagesTest.swift in Sources */,
@@ -965,6 +970,7 @@
 				765B9FB82010B97000B1E77A /* SystemDataTests.swift in Sources */,
 				76F3CAEF20359F61008DF398 /* ApnsRegistrationManagerTests.swift in Sources */,
 				767B847E1EA8A6EC00CCD81F /* RetryOperationTests.swift in Sources */,
+				769E1BD12084E802003EF549 /* ApplicationCodeHashingTests.swift in Sources */,
 				767B848B1EA8A6EC00CCD81F /* Mocks.swift in Sources */,
 				767B847F1EA8A6EC00CCD81F /* DeliveryReportingTests.swift in Sources */,
 				7698F59A2010AFB900F9C5E6 /* FetchMessagesTest.swift in Sources */,

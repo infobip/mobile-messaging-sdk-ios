@@ -34,7 +34,9 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 		headers?.forEach { (hv) in
 			request.addValue(hv.value, forHTTPHeaderField: hv.key)
 		}
+		
 		request.addValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
+		request.addValue(calculateAppCodeHash(applicationCode), forHTTPHeaderField: APIHeaders.applicationcode)
 		request.addValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: "User-Agent")
 		request.addValue(String(MobileMessaging.application.isInForegroundState), forHTTPHeaderField: APIHeaders.foreground)
 		if let internalId = MobileMessaging.currentUser?.pushRegistrationId {

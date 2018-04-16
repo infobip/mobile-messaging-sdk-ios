@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-final class Message: NSManagedObject, Fetchable {
+final class Message: NSManagedObject, FetchableResult {
 
 	static func makeMtMessage(from message: BaseMessage, context: NSManagedObjectContext) -> Message? {
 		guard let mtMessage = message as? MTMessage else {
