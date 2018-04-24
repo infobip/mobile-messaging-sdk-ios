@@ -57,11 +57,14 @@ final class SeenStatusPersistingOperation: Operation {
 	}
 	
 	private func updateMessageStorage(with messages: [MessageManagedObject], completion: @escaping () -> Void) {
-		guard let storage = mmContext.messageStorageAdapter, !messages.isEmpty else {
+		guard !messages.isEmpty else {
 			completion()
 			return
 		}
-		storage.batchSeenStatusUpdate(messages: messages, completion: completion)
+		let storages = mmContext.messageStorages.values
+		storages.forEachAsync({ (storage, finishBlock) in
+			storage.batchSeenStatusUpdate(messages: messages, completion: finishBlock)
+		}, completion: completion)
 	}
 	
 	override func finished(_ errors: [NSError]) {

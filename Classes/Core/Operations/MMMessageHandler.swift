@@ -69,8 +69,14 @@ class MMMessageHandler: MobileMessagingService {
 			return
 		}
 
-		if let msg = MTMessage(payload: userInfo) {
-			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(msg, applicationState: MobileMessaging.application.applicationState),completion: completion)
+		if let msg = MTMessage(payload: userInfo,
+							   deliveryMethod: .push,
+							   seenDate: nil,
+							   deliveryReportDate: nil,
+							   seenStatus: .NotSeen,
+							   isDeliveryReportSent: false)
+		{
+			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(msg, applicationState: MobileMessaging.application.applicationState), completion: completion)
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
 			completion?(.failed(NSError.init(type: .UnknownError)))
@@ -297,7 +303,7 @@ class MMMessageHandler: MobileMessagingService {
 	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
 		cancelOperations()
 		messageSyncQueue.addOperation {
-			if let defaultMessageStorage = mmContext.messageStorage as? MMDefaultMessageStorage {
+			if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {
 				defaultMessageStorage.removeAllMessages() { _ in
 					completion(nil)
 				}

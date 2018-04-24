@@ -78,7 +78,7 @@ class MessagePostingOperation: Operation {
 				// let's send persisted messages (retries)
 				let mmos = MessagePostingOperation.persistedMessages(inContext: self.context)
 				self.sentMessageObjectIds.append(contentsOf: mmos.map({$0.objectID}))
-				let messagesToSend = mmos.compactMap(MOMessage.init)
+				let messagesToSend = mmos.compactMap({MOMessage.init(messageManagedObject: $0)})
 				if !messagesToSend.isEmpty {
 					MMLogDebug("[Message posting] posting pending MO messages...")
 					self.sendMessages(Array(messagesToSend), internalId: internalId)
@@ -127,27 +127,36 @@ class MessagePostingOperation: Operation {
 	}
 	
 	private func populateMessageStorageIfNeeded(with messages: [MOMessage], completion: @escaping () -> Void) {
-		guard let storage = mmContext.messageStorageAdapter, isUserInitiated else {
+		guard isUserInitiated else {
 			completion()
 			return
 		}
-		storage.insert(outgoing: Array(messages), completion: completion)
+		let storages = mmContext.messageStorages.values
+		storages.forEachAsync({ (storage, finishBlock) in
+			storage.insert(outgoing: Array(messages), completion: finishBlock)
+		}, completion: completion)
 	}
 	
 	private func updateMessageStorageIfNeeded(with messages: [MOMessage], completion: @escaping () -> Void) {
-		guard let storage = mmContext.messageStorageAdapter, !messages.isEmpty, isUserInitiated else {
+		guard !messages.isEmpty, isUserInitiated else {
 			completion()
 			return
 		}
-		storage.batchSentStatusUpdate(messages: messages, completion: completion)
+		let storages = mmContext.messageStorages.values
+		storages.forEachAsync({ (storage, finishBlock) in
+			storage.batchSentStatusUpdate(messages: messages, completion: finishBlock)
+		}, completion: completion)
 	}
 	
 	private func updateMessageStorageOnFailureIfNeeded(with messageIds: [String], completion: @escaping () -> Void) {
-		guard let storage = mmContext.messageStorageAdapter, !messageIds.isEmpty, isUserInitiated else {
+		guard !messageIds.isEmpty, isUserInitiated else {
 			completion()
 			return
 		}
-		storage.batchFailedSentStatusUpdate(messageIds: messageIds, completion: completion)
+		let storages = mmContext.messageStorages.values
+		storages.forEachAsync({ (storage, finishBlock) in
+			storage.batchFailedSentStatusUpdate(messageIds: messageIds, completion: finishBlock)
+		}, completion: completion)
 	}
 	
 	private func postWillSendNotification(messagesToSend: Array<MOMessage>) {

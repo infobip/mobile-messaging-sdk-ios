@@ -27,13 +27,13 @@ Carthage
 #
 # Pods/
 
-MobileMessagingExample.xcworkspace
-Example/Podfile.lock
-Example/Pods/
-Example/fastlane/keys
-Example/fastlane/test_output
-Example/*.app.*
-Example/*.ipa
-Example/tmp
+*.xcworkspace
+*/Podfile.lock
+*/Pods/
+*/fastlane/keys
+*/fastlane/test_output
+*/*.app.*
+*/*.ipa
+*/tmp
 macos/
 .application-code

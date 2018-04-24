@@ -11,7 +11,7 @@ import UserNotifications
 
 class UserNotificationCenterStorageStub : UserNotificationCenterStorage {
 	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
-		completionHandler([MTMessage(payload: apnsNormalMessagePayload("m1"))!])
+		completionHandler([MTMessage(payload: apnsNormalMessagePayload("m1"), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!])
 	}
 }
 
@@ -27,7 +27,7 @@ class NotificationExtensionStorageStub: AppGroupMessageStorage {
 	func cleanupMessages() {}
 	
 	func retrieveMessages() -> [MTMessage] {
-		return [MTMessage(payload: apnsNormalMessagePayload("m2"))!]
+		return [MTMessage(payload: apnsNormalMessagePayload("m2"), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!]
 	}
 }
 
@@ -50,8 +50,8 @@ class LocalMessageFetchingTests : MMTestCase {
 					break
 				}
 				
-			}, completionCompanionBlock: nil, responseSubstitution:
-				{ _ in return JSON(["payloads": []]) }
+			}, completionCompanionBlock: nil, responseMock:
+                { _ in return JSON(["payloads": []]) }
 			)
 			mobileMessagingInstance.messageHandler.syncWithServer { (error) in
 				expectation?.fulfill()

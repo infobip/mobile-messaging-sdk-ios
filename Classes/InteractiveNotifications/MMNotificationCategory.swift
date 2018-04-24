@@ -20,7 +20,7 @@ public final class NotificationCategory: NSObject {
 	public let options: [NotificationCategoryOptions]
 	
 	///The intent identifier strings, which defined in Intents framework, that you want to associate with notifications of this category.
-	// - remark: Intent identifier may be useful for SiriKit support.
+	/// - remark: Intent identifier may be useful for SiriKit support.
 	public let intentIdentifiers: [String]
 	
 	///Initializes the `NotificationCategory`
@@ -126,12 +126,13 @@ extension Set where Element: NotificationCategory {
 
 struct NotificationCategories {
 	static let path: String? = MobileMessaging.bundle.path(forResource: NotificationCategoryConstants.plistName, ofType: "plist")
-	static var predefinedCategories: Set<NotificationCategory>? {
-		
+
+    static var predefinedCategories: Set<NotificationCategory>? {
 		if let path = path, let categories = NSArray(contentsOfFile: path) as? [[String: Any]] {
 			return Set(categories.compactMap(NotificationCategory.init))
+		} else {
+			return nil
 		}
-		return nil
 	}
 }
 

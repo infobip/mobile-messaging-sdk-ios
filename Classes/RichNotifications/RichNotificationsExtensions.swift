@@ -16,10 +16,11 @@ extension MobileMessaging {
 	/// `[User Defaults] Failed to read values in CFPrefsPlistSource<0xXXXXXXX> (Domain: ..., User: kCFPreferencesAnyUser, ByHost: Yes, Container: (null)): Using kCFPreferencesAnyUser with a container is only allowed for SystemContainers, detaching from cfprefsd`.
 	/// Although this warning doesn't mean that our code doesn't work, you can shut it up by prefixing your App Group ID with a Team ID of a certificate that you are signing the build with. For example: `"9S95Y6XXXX.group.com.mobile-messaging.notification-service-extension"`. The App Group ID itself doesn't need to be changed though.
 	/// - parameter appGroupId: An ID of an App Group
-	@available(iOS 10.0, *)
 	public func withAppGroupId(_ appGroupId: String) -> MobileMessaging {
-		self.appGroupId = appGroupId
-		self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
+		if #available(iOS 10.0, *) {
+			self.appGroupId = appGroupId
+			self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
+		}
 		return self
 	}
 }
@@ -84,7 +85,13 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		MMLogDebug("[Notification Extension] did receive request \(request)")
 		var result: UNNotificationContent = request.content
 		
-		guard let sharedInstance = sharedInstance, let mtMessage = MTMessage(payload: request.content.userInfo) else
+		guard let sharedInstance = sharedInstance,
+			let mtMessage = MTMessage(payload: request.content.userInfo,
+									  deliveryMethod: .push,
+									  seenDate: nil,
+									  deliveryReportDate: nil,
+									  seenStatus: .NotSeen,
+									  isDeliveryReportSent: false) else
 		{
 			MMLogDebug("[Notification Extension] could not recognize message")
 			contentHandler(result)
@@ -217,9 +224,12 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 			{
 				return nil
 			}
-			let newMessage = MTMessage(payload: payload)
-			newMessage?.isDeliveryReportSent = dlrSent
-			newMessage?.deliveryReportedDate = messageDataTuple["dlrd"] as? Date
+			let newMessage = MTMessage(payload: payload,
+									   deliveryMethod: .push,
+									   seenDate: nil,
+									   deliveryReportDate: messageDataTuple["dlrd"] as? Date,
+									   seenStatus: .NotSeen,
+									   isDeliveryReportSent: dlrSent)
 			return newMessage
 		})
 		return messages

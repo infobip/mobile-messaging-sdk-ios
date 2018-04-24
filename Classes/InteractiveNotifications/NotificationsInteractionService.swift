@@ -24,7 +24,7 @@ extension MobileMessaging {
 	///
 	/// - parameter identifier: The identifier for the interactive notification action.
 	/// - parameter localNotification: The local notification object that was triggered.
-    /// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
+	/// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
 	/// - parameter completionHandler: A block that you must call when you are finished performing the action. It is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:for:withResponseInfo:completionHandler:)` callback as a `completionHandler` parameter.
 	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let info = localNotification.userInfo,
@@ -34,26 +34,38 @@ extension MobileMessaging {
 			completionHandler()
 			return
 		}
+		let message = MTMessage(payload: payload,
+								deliveryMethod: .undefined,
+								seenDate: nil,
+								deliveryReportDate: nil,
+								seenStatus: .NotSeen,
+								isDeliveryReportSent: false)
 		
-        handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: payload), responseInfo: responseInfo, completionHandler: completionHandler)
+		handleActionWithIdentifier(identifier: identifier, message: message, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
 	/// This method handles interactive notifications actions and performs work that is defined for this action. The method should be called from AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` callback.
 	///
 	/// - parameter identifier: The identifier for the interactive notification action.
-    /// - parameter userInfo: A dictionary that contains information related to the remote notification. This dictionary originates from the provider as a JSON-defined dictionary, which iOS converts to an NSDictionary object before calling this method. The contents of the dictionary are the remote notification payload, which consists only of property-list objects plus NSNull
-    /// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
+	/// - parameter userInfo: A dictionary that contains information related to the remote notification. This dictionary originates from the provider as a JSON-defined dictionary, which iOS converts to an NSDictionary object before calling this method. The contents of the dictionary are the remote notification payload, which consists only of property-list objects plus NSNull
+	/// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
 	/// - parameter completionHandler: A block that you must call when you are finished performing the action. It is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` callback as a `completionHandler` parameter.
 	public class func handleActionWithIdentifier(identifier: String?, forRemoteNotification userInfo: [AnyHashable: Any], responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
-		handleActionWithIdentifier(identifier: identifier, message: MTMessage(payload: userInfo), responseInfo: responseInfo, completionHandler: completionHandler)
+		let message = MTMessage(payload: userInfo,
+								deliveryMethod: .undefined,
+								seenDate: nil,
+								deliveryReportDate: nil,
+								seenStatus: .NotSeen,
+								isDeliveryReportSent: false)
+		handleActionWithIdentifier(identifier: identifier, message: message, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
-    /// This method handles interactive notifications actions and performs work that is defined for this action.
-    ///
-    /// - parameter identifier: The identifier for the interactive notification action.
-    /// - parameter message: The `MTMessage` object the action associated with.
-    /// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
-    /// - parameter completionHandler: A block that you must call when you are finished performing the action.
+	/// This method handles interactive notifications actions and performs work that is defined for this action.
+	///
+	/// - parameter identifier: The identifier for the interactive notification action.
+	/// - parameter message: The `MTMessage` object the action associated with.
+	/// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
+	/// - parameter completionHandler: A block that you must call when you are finished performing the action.
 	public class func handleActionWithIdentifier(identifier: String?, message: MTMessage?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let service = NotificationsInteractionService.sharedInstance else
 		{
@@ -84,7 +96,7 @@ class NotificationsInteractionService: MobileMessagingService {
 	let mmContext: MobileMessaging
 	
 	let customNotificationCategories: Set<NotificationCategory>?
-
+	
 	var allNotificationCategories: Set<NotificationCategory>? {
 		return customNotificationCategories + NotificationCategories.predefinedCategories
 	}
@@ -106,7 +118,8 @@ class NotificationsInteractionService: MobileMessagingService {
     
     func handleActionWithIdentifier(identifier: String?, message: MTMessage?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
         MMLogDebug("[Interaction Service] handling action \(identifier ?? "n/a") for message \(message?.messageId ?? "n/a"), resonse info \(responseInfo ?? [:])")
-		guard isRunning,
+		
+        guard isRunning,
 			let identifier = identifier,
 			let message = message else
 		{
@@ -135,8 +148,8 @@ class NotificationsInteractionService: MobileMessagingService {
 			handleAction(NotificationAction.defaultAction)
 		}
 		else if	let categoryId = message.aps.category,
-					let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
-					let action = category.actions.first(where: { $0.identifier == identifier })
+			let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
+			let action = category.actions.first(where: { $0.identifier == identifier })
 		{
 			if	#available(iOS 9.0, *),
 				let responseInfo = responseInfo,
@@ -156,7 +169,7 @@ class NotificationsInteractionService: MobileMessagingService {
 			completionHandler()
 		}
 	}
-
+	
 	//MARK: - Protocol requirements (MobileMessagingService)
 	var isRunning: Bool = false
 }
@@ -166,7 +179,7 @@ extension NotificationsInteractionService {
 	var uniqueIdentifier: String {
 		return "com.mobile-messaging.subservice.NotificationsInteractionService"
 	}
-
+	
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
 		stop()
 		NotificationsInteractionService.sharedInstance = nil
@@ -214,8 +227,17 @@ extension NotificationsInteractionService {
         }
 		
 		if appliedAction.options.contains(.moRequired) {
+            let mo = MOMessage(
+                destination: nil,
+                text: "\(message.category ?? "n/a") \(appliedAction.identifier)",
+                customPayload: nil,
+                composedDate: MobileMessaging.date.now,
+                bulkId: message.internalData?[InternalDataKeys.bulkId] as? String,
+                initialMessageId: message.messageId
+            )
+            
             dispatchGroup.enter()
-            self.mmContext.sendMessagesSDKInitiated([MOMessage(destination: nil, text: "\(message.category ?? "n/a") \(appliedAction.identifier)", customPayload: nil, composedDate: MobileMessaging.date.now, bulkId: message.internalData?[InternalDataKeys.bulkId] as? String, initialMessageId: message.messageId)]) { msgs, error in
+            self.mmContext.sendMessagesSDKInitiated([mo]) { msgs, error in
                 dispatchGroup.leave()
             }
 		}

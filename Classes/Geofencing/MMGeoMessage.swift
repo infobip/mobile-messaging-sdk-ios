@@ -67,7 +67,12 @@ final public class MMGeoMessage: MTMessage {
 			return nil
 		}
 		
-		self.init(payload: payload)
+		self.init(payload: payload,
+				  deliveryMethod: MessageDeliveryMethod(rawValue: managedObject.deliveryMethod) ?? .undefined,
+				  seenDate: managedObject.seenDate,
+				  deliveryReportDate: managedObject.deliveryReportedDate,
+				  seenStatus: managedObject.seenStatus,
+				  isDeliveryReportSent: managedObject.reportSent)
 		self.campaignState = managedObject.campaignState
 	}
 	
@@ -79,7 +84,8 @@ final public class MMGeoMessage: MTMessage {
 		}
 	}
 	
-	public override init?(payload: APNSPayload) {
+	override public init?(payload: APNSPayload, deliveryMethod: MessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool)
+	{
 		guard
 			let internalData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload,
 			let geoRegionsData = internalData[InternalDataKeys.geo] as? [StringKeyPayload],
@@ -113,7 +119,7 @@ final public class MMGeoMessage: MTMessage {
 		self.deliveryTime = deliveryTime
 		self.events = evs
 		self.regions = Set(geoRegionsData.compactMap(MMRegion.init))
-		super.init(payload: payload)
+		super.init(payload: payload, deliveryMethod: deliveryMethod, seenDate: seenDate, deliveryReportDate: deliveryReportDate, seenStatus: seenStatus, isDeliveryReportSent: isDeliveryReportSent)
 		self.regions.forEach({ $0.message = self })
 	}
 	
@@ -152,9 +158,9 @@ final public class MMGeoMessage: MTMessage {
                                                    "silent": isSilent,
                                                    "alert": text ?? ""]
         
-        geoEventReportFormat["badge"] = aps.badge
+        geoEventReportFormat["badge"] = badge
         geoEventReportFormat["sound"] = sound
-        geoEventReportFormat["title"] = nil
+        geoEventReportFormat["title"] = title
         
         if let customPayload = customPayload, !customPayload.isEmpty {
             let json = JSON(customPayload)
@@ -449,9 +455,12 @@ extension MTMessage {
 		//cut silent:true in case of fetched message
 		newpayload.removeValue(forKey: InternalDataKeys.silent)
 		
-		let result = MTMessage(payload: newpayload)
-		result?.deliveryMethod = .generatedLocally
-		result?.isDeliveryReportSent = true
+		let result = MTMessage(payload: newpayload,
+							   deliveryMethod: .generatedLocally,
+							   seenDate: nil,
+							   deliveryReportDate: nil,
+							   seenStatus: .NotSeen,
+							   isDeliveryReportSent: true)
 		return result
 	}
 }

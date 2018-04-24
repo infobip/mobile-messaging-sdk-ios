@@ -48,7 +48,10 @@ public class Query: NSObject {
 }
 
 @objc public protocol MessageStorageFinders {
+	var messagesCountersUpdateHandler: ((Int, Int) -> Void)? {get set}
+	func countAllMessages(completion: @escaping (Int) -> Void)
 	func findAllMessages(completion: @escaping FetchResultBlock)
+	func findAllMessageIds(completion: @escaping (([String]) -> Void))
 	func findMessages(withIds messageIds: [MessageId], completion: @escaping FetchResultBlock)
 	func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock)
 }
@@ -72,10 +75,10 @@ public class Query: NSObject {
 	func stop()
 	
 	/// This method is called whenever a new mobile originated message is about to be sent to the server.
-	func insert(outgoing messages: [MOMessage], completion: @escaping () -> Void)
+	func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void)
 	
 	/// This method is called whenever a new mobile terminated message (either push(remote) notifictaion or fetched message) is received by the Mobile Messaging SDK.
-	func insert(incoming messages: [MTMessage], completion: @escaping () -> Void)
+	func insert(incoming messages: [BaseMessage], completion: @escaping () -> Void)
 	
 	/// This method is used by the Mobile Messaging SDK in order to detect duplicated messages persisted in the Message Storage. It is strongly recommended to implement this method in your custom Message Storage.
 	/// - parameter messageId: unique identifier of a MT message. Consider this identifier as a primary key.
@@ -95,18 +98,35 @@ public class Query: NSObject {
 	/// - parameter status: actual sending status for a MO message
 	/// - parameter messageId: unique identifier of a MO message
 	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void)
+	
+	/// This method is used to fetch and return all stored chat messages ids.
+	/// - parameter completion: a block to be executed after fetching is completed, all the fetched message ids must be passed as a block parameter
+	func findAllMessageIds(completion: @escaping ([String]) -> Void)
 }
 
 /// The adapter dispatches all adaptee method calls into the adaptee's queue,
 /// and checks for existing messages to avoid duplications, that's all.
-class MMMessageStorageQueuedAdapter: MessageStorage {
-
-	let adapteeStorage: MessageStorage
+class MessageStorageQueuedAdapter: MessageStorage {
 	
-	init?(adapteeStorage: MessageStorage?) {
-		guard let adapteeStorage = adapteeStorage else {
+	let adapteeStorage: MessageStorage
+	let messageFilter: (BaseMessage) -> Bool
+	
+	static func makeDefaultMessagesStoragaAdapter() -> MessageStorageQueuedAdapter? {
+		if let s = MMDefaultMessageStorage.makeDefaultMessageStorage() {
+			return MessageStorageQueuedAdapter.makeMessagesStoragaAdapter(storage: s)
+		} else {
 			return nil
 		}
+	}
+	
+	static func makeMessagesStoragaAdapter(storage: MessageStorage) -> MessageStorageQueuedAdapter {
+		return MessageStorageQueuedAdapter(adapteeStorage: storage, messageFilter: { m in
+			return !m.isChatMessage
+		})
+	}
+	
+	init(adapteeStorage: MessageStorage, messageFilter: @escaping (BaseMessage) -> Bool) {
+		self.messageFilter = messageFilter
 		self.adapteeStorage = adapteeStorage
 	}
 	
@@ -114,7 +134,8 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 		return adapteeStorage.queue
 	}
 	
-	@objc func insert(outgoing messages: [MOMessage], completion: @escaping () -> Void) {
+	@objc func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void) {
+		let messages = messages.filter(messageFilter)
 		guard !messages.isEmpty else {
 			completion()
 			return
@@ -124,7 +145,8 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 		}
 	}
 	
-	@objc func insert(incoming messages: [MTMessage], completion: @escaping () -> Void) {
+	@objc func insert(incoming messages: [BaseMessage], completion: @escaping () -> Void) {
+		let messages = messages.filter(messageFilter)
 		guard !messages.isEmpty else {
 			completion()
 			return
@@ -136,6 +158,12 @@ class MMMessageStorageQueuedAdapter: MessageStorage {
 	
 	@objc func findMessage(withId messageId: MessageId) -> BaseMessage? {
 		return self.adapteeStorage.findMessage(withId: messageId)
+	}
+	
+	@objc func findAllMessageIds(completion: @escaping ([String]) -> Void) {
+		queue.async() {
+			self.adapteeStorage.findAllMessageIds(completion: completion)
+		}
 	}
 	
 	@objc func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {

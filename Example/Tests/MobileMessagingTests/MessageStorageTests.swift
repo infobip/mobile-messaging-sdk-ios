@@ -15,6 +15,10 @@ class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, Messa
 		moMessages.removeAll()
 	}
 	
+	func findAllMessageIds(completion: @escaping ([String]) -> Void) {
+		completion(mtMessages.map({$0.messageId}))
+	}
+	
 	func remove(withIds messageIds: [MessageId], completion: @escaping ([MessageId]) -> Void) {
 		
 	}
@@ -44,15 +48,15 @@ class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, Messa
 	var queue: DispatchQueue {
 		return DispatchQueue.main
 	}
-	var mtMessages = [MTMessage]()
-	var moMessages = [MOMessage]()
-	func insert(incoming messages: [MTMessage], completion: @escaping () -> Void) {
+	var mtMessages = [BaseMessage]()
+	var moMessages = [BaseMessage]()
+	func insert(incoming messages: [BaseMessage], completion: @escaping () -> Void) {
 		messages.forEach { (message) in
 			self.mtMessages.append(message)
 		}
 		completion()
 	}
-	func insert(outgoing messages: [MOMessage], completion: @escaping () -> Void) {
+	func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void) {
 		messages.forEach { (message) in
 			self.moMessages.append(message)
 		}
@@ -60,7 +64,7 @@ class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, Messa
 	}
 	func findMessage(withId messageId: MessageId) -> BaseMessage? {
 		if let idx = moMessages.index(where: { $0.messageId == messageId }) {
-			return BaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId])
+			return BaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId], deliveryMethod: .undefined)
 		} else {
 			return nil
 		}
@@ -85,8 +89,53 @@ class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, Messa
 
 class MessageStorageTests: MMTestCase {
 	
+	func apnsChatMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
+		return [
+			"messageId": messageId,
+			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
+			"internalData": ["sendDateTime": sendDateTimeMillis, "internalKey": "internalValue"],
+			"customPayload": ["isChat": true, "customKey": "customValue"]
+		]
+	}
+
+	
+	func testThatChatMessagesDontGetToMessageStorage() {
+		cleanUpAndStop()
+		
+		let messageStorageStub = MessageStorageStub()
+		let chatStorageStub = MessageStorageStub()
+		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withMobileChat(storage: chatStorageStub).start()
+		
+		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
+		
+		let expectedMessagesCount = 5
+		weak var expectation = self.expectation(description: "Check finished")
+		var iterationCounter: Int = 0
+		
+		self.mobileMessagingInstance.didReceiveRemoteNotification(apnsChatMessagePayload("chatmessageid"), completion: { _ in
+			
+			sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
+				self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
+					DispatchQueue.main.async {
+						iterationCounter += 1
+						if iterationCounter == expectedMessagesCount {
+							expectation?.fulfill()
+						}
+					}
+				})
+			}
+		})
+		
+		self.waitForExpectations(timeout: 60, handler: { _ in
+			XCTAssertEqual(messageStorageStub.mtMessages.count, expectedMessagesCount)
+			XCTAssertEqual(messageStorageStub.moMessages.count, 0)
+			XCTAssertEqual(chatStorageStub.mtMessages.count, 1)
+			XCTAssertEqual(chatStorageStub.moMessages.count, 0)
+		})
+	}
+	
 	var defaultMessageStorage: MMDefaultMessageStorage? {
-		return self.mobileMessagingInstance.messageStorage as? MMDefaultMessageStorage
+		return self.mobileMessagingInstance.messageStorages["messages"]?.adapteeStorage as? MMDefaultMessageStorage
 	}
 	
 	func testMODuplication() {
@@ -99,14 +148,14 @@ class MessageStorageTests: MMTestCase {
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		do {
-			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date())
+			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: nil, initialMessageId: nil, sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 			MobileMessaging.sendMessages([moMessage]) { (messages, error) in
 				expectation1?.fulfill()
 			}
 		}
 		
 		do {
-			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date())
+			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: nil, initialMessageId: nil, sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 			MobileMessaging.sendMessages([moMessage]) { (messages, error) in
 				expectation2?.fulfill()
 			}
@@ -147,8 +196,8 @@ class MessageStorageTests: MMTestCase {
 
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-        let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1")
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey": "customValue2" as NSString], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2")
+		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey": "customValue2" as NSString], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		
 		MobileMessaging.sendMessages([moMessage1, moMessage2]) { (messages, error) in
 			expectation?.fulfill()
@@ -164,17 +213,17 @@ class MessageStorageTests: MMTestCase {
 	
     func testDefaultStoragePersistingAndFetching() {
 		cleanUpAndStop()
-		
 		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
 		
-		weak var expectation1 = expectation(description: "Check finished")
+		weak var findAllMessagesExp1 = expectation(description: "Check finished")
+		weak var findAllMessagesIdsExp = expectation(description: "Check finished")
 		self.defaultMessageStorage?.findAllMessages { results in
 			XCTAssertEqual(results?.count, 0)
-			expectation1?.fulfill()
+			findAllMessagesExp1?.fulfill()
 		}
 		
 		let expectedMessagesCount = 5
-		weak var expectation2 = expectation(description: "Check finished")
+		weak var findAllMessagesExp2 = expectation(description: "Check finished")
 		
 		var iterationCounter: Int = 0
         
@@ -185,9 +234,13 @@ class MessageStorageTests: MMTestCase {
 					iterationCounter += 1
 				
 					if iterationCounter == expectedMessagesCount {
+						self.defaultMessageStorage?.findAllMessageIds(completion: { (mids) in
+							XCTAssertEqual(mids.count, expectedMessagesCount)
+							findAllMessagesIdsExp?.fulfill()
+						})
 						self.defaultMessageStorage?.findAllMessages { results in
 							XCTAssertEqual(results?.count, expectedMessagesCount)
-							expectation2?.fulfill()
+							findAllMessagesExp2?.fulfill()
 						}
 					}
 				}

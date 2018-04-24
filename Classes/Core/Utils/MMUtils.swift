@@ -19,7 +19,7 @@ struct DateStaticFormatters {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")
 		result.dateFormat = "yyyy-MM-dd"
-        result.timeZone = TimeZone(secondsFromGMT: 0)
+		result.timeZone = TimeZone(secondsFromGMT: 0)
 		return result
 	}()
 	
@@ -264,16 +264,16 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> D
 }
 
 func + <Element: Any>(l: Set<Element>?, r: Set<Element>?) -> Set<Element>? {
-    switch (l, r) {
-    case (.none, .none):
-        return nil
-    case (.some(let left), .none):
-        return left
-    case (.none, .some(let right)):
-        return right
-    case (.some(let left), .some(let right)):
-        return left.union(right)
-    }
+	switch (l, r) {
+	case (.none, .none):
+		return nil
+	case (.some(let left), .none):
+		return left
+	case (.none, .some(let right)):
+		return right
+	case (.some(let left), .some(let right)):
+		return left.union(right)
+	}
 }
 
 func + <Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
@@ -329,7 +329,7 @@ protocol MobileMessagingService {
 	
 	/// A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
 	var systemData: [String: AnyHashable]? { get }
-
+	
 	/// A subservice must implement this method in order to let MobileMessaging be aware of the subservice plugged in.
 	func registerSelfAsSubservice(of mmContext: MobileMessaging)
 	
@@ -338,7 +338,7 @@ protocol MobileMessagingService {
 	
 	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?)
 	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?)
-
+	
 	func mobileMessagingWillStart(_ mmContext: MobileMessaging)
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging)
 	
@@ -409,8 +409,17 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 			UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
 				let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-MessagesEvictionOperation.defaultMessageMaxAge).timeIntervalSince1970
 				let messages = notifications
-					.compactMap({ return MTMessage(payload: $0.request.content.userInfo) })
-					.filter({ return $0.sendDateTime > dateToCompare })
+					.compactMap({
+						MTMessage(payload: $0.request.content.userInfo,
+								  deliveryMethod: .push,
+								  seenDate: nil,
+								  deliveryReportDate: nil,
+								  seenStatus: .NotSeen,
+								  isDeliveryReportSent: false)
+					})
+					.filter({
+						$0.sendDateTime > dateToCompare
+					})
 				completionHandler(messages)
 			}
 		} else {
@@ -513,6 +522,41 @@ extension String {
 	}
 }
 
+enum MessageStorageKind: String {
+	case messages = "messages", chat = "chat"
+}
+
+extension Dictionary where Key == String {
+	var isChatMessage: Bool {
+		return (self[CustomPayloadKeys.isChat] as? Bool) ?? false
+	}
+}
+
+extension UIImage {
+	convenience init?(mm_named: String) {
+		if let url = MobileMessaging.bundle.url(forResource: "MobileMessaging", withExtension: "bundle") {
+			let bundle = Bundle(url: url)
+			self.init(named: mm_named, in: bundle, compatibleWith: nil)
+		} else {
+			return nil
+		}
+	}
+}
+
+let isDebug: Bool = {
+	var isDebug = false
+	// function with a side effect and Bool return value that we can pass into assert()
+	func set(debug: Bool) -> Bool {
+		isDebug = debug
+		return isDebug
+	}
+	// assert:
+	// "Condition is only evaluated in playgrounds and -Onone builds."
+	// so isDebug is never changed to false in Release builds
+	assert(set(debug: true))
+	return isDebug
+}()
+
 protocol SingleKVStorage {
 	associatedtype ValueType
 	var backingStorage: KVOperations {set get}
@@ -570,4 +614,20 @@ func memoize<T: Hashable, U>(work: @escaping (T)->U) -> (T)->U {
 
 let calculateAppCodeHash = memoize { (appCode: String) in
 	return String(appCode.sha1().prefix(10))
+}
+
+extension Sequence {
+	func forEachAsync(_ work: @escaping (Self.Iterator.Element, @escaping () -> Void) -> Void, completion: @escaping () -> Void) {
+		let loopGroup = DispatchGroup()
+		self.forEach { (el) in
+			loopGroup.enter()
+			work(el, {
+				loopGroup.leave()
+			})
+		}
+		
+		loopGroup.notify(queue: DispatchQueue.global(qos: .default), execute: {
+			completion()
+		})
+	}
 }

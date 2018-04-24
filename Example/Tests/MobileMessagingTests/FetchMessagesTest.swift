@@ -108,7 +108,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	func testThatNewDataFetched() {
 		weak var exp = expectation(description: "Handler called")
-		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
+		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseMock:
 			{ (request) -> JSON? in
 				if let request = request as? MessagesSyncRequest {
 					if (request.dlrMsgIds ?? [String]()) == ["newData"]  {
@@ -135,8 +135,9 @@ class FetchMessagesCompletionTests: MMTestCase {
         messageHandlingDelegateMock.willScheduleLocalNotification = { m in
             localNotificationScheduled?.fulfill()
         }
+
         MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
-        self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
+        self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseMock:
             { (request) -> JSON? in
                 if let request = request as? MessagesSyncRequest {
                     if (request.dlrMsgIds ?? [String]()) == ["newData"]  {
@@ -158,7 +159,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	func testThatNoDataFetched() {
 		weak var exp = expectation(description: "Handler called")
-		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution:
+		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseMock:
 			{ (request) -> JSON? in
 				if request is MessagesSyncRequest {
 					return JSON(["payloads": []])

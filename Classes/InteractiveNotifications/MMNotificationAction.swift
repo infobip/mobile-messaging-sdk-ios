@@ -218,6 +218,9 @@ public final class NotificationActionOptions : NSObject {
 	
 	/// Indicates whether the SDK must generate MO message to report on users interaction.
 	public static let moRequired = NotificationActionOptions(rawValue: 1 << 2)
+	
+	/// Indicates whether action is compatible with chat messages. If it is compatible, the action button will be shown in the SDK buil-in chat view.
+	public static let chatCompatible = NotificationActionOptions(rawValue: 1 << 3)
 }
 
 struct NotificationActionKeys {

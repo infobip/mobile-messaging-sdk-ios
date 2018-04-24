@@ -4,23 +4,27 @@ platform :ios, '8.0'
 
 $podName = 'MobileMessaging'
 $geoPodName = 'MobileMessaging/Geofencing'
+$chatPodName = 'MobileMessaging/MobileChat'
+
+def includeMobileMessagingPods
+	pod $podName, :path => '../'
+	pod $geoPodName, :path => '../'
+    pod $chatPodName, :path => '../'
+end
 
 target 'MobileMessagingExample' do
-    pod $podName, :path => '../'
-	pod $geoPodName, :path => '../'
+	includeMobileMessagingPods
 	target 'NotificationServiceExtension' do
 		inherit! :search_paths
 	end
 end
 
 target 'MobileMessagingExample_Tests' do
-    pod $podName, :path => '../'
-	pod $geoPodName, :path => '../'
+    includeMobileMessagingPods
 end
 
 target 'MobileMessagingExample_Tests_Device' do
-	pod $podName, :path => '../'
-	pod $geoPodName, :path => '../'
+	includeMobileMessagingPods
 end
 
 post_install do |installer|

@@ -19,10 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "AFHTTPSessionManager.h"
+#import "MM_AFHTTPSessionManager.h"
 
-#import "AFURLRequestSerialization.h"
-#import "AFURLResponseSerialization.h"
+#import "MM_AFURLRequestSerialization.h"
+#import "MM_AFURLResponseSerialization.h"
 
 #import <Availability.h>
 #import <TargetConditionals.h>

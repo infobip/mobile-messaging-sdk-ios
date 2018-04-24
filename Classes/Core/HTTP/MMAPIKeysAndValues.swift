@@ -107,6 +107,10 @@ struct InternalDataKeys {
     static let bulkId = "bulkId"
 }
 
+struct CustomPayloadKeys {
+	static let isChat: String = "isChat"
+}
+
 struct Attachments {
 	struct Keys {
 		static let url = "url"

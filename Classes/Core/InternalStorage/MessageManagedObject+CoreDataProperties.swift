@@ -23,4 +23,5 @@ extension MessageManagedObject {
 	@NSManaged var campaignStateValue: Int16
 	@NSManaged var campaignId: String?
 	@NSManaged var deliveryReportedDate: Date?
+	@NSManaged var deliveryMethod: Int16
 }

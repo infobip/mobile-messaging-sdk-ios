@@ -39,7 +39,8 @@ final class MessageFetchingOperation: Operation {
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogDebug("[Message fetching] Registration may be not healthy. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
+			finish()
 			return
 		}
 		syncMessages()
@@ -66,14 +67,14 @@ final class MessageFetchingOperation: Operation {
 			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
 			
 			self.mmContext.remoteApiProvider.syncMessages(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
-                self.result = result
+				self.result = result
 				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds) {
 					self.finish()
 				}
-            }
+			}
 		}
 	}
-
+	
 	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?, completion: @escaping () -> Void) {
 		context.performAndWait {
 			switch result {
@@ -102,7 +103,7 @@ final class MessageFetchingOperation: Operation {
 	private func dequeueDeliveryReports(messageIDs: [String], completion: @escaping () -> Void) {
 		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId IN %@", messageIDs), context: context)
 			, !messages.isEmpty else
-        {
+		{
 			completion()
 			return
 		}
@@ -119,18 +120,20 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func updateMessageStorage(with messages: [MessageManagedObject], completion: @escaping () -> Void) {
-		guard let storage = mmContext.messageStorageAdapter, !messages.isEmpty else
+		guard !messages.isEmpty else
 		{
 			completion()
 			return
 		}
-		
-		storage.batchDeliveryStatusUpdate(messages: messages, completion: completion)
+		let storages = mmContext.messageStorages.values
+		storages.forEachAsync({ (storage, finishBlock) in
+			storage.batchDeliveryStatusUpdate(messages: messages, completion: finishBlock)
+		}, completion: completion)
 	}
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message fetching] finished with errors: \(errors)")
-
+		
 		switch result {
 		case .Success(let fetchResponse):
 			if let messages = fetchResponse.messages, !messages.isEmpty, handlingIteration < MessageFetchingSettings.fetchingIterationLimit {

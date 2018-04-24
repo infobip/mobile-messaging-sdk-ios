@@ -40,7 +40,7 @@ public final class MobileMessaging: NSObject {
 	/// Fabric method for Mobile Messaging session.
 	/// It is possible to supply a default implementation of Message Storage to the Mobile Messaging library during initialization. In this case the library will save all received Push messages using the `MMDefaultMessageStorage`. Library can also be initialized either without message storage or with user-provided one (see `withMessageStorage(messageStorage:)`).
 	public func withDefaultMessageStorage() -> MobileMessaging {
-		self.messageStorage = MMDefaultMessageStorage()
+		self.messageStorages[MessageStorageKind.messages.rawValue] = MessageStorageQueuedAdapter.makeDefaultMessagesStoragaAdapter()
 		return self
 	}
 	
@@ -48,7 +48,7 @@ public final class MobileMessaging: NSObject {
 	/// It is possible to supply an implementation of Message Storage to the Mobile Messaging library during initialization. In this case the library will save all received Push messages to the supplied `messageStorage`. Library can also be initialized either without message storage or with the default message storage (see `withDefaultMessageStorage()` method).
 	/// - parameter messageStorage: a storage object, that implements the `MessageStorage` protocol
 	public func withMessageStorage(_ messageStorage: MessageStorage) -> MobileMessaging {
-		self.messageStorage = messageStorage
+		self.messageStorages[MessageStorageKind.messages.rawValue] = MessageStorageQueuedAdapter.makeMessagesStoragaAdapter(storage: messageStorage)
 		return self
 	}
 	
@@ -134,6 +134,7 @@ public final class MobileMessaging: NSObject {
 	/// This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
 	/// - parameter token: A token that identifies a particular device to APNs.
 	public class func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data) {
+		// The app might call this method in other rare circumstances, such as when the user launches an app after having restored a device from data that is not the device’s backup data. In this exceptional case, the app won’t know the new device’s token until the user launches it. Thus we must persist this token as soon as we can so the SDK knows about it regardless of SDK's startup delays.
 		MobileMessaging.sharedInstance?.didRegisterForRemoteNotificationsWithDeviceToken(token)
 	}
 	
@@ -157,7 +158,12 @@ public final class MobileMessaging: NSObject {
 	public class func didReceiveLocalNotification(_ notification: UILocalNotification) {
 		if let userInfo = notification.userInfo,
 			let payload = userInfo[LocalNotificationKeys.pushPayload] as? APNSPayload,
-			let message = MTMessage(payload: payload),
+			let message = MTMessage(payload: payload,
+									deliveryMethod: .undefined,
+									seenDate: nil,
+									deliveryReportDate: nil,
+									seenStatus: .NotSeen,
+									isDeliveryReportSent: false),
 			MMMessageHandler.isNotificationTapped(message, applicationState: MobileMessaging.application.applicationState)
         {
             NotificationsInteractionService.sharedInstance?.handleLocalNotificationTap(for: message)
@@ -171,7 +177,7 @@ public final class MobileMessaging: NSObject {
 	
 	/// Returns the default message storage if used. For more information see `MMDefaultMessageStorage` class description.
 	public class var defaultMessageStorage: MMDefaultMessageStorage? {
-		return MobileMessaging.sharedInstance?.messageStorage as? MMDefaultMessageStorage
+		return MobileMessaging.sharedInstance?.messageStorages[MessageStorageKind.messages.rawValue]?.adapteeStorage as? MMDefaultMessageStorage
 	}
 	
 	/// Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
@@ -293,7 +299,7 @@ public final class MobileMessaging: NSObject {
 		if #available(iOS 10.0, *) {
 			sharedNotificationExtensionStorage?.cleanupMessages()
 		}
-		MMCoreDataStorage.dropStorages(internalStorage: internalStorage, messageStorage: messageStorage as? MMDefaultMessageStorage)
+		MMCoreDataStorage.dropStorages(internalStorage: internalStorage, messageStorages: messageStorages)
 		if (clearKeychain) {
 			keychain.clear()
 		}
@@ -311,7 +317,8 @@ public final class MobileMessaging: NSObject {
 			MobileMessaging.application.unregisterForRemoteNotifications()
 		}
 		
-		messageStorage?.stop()
+		messageStorages.values.forEach({$0.stop()})
+		messageStorages.removeAll()
 		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingDidStop(self)
@@ -421,7 +428,7 @@ public final class MobileMessaging: NSObject {
 		
 		if forceCleanup || applicationCodeChanged(storage: storage, newApplicationCode: appCode) {
 			MMLogDebug("Data will be cleaned up due to the application code change.")
-			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorage: messageStorage as? MMDefaultMessageStorage)
+			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorages: messageStorages)
 			do {
 				storage = try MMCoreDataStorage.makeInternalStorage(self.storageType)
 			} catch {
@@ -448,7 +455,7 @@ public final class MobileMessaging: NSObject {
 		}
 		
 		appListener = MMApplicationListener(mmContext: self)
-		messageStorage?.start()
+		messageStorages.values.forEach({ $0.start() })
 		
 		if MobileMessaging.isPushRegistrationEnabled {
 			messageHandler.start()
@@ -461,13 +468,8 @@ public final class MobileMessaging: NSObject {
 		}
 	}
 	
-	internal(set) var messageStorage: MessageStorage? {
-		didSet {
-			messageStorageAdapter = MMMessageStorageQueuedAdapter(adapteeStorage: messageStorage)
-		}
-	}
-	var messageStorageAdapter: MMMessageStorageQueuedAdapter?
-	
+	var messageStorages: [String: MessageStorageQueuedAdapter] = [:]
+	var messageStorageAdapter: MessageStorageQueuedAdapter?
 	let internalStorage: MMCoreDataStorage
 	lazy var coreDataProvider: CoreDataProvider = CoreDataProvider(storage: self.internalStorage)
 	lazy var inMemoryDataProvider: InMemoryDataProvider = InMemoryDataProvider()

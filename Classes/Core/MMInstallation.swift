@@ -14,7 +14,7 @@ import CoreLocation
 	case Female
 	case Male
 	
-	var name: String {
+	public var name: String {
 		switch self {
 		case .Female : return "F"
 		case .Male : return "M"
@@ -117,7 +117,7 @@ final public class MMUser: NSObject, MobileMessagingService {
 		return coreDataProvider
 	}
 	
-//MARK: - Public
+	//MARK: - Public
 	public override var description: String {
 		return "User:\n  Internal ID = \(String(describing: pushRegistrationId))\n    External ID = \(String(describing: externalId))\n    Email = \(String(describing: email))\n    MSISDN = \(String(describing: msisdn))\n    Custom Data = \(String(describing: customData))\n    Predefined Data = \(String(describing: predefinedData))"
 	}
@@ -184,7 +184,7 @@ final public class MMUser: NSObject, MobileMessagingService {
 		save(completion)
 	}
 	
-//MARK: - PREDEFINED DATA
+	//MARK: - PREDEFINED DATA
 	
     /// The user's id you can provide in order to link your own unique user identifier with Mobile Messaging user id, so that you will be able to send personalised targeted messages to exact user and other nice features.
     public var externalId: String? {
@@ -376,7 +376,7 @@ final public class MMUser: NSObject, MobileMessagingService {
 		let op = UserDataSynchronizationOperation(syncOperationWithUser: self, mmContext: mmContext, finishBlock: completion)
 		installationQueue.addOperation(op)
 	}
-
+	
 	func set(data object: UserDataFoundationTypes?, forKey key: String, attributeName: String) {
 		resolveProvider(forKey: key, attributeName: attributeName).set(object, key: key, attribute: attributeName)
 	}
@@ -398,7 +398,7 @@ let installationQueue = MMOperationQueue.newSerialQueue
 @objcMembers
 final public class MMInstallation: NSObject {
 	
-//MARK: - Public	
+	//MARK: - Public
 	public override var description: String {
 		return "Installation:\n    Device token = \(String(describing: deviceToken))\n    Badge number = \(badgeNumber)\n"
 	}
@@ -419,7 +419,7 @@ final public class MMInstallation: NSObject {
 		let newRegOp = InstallationDataSynchronizationOperation(installation: self, user: user, mmContext: mmContext, finishBlock: completion)
 		installationQueue.addOperation(newRegOp)
 	}
-		
+	
 	/// Explicitly tries to sync the system data with the server.
 	public func syncSystemDataWithServer(completion: ((NSError?) -> Void)? = nil) {
 		guard let user = MobileMessaging.currentUser else {
@@ -445,8 +445,8 @@ final public class MMInstallation: NSObject {
 			resolveProvider(forAttributesSet: AttributesSet.badgeNumber).setValueForKey(Attributes.badgeNumber.rawValue, value: newValue)
 		}
 	}
-
-//MARK: Internal
+	
+	//MARK: Internal
 	var mmContext: MobileMessaging
 	var coreDataProvider: CoreDataProvider
 	var inMemoryProvider: InMemoryDataProvider
@@ -477,16 +477,16 @@ final public class MMInstallation: NSObject {
 		resolveProvider(forAttributesSet: AttributesSet.registrationAttributes).resetDirtyAttribute(AttributesSet.registrationAttributes)
 	}
 	
-    init(inMemoryProvider: InMemoryDataProvider, coreDataProvider: CoreDataProvider, storage: MMCoreDataStorage, mmContext: MobileMessaging, applicationCode: String? = nil) {
+	init(inMemoryProvider: InMemoryDataProvider, coreDataProvider: CoreDataProvider, storage: MMCoreDataStorage, mmContext: MobileMessaging, applicationCode: String? = nil) {
 		
 		self.mmContext = mmContext
 		self.coreDataProvider = coreDataProvider
 		self.inMemoryProvider = inMemoryProvider
 		
 		super.init()
-        if applicationCode != nil {
-            self.applicationCode = applicationCode
-        }
+		if applicationCode != nil {
+			self.applicationCode = applicationCode
+		}
 	}
 	
 	func updateRegistrationEnabledStatus(value: Bool, completion: ((NSError?) -> Void)? = nil) {
@@ -503,8 +503,8 @@ final public class MMInstallation: NSObject {
 		get { return resolveProvider(forAttributesSet: AttributesSet.applicationCode).getValueForKey(Attributes.applicationCode.rawValue) as? String }
 		set { resolveProvider(forAttributesSet: AttributesSet.applicationCode).setValueForKey(Attributes.applicationCode.rawValue, value: newValue) }
 	}
-    
-//MARK: - Private
+	
+	//MARK: - Private
 	
 	var systemDataHash: Int64 {
 		get { return (resolveProvider(forAttributesSet: AttributesSet.systemDataHash).getValueForKey(Attributes.systemDataHash.rawValue) as? Int64) ?? 0 }

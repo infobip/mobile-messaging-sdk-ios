@@ -71,7 +71,7 @@ func apnsNormalMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 func sendPushes(_ preparingFunc:(String) -> [AnyHashable: Any], count: Int, receivingHandler: ([AnyHashable: Any]) -> Void) {
     for _ in 0..<count {
         let newMessageId = UUID().uuidString
-        if let payload = MTMessage(payload: preparingFunc(newMessageId))?.originalPayload {
+        if let payload = MTMessage(payload: preparingFunc(newMessageId), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)?.originalPayload {
             receivingHandler(payload)
         } else {
             XCTFail()

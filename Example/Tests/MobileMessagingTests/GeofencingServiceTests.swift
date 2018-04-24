@@ -442,7 +442,7 @@ class GeofencingServiceTests: MMTestCase {
 						]
 					]
 			]
-			let m = MMGeoMessage(payload: p)!
+			let m = MMGeoMessage(payload: p, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
 			XCTAssertTrue(m.isNowAppropriateTimeForEntryNotification)
 		}
 	}
@@ -483,9 +483,7 @@ class GeofencingServiceTests: MMTestCase {
 				],
 			 "silent": true
 		]
-		
-		XCTAssertNotNil(MMGeoMessage(payload: p))
-		
+		XCTAssertNotNil(MMGeoMessage(payload: p, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false))
 	}
 	
 	func testThatTwoSequentalCampaignsAppearTwice() {
@@ -537,7 +535,7 @@ class GeofencingServiceTests: MMTestCase {
 		var internalData = apnsPayload[APNSPayloadKeys.internalData] as! [String: AnyObject]
 		internalData[CampaignDataKeys.startDate] = nil
 		apnsPayload[APNSPayloadKeys.internalData] = internalData
-		if let message = MMGeoMessage(payload: apnsPayload) {
+		if let message = MMGeoMessage(payload: apnsPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) {
 			let zagrebObject = message.regions.findZagreb
 			XCTAssertEqual(zagrebObject.message!.startTime, Date(timeIntervalSinceReferenceDate: 0))
 			XCTAssertEqual(message.startTime, Date(timeIntervalSinceReferenceDate: 0))
@@ -549,7 +547,7 @@ class GeofencingServiceTests: MMTestCase {
 	func testCampaignAPNSConstructors() {
 		let apnsPayload = modernAPNSPayloadZagrebPulaDict
 		
-		if let message = MMGeoMessage(payload: apnsPayload) {
+		if let message = MMGeoMessage(payload: apnsPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) {
 			
 			let zagrebId = modernZagrebDict[RegionDataKeys.identifier] as! String
 			let zagrebObject = message.regions.findZagreb
@@ -582,7 +580,7 @@ class GeofencingServiceTests: MMTestCase {
 	func testCampaignJSONConstructors() {
 		let json = JSON.parse(jsonStr)
 		
-		if let message = MMGeoMessage(json: json) {
+		if let message = MMGeoMessage(messageSyncResponseJson: json) {
 			
 			let zagrebObject = message.regions.findZagreb
 			XCTAssertEqual(zagrebObject.message!.startTime, expectedStartDate)
@@ -614,7 +612,7 @@ class GeofencingServiceTests: MMTestCase {
 	func testCampaignJSONConstructorsWithoutStartTime() {
 		let json = JSON.parse(jsonStrWithoutStartTime)
 		
-		if let message = MMGeoMessage(json: json) {
+		if let message = MMGeoMessage(messageSyncResponseJson: json) {
 			
 			let zagrebObject = message.regions.findZagreb
 			XCTAssertEqual(zagrebObject.message!.startTime, Date(timeIntervalSinceReferenceDate: 0))
@@ -655,7 +653,7 @@ class GeofencingServiceTests: MMTestCase {
 		weak var report1 = expectation(description: "report1")
 		weak var report2 = expectation(description: "report2")
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
-		guard let message = MMGeoMessage(payload: payload) else
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else
 		{
 			XCTFail()
 			return
@@ -673,7 +671,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.start()
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance,
 		                                                                                  performRequestCompanionBlock:
-		{ r in
+        { r in
 				
 			if let geoEventReportRequest = r as? GeoEventReportingRequest {
 				if  let body = geoEventReportRequest.body,
@@ -685,7 +683,7 @@ class GeofencingServiceTests: MMTestCase {
 
 		}, completionCompanionBlock: { _ in
 			
-		}, responseSubstitution: { r -> JSON? in
+		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -730,7 +728,7 @@ class GeofencingServiceTests: MMTestCase {
 		let events = [makeEventDict(ofType: .exit, limit: 1, timeout: 0)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -745,7 +743,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start()
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance, performRequestCompanionBlock:
-			{ r in
+            { r in
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
@@ -756,10 +754,10 @@ class GeofencingServiceTests: MMTestCase {
 				}
 				
 		}, completionCompanionBlock:
-			{ _ in
+            { _ in
 				
-		}, responseSubstitution:
-			{ r -> JSON? in
+		}, responseMock:
+            { r -> JSON? in
 				let jsonStr  =
 					"{" +
 						"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -803,7 +801,7 @@ class GeofencingServiceTests: MMTestCase {
 		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins),
 		              makeEventDict(ofType: .exit, limit: 2, timeout: timeoutInMins)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -820,7 +818,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.start()
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance,
 		                                                                                  performRequestCompanionBlock:
-		{ r in
+        { r in
 				
 			if let geoEventReportRequest = r as? GeoEventReportingRequest {
 				if  let body = geoEventReportRequest.body,
@@ -832,7 +830,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 		}, completionCompanionBlock: { _ in
 			
-		}, responseSubstitution: { r -> JSON? in
+		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -911,7 +909,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -948,7 +946,7 @@ class GeofencingServiceTests: MMTestCase {
 		let events = [makeEventDict(ofType: .entry, limit: 1),
 		              makeEventDict(ofType: .exit, limit: 1)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -963,7 +961,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.start()
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance,
 		                                                                                  performRequestCompanionBlock:
-			{ r in
+            { r in
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
@@ -975,7 +973,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 		}, completionCompanionBlock: { _ in
 			
-		}, responseSubstitution: { r -> JSON? in
+		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -1015,7 +1013,7 @@ class GeofencingServiceTests: MMTestCase {
 		weak var report2 = expectation(description: "report2")
 		let events = [makeEventDict(ofType: .entry, limit: 1)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -1053,7 +1051,7 @@ class GeofencingServiceTests: MMTestCase {
 		var sentSdkMessageId: String = ""
 		return MMRemoteAPIMock(mmContext: self.mobileMessagingInstance,
 		                       performRequestCompanionBlock:
-			{ r in
+            { r in
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
@@ -1065,7 +1063,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 		}, completionCompanionBlock: { _ in
 			
-		}, responseSubstitution: { r -> JSON? in
+		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -1084,7 +1082,7 @@ class GeofencingServiceTests: MMTestCase {
 	func testAbsentDeliveryWindow() {
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
 		
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -1117,7 +1115,7 @@ class GeofencingServiceTests: MMTestCase {
 			// appropriate day, time not set
 			do {
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1125,7 +1123,7 @@ class GeofencingServiceTests: MMTestCase {
 			}
 			do {
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: nil, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1135,7 +1133,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "1200/1230"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: nil), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1144,7 +1142,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "2300/1230"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: nil), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1154,7 +1152,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "1200/1230"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1163,7 +1161,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "2300/1230"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: thursdaySunday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1174,7 +1172,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "1200/1230"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1183,7 +1181,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "2300/1230"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1194,7 +1192,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "0000/1215"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: sunday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1204,7 +1202,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "1230/2335"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: sunday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1215,7 +1213,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "0000/1215"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1224,7 +1222,7 @@ class GeofencingServiceTests: MMTestCase {
 			do {
 				let timeIntervalString = "1230/2335"
 				let payload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: monday), regions: [modernPulaDict, modernZagrebDict])
-				guard let message = MMGeoMessage(payload: payload) else {
+				guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 					XCTFail()
 					return
 				}
@@ -1239,8 +1237,8 @@ class GeofencingServiceTests: MMTestCase {
 		let friday = "5"
 		let apnsPayload = makeApnsPayload(withEvents: nil, deliveryTime: makeDeliveryTimeDict(withTimeIntervalString: timeIntervalString, daysString: friday), regions: [modernPulaDict, modernZagrebDict])
 		
-		let dictRepresentation = MMGeoMessage(payload: apnsPayload)!.originalPayload
-		XCTAssertNotNil(MMGeoMessage(payload: dictRepresentation))
+		let dictRepresentation = MMGeoMessage(payload: apnsPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!.originalPayload
+		XCTAssertNotNil(MMGeoMessage(payload: dictRepresentation, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false))
 		XCTAssertTrue((dictRepresentation as NSDictionary).isEqual(apnsPayload as NSDictionary))
 	}
 	
@@ -1260,7 +1258,7 @@ class GeofencingServiceTests: MMTestCase {
 		weak var report2 = expectation(description: "report2")
 		
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
-		guard let message = MMGeoMessage(payload: payload) else
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else
 		{
 			XCTFail()
 			return
@@ -1343,7 +1341,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPICampaignStatesStub(mobileMessagingContext: mobileMessagingInstance, suspendedCampaignId: suspendedCampaignId, finishedCampaignId: finishedCampaignId)
 
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict], campaignId: suspendedCampaignId)
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -1370,7 +1368,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPICampaignStatesStub(mobileMessagingContext: mobileMessagingInstance, suspendedCampaignId: suspendedCampaignId, finishedCampaignId: finishedCampaignId)
 
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict], campaignId: finishedCampaignId)
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -1404,7 +1402,7 @@ class GeofencingServiceTests: MMTestCase {
 		let timeoutInMins: Int = 1
 		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -1416,7 +1414,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.start()
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance,
 		                                                                                  performRequestCompanionBlock:
-			{ r in
+            { r in
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
@@ -1428,7 +1426,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 		}, completionCompanionBlock: { _ in
 			
-		}, responseSubstitution: { r -> JSON? in
+		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -1479,8 +1477,8 @@ class GeofencingServiceTests: MMTestCase {
 		let payloadOfCampaign1 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict], campaignId: "campaignId1", messageId: "messageId1")
 		let payloadOfCampaign2 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict], campaignId: "campaignId2", messageId: "messageId2")
 		
-		guard let message1 = MMGeoMessage(payload: payloadOfCampaign1),
-			let message2 = MMGeoMessage(payload: payloadOfCampaign2) else {
+		guard let message1 = MMGeoMessage(payload: payloadOfCampaign1, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false),
+			let message2 = MMGeoMessage(payload: payloadOfCampaign2, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 				XCTFail()
 				return
 		}
@@ -1520,8 +1518,8 @@ class GeofencingServiceTests: MMTestCase {
 		let payloadOfCampaign1 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict], campaignId: "campaignId1", messageId: "messageId3")
 		let payloadOfCampaign2 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict], campaignId: "campaignId2", messageId: "messageId4")
 		
-		guard let message1 = MMGeoMessage(payload: payloadOfCampaign1),
-			let message2 = MMGeoMessage(payload: payloadOfCampaign2) else {
+		guard let message1 = MMGeoMessage(payload: payloadOfCampaign1, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false),
+			let message2 = MMGeoMessage(payload: payloadOfCampaign2, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 				XCTFail()
 				return
 		}
@@ -1619,7 +1617,7 @@ class GeofencingServiceTests: MMTestCase {
 		
         let events = [makeEventDict(ofType: .entry, limit: 2, timeout: 1)]
         let geoSignalingMessagePayload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-        guard let geoSignalingMessage = MMGeoMessage(payload: geoSignalingMessagePayload) else {
+        guard let geoSignalingMessage = MMGeoMessage(payload: geoSignalingMessagePayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
             XCTFail()
             return
         }
@@ -1662,7 +1660,7 @@ class GeofencingServiceTests: MMTestCase {
         },
             completionCompanionBlock: { _ in },
             
-            responseSubstitution: { (r) -> JSON? in
+            responseMock: { (r) -> JSON? in
                 let jsonStr  =
                 "{" +
                     "\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -1693,7 +1691,7 @@ class GeofencingServiceTests: MMTestCase {
 		weak var reachableTest = expectation(description: "test finished (w/ internet)")
 		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: 1)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -1761,7 +1759,7 @@ class GeofencingServiceTests: MMTestCase {
 			
 			},
 			
-			responseSubstitution: { (r) -> JSON? in
+			responseMock: { (r) -> JSON? in
 				if self.mobileMessagingInstance.reachabilityManager.currentlyReachable() {
 					let jsonStr  =
 						"{" +
@@ -1816,7 +1814,7 @@ class GeofencingServiceTests: MMTestCase {
 		weak var seenForRealIdCompleted = expectation(description: "seenForRealIdCompleted")
 		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: 1)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -1876,7 +1874,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTFail() // the seen must not be sent, there are only sdk generated message ids
 		}, completionCompanionBlock: { (r) in
 			XCTFail()
-		}, responseSubstitution: { (r) -> JSON? in
+		}, responseMock: { (r) -> JSON? in
 			XCTFail()
 			return nil
 		})
@@ -1899,7 +1897,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 		},
 			
-			responseSubstitution: { (r) -> JSON? in
+			responseMock: { (r) -> JSON? in
 				if self.mobileMessagingInstance.reachabilityManager.currentlyReachable() {
 					let jsonStr  =
 						"{" +
@@ -1956,8 +1954,8 @@ class GeofencingServiceTests: MMTestCase {
 		
 		
 		guard let payload = JSON.parse(jsonFromPushUp).dictionaryObject,
-			let message = MTMessage(payload: payload),
-			let geoMessage = MMGeoMessage(payload: payload) else {
+			let message = MTMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false),
+			let geoMessage = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 				XCTFail()
 				return
 		}
@@ -1970,6 +1968,7 @@ class GeofencingServiceTests: MMTestCase {
             XCTAssertEqual(m.text, message.text)
             report2?.fulfill()
         }
+
         MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 		
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -2020,46 +2019,6 @@ class GeofencingServiceTests: MMTestCase {
 		self.waitForExpectations(timeout: 500, handler: { _ in
 			XCTAssertEqual(1, didEnterRegionCount)
 		})
-		
-		/*
-		weak var didEnterRegionExp = expectation(description: "didEnterRegionExp")
-		
-		var didEnterRegionCount = 0
-		let timeoutInMins: Int = 1
-		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins)]
-		let payloadOfCampaign1 = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, nestedPulaDict], campaignId: "campaignId1", messageId: "messageId1")
-		
-		guard let message1 = MMGeoMessage(payload: payloadOfCampaign1),
-			let message2 = MMGeoMessage(payload: payloadOfCampaign2) else {
-				XCTFail()
-				return
-		}
-		
-		var enteredDatasourceRegions = [MMRegion]()
-		
-		let geoServiceStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
-		geoServiceStub.didEnterRegionCallback = { (region) in
-			didEnterRegionCount += 1
-			enteredDatasourceRegions.append(region)
-			if didEnterRegionCount == 2 {
-				XCTAssertTrue(enteredDatasourceRegions.contains(message1.regions.first!))
-				XCTAssertTrue(enteredDatasourceRegions.contains(message2.regions.first!))
-				didEnterRegionExp?.fulfill()
-			}
-		}
-		
-		GeofencingService.sharedInstance = geoServiceStub
-		GeofencingService.sharedInstance!.start()
-		GeofencingService.sharedInstance!.geofencingServiceQueue = MMGeoRemoteAPIAlwaysSucceeding(mmContext: self.mobileMessagingInstance)
-		let pulaCaffeLocation = CLLocation(latitude: 44.86803631018752, longitude: 13.84586334228516)
-		geoServiceStub.stubbedLocationManager.locationStub = pulaCaffeLocation
-		geoServiceStub.add(message: message1)
-		
-		geoServiceStub.locationManager(geoServiceStub.stubbedLocationManager, didEnterRegion: message1.regions.findPula.circularRegion)
-		
-		
-		waitForExpectations(timeout: 60, handler: nil)
-*/
 	}
 	
 	//MARK: - Private helpers

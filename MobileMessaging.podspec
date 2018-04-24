@@ -30,12 +30,19 @@ Pod::Spec.new do |s|
     s.subspec 'CocoaLumberjack' do |cl|
 		cl.dependency 'MobileMessaging/Core'
         cl.source_files = 'Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
-        cl.dependency 'CocoaLumberjack', '3.4.1'
+        cl.dependency 'CocoaLumberjack', '3.4.2'
     end
 
     s.subspec 'Geofencing' do |geo|
 		geo.dependency 'MobileMessaging/Core'
         geo.frameworks = 'CoreLocation'
-        geo.source_files = 'Classes/Geofencing/**'
+        geo.source_files = 'Classes/Geofencing/**/*'
     end
+	
+	s.subspec 'MobileChat' do |chat|
+        chat.frameworks = 'AudioToolbox'
+		chat.dependency 'MobileMessaging/Core'
+		chat.source_files = 'Classes/Chat/**/*.{h,m,swift}'
+        chat.resource_bundle = { 'MobileMessaging' => ['Classes/Chat/UI/Resources/**/*.{xcassets,png}'] }
+	end
 end

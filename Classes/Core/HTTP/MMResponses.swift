@@ -150,7 +150,7 @@ extension LibraryVersionResponse: JSONDecodable {
 
 extension MessagesSyncResponse: JSONDecodable{
 	init?(json value: JSON) {
-		self.messages = value[APNSPayloadKeys.payloads].arrayValue.compactMap { MTMessage(json: $0) }
+		self.messages = value[APNSPayloadKeys.payloads].arrayValue.compactMap { MTMessage(messageSyncResponseJson: $0) }
 	}
 }
 
@@ -170,6 +170,6 @@ extension UserDataSyncResponse: JSONDecodable {
 
 extension MOMessageSendingResponse: JSONDecodable {
 	init?(json value: JSON) {
-		self.messages = value[APIKeys.kMOMessages].arrayValue.compactMap(MOMessage.init)
+		self.messages = value[APIKeys.kMOMessages].arrayValue.compactMap({MOMessage.init(moResponseJson: $0)})
 	}
 }

@@ -9,29 +9,48 @@ import MobileMessaging
 import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: MobileMessagingAppDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 	
 	var window: UIWindow?
 	
-	override var appGroupId: String { return "group.com.mobile-messaging.notification-service-extension" }
-	
-	override var applicationCode: String { return "<# your application code #>" }
-	
-	override var userNotificationType: UserNotificationType { return UserNotificationType(options: [.alert, .sound]) }
-	
-	override func mm_application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+	func applicationDidFinishLaunching(_ application: UIApplication) {
+		MobileMessaging
+			.withApplicationCode(
+				"<# your application code #>",
+				notificationType: UserNotificationType(options: [.alert, .sound]))?
+			.withAppGroupId("group.com.mobile-messaging.notification-service-extension")
+			.withInteractiveNotificationCategories(customCategories)
+			.start()
 		setupLogging()
 		UIToolbar.setupAppearance()
-		return true
 	}
 	
-	func setupLogging() {
-		MobileMessaging.logger?.logOutput = MMLogOutput.Console
-		MobileMessaging.logger?.logLevel = .All
+	func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+		MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
 	}
 	
-	override var interactiveNotificationCategories: Set<NotificationCategory>? {
-		return customCategories
+	func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+	}
+	
+	func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
+		MobileMessaging.didReceiveLocalNotification(notification)
+	}
+	
+	func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
+		MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: nil, completionHandler: completionHandler)
+	}
+	
+	func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+		MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: nil, completionHandler: completionHandler)
+	}
+	
+	func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+		MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: responseInfo, completionHandler: completionHandler)
+	}
+	
+	func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+		MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
 	func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {

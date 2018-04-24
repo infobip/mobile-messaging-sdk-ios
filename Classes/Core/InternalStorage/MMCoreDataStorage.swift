@@ -24,6 +24,7 @@ struct MMStorageSettings {
 	static var inMemoryStoreSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: nil, storeOptions: nil)
 	static var SQLiteInternalStorageSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: storageOptions)
 	static var SQLiteMessageStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: storageOptions)
+	static var SQLiteChatStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "ChatStorage.sqlite", storeOptions: storageOptions)
 	
 	private static var storageOptions: MMStoreOptions {
 		var result: MMStoreOptions = [NSMigratePersistentStoresAutomaticallyOption: true,
@@ -58,6 +59,10 @@ final class MMCoreDataStorage {
 		return try MMCoreDataStorage(settings: MMStorageSettings.SQLiteMessageStorageSettings)
 	}
 	
+	class func makeSQLiteChatStorage() throws -> MMCoreDataStorage {
+		return try MMCoreDataStorage(settings: MMStorageSettings.SQLiteChatStorageSettings)
+	}
+	
 	class func makeInternalStorage(_ type: MMStorageType) throws -> MMCoreDataStorage {
 		switch type {
 		case .InMemory:
@@ -67,9 +72,9 @@ final class MMCoreDataStorage {
 		}
 	}
 	
-	class func dropStorages(internalStorage: MMCoreDataStorage, messageStorage: MMDefaultMessageStorage?) {
-		internalStorage.drop()
-		messageStorage?.coreDataStorage?.drop()
+	class func dropStorages(internalStorage: MMCoreDataStorage, messageStorages: [String: MessageStorageQueuedAdapter]) {
+		let storages = [internalStorage] + messageStorages.values.map({ return ($0.adapteeStorage as? MMDefaultMessageStorage)?.coreDataStorage })
+		storages.forEach({ $0?.drop() })
 	}
 	
 	var mainThreadManagedObjectContext: NSManagedObjectContext? {

@@ -38,7 +38,7 @@ class UserDataSynchronizationOperation: Operation {
 	}
 
 	private func sendUserDataIfNeeded() {
-		guard user.pushRegistrationId != nil else {
+		guard user.pushRegistrationId != nil && mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogDebug("[User data sync] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
@@ -190,7 +190,7 @@ extension NSString: UserDataFoundationTypes {}
 extension NSNull: UserDataFoundationTypes {}
 
 @objcMembers
-public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
+public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral, ExpressibleByNilLiteral {
 	let dataType: UserDataServiceTypes?
 	let dataValue: UserDataFoundationTypes
 
@@ -226,6 +226,29 @@ public final class CustomUserDataValue: NSObject, ExpressibleByStringLiteral, Ex
 		return CustomUserDataValue.isInteger(number: numberValue) ? numberValue.intValue : nil
 	}
 //MARK: - Literals
+	convenience public init(optionalLiteral: Any?) {
+		if let optionalLiteral = optionalLiteral {
+			switch optionalLiteral {
+			case (let v as NSDate):
+				self.init(date: v)
+			case (let v as Double):
+				self.init(double: v)
+			case (let v as Int):
+				self.init(integer: v)
+			case (let v as String):
+				self.init(string: v)
+			default:
+				self.init(null: NSNull())
+			}
+		} else {
+			self.init(null: NSNull())
+		}
+	}
+	
+	convenience public init(nilLiteral: ()) {
+		self.init(null: NSNull())
+	}
+	
 	convenience public init(integerLiteral value: Int) {
 		self.init(integer: value)
 	}

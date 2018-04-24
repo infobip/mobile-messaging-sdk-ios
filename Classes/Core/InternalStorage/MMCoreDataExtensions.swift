@@ -26,17 +26,17 @@ struct MMContextSaveOptions: OptionSet {
 }
 
 protocol FetchableResult: NSFetchRequestResult {
-	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<Self>
-	static func MM_executeRequest(_ request: NSFetchRequest<Self>, inContext ctx: NSManagedObjectContext) -> [Self]?
+	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<NSFetchRequestResult>
+	static func MM_executeRequest(_ request: NSFetchRequest<NSFetchRequestResult>, inContext ctx: NSManagedObjectContext) -> [Any]?
 	static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext)
-	static func MM_executeFetchRequestAndReturnFirstObject(_ request: NSFetchRequest<Self>, inContext context: NSManagedObjectContext) -> Self?
+	static func MM_executeFetchRequestAndReturnFirstObject(_ request: NSFetchRequest<NSFetchRequestResult>, inContext context: NSManagedObjectContext) -> Self?
 	static func MM_findFirstInContext(_ context: NSManagedObjectContext) -> Self?
 	static func MM_findFirstWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> Self?
 	static func MM_findAllWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> [Self]?
 	static func MM_findAllInContext(_ context: NSManagedObjectContext) -> [Self]?
 	static func MM_countOfEntitiesWithContext(_ context: NSManagedObjectContext) -> Int
 	static func MM_countOfEntitiesWithPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> Int
-	static func MM_selectAttribute(_ attribute: String, withPredicte predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> [String: AnyObject]?
+	static func MM_selectAttribute(_ attribute: String, withPredicte predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> [Any]?
 	static func MM_find(withPredicate predicate: NSPredicate, fetchLimit: Int, sortedBy: String, ascending: Bool, inContext context: NSManagedObjectContext) -> [Self]?
 	static func MM_findAll(withPredicate predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, skip: Int?, inContext context: NSManagedObjectContext) -> [Self]?
 }
@@ -71,14 +71,14 @@ extension UpdatableResult where Self: NSManagedObject {
 }
 
 extension FetchableResult where Self: NSManagedObject {
-	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<Self> {
-		let r = NSFetchRequest<Self>(entityName: self.MM_entityName)
+	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<NSFetchRequestResult> {
+		let r = NSFetchRequest<NSFetchRequestResult>(entityName: self.MM_entityName)
 		r.predicate = predicate
 		return r
 	}
 	
-	static func MM_executeRequest(_ request: NSFetchRequest<Self>, inContext ctx: NSManagedObjectContext) -> [Self]? {
-		var results: [Self]?
+	static func MM_executeRequest(_ request: NSFetchRequest<NSFetchRequestResult>, inContext ctx: NSManagedObjectContext) -> [Any]? {
+		var results: [Any]?
 		let requestBlock = {
 			do {
 				results = try ctx.fetch(request)
@@ -94,26 +94,26 @@ extension FetchableResult where Self: NSManagedObject {
 	
 
 	static func MM_findAllWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> [Self]? {
-		let r: NSFetchRequest<Self> = self.MM_requestAll(predicate)
-		return self.MM_executeRequest(r, inContext: context)
+		let r: NSFetchRequest<NSFetchRequestResult> = self.MM_requestAll(predicate)
+		return self.MM_executeRequest(r, inContext: context) as? [Self]
 	}
 	
 	static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) {
-		let request : NSFetchRequest<Self> = self.MM_requestAll(predicate)
+		let request : NSFetchRequest<NSFetchRequestResult> = self.MM_requestAll(predicate)
 		request.returnsObjectsAsFaults = true
 		request.includesPropertyValues = false
 		
-		if let objectsToTruncate = MM_executeRequest(request, inContext: context) {
+		if let objectsToTruncate = MM_executeRequest(request, inContext: context) as? [Self] {
 			for obj in objectsToTruncate {
 				obj.MM_deleteEntityInContext(context)
 			}
 		}
 	}
 	
-	static func MM_executeFetchRequestAndReturnFirstObject(_ request: NSFetchRequest<Self>, inContext context: NSManagedObjectContext) -> Self? {
+	static func MM_executeFetchRequestAndReturnFirstObject(_ request: NSFetchRequest<NSFetchRequestResult>, inContext context: NSManagedObjectContext) -> Self? {
 		request.fetchLimit = 1
 		let results = MM_executeRequest(request, inContext: context)
-		return results?.first
+		return results?.first as? Self
 	}
 	
 	static func MM_findFirstInContext(_ context: NSManagedObjectContext) -> Self? {
@@ -121,7 +121,7 @@ extension FetchableResult where Self: NSManagedObject {
 	}
 	
 	static func MM_findFirstWithPredicate(_ predicate: NSPredicate?, context: NSManagedObjectContext) -> Self? {
-		let request : NSFetchRequest<Self> = MM_requestAll(predicate)
+		let request : NSFetchRequest<NSFetchRequestResult> = MM_requestAll(predicate)
 		return MM_executeFetchRequestAndReturnFirstObject(request, inContext: context)
 	}
 	
@@ -143,20 +143,21 @@ extension FetchableResult where Self: NSManagedObject {
 		return count
 	}
 	
-	static func MM_selectAttribute(_ attribute: String, withPredicte predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> [String: AnyObject]? {
-		let request : NSFetchRequest<Self> = self.MM_requestAll(predicate)
+	static func MM_selectAttribute(_ attribute: String, withPredicte predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> [Any]? {
+		let request : NSFetchRequest<NSFetchRequestResult> = self.MM_requestAll(predicate)
 		request.resultType = .dictionaryResultType
 		request.propertiesToFetch = [attribute]
 		
 		if let results = MM_executeRequest(request, inContext: context) {
 			let foundationArray = NSArray(array: results)
-			return foundationArray.value(forKeyPath: NSString(format: "@unionOfObjects.%@", attribute) as String) as? [String: AnyObject]
+			let res = foundationArray.value(forKeyPath: "@unionOfObjects.\(attribute)") as? [Any]
+			return res
 		} else {
 			return nil
 		}
 	}
 
-	static func MM_requestAll(withPredicate predicate: NSPredicate? = nil, fetchLimit: Int, sortedBy sortTerm: String, ascending: Bool) -> NSFetchRequest<Self> {
+	static func MM_requestAll(withPredicate predicate: NSPredicate? = nil, fetchLimit: Int, sortedBy sortTerm: String, ascending: Bool) -> NSFetchRequest<NSFetchRequestResult> {
 		let r = self.MM_requestAll(predicate)
 		
 		var ascending = ascending
@@ -180,7 +181,7 @@ extension FetchableResult where Self: NSManagedObject {
 	
 	static func MM_find(withPredicate predicate: NSPredicate, fetchLimit: Int, sortedBy: String, ascending: Bool, inContext context: NSManagedObjectContext) -> [Self]? {
 		let r = self.MM_requestAll(withPredicate: predicate, fetchLimit: fetchLimit, sortedBy: sortedBy, ascending: ascending)
-		return self.MM_executeRequest(r, inContext: context)
+		return self.MM_executeRequest(r, inContext: context) as? [Self]
 	}
 	
 	static func MM_findAll(withPredicate predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, skip: Int?, inContext context: NSManagedObjectContext) -> [Self]? {
@@ -188,7 +189,7 @@ extension FetchableResult where Self: NSManagedObject {
 		r.sortDescriptors = sortDescriptors
 		r.fetchLimit = limit ?? 0
 		r.fetchOffset = skip ?? 0
-		return self.MM_executeRequest(r, inContext: context)
+		return self.MM_executeRequest(r, inContext: context) as? [Self]
 	}
 	
 }

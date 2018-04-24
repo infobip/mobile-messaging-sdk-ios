@@ -10,7 +10,6 @@ import Foundation
 @objc public protocol MessageHandlingDelegate {
 	/// Called when a new message is received.
     /// - parameter message: the new message received
-    /// - parameter completion: the block to be executed after the messasge handled
 	@objc optional func didReceiveNewMessage(message: MTMessage)
     
     /// Called when a notification is delivered to a foreground app.

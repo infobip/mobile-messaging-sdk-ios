@@ -51,16 +51,17 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 	If you use Carthage to build your dependencies, make sure you have added `MobileMessaging.framework` to the "Linked Frameworks and Libraries" section of your target, and have included them in your Carthage framework copying build phase (as described in [Carthage documentation](https://github.com/Carthage/Carthage/blob/master/README.md)).
 	If your application target does not contain Swift code at all, you should also set the `EMBEDDED_CONTENT_CONTAINS_SWIFT` build setting to “Yes”.
 
-5. Perform code modification to the app delegate in order to receive push notifications. There are two ways to do this: [App Delegate Inheritance](#app-delegate-inheritance) or [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition)
+5. Perform [code modification to the app delegate](#app-delegate-changes) in order to receive push notifications.
 
 6. At this step you are all set for receiving regular push notifications. There are several advanced features that you may find really useful for your product, though:
 	- [Rich Notifications and better delivery reporting(available with iOS 10)](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Using-Notification-Service-Extension-for-Rich-Notifications-and-better-delivery-reporting-on-iOS-10)
 	- [Geofencing Service](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service)
 
-### App Delegate Inheritance
-The simplest approach to integrate Mobile Messaging with an existing app is by inheriting your app delegate from `MobileMessagingAppDelegate`. If you prefer a more advanced way: [App Delegate Composition](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-app-delegate-composition).
+### App Delegate Changes
 
-1. Import the library, into your `AppDelegate` declaration file:
+The simplest approach to integrate Mobile Messaging SDK with an existing app is by adding the SDK calls into your app delegate:
+
+1. Import the library:
 
 	```swift
 	// Swift
@@ -71,53 +72,69 @@ The simplest approach to integrate Mobile Messaging with an existing app is by i
 	// Objective-C
 	@import MobileMessaging;
 	```
-2. Inherit your `AppDelegate` from `MobileMessagingAppDelegate` or `MobileMessagingAppDelegateObjc` depending on your project's language:
+2. Start MobileMessaging service using your Infobip Application Code, obtained in step 2, and preferable notification type as parameters:
 
 	```swift
 	// Swift
-	class AppDelegate: MobileMessagingAppDelegate {
+	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        MobileMessaging.withApplicationCode(<#your application code#>, notificationType: <#for example UserNotificationType(options: [.alert, .sound])#>)?.start()
+		...
+	}	
+	```
+
+	```objective-c
+	// Objective-C
+	- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+        UserNotificationType *userNotificationType = [[UserNotificationType alloc] initWithOptions:<#for example @[UserNotificationType.alert, UserNotificationType.sound]#>;
+        [[MobileMessaging withApplicationCode: <#your application code#> notificationType: userNotificationType] start:nil];
 		...
 	}
 	```
-
-	```objective-c
-	// Objective-C
-	@interface AppDelegate : MobileMessagingAppDelegateObjc
-	```
-3. Override `applicationCode` and `userNotificationType` variables in your `AppDelegate` providing appropriate values:
+4. Override method `application:didRegisterForRemoteNotificationsWithDeviceToken:` in order to inform Infobip about the new device registered:
 
 	```swift
 	// Swift
-	override var applicationCode: String {
-		return <# your application code #>
-	}
-	override var userNotificationType: UserNotificationType {
-		return <#your notification types preference, i.e. UserNotificationType(options: [.alert, .sound])#>
+	func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+		MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
 	}
 	```
 
 	```objective-c
 	// Objective-C
-	-(NSString *)applicationCode {
-		return <# your application code #>";
-	}
-	-(UserNotificationType)userNotificationType {
-		<#return your notification types preference, i.e. [[UserNotificationType alloc] initWithOptions: @[UserNotificationType.alert, UserNotificationType.sound]];#>
+	- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+		[MobileMessaging didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 	}
 	```
-4. If you have any of following application callbacks implemented in your AppDelegate:
+5. Override method `application:didReceiveRemoteNotification:fetchCompletionHandler:` in order to send notification delivery reports to Infobip:
 
-	* `application(:didFinishLaunchingWithOptions:)`
-	* `application(:didRegisterForRemoteNotificationsWithDeviceToken:)`
-	* `application(:didReceiveRemoteNotification:fetchCompletionHandler:)`
-	* `application(:didReceive:)` or `application(:didReceiveLocalNotification:)`
+	```swift
+	// Swift
+	func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject], fetchCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+	}
+	```
 
-	, rename it to corresponding:
+	```objective-c
+	// Objective-C
+	- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
+		[MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+	}
+	```
+6. Override method `application:didReceiveLocalNotification`(for Objective-C) or `application:didReceive:`(for Swift 3) in order the MobileMessaging SDK to be able to handle incoming local notifications internally:
 
-	* `mm_application(:didFinishLaunchingWithOptions:)`
-	* `mm_application(:didRegisterForRemoteNotificationsWithDeviceToken:)`
-	* `mm_application(:didReceiveRemoteNotification:fetchCompletionHandler:)`
-	* `mm_application(:didReceiveLocalNotification:)`
+	```swift
+	// Swift
+	func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
+		MobileMessaging.didReceiveLocalNotification(notification)
+	}
+	```
+
+	```objective-c
+	// Objective-C
+    -(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+        [MobileMessaging didReceiveLocalNotification:notification];
+    }
+	```
 
 ## Mobile Messaging APIs
 

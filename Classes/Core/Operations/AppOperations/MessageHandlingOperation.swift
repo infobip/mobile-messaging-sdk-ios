@@ -93,13 +93,16 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	private func populateMessageStorageWithNewMessages(_ messages: [MTMessage], completion: @escaping () -> Void) {
-		guard !messages.isEmpty, let storage = mmContext.messageStorageAdapter else
+		guard !messages.isEmpty else
 		{
 			completion()
 			return
 		}
+		let storages = mmContext.messageStorages.values
 		MMLogDebug("[Message handling] inserting messages in message storage: \(messages)")
-		storage.insert(incoming: messages, completion: completion)
+		storages.forEachAsync({ (storage, finishBlock) in
+			storage.insert(incoming: messages, completion: finishBlock)
+		}, completion: completion)
 	}
 	
 	private func notifyAboutNewMessages(_ messages: [MTMessage], completion: (() -> Void)? = nil) {
@@ -114,6 +117,7 @@ final class MessageHandlingOperation: Operation {
                 
                 self.presentLocalNotificationIfNeeded(with: message)
                 NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: [MMNotificationKeyMessage: message])
+
 				MobileMessaging.messageHandlingDelegate?.didReceiveNewMessage?(message: message)
                 if MobileMessaging.application.isInForegroundState {
                     MobileMessaging.messageHandlingDelegate?.didReceiveNewMessageInForeground?(message: message)

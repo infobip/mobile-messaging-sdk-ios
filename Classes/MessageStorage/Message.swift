@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-final class Message: NSManagedObject, FetchableResult {
+public final class Message: NSManagedObject, FetchableResult, UpdatableResult {
 
 	static func makeMtMessage(from message: BaseMessage, context: NSManagedObjectContext) -> Message? {
 		guard let mtMessage = message as? MTMessage else {
@@ -22,6 +22,8 @@ final class Message: NSManagedObject, FetchableResult {
 		newMessage.deliveryReportedDate = mtMessage.deliveryReportedDate
 		newMessage.isDeliveryReportSent = mtMessage.deliveryReportedDate != nil
 		newMessage.createdDate = Date(timeIntervalSince1970: mtMessage.sendDateTime)
+		newMessage.seenDate = mtMessage.seenDate
+		newMessage.seenStatusValue = mtMessage.seenStatus.rawValue
 		return newMessage
 	}
 	
@@ -34,18 +36,12 @@ final class Message: NSManagedObject, FetchableResult {
 		newMessage.messageId = moMessage.messageId
 		newMessage.direction = MessageDirection.MO.rawValue
 		newMessage.createdDate = moMessage.composedDate
+		newMessage.sentStatusValue = moMessage.sentStatus.rawValue
+		newMessage.seenStatusValue = MMSeenStatus.SeenSent.rawValue
 		return newMessage
 	}
 	
-	var baseMessage: BaseMessage? {
+	public var baseMessage: BaseMessage? {
 		return BaseMessage.makeMessage(withMessageStorageMessageManagedObject: self)
-	}
-	
-	var mtMessage: MTMessage? {
-		return baseMessage as? MTMessage
-	}
-	
-	var moMessage: MOMessage? {
-		return baseMessage as? MOMessage
 	}
 }

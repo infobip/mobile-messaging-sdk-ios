@@ -57,30 +57,34 @@ final class MMGeoRemoteAPIAlwaysSucceeding : RemoteAPIQueue {
 }
 
 class MMRemoteAPIMock: RemoteAPILocalMocks {
-	var responseSubstitution: ((_ request: Any) -> JSON?)? // (Request) -> (JSON)
+	var responseMock: ((_ request: Any) -> JSON?)? // (Request) -> (JSON)
 	var performRequestCompanionBlock: ((Any) -> Void)?
-	var completionCompanionBlock: ((Any) -> Void)?
+	var completionCompanionBlock: ((Any?) -> Void)?
 	
-	convenience init(mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
+	convenience init(mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseMock: ((_ request: Any) -> JSON?)? = nil) {
 		
-		self.init(appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: mmContext, performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseSubstitution)
+		self.init(appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: mmContext, performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseMock)
+		
 	}
 	
 	init(appCode: String, mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
 		self.completionCompanionBlock = completionCompanionBlock
-		self.responseSubstitution = responseSubstitution
+		self.responseMock = responseSubstitution
 		super.init(mmContext: mmContext, appCode: appCode)
 	}
 	
 	override func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
         performRequestCompanionBlock?(request)
-		if let responseSubstitution = responseSubstitution {
+		if let responseSubstitution = responseMock {
 			if let responseJSON = responseSubstitution(request), let response = R.ResponseType(json: responseJSON) {
 				completion(Result.Success(response))
+				self.completionCompanionBlock?(response)
 			} else {
 				completion(Result.Failure(nil))
+				self.completionCompanionBlock?(nil)
 			}
+			
 		} else {
 			super.perform(request: request) { (response) in
 				completion(response)

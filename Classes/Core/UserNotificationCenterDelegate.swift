@@ -11,7 +11,12 @@ import UserNotifications
 extension MTMessage {
     @available(iOS 10.0, *)
     class func make(with notification: UNNotification) -> MTMessage? {
-        return MTMessage(payload: notification.request.content.userInfo)
+        return MTMessage(payload: notification.request.content.userInfo,
+                         deliveryMethod: .undefined,
+                         seenDate: nil,
+                         deliveryReportDate: nil,
+                         seenStatus: .NotSeen,
+                         isDeliveryReportSent: false)
     }
 }
 
@@ -41,7 +46,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
             completionHandler([])
             return
         }
-        
+		
         MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: message) { (notificationType) in
             completionHandler(UNNotificationPresentationOptions.make(with: notificationType))
         } ?? completionHandler([])
@@ -71,6 +76,14 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
             responseInfo = nil
         }
         
-        service.handleActionWithIdentifier(identifier: actionId, message: MTMessage(payload: notificationUserInfo), responseInfo: responseInfo, completionHandler: completionHandler)
+        let message = MTMessage(payload: notificationUserInfo,
+                                deliveryMethod: .undefined,
+                                seenDate: nil,
+                                deliveryReportDate: nil,
+                                seenStatus: .NotSeen,
+                                isDeliveryReportSent: false)
+
+        
+        service.handleActionWithIdentifier(identifier: actionId, message: message, responseInfo: responseInfo, completionHandler: completionHandler)
     }
 }

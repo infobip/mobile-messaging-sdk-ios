@@ -10,19 +10,67 @@ import CoreData
 
 /// Default implementation of the Message Storage protocol. Uses Core Data persistent storage with SQLite database.
 @objc public class MMDefaultMessageStorage: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
+	
+	var totalMessagesCount_: Int = 0
+	var nonSeenMessagesCount_: Int = 0
+	
+	func updateCounters(total: Int?, nonSeen: Int?, force: Bool? = false) {
+		var doCall: Bool = false
+		if let total = total, total != totalMessagesCount_ {
+			doCall = true
+			totalMessagesCount_ = total
+		}
+		if let nonSeen = nonSeen, nonSeen != nonSeenMessagesCount_ {
+			doCall = true
+			nonSeenMessagesCount_ = nonSeen
+		}
+		if doCall || (force ?? false) {
+			OperationQueue.main.addOperation {
+				self.messagesCountersUpdateHandler?(self.totalMessagesCount_, self.nonSeenMessagesCount_)
+			}
+		}
+	}
+	
+	public var messagesCountersUpdateHandler: ((Int, Int) -> Void)? = nil {
+		didSet {
+			updateCounters(total: totalMessagesCount_, nonSeen: nonSeenMessagesCount_, force: true)
+		}
+	}
+	
+	static func makeDefaultMessageStorage() -> MMDefaultMessageStorage? {
+		if let s = try? MMCoreDataStorage.makeSQLiteMessageStorage() {
+			return MMDefaultMessageStorage(coreDataStorage: s)
+		} else {
+			MMLogError("Mobile messaging failed to initialize default message storage")
+			return nil
+		}
+	}
+	
+	public func countAllMessages(completion: @escaping (Int) -> Void) {
+		guard let context = self.context else {
+			completion(0)
+			return
+		}
+		
+		context.perform {
+			completion(Message.MM_countOfEntitiesWithContext(context))
+		}
+	}
+	
 	public var queue: DispatchQueue {
 		return serialQueue
 	}
 	
-	override init() {
+	init(coreDataStorage: MMCoreDataStorage) {
+		self.coreDataStorage = coreDataStorage
 		self.delegateQueue = DispatchQueue.main
 		super.init()
 	}
 	
 	//MARK: - MessageStorage protocol
 	public func start() {
-		coreDataStorage = try? MMCoreDataStorage.makeSQLiteMessageStorage()
 		context = coreDataStorage?.newPrivateContext()
+		initMessagesCounters()
 	}
 	
 	public func stop() {
@@ -31,20 +79,38 @@ import CoreData
 		delegate = nil
 	}
 	
-	public func insert(outgoing messages: [MOMessage], completion: @escaping () -> Void) {
-		persist(messages,
-		        storageMessageConstructor: { (baseMessage, context) -> Message? in
-					return Message.makeMoMessage(from: baseMessage, context: context)
-				},
-		        completion: completion)
+	public func findAllMessageIds(completion: @escaping (([String]) -> Void)) {
+		guard let context = self.context else {
+			completion([])
+			return
+		}
+		context.perform {
+			let predicate = NSPredicate(format: "seenStatusValue == \(MMSeenStatus.NotSeen.rawValue)")
+			let messageIds = Message.MM_selectAttribute("messageId", withPredicte: predicate, inContext: context)
+			self.updateCounters(total: nil, nonSeen: messageIds?.count ?? 0)
+			completion(messageIds as? [String] ?? [])
+		}
 	}
 	
-	public func insert(incoming messages: [MTMessage], completion: @escaping () -> Void) {
-		persist(messages,
-		        storageMessageConstructor: { (baseMessage, context) -> Message? in
-					return Message.makeMtMessage(from: baseMessage, context: context)
-				},
-		        completion: completion)
+	public func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void) {
+		persist(
+			messages,
+			storageMessageConstructor: { (baseMessage, context) -> Message? in
+				return Message.makeMoMessage(from: baseMessage, context: context)
+			},
+			completion: completion)
+	}
+	
+	public func insert(incoming messages: [BaseMessage], completion: @escaping () -> Void) {
+		persist(
+			messages,
+			storageMessageConstructor: { (baseMessage, context) -> Message? in
+				return Message.makeMtMessage(from: baseMessage, context: context)
+			},
+			completion: {
+				self.updateCounters(total: totalMessagesCount_ + messages.count, nonSeen: self.nonSeenMessagesCount_ + messages.count)
+				completion()
+			})
 	}
 	
 	public func findMessage(withId messageId: MessageId) -> BaseMessage? {
@@ -61,33 +127,39 @@ import CoreData
 	}
 	
 	public func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
-		updateMessage(	foundWith: NSPredicate(format: "messageId == %@", messageId),
-						applyChanges: { message in
-							message.sentStatusValue = status.rawValue
-						},
-						completion: completion)
+		updateMessage(
+			foundWith: NSPredicate(format: "messageId == %@", messageId),
+			applyChanges: { message in message.sentStatusValue = status.rawValue },
+			completion: completion)
 	}
 	
 	public func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void) {
-		updateMessage(	foundWith: NSPredicate(format: "messageId == %@", messageId),
-						applyChanges: { message in
-							message.seenStatusValue = status.rawValue
-							if message.seenDate == nil && (status == .SeenNotSent || status == .SeenSent) {
-								message.seenDate = MobileMessaging.date.now
-							} else if status == .NotSeen {
-								message.seenDate = nil
-							}
-						},
-						completion: completion)
+		var newSeenMessagsCount = 0
+		updateMessage(
+			foundWith: NSPredicate(format: "messageId == %@", messageId),
+			applyChanges: { message in
+				message.seenStatusValue = status.rawValue
+				if message.seenDate == nil && (status == .SeenNotSent || status == .SeenSent) {
+					message.seenDate = MobileMessaging.date.now
+					newSeenMessagsCount += 1
+				} else if status == .NotSeen {
+					message.seenDate = nil
+				}
+			},
+			completion: {
+				self.updateCounters(total: nil, nonSeen: max(0, self.nonSeenMessagesCount_ - newSeenMessagsCount))
+				completion()
+			})
 	}
 	
 	public func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId, completion: @escaping () -> Void) {
-		updateMessage(	foundWith: NSPredicate(format: "messageId == %@", messageId),
-		              	applyChanges: { message in
-							message.isDeliveryReportSent = isDelivered
-							message.deliveryReportedDate = isDelivered ? MobileMessaging.date.now : nil
-						},
-						completion: completion)
+		updateMessage(
+			foundWith: NSPredicate(format: "messageId == %@", messageId),
+			applyChanges: { message in
+				message.isDeliveryReportSent = isDelivered
+				message.deliveryReportedDate = isDelivered ? MobileMessaging.date.now : nil
+			},
+			completion: completion)
 	}
 	
 	//MARK: - Convenience
@@ -103,6 +175,7 @@ import CoreData
 			}
 			context.performAndWait {
 				let messages = Message.MM_findAllWithPredicate(nil, context: context)
+				self.updateCounters(total: messages?.count ?? 0, nonSeen: nil)
 				completion(messages?.baseMessages)
 			}
 		}
@@ -146,6 +219,7 @@ import CoreData
 				if let messages = Message.MM_findAllInContext(context) {
 					removedMsgIds.append(contentsOf: messages.map({ $0.messageId }))
 					self.delete(messages: messages)
+					self.updateCounters(total: 0, nonSeen: 0)
 				}
 			}
 			completion(removedMsgIds)
@@ -160,9 +234,13 @@ import CoreData
 			}
 			var removedMsgIds: [MessageId] = []
 			context.performAndWait {
-				if let messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), context: context){
+				if let messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), context: context)
+				{
+					let deletedNonSeenCount = messages.filter({ $0.seenStatusValue == MMSeenStatus.NotSeen.rawValue }).count
+					let deletedCount = messages.count
 					removedMsgIds.append(contentsOf: messages.map({ $0.messageId }))
 					self.delete(messages: messages)
+					self.updateCounters(total: max(0, self.totalMessagesCount_ - deletedCount), nonSeen: max(0, self.nonSeenMessagesCount_ - deletedNonSeenCount))
 				}
 			}
 			completion(removedMsgIds)
@@ -177,9 +255,13 @@ import CoreData
 			}
 			var removedMsgIds: [MessageId] = []
 			context.performAndWait {
-				if let messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context) {
+				if let messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context)
+				{
+					let deletedNonSeenCount = messages.filter({ $0.seenStatusValue == MMSeenStatus.NotSeen.rawValue }).count
+					let deletedCount = messages.count
 					removedMsgIds.append(contentsOf: messages.map({ $0.messageId }))
 					self.delete(messages: messages)
+					self.updateCounters(total: max(0, self.totalMessagesCount_ - deletedCount), nonSeen: max(0, self.nonSeenMessagesCount_ - deletedNonSeenCount))
 				}
 			}
 			completion(removedMsgIds)
@@ -191,6 +273,24 @@ import CoreData
 	var context: NSManagedObjectContext?
 	
 	// MARK: - Private
+	private func initMessagesCounters() {
+		self.countAllAndNonSeenMessages(completion: { total, nonSeen in
+			self.updateCounters(total: total, nonSeen: nonSeen)
+		})
+	}
+	
+	private func countAllAndNonSeenMessages(completion: @escaping (Int, Int) -> Void) {
+		guard let context = self.context else {
+			completion(0, 0)
+			return
+		}
+		
+		context.perform {
+			let predicate = NSPredicate(format: "seenStatusValue == \(MMSeenStatus.NotSeen.rawValue)")
+			completion(Message.MM_countOfEntitiesWithContext(context), Message.MM_countOfEntitiesWithPredicate(predicate, inContext: context))
+		}
+	}
+	
 	private func persist(_ messages: [BaseMessage], storageMessageConstructor: @escaping (BaseMessage, NSManagedObjectContext) -> Message?, completion: () -> Void) {
 		guard let context = self.context, !messages.isEmpty else {
 			completion()

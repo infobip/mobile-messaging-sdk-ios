@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import MobileMessaging
 
 let kMessageCellId = "kMessageCellId"
 let kMessageDetailsSegueId = "kMessageDetailsSegueId"
@@ -20,13 +21,13 @@ class ListViewController: UIViewController, UITableViewDelegate {
 		MessagesManager.sharedInstance.cleanMessages()
 		updateUI()
 	}
-	
+		
     override func viewDidLoad() {
         super.viewDidLoad()
 
         tableView.register(MessageCell.self, forCellReuseIdentifier: kMessageCellId)
 		tableView.estimatedRowHeight = 44
-		tableView.rowHeight = UITableViewAutomaticDimension;
+		tableView.rowHeight = UITableViewAutomaticDimension
 		tableView.dataSource = messagesManager
 		
 		messagesManager.newMessageBlock = { _ in
