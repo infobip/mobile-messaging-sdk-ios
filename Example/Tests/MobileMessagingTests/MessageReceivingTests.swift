@@ -12,7 +12,7 @@ import UserNotifications
 
 
 func backendJSONSilentMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"silent\": true, \"\(APNSPayloadKeys.internalData)\": {\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\", \"\(APNSPayloadKeys.internalData)\": {\"silent\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}},\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
@@ -56,7 +56,7 @@ class MessageReceivingTests: MMTestCase {
 							}
 						}
 						"""
-		let message = MTMessage(json: JSON.parse(jsonStr))
+		let message = MTMessage(messageSyncResponseJson: JSON.parse(jsonStr))
 		XCTAssertEqual(message!.text!, "A localizable message with a placeholder text args")
 		XCTAssertEqual(message!.title!, "A localizable message with a placeholder title args")
 	}
@@ -69,7 +69,7 @@ class MessageReceivingTests: MMTestCase {
 							APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey1": "internalValue1", InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
 							APNSPayloadKeys.customPayload: ["customKey" : "customValue"],
 						] as APNSPayload
-		let message = MTMessage(json: JSON.parse(jsonstring))
+		let message = MTMessage(messageSyncResponseJson: JSON.parse(jsonstring))
 		
 		XCTAssertEqual(message!.originalPayload as NSDictionary, resultDict as NSDictionary)
 		XCTAssertEqual(message!.customPayload! as NSDictionary, ["customKey" : "customValue"] as NSDictionary)
@@ -78,27 +78,16 @@ class MessageReceivingTests: MMTestCase {
 	
 	func testSilentJSONToNSObjects() {
 		let jsonstring = backendJSONSilentMessage(messageId: "m1")
-		let resultDict: StringKeyPayload = [
-			"messageId": "m1",
-			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-			"silent": 1,
-			APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey1": "internalValue1"],
-			APNSPayloadKeys.customPayload : ["customKey" : "customValue"]
-		]
-		
-		let message = MTMessage(json: JSON.parse(jsonstring))
-		
-		XCTAssertEqual(message!.originalPayload as NSDictionary, resultDict as NSDictionary)
-		XCTAssertEqual(message!.customPayload! as NSDictionary, ["customKey" : "customValue"] as NSDictionary)
+		let message = MTMessage(messageSyncResponseJson: JSON.parse(jsonstring))
 		XCTAssertTrue(message!.isSilent)
 	}
 	
 	func testPayloadParsing() {
-		XCTAssertNil(MTMessage(json: JSON.parse(jsonWithoutMessageId)),"Message decoding must throw with nonAPSjson")
+		XCTAssertNil(MTMessage(messageSyncResponseJson: JSON.parse(jsonWithoutMessageId)),"Message decoding must throw with nonAPSjson")
 		
 		let id = UUID().uuidString
 		let json = JSON.parse(backendJSONRegularMessage(messageId: id))
-		if let message = MTMessage(json: json) {
+		if let message = MTMessage(messageSyncResponseJson: json) {
 			XCTAssertFalse(message.isSilent)
 			let origPayload = message.originalPayload["aps"] as! StringKeyPayload
 			XCTAssertEqual((origPayload["alert"] as! StringKeyPayload)["body"] as! String, "msg_body", "Message body must be parsed")
@@ -284,7 +273,7 @@ class MessageReceivingTests: MMTestCase {
 		
 		let id = UUID().uuidString
 		let json = JSON.parse(backendJSONSilentMessage(messageId: id))
-		if let message = MTMessage(json: json) {
+		if let message = MTMessage(messageSyncResponseJson: json) {
 			XCTAssertTrue(message.isSilent, "Message must be parsed as silent")
 			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
 		} else {
@@ -317,7 +306,7 @@ class MessageReceivingTests: MMTestCase {
 
 extension UILocalNotification {
 	class func mm_localNotification(with payload: [AnyHashable: Any]) -> UILocalNotification {
-		let m = MTMessage(payload: payload)!
+		let m = MTMessage(payload: payload, deliveryMethod: .pull, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
 		let localNotification = UILocalNotification()
 		localNotification.userInfo = [LocalNotificationKeys.pushPayload: payload]
 		localNotification.alertBody = m.text

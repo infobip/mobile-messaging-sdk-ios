@@ -2002,7 +2002,7 @@ class GeofencingServiceTests: MMTestCase {
 		let timeoutInMins: Int = 1
 		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: timeoutInMins)]
 		let campaignPayload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict, nestedPulaDict], campaignId: "nested_regions_campaign", messageId: "messageId1")
-		let message1 = MMGeoMessage(payload: campaignPayload)!
+		let message1 = MMGeoMessage(payload: campaignPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
 		
 		geoStub.didEnterRegionCallback = { region in
 			didEnterRegionCount += 1
@@ -2028,7 +2028,7 @@ class GeofencingServiceTests: MMTestCase {
 		weak var messageReceived = self.expectation(description: "messageReceived")
 		
 		let payload = makeApnsPayload(withEvents: nil, deliveryTime: nil, regions: [modernPulaDict, modernZagrebDict])
-		guard let message = MMGeoMessage(payload: payload) else
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else
 		{
 			XCTFail()
 			return

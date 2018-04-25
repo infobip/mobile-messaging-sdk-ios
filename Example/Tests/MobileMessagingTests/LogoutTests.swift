@@ -33,7 +33,7 @@ class LogoutTests: MMTestCase {
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		let events = [makeEventDict(ofType: .entry, limit: 1)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-		guard let message = MMGeoMessage(payload: payload) else {
+		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
 			XCTFail()
 			return
 		}
@@ -87,20 +87,20 @@ class LogoutTests: MMTestCase {
 	func testThatDefaultMessageStorageCleanedUpAfterLogout() {
 		weak var logoutFinished = expectation(description: "logoutFinished")
 		weak var messagesReceived = expectation(description: "messagesReceived")
-		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
-		mobileMessagingInstance.messageStorage = MMDefaultMessageStorage()
-		mobileMessagingInstance.messageStorage?.start()
 		
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		_ = mobileMessagingInstance.withDefaultMessageStorage()
+		MobileMessaging.defaultMessageStorage?.start()
+
 		XCTAssertEqual(0, self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "Messages must be persisted properly")
 		
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { _ in
 				iterationCounter += 1
 				if iterationCounter == expectedMessagesCount {
-					(self.mobileMessagingInstance.messageStorage as! MMDefaultMessageStorage).findAllMessages() { messages in
+					MobileMessaging.defaultMessageStorage!.findAllMessages() { messages in
 						XCTAssertEqual(expectedMessagesCount, messages!.count)
 						XCTAssertEqual(expectedMessagesCount, self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "Messages must be persisted properly")
 						messagesReceived?.fulfill()
@@ -112,7 +112,7 @@ class LogoutTests: MMTestCase {
 		
 		waitForExpectations(timeout: 20000) { _ in
 			// assert there is not any message in message storage
-			(self.mobileMessagingInstance.messageStorage as! MMDefaultMessageStorage).findAllMessages() { messages in
+			MobileMessaging.defaultMessageStorage!.findAllMessages() { messages in
 				XCTAssertEqual(0, messages!.count)
 			}
 			// internal message storage must not be cleaned up

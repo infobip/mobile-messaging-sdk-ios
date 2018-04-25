@@ -173,26 +173,28 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 	/// Designated init
 	public init?(payload: APNSPayload, deliveryMethod: MessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool) {
 		guard 	var payload = payload as? StringKeyPayload,
-				let messageId = payload[APNSPayloadKeys.messageId] as? String,
-				let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload else
+				let messageId = payload[APNSPayloadKeys.messageId] as? String else
 		{
 			return nil
 		}
 		//workaround for cordova
 		let isMessageLaunchingApplication = payload[ApplicationLaunchedByNotification_Key] != nil
 		let internData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload
+		let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload
 		
 		payload.removeValue(forKey: ApplicationLaunchedByNotification_Key)
 
 		self.isMessageLaunchingApplication = isMessageLaunchingApplication
 		if isSilentInternalData(internData) {
 			if let silentAPS = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.silent] as? StringKeyPayload {
-				self.aps = PushPayloadAPS.SilentAPS(apsByMerging(nativeAPS: nativeAPS, withSilentAPS: silentAPS))
+				self.aps = PushPayloadAPS.SilentAPS(apsByMerging(nativeAPS: nativeAPS ?? [:], withSilentAPS: silentAPS))
 			} else {
-				self.aps = PushPayloadAPS.NativeAPS(nativeAPS)
+				return nil
 			}
-		} else {
+		} else if let nativeAPS = nativeAPS {
 			self.aps = PushPayloadAPS.NativeAPS(nativeAPS)
+		} else {
+			return nil
 		}
 		
 		if let sendDateTimeMillis = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.sendDateTime] as? Double {

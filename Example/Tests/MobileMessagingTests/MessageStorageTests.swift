@@ -10,6 +10,12 @@ import UserNotifications
 @testable import MobileMessaging
 
 class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
+	var messagesCountersUpdateHandler: ((Int, Int) -> Void)?
+	
+	func countAllMessages(completion: @escaping (Int) -> Void) {
+		completion(mtMessages.count + moMessages.count)
+	}
+	
 	func removeAllMessages(completion: @escaping ([MessageId]) -> Void) {
 		mtMessages.removeAll()
 		moMessages.removeAll()
