@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name          = "MobileMessaging"
-    s.version       = "3.5.0"
+    s.version       = "3.6.0"
     s.summary       = "Mobile Messaging SDK for iOS"
     s.description   = "Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in you application and access to the features of Infobip IP Messaging Platform."
     s.homepage      = "https://github.com/infobip/mobile-messaging-sdk-ios"
@@ -9,10 +9,10 @@ Pod::Spec.new do |s|
     s.source        = { :git => "https://github.com/infobip/mobile-messaging-sdk-ios.git", :tag => s.version }
     
     s.social_media_url = 'https://twitter.com/infobip'
-    s.platform      = :ios, '8.0'
+    s.platform      = :ios, '9.0'
     s.requires_arc  = true
     s.pod_target_xcconfig =  {
-		'SWIFT_VERSION' => '4.0',
+        'SWIFT_VERSION' => '4.0',
         'OTHER_SWIFT_FLAGS[config=Debug]' => '-DDEBUG'
     }
 
@@ -21,28 +21,28 @@ Pod::Spec.new do |s|
 
     s.subspec 'Core' do |core|
         core.frameworks = 'CoreData', 'CoreTelephony', 'SystemConfiguration'
-        core.resources = 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings'
+        core.resources = 'Classes/InteractiveNotifications/MessageAlert/*.xib', 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings'
         core.public_header_files = 'Classes/Core/**/*.h','Classes/MobileMessaging-umbrella.h'
         core.private_header_files = 'Classes/Vendor/**/*.h'
         core.source_files = 'Classes/Core/**/*.{h,m,swift}', 'Classes/Vendor/**/*.{h,m,swift}', 'Classes/MessageStorage/**/*.{h,m,swift}', 'Classes/RichNotifications/**', 'Classes/InteractiveNotifications/**/*.{h,m,swift}', 'Classes/MobileMessaging-umbrella.h'
     end
 
     s.subspec 'CocoaLumberjack' do |cl|
-		cl.dependency 'MobileMessaging/Core'
+        cl.dependency 'MobileMessaging/Core'
         cl.source_files = 'Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
         cl.dependency 'CocoaLumberjack', '3.4.2'
     end
 
     s.subspec 'Geofencing' do |geo|
-		geo.dependency 'MobileMessaging/Core'
+        geo.dependency 'MobileMessaging/Core'
         geo.frameworks = 'CoreLocation'
-        geo.source_files = 'Classes/Geofencing/**/*'
+        geo.source_files = 'Classes/Geofencing/**/*.{h,m,swift}'
     end
-	
-	s.subspec 'MobileChat' do |chat|
+    
+    s.subspec 'MobileChat' do |chat|
         chat.frameworks = 'AudioToolbox'
-		chat.dependency 'MobileMessaging/Core'
-		chat.source_files = 'Classes/Chat/**/*.{h,m,swift}'
+        chat.dependency 'MobileMessaging/Core'
+        chat.source_files = 'Classes/Chat/**/*.{h,m,swift}'
         chat.resource_bundle = { 'MobileMessaging' => ['Classes/Chat/UI/Resources/**/*.{xcassets,png}'] }
-	end
+    end
 end

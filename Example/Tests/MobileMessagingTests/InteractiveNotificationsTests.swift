@@ -162,7 +162,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		if #available(iOS 10.0, *) {
 			category = NotificationCategory(identifier: categoryId,
 			                                actions: [action!],
-			                                options: [.allowInCarPlay, .customDismissAction],
+			                                options: [.allowInCarPlay],
 			                                intentIdentifiers: testIntentIds)
 		} else {
 			category = NotificationCategory(identifier: categoryId,
@@ -228,7 +228,7 @@ class InteractiveNotificationsTests: MMTestCase {
         weak var handlingCompleted = expectation(description: "handlingCompleted")
 		weak var testCompleted = expectation(description: "testCompleted")
 		
-		let category = NotificationCategory(identifier: categoryId, actions: [], options: [.customDismissAction], intentIdentifiers: nil)!
+		let category = NotificationCategory(identifier: categoryId, actions: [], options: [], intentIdentifiers: nil)!
 		var set = Set<NotificationCategory>()
 		set.insert(category)
 		

@@ -107,7 +107,7 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 	
 	convenience override init() {
 		let logOutput: MMLogOutput
-		#if DEBUG
+		#if DEBUG || IO
 			logOutput = .Console
 		#else
 			logOutput = .File

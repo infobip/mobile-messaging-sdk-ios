@@ -128,11 +128,13 @@ class NotificationsInteractionService: MobileMessagingService {
 			return
 		}
 		
-		let handleAction: (NotificationAction?) -> Void = { action in
+		if MobileMessaging.application.applicationState == .background {
+			InteractiveMessageAlert.sharedInstance.cancelAllAlerts()
+		}
+		
+		let handleAction: (NotificationAction) -> Void = { action in
 			message.appliedAction = action
-            let itIsTapOnNotification: Bool
-            itIsTapOnNotification = action?.identifier == NotificationAction.DefaultActionId
-			self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: itIsTapOnNotification, completion: { _ in
+			self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: action.isTapOnNotificationAlert, completion: { _ in
 				completionHandler()
 			})
 		}	
@@ -195,7 +197,7 @@ extension NotificationsInteractionService {
 	fileprivate func postActionEventNotifications(_ appliedAction: NotificationAction, message: MTMessage) {
 		let name: String
 		let userInfo: [String: Any]
-		if appliedAction.identifier == NotificationAction.DefaultActionId {
+		if appliedAction.isTapOnNotificationAlert {
 			name = MMNotificationActionTapped
 			userInfo = [MMNotificationKeyMessage: message]
 		} else {
@@ -212,14 +214,29 @@ extension NotificationsInteractionService {
 		NotificationCenter.mm_postNotificationFromMainThread(name: name, userInfo: userInfo)
 	}
 	
+	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
+		if message.appliedAction == nil && message.showInApp {
+			if MobileMessaging.application.applicationState == .active {
+				InteractiveMessageAlert.sharedInstance.showInteractiveAlert(forMessage: message, exclusively: false)
+			} else {
+				InteractiveMessageAlert.sharedInstance.showInteractiveAlert(forMessage: message, exclusively: true)
+			}
+		}
+		completion?(.noData)
+	}
+	
 	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
-		guard isRunning, let appliedAction = message.appliedAction else
-        {
+		guard isRunning, let appliedAction = message.appliedAction else {
 			completion?(.noData)
 			return
 		}
 		
         let dispatchGroup = DispatchGroup()
+		
+		dispatchGroup.enter()
+		MobileMessaging.messageHandlingDelegate?.didPerform?(action: appliedAction, forMessage: message) {
+			dispatchGroup.leave()
+		} ?? dispatchGroup.leave()
 		
         dispatchGroup.enter()
         self.mmContext.setSeenImmediately([message.messageId]) { _ in
@@ -243,9 +260,7 @@ extension NotificationsInteractionService {
 		}
         dispatchGroup.notify(queue: DispatchQueue.global(qos: .default)) {
 			self.postActionEventNotifications(appliedAction, message: message)
-            MobileMessaging.messageHandlingDelegate?.didPerform?(action: appliedAction, forMessage: message) {
-                completion?(.noData)
-            } ?? completion?(.noData)
+            completion?(.noData)
         }
 	}
 	

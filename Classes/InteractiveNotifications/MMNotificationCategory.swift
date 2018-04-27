@@ -62,9 +62,7 @@ public final class NotificationCategory: NSObject {
 	@available(iOS 10.0, *)
 	var unUserNotificationCategory: UNNotificationCategory {
 		var categoryOptions: UNNotificationCategoryOptions = []
-		if options.contains(.customDismissAction) {
-			categoryOptions.insert(.customDismissAction)
-		}
+		categoryOptions.insert(.customDismissAction)
 		if options.contains(.allowInCarPlay) {
 			categoryOptions.insert(.allowInCarPlay)
 		}
@@ -100,12 +98,7 @@ public final class NotificationCategoryOptions : NSObject {
 	public func contains(options: NotificationCategoryOptions) -> Bool {
 		return rawValue & options.rawValue != 0
 	}
-	
-	// Whether dismiss action should be sent to the delegate
-	/// - remark: This option is available only for iOS 10+
-	@available(iOS 10.0, *)
-	public static let customDismissAction = NotificationCategoryOptions(rawValue: 0)
-	
+		
 	// Whether notifications of this category should be allowed in CarPlay
 	/// - remark: This option is available only for iOS 10+
 	@available(iOS 10.0, *)

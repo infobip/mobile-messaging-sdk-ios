@@ -26,7 +26,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		let ret = CPBarButtonItem(actionBlock: { [weak self] _ in
 			self?.switchTableViewEditing(animated: true)
 		})
-		ret.title = "Edit"
+		ret.title = "Edit" //TODO: translate for localization
 		return ret
     }()
 	
@@ -34,7 +34,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		let ret = CPBarButtonItem(actionBlock: { [weak self] _ in
 			self?.dismiss(animated: true)
 		})
-		ret.title = "Dismiss"
+		ret.title = MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel")
 		return ret
     }()
 	

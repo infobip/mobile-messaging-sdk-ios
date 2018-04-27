@@ -37,7 +37,7 @@ extension AppDelegate {
 		if #available(iOS 10.0, *) {
 			category = NotificationCategory(identifier: "category_share_cancel",
 											actions: [shareAction, cancelAction],
-											options: [.customDismissAction],
+											options: nil,
 											intentIdentifiers: nil)
 		} else {
 			category = NotificationCategory(identifier: "category_share_cancel",

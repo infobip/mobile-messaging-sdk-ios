@@ -101,7 +101,7 @@ class MMMessageHandler: MobileMessagingService {
 					newMessages?.forEach { m in
 						group.enter()
 						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start new message handling \(m.messageId)")
-						subservice.handleNewMessage(m, completion: { result in
+						subservice.handleNewMessage(m, completion: { _ in
 							MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop new message handling \(m.messageId)")
 							group.leave()
 						})
@@ -110,7 +110,7 @@ class MMMessageHandler: MobileMessagingService {
 					messages.forEach { m in
 						group.enter()
 						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start any message handling \(m.messageId)")
-						subservice.handleAnyMessage(m, completion: { result in
+						subservice.handleAnyMessage(m, completion: { _ in
 							MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop any message handling \(m.messageId)")
 							group.leave()
 						})

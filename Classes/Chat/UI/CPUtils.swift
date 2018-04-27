@@ -79,91 +79,6 @@ extension ChatSettingsApplicable where Self: NSObject {
 	}
 }
 
-extension UIColor {
-	class func enabledCellColor() -> UIColor {
-		return UIColor.white
-	}
-	class func disabledCellColor() -> UIColor {
-		return UIColor.TABLEVIEW_GRAY().lighter(2)
-	}
-	
-	func darker(_ percents: CGFloat) -> UIColor {
-		let color = UIColor.purple
-		var r:CGFloat = 0, g:CGFloat = 0, b:CGFloat = 0, a:CGFloat = 0
-		self.getRed(&r, green: &g, blue: &b, alpha: &a)
-		func reduce(_ value: CGFloat) -> CGFloat {
-			let result: CGFloat = max(0, value - value * (percents/100.0))
-			return result
-		}
-		return UIColor(red: reduce(r) , green: reduce(g), blue: reduce(b), alpha: a)
-	}
-	
-	func lighter(_ percents: CGFloat) -> UIColor {
-		let color = UIColor.purple
-		var r:CGFloat = 0, g:CGFloat = 0, b:CGFloat = 0, a:CGFloat = 0
-		self.getRed(&r, green: &g, blue: &b, alpha: &a)
-		func reduce(_ value: CGFloat) -> CGFloat {
-			let result: CGFloat = min(1, value + value * (percents/100.0))
-			return result
-		}
-		return UIColor(red: reduce(r) , green: reduce(g), blue: reduce(b), alpha: a)
-	}
-	class func colorMod255(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat, _ a: CGFloat = 1) -> UIColor {
-		return UIColor(red: r/255.0, green: g/255.0, blue: b/255.0, alpha: a)
-	}
-	class func TEXT_BLACK() -> UIColor {
-		return UIColor.colorMod255(65, 65, 65)
-	}
-	class func TEXT_GRAY() -> UIColor {
-		return UIColor.colorMod255(165, 165, 165)
-	}
-	class func TABBAR_TITLE_BLACK() -> UIColor {
-		return UIColor.colorMod255(90, 90, 90)
-	}
-	class func ACTIVE_TINT() -> UIColor {
-		return UIColor.MAIN()
-	}
-	class func TABLEVIEW_GRAY() -> UIColor {
-		return UIColor.colorMod255(239, 239, 244)
-	}
-	class func MAIN() -> UIColor {
-		#if IO
-            return UIColor.colorMod255(234, 55, 203)
-		#else
-			return UIColor.colorMod255(239, 135, 51)
-		#endif
-	}
-	class func MAIN_MED_DARK() -> UIColor {
-		return UIColor.MAIN().darker(25)
-	}
-	class func MAIN_DARK() -> UIColor {
-		return UIColor.MAIN().darker(50)
-	}
-	class func CHAT_MESSAGE_COLOR(_ isYours: Bool) -> UIColor {
-		if (isYours == true) {
-			return UIColor.colorMod255(253, 242, 229)
-		} else {
-			return UIColor.white
-		}
-	}
-	class func CHAT_MESSAGE_FONT_COLOR(_ isYours: Bool) -> UIColor {
-		if (isYours == true) {
-			return UIColor.colorMod255(73, 158, 90)
-		} else {
-			return UIColor.darkGray
-		}
-	}
-	class func TABLE_SEPARATOR_COLOR() -> UIColor {
-		return UIColor.colorMod255(210, 209, 213)
-	}
-	class func GREEN() -> UIColor {
-		return UIColor.colorMod255(127, 211, 33)
-	}
-	class func RED() -> UIColor {
-		return UIColor.colorMod255(243, 27, 0)
-	}
-}
-
 extension CGSize {
 	mutating func fitSize(_ maxSize: CGSize) -> CGSize {
 		if (self.width < 1){
@@ -348,7 +263,7 @@ extension UIViewController {
 	func showAlert(_ title: String, message: String, dismissActionHandler: ((UIAlertAction) -> Swift.Void)? = nil) {
 		DispatchQueue.main.async {
 			let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-			alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: dismissActionHandler))
+			alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: dismissActionHandler))
 			self.present(alert, animated: true, completion: nil)
 		}
 	}

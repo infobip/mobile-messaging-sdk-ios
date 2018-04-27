@@ -117,6 +117,10 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 		}
 	}
 	
+	public var showInApp: Bool {
+		return internalData?[InternalDataKeys.showInApp] as? Bool ?? false
+	}
+	
 	public var isGeoSignalingMessage: Bool {
 		return internalData?[InternalDataKeys.geo] != nil && isSilent
 	}

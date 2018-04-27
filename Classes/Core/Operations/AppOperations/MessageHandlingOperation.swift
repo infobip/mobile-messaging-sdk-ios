@@ -111,7 +111,9 @@ final class MessageHandlingOperation: Operation {
 			completion?()
 			return
 		}
-		MMQueue.Main.queue.executeAsync {
+		
+		let group = DispatchGroup()
+		DispatchQueue.main.async(group: group, execute: DispatchWorkItem(block: {
 			messages.forEach { message in
 				MMLogDebug("[Message handling] calling back for didReceiveNewMessage \(message.messageId)")
                 
@@ -123,8 +125,9 @@ final class MessageHandlingOperation: Operation {
                     MobileMessaging.messageHandlingDelegate?.didReceiveNewMessageInForeground?(message: message)
                 }
 			}
-            completion?()
-		}
+		}))
+		group.wait()
+		completion?()
 	}
 	
 //MARK: - Notification tap handling

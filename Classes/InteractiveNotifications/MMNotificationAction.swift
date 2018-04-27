@@ -8,6 +8,23 @@ import UserNotifications
 
 @objcMembers
 public class NotificationAction: NSObject {
+	
+	static var DismissActionId: String {
+		if #available(iOS 10.0, *) {
+			return UNNotificationDismissActionIdentifier
+		} else {
+			return "UNNotificationDismissActionIdentifier"
+		}
+	}
+	
+	static var DefaultActionId: String {
+		if #available(iOS 10.0, *) {
+			return UNNotificationDefaultActionIdentifier
+		} else {
+			return "UNNotificationDefaultActionIdentifier"
+		}
+	}
+	
 	public let identifier: String
 	public let title: String
 	public let options: [NotificationActionOptions]
@@ -40,18 +57,9 @@ public class NotificationAction: NSObject {
 		self.options = options ?? []
 	}
 	
-	@available(iOS 10.0, *)
 	class var dismissAction: NotificationAction {
-		return NotificationAction(actionIdentifier: UNNotificationDismissActionIdentifier, title: "Dismiss system-defined", options: nil)
+		return NotificationAction(actionIdentifier: DismissActionId, title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), options: nil)
 	}
-    
-    static var DefaultActionId: String {
-        if #available(iOS 10.0, *) {
-            return UNNotificationDefaultActionIdentifier
-        } else {
-            return "UNNotificationDefaultActionIdentifier"
-        }
-    }
     
     class var defaultAction: NotificationAction {
         return NotificationAction(actionIdentifier: DefaultActionId, title: "", options: nil)
