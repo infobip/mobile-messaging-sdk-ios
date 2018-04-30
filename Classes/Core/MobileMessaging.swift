@@ -155,18 +155,13 @@ public final class MobileMessaging: NSObject {
 	/// This method is called when a running app receives a local notification. The method should be called from AppDelegate's `application(_:didReceiveLocalNotification:)` or `application(_:didReceive:)` callback.
 	///
 	/// - parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
-	public class func didReceiveLocalNotification(_ notification: UILocalNotification) {
-		if let userInfo = notification.userInfo,
-			let payload = userInfo[LocalNotificationKeys.pushPayload] as? APNSPayload,
-			let message = MTMessage(payload: payload,
-									deliveryMethod: .undefined,
-									seenDate: nil,
-									deliveryReportDate: nil,
-									seenStatus: .NotSeen,
-									isDeliveryReportSent: false),
-			MMMessageHandler.isNotificationTapped(message, applicationState: MobileMessaging.application.applicationState)
-        {
-            NotificationsInteractionService.sharedInstance?.handleLocalNotificationTap(for: message)
+	/// - parameter completion: A block to be executed when local notification handling is finished
+	public class func didReceiveLocalNotification(_ notification: UILocalNotification, completion: (() -> Void)? = nil) {
+		if let service = NotificationsInteractionService.sharedInstance, MMMessageHandler.isNotificationTapped(notification.userInfo as? [String: Any], applicationState: MobileMessaging.application.applicationState)
+		{
+			service.handleLocalNotificationTap(localNotification: notification, completion: completion)
+		} else {
+			completion?()
 		}
 	}
 	

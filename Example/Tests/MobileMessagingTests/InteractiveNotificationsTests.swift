@@ -203,7 +203,7 @@ class InteractiveNotificationsTests: MMTestCase {
 
         let messageHandlingDelegateMock = MessageHandlingDelegateMock()
         messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
-            actionsWithExpectations["\(message.category!)+\(action.identifier)"]?.fulfill()
+            actionsWithExpectations["\(message!.category!)+\(action.identifier)"]?.fulfill()
         }
         MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 		

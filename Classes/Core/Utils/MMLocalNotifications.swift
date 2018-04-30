@@ -8,10 +8,6 @@
 import Foundation
 import UserNotifications
 
-struct LocalNotificationKeys {
-	static let pushPayload = "com.mobile-messaging.ln.k.pushPayload"
-}
-
 class LocalNotifications {
 	class func presentLocalNotification(with message: MTMessage) {
         MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
@@ -36,7 +32,7 @@ class LocalNotifications {
 			content.title = title
 		}
 		content.body = txt
-		content.userInfo = [LocalNotificationKeys.pushPayload: message.originalPayload]
+		content.userInfo = message.originalPayload
 		if let sound = message.sound {
 			if sound == "default" {
 				content.sound = UNNotificationSound.default()
@@ -64,7 +60,7 @@ class LocalNotifications {
 extension UILocalNotification {
 	class func make(with message: MTMessage) -> UILocalNotification {
 		let localNotification = UILocalNotification()
-		localNotification.userInfo = [LocalNotificationKeys.pushPayload: message.originalPayload]
+		localNotification.userInfo = message.originalPayload
 		localNotification.alertBody = message.text
 		localNotification.soundName = message.sound
 		if #available(iOS 8.2, *) {

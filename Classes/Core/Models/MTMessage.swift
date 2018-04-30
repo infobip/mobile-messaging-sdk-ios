@@ -12,9 +12,6 @@ public protocol MTMessageProtocol {
 	/// Contains info about the action was applied to the message
 	var appliedAction: NotificationAction? {get set}
 	
-	/// Indicates whether the app was launched with the message tapped
-	var isMessageLaunchingApplication: Bool {get}
-	
 	/// Structure representing APS payload attributes
 	var aps: PushPayloadAPS {get}
 	
@@ -76,8 +73,6 @@ public protocol MTMessageProtocol {
 @objcMembers
 public class MTMessage: BaseMessage, MTMessageProtocol {
 	public var appliedAction: NotificationAction?
-	
-	public var isMessageLaunchingApplication: Bool
 	
 	public var aps: PushPayloadAPS
 	
@@ -182,13 +177,9 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 			return nil
 		}
 		//workaround for cordova
-		let isMessageLaunchingApplication = payload[ApplicationLaunchedByNotification_Key] != nil
 		let internData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload
 		let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload
-		
-		payload.removeValue(forKey: ApplicationLaunchedByNotification_Key)
 
-		self.isMessageLaunchingApplication = isMessageLaunchingApplication
 		if isSilentInternalData(internData) {
 			if let silentAPS = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.silent] as? StringKeyPayload {
 				self.aps = PushPayloadAPS.SilentAPS(apsByMerging(nativeAPS: nativeAPS ?? [:], withSilentAPS: silentAPS))

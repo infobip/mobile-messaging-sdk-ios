@@ -25,7 +25,7 @@ class MessageHandlingDelegateMock : MessageHandlingDelegate {
     var didReceiveNewMessageHandler: ((MTMessage) -> Void)?
     var willPresentInForegroundHandler: ((MTMessage) -> UserNotificationType)?
     var canPresentInForeground: ((MTMessage) -> Void)?
-    var didPerformActionHandler: ((NotificationAction, MTMessage, () -> Void) -> Void)?
+    var didPerformActionHandler: ((NotificationAction, MTMessage?, () -> Void) -> Void)?
     var didReceiveNewMessageInForegroundHandler: ((MTMessage) -> Void)?
     var willScheduleLocalNotification: ((MTMessage) -> Void)?
     
@@ -51,7 +51,7 @@ class MessageHandlingDelegateMock : MessageHandlingDelegate {
         canPresentInForeground?(message)
     }
     
-    func didPerform(action: NotificationAction, forMessage message: MTMessage, completion: @escaping () -> Void) {
+    func didPerform(action: NotificationAction, forMessage message: MTMessage?, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void) {
         didPerformActionHandler?(action, message, completion)
         completion()
     }

@@ -48,7 +48,14 @@ class CPMessageCell: CPBubbleCell {
 			let newButton = CPMessageCell.newActionButton(title: action.title)
 			newButton.tag = action.identifier.hashValue
 			newButton.actionBlock = { _ in
-				NotificationsInteractionService.sharedInstance?.handleActionWithIdentifier(identifier: action.identifier, message: message.mt, responseInfo: nil, completionHandler: {})
+				NotificationsInteractionService.sharedInstance?.handleAction(
+					identifier: action.identifier,
+					categoryId: categoryId,
+					message: message.mt,
+					notificationUserInfo: message.originalPayload as? [String: Any],
+					responseInfo: nil,
+					completionHandler: {}
+				)
 			}
 			buttons[action.identifier] = newButton
 			contentView.addSubview(newButton)

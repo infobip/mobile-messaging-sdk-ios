@@ -19,8 +19,8 @@ public typealias APNSPayload = [AnyHashable: Any]
 public typealias StringKeyPayload = [String: Any]
 
 public enum PushPayloadAPS {
-	case SilentAPS([AnyHashable: Any])
-	case NativeAPS([AnyHashable: Any])
+	case SilentAPS(APNSPayload)
+	case NativeAPS(APNSPayload)
 	case undefined
 	
 	var badge: Int? {

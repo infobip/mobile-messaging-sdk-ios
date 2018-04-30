@@ -27,6 +27,7 @@ import Foundation
     /// Called when a notification action is performed by the user.
     /// - parameter action: `NotificationAction` object defining the action which was triggered.
     /// - parameter message: `MTMessage` message, for which action button was displayed, you can use `message.categoryId` in order to check the categoryId for action.
+	/// - parameter notificationUserInfo: a dictionary representing original local/remote notification's userInfo
     /// - parameter completion: The block to execute when specified action performing is finished. **You must call this block either immediately or after your handling is completed.** The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
-    @objc optional func didPerform(action: NotificationAction, forMessage message: MTMessage, completion: @escaping () -> Void)
+	@objc func didPerform(action: NotificationAction, forMessage message: MTMessage?, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void)
 }

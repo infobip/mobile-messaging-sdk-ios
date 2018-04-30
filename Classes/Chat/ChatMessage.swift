@@ -61,12 +61,12 @@ public class ChatMessage: NSObject, ChatMessageProtocol {
 		}
 	}
 	
-	public var isMessageLaunchingApplication: Bool {
-		return mt?.isMessageLaunchingApplication ?? false
-	}
-	
 	public var aps: PushPayloadAPS {
 		return mt?.aps ?? PushPayloadAPS.undefined
+	}
+	
+	public var originalPayload: APNSPayload {
+		return mt?.originalPayload ?? mo?.originalPayload ?? [:]
 	}
 	
 	public var deliveryMethod: MessageDeliveryMethod {

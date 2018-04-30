@@ -105,6 +105,8 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyAPIErrorUserInfo;
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessage;
 
+FOUNDATION_EXPORT NSString* MMNotificationKeyNotificationUserInfo;
+
 FOUNDATION_EXPORT NSString* MMNotificationKeyActionIdentifier;
 FOUNDATION_EXPORT NSString* MMNotificationKeyActionTextInput;
 

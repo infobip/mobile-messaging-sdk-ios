@@ -181,8 +181,6 @@ class MessageReceivingTests: MMTestCase {
 		})
 	}
 	
-	
-	
 	func testTapHandlingForInactiveApplication() {
 		collectSixTappedMessages(forApplication: InactiveApplicationStub()) { tappedMessages in
 		
@@ -226,13 +224,15 @@ class MessageReceivingTests: MMTestCase {
 		weak var messageReceived2 = self.expectation(description: "message received")
 		weak var messageReceived3 = self.expectation(description: "message received")
 		weak var messageReceived4 = self.expectation(description: "message received")
+		weak var localNotificationHandled1 = self.expectation(description: "localNotificationHandled1")
+		weak var localNotificationHandled2 = self.expectation(description: "localNotificationHandled2")
 
 		var tappedMessages = [MTMessage]()
 		MobileMessaging.application = application
 		
         let delegateMock = MessageHandlingDelegateMock()
         delegateMock.didPerformActionHandler = { action, message, _ in
-            if action.identifier == NotificationAction.DefaultActionId {
+			if let message = message, action.identifier == NotificationAction.DefaultActionId {
                 tappedMessages.append(message)
             }
         }
@@ -245,8 +245,6 @@ class MessageReceivingTests: MMTestCase {
 			messageReceived1?.fulfill()
 			
 			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
-				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
-				Thread.sleep(forTimeInterval: 1)
 				messageReceived3?.fulfill()
 			})
 		})
@@ -255,14 +253,16 @@ class MessageReceivingTests: MMTestCase {
 			messageReceived2?.fulfill()
 			
 			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { _ in
-				//FIXME: Workaround. I have to wait until all the async calls to notificationTapHandler performed, so I explicitly postpone the fulfilling.
-				Thread.sleep(forTimeInterval: 1)
 				messageReceived4?.fulfill()
 			})
 		})
 		
-		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1))
-		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1))
+		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1)) {
+			localNotificationHandled1?.fulfill()
+		}
+		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload2)) {
+			localNotificationHandled2?.fulfill()
+		}
 		
 		self.waitForExpectations(timeout: 60, handler: { error in
 			assertionsBlock(tappedMessages)
@@ -297,9 +297,8 @@ class MessageReceivingTests: MMTestCase {
         }
         MobileMessaging.messageHandlingDelegate = delegateMock
         
-        UserNotificationCenterDelegate.sharedInstance.handle(notificationUserInfo: apnsNormalMessagePayload("1"), actionId: UNNotificationDefaultActionIdentifier, userText: nil) {
-            eventReceived?.fulfill()
-        }
+        UserNotificationCenterDelegate.sharedInstance.didReceive(notificationUserInfo: apnsNormalMessagePayload("1"), actionId: UNNotificationDefaultActionIdentifier, categoryId: nil, userText: nil, withCompletionHandler: {eventReceived?.fulfill()})
+		
         self.waitForExpectations(timeout: 60, handler: { error in })
     }
 }
@@ -308,7 +307,7 @@ extension UILocalNotification {
 	class func mm_localNotification(with payload: [AnyHashable: Any]) -> UILocalNotification {
 		let m = MTMessage(payload: payload, deliveryMethod: .pull, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
 		let localNotification = UILocalNotification()
-		localNotification.userInfo = [LocalNotificationKeys.pushPayload: payload]
+		localNotification.userInfo = payload
 		localNotification.alertBody = m.text
 		localNotification.soundName = m.sound
 		return localNotification

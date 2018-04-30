@@ -40,7 +40,14 @@ class InteractiveMessageAlert {
 			category: category,
 			actionHandler: {
 				action in
-				MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, message: message, responseInfo: nil, completionHandler: {})
+				MobileMessaging.handleAction(
+					identifier: action.identifier,
+					category: categoryId,
+					message: message,
+					notificationUserInfo: message.originalPayload,
+					responseInfo: nil,
+					completionHandler: {}
+				)
 		})
 		
 		if exclusively {

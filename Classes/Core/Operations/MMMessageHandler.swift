@@ -76,7 +76,7 @@ class MMMessageHandler: MobileMessagingService {
 							   seenStatus: .NotSeen,
 							   isDeliveryReportSent: false)
 		{
-			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(msg, applicationState: MobileMessaging.application.applicationState), completion: completion)
+			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(userInfo as? [String : Any], applicationState: MobileMessaging.application.applicationState), completion: completion)
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
 			completion?(.failed(NSError.init(type: .UnknownError)))
@@ -325,7 +325,7 @@ class MMMessageHandler: MobileMessagingService {
 		}
 	}
 	
-	static func isNotificationTapped(_ message: MTMessage, applicationState: UIApplicationState) -> Bool {
-		return applicationState == .inactive || message.isMessageLaunchingApplication == true
+	static func isNotificationTapped(_ notificationUserInfo: [String: Any]?, applicationState: UIApplicationState) -> Bool {
+		return applicationState == .inactive || (notificationUserInfo != nil ? notificationUserInfo![ApplicationLaunchedByNotification_Key] != nil : false)
 	}
 }

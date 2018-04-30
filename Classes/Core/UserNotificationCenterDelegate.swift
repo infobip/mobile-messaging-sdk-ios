@@ -55,35 +55,47 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
     }
     
 	public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
-        handle(notificationUserInfo: response.notification.request.content.userInfo, actionId: response.actionIdentifier, userText: (response as? UNTextInputNotificationResponse)?.userText, withCompletionHandler: {
-            completionHandler()
-        })
+		
+		didReceive(
+			notificationUserInfo: response.notification.request.content.userInfo,
+			actionId: response.actionIdentifier,
+			categoryId: response.notification.request.content.categoryIdentifier,
+			userText: (response as? UNTextInputNotificationResponse)?.userText,
+			withCompletionHandler: { completionHandler() }
+		)
 	}
-    
-    func handle(notificationUserInfo: [AnyHashable: Any], actionId: String, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
-        MMLogDebug("[Notification Center Delegate] received response")
-        guard let service = NotificationsInteractionService.sharedInstance else
-        {
-            MMLogDebug("[Notification Center Delegate] stopped due to unintialized iteraction service")
-            completionHandler()
-            return
-        }
-        
-        let responseInfo: [AnyHashable: Any]?
-        if let userText = userText {
-            responseInfo = [UIUserNotificationActionResponseTypedTextKey : userText]
-        } else {
-            responseInfo = nil
-        }
-        
-        let message = MTMessage(payload: notificationUserInfo,
-                                deliveryMethod: .undefined,
-                                seenDate: nil,
-                                deliveryReportDate: nil,
-                                seenStatus: .NotSeen,
-                                isDeliveryReportSent: false)
-
-        
-        service.handleActionWithIdentifier(identifier: actionId, message: message, responseInfo: responseInfo, completionHandler: completionHandler)
-    }
+	
+	func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
+		MMLogDebug("[Notification Center Delegate] received response")
+		guard let service = NotificationsInteractionService.sharedInstance else
+		{
+			MMLogDebug("[Notification Center Delegate] stopped due to unintialized iteraction service")
+			completionHandler()
+			return
+		}
+		
+		let responseInfo: [AnyHashable: Any]?
+		if let userText = userText {
+			responseInfo = [UIUserNotificationActionResponseTypedTextKey : userText]
+		} else {
+			responseInfo = nil
+		}
+		
+		let message = MTMessage(
+			payload: notificationUserInfo,
+			deliveryMethod: .undefined,
+			seenDate: nil,
+			deliveryReportDate: nil,
+			seenStatus: .NotSeen,
+			isDeliveryReportSent: false)
+		
+		service.handleAction(
+			identifier: actionId,
+			categoryId: categoryId,
+			message: message,
+			notificationUserInfo: notificationUserInfo as? [String: Any],
+			responseInfo: responseInfo,
+			completionHandler: completionHandler
+		)
+	}
 }

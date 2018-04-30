@@ -49,7 +49,7 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
 	notification.userInfo = [self extendUserInfoIfNeeded: notification.userInfo];
-	[MobileMessaging didReceiveLocalNotification:notification];
+	[MobileMessaging didReceiveLocalNotification:notification completion:nil];
 	if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didReceiveLocalNotification:)]) {
 		[_applicationDelegate application:application didReceiveLocalNotification:notification];
 	}
