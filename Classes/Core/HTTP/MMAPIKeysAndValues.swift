@@ -105,7 +105,7 @@ struct InternalDataKeys {
 	static let attachments = "atts"
 	static let sendDateTime = "sendDateTime"
     static let bulkId = "bulkId"
-	static let showInApp = "showInApp"
+	static let showInApp = "inApp"
 }
 
 struct CustomPayloadKeys {
