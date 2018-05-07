@@ -39,9 +39,6 @@ class InteractiveMessageAlertController: UIViewController {
 					self.actionHandler?(action)
 				})
 			}
-			ret.append(InteractiveMessageButton(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .default, handler: {
-				self.actionHandler?(NotificationAction.dismissAction)
-			}))
 			return ret
 		}()
 		
@@ -64,7 +61,7 @@ class InteractiveMessageAlertController: UIViewController {
 		addButtons(actions: buttons)
 		
 		if InteractiveMessageAlertController.tapOutsideToDismissEnabled {
-			alertMaskBackground.addGestureRecognizer(UITapGestureRecognizer.init(target: self, action: #selector(InteractiveMessageAlertController.dismiss(_:))))
+			alertMaskBackground.addGestureRecognizer(UITapGestureRecognizer.init(target: self, action: #selector(InteractiveMessageAlertController.dismissAction(_:))))
 		}
 	}
 	
@@ -86,7 +83,14 @@ class InteractiveMessageAlertController: UIViewController {
 	}
 	
 	@objc private func dismiss(_ sender: InteractiveMessageButton){
-		self.dismiss(animated: true, completion: {
+		dismiss(animated: true, completion: {
+			self.dismissHandler?()
+		})
+	}
+
+	@objc private func dismissAction(_ sender: InteractiveMessageButton){
+		actionHandler?(NotificationAction.dismissAction)
+		dismiss(animated: true, completion: {
 			self.dismissHandler?()
 		})
 	}
