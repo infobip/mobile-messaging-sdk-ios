@@ -34,7 +34,7 @@ class InteractiveMessageAlertController: UIViewController {
 		super.init(nibName: "AlertController", bundle: Bundle(for: type(of: self)))
 		
 		self.buttons = {
-			var ret = category.actions.map { action in
+			let ret = category.actions.map { action in
 				return InteractiveMessageButton(title: action.title, style: action.options.contains(.destructive) ? .destructive : .default, handler: {
 					self.actionHandler?(action)
 				})

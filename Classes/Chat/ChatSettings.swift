@@ -9,7 +9,7 @@ import Foundation
 
 public class ChatSettings: NSObject {
 	
-    static let sharedInstance = ChatSettings()
+    public static let sharedInstance = ChatSettings()
     
     func postAppearanceChangedNotification() {
 		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "com.mobile-messaging.chat.settings.updated"), object: self)
