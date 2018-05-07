@@ -155,7 +155,7 @@ class GeoEventReportingOperation: Operation {
 				}
 				return ret
 			})
-			self.context.MM_saveToPersistentStoreAndWait()
+			context.MM_saveToPersistentStoreAndWait()
 		}
 		
 		messagesUpdatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: {

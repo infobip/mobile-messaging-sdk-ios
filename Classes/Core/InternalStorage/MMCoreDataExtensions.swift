@@ -254,7 +254,8 @@ extension NSManagedObjectContext {
 			let numberOfInsertedObjects = self.insertedObjects.count
 			let numberOfUpdatedObjects = self.updatedObjects.count
 			let numberOfDeletedObjects = self.deletedObjects.count
-			
+
+
 			MMLogVerbose("Objects - Inserted \(numberOfInsertedObjects), Updated \(numberOfUpdatedObjects), Deleted \(numberOfDeletedObjects)")
 			
 			MMLogVerbose("→ Saving \(self.MM_description) [\(optionsSummary)]")

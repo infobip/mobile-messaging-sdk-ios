@@ -11,6 +11,20 @@ import CoreData
 @testable import MobileMessaging
 
 
+class ApnsRegistrationManagerDisabledStub: ApnsRegistrationManager {
+	override var isRegistrationHealthy: Bool {
+		return true
+	}
+
+	override func setRegistrationIsHealthy() {
+
+	}
+
+	override func registerForRemoteNotifications() {
+
+	}
+}
+
 class ApnsRegistrationManagerStub: ApnsRegistrationManager {
 	override var isRegistrationHealthy: Bool {
 		return true
@@ -153,8 +167,8 @@ class MMTestCase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-		MobileMessaging.logger = nil // when using cocoa lumberjack, we have failing tests. It looks like a test finishes before the actual work is done so that affecting further test which fails. - the root cause is unknown due to lack of time to debug
-        MobileMessaging.stop(true)
+        MobileMessaging.logger?.logOutput = .Console
+        MobileMessaging.logger?.logLevel = .All
         startWithCorrectApplicationCode()
 		mobileMessagingInstance.reachabilityManager = MMReachabilityManagerStub(isReachable: true)
     }
@@ -203,12 +217,14 @@ class MMTestCase: XCTestCase {
 	}
 	
 	func startWithCorrectApplicationCode() {
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)
-		mm?.start()
+		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
+		mm.start()
 	}
 	
 	func startWithWrongApplicationCode() {
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestWrongApplicationCode)
-		mm?.start()
+		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestWrongApplicationCode)!
+		mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
+		mm.start()
 	}
 }

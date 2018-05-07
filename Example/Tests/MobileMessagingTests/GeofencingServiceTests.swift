@@ -1412,9 +1412,9 @@ class GeofencingServiceTests: MMTestCase {
 		
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start()
-		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(mmContext: self.mobileMessagingInstance,
-		                                                                                  performRequestCompanionBlock:
-            { r in
+		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(
+			mmContext: self.mobileMessagingInstance,
+			performRequestCompanionBlock: { r in
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
@@ -1438,12 +1438,14 @@ class GeofencingServiceTests: MMTestCase {
 			let result = JSON.parse(jsonStr)
 			return result
 		})
-		
+
+		mobileMessagingInstance.messageHandler = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
+
 		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
-			messageExp?.fulfill()
+				messageExp?.fulfill()
 
 			let pulaObject = message.regions.findPula
-			
+
 			XCTAssertTrue(message.isLiveNow(for: .entry))
 			
 			MobileMessaging.geofencingService!.report(on: .entry, forRegionId: pulaObject.identifier, geoMessage: message) { state in
@@ -1687,6 +1689,7 @@ class GeofencingServiceTests: MMTestCase {
 
 	
 	func testOfflineGeoEventsHandling() {
+
 		weak var notReachableTest = expectation(description: "test finished (w/o internet)")
 		weak var reachableTest = expectation(description: "test finished (w/ internet)")
 		let events = [makeEventDict(ofType: .entry, limit: 2, timeout: 1)]
@@ -1697,8 +1700,12 @@ class GeofencingServiceTests: MMTestCase {
 		}
 		var sentSdkMessageId: String!
 		let pulaObject = message.regions.findPula
+		
+		self.storage.mainThreadManagedObjectContext!.MM_saveToPersistentStoreAndWait()
+
 		let checkNotReachableExpectations = {
 			let ctx = self.storage.mainThreadManagedObjectContext!
+
 			ctx.performAndWait {
 				ctx.reset()
 				if let allMsgs = MessageManagedObject.MM_findAllInContext(ctx) {
