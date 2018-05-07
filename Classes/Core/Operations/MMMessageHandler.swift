@@ -119,16 +119,20 @@ class MMMessageHandler: MobileMessagingService {
 		
 				var result = MessageHandlingResult.noData
 				group.enter()
-				self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(), mmContext: self.mmContext, handlingIteration: handlingIteration, finishBlock: { res in
+				self.syncMessages(handlingIteration: handlingIteration, finishBlock: { res in
 					result = MessageHandlingResult(res)
 					group.leave()
-				}))
+				})
 				
 				group.notify(queue: DispatchQueue.global(qos: .default)) {
 					MMLogDebug("[Message Handler] message handling finished")
 					completion?(result)
 				}
 			}))
+	}
+
+	func syncMessages(handlingIteration: Int, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
+		self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(), mmContext: self.mmContext, handlingIteration: handlingIteration, finishBlock: finishBlock))
 	}
 	
 	func syncMessagesWithOuterLocalSources(completion: @escaping () -> Void) {

@@ -25,7 +25,11 @@ class MessagHandlerMock: MMMessageHandler {
 	convenience init(originalHandler: MMMessageHandler) {
 		self.init(storage: originalHandler.storage, mmContext: originalHandler.mmContext)
 	}
-	
+
+	override func syncSeenStatusUpdates(_ completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+		completion?(SeenStatusSendingResult.Cancel)
+	}
+
     override func setSeen(_ messageIds: [String], immediately: Bool, completion: ((SeenStatusSendingResult) -> Void)?) {
 		setSeenWasCalled?()
 		completion?(SeenStatusSendingResult.Cancel)
@@ -34,6 +38,10 @@ class MessagHandlerMock: MMMessageHandler {
 	override func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: (([MOMessage]?, NSError?) -> Void)?) {
 		sendMessageWasCalled?(messages)
 		completion?(messages, nil)
+	}
+
+	override func syncMessages(handlingIteration: Int, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
+		finishBlock?(MessagesSyncResult.Cancel)
 	}
 }
 

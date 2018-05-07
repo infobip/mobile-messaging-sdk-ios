@@ -340,6 +340,7 @@ public final class MobileMessaging: NSObject {
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().delegate = nil
 		}
+		MMLogInfo("MobileMessaging service stopped")
 	}
 	
 	func logout(completion: @escaping (NSError?) -> Void) {

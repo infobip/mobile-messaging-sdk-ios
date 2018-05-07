@@ -153,8 +153,7 @@ class MMTestCase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        MobileMessaging.logger?.logOutput = .Console
-        MobileMessaging.logger?.logLevel = .All
+		MobileMessaging.logger = nil // when using cocoa lumberjack, we have failing tests. It looks like a test finishes before the actual work is done so that affecting further test which fails. - the root cause is unknown due to lack of time to debug
         MobileMessaging.stop(true)
         startWithCorrectApplicationCode()
 		mobileMessagingInstance.reachabilityManager = MMReachabilityManagerStub(isReachable: true)
