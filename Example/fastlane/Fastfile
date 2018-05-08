@@ -128,7 +128,7 @@ platform :ios do
 			end
 
 			custom_version_number = options[:version_number]
-			if custom_version_number
+			if !(custom_version_number.nil? || custom_version_number.empty?)
 				increment_version_number(version_number: custom_version_number)
 			else
 				increment_version_number(bump_type: options[:release_type])
