@@ -20,22 +20,54 @@ class InteractiveMessageAlertController: UIViewController {
 	private let titleText: String?
 	private let messageText: String
 	private let imageURL: URL?
+	private let image: Image?
 	private var buttons: [InteractiveMessageButton]!
 	
 	var actionHandler: ((NotificationAction) -> Void)?
 	var dismissHandler: (() -> Void)?
 	
-	init(titleText: String?, messageText: String, imageURL: URL?, category: NotificationCategory, actionHandler: ((NotificationAction) -> Void)? = nil) {
+	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, actionHandler: ((NotificationAction) -> Void)? = nil) {
 		self.titleText = titleText
 		self.messageText = messageText
 		self.imageURL = imageURL
+		self.image = image
+		self.actionHandler = actionHandler
+		
+		super.init(nibName: "AlertController", bundle: Bundle(for: type(of: self)))
+		
+		self.buttons = {
+			let actions = [NotificationAction.dismissAction, NotificationAction.openAction]
+			let ret = actions.map { action in
+				return InteractiveMessageButton(title: action.title,
+												style: action.options.contains(.destructive) ? .destructive : .default,
+												isBold: action.identifier == NotificationAction.DefaultActionId,
+												handler: {
+					self.actionHandler?(action)
+				})
+			}
+			return ret
+		}()
+		
+		self.modalPresentationStyle = UIModalPresentationStyle.overFullScreen
+		self.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
+	}
+	
+	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, category: NotificationCategory, actionHandler: ((NotificationAction) -> Void)? = nil) {
+		self.titleText = titleText
+		self.messageText = messageText
+		self.imageURL = imageURL
+		self.image = image
 		self.actionHandler = actionHandler
 		
 		super.init(nibName: "AlertController", bundle: Bundle(for: type(of: self)))
 		
 		self.buttons = {
 			let ret = category.actions.map { action in
-				return InteractiveMessageButton(title: action.title, style: action.options.contains(.destructive) ? .destructive : .default, handler: {
+				return InteractiveMessageButton(
+					title: action.title,
+					style: action.options.contains(.destructive) ? .destructive : .default,
+					isBold: action.identifier == "mm_accept",
+					handler: {
 					self.actionHandler?(action)
 				})
 			}
@@ -103,15 +135,29 @@ class InteractiveMessageAlertController: UIViewController {
 	}
 	
 	private func setupImageView() {
-		guard let imageURL = imageURL else {
+		guard imageURL != nil || image != nil else {
 			headerViewHeightConstraint.constant = 0
 			return
 		}
-		imageView.loadImage(withURL: imageURL, width: InteractiveMessageAlertController.alertWidth, height: InteractiveMessageAlertController.maxImageHeight, completion: { _, _ in
-			if let height = self.imageView.imageSize(width: InteractiveMessageAlertController.alertWidth, height: InteractiveMessageAlertController.maxImageHeight)?.height {
-				self.headerViewHeightConstraint.constant = height
-			}
-		})
+
+		if let imageURL = imageURL {
+			imageView.loadImage(withURL: imageURL, width: InteractiveMessageAlertController.alertWidth, height: InteractiveMessageAlertController.maxImageHeight, completion: { _, _ in
+				if let height = self.imageView.imageSize(width: InteractiveMessageAlertController.alertWidth, height: InteractiveMessageAlertController.maxImageHeight)?.height {
+					self.headerViewHeightConstraint.constant = height
+				}
+			})
+		} else if let img = image {
+			self.headerViewHeightConstraint.constant = imageHeight(image: img)
+			imageView.contentImageView.contentMode = .scaleAspectFill
+			imageView.contentImageView.clipsToBounds = true
+			imageView.contentImageView.image = img
+		}
+	}
+	
+	private func imageHeight(image: UIImage) -> CGFloat {
+		let scaleFactor = image.size.width < imageView.bounds.width ? 1 : imageView.bounds.width/image.size.width
+		let imageHeight = ceil(image.size.height * scaleFactor)
+		return imageHeight > InteractiveMessageAlertController.maxImageHeight ? InteractiveMessageAlertController.maxImageHeight : imageHeight
 	}
 	
 	private func setupTitle() {

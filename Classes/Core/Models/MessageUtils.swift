@@ -8,7 +8,7 @@
 import Foundation
 
 @objc public enum MessageDeliveryMethod: Int16 {
-	case undefined = 0, push, pull, generatedLocally
+	case undefined = 0, push, pull, generatedLocally, local
 }
 
 @objc public enum MessageDirection: Int16 {

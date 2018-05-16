@@ -9,10 +9,13 @@ import Foundation
 
 class AlertOperation: Foundation.Operation {
 	let group = DispatchGroup()
-	let alert: InteractiveMessageAlertController
+	var alert: InteractiveMessageAlertController?
+	let message: MTMessage
+	let text: String
 	
-	init(_ alert: InteractiveMessageAlertController) {
-		self.alert = alert
+	init(with message: MTMessage, text: String) {
+		self.message = message
+		self.text = text
 		super.init()
 		self.addObserver(self, forKeyPath: "isCancelled", options: NSKeyValueObservingOptions.new, context: nil)
 	}
@@ -28,25 +31,81 @@ class AlertOperation: Foundation.Operation {
 		group.enter()
 		
 		DispatchQueue.main.async() {
-			self.alert.dismissHandler = {
-				self.alert.dismiss(animated: true)
-				self.group.leave()
+			if let imgUrl = self.message.contentUrl?.safeUrl {
+				ImageDownloader(name: "MMImageDownloader").downloadImage(with: imgUrl, retrieveImageTask: nil, options: nil, progressBlock: nil, completionHandler: { (img, error, _, _) in
+					self.alert = self.displayAlert(with: self.message, image: img, text: self.text)
+					self.presentAlert()
+				})
+			} else {
+				self.alert = self.displayAlert(with: self.message, image: nil, text: self.text)
+				self.presentAlert()
 			}
-			UIApplication.shared.keyWindow?.rootViewController?.present(self.alert, animated: true, completion: nil)
 		}
 		
 		group.wait()
 	}
 	
+	func presentAlert() {
+		guard let alert = self.alert, !self.isCancelled else { return }
+		alert.dismissHandler = {
+			self.alert?.dismiss(animated: true)
+			self.group.leave()
+		}
+		UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
+	}
+	
 	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
 		if keyPath == "isCancelled" {
 			if (change?[NSKeyValueChangeKey.newKey] as? Bool ?? false) == true {
-				self.alert.dismiss(animated: false)
+				self.alert?.dismiss(animated: false)
 				self.group.leave()
 			}
 		} else {
 			return
 		}
+	}
+	
+	private func displayAlert(with message: MTMessage, image: Image?, text: String) -> InteractiveMessageAlertController {
+		let alert : InteractiveMessageAlertController
+		
+		if let categoryId = message.category, let category = MobileMessaging.category(withId: categoryId), category.actions.first(where: { return $0 is TextInputNotificationAction } ) == nil {
+			alert = InteractiveMessageAlertController(
+				titleText: message.title,
+				messageText: text,
+				imageURL: nil,
+				image: image,
+				category: category,
+				actionHandler: {
+					action in
+					MobileMessaging.handleAction(
+						identifier: action.identifier,
+						category: categoryId,
+						message: message,
+						notificationUserInfo: message.originalPayload,
+						responseInfo: nil,
+						completionHandler: {}
+					)
+			})
+		} else {
+			alert = InteractiveMessageAlertController(
+				titleText: message.title,
+				messageText: text,
+				imageURL: nil,
+				image: image,
+				actionHandler: {
+					action in
+					MobileMessaging.handleAction(
+						identifier: action.identifier,
+						category: nil,
+						message: message,
+						notificationUserInfo: message.originalPayload,
+						responseInfo: nil,
+						completionHandler: {}
+					)
+			})
+		}
+		
+		return alert
 	}
 }
 
@@ -67,7 +126,7 @@ class AlertQueue {
 		cancelPendingAlerts()
 	}
 	
-	func enqueueAlert(alert: InteractiveMessageAlertController) {
-		oq.addOperation(AlertOperation(alert))
+	func enqueueAlert(message: MTMessage, text: String) {
+		oq.addOperation(AlertOperation(with: message, text: text))
 	}
 }

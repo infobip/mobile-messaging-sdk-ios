@@ -9,7 +9,7 @@ import UserNotifications
 @objcMembers
 public class NotificationAction: NSObject {
 	
-	static var DismissActionId: String {
+	public static var DismissActionId: String {
 		if #available(iOS 10.0, *) {
 			return UNNotificationDismissActionIdentifier
 		} else {
@@ -17,7 +17,7 @@ public class NotificationAction: NSObject {
 		}
 	}
 	
-	static var DefaultActionId: String {
+	public static var DefaultActionId: String {
 		if #available(iOS 10.0, *) {
 			return UNNotificationDefaultActionIdentifier
 		} else {
@@ -59,6 +59,10 @@ public class NotificationAction: NSObject {
 	
 	class var dismissAction: NotificationAction {
 		return NotificationAction(actionIdentifier: DismissActionId, title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), options: nil)
+	}
+	
+	class var openAction: NotificationAction {
+		return NotificationAction(actionIdentifier: DefaultActionId, title: MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open"), options: nil)
 	}
     
     class var defaultAction: NotificationAction {

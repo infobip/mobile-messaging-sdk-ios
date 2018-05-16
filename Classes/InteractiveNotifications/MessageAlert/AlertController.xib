@@ -60,7 +60,7 @@
                                     <rect key="frame" x="10" y="197" width="250" height="0.0"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
-                                        <constraint firstAttribute="height" relation="lessThanOrEqual" constant="100" id="cg8-6J-yzj"/>
+                                        <constraint firstAttribute="height" relation="lessThanOrEqual" constant="300" id="cg8-6J-yzj"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>

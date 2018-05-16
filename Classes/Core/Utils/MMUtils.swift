@@ -414,7 +414,7 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 				let messages = notifications
 					.compactMap({
 						MTMessage(payload: $0.request.content.userInfo,
-								  deliveryMethod: .push,
+								  deliveryMethod: .local,
 								  seenDate: nil,
 								  deliveryReportDate: nil,
 								  seenStatus: .NotSeen,

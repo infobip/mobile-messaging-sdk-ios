@@ -6,20 +6,23 @@ enum AlertActionStyle : Int {
 }
 
 class InteractiveMessageButton: UIButton {
+	private static let fontSize : CGFloat = 17.0
 	private static let separatorColor = UIColor.lightGray.lighter(30)
 	private let actionStyle : AlertActionStyle
 	private let handler: (() -> Void)?
 	private let horizontalSeparator = UIView()
 	private let verticalSeparator = UIView()
+	private let isBold : Bool
 	
-	init(title: String?, style: AlertActionStyle, handler: (() -> Void)?){
+	init(title: String?, style: AlertActionStyle, isBold: Bool = false, handler: (() -> Void)?){
 		self.actionStyle = style
 		self.handler = handler
+		self.isBold = isBold
 		super.init(frame: CGRect.zero)
 		self.addTarget(self, action: #selector(InteractiveMessageButton.clicked(_:)), for: .touchUpInside)
 		self.setTitle(title, for: .normal)
-		self.titleLabel?.font = UIFont.systemFont(ofSize: 17.0)
 	
+		self.titleLabel?.font = isBold ? UIFont.boldSystemFont(ofSize: InteractiveMessageButton.fontSize) : UIFont.systemFont(ofSize: InteractiveMessageButton.fontSize)
 		self.setTitleColor(actionStyle == .destructive ? UIColor.red : InteractiveMessageAlertSettings.tintColor, for: .normal)
 		self.addHorizontalSeparator()
 		self.addVerticalSeparator()

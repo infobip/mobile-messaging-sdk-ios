@@ -1,4 +1,4 @@
-//
+ //
 //  InteractiveMessageAlert.swift
 //  MobileMessaging
 //
@@ -21,38 +21,16 @@ class InteractiveMessageAlert {
 	}
 	
 	func showInteractiveAlert(forMessage message: MTMessage, exclusively: Bool) {
-		guard
-			InteractiveMessageAlertSettings.enabled,
-			let text = message.text,
-			let categoryId = message.category,
-			let category = MobileMessaging.category(withId: categoryId),
-			category.actions.first(where: { return $0 is TextInputNotificationAction } ) == nil else
+		guard InteractiveMessageAlertSettings.enabled, let text = message.text else
 		{
 			return
 		}
 		
 		MMLogDebug("Alert for message will be shown: \(message.messageId) text: \(String(describing: message.text))")
 		
-		let alert = InteractiveMessageAlertController(
-			titleText: message.title,
-			messageText: text,
-			imageURL: message.contentUrl?.safeUrl,
-			category: category,
-			actionHandler: {
-				action in
-				MobileMessaging.handleAction(
-					identifier: action.identifier,
-					category: categoryId,
-					message: message,
-					notificationUserInfo: message.originalPayload,
-					responseInfo: nil,
-					completionHandler: {}
-				)
-		})
-		
 		if exclusively {
-			AlertQueue.sharedInstace.cancelAllAlerts()
+			cancelAllAlerts()
 		}
-		AlertQueue.sharedInstace.enqueueAlert(alert: alert)
+		AlertQueue.sharedInstace.enqueueAlert(message: message, text: text)
 	}
 }

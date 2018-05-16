@@ -147,8 +147,7 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	private func handleNotificationTappedIfNeeded(with message: MTMessage) {
-        guard isNotificationTapped, message.deliveryMethod == .push else { return }
-        
+        guard isNotificationTapped else { return }
         message.appliedAction = NotificationAction.defaultAction
 	}
 	

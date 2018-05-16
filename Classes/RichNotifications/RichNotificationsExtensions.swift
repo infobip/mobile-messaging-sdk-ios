@@ -225,7 +225,7 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 				return nil
 			}
 			let newMessage = MTMessage(payload: payload,
-									   deliveryMethod: .push,
+									   deliveryMethod: .local,
 									   seenDate: nil,
 									   deliveryReportDate: messageDataTuple["dlrd"] as? Date,
 									   seenStatus: .NotSeen,
