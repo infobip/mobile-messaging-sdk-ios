@@ -13,7 +13,7 @@ public class NotificationAction: NSObject {
 		if #available(iOS 10.0, *) {
 			return UNNotificationDismissActionIdentifier
 		} else {
-			return "UNNotificationDismissActionIdentifier"
+			return "com.apple.UNNotificationDismissActionIdentifier"
 		}
 	}
 	
@@ -21,7 +21,7 @@ public class NotificationAction: NSObject {
 		if #available(iOS 10.0, *) {
 			return UNNotificationDefaultActionIdentifier
 		} else {
-			return "UNNotificationDefaultActionIdentifier"
+			return "com.apple.UNNotificationDefaultActionIdentifier"
 		}
 	}
 	
@@ -62,7 +62,14 @@ public class NotificationAction: NSObject {
 	}
 	
 	class var openAction: NotificationAction {
-		return NotificationAction(actionIdentifier: DefaultActionId, title: MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open"), options: nil)
+		let options: [NotificationActionOptions]?
+		if #available(iOS 10.0, *) {
+			options = [NotificationActionOptions.foreground]
+		} else {
+			options = nil
+		}
+
+		return NotificationAction(actionIdentifier: DefaultActionId, title: MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open"), options: options)
 	}
     
     class var defaultAction: NotificationAction {
