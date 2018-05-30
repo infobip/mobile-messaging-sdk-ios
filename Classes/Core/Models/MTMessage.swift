@@ -128,9 +128,9 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 		return originalPayload[APNSPayloadKeys.internalData] as? StringKeyPayload
 	}
 	
-	public override var customPayload: [String: CustomPayloadSupportedTypes]? {
+	public override var customPayload: StringKeyPayload? {
 		get {
-			return originalPayload[APNSPayloadKeys.customPayload] as? [String: CustomPayloadSupportedTypes]
+			return originalPayload[APNSPayloadKeys.customPayload] as? StringKeyPayload
 		}
 		set {}
 	}

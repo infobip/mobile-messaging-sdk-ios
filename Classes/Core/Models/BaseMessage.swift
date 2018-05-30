@@ -21,7 +21,7 @@ protocol MessageProtocol {
 	var text: String? {get set}
 	
 	/// Custom data
-	var customPayload: [String: CustomPayloadSupportedTypes]? {get}
+	var customPayload: StringKeyPayload? {get}
 	
 	/// Indicates whether the message is chat message
 	var isChatMessage: Bool {get}
@@ -35,7 +35,7 @@ protocol MessageProtocol {
 @objcMembers
 public class BaseMessage: NSObject, MessageProtocol {
 	
-	public var customPayload: [String: CustomPayloadSupportedTypes]?
+	public var customPayload: StringKeyPayload?
 	
 	public var direction: MessageDirection
 	

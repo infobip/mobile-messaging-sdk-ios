@@ -60,6 +60,29 @@ class MessageReceivingTests: MMTestCase {
 		XCTAssertEqual(message!.text!, "A localizable message with a placeholder text args")
 		XCTAssertEqual(message!.title!, "A localizable message with a placeholder title args")
 	}
+
+	func testCustomPayloadNestedObjects() {
+		let jsonStr  = """
+						{
+							"messageId": "messageId",
+							"aps": {
+								"badge": 6,
+								"sound": "default",
+								"alert": {
+									"bidy":"text"
+								}
+							},
+							"customPayload": {
+								"key": "value",
+								"nestedObject": {
+									"key": "value"
+								}
+							}
+						}
+						"""
+		let message = MTMessage(messageSyncResponseJson: JSON.parse(jsonStr))
+		XCTAssertEqual(message!.customPayload! as NSDictionary, ["key": "value", "nestedObject": ["key": "value"]] as NSDictionary)
+	}
 	
 	func testJSONToNSObjects() {
 		let jsonstring = backendJSONRegularMessage(messageId: "m1")

@@ -62,14 +62,7 @@ public class NotificationAction: NSObject {
 	}
 	
 	class var openAction: NotificationAction {
-		let options: [NotificationActionOptions]?
-		if #available(iOS 10.0, *) {
-			options = [NotificationActionOptions.foreground]
-		} else {
-			options = nil
-		}
-
-		return NotificationAction(actionIdentifier: DefaultActionId, title: MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open"), options: options)
+		return NotificationAction(actionIdentifier: DefaultActionId, title: MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open"), options: [NotificationActionOptions.foreground])
 	}
     
     class var defaultAction: NotificationAction {

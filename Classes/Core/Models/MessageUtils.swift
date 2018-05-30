@@ -158,7 +158,7 @@ extension NSNumber: CustomPayloadSupportedTypes {}
 protocol MOMessageAttributes {
 	var destination: String? {get}
 	var text: String {get}
-	var customPayload: [String: CustomPayloadSupportedTypes]? {get}
+	var customPayload: StringKeyPayload? {get}
 	var messageId: String {get}
 	var sentStatus: MOMessageSentStatus {get}
     var bulkId: String? {get}
@@ -168,7 +168,7 @@ protocol MOMessageAttributes {
 struct MOAttributes: MOMessageAttributes {
 	let destination: String?
 	let text: String
-	let customPayload: [String: CustomPayloadSupportedTypes]?
+	let customPayload: StringKeyPayload?
 	let messageId: String
 	let sentStatus: MOMessageSentStatus
     let bulkId: String?
