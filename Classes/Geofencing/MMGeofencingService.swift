@@ -637,7 +637,7 @@ extension GeofencingService: CLLocationManagerDelegate {
 	
 	public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
 		assert(Thread.isMainThread)
-		MMLogDebug("[GeofencingService] did fail with error \(error)")
+		MMLogError("[GeofencingService] did fail with error \(error)")
 	}
 	
 	public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
