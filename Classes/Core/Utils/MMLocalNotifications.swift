@@ -63,9 +63,7 @@ extension UILocalNotification {
 		localNotification.userInfo = message.originalPayload
 		localNotification.alertBody = message.text
 		localNotification.soundName = message.sound
-		if #available(iOS 8.2, *) {
-			localNotification.alertTitle = message.title
-		}
+		localNotification.alertTitle = message.title
 		localNotification.category = message.aps.category
 		return localNotification
 	}
