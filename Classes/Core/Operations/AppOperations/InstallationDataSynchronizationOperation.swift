@@ -25,10 +25,13 @@ final class InstallationDataSynchronizationOperation: GroupOperation {
 		} else {
 			userDataOp = UserDataSynchronizationOperation(fetchingOperationWithUser: user, mmContext: mmContext, finishBlock: nil)
 		}
-		
+
+		let primarySyncOp = SyncPrimaryDeviceOperation(mmContext: mmContext, installation: installation, finishBlock: nil)
+
+		primarySyncOp.addDependency(regOp)
 		systemDataOp.addDependency(regOp)
 		userDataOp.addDependency(regOp)
-		
+
 		super.init(operations: [regOp, systemDataOp, userDataOp])
 	}
 	

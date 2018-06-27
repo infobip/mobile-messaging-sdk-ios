@@ -273,7 +273,6 @@ public final class MobileMessaging: NSObject {
 	
 	func sync() {
 		currentInstallation?.syncInstallationWithServer()
-		currentInstallation?.syncPrimaryFlagWithServer()
 		performForEachSubservice { subservice in
 			subservice.syncWithServer(nil)
 		}

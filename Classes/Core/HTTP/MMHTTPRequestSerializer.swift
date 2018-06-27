@@ -64,7 +64,8 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 		
 		
 		MMLogDebug("""
-			Sending request to
+			Sending request
+			method: \(method)
 			url: \(request.url.orNil)
 			body: \(request.httpBody.orNil)
 			headers: \(request.allHTTPHeaderFields.orNil)
