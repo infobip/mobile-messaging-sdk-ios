@@ -14,7 +14,7 @@ class MMKeychain: KeychainSwift {
 	var internalId: String? {
 		get {
 			let internalId = get(KeychainKeys.internalId)
-			MMLogDebug("[Keychain] get internalId \(String(describing: internalId))")
+			MMLogDebug("[Keychain] get internalId \(internalId.orNil)")
 			return internalId
 		}
 		set {

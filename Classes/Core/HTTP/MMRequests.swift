@@ -17,6 +17,27 @@ enum APIPath: String {
 	case GeoEventsReports = "/mobile/4/geo/event"
 	case DeliveryReport = "/mobile/1/messages/deliveryreport"
 	case Logout = "/mobile/1/data/logout"
+	case Instance = "/mobile/1/instance"
+}
+
+struct PutInstanceRequest: PutRequest {
+	typealias ResponseType = PutInstanceResponse
+	var path: APIPath { return .Instance }
+	
+	let isPrimary: Bool
+	var body: RequestBody? { return ["primary": isPrimary] }
+	
+	init(isPrimary: Bool) {
+		self.isPrimary = isPrimary
+	}
+}
+
+struct GetInstanceRequest: GetRequest {
+	typealias ResponseType = GetInstanceResponse
+	var path: APIPath { return .Instance }
+
+	init() {
+	}
 }
 
 struct RegistrationRequest: PostRequest {
@@ -49,7 +70,6 @@ struct RegistrationRequest: PostRequest {
 struct SeenStatusSendingRequest: PostRequest {
 	typealias ResponseType = SeenStatusSendingResponse
 	var path: APIPath { return .SeenMessages }
-	var parameters: RequestParameters? { return nil }
 
 	let seenList: [SeenData]
 	var body: RequestBody? { return SeenData.requestBody(seenList: seenList) }
@@ -226,6 +246,11 @@ extension GetRequest {
 protocol PostRequest: RequestData { }
 extension PostRequest {
 	var method: Method { return .POST }
+}
+
+protocol PutRequest: RequestData { }
+extension PutRequest {
+	var method: Method { return .PUT }
 }
 
 extension RequestData {

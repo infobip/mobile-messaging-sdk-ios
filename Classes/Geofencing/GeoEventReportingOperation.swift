@@ -142,7 +142,7 @@ class GeoEventReportingOperation: Operation {
 					self.context.delete(event)
 					
 				case .Failure(let error):
-					MMLogError("[Geo event reporting] Geo event reporting request failed with error: \(String(describing: error))")
+					MMLogError("[Geo event reporting] Geo event reporting request failed with error: \(error.orNil)")
 					if event.messageShown == false {
 						// if we had a failed request, we should generate a message for the campaign immediately regardless the campaign status
 						// we'll use the sdk generated message id to generate a mt message with it further in `generateAndHandleGeoVirtualMessages`

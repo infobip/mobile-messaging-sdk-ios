@@ -73,6 +73,23 @@ public final class MobileMessaging: NSObject {
 		MobileMessaging.sharedInstance?.sync()
 	}
 	
+	public static func setAsPrimaryDevice(_ isPrimary: Bool, completion: ((NSError?) -> Void)? = nil) {
+		guard let mm = MobileMessaging.sharedInstance else {
+			completion?(NSError(type: MMInternalErrorType.UnknownError))
+			return
+		}
+		mm.setAsPrimaryDevice(isPrimary, completion: completion)
+	}
+	
+	public static var isPrimaryDevice: Bool {
+		get {
+			return MobileMessaging.sharedInstance?.isPrimaryDevice ?? true
+		}
+		set {
+			MobileMessaging.sharedInstance?.isPrimaryDevice = newValue
+		}
+	}
+	
 	/// Current push registration status.
 	/// The status defines whether the device is allowed to be receiving push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
 	/// MobileMessaging SDK has the push registration enabled by default.
@@ -256,6 +273,7 @@ public final class MobileMessaging: NSObject {
 	
 	func sync() {
 		currentInstallation?.syncInstallationWithServer()
+		currentInstallation?.syncPrimaryFlagWithServer()
 		performForEachSubservice { subservice in
 			subservice.syncWithServer(nil)
 		}
@@ -280,7 +298,7 @@ public final class MobileMessaging: NSObject {
 		
 		completion?()
 		
-		MMLogDebug("Service started with subservices: \(String(describing: self.subservices))")
+		MMLogDebug("Service started with subservices: \(self.subservices)")
 	}
 	
 	/// - parameter clearKeychain: Bool, true by default, used in unit tests
@@ -394,6 +412,19 @@ public final class MobileMessaging: NSObject {
 	
 	var isPushRegistrationEnabled: Bool {
 		return currentInstallation.isPushRegistrationEnabled
+	}
+	
+	func setAsPrimaryDevice(_ isPrimary: Bool, completion: ((NSError?) -> Void)? = nil) {
+		currentInstallation.setAsPrimaryDevice(isPrimary, completion: completion)
+	}
+	
+	var isPrimaryDevice: Bool {
+		get {
+			return currentInstallation.isPrimaryDevice
+		}
+		set {
+			currentInstallation.isPrimaryDevice = newValue
+		}
 	}
 	
 	var subservices: [String: MobileMessagingService] = [:]

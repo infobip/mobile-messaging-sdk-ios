@@ -18,13 +18,17 @@ final class ResponseSerializer<T: JSONDecodable> : MM_AFHTTPResponseSerializer {
 	override func responseObject(for response: URLResponse?, data: Data?, error: NSErrorPointer) -> Any? {
 		super.responseObject(for: response, data: data, error: error)
 		
-		guard let response = response, let data = data else {
+		guard let response = response as? HTTPURLResponse, let data = data else {
 			return nil
 		}
 		
-		let dataString = String(data: data, encoding: String.Encoding.utf8)
-		
-		MMLogDebug("Response received: \(response)\n\(String(describing: dataString))")
+		MMLogDebug("""
+			Response received
+			url: \(response.url.orNil)
+			status code: \(response.statusCode)
+			headers: \(String(describing: response.allHeaderFields))
+			data: \(String(data: data, encoding: String.Encoding.utf8).orNil)
+			""")
 		
 		let json = JSON(data: data)
 		if let requestError = RequestError(json: json), response.isFailureHTTPResponse {

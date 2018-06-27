@@ -26,7 +26,7 @@ class InteractiveMessageAlert {
 			return
 		}
 		
-		MMLogDebug("Alert for message will be shown: \(message.messageId) text: \(String(describing: message.text))")
+		MMLogDebug("Alert for message will be shown: \(message.messageId) text: \(message.text.orNil)")
 		
 		if exclusively {
 			cancelAllAlerts()

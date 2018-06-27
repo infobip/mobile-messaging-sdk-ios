@@ -102,7 +102,7 @@ class UserDataSynchronizationOperation: Operation {
 			MMLogDebug("[User data sync] successfully synced")
 			
 		case .Failure(let error):
-			MMLogError("[User data sync] sync request failed with error: \(String(describing: error))")
+			MMLogError("[User data sync] sync request failed with error: \(error.orNil)")
 			return
 		case .Cancel:
 			MMLogError("[User data sync] sync request cancelled.")

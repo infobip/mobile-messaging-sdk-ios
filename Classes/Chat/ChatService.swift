@@ -169,7 +169,7 @@ extension MobileChat: MobileChatProtocol {
         mmContext.sendMessagesUserInitiated([chatServiceMo]) { (mss, error) in
             if let moresponse = mss?.first {
                 let chatMessage = ChatMessage(moMessage: moresponse)
-                MMLogDebug("[Mobile chat] message sending finished. Message: \(String(describing: chatMessage?.id)). Error: \(error.debugDescription)")
+				MMLogDebug("[Mobile chat] message sending finished. Message: \(String(describing: chatMessage?.id)). Error: \(error.debugDescription)")
                 completion?(chatMessage, error)
             } else {
                 MMLogDebug("[Mobile chat] message sending finished. No message in response! Error: \(error.debugDescription)")

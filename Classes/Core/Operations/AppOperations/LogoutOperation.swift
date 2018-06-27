@@ -57,7 +57,7 @@ class LogoutOperation: Operation {
 				self.finishWithError(logoutError)
 			})
 		case .Failure(let error):
-			MMLogError("[Logout] request failed with error: \(String(describing: error))")
+			MMLogError("[Logout] request failed with error: \(error.orNil)")
 			self.finishWithError(result.error)
 		case .Cancel:
 			MMLogError("[Logout] request cancelled.")

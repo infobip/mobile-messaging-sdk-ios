@@ -51,7 +51,7 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 		request.url = makeURL(withQueryParameters: parameters, url: URLString)
 		applyHeaders(&request)
 		
-        if let jsonBody = jsonBody , method == "POST" {
+        if let jsonBody = jsonBody , method != "GET" {
             do {
                 request.httpBody = try SanitizedJSONSerialization.data(withJSONObject: jsonBody, options: [])
 				request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -60,6 +60,15 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
                 MMLogError("RequestSerializer can't serialize json body: \(jsonBody) with error: \(error)")
             }
         }
+		
+		
+		
+		MMLogDebug("""
+			Sending request to
+			url: \(request.url.orNil)
+			body: \(request.httpBody.orNil)
+			headers: \(request.allHTTPHeaderFields.orNil)
+			""")
 		
         return request;
     }

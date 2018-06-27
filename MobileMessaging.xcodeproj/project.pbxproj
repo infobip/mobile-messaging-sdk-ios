@@ -186,6 +186,7 @@
 		76FDDEED1FD6ADF900E96BE4 /* MM_AFSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 76FDDEEB1FD6ADF900E96BE4 /* MM_AFSecurityPolicy.m */; };
 		76FFC27C1F7A64D2009C6A2A /* LocalMessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
+		ADE7594920E10E5D00823DF6 /* SyncPrimaryDeviceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADE7594820E10E5D00823DF6 /* SyncPrimaryDeviceOperation.swift */; };
 		ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203322086642B00E157D7 /* String+Extension.swift */; };
 		ADF203402086642C00E157D7 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203332086642B00E157D7 /* Utils.swift */; };
 		ADF203412086642C00E157D7 /* Digest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203342086642B00E157D7 /* Digest.swift */; };
@@ -420,6 +421,7 @@
 		87D23AEB9B8E45723819ED8B7152EBC5 /* MobileMessaging-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MobileMessaging-prefix.pch"; sourceTree = "<group>"; };
 		90D97F4115E4ED0FAB0D933212A2ECFA /* MobileMessaging.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; name = MobileMessaging.modulemap; path = ../MobileMessaging.modulemap; sourceTree = "<group>"; };
 		A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		ADE7594820E10E5D00823DF6 /* SyncPrimaryDeviceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncPrimaryDeviceOperation.swift; sourceTree = "<group>"; };
 		ADF203322086642B00E157D7 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		ADF203332086642B00E157D7 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		ADF203342086642B00E157D7 /* Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
@@ -721,6 +723,7 @@
 				764556241F78FF4F00B8F14B /* SeenStatusSendingOperation.swift */,
 				764556251F78FF4F00B8F14B /* SystemDataSynchronizationOperation.swift */,
 				764556261F78FF4F00B8F14B /* UserDataSynchronizationOperation.swift */,
+				ADE7594820E10E5D00823DF6 /* SyncPrimaryDeviceOperation.swift */,
 			);
 			path = AppOperations;
 			sourceTree = "<group>";
@@ -978,7 +981,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 0940;
 			};
 			buildConfigurationList = 2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "MobileMessaging" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1194,6 +1197,7 @@
 				ADF2034A2086642C00E157D7 /* SHA1.swift in Sources */,
 				7645569D1F78FF8500B8F14B /* MessagePostingOperation.swift in Sources */,
 				760085831F977E3300837D75 /* MOMessage.swift in Sources */,
+				ADE7594920E10E5D00823DF6 /* SyncPrimaryDeviceOperation.swift in Sources */,
 				7601F195208E056500738C1A /* ImageView+Kingfisher.swift in Sources */,
 				7645568F1F78FF6700B8F14B /* MMInternalStorageModel.xcdatamodeld in Sources */,
 				7645569E1F78FF8500B8F14B /* MessagesEvictionOperation.swift in Sources */,
@@ -1284,12 +1288,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -1300,6 +1306,7 @@
 				CODE_SIGNING_REQUIRED = NO;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1460136653824;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1320,9 +1327,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "-Xfrontend -warn-long-function-bodies=200 -Xfrontend -warn-long-expression-type-checking=200";
 				PROVISIONING_PROFILE_SPECIFIER = NO_SIGNING/;
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				SYMROOT = "${SRCROOT}/../build";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1343,12 +1352,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -1377,7 +1388,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = NO_SIGNING/;
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 4.0;
 				SYMROOT = "${SRCROOT}/../build";
 				VALIDATE_PRODUCT = YES;

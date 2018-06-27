@@ -719,3 +719,15 @@ extension UIColor {
 		return UIColor.colorMod255(243, 27, 0)
 	}
 }
+
+extension Optional {
+	var orNil : String {
+		if self == nil {
+			return "nil"
+		}
+		if "\(Wrapped.self)" == "String" {
+			return "\"\(self!)\""
+		}
+		return "\(self!)"
+	}
+}

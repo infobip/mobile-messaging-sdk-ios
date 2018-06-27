@@ -71,7 +71,7 @@ class SystemDataSynchronizationOperation: Operation {
 			installation.persist()
 			MMLogDebug("[System data sync] successfully synced")
 		case .Failure(let error):
-			MMLogError("[System data sync] sync request failed with error: \(String(describing: error))")
+			MMLogError("[System data sync] sync request failed with error: \(error.orNil)")
 		case .Cancel:
 			MMLogError("[System data sync] sync request cancelled.")
 		}

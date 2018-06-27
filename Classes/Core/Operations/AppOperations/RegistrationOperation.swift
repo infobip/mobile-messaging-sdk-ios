@@ -84,7 +84,7 @@ final class SyncRegistrationOperation: Operation {
 			
 			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalId])
 		case .Failure(let error):
-			MMLogError("[Registration] request failed with error: \(String(describing: error))")
+			MMLogError("[Registration] request failed with error: \(error.orNil)")
 		case .Cancel:
 			MMLogError("[Registration] request cancelled.")
 		}

@@ -189,7 +189,7 @@ class MessagePostingOperation: Operation {
 				}
 				MMLogDebug("[Message posting] successfuly finished")
 			case .Failure(let error):
-				MMLogError("[Message posting] request failed with error: \(String(describing: error))")
+				MMLogError("[Message posting] request failed with error: \(error.orNil)")
 				self.updateMessageStorageOnFailureIfNeeded(with: originalMessagesToSend.map { $0.messageId } , completion: {
 					completion()
 				})

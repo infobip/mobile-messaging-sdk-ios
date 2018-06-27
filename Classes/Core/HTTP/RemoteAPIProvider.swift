@@ -25,6 +25,14 @@ class RemoteAPIProvider {
 		registrationQueue.perform(request: request, completion: completion)
 	}
 	
+	func getInstance(completion: @escaping (GetInstanceResult) -> Void) {
+		registrationQueue.perform(request: GetInstanceRequest(), completion: completion)
+	}
+	
+	func putInstance(isPrimaryDevice: Bool, completion: @escaping (PutInstanceResult) -> Void) {
+		registrationQueue.perform(request: PutInstanceRequest(isPrimary: isPrimaryDevice), completion: completion)
+	}
+	
 	func fetchUserData(externalUserId: String?, completion: @escaping (UserDataSyncResult) -> Void) {
 		let request = UserDataRequest(externalUserId: externalUserId)
 		registrationQueue.perform(request: request, completion: completion)

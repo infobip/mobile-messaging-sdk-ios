@@ -34,7 +34,7 @@ class RetryableDownloadTask {
 				self.attemptsRemaining -= 1
 				self.resume()
 			} else {
-				MMLogDebug("[Notification Extension] finishing with error \(String(describing: error))")
+				MMLogDebug("[Notification Extension] finishing with error \(error.orNil)")
 				self.completion(url, error)
 			}
 		}

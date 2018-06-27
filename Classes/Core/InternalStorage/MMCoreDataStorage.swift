@@ -234,7 +234,7 @@ final class MMCoreDataStorage {
     }
 	
     private func didNotAddPersistentStoreWithPath(_ storePath: String?, options: MMStoreOptions?, error: NSError?) {
-		MMLogError("Failed creating persistent store: \(String(describing: error))")
+		MMLogError("Failed creating persistent store: \(error.orNil)")
     }
 	
     private var _mainThreadManagedObjectContext: NSManagedObjectContext?

@@ -58,7 +58,7 @@ class SeenStatusSendingOperation: Operation {
 				self.updateMessageStorage(with: messages, completion: completion)
 			}
 		case .Failure(let error):
-			MMLogError("[Seen status reporting] Request failed with error: \(String(describing: error))")
+			MMLogError("[Seen status reporting] Request failed with error: \(error.orNil)")
 			completion()
 		case .Cancel:
 			completion()

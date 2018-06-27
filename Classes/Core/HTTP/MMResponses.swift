@@ -9,11 +9,17 @@
 //MARK: - Responses
 struct EmptyResponse { }
 
+typealias PutInstanceResponse = EmptyResponse
+
 typealias SeenStatusSendingResponse = EmptyResponse
 
 typealias SystemDataSyncResponse = EmptyResponse
 
 typealias LogoutResponse = EmptyResponse
+
+struct GetInstanceResponse {
+	let primary: Bool
+}
 
 struct RegistrationResponse {
 	let internalId: String
@@ -51,6 +57,8 @@ struct MOMessageSendingResponse {
 typealias DeliveryReportResponse = EmptyResponse
 
 //MARK: - Request results
+typealias GetInstanceResult = Result<GetInstanceResponse>
+typealias PutInstanceResult = Result<PutInstanceResponse>
 typealias RegistrationResult = Result<RegistrationResponse>
 typealias MessagesSyncResult = Result<MessagesSyncResponse>
 typealias SeenStatusSendingResult = Result<SeenStatusSendingResponse>
@@ -85,7 +93,9 @@ protocol JSONEncodable {
 }
 
 extension EmptyResponse: JSONDecodable {
-	init?(json value: JSON) { }
+	init?(json value: JSON) {
+		print("")
+	}
 }
 
 extension Date: JSONEncodable {
@@ -106,6 +116,12 @@ extension RequestError: JSONDecodable {
 		
 		self.messageId = messageId
 		self.text = text
+	}
+}
+
+extension GetInstanceResponse: JSONDecodable {
+	init?(json value: JSON) {
+		self.primary = value["primary"].boolValue
 	}
 }
 

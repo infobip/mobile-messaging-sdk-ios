@@ -119,7 +119,7 @@ final public class MMUser: NSObject, MobileMessagingService {
 	
 	//MARK: - Public
 	public override var description: String {
-		return "User:\n  Internal ID = \(String(describing: pushRegistrationId))\n    External ID = \(String(describing: externalId))\n    Email = \(String(describing: email))\n    MSISDN = \(String(describing: msisdn))\n    Custom Data = \(String(describing: customData))\n    Predefined Data = \(String(describing: predefinedData))"
+		return "User:\n  Internal ID = \(pushRegistrationId.orNil)\n    External ID = \(externalId.orNil)\n    Email = \(email.orNil)\n    MSISDN = \(msisdn.orNil)\n    Custom Data = \(customData.orNil)\n    Predefined Data = \(predefinedData.orNil)"
 	}
 	
 	/// Unique push registration identifier issued by server. This identifier matches one to one with APNS cloud token of the particular application installation. This identifier is only available after `MMNotificationRegistrationUpdated` event.
@@ -400,7 +400,7 @@ final public class MMInstallation: NSObject {
 	
 	//MARK: - Public
 	public override var description: String {
-		return "Installation:\n    Device token = \(String(describing: deviceToken))\n    Badge number = \(badgeNumber)\n"
+		return "Installation:\n    Device token = \(deviceToken.orNil))\n    Badge number = \(badgeNumber)\n"
 	}
 	
 	/// A read-only opaque identifier assigned by APNs to a specific app on a specific device. Each app instance receives its unique token when it registers with APNs and must share this token with its provider.
@@ -428,6 +428,12 @@ final public class MMInstallation: NSObject {
 		}
 		MMLogDebug("[Installation management] send system data to server")
 		let op = SystemDataSynchronizationOperation(installation: self, user: user, mmContext: mmContext, finishBlock: completion)
+		installationQueue.addOperation(op)
+	}
+	
+	public func syncPrimaryFlagWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+		MMLogDebug("[Installation management] sync primary device...")
+		let op = SyncPrimaryDeviceOperation(mmContext: mmContext, installation: self, finishBlock: completion)
 		installationQueue.addOperation(op)
 	}
 	
@@ -504,8 +510,6 @@ final public class MMInstallation: NSObject {
 		set { resolveProvider(forAttributesSet: AttributesSet.applicationCode).setValueForKey(Attributes.applicationCode.rawValue, value: newValue) }
 	}
 	
-	//MARK: - Private
-	
 	var systemDataHash: Int64 {
 		get { return (resolveProvider(forAttributesSet: AttributesSet.systemDataHash).getValueForKey(Attributes.systemDataHash.rawValue) as? Int64) ?? 0 }
 		set { resolveProvider(forAttributesSet: AttributesSet.systemDataHash).setValueForKey(Attributes.systemDataHash.rawValue, value: newValue) }
@@ -519,6 +523,31 @@ final public class MMInstallation: NSObject {
 	var isPushRegistrationEnabled: Bool {
 		get { return (resolveProvider(forAttributesSet: AttributesSet.isRegistrationEnabled).getValueForKey(Attributes.registrationEnabled.rawValue) as? Bool) ?? true }
 		set { resolveProvider(forAttributesSet: AttributesSet.isRegistrationEnabled).setValueForKey(Attributes.registrationEnabled.rawValue, value: newValue) }
+	}
+	
+	var isPrimaryDeviceNeedSync: Bool {
+		return resolveProvider(forAttributesSet: AttributesSet.isPrimaryDevice).isAttributeDirty(AttributesSet.isPrimaryDevice)
+	}
+	
+	func resetPrimaryDeviceNeedsSync() {
+		resolveProvider(forAttributesSet: AttributesSet.isPrimaryDevice).resetDirtyAttribute(AttributesSet.isPrimaryDevice)
+	}
+	
+	func setAsPrimaryDevice(_ isPrimary: Bool, completion: ((NSError?) -> Void)? = nil) {
+		guard isPrimaryDevice != isPrimary else {
+			completion?(nil)
+			return
+		}
+		isPrimaryDevice = isPrimary
+		syncPrimaryFlagWithServer(completion)
+	}
+	
+	var isPrimaryDevice: Bool {
+		get { return (resolveProvider(forAttributesSet: AttributesSet.isPrimaryDevice).getValueForKey(Attributes.isPrimaryDevice.rawValue) as? Bool) ?? true }
+		set {
+			resolveProvider(forAttributesSet: AttributesSet.isPrimaryDevice).setValueForKey(Attributes.isPrimaryDevice.rawValue, value: newValue)
+			persist()
+		}
 	}
 	
 	var isRegistrationStatusNeedSync: Bool {

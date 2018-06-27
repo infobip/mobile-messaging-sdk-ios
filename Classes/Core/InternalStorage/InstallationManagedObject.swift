@@ -21,6 +21,7 @@ enum Attributes: String {
 	case systemDataHash		= "systemDataHash"
 	case location			= "location"
 	case internalUserId		= "internalUserId"
+	case isPrimaryDevice 	= "isPrimaryDevice"
 	
 	static var userDataAttributes: Int32 {
 		return	Attributes.customUserData.integerValue |
@@ -55,6 +56,8 @@ enum Attributes: String {
 			return 1 << 8
 		case .internalUserId:
 			return 1 << 9
+		case .isPrimaryDevice:
+			return 1 << 10
 		}
 	}
 	
@@ -90,6 +93,8 @@ struct AttributesSet: OptionSet {
 				return AttributesSet.location
 			case .internalUserId:
 				return AttributesSet.internalUserId
+			case .isPrimaryDevice:
+				return AttributesSet.isPrimaryDevice
 			}
 		}
 		return nil
@@ -104,6 +109,7 @@ struct AttributesSet: OptionSet {
 	static let systemDataHash			= Attributes.systemDataHash.asSet
 	static let location					= Attributes.location.asSet
 	static let internalUserId			= Attributes.internalUserId.asSet
+	static let isPrimaryDevice			= Attributes.isPrimaryDevice.asSet
 	
 	static let userData					= AttributesSet(rawValue: Attributes.userDataAttributes)
 	static let registrationAttributes	= AttributesSet(rawValue: Attributes.registrationAttributes)

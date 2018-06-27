@@ -25,4 +25,5 @@ extension InstallationManagedObject {
 	@NSManaged var location: AnyObject?
 	@NSManaged var isRegistrationEnabled: Bool
 	@NSManaged var applicationCode: String?
+	@NSManaged var isPrimaryDevice: Bool
 }

@@ -87,8 +87,6 @@ class DynamicBaseUrlHTTPSessionManager {
 	
 	func performRequest<R: RequestData>(_ request: R, sessionManager: MM_AFHTTPSessionManager, successBlock: @escaping (URLSessionDataTask, Any?) -> Void, failureBlock: @escaping (URLSessionDataTask?, Error) -> Void) {
 		
-		MMLogDebug("Sending request \(type(of: self))\nparameters: \(String(describing: request.parameters))\nbody: \(String(describing: request.body))\nto \(dynamicBaseUrl?.absoluteString ?? "empty-host" + request.path.rawValue)")
-		
 		switch request.method {
 		case .POST:
 			sessionManager.post(request.path.rawValue, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
