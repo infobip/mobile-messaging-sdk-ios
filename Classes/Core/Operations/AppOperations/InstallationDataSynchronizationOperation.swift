@@ -32,7 +32,7 @@ final class InstallationDataSynchronizationOperation: GroupOperation {
 		systemDataOp.addDependency(regOp)
 		userDataOp.addDependency(regOp)
 
-		super.init(operations: [regOp, systemDataOp, userDataOp])
+		super.init(operations: [regOp, primarySyncOp, systemDataOp, userDataOp])
 	}
 	
 	override func finished(_ errors: [NSError]) {
