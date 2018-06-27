@@ -10,14 +10,14 @@ import XCTest
 
 class PrimaryDeviceTests: MMTestCase {
 	func testDataPersisting() {
-		XCTAssertTrue(MobileMessaging.isPrimaryDevice)
-		MobileMessaging.isPrimaryDevice = false
 		XCTAssertFalse(MobileMessaging.isPrimaryDevice)
+		MobileMessaging.isPrimaryDevice = true
+		XCTAssertTrue(MobileMessaging.isPrimaryDevice)
 		let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
 		ctx.performAndWait {
 			let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
 			XCTAssertTrue(installation.dirtyAttributesSet.contains(AttributesSet.isPrimaryDevice))
-			XCTAssertFalse(installation.isPrimaryDevice)
+			XCTAssertTrue(installation.isPrimaryDevice)
 		}
 	}
 	
@@ -40,9 +40,9 @@ class PrimaryDeviceTests: MMTestCase {
 			}
 		})
 		
-		XCTAssertTrue(MobileMessaging.isPrimaryDevice)
+		XCTAssertFalse(MobileMessaging.isPrimaryDevice)
 		
-		MobileMessaging.setAsPrimaryDevice(false) { (error) in
+		MobileMessaging.setAsPrimaryDevice(true) { (error) in
 			expectation?.fulfill()
 		}
 		
@@ -51,7 +51,7 @@ class PrimaryDeviceTests: MMTestCase {
 			ctx.performAndWait {
 				let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
 				XCTAssertFalse(installation.dirtyAttributesSet.contains(AttributesSet.isPrimaryDevice))
-				XCTAssertFalse(installation.isPrimaryDevice)
+				XCTAssertTrue(installation.isPrimaryDevice)
 			}
 		})
 	}
