@@ -4,7 +4,6 @@
 //
 //  Created by Andrey K. on 23/02/16.
 //
-//
 
 enum APIPath: String {
 	case Registration = "/mobile/4/registration"
@@ -21,26 +20,36 @@ enum APIPath: String {
 }
 
 struct PutInstanceRequest: PutRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = PutInstanceResponse
 	var path: APIPath { return .Instance }
 	
 	let isPrimary: Bool
 	var body: RequestBody? { return ["primary": isPrimary] }
 	
-	init(isPrimary: Bool) {
+	init(applicationCode: String, pushRegistrationId: String, isPrimary: Bool) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 		self.isPrimary = isPrimary
 	}
 }
 
 struct GetInstanceRequest: GetRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = GetInstanceResponse
 	var path: APIPath { return .Instance }
 
-	init() {
+	init(applicationCode: String, pushRegistrationId: String) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 	}
 }
 
 struct RegistrationRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = RegistrationResponse
 	var retryLimit: Int { return 3 }
 	func mustRetryOnResponseError(_ error: NSError) -> Bool {
@@ -60,7 +69,9 @@ struct RegistrationRequest: PostRequest {
 	let isEnabled: Bool?
 	let expiredInternalId: String?
 
-	init(deviceToken: String, isEnabled: Bool?, expiredInternalId: String?) {
+	init(applicationCode: String, pushRegistrationId: String?, deviceToken: String, isEnabled: Bool?, expiredInternalId: String?) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 		self.deviceToken = deviceToken
 		self.isEnabled = isEnabled
 		self.expiredInternalId = expiredInternalId
@@ -68,24 +79,37 @@ struct RegistrationRequest: PostRequest {
 }
 
 struct SeenStatusSendingRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = SeenStatusSendingResponse
 	var path: APIPath { return .SeenMessages }
 
 	let seenList: [SeenData]
 	var body: RequestBody? { return SeenData.requestBody(seenList: seenList) }
 
-	init(seenList: [SeenData]) {
+	init(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData]) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 		self.seenList = seenList
 	}
 }
 
 struct LibraryVersionRequest: GetRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = LibraryVersionResponse
 	var path: APIPath { return .LibraryVersion }
 	var parameters: [String: Any]? = [PushRegistration.platform: APIValues.platformType]
+
+	init() {
+		self.applicationCode = ""
+		self.pushRegistrationId = nil
+	}
 }
 
 struct MessagesSyncRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = MessagesSyncResponse
 	var retryLimit: Int = 2
 	func mustRetryOnResponseError(_ error: NSError) -> Bool {
@@ -108,28 +132,36 @@ struct MessagesSyncRequest: PostRequest {
 		return result
 	}
 
-	init(archiveMsgIds: [String]?, dlrMsgIds: [String]?) {
+	init(applicationCode: String, pushRegistrationId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 		self.archiveMsgIds = archiveMsgIds
 		self.dlrMsgIds = dlrMsgIds
 	}
 }
 
 struct DeliveryReportRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = DeliveryReportResponse
 	var path: APIPath { return .DeliveryReport }
 	let dlrIds: [String]
 	var body: RequestBody? { return [DeliveryReport.dlrMessageIds: dlrIds] }
 	
-	init?(dlrIds: [String]?) {
+	init?(applicationCode: String, dlrIds: [String]?) {
 		guard let dlrIds = dlrIds else {
 			return nil
 		}
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = nil
 		self.dlrIds = dlrIds
 	}
 }
 
 typealias UserDataDictionary = [String: Any]
 struct UserDataRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = UserDataSyncResponse
 	var path: APIPath { return .UserData }
 	var parameters: RequestParameters? {
@@ -156,7 +188,9 @@ struct UserDataRequest: PostRequest {
 	let predefinedUserData: UserDataDictionary?
 	let customUserData: [CustomUserData]?
 
-	init(externalUserId: String?, predefinedUserData: UserDataDictionary? = nil, customUserData: [String: CustomUserDataValue]? = nil) {
+	init(applicationCode: String, pushRegistrationId: String, externalUserId: String?, predefinedUserData: UserDataDictionary? = nil, customUserData: [String: CustomUserDataValue]? = nil) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 		self.externalUserId = externalUserId
 		self.predefinedUserData = predefinedUserData
 		if let customUserData = customUserData {
@@ -168,6 +202,8 @@ struct UserDataRequest: PostRequest {
 }
 
 struct SystemDataSyncRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = SystemDataSyncResponse
 	var path: APIPath { return .SystemData }
 	var body: RequestBody? {
@@ -176,17 +212,29 @@ struct SystemDataSyncRequest: PostRequest {
 
 	let systemData: SystemData
 
-	init(systemData: SystemData) {
+	init(applicationCode: String, pushRegistrationId: String, systemData: SystemData) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 		self.systemData = systemData
 	}
 }
 
 struct LogoutRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = LogoutResponse
 	var path: APIPath { return .Logout }
+	var retryLimit: Int = 3
+
+	init(applicationCode: String, pushRegistrationId: String) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
+	}
 }
 
 struct MOMessageSendingRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = MOMessageSendingResponse
 	var path: APIPath { return .MOMessage }
 	var parameters: RequestParameters? {
@@ -194,7 +242,7 @@ struct MOMessageSendingRequest: PostRequest {
 	}
 	var body: RequestBody? {
 		var result = RequestBody()
-		result[APIKeys.kMOFrom] = internalUserId
+		result[APIKeys.kMOFrom] = pushRegistrationId
 		result[APIKeys.kMOMessages] = messages.map { msg -> RequestBody in
 			var dict = msg.dictRepresentation
 			dict[APIKeys.kMOMessageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
@@ -203,11 +251,11 @@ struct MOMessageSendingRequest: PostRequest {
 		return result
 	}
 
-	let internalUserId: String
 	let messages: [MOMessage]
 
-	init(internalUserId: String, messages: [MOMessage]) {
-		self.internalUserId = internalUserId
+	init(applicationCode: String, pushRegistrationId: String, messages: [MOMessage]) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 		self.messages = messages
 	}
 }
@@ -229,6 +277,8 @@ protocol RequestResponsable {
 }
 
 protocol RequestData: RequestResponsable {
+	var applicationCode: String {get}
+	var pushRegistrationId: String? {get}
 	var method: Method {get}
 	var path: APIPath {get}
 	var parameters: RequestParameters? {get}

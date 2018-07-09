@@ -377,7 +377,7 @@ class MessageStorageTests: MMTestCase {
 		
 
 		MobileMessagingNotificationServiceExtension.startWithApplicationCode("appCode", appGroupId: "groupId")
-		MobileMessagingNotificationServiceExtension.sharedInstance?.deliveryReporter = SuccessfullDeliveryReporterStub(applicationCode: "appCode", baseUrl: "groupId")
+		MobileMessagingNotificationServiceExtension.sharedInstance?.deliveryReporter = SuccessfullDeliveryReporterStub()
 		MobileMessagingNotificationServiceExtension.sharedInstance?.sharedNotificationExtensionStorage = notificationExtensionStorageStub
 		MobileMessagingNotificationServiceExtension.didReceive(request, withContentHandler: contentHandler)
 		
@@ -412,11 +412,7 @@ class MessageStorageTests: MMTestCase {
 }
 
 class SuccessfullDeliveryReporterStub: DeliveryReporting {
-	required init(applicationCode: String, baseUrl: String) {
-		
-	}
-	
-	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
 		completion(Result.Success(DeliveryReportResponse.init()))
 	}
 }

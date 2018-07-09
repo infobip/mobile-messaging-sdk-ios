@@ -87,8 +87,8 @@ extension NotificationCenter {
 	}
 }
 
-class MMNetworkReachabilityManager: ReachabilityManagerProtocol {
-	static let sharedInstance = MMNetworkReachabilityManager()
+class NetworkReachabilityManager: ReachabilityManagerProtocol {
+
 	private let manager: MM_AFNetworkReachabilityManager
 	init() {
 		manager = MM_AFNetworkReachabilityManager.shared()
@@ -98,7 +98,10 @@ class MMNetworkReachabilityManager: ReachabilityManagerProtocol {
 	}
 	
 	func startMonitoring() { manager.startMonitoring() }
-	func stopMonitoring() { manager.stopMonitoring() }
+	func stopMonitoring() {
+		invalidateTimer()
+		manager.stopMonitoring()
+	}
 	var reachable: Bool { return manager.isReachable }
 	
 	func currentlyReachable() -> Bool {
@@ -124,8 +127,46 @@ class MMNetworkReachabilityManager: ReachabilityManagerProtocol {
 		
 		return (isReachable && !needsConnection)
 	}
-	func setReachabilityStatusChangeBlock(block: ((AFNetworkReachabilityStatus) -> Void)?) {
-		manager.setReachabilityStatusChange(block)
+
+	private var timer: DispatchSourceTimer?
+	private func invalidateTimer() {
+		self.timeoutBlock = nil
+		timer?.cancel()
+	}
+	private var timeoutBlock: (() -> Void)?
+	private func createDispatchTimer(_ delay: DispatchTimeInterval, queue: DispatchQueue, block: @escaping () -> Void) -> DispatchSourceTimer {
+		let timer : DispatchSourceTimer = DispatchSource.makeTimerSource(queue: queue)
+		let deadline = DispatchTime.now() + delay
+		let leeway = DispatchTimeInterval.seconds(0)
+		#if swift(>=4.0)
+			timer.schedule(deadline: deadline, leeway: leeway)
+		#else
+			timer.scheduleOneshot(deadline: deadline, leeway: leeway)
+		#endif
+		timer.setEventHandler(handler: block)
+		timer.resume()
+		return timer
+	}
+
+	deinit {
+		invalidateTimer()
+	}
+
+	func setReachabilityStatusChangeBlock(timeout: DispatchTimeInterval, timeoutBlock: @escaping () -> Void, block: @escaping ((AFNetworkReachabilityStatus) -> Void)) {
+
+		self.invalidateTimer()
+		self.timeoutBlock = timeoutBlock
+		self.timer = self.createDispatchTimer(timeout, queue: DispatchQueue.global(qos: .default), block: { [weak self] in
+			self?.timeoutBlock?()
+			self?.stopMonitoring()
+		})
+
+		manager.setReachabilityStatusChange({ status in
+			if (status != AFNetworkReachabilityStatus.notReachable && status != AFNetworkReachabilityStatus.unknown) {
+				self.invalidateTimer()
+			}
+			block(status)
+		})
 	}
 }
 
@@ -349,6 +390,7 @@ protocol MobileMessagingService {
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging)
 	
 	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging)
+	func logoutStatusDidChange(_ mmContext: MobileMessaging)
 	
 	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void))
 }
@@ -366,9 +408,7 @@ extension MobileMessagingService {
 	
 	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {}
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {}
-	
-	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {}
-	
+
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool { return false }
 }
 
@@ -410,7 +450,7 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-				let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-MessagesEvictionOperation.defaultMessageMaxAge).timeIntervalSince1970
+				let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-SDKSettings.messagesRetentionPeriod).timeIntervalSince1970
 				let messages = notifications
 					.compactMap({
 						MTMessage(payload: $0.request.content.userInfo,

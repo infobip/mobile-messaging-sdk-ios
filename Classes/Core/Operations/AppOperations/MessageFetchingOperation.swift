@@ -31,12 +31,6 @@ final class MessageFetchingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message fetching] Starting operation...")
-		guard mmContext.currentUser?.pushRegistrationId != nil else {
-			MMLogDebug("[Message fetching] No registration. Finishing...")
-			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
-			finish()
-			return
-		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogDebug("[Message fetching] Registration may be not healthy. Finishing...")
 			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
@@ -58,6 +52,12 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func syncMessages() {
+		guard let pushRegistrationId = mmContext.currentUser?.pushRegistrationId else {
+			MMLogDebug("[Message fetching] No registration. Finishing...")
+			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
+			finish()
+			return
+		}
 		context.reset()
 		context.performAndWait {
 			
@@ -66,7 +66,7 @@ final class MessageFetchingOperation: Operation {
 			
 			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
 			
-			self.mmContext.remoteApiProvider.syncMessages(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
+			self.mmContext.remoteApiProvider.syncMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
 				self.result = result
 				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds) {
 					self.finish()
@@ -76,47 +76,46 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?, completion: @escaping () -> Void) {
-		context.performAndWait {
-			switch result {
-			case .Success(let fetchResponse):
-				MMLogDebug("[Message fetching] succeded: received \(String(describing: fetchResponse.messages?.count))")
-				
-				if let nonReportedMessageIds = nonReportedMessageIds {
-					self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds, completion: completion)
-					MMLogDebug("[Message fetching] delivery report sent for messages: \(nonReportedMessageIds)")
-					if !nonReportedMessageIds.isEmpty {
-						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
-					}
-				} else {
-					completion()
+		switch result {
+		case .Success(let fetchResponse):
+			MMLogDebug("[Message fetching] succeded: received \(String(describing: fetchResponse.messages?.count))")
+
+			if let nonReportedMessageIds = nonReportedMessageIds {
+				self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds, completion: completion)
+				MMLogDebug("[Message fetching] delivery report sent for messages: \(nonReportedMessageIds)")
+				if !nonReportedMessageIds.isEmpty {
+					NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
 				}
-			case .Failure(_):
-				MMLogError("[Message fetching] request failed")
-				completion()
-			case .Cancel:
-				MMLogDebug("[Message fetching] cancelled")
+			} else {
 				completion()
 			}
+		case .Failure(_):
+			MMLogError("[Message fetching] request failed")
+			completion()
+		case .Cancel:
+			MMLogDebug("[Message fetching] cancelled")
+			completion()
 		}
 	}
 	
 	private func dequeueDeliveryReports(messageIDs: [String], completion: @escaping () -> Void) {
-		guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId IN %@", messageIDs), context: context)
-			, !messages.isEmpty else
-		{
-			completion()
-			return
+		context.performAndWait {
+			guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId IN %@", messageIDs), context: context)
+				, !messages.isEmpty else
+			{
+				completion()
+				return
+			}
+
+			messages.forEach {
+				$0.reportSent = true
+				$0.deliveryReportedDate = MobileMessaging.date.now
+			}
+
+			MMLogDebug("[Message fetching] marked as delivered: \(messages.map{ $0.messageId })")
+			context.MM_saveToPersistentStoreAndWait()
+			updateMessageStorage(with: messages, completion: completion)
 		}
-		
-		messages.forEach {
-			$0.reportSent = true
-			$0.deliveryReportedDate = MobileMessaging.date.now
-		}
-		
-		MMLogDebug("[Message fetching] marked as delivered: \(messages.map{ $0.messageId })")
-		context.MM_saveToPersistentStoreAndWait()
-		
-		updateMessageStorage(with: messages, completion: completion)
 	}
 	
 	private func updateMessageStorage(with messages: [MessageManagedObject], completion: @escaping () -> Void) {

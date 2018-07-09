@@ -145,3 +145,8 @@ struct APIValues {
 	static let prodBaseURLString = "https://oneapi2.infobip.com" // not in use afte migration on https://mobile.infobip.com
 	static let platformType = "APNS"
 }
+
+struct SDKSettings {
+	static var messagesRetentionPeriod: TimeInterval = 7 * 24 * 60 * 60 //one week
+	static var reachabilityMonitoringTimeout = DispatchTimeInterval.seconds(10)
+}

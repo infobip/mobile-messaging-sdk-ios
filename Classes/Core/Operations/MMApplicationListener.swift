@@ -27,7 +27,7 @@ final class MMApplicationListener: NSObject {
 	
 	//MARK: Internal
 	@objc func handleAppWillEnterForegroundNotification() {
-		mmContext?.sync()
+		performPeriodicWork()
 	}
 	
 	@objc func handleAppDidFinishLaunchingNotification(n: Notification) {
@@ -35,7 +35,7 @@ final class MMApplicationListener: NSObject {
 			// we don't want to perfrom sync on launching when push received.
 			return
 		}
-		mmContext?.sync()
+		performPeriodicWork()
 	}
 	
 	@objc func handleGeoServiceDidStartNotification() {
@@ -44,4 +44,14 @@ final class MMApplicationListener: NSObject {
 	
 	//MARK: Private
 	weak private var mmContext: MobileMessaging?
+
+	private func performPeriodicWork() {
+		guard let mm = mmContext else {
+			return
+		}
+		mm.sync()
+		if mm.currentInstallation.currentLogoutStatus == .pending {
+			mm.currentInstallation.logout(completion: { _ in })
+		}
+	}
 }

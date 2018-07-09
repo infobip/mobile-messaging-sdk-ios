@@ -9,11 +9,13 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String
     private var jsonBody: [String: Any]?
 	private var headers: [String: String]?
+	private var pushRegistrationId: String?
     
-    init(applicationCode: String, jsonBody: [String: Any]?, headers: [String: String]?) {
+	init(applicationCode: String, jsonBody: [String: Any]?, pushRegistrationId: String?, headers: [String: String]?) {
 		self.applicationCode = applicationCode
         self.jsonBody = jsonBody?.nilIfEmpty
 		self.headers = headers
+		self.pushRegistrationId = pushRegistrationId
 		super.init()
 	}
 	
@@ -39,8 +41,8 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 		request.addValue(calculateAppCodeHash(applicationCode), forHTTPHeaderField: APIHeaders.applicationcode)
 		request.addValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: "User-Agent")
 		request.addValue(String(MobileMessaging.application.isInForegroundState), forHTTPHeaderField: APIHeaders.foreground)
-		if let internalId = MobileMessaging.currentUser?.pushRegistrationId {
-			request.addValue(internalId, forHTTPHeaderField: APIHeaders.pushRegistrationId)
+		if let pushRegistrationId = pushRegistrationId {
+			request.addValue(pushRegistrationId, forHTTPHeaderField: APIHeaders.pushRegistrationId)
 		}
 	}
 	
@@ -60,9 +62,7 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
                 MMLogError("RequestSerializer can't serialize json body: \(jsonBody) with error: \(error)")
             }
         }
-		
-		
-		
+
 		MMLogDebug("""
 			Sending request
 			method: \(method)

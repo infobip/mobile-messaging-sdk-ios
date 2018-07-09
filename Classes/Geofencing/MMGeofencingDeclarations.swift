@@ -75,24 +75,25 @@ struct GeofencingConstants {
 }
 
 struct GeoEventReportingRequest: PostRequest {
+	var applicationCode: String
+	var pushRegistrationId: String?
 	typealias ResponseType = GeoEventReportingResponse
-	
 	var path: APIPath { return .GeoEventsReports }
 	var body: RequestBody? {
 		return [
 			PushRegistration.platform: APIValues.platformType,
-			PushRegistration.internalId: internalUserId,
+			PushRegistration.internalId: pushRegistrationId ?? "n/a",
 			GeoReportingAPIKeys.reports: eventsDataList.map { $0.dictionaryRepresentation },
 			GeoReportingAPIKeys.messages: geoMessages.map { $0.geoEventReportFormat }
 		]
 	}
-	
-	let internalUserId: String
+
 	let eventsDataList: [GeoEventReportData]
 	let geoMessages: [MMGeoMessage]
 	
-	init(internalUserId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage]) {
-		self.internalUserId = internalUserId
+	init(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage]) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 		self.eventsDataList = eventsDataList
 		self.geoMessages = geoMessages
 	}

@@ -61,9 +61,7 @@ class GeoEventReportingOperation: Operation {
 			
 			if !originGeoMessagesValues.isEmpty, !geoEventReportsData.isEmpty {
 				MMLogDebug("[Geo event reporting] reporting started for \(geoEventReportsData.count) geo events from \(originGeoMessagesValues.count) campaigns.")
-				
-				
-				let request = GeoEventReportingRequest(internalUserId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues)
+				let request = GeoEventReportingRequest(applicationCode: self.mmContext.applicationCode, pushRegistrationId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues)
 				
 				self.geoContext.geofencingServiceQueue.perform(request: request, completion: { result in
 					self.result = result

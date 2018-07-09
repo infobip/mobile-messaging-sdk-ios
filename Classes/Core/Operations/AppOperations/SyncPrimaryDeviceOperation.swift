@@ -20,7 +20,7 @@ class SyncPrimaryDeviceOperation : Operation {
 	}
 	
 	override func execute() {
-		guard mmContext.currentUser.pushRegistrationId != nil && mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+		guard let pushRegistrationId = mmContext.currentUser.pushRegistrationId, mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogDebug("[Application instance sync] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
@@ -34,7 +34,7 @@ class SyncPrimaryDeviceOperation : Operation {
 			let isPrimaryDevice = installation.isPrimaryDevice
 			MMLogDebug("[Application instance sync] putting isPrimaryDevice = \(isPrimaryDevice)...")
 			
-			mmContext.remoteApiProvider.putInstance(isPrimaryDevice: isPrimaryDevice, completion: { (result) in
+			mmContext.remoteApiProvider.putInstance(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, isPrimaryDevice: isPrimaryDevice, completion: { (result) in
 				switch result {
 				case .Success:
 					MMLogDebug("[Application instance sync] successfully put instance data")
@@ -51,7 +51,7 @@ class SyncPrimaryDeviceOperation : Operation {
 		} else {
 			MMLogDebug("[Application instance sync] getting instance...")
 			
-			mmContext.remoteApiProvider.getInstance { (result) in
+			mmContext.remoteApiProvider.getInstance(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId) { (result) in
 				switch result {
 				case .Success(let response):
 					MMLogDebug("[Application instance sync] successfully get instance data")

@@ -32,24 +32,25 @@ class MessagePostingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message posting] started...")
-		guard let internalId = mmContext.currentUser?.pushRegistrationId else {
-			MMLogDebug("[Message posting] No registration. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
-		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogDebug("[Message posting] Registration may be not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
+
+		guard let pushRegistrationId = mmContext.currentUser?.pushRegistrationId else {
+			MMLogDebug("[Message posting] No registration. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			return
+		}
 		
 		context.reset()
-		context.performAndWait {
-			let messagesToSend: [MOMessage]
-			
-			// if there were explicit messages to send
-			if let messages = self.messages {
-				
+
+		// if there were explicit messages to send
+		if let messages = self.messages {
+			var messagesToSend: [MOMessage] = []
+
+			context.performAndWait {
 				// new messages sending
 				messagesToSend = MessagePostingOperation.findNewMOMessages(among: messages, inContext: self.context)
 				
@@ -69,30 +70,34 @@ class MessagePostingOperation: Operation {
 					}
 					self.context.MM_saveToPersistentStoreAndWait()
 				}
-				
-				MMLogDebug("[Message posting] posting new MO messages...")
-				self.populateMessageStorageIfNeeded(with: messagesToSend) {
-					self.sendMessages(Array(messagesToSend), internalId: internalId)
-				}
-			} else {
+			}
+
+			MMLogDebug("[Message posting] posting new MO messages...")
+			self.populateMessageStorageIfNeeded(with: messagesToSend) {
+				self.sendMessages(Array(messagesToSend), pushRegistrationId: pushRegistrationId)
+			}
+		} else {
+			var messagesToSend: [MOMessage] = []
+			context.performAndWait {
 				// let's send persisted messages (retries)
 				let mmos = MessagePostingOperation.persistedMessages(inContext: self.context)
 				self.sentMessageObjectIds.append(contentsOf: mmos.map({$0.objectID}))
-				let messagesToSend = mmos.compactMap({MOMessage.init(messageManagedObject: $0)})
-				if !messagesToSend.isEmpty {
-					MMLogDebug("[Message posting] posting pending MO messages...")
-					self.sendMessages(Array(messagesToSend), internalId: internalId)
-				} else {
-					MMLogDebug("[Message posting] nothing to send...")
-					self.finish()
-				}
+				messagesToSend = mmos.compactMap({MOMessage.init(messageManagedObject: $0)})
+			}
+			if !messagesToSend.isEmpty {
+				MMLogDebug("[Message posting] posting pending MO messages...")
+				self.sendMessages(Array(messagesToSend), pushRegistrationId: pushRegistrationId)
+			} else {
+				MMLogDebug("[Message posting] nothing to send...")
+				self.finish()
 			}
 		}
+
 	}
 	
-	func sendMessages(_ msgs: [MOMessage], internalId: String) {
+	func sendMessages(_ msgs: [MOMessage], pushRegistrationId: String) {
 		self.postWillSendNotification(messagesToSend: msgs)
-		self.mmContext.remoteApiProvider.sendMessages(internalUserId: internalId, messages: msgs) { result in
+		self.mmContext.remoteApiProvider.sendMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, messages: msgs) { result in
 			self.operationResult = result
 			self.handleResult(result: result, originalMessagesToSend: msgs) {
 				self.finishWithError(result.error)
@@ -102,18 +107,16 @@ class MessagePostingOperation: Operation {
 	
 	static func findNewMOMessages(among messages: Set<MOMessage>, inContext context: NSManagedObjectContext) -> [MOMessage] {
 		return Set(messages.map(MMMessageMeta.init)).subtracting(MessagePostingOperation.persistedMessageMetas(inContext: context)).compactMap { meta in
-				return messages.first() { msg -> Bool in
-					return msg.messageId == meta.messageId
-				}
+			return messages.first() { msg -> Bool in
+				return msg.messageId == meta.messageId
 			}
+		}
 	}
 	
 	static func persistedMessages(inContext ctx: NSManagedObjectContext) -> [MessageManagedObject] {
 		var ret = [MessageManagedObject]()
 		ctx.performAndWait {
-			if let persistedMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.MO.rawValue)"), context: ctx) {
-				ret = persistedMessages
-			}
+			ret = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.MO.rawValue)"), context: ctx) ?? ret
 		}
 		return ret
 	}
@@ -168,35 +171,30 @@ class MessagePostingOperation: Operation {
 	}
 	
 	private func handleResult(result: MOMessageSendingResult, originalMessagesToSend: Array<MOMessage>, completion: @escaping () -> Void) {
-		context.performAndWait {
-			switch result {
-			case .Success(let response):
-				
+		switch result {
+		case .Success(let response):
+			context.performAndWait {
 				// we sent messages, we delete them now
 				MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "SELF IN %@", self.sentMessageObjectIds), context: self.context)?.forEach() { m in
 					self.context.delete(m)
 				}
-				
-				guard !self.isCancelled else {
-					completion()
-					return
-				}
-				
 				self.context.MM_saveToPersistentStoreAndWait()
-				self.updateMessageStorageIfNeeded(with: response.messages) {
-					self.postDidSendNotification(messages: response.messages)
-					completion()
-				}
-				MMLogDebug("[Message posting] successfuly finished")
-			case .Failure(let error):
-				MMLogError("[Message posting] request failed with error: \(error.orNil)")
-				self.updateMessageStorageOnFailureIfNeeded(with: originalMessagesToSend.map { $0.messageId } , completion: {
-					completion()
-				})
-			case .Cancel:
-				MMLogError("[Message posting] cancelled")
+			}
+
+			self.updateMessageStorageIfNeeded(with: response.messages) {
+				self.postDidSendNotification(messages: response.messages)
 				completion()
 			}
+
+			MMLogDebug("[Message posting] successfuly finished")
+		case .Failure(let error):
+			MMLogError("[Message posting] request failed with error: \(error.orNil)")
+			self.updateMessageStorageOnFailureIfNeeded(with: originalMessagesToSend.map { $0.messageId } , completion: {
+				completion()
+			})
+		case .Cancel:
+			MMLogError("[Message posting] cancelled")
+			completion()
 		}
 	}
 	

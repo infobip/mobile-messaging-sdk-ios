@@ -32,7 +32,7 @@ class MOMessageSendingTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
 		let messageSyncQ = mobileMessagingInstance.remoteApiProvider.messageSyncQueue
-		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
+		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing()
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
@@ -135,7 +135,7 @@ class MOMessageSendingTests: MMTestCase {
 	func testUserInitiatedMO() {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
-		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing(mmContext: mobileMessagingInstance)
+		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing()
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)

@@ -13,6 +13,8 @@ class ApnsRegistrationManagerMock: ApnsRegistrationManager {
 	var _isRegistrationHealthy: Bool = false
 	var deviceTokenUpdateWasCalled: Bool = false
 	var regResetWasCalled: Bool = false
+	var unregisterCalled: (() -> Void)? = nil
+	var registerCalled: (() -> Void)? = nil
 
 	override var isRegistrationHealthy: Bool {
 		return _isRegistrationHealthy
@@ -35,6 +37,14 @@ class ApnsRegistrationManagerMock: ApnsRegistrationManager {
 		regResetWasCalled = true
 		setRegistrationIsHealthy()
 		completion()
+	}
+
+	override func registerForRemoteNotifications() {
+		registerCalled?()
+	}
+
+	override func unregister() {
+		unregisterCalled?()
 	}
 }
 
@@ -128,3 +138,4 @@ class ApnsRegistrationManagerTests: MMTestCase {
 		})
 	}
 }
+ 

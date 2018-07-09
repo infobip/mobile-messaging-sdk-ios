@@ -57,6 +57,7 @@ import CoreLocation
 
 @objcMembers
 final public class MMUser: NSObject, MobileMessagingService {
+
 	var uniqueIdentifier: String { return "com.mobile-messaging.subservice.UserData" }
 	
 	var isRunning: Bool { return true }
@@ -66,12 +67,17 @@ final public class MMUser: NSObject, MobileMessagingService {
 	func stop(_ completion: ((Bool) -> Void)?) {
 		cancelOperations()
 	}
+
+	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) { }
+
+	func logoutStatusDidChange(_ mmContext: MobileMessaging) { }
 	
 	private func cancelOperations() {
 		installationQueue.cancelAllOperations()
 	}
 	
 	func logout(_ mmContext: MobileMessaging, completion: @escaping (NSError?) -> Void) {
+		MMLogDebug("[User management] log out")
 		customData = nil
 		predefinedData = nil
 		resetNeedToSync()
@@ -329,7 +335,7 @@ final public class MMUser: NSObject, MobileMessagingService {
 	}
 	
 //MARK: - Internal
-    
+
     /// Returns user's predefined attributes (all possible attributes are described in the `MMUserPredefinedDataKeys` enum). Predefined attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
     internal var predefinedData: [String: String]? {
         get { return rawPredefinedData as? [String: String] }
@@ -501,6 +507,7 @@ final public class MMInstallation: NSObject {
 	
 	func updateRegistrationEnabledStatus(value: Bool, completion: ((NSError?) -> Void)? = nil) {
 		isPushRegistrationEnabled = value
+		persist()
 		syncInstallationWithServer(completion: completion)
 	}
 	
@@ -526,9 +533,48 @@ final public class MMInstallation: NSObject {
 	
 	var isPushRegistrationEnabled: Bool {
 		get { return (resolveProvider(forAttributesSet: AttributesSet.isRegistrationEnabled).getValueForKey(Attributes.registrationEnabled.rawValue) as? Bool) ?? true }
-		set { resolveProvider(forAttributesSet: AttributesSet.isRegistrationEnabled).setValueForKey(Attributes.registrationEnabled.rawValue, value: newValue) }
+		set {
+			if newValue != isPushRegistrationEnabled {
+				resolveProvider(forAttributesSet: AttributesSet.isRegistrationEnabled).setValueForKey(Attributes.registrationEnabled.rawValue, value: newValue)
+				self.mmContext.updateRegistrationEnabledSubservicesStatus()
+			}
+		}
 	}
-	
+
+	var logoutFailCounter: Int {
+		get { return (resolveProvider(forAttributesSet: AttributesSet.logoutFailCounter).getValueForKey(Attributes.logoutFailCounter.rawValue) as? Int) ?? 0 }
+		set {
+			MMLogDebug("[Installation management] setting logout fail counter: \(newValue) of \(LogoutConsts.failuresNumberLimit)")
+			resolveProvider(forAttributesSet: AttributesSet.logoutFailCounter).setValueForKey(Attributes.logoutFailCounter.rawValue, value: newValue)
+			persist()
+		}
+	}
+
+	func logout(completion: @escaping (NSError?) -> Void) {
+		_ = installationQueue.addOperation(LogoutOperation(mmContext: mmContext, finishBlock: completion))
+	}
+
+	var currentLogoutStatus: LogoutStatus {
+		get {
+			if let statusValue = resolveProvider(forAttributesSet: AttributesSet.logoutStatusValue).getValueForKey(Attributes.logoutStatusValue.rawValue) as? Int16 {
+				return LogoutStatus(rawValue: Int(statusValue)) ?? .undefined
+			} else {
+				return .undefined
+			}
+		}
+		set {
+			if currentLogoutStatus == .pending && newValue == .undefined {
+				logoutFailCounter = 0
+			}
+			if newValue != currentLogoutStatus {
+				MMLogDebug("[Installation management] setting new logout status: \(newValue)")
+				resolveProvider(forAttributesSet: AttributesSet.logoutStatusValue).setValueForKey(Attributes.logoutStatusValue.rawValue, value: newValue.rawValue)
+				persist()
+				self.mmContext.updateLogoutStatusForSubservices()
+			}
+		}
+	}
+
 	var isPrimaryDeviceNeedSync: Bool {
 		return resolveProvider(forAttributesSet: AttributesSet.isPrimaryDevice).isAttributeDirty(AttributesSet.isPrimaryDevice)
 	}

@@ -102,7 +102,6 @@
 		764556961F78FF7F00B8F14B /* MMRetryableOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562C1F78FF4F00B8F14B /* MMRetryableOperation.swift */; };
 		764556971F78FF7F00B8F14B /* MMRetryableRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562D1F78FF4F00B8F14B /* MMRetryableRequestOperation.swift */; };
 		764556981F78FF7F00B8F14B /* MMRetryOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562E1F78FF4F00B8F14B /* MMRetryOperationQueue.swift */; };
-		764556991F78FF7F00B8F14B /* RetryableNetworkingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562F1F78FF4F00B8F14B /* RetryableNetworkingOperation.swift */; };
 		7645569A1F78FF8500B8F14B /* InstallationDataSynchronizationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561B1F78FF4F00B8F14B /* InstallationDataSynchronizationOperation.swift */; };
 		7645569B1F78FF8500B8F14B /* MessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561C1F78FF4F00B8F14B /* MessageFetchingOperation.swift */; };
 		7645569C1F78FF8500B8F14B /* MessageHandlingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561D1F78FF4F00B8F14B /* MessageHandlingOperation.swift */; };
@@ -348,7 +347,6 @@
 		7645562C1F78FF4F00B8F14B /* MMRetryableOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRetryableOperation.swift; sourceTree = "<group>"; };
 		7645562D1F78FF4F00B8F14B /* MMRetryableRequestOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRetryableRequestOperation.swift; sourceTree = "<group>"; };
 		7645562E1F78FF4F00B8F14B /* MMRetryOperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRetryOperationQueue.swift; sourceTree = "<group>"; };
-		7645562F1F78FF4F00B8F14B /* RetryableNetworkingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryableNetworkingOperation.swift; sourceTree = "<group>"; };
 		764556301F78FF4F00B8F14B /* UserNotificationCenterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationCenterDelegate.swift; sourceTree = "<group>"; };
 		764556321F78FF4F00B8F14B /* MMGCD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGCD.swift; sourceTree = "<group>"; };
 		764556331F78FF4F00B8F14B /* MMLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLocalization.swift; sourceTree = "<group>"; };
@@ -700,7 +698,6 @@
 				7645562C1F78FF4F00B8F14B /* MMRetryableOperation.swift */,
 				7645562D1F78FF4F00B8F14B /* MMRetryableRequestOperation.swift */,
 				7645562E1F78FF4F00B8F14B /* MMRetryOperationQueue.swift */,
-				7645562F1F78FF4F00B8F14B /* RetryableNetworkingOperation.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -1114,7 +1111,6 @@
 				7601F193208E056400738C1A /* Kingfisher.swift in Sources */,
 				764556D01F78FFE000B8F14B /* BlockObserver.swift in Sources */,
 				76FDDEED1FD6ADF900E96BE4 /* MM_AFSecurityPolicy.m in Sources */,
-				764556991F78FF7F00B8F14B /* RetryableNetworkingOperation.swift in Sources */,
 				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,

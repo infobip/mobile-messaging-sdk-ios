@@ -25,15 +25,13 @@ class DynamicBaseUrlStorage: SingleKVStorage {
 }
 
 class DynamicBaseUrlHTTPSessionManager {
-	let applicationCode: String
 	var dynamicBaseUrl: URL?
 	let originalBaseUrl: URL?
 	let configuration: URLSessionConfiguration?
 	let appGroupId: String?
 	var storage: DynamicBaseUrlStorage
 	
-	init(applicationCode: String, baseURL url: URL?, sessionConfiguration configuration: URLSessionConfiguration?, appGroupId: String?) {
-		self.applicationCode = applicationCode
+	init(baseURL url: URL?, sessionConfiguration configuration: URLSessionConfiguration?, appGroupId: String?) {
 		self.configuration = configuration
 		self.originalBaseUrl = url
 		self.appGroupId = appGroupId
@@ -81,7 +79,7 @@ class DynamicBaseUrlHTTPSessionManager {
 	func makeSessionManager<R: RequestData>(for request: R) -> MM_AFHTTPSessionManager {
 		let sessionManager = MM_AFHTTPSessionManager(baseURL: dynamicBaseUrl, sessionConfiguration: configuration)
 		sessionManager.responseSerializer = ResponseSerializer<R.ResponseType>()
-		sessionManager.requestSerializer = RequestSerializer(applicationCode: applicationCode, jsonBody: request.body, headers: request.headers)
+		sessionManager.requestSerializer = RequestSerializer(applicationCode: request.applicationCode, jsonBody: request.body, pushRegistrationId: request.pushRegistrationId, headers: request.headers)
 		return sessionManager
 	}
 	

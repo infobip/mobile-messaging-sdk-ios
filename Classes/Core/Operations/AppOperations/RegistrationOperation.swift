@@ -38,19 +38,22 @@ final class SyncRegistrationOperation: Operation {
 		MMLogDebug("[Registration] Posting registration to server...")
 		
 		let isRegistrationEnabled = installation.isRegistrationStatusNeedSync ? isRegistrationEnabledLocally : nil // send value only if changed
-		self.sendRegistration(internalUserId: user.pushRegistrationId, isRegistrationEnabled: isRegistrationEnabled, deviceToken: deviceToken)
+		self.sendRegistration(pushRegistrationId: user.pushRegistrationId, isRegistrationEnabled: isRegistrationEnabled, deviceToken: deviceToken)
 	}
 	
 	private var isRegistrationEnabledLocally: Bool {
 		return installation.isPushRegistrationEnabled
 	}
 	
-	private func sendRegistration(internalUserId: String?, isRegistrationEnabled: Bool?, deviceToken: String) {
+	private func sendRegistration(pushRegistrationId: String?, isRegistrationEnabled: Bool?, deviceToken: String) {
 		let keychainInternalId = mmContext.keychain.internalId
-		let expiredInternalId = internalUserId == nil ? keychainInternalId : nil
-		mmContext.remoteApiProvider.syncRegistration(deviceToken: deviceToken,
-		                                            isEnabled: isRegistrationEnabled,
-		                                            expiredInternalId: expiredInternalId)
+		let expiredInternalId = pushRegistrationId == nil ? keychainInternalId : nil
+		mmContext.remoteApiProvider.syncRegistration(
+			applicationCode: self.mmContext.applicationCode,
+			pushRegistrationId: pushRegistrationId,
+			deviceToken: deviceToken,
+			isEnabled: isRegistrationEnabled,
+			expiredInternalId: expiredInternalId)
 		{ result in
 			self.handleRegistrationResult(result)
 			self.finishWithError(result.error)
@@ -62,7 +65,6 @@ final class SyncRegistrationOperation: Operation {
 		case .Success(let regResponse):
 			MMLogDebug("[Registration] Installation updated on server for internal ID \(regResponse.internalId). Updating local version...")
 			
-			let registrationStatusChanged = regResponse.isEnabled != isRegistrationEnabledLocally
 			if regResponse.internalId != user.pushRegistrationId {
 				// this is to force system data sync for the new registration
 				installation.systemDataHash = 0
@@ -75,11 +77,7 @@ final class SyncRegistrationOperation: Operation {
 			}
 			user.persist()
 			installation.persist()
-			
-			if registrationStatusChanged {
-				self.mmContext.updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled: regResponse.isEnabled)
-			}
-			
+
 			mmContext.keychain.internalId = regResponse.internalId
 			
 			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationRegistrationUpdated, userInfo: [MMNotificationKeyRegistrationInternalId: regResponse.internalId])

@@ -14,15 +14,26 @@ class ApnsRegistrationManager {
 	init(mmContext: MobileMessaging) {
 		self.mmContext = mmContext
 	}
-	
+
+	func unregister() {
+		if MobileMessaging.application.isRegisteredForRemoteNotifications {
+			MobileMessaging.application.unregisterForRemoteNotifications()
+		}
+	}
+
 	func registerForRemoteNotifications() {
 		MMLogDebug("[APNS reg manager] Registering...")
+		guard mmContext.currentInstallation.currentLogoutStatus == .undefined else {
+			MMLogDebug("[APNS reg manager] canceling due to pending logout state...")
+			return
+		}
+
 		registerNotificationSettings(application: MobileMessaging.application, userNotificationType: mmContext.userNotificationType)
 
 		if mmContext.currentInstallation.deviceToken == nil {
 			if MobileMessaging.application.isRegisteredForRemoteNotifications {
 				MMLogDebug("[APNS reg manager] The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
-				MobileMessaging.application.unregisterForRemoteNotifications()
+				unregister()
 			}
 			setRegistrationIsHealthy()
 		}

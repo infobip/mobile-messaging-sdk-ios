@@ -24,7 +24,7 @@ class PrimaryDeviceTests: MMTestCase {
 	func testPutSync() {
 		weak var expectation = self.expectation(description: "sync completed")
 		mobileMessagingInstance.currentUser.pushRegistrationId = "123"
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(mmContext: mobileMessagingInstance, performRequestCompanionBlock: { (request) in
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (request) in
 			
 		}, completionCompanionBlock: { (request) in
 			
@@ -59,7 +59,7 @@ class PrimaryDeviceTests: MMTestCase {
 	func testGetSync() {
 		weak var expectation = self.expectation(description: "sync completed")
 		mobileMessagingInstance.currentUser.pushRegistrationId = "123"
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(mmContext: mobileMessagingInstance, performRequestCompanionBlock: { (request) in
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (request) in
 			
 		}, completionCompanionBlock: { (request) in
 			

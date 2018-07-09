@@ -49,7 +49,7 @@ class UserDataTests: MMTestCase {
 			comps.timeZone = TimeZone(secondsFromGMT: 5*60*60) // has expected timezone
 			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
 			let date = comps.date!
-			let request = UserDataRequest(externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(date: date as NSDate)])
+			let request = UserDataRequest(applicationCode: "", pushRegistrationId: "", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(date: date as NSDate)])
 			
 			let expectedDict: NSDictionary = [
 				APIKeys.kUserDataPredefinedUserData: [
@@ -67,7 +67,7 @@ class UserDataTests: MMTestCase {
 		
 		// number
 		do {
-			let request = UserDataRequest(externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["bootsize": CustomUserDataValue(double: 9.5)])
+			let request = UserDataRequest(applicationCode: "", pushRegistrationId: "", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["bootsize": CustomUserDataValue(double: 9.5)])
 			let expectedDict: NSDictionary = [
 				APIKeys.kUserDataPredefinedUserData: [
 					"name": "JohnDow"
@@ -84,7 +84,7 @@ class UserDataTests: MMTestCase {
 		
 		// null
 		do {
-			let request = UserDataRequest(externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(null: NSNull())])
+			let request = UserDataRequest(applicationCode: "", pushRegistrationId: "", externalUserId: "any", predefinedUserData: ["name": "JohnDow"], customUserData: ["registrationDate": CustomUserDataValue(null: NSNull())])
 			let expectedDict = [
 				APIKeys.kUserDataPredefinedUserData: [
 					"name": "JohnDow"

@@ -30,9 +30,9 @@ enum TestResult {
 final class MMRemoteAPIAlwaysFailing : RemoteAPIQueue {
 	var completionCompanionBlock : ((Any) -> Void)?
 	
-	init(mmContext: MobileMessaging, completionCompanionBlock: ((Any) -> Void)? = nil) {
+	init(completionCompanionBlock: ((Any) -> Void)? = nil) {
 		self.completionCompanionBlock = completionCompanionBlock
-		super.init(mmContext: mmContext)
+		super.init()
 	}
 
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
@@ -44,9 +44,9 @@ final class MMRemoteAPIAlwaysFailing : RemoteAPIQueue {
 final class MMGeoRemoteAPIAlwaysSucceeding : RemoteAPIQueue {
 	var completionCompanionBlock : ((Any) -> Void)?
 	
-	init(mmContext: MobileMessaging, completionCompanionBlock: ((Any) -> Void)? = nil) {
+	init(completionCompanionBlock: ((Any) -> Void)? = nil) {
 		self.completionCompanionBlock = completionCompanionBlock
-		super.init(mmContext: mmContext)
+		super.init()
 	}
 	
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
@@ -61,17 +61,16 @@ class MMRemoteAPIMock: RemoteAPILocalMocks {
 	var performRequestCompanionBlock: ((Any) -> Void)?
 	var completionCompanionBlock: ((Any?) -> Void)?
 	
-	convenience init(mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseMock: ((_ request: Any) -> JSON?)? = nil) {
+	convenience init(performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseMock: ((_ request: Any) -> JSON?)? = nil) {
 		
-		self.init(appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: mmContext, performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseMock)
-		
+		self.init(performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseMock)
 	}
 	
-	init(appCode: String, mmContext: MobileMessaging, performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
+	init(performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
 		self.completionCompanionBlock = completionCompanionBlock
 		self.responseMock = responseSubstitution
-		super.init(mmContext: mmContext, appCode: appCode)
+		super.init()
 	}
 	
 	override func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
@@ -95,23 +94,18 @@ class MMRemoteAPIMock: RemoteAPILocalMocks {
 }
 
 extension MobileMessaging {
-	func setupMockedQueues(mmContext: MobileMessaging) {
-		remoteApiProvider.registrationQueue = RemoteAPILocalMocks(mmContext: mmContext, appCode: applicationCode)
-		remoteApiProvider.seenStatusQueue = RemoteAPILocalMocks(mmContext: mmContext, appCode: applicationCode)
-		remoteApiProvider.messageSyncQueue = RemoteAPILocalMocks(mmContext: mmContext, appCode: applicationCode)
-		remoteApiProvider.versionFetchingQueue = RemoteAPILocalMocks(mmContext: mmContext, appCode: applicationCode)
+	func setupMockedQueues() {
+		remoteApiProvider.registrationQueue = RemoteAPILocalMocks()
+		remoteApiProvider.seenStatusQueue = RemoteAPILocalMocks()
+		remoteApiProvider.messageSyncQueue = RemoteAPILocalMocks()
+		remoteApiProvider.versionFetchingQueue = RemoteAPILocalMocks()
 	}
 }
 
 class RemoteAPILocalMocks: RemoteAPIQueue {
-	let appCode: String
-	init(mmContext: MobileMessaging, appCode: String) {
-		self.appCode = appCode
-		super.init(mmContext: mmContext)
-	}
-	
+
 	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: self.appCode) {
+		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: request.applicationCode, pushRegistrationId: request.pushRegistrationId) {
 			
 			let statusCode = responseJSON[MockKeys.responseStatus].intValue
 			switch statusCode {
@@ -154,7 +148,7 @@ func timeTravel(to date: Date, block: () -> Void) {
 	MobileMessaging.date = MMDate()
 }
 
-final class MMReachabilityManagerStub: MMNetworkReachabilityManager {
+final class ReachabilityManagerStub: NetworkReachabilityManager {
 	let isReachable: Bool
 	
 	init(isReachable: Bool) {

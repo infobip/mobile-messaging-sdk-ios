@@ -65,7 +65,7 @@ public final class MobileMessaging: NSObject {
 	/// This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	/// - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
 	public func start(_ completion: (() -> Void)? = nil) {
-		start(doRegisterToApns: doRegisterToApns, completion)
+		self.doStart(completion)
 	}
 	
 	/// Syncronizes all available subservices with the server.
@@ -144,7 +144,7 @@ public final class MobileMessaging: NSObject {
 	
 	/// Call this method to initiate the registration process with Apple Push Notification service. User will be promt to allow receiving Push Notifications.
 	public class func registerForRemoteNotifications() {
-		MobileMessaging.sharedInstance?.registerForRemoteNotifications()
+		MobileMessaging.sharedInstance?.apnsRegistrationManager.registerForRemoteNotifications()
 	}
 	
 	/// Logging utility is used for:
@@ -226,7 +226,7 @@ public final class MobileMessaging: NSObject {
 	
 	/// An auxillary component provides the convinient access to the user agent data.
 	public internal(set) static var userAgent = UserAgent()
-		
+
 	/// The `MessageHandlingDelegate` protocol defines methods for responding to actionable notifications and receiving new notifications. You assign your delegate object to the `messageHandlingDelegate` property of the `MobileMessaging` class. The MobileMessaging SDK calls methods of your delegate at appropriate times to deliver information.
 	public static var messageHandlingDelegate: MessageHandlingDelegate? = nil
 	
@@ -255,9 +255,8 @@ public final class MobileMessaging: NSObject {
 			completion(NSError(type: MMInternalErrorType.UnknownError))
 			return
 		}
-		mm.logout(completion: completion)
+		mm.currentInstallation.logout(completion: completion)
 	}
-	
 	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
@@ -278,13 +277,13 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	func sync() {
-		currentInstallation?.syncInstallationWithServer()
+		currentInstallation.syncInstallationWithServer()
 		performForEachSubservice { subservice in
 			subservice.syncWithServer(nil)
 		}
 	}
 	
-	func start(doRegisterToApns: Bool, _ completion: (() -> Void)? = nil) {
+	func doStart(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
 		
 		self.startСomponents()
@@ -293,8 +292,8 @@ public final class MobileMessaging: NSObject {
 			$0.mobileMessagingWillStart(self)
 		}
 		
-		if doRegisterToApns == true {
-			self.registerForRemoteNotifications()
+		if self.doRegisterToApns == true {
+			apnsRegistrationManager.registerForRemoteNotifications()
 		}
 		
 		self.performForEachSubservice {
@@ -331,9 +330,7 @@ public final class MobileMessaging: NSObject {
 			subservice.mobileMessagingWillStop(self)
 		}
 		
-		if MobileMessaging.application.isRegisteredForRemoteNotifications {
-			MobileMessaging.application.unregisterForRemoteNotifications()
-		}
+		apnsRegistrationManager.unregister()
 		
 		messageStorages.values.forEach({$0.stop()})
 		messageStorages.removeAll()
@@ -342,8 +339,8 @@ public final class MobileMessaging: NSObject {
 			subservice.mobileMessagingDidStop(self)
 		}
 		
-        MobileMessaging.messageHandlingDelegate = nil
-        
+		MobileMessaging.messageHandlingDelegate = nil
+
 		cleanupSubservices()
 		
 		// just to break retain cycles:
@@ -355,7 +352,7 @@ public final class MobileMessaging: NSObject {
 		appListener = nil
 		messageHandler = nil
 		remoteApiProvider = nil
-		reachabilityManager = nil
+
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
 		MobileMessaging.application = MainThreadedUIApplication()
@@ -364,10 +361,6 @@ public final class MobileMessaging: NSObject {
 			UNUserNotificationCenter.current().delegate = nil
 		}
 		MMLogInfo("MobileMessaging service stopped")
-	}
-	
-	func logout(completion: @escaping (NSError?) -> Void) {
-		_ = installationQueue.addOperationExclusively(LogoutOperation(mmContext: self, finishBlock: completion))
 	}
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
@@ -381,12 +374,17 @@ public final class MobileMessaging: NSObject {
 	
 	func updateRegistrationEnabledStatus(_ value: Bool, completion: ((NSError?) -> Void)? = nil) {
 		currentInstallation.updateRegistrationEnabledStatus(value: value, completion: completion)
-		updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled: value)
 	}
 	
-	func updateRegistrationEnabledSubservicesStatus(isPushRegistrationEnabled value: Bool) {
+	func updateRegistrationEnabledSubservicesStatus() {
 		performForEachSubservice { subservice in
 			subservice.pushRegistrationStatusDidChange(self)
+		}
+	}
+
+	func updateLogoutStatusForSubservices() {
+		performForEachSubservice { subservice in
+			subservice.logoutStatusDidChange(self)
 		}
 	}
 	
@@ -394,11 +392,11 @@ public final class MobileMessaging: NSObject {
 		MMLogDebug("Setting seen status: \(messageIds)")
 		messageHandler.setSeen(messageIds, completion: completion)
 	}
-    
-    func setSeenImmediately(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
-        MMLogDebug("Setting seen status immediately: \(messageIds)")
-        messageHandler.setSeen(messageIds, immediately: true, completion: completion)
-    }
+
+	func setSeenImmediately(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+		MMLogDebug("Setting seen status immediately: \(messageIds)")
+		messageHandler.setSeen(messageIds, immediately: true, completion: completion)
+	}
 	
 	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
 		MMLogDebug("Sending mobile originated messages (SDK initiated)...")
@@ -472,13 +470,9 @@ public final class MobileMessaging: NSObject {
 		self.applicationCode        = appCode
 		self.userNotificationType   = notificationType
 		self.remoteAPIBaseURL       = backendBaseURL
-		self.httpSessionManager		= DynamicBaseUrlHTTPSessionManager(applicationCode: appCode, baseURL: URL(string: backendBaseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
+		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: backendBaseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 		
 		MMLogInfo("SDK successfully initialized!")
-	}
-	
-	private func registerForRemoteNotifications() {
-		apnsRegistrationManager.registerForRemoteNotifications()
 	}
 	
 	private func startСomponents() {
@@ -489,13 +483,13 @@ public final class MobileMessaging: NSObject {
 		appListener = MMApplicationListener(mmContext: self)
 		messageStorages.values.forEach({ $0.start() })
 		
-		if MobileMessaging.isPushRegistrationEnabled {
+		if MobileMessaging.isPushRegistrationEnabled && currentInstallation.currentLogoutStatus == .undefined  {
 			messageHandler.start()
 		}
 		
 		if !isTestingProcessRunning {
 			#if DEBUG
-				VersionManager(remoteApiProvider: self.remoteApiProvider).validateVersion()
+			VersionManager(remoteApiProvider: self.remoteApiProvider).validateVersion()
 			#endif
 		}
 	}
@@ -511,11 +505,13 @@ public final class MobileMessaging: NSObject {
 	//TODO: continue decoupling. Move messageHandler to a subservice completely. (as GeofencingService)
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
-	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(mmContext: self)
-	lazy var reachabilityManager: ReachabilityManagerProtocol! = MMNetworkReachabilityManager.sharedInstance
+	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider()
 	lazy var keychain: MMKeychain! = MMKeychain()
-	
-	static var application: MMApplication! = MainThreadedUIApplication()
+
+	//TODO: explicit unwrapping is a subject for removing
+	static var httpSessionManager: DynamicBaseUrlHTTPSessionManager!
+	static var reachabilityManagerFactory: () -> ReachabilityManagerProtocol = { return NetworkReachabilityManager() }
+	static var application: MMApplication = MainThreadedUIApplication()
 	static var date: MMDate = MMDate() // testability
 	static var timeZone: TimeZone = TimeZone.current // for tests
 	static var calendar: Calendar = Calendar.current // for tests
@@ -523,9 +519,7 @@ public final class MobileMessaging: NSObject {
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 	lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()
 	
-	var httpSessionManager: DynamicBaseUrlHTTPSessionManager
-    
-    static let bundle = Bundle(for: MobileMessaging.self)
+	static let bundle = Bundle(for: MobileMessaging.self)
 }
 
 /// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.

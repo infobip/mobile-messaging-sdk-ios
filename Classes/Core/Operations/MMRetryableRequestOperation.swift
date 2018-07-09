@@ -7,7 +7,7 @@ import Foundation
 import MobileMessaging.Private
 
 protocol ReachabilityManagerProtocol {
-	func setReachabilityStatusChangeBlock(block: ((AFNetworkReachabilityStatus) -> Void)?)
+	func setReachabilityStatusChangeBlock(timeout: DispatchTimeInterval, timeoutBlock: @escaping () -> Void, block: @escaping ((AFNetworkReachabilityStatus) -> Void))
 	func currentlyReachable() -> Bool
 	func startMonitoring()
 	func stopMonitoring()
@@ -84,16 +84,23 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 			if reachabilityManager.currentlyReachable() == false && request.retryLimit > 0 {
 				MMLogDebug("Network is not reachable now \(reachabilityManager.localizedNetworkReachabilityStatusString).")
 				MMLogDebug("Setting up a reachability listener...")
-				reachabilityManager.setReachabilityStatusChangeBlock {[weak self] status in
-					if let rm = self?.reachabilityManager {
-						MMLogDebug("Network Status Changed: \(rm.localizedNetworkReachabilityStatusString). Retrying request \(String(describing: self?.request.self))...")
-						if rm.reachable {
-							rm.stopMonitoring()
-							self?.execute()
-						}
-					}
-				}
 				reachabilityManager.startMonitoring()
+				reachabilityManager.setReachabilityStatusChangeBlock(
+					timeout: SDKSettings.reachabilityMonitoringTimeout,
+					timeoutBlock: { [weak self] in
+						self?.reachabilityManager.stopMonitoring()
+						self?.finish(Result.Failure(error))
+					},
+					block: { [weak self] status in
+						if let rm = self?.reachabilityManager {
+							MMLogDebug("Network Status Changed: \(rm.localizedNetworkReachabilityStatusString).")
+							if rm.reachable {
+								MMLogDebug("It's reachable now, retrying request \(String(describing: self?.request.self))")
+								rm.stopMonitoring()
+								self?.execute()
+							}
+						}
+					})
 			} else {
 				finish(Result.Failure(error))
 			}

@@ -167,7 +167,7 @@ class MessageReceivingTests: MMTestCase {
 			
 		}
 		self.waitForExpectations(timeout: 60, handler: { error in
-			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any message in db, since we disabled the registration")
+			XCTAssertEqual(0, self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "There must be not any message in db, since we disabled the registration")
 		})
 	}
 

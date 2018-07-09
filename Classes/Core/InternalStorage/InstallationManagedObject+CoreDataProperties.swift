@@ -26,4 +26,6 @@ extension InstallationManagedObject {
 	@NSManaged var isRegistrationEnabled: Bool
 	@NSManaged var applicationCode: String?
 	@NSManaged var isPrimaryDevice: Bool
+	@NSManaged var logoutStatusValue: Int16
+	@NSManaged var logoutFailCounter: Int16
 }

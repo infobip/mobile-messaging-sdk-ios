@@ -54,7 +54,7 @@ extension JSON {
 }
 
 class Mocks {
-	static func mockedResponseForRequest<T: RequestData>(request: T, appCode: String) -> JSON? {
+	static func mockedResponseForRequest<T: RequestData>(request: T, appCode: String, pushRegistrationId: String?) -> JSON? {
 		
 		let fm = FileManager()
 		let path = Bundle.init(for: self).bundlePath + "/mocks\(request.path.rawValue)/\(request.method.rawValue).json"
@@ -67,7 +67,7 @@ class Mocks {
 		}
 		
 		// headers are being formed by request serializer, so use it:
-		let urlRequest: NSMutableURLRequest = RequestSerializer(applicationCode: appCode, jsonBody: request.body, headers: request.headers).request(withMethod: request.method.rawValue, urlString: "any", parameters: request.parameters, error: nil)
+		let urlRequest: NSMutableURLRequest = RequestSerializer(applicationCode: appCode, jsonBody: request.body, pushRegistrationId: pushRegistrationId, headers: request.headers).request(withMethod: request.method.rawValue, urlString: "any", parameters: request.parameters, error: nil)
 		let headers = urlRequest.allHTTPHeaderFields
 		
 		let requestJson = requestJSON(headers: headers, queryParameters: request.parameters, body: request.body)

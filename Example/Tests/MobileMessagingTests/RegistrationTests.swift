@@ -11,18 +11,18 @@ import CoreLocation
 
 final class RegistrationTests: MMTestCase {
 	
-    func testInstallationPersisting() {
+	func testInstallationPersisting() {
 		weak var tokensexp = expectation(description: "device tokens saved")
 		let maxCount = 2
 		
-        for counter in 0..<maxCount {
-            let deviceToken = "token\(counter)".data(using: String.Encoding.utf16)
+		for counter in 0..<maxCount {
+			let deviceToken = "token\(counter)".data(using: String.Encoding.utf16)
 			mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken!) { error in
 				if counter == maxCount - 1 {
 					tokensexp?.fulfill()
 				}
 			}
-        }
+		}
 		
 		waitForExpectations(timeout: 100, handler: { err in
 			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
@@ -36,23 +36,23 @@ final class RegistrationTests: MMTestCase {
 				XCTFail("There must be atleast one installation object in database")
 			}
 		})
-    }
+	}
 
 	func testRegisterForRemoteNotificationsWithDeviceToken() {
-        weak var token2Saved = expectation(description: "token2 saved")
+		weak var token2Saved = expectation(description: "token2 saved")
 		
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-		
+
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken2".data(using: String.Encoding.utf16)!) {  error in
 				token2Saved?.fulfill()
 			}
 		}
-        
-        self.waitForExpectations(timeout: 60) { _ in
+
+		self.waitForExpectations(timeout: 60) { _ in
 			XCTAssertFalse(self.mobileMessagingInstance.currentInstallation.isRegistrationStatusNeedSync)
 			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.deviceToken, "someToken2".mm_toHexademicalString)
-        }
-    }
+		}
+	}
 	
 	func testWrongApplicationCode() {
 		
@@ -76,10 +76,10 @@ final class RegistrationTests: MMTestCase {
 	}
 	
 	var requestSentCounter = 0
-    func testTokenSendsTwice() {
+	func testTokenSendsTwice() {
 		MobileMessaging.userAgent = UserAgentStub()
 		
-		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestCorrectApplicationCode, mmContext: self.mobileMessagingInstance, performRequestCompanionBlock: { request in
+		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { request in
 			
 			switch request {
 			case (is RegistrationRequest):
@@ -91,26 +91,26 @@ final class RegistrationTests: MMTestCase {
 			}
 		})
 		
-        weak var expectation1 = expectation(description: "notification1")
-        weak var expectation2 = expectation(description: "notification2")
+		weak var expectation1 = expectation(description: "notification1")
+		weak var expectation2 = expectation(description: "notification2")
 
-        mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-            XCTAssertNil(error)
-            expectation1?.fulfill()
+		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
+			XCTAssertNil(error)
+			expectation1?.fulfill()
 
-            self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-                XCTAssertNil(error)
-                expectation2?.fulfill()
-            }
-        }
+			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
+				XCTAssertNil(error)
+				expectation2?.fulfill()
+			}
+		}
 		
-        self.waitForExpectations(timeout: 60) { error in
+		self.waitForExpectations(timeout: 60) { error in
 			XCTAssertEqual(self.requestSentCounter, 2)
-        }
-    }
+		}
+	}
 	
-    func testRegistrationDataNotSendsWithoutToken() {
-        weak var syncInstallationWithServer = expectation(description: "sync1")
+	func testRegistrationDataNotSendsWithoutToken() {
+		weak var syncInstallationWithServer = expectation(description: "sync1")
 		var requestSentCounter = 0
 		let requestPerformCompanion: (Any) -> Void = { request in
 			if let _ = request as? RegistrationRequest {
@@ -119,25 +119,24 @@ final class RegistrationTests: MMTestCase {
 				}
 			}
 		}
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode,
-																					  mmContext: self.mobileMessagingInstance,
-																					  performRequestCompanionBlock: requestPerformCompanion,
-																					  completionCompanionBlock: nil,
-																					  responseSubstitution: nil)
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: requestPerformCompanion,
+			completionCompanionBlock: nil,
+			responseSubstitution: nil)
 		
 		if MobileMessaging.currentInstallation == nil {
 			XCTFail("Installation is nil")
 			syncInstallationWithServer?.fulfill()
 		}
 		
-        MobileMessaging.currentInstallation?.syncInstallationWithServer(completion: { (error) -> Void in
-            syncInstallationWithServer?.fulfill()
-        })
+		MobileMessaging.currentInstallation?.syncInstallationWithServer(completion: { (error) -> Void in
+			syncInstallationWithServer?.fulfill()
+		})
 		
 		self.waitForExpectations(timeout: 60, handler: { err in
 			XCTAssertEqual(requestSentCounter, 0)
 		})
-    }
+	}
 	
 	func testThatRegistrationEnabledStatusIsBeingSyncedAfterChanged() {
 		weak var tokenSynced = self.expectation(description: "registration sent")
@@ -168,11 +167,10 @@ final class RegistrationTests: MMTestCase {
 			}
 		}
 		
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode,
-		                                                                              mmContext: self.mobileMessagingInstance,
-		                                                                              performRequestCompanionBlock: requestPerformCompanion,
-		                                                                              completionCompanionBlock: nil,
-		                                                                              responseSubstitution: responseStub)
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: requestPerformCompanion,
+			completionCompanionBlock: nil,
+			responseSubstitution: responseStub)
 		
 		self.mobileMessagingInstance.currentInstallation.deviceToken = "stub"
 		self.mobileMessagingInstance.currentInstallation.syncInstallationWithServer(completion: { err in
@@ -220,11 +218,10 @@ final class RegistrationTests: MMTestCase {
 		
 		mm.start()
 		
-		mm.remoteApiProvider.registrationQueue = MMRemoteAPIMock(appCode: MMTestConstants.kTestWrongApplicationCode,
-		                                                                             mmContext: mm,
-		                                                                             performRequestCompanionBlock: nil,
-		                                                                             completionCompanionBlock: nil,
-		                                                                             responseSubstitution: responseStatusDisabledStub)
+		mm.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: nil,
+			completionCompanionBlock: nil,
+			responseSubstitution: responseStatusDisabledStub)
 		
 		XCTAssertTrue(mm.messageHandler.isRunning)
 		XCTAssertTrue(GeofencingService.sharedInstance!.isRunning)
@@ -260,7 +257,7 @@ final class RegistrationTests: MMTestCase {
 	}
 	
 	func testThatRegistrationIsNotCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
-	
+
 		weak var finished = self.expectation(description: "finished")
 		
 		// registration gets updated:
@@ -323,11 +320,9 @@ final class RegistrationTests: MMTestCase {
 			XCTAssertEqual(firstInternalId, self.mobileMessagingInstance.keychain.internalId)
 			
 			let reg2mock = MMRemoteAPIMock(
-			                           appCode: MMTestConstants.kTestCorrectApplicationCode,
-			                           mmContext: self.mobileMessagingInstance,
-			                           performRequestCompanionBlock: nil,
-			                           completionCompanionBlock: nil,
-			                           responseSubstitution: nil)
+				performRequestCompanionBlock: nil,
+				completionCompanionBlock: nil,
+				responseSubstitution: nil)
 			reg2mock.performRequestCompanionBlock = { request in
 				if let request = request as? RegistrationRequest {
 					XCTAssertEqual(self.mobileMessagingInstance.keychain.internalId, firstInternalId)
@@ -343,11 +338,10 @@ final class RegistrationTests: MMTestCase {
 				registration2Done?.fulfill()
 				
 				
-				let reg3mock = MMRemoteAPIMock(appCode: MMTestConstants.kTestCorrectApplicationCode,
-				                           mmContext: self.mobileMessagingInstance,
-				                           performRequestCompanionBlock: nil,
-				                           completionCompanionBlock: nil,
-				                           responseSubstitution: nil)
+				let reg3mock = MMRemoteAPIMock(
+											   performRequestCompanionBlock: nil,
+											   completionCompanionBlock: nil,
+											   responseSubstitution: nil)
 				
 				reg3mock.performRequestCompanionBlock = { request in
 					if let request = request as? RegistrationRequest {

@@ -43,7 +43,7 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	private func sendRequest() {
-		guard user.pushRegistrationId != nil else {
+		guard let pushRegistrationId = user.pushRegistrationId else {
 			MMLogDebug("[System data sync] No registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
@@ -55,7 +55,7 @@ class SystemDataSynchronizationOperation: Operation {
 		}
 		
 		MMLogDebug("[System data sync] performing request...")
-		mmContext.remoteApiProvider.syncSystemData(systemData: currentSystemData) { result in
+		mmContext.remoteApiProvider.syncSystemData(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, systemData: currentSystemData) { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}

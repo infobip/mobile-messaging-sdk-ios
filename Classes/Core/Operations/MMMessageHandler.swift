@@ -46,7 +46,6 @@ enum MessageHandlingResult {
 }
 
 class MMMessageHandler: MobileMessagingService {
-	
 	lazy var messageHandlingQueue = MMOperationQueue.newSerialQueue
 	lazy var messageSendingQueue = MMOperationQueue.userInitiatedQueue
 	lazy var messageSyncQueue = MMOperationQueue.newSerialQueue
@@ -281,7 +280,7 @@ class MMMessageHandler: MobileMessagingService {
 		return true
 	}
 	
-	var isRunning: Bool = true
+	var isRunning: Bool = false
 	
 	var uniqueIdentifier: String {
 		return "com.mobile-messaging.subservice.MessageHandler"
@@ -305,6 +304,7 @@ class MMMessageHandler: MobileMessagingService {
 	}
 	
 	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
+		MMLogDebug("[Message handler] log out")
 		cancelOperations()
 		messageSyncQueue.addOperation {
 			if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {
@@ -320,7 +320,16 @@ class MMMessageHandler: MobileMessagingService {
 	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
 		stop()
 	}
-	
+
+	func logoutStatusDidChange(_ mmContext: MobileMessaging) {
+		switch mmContext.currentInstallation.currentLogoutStatus {
+		case .pending:
+			stop(nil)
+		case .undefined:
+			start(nil)
+		}
+	}
+
 	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
 		if mmContext.isPushRegistrationEnabled == false {
 			stop()

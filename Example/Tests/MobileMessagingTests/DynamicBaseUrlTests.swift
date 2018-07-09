@@ -36,7 +36,7 @@ class SessionManagerMock: DynamicBaseUrlHTTPSessionManager {
 	
 	init(requestResponseMap: @escaping RequestResponseMap) {
 		self.requestResponseMap = requestResponseMap
-		super.init(applicationCode: "", baseURL: URL(string: "https://initial-stub.com"), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: "")
+		super.init(baseURL: URL(string: "https://initial-stub.com"), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: "")
 		self.storage = DynamicBaseUrlStorageStub()
 	}
 	
@@ -56,7 +56,7 @@ class DynamicBaseUrlTests: MMTestCase {
 	func testThatNewBaseUrlIsAppliedForFollowingRequests() {
 		let initialUrl = URL(string: "https://initial.com")!
 		
-		let sessionManager = DynamicBaseUrlHTTPSessionManager(applicationCode: "", baseURL: initialUrl, sessionConfiguration: nil, appGroupId: "")
+		let sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: "")
 		sessionManager.storage = DynamicBaseUrlStorageStub()
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
 		
@@ -71,7 +71,7 @@ class DynamicBaseUrlTests: MMTestCase {
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://new.com")
 		
 		// assert that cached DBU restored after session reinitialization
-		let newSessionManager = DynamicBaseUrlHTTPSessionManager(applicationCode: "", baseURL: initialUrl, sessionConfiguration: nil, appGroupId: "")
+		let newSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: "")
 		newSessionManager.storage = DynamicBaseUrlStorageStub()
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://new.com")
 		
@@ -88,17 +88,17 @@ class DynamicBaseUrlTests: MMTestCase {
 		var retriesStarted = false
 		let mm = MobileMessaging.withApplicationCode("", notificationType: UserNotificationType(options: []) , backendBaseURL: APIValues.prodDynamicBaseURLString)!
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
-		mm.httpSessionManager = SessionManagerMock(requestResponseMap: {
+		MobileMessaging.httpSessionManager = SessionManagerMock(requestResponseMap: {
 			// given: registration call returns NSURLErrorCannotFindHost error
 			if $0 is RegistrationRequest {
 				if retriesStarted == false {
 					retriesStarted = true
 					// here we make sure the very first attempt to register has been sent to a given dynamic base url
-					XCTAssertEqual(mm.httpSessionManager.dynamicBaseUrl, newDynamicURL)
+					XCTAssertEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, newDynamicURL)
 					retriesStartedExpectation?.fulfill()
 				} else {
 					// here we make sure the dynamic base url was reset to original base url when retries started
-					XCTAssertEqual(mm.httpSessionManager.dynamicBaseUrl, mm.httpSessionManager.originalBaseUrl)
+					XCTAssertEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, MobileMessaging.httpSessionManager.originalBaseUrl)
 				}
 				return (nil, NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotFindHost, userInfo: nil))
 			} else {
@@ -106,12 +106,12 @@ class DynamicBaseUrlTests: MMTestCase {
 			}
 		})
 		
-		mm.httpSessionManager.dynamicBaseUrl = newDynamicURL
+		MobileMessaging.httpSessionManager.dynamicBaseUrl = newDynamicURL
 		
 		// make sure base urls prepared correctly
-		XCTAssertEqual(mobileMessagingInstance.httpSessionManager.dynamicBaseUrl, newDynamicURL)
-		XCTAssertEqual(mobileMessagingInstance.httpSessionManager.originalBaseUrl!.absoluteString, "https://initial-stub.com")
-		XCTAssertNotEqual(mobileMessagingInstance.httpSessionManager.dynamicBaseUrl, mobileMessagingInstance.httpSessionManager.originalBaseUrl)
+		XCTAssertEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, newDynamicURL)
+		XCTAssertEqual(MobileMessaging.httpSessionManager.originalBaseUrl!.absoluteString, "https://initial-stub.com")
+		XCTAssertNotEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, MobileMessaging.httpSessionManager.originalBaseUrl)
 		
 		mm.didRegisterForRemoteNotificationsWithDeviceToken("someToken123123123".data(using: String.Encoding.utf16)!) {  error in
 			registrationFinishedExpectation?.fulfill()

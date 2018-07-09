@@ -34,8 +34,17 @@ extension MobileMessaging {
 
 @objcMembers
 public class GeofencingService: NSObject, MobileMessagingService {
-	
+	func logoutStatusDidChange(_ mmContext: MobileMessaging) {
+		switch mmContext.currentInstallation.currentLogoutStatus {
+		case .pending:
+			stop(nil)
+		case .undefined:
+			start(nil)
+		}
+	}
+
 	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
+		MMLogDebug("[Geofencing service] log out")
 		cancelOperations()
 		self.stopMonitoringMonitoredRegions() {
 			self.cleanup(completion)
@@ -69,7 +78,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	}
 	
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
-		guard GeofencingService.isGeoServiceNeedsToStart && mmContext.isPushRegistrationEnabled else {
+		guard GeofencingService.isGeoServiceNeedsToStart && mmContext.isPushRegistrationEnabled && mmContext.currentInstallation.currentLogoutStatus == .undefined else {
 			return
 		}
 		GeofencingService.isGeoServiceNeedsToStart = false
@@ -290,7 +299,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		registerSelfAsSubservice(of: mmContext)
 		
 		locationManagerQueue.executeSync() {
-			self.geofencingServiceQueue = RemoteAPIQueue(mmContext: mmContext)
+			self.geofencingServiceQueue = RemoteAPIQueue()
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = GeofencingConstants.distanceFilter

@@ -12,7 +12,7 @@ var operationExecutionCounter: Int = Int.max
 let noReachabilityAttemptNumber = 1
 var reachabilityTesting = false
 
-final class MMStubNetworkReachabilityManager: MMNetworkReachabilityManager {
+final class MMStubNetworkReachabilityManager: NetworkReachabilityManager {
 	override func currentlyReachable() -> Bool {
 		if reachabilityTesting {
 			return operationExecutionCounter > noReachabilityAttemptNumber
@@ -50,9 +50,9 @@ final class RetryOperationTests: MMTestCase {
 	
 	func testReachabilityLogic() {
 		weak var expectation = self.expectation(description: "Retryable operation finished")
-		let r = RegistrationRequest(deviceToken: "stub", isEnabled: nil, expiredInternalId: nil)
+		let r = RegistrationRequest(applicationCode: "", pushRegistrationId: "", deviceToken: "stub", isEnabled: nil, expiredInternalId: nil)
 		
-		let op = MMTestRechabilityOperation(request: r, reachabilityManager: MMStubNetworkReachabilityManager(), sessionManager: mobileMessagingInstance.httpSessionManager) { op in
+		let op = MMTestRechabilityOperation(request: r, reachabilityManager: MMStubNetworkReachabilityManager(), sessionManager: MobileMessaging.httpSessionManager) { op in
 			expectation?.fulfill()
 		}
 		let retryOpQ = MMRetryOperationQueue()

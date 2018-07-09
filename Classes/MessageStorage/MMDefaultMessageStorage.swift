@@ -173,11 +173,13 @@ import CoreData
 				completion(nil)
 				return
 			}
+			var baseMessages: [BaseMessage]? = nil
 			context.performAndWait {
 				let messages = Message.MM_findAllWithPredicate(nil, context: context)
 				self.updateCounters(total: messages?.count ?? 0, nonSeen: nil)
-				completion(messages?.baseMessages)
+				baseMessages = messages?.baseMessages
 			}
+			completion(baseMessages)
 		}
 	}
 	
@@ -187,10 +189,11 @@ import CoreData
 				completion(nil)
 				return
 			}
+			var messages: [Message]? = nil
 			context.performAndWait {
-				let messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), context: context)
-				completion(messages?.baseMessages)
+				messages = Message.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIds), context: context)
 			}
+			completion(messages?.baseMessages)
 		}
 	}
 	
@@ -200,10 +203,11 @@ import CoreData
 				completion(nil)
 				return
 			}
+			var messages: [Message]? = nil
 			context.performAndWait {
-				let messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context)
-				completion(messages?.baseMessages)
+				messages = Message.MM_findAll(withPredicate: query.predicate, sortDescriptors: query.sortDescriptors, limit: query.limit, skip: query.skip, inContext: context)
 			}
+			completion(messages?.baseMessages)
 		}
 	}
 	
@@ -339,15 +343,13 @@ import CoreData
 			return
 		}
 		context.performAndWait {
-			guard let message = Message.MM_findFirstWithPredicate(predicate, context: context) else {
-				completion()
-				return
+			if let message = Message.MM_findFirstWithPredicate(predicate, context: context) {
+				applyChanges(message)
+				context.MM_saveToPersistentStoreAndWait()
+				self.didUpdate(message: message)
 			}
-			applyChanges(message)
-			context.MM_saveToPersistentStoreAndWait()
-			completion()
-			self.didUpdate(message: message)
 		}
+		completion()
 	}
 	
 	private func callDelegateIfNeeded(block: @escaping (() -> Void)) {

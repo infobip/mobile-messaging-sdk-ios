@@ -107,6 +107,10 @@ extension MobileMessaging {
 }
 
 class NotificationsInteractionService: MobileMessagingService {
+	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) { }
+
+	func logoutStatusDidChange(_ mmContext: MobileMessaging) { }
+
 	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
 		// do nothing
 		completion(nil)

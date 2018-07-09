@@ -132,7 +132,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	private init(appCode: String, appGroupId: String) {
 		self.applicationCode = appCode
 		self.appGroupId = appGroupId
-		self.sessionManager = DynamicBaseUrlHTTPSessionManager(applicationCode: appCode, baseURL: URL(string: APIValues.prodDynamicBaseURLString), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
+		self.sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: APIValues.prodDynamicBaseURLString), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 	}
 	
 	private func retrieveNotificationContent(for message: MTMessage, originalContent: UNNotificationContent, completion: @escaping (UNNotificationContent) -> Void) {
@@ -155,7 +155,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	}
 	
 	private func reportDelivery(_ message: MTMessage, completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
-		deliveryReporter.report(messageIds: [message.messageId], completion: completion)
+		deliveryReporter.report(applicationCode: applicationCode, messageIds: [message.messageId], completion: completion)
 	}
 	
 	let appGroupId: String
@@ -167,14 +167,14 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 }
 
 protocol DeliveryReporting {
-	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void)
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void)
 }
 
 @available(iOS 10.0, *)
 class DeliveryReporter: DeliveryReporting {
-	func report(messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
 		MMLogDebug("[Notification Extension] reporting delivery for message ids \(messageIds)")
-		guard let dlr = DeliveryReportRequest(dlrIds: messageIds), let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance else
+		guard let dlr = DeliveryReportRequest(applicationCode: applicationCode, dlrIds: messageIds), let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance else
 		{
 			MMLogDebug("[Notification Extension] could not report delivery")
 			completion(Result.Cancel)

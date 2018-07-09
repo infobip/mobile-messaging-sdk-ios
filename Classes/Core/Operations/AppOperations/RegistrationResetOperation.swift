@@ -27,7 +27,9 @@ final class RegistrationResetOperation: Operation {
 		user.pushRegistrationId = nil
 		installation.deviceToken = nil
 		installation.isPushRegistrationEnabled = true
-		
+		installation.isPrimaryDevice = false
+		installation.logoutFailCounter = 0
+		installation.currentLogoutStatus = .undefined
 		user.persist()
 		installation.persist()
 		

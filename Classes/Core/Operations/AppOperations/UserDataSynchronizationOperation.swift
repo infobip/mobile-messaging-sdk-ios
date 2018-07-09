@@ -38,7 +38,7 @@ class UserDataSynchronizationOperation: Operation {
 	}
 
 	private func sendUserDataIfNeeded() {
-		guard user.pushRegistrationId != nil && mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+		guard let pushRegistrationId = user.pushRegistrationId, mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogDebug("[User data sync] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
@@ -51,26 +51,23 @@ class UserDataSynchronizationOperation: Operation {
 
 		if onlyFetching {
 			MMLogDebug("[User data sync] fetching from server...")
-			fetchUserData(externalId: user.externalId)
+			fetchUserData(pushRegistrationId: pushRegistrationId, externalId: user.externalId)
 		} else  {
 			MMLogDebug("[User data sync] sending user data updates to the server...")
-			syncUserData(customUserDataValues: user.customData, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
+			syncUserData(pushRegistrationId: pushRegistrationId, customUserDataValues: user.customData, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
 		}
 	}
 	
-	private func fetchUserData(externalId: String?) {
-		mmContext.remoteApiProvider.fetchUserData(externalUserId: externalId,
-		                                         completion:
+	private func fetchUserData(pushRegistrationId: String, externalId: String?) {
+		mmContext.remoteApiProvider.fetchUserData(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, externalUserId: externalId, completion:
         { result in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		})
 	}
 	
-	private func syncUserData(customUserDataValues: [String: CustomUserDataValue]?, externalId: String?, predefinedUserData: UserDataDictionary?) {
-		mmContext.remoteApiProvider.syncUserData(externalUserId: externalId,
-		                                 predefinedUserData: predefinedUserData,
-		                                 customUserData: customUserDataValues)
+	private func syncUserData(pushRegistrationId: String, customUserDataValues: [String: CustomUserDataValue]?, externalId: String?, predefinedUserData: UserDataDictionary?) {
+		mmContext.remoteApiProvider.syncUserData(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, externalUserId: externalId, predefinedUserData: predefinedUserData, customUserData: customUserDataValues)
 		{ result in
 			self.handleResult(result)
 			self.finishWithError(result.error ?? result.value?.error?.foundationError)

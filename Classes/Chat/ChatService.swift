@@ -52,7 +52,12 @@ import CoreData
 }
 
 public class MobileChat: NSObject, MobileMessagingService {
+	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) { }
+
+	func logoutStatusDidChange(_ mmContext: MobileMessaging) {}
+
 	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
+		completion(nil)
 		// do nothing?
 	}
 	
@@ -67,7 +72,7 @@ public class MobileChat: NSObject, MobileMessagingService {
 		return ["chat": true]
 	}
 	
-	var isRunning: Bool = true
+	var isRunning: Bool = false
 	
 	func start(_ completion: ((Bool) -> Void)?) {
 		isRunning = true

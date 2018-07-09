@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 enum Attributes: String {
-	
+	// case -> model name
 	case deviceToken		= "deviceToken"
 	case customUserData		= "customUserData"
 	case predefinedUserData = "predefinedUserData"
@@ -22,6 +22,8 @@ enum Attributes: String {
 	case location			= "location"
 	case internalUserId		= "internalUserId"
 	case isPrimaryDevice 	= "isPrimaryDevice"
+	case logoutStatusValue		= "logoutStatusValue"
+	case logoutFailCounter		= "logoutFailCounter"
 	
 	static var userDataAttributes: Int32 {
 		return	Attributes.customUserData.integerValue |
@@ -58,6 +60,10 @@ enum Attributes: String {
 			return 1 << 9
 		case .isPrimaryDevice:
 			return 1 << 10
+		case .logoutStatusValue:
+			return 1 << 11
+		case .logoutFailCounter:
+			return 1 << 12
 		}
 	}
 	
@@ -95,6 +101,10 @@ struct AttributesSet: OptionSet {
 				return AttributesSet.internalUserId
 			case .isPrimaryDevice:
 				return AttributesSet.isPrimaryDevice
+			case .logoutStatusValue:
+				return AttributesSet.logoutStatusValue
+			case .logoutFailCounter:
+				return AttributesSet.logoutFailCounter
 			}
 		}
 		return nil
@@ -110,6 +120,8 @@ struct AttributesSet: OptionSet {
 	static let location					= Attributes.location.asSet
 	static let internalUserId			= Attributes.internalUserId.asSet
 	static let isPrimaryDevice			= Attributes.isPrimaryDevice.asSet
+	static let logoutStatusValue		= Attributes.logoutStatusValue.asSet
+	static let logoutFailCounter		= Attributes.logoutFailCounter.asSet
 	
 	static let userData					= AttributesSet(rawValue: Attributes.userDataAttributes)
 	static let registrationAttributes	= AttributesSet(rawValue: Attributes.registrationAttributes)
@@ -125,6 +137,10 @@ final class InstallationManagedObject: NSManagedObject, FetchableResult {
 
 	var dirtyAttributesSet: AttributesSet {
 		return AttributesSet(rawValue: dirtyAttributes)
+	}
+
+	var logoutStatus: LogoutStatus {
+		return LogoutStatus(rawValue: Int(self.logoutStatusValue)) ?? .undefined
 	}
 	
 	func resetDirtyAttribute(attributes: AttributesSet) {

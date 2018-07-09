@@ -36,7 +36,7 @@ class SeenStatusSendingOperation: Operation {
 				return SeenData(messageId: msg.messageId, seenDate: seenDate)
 			}
 			
-			self.mmContext.remoteApiProvider.sendSeenStatus(seenList: seenStatusesToSend) { result in
+			self.mmContext.remoteApiProvider.sendSeenStatus(applicationCode: self.mmContext.applicationCode, pushRegistrationId: self.mmContext.currentUser?.pushRegistrationId, seenList: seenStatusesToSend) { result in
                 self.result = result
 				self.handleSeenResult(result, messages: seenNotSentMessages) {
 					self.finishWithError(result.error)

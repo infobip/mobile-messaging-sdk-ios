@@ -10,7 +10,6 @@ import CoreData
 
 
 final class MessagesEvictionOperation: Operation {
-	static let defaultMessageMaxAge: TimeInterval = 7 * 24 * 60 * 60; //one week
 	var messageMaximumAge: TimeInterval
 	var context: NSManagedObjectContext
 	var finishBlock: (() -> Void)?
@@ -18,7 +17,7 @@ final class MessagesEvictionOperation: Operation {
 	init(context: NSManagedObjectContext, messageMaximumAge: TimeInterval? = nil, finishBlock: (() -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
-		self.messageMaximumAge = messageMaximumAge ?? MessagesEvictionOperation.defaultMessageMaxAge
+		self.messageMaximumAge = messageMaximumAge ?? SDKSettings.messagesRetentionPeriod
 	}
 	
 	override func execute() {
