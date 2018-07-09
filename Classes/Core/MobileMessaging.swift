@@ -239,23 +239,40 @@ public final class MobileMessaging: NSObject {
 	/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
 	public internal(set) static var privacySettings = PrivacySettings()
 	
-	/// Erases currently stored UserData on SDK and server associated with push registration, along with messages in SDK storage.
-	/// User's data synced over MobileMessaging is by default associated with created push registration. Logging out user means that push registration along with device specific data will remain, but user's data (such as first name, custom data,...) will be wiped out.
+	/// Erases currently stored UserData associated with push registration along with messages in SDK storage.
+	/// User's data synced over MobileMessaging is by default associated with created push registration. Logging out user means that push registration and device specific data will remain, but user's data (such as first name, custom data, ...) will be wiped out.
 	/// If you log out user, there is no mechanism to log him in again since he's already subscribed for broadcast notifications from your app, but you might want to sync new user data to target this user specifically.
-	/// Use this method if:
+	/// - Remark: There is another version of logout method that doesn't require a `completion` parameter which means the SDK will handle any unsuccessful logout request by itself. See the method documentation for more details. Use this method in following cases:
+	/// - you want to handle possible failures of server logout request and retry and maintain pending logout state by yourself
 	/// - you're syncing user data to our server;
 	/// - your application has logout option;
 	/// - you don't want new logged in user to be targeted by other user's data, e.g. first name;
 	/// - you want logged out user to still receive broadcast notifications (if not, you need to call MobileMessaging.disablePushRegistration()).
-	///
 	/// - parameter completion: The block to execute after the logout procedure finished
-	public class func logout(completion: @escaping (NSError?) -> Void) {
+	/// - parameter error: An error that happened during the server request
+	public class func logout(completion: @escaping (_ error : NSError?) -> Void) {
 		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
 		guard let mm = MobileMessaging.sharedInstance else {
 			completion(NSError(type: MMInternalErrorType.UnknownError))
 			return
 		}
-		mm.currentInstallation.logout(completion: completion)
+		mm.currentInstallation.logout(callAndForget: false, completion: completion)
+	}
+
+	/// Erases currently stored UserData associated with push registration along with messages in SDK storage.
+	/// User's data synced over MobileMessaging is by default associated with created push registration. Logging out user means that push registration and device specific data will remain, but user's data (such as first name, custom data, ...) will be wiped out.
+	/// If you log out user, there is no mechanism to log him in again since he's already subscribed for broadcast notifications from your app, but you might want to sync new user data to target this user specifically.
+	/// - remark: There is another version of logout method that doesn't require a `completion` parameter which means the SDK will handle any unsuccessful logout request by itself. See the method documentation for more details. Use this method in following cases:
+	/// - you don't need to hanlde networking failures and maintain pending logout state by yourself
+	/// - you're syncing user data to our server;
+	/// - your application has logout option;
+	/// - you don't want new logged in user to be targeted by other user's data, e.g. first name;
+	/// - you want logged out user to still receive broadcast notifications (if not, you need to call MobileMessaging.disablePushRegistration()).
+	public class func logout() {
+		guard let mm = MobileMessaging.sharedInstance else {
+			return
+		}
+		mm.currentInstallation.logout(callAndForget: true, completion: { _ in})
 	}
 	
 	//MARK: Internal

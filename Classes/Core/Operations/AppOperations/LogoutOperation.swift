@@ -21,10 +21,12 @@ class LogoutOperation: Operation {
 	let finishBlock: ((NSError?) -> Void)?
 	let pushRegistrationId: String?
 	let applicationCode: String
+	let callAndForget: Bool
 	
-	init(mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(mmContext: MobileMessaging, callAndForget: Bool, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
+		self.callAndForget = callAndForget
 		self.pushRegistrationId = mmContext.currentUser?.pushRegistrationId
 		self.applicationCode = mmContext.applicationCode
 		super.init()
@@ -69,26 +71,30 @@ class LogoutOperation: Operation {
 			}
 		case .Failure(let error):
 			MMLogError("[Logout] request failed with error: \(error.orNil)")
-			mmContext.currentInstallation.logoutFailCounter = mmContext.currentInstallation.logoutFailCounter + 1
+			if callAndForget {
+				mmContext.currentInstallation.logoutFailCounter = mmContext.currentInstallation.logoutFailCounter + 1
 
-			switch mmContext.currentInstallation.currentLogoutStatus {
-			case .pending:
-				MMLogDebug("[Logout] current logout status: pending")
+				switch mmContext.currentInstallation.currentLogoutStatus {
+				case .pending:
+					MMLogDebug("[Logout] current logout status: pending")
 
-				if mmContext.currentInstallation.logoutFailCounter >= LogoutConsts.failuresNumberLimit {
-					self.mmContext.currentInstallation.currentLogoutStatus = .undefined
-					self.mmContext.apnsRegistrationManager.registerForRemoteNotifications()
-				}
-
-				self.finishWithError(error)
-			case .undefined:
-				MMLogDebug("[Logout] current logout status: undefined")
-				logoutSubservices { _ in
-					self.mmContext.currentInstallation.currentLogoutStatus = .pending
-					self.mmContext.apnsRegistrationManager.unregister()
+					if mmContext.currentInstallation.logoutFailCounter >= LogoutConsts.failuresNumberLimit {
+						self.mmContext.currentInstallation.currentLogoutStatus = .undefined
+						self.mmContext.apnsRegistrationManager.registerForRemoteNotifications()
+					}
 
 					self.finishWithError(error)
+				case .undefined:
+					MMLogDebug("[Logout] current logout status: undefined")
+					logoutSubservices { _ in
+						self.mmContext.currentInstallation.currentLogoutStatus = .pending
+						self.mmContext.apnsRegistrationManager.unregister()
+
+						self.finishWithError(error)
+					}
 				}
+			} else {
+				self.finishWithError(error)
 			}
 		case .Cancel:
 			MMLogError("[Logout] request cancelled.")

@@ -59,7 +59,7 @@ class LogoutTests: MMTestCase {
 			XCTAssertEqual(validEntryRegions?.count, 1)
 			XCTAssertEqual(validEntryRegions?.first?.dataSourceIdentifier, message.regions.first?.dataSourceIdentifier)
 		
-			MobileMessaging.logout { _ in
+			MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
 				logoutFinished?.fulfill()
 			}
 		}
@@ -87,7 +87,9 @@ class LogoutTests: MMTestCase {
 		XCTAssertEqual("Darth", mobileMessagingInstance.currentUser.firstName)
 		XCTAssertEqual(9.5, mobileMessagingInstance.currentUser.customData(forKey: "bootsize")?.double)
 		
-		MobileMessaging.logout { _ in logoutFinished?.fulfill() }
+		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
+			logoutFinished?.fulfill()
+		}
 		
 		waitForExpectations(timeout: 20) { _ in
 			// assert there is no user data
@@ -116,7 +118,9 @@ class LogoutTests: MMTestCase {
 						XCTAssertEqual(sentMessagesCount, messages!.count)
 						XCTAssertEqual(sentMessagesCount, self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "Messages must be persisted properly")
 						messagesReceived?.fulfill()
-						MobileMessaging.logout { _ in logoutFinished?.fulfill() }
+						MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
+							logoutFinished?.fulfill()
+						}
 					}
 				}
 			})
@@ -268,14 +272,14 @@ class LogoutTests: MMTestCase {
 
 	private func performFailedLogoutCase(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = failedLogoutApiMock
-		MobileMessaging.logout { _ in
+		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
 			then?()
 		}
 	}
 
 	private func performSuccessfullLogoutCase(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = successfulLogoutApiMock
-		MobileMessaging.logout { _ in
+		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
 			then?()
 		}
 	}
