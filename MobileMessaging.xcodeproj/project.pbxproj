@@ -1329,7 +1329,6 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
-				SYMROOT = "${SRCROOT}/../build";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -1386,7 +1385,6 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 4.0;
-				SYMROOT = "${SRCROOT}/../build";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
