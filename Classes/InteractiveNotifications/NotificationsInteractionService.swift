@@ -280,7 +280,6 @@ extension NotificationsInteractionService {
 	
 	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
 		if 	message.showInApp &&
-			message.deliveryMethod != .local &&
 			(
 				(message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) ||
 				message.appliedAction == nil
