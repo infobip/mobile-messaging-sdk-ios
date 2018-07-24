@@ -72,6 +72,11 @@ FOUNDATION_EXPORT NSString* MMNotificationMessageTapped;
  */
 FOUNDATION_EXPORT NSString* MMNotificationActionTapped;
 
+/**
+ Posted when the Primary setting for device updated on server.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationPrimaryDeviceSettingUpdated;
+
 
 //MARK: Notification keys
 

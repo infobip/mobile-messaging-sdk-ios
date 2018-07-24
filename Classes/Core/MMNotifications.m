@@ -18,6 +18,7 @@ NSString* MMNotificationGeographicalRegionDidExit = @"com.mobile-messaging.notif
 NSString* MMNotificationGeoServiceDidStart = @"com.mobile-messaging.notification.geo-service-did-start";
 NSString* MMNotificationMessageTapped = @"com.mobile-messaging.notification.message-tapped";
 NSString* MMNotificationActionTapped = @"com.mobile-messaging.notification.action-tapped";
+NSString* MMNotificationPrimaryDeviceSettingUpdated = @"com.mobile-messaging.notification.primary-device-setting-updated";
 
 //MARK: Notification keys
 NSString* MMNotificationKeyRegistrationInternalId = @"com.mobile-messaging.notification.key.registration";

@@ -441,7 +441,7 @@ final public class MMInstallation: NSObject {
 	/// Single user profile on Infobip Portal can have one or more mobile devices with the application installed. You might want to mark one of such devices as a primary device and send push messages only to this device (i.e. receive bank authorization codes only on one device).
 	/// If the value was changed on device, it trumps the server value, otherwise the servers value win.
 	/// - parameter completion: called after the setting is finished sync with the server
-	public func syncPrimaryFlagWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+	public func syncPrimarySettingWithServer(_ completion: ((NSError?) -> Void)? = nil) {
 		MMLogDebug("[Installation management] sync primary device...")
 		let op = SyncPrimaryDeviceOperation(mmContext: mmContext, installation: self, finishBlock: completion)
 		installationQueue.addOperation(op)
@@ -589,7 +589,7 @@ final public class MMInstallation: NSObject {
 			return
 		}
 		isPrimaryDevice = isPrimary
-		syncPrimaryFlagWithServer(completion)
+		syncPrimarySettingWithServer(completion)
 	}
 	
 	var isPrimaryDevice: Bool {

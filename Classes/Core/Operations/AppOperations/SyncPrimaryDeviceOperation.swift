@@ -55,9 +55,14 @@ class SyncPrimaryDeviceOperation : Operation {
 				switch result {
 				case .Success(let response):
 					MMLogDebug("[Application instance sync] successfully get instance data")
-					self.installation.isPrimaryDevice = response.primary
+					let prevValue = self.installation.isPrimaryDevice
+					let newValue = response.primary
+					self.installation.isPrimaryDevice = newValue
 					self.installation.resetPrimaryDeviceNeedsSync()
 					self.installation.persist()
+					if (prevValue != newValue) {
+						NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationPrimaryDeviceSettingUpdated, userInfo: nil)
+					}
 					self.finish()
 				case .Failure(let error):
 					self.finishWithError(error)
