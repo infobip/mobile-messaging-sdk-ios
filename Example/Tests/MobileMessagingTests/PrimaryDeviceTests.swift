@@ -75,7 +75,7 @@ class PrimaryDeviceTests: MMTestCase {
 			}
 		})
 		
-		mobileMessagingInstance.currentInstallation.syncPrimaryFlagWithServer { (error) in
+		mobileMessagingInstance.currentInstallation.syncPrimarySettingWithServer { (error) in
 			expectation?.fulfill()
 		}
 		
