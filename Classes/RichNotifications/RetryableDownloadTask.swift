@@ -7,8 +7,8 @@
 
 class RetryableDownloadTask {
 	var attemptsRemaining: UInt
-	let request: URLRequest
-	let destination: ((URL, URLResponse) -> URL)
+	let contentUrl: URL
+	let destinationResolver: (URL, URLResponse) -> URL
 	let completion: (URL?, Error?) -> Void
 	var currentTask: URLSessionDownloadTask?
 	lazy var sessionManager: MM_AFHTTPSessionManager  = {
@@ -18,26 +18,30 @@ class RetryableDownloadTask {
 		return manager
 	}()
 	
-	init(attemptsCount: UInt, request: URLRequest, destination: @escaping ((URL, URLResponse) -> URL), completion: @escaping (URL?, Error?) -> Void) {
+	init(attemptsCount: UInt, contentUrl: URL, destinationResolver: @escaping (URL, URLResponse) -> URL, completion: @escaping (URL?, Error?) -> Void) {
 		self.attemptsRemaining = attemptsCount
-		self.request = request
-		self.destination = destination
+		self.contentUrl = contentUrl
 		self.completion = completion
+		self.destinationResolver = destinationResolver
 	}
 	
 	func resume() {
+		let request = URLRequest(url: contentUrl)
 		MMLogDebug("[Notification Extension] starting downloading with request \(request)...")
-		currentTask = sessionManager.downloadTask(with: request, progress: nil, destination: destination)
-		{ (urlResponse, url, error) in
-			if let error = error, (error as NSError).mm_isRetryable, self.attemptsRemaining > 0 {
-				MMLogDebug("[Notification Extension] received error \(error), retrying...")
-				self.attemptsRemaining -= 1
-				self.resume()
-			} else {
-				MMLogDebug("[Notification Extension] finishing with error \(error.orNil)")
-				self.completion(url, error)
-			}
-		}
+		currentTask = sessionManager.downloadTask(
+			with: request,
+			progress: nil,
+			destination: destinationResolver,
+			completionHandler: { (urlResponse, whereSavedUrl, error) in
+				if let error = error, (error as NSError).mm_isRetryable, self.attemptsRemaining > 0 {
+					MMLogDebug("[Notification Extension] received error \(error), retrying...")
+					self.attemptsRemaining -= 1
+					self.resume()
+				} else {
+					MMLogDebug("[Notification Extension] finishing with error \(error.orNil)")
+					self.completion(whereSavedUrl, error)
+				}
+		})
 		currentTask?.resume()
 	}
 	

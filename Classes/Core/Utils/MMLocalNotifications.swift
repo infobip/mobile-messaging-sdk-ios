@@ -41,10 +41,10 @@ class LocalNotifications {
 			}
 		}
 		
-		message.downloadImageAttachment(completion: { (url, error) in
-			if let fileUrl = url {
+		message.downloadImageAttachment(completion: { (downloadedFileUrl, error) in
+			if let downloadedFileUrl = downloadedFileUrl {
 				do {
-					let att = try UNNotificationAttachment(identifier: fileUrl.absoluteString, url: fileUrl)
+					let att = try UNNotificationAttachment(identifier: downloadedFileUrl.absoluteString, url: downloadedFileUrl)
 					content.attachments = [att]
 				} catch let e {
 					MMLogError("Error while building local notification attachment: \(e as? String)")

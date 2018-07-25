@@ -31,8 +31,14 @@ class AlertOperation: Foundation.Operation {
 		group.enter()
 		
 		DispatchQueue.main.async() {
-			if let imgUrl = self.message.contentUrl?.safeUrl {
-				ImageDownloader(name: "MMImageDownloader").downloadImage(with: imgUrl, retrieveImageTask: nil, options: nil, progressBlock: nil, completionHandler: { (img, error, _, _) in
+			if self.message.contentUrl?.safeUrl != nil {
+				self.message.downloadImageAttachment(completion: { (url, error) in
+					let img: Image?
+					if let url = url, let data = try? Data(contentsOf: url) {
+						img = DefaultImageProcessor().process(item: ImageProcessItem.data(data), options: [])
+					} else {
+						img = nil
+					}
 					self.alert = self.displayAlert(with: self.message, image: img, text: self.text)
 					self.presentAlert()
 				})

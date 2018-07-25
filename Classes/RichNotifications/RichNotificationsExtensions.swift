@@ -27,29 +27,20 @@ extension MobileMessaging {
 
 extension MTMessage {
 	
-	@discardableResult func downloadImageAttachment(completion: @escaping (URL?, Error?) -> Void) -> RetryableDownloadTask? {
-		guard let contentUrlString = contentUrl, let contentURL = URL.init(string: contentUrlString) else {
+	@discardableResult func downloadImageAttachment(appGroupId: String? = nil, completion: @escaping (URL?, Error?) -> Void) -> RetryableDownloadTask? {
+		guard let contentURL = contentUrl?.safeUrl else {
 			MMLogDebug("[Notification Extension] could not init content url to download")
 			completion(nil, nil)
 			return nil
 		}
 
-		let destination: ((URL, URLResponse) -> URL) = { url, _ -> URL in
-			let tempFolderUrl = URL.init(fileURLWithPath: NSTemporaryDirectory())
-			var destinationFolderURL = tempFolderUrl.appendingPathComponent("com.mobile-messaging.rich-notifications-attachments", isDirectory: true)
-			
-			var isDir: ObjCBool = true
-			if !FileManager.default.fileExists(atPath: destinationFolderURL.path, isDirectory: &isDir) {
-				do {
-					try FileManager.default.createDirectory(at: destinationFolderURL, withIntermediateDirectories: true, attributes: nil)
-				} catch _ {
-					destinationFolderURL = tempFolderUrl
-				}
-			}
-			return destinationFolderURL.appendingPathComponent(String(url.absoluteString.hashValue) + "." + contentURL.pathExtension)
+		let destinationResolver: (URL, URLResponse) -> URL = { _, _ -> URL in
+			//NOTE: appGroupId may be passed here to save file in app group to be fetched by main app afterwards. currently not implemented completely because some questions need to be answered: 1. does OS cleans up AppGroup/Library/Caches directory? if not, implement own purhing mechanism; 2. is simple file manager write safe enough to be used in shared container, whe writer/reader problem may happen.
+			let ret = URL.attachmentDownloadDestinatioUrl(sourceUrl: contentURL, appGroupId: nil)
+			return ret
 		}
-	
-		let task = RetryableDownloadTask(attemptsCount: 3, request: URLRequest(url: contentURL), destination: destination, completion: completion)
+
+		let task = RetryableDownloadTask(attemptsCount: 3, contentUrl: contentURL, destinationResolver: destinationResolver, completion: completion)
 		MMLogDebug("[Notification Extension] downloading rich content for message...")
 		task.resume()
 		
@@ -105,7 +96,6 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 			mtMessage.isDeliveryReportSent = result.error == nil
 			mtMessage.deliveryReportedDate = mtMessage.isDeliveryReportSent ? MobileMessaging.date.now : nil
 			MMLogDebug("[Notification Extension] saving message to shared storage \(sharedInstance.sharedNotificationExtensionStorage.orNil)")
-			sharedInstance.sharedNotificationExtensionStorage?.save(message: mtMessage)
 			handlingGroup.leave()
 		}
 		
@@ -116,6 +106,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		}
 		
 		handlingGroup.notify(queue: DispatchQueue.main) {
+			sharedInstance.sharedNotificationExtensionStorage?.save(message: mtMessage)
 			MMLogDebug("[Notification Extension] message handling finished")
 			contentHandler(result)
 		}
@@ -137,18 +128,19 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	
 	private func retrieveNotificationContent(for message: MTMessage, originalContent: UNNotificationContent, completion: @escaping (UNNotificationContent) -> Void) {
 		
-		currentTask = message.downloadImageAttachment { (url, error) in
-			guard let url = url,
+		currentTask = message.downloadImageAttachment(appGroupId: appGroupId) { (downloadedFileUrl, error) in
+			guard let downloadedFileUrl = downloadedFileUrl,
 				let mContent = (originalContent.mutableCopy() as? UNMutableNotificationContent),
-				let attachment = try? UNNotificationAttachment(identifier: String(url.absoluteString.hash), url: url, options: nil) else
+				let attachment = try? UNNotificationAttachment(identifier: String(downloadedFileUrl.absoluteString.hash), url: downloadedFileUrl, options: nil)
+				else
 			{
 				MMLogDebug("[Notification Extension] rich content downloading completed, could not init content attachment")
 				completion(originalContent)
 				return
 			}
-			
+
+//			message.downloadedPictureUrl = downloadedFileUrl
 			mContent.attachments = [attachment]
-			
 			MMLogDebug("[Notification Extension] rich content downloading completed succesfully")
 			completion((mContent.copy() as? UNNotificationContent) ?? originalContent)
 		}
@@ -208,6 +200,7 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 	func save(message: MTMessage) {
 		var savedMessageDicts = storage.object(forKey: applicationCode) as? [StringKeyPayload] ?? [StringKeyPayload]()
 		var msgDict: StringKeyPayload = ["p": message.originalPayload, "dlr": message.isDeliveryReportSent]
+//		msgDict["downloadedPicUrl"] = message.downloadedPictureUrl?.absoluteString
 		msgDict["dlrd"] = message.deliveryReportedDate
 		savedMessageDicts.append(msgDict)
 		storage.set(savedMessageDicts, forKey: applicationCode)
@@ -230,6 +223,10 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 									   deliveryReportDate: messageDataTuple["dlrd"] as? Date,
 									   seenStatus: .NotSeen,
 									   isDeliveryReportSent: dlrSent)
+
+//			if let urlStr = messageDataTuple["downloadedPicUrl"] as? String, let url = URL(string: urlStr) {
+//				newMessage?.downloadedPictureUrl = url
+//			}
 			return newMessage
 		})
 		return messages

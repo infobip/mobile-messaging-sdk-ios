@@ -771,3 +771,31 @@ extension Optional {
 		return "\(self!)"
 	}
 }
+
+extension URL {
+	static func attachmentDownloadDestinationFolderUrl(appGroupId: String?) -> URL {
+		let fileManager = FileManager.default
+		let tempFolderUrl: URL
+		if let appGroupId = appGroupId, let appGroupContainerUrl = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) {
+			tempFolderUrl = appGroupContainerUrl.appendingPathComponent("Library/Caches")
+		} else {
+			tempFolderUrl = URL.init(fileURLWithPath: NSTemporaryDirectory())
+		}
+
+		var destinationFolderURL = tempFolderUrl.appendingPathComponent("com.mobile-messaging.rich-notifications-attachments", isDirectory: true)
+
+		var isDir: ObjCBool = true
+		if !fileManager.fileExists(atPath: destinationFolderURL.path, isDirectory: &isDir) {
+			do {
+				try fileManager.createDirectory(at: destinationFolderURL, withIntermediateDirectories: true, attributes: nil)
+			} catch _ {
+				destinationFolderURL = tempFolderUrl
+			}
+		}
+		return destinationFolderURL
+	}
+
+	static func attachmentDownloadDestinatioUrl(sourceUrl: URL, appGroupId: String?) -> URL {
+		return URL.attachmentDownloadDestinationFolderUrl(appGroupId:appGroupId).appendingPathComponent(String(sourceUrl.absoluteString.hashValue) + "." + sourceUrl.pathExtension)
+	}
+}

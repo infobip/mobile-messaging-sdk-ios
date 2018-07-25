@@ -111,7 +111,9 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 			return nil
 		}
 	}
-	
+
+	//	var downloadedPictureUrl: URL? //NOTE: this field may be used to keep url of downloaded content/cache
+
 	public var showInApp: Bool {
 		return internalData?[InternalDataKeys.showInApp] as? Bool ?? false
 	}
