@@ -42,16 +42,12 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 	static let sharedInstance = UserNotificationCenterDelegate()
 	
     public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        guard let mm = MobileMessaging.sharedInstance, let message = MTMessage.make(with: notification) else {
-            completionHandler([])
-            return
-        }
-		
-        MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: message) { (notificationType) in
+
+        MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: MTMessage.make(with: notification)) { (notificationType) in
             completionHandler(UNNotificationPresentationOptions.make(with: notificationType))
         } ?? completionHandler([])
         
-        mm.didReceiveRemoteNotification(notification.request.content.userInfo, completion: { _ in })
+        MobileMessaging.sharedInstance?.didReceiveRemoteNotification(notification.request.content.userInfo, completion: { _ in })
     }
     
 	public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {

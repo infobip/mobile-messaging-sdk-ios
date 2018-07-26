@@ -53,10 +53,6 @@ class AlertOperation: Foundation.Operation {
 	
 	func presentAlert() {
 		guard let alert = self.alert, !self.isCancelled else { return }
-		alert.dismissHandler = {
-			self.alert?.dismiss(animated: true)
-			self.group.leave()
-		}
 		UIApplication.shared.keyWindow?.rootViewController?.present(alert, animated: true, completion: nil)
 	}
 	
@@ -110,7 +106,11 @@ class AlertOperation: Foundation.Operation {
 					)
 			})
 		}
-		
+
+		alert.dismissHandler = {
+			self.alert?.dismiss(animated: true)
+			self.group.leave()
+		}
 		return alert
 	}
 }

@@ -96,6 +96,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 			mtMessage.isDeliveryReportSent = result.error == nil
 			mtMessage.deliveryReportedDate = mtMessage.isDeliveryReportSent ? MobileMessaging.date.now : nil
 			MMLogDebug("[Notification Extension] saving message to shared storage \(sharedInstance.sharedNotificationExtensionStorage.orNil)")
+			sharedInstance.sharedNotificationExtensionStorage?.save(message: mtMessage)
 			handlingGroup.leave()
 		}
 		
@@ -106,7 +107,6 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		}
 		
 		handlingGroup.notify(queue: DispatchQueue.main) {
-			sharedInstance.sharedNotificationExtensionStorage?.save(message: mtMessage)
 			MMLogDebug("[Notification Extension] message handling finished")
 			contentHandler(result)
 		}
