@@ -101,9 +101,9 @@ struct LibraryVersionRequest: GetRequest {
 	var path: APIPath { return .LibraryVersion }
 	var parameters: [String: Any]? = [PushRegistration.platform: APIValues.platformType]
 
-	init() {
-		self.applicationCode = ""
-		self.pushRegistrationId = nil
+	init(applicationCode: String, pushRegistrationId: String?) {
+		self.applicationCode = applicationCode
+		self.pushRegistrationId = pushRegistrationId
 	}
 }
 

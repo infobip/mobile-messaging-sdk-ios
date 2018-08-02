@@ -506,7 +506,7 @@ public final class MobileMessaging: NSObject {
 		
 		if !isTestingProcessRunning {
 			#if DEBUG
-			VersionManager(remoteApiProvider: self.remoteApiProvider).validateVersion()
+			VersionManager(mmContext: self).validateVersion()
 			#endif
 		}
 	}

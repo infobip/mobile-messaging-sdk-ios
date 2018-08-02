@@ -67,8 +67,8 @@ class RemoteAPIProvider {
 		messageSyncQueue.perform(request: request, exclusively: true, completion: completion)
 	}
 
-	func fetchRecentLibraryVersion(completion: @escaping (LibraryVersionResult) -> Void) {
-		let request = LibraryVersionRequest()
+	func fetchRecentLibraryVersion(applicationCode: String, pushRegistrationId: String?, completion: @escaping (LibraryVersionResult) -> Void) {
+		let request = LibraryVersionRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId)
 		versionFetchingQueue.perform(request: request, completion: completion)
 	}
 }
