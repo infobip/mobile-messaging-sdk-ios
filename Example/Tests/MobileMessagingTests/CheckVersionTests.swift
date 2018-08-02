@@ -22,7 +22,8 @@ class VersionManagerMock: VersionManager {
 	var upToDateCaseBlock: (() -> Void)?
 	var waitBlock: (() -> Void)?
 	init(mmContext: MobileMessaging, onlineVersion: String) {
-		super.init(remoteApiProvider: VersionCheckRemoteAPIManagerMock(onlineVersion: onlineVersion))
+		mmContext.remoteApiProvider = VersionCheckRemoteAPIManagerMock(onlineVersion: onlineVersion)
+		super.init(mmContext: mmContext)
 	}
 	
 	override func showNewVersionWarning(localVersion: String, response: LibraryVersionResponse) {
@@ -75,7 +76,7 @@ class CheckVersionTests: MMTestCase {
 		versionManager.validateVersion() {
 			
 			// then version increases
-			self.versionManager.remoteApiProvider = VersionCheckRemoteAPIManagerMock(onlineVersion: self.distantFutureVersion)
+			self.mobileMessagingInstance.remoteApiProvider = VersionCheckRemoteAPIManagerMock(onlineVersion: self.distantFutureVersion)
 			
 			// if we validate again immediately after we discovered Up To Date status, we'll end up with a timeout
 			self.versionManager.validateVersion() {
