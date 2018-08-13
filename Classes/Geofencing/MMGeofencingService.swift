@@ -322,6 +322,11 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	class var isDescriptionProvidedForAlwaysUsage: Bool {
 		return Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysUsageDescription") != nil
 	}
+
+	@available(iOS 11.0, *)
+	class var isDescriptionProvidedForAlwaysAndWhenInUseUsage: Bool {
+		return Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysAndWhenInUseUsageDescription") != nil
+	}
 	
 	func authorizeService(kind: LocationServiceKind, usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
 		locationManagerQueue.executeAsync() {

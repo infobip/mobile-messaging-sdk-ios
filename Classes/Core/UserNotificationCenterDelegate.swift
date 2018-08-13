@@ -43,7 +43,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 	
     public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
 
-        MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: MTMessage.make(with: notification)) { (notificationType) in
+		MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: MTMessage.make(with: notification), notification: notification) { (notificationType) in
             completionHandler(UNNotificationPresentationOptions.make(with: notificationType))
         } ?? completionHandler([])
         
