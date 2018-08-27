@@ -291,6 +291,7 @@ let jsonStr =
             "}," +
 			"\"startTime\": \"\(expectedStartDateString)\"," +
 			"\"expiryTime\": \"\(expectedExpiryDateString)\"," +
+			"\"inApp\": 1," +
 			"\"geo\": [" +
 				"{" +
 					"\"id\": \"\(zagrebId)\"," +
@@ -1944,6 +1945,17 @@ class GeofencingServiceTests: MMTestCase {
 		})
 		
 		waitForExpectations(timeout: 60, handler: nil)
+	}
+
+	func testThatInAppAttributeIsPassedToGeneratedMessage() {
+		guard let payload = JSON.parse(jsonStr).dictionaryObject,
+			let geoMessage = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
+				XCTFail()
+				return
+		}
+
+		let mt = MTMessage.make(fromGeoMessage: geoMessage, messageId: "", region: geoMessage.regions.first!)
+		XCTAssertTrue(mt!.showInApp)
 	}
 	
 	func testHandlingOfFetchedGeoPayload() {

@@ -446,6 +446,7 @@ extension MTMessage {
 		let apsConcat = aps + silentAps
 		var newInternalData: [String: Any] = [InternalDataKeys.geo: [region.dictionaryRepresentation]]
 		newInternalData["atts"] = geoMessage.internalData?["atts"]
+		newInternalData["inApp"] = geoMessage.internalData?["inApp"]
 		
 		var newpayload = geoMessage.originalPayload
 		newpayload[APNSPayloadKeys.aps] = apsConcat
