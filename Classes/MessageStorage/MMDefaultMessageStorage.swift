@@ -312,7 +312,7 @@ import CoreData
 		}
 	}
 	
-	private let serialQueue: DispatchQueue = MMQueue.Serial.Reusable.MessageStorageQueue.queue.queue
+	private let serialQueue: DispatchQueue = MMQueue.Serial.New.MessageStorageQueue.queue.queue
 	
 	private func delete(messages: [Message]) {
 		guard let context = context else {
