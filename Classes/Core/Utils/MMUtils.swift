@@ -644,20 +644,7 @@ extension UserDefaults: KVOperations {
 	}
 }
 
-func memoize<T: Hashable, U>(work: @escaping (T)->U) -> (T)->U {
-	var memo = Dictionary<T, U>()
-	
-	return { x in
-		if let q = memo[x] { return q }
-		let r = work(x)
-		memo[x] = r
-		return r
-	}
-}
-
-let calculateAppCodeHash = memoize { (appCode: String) in
-	return String(appCode.sha1().prefix(10))
-}
+func calculateAppCodeHash(_ appCode: String) -> String { return String(appCode.sha1().prefix(10)) }
 
 extension Sequence {
 	func forEachAsync(_ work: @escaping (Self.Iterator.Element, @escaping () -> Void) -> Void, completion: @escaping () -> Void) {
