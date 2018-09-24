@@ -42,7 +42,6 @@
 		7601F1A5208E056500738C1A /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F18C208E056400738C1A /* Filter.swift */; };
 		7601F1A6208E056500738C1A /* Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F18D208E056400738C1A /* Placeholder.swift */; };
 		7601F1A7208E056500738C1A /* KingfisherOptionsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F18E208E056400738C1A /* KingfisherOptionsInfo.swift */; };
-		7601F1A8208E056500738C1A /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 7601F18F208E056400738C1A /* Info.plist */; };
 		7601F1A9208E056500738C1A /* ImagePrefetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F190208E056400738C1A /* ImagePrefetcher.swift */; };
 		7601F1AF208E057F00738C1A /* AlertController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7601F1AA208E057E00738C1A /* AlertController.xib */; };
 		7601F1B0208E057F00738C1A /* InteractiveMessageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1AB208E057E00738C1A /* InteractiveMessageButton.swift */; };
@@ -239,7 +238,6 @@
 		7601F18C208E056400738C1A /* Filter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		7601F18D208E056400738C1A /* Placeholder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Placeholder.swift; sourceTree = "<group>"; };
 		7601F18E208E056400738C1A /* KingfisherOptionsInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KingfisherOptionsInfo.swift; sourceTree = "<group>"; };
-		7601F18F208E056400738C1A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7601F190208E056400738C1A /* ImagePrefetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePrefetcher.swift; sourceTree = "<group>"; };
 		7601F1AA208E057E00738C1A /* AlertController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AlertController.xib; sourceTree = "<group>"; };
 		7601F1AB208E057E00738C1A /* InteractiveMessageButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageButton.swift; sourceTree = "<group>"; };
@@ -390,7 +388,6 @@
 		764556651F78FF4F00B8F14B /* Dictionary+Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+Operations.swift"; sourceTree = "<group>"; };
 		764556661F78FF4F00B8F14B /* ExclusivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExclusivityController.swift; sourceTree = "<group>"; };
 		764556671F78FF4F00B8F14B /* GroupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupOperation.swift; sourceTree = "<group>"; };
-		764556681F78FF4F00B8F14B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		764556691F78FF4F00B8F14B /* NSLock+Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSLock+Operations.swift"; sourceTree = "<group>"; };
 		7645566A1F78FF4F00B8F14B /* NSOperation+Operations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSOperation+Operations.swift"; sourceTree = "<group>"; };
 		7645566B1F78FF4F00B8F14B /* Operation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Operation.swift; sourceTree = "<group>"; };
@@ -550,7 +547,6 @@
 				7601F18C208E056400738C1A /* Filter.swift */,
 				7601F18D208E056400738C1A /* Placeholder.swift */,
 				7601F18E208E056400738C1A /* KingfisherOptionsInfo.swift */,
-				7601F18F208E056400738C1A /* Info.plist */,
 				7601F190208E056400738C1A /* ImagePrefetcher.swift */,
 			);
 			path = Kingsfisher;
@@ -850,7 +846,6 @@
 				764556651F78FF4F00B8F14B /* Dictionary+Operations.swift */,
 				764556661F78FF4F00B8F14B /* ExclusivityController.swift */,
 				764556671F78FF4F00B8F14B /* GroupOperation.swift */,
-				764556681F78FF4F00B8F14B /* Info.plist */,
 				764556691F78FF4F00B8F14B /* NSLock+Operations.swift */,
 				7645566A1F78FF4F00B8F14B /* NSOperation+Operations.swift */,
 				7645566B1F78FF4F00B8F14B /* Operation.swift */,
@@ -1038,7 +1033,6 @@
 				7601F1AF208E057F00738C1A /* AlertController.xib in Resources */,
 				76092BA91FAB669900128E48 /* MobileMessagingChatImages.xcassets in Resources */,
 				76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */,
-				7601F1A8208E056500738C1A /* Info.plist in Resources */,
 				7601F1B3208E057F00738C1A /* LoadingImageView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
