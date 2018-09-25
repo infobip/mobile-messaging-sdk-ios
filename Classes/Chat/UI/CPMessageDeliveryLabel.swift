@@ -76,12 +76,8 @@ class CPMessageDeliveryLabel: UILabel {
 	
 	override func sizeThatFits(_ size: CGSize) -> CGSize {
 		if let txt = text {
-            let attrs = [NSAttributedString.fontAttributeName: font as Any]
-            #if swift(>=4.0)
-                var size = txt.size(withAttributes: attrs)
-            #else
-                var size = txt.size(attributes: attrs)
-            #endif
+            let attrs = [NSAttributedString.Key.font: font as Any]
+			var size = txt.size(withAttributes: attrs)
 			size.width += isYour ? CPMessageDeliveryLabel.deliveryStatusSpace : 0
 			return size
 		} else {

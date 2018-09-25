@@ -12,7 +12,6 @@
 		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
 		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
 		3BB0594CCA9D40ADAC4C3716491BE06B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */; };
-		6C03D22E1FD0392E00513041 /* ChatUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C03D22D1FD0392E00513041 /* ChatUtils.swift */; };
 		6C60A4A31FD6B169001744BC /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C60A4A11FD6B169001744BC /* State.swift */; };
 		7600857F1F9759F200837D75 /* ChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7600857E1F9759F200837D75 /* ChatService.swift */; };
 		760085811F977CC100837D75 /* MTMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085801F977CC100837D75 /* MTMessage.swift */; };
@@ -208,7 +207,6 @@
 		5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MobileMessaging-dummy.m"; sourceTree = "<group>"; };
 		67D34D6EBA51E58A87E7A34D766E7A15 /* MobileMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MobileMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6C03D22D1FD0392E00513041 /* ChatUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatUtils.swift; sourceTree = "<group>"; };
 		6C60A4A11FD6B169001744BC /* State.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = State.swift; sourceTree = "<group>"; };
 		7600857E1F9759F200837D75 /* ChatService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatService.swift; sourceTree = "<group>"; };
 		760085801F977CC100837D75 /* MTMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTMessage.swift; sourceTree = "<group>"; };
@@ -493,7 +491,6 @@
 		7600857D1F9759F200837D75 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
-				6C03D22D1FD0392E00513041 /* ChatUtils.swift */,
 				760929E11FAA20B300128E48 /* UI */,
 				760847A91F99FC9E002019AB /* ChatParticipant.swift */,
 				7614C33F1FB5E06B006ADC84 /* ChatMessagesController.swift */,
@@ -1209,7 +1206,6 @@
 				7600857F1F9759F200837D75 /* ChatService.swift in Sources */,
 				760929FF1FAA219000128E48 /* CPLabel.swift in Sources */,
 				7696BCB41FDA86E00030A5A8 /* ComposeBar_TextView.swift in Sources */,
-				6C03D22E1FD0392E00513041 /* ChatUtils.swift in Sources */,
 				764556CE1F78FFD900B8F14B /* KeychainSwiftAccessOptions.swift in Sources */,
 				7601F19B208E056500738C1A /* ImageDownloader.swift in Sources */,
 				7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */,

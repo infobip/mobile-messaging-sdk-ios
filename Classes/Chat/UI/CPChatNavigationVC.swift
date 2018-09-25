@@ -35,7 +35,7 @@ public class CPChatNavigationVC: UINavigationController, ChatSettingsApplicable 
 		navigationBar.barTintColor = settings.navBarColor
 		navigationBar.tintColor = settings.navBarItemsTintColor
 		navigationBar.isTranslucent = false
-        navigationBar.titleTextAttributes = [NSAttributedString.foregroundColorAttributeName : settings.navBarTitleColor]
+        navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : settings.navBarTitleColor]
 	}
 	
 	init() {
