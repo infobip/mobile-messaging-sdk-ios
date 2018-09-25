@@ -179,6 +179,7 @@ public final class MobileMessaging: NSObject {
 	///
 	/// - parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
 	/// - parameter completion: A block to be executed when local notification handling is finished
+	@available(iOS, deprecated: 10.0)
 	public class func didReceiveLocalNotification(_ notification: UILocalNotification, completion: (() -> Void)? = nil) {
 		if let service = NotificationsInteractionService.sharedInstance, MMMessageHandler.isNotificationTapped(notification.userInfo as? [String: Any], applicationState: MobileMessaging.application.applicationState)
 		{
@@ -249,7 +250,6 @@ public final class MobileMessaging: NSObject {
 	/// - you don't want new logged in user to be targeted by other user's data, e.g. first name;
 	/// - you want logged out user to still receive broadcast notifications (if not, you need to call MobileMessaging.disablePushRegistration()).
 	/// - parameter completion: The block to execute after the logout procedure finished
-	/// - parameter error: An error that happened during the server request
 	public class func logout(completion: @escaping (_ error : NSError?) -> Void) {
 		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
 		guard let mm = MobileMessaging.sharedInstance else {
