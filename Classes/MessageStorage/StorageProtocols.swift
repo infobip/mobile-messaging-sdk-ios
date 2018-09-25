@@ -17,16 +17,19 @@ public class Query: NSObject {
 	
 	/// The number of objects to skip before returning any. The default value is 0.
 	public var skip: Int?
-	
+
+	/// - Note:
 	/// The following types of predicates are supported:
+	///
 	/// - Simple comparisons such as `=`, `!=`, `<`, `>`, `<=`, `>=`, and `BETWEEN` with a key and a constant.
 	/// - Containment predicates, such as `x IN {1, 2, 3}`.
 	/// - Key-existence predicates, such as `x IN SELF`.
-	/// - BEGINSWITH expressions.
+	/// - `BEGINSWITH` expressions.
 	/// - Compound predicates with `AND`, `OR`, and `NOT`.
-	/// - SubQueries with `key IN %@`, subquery.
+	/// - SubQueries with key IN %@, subquery.
 	///
 	/// The following types of predicates are NOT supported:
+	///
 	/// - Aggregate operations, such as `ANY`, `SOME`, `ALL`, or `NONE`.
 	/// - Regular expressions, such as `LIKE`, `MATCHES`, `CONTAINS`, or `ENDSWITH`.
 	/// - Predicates comparing one key to another.

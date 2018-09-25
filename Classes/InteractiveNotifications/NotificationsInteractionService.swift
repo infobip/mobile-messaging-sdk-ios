@@ -26,6 +26,7 @@ extension MobileMessaging {
 	/// - parameter localNotification: The local notification object that was triggered.
 	/// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
 	/// - parameter completionHandler: A block that you must call when you are finished performing the action. It is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:for:withResponseInfo:completionHandler:)` callback as a `completionHandler` parameter.
+	@available(iOS, deprecated: 10.0)
 	public class func handleActionWithIdentifier(identifier: String?, localNotification: UILocalNotification, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		
 		let message: MTMessage? = {

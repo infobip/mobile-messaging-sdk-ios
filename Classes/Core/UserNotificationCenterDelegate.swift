@@ -40,7 +40,7 @@ extension UNNotificationPresentationOptions {
 @available(iOS 10.0, *)
 class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
 	static let sharedInstance = UserNotificationCenterDelegate()
-	
+
     public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
 
 		MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: MTMessage.make(with: notification), notification: notification) { (notificationType) in
