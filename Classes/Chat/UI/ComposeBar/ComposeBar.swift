@@ -13,8 +13,8 @@ struct ComposeBarConsts {
 	static var kTextViewToSuperviewHeightDelta: CGFloat = 0.0
 
 	
-	static let kResizeAnimationCurve 		= UIViewAnimationCurve.easeInOut
-	static let kResizeAnimationOptions 		= UIViewAnimationOptions.curveEaseInOut
+	static let kResizeAnimationCurve 		= UIView.AnimationCurve.easeInOut
+	static let kResizeAnimationOptions 		= UIView.AnimationOptions.curveEaseInOut
 	static let kResizeAnimationDuration: CGFloat 	= 0.25
 	static let kHorizontalSpacing: CGFloat          	=  8.0
 	static let kFontSize: CGFloat                   	= 17.0
@@ -58,7 +58,7 @@ struct ComposeBarConsts {
 	func composeBarTextViewDidChange(composeBar: ComposeBar)
 	func composeBarDidPressButton(composeBar: ComposeBar)
 	func composeBarDidPressUtilityButton(composeBar: ComposeBar)
-	func composeBar(composeBar: ComposeBar, willChangeFromFrame startFrame: CGRect, toFrame endFrame: CGRect, duration: TimeInterval, animationCurve: UIViewAnimationCurve)
+	func composeBar(composeBar: ComposeBar, willChangeFromFrame startFrame: CGRect, toFrame endFrame: CGRect, duration: TimeInterval, animationCurve: UIView.AnimationCurve)
 	func composeBar(composeBar: ComposeBar, didChangeFromFrame startFrame: CGRect, toFrame endFrame: CGRect)
 }
 
@@ -77,9 +77,9 @@ class ComposeBar: UIView, UITextViewDelegate {
 		}
 	}
 	lazy var button: UIButton! = {
-		let ret = ComposeBar_Button(type: UIButtonType.custom)
+		let ret = ComposeBar_Button(type: UIButton.ButtonType.custom)
 		ret.frame = CGRect(x: self.bounds.size.width - ComposeBarConsts.kHorizontalSpacing - ComposeBarConsts.kButtonRightMargin - ComposeBarConsts.kButtonTouchableOverlap, y: self.bounds.size.height - ComposeBarConsts.kButtonBottomMargin - ComposeBarConsts.kButtonHeight, width: 2 * ComposeBarConsts.kButtonTouchableOverlap, height: ComposeBarConsts.kButtonHeight)
-		ret.titleEdgeInsets = UIEdgeInsetsMake(0.5, 0, 0, 0)
+		ret.titleEdgeInsets = UIEdgeInsets(top: 0.5, left: 0, bottom: 0, right: 0)
 		ret.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
 		ret.setTitle(self.buttonTitle, for: .normal)
 		ret.setTitleColor(UIColor(hue: 240/360, saturation: 0.03, brightness: 0.58, alpha: 1), for: .disabled)
@@ -177,7 +177,7 @@ class ComposeBar: UIView, UITextViewDelegate {
 	lazy var textView: ComposeBar_TextView! = {
 		let ret = ComposeBar_TextView(frame: CGRect.zero)
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-		ret.scrollIndicatorInsets = UIEdgeInsetsMake(8.0, 0, 8.0, 0.5)
+		ret.scrollIndicatorInsets = UIEdgeInsets(top: 8.0, left: 0, bottom: 8.0, right: 0.5)
 		ret.backgroundColor = UIColor.clear
 		ret.font = UIFont.systemFont(ofSize: ComposeBarConsts.kFontSize)
 		return ret

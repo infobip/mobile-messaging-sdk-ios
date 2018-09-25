@@ -81,7 +81,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		scrollingRecognizer = UIPanGestureRecognizer(target: self, action: #selector(CPChatVC.handlePanning))
 		scrollingRecognizer.delegate = self
 		
-		NotificationCenter.default.addObserver(self, selector: #selector(CPChatVC.applicationDidBecomeActive), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(CPChatVC.applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 		
 		setupUI()
 		setupBadge()
@@ -145,7 +145,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 				return
 			}
 			insertHappened = true
-			tableView.insertRows(at: [newIndexPath], with: UITableViewRowAnimation.bottom)
+			tableView.insertRows(at: [newIndexPath], with: UITableView.RowAnimation.bottom)
 			isScrollToBottomNeeded = true
 			lastIndexPath = newIndexPath
 		case .update:
@@ -171,7 +171,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 	
 	public func controllerDidChangeContent(_ controller: ChatMessagesController) {
 		tableView.endUpdates()
-		if UIApplication.shared.applicationState == UIApplicationState.active {
+		if UIApplication.shared.applicationState == UIApplication.State.active {
 			let visibleTableViewAreaHeight = (tableView.cp_y + tableView.contentInset.top + composeBarView.cp_y - tableView.contentInset.bottom)
 			isScrollToBottomNeeded = isScrollToBottomEnabled && isScrollToBottomNeeded && tableView.contentSize.height > visibleTableViewAreaHeight
 
@@ -227,7 +227,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		view.backgroundColor = UIColor(white: 0.95, alpha: 1)
 		tableView.allowsMultipleSelectionDuringEditing = true
 		tableView.backgroundColor = UIColor(white: 0.95, alpha: 1)
-		tableView.separatorStyle = UITableViewCellSeparatorStyle.none
+		tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
 		tableView.addGestureRecognizer(scrollingRecognizer)
 		tableView.allowsMultipleSelectionDuringEditing = true
 		navigationItem.rightBarButtonItem = editBtn
@@ -235,14 +235,14 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 	}
 	
 	//MARK: keyboard
-	override func keyboardWillShow(_ duration: TimeInterval, curve: UIViewAnimationCurve, options: UIViewAnimationOptions, height: CGFloat) {
+	override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
 		super.keyboardWillShow(duration, curve: curve, options: options, height: height)
 		UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
 			self.composeBarView.frame.y = self.view.frame.height - height - self.composeBarView.frame.height
 		}, completion: nil)
 	}
 	
-	override func keyboardWillHide(_ duration: TimeInterval, curve: UIViewAnimationCurve, options: UIViewAnimationOptions, height: CGFloat) {
+	override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
 		super.keyboardWillHide(duration, curve: curve, options: options, height: height)
 		let block = {
 			self.composeBarView.frame.y = self.view.frame.height - self.composeBarView.frame.height
@@ -262,7 +262,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 	public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
 		if let gestureRecognizer = gestureRecognizer as? UIPanGestureRecognizer {
 			let velocity = gestureRecognizer.velocity(in: self.tableView)
-			let result = velocity.y > 200 && fabs(velocity.y) > fabs(velocity.x)
+			let result = velocity.y > 200 && abs(velocity.y) > abs(velocity.x)
 			return result
 		}
 		return false
@@ -366,7 +366,7 @@ extension CPChatVC {
 		let duration: TimeInterval = (animated ? 0.3 : 0.0)
 		UIView.animate(withDuration: duration,
 		               delay: 0.0,
-		               options: UIViewAnimationOptions.curveLinear,
+					   options: UIView.AnimationOptions.curveLinear,
 		               animations: { [weak self] () -> Void in
 						self?.editingToolbar.layer.opacity = visible ? 1 : 0
 		})

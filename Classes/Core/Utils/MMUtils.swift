@@ -473,7 +473,7 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 
 protocol MMApplication {
 	var applicationIconBadgeNumber: Int { get set }
-	var applicationState: UIApplicationState { get }
+	var applicationState: UIApplication.State { get }
 	var isRegisteredForRemoteNotifications: Bool { get }
 	func unregisterForRemoteNotifications()
 	func registerForRemoteNotifications()
@@ -505,7 +505,7 @@ class MainThreadedUIApplication: MMApplication {
 		}
 	}
 	
-	var applicationState: UIApplicationState {
+	var applicationState: UIApplication.State {
 		return getFromMain(getter: { app.applicationState })
 	}
 	

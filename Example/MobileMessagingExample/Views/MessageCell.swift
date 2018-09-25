@@ -13,7 +13,7 @@ class MessageCell: UITableViewCell {
 		resetMessageObserving()
 	}
 	
-	override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)
 		textLabel?.numberOfLines = 5
 		accessoryType = .disclosureIndicator

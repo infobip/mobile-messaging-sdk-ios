@@ -81,7 +81,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	fileprivate func startObservingNotifications() {
 		NotificationCenter.default.addObserver(self,
 		                                       selector: #selector(MessagesManager.appWillTerminate),
-		                                       name: NSNotification.Name.UIApplicationWillTerminate,
+		                                       name: UIApplication.willTerminateNotification,
 		                                       object: nil)
 		
         NotificationCenter.default.addObserver(self,

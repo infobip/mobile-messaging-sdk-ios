@@ -30,7 +30,7 @@ open class CPUserDataVC: CPTableViewController {
 		super.viewDidLoad()
 		setupZeroData()
 		if isRefreshControlEnabled {
-			rc.addTarget(self, action: #selector(CPUserDataVC.refetchAndReloadByRefresher), for: UIControlEvents.valueChanged)
+			rc.addTarget(self, action: #selector(CPUserDataVC.refetchAndReloadByRefresher), for: UIControl.Event.valueChanged)
 			tableView.addSubview(rc)
 		}
 	}
@@ -47,7 +47,7 @@ open class CPUserDataVC: CPTableViewController {
 	
 	func showZeroData() {
 		zeroDataView.backgroundColor = view.backgroundColor
-		view.bringSubview(toFront: zeroDataView)
+		view.bringSubviewToFront(zeroDataView)
 		zeroDataView.isHidden = false
 	}
 	
@@ -66,7 +66,7 @@ open class CPUserDataVC: CPTableViewController {
 	func setupZeroData() {
 		zeroDataView = UIView(frame: view.bounds)
 		zeroDataView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-		let label = UILabel(frame: UIEdgeInsetsInsetRect(zeroDataView.bounds, UIEdgeInsetsMake(15, 15, 15, 15)))
+		let label = UILabel(frame: zeroDataView.bounds.inset(by: UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)))
 		label.numberOfLines = 0
 		label.font = UIFont.systemFont(ofSize: 17)
 		label.textColor = UIColor.gray

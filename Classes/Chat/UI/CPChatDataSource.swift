@@ -74,7 +74,7 @@ extension CPChatVC {
 		if let cell = tableView.dequeueReusableCell(withIdentifier: cellID) as? CPMessageCell {
 			return cell
 		} else {
-			return CPMessageCell(style: UITableViewCellStyle.default, reuseIdentifier: cellID, alignment: align)
+			return CPMessageCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: cellID, alignment: align)
 		}
 	}
 }

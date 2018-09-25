@@ -45,7 +45,7 @@ class CPBubbleCell: CPTableViewCell {
 	deinit {
 		NotificationCenter.default.removeObserver(self)
 	}
-	init(style: UITableViewCellStyle, reuseIdentifier: String?, alignment: NSTextAlignment) {
+	init(style: UITableViewCell.CellStyle, reuseIdentifier: String?, alignment: NSTextAlignment) {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)
 		self.alignment = alignment
 		
@@ -69,7 +69,7 @@ class CPBubbleCell: CPTableViewCell {
 			bubbleLeftMargin = Constants.bubbleEdgeGapWidth
 			bubbleRightMargin = Constants.bubbleMaxPadding
 		}
-		bubbleView.frame = UIEdgeInsetsInsetRect(contentView.bounds, UIEdgeInsetsMake(Constants.bubbleEdgeGapHeigh, bubbleLeftMargin, Constants.bubbleEdgeGapHeigh, bubbleRightMargin))
+		bubbleView.frame = contentView.bounds.inset(by: UIEdgeInsets(top: Constants.bubbleEdgeGapHeigh, left: bubbleLeftMargin, bottom: Constants.bubbleEdgeGapHeigh, right: bubbleRightMargin))
 		bubbleView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		contentView.addSubview(bubbleView)
 		
@@ -111,7 +111,7 @@ class CPBubbleCell: CPTableViewCell {
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		self.customLayout()
-		contentView.bringSubview(toFront: deliveryLabel)
+		contentView.bringSubviewToFront(deliveryLabel)
 		CPBubbleCell.updateFrameForDateLabel(&deliveryLabel, bubbleViewFrame: bubbleView.frame, alignment: alignment, availableWidth: contentView.frame.width)
 	}
 	

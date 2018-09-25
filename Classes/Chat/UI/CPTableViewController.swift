@@ -8,7 +8,7 @@ import UIKit
 
 open class CPTableViewController: CPViewController {
 
-    var tableViewStyle = UITableViewStyle.plain
+	var tableViewStyle = UITableView.Style.plain
     var tableView: UITableView!
     
 	override open func viewDidLoad() {
@@ -21,7 +21,7 @@ open class CPTableViewController: CPViewController {
     }
     
     // MARK: - Keyboard
-    override func keyboardWillHide(_ duration: TimeInterval, curve: UIViewAnimationCurve, options: UIViewAnimationOptions, height: CGFloat) {
+	override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
         super.keyboardWillHide(duration, curve: curve, options: options, height: height)
         let block = {
             self.tableView.frame.y = 0
@@ -31,7 +31,7 @@ open class CPTableViewController: CPViewController {
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: block, completion: nil)
     }
     
-    override func keyboardWillShow(_ duration: TimeInterval, curve: UIViewAnimationCurve, options: UIViewAnimationOptions, height: CGFloat) {
+	override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
 				
         super.keyboardWillShow(duration, curve: curve, options: options, height: height)
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: { () -> Void in

@@ -19,7 +19,7 @@ import AudioToolbox
 
 class ChatHelper : MessageStorageDelegate {
 	func didInsertNewMessages(_ messages: [BaseMessage]) {
-		if UIApplication.shared.applicationState == UIApplicationState.active {
+		if UIApplication.shared.applicationState == UIApplication.State.active {
 			playReceivedMessageSound()
 		} else {
 			MobileMessaging.currentInstallation?.badgeNumber += 1

@@ -21,7 +21,7 @@ class CPProgressIndicationLayer: CAShapeLayer {
 		self.strokeColor = color.cgColor
 		self.fillColor = nil
 		self.lineWidth = width
-		self.lineJoin = kCALineJoinRound;
+		self.lineJoin = CAShapeLayerLineJoin.round;
 	}
 
 	required init?(coder aDecoder: NSCoder) {
@@ -31,7 +31,7 @@ class CPProgressIndicationLayer: CAShapeLayer {
 	func startAnimation() {
 		let a1 = CAKeyframeAnimation(keyPath: "strokeEnd")
 		a1.duration = aDuration;
-		a1.fillMode = kCAFillModeRemoved;
+		a1.fillMode = CAMediaTimingFillMode.removed;
 		a1.timeOffset = CACurrentMediaTime()
 		a1.repeatCount = MAXFLOAT;
 		a1.values = [0, 0.5, 1, 1, 1]
@@ -39,7 +39,7 @@ class CPProgressIndicationLayer: CAShapeLayer {
 		
 		let a2 = CAKeyframeAnimation(keyPath: "strokeStart")
 		a2.duration = aDuration;
-		a2.fillMode = kCAFillModeRemoved;
+		a2.fillMode = CAMediaTimingFillMode.removed;
 		a2.timeOffset = CACurrentMediaTime()
 		a2.repeatCount = MAXFLOAT;
 		a2.values = [0, 0, 0, 0.5, 1]

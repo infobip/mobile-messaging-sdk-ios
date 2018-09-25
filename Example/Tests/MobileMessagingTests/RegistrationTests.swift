@@ -364,7 +364,7 @@ final class RegistrationTests: MMTestCase {
 }
 
 class NotificationsEnabledMock: MMApplication {
-	var applicationState: UIApplicationState { return .active }
+	var applicationState: UIApplication.State { return .active }
 	
 	var applicationIconBadgeNumber: Int {
 		get { return 0 }
@@ -380,7 +380,7 @@ class NotificationsEnabledMock: MMApplication {
 }
 
 class NotificationsDisabledMock: MMApplication {
-	var applicationState: UIApplicationState { return .active }
+	var applicationState: UIApplication.State { return .active }
 	
 	var applicationIconBadgeNumber: Int {
 		get { return 0 }

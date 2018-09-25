@@ -27,7 +27,7 @@ class ListViewController: UIViewController, UITableViewDelegate {
 
         tableView.register(MessageCell.self, forCellReuseIdentifier: kMessageCellId)
 		tableView.estimatedRowHeight = 44
-		tableView.rowHeight = UITableViewAutomaticDimension
+		tableView.rowHeight = UITableView.automaticDimension
 		tableView.dataSource = messagesManager
 		
 		messagesManager.newMessageBlock = { _ in

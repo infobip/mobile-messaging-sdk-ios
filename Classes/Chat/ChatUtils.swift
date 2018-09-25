@@ -8,9 +8,9 @@
 
 extension NSAttributedString {
     #if swift(>=4.0)
-    static let foregroundColorAttributeName =  NSAttributedStringKey.foregroundColor
-    static let fontAttributeName =  NSAttributedStringKey.font
-    static let paragraphStyleAttributeName =  NSAttributedStringKey.paragraphStyle
+	static let foregroundColorAttributeName =  NSAttributedString.Key.foregroundColor
+	static let fontAttributeName =  NSAttributedString.Key.font
+	static let paragraphStyleAttributeName =  NSAttributedString.Key.paragraphStyle
     #else
     static let foregroundColorAttributeName = NSForegroundColorAttributeName
     static let fontAttributeName = NSFontAttributeName

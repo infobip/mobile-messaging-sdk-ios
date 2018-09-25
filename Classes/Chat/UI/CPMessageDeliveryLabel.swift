@@ -95,11 +95,11 @@ class CPMessageDeliveryLabel: UILabel {
 			let pendingStatuses:[CPMessageDeliveryStatus] = [.pendingSending, .pendingFileUploading]
 			if pendingStatuses.contains(deliveryStatus) {
 				let indicatorw = CPMessageDeliveryLabel.progressIndicatorRad*2
-				progressIndicator.frame = UIEdgeInsetsInsetRect(bounds, UIEdgeInsetsMake(0, self.cp_w - indicatorw, 0, 0))
+				progressIndicator.frame = bounds.inset(by: UIEdgeInsets(top: 0, left: self.cp_w - indicatorw, bottom: 0, right: 0))
 				progressIndicator.frame.origin.x -= 3
 			} else {
 				let checkmarkw = CPMessageDeliveryLabel.deliveryStatusSpace
-				checkmarksImageView.frame = UIEdgeInsetsInsetRect(bounds, UIEdgeInsetsMake(0, self.cp_w - checkmarkw, 0, 0))
+				checkmarksImageView.frame = bounds.inset(by: UIEdgeInsets(top: 0, left: self.cp_w - checkmarkw, bottom: 0, right: 0))
 				progressIndicator.frame.origin.x -= 4
 			}
 		}

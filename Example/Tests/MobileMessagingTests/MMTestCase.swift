@@ -95,7 +95,7 @@ func sendPushes(_ preparingFunc:(String) -> [AnyHashable: Any], count: Int, rece
 
 
 class ActiveApplicationStub: MMApplication {
-	var applicationState: UIApplicationState {
+	var applicationState: UIApplication.State {
 		return .active
 	}
 	
@@ -114,7 +114,7 @@ class ActiveApplicationStub: MMApplication {
 
 
 class InactiveApplicationStub: MMApplication {
-	var applicationState: UIApplicationState {
+	var applicationState: UIApplication.State {
 		return .inactive
 	}
 	

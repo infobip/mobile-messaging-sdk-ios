@@ -53,7 +53,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
 	}
 	
-	func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+	func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
 		return LinksHandler.openDeeplink(url: url, withMessage: nil)
 	}
 }

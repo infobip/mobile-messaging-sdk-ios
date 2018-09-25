@@ -19,7 +19,7 @@ extension CPChatVC {
 		composeBarView.alpha = 1
 		view.addSubview(composeBarView)
 		
-		tableView.frame = UIEdgeInsetsInsetRect(view.bounds, UIEdgeInsetsMake(0, 0, composeBarView.cp_h, 0))
+		tableView.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h, right: 0))
 	}
 	
 	func createTextMessage(_ text: String) {
@@ -50,7 +50,7 @@ extension CPChatVC {
 		if let username = chatUserInfo.username, !username.isEmpty {
 			completion(username)
 		} else {
-			let alertController = UIAlertController(title: "Welcome!", message: "Please enter your first name", preferredStyle: UIAlertControllerStyle.alert)
+			let alertController = UIAlertController(title: "Welcome!", message: "Please enter your first name", preferredStyle: UIAlertController.Style.alert)
 			let signAction = UIAlertAction(title: "OK", style: .default) { (_) in
 				let nameTF = alertController.textFields![0] as UITextField
 				if let firstName = nameTF.text {
@@ -68,7 +68,7 @@ extension CPChatVC {
 			alertController.addTextField { (textField) in
 				textField.placeholder = "Your first name"
 				textField.autocapitalizationType = .words
-				NotificationCenter.default.addObserver(forName: NSNotification.Name.UITextFieldTextDidChange, object: textField, queue: OperationQueue.main) { (notification) in
+				NotificationCenter.default.addObserver(forName: UITextField.textDidChangeNotification, object: textField, queue: OperationQueue.main) { (notification) in
 					signAction.isEnabled = textField.text != ""
 				}
 			}
@@ -98,7 +98,7 @@ class CPComposeBarDelegate: NSObject, ComposeBarDelegate {
 		_ = composeBar.resignFirstResponder()
 	}
 	
-	func composeBar(composeBar: ComposeBar, willChangeFromFrame startFrame: CGRect, toFrame endFrame: CGRect, duration: TimeInterval, animationCurve: UIViewAnimationCurve) {
+	func composeBar(composeBar: ComposeBar, willChangeFromFrame startFrame: CGRect, toFrame endFrame: CGRect, duration: TimeInterval, animationCurve: UIView.AnimationCurve) {
 		let heightDelta = startFrame.height - endFrame.height
 		
 		self.tableView?.contentInset.top -= heightDelta

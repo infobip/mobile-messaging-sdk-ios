@@ -86,7 +86,7 @@ class CPMessageCell: CPBubbleCell {
 			contentView.backgroundColor = UIColor.MAIN()
 			UIView.animate(withDuration: 3
 				, delay: 0
-				, options: UIViewAnimationOptions.allowUserInteraction
+				, options: UIView.AnimationOptions.allowUserInteraction
 				, animations:
 				{
 					self.contentView.backgroundColor = UIColor.clear

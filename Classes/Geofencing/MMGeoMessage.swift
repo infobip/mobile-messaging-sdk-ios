@@ -355,10 +355,6 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 		return result
 	}
 	
-	public override var hashValue: Int {
-		return dataSourceIdentifier.hashValue
-	}
-	
 	public override var hash: Int {
 		return dataSourceIdentifier.hash
 	}

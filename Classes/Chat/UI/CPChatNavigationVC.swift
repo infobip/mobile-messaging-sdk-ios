@@ -18,7 +18,7 @@ public class CPChatNavigationVC: UINavigationController, ChatSettingsApplicable 
 		super.viewWillAppear(animated)
 		if isBeingPresented {
 			isModal = true
-		} else if isMovingToParentViewController {
+		} else if isMovingToParent {
 			isModal = false
 		}
 	}

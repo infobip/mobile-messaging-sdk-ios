@@ -35,9 +35,9 @@ class LocalNotifications {
 		content.userInfo = message.originalPayload
 		if let sound = message.sound {
 			if sound == "default" {
-				content.sound = UNNotificationSound.default()
+				content.sound = UNNotificationSound.default
 			} else {
-				content.sound = UNNotificationSound.init(named: sound)
+				content.sound = UNNotificationSound.init(named: UNNotificationSoundName(rawValue: sound))
 			}
 		}
 		

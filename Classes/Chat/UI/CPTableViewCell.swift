@@ -9,9 +9,9 @@ import UIKit
 
 class CPTableViewCell: UITableViewCell {
     var textInsets: UIEdgeInsets = UIEdgeInsets.zero
-    var originalAccessoryType = UITableViewCellAccessoryType.none
+	var originalAccessoryType = UITableViewCell.AccessoryType.none
     
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         switch style {
@@ -25,8 +25,8 @@ class CPTableViewCell: UITableViewCell {
         self.detailTextLabel?.textColor = UIColor.gray
         self.layoutMargins = UIEdgeInsets.zero
         self.preservesSuperviewLayoutMargins = false
-        self.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0)
-		self.selectionStyle = UITableViewCellSelectionStyle.default
+		self.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+		self.selectionStyle = UITableViewCell.SelectionStyle.default
     }
     
     required init?(coder: NSCoder) {
@@ -35,12 +35,12 @@ class CPTableViewCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        textLabel!.frame = UIEdgeInsetsInsetRect(textLabel!.frame, textInsets)
+		textLabel!.frame = textLabel!.frame.inset(by: textInsets)
     }
     
     var enabled: Bool = true {
         didSet {
-            if self.accessoryType != UITableViewCellAccessoryType.none {
+			if self.accessoryType != UITableViewCell.AccessoryType.none {
                 originalAccessoryType = self.accessoryType
             }
             self.isUserInteractionEnabled = self.enabled

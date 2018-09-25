@@ -338,7 +338,7 @@ class MMMessageHandler: MobileMessagingService {
 		}
 	}
 	
-	static func isNotificationTapped(_ notificationUserInfo: [String: Any]?, applicationState: UIApplicationState) -> Bool {
+	static func isNotificationTapped(_ notificationUserInfo: [String: Any]?, applicationState: UIApplication.State) -> Bool {
 		return applicationState == .inactive || (notificationUserInfo != nil ? notificationUserInfo![ApplicationLaunchedByNotification_Key] != nil : false)
 	}
 }
