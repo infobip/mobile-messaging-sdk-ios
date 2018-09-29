@@ -67,7 +67,7 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 			Sending request
 			method: \(method)
 			url: \(request.url.orNil)
-			body: \(request.httpBody.orNil)
+			body: \(request.httpBody == nil ? "nil" : String(data: request.httpBody!, encoding: String.Encoding.utf8).orNil)
 			headers: \(request.allHTTPHeaderFields.orNil)
 			""")
 		
