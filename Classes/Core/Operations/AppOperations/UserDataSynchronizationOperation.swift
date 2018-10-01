@@ -13,7 +13,7 @@ class UserDataSynchronizationOperation: Operation {
 	let finishBlock: ((NSError?) -> Void)?
 	let mmContext: MobileMessaging
 	
-	private let onlyFetching: Bool
+	private var onlyFetching: Bool!
 	
 	convenience init(fetchingOperationWithUser user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.init(user: user, onlyFetching: true, mmContext: mmContext, finishBlock: finishBlock)
@@ -22,8 +22,12 @@ class UserDataSynchronizationOperation: Operation {
 	convenience init(syncOperationWithUser user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.init(user: user, onlyFetching: false, mmContext: mmContext, finishBlock: finishBlock)
 	}
+
+	convenience init(fetchOrSync user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+		self.init(user: user, onlyFetching: nil, mmContext: mmContext, finishBlock: finishBlock)
+	}
 	
-	private init(user: MMUser, onlyFetching: Bool, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+	private init(user: MMUser, onlyFetching: Bool?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.user = user
 		self.finishBlock = finishBlock
 		self.onlyFetching = onlyFetching
@@ -49,10 +53,12 @@ class UserDataSynchronizationOperation: Operation {
 			return
 		}
 
-		if onlyFetching {
+		onlyFetching = onlyFetching == nil ? !user.isChanged : onlyFetching
+
+		if onlyFetching == true {
 			MMLogDebug("[User data sync] fetching from server...")
 			fetchUserData(pushRegistrationId: pushRegistrationId, externalId: user.externalId)
-		} else  {
+		} else {
 			MMLogDebug("[User data sync] sending user data updates to the server...")
 			syncUserData(pushRegistrationId: pushRegistrationId, customUserDataValues: user.customData, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
 		}
@@ -77,7 +83,9 @@ class UserDataSynchronizationOperation: Operation {
 	private func handleResult(_ result: UserDataSyncResult) {
 		switch result {
 		case .Success(let response):
-			
+			if onlyFetching && user.isChanged {
+				return
+			}
 			let newCustomUserData = response.customData?.reduce(nil, { (result: [String: CustomUserDataValue]?, element: CustomUserData) -> [String: CustomUserDataValue]? in
 				if let value = element.dataValue {
 					var result = result ?? [:]
