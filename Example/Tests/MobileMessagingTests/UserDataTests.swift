@@ -191,6 +191,21 @@ class UserDataTests: MMTestCase {
 		
 		waitForExpectations(timeout: 20, handler: nil)
 	}
+
+	func testThatFetchedUserDataIgnoredIfHasUnsyncedLocalChanges() {
+		cleanUpAndStop()
+		startWithCorrectApplicationCode()
+		weak var expectation = self.expectation(description: "data received")
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		MobileMessaging.currentUser?.firstName = "John" // unsynced local change
+		MobileMessaging.currentUser?.fetchFromServer { (error) in
+			expectation?.fulfill()
+		}
+
+		waitForExpectations(timeout: 20, handler: { _ in
+			XCTAssertEqual(MobileMessaging.currentUser?.firstName, "John") // must be preserved
+		})
+	}
 	
 	func testDeletePredefinedAndCustomData() {
 		weak var expectation = self.expectation(description: "data received")
