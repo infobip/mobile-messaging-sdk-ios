@@ -13,36 +13,41 @@ class UserDataSynchronizationOperation: Operation {
 	let finishBlock: ((NSError?) -> Void)?
 	let mmContext: MobileMessaging
 	
-	private var onlyFetching: Bool!
+	private var forceFetching: Bool!
 	
 	convenience init(fetchingOperationWithUser user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.init(user: user, onlyFetching: true, mmContext: mmContext, finishBlock: finishBlock)
+		self.init(user: user, forceFetching: true, mmContext: mmContext, finishBlock: finishBlock)
 	}
 	
 	convenience init(syncOperationWithUser user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.init(user: user, onlyFetching: false, mmContext: mmContext, finishBlock: finishBlock)
+		self.init(user: user, forceFetching: false, mmContext: mmContext, finishBlock: finishBlock)
 	}
 
 	convenience init(fetchOrSync user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.init(user: user, onlyFetching: nil, mmContext: mmContext, finishBlock: finishBlock)
+		self.init(user: user, forceFetching: nil, mmContext: mmContext, finishBlock: finishBlock)
 	}
 	
-	private init(user: MMUser, onlyFetching: Bool?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+	private init(user: MMUser, forceFetching: Bool?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.user = user
 		self.finishBlock = finishBlock
-		self.onlyFetching = onlyFetching
+		self.forceFetching = forceFetching
 		self.mmContext = mmContext
 		super.init()
 	}
 	
 	override func execute() {
+		guard !isCancelled else {
+			MMLogDebug("[User data sync] cancelled...")
+			finish()
+			return
+		}
 		MMLogDebug("[User data sync] Started...")
 		user.persist()
 		sendUserDataIfNeeded()
 	}
 
 	private func sendUserDataIfNeeded() {
-		guard let pushRegistrationId = user.pushRegistrationId, mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+		guard let pushRegistrationId = user.pushRegistrationId else {
 			MMLogDebug("[User data sync] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
@@ -53,14 +58,16 @@ class UserDataSynchronizationOperation: Operation {
 			return
 		}
 
-		onlyFetching = onlyFetching == nil ? !user.isChanged : onlyFetching
+		forceFetching = forceFetching == nil ? !user.isChanged : forceFetching
 
-		if onlyFetching == true {
+		if forceFetching == true {
 			MMLogDebug("[User data sync] fetching from server...")
 			fetchUserData(pushRegistrationId: pushRegistrationId, externalId: user.externalId)
-		} else {
+		} else if user.isChanged {
 			MMLogDebug("[User data sync] sending user data updates to the server...")
 			syncUserData(pushRegistrationId: pushRegistrationId, customUserDataValues: user.customData, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
+		} else {
+			finish()
 		}
 	}
 	
@@ -81,9 +88,14 @@ class UserDataSynchronizationOperation: Operation {
 	}
 
 	private func handleResult(_ result: UserDataSyncResult) {
+		guard !isCancelled else {
+			MMLogDebug("[User data sync] cancelled.")
+			return
+		}
+
 		switch result {
 		case .Success(let response):
-			if onlyFetching && user.isChanged {
+			if forceFetching && user.isChanged {
 				return
 			}
 			let newCustomUserData = response.customData?.reduce(nil, { (result: [String: CustomUserDataValue]?, element: CustomUserData) -> [String: CustomUserDataValue]? in
@@ -99,9 +111,6 @@ class UserDataSynchronizationOperation: Operation {
 			user.customData = newCustomUserData
 			user.predefinedData = response.predefinedData as? [String: String]
 			user.resetNeedToSync()
-			guard !isCancelled else {
-				return
-			}
 			user.persist()
 			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationUserDataSynced, userInfo: nil)
 			MMLogDebug("[User data sync] successfully synced")

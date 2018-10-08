@@ -80,7 +80,7 @@ class MMRemoteAPIMock: RemoteAPILocalMocks {
 				completion(Result.Success(response))
 				self.completionCompanionBlock?(response)
 			} else {
-				completion(Result.Failure(nil))
+				completion(Result.Failure(MMInternalErrorType.UnknownError.foundationError))
 				self.completionCompanionBlock?(nil)
 			}
 			

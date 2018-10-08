@@ -23,7 +23,12 @@ final class SyncRegistrationOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("[Registration] Started...")
+		guard !isCancelled else {
+			MMLogDebug("[Registration] cancelled.")
+			finish()
+			return
+		}
+		MMLogDebug("[Registration] started...")
 		guard let deviceToken = installation.deviceToken else {
 			MMLogDebug("[Registration] There is no device token. Finishing...")
 			finish([NSError(type: MMInternalErrorType.UnknownError)])
@@ -61,10 +66,14 @@ final class SyncRegistrationOperation: Operation {
 	}
 	
 	private func handleRegistrationResult(_ result: RegistrationResult) {
+		guard !isCancelled else {
+			MMLogDebug("[Registration] cancelled.)")
+			return
+		}
+
 		switch result {
 		case .Success(let regResponse):
 			MMLogDebug("[Registration] Installation updated on server for internal ID \(regResponse.internalId). Updating local version...")
-			
 			if regResponse.internalId != user.pushRegistrationId {
 				// this is to force system data sync for the new registration
 				installation.systemDataHash = 0
@@ -72,9 +81,6 @@ final class SyncRegistrationOperation: Operation {
 			user.pushRegistrationId = regResponse.internalId
 			installation.isPushRegistrationEnabled = regResponse.isEnabled
 			installation.resetNeedToSync()
-			guard !isCancelled else {
-				return
-			}
 			user.persist()
 			installation.persist()
 

@@ -8,6 +8,7 @@
 import UIKit
 
 class MMOperationQueue: OperationQueue {
+
 	func addOperationExclusively(_ operation: Foundation.Operation) -> Bool {
 		guard operations.contains(where: { type(of: $0) == type(of: operation) }) == false else
 		{

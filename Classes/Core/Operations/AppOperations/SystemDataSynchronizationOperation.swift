@@ -32,6 +32,11 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	override func execute() {
+		guard !isCancelled else {
+			MMLogDebug("[System data sync] cancelled.")
+			finish()
+			return
+		}
 		MMLogDebug("[System data sync] starting synchronization...")
 		
 		if installation.systemDataHash != currentSystemDataHash {
@@ -62,12 +67,13 @@ class SystemDataSynchronizationOperation: Operation {
 	}
 	
 	private func handleResult(_ result: SystemDataSyncResult) {
+		guard !isCancelled else {
+			MMLogDebug("[System data sync] cancelled")
+			return
+		}
 		switch result {
 		case .Success:
 			installation.systemDataHash = currentSystemDataHash
-			guard !isCancelled else {
-				return
-			}
 			installation.persist()
 			MMLogDebug("[System data sync] successfully synced")
 		case .Failure(let error):

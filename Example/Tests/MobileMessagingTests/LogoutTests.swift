@@ -59,7 +59,8 @@ class LogoutTests: MMTestCase {
 			XCTAssertEqual(validEntryRegions?.count, 1)
 			XCTAssertEqual(validEntryRegions?.first?.dataSourceIdentifier, message.regions.first?.dataSourceIdentifier)
 		
-			MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
+			MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { status, _ in
+				XCTAssertTrue(status == LogoutStatus.undefined)
 				logoutFinished?.fulfill()
 			}
 		}
@@ -87,7 +88,8 @@ class LogoutTests: MMTestCase {
 		XCTAssertEqual("Darth", mobileMessagingInstance.currentUser.firstName)
 		XCTAssertEqual(9.5, mobileMessagingInstance.currentUser.customData(forKey: "bootsize")?.double)
 		
-		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
+		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { status, _ in
+			XCTAssertTrue(status == LogoutStatus.undefined)
 			logoutFinished?.fulfill()
 		}
 		
@@ -118,7 +120,7 @@ class LogoutTests: MMTestCase {
 						XCTAssertEqual(sentMessagesCount, messages!.count)
 						XCTAssertEqual(sentMessagesCount, self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "Messages must be persisted properly")
 						messagesReceived?.fulfill()
-						MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
+						MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _, _ in
 							logoutFinished?.fulfill()
 						}
 					}
@@ -179,7 +181,7 @@ class LogoutTests: MMTestCase {
 		prepateUserData()
 		performFailedLogoutCase() { // 1st attempt
 			logoutFailed1?.fulfill()
-			self.performFailedLogoutCase() { // 2nd attempt
+			self.performFailedLogoutCaseWithOverlimit() { // 2nd attempt
 				logoutFailed2?.fulfill()
 			}
 		}
@@ -258,6 +260,39 @@ class LogoutTests: MMTestCase {
 		}
 	}
 
+	func testLogoutHasHigherPriorityThanUserDataOperations() {
+		var requestCompletionCounter = 0
+		var logoutTurn = -1
+		weak var logoutFinished = expectation(description: "logoutFinished")
+		weak var fetchFinished1 = expectation(description: "fetchFinished")
+		weak var fetchFinished2 = expectation(description: "fetchFinished")
+		weak var fetchFinished3 = expectation(description: "fetchFinished")
+		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+
+		mobileMessagingInstance.currentUser.fetchFromServer { (e) in
+			requestCompletionCounter += 1
+			fetchFinished1?.fulfill()
+		}
+		mobileMessagingInstance.currentUser.fetchFromServer { (e) in
+			requestCompletionCounter += 1
+			fetchFinished2?.fulfill()
+		}
+		mobileMessagingInstance.currentUser.fetchFromServer { (e) in
+			requestCompletionCounter += 1
+			fetchFinished3?.fulfill()
+		}
+		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { status, _ in
+			requestCompletionCounter += 1
+			logoutTurn = requestCompletionCounter
+			logoutFinished?.fulfill()
+		}
+
+		waitForExpectations(timeout: 20) { _ in
+			XCTAssertTrue(logoutTurn > -1) // should have valid value
+			XCTAssertTrue(logoutTurn < 4) // should not be the latest performed because has higher priority
+		}
+	}
+
 	//MARK: - private
 	private func prepateUserData() {
 		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -272,14 +307,27 @@ class LogoutTests: MMTestCase {
 
 	private func performFailedLogoutCase(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = failedLogoutApiMock
-		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
+		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { s, e in
+			XCTAssertEqual(LogoutStatus.pending, s)
+			XCTAssertNotNil(e)
+			then?()
+		}
+	}
+
+	private func performFailedLogoutCaseWithOverlimit(then: (() -> Void)? = nil) {
+		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = failedLogoutApiMock
+		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { s, e in
+			XCTAssertEqual(LogoutStatus.undefined, s)
+			XCTAssertNotNil(e)
 			then?()
 		}
 	}
 
 	private func performSuccessfullLogoutCase(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = successfulLogoutApiMock
-		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { _ in
+		MobileMessaging.sharedInstance?.currentInstallation.logout(callAndForget: true) { s, e in
+			XCTAssertEqual(LogoutStatus.undefined, s)
+			XCTAssertNil(e)
 			then?()
 		}
 	}

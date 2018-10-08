@@ -550,8 +550,10 @@ final public class MMInstallation: NSObject {
 		}
 	}
 
-	func logout(callAndForget: Bool, completion: @escaping (NSError?) -> Void) {
-		_ = installationQueue.addOperation(LogoutOperation(mmContext: mmContext, callAndForget: callAndForget, finishBlock: completion))
+	func logout(callAndForget: Bool, completion: @escaping (LogoutStatus, NSError?) -> Void) {
+		let op = LogoutOperation(mmContext: mmContext, callAndForget: callAndForget, finishBlock: completion)
+		op.queuePriority = .veryHigh
+		installationQueue.addOperation(op)
 	}
 
 	var currentLogoutStatus: LogoutStatus {
