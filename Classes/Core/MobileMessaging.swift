@@ -250,10 +250,10 @@ public final class MobileMessaging: NSObject {
 	/// - you don't want new logged in user to be targeted by other user's data, e.g. first name;
 	/// - you want logged out user to still receive broadcast notifications (if not, you need to call MobileMessaging.disablePushRegistration()).
 	/// - parameter completion: The block to execute after the logout procedure finished
-	public class func logout(completion: @escaping (_ error : NSError?) -> Void) {
+	public class func logout(completion: @escaping (_ status: LogoutStatus, _ error: NSError?) -> Void) {
 		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
 		guard let mm = MobileMessaging.sharedInstance else {
-			completion(NSError(type: MMInternalErrorType.UnknownError))
+			completion(.undefined, NSError(type: MMInternalErrorType.UnknownError))
 			return
 		}
 		mm.currentInstallation.logout(callAndForget: false, completion: completion)
@@ -272,7 +272,7 @@ public final class MobileMessaging: NSObject {
 		guard let mm = MobileMessaging.sharedInstance else {
 			return
 		}
-		mm.currentInstallation.logout(callAndForget: true, completion: { _ in})
+		mm.currentInstallation.logout(callAndForget: true, completion: { _, _ in})
 	}
 	
 	//MARK: Internal

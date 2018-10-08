@@ -30,6 +30,11 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	override func execute() {
+		guard !isCancelled else {
+			MMLogDebug("[Message fetching] cancelled...")
+			finish()
+			return
+		}
 		MMLogDebug("[Message fetching] Starting operation...")
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogDebug("[Message fetching] Registration may be not healthy. Finishing...")

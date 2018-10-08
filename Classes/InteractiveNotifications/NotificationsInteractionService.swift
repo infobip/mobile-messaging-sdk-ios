@@ -165,7 +165,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		MMLogDebug("[Interaction Service] handling action \(identifier ?? "n/a") for message \(message?.messageId ?? "n/a"), resonse info \(responseInfo ?? [:])")
 		
 		guard isRunning, let identifier = identifier else {
-			MMLogWarn("[Interaction Service] canceled handling")
+			MMLogWarn("[Interaction Service] cancelled handling")
 			completionHandler()
 			return
 		}

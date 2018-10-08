@@ -957,9 +957,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A7F83A827E1952844EA68119D288CDDF /* Build configuration list for PBXNativeTarget "MobileMessaging" */;
 			buildPhases = (
+				F0FB3783C9DE8717FC987CFCD9463D9C /* Headers */,
 				0749E698D7B061A5301B9612FB001C7F /* Sources */,
 				0979C61CC24B570CCB03438437464D2A /* Frameworks */,
-				F0FB3783C9DE8717FC987CFCD9463D9C /* Headers */,
 				C654DC9AE51EAB0DE46B0924280E45D8 /* Resources */,
 			);
 			buildRules = (

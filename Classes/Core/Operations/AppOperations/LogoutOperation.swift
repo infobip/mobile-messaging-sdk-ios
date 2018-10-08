@@ -12,18 +12,18 @@ struct LogoutConsts {
 	static var failuresNumberLimit = 3
 }
 
-enum LogoutStatus: Int {
+@objc public enum LogoutStatus: Int {
 	case undefined = 0, pending
 }
 
 class LogoutOperation: Operation {
 	let mmContext: MobileMessaging
-	let finishBlock: ((NSError?) -> Void)?
+	let finishBlock: ((LogoutStatus, NSError?) -> Void)?
 	let pushRegistrationId: String?
 	let applicationCode: String
 	let callAndForget: Bool
 	
-	init(mmContext: MobileMessaging, callAndForget: Bool, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(mmContext: MobileMessaging, callAndForget: Bool, finishBlock: ((LogoutStatus, NSError?) -> Void)? = nil) {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		self.callAndForget = callAndForget
@@ -122,6 +122,6 @@ class LogoutOperation: Operation {
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Logout] finished with errors: \(errors)")
-		finishBlock?(errors.first)
+		finishBlock?(mmContext.currentInstallation.currentLogoutStatus, errors.first)
 	}
 }

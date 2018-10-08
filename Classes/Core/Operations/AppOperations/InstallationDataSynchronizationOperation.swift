@@ -19,7 +19,7 @@ final class InstallationDataSynchronizationOperation: GroupOperation {
 		let regOp = SyncRegistrationOperation(installation: installation, user: user, mmContext: mmContext, finishBlock: nil)
 		let systemDataOp = SystemDataSynchronizationOperation(installation: installation, user: user, mmContext: mmContext, finishBlock: nil)
 		
-		let userDataOp = UserDataSynchronizationOperation(fetchOrSync: user, mmContext: mmContext, finishBlock: nil)
+		let userDataOp = UserDataSynchronizationOperation(syncOperationWithUser: user, mmContext: mmContext)
 		let primarySyncOp = SyncPrimaryDeviceOperation(mmContext: mmContext, installation: installation, finishBlock: nil)
 
 		primarySyncOp.addDependency(regOp)

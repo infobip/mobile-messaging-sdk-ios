@@ -51,7 +51,7 @@ final class MMApplicationListener: NSObject {
 		}
 		mm.sync()
 		if mm.currentInstallation.currentLogoutStatus == .pending {
-			mm.currentInstallation.logout(callAndForget: true, completion: { _ in })
+			mm.currentInstallation.logout(callAndForget: true, completion: { _, _ in })
 		}
 	}
 }
