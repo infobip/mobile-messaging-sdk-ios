@@ -13,7 +13,7 @@ class UserDataSynchronizationOperation: Operation {
 	let finishBlock: ((NSError?) -> Void)?
 	let mmContext: MobileMessaging
 	
-	private var forceFetching: Bool!
+	private var forceFetching: Bool
 	
 	convenience init(fetchingOperationWithUser user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.init(user: user, forceFetching: true, mmContext: mmContext, finishBlock: finishBlock)
@@ -23,11 +23,7 @@ class UserDataSynchronizationOperation: Operation {
 		self.init(user: user, forceFetching: false, mmContext: mmContext, finishBlock: finishBlock)
 	}
 
-	convenience init(fetchOrSync user: MMUser, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
-		self.init(user: user, forceFetching: nil, mmContext: mmContext, finishBlock: finishBlock)
-	}
-	
-	private init(user: MMUser, forceFetching: Bool?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+	private init(user: MMUser, forceFetching: Bool, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.user = user
 		self.finishBlock = finishBlock
 		self.forceFetching = forceFetching
@@ -58,8 +54,6 @@ class UserDataSynchronizationOperation: Operation {
 			return
 		}
 
-		forceFetching = forceFetching == nil ? !user.isChanged : forceFetching
-
 		if forceFetching == true {
 			MMLogDebug("[User data sync] fetching from server...")
 			fetchUserData(pushRegistrationId: pushRegistrationId, externalId: user.externalId)
@@ -67,6 +61,7 @@ class UserDataSynchronizationOperation: Operation {
 			MMLogDebug("[User data sync] sending user data updates to the server...")
 			syncUserData(pushRegistrationId: pushRegistrationId, customUserDataValues: user.customData, externalId: user.externalId, predefinedUserData: user.rawPredefinedData)
 		} else {
+			MMLogDebug("[User data sync] no actions needed: user data has no changes.")
 			finish()
 		}
 	}
