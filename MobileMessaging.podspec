@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
     s.homepage      = "https://github.com/infobip/mobile-messaging-sdk-ios"
     s.license       = 'MIT'
     s.authors       = { 'Andrey Kadochnikov' => 'andrey.kadochnikov@infobip.com', 'Olga Koroleva' => 'olga.koroleva@infobip.com' }
-    s.source        = { :git => "https://github.com/infobip/mobile-messaging-sdk-ios.git", :tag => s.version }
+    s.source        = { :git => "https://github.com/infobip/mobile-messaging-sdk-ios.git", :tag => s.version, :branch => "swift-legacy" }
     
     s.social_media_url = 'https://twitter.com/infobip'
     s.platform      = :ios, '9.0'
