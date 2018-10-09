@@ -10,6 +10,7 @@ platform :ios do
 		sleep(5)
 		ENV["DEVELOPER_DIR"] = "/Applications/Xcode.app"
 		ENV["FASTLANE_EXPLICIT_OPEN_SIMULATOR"] = "2"
+		xcode_select("/Applications/Xcode.app")
 		wait_xcrun
 	end
 
@@ -28,12 +29,6 @@ platform :ios do
 	desc "Runs all the tests on Simulators"
 	def test_on_simulator
 		begin
-			# Since Xcode 9.3 tests stopped starting on iOS 8.4 and earlier. No solution found except disabling tests.
-			# scan(
-			# 	skip_build: true,
-			# 	scheme: "MobileMessagingExample",
-			# 	devices: ["iPhone 5 (8.4)"]
-			# 	)
 			scan(
 				skip_build: true,
 				scheme: "MobileMessagingExample",
@@ -99,8 +94,8 @@ platform :ios do
 			clean_build_artifacts
 			
 			unless options[:no_github]
-				desc "Pushing to Github repo master"
-				sh "git push github HEAD:master"
+				desc "Pushing to Github repo"
+				sh "git push github HEAD:#{ENV["BRANCH_NAME_TO_BUILD"]}"
 			end
 		end
 	end
@@ -155,48 +150,30 @@ platform :ios do
 
 		unless only_build
 			clean_build_artifacts
-
+			branch = ENV["BRANCH_NAME_TO_BUILD"]
 			change_log = change_log_since_last_tag
-
-			commit_msg = "Version bump to #{new_version_number}"
+			workspace = ENV["WORKSPACE"]
+			podspec_path = "#{workspace}/MobileMessaging.podspec"
+			swift_version_path = "#{workspace}/Classes/Core/MMVersion.swift"
+			tagged_commit_msg = "Version bump for SDK: #{new_version_number}"
 			
-			commit_version_bump(
-				force: true,
-				message: commit_msg,
-				xcodeproj: example_xcodeproj_path
-				)
+			commit_version_bump(force: true, message: "Version bump for example project: #{new_version_number}", xcodeproj: example_xcodeproj_path)
+			commit_version_bump(force: true, message: tagged_commit_msg, xcodeproj: carthage_xcodeproj_path)
 
-			commit_version_bump(
-				force: true,
-				message: commit_msg,
-				xcodeproj: carthage_xcodeproj_path
-				)
-
-			add_git_tag(
-				tag: new_version_tag
-				)
-
-			podspec_path = ENV["WORKSPACE"]+"/MobileMessaging.podspec"
-			
-			version_bump_podspec(
-				path: podspec_path,
-				version_number: new_version_number
-				)
-
-			desc "Bumping lib version variable"
-
-			swift_version_path = ENV["WORKSPACE"]+"/Classes/Core/MMVersion.swift"
+			desc "Comitting podspec and global var version changes"
+			version_bump_podspec(path: podspec_path, version_number: new_version_number)
 			sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{new_version_number}/g;' #{swift_version_path}"
+			sh "git commit --amend -m \"#{tagged_commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\""
 
-			desc "Comitting changes"
-			sh "git commit --amend -m \"#{commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\""
-
-			desc "Pushing to Stash repo master"
-			sh "git push origin HEAD:master --tags"
+			desc "Tagging"
+			sh "git tag #{new_version_tag} #{branch}"
+			
+			desc "Pushing to Stash repo"
+			sh "git push origin HEAD:#{branch} --tags"
 
 			unless options[:no_github]
-				desc "Pushing to Github repo master"
-				sh "git push github HEAD:master"
+				desc "Pushing to Github repo"
+				sh "git push github HEAD:#{branch} --tags"
 
 				set_github_release(
 					description: release_notes,
