@@ -75,7 +75,8 @@ class PrimaryDeviceTests: MMTestCase {
 			}
 		})
 		
-		mobileMessagingInstance.currentInstallation.syncPrimarySettingWithServer { (error) in
+		mobileMessagingInstance.currentInstallation.syncPrimarySettingWithServer { (isPrimary, error) in
+            XCTAssertFalse(isPrimary)
 			expectation?.fulfill()
 		}
 		

@@ -8,12 +8,12 @@
 import Foundation
 
 class SyncPrimaryDeviceOperation : Operation {
-	let finishBlock: ((NSError?) -> Void)?
+	let finishBlock: ((_ isPrimary: Bool, _ error: NSError?) -> Void)?
 	var result = SeenStatusSendingResult.Cancel
 	let installation: MMInstallation
 	let mmContext: MobileMessaging
 	
-	init(mmContext: MobileMessaging, installation: MMInstallation, finishBlock: ((NSError?) -> Void)? = nil) {
+	init(mmContext: MobileMessaging, installation: MMInstallation, finishBlock: ((_ isPrimary: Bool, _ error: NSError?) -> Void)? = nil) {
 		self.finishBlock = finishBlock
 		self.installation = installation
 		self.mmContext = mmContext
@@ -76,6 +76,6 @@ class SyncPrimaryDeviceOperation : Operation {
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Application instance sync] finished with errors: \(errors)")
-		finishBlock?(errors.first)
+		finishBlock?(self.installation.isPrimaryDevice, errors.first)
 	}
 }

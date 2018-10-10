@@ -84,6 +84,15 @@ public final class MobileMessaging: NSObject {
 		}
 		mm.setAsPrimaryDevice(isPrimary, completion: completion)
 	}
+    
+    /// Synchronizes primary device setting with server
+    public static func syncPrimaryDevice(completion: @escaping ((_ isPrimary: Bool, _ error: NSError?) -> Void)) {
+        guard let mm = MobileMessaging.sharedInstance else {
+            completion(isPrimaryDevice, NSError(type: MMInternalErrorType.UnknownError))
+            return
+        }
+        mm.syncPrimarySettingWithServer(completion: completion)
+    }
 
 	/// Primary device setting
 	/// Single user profile on Infobip Portal can have one or more mobile devices with the application installed. You might want to mark one of such devices as a primary device and send push messages only to this device (i.e. receive bank authorization codes only on one device).
@@ -437,6 +446,10 @@ public final class MobileMessaging: NSObject {
 	func setAsPrimaryDevice(_ isPrimary: Bool, completion: ((NSError?) -> Void)? = nil) {
 		currentInstallation.setAsPrimaryDevice(isPrimary, completion: completion)
 	}
+    
+    func syncPrimarySettingWithServer(completion: @escaping ((_ isPrimary: Bool, _ error: NSError?) -> Void)) {
+        currentInstallation.syncPrimarySettingWithServer(completion)
+    }
 	
 	var isPrimaryDevice: Bool {
 		get {
