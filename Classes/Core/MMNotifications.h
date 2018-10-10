@@ -77,6 +77,11 @@ FOUNDATION_EXPORT NSString* MMNotificationActionTapped;
  */
 FOUNDATION_EXPORT NSString* MMNotificationPrimaryDeviceSettingUpdated;
 
+/**
+ Posted when the logout operation completes on server.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationLogoutCompleted;
+
 
 //MARK: Notification keys
 

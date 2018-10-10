@@ -62,6 +62,7 @@ class LogoutOperation: Operation {
 				MMLogDebug("[Logout] current logout status: pending")
 				self.mmContext.currentInstallation.currentLogoutStatus = .undefined
 				self.mmContext.apnsRegistrationManager.registerForRemoteNotifications()
+                NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationLogoutCompleted, userInfo: nil)
 				self.finish()
 			case .undefined:
 				MMLogDebug("[Logout] current logout status: undefined")
