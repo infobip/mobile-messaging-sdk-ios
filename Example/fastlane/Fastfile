@@ -78,7 +78,6 @@ platform :ios do
 	desc "Build a snapshot version"
 	lane :snapshot_build do |options|
 		load_keys
-		only_build = options[:only_build]
 
 		cocoapods
 		
@@ -88,15 +87,6 @@ platform :ios do
 
 		unless options[:no_device_tests]
 			test_on_device
-		end
-
-		unless only_build
-			clean_build_artifacts
-			
-			unless options[:no_github]
-				desc "Pushing to Github repo"
-				sh "git push github HEAD:#{ENV["BRANCH_NAME_TO_BUILD"]}"
-			end
 		end
 	end
 
@@ -112,31 +102,29 @@ platform :ios do
 		end
 
 		load_keys
-		only_build = options[:only_build]
 
-		unless only_build
-			ensure_git_status_clean
+		ensure_git_status_clean
 
-			unless options[:version_number] or options[:release_type]
-				UI.error("You must specify :release_type (patch, minor, major) or a full version string in :version_number")
-				raise "You must specify :release_type (patch, minor, major) or a full version string in :version_number"
-			end
-
-			custom_version_number = options[:version_number]
-			if !(custom_version_number.nil? || custom_version_number.empty?)
-				increment_version_number(version_number: custom_version_number)
-			else
-				increment_version_number(bump_type: options[:release_type])
-			end
-
-			new_version_number = lane_context[SharedValues::VERSION_NUMBER]
-			new_build_number = increment_build_number
-
-			increment_version_number(version_number: new_version_number, xcodeproj: carthage_xcodeproj_path)
-			increment_build_number(build_number: new_build_number, xcodeproj: carthage_xcodeproj_path)
-
-			new_version_tag = "#{new_version_number}"
+		unless options[:version_number] or options[:release_type]
+			UI.error("You must specify :release_type (patch, minor, major) or a full version string in :version_number")
+			raise "You must specify :release_type (patch, minor, major) or a full version string in :version_number"
 		end
+
+		custom_version_number = options[:version_number]
+		if !(custom_version_number.nil? || custom_version_number.empty?)
+			increment_version_number(version_number: custom_version_number)
+		else
+			increment_version_number(bump_type: options[:release_type])
+		end
+
+		new_version_number = lane_context[SharedValues::VERSION_NUMBER]
+		new_build_number = increment_build_number
+
+		increment_version_number(version_number: new_version_number, xcodeproj: carthage_xcodeproj_path)
+		increment_build_number(build_number: new_build_number, xcodeproj: carthage_xcodeproj_path)
+
+		new_version_tag = "#{new_version_number}"
+
 
 		cocoapods
 
@@ -148,46 +136,44 @@ platform :ios do
 			test_on_device
 		end
 
-		unless only_build
-			clean_build_artifacts
-			branch = ENV["BRANCH_NAME_TO_BUILD"]
-			change_log = change_log_since_last_tag
-			workspace = ENV["WORKSPACE"]
-			podspec_path = "#{workspace}/MobileMessaging.podspec"
-			swift_version_path = "#{workspace}/Classes/Core/MMVersion.swift"
-			tagged_commit_msg = "Version bump for SDK: #{new_version_number}"
-			
-			commit_version_bump(force: true, message: "Version bump for example project: #{new_version_number}", xcodeproj: example_xcodeproj_path)
-			commit_version_bump(force: true, message: tagged_commit_msg, xcodeproj: carthage_xcodeproj_path)
+		clean_build_artifacts
+		branch = ENV["BRANCH_NAME_TO_BUILD"]
+		change_log = change_log_since_last_tag
+		workspace = ENV["WORKSPACE"]
+		podspec_path = "#{workspace}/MobileMessaging.podspec"
+		swift_version_path = "#{workspace}/Classes/Core/MMVersion.swift"
+		tagged_commit_msg = "Version bump for SDK: #{new_version_number}"
+		
+		commit_version_bump(force: true, message: "Version bump for example project: #{new_version_number}", xcodeproj: example_xcodeproj_path)
+		commit_version_bump(force: true, message: tagged_commit_msg, xcodeproj: carthage_xcodeproj_path)
 
-			desc "Comitting podspec and global var version changes"
-			version_bump_podspec(path: podspec_path, version_number: new_version_number)
-			sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{new_version_number}/g;' #{swift_version_path}"
-			sh "git commit --amend -m \"#{tagged_commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\""
+		desc "Comitting podspec and global var version changes"
+		version_bump_podspec(path: podspec_path, version_number: new_version_number)
+		sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{new_version_number}/g;' #{swift_version_path}"
+		sh "git commit --amend -m \"#{tagged_commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\""
 
-			desc "Tagging"
-			sh "git tag #{new_version_tag} #{branch}"
-			
-			desc "Pushing to Stash repo"
-			sh "git push origin HEAD:#{branch} --tags"
+		desc "Tagging"
+		sh "git tag #{new_version_tag} #{branch}"
+		
+		desc "Pushing to Stash repo"
+		sh "git push origin HEAD:#{branch} --tags"
 
-			unless options[:no_github]
-				desc "Pushing to Github repo"
-				sh "git push github HEAD:#{branch} --tags"
+		unless options[:no_github]
+			desc "Pushing to Github repo"
+			sh "git push github HEAD:#{branch} --tags"
 
-				set_github_release(
-					description: release_notes,
-					repository_name: "infobip/mobile-messaging-sdk-ios",
-					api_token: ENV["GITHUB_API_TOKEN"],
-					tag_name: new_version_number,
-					name: new_version_number
-					)
+			set_github_release(
+				description: release_notes,
+				repository_name: "infobip/mobile-messaging-sdk-ios",
+				api_token: ENV["GITHUB_API_TOKEN"],
+				tag_name: new_version_number,
+				name: new_version_number
+				)
 
-				pod_push(
-					path: podspec_path,
-					allow_warnings: true
-					)
-			end
+			pod_push(
+				path: podspec_path,
+				allow_warnings: true
+				)
 		end
 	end
 end
