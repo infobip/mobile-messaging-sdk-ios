@@ -265,7 +265,7 @@ public final class MobileMessaging: NSObject {
 			completion(.undefined, NSError(type: MMInternalErrorType.UnknownError))
 			return
 		}
-		mm.currentInstallation.logout(callAndForget: false, completion: completion)
+		mm.currentInstallation.logout(completion: completion)
 	}
 
 	/// Erases currently stored UserData associated with push registration along with messages in SDK storage.
@@ -281,7 +281,7 @@ public final class MobileMessaging: NSObject {
 		guard let mm = MobileMessaging.sharedInstance else {
 			return
 		}
-		mm.currentInstallation.logout(callAndForget: true, completion: { _, _ in})
+		mm.currentInstallation.logout(completion: { _, _ in})
 	}
 	
 	//MARK: Internal
