@@ -787,6 +787,7 @@ extension URL {
 	}
 }
 
+
 extension NSAttributedString {
 	#if swift(>=4.0)
 	static let foregroundColorAttributeName =  NSAttributedStringKey.foregroundColor
@@ -797,4 +798,21 @@ extension NSAttributedString {
 	static let fontAttributeName = NSFontAttributeName
 	static let paragraphStyleAttributeName =  NSParagraphStyleAttributeName
 	#endif
+}
+
+extension Bundle {
+	static var mainAppBundle: Bundle {
+		var bundle = Bundle.main
+		if bundle.bundleURL.pathExtension == "appex" {
+			// Peel off two directory levels - MY_APP.app/PlugIns/MY_APP_EXTENSION.appex
+			let url = bundle.bundleURL.deletingLastPathComponent().deletingLastPathComponent()
+			if let otherBundle = Bundle(url: url) {
+				bundle = otherBundle
+			}
+		}
+		return bundle
+	}
+	var appGroupId: String? {
+		return self.object(forInfoDictionaryKey: "com.mobilemessaging.app_group") as? String
+	}
 }

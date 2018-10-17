@@ -18,7 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			.withApplicationCode(
 				"<# your application code #>",
 				notificationType: UserNotificationType(options: [.alert, .sound]))?
-			.withAppGroupId("group.com.mobile-messaging.notification-service-extension")
 			.withInteractiveNotificationCategories(customCategories)
 			.start()
 		setupLogging()

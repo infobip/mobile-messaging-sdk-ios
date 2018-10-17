@@ -352,7 +352,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 				MMLogDebug("[GeofencingService] requesting 'WhenInUse'")
 				
 				if !GeofencingService.isDescriptionProvidedForWhenInUseUsage {
-					MMLogDebug("[GeofencingService] NSLocationWhenInUseUsageDescription is not defined. Geo service cannot be used")
+					MMLogWarn("[GeofencingService] NSLocationWhenInUseUsageDescription is not defined. Geo service cannot be used")
 					completion(.notAvailable)
 				} else {
 					self.locationManager.requestWhenInUseAuthorization()
@@ -361,7 +361,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 				MMLogDebug("[GeofencingService] requesting 'Always'")
 				
 				if !GeofencingService.isDescriptionProvidedForAlwaysUsage {
-					MMLogDebug("[GeofencingService] NSLocationAlwaysUsageDescription is not defined. Geo service cannot be used")
+					MMLogWarn("[GeofencingService] NSLocationAlwaysUsageDescription is not defined. Geo service cannot be used")
 					completion(.notAvailable)
 				} else {
 					self.locationManager.requestAlwaysAuthorization()
