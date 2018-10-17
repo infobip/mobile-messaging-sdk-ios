@@ -782,3 +782,20 @@ extension URL {
 		return URL.attachmentDownloadDestinationFolderUrl(appGroupId:appGroupId).appendingPathComponent(String(sourceUrl.absoluteString.hashValue) + "." + sourceUrl.pathExtension)
 	}
 }
+
+extension Bundle {
+	static var mainAppBundle: Bundle {
+		var bundle = Bundle.main
+		if bundle.bundleURL.pathExtension == "appex" {
+			// Peel off two directory levels - MY_APP.app/PlugIns/MY_APP_EXTENSION.appex
+			let url = bundle.bundleURL.deletingLastPathComponent().deletingLastPathComponent()
+			if let otherBundle = Bundle(url: url) {
+				bundle = otherBundle
+			}
+		}
+		return bundle
+	}
+	var appGroupId: String? {
+		return self.object(forInfoDictionaryKey: "com.mobilemessaging.app_group") as? String
+	}
+}

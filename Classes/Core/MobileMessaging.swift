@@ -311,7 +311,7 @@ public final class MobileMessaging: NSObject {
 	
 	func doStart(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
-		
+
 		self.startСomponents()
 		
 		self.performForEachSubservice {
@@ -473,14 +473,14 @@ public final class MobileMessaging: NSObject {
 			block(subservice)
 		}
 	}
-	
+
 	//MARK: Private
 	private init?(appCode: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool) {
 		
 		let logCoreDataInitializationError = {
 			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
 		}
-		
+
 		guard var storage = try? MMCoreDataStorage.makeInternalStorage(self.storageType) else {
 			logCoreDataInitializationError()
 			return nil
@@ -500,8 +500,14 @@ public final class MobileMessaging: NSObject {
 		self.applicationCode        = appCode
 		self.userNotificationType   = notificationType
 		self.remoteAPIBaseURL       = backendBaseURL
-		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: backendBaseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
-		
+		if #available(iOS 10.0, *) {
+			if let appGroupId = Bundle.mainAppBundle.appGroupId {
+				self.appGroupId = appGroupId
+				self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
+			}
+		}
+		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
+
 		MMLogInfo("SDK successfully initialized!")
 	}
 	
