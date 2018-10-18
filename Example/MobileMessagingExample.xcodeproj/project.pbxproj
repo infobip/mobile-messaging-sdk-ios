@@ -516,11 +516,9 @@
 			buildConfigurationList = A013D4591ED8355F00B371C0 /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
 			buildPhases = (
 				2B1150745913BE79A9F3EFBE /* [CP] Check Pods Manifest.lock */,
-				769C30F11EDC127200BCC235 /* Put in app code */,
 				A013D44B1ED8355F00B371C0 /* Sources */,
 				A013D44C1ED8355F00B371C0 /* Frameworks */,
 				A013D44D1ED8355F00B371C0 /* Resources */,
-				769C30F21EDC12C700BCC235 /* Put out app code */,
 			);
 			buildRules = (
 			);
@@ -735,34 +733,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\nappExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appDelegatePath\" ]; then\nperl -i -p -e \"s/\\\"[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}\\\"/\\\"<# your application code #>\\\"/g;\" \"$appDelegatePath\"\nelse\nexit 0\nfi";
-		};
-		769C30F11EDC127200BCC235 /* Put in app code */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Put in app code";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appExtensionPath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appExtensionPath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi";
-		};
-		769C30F21EDC12C700BCC235 /* Put out app code */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Put out app code";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appExtensionPath\" ]; then\nperl -i -p -e \"s/\\\"[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}\\\"/\\\"<# your application code #>\\\"/g;\" \"$appExtensionPath\"\nelse\nexit 0\nfi";
 		};
 		890226920A89FD17A6468035 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;

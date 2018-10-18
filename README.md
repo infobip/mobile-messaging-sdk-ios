@@ -55,7 +55,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 5. Perform [code modification to the app delegate](#app-delegate-changes) in order to receive push notifications.
 
 6. At this step you are all set for receiving regular push notifications. There are several advanced features that you may find really useful for your product, though:
-	- [Rich Notifications and better delivery reporting(available with iOS 10)](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Using-Notification-Service-Extension-for-Rich-Notifications-and-better-delivery-reporting-on-iOS-10)
+	- [Rich Notifications and better delivery reporting(available with iOS 10)](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Notification-Service-Extension-for-Rich-Notifications-and-better-delivery-reporting-on-iOS-10)
 	- [Geofencing Service](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Geofencing-service)
 
 ### App Delegate Changes
