@@ -796,7 +796,4 @@ extension Bundle {
 	var appGroupId: String? {
 		return self.object(forInfoDictionaryKey: "com.mobilemessaging.app_group") as? String
 	}
-	var applicationCode: String? {
-		return self.object(forInfoDictionaryKey: "com.mobilemessaging.app_code") as? String
-	}
 }
