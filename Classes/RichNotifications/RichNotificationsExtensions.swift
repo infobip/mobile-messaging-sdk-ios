@@ -16,7 +16,7 @@ extension MobileMessaging {
 	/// `[User Defaults] Failed to read values in CFPrefsPlistSource<0xXXXXXXX> (Domain: ..., User: kCFPreferencesAnyUser, ByHost: Yes, Container: (null)): Using kCFPreferencesAnyUser with a container is only allowed for SystemContainers, detaching from cfprefsd`.
 	/// Although this warning doesn't mean that our code doesn't work, you can shut it up by prefixing your App Group ID with a Team ID of a certificate that you are signing the build with. For example: `"9S95Y6XXXX.group.com.mobile-messaging.notification-service-extension"`. The App Group ID itself doesn't need to be changed though.
 	/// - parameter appGroupId: An ID of an App Group
-	@available(*, deprecated, message: "The function is deprecated. Please put your App Group Id as a String value for a key `com.mobilemessaging.app_group` in your main info dictionary (Info.plist by defautlt).")
+	@available(*, deprecated, message: "The function is deprecated. Please put your App Group Id as a String value for a key `com.mobilemessaging.app_group` in your main info dictionary (Info.plist by default).")
 	public func withAppGroupId(_ appGroupId: String) -> MobileMessaging {
 		if #available(iOS 10.0, *) {
 			self.appGroupId = appGroupId

@@ -188,7 +188,7 @@ public final class MobileMessaging: NSObject {
 	///
 	/// - parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
 	/// - parameter completion: A block to be executed when local notification handling is finished
-	@available(iOS, deprecated: 10.0)
+	@available(iOS, deprecated: 10.0, message: "If your apps minimum deployment target is iOS 10 or later, you don't need to forward your App Delegate calls to this method. Handling local notifications on iOS since 10.0 is done by Mobile Messaging SDK by implementing UNUserNotificationCenterDelegate under the hood.")
 	public class func didReceiveLocalNotification(_ notification: UILocalNotification, completion: (() -> Void)? = nil) {
 		if let service = NotificationsInteractionService.sharedInstance, MMMessageHandler.isNotificationTapped(notification.userInfo as? [String: Any], applicationState: MobileMessaging.application.applicationState)
 		{
