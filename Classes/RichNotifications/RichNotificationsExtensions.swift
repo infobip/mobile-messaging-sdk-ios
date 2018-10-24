@@ -148,7 +148,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	private init(appCode: String, appGroupId: String) {
 		self.applicationCode = appCode
 		self.appGroupId = appGroupId
-		self.sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: APIValues.prodDynamicBaseURLString), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
+		self.sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: Consts.APIValues.prodDynamicBaseURLString), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 	}
 	
 	private func retrieveNotificationContent(for message: MTMessage, originalContent: UNNotificationContent, completion: @escaping (UNNotificationContent) -> Void) {
@@ -177,7 +177,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	
 	let appGroupId: String
 	let applicationCode: String
-	let remoteAPIBaseURL = APIValues.prodDynamicBaseURLString
+	let remoteAPIBaseURL = Consts.APIValues.prodDynamicBaseURLString
 	var currentTask: RetryableDownloadTask?
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 	lazy var deliveryReporter: DeliveryReporting! = DeliveryReporter()

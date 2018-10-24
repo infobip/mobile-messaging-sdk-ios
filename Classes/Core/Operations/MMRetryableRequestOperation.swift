@@ -86,7 +86,7 @@ class MMRetryableRequestOperation<RequestType: RequestData>: MMRetryableOperatio
 				MMLogDebug("Setting up a reachability listener...")
 				reachabilityManager.startMonitoring()
 				reachabilityManager.setReachabilityStatusChangeBlock(
-					timeout: SDKSettings.reachabilityMonitoringTimeout,
+					timeout: Consts.SDKSettings.reachabilityMonitoringTimeout,
 					timeoutBlock: { [weak self] in
 						self?.reachabilityManager.stopMonitoring()
 						self?.finish(Result.Failure(error))

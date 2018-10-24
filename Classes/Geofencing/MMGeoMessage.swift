@@ -9,39 +9,6 @@ import Foundation
 import CoreLocation
 import CoreData
 
-struct CampaignDataKeys {
-	static let id = "id"
-	static let title = "title"
-	static let message = "message"
-	static let dateReceived = "receivedDate"
-	static let regions = "regions"
-	static let origin = "origin"
-	static let expiryDate = "expiryTime"
-	static let startDate = "startTime"
-	static let campaignId = "campaignId"
-}
-
-struct RegionDataKeys {
-	static let latitude = "latitude"
-	static let longitude = "longitude"
-	static let radius = "radiusInMeters"
-	static let title = "title"
-	static let identifier = "id"
-}
-
-struct RegionDeliveryTimeKeys {
-	static let days = "days"
-	static let timeInterval = "timeInterval"
-}
-
-struct RegionEventDataKeys {
-	static let eventType = "type"
-	static let eventLimit = "limit"
-	static let eventTimeout = "timeoutInMinutes"
-	static let occuringCounter = "rate"
-	static let eventLastOccur = "lastOccur"
-}
-
 enum RegionEventType: String {
 	case entry
 	case exit
@@ -78,22 +45,22 @@ final public class MMGeoMessage: MTMessage {
 	
 	func onEventOccur(ofType eventType: RegionEventType) {
 		events.filter { $0.type == eventType }.first?.occur()
-		if var internalData = originalPayload[APNSPayloadKeys.internalData] as? DictionaryRepresentation {
-			internalData += [InternalDataKeys.event: events.map { $0.dictionaryRepresentation }]
-			originalPayload.updateValue(internalData, forKey: APNSPayloadKeys.internalData)
+		if var internalData = originalPayload[Consts.APNSPayloadKeys.internalData] as? DictionaryRepresentation {
+			internalData += [Consts.InternalDataKeys.event: events.map { $0.dictionaryRepresentation }]
+			originalPayload.updateValue(internalData, forKey: Consts.APNSPayloadKeys.internalData)
 		}
 	}
 	
 	override public init?(payload: APNSPayload, deliveryMethod: MessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool)
 	{
 		guard
-			let internalData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload,
-			let geoRegionsData = internalData[InternalDataKeys.geo] as? [StringKeyPayload],
-			let expiryTimeString = internalData[CampaignDataKeys.expiryDate] as? String,
-			let startTimeString = internalData[CampaignDataKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: MobileMessaging.date.timeInterval(sinceReferenceDate: 0)) as String?,
+			let internalData = payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload,
+			let geoRegionsData = internalData[Consts.InternalDataKeys.geo] as? [StringKeyPayload],
+			let expiryTimeString = internalData[GeoConstants.CampaignKeys.expiryDate] as? String,
+			let startTimeString = internalData[GeoConstants.CampaignKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: MobileMessaging.date.timeInterval(sinceReferenceDate: 0)) as String?,
 			let expiryTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryTimeString),
 			let startTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: startTimeString),
-			let campaignId = internalData[CampaignDataKeys.campaignId] as? String
+			let campaignId = internalData[GeoConstants.CampaignKeys.campaignId] as? String
 			else
 		{
 			return nil
@@ -103,14 +70,14 @@ final public class MMGeoMessage: MTMessage {
 		self.startTime = startTime
 		
 		let deliveryTime: DeliveryTime?
-		if let deliveryTimeDict = internalData[InternalDataKeys.deliveryTime] as? DictionaryRepresentation {
+		if let deliveryTimeDict = internalData[Consts.InternalDataKeys.deliveryTime] as? DictionaryRepresentation {
 			deliveryTime = DeliveryTime(dictRepresentation: deliveryTimeDict)
 		} else {
 			deliveryTime = nil
 		}
 		
 		let evs: [RegionEvent]
-		if let eventDicts = internalData[InternalDataKeys.event] as? [DictionaryRepresentation] {
+		if let eventDicts = internalData[Consts.InternalDataKeys.event] as? [DictionaryRepresentation] {
 			evs = eventDicts.compactMap { return RegionEvent(dictRepresentation: $0) }
 		} else {
 			evs = [RegionEvent.defaultEvent]
@@ -201,7 +168,7 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 		let interval = DeliveryTimeInterval(dictRepresentation: dict)
 		let days: Set<MMDay>?
 
-		if let daysArray = (dict[RegionDeliveryTimeKeys.days] as? String)?.components(separatedBy: ",") {
+		if let daysArray = (dict[GeoConstants.RegionDeliveryTimeKeys.days] as? String)?.components(separatedBy: ",") {
 			days = Set(daysArray.compactMap ({ (dayNumString) -> MMDay? in
 				if let dayNumInt8 = Int8(dayNumString) {
 					return MMDay(rawValue: dayNumInt8)
@@ -219,7 +186,7 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 		var result = DictionaryRepresentation()
 		result += timeInterval?.dictionaryRepresentation
 		if let days = days , !days.isEmpty {
-			result[RegionDeliveryTimeKeys.days] = Array(days).compactMap({ String($0.rawValue) }).joined(separator: ",")
+			result[GeoConstants.RegionDeliveryTimeKeys.days] = Array(days).compactMap({ String($0.rawValue) }).joined(separator: ",")
 		}
 		assert(DeliveryTime(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
@@ -281,7 +248,7 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	}
 
 	convenience public required init?(dictRepresentation dict: DictionaryRepresentation) {
-		if let comps = (dict[RegionDeliveryTimeKeys.timeInterval] as? String)?.components(separatedBy: DeliveryTimeInterval.timeIntervalSeparator),
+		if let comps = (dict[GeoConstants.RegionDeliveryTimeKeys.timeInterval] as? String)?.components(separatedBy: DeliveryTimeInterval.timeIntervalSeparator),
 			let from = comps.first,
 			let to = comps.last , comps.count == 2
 		{
@@ -293,7 +260,7 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	
 	var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[RegionDeliveryTimeKeys.timeInterval] = "\(fromTime)\(DeliveryTimeInterval.timeIntervalSeparator)\(toTime)"
+		result[GeoConstants.RegionDeliveryTimeKeys.timeInterval] = "\(fromTime)\(DeliveryTimeInterval.timeIntervalSeparator)\(toTime)"
 		assert(DeliveryTimeInterval(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
@@ -331,11 +298,11 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	
 	public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard
-			let lat = dict[RegionDataKeys.latitude] as? Double,
-			let lon = dict[RegionDataKeys.longitude] as? Double,
-			let title = dict[RegionDataKeys.title] as? String,
-			let identifier = dict[RegionDataKeys.identifier] as? String,
-			let radius = dict[RegionDataKeys.radius] as? Double
+			let lat = dict[GeoConstants.RegionKeys.latitude] as? Double,
+			let lon = dict[GeoConstants.RegionKeys.longitude] as? Double,
+			let title = dict[GeoConstants.RegionKeys.title] as? String,
+			let identifier = dict[GeoConstants.RegionKeys.identifier] as? String,
+			let radius = dict[GeoConstants.RegionKeys.radius] as? Double
 			else
 		{
 			return nil
@@ -346,11 +313,11 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	
 	public var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[RegionDataKeys.latitude] = center.latitude
-		result[RegionDataKeys.longitude] = center.longitude
-		result[RegionDataKeys.radius] = radius
-		result[RegionDataKeys.title] = title
-		result[RegionDataKeys.identifier] = identifier
+		result[GeoConstants.RegionKeys.latitude] = center.latitude
+		result[GeoConstants.RegionKeys.longitude] = center.longitude
+		result[GeoConstants.RegionKeys.radius] = radius
+		result[GeoConstants.RegionKeys.title] = title
+		result[GeoConstants.RegionKeys.identifier] = identifier
 		assert(MMRegion(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
@@ -397,60 +364,60 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 
 	init?(dictRepresentation dict: DictionaryRepresentation) {
 		guard
-			let typeString = dict[RegionEventDataKeys.eventType] as? String,
+			let typeString = dict[GeoConstants.RegionEventKeys.type] as? String,
 			let type = RegionEventType(rawValue: typeString),
-			let limit = dict[RegionEventDataKeys.eventLimit] as? Int
+			let limit = dict[GeoConstants.RegionEventKeys.limit] as? Int
 			else
 		{
 			return nil
 		}
 		self.type = type
 		self.limit = limit
-		self.timeout = dict[RegionEventDataKeys.eventTimeout] as? Int ?? 0
-		self.occuringCounter = dict[RegionEventDataKeys.occuringCounter] as? Int ?? 0
-		self.lastOccuring = dict[RegionEventDataKeys.eventLastOccur] as? Date ?? nil
+		self.timeout = dict[GeoConstants.RegionEventKeys.timeout] as? Int ?? 0
+		self.occuringCounter = dict[GeoConstants.RegionEventKeys.occuringCounter] as? Int ?? 0
+		self.lastOccuring = dict[GeoConstants.RegionEventKeys.lastOccur] as? Date ?? nil
 	}
 	
 	var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[RegionEventDataKeys.eventType] = type.rawValue
-		result[RegionEventDataKeys.eventLimit] = limit
-		result[RegionEventDataKeys.eventTimeout] = timeout
-		result[RegionEventDataKeys.occuringCounter] = occuringCounter
-		result[RegionEventDataKeys.eventLastOccur] = lastOccuring
+		result[GeoConstants.RegionEventKeys.type] = type.rawValue
+		result[GeoConstants.RegionEventKeys.limit] = limit
+		result[GeoConstants.RegionEventKeys.timeout] = timeout
+		result[GeoConstants.RegionEventKeys.occuringCounter] = occuringCounter
+		result[GeoConstants.RegionEventKeys.lastOccur] = lastOccuring
 		assert(RegionEvent(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
 
 	fileprivate class var defaultEvent: RegionEvent {
-		let defaultDict: DictionaryRepresentation = [RegionEventDataKeys.eventType: RegionEventType.entry.rawValue,
-		                                             RegionEventDataKeys.eventLimit: 1,
-		                                             RegionEventDataKeys.eventTimeout: 0]
+		let defaultDict: DictionaryRepresentation = [GeoConstants.RegionEventKeys.type: RegionEventType.entry.rawValue,
+		                                             GeoConstants.RegionEventKeys.limit: 1,
+		                                             GeoConstants.RegionEventKeys.timeout: 0]
 		return RegionEvent(dictRepresentation: defaultDict)!
 	}
 }
 
 extension MTMessage {
 	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String, region: MMRegion) -> MTMessage? {
-		guard let aps = geoMessage.originalPayload[APNSPayloadKeys.aps] as? [String: Any], let internalData = geoMessage.originalPayload[APNSPayloadKeys.internalData] as? [String: Any], var silentAps = internalData[InternalDataKeys.silent] as? [String: Any], let body = silentAps[APNSPayloadKeys.body] as? String else
+		guard let aps = geoMessage.originalPayload[Consts.APNSPayloadKeys.aps] as? [String: Any], let internalData = geoMessage.originalPayload[Consts.APNSPayloadKeys.internalData] as? [String: Any], var silentAps = internalData[Consts.InternalDataKeys.silent] as? [String: Any], let body = silentAps[Consts.APNSPayloadKeys.body] as? String else
 		{
 			return nil
 		}
 		
-		silentAps[APNSPayloadKeys.alert] = [APNSPayloadKeys.body: body]
-		silentAps[APNSPayloadKeys.body] = nil
+		silentAps[Consts.APNSPayloadKeys.alert] = [Consts.APNSPayloadKeys.body: body]
+		silentAps[Consts.APNSPayloadKeys.body] = nil
 		let apsConcat = aps + silentAps
-		var newInternalData: [String: Any] = [InternalDataKeys.geo: [region.dictionaryRepresentation]]
+		var newInternalData: [String: Any] = [Consts.InternalDataKeys.geo: [region.dictionaryRepresentation]]
 		newInternalData["atts"] = geoMessage.internalData?["atts"]
 		newInternalData["inApp"] = geoMessage.internalData?["inApp"]
 		
 		var newpayload = geoMessage.originalPayload
-		newpayload[APNSPayloadKeys.aps] = apsConcat
-		newpayload[APNSPayloadKeys.internalData] = newInternalData
-		newpayload[APNSPayloadKeys.messageId] = messageId
+		newpayload[Consts.APNSPayloadKeys.aps] = apsConcat
+		newpayload[Consts.APNSPayloadKeys.internalData] = newInternalData
+		newpayload[Consts.APNSPayloadKeys.messageId] = messageId
 		
 		//cut silent:true in case of fetched message
-		newpayload.removeValue(forKey: InternalDataKeys.silent)
+		newpayload.removeValue(forKey: Consts.InternalDataKeys.silent)
 		
 		let result = MTMessage(payload: newpayload,
 							   deliveryMethod: .generatedLocally,

@@ -33,7 +33,7 @@ public class NotificationAction: NSObject {
     }
 	
 	class func makeAction(dictionary: [String: Any]) -> NotificationAction? {
-		if #available(iOS 9.0, *), let _ = dictionary[NotificationActionKeys.textInputActionButtonTitle] as? String, let _ = dictionary[NotificationActionKeys.textInputPlaceholder] as? String {
+		if #available(iOS 9.0, *), let _ = dictionary[InteractionConstants.NotificationActionKeys.textInputActionButtonTitle] as? String, let _ = dictionary[InteractionConstants.NotificationActionKeys.textInputPlaceholder] as? String {
 			return TextInputNotificationAction(dictionary: dictionary)
 		} else {
 			return NotificationAction(dictionary: dictionary)
@@ -45,7 +45,7 @@ public class NotificationAction: NSObject {
 	/// - parameter title: Title of the button which will be displayed.
 	/// - parameter options: Options with which to perform the action.
 	convenience public init?(identifier: String, title: String, options: [NotificationActionOptions]?) {
-		guard !identifier.hasPrefix(NotificationActionKeys.mm_prefix) else {
+		guard !identifier.hasPrefix(InteractionConstants.NotificationActionKeys.mm_prefix) else {
 			return nil
 		}
 		self.init(actionIdentifier: identifier, title: title, options: options)
@@ -107,27 +107,27 @@ public class NotificationAction: NSObject {
 	}
 	
 	fileprivate init?(dictionary: [String: Any]) {
-		guard let identifier = dictionary[NotificationActionKeys.identifier] as? String,
-			let title = dictionary[NotificationActionKeys.title] as? String else
+		guard let identifier = dictionary[InteractionConstants.NotificationActionKeys.identifier] as? String,
+			let title = dictionary[InteractionConstants.NotificationActionKeys.title] as? String else
 		{
 			return nil
 		}
 		
 		var opts = [NotificationActionOptions]()
-		if let isForeground = dictionary[NotificationActionKeys.foreground] as? Bool, isForeground {
+		if let isForeground = dictionary[InteractionConstants.NotificationActionKeys.foreground] as? Bool, isForeground {
 			opts.append(.foreground)
 		}
-		if let isAuthRequired = dictionary[NotificationActionKeys.authenticationRequired] as? Bool, isAuthRequired {
+		if let isAuthRequired = dictionary[InteractionConstants.NotificationActionKeys.authenticationRequired] as? Bool, isAuthRequired {
 			opts.append(.authenticationRequired)
 		}
-		if let isDestructive = dictionary[NotificationActionKeys.destructive] as? Bool, isDestructive {
+		if let isDestructive = dictionary[InteractionConstants.NotificationActionKeys.destructive] as? Bool, isDestructive {
 			opts.append(.destructive)
 		}
-		if let isMoRequired = dictionary[NotificationActionKeys.moRequired] as? Bool, isMoRequired {
+		if let isMoRequired = dictionary[InteractionConstants.NotificationActionKeys.moRequired] as? Bool, isMoRequired {
 			opts.append(.moRequired)
 		}
 		
-		let locTitleKey = dictionary[NotificationActionKeys.titleLocalizationKey] as? String
+		let locTitleKey = dictionary[InteractionConstants.NotificationActionKeys.titleLocalizationKey] as? String
 		self.identifier = identifier
 		self.title = MMLocalization.localizedString(forKey: locTitleKey, defaultString: title)
 		self.options = opts
@@ -150,7 +150,7 @@ public final class TextInputNotificationAction: NotificationAction {
     /// - parameter textInputActionButtonTitle: Title of the text input action button
     /// - parameter textInputPlaceholder: Placeholder in the text input field.
 	public init?(identifier: String, title: String, options: [NotificationActionOptions]?, textInputActionButtonTitle: String, textInputPlaceholder: String) {
-        guard !identifier.hasPrefix(NotificationActionKeys.mm_prefix) else {
+        guard !identifier.hasPrefix(InteractionConstants.NotificationActionKeys.mm_prefix) else {
             return nil
         }
         self.textInputActionButtonTitle = textInputActionButtonTitle
@@ -159,8 +159,8 @@ public final class TextInputNotificationAction: NotificationAction {
     }
 	
 	fileprivate override init?(dictionary: [String: Any]) {
-		guard let textInputActionButtonTitle = dictionary[NotificationActionKeys.textInputActionButtonTitle] as? String,
-			let textInputPlaceholder = dictionary[NotificationActionKeys.textInputPlaceholder] as? String else
+		guard let textInputActionButtonTitle = dictionary[InteractionConstants.NotificationActionKeys.textInputActionButtonTitle] as? String,
+			let textInputPlaceholder = dictionary[InteractionConstants.NotificationActionKeys.textInputPlaceholder] as? String else
 		{
 			return nil
 		}
@@ -233,17 +233,4 @@ public final class NotificationActionOptions : NSObject {
 	
 	/// Indicates whether action is compatible with chat messages. If it is compatible, the action button will be shown in the SDK buil-in chat view.
 	public static let chatCompatible = NotificationActionOptions(rawValue: 1 << 3)
-}
-
-struct NotificationActionKeys {
-	static let identifier = "identifier"
-	static let title = "title"
-	static let titleLocalizationKey = "titleLocalizationKey"
-	static let foreground = "foreground"
-	static let authenticationRequired = "authenticationRequired"
-	static let moRequired = "moRequired"
-	static let destructive = "destructive"
-	static let mm_prefix = "mm_"
-	static let textInputActionButtonTitle = "textInputActionButtonTitle"
-	static let textInputPlaceholder = "textInputPlaceholder"
 }

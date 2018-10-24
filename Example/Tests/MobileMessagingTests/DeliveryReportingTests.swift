@@ -32,7 +32,7 @@ class DeliveryReportingTests: MMTestCase {
 		
 			XCTAssertNotNil(result.error)
 			XCTAssertEqual(result.error?.localizedDescription, "Invalid Application Id")
-			XCTAssertEqual(result.error?.userInfo[APIKeys.kErrorMessageId] as? String, "1")
+			XCTAssertEqual(result.error?.userInfo[Consts.APIKeys.errorMessageId] as? String, "1")
 			expectation?.fulfill()
 		})
 

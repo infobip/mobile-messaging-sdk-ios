@@ -12,11 +12,11 @@ import UserNotifications
 
 
 func backendJSONSilentMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\", \"\(APNSPayloadKeys.internalData)\": {\"silent\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}},\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\"}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\", \"\(Consts.APNSPayloadKeys.internalData)\": {\"silent\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}},\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\"}, \"\(Consts.APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(APNSPayloadKeys.internalData)\": {\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\", \"atts\": [{\"url\":\"pic.url\",\"t\":\"string\"}]}, \"\(APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
+	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(Consts.APNSPayloadKeys.internalData)\": {\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\", \"atts\": [{\"url\":\"pic.url\",\"t\":\"string\"}]}, \"\(Consts.APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -25,8 +25,8 @@ func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 	return [
 		"messageId": messageId,
 		"aps": ["content-available": 1, "badge": 6],
-		APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
-		APNSPayloadKeys.customPayload: ["customKey": "customValue"]
+		Consts.APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
+		Consts.APNSPayloadKeys.customPayload: ["customKey": "customValue"]
 	]
 }
 
@@ -89,8 +89,8 @@ class MessageReceivingTests: MMTestCase {
 		let resultDict = [
 							"messageId": "m1",
 							"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-							APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey1": "internalValue1", InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
-							APNSPayloadKeys.customPayload: ["customKey" : "customValue"],
+							Consts.APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey1": "internalValue1", Consts.InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
+							Consts.APNSPayloadKeys.customPayload: ["customKey" : "customValue"],
 						] as APNSPayload
 		let message = MTMessage(messageSyncResponseJson: JSON.parse(jsonstring))
 		

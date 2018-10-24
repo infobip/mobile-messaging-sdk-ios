@@ -184,7 +184,7 @@ public class ChatMessage: NSObject, ChatMessageProtocol {
 	convenience init(chatId: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedData: Date, author: ChatParticipant) {
 		var chatMessageRequiredCustomData: [String: CustomPayloadSupportedTypes] =
 			[
-				CustomPayloadKeys.isChat: true as NSNumber,
+				Consts.CustomPayloadKeys.isChat: true as NSNumber,
 				CustomPayloadChatKeys.chatId: chatId as NSString? ?? NSNull(),
 				CustomPayloadChatKeys.Sender.id: author.id as NSString? ?? NSNull(),
 				CustomPayloadChatKeys.Sender.firstName: author.firstName as NSString? ?? NSNull(),

@@ -61,7 +61,7 @@ class DynamicBaseUrlTests: MMTestCase {
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
 		
 		// assert that DBU changed if a new one received
-		let responseWithNewBaseUrl = HTTPURLResponse(url: initialUrl, statusCode: 200, httpVersion: nil, headerFields: [DynamicBaseUrlConsts.newBaseUrlHeader: "https://new.com"])
+		let responseWithNewBaseUrl = HTTPURLResponse(url: initialUrl, statusCode: 200, httpVersion: nil, headerFields: [Consts.DynamicBaseUrlConsts.newBaseUrlHeader: "https://new.com"])
 		sessionManager.handleDynamicBaseUrl(response: responseWithNewBaseUrl, error: nil)
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://new.com")
 		
@@ -86,7 +86,7 @@ class DynamicBaseUrlTests: MMTestCase {
 		let newDynamicURL = URL(string: "https://not-reachable-url.com")!
 		cleanUpAndStop()
 		var retriesStarted = false
-		let mm = MobileMessaging.withApplicationCode("", notificationType: UserNotificationType(options: []) , backendBaseURL: APIValues.prodDynamicBaseURLString)!
+		let mm = MobileMessaging.withApplicationCode("", notificationType: UserNotificationType(options: []) , backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)!
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
 		MobileMessaging.httpSessionManager = SessionManagerMock(requestResponseMap: {
 			// given: registration call returns NSURLErrorCannotFindHost error

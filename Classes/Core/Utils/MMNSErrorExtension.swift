@@ -57,11 +57,11 @@ extension Error {
 
 extension NSError {
 	@objc public var mm_message: String? {
-		return userInfo[APIKeys.kErrorText] as? String
+		return userInfo[Consts.APIKeys.errorText] as? String
 	}
 	
 	@objc public var mm_code: String? {
-		return userInfo[APIKeys.kErrorMessageId] as? String
+		return userInfo[Consts.APIKeys.errorMessageId] as? String
 	}
 	
 	var mm_isNoSuchFile: Bool {

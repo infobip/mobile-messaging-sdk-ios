@@ -77,9 +77,9 @@ public struct RequestError {
 	var foundationError: NSError {
 		var userInfo = [String: Any]()
 		userInfo[NSLocalizedDescriptionKey] = text
-		userInfo[APIKeys.kErrorText] = text
-		userInfo[APIKeys.kErrorMessageId] = messageId
-		return NSError(domain: APIKeys.kBackendErrorDomain, code: Int(messageId) ?? 0, userInfo: userInfo)
+		userInfo[Consts.APIKeys.errorText] = text
+		userInfo[Consts.APIKeys.errorMessageId] = messageId
+		return NSError(domain: Consts.APIKeys.backendErrorDomain, code: Int(messageId) ?? 0, userInfo: userInfo)
 	}
 }
 
@@ -106,10 +106,10 @@ extension Date: JSONEncodable {
 
 extension RequestError: JSONDecodable {
 	init?(json value: JSON) {
-		let serviceException = value[APIKeys.kRequestError][APIKeys.kServiceException]
+		let serviceException = value[Consts.APIKeys.requestError][Consts.APIKeys.serviceException]
 		guard
-			let text = serviceException[APIKeys.kErrorText].string,
-			let messageId = serviceException[APIKeys.kErrorMessageId].string
+			let text = serviceException[Consts.APIKeys.errorText].string,
+			let messageId = serviceException[Consts.APIKeys.errorMessageId].string
 		else {
 			return nil
 		}
@@ -127,35 +127,35 @@ extension GetInstanceResponse: JSONDecodable {
 
 extension RegistrationResponse: JSONDecodable {
 	init?(json value: JSON) {
-		guard let internalId = value[PushRegistration.internalId].string
+		guard let internalId = value[Consts.PushRegistration.internalId].string
 			else
 		{
 			return nil
 		}
 		
 		self.internalId = internalId
-		self.isEnabled = value[PushRegistration.isEnabled].bool ?? true
-		self.platform = value[PushRegistration.platform].string ?? "APNS"
-		self.deviceToken = value[PushRegistration.deviceToken].string ?? "stub"
+		self.isEnabled = value[Consts.PushRegistration.isEnabled].bool ?? true
+		self.platform = value[Consts.PushRegistration.platform].string ?? "APNS"
+		self.deviceToken = value[Consts.PushRegistration.deviceToken].string ?? "stub"
 	}
 }
 
 extension GeoEventReportingResponse: JSONDecodable {
 	init?(json value: JSON) {
-		guard let tempMessageIdRealMessageId = value[GeoReportingAPIKeys.messageIdsMap].dictionaryObject as? [String: String] else {
+		guard let tempMessageIdRealMessageId = value[Consts.GeoReportingAPIKeys.messageIdsMap].dictionaryObject as? [String: String] else {
 			return nil
 		}
 		self.tempMessageIdRealMessageId = tempMessageIdRealMessageId
-		self.finishedCampaignIds = value[GeoReportingAPIKeys.finishedCampaignIds].arrayObject as? [String]
-		self.suspendedCampaignIds = value[GeoReportingAPIKeys.suspendedCampaignIds].arrayObject as? [String]
+		self.finishedCampaignIds = value[Consts.GeoReportingAPIKeys.finishedCampaignIds].arrayObject as? [String]
+		self.suspendedCampaignIds = value[Consts.GeoReportingAPIKeys.suspendedCampaignIds].arrayObject as? [String]
 	}
 }
 
 extension LibraryVersionResponse: JSONDecodable {
 	init?(json value: JSON) {
-		guard let platformType = value[VersionCheck.platformType].rawString(),
-			let libraryVersion = value[VersionCheck.libraryVersion].rawString(),
-			let updateUrl = value[VersionCheck.libraryVersionUpdateUrl].rawString() else {
+		guard let platformType = value[Consts.VersionCheck.platformType].rawString(),
+			let libraryVersion = value[Consts.VersionCheck.libraryVersion].rawString(),
+			let updateUrl = value[Consts.VersionCheck.libraryVersionUpdateUrl].rawString() else {
 				return nil
 		}
 		self.platformType = platformType
@@ -166,14 +166,14 @@ extension LibraryVersionResponse: JSONDecodable {
 
 extension MessagesSyncResponse: JSONDecodable{
 	init?(json value: JSON) {
-		self.messages = value[APNSPayloadKeys.payloads].arrayValue.compactMap { MTMessage(messageSyncResponseJson: $0) }
+		self.messages = value[Consts.APNSPayloadKeys.payloads].arrayValue.compactMap { MTMessage(messageSyncResponseJson: $0) }
 	}
 }
 
 extension UserDataSyncResponse: JSONDecodable {
 	init?(json value: JSON) {
-		self.predefinedData = value[APIKeys.kUserDataPredefinedUserData].dictionaryObject
-		self.customData = value[APIKeys.kUserDataCustomUserData].dictionaryObject?.reduce([CustomUserData](), { (result, pair) -> [CustomUserData] in
+		self.predefinedData = value[Consts.APIKeys.UserData.predefinedUserData].dictionaryObject
+		self.customData = value[Consts.APIKeys.UserData.customUserData].dictionaryObject?.reduce([CustomUserData](), { (result, pair) -> [CustomUserData] in
 			if let element = CustomUserData(dictRepresentation: [pair.0: pair.1]) {
 				return result + [element]
 			} else {
@@ -186,6 +186,6 @@ extension UserDataSyncResponse: JSONDecodable {
 
 extension MOMessageSendingResponse: JSONDecodable {
 	init?(json value: JSON) {
-		self.messages = value[APIKeys.kMOMessages].arrayValue.compactMap({MOMessage.init(moResponseJson: $0)})
+		self.messages = value[Consts.APIKeys.MO.messages].arrayValue.compactMap({MOMessage.init(moResponseJson: $0)})
 	}
 }

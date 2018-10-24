@@ -5,28 +5,23 @@
 //
 //
 
-struct KeychainKeys {
-	static let prefix = "com.mobile-messaging"
-	static let internalId = "internalId"
-}
-
 class MMKeychain: KeychainSwift {
 	var internalId: String? {
 		get {
-			let internalId = get(KeychainKeys.internalId)
+			let internalId = get(Consts.KeychainKeys.internalId)
 			MMLogDebug("[Keychain] get internalId \(internalId.orNil)")
 			return internalId
 		}
 		set {
 			if let unwrappedValue = newValue {
 				MMLogDebug("[Keychain] set internalId \(unwrappedValue)")
-				set(unwrappedValue, forKey: KeychainKeys.internalId, withAccess: .accessibleWhenUnlockedThisDeviceOnly)
+				set(unwrappedValue, forKey: Consts.KeychainKeys.internalId, withAccess: .accessibleWhenUnlockedThisDeviceOnly)
 			}
 		}
 	}
 	
 	override init() {
-		let prefix = KeychainKeys.prefix + "/" + (Bundle.main.bundleIdentifier ?? "")
+		let prefix = Consts.KeychainKeys.prefix + "/" + (Bundle.main.bundleIdentifier ?? "")
 		super.init(keyPrefix: prefix)
 	}
 	
@@ -35,7 +30,7 @@ class MMKeychain: KeychainSwift {
 	@discardableResult
 	override func clear() -> Bool {
 		MMLogDebug("[Keychain] clearing")
-		let cleared = delete(KeychainKeys.internalId)
+		let cleared = delete(Consts.KeychainKeys.internalId)
 		if !cleared {
 			MMLogError("[Keychain] clearing failure \(lastResultCode)")
 		}

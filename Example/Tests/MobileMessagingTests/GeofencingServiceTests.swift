@@ -231,9 +231,9 @@ var gregorianCalendarDate_06_08_2017__12_20_16: Date {
 func baseAPNSDict(messageId: String = expectedMessageId) -> APNSPayload {
 	return
 		[
-			APNSPayloadKeys.messageId: messageId,
-			APNSPayloadKeys.aps: [
-				APNSPayloadKeys.contentAvailable: 1
+			Consts.APNSPayloadKeys.messageId: messageId,
+			Consts.APNSPayloadKeys.aps: [
+				Consts.APNSPayloadKeys.contentAvailable: 1
 			]
 	]
 }
@@ -245,37 +245,37 @@ let nestedPulaId = "M227A2A0D0612AFB652E9D2D80E0ZZ44"
 
 // modern:
 let modernZagrebDict: APNSPayload = [
-	RegionDataKeys.identifier: zagrebId,
-	RegionDataKeys.latitude: 45.80869126677998,
-	RegionDataKeys.longitude: 15.97206115722656,
-	RegionDataKeys.radius: 9492.0,
-	RegionDataKeys.title: "Zagreb"
+	GeoConstants.RegionKeys.identifier: zagrebId,
+	GeoConstants.RegionKeys.latitude: 45.80869126677998,
+	GeoConstants.RegionKeys.longitude: 15.97206115722656,
+	GeoConstants.RegionKeys.radius: 9492.0,
+	GeoConstants.RegionKeys.title: "Zagreb"
 ]
 
 let modernPulaDict: APNSPayload = [
-	RegionDataKeys.identifier: pulaId,
-	RegionDataKeys.latitude: 44.86803631018752,
-	RegionDataKeys.longitude: 13.84586334228516,
-	RegionDataKeys.radius: 5257.0,
-	RegionDataKeys.title: "Pula"
+	GeoConstants.RegionKeys.identifier: pulaId,
+	GeoConstants.RegionKeys.latitude: 44.86803631018752,
+	GeoConstants.RegionKeys.longitude: 13.84586334228516,
+	GeoConstants.RegionKeys.radius: 5257.0,
+	GeoConstants.RegionKeys.title: "Pula"
 ]
 
 let nestedPulaDict: APNSPayload = [
-	RegionDataKeys.identifier: nestedPulaId,
-	RegionDataKeys.latitude: 44.868036310,
-	RegionDataKeys.longitude: 13.845863342,
-	RegionDataKeys.radius: 5157.0,
-	RegionDataKeys.title: "Pula smaller"
+	GeoConstants.RegionKeys.identifier: nestedPulaId,
+	GeoConstants.RegionKeys.latitude: 44.868036310,
+	GeoConstants.RegionKeys.longitude: 13.845863342,
+	GeoConstants.RegionKeys.radius: 5157.0,
+	GeoConstants.RegionKeys.title: "Pula smaller"
 ]
 
 var modernInternalDataWithZagrebPulaDict: APNSPayload {
 	var result = makeBaseInternalDataDict(campaignId: expectedCampaignId)
-	result[InternalDataKeys.geo] = [modernZagrebDict, modernPulaDict]
+	result[Consts.InternalDataKeys.geo] = [modernZagrebDict, modernPulaDict]
 	return result
 }
 
 var modernAPNSPayloadZagrebPulaDict: APNSPayload {
-	return (baseAPNSDict() + [APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
+	return (baseAPNSDict() + [Consts.APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
 }
 
 // jsons
@@ -347,41 +347,41 @@ let finishedCampaignId = "finishedCampaignId"
 func makeBaseInternalDataDict(campaignId: String) -> APNSPayload {
 	return
 		[
-			CampaignDataKeys.campaignId: campaignId,
-			CampaignDataKeys.startDate: expectedStartDateString,
-			CampaignDataKeys.expiryDate: expectedExpiryDateString,
-			InternalDataKeys.silent: [APNSPayloadKeys.body: expectedCampaignText, APNSPayloadKeys.sound: expectedSound],
-			InternalDataKeys.messageType: InternalDataKeys.messageTypeGeo
+			GeoConstants.CampaignKeys.campaignId: campaignId,
+			GeoConstants.CampaignKeys.startDate: expectedStartDateString,
+			GeoConstants.CampaignKeys.expiryDate: expectedExpiryDateString,
+			Consts.InternalDataKeys.silent: [Consts.APNSPayloadKeys.body: expectedCampaignText, Consts.APNSPayloadKeys.sound: expectedSound],
+			Consts.InternalDataKeys.messageType: Consts.InternalDataKeys.messageTypeGeo
 	]
 }
 
 func makeApnsPayloadWithoutRegionsDataDict(campaignId: String, messageId: String) -> APNSPayload {
-	return (baseAPNSDict(messageId: messageId) + [APNSPayloadKeys.internalData: makeBaseInternalDataDict(campaignId: campaignId)])!
+	return (baseAPNSDict(messageId: messageId) + [Consts.APNSPayloadKeys.internalData: makeBaseInternalDataDict(campaignId: campaignId)])!
 }
 
 func makeApnsPayload(withEvents events: [APNSPayload]?, deliveryTime: APNSPayload?, regions: [APNSPayload], campaignId: String = expectedCampaignId, messageId: String = expectedMessageId) -> APNSPayload {
 	var result = makeApnsPayloadWithoutRegionsDataDict(campaignId: campaignId, messageId: messageId)
-	var internalData = result[APNSPayloadKeys.internalData] as! APNSPayload
-	internalData[InternalDataKeys.geo] = regions
-	internalData[InternalDataKeys.event] = events ?? [defaultEvent]
-	internalData[InternalDataKeys.deliveryTime] = deliveryTime
+	var internalData = result[Consts.APNSPayloadKeys.internalData] as! APNSPayload
+	internalData[Consts.InternalDataKeys.geo] = regions
+	internalData[Consts.InternalDataKeys.event] = events ?? [defaultEvent]
+	internalData[Consts.InternalDataKeys.deliveryTime] = deliveryTime
 	let distantFutureDateString = DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date.distantFuture)
-	internalData[CampaignDataKeys.expiryDate] = distantFutureDateString
-	result[APNSPayloadKeys.internalData] = internalData
+	internalData[GeoConstants.CampaignKeys.expiryDate] = distantFutureDateString
+	result[Consts.APNSPayloadKeys.internalData] = internalData
 	return result
 }
 
 func makeEventDict(ofType type: RegionEventType, limit: Int, timeout: Int? = nil) -> APNSPayload {
-	var result: APNSPayload = [RegionEventDataKeys.eventType: type.rawValue,
-	                                   RegionEventDataKeys.eventLimit: limit]
-	result[RegionEventDataKeys.eventTimeout] = timeout
+	var result: APNSPayload = [GeoConstants.RegionEventKeys.type: type.rawValue,
+	                                   GeoConstants.RegionEventKeys.limit: limit]
+	result[GeoConstants.RegionEventKeys.timeout] = timeout
 	return result
 }
 
 func makeDeliveryTimeDict(withTimeIntervalString timeInterval: String? = nil, daysString days: String? = nil) -> APNSPayload? {
 	var result = APNSPayload()
-	result[RegionDeliveryTimeKeys.timeInterval] = timeInterval
-	result[RegionDeliveryTimeKeys.days] = days
+	result[GeoConstants.RegionDeliveryTimeKeys.timeInterval] = timeInterval
+	result[GeoConstants.RegionDeliveryTimeKeys.days] = days
 	return result.isEmpty ? nil : result
 }
 
@@ -503,11 +503,11 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.start()
 		
 		
-		let m1 = (baseAPNSDict(messageId: "m1") + [APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
+		let m1 = (baseAPNSDict(messageId: "m1") + [Consts.APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
 		self.mobileMessagingInstance.didReceiveRemoteNotification(m1,  completion: { _ in
 		})
 		
-		let m2 = (baseAPNSDict(messageId: "m2") + [APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
+		let m2 = (baseAPNSDict(messageId: "m2") + [Consts.APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
 		self.mobileMessagingInstance.didReceiveRemoteNotification(m2,  completion: { _ in
 		})
 		
@@ -533,9 +533,9 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testAbsentStartDate() {
 		var apnsPayload = modernAPNSPayloadZagrebPulaDict
-		var internalData = apnsPayload[APNSPayloadKeys.internalData] as! [String: AnyObject]
-		internalData[CampaignDataKeys.startDate] = nil
-		apnsPayload[APNSPayloadKeys.internalData] = internalData
+		var internalData = apnsPayload[Consts.APNSPayloadKeys.internalData] as! [String: AnyObject]
+		internalData[GeoConstants.CampaignKeys.startDate] = nil
+		apnsPayload[Consts.APNSPayloadKeys.internalData] = internalData
 		if let message = MMGeoMessage(payload: apnsPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) {
 			let zagrebObject = message.regions.findZagreb
 			XCTAssertEqual(zagrebObject.message!.startTime, Date(timeIntervalSinceReferenceDate: 0))
@@ -550,28 +550,28 @@ class GeofencingServiceTests: MMTestCase {
 		
 		if let message = MMGeoMessage(payload: apnsPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) {
 			
-			let zagrebId = modernZagrebDict[RegionDataKeys.identifier] as! String
+			let zagrebId = modernZagrebDict[GeoConstants.RegionKeys.identifier] as! String
 			let zagrebObject = message.regions.findZagreb
 			XCTAssertEqual(zagrebObject.message!.expiryTime, expectedExpiryDate)
 			XCTAssertNotEqual(zagrebObject.message!.expiryTime, notExpectedDate)
 			XCTAssertEqual(zagrebObject.message!.startTime, expectedStartDate)
 			XCTAssertEqual(zagrebObject.identifier, zagrebId)
-			XCTAssertEqual(zagrebObject.center.latitude, modernZagrebDict[RegionDataKeys.latitude] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqual(zagrebObject.center.longitude, modernZagrebDict[RegionDataKeys.longitude] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqual(zagrebObject.radius, modernZagrebDict[RegionDataKeys.radius] as? CLLocationDistance)
-			XCTAssertEqual(zagrebObject.title, modernZagrebDict[RegionDataKeys.title] as? String)
+			XCTAssertEqual(zagrebObject.center.latitude, modernZagrebDict[GeoConstants.RegionKeys.latitude] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.center.longitude, modernZagrebDict[GeoConstants.RegionKeys.longitude] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(zagrebObject.radius, modernZagrebDict[GeoConstants.RegionKeys.radius] as? CLLocationDistance)
+			XCTAssertEqual(zagrebObject.title, modernZagrebDict[GeoConstants.RegionKeys.title] as? String)
 			XCTAssertFalse(zagrebObject.message!.isNotExpired)
 			
-			let pulaId = modernPulaDict[RegionDataKeys.identifier] as! String
+			let pulaId = modernPulaDict[GeoConstants.RegionKeys.identifier] as! String
 			let pulaObject = message.regions.findPula
 			XCTAssertEqual(pulaObject.message!.expiryTime, expectedExpiryDate)
 			XCTAssertNotEqual(pulaObject.message!.expiryTime, notExpectedDate)
 			XCTAssertEqual(pulaObject.message!.startTime, expectedStartDate)
 			XCTAssertEqual(pulaObject.identifier, pulaId)
-			XCTAssertEqual(pulaObject.center.latitude, modernPulaDict[RegionDataKeys.latitude] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqual(pulaObject.center.longitude, modernPulaDict[RegionDataKeys.longitude] as! Double, accuracy: 0.000000000001)
-			XCTAssertEqual(pulaObject.radius, modernPulaDict[RegionDataKeys.radius] as? CLLocationDistance)
-			XCTAssertEqual(pulaObject.title, modernPulaDict[RegionDataKeys.title] as? String)
+			XCTAssertEqual(pulaObject.center.latitude, modernPulaDict[GeoConstants.RegionKeys.latitude] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.center.longitude, modernPulaDict[GeoConstants.RegionKeys.longitude] as! Double, accuracy: 0.000000000001)
+			XCTAssertEqual(pulaObject.radius, modernPulaDict[GeoConstants.RegionKeys.radius] as? CLLocationDistance)
+			XCTAssertEqual(pulaObject.title, modernPulaDict[GeoConstants.RegionKeys.title] as? String)
 			XCTAssertFalse(pulaObject.message!.isNotExpired)
 		} else {
 			XCTFail()
@@ -675,9 +675,9 @@ class GeofencingServiceTests: MMTestCase {
 				
 			if let geoEventReportRequest = r as? GeoEventReportingRequest {
 				if  let body = geoEventReportRequest.body,
-					let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+					let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
 				{
-					sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String
+					sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String
 				}
 			}
 
@@ -686,9 +686,9 @@ class GeofencingServiceTests: MMTestCase {
 		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
-					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
 					"\"\(sentSdkMessageId!)\": \"ipcoremessageid\"" +
 					"}" +
 				"}"
@@ -747,9 +747,9 @@ class GeofencingServiceTests: MMTestCase {
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
-						let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+						let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
 					{
-						sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String
+						sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String
 					}
 				}
 				
@@ -760,9 +760,9 @@ class GeofencingServiceTests: MMTestCase {
             { r -> JSON? in
 				let jsonStr  =
 					"{" +
-						"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-						"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-						"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+						"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+						"\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+						"\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
 						"\"\(sentSdkMessageId!)\": \"ipcoremessageid\"" +
 						"}" +
 				"}"
@@ -821,9 +821,9 @@ class GeofencingServiceTests: MMTestCase {
 				
 			if let geoEventReportRequest = r as? GeoEventReportingRequest {
 				if  let body = geoEventReportRequest.body,
-					let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+					let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
 				{
-					sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String
+					sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String
 				}
 			}
 				
@@ -832,9 +832,9 @@ class GeofencingServiceTests: MMTestCase {
 		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
-					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
 					"\"\(sentSdkMessageId!)\": \"ipcoremessageid\"" +
 					"}" +
 			"}"
@@ -963,9 +963,9 @@ class GeofencingServiceTests: MMTestCase {
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
-						let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+						let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
 					{
-						sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String
+						sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String
 					}
 				}
 				
@@ -974,9 +974,9 @@ class GeofencingServiceTests: MMTestCase {
 		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
-					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
 					"\"\(sentSdkMessageId!)\": \"ipcoremessageid\"" +
 					"}" +
 			"}"
@@ -1052,9 +1052,9 @@ class GeofencingServiceTests: MMTestCase {
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
-						let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+						let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
 					{
-						sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String
+						sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String
 					}
 				}
 				
@@ -1063,9 +1063,9 @@ class GeofencingServiceTests: MMTestCase {
 		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
-					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
 					"\"\(sentSdkMessageId)\": \"ipcoremessageid\"" +
 					"}" +
 			"}"
@@ -1413,9 +1413,9 @@ class GeofencingServiceTests: MMTestCase {
 				
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
-						let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+						let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
 					{
-						sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String
+						sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String
 					}
 				}
 				
@@ -1424,9 +1424,9 @@ class GeofencingServiceTests: MMTestCase {
 		}, responseMock: { r -> JSON? in
 			let jsonStr  =
 				"{" +
-					"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-					"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+					"\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
 					"\"\(sentSdkMessageId!)\": \"ipcoremessageid\"" +
 					"}" +
 			"}"
@@ -1629,17 +1629,17 @@ class GeofencingServiceTests: MMTestCase {
                 
             if let geoEventReportRequest = r as? GeoEventReportingRequest {
                 if  let body = geoEventReportRequest.body,
-                    let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first,
-                    let message = (body[GeoReportingAPIKeys.messages] as? [DictionaryRepresentation])?.first
+                    let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first,
+                    let message = (body[Consts.GeoReportingAPIKeys.messages] as? [DictionaryRepresentation])?.first
                 {
-                    XCTAssertEqual(body[PushRegistration.internalId] as? String, MMTestConstants.kTestCorrectInternalID)
-                    XCTAssertEqual(body[PushRegistration.platform] as? String, APIValues.platformType)
-                    XCTAssertEqual(report[GeoReportingAPIKeys.campaignId] as? String, expectedCampaignId)
-                    XCTAssertEqual(report[GeoReportingAPIKeys.geoAreaId] as? String, pulaObject.identifier)
-                    XCTAssertEqual(report[GeoReportingAPIKeys.event] as? String, RegionEventType.entry.rawValue)
-                    XCTAssertEqual(report[GeoReportingAPIKeys.messageId] as? String, expectedMessageId)
+                    XCTAssertEqual(body[Consts.PushRegistration.internalId] as? String, MMTestConstants.kTestCorrectInternalID)
+                    XCTAssertEqual(body[Consts.PushRegistration.platform] as? String, Consts.APIValues.platformType)
+                    XCTAssertEqual(report[Consts.GeoReportingAPIKeys.campaignId] as? String, expectedCampaignId)
+                    XCTAssertEqual(report[Consts.GeoReportingAPIKeys.geoAreaId] as? String, pulaObject.identifier)
+                    XCTAssertEqual(report[Consts.GeoReportingAPIKeys.event] as? String, RegionEventType.entry.rawValue)
+                    XCTAssertEqual(report[Consts.GeoReportingAPIKeys.messageId] as? String, expectedMessageId)
                     
-                    sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String
+                    sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String
                     XCTAssertTrue(sentSdkMessageId.mm_isUUID)
                     
                     XCTAssertEqual(message["messageId"] as? String, expectedMessageId)
@@ -1659,9 +1659,9 @@ class GeofencingServiceTests: MMTestCase {
             responseMock: { (r) -> JSON? in
                 let jsonStr  =
                 "{" +
-                    "\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-                    "\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-                    "\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+                    "\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+                    "\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+                    "\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
                         "\"\(sentSdkMessageId!)\": \"ipcoremessageid\"" +
                     "}" +
                 "}"
@@ -1747,9 +1747,9 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (r) in
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
-						let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+						let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
 					{
-						sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String // intercepts the sdk generated message id
+						sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String // intercepts the sdk generated message id
 						XCTAssertTrue(sentSdkMessageId.mm_isUUID)
 					}
 				}
@@ -1763,9 +1763,9 @@ class GeofencingServiceTests: MMTestCase {
 				if MobileMessaging.reachabilityManagerFactory().currentlyReachable() {
 					let jsonStr  =
 						"{" +
-							"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-							"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-							"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+							"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+							"\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+							"\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
 							"\"\(sentSdkMessageId!)\": \"ipcoremessageid\"" +
 							"}" +
 					"}"
@@ -1884,9 +1884,9 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (r) in
 				if let geoEventReportRequest = r as? GeoEventReportingRequest {
 					if  let body = geoEventReportRequest.body,
-						let report = (body[GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
+						let report = (body[Consts.GeoReportingAPIKeys.reports] as? [DictionaryRepresentation])?.first
 					{
-						sentSdkMessageId = report[GeoReportingAPIKeys.sdkMessageId] as! String // intercepts the sdk generated message id
+						sentSdkMessageId = report[Consts.GeoReportingAPIKeys.sdkMessageId] as! String // intercepts the sdk generated message id
 						XCTAssertTrue(sentSdkMessageId.mm_isUUID)
 					}
 				}
@@ -1900,9 +1900,9 @@ class GeofencingServiceTests: MMTestCase {
 				if MobileMessaging.reachabilityManagerFactory().currentlyReachable() {
 					let jsonStr  =
 						"{" +
-							"\"\(GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
-							"\"\(GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
-							"\"\(GeoReportingAPIKeys.messageIdsMap)\": {" +
+							"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
+							"\"\(Consts.GeoReportingAPIKeys.suspendedCampaignIds)\": [\"\(suspendedCampaignId)\"]," +
+							"\"\(Consts.GeoReportingAPIKeys.messageIdsMap)\": {" +
 							"\"\(sentSdkMessageId!)\": \"ipcoremessageid\"" +
 							"}" +
 					"}"

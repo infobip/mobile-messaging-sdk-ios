@@ -176,13 +176,13 @@ struct MOAttributes: MOMessageAttributes {
 	
 	var dictRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[APIKeys.kMODestination] = destination
-		result[APIKeys.kMOText] = text
-		result[APIKeys.kMOCustomPayload] = customPayload
-		result[APIKeys.kMOMessageId] = messageId
-		result[APIKeys.kMOMessageSentStatusCode] = NSNumber(value: sentStatus.rawValue)
-        result[APIKeys.kMOBulkId] = bulkId
-        result[APIKeys.kMOInitialMessageId] = initialMessageId
+		result[Consts.APIKeys.MO.destination] = destination
+		result[Consts.APIKeys.MO.text] = text
+		result[Consts.APIKeys.MO.customPayload] = customPayload
+		result[Consts.APIKeys.MO.messageId] = messageId
+		result[Consts.APIKeys.MO.messageSentStatusCode] = NSNumber(value: sentStatus.rawValue)
+        result[Consts.APIKeys.MO.bulkId] = bulkId
+        result[Consts.APIKeys.MO.initialMessageId] = initialMessageId
 		return result
 	}
 }
@@ -191,17 +191,17 @@ func apsByMerging(nativeAPS: StringKeyPayload?, withSilentAPS silentAPS: StringK
 	var resultAps = nativeAPS ?? StringKeyPayload()
 	var alert = StringKeyPayload()
 	
-	if let body = silentAPS[APNSPayloadKeys.body] as? String {
-		alert[APNSPayloadKeys.body] = body
+	if let body = silentAPS[Consts.APNSPayloadKeys.body] as? String {
+		alert[Consts.APNSPayloadKeys.body] = body
 	}
-	if let title = silentAPS[APNSPayloadKeys.title] as? String {
-		alert[APNSPayloadKeys.title] = title
+	if let title = silentAPS[Consts.APNSPayloadKeys.title] as? String {
+		alert[Consts.APNSPayloadKeys.title] = title
 	}
 	
-	resultAps[APNSPayloadKeys.alert] = alert
+	resultAps[Consts.APNSPayloadKeys.alert] = alert
 	
-	if let sound = silentAPS[APNSPayloadKeys.sound] as? String {
-		resultAps[APNSPayloadKeys.sound] = sound
+	if let sound = silentAPS[Consts.APNSPayloadKeys.sound] as? String {
+		resultAps[Consts.APNSPayloadKeys.sound] = sound
 	}
 	return resultAps
 }

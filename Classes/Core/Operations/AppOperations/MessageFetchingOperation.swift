@@ -7,12 +7,6 @@
 import Foundation
 import CoreData
 
-struct MessageFetchingSettings {
-	static let messageArchiveLengthDays: Double = 7 // consider messages not older than N days
-	static let fetchLimit = 100 // consider N most recent messages
-	static let fetchingIterationLimit = 2 // fetching may trigger message handling, which in turn may trigger message fetching. This constant is here to break possible inifinite recursion.
-}
-
 final class MessageFetchingOperation: Operation {
 	
 	let context: NSManagedObjectContext
@@ -48,8 +42,8 @@ final class MessageFetchingOperation: Operation {
 	let messageTypesFilter = [MMMessageType.Default.rawValue, MMMessageType.Geo.rawValue]
 	
 	fileprivate func getArchiveMessageIds() -> [String]? {
-		let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * MessageFetchingSettings.messageArchiveLengthDays)
-		return MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true AND creationDate > %@ AND messageTypeValue IN %@", date as CVarArg, messageTypesFilter), fetchLimit: MessageFetchingSettings.fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)?.map{ $0.messageId }
+		let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * Consts.MessageFetchingSettings.messageArchiveLengthDays)
+		return MessageManagedObject.MM_find(withPredicate: NSPredicate(format: "reportSent == true AND creationDate > %@ AND messageTypeValue IN %@", date as CVarArg, messageTypesFilter), fetchLimit: Consts.MessageFetchingSettings.fetchLimit, sortedBy: "creationDate", ascending: false, inContext: self.context)?.map{ $0.messageId }
 	}
 	
 	fileprivate func getNonReportedMessageIds() -> [String]? {
@@ -140,7 +134,7 @@ final class MessageFetchingOperation: Operation {
 		
 		switch result {
 		case .Success(let fetchResponse):
-			if let messages = fetchResponse.messages, !messages.isEmpty, handlingIteration < MessageFetchingSettings.fetchingIterationLimit {
+			if let messages = fetchResponse.messages, !messages.isEmpty, handlingIteration < Consts.MessageFetchingSettings.fetchingIterationLimit {
 				MMLogDebug("[Message fetching] triggering handling for fetched messages \(messages.count)...")
 				self.mmContext.messageHandler.handleMTMessages(messages, notificationTapped: false, handlingIteration: handlingIteration + 1, completion: { _ in
 					self.finishBlock?(self.result)

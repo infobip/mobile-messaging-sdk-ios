@@ -69,17 +69,17 @@ public class MOMessage: BaseMessage, MOMessageProtocol
 	}
 	
 	convenience init?(payload: DictionaryRepresentation, composedDate: Date) {
-		guard let messageId = payload[APIKeys.kMOMessageId] as? String,
-			let text = payload[APIKeys.kMOText] as? String,
-			let status = payload[APIKeys.kMOMessageSentStatusCode] as? Int else
+		guard let messageId = payload[Consts.APIKeys.MO.messageId] as? String,
+			let text = payload[Consts.APIKeys.MO.text] as? String,
+			let status = payload[Consts.APIKeys.MO.messageSentStatusCode] as? Int else
 		{
 			return nil
 		}
 		let sentStatus = MOMessageSentStatus(rawValue: Int16(status)) ?? MOMessageSentStatus.Undefined
-		let destination = payload[APIKeys.kMODestination] as? String
-		let customPayload = payload[APIKeys.kMOCustomPayload] as? [String: CustomPayloadSupportedTypes]
-		let bulkId = payload[APIKeys.kMOBulkId] as? String
-		let initialMessageId = payload[APIKeys.kMOInitialMessageId] as? String
+		let destination = payload[Consts.APIKeys.MO.destination] as? String
+		let customPayload = payload[Consts.APIKeys.MO.customPayload] as? [String: CustomPayloadSupportedTypes]
+		let bulkId = payload[Consts.APIKeys.MO.bulkId] as? String
+		let initialMessageId = payload[Consts.APIKeys.MO.initialMessageId] as? String
 		
 		self.init(messageId: messageId, destination: destination, text: text, customPayload: customPayload, composedDate: composedDate, bulkId: bulkId, initialMessageId: initialMessageId, sentStatus: sentStatus, deliveryMethod: .pull)
 	}

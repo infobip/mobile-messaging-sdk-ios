@@ -12,7 +12,7 @@ import MobileMessaging
 
 extension UIAlertController {
 	static func makeComposingAlert(sendActionBlock: @escaping (String) -> Void) -> UIAlertController {
-		let alertController = UIAlertController(title: "New message", message: "Please enter new message", preferredStyle: UIAlertControllerStyle.alert)
+		let alertController = UIAlertController(title: "New message", message: "Please enter new message", preferredStyle: UIAlertController.Style.alert)
 		let sendAction = UIAlertAction(title: "Send", style: .default) { (_) in
 			let messageTextTF = alertController.textFields![0] as UITextField
 			if let messageText = messageTextTF.text {
@@ -24,7 +24,7 @@ extension UIAlertController {
 		alertController.addTextField { (textField) in
 			textField.placeholder = "Message text"
 			textField.autocapitalizationType = .sentences
-			NotificationCenter.default.addObserver(forName: NSNotification.Name.UITextFieldTextDidChange, object: textField, queue: OperationQueue.main) { (notification) in
+			NotificationCenter.default.addObserver(forName: UITextField.textDidChangeNotification, object: textField, queue: OperationQueue.main) { (notification) in
 				sendAction.isEnabled = textField.text != ""
 			}
 		}
@@ -85,16 +85,10 @@ extension NSAttributedString {
         st.append(NSAttributedString(string: date, attributes: [NSAttributedString.fontAttributeName: UIFont.systemFont(ofSize: 10), NSAttributedString.foregroundColorAttributeName: UIColor.gray]))
 		return st
 	}
-    
-    #if swift(>=4.0)
-    static let foregroundColorAttributeName =  NSAttributedStringKey.foregroundColor
-    static let fontAttributeName =  NSAttributedStringKey.font
-    static let paragraphStyleAttributeName =  NSAttributedStringKey.paragraphStyle
-    #else
-    static let foregroundColorAttributeName = NSForegroundColorAttributeName
-    static let fontAttributeName = NSFontAttributeName
-    static let paragraphStyleAttributeName =  NSParagraphStyleAttributeName
-    #endif
+
+	static let foregroundColorAttributeName =  NSAttributedString.Key.foregroundColor
+	static let fontAttributeName =  NSAttributedString.Key.font
+	static let paragraphStyleAttributeName =  NSAttributedString.Key.paragraphStyle
 }
 
 extension Date {

@@ -77,8 +77,8 @@ func apnsNormalMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
     return [
         "messageId": messageId,
         "aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-        APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey": "internalValue"],
-        APNSPayloadKeys.customPayload: ["customKey": "customValue"]
+        Consts.APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey": "internalValue"],
+        Consts.APNSPayloadKeys.customPayload: ["customKey": "customValue"]
     ]
 }
 

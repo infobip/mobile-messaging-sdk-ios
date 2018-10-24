@@ -27,12 +27,12 @@ struct GeoEventReportData: DictionaryRepresentable {
 	}
 	
 	var dictionaryRepresentation: DictionaryRepresentation {
-		return [GeoReportingAPIKeys.campaignId: campaignId,
-		        GeoReportingAPIKeys.timestampDelta: eventDate.timestampDelta,
-		        GeoReportingAPIKeys.geoAreaId: geoAreaId,
-		        GeoReportingAPIKeys.event: eventType.rawValue,
-		        GeoReportingAPIKeys.messageId: messageId,
-		        GeoReportingAPIKeys.sdkMessageId: sdkMessageId
+		return [Consts.GeoReportingAPIKeys.campaignId: campaignId,
+		        Consts.GeoReportingAPIKeys.timestampDelta: eventDate.timestampDelta,
+		        Consts.GeoReportingAPIKeys.geoAreaId: geoAreaId,
+		        Consts.GeoReportingAPIKeys.event: eventType.rawValue,
+		        Consts.GeoReportingAPIKeys.messageId: messageId,
+		        Consts.GeoReportingAPIKeys.sdkMessageId: sdkMessageId
 		]
 	}
 }

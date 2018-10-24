@@ -17,7 +17,7 @@ public final class MobileMessaging: NSObject {
 	/// - parameter code: The application code of your Application from Push Portal website.
 	/// - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType) -> MobileMessaging? {
-		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodDynamicBaseURLString)
+		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
 	}
 	
 	/// Fabric method for Mobile Messaging session.
@@ -26,7 +26,7 @@ public final class MobileMessaging: NSObject {
 	/// - parameter forceCleanup: Defines whether the SDK must be cleaned up on startup.
 	/// - warning: The cleanup (parameter `forceCleanup = true`) must be performed manually if you changed the application code while `PrivacySettings.applicationCodePersistingDisabled` is set to `true`.
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
-		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: APIValues.prodDynamicBaseURLString, forceCleanup: forceCleanup)
+		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString, forceCleanup: forceCleanup)
 	}
 	
 	/// Fabric method for Mobile Messaging session.

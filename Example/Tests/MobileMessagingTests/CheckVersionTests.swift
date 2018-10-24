@@ -47,7 +47,7 @@ class CheckVersionTests: MMTestCase {
 	
 	override func setUp() {
 		super.setUp()
-		UserDefaults.standard.removeObject(forKey: VersionCheck.lastCheckDateKey)
+		UserDefaults.standard.removeObject(forKey: Consts.VersionCheck.lastCheckDateKey)
 		UserDefaults.standard.synchronize()
 		
 		versionManager = VersionManagerMock(mmContext: self.mobileMessagingInstance, onlineVersion: mobileMessagingVersion)

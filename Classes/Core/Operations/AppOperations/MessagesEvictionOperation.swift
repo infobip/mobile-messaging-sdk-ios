@@ -17,7 +17,7 @@ final class MessagesEvictionOperation: Operation {
 	init(context: NSManagedObjectContext, messageMaximumAge: TimeInterval? = nil, finishBlock: (() -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
-		self.messageMaximumAge = messageMaximumAge ?? SDKSettings.messagesRetentionPeriod
+		self.messageMaximumAge = messageMaximumAge ?? Consts.SDKSettings.messagesRetentionPeriod
 	}
 	
 	override func execute() {

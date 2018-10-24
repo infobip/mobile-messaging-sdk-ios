@@ -60,13 +60,46 @@ public protocol MMGeofencingServiceDelegate: class {
 	func didExitRegion(region: MMRegion)
 }
 
-struct GeofencingConstants {
+struct GeoConstants {
 	static let distanceFilter: CLLocationDistance = 100
 	static let regionRefreshThreshold: CLLocationDistance = 200
 	static let monitoringRegionsLimit: Int = 20
 	static let preferableUsage = LocationServiceUsage.always
 	static let minimumAllowedUsage = LocationServiceUsage.whenInUse
 	static let supportedAuthStatuses = [CLAuthorizationStatus.authorizedWhenInUse, CLAuthorizationStatus.authorizedAlways]
+
+	struct CampaignKeys {
+		static let id = "id"
+		static let title = "title"
+		static let message = "message"
+		static let dateReceived = "receivedDate"
+		static let regions = "regions"
+		static let origin = "origin"
+		static let expiryDate = "expiryTime"
+		static let startDate = "startTime"
+		static let campaignId = "campaignId"
+	}
+
+	struct RegionKeys {
+		static let latitude = "latitude"
+		static let longitude = "longitude"
+		static let radius = "radiusInMeters"
+		static let title = "title"
+		static let identifier = "id"
+	}
+
+	struct RegionDeliveryTimeKeys {
+		static let days = "days"
+		static let timeInterval = "timeInterval"
+	}
+
+	struct RegionEventKeys {
+		static let type = "type"
+		static let limit = "limit"
+		static let timeout = "timeoutInMinutes"
+		static let occuringCounter = "rate"
+		static let lastOccur = "lastOccur"
+	}
 }
 
 @objc public protocol GeoEventHandling {
@@ -81,10 +114,10 @@ struct GeoEventReportingRequest: PostRequest {
 	var path: APIPath { return .GeoEventsReports }
 	var body: RequestBody? {
 		return [
-			PushRegistration.platform: APIValues.platformType,
-			PushRegistration.internalId: pushRegistrationId ?? "n/a",
-			GeoReportingAPIKeys.reports: eventsDataList.map { $0.dictionaryRepresentation },
-			GeoReportingAPIKeys.messages: geoMessages.map { $0.geoEventReportFormat }
+			Consts.PushRegistration.platform: Consts.APIValues.platformType,
+			Consts.PushRegistration.internalId: pushRegistrationId ?? "n/a",
+			Consts.GeoReportingAPIKeys.reports: eventsDataList.map { $0.dictionaryRepresentation },
+			Consts.GeoReportingAPIKeys.messages: geoMessages.map { $0.geoEventReportFormat }
 		]
 	}
 

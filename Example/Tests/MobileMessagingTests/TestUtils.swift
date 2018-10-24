@@ -162,6 +162,6 @@ final class ReachabilityManagerStub: NetworkReachabilityManager {
 
 extension RequestData {
 	var pushRegistrationIdHeader: String? {
-		return headers?[APIHeaders.pushRegistrationId]
+		return headers?[Consts.APIHeaders.pushRegistrationId]
 	}
 }

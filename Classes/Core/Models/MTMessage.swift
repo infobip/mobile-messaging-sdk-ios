@@ -105,8 +105,8 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 	public var isSilent: Bool { return isSilentInternalData(internalData) }
 	
 	public var contentUrl: String? {
-		if let atts = internalData?[InternalDataKeys.attachments] as? [StringKeyPayload], let firstOne = atts.first {
-			return firstOne[Attachments.Keys.url] as? String
+		if let atts = internalData?[Consts.InternalDataKeys.attachments] as? [StringKeyPayload], let firstOne = atts.first {
+			return firstOne[Consts.Attachments.Keys.url] as? String
 		} else {
 			return nil
 		}
@@ -115,24 +115,24 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 	//	var downloadedPictureUrl: URL? //NOTE: this field may be used to keep url of downloaded content/cache
 
 	public var showInApp: Bool {
-		return internalData?[InternalDataKeys.showInApp] as? Bool ?? false
+		return internalData?[Consts.InternalDataKeys.showInApp] as? Bool ?? false
 	}
 	
 	public var isGeoSignalingMessage: Bool {
-		return internalData?[InternalDataKeys.geo] != nil && isSilent
+		return internalData?[Consts.InternalDataKeys.geo] != nil && isSilent
 	}
 	
 	public var silentData: StringKeyPayload? {
-		return internalData?[InternalDataKeys.silent] as? StringKeyPayload
+		return internalData?[Consts.InternalDataKeys.silent] as? StringKeyPayload
 	}
 	
 	public var internalData: StringKeyPayload? {
-		return originalPayload[APNSPayloadKeys.internalData] as? StringKeyPayload
+		return originalPayload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload
 	}
 	
 	public override var customPayload: StringKeyPayload? {
 		get {
-			return originalPayload[APNSPayloadKeys.customPayload] as? StringKeyPayload
+			return originalPayload[Consts.APNSPayloadKeys.customPayload] as? StringKeyPayload
 		}
 		set {}
 	}
@@ -174,16 +174,16 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 	/// Designated init
 	public init?(payload: APNSPayload, deliveryMethod: MessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool) {
 		guard 	var payload = payload as? StringKeyPayload,
-				let messageId = payload[APNSPayloadKeys.messageId] as? String else
+				let messageId = payload[Consts.APNSPayloadKeys.messageId] as? String else
 		{
 			return nil
 		}
 		//workaround for cordova
-		let internData = payload[APNSPayloadKeys.internalData] as? StringKeyPayload
-		let nativeAPS = payload[APNSPayloadKeys.aps] as? StringKeyPayload
+		let internData = payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload
+		let nativeAPS = payload[Consts.APNSPayloadKeys.aps] as? StringKeyPayload
 
 		if isSilentInternalData(internData) {
-			if let silentAPS = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.silent] as? StringKeyPayload {
+			if let silentAPS = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.silent] as? StringKeyPayload {
 				self.aps = PushPayloadAPS.SilentAPS(apsByMerging(nativeAPS: nativeAPS ?? [:], withSilentAPS: silentAPS))
 			} else {
 				return nil
@@ -194,7 +194,7 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 			return nil
 		}
 		
-		if let sendDateTimeMillis = (payload[APNSPayloadKeys.internalData] as? StringKeyPayload)?[InternalDataKeys.sendDateTime] as? Double {
+		if let sendDateTimeMillis = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.sendDateTime] as? Double {
 			self.sendDateTime = sendDateTimeMillis/1000
 		} else {
 			self.sendDateTime = MobileMessaging.date.now.timeIntervalSince1970
@@ -209,5 +209,5 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 }
 
 func isSilentInternalData(_ internalData: StringKeyPayload?) -> Bool {
-	return internalData?[InternalDataKeys.silent] != nil
+	return internalData?[Consts.InternalDataKeys.silent] != nil
 }

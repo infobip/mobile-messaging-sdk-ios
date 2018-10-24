@@ -38,11 +38,11 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 		}
 		
 		request.addValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
-		request.addValue(calculateAppCodeHash(applicationCode), forHTTPHeaderField: APIHeaders.applicationcode)
+		request.addValue(calculateAppCodeHash(applicationCode), forHTTPHeaderField: Consts.APIHeaders.applicationcode)
 		request.addValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: "User-Agent")
-		request.addValue(String(MobileMessaging.application.isInForegroundState), forHTTPHeaderField: APIHeaders.foreground)
+		request.addValue(String(MobileMessaging.application.isInForegroundState), forHTTPHeaderField: Consts.APIHeaders.foreground)
 		if let pushRegistrationId = pushRegistrationId {
-			request.addValue(pushRegistrationId, forHTTPHeaderField: APIHeaders.pushRegistrationId)
+			request.addValue(pushRegistrationId, forHTTPHeaderField: Consts.APIHeaders.pushRegistrationId)
 		}
 	}
 	

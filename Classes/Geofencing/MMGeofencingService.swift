@@ -154,7 +154,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	}
 	
 	var systemData: [String: AnyHashable]? {
-		return [SystemDataKeys.geofencingServiceEnabled: type(of: self).isGeofencingServiceEnabled]
+		return [Consts.SystemDataKeys.geofencingServiceEnabled: type(of: self).isGeofencingServiceEnabled]
 	}
 
 	public static var isGeofencingServiceEnabled: Bool {
@@ -187,7 +187,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	
 	/// Returns current capability status for Geofencing Service. For more information see `MMCapabilityStatus`.
 	public class var currentCapabilityStatus: GeofencingCapabilityStatus {
-		return GeofencingService.currentCapabilityStatus(forService: LocationServiceKind.regionMonitoring, usage: GeofencingConstants.minimumAllowedUsage)
+		return GeofencingService.currentCapabilityStatus(forService: LocationServiceKind.regionMonitoring, usage: GeoConstants.minimumAllowedUsage)
 	}
 	
 	/// Requests permission to use location services whenever the app is running.
@@ -220,7 +220,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 				completion?(true)
 			case .notDetermined:
 				MMLogDebug("[GeofencingService] capability is 'not determined', authorizing...")
-				self.authorizeService(kind: LocationServiceKind.regionMonitoring, usage: GeofencingConstants.preferableUsage) { capability in
+				self.authorizeService(kind: LocationServiceKind.regionMonitoring, usage: GeoConstants.preferableUsage) { capability in
 					switch capability {
 					case .authorized:
 						MMLogDebug("[GeofencingService] successfully authorized for `Always` mode")
@@ -302,7 +302,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			self.geofencingServiceQueue = RemoteAPIQueue()
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
-			self.locationManager.distanceFilter = GeofencingConstants.distanceFilter
+			self.locationManager.distanceFilter = GeoConstants.distanceFilter
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
 			self.datasource = GeofencingInMemoryDatasource(storage: mmContext.internalStorage)
 			self.mmContext = mmContext
@@ -392,7 +392,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	func regionsToStartMonitoring(monitoredRegions: Set<CLCircularRegion>) -> Set<CLCircularRegion> {
 		assert(Thread.isMainThread)
 		let notExpiredRegions = Set(datasource.liveRegions.map { $0.circularRegion })
-		let number = GeofencingConstants.monitoringRegionsLimit - monitoredRegions.count
+		let number = GeoConstants.monitoringRegionsLimit - monitoredRegions.count
 		let location = locationManager.location ?? previousLocation
 		let array = GeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { monitoredRegions.contains($0) == false })
 		return Set(array)
@@ -627,9 +627,9 @@ extension GeofencingService: CLLocationManagerDelegate {
 		}
 		
 		switch (self.isRunning, status) {
-		case (true, let status) where !GeofencingConstants.supportedAuthStatuses.contains(status):
+		case (true, let status) where !GeoConstants.supportedAuthStatuses.contains(status):
 			stop()
-		case (false, let status) where GeofencingConstants.supportedAuthStatuses.contains(status):
+		case (false, let status) where GeoConstants.supportedAuthStatuses.contains(status):
 			startService()
 		default:
 			break
@@ -676,7 +676,7 @@ extension GeofencingService: CLLocationManagerDelegate {
         let monitorableRegionsCount = self.datasource.liveRegions.count
         let distanceFromPreviousPoint = location.distance(from: previousLocation)
         MMLogDebug("[GeofencingService] distance from previous point = \(distanceFromPreviousPoint), monitorableRegionsCount = \(monitorableRegionsCount)")
-        return distanceFromPreviousPoint > GeofencingConstants.regionRefreshThreshold && monitorableRegionsCount > GeofencingConstants.monitoringRegionsLimit
+        return distanceFromPreviousPoint > GeoConstants.regionRefreshThreshold && monitorableRegionsCount > GeoConstants.monitoringRegionsLimit
     }
 }
 

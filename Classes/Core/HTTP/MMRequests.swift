@@ -57,11 +57,11 @@ struct RegistrationRequest: PostRequest {
 	}
 	var path: APIPath { return .Registration }
 	var parameters: RequestParameters? {
-		var params: RequestParameters = [PushRegistration.deviceToken: deviceToken,
-										 PushRegistration.platform: APIValues.platformType]
-		params[PushRegistration.expiredInternalId] = expiredInternalId
+		var params: RequestParameters = [Consts.PushRegistration.deviceToken: deviceToken,
+										 Consts.PushRegistration.platform: Consts.APIValues.platformType]
+		params[Consts.PushRegistration.expiredInternalId] = expiredInternalId
 		if let isEnabled = isEnabled {
-			params[PushRegistration.isEnabled] = isEnabled ? 1 : 0
+			params[Consts.PushRegistration.isEnabled] = isEnabled ? 1 : 0
 		}
 		return params
 	}
@@ -99,7 +99,7 @@ struct LibraryVersionRequest: GetRequest {
 	var pushRegistrationId: String?
 	typealias ResponseType = LibraryVersionResponse
 	var path: APIPath { return .LibraryVersion }
-	var parameters: [String: Any]? = [PushRegistration.platform: APIValues.platformType]
+	var parameters: [String: Any]? = [Consts.PushRegistration.platform: Consts.APIValues.platformType]
 
 	init(applicationCode: String, pushRegistrationId: String?) {
 		self.applicationCode = applicationCode
@@ -118,7 +118,7 @@ struct MessagesSyncRequest: PostRequest {
 	var path: APIPath { return .SyncMessages }
 	var parameters: RequestParameters? {
 		var params = RequestParameters()
-		params[PushRegistration.platform] = APIValues.platformType
+		params[Consts.PushRegistration.platform] = Consts.APIValues.platformType
 		return params
 	}
 
@@ -127,8 +127,8 @@ struct MessagesSyncRequest: PostRequest {
 
 	var body: RequestBody? {
 		var result = RequestBody()
-		result[APIKeys.kArchiveMsgIds] = (archiveMsgIds?.isEmpty ?? true) ? nil : archiveMsgIds
-		result[APIKeys.kDLRMsgIds] = (dlrMsgIds?.isEmpty ?? true) ? nil : dlrMsgIds
+		result[Consts.APIKeys.archiveMsgIds] = (archiveMsgIds?.isEmpty ?? true) ? nil : archiveMsgIds
+		result[Consts.APIKeys.DLRMsgIds] = (dlrMsgIds?.isEmpty ?? true) ? nil : dlrMsgIds
 		return result
 	}
 
@@ -146,7 +146,7 @@ struct DeliveryReportRequest: PostRequest {
 	typealias ResponseType = DeliveryReportResponse
 	var path: APIPath { return .DeliveryReport }
 	let dlrIds: [String]
-	var body: RequestBody? { return [DeliveryReport.dlrMessageIds: dlrIds] }
+	var body: RequestBody? { return [Consts.DeliveryReport.dlrMessageIds: dlrIds] }
 	
 	init?(applicationCode: String, dlrIds: [String]?) {
 		guard let dlrIds = dlrIds else {
@@ -167,17 +167,17 @@ struct UserDataRequest: PostRequest {
 	var parameters: RequestParameters? {
 		var params = RequestParameters()
 		if let externalUserId = externalUserId {
-			params[APIKeys.kUserDataExternalUserId] = externalUserId
+			params[Consts.APIKeys.UserData.externalUserId] = externalUserId
 		}
 		return params
 	}
 	var body: RequestBody? {
 		var result = RequestBody()
 		if let predefinedUserData = predefinedUserData, !predefinedUserData.isEmpty {
-			result[APIKeys.kUserDataPredefinedUserData] = predefinedUserData
+			result[Consts.APIKeys.UserData.predefinedUserData] = predefinedUserData
 		}
 		if let customUserData = customUserData, !customUserData.isEmpty {
-			result[APIKeys.kUserDataCustomUserData] = customUserData.reduce(UserDataDictionary(), { (result, element) -> UserDataDictionary in
+			result[Consts.APIKeys.UserData.customUserData] = customUserData.reduce(UserDataDictionary(), { (result, element) -> UserDataDictionary in
 				return result + element.dictionaryRepresentation
 			})
 		}
@@ -238,14 +238,14 @@ struct MOMessageSendingRequest: PostRequest {
 	typealias ResponseType = MOMessageSendingResponse
 	var path: APIPath { return .MOMessage }
 	var parameters: RequestParameters? {
-		return [PushRegistration.platform : APIValues.platformType]
+		return [Consts.PushRegistration.platform : Consts.APIValues.platformType]
 	}
 	var body: RequestBody? {
 		var result = RequestBody()
-		result[APIKeys.kMOFrom] = pushRegistrationId
-		result[APIKeys.kMOMessages] = messages.map { msg -> RequestBody in
+		result[Consts.APIKeys.MO.from] = pushRegistrationId
+		result[Consts.APIKeys.MO.messages] = messages.map { msg -> RequestBody in
 			var dict = msg.dictRepresentation
-			dict[APIKeys.kMOMessageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
+			dict[Consts.APIKeys.MO.messageSentStatusCode] = nil // this attribute is redundant, the Mobile API would not expect it.
 			return dict
 		}
 		return result
@@ -324,10 +324,10 @@ struct SeenData: DictionaryRepresentable {
 		return nil // unused
 	}
 	var dictionaryRepresentation: DictionaryRepresentation {
-		return [APIKeys.kMessageId: messageId,
-		        APIKeys.kSeenTimestampDelta: seenDate.timestampDelta]
+		return [Consts.APIKeys.messageId: messageId,
+		        Consts.APIKeys.seenTimestampDelta: seenDate.timestampDelta]
 	}
 	static func requestBody(seenList: [SeenData]) -> RequestBody {
-		return [APIKeys.kSeenMessages: seenList.map{ $0.dictionaryRepresentation } ]
+		return [Consts.APIKeys.seenMessages: seenList.map{ $0.dictionaryRepresentation } ]
 	}
 }

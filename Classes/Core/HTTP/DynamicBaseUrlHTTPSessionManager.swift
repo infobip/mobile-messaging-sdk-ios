@@ -7,16 +7,11 @@
 
 import Foundation
 
-struct DynamicBaseUrlConsts {
-	static let newBaseUrlHeader = "newbaseurl"
-	static let storedDynamicBaseUrlKey = "com.mobile-messaging.dynamic-base-url"
-}
-
 class DynamicBaseUrlStorage: SingleKVStorage {
 	var backingStorage: KVOperations = UserDefaults.standard
 	typealias ValueType = URL
 	var key: String {
-		return DynamicBaseUrlConsts.storedDynamicBaseUrlKey
+		return Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey
 	}
 	
 	init(backingStorage: KVOperations = UserDefaults.standard) {
@@ -100,7 +95,7 @@ class DynamicBaseUrlHTTPSessionManager {
 			storeDynamicBaseUrl(nil)
 			dynamicBaseUrl = originalBaseUrl
 		} else {
-			if let httpResponse = response as? HTTPURLResponse, let newBaseUrlString = httpResponse.allHeaderFields[DynamicBaseUrlConsts.newBaseUrlHeader] as? String, let newDynamicBaseUrl = URL(string: newBaseUrlString) {
+			if let httpResponse = response as? HTTPURLResponse, let newBaseUrlString = httpResponse.allHeaderFields[Consts.DynamicBaseUrlConsts.newBaseUrlHeader] as? String, let newDynamicBaseUrl = URL(string: newBaseUrlString) {
 				storeDynamicBaseUrl(newDynamicBaseUrl)
 				dynamicBaseUrl = newDynamicBaseUrl
 			}

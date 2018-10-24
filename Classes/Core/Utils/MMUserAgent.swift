@@ -17,16 +17,16 @@ struct SystemData: Hashable {
 	var dictionaryRepresentation: [String: AnyHashable] {
 
 		var result : [String: AnyHashable] = [
-												SystemDataKeys.geofencingServiceEnabled: false,
-												SystemDataKeys.notificationsEnabled: notificationsEnabled,
-												SystemDataKeys.sdkVersion: SDKVersion
+												Consts.SystemDataKeys.geofencingServiceEnabled: false,
+												Consts.SystemDataKeys.notificationsEnabled: notificationsEnabled,
+												Consts.SystemDataKeys.sdkVersion: SDKVersion
 										     ]
         if (!MobileMessaging.privacySettings.systemInfoSendingDisabled) {
-			result[SystemDataKeys.osVer] = OSVer
-			result[SystemDataKeys.deviceManufacturer] = deviceManufacturer
-			result[SystemDataKeys.deviceModel] = deviceModel
-			result[SystemDataKeys.appVer] = appVer
-            result[SystemDataKeys.deviceSecure] = deviceSecure
+			result[Consts.SystemDataKeys.osVer] = OSVer
+			result[Consts.SystemDataKeys.deviceManufacturer] = deviceManufacturer
+			result[Consts.SystemDataKeys.deviceModel] = deviceModel
+			result[Consts.SystemDataKeys.appVer] = appVer
+            result[Consts.SystemDataKeys.deviceSecure] = deviceSecure
 		}
 		return (result as [String: AnyHashable]).mm_applySubservicesSystemData()
 	}

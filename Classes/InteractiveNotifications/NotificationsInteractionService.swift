@@ -8,6 +8,23 @@
 import Foundation
 import UserNotifications
 
+struct InteractionConstants {
+	struct NotificationActionKeys {
+		static let identifier = "identifier"
+		static let title = "title"
+		static let titleLocalizationKey = "titleLocalizationKey"
+		static let foreground = "foreground"
+		static let authenticationRequired = "authenticationRequired"
+		static let moRequired = "moRequired"
+		static let destructive = "destructive"
+		static let mm_prefix = "mm_"
+		static let textInputActionButtonTitle = "textInputActionButtonTitle"
+		static let textInputPlaceholder = "textInputPlaceholder"
+	}
+
+	static let actionHandlingTimeout = 20
+}
+
 extension MobileMessaging {
 	/// Fabric method for Mobile Messaging session.
 	///
@@ -117,11 +134,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		// do nothing
 		completion(nil)
 	}
-	
-	struct Constants {
-		static let actionHandlingTimeout = 20
-	}
-	
+
 	let mmContext: MobileMessaging
 	
 	let customNotificationCategories: Set<NotificationCategory>?
@@ -318,7 +331,7 @@ extension NotificationsInteractionService {
 				text: "\(message.category ?? "n/a") \(appliedAction.identifier)",
 				customPayload: nil,
 				composedDate: MobileMessaging.date.now,
-				bulkId: message.internalData?[InternalDataKeys.bulkId] as? String,
+				bulkId: message.internalData?[Consts.InternalDataKeys.bulkId] as? String,
 				initialMessageId: message.messageId
 			)
 			

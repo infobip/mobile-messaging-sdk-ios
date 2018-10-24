@@ -69,7 +69,7 @@ public class BaseMessage: NSObject, MessageProtocol {
 		self.originalPayload = originalPayload
 		self.direction = direction
 		self.deliveryMethod = deliveryMethod
-		self.customPayload = originalPayload[APNSPayloadKeys.customPayload] as? [String: CustomPayloadSupportedTypes]
+		self.customPayload = originalPayload[Consts.APNSPayloadKeys.customPayload] as? [String: CustomPayloadSupportedTypes]
 	}
 	
 	public override var hash: Int {

@@ -177,8 +177,6 @@ extension String {
 		return URL(string: self)
 	}
 	
-	static let mm_UUIDRegexPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-	
 	func mm_matches(toRegexPattern: String, options: NSRegularExpression.Options = []) -> Bool {
 		if let regex = try? NSRegularExpression(pattern: toRegexPattern, options: options), let _ = regex.firstMatch(in: self, options: NSRegularExpression.MatchingOptions.withoutAnchoringBounds, range: NSRange(0..<self.count)) {
 			return true
@@ -192,7 +190,7 @@ extension String {
 	}
 	
 	var mm_isUUID: Bool {
-		return mm_matches(toRegexPattern: String.mm_UUIDRegexPattern, options: .caseInsensitive)
+		return mm_matches(toRegexPattern: Consts.UUIDRegexPattern, options: .caseInsensitive)
 	}
 	
 	func mm_breakWithMaxLength(maxLenght: Int) -> String {
@@ -446,7 +444,7 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-				let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-SDKSettings.messagesRetentionPeriod).timeIntervalSince1970
+				let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-Consts.SDKSettings.messagesRetentionPeriod).timeIntervalSince1970
 				let messages = notifications
 					.compactMap({
 						MTMessage(payload: $0.request.content.userInfo,
@@ -567,7 +565,7 @@ enum MessageStorageKind: String {
 
 extension Dictionary where Key == String {
 	var isChatMessage: Bool {
-		return (self[CustomPayloadKeys.isChat] as? Bool) ?? false
+		return (self[Consts.CustomPayloadKeys.isChat] as? Bool) ?? false
 	}
 }
 

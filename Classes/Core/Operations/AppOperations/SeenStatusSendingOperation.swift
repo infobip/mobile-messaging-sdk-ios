@@ -23,7 +23,7 @@ class SeenStatusSendingOperation: Operation {
 	override func execute() {
 		context.reset()
 		context.perform {
-			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue) AND NOT(messageId MATCHES [c] '\(String.mm_UUIDRegexPattern)')"), context: self.context), !seenNotSentMessages.isEmpty else
+			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue) AND NOT(messageId MATCHES [c] '\(Consts.UUIDRegexPattern)')"), context: self.context), !seenNotSentMessages.isEmpty else
 			{
 				MMLogDebug("[Seen status reporting] There is no non-seen meessages to send to the server. Finishing...")
 				self.finish()

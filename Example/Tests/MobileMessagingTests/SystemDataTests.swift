@@ -119,27 +119,27 @@ class SystemDataTests: MMTestCase {
 		
 		let requestCompanionBlockDisabled: (Any) -> Void = { request in
 			if let request = request as? SystemDataSyncRequest {
-				XCTAssertNil(request.body?[SystemDataKeys.appVer])
-				XCTAssertNil(request.body?[SystemDataKeys.deviceManufacturer])
-				XCTAssertNil(request.body?[SystemDataKeys.deviceModel])
-				XCTAssertNil(request.body?[SystemDataKeys.osVer])
-				XCTAssertNotNil(request.body?[SystemDataKeys.sdkVersion])
-				XCTAssertNotNil(request.body?[SystemDataKeys.geofencingServiceEnabled])
-				XCTAssertNotNil(request.body?[SystemDataKeys.notificationsEnabled])
-                XCTAssertNil(request.body?[SystemDataKeys.deviceSecure])
+				XCTAssertNil(request.body?[Consts.SystemDataKeys.appVer])
+				XCTAssertNil(request.body?[Consts.SystemDataKeys.deviceManufacturer])
+				XCTAssertNil(request.body?[Consts.SystemDataKeys.deviceModel])
+				XCTAssertNil(request.body?[Consts.SystemDataKeys.osVer])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.sdkVersion])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.geofencingServiceEnabled])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.notificationsEnabled])
+                XCTAssertNil(request.body?[Consts.SystemDataKeys.deviceSecure])
 			}
 		}
 		
 		let requestCompanionBlockEnabled: (Any) -> Void = { request in
 			if let request = request as? SystemDataSyncRequest {
-				XCTAssertNotNil(request.body?[SystemDataKeys.appVer])
-				XCTAssertNotNil(request.body?[SystemDataKeys.deviceManufacturer])
-				XCTAssertNotNil(request.body?[SystemDataKeys.deviceModel])
-				XCTAssertNotNil(request.body?[SystemDataKeys.osVer])
-				XCTAssertNotNil(request.body?[SystemDataKeys.sdkVersion])
-				XCTAssertNotNil(request.body?[SystemDataKeys.geofencingServiceEnabled])
-				XCTAssertNotNil(request.body?[SystemDataKeys.notificationsEnabled])
-                XCTAssertNotNil(request.body?[SystemDataKeys.deviceSecure])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.appVer])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.deviceManufacturer])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.deviceModel])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.osVer])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.sdkVersion])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.geofencingServiceEnabled])
+				XCTAssertNotNil(request.body?[Consts.SystemDataKeys.notificationsEnabled])
+                XCTAssertNotNil(request.body?[Consts.SystemDataKeys.deviceSecure])
 			}
 		}
 		
