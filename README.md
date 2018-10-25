@@ -121,7 +121,7 @@ The simplest approach to integrate Mobile Messaging SDK with an existing app is 
 		[MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 	}
 	```
-6. Override method `application:didReceiveLocalNotification`(for Objective-C) or `application:didReceive:`(for Swift 3) in order the MobileMessaging SDK to be able to handle incoming local notifications internally:
+6. **Skip this step is your apps minimum deployment target is iOS 10 or later.** Override method `application:didReceiveLocalNotification`(for Objective-C) or `application:didReceive:`(for Swift) in order the MobileMessaging SDK to be able to handle incoming local notifications internally:
 
 	```swift
 	// Swift
