@@ -91,6 +91,9 @@ The simplest approach to integrate Mobile Messaging SDK with an existing app is 
 		...
 	}
 	```
+
+	Please note that it is not very secure to keep your API key (Application Code is an API key in fact) hardcoded so if the security is a crucial aspect, consider obfuscating the Application Code string (we can recommend [UAObfuscatedString](https://github.com/UrbanApps/UAObfuscatedString) for string obfuscation).
+
 4. Override method `application:didRegisterForRemoteNotificationsWithDeviceToken:` in order to inform Infobip about the new device registered:
 
 	```swift
