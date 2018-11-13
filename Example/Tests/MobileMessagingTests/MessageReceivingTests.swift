@@ -10,13 +10,63 @@ import XCTest
 import UserNotifications
 
 
+class InteractiveMessageAlertManagerMock : InteractiveMessageAlertManager {
+	var showInteractiveAlertClosure: ((MTMessage, Bool) -> Void)?
+	override func showInteractiveAlert(forMessage message: MTMessage, exclusively: Bool) {
+		showInteractiveAlertClosure?(message, exclusively)
+	}
+}
 
 func backendJSONSilentMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\", \"\(Consts.APNSPayloadKeys.internalData)\": {\"silent\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}},\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\"}, \"\(Consts.APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
+	return """
+		{
+			"messageId": "\(messageId)",
+			"internalData": {
+				"silent": {
+					"badge": 6,
+					"sound": "default",
+					"alert": {
+						"title": "msg_title",
+						"body": "msg_body"
+					}
+				},
+				"sendDateTime": 1503583689984,
+				"internalKey1": "internalValue1"
+			},
+			"customPayload": {
+				"customKey": "customValue"
+			}
+		}
+	"""
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
-	return "{\"messageId\": \"\(messageId)\",\"aps\": {\"badge\": 6, \"sound\": \"default\", \"alert\": {\"title\": \"msg_title\", \"body\": \"msg_body\"}}, \"\(Consts.APNSPayloadKeys.internalData)\": {\"sendDateTime\": 1503583689984, \"internalKey1\": \"internalValue1\", \"atts\": [{\"url\":\"pic.url\",\"t\":\"string\"}]}, \"\(Consts.APNSPayloadKeys.customPayload)\": {\"customKey\": \"customValue\"}}"
+	return """
+		{
+			"messageId": "\(messageId)",
+			"aps": {
+				"badge": 6,
+				"sound": "default",
+				"alert": {
+					"title": "msg_title",
+					"body": "msg_body"
+				}
+			},
+			"internalData": {
+				"sendDateTime": 1503583689984,
+				"internalKey1": "internalValue1",
+				"atts": [
+				{
+					"url": "pic.url",
+					"t": "string"
+				}
+				]
+			},
+			"customPayload": {
+				"customKey": "customValue"
+			}
+		}
+		"""
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -69,7 +119,7 @@ class MessageReceivingTests: MMTestCase {
 								"badge": 6,
 								"sound": "default",
 								"alert": {
-									"bidy":"text"
+									"body":"text"
 								}
 							},
 							"customPayload": {
@@ -324,6 +374,86 @@ class MessageReceivingTests: MMTestCase {
 		
         self.waitForExpectations(timeout: 60, handler: { error in })
     }
+
+	@available(iOS 10.0, *)
+	func testThatBannerAlertWillBeResolved() {
+		guard #available(iOS 10.0, *) else {
+			return
+		}
+		let jsonStr  = """
+						{
+							"messageId": "messageId",
+							"aps": {
+								"badge": 6,
+								"sound": "default",
+								"alert": {
+									"body":"text"
+								}
+							},
+							"internalData": {
+								"inApp": 1,
+								"inAppStyle": 1
+							}
+						}
+						"""
+
+		let options = UserNotificationCenterDelegate.sharedInstance.presentationOptions(for: MTMessage(payload: JSON.parse(jsonStr).dictionaryObject!, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false))
+
+		XCTAssertEqual(options, UNNotificationPresentationOptions.make(with: mobileMessagingInstance.userNotificationType))
+	}
+
+	func testThatModalAlertWillBeShownForModalInAppStyle() {
+		testThatModalAlertWillBeShownForModalStyle("""
+						{
+							"messageId": "messageId",
+							"aps": {
+								"badge": 6,
+								"sound": "default",
+								"alert": {
+									"body":"text"
+								}
+							},
+							"internalData": {
+								"inApp": 1,
+								"inAppStyle": 0
+							}
+						}
+						""")
+	}
+
+	func testThatModalAlertWillBeShownForAbsentInAppStyle() {
+		testThatModalAlertWillBeShownForModalStyle("""
+						{
+							"messageId": "messageId",
+							"aps": {
+								"badge": 6,
+								"sound": "default",
+								"alert": {
+									"body":"text"
+								}
+							},
+							"internalData": {
+								"inApp": 1
+							}
+						}
+						""")
+	}
+
+	private func testThatModalAlertWillBeShownForModalStyle(_ pushJson: String) {
+		weak var alertShown = self.expectation(description: "alertShown")
+		weak var messageHandled = self.expectation(description: "messageHandled")
+		let interactiveMessageAlertManagerMock = InteractiveMessageAlertManagerMock()
+		interactiveMessageAlertManagerMock.showInteractiveAlertClosure = { _, _ in
+			alertShown?.fulfill()
+		}
+		mobileMessagingInstance.interactiveAlertManager = interactiveMessageAlertManagerMock
+
+		mobileMessagingInstance.didReceiveRemoteNotification(JSON.parse(pushJson).dictionaryObject!, completion: { _ in
+			messageHandled?.fulfill()
+		})
+
+		self.waitForExpectations(timeout: 60, handler: { error in })
+	}
 }
 
 extension UILocalNotification {

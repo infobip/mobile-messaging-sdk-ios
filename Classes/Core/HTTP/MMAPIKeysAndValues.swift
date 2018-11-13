@@ -129,6 +129,7 @@ struct Consts {
 		static let sendDateTime = "sendDateTime"
 		static let bulkId = "bulkId"
 		static let showInApp = "inApp"
+		static let inAppStyle = "inAppStyle"
 	}
 
 	struct CustomPayloadKeys {

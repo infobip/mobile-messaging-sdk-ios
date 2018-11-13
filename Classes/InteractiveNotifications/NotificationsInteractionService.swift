@@ -186,11 +186,11 @@ class NotificationsInteractionService: MobileMessagingService {
 
 		if (categoryId?.isEmpty ?? true) {
 			if MobileMessaging.application.applicationState != .active {
-				InteractiveMessageAlert.sharedInstance.cancelAllAlerts()
+				mmContext.interactiveAlertManager.cancelAllAlerts()
 			}
 		} else {
 			if identifier != NotificationAction.DefaultActionId && MobileMessaging.application.applicationState != .active {
-				InteractiveMessageAlert.sharedInstance.cancelAllAlerts()
+				mmContext.interactiveAlertManager.cancelAllAlerts()
 			}
 		}
 		
@@ -294,13 +294,15 @@ extension NotificationsInteractionService {
 	}
 	
 	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
-		if 	message.showInApp &&
+		// this code is better to be moved to UserNotificationCenterDelegate.userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification...) but on old iOS 9 this API is not present.
+		//TODO: this code is a part of "In-App notification alert" feature along with code from UserNotificationCenterDelegate.userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification...) and both must be moved to a single common place.
+		if 	message.showInApp && message.inAppStyle == .Modal &&
 			(
 				(message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) ||
 				message.appliedAction == nil
 			)
 		{
-			InteractiveMessageAlert.sharedInstance.showInteractiveAlert(forMessage: message, exclusively: MobileMessaging.application.applicationState == .background)
+			mmContext.interactiveAlertManager.showInteractiveAlert(forMessage: message, exclusively: MobileMessaging.application.applicationState == .background)
 		}
 		completion?(.noData)
 	}

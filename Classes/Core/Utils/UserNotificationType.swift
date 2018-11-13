@@ -11,7 +11,11 @@ import UserNotifications
 public final class UserNotificationType: NSObject, ExpressibleByArrayLiteral {
     public typealias ArrayLiteralElement = UserNotificationType
 	let rawValue: Int
-	
+
+	public override var description: String {
+		return String(rawValue, radix: 2)
+	}
+
 	init(rawValue: Int) {
 		self.rawValue = rawValue
 	}

@@ -9,6 +9,11 @@
 import Foundation
 import CoreData
 
+@objc public enum InAppNotificationStyle: Int16 {
+	case Modal = 0
+	case Banner
+}
+
 @objc public enum MMSeenStatus: Int16 {
     case NotSeen = 0
     case SeenNotSent

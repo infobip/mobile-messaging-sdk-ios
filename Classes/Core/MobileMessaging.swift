@@ -543,6 +543,7 @@ public final class MobileMessaging: NSObject {
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider()
 	lazy var keychain: MMKeychain! = MMKeychain()
+	lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
 
 	//TODO: explicit unwrapping is a subject for removing
 	static var httpSessionManager: DynamicBaseUrlHTTPSessionManager!

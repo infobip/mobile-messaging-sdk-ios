@@ -399,7 +399,10 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 
 extension MTMessage {
 	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String, region: MMRegion) -> MTMessage? {
-		guard let aps = geoMessage.originalPayload[Consts.APNSPayloadKeys.aps] as? [String: Any], let internalData = geoMessage.originalPayload[Consts.APNSPayloadKeys.internalData] as? [String: Any], var silentAps = internalData[Consts.InternalDataKeys.silent] as? [String: Any], let body = silentAps[Consts.APNSPayloadKeys.body] as? String else
+		guard let aps = geoMessage.originalPayload[Consts.APNSPayloadKeys.aps] as? [String: Any],
+			let internalData = geoMessage.originalPayload[Consts.APNSPayloadKeys.internalData] as? [String: Any],
+			var silentAps = internalData[Consts.InternalDataKeys.silent] as? [String: Any],
+			let body = silentAps[Consts.APNSPayloadKeys.body] as? String else
 		{
 			return nil
 		}
@@ -408,8 +411,9 @@ extension MTMessage {
 		silentAps[Consts.APNSPayloadKeys.body] = nil
 		let apsConcat = aps + silentAps
 		var newInternalData: [String: Any] = [Consts.InternalDataKeys.geo: [region.dictionaryRepresentation]]
-		newInternalData["atts"] = geoMessage.internalData?["atts"]
-		newInternalData["inApp"] = geoMessage.internalData?["inApp"]
+		newInternalData[Consts.InternalDataKeys.attachments] = geoMessage.internalData?[Consts.InternalDataKeys.attachments]
+		newInternalData[Consts.InternalDataKeys.showInApp] = geoMessage.internalData?[Consts.InternalDataKeys.showInApp]
+		newInternalData[Consts.InternalDataKeys.inAppStyle] = geoMessage.internalData?[Consts.InternalDataKeys.inAppStyle]
 		
 		var newpayload = geoMessage.originalPayload
 		newpayload[Consts.APNSPayloadKeys.aps] = apsConcat

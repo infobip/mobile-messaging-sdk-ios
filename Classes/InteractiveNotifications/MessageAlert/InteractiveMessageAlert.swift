@@ -13,8 +13,8 @@ public class InteractiveMessageAlertSettings: NSObject {
 	public static var enabled: Bool = true
 }
 
-class InteractiveMessageAlert {
-	static let sharedInstance = InteractiveMessageAlert()
+class InteractiveMessageAlertManager {
+	static let sharedInstance = InteractiveMessageAlertManager()
 	
 	func cancelAllAlerts() {
 		AlertQueue.sharedInstace.cancelAllAlerts()
