@@ -102,6 +102,7 @@ struct Consts {
 		static let geofencingServiceEnabled = "geofencing"
 		static let notificationsEnabled = "notificationsEnabled"
 		static let deviceSecure = "deviceSecure"
+		static let osLanguage = "osLanguage"
 	}
 
 	struct GeoReportingAPIKeys {

@@ -12,21 +12,22 @@ func ==(lhs: SystemData, rhs: SystemData) -> Bool {
 	return lhs.hashValue == rhs.hashValue
 }
 struct SystemData: Hashable {
-	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer: String
+	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer, osLanguage: String
 	let notificationsEnabled, deviceSecure: Bool
 	var dictionaryRepresentation: [String: AnyHashable] {
 
 		var result : [String: AnyHashable] = [
-												Consts.SystemDataKeys.geofencingServiceEnabled: false,
-												Consts.SystemDataKeys.notificationsEnabled: notificationsEnabled,
-												Consts.SystemDataKeys.sdkVersion: SDKVersion
-										     ]
-        if (!MobileMessaging.privacySettings.systemInfoSendingDisabled) {
+			Consts.SystemDataKeys.geofencingServiceEnabled: false,
+			Consts.SystemDataKeys.notificationsEnabled: notificationsEnabled,
+			Consts.SystemDataKeys.sdkVersion: SDKVersion
+		]
+		if (!MobileMessaging.privacySettings.systemInfoSendingDisabled) {
 			result[Consts.SystemDataKeys.osVer] = OSVer
 			result[Consts.SystemDataKeys.deviceManufacturer] = deviceManufacturer
 			result[Consts.SystemDataKeys.deviceModel] = deviceModel
 			result[Consts.SystemDataKeys.appVer] = appVer
-            result[Consts.SystemDataKeys.deviceSecure] = deviceSecure
+			result[Consts.SystemDataKeys.deviceSecure] = deviceSecure
+			result[Consts.SystemDataKeys.osLanguage] = osLanguage
 		}
 		return (result as [String: AnyHashable]).mm_applySubservicesSystemData()
 	}
@@ -50,7 +51,11 @@ public class UserAgent: NSObject {
 	}
 	
 	var systemData: SystemData {
-        return SystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
+		return SystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, osLanguage: osLanguage, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
+	}
+
+	public var osLanguage: String {
+		return NSLocale.preferredLanguages.first ?? ""
 	}
 	
 	public var notificationsEnabled: Bool {
@@ -80,7 +85,7 @@ public class UserAgent: NSObject {
 	}
 	
 	public var libraryVersion: String {
-        return (MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion)
+		return (MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion)
 	}
 	
 	public var libraryName: String {
@@ -110,7 +115,7 @@ public class UserAgent: NSObject {
 				return String(validatingUTF8: p)
 			})
 		})
-		
+		// https://gist.github.com/adamawolf/3048717
 		let machines = [
 			"iPod1,1":"iPod Touch",
 			"iPod2,1":"iPod Touch 2",
@@ -138,14 +143,18 @@ public class UserAgent: NSObject {
 			"iPhone9,3":"iPhone 7 (GSM)",
 			"iPhone9,2":"iPhone 7 Plus (CDMA)",
 			"iPhone9,4":"iPhone 7 Plus (GSM)",
-            
-            "iPhone10,1":"iPhone 8 (CDMA+GSM/LTE)",
-            "iPhone10,4":"iPhone 8 (GSM/LTE)",
-            "iPhone10,2":"iPhone 8 Plus (CDMA+GSM/LTE)",
-            "iPhone10,5":"iPhone 8 Plus (GSM/LTE)",
-            
-            "iPhone10,3": "iPhone X (CDMA+GSM/LTE)",
-            "iPhone10,6": "iPhone X (GSM/LTE)",
+
+			"iPhone10,1":"iPhone 8 (CDMA+GSM/LTE)",
+			"iPhone10,2":"iPhone 8 Plus (CDMA+GSM/LTE)",
+			"iPhone10,3":"iPhone X (CDMA+GSM/LTE)",
+			"iPhone10,4":"iPhone 8 (GSM/LTE)",
+			"iPhone10,5":"iPhone 8 Plus (GSM/LTE)",
+			"iPhone10,6":"iPhone X (GSM/LTE)",
+
+			"iPhone11,2":"iPhone XS",
+			"iPhone11,4":"iPhone XS Max China",
+			"iPhone11,6":"iPhone XS Max",
+			"iPhone11,8":"iPhone XR",
 			
 			"iPad1,1":"iPad (Wifi)",
 			"iPad1,2":"iPad (Cellular)",
@@ -184,13 +193,24 @@ public class UserAgent: NSObject {
 			"iPad6,4":"iPad Pro 12.9\" (Cellular)",
 			"iPad6,7":"iPad Pro 9.7\" (WiFi)",
 			"iPad6,8":"iPad Pro 9.7\" (Cellular)",
-            
-            "iPad6,11":"iPad (5th gen, WiFi)",
-            "iPad6,12":"iPad (5th gen, LTE)",
-            "iPad7,1":"iPad Pro (12.9, 2nd gen, WiFi)",
-            "iPad7,2":"iPad Pro (12.9, 2nd gen, LTE)",
-            "iPad7,3":"iPad Pro (10.5, WiFi)",
-            "iPad7,4":"iPad Pro (10.5, LTE)",
+			"iPad6,11":"iPad (5th gen, WiFi)",
+			"iPad6,12":"iPad (5th gen, LTE)",
+
+			"iPad7,1":"iPad Pro (12.9, 2nd gen, WiFi)",
+			"iPad7,2":"iPad Pro (12.9, 2nd gen, LTE)",
+			"iPad7,3":"iPad Pro (10.5, WiFi)",
+			"iPad7,4":"iPad Pro (10.5, LTE)",
+			"iPad7,5":"iPad 6th Gen (WiFi)",
+			"iPad7,6":"iPad 6th Gen (WiFi+Cellular)",
+
+			"iPad8,1":"iPad Pro 3rd Gen (11 inch, WiFi)",
+			"iPad8,2":"iPad Pro 3rd Gen (11 inch, 1TB, WiFi)",
+			"iPad8,3":"iPad Pro 3rd Gen (11 inch, WiFi+Cellular)",
+			"iPad8,4":"iPad Pro 3rd Gen (11 inch, 1TB, WiFi+Cellular)",
+			"iPad8,5":"iPad Pro 3rd Gen (12.9 inch, WiFi)",
+			"iPad8,6":"iPad Pro 3rd Gen (12.9 inch, 1TB, WiFi)",
+			"iPad8,7":"iPad Pro 3rd Gen (12.9 inch, WiFi+Cellular)",
+			"iPad8,8":"iPad Pro 3rd Gen (12.9 inch, 1TB, WiFi+Cellular)",
 			
 			"i386":"32-bit Simulator",
 			"x86_64":"64-bit Simulator"
@@ -201,31 +221,28 @@ public class UserAgent: NSObject {
 			return UIDevice.current.localizedModel
 		}
 	}
-    
-    public var deviceSecure: Bool {
-        if #available(iOS 9.0, *) {
-            return LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
-            
-        } else {
-            if let secret = "Device has passcode set?".data(using: String.Encoding.utf8, allowLossyConversion: false) {
-                let attributes = [kSecClass as String:kSecClassGenericPassword,
-                                  kSecAttrService as String:"LocalDeviceServices",
-                                  kSecAttrAccount as String:"NoAccount",
-                                  kSecValueData as String:secret,
-                                  kSecAttrAccessible as String:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly] as [String : Any]
-                
-                let status = SecItemAdd(attributes as CFDictionary, nil)
-                if status == 0 {
-                    SecItemDelete(attributes as CFDictionary)
-                    return true
-                }
 
-            }
-            
-            return false
-        }
-    }
-    
+	public var deviceSecure: Bool {
+		if #available(iOS 9.0, *) {
+			return LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
+		} else {
+			if let secret = "Device has passcode set?".data(using: String.Encoding.utf8, allowLossyConversion: false) {
+				let attributes = [kSecClass as String:kSecClassGenericPassword,
+								  kSecAttrService as String:"LocalDeviceServices",
+								  kSecAttrAccount as String:"NoAccount",
+								  kSecValueData as String:secret,
+								  kSecAttrAccessible as String:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly] as [String : Any]
+
+				let status = SecItemAdd(attributes as CFDictionary, nil)
+				if status == 0 {
+					SecItemDelete(attributes as CFDictionary)
+					return true
+				}
+			}
+			return false
+		}
+	}
+
 	func userAgentString(withOptions options: [DataOptions]) -> String {
 		func systemDataString(allowed: Bool) -> String {
 			let outputOSName = allowed ? osName : ""
