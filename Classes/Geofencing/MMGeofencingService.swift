@@ -511,6 +511,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	fileprivate func triggerEventsForRegionsInCaseWeAreInside(_ monitoredNewRegions: Set<MMRegion>, completion: @escaping () -> Void) {
 		/// It was decided to implement following solution: Among concurring nested regions (within the same campaign) that user is already staying in, the smallest should win, the rest should not trigger. It's a temporary solution, more logical would be to trigger the area which has nearest center.
 		guard let currentCoordinate = self.locationManager.location?.coordinate else {
+			MMLogDebug("[GeofencingService] current coordinate is undefined")
 			completion()
 			return
 		}
@@ -532,7 +533,9 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		})
 		
 		let group = DispatchGroup()
+
 		campaignsRegions.values.forEach { region in
+			MMLogDebug("[GeofencingService] you are already in region \(region), triggering entering event...")
 			group.enter()
 			self.onEnter(datasourceRegion: region) { group.leave() }
 		}
