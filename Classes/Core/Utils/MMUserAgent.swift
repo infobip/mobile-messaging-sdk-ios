@@ -55,7 +55,7 @@ public class UserAgent: NSObject {
 	}
 
 	public var osLanguage: String {
-		return NSLocale.preferredLanguages.first ?? ""
+		return NSLocale.current.languageCode ?? ""
 	}
 	
 	public var notificationsEnabled: Bool {
