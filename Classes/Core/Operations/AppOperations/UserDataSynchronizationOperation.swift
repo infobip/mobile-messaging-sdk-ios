@@ -43,6 +43,11 @@ class UserDataSynchronizationOperation: Operation {
 	}
 
 	private func sendUserDataIfNeeded() {
+		guard mmContext.currentInstallation.currentLogoutStatus != .pending else {
+			MMLogDebug("[User data sync] Logout pending. Canceling...")
+			finish()
+			return
+		}
 		guard let pushRegistrationId = user.pushRegistrationId else {
 			MMLogDebug("[User data sync] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
