@@ -55,7 +55,11 @@ public class UserAgent: NSObject {
 	}
 
 	public var osLanguage: String {
-		return NSLocale.current.languageCode ?? ""
+		if let localeId = (UserDefaults.standard.object(forKey: "AppleLanguages") as? Array<String>)?.first ?? NSLocale.current.languageCode {
+			return NSLocale.components(fromLocaleIdentifier: localeId)[NSLocale.Key.languageCode.rawValue] ?? ""
+		} else {
+			return ""
+		}
 	}
 	
 	public var notificationsEnabled: Bool {
