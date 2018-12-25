@@ -139,6 +139,12 @@ class ApnsRegistrationManager {
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
 			UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
+                if MobileMessaging.notificationCategoryPermissionCallback != nil {
+                    MobileMessaging.notificationCategoryPermissionCallback!(granted)
+                }
+                else {
+                    MMLogDebug("Authorization for notification callback wasn't added for handling after Allow / Don't Allow.")
+                }
 				guard granted else {
 					MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
 					return

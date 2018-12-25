@@ -239,6 +239,9 @@ public final class MobileMessaging: NSObject {
 
 	/// The `MessageHandlingDelegate` protocol defines methods for responding to actionable notifications and receiving new notifications. You assign your delegate object to the `messageHandlingDelegate` property of the `MobileMessaging` class. The MobileMessaging SDK calls methods of your delegate at appropriate times to deliver information.
 	public static var messageHandlingDelegate: MessageHandlingDelegate? = nil
+    
+    /// The `notificationCategoryPermissionCallback` closure defines methods for getting action of allow or don't allow permission push notification dialoag. You assign your closure block to the `notificationCategoryPermissionCallback` property of the `MobileMessaging` class. The MobileMessaging SDK calls methods of your closure at appropriate times to deliver information.
+    public static var notificationCategoryPermissionCallback: ((Bool)->Void)? = nil
 	
 	/// The `URLSessionConfiguration` used for all url connections in the SDK
 	///
