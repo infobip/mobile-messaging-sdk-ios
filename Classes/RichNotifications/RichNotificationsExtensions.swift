@@ -153,7 +153,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		currentTask = message.downloadImageAttachment(appGroupId: appGroupId) { (downloadedFileUrl, error) in
 			guard let downloadedFileUrl = downloadedFileUrl,
 				let mContent = (originalContent.mutableCopy() as? UNMutableNotificationContent),
-				let attachment = try? UNNotificationAttachment(identifier: String(downloadedFileUrl.absoluteString.hash), url: downloadedFileUrl, options: nil)
+				let attachment = try? UNNotificationAttachment(identifier: downloadedFileUrl.absoluteString.sha1(), url: downloadedFileUrl, options: nil)
 				else
 			{
 				MMLogDebug("[Notification Extension] rich content downloading completed, could not init content attachment")
@@ -168,7 +168,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		}
 	}
 	
-	private func reportDelivery(_ message: MTMessage, completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
+	private func reportDelivery(_ message: MTMessage, completion: @escaping (DeliveryReportResult) -> Void) {
 		deliveryReporter.report(applicationCode: applicationCode, messageIds: [message.messageId], completion: completion)
 	}
 	
@@ -181,12 +181,12 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 }
 
 protocol DeliveryReporting {
-	func report(applicationCode: String, messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void)
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (DeliveryReportResult) -> Void)
 }
 
 @available(iOS 10.0, *)
 class DeliveryReporter: DeliveryReporting {
-	func report(applicationCode: String, messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (DeliveryReportResult) -> Void) {
 		MMLogDebug("[Notification Extension] reporting delivery for message ids \(messageIds)")
 		guard let dlr = DeliveryReportRequest(applicationCode: applicationCode, dlrIds: messageIds), let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance else
 		{

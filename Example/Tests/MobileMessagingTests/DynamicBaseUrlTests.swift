@@ -33,21 +33,37 @@ class DynamicBaseUrlStorageStub: DynamicBaseUrlStorage {
 class SessionManagerMock: DynamicBaseUrlHTTPSessionManager {
 	typealias RequestResponseMap = (Any) -> (Any?, NSError?)
 	var requestResponseMap: RequestResponseMap
-	
+
 	init(requestResponseMap: @escaping RequestResponseMap) {
 		self.requestResponseMap = requestResponseMap
 		super.init(baseURL: URL(string: "https://initial-stub.com"), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: "")
 		self.storage = DynamicBaseUrlStorageStub()
 	}
-	
+
 	override func performRequest<R>(_ request: R, sessionManager: MM_AFHTTPSessionManager, successBlock: @escaping (URLSessionDataTask, Any?) -> Void, failureBlock: @escaping (URLSessionDataTask?, Error) -> Void) where R : RequestData {
-		
+
 		let (anyResponse, error) = self.requestResponseMap(request)
 		if let error = error {
 			failureBlock(nil, error)
 		} else {
 			successBlock(URLSessionDataTask(), anyResponse as? R.ResponseType)
 		}
+	}
+}
+
+class SessionManagerSuccessMock: DynamicBaseUrlHTTPSessionManager {
+	var responseJson: (Any) -> JSON
+
+	init(responseJson: @escaping (Any) -> JSON) {
+		self.responseJson = responseJson
+		super.init(baseURL: URL(string: "https://initial-stub.com"), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: "")
+		self.storage = DynamicBaseUrlStorageStub()
+	}
+
+	override func sendRequest<R: RequestData>(_ request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
+		completion(Result.Success(
+			R.ResponseType(json: responseJson(request as Any)) as! R.ResponseType)
+		)
 	}
 }
 
@@ -84,13 +100,13 @@ class DynamicBaseUrlTests: MMTestCase {
 		weak var registrationFinishedExpectation = expectation(description: "registration finished")
 		weak var retriesStartedExpectation = expectation(description: "expectationRetriesStarted")
 		let newDynamicURL = URL(string: "https://not-reachable-url.com")!
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		var retriesStarted = false
 		let mm = MobileMessaging.withApplicationCode("", notificationType: UserNotificationType(options: []) , backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)!
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
 		MobileMessaging.httpSessionManager = SessionManagerMock(requestResponseMap: {
 			// given: registration call returns NSURLErrorCannotFindHost error
-			if $0 is RegistrationRequest {
+			if $0 is PostInstance {
 				if retriesStarted == false {
 					retriesStarted = true
 					// here we make sure the very first attempt to register has been sent to a given dynamic base url

@@ -10,7 +10,7 @@ NSString* MMNotificationDeviceTokenReceived = @"com.mobile-messaging.notificatio
 NSString* MMNotificationDeliveryReportSent = @"com.mobile-messaging.notification.dlr-sent";
 NSString* MMNotificationAPIError = @"com.mobile-messaging.notification.api-error";
 NSString* MMNotificationMessageReceived = @"com.mobile-messaging.notification.message-received";
-NSString* MMNotificationUserDataSynced = @"com.mobile-messaging.notification.userdata-synced";
+NSString* MMNotificationUserSynced = @"com.mobile-messaging.notification.userdata-synced";
 NSString* MMNotificationMessagesDidSend = @"com.mobile-messaging.notification.messages-did-send";
 NSString* MMNotificationMessagesWillSend = @"com.mobile-messaging.notification.messages-will-send";
 NSString* MMNotificationGeographicalRegionDidEnter = @"com.mobile-messaging.notification.geographical-region-did-enter";
@@ -18,8 +18,9 @@ NSString* MMNotificationGeographicalRegionDidExit = @"com.mobile-messaging.notif
 NSString* MMNotificationGeoServiceDidStart = @"com.mobile-messaging.notification.geo-service-did-start";
 NSString* MMNotificationMessageTapped = @"com.mobile-messaging.notification.message-tapped";
 NSString* MMNotificationActionTapped = @"com.mobile-messaging.notification.action-tapped";
-NSString* MMNotificationPrimaryDeviceSettingUpdated = @"com.mobile-messaging.notification.primary-device-setting-updated";
-NSString* MMNotificationLogoutCompleted = @"com.mobile-messaging.notification.logout-completed";
+NSString* MMNotificationDepersonalized = @"com.mobile-messaging.notification.depersonalization-completed";
+NSString* MMNotificationPersonalized = @"com.mobile-messaging.notification.personalization-completed";
+NSString* MMNotificationInstallationSynced = @"com.mobile-messaging.notification.userdata-synced";
 
 //MARK: Notification keys
 NSString* MMNotificationKeyRegistrationInternalId = @"com.mobile-messaging.notification.key.registration";
@@ -41,3 +42,6 @@ NSString* MMNotificationKeyMessageIsSilent = @"com.mobile-messaging.notification
 NSString* MMNotificationKeyMessageSendingMOMessages = @"com.mobile-messaging.notification.key.message-sending-messages";
 NSString* MMNotificationKeyGeographicalRegion = @"com.mobile-messaging.notification.key.geographical-region";
 NSString* MMNotificationKeyMobileMessagingContext = @"com.mobile-messaging.notification.key.mobile-messaging-context";
+NSString* MMNotificationKeyIsPrimaryDevice = @"com.mobile-messaging.notification.key.is_primary_device";
+NSString* MMNotificationKeyUser = @"com.mobile-messaging.notification.key.user";
+NSString* MMNotificationKeyInstallation = @"com.mobile-messaging.notification.key.installation";

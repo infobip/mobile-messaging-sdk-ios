@@ -132,27 +132,19 @@ class InactiveApplicationStub: MMApplication {
 }
 
 class UserAgentStub: UserAgent {
-    override var libraryVersion: String {
-        return "1.0.0"
-    }
-    override var osName: String {
-        return "mobile OS"
-    }
-    override var osVersion: String {
-        return "1.0"
-    }
-    override var deviceName: String {
-        return "iPhone Galaxy"
-    }
-    override var hostingAppName: String {
-        return "WheatherApp"
-    }
-    override var hostingAppVersion: String {
-        return "1.0"
-    }
-    override var deviceManufacturer: String {
-        return "GoogleApple"
-    }
+	override var language: String {return "en"}
+	override var notificationsEnabled: Bool {return true}
+	override var osVersion: String {return "1.0"}
+	override var osName: String {return "mobile OS"}
+	override var libraryVersion: String {return "1.0.0"}
+	override var libraryName: String {return "MobileMessaging"}
+	override var hostingAppVersion: String {return "1.0"}
+	override var hostingAppName: String {return "WheatherApp"}
+	override var deviceManufacturer: String {return "GoogleApple"}
+	override var deviceName: String {return "iPhone Galaxy"}
+	override var deviceModelName : String {return "XS"}
+	override var deviceSecure: Bool {return true}
+	override var deviceTimeZone: String? { return "GMT+3:30"}
 }
 
 
@@ -169,46 +161,49 @@ class MMTestCase: XCTestCase {
         super.setUp()
         MobileMessaging.logger?.logOutput = .Console
         MobileMessaging.logger?.logLevel = .All
-        startWithCorrectApplicationCode()
+        MMTestCase.startWithCorrectApplicationCode()
 		MobileMessaging.reachabilityManagerFactory = { return ReachabilityManagerStub(isReachable: true) }
     }
     
-    func cleanUpAndStop() {
+    class func cleanUpAndStop() {
         MobileMessaging.stop(true)
 		MobileMessaging.sharedInstance = nil
     }
     
     override func tearDown() {
         super.tearDown()
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		MobileMessaging.privacySettings = PrivacySettings()
 		GeofencingService.currentDate = nil
+		MobileMessaging.timeZone = TimeZone.current
+		MobileMessaging.calendar = Calendar.current
+		MobileMessaging.userAgent = UserAgent()
 	}
     
-    func nonReportedStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
+    class func nonReportedStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
         var count: Int = 0
-        ctx.reset()
         ctx.performAndWait {
+			ctx.reset()
             count = MessageManagedObject.MM_countOfEntitiesWithPredicate(NSPredicate(format: "reportSent == false"), inContext: ctx)
         }
         return count
     }
     
-    func allStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
+    class func allStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
         var count: Int = 0
-        ctx.reset()
         ctx.performAndWait {
+			ctx.reset()
             count = MessageManagedObject.MM_countOfEntitiesWithContext(ctx)
         }
         return count
     }
 	
-	func startWithApplicationCode(_ code: String) {
+	class func startWithApplicationCode(_ code: String) {
 		let mm = stubbedMMInstanceWithApplicationCode(code)
 		mm?.start()
 	}
 	
-	func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
+	class func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
 		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: "")!
 		mm.setupMockedQueues()
 		MobileMessaging.application = ActiveApplicationStub()
@@ -216,13 +211,13 @@ class MMTestCase: XCTestCase {
 		return mm
 	}
 	
-	func startWithCorrectApplicationCode() {
+	class func startWithCorrectApplicationCode() {
 		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 		mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
 		mm.start()
 	}
 	
-	func startWithWrongApplicationCode() {
+	class func startWithWrongApplicationCode() {
 		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestWrongApplicationCode)!
 		mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
 		mm.start()

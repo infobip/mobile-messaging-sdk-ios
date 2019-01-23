@@ -19,35 +19,7 @@ class RemoteAPIProvider {
 		messageSyncQueue = RemoteAPIQueue()
 		versionFetchingQueue = RemoteAPIQueue()
 	}
-	
-	func syncRegistration(applicationCode: String, pushRegistrationId: String?, deviceToken: String, isEnabled: Bool?, expiredInternalId: String?, completion: @escaping (RegistrationResult) -> Void) {
-		let request = RegistrationRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, deviceToken: deviceToken, isEnabled: isEnabled, expiredInternalId: expiredInternalId)
-		registrationQueue.perform(request: request, completion: completion)
-	}
-	
-	func getInstance(applicationCode: String, pushRegistrationId: String, completion: @escaping (GetInstanceResult) -> Void) {
-		registrationQueue.perform(request: GetInstanceRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId), completion: completion)
-	}
-	
-	func putInstance(applicationCode: String, pushRegistrationId: String, isPrimaryDevice: Bool, completion: @escaping (PutInstanceResult) -> Void) {
-		registrationQueue.perform(request: PutInstanceRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, isPrimary: isPrimaryDevice), completion: completion)
-	}
-	
-	func fetchUserData(applicationCode: String, pushRegistrationId: String, externalUserId: String?, completion: @escaping (UserDataSyncResult) -> Void) {
-		let request = UserDataRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, externalUserId: externalUserId)
-		registrationQueue.perform(request: request, completion: completion)
-	}
-	
-	func syncUserData(applicationCode: String, pushRegistrationId: String, externalUserId: String?, predefinedUserData: UserDataDictionary? = nil, customUserData: [String: CustomUserDataValue]? = nil, completion: @escaping (UserDataSyncResult) -> Void) {
-		let request = UserDataRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, externalUserId: externalUserId, predefinedUserData: predefinedUserData, customUserData: customUserData)
-		registrationQueue.perform(request: request, completion: completion)
-	}
-	
-	func syncSystemData(applicationCode: String, pushRegistrationId: String, systemData: SystemData, completion: @escaping (SystemDataSyncResult) -> Void) {
-		let request = SystemDataSyncRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, systemData: systemData)
-		registrationQueue.perform(request: request, completion: completion)
-	}
-	
+
 	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData], completion: @escaping (SeenStatusSendingResult) -> Void) {
 		let request = SeenStatusSendingRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, seenList: seenList)
 		seenStatusQueue.perform(request: request, completion: completion)
@@ -58,10 +30,6 @@ class RemoteAPIProvider {
 		messageSyncQueue.perform(request: request, completion: completion)
 	}
 	
-	func logout(applicationCode: String, pushRegistrationId: String, completion: @escaping (LogoutResult) -> Void) {
-		registrationQueue.perform(request: LogoutRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId), completion: completion)
-	}
-	
 	func syncMessages(applicationCode: String, pushRegistrationId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void) {
 		let request = MessagesSyncRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, archiveMsgIds: archiveMsgIds, dlrMsgIds: dlrMsgIds)
 		messageSyncQueue.perform(request: request, exclusively: true, completion: completion)
@@ -70,5 +38,54 @@ class RemoteAPIProvider {
 	func fetchRecentLibraryVersion(applicationCode: String, pushRegistrationId: String?, completion: @escaping (LibraryVersionResult) -> Void) {
 		let request = LibraryVersionRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId)
 		versionFetchingQueue.perform(request: request, completion: completion)
+	}
+	
+//new api
+	func depersonalize(applicationCode: String, pushRegistrationId: String, pushRegistrationIdToDepersonalize: String, completion: @escaping (DepersonalizeResult) -> Void) {
+		registrationQueue.perform(request: PostDepersonalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, pushRegistrationIdToDepersonalize: pushRegistrationIdToDepersonalize), completion: completion)
+	}
+
+	func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, completion: @escaping (PersonalizeResult) -> Void) {
+		let r = PostPersonalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize)
+		registrationQueue.perform(request: r, completion: completion)
+	}
+
+	func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateUserDataResult) -> Void) {
+		if let request = PatchUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, returnInstance: false, returnPushServiceToken: false) {
+			registrationQueue.perform(request: request, completion: completion)
+		} else {
+			completion(.Cancel)
+		}
+	}
+
+	func getUser(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchUserDataResult) -> Void) {
+		let request = GetUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, returnInstance: true, returnPushServiceToken: false)
+		registrationQueue.perform(request: request, completion: completion)
+	}
+
+	func patchInstance(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void) {
+		if let request = PatchInstance(applicationCode: applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: refPushRegistrationId, body: body, returnPushServiceToken: false) {
+			registrationQueue.perform(request: request, completion: completion)
+		} else {
+			completion(.Cancel)
+		}
+	}
+
+	func postInstance(applicationCode: String, body: RequestBody, completion: @escaping (FetchInstanceDataResult) -> Void) {
+		if let request = PostInstance(applicationCode: applicationCode, body: body, returnPushServiceToken: false) {
+			registrationQueue.perform(request: request, completion: completion)
+		} else {
+			completion(.Cancel)
+		}
+	}
+
+	func getInstance(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchInstanceDataResult) -> Void) {
+		let request = GetInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, returnPushServiceToken: false)
+		registrationQueue.perform(request: request, completion: completion)
+	}
+
+	func deleteInstance(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String, completion: @escaping (UpdateInstanceDataResult) -> Void) {
+		let request = DeleteInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId)
+		registrationQueue.perform(request: request, completion: completion)
 	}
 }

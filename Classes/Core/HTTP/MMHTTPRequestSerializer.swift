@@ -7,13 +7,13 @@
 
 final class RequestSerializer : MM_AFHTTPRequestSerializer {
 	private var applicationCode: String
-    private var jsonBody: [String: Any]?
+    private var jsonBody: [String: Any?]?
 	private var headers: [String: String]?
 	private var pushRegistrationId: String?
     
-	init(applicationCode: String, jsonBody: [String: Any]?, pushRegistrationId: String?, headers: [String: String]?) {
+	init(applicationCode: String, jsonBody: [String: Any?]?, pushRegistrationId: String?, headers: [String: String]?) {
 		self.applicationCode = applicationCode
-        self.jsonBody = jsonBody?.nilIfEmpty
+		self.jsonBody = jsonBody?.nilIfEmpty
 		self.headers = headers
 		self.pushRegistrationId = pushRegistrationId
 		super.init()
@@ -57,11 +57,12 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
             do {
                 request.httpBody = try SanitizedJSONSerialization.data(withJSONObject: jsonBody, options: [])
 				request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-				request.addValue("application/json", forHTTPHeaderField: "Accept")
             } catch let error as NSError {
                 MMLogError("RequestSerializer can't serialize json body: \(jsonBody) with error: \(error)")
             }
         }
+
+		request.addValue("application/json", forHTTPHeaderField: "Accept")
 
 		MMLogDebug("""
 			Sending request
@@ -83,25 +84,28 @@ final class RequestSerializer : MM_AFHTTPRequestSerializer {
 	}
 	
 	class func query(fromParameters parameters: [String: Any]) -> String {
-		var escapedPairs = [String]()
+		var pairs = [String]()
 		for (key, value) in parameters {
 			switch value {
+			case let _value as Bool :
+				pairs.append("\(key.mm_urlSafeString)=\(_value ? "true" : "false")")
 			case let _value as String :
-				escapedPairs.append("\(key.mm_urlSafeString)=\(_value.mm_urlSafeString)")
+				pairs.append("\(key.mm_urlSafeString)=\(_value.mm_urlSafeString)")
 			case (let _values as [String]) :
 				for arrayValue in _values {
-					escapedPairs.append("\(key.mm_urlSafeString)=\(arrayValue.mm_urlSafeString)")
+					pairs.append("\(key.mm_urlSafeString)=\(arrayValue.mm_urlSafeString)")
 				}
 			default:
-				escapedPairs.append("\(key.mm_urlSafeString)=\(String(describing: value).mm_urlSafeString)")
+				pairs.append("\(key.mm_urlSafeString)=\(String(describing: value).mm_urlSafeString)")
 			}
 		}
-		return escapedPairs.joined(separator: "&")
+		return pairs.joined(separator: "&")
 	}
 }
 
 class SanitizedJSONSerialization: JSONSerialization {
 	override class func data(withJSONObject obj: Any, options opt: JSONSerialization.WritingOptions = []) throws -> Data {
+
 		let data = try super.data(withJSONObject: obj, options: opt)
 		let jsonString = String(data: data, encoding: String.Encoding.utf8)
 		let sanitizedString = jsonString?.replacingOccurrences(of: "\\/", with: "/")

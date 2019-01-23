@@ -23,7 +23,6 @@ final class SeenStatusPersistingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Seen status persisting] started...")
-		context.reset()
 		markMessagesAsSeen()
 	}
 	
@@ -32,7 +31,8 @@ final class SeenStatusPersistingOperation: Operation {
 			finish()
 			return
 		}
-		self.context.performAndWait {
+		context.performAndWait {
+			context.reset()
 			guard let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.NotSeen.rawValue) AND messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId  IN %@", self.messageIds), context: self.context), !dbMessages.isEmpty else
 			{
 				self.finish()

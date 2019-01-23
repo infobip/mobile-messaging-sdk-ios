@@ -6,16 +6,16 @@
 //
 
 class MMKeychain: KeychainSwift {
-	var internalId: String? {
+	var pushRegId: String? {
 		get {
-			let internalId = get(Consts.KeychainKeys.internalId)
+			let internalId = get(Consts.KeychainKeys.pushRegId)
 			MMLogDebug("[Keychain] get internalId \(internalId.orNil)")
 			return internalId
 		}
 		set {
 			if let unwrappedValue = newValue {
 				MMLogDebug("[Keychain] set internalId \(unwrappedValue)")
-				set(unwrappedValue, forKey: Consts.KeychainKeys.internalId, withAccess: .accessibleWhenUnlockedThisDeviceOnly)
+				set(unwrappedValue, forKey: Consts.KeychainKeys.pushRegId, withAccess: .accessibleWhenUnlockedThisDeviceOnly)
 			}
 		}
 	}
@@ -30,7 +30,7 @@ class MMKeychain: KeychainSwift {
 	@discardableResult
 	override func clear() -> Bool {
 		MMLogDebug("[Keychain] clearing")
-		let cleared = delete(Consts.KeychainKeys.internalId)
+		let cleared = delete(Consts.KeychainKeys.pushRegId)
 		if !cleared {
 			MMLogError("[Keychain] clearing failure \(lastResultCode)")
 		}

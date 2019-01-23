@@ -323,7 +323,7 @@ final public class MMRegion: NSObject, DictionaryRepresentable {
 	}
 	
 	public override var hash: Int {
-		return dataSourceIdentifier.hash
+		return dataSourceIdentifier.hashValue
 	}
 	
 	public override func isEqual(_ object: Any?) -> Bool {

@@ -118,11 +118,11 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 	public func sendLogs(fromViewController vc: UIViewController) {
 		var objectsToShare: [Any] = [MobileMessaging.userAgent.currentUserAgentString]
 		
-		if let dt = MobileMessaging.currentInstallation?.deviceToken {
+		if let dt = MobileMessaging.sharedInstance?.currentInstallation?.deviceToken {
 			objectsToShare.append("APNS device token: \(dt)")
 		}
 		
-		if let id = MobileMessaging.currentUser?.pushRegistrationId {
+		if let id = MobileMessaging.sharedInstance?.currentInstallation?.pushRegistrationId {
 			objectsToShare.append("Push registration ID: \(id)")
 		}
 		
@@ -186,8 +186,12 @@ final class MMLogFormatter: NSObject, DDLogFormatter {
 		let date = dateFormatter.string(from: logMessage.timestamp)
 		let sign: String
 		switch logMessage.level {
-		case .debug,.info,.verbose:
+		case .info:
+			sign = "ℹ️"
+		case .verbose:
 			sign = "💬"
+		case .debug:
+			sign = "🛠"
 		case .warning:
 			sign = "⚠️"
 		case .error:

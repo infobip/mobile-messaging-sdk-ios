@@ -50,16 +50,17 @@ class MMMessageHandler: MobileMessagingService {
 	lazy var messageSendingQueue = MMOperationQueue.userInitiatedQueue
 	lazy var messageSyncQueue = MMOperationQueue.newSerialQueue
 	lazy var seenPostponer = MMPostponer(executionQueue: DispatchQueue.main)
-	
 	let storage: MMCoreDataStorage
-	let mmContext: MobileMessaging
 	
 	init(storage: MMCoreDataStorage, mmContext: MobileMessaging) {
 		self.storage = storage
-		self.mmContext = mmContext
-        self.evictOldMessages()
-		self.registerSelfAsSubservice(of: mmContext)
+		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.MessageHandler")
     }
+
+	override func start(_ completion: @escaping (Bool) -> Void) {
+		self.evictOldMessages(completion: { })
+		super.start(completion)
+	}
 
     //MARK: Intenal	
 	func handleAPNSMessage(_ userInfo: APNSPayload, completion: ((MessageHandlingResult) -> Void)? = nil) {
@@ -144,31 +145,21 @@ class MMMessageHandler: MobileMessagingService {
 		}
 	}
 	
-	public func syncWithServer(_ completion: ((NSError?) -> Void)? = nil) {
-		guard isRunning == true else {
-			completion?(nil)
-			return
-		}
-		syncMessagesWithOuterLocalSources() {
-			self.syncMessagesWithServer(completion)
-		}
-	}
-	
-	func syncMessagesWithServer(_ completion: ((NSError?) -> Void)? = nil) {
+	func syncMessagesWithServer(_ completion: @escaping (NSError?) -> Void) {
 		messageSyncQueue.addOperation(MessagesSyncOperation(context: storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
 	}
 	
-	func evictOldMessages(_ messageAge: TimeInterval? = nil, completion:(() -> Void)? = nil) {
+	func evictOldMessages(_ messageAge: TimeInterval? = nil, completion: @escaping () -> Void) {
 		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
     }
 	
-    func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+	func setSeen(_ messageIds: [String], completion: @escaping (SeenStatusSendingResult) -> Void) {
 		setSeen(messageIds, immediately: false, completion: completion)
     }
     
-    func setSeen(_ messageIds: [String], immediately: Bool, completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+	func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping (SeenStatusSendingResult) -> Void) {
         guard !messageIds.isEmpty else {
-            completion?(SeenStatusSendingResult.Cancel)
+			completion(SeenStatusSendingResult.Cancel)
             return
         }
         messageSyncQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext))
@@ -250,19 +241,29 @@ class MMMessageHandler: MobileMessagingService {
 		})
 	}
 	
-	func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+	func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		messageSendingQueue.addOperation(MessagePostingOperation(messages: messages,
 		                                                         isUserInitiated: isUserInitiated,
 		                                                         context: storage.newPrivateContext(),
 		                                                         mmContext: mmContext,
 		                                                         finishBlock:
 			{ (result: MOMessageSendingResult) in
-				completion?(result.value?.messages, result.error)
+				completion(result.value?.messages, result.error)
 			}
 		))
 	}
-	
-	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
+
+	override public func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+		guard isRunning == true else {
+			completion(nil)
+			return
+		}
+		syncMessagesWithOuterLocalSources() {
+			self.syncMessagesWithServer(completion)
+		}
+	}
+
+	override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
 		guard !originalMessage.isGeoSignalingMessage else {
 			MMLogDebug("[Message Handler] cannot populate message \(message.messageId)")
 			return false
@@ -279,66 +280,54 @@ class MMMessageHandler: MobileMessagingService {
 		MMLogDebug("[Message Handler] attributes fulfilled for message \(message.messageId)")
 		return true
 	}
-	
-	var isRunning: Bool = false
-	
-	var uniqueIdentifier: String {
-		return "com.mobile-messaging.subservice.MessageHandler"
-	}
-	
-	func start(_ completion: ((Bool) -> Void)? = nil) {
-		isRunning = true
-		completion?(true)
-	}
-	
-	func stop(_ completion: ((Bool) -> Void)? = nil) {
-		isRunning = false
+
+	override func stop(_ completion: @escaping (Bool) -> Void) {
 		cancelOperations()
-		completion?(true)
+		super.stop(completion)
 	}
-	
-	private func cancelOperations() {
-		messageHandlingQueue.cancelAllOperations()
-		messageSendingQueue.cancelAllOperations()
-		messageSyncQueue.cancelAllOperations()
-	}
-	
-	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
+
+	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		MMLogDebug("[Message handler] log out")
 		cancelOperations()
 		messageSyncQueue.addOperation {
 			if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {
 				defaultMessageStorage.removeAllMessages() { _ in
-					completion(nil)
+					completion()
 				}
 			} else {
-				completion(nil)
+				completion()
 			}
 		}
 	}
 	
-	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
-		stop()
+	override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
+		stop({ _ in })
 	}
 
-	func logoutStatusDidChange(_ mmContext: MobileMessaging) {
-		switch mmContext.currentInstallation.currentLogoutStatus {
+	override func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {
+		switch mmContext.currentInstallation.currentDepersonalizationStatus {
 		case .pending:
-			stop(nil)
-		case .undefined:
-			start(nil)
+			stop({ _ in })
+		case .success, .undefined:
+			start({ _ in })
 		}
 	}
 
-	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
-		if mmContext.isPushRegistrationEnabled == false {
-			stop()
+	override func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
+		if mmContext.currentInstallation.isPushRegistrationEnabled {
+			start({ _ in })
 		} else {
-			start()
+			stop({ _ in })
 		}
 	}
 	
 	static func isNotificationTapped(_ notificationUserInfo: [String: Any]?, applicationState: UIApplication.State) -> Bool {
 		return applicationState == .inactive || (notificationUserInfo != nil ? notificationUserInfo![ApplicationLaunchedByNotification_Key] != nil : false)
+	}
+
+	private func cancelOperations() {
+		messageHandlingQueue.cancelAllOperations()
+		messageSendingQueue.cancelAllOperations()
+		messageSyncQueue.cancelAllOperations()
 	}
 }

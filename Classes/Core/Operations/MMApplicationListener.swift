@@ -17,11 +17,13 @@ final class MMApplicationListener: NSObject {
 		self.mmContext = mmContext
         super.init()
 
+		if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {
 		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppWillEnterForegroundNotification), name: UIApplication.willEnterForegroundNotification, object: nil)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppDidFinishLaunchingNotification(n:)), name: UIApplication.didFinishLaunchingNotification, object: nil)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleGeoServiceDidStartNotification), name: NSNotification.Name(rawValue: MMNotificationGeoServiceDidStart), object: nil)
+		}
 		
     }
 	
@@ -39,7 +41,7 @@ final class MMApplicationListener: NSObject {
 	}
 	
 	@objc func handleGeoServiceDidStartNotification() {
-		mmContext?.currentInstallation?.syncSystemDataWithServer()
+		mmContext?.currentInstallation?.syncSystemDataWithServer() { _ in }
 	}
 	
 	//MARK: Private
@@ -50,8 +52,8 @@ final class MMApplicationListener: NSObject {
 			return
 		}
 		mm.sync()
-		if mm.currentInstallation.currentLogoutStatus == .pending {
-			mm.currentInstallation.logout(completion: { _, _ in })
+		if mm.currentInstallation.currentDepersonalizationStatus == .pending {
+			mm.currentInstallation.depersonalize(completion: { _, _ in })
 		}
 	}
 }

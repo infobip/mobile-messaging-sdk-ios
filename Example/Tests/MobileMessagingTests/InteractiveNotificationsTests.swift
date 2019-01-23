@@ -105,9 +105,9 @@ class InteractiveNotificationsTests: MMTestCase {
 		var set = Set<NotificationCategory>()
 		set.insert(category)
 		
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
+		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
 		mm.start()
 		
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
@@ -240,9 +240,9 @@ class InteractiveNotificationsTests: MMTestCase {
 		var set = Set<NotificationCategory>()
 		set.insert(category)
 		
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
+		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
 		mm.start()
 		
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)

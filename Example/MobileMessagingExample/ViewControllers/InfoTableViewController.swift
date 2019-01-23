@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import MobileMessaging
+@testable import MobileMessaging
 
 let kSettingCellId = "kSettingCellId"
 
@@ -71,9 +71,9 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
 		var settingValue : String?
 		switch indexPath.section {
 		case SettingsCell.deviceToken.rawValue:
-			settingValue = MobileMessaging.currentInstallation?.deviceToken
+			settingValue = MobileMessaging.sharedInstance?.currentInstallation?.deviceToken
 		case SettingsCell.internalId.rawValue:
-			settingValue = MobileMessaging.currentUser?.pushRegistrationId
+			settingValue = MobileMessaging.sharedInstance?.currentInstallation?.pushRegistrationId
 		default: break
 		}
 		

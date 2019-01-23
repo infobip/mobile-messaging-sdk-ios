@@ -34,7 +34,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
 	```ruby
 	source 'https://github.com/CocoaPods/Specs.git'
-	platform :ios, '8.0'
+	platform :ios, '9.0'
 	use_frameworks!
 	pod 'MobileMessaging'
 	```
@@ -124,7 +124,7 @@ The simplest approach to integrate Mobile Messaging SDK with an existing app is 
 		[MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
 	}
 	```
-6. **Skip this step is your apps minimum deployment target is iOS 10 or later.** Override method `application:didReceiveLocalNotification`(for Objective-C) or `application:didReceive:`(for Swift) in order the MobileMessaging SDK to be able to handle incoming local notifications internally:
+6. **Skip this step if your apps minimum deployment target is iOS 10 or later.** Override method `application:didReceiveLocalNotification`(for Objective-C) or `application:didReceive:`(for Swift) in order the MobileMessaging SDK to be able to handle incoming local notifications internally:
 
 	```swift
 	// Swift
@@ -140,42 +140,7 @@ The simplest approach to integrate Mobile Messaging SDK with an existing app is 
     }
 	```
 
-## Mobile Messaging APIs
+---
 
-### Events
-
-Library informs you about following events using NSNotificationCenter:
-
-* __Message received__ - is triggered after a message has been received.
-* __Device token received__ - is triggered after an APNS registration token has been received from APNS.
-* __Registration updated__ - is triggered after an APNS registration token has been successfully stored on the server.
-* __API error__ - is triggered on every error returned by API.
-* __Delivery reports sent__ - is triggered after a message delivery has been reported.
-* __Message will be sent__ - is triggered when a mobile originated message is about to be sent to the server.
-* __Message did send__ - is triggered after a mobile originated message has been sent to the server.
-* etc.
-
-More information on library events available on our [wiki page](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Library-events).
-
-### Linking with MSISDN
-
-It is recommended that you link the GSM number (in [MSISDN](https://en.wikipedia.org/wiki/MSISDN) format).
-It will give an additional opportunity to target your application users and orchestrate your campaigns with [OMNI Messaging service](https://dev.infobip.com/docs/omni-introduction) including SMS fallback feature.
-
-```swift
-// Swift
-MobileMessaging.currentUser?.save(msisdn: <#for example "79091234567"#>, completion:
-	{ error in
-		<#handle the error if needed#>
-	}
-)
-```
-
-```objective-c
-// Objective-C
-[[MobileMessaging currentUser] saveWithMsisdn: <#for example @"79091234567"#>
-								   completion: ^(NSError * _Nullable error)
-{
-	<#handle the error if needed#>
-}];
-```
+Next steps:
+- [User profile](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile.md)

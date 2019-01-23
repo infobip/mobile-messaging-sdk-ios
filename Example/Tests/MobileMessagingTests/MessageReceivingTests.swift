@@ -192,7 +192,7 @@ class MessageReceivingTests: MMTestCase {
 			})
         }
 		self.waitForExpectations(timeout: 60, handler: { error in
-			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
+			XCTAssertEqual(MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
 	}
 	
@@ -200,8 +200,10 @@ class MessageReceivingTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Check finished")
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
-		
-		MobileMessaging.disablePushRegistration { _ in
+
+		MobileMessaging.currentInstallation?.isPushRegistrationEnabled = false
+		MobileMessaging.currentInstallation?.persist()
+		MobileMessaging.currentInstallation?.syncWithServer({ _ in
 			
 			sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 				
@@ -214,10 +216,9 @@ class MessageReceivingTests: MMTestCase {
 					}
 				})
 			}
-			
-		}
+		})
 		self.waitForExpectations(timeout: 60, handler: { error in
-			XCTAssertEqual(0, self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "There must be not any message in db, since we disabled the registration")
+			XCTAssertEqual(0, MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "There must be not any message in db, since we disabled the registration")
 		})
 	}
 

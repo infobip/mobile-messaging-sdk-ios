@@ -8,37 +8,37 @@
 //MARK: Notification names
 
 /**
- Posted when the registration is updated on backend server.
+ Posted after the registration is updated on backend server.
  */
 FOUNDATION_EXPORT NSString* MMNotificationRegistrationUpdated;
 
 /**
- Posted when an APNs device token is received.
+ Posted after an APNs device token is received.
  */
 FOUNDATION_EXPORT NSString* MMNotificationDeviceTokenReceived;
 
 /**
- Posted when the library has succesfully sent message delivery report.
+ Posted after the library has succesfully sent message delivery report.
  */
 FOUNDATION_EXPORT NSString* MMNotificationDeliveryReportSent;
 
 /**
- Posted when a server error received.
+ Posted after a server error received.
  */
 FOUNDATION_EXPORT NSString* MMNotificationAPIError;
 
 /**
- Posted when a message is received (either pushed by APNs or fetched from the server).
+ Posted after a message is received (either pushed by APNs or fetched from the server).
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessageReceived;
 
 /**
- Posted when the user data is synced with the server.
+ Posted after the user data is synced with the server.
  */
-FOUNDATION_EXPORT NSString* MMNotificationUserDataSynced;
+FOUNDATION_EXPORT NSString* MMNotificationUserSynced;
 
 /**
- Posted when the mobile originated message sent to the server. The `userInfo` dictionary contains the following key: `MMNotificationKeyMessageSendingMOMessages` - contains an array of `MOMessage` messages with `status` of sending.
+ Posted after the mobile originated message sent to the server. The `userInfo` dictionary contains the following key: `MMNotificationKeyMessageSendingMOMessages` - contains an array of `MOMessage` messages with `status` of sending.
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessagesDidSend;
 
@@ -48,81 +48,99 @@ FOUNDATION_EXPORT NSString* MMNotificationMessagesDidSend;
 FOUNDATION_EXPORT NSString* MMNotificationMessagesWillSend;
 
 /**
- Posted when the user enters monitored region. The `userInfo` dictionary contains the following key: `MMNotificationKeyGeographicalRegion` - contains `MMRegion` object in which user entered.
+ Posted after the user enters monitored region. The `userInfo` dictionary contains the following key: `MMNotificationKeyGeographicalRegion` - contains `MMRegion` object in which user entered.
  */
 FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidEnter;
 
 /**
- Posted when the user exits monitored region. The `userInfo` dictionary contains the following key: `MMNotificationKeyGeographicalRegion` - contains `MMRegion` object from which user exited.
+ Posted after the user exits monitored region. The `userInfo` dictionary contains the following key: `MMNotificationKeyGeographicalRegion` - contains `MMRegion` object from which user exited.
  */
 FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidExit;
 
 /**
- Posted when the Geofencing Service started.
+ Posted after the Geofencing Service started.
  */
 FOUNDATION_EXPORT NSString* MMNotificationGeoServiceDidStart;
 
 /**
- Posted when the User tapped notification.
+ Posted after the User tapped notification.
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessageTapped;
 
 /**
- Posted when the User tapped performed notification action.
+ Posted after the User tapped performed notification action.
  */
 FOUNDATION_EXPORT NSString* MMNotificationActionTapped;
 
 /**
- Posted when the Primary setting for device updated on server.
+ Posted after the depersonalization operation completes on server.
  */
-FOUNDATION_EXPORT NSString* MMNotificationPrimaryDeviceSettingUpdated;
+FOUNDATION_EXPORT NSString* MMNotificationDepersonalized;
 
 /**
- Posted when the logout operation completes on server.
+ Posted after the personalization operation completes on server.
  */
-FOUNDATION_EXPORT NSString* MMNotificationLogoutCompleted;
+FOUNDATION_EXPORT NSString* MMNotificationPersonalized;
+
+/**
+ Posted after the current installation synced with the server.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationInstallationSynced;
 
 
 //MARK: Notification keys
 
 /**
- Key for entry in userInfo dictionary of `kRegistrationUpdated` notification.
+ Key for entry in userInfo dictionary of `MMNotificationRegistrationUpdated` notification.
  Contains an Internal Id string for the registered user.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyRegistrationInternalId;
 
 /**
- Key for entry in userInfo dictionary of `kRegistrationUpdated` notification.
+ Key for entry in userInfo dictionary of `MMNotificationKeyDeviceToken` notification.
  Contains a hex-encoded device token string received from APNS.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyDeviceToken;
 
 /**
- Key for entry in userInfo dictionary of `kDeliveryReportSent` notification.
+ Key for entry in userInfo dictionary of `MMNotificationDeliveryReportSent` notification.
  Contains a an array of message ID strings.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyDLRMessageIDs;
 
 /**
- Key for entry in userInfo dictionary of `kAPIError` notification.
+ Key for entry in userInfo dictionary of `MMNotificationAPIError` notification.
  Contains a corresponding `NSError` object.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyAPIErrorUserInfo;
 
 /**
- Key for entry in userInfo dictionary of `kMessageReceived` notification.
- Contains an object of class `MMMessage`.
+ Key for entry in userInfo dictionary of `MMNotificationMessageTapped`, `MMNotificationActionTapped`, `MMNotificationMessageReceived` notification.
+ Contains an `MTMessage` object.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessage;
 
+/**
+ Key for entry in userInfo dictionary of `MMNotificationMessageTapped`, `MMNotificationActionTapped` notification.
+ Contains an original notification userInfo.
+ */
 FOUNDATION_EXPORT NSString* MMNotificationKeyNotificationUserInfo;
 
+/**
+ Key for entry in userInfo dictionary of `MMNotificationMessageTapped`, `MMNotificationActionTapped` notification.
+ Contains an action identifier string.
+ */
 FOUNDATION_EXPORT NSString* MMNotificationKeyActionIdentifier;
+
+/**
+ Key for entry in userInfo dictionary of `MMNotificationActionTapped` notification.
+ Contains text that has been entered into the text input.
+ */
 FOUNDATION_EXPORT NSString* MMNotificationKeyActionTextInput;
 
 /**
  Key for entry in userInfo dictionary of `MMNotificationMessagesWillSend` and `MMNotificationMessagesDidSend` notification.
- Contains a an array of `MOMessage` messages with `status` of sending.
+ Contains an array of `MOMessage` messages with `status` of sending.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessageSendingMOMessages;
 
@@ -131,3 +149,15 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyMessageSendingMOMessages;
  Contains object holding info about region to which user entered or exited.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyGeographicalRegion;
+
+/**
+ Key for entry in userInfo dictionary of `MMNotificationUserSynced` notification.
+ Contains a current user data.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyUser;
+
+/**
+ Key for entry in userInfo dictionary of `MMNotificationInstallationSynced` notification.
+ Contains a current installation data.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyInstallation;

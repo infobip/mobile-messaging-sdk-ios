@@ -6,15 +6,6 @@
 //
 
 import Foundation
-
-//
-//  ChatMessagesStorageDelegate.swift
-//  MobileMessaging
-//
-//  Created by Andrey Kadochnikov on 30/10/2017.
-//
-
-import Foundation
 import AudioToolbox
 
 class ChatHelper : MessageStorageDelegate {
@@ -22,7 +13,7 @@ class ChatHelper : MessageStorageDelegate {
 		if UIApplication.shared.applicationState == UIApplication.State.active {
 			playReceivedMessageSound()
 		} else {
-			MobileMessaging.currentInstallation?.badgeNumber += 1
+			MobileMessaging.sharedInstance?.currentInstallation?.badgeNumber += 1
 		}
 	}
 	

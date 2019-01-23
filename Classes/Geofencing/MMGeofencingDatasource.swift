@@ -70,8 +70,8 @@ class GeofencingInMemoryDatasource {
 //MARK: - Private
 	
 	private func loadMessages() {
-		context.reset()
 		context.performAndWait {
+			context.reset()
 			let geomsgs = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), context: self.context)
 			
 			self.messages = Set(geomsgs?.compactMap({ return MMGeoMessage(managedObject: $0) }).filter { $0.isNotExpired } ?? [MMGeoMessage]())

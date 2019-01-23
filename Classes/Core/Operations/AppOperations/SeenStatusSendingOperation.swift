@@ -21,8 +21,8 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	override func execute() {
-		context.reset()
 		context.perform {
+			self.context.reset()
 			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue) AND NOT(messageId MATCHES [c] '\(Consts.UUIDRegexPattern)')"), context: self.context), !seenNotSentMessages.isEmpty else
 			{
 				MMLogDebug("[Seen status reporting] There is no non-seen meessages to send to the server. Finishing...")
@@ -36,7 +36,7 @@ class SeenStatusSendingOperation: Operation {
 				return SeenData(messageId: msg.messageId, seenDate: seenDate)
 			}
 			
-			self.mmContext.remoteApiProvider.sendSeenStatus(applicationCode: self.mmContext.applicationCode, pushRegistrationId: self.mmContext.currentUser?.pushRegistrationId, seenList: seenStatusesToSend) { result in
+			self.mmContext.remoteApiProvider.sendSeenStatus(applicationCode: self.mmContext.applicationCode, pushRegistrationId: self.mmContext.currentInstallation?.pushRegistrationId, seenList: seenStatusesToSend) { result in
                 self.result = result
 				self.handleSeenResult(result, messages: seenNotSentMessages) {
 					self.finishWithError(result.error)

@@ -32,18 +32,18 @@ class MessagePostingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message posting] started...")
-		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogDebug("[Message posting] Registration may be not healthy. Finishing...")
+		guard let pushRegistrationId = mmContext.currentInstallation.pushRegistrationId else {
+			MMLogWarn("[Message posting] No registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 
-		guard let pushRegistrationId = mmContext.currentUser?.pushRegistrationId else {
-			MMLogDebug("[Message posting] No registration. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+			MMLogWarn("[Message posting] Registration is not healthy. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		
+
 		context.reset()
 
 		// if there were explicit messages to send
@@ -96,7 +96,7 @@ class MessagePostingOperation: Operation {
 	}
 	
 	func sendMessages(_ msgs: [MOMessage], pushRegistrationId: String) {
-		self.postWillSendNotification(messagesToSend: msgs)
+		UserEventsManager.postWillSendMessageEvent(msgs)
 		self.mmContext.remoteApiProvider.sendMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, messages: msgs) { result in
 			self.operationResult = result
 			self.handleResult(result: result, originalMessagesToSend: msgs) {
@@ -162,14 +162,6 @@ class MessagePostingOperation: Operation {
 		}, completion: completion)
 	}
 	
-	private func postWillSendNotification(messagesToSend: Array<MOMessage>) {
-		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesWillSend, userInfo: [MMNotificationKeyMessageSendingMOMessages: messagesToSend])
-	}
-	
-	private func postDidSendNotification(messages: [MOMessage]) {
-		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationMessagesDidSend, userInfo: [MMNotificationKeyMessageSendingMOMessages: messages])
-	}
-	
 	private func handleResult(result: MOMessageSendingResult, originalMessagesToSend: Array<MOMessage>, completion: @escaping () -> Void) {
 		switch result {
 		case .Success(let response):
@@ -182,7 +174,7 @@ class MessagePostingOperation: Operation {
 			}
 
 			self.updateMessageStorageIfNeeded(with: response.messages) {
-				self.postDidSendNotification(messages: response.messages)
+				UserEventsManager.postMessageSentEvent(response.messages)
 				completion()
 			}
 
@@ -193,7 +185,7 @@ class MessagePostingOperation: Operation {
 				completion()
 			})
 		case .Cancel:
-			MMLogError("[Message posting] cancelled")
+			MMLogWarn("[Message posting] cancelled")
 			completion()
 		}
 	}

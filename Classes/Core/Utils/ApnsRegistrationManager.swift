@@ -23,8 +23,12 @@ class ApnsRegistrationManager {
 
 	func registerForRemoteNotifications() {
 		MMLogDebug("[APNS reg manager] Registering...")
-		guard mmContext.currentInstallation.currentLogoutStatus == .undefined else {
-			MMLogDebug("[APNS reg manager] canceling due to pending logout state...")
+
+		switch mmContext.currentInstallation.currentDepersonalizationStatus {
+		case .success, .undefined:
+			break
+		case .pending:
+			MMLogDebug("[APNS reg manager] canceling due to pending depersonalize state...")
 			return
 		}
 
@@ -42,10 +46,11 @@ class ApnsRegistrationManager {
 		MobileMessaging.application.registerForRemoteNotifications()
 	}
 	
-	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
+	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
 		let tokenStr = token.mm_toHexString
 		MMLogDebug("[APNS reg manager] Application did register with device token \(tokenStr)")
-		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeviceTokenReceived, userInfo: [MMNotificationKeyDeviceToken: tokenStr])
+
+		UserEventsManager.postDeviceTokenReceivedEvent(tokenStr)
 		
 		// in most cases we either get the same token we registered earlier or we are just starting
 		if mmContext.currentInstallation.deviceToken == nil || mmContext.currentInstallation.deviceToken == tokenStr {
@@ -66,8 +71,8 @@ class ApnsRegistrationManager {
 		mmContext.currentInstallation.resetRegistration(completion: { _ in completion() })
 	}
 	
-	func updateDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
-		mmContext.currentInstallation.updateDeviceToken(token: token, completion: completion)
+	func updateDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
+		mmContext.currentInstallation.save(deviceToken: token, completion: completion)
 	}
 	
 	private var isRegistrationHealthy_cached: Bool?

@@ -52,12 +52,12 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	func testThatRegistrationResetLeadsToHealthyRegFlag() {
 		weak var resetFinished = expectation(description: "regFinished")
 		
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		mm.currentInstallation.deviceToken = "old token".mm_toHexademicalString
-		mm.currentUser.pushRegistrationId = "old push reg"
+		mm.currentInstallation.pushRegistrationId = "old push reg"
 		mm.apnsRegistrationManager = apnsManagerMock
 		
 		mm.currentInstallation.resetRegistration { (err) in
@@ -67,16 +67,16 @@ class ApnsRegistrationManagerTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: { _ in
 			XCTAssertTrue(mm.apnsRegistrationManager.isRegistrationHealthy)
 			XCTAssertNil(mm.currentInstallation.deviceToken)
-			XCTAssertNil(mm.currentUser.pushRegistrationId)
+			XCTAssertNil(mm.currentInstallation.pushRegistrationId)
 		})
 	}
 	
 	func testThatVeryFirstDeviceTokenLeadsToHealthyRegAndTokenUpdate() {
 		weak var regFinished = expectation(description: "regFinished")
 		
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		
 		mm.apnsRegistrationManager = apnsManagerMock
@@ -96,13 +96,13 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	func testThatSameDeviceTokenLeadsToHealthyReg() {
 		weak var regFinished = expectation(description: "regFinished")
 		
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		mm.apnsRegistrationManager = apnsManagerMock
 		mm.currentInstallation.deviceToken = "same token".mm_toHexademicalString
-		mm.currentUser.pushRegistrationId = "some push reg"
+		mm.currentInstallation.pushRegistrationId = "some push reg"
 		mm.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken("same token".data(using: String.Encoding.utf16)!) { (err) in
 			XCTAssertTrue(mm.apnsRegistrationManager.isRegistrationHealthy)
 			regFinished?.fulfill()
@@ -118,12 +118,12 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	func testBackupRestorationCaseLeadsToHealedRegistration() {
 		weak var regFinished = expectation(description: "regFinished")
 		
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		mm.currentInstallation.deviceToken = "old token".mm_toHexademicalString
-		mm.currentUser.pushRegistrationId = "old push reg"
+		mm.currentInstallation.pushRegistrationId = "old push reg"
 		mm.apnsRegistrationManager = apnsManagerMock
 		
 		

@@ -26,7 +26,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		let ret = CPBarButtonItem(actionBlock: { [weak self] _ in
 			self?.switchTableViewEditing(animated: true)
 		})
-		ret.title = "Edit" //TODO: translate for localization
+		ret.title = "Edit" //FIXME: translate for localization
 		return ret
     }()
 	
@@ -117,7 +117,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		
 		let mids = (tableView.visibleCells as? [CPMessageCell] ?? []).compactMap({ $0.message }).filter({ $0.isYours == false && $0.isSeen == false }).map({ $0.id })
 		if !mids.isEmpty {
-			MobileMessaging.mobileChat?.markMessagesSeen(messageIds: mids, completion: nil)
+			MobileMessaging.mobileChat?.markMessagesSeen(messageIds: mids, completion: { })
 		}
 	}
 	
@@ -348,9 +348,9 @@ extension CPChatVC {
 	
 	func markAsRead() {
 		if !selectedMessages.isEmpty {
-			MobileMessaging.mobileChat?.markMessagesSeen(messageIds: selectedMessages.filter({ $0.isSeen == false }).map({ $0.messageId }), completion: nil)
+			MobileMessaging.mobileChat?.markMessagesSeen(messageIds: selectedMessages.filter({ $0.isSeen == false }).map({ $0.messageId }), completion: { })
 		} else {
-			MobileMessaging.mobileChat?.markAllMessagesSeen()
+			MobileMessaging.mobileChat?.markAllMessagesSeen(completion: { })
 		}
 		switchTableViewEditing(animated: true)
 	}

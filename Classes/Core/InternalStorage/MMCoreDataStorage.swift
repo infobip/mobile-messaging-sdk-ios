@@ -22,11 +22,11 @@ struct MMStorageSettings {
 	var storeOptions: MMStoreOptions?
 	
 	static var inMemoryStoreSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: nil, storeOptions: nil)
-	static var SQLiteInternalStorageSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: storageOptions)
-	static var SQLiteMessageStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: storageOptions)
-	static var SQLiteChatStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "ChatStorage.sqlite", storeOptions: storageOptions)
+	static var SQLiteInternalStorageSettings = MMStorageSettings(modelName: "MMInternalStorageModel", databaseFileName: "MobileMessaging.sqlite", storeOptions: defaultStoreOptions)
+	static var SQLiteMessageStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "MessageStorage.sqlite", storeOptions: defaultStoreOptions)
+	static var SQLiteChatStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "ChatStorage.sqlite", storeOptions: defaultStoreOptions)
 	
-	private static var storageOptions: MMStoreOptions {
+	static var defaultStoreOptions: MMStoreOptions {
 		var result: MMStoreOptions = [NSMigratePersistentStoresAutomaticallyOption: true,
 		                                  NSInferMappingModelAutomaticallyOption: true]
 		if #available(iOS 10.0, *) {
@@ -141,6 +141,7 @@ final class MMCoreDataStorage {
 					error.code == NSPersistentStoreIncompatibleVersionHashError
                 
                 if error.domain == NSCocoaErrorDomain && isMigrationError {
+
                     MMLogError("Couldn't open the database, because of migration error, database will be recreated")
                     NSPersistentStore.MM_removePersistentStoreFilesAtURL(storeURL)
                     _persistentStore = try psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)

@@ -13,14 +13,14 @@ class GeoEventReportingOperation: Operation {
 	typealias CampaignsDictionary = [CampaignId: MMGeoMessage]
 	typealias MessageId = String
 	let context: NSManagedObjectContext
-	let finishBlock: ((MMGeoEventReportingResult) -> Void)?
-	var result = MMGeoEventReportingResult.Cancel
+	let finishBlock: ((GeoEventReportingResult) -> Void)?
+	var result = GeoEventReportingResult.Cancel
 	var happenedEventObjectIds = [NSManagedObjectID]()
 	var signalingGeoMessages = CampaignsDictionary()
 	let mmContext: MobileMessaging
 	let geoContext: GeofencingService
 	
-	init(context: NSManagedObjectContext, mmContext: MobileMessaging, geoContext: GeofencingService, finishBlock: ((MMGeoEventReportingResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, mmContext: MobileMessaging, geoContext: GeofencingService, finishBlock: ((GeoEventReportingResult) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
@@ -28,15 +28,15 @@ class GeoEventReportingOperation: Operation {
 	}
 	
 	override func execute() {
-		guard let internalId = mmContext.currentUser.pushRegistrationId else {
+		guard let internalId = mmContext.currentInstallation.pushRegistrationId else {
 			MMLogDebug("[Geo event reporting] installation object not found, finishing the operation...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 		
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogDebug("[Geo event reporting] Registration may be not healthy. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
+			MMLogDebug("[Geo event reporting] Registration is not healthy. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
 		
@@ -92,7 +92,7 @@ class GeoEventReportingOperation: Operation {
 	typealias AreaId = String
 	typealias MTMessagesDatasource = [MessageId: (MMGeoMessage, AreaId)]
 	
-	private func handleRequestResult(_ result: MMGeoEventReportingResult, completion: @escaping () -> Void) {
+	private func handleRequestResult(_ result: GeoEventReportingResult, completion: @escaping () -> Void) {
 		let messagesUpdatingGroup = DispatchGroup()
 		switch result {
 		case .Success(let response):
@@ -189,7 +189,7 @@ class GeoEventReportingOperation: Operation {
 		MMLogDebug("[Geo event reporting] finished with errors: \(errors)")
 		
 		if let error = errors.first {
-			result = MMGeoEventReportingResult.Failure(error)
+			result = GeoEventReportingResult.Failure(error)
 		}
 		finishBlock?(result)
 	}

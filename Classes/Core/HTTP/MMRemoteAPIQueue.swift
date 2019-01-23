@@ -39,7 +39,7 @@ class RemoteAPIQueue {
 		let requestOperation = MMRetryableRequestOperation<R>(request: request, reachabilityManager: MobileMessaging.reachabilityManagerFactory(), sessionManager: MobileMessaging.httpSessionManager) { responseResult in
 			
 			completion(responseResult)
-			self.postErrorNotificationIfNeeded(error: responseResult.error)
+			UserEventsManager.postApiErrorEvent(responseResult.error)
 		}
 		if exclusively {
 			if queue.addOperationExclusively(requestOperation) == false {
@@ -49,13 +49,5 @@ class RemoteAPIQueue {
 		} else {
 			queue.addOperation(requestOperation)
 		}
-	}
-
-	//MARK: Private
-	private func postErrorNotificationIfNeeded(error: NSError?) {
-		guard let error = error else {
-			return
-		}
-		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationAPIError, userInfo: [MMNotificationKeyAPIErrorUserInfo: error])
 	}
 }

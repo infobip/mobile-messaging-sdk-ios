@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
 
     s.subspec 'Core' do |core|
         core.frameworks = 'CoreData', 'CoreTelephony', 'SystemConfiguration'
-        core.resources = 'Classes/InteractiveNotifications/MessageAlert/*.xib', 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings'
+        core.resources = 'Classes/InteractiveNotifications/MessageAlert/*.xib', 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcmappingmodel', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings'
         core.public_header_files = 'Classes/Core/**/*.h','Classes/MobileMessaging-umbrella.h'
         core.private_header_files = 'Classes/Vendor/**/*.h'
         core.source_files = 'Classes/Core/**/*.{h,m,swift}', 'Classes/Vendor/**/*.{h,m,swift}', 'Classes/MessageStorage/**/*.{h,m,swift}', 'Classes/RichNotifications/**', 'Classes/InteractiveNotifications/**/*.{h,m,swift}', 'Classes/MobileMessaging-umbrella.h'

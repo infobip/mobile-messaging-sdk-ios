@@ -76,14 +76,21 @@ class MMRemoteAPIMock: RemoteAPILocalMocks {
 	override func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
         performRequestCompanionBlock?(request)
 		if let responseSubstitution = responseMock {
-			if let responseJSON = responseSubstitution(request), let response = R.ResponseType(json: responseJSON) {
-				completion(Result.Success(response))
-				self.completionCompanionBlock?(response)
+			if let responseJSON = responseSubstitution(request) {
+				if let errorResponse = RequestError(json: responseJSON) {
+					completion(Result.Failure(errorResponse.foundationError))
+					self.completionCompanionBlock?(errorResponse)
+				} else if let response = R.ResponseType(json: responseJSON) {
+					completion(Result.Success(response))
+					self.completionCompanionBlock?(response)
+				} else {
+					completion(Result.Failure(MMInternalErrorType.UnknownError.foundationError))
+					self.completionCompanionBlock?(nil)
+				}
 			} else {
 				completion(Result.Failure(MMInternalErrorType.UnknownError.foundationError))
 				self.completionCompanionBlock?(nil)
 			}
-			
 		} else {
 			super.perform(request: request) { (response) in
 				completion(response)
@@ -99,6 +106,55 @@ extension MobileMessaging {
 		remoteApiProvider.seenStatusQueue = RemoteAPILocalMocks()
 		remoteApiProvider.messageSyncQueue = RemoteAPILocalMocks()
 		remoteApiProvider.versionFetchingQueue = RemoteAPILocalMocks()
+	}
+}
+
+class RemoteApiInstanceAttributesMock : RemoteAPIProvider {
+
+	var postInstanceClosure: ((String, RequestBody, @escaping (FetchInstanceDataResult) -> Void) -> Void)? = nil
+	var patchInstanceClosure: ((String, String, String, RequestBody, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
+	var getInstanceClosure: ((String, String, @escaping (FetchInstanceDataResult) -> Void) -> Void)? = nil
+	var deleteInstanceClosure: ((String, String, String, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
+
+	var patchUserClosure: ((String, String, RequestBody, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
+	var getUserClosure: ((String, String, @escaping (FetchUserDataResult) -> Void) -> Void)? = nil
+
+	override func patchInstance(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void) {
+		patchInstanceClosure?(applicationCode, authPushRegistrationId, refPushRegistrationId, body, completion) ?? completion(UpdateInstanceDataResult.Cancel)
+	}
+
+	override func getInstance(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchInstanceDataResult) -> Void) {
+		getInstanceClosure?(applicationCode, pushRegistrationId, completion) ?? completion(FetchInstanceDataResult.Cancel)
+	}
+
+	override func postInstance(applicationCode: String, body: RequestBody, completion: @escaping (FetchInstanceDataResult) -> Void) {
+		postInstanceClosure?(applicationCode, body, completion) ?? completion(FetchInstanceDataResult.Cancel)
+	}
+
+	override func deleteInstance(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String, completion: @escaping (UpdateInstanceDataResult) -> Void) {
+		deleteInstanceClosure?(applicationCode, pushRegistrationId, expiredPushRegistrationId, completion) ?? completion(UpdateInstanceDataResult.Cancel)
+	}
+
+	override func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateUserDataResult) -> Void) {
+		patchUserClosure?(applicationCode, pushRegistrationId, body, completion) ?? completion(UpdateUserDataResult.Cancel)
+	}
+
+	override func getUser(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchUserDataResult) -> Void) {
+		getUserClosure?(applicationCode, pushRegistrationId, completion) ?? completion(FetchUserDataResult.Cancel)
+	}
+}
+
+class RemoteApiUserAttributesMock : RemoteAPIProvider {
+
+	var patchClosure: ((String, String, RequestBody, @escaping (UpdateUserDataResult) -> Void) -> Void)? = nil
+	var getClosure: ((String, String, @escaping (FetchUserDataResult) -> Void) -> Void)? = nil
+
+	override func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateUserDataResult) -> Void) {
+		patchClosure?(applicationCode, pushRegistrationId, body, completion)
+	}
+
+	override func getUser(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchUserDataResult) -> Void) {
+		getClosure?(applicationCode, pushRegistrationId, completion)
 	}
 }
 

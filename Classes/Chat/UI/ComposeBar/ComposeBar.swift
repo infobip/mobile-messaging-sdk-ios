@@ -505,7 +505,7 @@ class ComposeBar: UIView, UITextViewDelegate {
 	}
 	
 	private func setupDelegateChainForTextView() {
-		//TODO: delegate chain not implemented
+		//FIXME:? delegate chain not implemented
 		textView.delegate = self
 	}
 	

@@ -72,45 +72,6 @@ public final class MobileMessaging: NSObject {
 	public static func sync() {
 		MobileMessaging.sharedInstance?.sync()
 	}
-
-	/// Sets primary device setting
-	/// Single user profile on Infobip Portal can have one or more mobile devices with the application installed. You might want to mark one of such devices as a primary device and send push messages only to this device (i.e. receive bank authorization codes only on one device).
-	/// - parameter isPrimary: defines whether to set current device as primery one or not
-	/// - parameter completion: called after the setting is finished sync with the server
-	public static func setAsPrimaryDevice(_ isPrimary: Bool, completion: ((NSError?) -> Void)? = nil) {
-		guard let mm = MobileMessaging.sharedInstance else {
-			completion?(NSError(type: MMInternalErrorType.UnknownError))
-			return
-		}
-		mm.setAsPrimaryDevice(isPrimary, completion: completion)
-	}
-    
-    /// Synchronizes primary device setting with server
-    public static func syncPrimaryDevice(completion: @escaping ((_ isPrimary: Bool, _ error: NSError?) -> Void)) {
-        guard let mm = MobileMessaging.sharedInstance else {
-            completion(isPrimaryDevice, NSError(type: MMInternalErrorType.UnknownError))
-            return
-        }
-        mm.syncPrimarySettingWithServer(completion: completion)
-    }
-
-	/// Primary device setting
-	/// Single user profile on Infobip Portal can have one or more mobile devices with the application installed. You might want to mark one of such devices as a primary device and send push messages only to this device (i.e. receive bank authorization codes only on one device).
-	public static var isPrimaryDevice: Bool {
-		get {
-			return MobileMessaging.sharedInstance?.isPrimaryDevice ?? false
-		}
-		set {
-			MobileMessaging.sharedInstance?.isPrimaryDevice = newValue
-		}
-	}
-	
-	/// Current push registration status.
-	/// The status defines whether the device is allowed to be receiving push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
-	/// MobileMessaging SDK has the push registration enabled by default.
-	public static var isPushRegistrationEnabled: Bool {
-		return MobileMessaging.sharedInstance?.isPushRegistrationEnabled ?? true
-	}
 	
 	/// Cleans up all internal persisted data.
 	///
@@ -119,27 +80,7 @@ public final class MobileMessaging: NSObject {
 	public static func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		MobileMessaging.sharedInstance?.cleanUpAndStop(clearKeychain)
 	}
-	
-	/// Enables the push registration so the device can receive push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
-	/// MobileMessaging SDK has the push registration enabled by default.
-	public static func enablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
-		guard let mm = MobileMessaging.sharedInstance else {
-			completion?(NSError(type: MMInternalErrorType.UnknownError))
-			return
-		}
-		mm.updateRegistrationEnabledStatus(true, completion: completion)
-	}
-	
-	/// Disables the push registration so the device no longer receives any push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
-	/// MobileMessaging SDK has the push registration enabled by default.
-	public static func disablePushRegistration(completion: ((NSError?) -> Void)? = nil) {
-		guard let mm = MobileMessaging.sharedInstance else {
-			completion?(NSError(type: MMInternalErrorType.UnknownError))
-			return
-		}
-		mm.updateRegistrationEnabledStatus(false, completion: completion)
-	}
-	
+
 	/// Stops all the currently running Mobile Messaging services.
 	/// - Parameter cleanUpData: defines whether the Mobile Messaging internal storage will be dropped. False by default.
 	/// - Attention: This function doesn't disable push notifications, they are still being received by the OS.
@@ -167,7 +108,7 @@ public final class MobileMessaging: NSObject {
 	/// - parameter token: A token that identifies a particular device to APNs.
 	public class func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data) {
 		// The app might call this method in other rare circumstances, such as when the user launches an app after having restored a device from data that is not the device’s backup data. In this exceptional case, the app won’t know the new device’s token until the user launches it. Thus we must persist this token as soon as we can so the SDK knows about it regardless of SDK's startup delays.
-		MobileMessaging.sharedInstance?.didRegisterForRemoteNotificationsWithDeviceToken(token)
+		MobileMessaging.sharedInstance?.didRegisterForRemoteNotificationsWithDeviceToken(token) { _ in }
 	}
 	
 	/// This method handles incoming remote notifications and triggers sending procedure for delivery reports. The method should be called from AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback.
@@ -197,38 +138,160 @@ public final class MobileMessaging: NSObject {
 			completion?()
 		}
 	}
-	
-	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
-	public class var currentInstallation: MMInstallation? {
-		return MobileMessaging.sharedInstance?.currentInstallation
-	}
-	
+
 	/// Returns the default message storage if used. For more information see `MMDefaultMessageStorage` class description.
 	public class var defaultMessageStorage: MMDefaultMessageStorage? {
 		return MobileMessaging.sharedInstance?.messageStorages[MessageStorageKind.messages.rawValue]?.adapteeStorage as? MMDefaultMessageStorage
 	}
 	
-	/// Maintains attributes related to the current user such as unique ID for the registered user, email, MSISDN, custom data, external id.
-	public class var currentUser: MMUser? {
-		return MobileMessaging.sharedInstance?.currentUser
+	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
+	public class var installation: Installation? {
+		return MobileMessaging.sharedInstance?.currentInstallation.dataObject
 	}
-	
+
+	/// Maintains attributes related to the current user such as unique ID for the registered user, emails, phones, custom data, external id.
+	public class var user: User? {
+		return MobileMessaging.sharedInstance?.currentUser.dataObject
+	}
+
+	/// Tries to fetch the user data from the server.
+	/// - parameter completion: The block to execute after the server responded.
+	public class func fetchUser(completion: @escaping (User?, NSError?) -> Void) {
+		if let u = MobileMessaging.sharedInstance?.currentUser {
+			u.fetchFromServer { (fetched, error) in
+				completion(fetched.dataObject, error)
+			}
+		} else {
+			completion(nil, NSError(type: .UnknownError))
+		}
+	}
+
+	/// Tries to fetch the installation data from the server.
+	/// - parameter completion: The block to execute after the server responded.
+	public class func fetchInstallation(completion: @escaping (Installation?, NSError?) -> Void) {
+		if let i = MobileMessaging.sharedInstance?.currentInstallation {
+			i.fetchFromServer { (fetched, error) in
+				completion(fetched.dataObject, error)
+			}
+		} else {
+			completion(nil, NSError(type: .UnknownError))
+		}
+	}
+
+	/// Explicitly tries to save all user data on the server.
+	/// - parameter user: User data to save on server
+	/// - parameter completion: The block to execute after the server responded.
+	public class func saveUser(_ user: User, completion: @escaping (NSError?) -> Void) {
+		if let u = MobileMessaging.sharedInstance?.currentUser {
+			u.save(userData: user, completion: completion)
+		} else {
+			completion(NSError(type: .UnknownError))
+		}
+	}
+
+	/// Explicitly tries to sync the entire installation (registration data, system data, user data) with the server.
+	/// - parameter installation: Installation data to save on server
+	/// - parameter completion: The block to execute after the server responded.
+	public class func saveInstallation(_ installation: Installation, completion: @escaping (NSError?) -> Void) {
+		if let i = MobileMessaging.sharedInstance?.currentInstallation {
+			i.save(installationData: installation, completion: completion)
+		} else {
+			completion(NSError(type: .UnknownError))
+		}
+	}
+
+	public class func persistUser(_ user: User) {
+		if let u = MobileMessaging.sharedInstance?.currentUser {
+			u.applyDataObject(user)
+			u.persist()
+		}
+	}
+
+	public class func persistInstallation(_ installation: Installation) {
+		if let i = MobileMessaging.sharedInstance?.currentInstallation {
+			i.applyDataObject(installation)
+			i.persist()
+		}
+	}
+
+	// MARK: - Personalize/Depersonalize
+
+	/// Erases currently stored UserData associated with push registration along with messages in SDK storage.
+	/// User's data synced over MobileMessaging is by default associated with created push registration. Depersonalizing an installation means that a push registration and device specific data will remain, but user's data (such as first name, custom data, ...) will be wiped out.
+	/// If you depersonalize an installation, there is a way to personalize it again by providing new user data (either by UserDataService data setters or `InstallationDataService.personalize()` method) in order to target this user specifically.
+	/// - Remark: There is another version of depersonalize method that doesn't require a `completion` parameter which means the SDK will handle any unsuccessful depersonalize request by itself. See the method documentation for more details. Use this method in following cases:
+	/// - you want to handle possible failures of server depersonalize request, retry and maintain pending depersonalize state by yourself
+	/// - you're syncing user data to our server;
+	/// - your application has logout functionality;
+	/// - you don't want new personalized installation to be targeted by other user's data, e.g. first name;
+	/// - you want depersonalized installation to still receive broadcast notifications (otherwise, you need to disable push registration via Installation.isPushRegistrationEnabled).
+	/// - parameter completion: The block to execute after the depersonalize procedure finished
+	public class func depersonalize(completion: @escaping (_ status: SuccessPending, _ error: NSError?) -> Void) {
+		if let i = MobileMessaging.sharedInstance?.currentInstallation {
+			i.depersonalize(completion: completion)
+		} else {
+			completion(SuccessPending.undefined, NSError(type: .UnknownError))
+		}
+	}
+
+	public class func personalize(withUserIdentity identity: UserIdentity, userAttributes: UserAttributes?, completion: @escaping (NSError?) -> Void) {
+		personalize(forceDepersonalize: false, userIdentity: identity, userAttributes: userAttributes, completion: completion)
+	}
+
+	public class func personalize(forceDepersonalize: Bool, userIdentity: UserIdentity, userAttributes: UserAttributes?, completion: @escaping (NSError?) -> Void) {
+		if let u = MobileMessaging.sharedInstance?.currentUser {
+			u.personalize(forceDepersonalize: forceDepersonalize, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
+		} else {
+			completion(NSError(type: .UnknownError))
+		}
+	}
+
+	// MARK: - Other installations management
+
+	public class func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([Installation]?, NSError?) -> Void) {
+		if let u = MobileMessaging.sharedInstance?.currentUser {
+			u.setInstallation(withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
+		} else {
+			completion(nil, NSError(type: .UnknownError))
+		}
+	}
+
+	public class func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping ([Installation]?, NSError?) -> Void) {
+		if let u = MobileMessaging.sharedInstance?.currentUser {
+			u.depersonalizeInstallation(withPushRegistrationId: pushRegId, completion: completion)
+		} else {
+			completion(nil, NSError(type: .UnknownError))
+		}
+	}
+
+	// MARK: -
+
+	public class func fetchInstallations(completion: @escaping ([Installation]?, NSError?) -> Void) {
+		if let i = MobileMessaging.sharedInstance?.currentUser {
+			i.fetchFromServer { (user, error) in
+				completion(user.installations, error)
+			}
+		} else {
+			completion(nil, NSError(type: .UnknownError))
+		}
+	}
+
 	/// This method sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
 	/// - parameter messageIds: Array of identifiers of messages that need to be marked as seen.
 	public class func setSeen(messageIds: [String]) {
 		guard let mm = MobileMessaging.sharedInstance else {
 			return
 		}
-		mm.setSeen(messageIds)
+		mm.setSeen(messageIds) { _ in }
 	}
 	
 	/// This method sends mobile originated messages to the server.
 	/// - parameter messages: Array of objects of `MOMessage` class that need to be sent.
 	/// - parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
-	public class func sendMessages(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+	public class func sendMessages(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
 		guard let mm = MobileMessaging.sharedInstance else {
-			completion?(nil, NSError(type: MMInternalErrorType.UnknownError))
+			completion(nil, NSError(type: MMInternalErrorType.UnknownError))
 			return
 		}
 		mm.sendMessagesUserInitiated(messages, completion: completion)
@@ -248,42 +311,7 @@ public final class MobileMessaging: NSObject {
 	
 	/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
 	public internal(set) static var privacySettings = PrivacySettings()
-	
-	/// Erases currently stored UserData associated with push registration along with messages in SDK storage.
-	/// User's data synced over MobileMessaging is by default associated with created push registration. Logging out user means that push registration and device specific data will remain, but user's data (such as first name, custom data, ...) will be wiped out.
-	/// If you log out user, there is no mechanism to log him in again since he's already subscribed for broadcast notifications from your app, but you might want to sync new user data to target this user specifically.
-	/// - Remark: There is another version of logout method that doesn't require a `completion` parameter which means the SDK will handle any unsuccessful logout request by itself. See the method documentation for more details. Use this method in following cases:
-	/// - you want to handle possible failures of server logout request and retry and maintain pending logout state by yourself
-	/// - you're syncing user data to our server;
-	/// - your application has logout option;
-	/// - you don't want new logged in user to be targeted by other user's data, e.g. first name;
-	/// - you want logged out user to still receive broadcast notifications (if not, you need to call MobileMessaging.disablePushRegistration()).
-	/// - parameter completion: The block to execute after the logout procedure finished
-	public class func logout(completion: @escaping (_ status: LogoutStatus, _ error: NSError?) -> Void) {
-		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
-		guard let mm = MobileMessaging.sharedInstance else {
-			completion(.undefined, NSError(type: MMInternalErrorType.UnknownError))
-			return
-		}
-		mm.currentInstallation.logout(completion: completion)
-	}
 
-	/// Erases currently stored UserData associated with push registration along with messages in SDK storage.
-	/// User's data synced over MobileMessaging is by default associated with created push registration. Logging out user means that push registration and device specific data will remain, but user's data (such as first name, custom data, ...) will be wiped out.
-	/// If you log out user, there is no mechanism to log him in again since he's already subscribed for broadcast notifications from your app, but you might want to sync new user data to target this user specifically.
-	/// - remark: There is another version of logout method that doesn't require a `completion` parameter which means the SDK will handle any unsuccessful logout request by itself. See the method documentation for more details. Use this method in following cases:
-	/// - you don't need to hanlde networking failures and maintain pending logout state by yourself
-	/// - you're syncing user data to our server;
-	/// - your application has logout option;
-	/// - you don't want new logged in user to be targeted by other user's data, e.g. first name;
-	/// - you want logged out user to still receive broadcast notifications (if not, you need to call MobileMessaging.disablePushRegistration()).
-	public class func logout() {
-		guard let mm = MobileMessaging.sharedInstance else {
-			return
-		}
-		mm.currentInstallation.logout(completion: { _, _ in})
-	}
-	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UserNotificationType
@@ -303,9 +331,8 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	func sync() {
-		currentInstallation.syncInstallationWithServer()
 		performForEachSubservice { subservice in
-			subservice.syncWithServer(nil)
+			subservice.syncWithServer({ _ in })
 		}
 	}
 	
@@ -389,77 +416,52 @@ public final class MobileMessaging: NSObject {
 		MMLogInfo("MobileMessaging service stopped")
 	}
 	
-	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: ((NSError?) -> Void)? = nil) {
+	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
 		apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(token, completion: completion)
 	}
 	
-	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: ((MessageHandlingResult) -> Void)? = nil) {
+	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: @escaping (MessageHandlingResult) -> Void) {
 		MMLogDebug("New remote notification received \(userInfo)")
 		messageHandler.handleAPNSMessage(userInfo, completion: completion)
 	}
-	
-	func updateRegistrationEnabledStatus(_ value: Bool, completion: ((NSError?) -> Void)? = nil) {
-		currentInstallation.updateRegistrationEnabledStatus(value: value, completion: completion)
-	}
-	
+
 	func updateRegistrationEnabledSubservicesStatus() {
 		performForEachSubservice { subservice in
 			subservice.pushRegistrationStatusDidChange(self)
 		}
 	}
 
-	func updateLogoutStatusForSubservices() {
+	func updateDepersonalizeStatusForSubservices() {
 		performForEachSubservice { subservice in
-			subservice.logoutStatusDidChange(self)
+			subservice.depersonalizationStatusDidChange(self)
 		}
 	}
 	
-	func setSeen(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+	func setSeen(_ messageIds: [String], completion: @escaping (SeenStatusSendingResult) -> Void) {
 		MMLogDebug("Setting seen status: \(messageIds)")
 		messageHandler.setSeen(messageIds, completion: completion)
 	}
 
-	func setSeenImmediately(_ messageIds: [String], completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+	func setSeenImmediately(_ messageIds: [String], completion: @escaping (SeenStatusSendingResult) -> Void) {
 		MMLogDebug("Setting seen status immediately: \(messageIds)")
 		messageHandler.setSeen(messageIds, immediately: true, completion: completion)
 	}
 	
-	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		MMLogDebug("Sending mobile originated messages (SDK initiated)...")
 		messageHandler.sendMessages(messages, isUserInitiated: false, completion: completion)
 	}
 	
-	func retryMoMessageSending(completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+	func retryMoMessageSending(completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		MMLogDebug("Retrying sending mobile originated messages...")
 		messageHandler.sendMessages([], isUserInitiated: false, completion: completion)
 	}
 	
-	func sendMessagesUserInitiated(_ messages: [MOMessage], completion: (([MOMessage]?, NSError?) -> Void)? = nil) {
+	func sendMessagesUserInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		MMLogDebug("Sending mobile originated messages (User initiated)...")
 		messageHandler.sendMessages(messages, isUserInitiated: true, completion: completion)
 	}
-	
-	var isPushRegistrationEnabled: Bool {
-		return currentInstallation.isPushRegistrationEnabled
-	}
-	
-	func setAsPrimaryDevice(_ isPrimary: Bool, completion: ((NSError?) -> Void)? = nil) {
-		currentInstallation.setAsPrimaryDevice(isPrimary, completion: completion)
-	}
-    
-    func syncPrimarySettingWithServer(completion: @escaping ((_ isPrimary: Bool, _ error: NSError?) -> Void)) {
-        currentInstallation.syncPrimarySettingWithServer(completion)
-    }
-	
-	var isPrimaryDevice: Bool {
-		get {
-			return currentInstallation.isPrimaryDevice
-		}
-		set {
-			currentInstallation.isPrimaryDevice = newValue
-		}
-	}
-	
+
 	var subservices: [String: MobileMessagingService] = [:]
 	func registerSubservice(_ ss: MobileMessagingService) {
 		subservices[ss.uniqueIdentifier] = ss
@@ -475,13 +477,13 @@ public final class MobileMessaging: NSObject {
 	}
 
 	//MARK: Private
-	private init?(appCode: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool) {
+	internal init?(appCode: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool, internalStorage: MMCoreDataStorage? = nil) {
 		
 		let logCoreDataInitializationError = {
 			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
 		}
 
-		guard var storage = try? MMCoreDataStorage.makeInternalStorage(self.storageType) else {
+		guard var storage = internalStorage == nil ? try? MMCoreDataStorage.makeInternalStorage(self.storageType) : internalStorage else {
 			logCoreDataInitializationError()
 			return nil
 		}
@@ -496,10 +498,11 @@ public final class MobileMessaging: NSObject {
 				return nil
 			}
 		}
-		self.internalStorage        = storage
-		self.applicationCode        = appCode
-		self.userNotificationType   = notificationType
-		self.remoteAPIBaseURL       = backendBaseURL
+
+		self.internalStorage = storage
+		self.applicationCode = appCode
+		self.userNotificationType = notificationType
+		self.remoteAPIBaseURL = backendBaseURL
 		if #available(iOS 10.0, *) {
 			if let appGroupId = Bundle.mainAppBundle.appGroupId {
 				self.appGroupId = appGroupId
@@ -515,12 +518,11 @@ public final class MobileMessaging: NSObject {
 		if NotificationsInteractionService.sharedInstance == nil {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
 		}
-		
 		appListener = MMApplicationListener(mmContext: self)
 		messageStorages.values.forEach({ $0.start() })
 		
-		if MobileMessaging.isPushRegistrationEnabled && currentInstallation.currentLogoutStatus == .undefined  {
-			messageHandler.start()
+		if currentInstallation.isPushRegistrationEnabled && currentInstallation.currentDepersonalizationStatus == .undefined  {
+			messageHandler.start({ _ in })
 		}
 		
 		if !isTestingProcessRunning {
@@ -535,17 +537,25 @@ public final class MobileMessaging: NSObject {
 	let internalStorage: MMCoreDataStorage
 	lazy var coreDataProvider: CoreDataProvider = CoreDataProvider(storage: self.internalStorage)
 	lazy var inMemoryDataProvider: InMemoryDataProvider = InMemoryDataProvider()
-	lazy var currentInstallation: MMInstallation! = MMInstallation(inMemoryProvider: self.inMemoryDataProvider, coreDataProvider: self.coreDataProvider, storage: self.internalStorage, mmContext: self, applicationCode: self.applicationCode)
-	lazy var currentUser: MMUser! = MMUser(inMemoryProvider: self.inMemoryDataProvider, coreDataProvider: self.coreDataProvider, mmContext: self)
+	lazy var currentInstallation: InstallationDataService! = InstallationDataService(
+		inMemoryProvider: self.inMemoryDataProvider,
+		coreDataProvider: self.coreDataProvider,
+		mmContext: self,
+		applicationCode: self.applicationCode)
+
+	lazy var currentUser: UserDataService! = UserDataService(
+		inMemoryProvider: self.inMemoryDataProvider,
+		coreDataProvider: self.coreDataProvider,
+		mmContext: self)
+
 	var appListener: MMApplicationListener!
-	//TODO: continue decoupling. Move messageHandler to a subservice completely. (as GeofencingService)
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider()
 	lazy var keychain: MMKeychain! = MMKeychain()
 	lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
 
-	//TODO: explicit unwrapping is a subject for removing
+	//FIXME: explicit unwrapping is a subject for removing
 	static var httpSessionManager: DynamicBaseUrlHTTPSessionManager!
 	static var reachabilityManagerFactory: () -> ReachabilityManagerProtocol = { return NetworkReachabilityManager() }
 	static var application: MMApplication = MainThreadedUIApplication()
@@ -557,29 +567,4 @@ public final class MobileMessaging: NSObject {
 	lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()
 	
 	static let bundle = Bundle(for: MobileMessaging.self)
-}
-
-/// The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
-@objcMembers
-public class PrivacySettings: NSObject {
-	/// A boolean variable that indicates whether the MobileMessaging SDK will be sending the carrier information to the server.
-	///
-	/// Default value is `false`.
-	public var carrierInfoSendingDisabled: Bool = false
-	
-	/// A boolean variable that indicates whether the MobileMessaging SDK will be sending the system information such as OS version, device model, application version to the server.
-	///
-	/// Default value is `false`.
-	public var systemInfoSendingDisabled: Bool = false
-	
-	/// A boolean variable that indicates whether the MobileMessaging SDK will be persisting the application code locally. This feature is a convenience to maintain SDK viability during debugging and possible application code changes.
-	///
-	/// Default value is `false`.
-	/// - Warning: there might be situation when you want to switch between different Application Codes during development/testing. If you disable the application code persisting (value `true`), the SDK won't detect the application code changes, thus won't cleanup the old application code related data. You should manually invoke `MobileMessaging.cleanUpAndStop()` prior to start otherwise the SDK would not detect the application code change.
-	public var applicationCodePersistingDisabled: Bool = false
-	
-	/// A boolean variable that indicates whether the MobileMessaging SDK will be persisting the user data locally. Persisting user data locally gives you quick access to the data and eliminates a need to implement it yourself.
-	///
-	/// Default value is `false`.
-	public var userDataPersistingDisabled: Bool = false
 }

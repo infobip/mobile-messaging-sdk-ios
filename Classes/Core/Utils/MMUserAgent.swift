@@ -12,9 +12,10 @@ func ==(lhs: SystemData, rhs: SystemData) -> Bool {
 	return lhs.hashValue == rhs.hashValue
 }
 struct SystemData: Hashable {
-	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer, osLanguage: String
+	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer, language, deviceName, os, pushServiceType: String
+	let deviceTimeZone: String?
 	let notificationsEnabled, deviceSecure: Bool
-	var dictionaryRepresentation: [String: AnyHashable] {
+	var requestPayload: [String: AnyHashable] {
 
 		var result : [String: AnyHashable] = [
 			Consts.SystemDataKeys.geofencingServiceEnabled: false,
@@ -27,14 +28,18 @@ struct SystemData: Hashable {
 			result[Consts.SystemDataKeys.deviceModel] = deviceModel
 			result[Consts.SystemDataKeys.appVer] = appVer
 			result[Consts.SystemDataKeys.deviceSecure] = deviceSecure
-			result[Consts.SystemDataKeys.osLanguage] = osLanguage
+			result[Consts.SystemDataKeys.language] = language
+			result[Consts.SystemDataKeys.deviceName] = deviceName
+			result[Consts.SystemDataKeys.OS] = os
+			result[Consts.SystemDataKeys.pushServiceType] = pushServiceType
+			result[Consts.SystemDataKeys.deviceTimeZone] = deviceTimeZone
 		}
 		return (result as [String: AnyHashable]).mm_applySubservicesSystemData()
 	}
 	
 	var hashValue: Int {
 		//we care only about values!
-		return dictionaryRepresentation.keyValuesHash
+		return requestPayload.valuesStableHash
 	}
 }
 
@@ -51,10 +56,10 @@ public class UserAgent: NSObject {
 	}
 	
 	var systemData: SystemData {
-		return SystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceName, appVer: hostingAppVersion, osLanguage: osLanguage, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
+		return SystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceModelName, appVer: hostingAppVersion, language: language, deviceName: deviceName, os: osName, pushServiceType: pushServiceType, deviceTimeZone: deviceTimeZone, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
 	}
 
-	public var osLanguage: String {
+	public var language: String {
 		if let localeId = (UserDefaults.standard.object(forKey: "AppleLanguages") as? Array<String>)?.first ?? NSLocale.current.languageCode {
 			return NSLocale.components(fromLocaleIdentifier: localeId)[NSLocale.Key.languageCode.rawValue] ?? ""
 		} else {
@@ -69,17 +74,6 @@ public class UserAgent: NSObject {
 		return !settings.types.isEmpty
 	}
 	
-	public var currentUserAgentString: String {
-		var options = [UserAgent.DataOptions.None]
-		if !(MobileMessaging.privacySettings.systemInfoSendingDisabled) {
-			options.append(UserAgent.DataOptions.System)
-		}
-		if !(MobileMessaging.privacySettings.carrierInfoSendingDisabled) {
-			options.append(UserAgent.DataOptions.Carrier)
-		}
-		return userAgentString(withOptions: options)
-	}
-	
 	public var osVersion: String {
 		return UIDevice.current.systemVersion
 	}
@@ -87,7 +81,7 @@ public class UserAgent: NSObject {
 	public var osName: String {
 		return UIDevice.current.systemName
 	}
-	
+
 	public var libraryVersion: String {
 		return (MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion)
 	}
@@ -108,7 +102,11 @@ public class UserAgent: NSObject {
 		return "Apple"
 	}
 
-	public var deviceName : String {
+	public var deviceName: String {
+		return UIDevice.current.name
+	}
+
+	public var deviceModelName : String {
 		let name = UnsafeMutablePointer<utsname>.allocate(capacity: 1)
 		defer {
 			name.deallocate()
@@ -127,10 +125,10 @@ public class UserAgent: NSObject {
 			"iPod4,1":"iPod Touch 4",
 			"iPod5,1":"iPod Touch 5",
 			"iPod7,1":"iPod Touch 6",
-			
+
 			"iPhone3,1":"iPhone 4 (GSM)",
 			"iPhone3,2":"iPhone 4",
-			"iPhone3,3":"iPhone 4 (CDMA/Verizon/Sprint)",
+			"iPhone3,3":"iPhone 4 (CDMA)",
 			"iPhone4,1":"iPhone 4s",
 			"iPhone5,1":"iPhone 5 (GSM)",
 			"iPhone5,2":"iPhone 5 (GSM+CDMA)",
@@ -148,21 +146,21 @@ public class UserAgent: NSObject {
 			"iPhone9,2":"iPhone 7 Plus (CDMA)",
 			"iPhone9,4":"iPhone 7 Plus (GSM)",
 
-			"iPhone10,1":"iPhone 8 (CDMA+GSM/LTE)",
-			"iPhone10,2":"iPhone 8 Plus (CDMA+GSM/LTE)",
-			"iPhone10,3":"iPhone X (CDMA+GSM/LTE)",
-			"iPhone10,4":"iPhone 8 (GSM/LTE)",
-			"iPhone10,5":"iPhone 8 Plus (GSM/LTE)",
-			"iPhone10,6":"iPhone X (GSM/LTE)",
+			"iPhone10,1":"iPhone 8 (CDMA+GSM)",
+			"iPhone10,2":"iPhone 8 Plus (CDMA+GSM)",
+			"iPhone10,3":"iPhone X (CDMA+GSM)",
+			"iPhone10,4":"iPhone 8 (GSM)",
+			"iPhone10,5":"iPhone 8 Plus (GSM)",
+			"iPhone10,6":"iPhone X (GSM)",
 
 			"iPhone11,2":"iPhone XS",
 			"iPhone11,4":"iPhone XS Max China",
 			"iPhone11,6":"iPhone XS Max",
 			"iPhone11,8":"iPhone XR",
-			
+
 			"iPad1,1":"iPad (Wifi)",
 			"iPad1,2":"iPad (Cellular)",
-			
+
 			"iPad2,1":"iPad 2 (WiFi)",
 			"iPad2,2":"iPad 2 (GSM)",
 			"iPad2,3":"iPad 2 (CDMA)",
@@ -170,14 +168,14 @@ public class UserAgent: NSObject {
 			"iPad2,5":"iPad Mini (WiFi)",
 			"iPad2,6":"iPad Mini (GSM)",
 			"iPad2,7":"iPad Mini (GSM+CDMA)",
-			
+
 			"iPad3,1":"iPad 3 (WiFi)",
 			"iPad3,2":"iPad 3 (GSM)",
 			"iPad3,3":"iPad 3 (GSM+CDMA)",
 			"iPad3,4":"iPad 4 (WiFi)",
 			"iPad3,5":"iPad 4 (GSM)",
 			"iPad3,6":"iPad 4 (GSM+CDMA)",
-			
+
 			"iPad4,1":"iPad Air (WiFi)",
 			"iPad4,2":"iPad Air (GSM)",
 			"iPad4,3":"iPad Air (GSM+CDMA)",
@@ -187,35 +185,35 @@ public class UserAgent: NSObject {
 			"iPad4,7":"iPad Mini 3 (WiFi)",
 			"iPad4,8":"iPad Mini 3 (GSM)",
 			"iPad4,9":"iPad Mini 3 (GSM+CDMA)",
-			
+
 			"iPad5,1":"iPad Mini 4 (WiFi)",
-			"iPad5,2":"iPad Mini 4 (Cellular)",
+			"iPad5,2":"iPad Mini 4 (GSM)",
 			"iPad5,3":"iPad Air 2 (WiFi)",
-			"iPad5,4":"iPad Air 2 (Cellular)",
-			
-			"iPad6,3":"iPad Pro 12.9\" (WiFi)",
-			"iPad6,4":"iPad Pro 12.9\" (Cellular)",
-			"iPad6,7":"iPad Pro 9.7\" (WiFi)",
-			"iPad6,8":"iPad Pro 9.7\" (Cellular)",
-			"iPad6,11":"iPad (5th gen, WiFi)",
-			"iPad6,12":"iPad (5th gen, LTE)",
+			"iPad5,4":"iPad Air 2 (GSM)",
 
-			"iPad7,1":"iPad Pro (12.9, 2nd gen, WiFi)",
-			"iPad7,2":"iPad Pro (12.9, 2nd gen, LTE)",
+			"iPad6,3":"iPad Pro (12.9, WiFi)",
+			"iPad6,4":"iPad Pro (12.9, GSM)",
+			"iPad6,7":"iPad Pro (9.7, WiFi)",
+			"iPad6,8":"iPad Pro (9.7, GSM)",
+			"iPad6,11":"iPad 5 (WiFi)",
+			"iPad6,12":"iPad 5 (GSM)",
+
+			"iPad7,1":"iPad Pro 2 (12.9, WiFi)",
+			"iPad7,2":"iPad Pro 2 (12.9, GSM)",
 			"iPad7,3":"iPad Pro (10.5, WiFi)",
-			"iPad7,4":"iPad Pro (10.5, LTE)",
-			"iPad7,5":"iPad 6th Gen (WiFi)",
-			"iPad7,6":"iPad 6th Gen (WiFi+Cellular)",
+			"iPad7,4":"iPad Pro (10.5, GSM)",
+			"iPad7,5":"iPad 6 (WiFi)",
+			"iPad7,6":"iPad 6 (GSM)",
 
-			"iPad8,1":"iPad Pro 3rd Gen (11 inch, WiFi)",
-			"iPad8,2":"iPad Pro 3rd Gen (11 inch, 1TB, WiFi)",
-			"iPad8,3":"iPad Pro 3rd Gen (11 inch, WiFi+Cellular)",
-			"iPad8,4":"iPad Pro 3rd Gen (11 inch, 1TB, WiFi+Cellular)",
-			"iPad8,5":"iPad Pro 3rd Gen (12.9 inch, WiFi)",
-			"iPad8,6":"iPad Pro 3rd Gen (12.9 inch, 1TB, WiFi)",
-			"iPad8,7":"iPad Pro 3rd Gen (12.9 inch, WiFi+Cellular)",
-			"iPad8,8":"iPad Pro 3rd Gen (12.9 inch, 1TB, WiFi+Cellular)",
-			
+			"iPad8,1":"iPad Pro 3 (11, WiFi)",
+			"iPad8,2":"iPad Pro 3 (11, WiFi)",
+			"iPad8,3":"iPad Pro 3 (11, GSM)",
+			"iPad8,4":"iPad Pro 3 (11, GSM)",
+			"iPad8,5":"iPad Pro 3 (12.9, WiFi)",
+			"iPad8,6":"iPad Pro 3 (12.9, WiFi)",
+			"iPad8,7":"iPad Pro 3 (12.9, GSM)",
+			"iPad8,8":"iPad Pro 3 (12.9, GSM)",
+
 			"i386":"32-bit Simulator",
 			"x86_64":"64-bit Simulator"
 		]
@@ -247,17 +245,37 @@ public class UserAgent: NSObject {
 		}
 	}
 
+	public var deviceTimeZone: String? {
+		return MobileMessaging.timeZone.abbreviation()
+	}
+
+	public var pushServiceType: String {
+		return "APNS"
+	}
+
+	var currentUserAgentString: String {
+		var options = [UserAgent.DataOptions.None]
+		if !(MobileMessaging.privacySettings.systemInfoSendingDisabled) {
+			options.append(UserAgent.DataOptions.System)
+		}
+		if !(MobileMessaging.privacySettings.carrierInfoSendingDisabled) {
+			options.append(UserAgent.DataOptions.Carrier)
+		}
+		return userAgentString(withOptions: options)
+	}
+
 	func userAgentString(withOptions options: [DataOptions]) -> String {
 		func systemDataString(allowed: Bool) -> String {
 			let outputOSName = allowed ? osName : ""
 			let outputOSVersion = allowed ? osVersion : ""
-			let outputDeviceModel = allowed ? deviceName : ""
+			let outputDeviceModel = allowed ? deviceModelName : ""
 			let osArch = ""
 			let deviceManufacturer = ""
+			let deviceNameS = allowed ? deviceName : ""
 			let outputHostingAppName = allowed ? hostingAppName : ""
 			let outputHostingAppVersion = allowed ? hostingAppVersion : ""
-			
-			let result = "\(libraryName)/\(libraryVersion.appending(cordovaPluginVersion == nil ? "" : "-cordova-\(cordovaPluginVersion!)"))(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion)"
+
+			let result = "\(libraryName)/\(libraryVersion.appending(cordovaPluginVersion == nil ? "" : "-cordova-\(cordovaPluginVersion!)"))(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion);\(deviceNameS)"
 			
 			return result
 		}

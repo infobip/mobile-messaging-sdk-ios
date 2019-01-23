@@ -24,11 +24,11 @@ public final class MMDefaultLogger: NSObject, MMLogging {
     }
     
     public func logDebug(message: String) {
-        print("💬", message)
+        print("🛠", message)
     }
     
     public func logInfo(message: String) {
-        print("💬", message)
+        print("ℹ️", message)
     }
     
     public func logError(message: String) {

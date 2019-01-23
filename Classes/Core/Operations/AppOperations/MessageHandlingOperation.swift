@@ -9,17 +9,13 @@ import UIKit
 import CoreData
 
 func == (lhs: MMMessageMeta, rhs: MMMessageMeta) -> Bool {
-	return lhs.hashValue == rhs.hashValue
+	return lhs.messageId == rhs.messageId
 }
 
 struct MMMessageMeta : MMMessageMetadata {
 	let isSilent: Bool
 	let messageId: String
-	
-	var hashValue: Int {
-		return messageId.hash
-	}
-	
+
 	init(message: MessageManagedObject) {
 		self.messageId = message.messageId
 		self.isSilent = message.isSilent
@@ -56,7 +52,6 @@ final class MessageHandlingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message handling] Starting message handling operation...")
-		context.reset()
 		guard !newMessages.isEmpty else
 		{
 			MMLogDebug("[Message handling] There is no new messages to handle.")
@@ -68,6 +63,7 @@ final class MessageHandlingOperation: Operation {
 		MMLogDebug("[Message handling] There are \(newMessages.count) new messages to handle.")
 		
 		context.performAndWait {
+			context.reset()
 			self.newMessages.forEach { newMessage in
 				var messageWasPopulatedBySubservice = false
 				var newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
@@ -118,7 +114,7 @@ final class MessageHandlingOperation: Operation {
 				MMLogDebug("[Message handling] calling back for didReceiveNewMessage \(message.messageId)")
                 
                 self.presentLocalNotificationIfNeeded(with: message)
-                NotificationCenter.default.post(name: NSNotification.Name(rawValue: MMNotificationMessageReceived), object: self, userInfo: [MMNotificationKeyMessage: message])
+                UserEventsManager.postMessageReceivedEvent(message)
 
 				MobileMessaging.messageHandlingDelegate?.didReceiveNewMessage?(message: message)
                 if MobileMessaging.application.isInForegroundState {
@@ -154,7 +150,7 @@ final class MessageHandlingOperation: Operation {
 //MARK: - Lazy message collections
 	private lazy var storedMessageMetasSet: Set<MMMessageMeta> = {
 		var result: Set<MMMessageMeta> = Set()
-		//TODO: optimization needed, it may be too many of db messages
+		//FIXME: optimization needed, it may be too many of db messages
 		self.context.performAndWait {
 			if let storedMessages = MessageManagedObject.MM_findAllInContext(self.context) {
 				result = Set(storedMessages.map(MMMessageMeta.init))

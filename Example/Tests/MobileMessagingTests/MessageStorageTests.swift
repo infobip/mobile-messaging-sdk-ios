@@ -106,11 +106,11 @@ class MessageStorageTests: MMTestCase {
 
 	
 	func testThatChatMessagesDontGetToMessageStorage() {
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
 		let messageStorageStub = MessageStorageStub()
 		let chatStorageStub = MessageStorageStub()
-		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withMobileChat(storage: chatStorageStub).start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withMobileChat(storage: chatStorageStub).start()
 		
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
@@ -145,13 +145,13 @@ class MessageStorageTests: MMTestCase {
 	}
 	
 	func testMODuplication() {
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		weak var expectation1 = expectation(description: "Sending 1 finished")
 		weak var expectation2 = expectation(description: "Sending 2 finished")
 		let messageStorageStub = MessageStorageStub()
 		XCTAssertEqual(messageStorageStub.moMessages.count, 0)
-		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
-		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
+		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		do {
 			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: nil, initialMessageId: nil, sentStatus: .Undefined, deliveryMethod: .generatedLocally)
@@ -173,7 +173,7 @@ class MessageStorageTests: MMTestCase {
 	}
 	
 	func testMOHooks() {
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		var isSentSuccessfully = false
 		var isSentWithFailure = false
 		
@@ -198,9 +198,9 @@ class MessageStorageTests: MMTestCase {
 		})
 		XCTAssertEqual(messageStorageStub.moMessages.count, 0)
 		
-		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
 
-		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey": "customValue2" as NSString], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
@@ -218,8 +218,8 @@ class MessageStorageTests: MMTestCase {
 	}
 	
     func testDefaultStoragePersistingAndFetching() {
-		cleanUpAndStop()
-		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+		MMTestCase.cleanUpAndStop()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
 		
 		weak var findAllMessagesExp1 = expectation(description: "Check finished")
 		weak var findAllMessagesIdsExp = expectation(description: "Check finished")
@@ -257,11 +257,11 @@ class MessageStorageTests: MMTestCase {
     }
 	
 	func testCustomPersistingAndFetching() {
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
 		let messageStorageStub = MessageStorageStub()
 		
-		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
 		
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
@@ -281,15 +281,15 @@ class MessageStorageTests: MMTestCase {
 		
 		self.waitForExpectations(timeout: 60, handler: { _ in
 			XCTAssertEqual(messageStorageStub.mtMessages.count, expectedMessagesCount)
-			XCTAssertEqual(self.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
+			XCTAssertEqual(MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
 	}
 	
 	
 	func testQuery() {
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 
-		stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
 		
 		let messageReceivingGroup = DispatchGroup()
 		weak var expectation = self.expectation(description: "Check finished")
@@ -362,7 +362,7 @@ class MessageStorageTests: MMTestCase {
 			return
 		}
 		
-		cleanUpAndStop()
+		MMTestCase.cleanUpAndStop()
 		
 		let content = UNMutableNotificationContent()
 		content.userInfo = [
@@ -390,7 +390,7 @@ class MessageStorageTests: MMTestCase {
 		let messageStorageStub = MessageStorageStub()
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
-		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(messageStorageStub)
+		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(messageStorageStub)
 		mm.sharedNotificationExtensionStorage = notificationExtensionStorageStub
 		mm.start()
 		mm.sync()
@@ -412,8 +412,8 @@ class MessageStorageTests: MMTestCase {
 }
 
 class SuccessfullDeliveryReporterStub: DeliveryReporting {
-	func report(applicationCode: String, messageIds: [String], completion: @escaping (Result<DeliveryReportResponse>) -> Void) {
-		completion(Result.Success(DeliveryReportResponse.init()))
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (DeliveryReportResult) -> Void) {
+		completion(Result.Success(EmptyResponse()))
 	}
 }
 

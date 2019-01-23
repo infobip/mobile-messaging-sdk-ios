@@ -31,8 +31,8 @@ final class MessageFetchingOperation: Operation {
 		}
 		MMLogDebug("[Message fetching] Starting operation...")
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogDebug("[Message fetching] Registration may be not healthy. Finishing...")
-			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
+			MMLogWarn("[Message fetching] Registration is not healthy. Finishing...")
+			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.InvalidRegistration))
 			finish()
 			return
 		}
@@ -51,14 +51,15 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func syncMessages() {
-		guard let pushRegistrationId = mmContext.currentUser?.pushRegistrationId else {
-			MMLogDebug("[Message fetching] No registration. Finishing...")
+		guard let pushRegistrationId = mmContext.currentInstallation.pushRegistrationId else {
+			MMLogWarn("[Message fetching] No registration. Finishing...")
 			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
 			finish()
 			return
 		}
-		context.reset()
+
 		context.performAndWait {
+			context.reset()
 			
 			let nonReportedMessageIds = self.getNonReportedMessageIds()
 			let archveMessageIds = self.getArchiveMessageIds()
@@ -82,9 +83,7 @@ final class MessageFetchingOperation: Operation {
 			if let nonReportedMessageIds = nonReportedMessageIds {
 				self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds, completion: completion)
 				MMLogDebug("[Message fetching] delivery report sent for messages: \(nonReportedMessageIds)")
-				if !nonReportedMessageIds.isEmpty {
-					NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationDeliveryReportSent, userInfo: [MMNotificationKeyDLRMessageIDs: nonReportedMessageIds])
-				}
+				UserEventsManager.postDLRSentEvent(nonReportedMessageIds)
 			} else {
 				completion()
 			}
@@ -92,7 +91,7 @@ final class MessageFetchingOperation: Operation {
 			MMLogError("[Message fetching] request failed")
 			completion()
 		case .Cancel:
-			MMLogDebug("[Message fetching] cancelled")
+			MMLogWarn("[Message fetching] cancelled")
 			completion()
 		}
 	}

@@ -10,20 +10,21 @@ import XCTest
 
 class PrimaryDeviceTests: MMTestCase {
 	func testDataPersisting() {
-		XCTAssertFalse(MobileMessaging.isPrimaryDevice)
-		MobileMessaging.isPrimaryDevice = true
-		XCTAssertTrue(MobileMessaging.isPrimaryDevice)
+		XCTAssertFalse(MobileMessaging.currentInstallation!.isPrimaryDevice)
+		MobileMessaging.currentInstallation!.isPrimaryDevice = true
+		MobileMessaging.currentInstallation!.persist()
+		XCTAssertTrue(MobileMessaging.currentInstallation!.isPrimaryDevice)
 		let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
 		ctx.performAndWait {
 			let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
-			XCTAssertTrue(installation.dirtyAttributesSet.contains(AttributesSet.isPrimaryDevice))
-			XCTAssertTrue(installation.isPrimaryDevice)
+			XCTAssertTrue(installation.dirtyAttsSet.contains(Attributes.isPrimaryDevice))
+			XCTAssertTrue(installation.isPrimary)
 		}
 	}
 	
 	func testPutSync() {
 		weak var expectation = self.expectation(description: "sync completed")
-		mobileMessagingInstance.currentUser.pushRegistrationId = "123"
+		mobileMessagingInstance.currentInstallation.pushRegistrationId = "123"
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (request) in
 			
 		}, completionCompanionBlock: { (request) in
@@ -31,61 +32,57 @@ class PrimaryDeviceTests: MMTestCase {
 		}, responseMock: { (request) -> JSON? in
 			
 			switch request {
-			case (is PutInstanceRequest):
+			case (is PatchInstance):
 				return JSON("")
-			case (is GetInstanceRequest):
-				return JSON(["primary" : true])
 			default:
 				return nil
 			}
 		})
-		
-		XCTAssertFalse(MobileMessaging.isPrimaryDevice)
-		
-		MobileMessaging.setAsPrimaryDevice(true) { (error) in
+
+		let installation = MobileMessaging.installation!
+		XCTAssertFalse(installation.isPrimaryDevice)
+		installation.isPrimaryDevice = true
+		MobileMessaging.saveInstallation(installation) { (error) in
 			expectation?.fulfill()
 		}
-		
+
 		waitForExpectations(timeout: 20, handler: { _ in
 			let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
 			ctx.performAndWait {
 				let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
-				XCTAssertFalse(installation.dirtyAttributesSet.contains(AttributesSet.isPrimaryDevice))
-				XCTAssertTrue(installation.isPrimaryDevice)
+				XCTAssertFalse(installation.dirtyAttsSet.contains(Attributes.isPrimaryDevice))
+				XCTAssertTrue(installation.isPrimary)
 			}
 		})
 	}
 	
 	func testGetSync() {
 		weak var expectation = self.expectation(description: "sync completed")
-		mobileMessagingInstance.currentUser.pushRegistrationId = "123"
+		mobileMessagingInstance.currentInstallation.pushRegistrationId = "123"
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (request) in
 			
 		}, completionCompanionBlock: { (request) in
 			
 		}, responseMock: { (request) -> JSON? in
-			
 			switch request {
-			case (is PutInstanceRequest):
+			case (is PatchInstance):
 				return JSON("")
-			case (is GetInstanceRequest):
-				return JSON(["primary" : false])
 			default:
 				return nil
 			}
 		})
-		
-		mobileMessagingInstance.currentInstallation.syncPrimarySettingWithServer { (isPrimary, error) in
-            XCTAssertFalse(isPrimary)
+
+		MobileMessaging.fetchInstallation { (installation, error) in
+			XCTAssertFalse(installation!.isPrimaryDevice)
 			expectation?.fulfill()
 		}
-		
+
 		waitForExpectations(timeout: 20, handler: { _ in
 			let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
 			ctx.performAndWait {
 				let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
-				XCTAssertFalse(installation.dirtyAttributesSet.contains(AttributesSet.isPrimaryDevice))
-				XCTAssertFalse(installation.isPrimaryDevice)
+				XCTAssertFalse(installation.dirtyAttsSet.contains(Attributes.isPrimaryDevice))
+				XCTAssertFalse(installation.isPrimary)
 			}
 		})
 	}

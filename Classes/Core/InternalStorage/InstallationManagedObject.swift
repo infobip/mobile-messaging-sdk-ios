@@ -9,175 +9,63 @@
 import Foundation
 import CoreData
 
-enum Attributes: String {
-	// case -> model name
-	case deviceToken		= "deviceToken"
-	case customUserData		= "customUserData"
-	case predefinedUserData = "predefinedUserData"
-	case externalUserId		= "externalUserId"
-	case registrationEnabled = "isRegistrationEnabled"
-	case applicationCode	= "applicationCode"
-	case badgeNumber		= "badgeNumber"
-	case systemDataHash		= "systemDataHash"
-	case location			= "location"
-	case internalUserId		= "internalUserId"
-	case isPrimaryDevice 	= "isPrimaryDevice"
-	case logoutStatusValue		= "logoutStatusValue"
-	case logoutFailCounter		= "logoutFailCounter"
-	
-	static var userDataAttributes: Int32 {
-		return	Attributes.customUserData.integerValue |
-			Attributes.predefinedUserData.integerValue |
-			Attributes.externalUserId.integerValue
-	}
-	
-	static var registrationAttributes: Int32 {
-		return	Attributes.deviceToken.integerValue |
-			Attributes.registrationEnabled.integerValue
-	}
-	
-	var integerValue: Int32 {
-		switch self {
-		case .deviceToken:
-			return 1 << 0
-		case .customUserData:
-			return 1 << 1
-		case .predefinedUserData:
-			return 1 << 2
-		case .externalUserId:
-			return 1 << 3
-		case .registrationEnabled:
-			return 1 << 4
-		case .applicationCode:
-			return 1 << 5
-		case .badgeNumber:
-			return 1 << 6
-		case .systemDataHash:
-			return 1 << 7
-		case .location:
-			return 1 << 8
-		case .internalUserId:
-			return 1 << 9
-		case .isPrimaryDevice:
-			return 1 << 10
-		case .logoutStatusValue:
-			return 1 << 11
-		case .logoutFailCounter:
-			return 1 << 12
-		}
-	}
-	
-	var asSet: AttributesSet {
-		return AttributesSet(rawValue: integerValue)
-	}
-}
-
-struct AttributesSet: OptionSet {
-	let rawValue : Int32
-	init(rawValue: Int32) { self.rawValue = rawValue }
-	
-	static func withAttribute(name: String) -> AttributesSet? {
-		if let attr = Attributes(rawValue: name) {
-			switch attr {
-			case .deviceToken:
-				return AttributesSet.deviceToken
-			case .predefinedUserData:
-				return AttributesSet.predefinedUserData
-			case .customUserData:
-				return AttributesSet.customUserData
-			case .externalUserId:
-				return AttributesSet.externalUserId
-			case .registrationEnabled:
-				return AttributesSet.isRegistrationEnabled
-			case .applicationCode:
-				return AttributesSet.applicationCode
-			case .badgeNumber:
-				return AttributesSet.badgeNumber
-			case .systemDataHash:
-				return AttributesSet.systemDataHash
-			case .location:
-				return AttributesSet.location
-			case .internalUserId:
-				return AttributesSet.internalUserId
-			case .isPrimaryDevice:
-				return AttributesSet.isPrimaryDevice
-			case .logoutStatusValue:
-				return AttributesSet.logoutStatusValue
-			case .logoutFailCounter:
-				return AttributesSet.logoutFailCounter
-			}
-		}
-		return nil
-	}
-	static let deviceToken				= Attributes.deviceToken.asSet
-	static let isRegistrationEnabled	= Attributes.registrationEnabled.asSet
-	static let customUserData			= Attributes.customUserData.asSet
-	static let predefinedUserData		= Attributes.predefinedUserData.asSet
-	static let externalUserId			= Attributes.externalUserId.asSet
-	static let applicationCode			= Attributes.applicationCode.asSet
-	static let badgeNumber				= Attributes.badgeNumber.asSet
-	static let systemDataHash			= Attributes.systemDataHash.asSet
-	static let location					= Attributes.location.asSet
-	static let internalUserId			= Attributes.internalUserId.asSet
-	static let isPrimaryDevice			= Attributes.isPrimaryDevice.asSet
-	static let logoutStatusValue		= Attributes.logoutStatusValue.asSet
-	static let logoutFailCounter		= Attributes.logoutFailCounter.asSet
-	
-	static let userData					= AttributesSet(rawValue: Attributes.userDataAttributes)
-	static let registrationAttributes	= AttributesSet(rawValue: Attributes.registrationAttributes)
-}
-
-
 final class InstallationManagedObject: NSManagedObject, FetchableResult {
 
-	override func didChangeValue(forKey key: String) {
-		super.didChangeValue(forKey: key)
-		setDirtyAttribute(attrName: key)
-    }
-
-	var dirtyAttributesSet: AttributesSet {
-		return AttributesSet(rawValue: dirtyAttributes)
-	}
-
-	var logoutStatus: LogoutStatus {
-		return LogoutStatus(rawValue: Int(self.logoutStatusValue)) ?? .undefined
-	}
-	
-	func resetDirtyAttribute(attributes: AttributesSet) {
-		var newSet = dirtyAttributesSet
-		newSet.remove(attributes)
-		dirtyAttributes = newSet.rawValue
-	}
-
-	private func setDirtyAttribute(attrName: String) {
-		if let dirtyAttribute = AttributesSet.withAttribute(name: attrName) {
-			var updatedSet = dirtyAttributesSet
-			updatedSet.insert(dirtyAttribute)
-			dirtyAttributes = updatedSet.rawValue
-		}
-	}
-	
-	func setValueIfDifferent<Value: Equatable>(_ value: Value?, forKey key: String) {
-		var isDifferent: Bool
-		if let currentValue = self.value(forKey: key) as? Value {
-			isDifferent = value == nil ? true : currentValue != value!
+	var dirtyAttsSet: AttributesSet {
+		if let dirtyAttributesString = dirtyAttributesString {
+			let substrings: [String] = dirtyAttributesString.split(separator: ",").map(String.init)
+			let atts = substrings.compactMap({ s in return Attributes.fromString(s) })
+			return Set(atts)
 		} else {
-			isDifferent = value != nil
+			return Set()
 		}
-		if isDifferent {
-			super.setValue(value, forKey: key)
-		}
-    }
+	}
+
+	var depersonalizeStatus: SuccessPending {
+		return SuccessPending(rawValue: Int(self.logoutStatusValue)) ?? .undefined
+	}
 	
-	func setValueIfDifferent(_ value: Dictionary<AnyHashable, UserDataFoundationTypes>?, forKey key: String) {
-		var isDifferent: Bool
-		if let currentValue = self.value(forKey: key) as? Dictionary<AnyHashable, UserDataFoundationTypes> {
-			isDifferent = value == nil ? true : currentValue != value!
-		} else {
-			isDifferent = value != nil
+	func resetDirtyAttribute(attributes: Attributes) {
+		var newSet = dirtyAttsSet
+		newSet.removeAttributes([attributes])
+		setValue(newSet.map({ $0.rawValue }).joined(separator: ","), forKey: "dirtyAttributesString")
+	}
+
+	private func setDirtyAttribute(key: String) {
+		if let att = Attributes.fromString(key) {
+			setPrimitiveValue(dirtyAttsSet.union([att]).map({ $0.rawValue }).joined(separator: ","), forKey: "dirtyAttributesString")
 		}
-		if isDifferent {
-			super.setValue(value, forKey: key)
+	}
+
+	override func setValue(_ value: Any?, forUndefinedKey key: String) {
+		if let prefix = key.split(separator: ".").first {
+			switch String(prefix) {
+			case Attributes.customUserAttributes.databaseKey, Attributes.customInstanceAttributes.databaseKey:
+				setValue(value, forKey: String(prefix))
+				setDirtyAttribute(key: key)
+			default: break
+			}
+		}
+	}
+
+	override func willSave() {
+		let atts = Set(changedValues().keys).subtracting(["dirtyAttributesString"])
+		atts.forEach { (k) in
+			setDirtyAttribute(key: k)
+		}
+		super.willSave()
+
+		if atts.contains("pushRegId") {
+			UserEventsManager.postRegUpdatedEvent(self.pushRegId)
+		}
+
+		if atts.contains("regEnabled") {
+			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
+		}
+
+		if atts.contains("logoutStatusValue") {
+			MMLogDebug("[Installation management] setting new depersonalize status: \(self.logoutStatusValue)")
+			MobileMessaging.sharedInstance?.updateDepersonalizeStatusForSubservices()
 		}
 	}
 }

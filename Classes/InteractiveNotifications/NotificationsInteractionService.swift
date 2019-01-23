@@ -8,23 +8,6 @@
 import Foundation
 import UserNotifications
 
-struct InteractionConstants {
-	struct NotificationActionKeys {
-		static let identifier = "identifier"
-		static let title = "title"
-		static let titleLocalizationKey = "titleLocalizationKey"
-		static let foreground = "foreground"
-		static let authenticationRequired = "authenticationRequired"
-		static let moRequired = "moRequired"
-		static let destructive = "destructive"
-		static let mm_prefix = "mm_"
-		static let textInputActionButtonTitle = "textInputActionButtonTitle"
-		static let textInputPlaceholder = "textInputPlaceholder"
-	}
-
-	static let actionHandlingTimeout = 20
-}
-
 extension MobileMessaging {
 	/// Fabric method for Mobile Messaging session.
 	///
@@ -103,7 +86,7 @@ extension MobileMessaging {
 	class func handleAction(identifier: String?, category: String?, message: MTMessage?, notificationUserInfo: [String: Any]?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		guard let service = NotificationsInteractionService.sharedInstance else
 		{
-			MMLogWarn("NotificationsInteractionService is not initialized, canceling action handling")
+			MMLogWarn("[NotificationsInteractionService] NotificationsInteractionService is not initialized, canceling action handling")
 			completionHandler()
 			return
 		}
@@ -126,17 +109,6 @@ extension MobileMessaging {
 }
 
 class NotificationsInteractionService: MobileMessagingService {
-	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) { }
-
-	func logoutStatusDidChange(_ mmContext: MobileMessaging) { }
-
-	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
-		// do nothing
-		completion(nil)
-	}
-
-	let mmContext: MobileMessaging
-	
 	let customNotificationCategories: Set<NotificationCategory>?
 	
 	var allNotificationCategories: Set<NotificationCategory>? {
@@ -147,8 +119,7 @@ class NotificationsInteractionService: MobileMessagingService {
 	
 	init(mmContext: MobileMessaging, categories: Set<NotificationCategory>?) {
 		self.customNotificationCategories = categories
-		self.mmContext = mmContext
-		registerSelfAsSubservice(of: mmContext)
+		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.NotificationsInteractionService")
 	}
 	
 	func handleLocalNotificationTap(localNotification: UILocalNotification, completion: (() -> Void)? = nil) {
@@ -176,10 +147,10 @@ class NotificationsInteractionService: MobileMessagingService {
 	
 	func handleAction(identifier: String?, categoryId: String?, message: MTMessage?, notificationUserInfo: [String: Any]?, responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {
 		
-		MMLogDebug("[Interaction Service] handling action \(identifier ?? "n/a") for message \(message?.messageId ?? "n/a"), resonse info \(responseInfo ?? [:])")
+		MMLogDebug("[NotificationsInteractionService] handling action \(identifier ?? "n/a") for message \(message?.messageId ?? "n/a"), resonse info \(responseInfo ?? [:])")
 		
 		guard isRunning, let identifier = identifier else {
-			MMLogWarn("[Interaction Service] cancelled handling")
+			MMLogWarn("[NotificationsInteractionService] cancelled handling")
 			completionHandler()
 			return
 		}
@@ -214,12 +185,12 @@ class NotificationsInteractionService: MobileMessagingService {
 		
 		if identifier == NotificationAction.DismissActionId
 		{
-			MMLogDebug("[Interaction Service] handling dismiss action")
+			MMLogDebug("[NotificationsInteractionService] handling dismiss action")
 			handleAction(NotificationAction.dismissAction)
 		}
 		else if identifier == NotificationAction.DefaultActionId
 		{
-			MMLogDebug("[Interaction Service] handling default action")
+			MMLogDebug("[NotificationsInteractionService] handling default action")
 			handleAction(NotificationAction.defaultAction)
 		}
 		else if	let categoryId = categoryId,
@@ -231,26 +202,21 @@ class NotificationsInteractionService: MobileMessagingService {
 				let action = action as? TextInputNotificationAction,
 				let typedText = responseInfo[UIUserNotificationActionResponseTypedTextKey] as? String
 			{
-				MMLogDebug("[Interaction Service] handling text input")
+				MMLogDebug("[NotificationsInteractionService] handling text input")
 				action.typedText = typedText
 				handleAction(action)
 			} else {
-				MMLogDebug("[Interaction Service] handling regular action")
+				MMLogDebug("[NotificationsInteractionService] handling regular action")
 				handleAction(action)
 			}
 		}
 		else {
-			MMLogDebug("[Interaction Service] nothing to handle")
+			MMLogDebug("[NotificationsInteractionService] nothing to handle")
 			completionHandler()
 		}
 	}
-	
-	//MARK: - Protocol requirements (MobileMessagingService)
-	var isRunning: Bool = false
-	
+
 	fileprivate func postActionEventNotifications(_ appliedAction: NotificationAction, message: MTMessage?, notificationUserInfo: [String: Any]?) {
-		let name: String
-		
 		var userInfo = [
 			MMNotificationKeyMessage: message as Any,
 			MMNotificationKeyNotificationUserInfo: notificationUserInfo as Any,
@@ -258,14 +224,13 @@ class NotificationsInteractionService: MobileMessagingService {
 			] as [String: Any]
 		
 		if appliedAction.isTapOnNotificationAlert {
-			name = MMNotificationMessageTapped
+			UserEventsManager.postMessageTappedEvent(userInfo)
 		} else {
 			if #available(iOS 9.0, *), let text = (appliedAction as? TextInputNotificationAction)?.typedText {
 				userInfo[MMNotificationKeyActionTextInput] = text
 			}
-			name = MMNotificationActionTapped
+			UserEventsManager.postActionTappedEvent(userInfo)
 		}
-		NotificationCenter.mm_postNotificationFromMainThread(name: name, userInfo: userInfo)
 	}
 	
 	func deliverActionEventToUser(message: MTMessage?, action: NotificationAction, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void) {
@@ -273,60 +238,53 @@ class NotificationsInteractionService: MobileMessagingService {
 		MobileMessaging.messageHandlingDelegate?.didPerform(action: action, forMessage: message, notificationUserInfo: notificationUserInfo) { completion() }
 			?? completion()
 	}
-}
 
-//MARK: - Protocol implementation (MobileMessagingService)
-extension NotificationsInteractionService {
-	var uniqueIdentifier: String {
-		return "com.mobile-messaging.subservice.NotificationsInteractionService"
-	}
-	
-	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
-		stop()
+	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
+		stop({_ in })
 		NotificationsInteractionService.sharedInstance = nil
 	}
-	
-	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
+
+	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
 		guard let cs = allNotificationCategories, !cs.isEmpty else {
 			return
 		}
-		start(nil)
+		start({_ in })
 	}
-	
-	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
+
+	override func handleNewMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		// this code is better to be moved to UserNotificationCenterDelegate.userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification...) but on old iOS 9 this API is not present.
-		//TODO: this code is a part of "In-App notification alert" feature along with code from UserNotificationCenterDelegate.userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification...) and both must be moved to a single common place.
+		//FIXME: this code is a part of "In-App notification alert" feature along with code from UserNotificationCenterDelegate.userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification...) and both must be moved to a single common place.
 		if 	message.showInApp && message.inAppStyle == .Modal &&
 			(
 				(message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) ||
-				message.appliedAction == nil
+					message.appliedAction == nil
 			)
 		{
 			mmContext.interactiveAlertManager.showInteractiveAlert(forMessage: message, exclusively: MobileMessaging.application.applicationState == .background)
 		}
-		completion?(.noData)
+		completion(.noData)
 	}
-	
-	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
+
+	override func handleAnyMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning, let appliedAction = message.appliedAction else {
-			completion?(.noData)
+			completion(.noData)
 			return
 		}
-		
+
 		let dispatchGroup = DispatchGroup()
-		
+
 		dispatchGroup.enter()
 		deliverActionEventToUser(message: message,
 								 action: appliedAction,
 								 notificationUserInfo: message.originalPayload) {
 									dispatchGroup.leave()
 		}
-		
+
 		dispatchGroup.enter()
 		self.mmContext.setSeenImmediately([message.messageId]) { _ in
 			dispatchGroup.leave()
 		}
-		
+
 		if appliedAction.options.contains(.moRequired) {
 			let mo = MOMessage(
 				destination: nil,
@@ -336,30 +294,20 @@ extension NotificationsInteractionService {
 				bulkId: message.internalData?[Consts.InternalDataKeys.bulkId] as? String,
 				initialMessageId: message.messageId
 			)
-			
+
 			dispatchGroup.enter()
 			self.mmContext.sendMessagesSDKInitiated([mo]) { msgs, error in
 				dispatchGroup.leave()
 			}
 		}
 		dispatchGroup.notify(queue: DispatchQueue.global(qos: .default)) {
-			completion?(.noData)
+			completion(.noData)
 		}
 	}
-	
-	func syncWithServer(_ completion: ((NSError?) -> Void)?) {
+
+	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		self.mmContext.retryMoMessageSending() { (_, error) in
-			completion?(error)
+			completion(error)
 		}
-	}
-	
-	func stop(_ completion: ((Bool) -> Void)? = nil) {
-		MMLogDebug("[Interaction Service] stopping")
-		isRunning = false
-	}
-	
-	func start(_ completion: ((Bool) -> Void)? = nil) {
-		MMLogDebug("[Interaction Service] starting")
-		isRunning = true
 	}
 }

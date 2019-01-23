@@ -18,7 +18,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		msisdsTextField.delegate = self
-		msisdsTextField.text = MobileMessaging.currentUser?.msisdn
+		msisdsTextField.text = MobileMessaging.user?.phones?.first
 	}
 	
 	//MARK: UITextFieldDelegate
@@ -42,15 +42,16 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		
 		do {
 			try validateFormat(msisdn)
-			
-			MobileMessaging.currentUser?.save(msisdn: msisdn, completion: { (error) -> () in
-				DispatchQueue.main.async {
-					self.hideActivityIndicator {
-						self.showResultAlert(error)
+			if let user = MobileMessaging.user {
+				user.phones = [msisdn]
+				MobileMessaging.saveUser(user) { (error) -> () in
+					DispatchQueue.main.async {
+						self.hideActivityIndicator {
+							self.showResultAlert(error)
+						}
 					}
 				}
-			})
-			
+			}
 		} catch let error as NSError {
 			hideActivityIndicator {
 				self.showResultAlert(error)

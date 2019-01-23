@@ -24,18 +24,18 @@ class FetchMessagesTest: MMTestCase {
 	nothing changed in DB
 	*/
 	func testNothingToSynchronize() {
-		cleanUpAndStop()
-		startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
+		MMTestCase.cleanUpAndStop()
+		MMTestCase.startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
 		
 		weak var expectation = self.expectation(description: "Sync finished")
-		XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
+		XCTAssertEqual(MMTestCase.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 		
-		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		mobileMessagingInstance.messageHandler.syncWithServer { error in
 			
 			XCTAssertNil(error)
-			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
+			XCTAssertEqual(MMTestCase.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 			expectation?.fulfill()
 		}
 		
@@ -57,11 +57,11 @@ class FetchMessagesTest: MMTestCase {
 		weak var syncExpectation = expectation(description: "Sync finished")
 		weak var newMsgExpectation = expectation(description: "New message received")
 		
-		cleanUpAndStop()
-		startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
+		MMTestCase.cleanUpAndStop()
+		MMTestCase.startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
 		//Precondiotions
-		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"],  completion: { _ in
 			prepconditionExpectation?.fulfill()
 			
@@ -103,7 +103,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	override func setUp() {
 		super.setUp()
-		self.mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		self.mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 	}
 	
 	func testThatNewDataFetched() {

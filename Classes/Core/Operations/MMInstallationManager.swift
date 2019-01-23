@@ -1,5 +1,5 @@
 //
-//  MMInstallationManager.swift
+//  InstallationDataServiceManager.swift
 //
 //  Created by Andrey K. on 18/04/16.
 //
@@ -10,24 +10,28 @@ import CoreData
 
 protocol InstallationDataProvider {
 	func getValueForKey(_ key: String) -> Any?
-	func setValueForKey<Value: Equatable>(_ key: String, value: Value?)
-	func setValueForKey(_ key: String, value: [AnyHashable: UserDataFoundationTypes]? )
-	func set(_ value: UserDataFoundationTypes?, key: AnyHashable, attribute: String)
+	func set(value: Any?, forAttribute att: Attributes)
+	func set(nestedValue value: AttributeType?, forAttribute att: Attributes)
 	func resetChanges()
 	func persist()
 
-	func resetDirtyAttribute(_ attributes: AttributesSet)
-	func isAttributeDirty(_ attributes: AttributesSet) -> Bool
+	var dirtyAttributesSet: AttributesSet {get}
+	func resetDirtyAttribute(_ attributes: Attributes)
+	func isAttributeDirty(_ attributes: Attributes) -> Bool
 }
 
 class InMemoryDataProvider: InstallationDataProvider {
-	var storage: [AnyHashable: Any] = [:]
-	
-	func resetDirtyAttribute(_ attributes: AttributesSet) {
+	var storage: [String: Any] = [:]
+
+	var dirtyAttributesSet: AttributesSet {
+		return AttributesSet()//not implemented
+	}
+
+	func resetDirtyAttribute(_ attributes: Attributes) {
 		return
 	}
 	
-	func isAttributeDirty(_ attributes: AttributesSet) -> Bool {
+	func isAttributeDirty(_ attributes: Attributes) -> Bool {
 		return true
 	}
 	
@@ -35,17 +39,17 @@ class InMemoryDataProvider: InstallationDataProvider {
 		return storage[key]
 	}
 	
-	func setValueForKey<Value: Equatable>(_ key: String, value: Value?) {
-		storage[key] = value
+	func set(value: Any?, forAttribute att: Attributes) {
+		storage[att.rawValue] = value
 	}
-	
-	func setValueForKey(_ key: String, value: [AnyHashable: UserDataFoundationTypes]? ) {
-		storage[key] = value
-	}
-	
-	func set(_ value: UserDataFoundationTypes?, key: AnyHashable, attribute: String) {
-		var dictValue: [AnyHashable: UserDataFoundationTypes]? = [key: value ?? NSNull()]
-		if let dictionaryValue = self.getValueForKey(attribute) as? [AnyHashable : UserDataFoundationTypes] {
+
+	func set(nestedValue value: AttributeType?, forAttribute att: Attributes) {
+		let attribute = att.databaseKey
+		guard let key = att.key else {
+			return
+		}
+		var dictValue: [String: AttributeType]? = [key: value ?? NSNull()]
+		if let dictionaryValue = self.getValueForKey(attribute) as? [String : AttributeType] {
 			dictValue = dictionaryValue + dictValue
 		}
 		storage[attribute] = dictValue
@@ -68,17 +72,25 @@ class CoreDataProvider: InstallationDataProvider {
 		self.coreDataStorage = storage
 		self.context = storage.newPrivateContext()
 	}
-	
-	func resetDirtyAttribute(_ attributes: AttributesSet) {
+
+	var dirtyAttributesSet: AttributesSet {
+		var result: AttributesSet = AttributesSet()
+		context.performAndWait {
+			result = self.installationObject.dirtyAttsSet
+		}
+		return result
+	}
+
+	func resetDirtyAttribute(_ attributes: Attributes) {
 		context.performAndWait {
 			self.installationObject.resetDirtyAttribute(attributes: attributes)
 		}
 	}
 	
-	func isAttributeDirty(_ attributes: AttributesSet) -> Bool {
+	func isAttributeDirty(_ attributes: Attributes) -> Bool {
 		var result: Bool = false
 		context.performAndWait {
-			result = self.installationObject.dirtyAttributesSet.intersection(attributes).isEmpty == false
+			result = self.installationObject.dirtyAttsSet.contains(attributes)
 		}
 		return result
 	}
@@ -88,28 +100,31 @@ class CoreDataProvider: InstallationDataProvider {
 		context.performAndWait {
 			result = self.installationObject.value(forKey: key)
 		}
+		switch result {
+		case (let n as NSNumber) where n.isBool:
+			result = n.boolValue
+		default: break;
+		}
 		return result
 	}
 	
-	func setValueForKey<Value: Equatable>(_ key: String, value: Value?) {
+	func set(value: Any?, forAttribute att: Attributes) {
 		context.performAndWait {
-			self.installationObject.setValueIfDifferent(value, forKey: key)
+			self.installationObject.setValue(value, forKey: att.databaseKey)
 		}
 	}
-	
-	func setValueForKey(_ key: String, value: [AnyHashable: UserDataFoundationTypes]? ) {
-		context.performAndWait {
-			self.installationObject.setValueIfDifferent(value, forKey: key)
+
+	func set(nestedValue value: AttributeType?, forAttribute att: Attributes) {
+		let attribute = att.databaseKey
+		guard let key = att.key else {
+			return
 		}
-	}
-	
-	func set(_ value: UserDataFoundationTypes?, key: AnyHashable, attribute: String) {
 		context.performAndWait {
-			var dictValue: [AnyHashable: UserDataFoundationTypes]? = [key: value ?? NSNull()]
-			if let dictionaryValue = self.getValueForKey(attribute) as? [AnyHashable : UserDataFoundationTypes] {
+			var dictValue: [String: AttributeType]? = [key: value ?? NSNull()]
+			if let dictionaryValue = self.getValueForKey(attribute) as? [String : AttributeType] {
 				dictValue = dictionaryValue + dictValue
 			}
-			self.installationObject.setValueIfDifferent(dictValue, forKey: attribute)
+			self.installationObject.setValue(dictValue, forKey: att.rawValue)
 		}
 	}
 	
@@ -120,9 +135,9 @@ class CoreDataProvider: InstallationDataProvider {
 	func persist() {
 		context.MM_saveToPersistentStoreAndWait()
 	}
-	
+
 	//MARK: Private
-	private var installationObject: InstallationManagedObject {
+	var installationObject: InstallationManagedObject {
 		if let installation = _currentInstallation {
 			return installation
 		} else {

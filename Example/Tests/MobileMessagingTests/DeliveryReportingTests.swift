@@ -11,10 +11,10 @@ import XCTest
 class DeliveryReportingTests: MMTestCase {
     func testSendingDeliveryStatusSuccess() {
         weak var expectation = self.expectation(description: "Delivery sending completed")
-		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], completion: { result in
 				XCTAssertNil(result.error, "Delivery reporting request failed with error")
-				XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
+				XCTAssertEqual(MMTestCase.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 				expectation?.fulfill()
 			}
 		)
@@ -23,11 +23,11 @@ class DeliveryReportingTests: MMTestCase {
     }
 	
     func testSendingDeliveryStatusWrongAppIdFailure() {
-		cleanUpAndStop()
-		startWithWrongApplicationCode()
+		MMTestCase.cleanUpAndStop()
+		MMTestCase.startWithWrongApplicationCode()
 		
         weak var expectation = self.expectation(description: "Delivery sending completed")
-		mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], completion: { result in
 		
 			XCTAssertNotNil(result.error)
@@ -37,7 +37,7 @@ class DeliveryReportingTests: MMTestCase {
 		})
 
 		self.waitForExpectations(timeout: 60) { _ in
-			XCTAssertEqual(self.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
+			XCTAssertEqual(MMTestCase.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 1, "There must be only one stored message")
 		}
 	}
 }

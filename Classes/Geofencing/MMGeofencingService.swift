@@ -33,17 +33,17 @@ extension MobileMessaging {
 }
 
 @objcMembers
-public class GeofencingService: NSObject, MobileMessagingService {
-	func logoutStatusDidChange(_ mmContext: MobileMessaging) {
-		switch mmContext.currentInstallation.currentLogoutStatus {
+public class GeofencingService: MobileMessagingService {
+	override func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {
+		switch mmContext.currentInstallation.currentDepersonalizationStatus {
 		case .pending:
-			stop(nil)
-		case .undefined:
-			start(nil)
+			stop({ _ in })
+		case .success, .undefined:
+			start({ _ in })
 		}
 	}
 
-	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void)) {
+	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		MMLogDebug("[Geofencing service] log out")
 		cancelOperations()
 		self.stopMonitoringMonitoredRegions() {
@@ -51,54 +51,34 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		}
 	}
 	
-	private func cancelOperations() {
-		eventsHandlingQueue.cancelAllOperations()
-	}
-	
-	private func cleanup(_ completion: @escaping ((NSError?) -> Void)) {
-		eventsHandlingQueue.addOperation {
-			self.datasource.cleanup()
-			
-			let ctx = self.datasource.context
-			ctx.performAndWait {
-				MessageManagedObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), inContext: ctx)
-				GeoEventReportObject.MM_deleteAllMatchingPredicate(nil, inContext: ctx)
-			}
-			ctx.MM_saveToPersistentStoreAndWait()
-			completion(nil)
-		}
-	}
-	
-	var uniqueIdentifier: String { return "com.mobile-messaging.subservice.GeofencingService" }
-	
-	public func syncWithServer(_ completion: ((NSError?) -> Void)?) {
+	override public func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		syncWithServer(completion: { (result) in
-			completion?(result?.error)
+			completion(result?.error)
 		})
 	}
 	
-	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
-		guard GeofencingService.isGeoServiceNeedsToStart && mmContext.isPushRegistrationEnabled && mmContext.currentInstallation.currentLogoutStatus == .undefined else {
+	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
+		guard GeofencingService.isGeoServiceNeedsToStart && mmContext.currentInstallation.isPushRegistrationEnabled && mmContext.currentInstallation.currentDepersonalizationStatus == .undefined else {
 			return
 		}
 		GeofencingService.isGeoServiceNeedsToStart = false
-		start(nil)
+		start({ _ in })
 	}
 
-	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
+	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
 		stop()
 		GeofencingService.sharedInstance = nil
 	}
 
-	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
-		if mmContext.isPushRegistrationEnabled == true {
-			start(nil)
+	override func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
+		if mmContext.currentInstallation.isPushRegistrationEnabled {
+			start({ _ in })
 		} else {
-			stop(nil)
+			stop({ _ in })
 		}
 	}
 	
-	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
+	override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
 		guard let geoSignalingMessage = MMGeoMessage(payload: originalMessage.originalPayload,
 													 deliveryMethod: MessageDeliveryMethod(rawValue: message.deliveryMethod) ?? .undefined,
 													 seenDate: message.seenDate,
@@ -122,23 +102,24 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		return true
 	}
 	
-	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) {
+	override func handleNewMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard let geoSignalingMessage = MMGeoMessage(payload: message.originalPayload,
 													 deliveryMethod: message.deliveryMethod,
 													 seenDate: message.seenDate,
 													 deliveryReportDate: message.deliveryReportedDate,
 													 seenStatus: message.seenStatus,
-													 isDeliveryReportSent: message.isDeliveryReportSent) else {
-			completion?(.noData)
+													 isDeliveryReportSent: message.isDeliveryReportSent) else
+		{
+			completion(.noData)
 			return
 		}
 		add(message: geoSignalingMessage) {
-			completion?(.noData)
+			completion(.noData)
 		}
 	}
 	
 	private var _isRunning: Bool = false
-	var isRunning: Bool  {
+	override var isRunning: Bool  {
 		get {
 			var ret: Bool = false
 			locationManagerQueue.executeSync() {
@@ -153,7 +134,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		}
 	}
 	
-	var systemData: [String: AnyHashable]? {
+	override var systemData: [String: AnyHashable]? {
 		return [Consts.SystemDataKeys.geofencingServiceEnabled: type(of: self).isGeofencingServiceEnabled]
 	}
 
@@ -167,7 +148,6 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	var locationManager: CLLocationManager!
 	var datasource: GeofencingInMemoryDatasource!
 	let locationManagerQueue = MMQueue.Main.queue
-	var mmContext: MobileMessaging!
 	lazy var eventsHandlingQueue = MMOperationQueue.newSerialQueue
 	
 	// MARK: - Public
@@ -202,14 +182,14 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	/// During the startup process, the service automatically asks user to grant the appropriate permissions
 	/// Once the user granted the permissions, the service succesfully lauches.
 	/// - parameter completion: A block that will be triggered once the startup process is finished. Contains a Bool flag parameter, that indicates whether the startup succeded.
-	public func start(_ completion: ((Bool) -> Void)? = nil) {
+	override public func start(_ completion: @escaping (Bool) -> Void) {
 		MMLogDebug("[GeofencingService] starting ...")
 		
 		locationManagerQueue.executeAsync() {
 			guard self.isRunning == false else
 			{
 				MMLogDebug("[GeofencingService] isRunning = \(self.isRunning). Cancelling...")
-				completion?(false)
+				completion(false)
 				return
 			}
 			
@@ -217,7 +197,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			switch currentCapability {
 			case .authorized:
 				self.startService()
-				completion?(true)
+				completion(true)
 			case .notDetermined:
 				MMLogDebug("[GeofencingService] capability is 'not determined', authorizing...")
 				self.authorizeService(kind: LocationServiceKind.regionMonitoring, usage: GeoConstants.preferableUsage) { capability in
@@ -225,22 +205,22 @@ public class GeofencingService: NSObject, MobileMessagingService {
 					case .authorized:
 						MMLogDebug("[GeofencingService] successfully authorized for `Always` mode")
 						self.startService()
-						completion?(true)
+						completion(true)
 					default:
 						MMLogDebug("[GeofencingService] was not authorized for `Always` mode. Canceling the startup.")
-						completion?(false)
+						completion(false)
 						break
 					}
 				}
 			case .denied, .notAvailable:
 				MMLogDebug("[GeofencingService] capability is \(currentCapability.rawValue). Canceling the startup.")
-				completion?(false)
+				completion(false)
 			}
 		}
 	}
 	
 	/// Stops the Geofencing Service
-	public func stop(_ completion: ((Bool) -> Void)? = nil) {
+	override public func stop(_ completion: ((Bool) -> Void)? = nil) {
 		cancelOperations()
 		locationManagerQueue.executeAsync() {
 			guard self.isRunning == true else
@@ -295,8 +275,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	// MARK: - Internal
 	//FIXME: use background queue. (initialize separate NSThread which lives as long as geo service running)
 	init(mmContext: MobileMessaging) {
-		super.init()
-		registerSelfAsSubservice(of: mmContext)
+		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.GeofencingService")
 		
 		locationManagerQueue.executeSync() {
 			self.geofencingServiceQueue = RemoteAPIQueue()
@@ -305,8 +284,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			self.locationManager.distanceFilter = GeoConstants.distanceFilter
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
 			self.datasource = GeofencingInMemoryDatasource(storage: mmContext.internalStorage)
-			self.mmContext = mmContext
-			self.previousLocation = MobileMessaging.currentInstallation?.location
+			self.previousLocation = mmContext.currentInstallation?.location
 		}
 	}
 	
@@ -451,7 +429,25 @@ public class GeofencingService: NSObject, MobileMessagingService {
 	fileprivate var desirableUsageKind = LocationServiceUsage.whenInUse
 	
 	fileprivate var capabilityCompletion: ((GeofencingCapabilityStatus) -> Void)?
-	
+
+	private func cancelOperations() {
+		eventsHandlingQueue.cancelAllOperations()
+	}
+
+	private func cleanup(_ completion: @escaping () -> Void) {
+		eventsHandlingQueue.addOperation {
+			self.datasource.cleanup()
+
+			let ctx = self.datasource.context
+			ctx.performAndWait {
+				MessageManagedObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), inContext: ctx)
+				GeoEventReportObject.MM_deleteAllMatchingPredicate(nil, inContext: ctx)
+			}
+			ctx.MM_saveToPersistentStoreAndWait()
+			completion()
+		}
+	}
+
 	fileprivate func restartLocationManager() {
 		if MobileMessaging.application.applicationState == UIApplication.State.active {
 			if CLLocationManager.significantLocationChangeMonitoringAvailable() {
@@ -480,7 +476,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 			self.restartLocationManager()
 			self.refreshMonitoredRegions()
 			
-			NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeoServiceDidStart, userInfo: nil)
+			UserEventsManager.postGeoServiceStartedEvent()
 			
 			NotificationCenter.default.addObserver(self, selector: #selector(GeofencingService.handleApplicationDidFinishLaunchingNotification(_:)), name: UIApplication.didFinishLaunchingNotification, object: nil)
 			NotificationCenter.default.addObserver(self, selector: #selector(GeofencingService.handleApplicationDidEnterBackgroundNotification(_:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -597,7 +593,7 @@ public class GeofencingService: NSObject, MobileMessagingService {
 		assert(Thread .isMainThread)
 		restartLocationManager()
 		if let previousLocation = previousLocation {
-			MobileMessaging.currentInstallation?.location = previousLocation
+			mmContext.currentInstallation?.location = previousLocation
 		}
 	}
 	
@@ -683,7 +679,6 @@ extension GeofencingService: CLLocationManagerDelegate {
     }
 }
 
-
 extension GeofencingService {
 	
 	func onEnter(datasourceRegion: MMRegion, completion: (() -> Void)? = nil) {
@@ -732,11 +727,11 @@ extension GeofencingService {
 		delegate?.didEnterRegion(region: datasourceRegion)
 		
 		GeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
-		
-		NotificationCenter.mm_postNotificationFromMainThread(name: MMNotificationGeographicalRegionDidEnter, userInfo: [MMNotificationKeyGeographicalRegion: datasourceRegion])
+
+		UserEventsManager.postGeoRegionEnteredEvent(datasourceRegion)
 	}
 	
-	private func reportOnEvents(completion: ((Result<GeoEventReportingResponse>?) -> ())?) {
+	private func reportOnEvents(completion: ((GeoEventReportingResult?) -> ())?) {
 		// we don't consider isRunning status here on purpose
 		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: datasource.context, mmContext: mmContext, geoContext: self, finishBlock: { result in
 			completion?(result)
@@ -747,7 +742,7 @@ extension GeofencingService {
         datasource.reload()
     }
 	
-	func syncWithServer(completion: ((Result<GeoEventReportingResponse>?) -> ())? = nil) {
+	func syncWithServer(completion: ((GeoEventReportingResult?) -> ())? = nil) {
 		reportOnEvents(completion: completion)
 	}
 }

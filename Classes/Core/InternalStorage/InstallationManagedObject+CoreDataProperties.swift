@@ -15,17 +15,27 @@ import CoreData
 extension InstallationManagedObject {
 
     @NSManaged var badgeNumber: Int
-    @NSManaged var deviceToken: String?
-    @NSManaged var dirtyAttributes: Int32
-    @NSManaged var internalUserId: String?
+    @NSManaged var pushServiceToken: String?
+    @NSManaged var pushRegId: String?
 	@NSManaged var externalUserId: String?
-    @NSManaged var customUserData: DictionaryRepresentation?
-	@NSManaged var predefinedUserData: DictionaryRepresentation?
+    @NSManaged var customUserAttributes: DictionaryRepresentation?
 	@NSManaged var systemDataHash: Int64
 	@NSManaged var location: AnyObject?
-	@NSManaged var isRegistrationEnabled: Bool
+	@NSManaged var regEnabled: Bool
 	@NSManaged var applicationCode: String?
-	@NSManaged var isPrimaryDevice: Bool
+	@NSManaged var isPrimary: Bool
 	@NSManaged var logoutStatusValue: Int16
 	@NSManaged var logoutFailCounter: Int16
+	@NSManaged var dirtyAttributesString: String?
+
+	@NSManaged var phones: [Phone]?
+	@NSManaged var firstName: String?
+	@NSManaged var lastName: String?
+	@NSManaged var middleName: String?
+	@NSManaged var gender: String?
+	@NSManaged var birthday: String?
+	@NSManaged var emails: [Email]?
+	@NSManaged var tags: [String]?
+	@NSManaged var instances: [Installation]?
+	@NSManaged var customInstanceAttributes: DictionaryRepresentation?
 }

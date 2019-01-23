@@ -37,7 +37,7 @@ class LocalMessageFetchingTests : MMTestCase {
 		if #available(iOS 10.0, *) {
 			weak var expectation = self.expectation(description: "server sync finished")
 			var dlrs = [String]()
-			mobileMessagingInstance.currentUser.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+			mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 			mobileMessagingInstance.userNotificationCenterStorage = UserNotificationCenterStorageStub()
 			mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
 			mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(performRequestCompanionBlock: { request in

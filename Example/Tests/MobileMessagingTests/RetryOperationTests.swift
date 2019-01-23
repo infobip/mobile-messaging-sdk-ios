@@ -50,19 +50,21 @@ final class RetryOperationTests: MMTestCase {
 	
 	func testReachabilityLogic() {
 		weak var expectation = self.expectation(description: "Retryable operation finished")
-		let r = RegistrationRequest(applicationCode: "", pushRegistrationId: "", deviceToken: "stub", isEnabled: nil, expiredInternalId: nil)
-		
-		let op = MMTestRechabilityOperation(request: r, reachabilityManager: MMStubNetworkReachabilityManager(), sessionManager: MobileMessaging.httpSessionManager) { op in
+
+		let body = InstallationDataMapper.requestPayload(with: mobileMessagingInstance.currentInstallation, forAttributesSet: [.pushServiceToken])!
+		let r: PostInstance! = PostInstance(applicationCode: "", body: body, returnPushServiceToken: true)
+
+		let op = MMTestRechabilityOperation(request: r!, reachabilityManager: MMStubNetworkReachabilityManager(), sessionManager: MobileMessaging.httpSessionManager) { op in
 			expectation?.fulfill()
 		}
 		let retryOpQ = MMRetryOperationQueue()
 		retryOpQ.addOperation(op)
-		
+
 		self.waitForExpectations(timeout: 60) { _ in
 			XCTAssertEqual(operationExecutionCounter, 2, "Operation must be executed 2 times: 1st - initial, 2nd - after we get reachable status")
 		}
 	}
-	
+
     func testRetryCounters() {
 		weak var expectation = self.expectation(description: "Retryable operation finished")
 		let retryLimit = 2
@@ -72,18 +74,18 @@ final class RetryOperationTests: MMTestCase {
 		}
 
 		opQ.addOperation(op)
-		
+
 		self.waitForExpectations(timeout: 60) { _ in
 			XCTAssertEqual(operationExecutionCounter, retryLimit + 1, "Operation must be executed \(retryLimit + 1) times as we set retry limit \(retryLimit)")
 		}
     }
-	
+
 	override func setUp() {
 		super.setUp()
 		operationExecutionCounter = 0
 		reachabilityTesting = true
 	}
-	
+
 	override func tearDown() {
 		super.tearDown()
 		reachabilityTesting = false

@@ -6,6 +6,24 @@
 //
 
 import Foundation
+
+struct InteractionConstants {
+	struct NotificationActionKeys {
+		static let identifier = "identifier"
+		static let title = "title"
+		static let titleLocalizationKey = "titleLocalizationKey"
+		static let foreground = "foreground"
+		static let authenticationRequired = "authenticationRequired"
+		static let moRequired = "moRequired"
+		static let destructive = "destructive"
+		static let mm_prefix = "mm_"
+		static let textInputActionButtonTitle = "textInputActionButtonTitle"
+		static let textInputPlaceholder = "textInputPlaceholder"
+	}
+
+	static let actionHandlingTimeout = 20
+}
+
 struct Consts {
 
 	static let UUIDRegexPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
@@ -18,7 +36,7 @@ struct Consts {
 
 	struct KeychainKeys {
 		static let prefix = "com.mobile-messaging"
-		static let internalId = "internalId"
+		static let pushRegId = "internalId"
 	}
 
 	struct DynamicBaseUrlConsts {
@@ -46,14 +64,6 @@ struct Consts {
 		//MARK: Sync API
 		static let archiveMsgIds = "mIDs"
 		static let DLRMsgIds = "drIDs"
-
-		//MARK: UserData API
-		struct UserData {
-			static let predefinedUserData = "predefinedUserData"
-			static let customUserData = "customUserData"
-			static let externalUserId = "externalUserId"
-			static let failures = "failures"
-		}
 
 		//MARK: MO Messages API
 		struct MO {
@@ -98,11 +108,15 @@ struct Consts {
 		static let osVer = "osVersion"
 		static let deviceManufacturer = "deviceManufacturer"
 		static let deviceModel = "deviceModel"
-		static let appVer = "applicationVersion"
-		static let geofencingServiceEnabled = "geofencing"
+		static let appVer = "appVersion"
+		static let geofencingServiceEnabled = "geoEnabled"
 		static let notificationsEnabled = "notificationsEnabled"
 		static let deviceSecure = "deviceSecure"
-		static let osLanguage = "osLanguage"
+		static let language = "language"
+		static let deviceName = "deviceName"
+		static let OS = "os"
+		static let deviceTimeZone = "deviceTimeZone"
+		static let pushServiceType = "pushServiceType"
 	}
 
 	struct GeoReportingAPIKeys {

@@ -14,6 +14,42 @@ import UserNotifications
 
 public typealias DictionaryRepresentation = [String: Any]
 
+extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
+	var noNulls: [Key: Value] {
+		return self.filter {
+			let val = $0.1 as Any
+			if case Optional<Any>.none = val {
+				return false
+			} else {
+				return true
+			}
+		}
+	}
+}
+
+extension MobileMessaging {
+	class var currentInstallation: InstallationDataService? {
+		return MobileMessaging.sharedInstance?.currentInstallation
+	}
+	class var currentUser: UserDataService? {
+		return MobileMessaging.sharedInstance?.currentUser
+	}
+}
+
+func contactsServiceDateEqual(_ l: Date?, _ r: Date?) -> Bool {
+	switch (l, r) {
+	case (.none, .none):
+		return true
+	case (.some, .none):
+		return false
+	case (.none, .some):
+		return false
+	case (.some(let left), .some(let right)):
+		return DateStaticFormatters.ContactsServiceDateFormatter.string(from: left) == DateStaticFormatters.ContactsServiceDateFormatter.string(from: right)
+	}
+
+}
+
 struct DateStaticFormatters {
 	static var ContactsServiceDateFormatter: DateFormatter = {
 		let result = DateFormatter()
@@ -45,45 +81,30 @@ struct DateStaticFormatters {
 	}()
 }
 
-extension Dictionary where Key: ExpressibleByStringLiteral, Value: UserDataFoundationTypes {
-	public var customUserDataValues: [Key: CustomUserDataValue]? {
-		let result = self.reduce([Key: CustomUserDataValue](), { (result, tuple) -> [Key: CustomUserDataValue] in
-			var r = result
-			r[tuple.0] = CustomUserDataValue(withFoundationValue: tuple.1)
-			return r
-		})
-		return result
+extension Dictionary where Key: ExpressibleByStringLiteral, Value: Hashable {
+	var valuesStableHash: Int {
+		return self.sorted { (kv1, kv2) -> Bool in
+			if let key1 = kv1.key as? String, let key2 = kv2.key as? String {
+				return key1.compare(key2) == .orderedAscending
+			} else {
+				return false
+			}
+		}.reduce("", {"\($0),\($1.1)"}).stableHash
 	}
 }
 
-extension Dictionary where Key: ExpressibleByStringLiteral, Value: CustomUserDataValue {
-	public var userDataFoundationTypes: [Key: UserDataFoundationTypes]? {
-		let result = self.reduce([Key: UserDataFoundationTypes](), { (result, tuple) -> [Key: UserDataFoundationTypes] in
-			var r = result
-			r[tuple.0] = tuple.1.dataValue
-			return r
-		})
-		return result
-	}
-}
-
-extension Dictionary where Value: Hashable {
-	var keyValuesHash: Int {
-		return self.reduce("", {"\($0),\($1.1)"}).hash
+extension String {
+	var stableHash: Int {
+		let unicodeScalars = self.unicodeScalars.map { $0.value }
+		return unicodeScalars.reduce(5381) {
+			($0 << 5) &+ $0 &+ Int($1)
+		}
 	}
 }
 
 extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 	var nilIfEmpty: [Key: Value]? {
 		return self.isEmpty ? nil : self
-	}
-}
-
-extension NotificationCenter {
-	class func mm_postNotificationFromMainThread(name: String, userInfo: [AnyHashable: Any]?) {
-		MMQueue.Main.queue.executeAsync {
-			NotificationCenter.default.post(name: NSNotification.Name(rawValue: name), object: self, userInfo: userInfo)
-		}
 	}
 }
 
@@ -301,6 +322,15 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> D
 	}
 }
 
+func + <Key, Value> (l: Dictionary<Key, Value>, r: Dictionary<Key, Value>) -> Dictionary<Key, Value> {
+	var lMutable = l
+	for (k, v) in r {
+		lMutable[k] = v
+	}
+	return lMutable
+}
+
+
 func + <Element: Any>(l: Set<Element>?, r: Set<Element>?) -> Set<Element>? {
 	switch (l, r) {
 	case (.none, .none):
@@ -327,11 +357,24 @@ func + <Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
 	}
 }
 
-func ==(lhs : [AnyHashable : UserDataFoundationTypes], rhs: [AnyHashable : UserDataFoundationTypes]) -> Bool {
+func ==(lhs : [AnyHashable : AttributeType], rhs: [AnyHashable : AttributeType]) -> Bool {
 	return NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
-func !=(lhs : [AnyHashable : UserDataFoundationTypes], rhs: [AnyHashable : UserDataFoundationTypes]) -> Bool {
+func ==(l : [String : AttributeType]?, r: [String : AttributeType]?) -> Bool {
+	switch (l, r) {
+	case (.none, .none):
+		return true
+	case (.some, .none):
+		return false
+	case (.none, .some):
+		return false
+	case (.some(let left), .some(let right)):
+		return NSDictionary(dictionary: left).isEqual(to: right)
+	}
+}
+
+func !=(lhs : [AnyHashable : AttributeType], rhs: [AnyHashable : AttributeType]) -> Bool {
 	return !NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
@@ -358,52 +401,56 @@ var isTestingProcessRunning: Bool {
 	return ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests")
 }
 
-protocol MobileMessagingService {
-	var uniqueIdentifier: String { get }
-	var isRunning: Bool { get }
-	func start(_ completion: ((Bool) -> Void)?)
-	func stop(_ completion: ((Bool) -> Void)?)
-	func syncWithServer(_ completion: ((NSError?) -> Void)?)
-	
-	/// A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
-	var systemData: [String: AnyHashable]? { get }
-	
-	/// A subservice must implement this method in order to let MobileMessaging be aware of the subservice plugged in.
-	func registerSelfAsSubservice(of mmContext: MobileMessaging)
-	
-	/// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
-	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool
-	
-	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?)
-	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?)
-	
-	func mobileMessagingWillStart(_ mmContext: MobileMessaging)
-	func mobileMessagingDidStart(_ mmContext: MobileMessaging)
-	
-	func mobileMessagingWillStop(_ mmContext: MobileMessaging)
-	func mobileMessagingDidStop(_ mmContext: MobileMessaging)
-	
-	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging)
-	func logoutStatusDidChange(_ mmContext: MobileMessaging)
-	
-	func logout(_ mmContext: MobileMessaging, completion: @escaping ((NSError?) -> Void))
+extension Optional where Wrapped: Any {
+	func ifSome<T>(_ block: (Wrapped) -> T?) -> T? {
+		switch self {
+		case .none:
+			return nil
+		case .some(let wr):
+			return block(wr)
+		}
+	}
 }
 
-extension MobileMessagingService {
+public class MobileMessagingService: NSObject {
+	let mmContext: MobileMessaging
+	let uniqueIdentifier: String
+	var isRunning: Bool
+	init(mmContext: MobileMessaging, id: String) {
+		self.isRunning = false
+		self.mmContext = mmContext
+		self.uniqueIdentifier = id
+		super.init()
+		self.mmContext.registerSubservice(self)
+	}
+	func start(_ completion: @escaping (Bool) -> Void) {
+		MMLogDebug("[\(uniqueIdentifier)] starting")
+		isRunning = true
+		completion(isRunning)
+	}
+	func stop(_ completion: @escaping (Bool) -> Void) {
+		MMLogDebug("[\(uniqueIdentifier)] stopping")
+		isRunning = false
+		completion(isRunning)
+	}
+	func syncWithServer(_ completion: @escaping (NSError?) -> Void) { completion(nil) }
+	
+	/// A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
 	var systemData: [String: AnyHashable]? { return nil }
-	
-	func registerSelfAsSubservice(of mmContext: MobileMessaging) { mmContext.registerSubservice(self) }
-	
-	func handleNewMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) { completion?(.noData) }
-	func handleAnyMessage(_ message: MTMessage, completion: ((MessageHandlingResult) -> Void)?) { completion?(.noData) }
-	
+
+	/// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
+	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool { return false }
+	func handleNewMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
+	func handleAnyMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
 	func mobileMessagingWillStart(_ mmContext: MobileMessaging) {}
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {}
-	
 	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {}
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {}
-
-	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool { return false }
+	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {}
+	func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {}
+	func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+		completion()
+	}
 }
 
 public extension UIDevice {
@@ -777,7 +824,7 @@ extension URL {
 	}
 
 	static func attachmentDownloadDestinatioUrl(sourceUrl: URL, appGroupId: String?) -> URL {
-		return URL.attachmentDownloadDestinationFolderUrl(appGroupId:appGroupId).appendingPathComponent(String(sourceUrl.absoluteString.hashValue) + "." + sourceUrl.pathExtension)
+		return URL.attachmentDownloadDestinationFolderUrl(appGroupId:appGroupId).appendingPathComponent(sourceUrl.absoluteString.sha1() + "." + sourceUrl.pathExtension)
 	}
 }
 
@@ -795,5 +842,36 @@ extension Bundle {
 	}
 	var appGroupId: String? {
 		return self.object(forInfoDictionaryKey: "com.mobilemessaging.app_group") as? String
+	}
+}
+
+extension Array where Element: Hashable {
+	var asSet: Set<Element> {
+		return Set(self)
+	}
+}
+
+extension Set {
+	var asArray: Array<Element> {
+		return Array(self)
+	}
+}
+
+func resetPreferred<T: PreferredSupported>(newValue: T?, currentValues: Array<T>?) -> Array<T>? {
+	if let currentValues = currentValues {
+		var updatedValues = Set<T>(currentValues)
+		currentValues.filter({ $0.preferred == true }).forEach { (element) in
+			var elementupdated = element
+			elementupdated.preferred = false
+		}
+		if let newValue = newValue {
+			updatedValues.remove(newValue)
+			var newValuePreferred = newValue
+			newValuePreferred.preferred = true
+			updatedValues.insert(newValuePreferred)
+		}
+		return Array(updatedValues)
+	} else {
+		return newValue == nil ? nil : [newValue!]
 	}
 }

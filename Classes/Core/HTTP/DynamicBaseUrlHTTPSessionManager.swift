@@ -82,11 +82,15 @@ class DynamicBaseUrlHTTPSessionManager {
 		
 		switch request.method {
 		case .POST:
-			sessionManager.post(request.path.rawValue, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
+			sessionManager.post(request.resolvedPath, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
 		case .PUT:
-			sessionManager.put(request.path.rawValue, parameters: request.parameters, success: successBlock, failure: failureBlock)
+			sessionManager.put(request.resolvedPath, parameters: request.parameters, success: successBlock, failure: failureBlock)
 		case .GET:
-			sessionManager.get(request.path.rawValue, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
+			sessionManager.get(request.resolvedPath, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
+		case .PATCH:
+			sessionManager.patch(request.resolvedPath, parameters: request.parameters, success: successBlock, failure: failureBlock)
+		case .DELETE:
+			sessionManager.delete(request.resolvedPath, parameters: request.parameters, success: successBlock, failure: failureBlock)
 		}
 	}
 	

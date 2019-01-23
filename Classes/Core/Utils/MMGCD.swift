@@ -86,6 +86,8 @@ protocol MMQueueEnum {
 	var queueName: String {get}
 }
 
+
+
 enum MMQueue {
 	case Main
 	case Global

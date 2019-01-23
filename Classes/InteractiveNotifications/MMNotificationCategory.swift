@@ -70,7 +70,7 @@ public final class NotificationCategory: NSObject {
 	}
 	
 	public override var hash: Int {
-		return identifier.hash
+		return identifier.hashValue
 	}
 	
 	public override func isEqual(_ object: Any?) -> Bool {

@@ -237,7 +237,7 @@ extension NSManagedObjectContext {
 		
 		performAndWait{ ctxHasChanges = self.hasChanges }
 		
-		if hasChanges == false {
+		if ctxHasChanges == false {
 			MMLogDebug("NO CHANGES IN ** \(name ?? "UNNAMED") ** CONTEXT - NOT SAVING")
 			if (saveParentContexts && parent != nil) {
 				MMLogVerbose("Proceeding to save parent context \(String(describing:parent?.MM_description))")

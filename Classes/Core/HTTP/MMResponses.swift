@@ -6,27 +6,7 @@
 //  
 //
 
-//MARK: - Responses
 struct EmptyResponse { }
-
-typealias PutInstanceResponse = EmptyResponse
-
-typealias SeenStatusSendingResponse = EmptyResponse
-
-typealias SystemDataSyncResponse = EmptyResponse
-
-typealias LogoutResponse = EmptyResponse
-
-struct GetInstanceResponse {
-	let primary: Bool
-}
-
-struct RegistrationResponse {
-	let internalId: String
-	let isEnabled: Bool
-	let platform: String
-	let deviceToken: String
-}
 
 struct GeoEventReportingResponse {
 	let finishedCampaignIds: [String]?
@@ -44,30 +24,23 @@ struct MessagesSyncResponse {
 	let messages: [MTMessage]?
 }
 
-struct UserDataSyncResponse {
-	let predefinedData: [String: Any]?
-	let customData: [CustomUserData]?
-	let error: RequestError?
-}
-
 struct MOMessageSendingResponse {
 	let messages: [MOMessage]
 }
 
-typealias DeliveryReportResponse = EmptyResponse
-
 //MARK: - Request results
-typealias GetInstanceResult = Result<GetInstanceResponse>
-typealias PutInstanceResult = Result<PutInstanceResponse>
-typealias RegistrationResult = Result<RegistrationResponse>
 typealias MessagesSyncResult = Result<MessagesSyncResponse>
-typealias SeenStatusSendingResult = Result<SeenStatusSendingResponse>
-typealias UserDataSyncResult = Result<UserDataSyncResponse>
-typealias SystemDataSyncResult = Result<SystemDataSyncResponse>
-typealias LogoutResult = Result<LogoutResponse>
+typealias SeenStatusSendingResult = Result<EmptyResponse>
+typealias DepersonalizeResult = Result<EmptyResponse>
 typealias MOMessageSendingResult = Result<MOMessageSendingResponse>
 typealias LibraryVersionResult = Result<LibraryVersionResponse>
-typealias MMGeoEventReportingResult = Result<GeoEventReportingResponse>
+typealias GeoEventReportingResult = Result<GeoEventReportingResponse>
+typealias FetchUserDataResult = Result<User>
+typealias UpdateUserDataResult = Result<EmptyResponse>
+typealias FetchInstanceDataResult = Result<Installation>
+typealias UpdateInstanceDataResult = Result<EmptyResponse>
+typealias PersonalizeResult = Result<User>
+typealias DeliveryReportResult = Result<EmptyResponse>
 
 public struct RequestError {
 	public let messageId: String
@@ -94,7 +67,6 @@ protocol JSONEncodable {
 
 extension EmptyResponse: JSONDecodable {
 	init?(json value: JSON) {
-		print("")
 	}
 }
 
@@ -110,33 +82,12 @@ extension RequestError: JSONDecodable {
 		guard
 			let text = serviceException[Consts.APIKeys.errorText].string,
 			let messageId = serviceException[Consts.APIKeys.errorMessageId].string
-		else {
-			return nil
+			else {
+				return nil
 		}
 		
 		self.messageId = messageId
 		self.text = text
-	}
-}
-
-extension GetInstanceResponse: JSONDecodable {
-	init?(json value: JSON) {
-		self.primary = value["primary"].boolValue
-	}
-}
-
-extension RegistrationResponse: JSONDecodable {
-	init?(json value: JSON) {
-		guard let internalId = value[Consts.PushRegistration.internalId].string
-			else
-		{
-			return nil
-		}
-		
-		self.internalId = internalId
-		self.isEnabled = value[Consts.PushRegistration.isEnabled].bool ?? true
-		self.platform = value[Consts.PushRegistration.platform].string ?? "APNS"
-		self.deviceToken = value[Consts.PushRegistration.deviceToken].string ?? "stub"
 	}
 }
 
@@ -170,17 +121,9 @@ extension MessagesSyncResponse: JSONDecodable{
 	}
 }
 
-extension UserDataSyncResponse: JSONDecodable {
-	init?(json value: JSON) {
-		self.predefinedData = value[Consts.APIKeys.UserData.predefinedUserData].dictionaryObject
-		self.customData = value[Consts.APIKeys.UserData.customUserData].dictionaryObject?.reduce([CustomUserData](), { (result, pair) -> [CustomUserData] in
-			if let element = CustomUserData(dictRepresentation: [pair.0: pair.1]) {
-				return result + [element]
-			} else {
-				return result
-			}
-		})
-		self.error = RequestError(json: value)
+extension Substring  {
+	var isNumber: Bool {
+		return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits) != nil
 	}
 }
 
