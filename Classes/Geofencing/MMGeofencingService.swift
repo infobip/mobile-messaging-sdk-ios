@@ -746,3 +746,9 @@ extension GeofencingService {
 		reportOnEvents(completion: completion)
 	}
 }
+
+extension UserEventsManager {
+	class func postGeoRegionEnteredEvent(_ datasourceRegion: MMRegion) {
+		post(MMNotificationGeographicalRegionDidEnter, [MMNotificationKeyGeographicalRegion: datasourceRegion])
+	}
+}

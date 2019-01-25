@@ -80,10 +80,6 @@ class UserEventsManager {
 		post(MMNotificationGeoServiceDidStart)
 	}
 
-	class func postGeoRegionEnteredEvent(_ datasourceRegion: MMRegion) {
-		post(MMNotificationGeographicalRegionDidEnter, [MMNotificationKeyGeographicalRegion: datasourceRegion])
-	}
-
 	class func post(_ name: String, _ userInfo: [String: Any]? = nil) {
 		MMQueue.Main.queue.executeAsync {
 			NotificationCenter.default.post(name: NSNotification.Name(rawValue: name), object: self, userInfo: userInfo)
