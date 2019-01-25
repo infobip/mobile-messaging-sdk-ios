@@ -15,14 +15,14 @@ Mobile Messaging SDK is designed and developed to easily enable push notificatio
 ## Quick start guide
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application.
 
-1. Make sure to [setup application at Infobip portal](https://dev.infobip.com/push-messaging), if you haven't already.
+1. Make sure to <a href="https://dev.infobip.com/push-messaging" target="_blank">setup application at Infobip portal</a>, if you haven't already.
 2. Configure your project to support Push Notifications:
     1. Click on "Capabilities", then turn on Push Notifications. Entitlements file should be automatically created by Xcode with set `aps-environment` value.
     <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/push_capabilities.png?raw=true" alt="Enable Push Notifications capability"/>
     
     2. Turn on Background Modes and check the Remote notifications checkbox.
     <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/background_modes.png?raw=true" alt="Enable Remote Notifications in Background Modes settings"/>
-3. Using [CocoaPods](https://guides.cocoapods.org/using/getting-started.html#getting-started), specify it in your `Podfile`:
+3. Using <a href="https://guides.cocoapods.org/using/getting-started.html#getting-started" target="_blank">CocoaPods</a>, specify it in your `Podfile`:
 
     ```ruby
     source 'https://github.com/CocoaPods/Specs.git'
@@ -34,7 +34,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     > #### Notice 
     > CocoaLumberjack logging used by default, in order to use other logging or switch it off follow [this guide](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/How-to-install-the-SDK-without-CocoaLumberjack%3F).
 
-    If you use Carthage, see [Integration via Carthage](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-Carthage) guide.
+    If you use Carthage, see <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-Carthage" target="_blank">Integration via Carthage</a> guide.
 
 4. Import the library into your AppDelegate file:
 
@@ -76,7 +76,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     </p>
     </details>
 
-    Please note that it is not very secure to keep your API key (Application Code is an API key in fact) hardcoded so if the security is a crucial aspect, consider obfuscating the Application Code string (we can recommend [UAObfuscatedString](https://github.com/UrbanApps/UAObfuscatedString) for string obfuscation).
+    Please note that it is not very secure to keep your API key (Application Code is an API key in fact) hardcoded so if the security is a crucial aspect, consider obfuscating the Application Code string (we can recommend <a href="https://github.com/UrbanApps/UAObfuscatedString" target="_blank">UAObfuscatedString</a> for string obfuscation).
 
 6. Override method `application:didRegisterForRemoteNotificationsWithDeviceToken:` in order to inform Infobip about the new device registered:
 
@@ -146,7 +146,7 @@ In case of a clean project, your AppDeleage.swift code should look like followin
 
 
 <br>
-<p align="center"><b>NEXT STEPS: <a href="https://github.com/infobip/mobile-messaging-sdk-android/wiki/User-profile">User profile</a></b></p>
+<p align="center"><b>NEXT STEPS: <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile">User profile</a></b></p>
 <br>
 <br>
 
