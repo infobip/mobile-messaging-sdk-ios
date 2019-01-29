@@ -154,6 +154,7 @@ final class InstallationDataService: DataStorageService {
 
 
 	func save(installationData: Installation, completion: @escaping (NSError?) -> Void) {
+		MMLogDebug("[InstallationDataService] saving \(installationData.dictionaryRepresentation)")
 		self.applyDataObject(installationData)
 		self.persist()
 		self.syncWithServer(completion)

@@ -186,6 +186,7 @@ final class UserDataService: DataStorageService {
 	}
 
 	func save(userData: User, completion: @escaping (NSError?) -> Void) {
+		MMLogDebug("[UserDataService] saving \(userData.dictionaryRepresentation)")
 		applyDataObject(userData)
 		persist()
 		syncWithServer(completion)
