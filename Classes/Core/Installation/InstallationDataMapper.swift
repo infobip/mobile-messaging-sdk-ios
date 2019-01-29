@@ -27,7 +27,7 @@ class InstallationDataMapper {
 		if let customAttributes = customAttributes, !customAttributes.isEmpty {
 			ret[Attributes.customInstanceAttributes.requestPayloadKey] = customAttributes
 		}
-
+		ret["pushServiceType"] = "APNS"
 		return ret
 	}
 

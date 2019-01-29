@@ -253,7 +253,7 @@ class MMMessageHandler: MobileMessagingService {
 		))
 	}
 
-	override public func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		guard isRunning == true else {
 			completion(nil)
 			return
