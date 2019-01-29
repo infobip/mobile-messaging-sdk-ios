@@ -120,7 +120,11 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     </p>
     </details>
 
-8. **Skip this step if your apps minimum deployment target is iOS 10 or later.** Override method `application:didReceiveLocalNotification`(for Objective-C) or `application:didReceive:`(for Swift) in order the MobileMessaging SDK to be able to handle incoming local notifications internally:
+8. [Integrate Notification Service Extension](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Notification-Service-Extension-for-Rich-Notifications-and-better-delivery-reporting-on-iOS-10) into your app in order to obtain:
+    - more accurate processing of messages and delivery stats
+    - support of rich notifications on the lock screen
+
+9. **Skip this step if your apps minimum deployment target is iOS 10 or later.** Override method `application:didReceiveLocalNotification`(for Objective-C) or `application:didReceive:`(for Swift) in order the MobileMessaging SDK to be able to handle incoming local notifications internally:
 
     ```swift
     // Swift
@@ -144,6 +148,13 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 In case of a clean project, your AppDeleage.swift code should look like following:
 <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/app_delegate.png?raw=true" alt="AppDelegate source code example"/>
 
+If all the steps implemented correctly, you should see the logs in Xcode console confirming that the MobileMessaging SDK has been initialized succesfully and the device has been registered on APNS to receive Push messages:
+```
+2019-01-28 18:24:16:003 [MobileMessaging] ℹ️ SDK successfully initialized!
+...
+2019-01-28 18:25:44:144 [MobileMessaging] ℹ️ [APNS reg manager] Application did register with device token <...>
+```
+If you don't see any logs, set up the default logger before starting the SDK: `MobileMessaging.logger = MMDefaultLogger()`. Please not that the logs are only collected while your project is in debug configuration.
 
 <br>
 <p align="center"><b>NEXT STEPS: <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile">User profile</a></b></p>

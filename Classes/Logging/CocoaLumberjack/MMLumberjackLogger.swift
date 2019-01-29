@@ -176,30 +176,24 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 }
 
 final class MMLogFormatter: NSObject, DDLogFormatter {
-	let dateFormatter: DateFormatter
-	override init() {
-		self.dateFormatter = DateFormatter()
-		self.dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
-	}
-	
 	func format(message logMessage: DDLogMessage) -> String? {
-		let date = dateFormatter.string(from: logMessage.timestamp)
-		let sign: String
+		let icon: LogIcons
 		switch logMessage.level {
 		case .info:
-			sign = "ℹ️"
+			icon = LogIcons.info
 		case .verbose:
-			sign = "💬"
+			icon = LogIcons.verbose
 		case .debug:
-			sign = "🛠"
+			icon = LogIcons.debug
 		case .warning:
-			sign = "⚠️"
+			icon = LogIcons.warning
 		case .error:
-			sign = "‼️"
-		default:
-			sign = ""
+			icon = LogIcons.error
+		case .all:
+			icon = LogIcons.all
+		case .off:
+			icon = LogIcons.off
 		}
-		
-		return "\(date) [MobileMessaging] \(sign) \(logMessage.message)"
+		return formattedLogEntry(date: logMessage.timestamp, icon: icon, message: logMessage.message)
 	}
 }

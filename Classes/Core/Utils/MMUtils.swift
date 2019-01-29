@@ -47,10 +47,14 @@ func contactsServiceDateEqual(_ l: Date?, _ r: Date?) -> Bool {
 	case (.some(let left), .some(let right)):
 		return DateStaticFormatters.ContactsServiceDateFormatter.string(from: left) == DateStaticFormatters.ContactsServiceDateFormatter.string(from: right)
 	}
-
 }
 
 struct DateStaticFormatters {
+	static var LoggerDateFormatter: DateFormatter = {
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
+		return dateFormatter
+	}()
 	static var ContactsServiceDateFormatter: DateFormatter = {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")
@@ -58,7 +62,6 @@ struct DateStaticFormatters {
 		result.timeZone = TimeZone(secondsFromGMT: 0)
 		return result
 	}()
-	
 	static var ISO8601SecondsFormatter: DateFormatter = {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")
@@ -66,7 +69,6 @@ struct DateStaticFormatters {
 		result.timeZone = TimeZone(secondsFromGMT: 0)
 		return result
 	}()
-	
 	static var CoreDataDateFormatter: DateFormatter = {
 		let result = DateFormatter()
 		result.locale = Locale(identifier: "en_US_POSIX")

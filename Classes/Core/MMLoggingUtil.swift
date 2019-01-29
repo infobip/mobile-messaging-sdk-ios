@@ -13,7 +13,7 @@
 //}
 
 public final class MMDefaultLogger: NSObject, MMLogging {
-    public var logOutput: MMLogOutput = .Console
+    public var logOutput: MMLogOutput
     
     public var logLevel: MMLogLevel = .All
     
@@ -22,27 +22,55 @@ public final class MMDefaultLogger: NSObject, MMLogging {
     public func sendLogs(fromViewController vc: UIViewController) {
         
     }
-    
+
+	public override init() {
+		#if DEBUG
+			self.logOutput = .Console
+		#else
+			self.logOutput = .None
+		#endif
+	}
+
+	private func log(_ icon: LogIcons, _ message: String) {
+		guard logOutput == .Console else {
+			return
+		}
+		print(formattedLogEntry(date: Date(), icon: icon, message: message))
+	}
+
     public func logDebug(message: String) {
-        print("🛠", message)
+        log(LogIcons.debug, message)
     }
     
     public func logInfo(message: String) {
-        print("ℹ️", message)
+        log(LogIcons.info, message)
     }
     
     public func logError(message: String) {
-        print("‼️", message)
+        log(LogIcons.error, message)
     }
     
     public func logWarn(message: String) {
-        print("⚠️", message)
+        log(LogIcons.warning, message)
     }
     
     public func logVerbose(message: String) {
-        print("💬", message)
+        log(LogIcons.verbose, message)
     }
-    
+}
+
+enum LogIcons: String {
+	case info = "ℹ️"
+	case verbose = "💬"
+	case debug = "🛠"
+	case warning = "⚠️"
+	case error = "‼️"
+	case all = "ALL"
+	case off = "OFF"
+}
+
+func formattedLogEntry(date: Date, icon: LogIcons, message: String) -> String {
+	return "\(DateStaticFormatters.LoggerDateFormatter.string(from: date)) [MobileMessaging] \(icon.rawValue) \(message)"
 }
 
 @objc public protocol MMLogging {

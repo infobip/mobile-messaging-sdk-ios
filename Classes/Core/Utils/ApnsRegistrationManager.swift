@@ -48,7 +48,7 @@ class ApnsRegistrationManager {
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
 		let tokenStr = token.mm_toHexString
-		MMLogDebug("[APNS reg manager] Application did register with device token \(tokenStr)")
+		MMLogInfo("[APNS reg manager] Application did register with device token \(tokenStr)")
 
 		UserEventsManager.postDeviceTokenReceivedEvent(tokenStr)
 		
