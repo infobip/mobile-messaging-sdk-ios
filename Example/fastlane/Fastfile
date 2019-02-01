@@ -29,20 +29,20 @@ platform :ios do
 	desc "Runs all the tests on Simulators"
 	def test_on_simulator
 		begin
-			# scan(
-			# 	skip_build: true,
-			# 	scheme: "MobileMessagingExample",
-			# 	devices: ["iPhone 6 (9.3)"]
-			# 	)
-			# scan(
-			# 	skip_build: true,
-			# 	scheme: "MobileMessagingExample",
-			# 	devices: ["iPhone 7 (10.0)"]
-			# 	)
 			scan(
 				skip_build: true,
 				scheme: "MobileMessagingExample",
-				devices: ["iPhone 5s (12.1)"]
+				devices: ["iPhone 7 (9.3)"]
+				)
+			scan(
+				skip_build: true,
+				scheme: "MobileMessagingExample",
+				devices: ["iPhone 8 (10.3.1)"]
+				)
+			scan(
+				skip_build: true,
+				scheme: "MobileMessagingExample",
+				devices: ["iPhone X (12.1)"]
 				)
 		end
 	end
