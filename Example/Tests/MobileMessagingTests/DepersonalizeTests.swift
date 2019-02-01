@@ -265,8 +265,8 @@ class DepersonalizeTests: MMTestCase {
 		}
 
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertTrue(depersonalizeTurn > -1) // should have valid value
-			XCTAssertTrue(depersonalizeTurn < 4) // should not be the latest performed because has higher priority
+			XCTAssertGreaterThan(depersonalizeTurn, -1) // should have valid value
+			XCTAssertLessThan(depersonalizeTurn, 4) // should not be the latest performed because has higher priority
 		}
 	}
 
