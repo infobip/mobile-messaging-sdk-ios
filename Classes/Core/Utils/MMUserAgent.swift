@@ -69,7 +69,7 @@ public class UserAgent: NSObject {
 	
 	public var notificationsEnabled: Bool {
 		guard let settings = MobileMessaging.application.currentUserNotificationSettings else {
-			return false
+			return true
 		}
 		return !settings.types.isEmpty
 	}

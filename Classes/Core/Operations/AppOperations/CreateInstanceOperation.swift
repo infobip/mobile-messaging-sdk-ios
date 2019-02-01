@@ -10,7 +10,7 @@ import Foundation
 class CreateInstanceOperation : Operation {
 	let mmContext: MobileMessaging
 	let installation: InstallationDataService
-	var attributesSet: AttributesSet
+	let attributesSet: AttributesSet
 	let finishBlock: ((FetchInstanceDataResult) -> Void)?
 	var result: FetchInstanceDataResult = FetchInstanceDataResult.Cancel
 	let requireResponse: Bool
@@ -21,7 +21,7 @@ class CreateInstanceOperation : Operation {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse
-		self.attributesSet = []
+		self.attributesSet = Attributes.instanceAttributesSet
 		if let deviceToken = installation.deviceToken  {
 			self.deviceToken = deviceToken
 		} else {
@@ -31,14 +31,8 @@ class CreateInstanceOperation : Operation {
 	}
 
 	override func execute() {
-		attributesSet = installation.dirtyAttributesAll
 		guard !isCancelled else {
 			MMLogDebug("[CreateInstanceOperation] cancelled...")
-			finish()
-			return
-		}
-		if !attributesSet.contains(.pushServiceToken) {
-			MMLogDebug("[CreateInstanceOperation] There is no change for device token. Aborting...")
 			finish()
 			return
 		}
@@ -53,7 +47,9 @@ class CreateInstanceOperation : Operation {
 			return
 		}
 
-		mmContext.remoteApiProvider.postInstance(applicationCode: mmContext.applicationCode, body: InstallationDataMapper.requestPayload(with: installation, forAttributesSet: attributesSet) ?? [:]) { (result) in
+		var body = InstallationDataMapper.requestPayload(with: installation, forAttributesSet: attributesSet) ?? [:]
+		body["notificationsEnabled"] = true
+		mmContext.remoteApiProvider.postInstance(applicationCode: mmContext.applicationCode, body: body) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}

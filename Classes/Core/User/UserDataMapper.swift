@@ -63,9 +63,9 @@ class UserDataMapper {
 				let val = user.getValueForKey(att) ?? NSNull()
 				switch att {
 				case .phones:
-					dict[att.requestPayloadKey] = (val as? Array<Phone>)?.map({ return $0.dictionaryRepresentation })
+					dict[att.requestPayloadKey] = ((val as? Array<Phone>)?.map({ return $0.dictionaryRepresentation })) ?? NSNull()
 				case .emails:
-					dict[att.requestPayloadKey] = (val as? Array<Email>)?.map({ return $0.dictionaryRepresentation })
+					dict[att.requestPayloadKey] = ((val as? Array<Email>)?.map({ return $0.dictionaryRepresentation })) ?? NSNull()
 				default:
 					dict[att.requestPayloadKey] = val
 				}
