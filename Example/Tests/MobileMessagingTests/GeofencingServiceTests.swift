@@ -1571,7 +1571,11 @@ class GeofencingServiceTests: MMTestCase {
 
 		let mt = MTMessage.make(fromGeoMessage: geoMessage, messageId: "", region: geoMessage.regions.first!)
 		XCTAssertTrue(mt!.showInApp)
-		XCTAssertEqual(mt!.inAppStyle, InAppNotificationStyle.Banner)
+		if #available(iOS 10.0, *) {
+			XCTAssertEqual(mt!.inAppStyle, InAppNotificationStyle.Banner)
+		} else {
+			XCTAssertEqual(mt!.inAppStyle, InAppNotificationStyle.Modal)
+		}
 		XCTAssertFalse(mt!.isGeoSignalingMessage)
 		XCTAssertEqual(mt!.contentUrl, "http://hello.com")
 	}
