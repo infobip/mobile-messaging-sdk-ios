@@ -61,7 +61,7 @@ extension MobileMessaging {
 		set {
 			let id = self.internalData()
 			id.systemDataHash = newValue
-			id.archive()
+			id.archiveCurrent()
 		}
 		get {
 			return self.internalData().systemDataHash

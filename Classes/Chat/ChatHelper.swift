@@ -15,7 +15,7 @@ class ChatHelper : MessageStorageDelegate {
 		} else {
 			let id = MobileMessaging.sharedInstance?.internalData()
 			id?.badgeNumber += 1
-			id?.archive()
+			id?.archiveCurrent()
 		}
 	}
 	

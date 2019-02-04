@@ -611,7 +611,7 @@ func getDocumentsDirectory(filename: String) -> String {
 }
 
 func applicationCodeChanged(newApplicationCode: String) -> Bool {
-	let currentApplicationCode = InternalData.unarchive().applicationCode
+	let currentApplicationCode = InternalData.unarchiveCurrent().applicationCode
 	return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
 }
 
@@ -888,25 +888,6 @@ extension Array where Element: Hashable {
 extension Set {
 	var asArray: Array<Element> {
 		return Array(self)
-	}
-}
-
-func resetPreferred<T: PreferredSupported>(newValue: T?, currentValues: Array<T>?) -> Array<T>? {
-	if let currentValues = currentValues {
-		var updatedValues = Set<T>(currentValues)
-		currentValues.filter({ $0.preferred == true }).forEach { (element) in
-			var elementupdated = element
-			elementupdated.preferred = false
-		}
-		if let newValue = newValue {
-			updatedValues.remove(newValue)
-			var newValuePreferred = newValue
-			newValuePreferred.preferred = true
-			updatedValues.insert(newValuePreferred)
-		}
-		return Array(updatedValues)
-	} else {
-		return newValue == nil ? nil : [newValue!]
 	}
 }
 

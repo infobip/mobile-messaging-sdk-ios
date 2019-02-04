@@ -16,7 +16,25 @@ struct DepersonalizationConsts {
 	case undefined = 0, pending, success
 }
 
-class InternalData : NSObject, NSCoding, NSCopying {
+final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
+	static var currentPath = getDocumentsDirectory(filename: "internal-data")
+	static var cached = ThreadSafeDict<InternalData>()
+	static var empty: InternalData {
+		return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined)
+	}
+	func removeSensitiveData() {
+		if MobileMessaging.privacySettings.applicationCodePersistingDisabled  {
+			self.applicationCode = nil
+		}
+	}
+	func handleCurrentChanges(old: InternalData, new: InternalData) {
+		if old.currentDepersonalizationStatus != new.currentDepersonalizationStatus {
+			MMLogDebug("[InternalData management] setting new depersonalize status: \(self.currentDepersonalizationStatus)")
+			MobileMessaging.sharedInstance?.updateDepersonalizeStatusForSubservices()
+		}
+	}
+	///
+
 	var systemDataHash: Int64
 	var location: CLLocation?
 	var badgeNumber: Int
@@ -55,140 +73,40 @@ class InternalData : NSObject, NSCoding, NSCopying {
 		aCoder.encode(depersonalizeFailCounter, forKey: "depersonalizeFailCounter")
 		aCoder.encode(currentDepersonalizationStatus.rawValue, forKey: "currentDepersonalizationStatus")
 	}
-
-	func archive() {
-		let old = InternalData.unarchive()
-		archive(at: InternalData.currentPath)
-		if old.currentDepersonalizationStatus != currentDepersonalizationStatus {
-			MMLogDebug("[InternalData management] setting new depersonalize status: \(self.currentDepersonalizationStatus)")
-			MobileMessaging.sharedInstance?.updateDepersonalizeStatusForSubservices()
-		}
-	}
-
-	class func reset() {
-		InternalData.remove(at: InternalData.currentPath)
-	}
-
-	class func unarchive() -> InternalData {
-		return InternalData.unarchive(from: InternalData.currentPath) ?? InternalData.empty
-	}
-
-	static let currentPath = getDocumentsDirectory(filename: "internal-data")
-	static var cached = ThreadSafeDict<InternalData>()
-	static var empty: InternalData {
-		return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined)
-	}
-	private class func unarchive(from path: String) -> InternalData? {
-		if let cached = InternalData.cached.getValue(forKey: path) {
-			return cached
-		} else {
-			let newVal = (NSKeyedUnarchiver.unarchiveObject(withFile: path) as? InternalData)
-			InternalData.cached.set(value: newVal, forKey: path)
-			return newVal
-		}
-	}
-	private func archive(at path: String) {
-		InternalData.cached.set(value: self.copy() as? InternalData, forKey: path)
-		let save = self.copy() as! InternalData
-		save.removeSensitiveData()
-		NSKeyedArchiver.archiveRootObject(save, toFile: path)
-	}
-	private static func remove(at path: String) {
-		InternalData.cached.set(value: nil, forKey: path)
-		try? FileManager.default.removeItem(atPath: path)
-	}
-	func removeSensitiveData() {
-		if MobileMessaging.privacySettings.applicationCodePersistingDisabled  {
-			self.applicationCode = nil
-		}
-	}
 }
 
-public final class Installation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable {
-	static var delta: [String: Any] {
-		guard let currentDict = MobileMessaging.sharedInstance?.currentInstallation().dictionaryRepresentation, let dirtyDict = MobileMessaging.sharedInstance?.dirtyInstallation().dictionaryRepresentation else {
-			return [:]
-		}
-		return deltaDict(currentDict, dirtyDict)
-	}
-
-	static let currentPath = getDocumentsDirectory(filename: "installation")
-	static let dirtyPath = getDocumentsDirectory(filename: "dirty-installation")
+public final class Installation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable, Archivable {
+	var version: Int = 0
+	static var currentPath = getDocumentsDirectory(filename: "installation")
+	static var dirtyPath = getDocumentsDirectory(filename: "dirty-installation")
 	static var cached = ThreadSafeDict<Installation>()
 	static var empty: Installation {
 		let systemData = UserAgent().systemData
 		return Installation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: nil, deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
 	}
-	class func modifyAll(with block: (Installation) -> Void) {
-		if let di = MobileMessaging.sharedInstance?.dirtyInstallation() {
-			block(di)
-			di.archiveDirty()
-		}
-
-		if let ci = MobileMessaging.sharedInstance?.currentInstallation() {
-			block(ci)
-			ci.archiveCurrent()
-		}
-	}
-	func archiveAll() {
-		archiveCurrent()
-		archiveDirty()
-	}
-	func archiveCurrent() {
-		let old = Installation.unarchive()
-		archive(at: Installation.currentPath)
-		if old.pushRegistrationId != pushRegistrationId {
-			UserEventsManager.postRegUpdatedEvent(pushRegistrationId)
-		}
-		if old.isPushRegistrationEnabled != isPushRegistrationEnabled {
-			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
-		}
-	}
-	func archiveDirty() {
-		let old = Installation.unarchiveDirty()
-		archive(at: Installation.dirtyPath)
-		if old.isPushRegistrationEnabled != isPushRegistrationEnabled {
-			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
-		}
-	}
-	class func reset() {
-		Installation.resetDirty()
-		Installation.resetCurrent()
-	}
-	class func resetDirty() {
-		Installation.remove(at: Installation.dirtyPath)
-	}
-	class func resetCurrent() {
-		Installation.remove(at: Installation.currentPath)
-	}
-	class func unarchive() -> Installation {
-		return Installation.unarchive(from: Installation.currentPath) ?? Installation.empty
-	}
-	class func unarchiveDirty() -> Installation {
-		return Installation.unarchive(from: Installation.dirtyPath) ?? Installation.unarchive()
-	}
-	private class func unarchive(from path: String) -> Installation? {
-		if let cached = Installation.cached.getValue(forKey: path) {
-			return cached
-		} else {
-			let newVal = (NSKeyedUnarchiver.unarchiveObject(withFile: path) as? Installation)
-			Installation.cached.set(value: newVal, forKey: path)
-			return newVal
-		}
-	}
-	private func archive(at path: String) {
-		Installation.cached.set(value: self.copy() as? Installation, forKey: path)
-		let save = self.copy() as! Installation
-		save.removeSensitiveData()
-		NSKeyedArchiver.archiveRootObject(save, toFile: path)
-	}
-	private static func remove(at path: String) {
-		Installation.cached.set(value: nil, forKey: path)
-		try? FileManager.default.removeItem(atPath: path)
-	}
-
 	func removeSensitiveData() {
 		//nothing is sensitive in installation
+	}
+	func handleCurrentChanges(old: Installation, new: Installation) {
+		if old.pushRegistrationId != new.pushRegistrationId {
+			UserEventsManager.postRegUpdatedEvent(pushRegistrationId)
+		}
+		if old.isPushRegistrationEnabled != new.isPushRegistrationEnabled {
+			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
+		}
+	}
+	func handleDirtyChanges(old: Installation, new: Installation) {
+		if old.isPushRegistrationEnabled != new.isPushRegistrationEnabled {
+			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
+		}
+	}
+	
+//
+	static var delta: [String: Any] {
+		guard let currentDict = MobileMessaging.sharedInstance?.currentInstallation().dictionaryRepresentation, let dirtyDict = MobileMessaging.sharedInstance?.dirtyInstallation().dictionaryRepresentation else {
+			return [:]
+		}
+		return deltaDict(currentDict, dirtyDict)
 	}
 
 	/// If you have a users database where every user has a unique identifier, you would leverage our External User Id API to gather and link all users devices where your application is installed. However if you have several different applications that share a common user data base you would need to separate one push message destination from another (applications may be considered as destinations here). In order to do such message destination separation, you would need to provide us with a unique Application User Id.

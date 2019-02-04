@@ -30,11 +30,7 @@ import Foundation
 	}
 }
 
-public protocol PreferredSupported : Hashable {
-	var preferred: Bool {set get}
-}
-
-final class Phone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable, PreferredSupported {
+final class Phone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
 	public let number: String
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
@@ -55,7 +51,7 @@ final class Phone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable, P
 		guard let object = object as? Phone else {
 			return false
 		}
-		return self.number == object.number
+		return self.number == object.number // preferred is not supported yet on mobile api
 	}
 
 	convenience init?(json: JSON) {
@@ -82,7 +78,7 @@ final class Phone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable, P
 	}
 }
 
-final class Email: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable, PreferredSupported {
+final class Email: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
 	public let address: String
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
@@ -211,55 +207,14 @@ public class UserAttributes: NSObject, DictionaryRepresentable {
 	}
 }
 
-public final class User: UserAttributes, JSONDecodable, NSCoding, NSCopying {
+public final class User: UserAttributes, JSONDecodable, NSCoding, NSCopying, Archivable {
 	var version: Int = 0
-
-	static var delta: [String: Any] {
-		guard let currentUserDict = MobileMessaging.sharedInstance?.currentUser().dictionaryRepresentation, let dirtyUserDict = MobileMessaging.sharedInstance?.dirtyUser().dictionaryRepresentation else {
-			return [:]
-		}
-		return deltaDict(currentUserDict, dirtyUserDict)
-	}
-	static let currentPath = getDocumentsDirectory(filename: "user")
-	static let dirtyPath = getDocumentsDirectory(filename: "dirty-user")
+	static var currentPath = getDocumentsDirectory(filename: "user")
+	static var dirtyPath = getDocumentsDirectory(filename: "dirty-user")
 	static var cached = ThreadSafeDict<User>()
 	static var empty: User {
 		return User(externalUserId: nil, firstName: nil, middleName: nil, lastName: nil, phones: nil, emails: nil, tags: nil, gender: nil, birthday: nil, customAttributes: nil, installations: nil)
 	}
-
-	func archiveAll() {
-		archiveCurrent()
-		archiveDirty()
-	}
-	func archiveCurrent() {
-		archive(at: User.currentPath)
-	}
-	func archiveDirty() {
-		version = version + 1
-		archive(at: User.dirtyPath)
-	}
-	class func reset() {
-		User.resetDirty()
-		User.resetCurrent()
-	}
-	class func resetDirty() { User.remove(at: User.dirtyPath) }
-	class func resetCurrent() { User.remove(at: User.currentPath) }
-	class func unarchive() -> User { return User.unarchive(from: User.currentPath) ?? User.empty }
-	class func unarchiveDirty() -> User {
-		return User.unarchive(from: User.dirtyPath) ?? User.unarchive()
-	}
-	class func modifyAll(with block: (User) -> Void) {
-		if let du = MobileMessaging.sharedInstance?.dirtyUser() {
-			block(du)
-			du.archiveDirty()
-		}
-
-		if let cu = MobileMessaging.sharedInstance?.currentUser() {
-			block(cu)
-			cu.archiveCurrent()
-		}
-	}
-
 	func removeSensitiveData() {
 		if MobileMessaging.privacySettings.userDataPersistingDisabled == true {
 			self.firstName = nil
@@ -273,25 +228,19 @@ public final class User: UserAttributes, JSONDecodable, NSCoding, NSCopying {
 			self.externalUserId = nil
 		}
 	}
+	func handleCurrentChanges(old: User, new: User) {
+		// nothing to do
+	}
+	func handleDirtyChanges(old: User, new: User) {
+		// nothing to do
+	}
 
-	private class func unarchive(from path: String) -> User? {
-		if let cached = User.cached.getValue(forKey: path) {
-			return cached
-		} else {
-			let newVal = (NSKeyedUnarchiver.unarchiveObject(withFile: path) as? User)
-			User.cached.set(value: newVal, forKey: path)
-			return newVal
+	//
+	static var delta: [String: Any] {
+		guard let currentUserDict = MobileMessaging.sharedInstance?.currentUser().dictionaryRepresentation, let dirtyUserDict = MobileMessaging.sharedInstance?.dirtyUser().dictionaryRepresentation else {
+			return [:]
 		}
-	}
-	private func archive(at path: String) {
-		User.cached.set(value: self.copy() as? User, forKey: path)
-		let save = self.copy() as! User
-		save.removeSensitiveData()
-		NSKeyedArchiver.archiveRootObject(save, toFile: path)
-	}
-	private static func remove(at path: String) {
-		User.cached.set(value: nil, forKey: path)
-		try? FileManager.default.removeItem(atPath: path)
+		return deltaDict(currentUserDict, dirtyUserDict)
 	}
 
 	/// The user's id you can provide in order to link your own unique user identifier with Mobile Messaging user id, so that you will be able to send personalised targeted messages to exact user and other nice features.

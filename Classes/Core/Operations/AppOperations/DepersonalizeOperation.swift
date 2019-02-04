@@ -63,7 +63,7 @@ class DepersonalizeOperation: Operation {
 
 			let id = mmContext.internalData()
 			id.currentDepersonalizationStatus = .success
-			id.archive()
+			id.archiveCurrent()
 
 			mmContext.apnsRegistrationManager.registerForRemoteNotifications()
 			
@@ -85,7 +85,7 @@ class DepersonalizeOperation: Operation {
 			if id.depersonalizeFailCounter >= DepersonalizationConsts.failuresNumberLimit {
 
 				id.currentDepersonalizationStatus = .undefined
-				id.archive()
+				id.archiveCurrent()
 
 				mmContext.apnsRegistrationManager.registerForRemoteNotifications()
 			}
@@ -94,7 +94,7 @@ class DepersonalizeOperation: Operation {
 			MMLogDebug("[Depersonalize] current depersonalize status: undefined/successful")
 
 			id.currentDepersonalizationStatus = .pending
-			id.archive()
+			id.archiveCurrent()
 
 			mmContext.apnsRegistrationManager.unregister()
 		}

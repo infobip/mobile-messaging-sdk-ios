@@ -70,7 +70,7 @@ class CreateInstanceOperation : Operation {
 				// this is to force system data sync for the new registration
 				let id = mmContext.internalData()
 				id.systemDataHash = 0
-				id.archive()
+				id.archiveCurrent()
 			}
 
 			response.archiveAll()

@@ -53,7 +53,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			manager.associate(sourceInstance: sInstance, withDestinationInstance: destinationInstallation, for: mapping)
 		case "1_3":
 			let predefinedUserData = sInstance.value(forKey: "predefinedUserData") as? [String: Any]
-			let installation = Installation.unarchive()
+			let installation = Installation.unarchiveCurrent()
 			installation.applicationUserId = nil
 			installation.customAttributes = nil
 			installation.isPrimaryDevice = (sInstance.value(forKey: "isPrimaryDevice") as? Bool) ?? false
@@ -61,7 +61,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			installation.pushServiceToken = sInstance.value(forKey: "deviceToken") as? String
 			installation.isPushRegistrationEnabled = (sInstance.value(forKey: "isRegistrationEnabled") as? Bool) ?? true
 
-			let user = User.unarchive()
+			let user = User.unarchiveCurrent()
 			user.birthday = (predefinedUserData?["birthdate"] as? String).ifSome({ return DateStaticFormatters.ContactsServiceDateFormatter.date(from: $0)})
 			user.customAttributes = sInstance.value(forKey: "customUserData") as? [String: AttributeType]
 			user.emails = migrateEmailStrings(from: predefinedUserData)
@@ -75,7 +75,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			user.tags = nil
 
 
-			let internalData = InternalData.unarchive()
+			let internalData = InternalData.unarchiveCurrent()
 			internalData.applicationCode = sInstance.value(forKey: "applicationCode") as? String
 			internalData.badgeNumber = (sInstance.value(forKey: "badgeNumber") as? Int) ?? 0
 			internalData.location = sInstance.value(forKey: "location") as? CLLocation
@@ -87,11 +87,11 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			user.archiveDirty()
 			Installation.empty.archiveCurrent()
 			installation.archiveDirty()
-			internalData.archive()
+			internalData.archiveCurrent()
 
 			break
 		case "2_3":
-			let installation = Installation.unarchive()
+			let installation = Installation.unarchiveCurrent()
 			installation.applicationUserId = sInstance.value(forKey: "applicationUserId") as? String
 			installation.customAttributes = sInstance.value(forKey: "customInstanceAttributes") as? [String: AttributeType]
 			installation.isPrimaryDevice = (sInstance.value(forKey: "isPrimary") as? Bool) ?? false
@@ -99,7 +99,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			installation.pushServiceToken = sInstance.value(forKey: "pushServiceToken") as? String
 			installation.isPushRegistrationEnabled = (sInstance.value(forKey: "regEnabled") as? Bool) ?? true
 
-			let user = User.unarchive()
+			let user = User.unarchiveCurrent()
 			user.birthday = (sInstance.value(forKey: "birthday") as? String).ifSome({ return DateStaticFormatters.ContactsServiceDateFormatter.date(from: $0)})
 			user.customAttributes = sInstance.value(forKey: "customUserAttributes") as? [String: AttributeType]
 			user.emailsObjects = sInstance.value(forKey: "emails") as? [Email]
@@ -113,7 +113,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			user.tags = sInstance.value(forKey: "tags") as? [String]
 
 
-			let internalData = InternalData.unarchive()
+			let internalData = InternalData.unarchiveCurrent()
 			internalData.applicationCode = sInstance.value(forKey: "applicationCode") as? String
 			internalData.badgeNumber = (sInstance.value(forKey: "badgeNumber") as? Int) ?? 0
 			internalData.location = sInstance.value(forKey: "location") as? CLLocation
@@ -125,7 +125,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			user.archiveDirty()
 			Installation.empty.archiveCurrent()
 			installation.archiveDirty()
-			internalData.archive()
+			internalData.archiveCurrent()
 
 			break
 		default:

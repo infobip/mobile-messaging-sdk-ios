@@ -595,7 +595,7 @@ public class GeofencingService: MobileMessagingService {
 		if let previousLocation = previousLocation {
 			let internalData = mmContext.internalData()
 			internalData.location = previousLocation
-			internalData.archive()
+			internalData.archiveCurrent()
 		}
 	}
 	

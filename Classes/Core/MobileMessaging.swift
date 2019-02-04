@@ -367,9 +367,9 @@ public final class MobileMessaging: NSObject {
 		if (clearKeychain) {
 			keychain.clear()
 		}
-		InternalData.reset()
-		User.reset()
-		Installation.reset()
+		InternalData.resetCurrent()
+		User.resetAll()
+		Installation.resetAll()
 		apnsRegistrationManager.cleanup()
 	}
 	
@@ -484,11 +484,9 @@ public final class MobileMessaging: NSObject {
 		
 		if forceCleanup || applicationCodeChanged(newApplicationCode: appCode) {
 			MMLogDebug("Data will be cleaned up due to the application code change.")
-			User.resetCurrent()
-			User.resetDirty()
-			Installation.resetCurrent()
-			Installation.resetDirty()
-			InternalData.reset()
+			User.resetAll()
+			Installation.resetAll()
+			InternalData.resetCurrent()
 			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorages: messageStorages)
 			do {
 				storage = try MMCoreDataStorage.makeInternalStorage(self.storageType)
@@ -500,9 +498,9 @@ public final class MobileMessaging: NSObject {
 		self.internalStorage = storage
 		self.applicationCode = appCode
 
-		let ci = InternalData.unarchive()
+		let ci = InternalData.unarchiveCurrent()
 		ci.applicationCode = appCode
-		ci.archive()
+		ci.archiveCurrent()
 
 		self.userNotificationType = notificationType
 		self.remoteAPIBaseURL = backendBaseURL
@@ -544,11 +542,11 @@ public final class MobileMessaging: NSObject {
 
 	let internalStorage: MMCoreDataStorage
 
-	func internalData() -> InternalData { return InternalData.unarchive().copy() as! InternalData }
-	func currentInstallation() -> Installation { return Installation.unarchive().copy() as! Installation }
-	func currentUser() -> User { return User.unarchive().copy() as! User }
+	func internalData() -> InternalData { return InternalData.unarchiveCurrent() }
+	func currentInstallation() -> Installation { return Installation.unarchiveCurrent() }
+	func currentUser() -> User { return User.unarchiveCurrent() }
 
-	func dirtyInstallation() -> Installation { return Installation.unarchiveDirty().copy() as! Installation }
+	func dirtyInstallation() -> Installation { return Installation.unarchiveDirty() }
 	func dirtyUser() -> User { return User.unarchiveDirty().copy() as! User }
 
 	func resolveInstallation() -> Installation { return dirtyInstallation() }

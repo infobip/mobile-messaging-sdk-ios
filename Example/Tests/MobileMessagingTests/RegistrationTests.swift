@@ -388,8 +388,8 @@ final class RegistrationTests: MMTestCase {
 
 			// assertions:
 
-			let internalData = InternalData.unarchive()
-			let installation = Installation.unarchive()
+			let internalData = InternalData.unarchiveCurrent()
+			let installation = Installation.unarchiveCurrent()
 			XCTAssertNotNil(internalData.applicationCode, "application code must be persisted")
 			XCTAssertNotNil(installation.pushServiceToken)
 			XCTAssertNotNil(installation.pushRegistrationId)

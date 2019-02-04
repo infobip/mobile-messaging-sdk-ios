@@ -89,7 +89,7 @@ class UpdateInstanceOperation : Operation {
 
 			let id = mmContext.internalData()
 			id.systemDataHash = Int64(MobileMessaging.userAgent.systemData.hashValue)
-			id.archive()
+			id.archiveCurrent()
 
 			dirtyInstallation.archiveCurrent()
 
