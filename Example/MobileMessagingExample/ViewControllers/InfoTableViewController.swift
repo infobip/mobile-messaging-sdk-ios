@@ -71,9 +71,9 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
 		var settingValue : String?
 		switch indexPath.section {
 		case SettingsCell.deviceToken.rawValue:
-			settingValue = MobileMessaging.sharedInstance?.currentInstallation?.deviceToken
+			settingValue = MobileMessaging.sharedInstance?.currentInstallation().pushServiceToken
 		case SettingsCell.internalId.rawValue:
-			settingValue = MobileMessaging.sharedInstance?.currentInstallation?.pushRegistrationId
+			settingValue = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId
 		default: break
 		}
 		

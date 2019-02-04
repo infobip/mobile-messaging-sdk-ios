@@ -14,13 +14,13 @@ class UserDataMapper {
 
 	class func personalizeRequestPayload(userAttributes: UserAttributes) -> RequestBody? {
 		return [
-			Attributes.firstName.requestPayloadKey			: userAttributes.firstName as Any,
-			Attributes.middleName.requestPayloadKey			: userAttributes.middleName as Any,
-			Attributes.lastName.requestPayloadKey			: userAttributes.lastName as Any,
-			Attributes.tags.requestPayloadKey				: userAttributes.tags as Any,
-			Attributes.gender.requestPayloadKey				: userAttributes.gender?.name as Any,
-			Attributes.birthday.requestPayloadKey			: userAttributes.birthday != nil ? (DateStaticFormatters.ContactsServiceDateFormatter.string(from: userAttributes.birthday!) as Any) : (NSNull() as Any),
-			Attributes.customUserAttributes.requestPayloadKey	: UserDataMapper.makeCustomAttributesPayload(userAttributes.customAttributes, attributesSet: nil) as Any
+			Attributes.firstName.rawValue			: userAttributes.firstName as Any,
+			Attributes.middleName.rawValue			: userAttributes.middleName as Any,
+			Attributes.lastName.rawValue			: userAttributes.lastName as Any,
+			Attributes.tags.rawValue				: userAttributes.tags as Any,
+			Attributes.gender.rawValue				: userAttributes.gender?.name as Any,
+			Attributes.birthday.rawValue			: userAttributes.birthday != nil ? (DateStaticFormatters.ContactsServiceDateFormatter.string(from: userAttributes.birthday!) as Any) : (NSNull() as Any),
+			Attributes.customAttributes.rawValue	: UserDataMapper.makeCustomAttributesPayload(userAttributes.customAttributes) as Any
 		].noNulls
 	}
 
@@ -46,61 +46,31 @@ class UserDataMapper {
 	}
 
 	class func personalizeRequestPayload(userIdentity: UserIdentity, userAttributes: UserAttributes?) -> RequestBody? {
-		var ret: RequestBody = [ "userIdentity": personalizeRequestPayload(userIdentity: userIdentity) ]
+		var ret: RequestBody = [ "userIdentity": personalizeRequestPayload(userIdentity: userIdentity) as Any ]
 		if let userAttributes = userAttributes {
-			ret = ret + [ "userAttributes": personalizeRequestPayload(userAttributes: userAttributes) ]
+			ret = ret + [ "userAttributes": personalizeRequestPayload(userAttributes: userAttributes)  as Any ]
 		}
 		return ret
 	}
 
-	class func requestPayload(with user: UserDataService, forAttributesSet attributesSet: Set<Attributes>) -> RequestBody? {
-		MMLogVerbose("Making request payload for attributes: \(attributesSet)")
-		let standardAttributes: [String: Any] = attributesSet
-			.intersection(Attributes.standardAttributesSet)
-			.subtracting([.instances])
-			.reduce([String: Any](), { (dict, att) -> [String: Any] in
-				var dict = dict
-				let val = user.getValueForKey(att) ?? NSNull()
-				switch att {
-				case .phones:
-					dict[att.requestPayloadKey] = ((val as? Array<Phone>)?.map({ return $0.dictionaryRepresentation })) ?? NSNull()
-				case .emails:
-					dict[att.requestPayloadKey] = ((val as? Array<Email>)?.map({ return $0.dictionaryRepresentation })) ?? NSNull()
-				default:
-					dict[att.requestPayloadKey] = val
-				}
-				return dict
-			})
-
-		let customAttributes = UserDataMapper.makeCustomAttributesPayload(user.customAttributes, attributesSet: attributesSet)
-
-		var ret: [String: Any] = standardAttributes
-		if let customAttributes = customAttributes, !customAttributes.isEmpty {
-			ret[Attributes.customUserAttributes.requestPayloadKey] = customAttributes
-		}
-
+	class func requestPayload(currentUser: User, dirtyUser: User) -> RequestBody {
+		var ret = deltaDict(currentUser.dictionaryRepresentation, dirtyUser.dictionaryRepresentation)
+		ret["phones"] = (ret["phones"] as? [String])?.reduce([[String: Any]](), { (result, phoneNumber) -> [[String: Any]] in
+			let entry: [String: Any] = ["number": phoneNumber]
+			return result + [entry]
+		})
+		ret["emails"] = (ret["emails"] as? [String])?.reduce([[String: Any]](), { (result, address) -> [[String: Any]] in
+			let entry: [String: Any] = ["address": address]
+			return result + [entry]
+		})
 		return ret
 	}
 
-	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: AttributeType]?, attributesSet: AttributesSet?) -> [String: Any]? {
+	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: AttributeType]?) -> [String: Any]? {
 		guard let userCustomAttributes = userCustomAttributes else {
 			return nil
 		}
-		let filteredCustomAttributes: [String: AttributeType]
-		if let attributesSet = attributesSet {
-			filteredCustomAttributes = userCustomAttributes
-				.filter({ pair -> Bool in
-					attributesSet.contains(where: { (attribute) -> Bool in
-						switch (attribute) {
-						case .customUserAttribute(let key): return key == pair.key
-						case .customUserAttributes: return true
-						default: return false
-						}
-					})
-				})
-		} else {
-			filteredCustomAttributes = userCustomAttributes
-		}
+		let filteredCustomAttributes: [String: AttributeType] = userCustomAttributes
 
 		return filteredCustomAttributes
 			.reduce([String: Any](), { result, pair -> [String: Any] in
@@ -121,16 +91,33 @@ class UserDataMapper {
 			})
 	}
 
-	class func apply(userData: User, to currentUser: UserDataService) {
-		currentUser.externalUserId = userData.externalUserId
-		currentUser.firstName = userData.firstName
-		currentUser.middleName = userData.middleName
-		currentUser.lastName = userData.lastName
-		currentUser.phones = userData.phones
-		currentUser.emails = userData.emails
-		currentUser.tags = userData.tags
-		currentUser.gender = userData.gender
-		currentUser.birthday = userData.birthday
-		currentUser.customAttributes = userData.customAttributes
+	class func apply(userSource: User, to userDestination: User) {
+		userDestination.externalUserId = userSource.externalUserId
+		userDestination.firstName = userSource.firstName
+		userDestination.middleName = userSource.middleName
+		userDestination.lastName = userSource.lastName
+		userDestination.phones = userSource.phones
+		userDestination.emails = userSource.emails
+		userDestination.tags = userSource.tags
+		userDestination.gender = userSource.gender
+		userDestination.birthday = userSource.birthday
+		userDestination.customAttributes = userSource.customAttributes
 	}
+
+	class func apply(userAttributes: UserAttributes, to user: User) {
+		user.firstName = userAttributes.firstName
+		user.middleName = userAttributes.middleName
+		user.lastName = userAttributes.lastName
+		user.tags = userAttributes.tags
+		user.gender = userAttributes.gender
+		user.birthday = userAttributes.birthday
+		user.customAttributes = userAttributes.customAttributes
+	}
+
+	class func apply(userIdentity: UserIdentity, to user: User) {
+		user.externalUserId = userIdentity.externalUserId
+		user.phones = userIdentity.phones
+		user.emails = userIdentity.emails
+	}
+
 }

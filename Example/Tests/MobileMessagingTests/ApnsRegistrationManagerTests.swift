@@ -55,19 +55,20 @@ class ApnsRegistrationManagerTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		mm.start()
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
-		mm.currentInstallation.deviceToken = "old token".mm_toHexademicalString
-		mm.currentInstallation.pushRegistrationId = "old push reg"
+		mm.pushServiceToken = "old token".mm_toHexademicalString
+		mm.pushRegistrationId = "old push reg"
 		mm.apnsRegistrationManager = apnsManagerMock
 		
-		mm.currentInstallation.resetRegistration { (err) in
+		mm.installationService.resetRegistration { (err) in
 			resetFinished?.fulfill()
 		}
 		
 		self.waitForExpectations(timeout: 60, handler: { _ in
 			XCTAssertTrue(mm.apnsRegistrationManager.isRegistrationHealthy)
-			XCTAssertNil(mm.currentInstallation.deviceToken)
-			XCTAssertNil(mm.currentInstallation.pushRegistrationId)
+			XCTAssertNil(MobileMessaging.getInstallation()?.pushServiceToken)
+			XCTAssertNil(MobileMessaging.getInstallation()?.pushRegistrationId)
 		})
 	}
 	
@@ -77,6 +78,7 @@ class ApnsRegistrationManagerTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		mm.start()
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		
 		mm.apnsRegistrationManager = apnsManagerMock
@@ -99,10 +101,11 @@ class ApnsRegistrationManagerTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		mm.start()
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		mm.apnsRegistrationManager = apnsManagerMock
-		mm.currentInstallation.deviceToken = "same token".mm_toHexademicalString
-		mm.currentInstallation.pushRegistrationId = "some push reg"
+		mm.pushServiceToken = "same token".mm_toHexademicalString
+		mm.pushRegistrationId = "some push reg"
 		mm.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken("same token".data(using: String.Encoding.utf16)!) { (err) in
 			XCTAssertTrue(mm.apnsRegistrationManager.isRegistrationHealthy)
 			regFinished?.fulfill()
@@ -121,9 +124,10 @@ class ApnsRegistrationManagerTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+		mm.start()
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
-		mm.currentInstallation.deviceToken = "old token".mm_toHexademicalString
-		mm.currentInstallation.pushRegistrationId = "old push reg"
+		mm.pushServiceToken = "old token".mm_toHexademicalString
+		mm.pushRegistrationId = "old push reg"
 		mm.apnsRegistrationManager = apnsManagerMock
 		
 		

@@ -18,7 +18,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		msisdsTextField.delegate = self
-		msisdsTextField.text = MobileMessaging.user?.phones?.first
+		msisdsTextField.text = MobileMessaging.getUser()?.phones?.first
 	}
 	
 	//MARK: UITextFieldDelegate
@@ -42,7 +42,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		
 		do {
 			try validateFormat(msisdn)
-			if let user = MobileMessaging.user {
+			if let user = MobileMessaging.getUser() {
 				user.phones = [msisdn]
 				MobileMessaging.saveUser(user) { (error) -> () in
 					DispatchQueue.main.async {

@@ -13,7 +13,9 @@ class ChatHelper : MessageStorageDelegate {
 		if UIApplication.shared.applicationState == UIApplication.State.active {
 			playReceivedMessageSound()
 		} else {
-			MobileMessaging.sharedInstance?.currentInstallation?.badgeNumber += 1
+			let id = MobileMessaging.sharedInstance?.internalData()
+			id?.badgeNumber += 1
+			id?.archive()
 		}
 	}
 	

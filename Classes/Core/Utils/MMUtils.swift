@@ -14,6 +14,33 @@ import UserNotifications
 
 public typealias DictionaryRepresentation = [String: Any]
 
+func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any] {
+	var ret:[String: Any] = [:]
+	dirty.keys.forEach { (k) in
+		let currentV = current[k] as Any
+		let dirtyV = dirty[k] as Any
+		if case Optional<Any>.none = dirtyV {
+			if case Optional<Any>.none = currentV {
+			} else {
+				ret[k] = NSNull()
+			}
+		} else {
+			if currentV is AnyHashable && dirtyV is AnyHashable {
+				if (currentV as! AnyHashable) != (dirtyV as! AnyHashable){
+					ret[k] = dirtyV
+				}
+			} else {
+				if case Optional<Any>.none = currentV {
+					ret[k] = dirtyV
+				} else {
+					ret[k] = NSNull()
+				}
+			}
+		}
+	}
+	return ret
+}
+
 extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 	var noNulls: [Key: Value] {
 		return self.filter {
@@ -28,11 +55,11 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 }
 
 extension MobileMessaging {
-	class var currentInstallation: InstallationDataService? {
-		return MobileMessaging.sharedInstance?.currentInstallation
+	class var currentInstallation: Installation? {
+		return MobileMessaging.getInstallation()
 	}
-	class var currentUser: UserDataService? {
-		return MobileMessaging.sharedInstance?.currentUser
+	class var currentUser: User? {
+		return MobileMessaging.getUser()
 	}
 }
 
@@ -577,9 +604,14 @@ class MainThreadedUIApplication: MMApplication {
 	}
 }
 
-func applicationCodeChanged(storage: MMCoreDataStorage, newApplicationCode: String) -> Bool {
-	let dataProvider = CoreDataProvider(storage: storage)
-	let currentApplicationCode = dataProvider.getValueForKey("applicationCode") as? String
+func getDocumentsDirectory(filename: String) -> String {
+	let applicationSupportPaths = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)
+	let basePath = applicationSupportPaths.first ?? NSTemporaryDirectory()
+	return URL(fileURLWithPath: basePath).appendingPathComponent("com.mobile-messaging.\(filename)", isDirectory: false).path
+}
+
+func applicationCodeChanged(newApplicationCode: String) -> Bool {
+	let currentApplicationCode = InternalData.unarchive().applicationCode
 	return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
 }
 
@@ -875,5 +907,23 @@ func resetPreferred<T: PreferredSupported>(newValue: T?, currentValues: Array<T>
 		return Array(updatedValues)
 	} else {
 		return newValue == nil ? nil : [newValue!]
+	}
+}
+
+class ThreadSafeDict<T> {
+	private var dict: [String: T] = [:]
+	private var queue: DispatchQueue = DispatchQueue.init(label: "", qos: .default, attributes: DispatchQueue.Attributes.concurrent)
+	func set(value: T?, forKey key: String) {
+		queue.async(group: nil, qos: .default, flags: .barrier) {
+			self.dict[key] = value
+		}
+	}
+
+	func getValue(forKey key: String) -> T? {
+		var ret: T?
+		queue.sync {
+			ret = dict[key]
+		}
+		return ret
 	}
 }

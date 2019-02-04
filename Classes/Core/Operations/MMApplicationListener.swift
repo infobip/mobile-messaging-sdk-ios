@@ -24,7 +24,6 @@ final class MMApplicationListener: NSObject {
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleGeoServiceDidStartNotification), name: NSNotification.Name(rawValue: MMNotificationGeoServiceDidStart), object: nil)
 		}
-		
     }
 	
 	//MARK: Internal
@@ -41,7 +40,7 @@ final class MMApplicationListener: NSObject {
 	}
 	
 	@objc func handleGeoServiceDidStartNotification() {
-		mmContext?.currentInstallation?.syncSystemDataWithServer() { _ in }
+		mmContext?.installationService?.syncSystemDataWithServer() { _ in }
 	}
 	
 	//MARK: Private
@@ -52,8 +51,8 @@ final class MMApplicationListener: NSObject {
 			return
 		}
 		mm.sync()
-		if mm.currentInstallation.currentDepersonalizationStatus == .pending {
-			mm.currentInstallation.depersonalize(completion: { _, _ in })
+		if mm.internalData().currentDepersonalizationStatus == .pending {
+			mm.installationService.depersonalize(completion: { _, _ in })
 		}
 	}
 }

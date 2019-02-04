@@ -169,7 +169,6 @@ class MessageReceivingTests: MMTestCase {
 
 			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
 			XCTAssertEqual(message.contentUrl, "pic.url")
-			print(Date(timeIntervalSince1970: message.sendDateTime))
 			
 			XCTAssertEqual(message.sendDateTime, sendDateTimeMillis/1000, accuracy: 0.0001)
 		} else {
@@ -201,9 +200,8 @@ class MessageReceivingTests: MMTestCase {
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 
-		MobileMessaging.currentInstallation?.isPushRegistrationEnabled = false
-		MobileMessaging.currentInstallation?.persist()
-		MobileMessaging.currentInstallation?.syncWithServer({ _ in
+		MobileMessaging.sharedInstance?.isPushRegistrationEnabled = false
+		MobileMessaging.sharedInstance?.installationService.syncWithServer({ _ in
 			
 			sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 				

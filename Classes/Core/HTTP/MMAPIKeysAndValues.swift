@@ -190,3 +190,28 @@ struct Consts {
 		static var reachabilityMonitoringTimeout = DispatchTimeInterval.seconds(10)
 	}
 }
+
+enum Attributes : String {
+	case pushServiceToken = "pushServiceToken"
+	case customAttributes = "customAttributes"
+	case externalUserId = "externalUserId"
+	case registrationEnabled = "regEnabled"
+	case applicationCode = "applicationCode"
+	case badgeNumber = "badgeNumber"
+	case systemDataHash = "systemDataHash"
+	case location = "location"
+	case pushRegistrationId = "pushRegId"
+	case isPrimaryDevice = "isPrimary"
+	case logoutStatusValue = "logoutStatusValue"
+	case logoutFailCounter = "logoutFailCounter"
+	case phones = "phones"
+	case firstName = "firstName"
+	case lastName = "lastName"
+	case middleName = "middleName"
+	case gender = "gender"
+	case birthday = "birthday"
+	case emails = "emails"
+	case tags = "tags"
+	case instances = "instances"
+	case applicationUserId = "applicationUserId"
+}

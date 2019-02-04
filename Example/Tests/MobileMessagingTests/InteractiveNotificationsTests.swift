@@ -9,42 +9,6 @@ import XCTest
 @testable import MobileMessaging
 import UserNotifications
 
-class MessagHandlerMock: MMMessageHandler {
-	var setSeenWasCalled: (() -> Void)?
-	var sendMessageWasCalled: (([MOMessage]) -> Void)?
-	
-	override var isRunning: Bool {
-		get {
-			return true
-		}
-		set {
-			
-		}
-	}
-	
-	convenience init(originalHandler: MMMessageHandler) {
-		self.init(storage: originalHandler.storage, mmContext: originalHandler.mmContext)
-	}
-
-	override func syncSeenStatusUpdates(_ completion: ((SeenStatusSendingResult) -> Void)? = nil) {
-		completion?(SeenStatusSendingResult.Cancel)
-	}
-
-    override func setSeen(_ messageIds: [String], immediately: Bool, completion: ((SeenStatusSendingResult) -> Void)?) {
-		setSeenWasCalled?()
-		completion?(SeenStatusSendingResult.Cancel)
-	}
-	
-	override func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: (([MOMessage]?, NSError?) -> Void)?) {
-		sendMessageWasCalled?(messages)
-		completion?(messages, nil)
-	}
-
-	override func syncMessages(handlingIteration: Int, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
-		finishBlock?(MessagesSyncResult.Cancel)
-	}
-}
-
 class InteractiveNotificationsTests: MMTestCase {
 	let actionId = "actionId"
 	let categoryId = "categoryId"

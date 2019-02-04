@@ -112,7 +112,7 @@ extension MobileChat: MobileChatProtocol {
 	public func setUserInfo(info: ChatParticipant, completion: @escaping (NSError?) -> Void) {
 		MMLogDebug("[Mobile chat] setting chat user info...")
 
-		if let currentUserData = MobileMessaging.user {
+		if let currentUserData = MobileMessaging.sharedInstance?.resolveUser() {
 			currentUserData.externalUserId = info.id
 			currentUserData.firstName = info.firstName
 			currentUserData.lastName = info.lastName
@@ -127,14 +127,14 @@ extension MobileChat: MobileChatProtocol {
 	
 	public func getUserInfo() -> ChatParticipant? {
 		MMLogDebug("[Mobile chat] getting chat user info...")
-		return ChatParticipant.current(with: mmContext.currentUser, installation: mmContext.currentInstallation)
+		return ChatParticipant.current(with: mmContext.resolveUser(), installation: mmContext.resolveInstallation())
 	}
 	
 	public func fetchUserInfo(completion: @escaping (ChatParticipant?) -> Void) {
 		MMLogDebug("[Mobile chat] fetching chat user info...")
-		mmContext.currentUser.fetchFromServer { (currentUser, error) in
+		mmContext.userService.fetchFromServer { (currentUser, error) in
 			MMLogDebug("[Mobile chat] fetching chat user info finished. Error: \(error.debugDescription)")
-			completion(ChatParticipant.current(with: currentUser, installation: self.mmContext.currentInstallation))
+			completion(ChatParticipant.current(with: currentUser, installation: self.mmContext.resolveInstallation()))
 		}
 	}
 	

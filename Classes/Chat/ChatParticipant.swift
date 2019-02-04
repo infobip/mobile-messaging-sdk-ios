@@ -44,13 +44,13 @@ public class ChatParticipant: NSObject {
 	var customData: JSON?
 	
 	public static var current: ChatParticipant? {
-		guard let user = MobileMessaging.sharedInstance?.currentUser, let installation = MobileMessaging.sharedInstance?.currentInstallation else {
+		guard let user = MobileMessaging.getUser(), let installation = MobileMessaging.getInstallation() else {
 			return nil
 		}
 		return ChatParticipant.current(with: user, installation: installation)
 	}
 	
-	static func current(with user: UserDataService, installation: InstallationDataService) -> ChatParticipant? {
+	static func current(with user: User, installation: Installation) -> ChatParticipant? {
 		let participantId = user.externalUserId ?? installation.pushRegistrationId
 		return ChatParticipant(id: participantId,
 							   firstName: user.firstName,

@@ -10,8 +10,56 @@ import XCTest
 import CoreLocation
 
 final class RegistrationTests: MMTestCase {
-	
+
+	func testInstanceDataFetchingDecoding() {
+		weak var expectation = self.expectation(description: "data fetched")
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+
+		let responseStub: (Any) -> JSON? = { request -> JSON? in
+			switch request {
+			case (is GetInstance):
+				let jsonStr = """
+				{
+					"notificationsEnabled": true,
+					"pushRegId": "pushregid1",
+					"isPrimary": true,
+					"regEnabled": true,
+					"applicationUserId": "appUserId",
+					"customAttributes": {
+						"Manufacturer": "_Apple_",
+						"Model": 1,
+						"ReleaseDate": "1983-05-25"
+					}
+				}
+"""
+				return JSON.parse(jsonStr)
+			default:
+				return nil
+			}
+		}
+
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: nil,
+			completionCompanionBlock: nil,
+			responseSubstitution: responseStub)
+
+		mobileMessagingInstance.installationService.fetchFromServer(completion: { (installation, error) in
+			XCTAssertNil(error)
+			XCTAssertEqual(installation.pushRegistrationId, "pushregid1")
+			XCTAssertEqual(installation.isPrimaryDevice, true)
+			XCTAssertEqual(installation.isPushRegistrationEnabled, true)
+			XCTAssertEqual(installation.applicationUserId, "appUserId")
+
+			XCTAssertEqual(installation.customAttributes! as NSDictionary, ["Manufacturer" : "_Apple_", "Model": NSNumber(value: 1), "ReleaseDate": darthVaderDateOfDeath])
+			expectation?.fulfill()
+		})
+
+		waitForExpectations(timeout: 20, handler: nil)
+	}
+
 	func testInstallationPersisting() {
+		XCTAssertNil(self.mobileMessagingInstance.resolveInstallation().pushServiceToken)
+
 		weak var tokensexp = expectation(description: "device tokens saved")
 		let maxCount = 2
 
@@ -28,26 +76,19 @@ final class RegistrationTests: MMTestCase {
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 
-		for counter in 0..<maxCount {
+		for counter in 0..<maxCount { DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(counter * 100)) {
 			let deviceToken = "token\(counter)".data(using: String.Encoding.utf16)
-			mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken!) { error in
-				if counter == maxCount - 1 {
-					tokensexp?.fulfill()
+
+				self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken!) { error in
+					if counter == maxCount - 1 {
+						tokensexp?.fulfill()
+					}
 				}
-			}
-		}
+		}}
 		
 		waitForExpectations(timeout: 100, handler: { err in
-			let installationsNumber = InstallationManagedObject.MM_countOfEntitiesWithContext(self.storage.mainThreadManagedObjectContext!)
-			
-			let ctx = (self.mobileMessagingInstance.internalStorage.mainThreadManagedObjectContext!)
-			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-				XCTAssertEqual(installationsNumber, 1, "there must be one installation object persisted")
-				XCTAssertEqual(installation.pushServiceToken, "token\(maxCount-1)".mm_toHexademicalString, "Most recent token must be persisted")
-				XCTAssertFalse(installation.dirtyAttsSet.contains(Attributes.pushServiceToken), "Device token must be synced with server")
-			} else {
-				XCTFail("There must be atleast one installation object in database")
-			}
+			XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, "token\(maxCount-1)".mm_toHexademicalString, "Most recent token must be persisted")
+			XCTAssertNil(Installation.delta["pushServiceToken"])
 		})
 	}
 
@@ -76,8 +117,8 @@ final class RegistrationTests: MMTestCase {
 		}
 
 		self.waitForExpectations(timeout: 60) { _ in
-			XCTAssertFalse(self.mobileMessagingInstance.currentInstallation.isRegistrationStatusNeedSync)
-			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.deviceToken, "someToken2".mm_toHexademicalString)
+			XCTAssertFalse(self.mobileMessagingInstance.isRegistrationStatusNeedSync)
+			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation().pushServiceToken, "someToken2".mm_toHexademicalString)
 		}
 	}
 	
@@ -106,14 +147,9 @@ final class RegistrationTests: MMTestCase {
 			expectation?.fulfill()
 		}
 		self.waitForExpectations(timeout: 60) { _ in
-			let ctx = (self.mobileMessagingInstance.internalStorage.mainThreadManagedObjectContext!)
-			if let installation = InstallationManagedObject.MM_findFirstInContext(ctx) {
-				XCTAssertTrue(installation.dirtyAttsSet.contains(Attributes.pushServiceToken), "Dirty flag may be false only after success registration")
-				XCTAssertEqual(installation.pushRegId, nil, "Internal id must be nil, server denied the application code")
-				XCTAssertEqual(installation.pushServiceToken, "someToken".mm_toHexademicalString, "Device token must be stubbed properly. (current is \(String(describing: installation.pushServiceToken)))")
-			} else {
-				XCTFail("There must be atleast one installation object in database")
-			}
+			XCTAssertNotNil(Installation.delta["pushServiceToken"])
+			XCTAssertNil(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
+			XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, "someToken".mm_toHexademicalString)
 		}
 	}
 
@@ -168,7 +204,7 @@ final class RegistrationTests: MMTestCase {
 			XCTFail("Installation is nil")
 		}
 
-		MobileMessaging.currentInstallation?.syncWithServer({ (error) -> Void in
+		MobileMessaging.sharedInstance?.installationService.syncWithServer({ (error) -> Void in
 			syncInstallationWithServer?.fulfill()
 		})
 		
@@ -216,25 +252,26 @@ final class RegistrationTests: MMTestCase {
 			completionCompanionBlock: nil,
 			responseSubstitution: responseStub)
 		
-		MobileMessaging.currentInstallation?.deviceToken = "stub"
-		MobileMessaging.currentInstallation?.persist()
-		MobileMessaging.currentInstallation?.syncWithServer({ err in
+		MobileMessaging.sharedInstance?.pushServiceToken = "stub"
+
+		MobileMessaging.sharedInstance?.installationService.syncWithServer({ err in
 			tokenSynced?.fulfill() // requestSentCounter = 0
 
-			MobileMessaging.currentInstallation?.isPushRegistrationEnabled = false
-			MobileMessaging.currentInstallation?.persist()
-			MobileMessaging.currentInstallation?.syncWithServer({ err in
-				regDisabledStatusSynced?.fulfill() // requestSentCounter + 1 (1)
+			MobileMessaging.sharedInstance?.isPushRegistrationEnabled = false
+			MobileMessaging.sharedInstance?.installationService.syncWithServer({ err in
+				XCTAssertEqual(requestSentCounter, 1)
+				regDisabledStatusSynced?.fulfill()
 
-				MobileMessaging.currentInstallation?.isPushRegistrationEnabled = true
-				MobileMessaging.currentInstallation?.persist()
-				MobileMessaging.currentInstallation?.syncWithServer({ err in
-					regEnabledStatusSynced?.fulfill() // requestSentCounter + 1 (2)
+				MobileMessaging.sharedInstance?.isPushRegistrationEnabled = true
+				MobileMessaging.sharedInstance?.installationService.syncWithServer({ err in
+					XCTAssertEqual(requestSentCounter, 2)
+					regEnabledStatusSynced?.fulfill()
 
-					MobileMessaging.currentInstallation?.isPushRegistrationEnabled = true
-					MobileMessaging.currentInstallation?.persist()
-					MobileMessaging.currentInstallation?.syncWithServer({ err in
-						regEnabled2StatusSynced?.fulfill() // requestSentCounter same (2)
+					MobileMessaging.sharedInstance?.isPushRegistrationEnabled = true
+					MobileMessaging.sharedInstance?.installationService.syncWithServer({ err in
+						XCTAssertEqual(requestSentCounter, 2)
+						regEnabled2StatusSynced?.fulfill()
+
 					})
 				})
 			})
@@ -281,15 +318,15 @@ final class RegistrationTests: MMTestCase {
 		
 		XCTAssertTrue(mm.messageHandler.isRunning)
 		XCTAssertTrue(GeofencingService.sharedInstance!.isRunning)
-		XCTAssertTrue(MobileMessaging.currentInstallation!.isPushRegistrationEnabled)
+		XCTAssertTrue(MobileMessaging.sharedInstance!.resolveInstallation().isPushRegistrationEnabled)
 		
-		mm.currentInstallation.deviceToken = "stub"
-		mm.currentInstallation.persist()
-		mm.currentInstallation.syncWithServer({ err in
+		mm.pushServiceToken = "stub"
+
+		mm.installationService.syncWithServer({ err in
 			// we got disabled status, now message handling must be stopped
 			XCTAssertFalse(mm.messageHandler.isRunning)
 			XCTAssertFalse(MobileMessaging.geofencingService!.isRunning)
-			XCTAssertFalse(MobileMessaging.currentInstallation!.isPushRegistrationEnabled)
+			XCTAssertFalse(MobileMessaging.sharedInstance!.resolveInstallation().isPushRegistrationEnabled)
 			registrationSynced?.fulfill()
 		})
 		self.waitForExpectations(timeout: 60, handler: nil)
@@ -300,7 +337,7 @@ final class RegistrationTests: MMTestCase {
 		remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
 			completion(
 				FetchInstanceDataResult.Success(
-					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
 				)
 			)
 		}
@@ -313,27 +350,27 @@ final class RegistrationTests: MMTestCase {
 
 		weak var finished = self.expectation(description: "finished")
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
-			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.pushRegistrationId)
+			XCTAssertEqual(self.mobileMessagingInstance.internalData().applicationCode, MMTestConstants.kTestCorrectApplicationCode)
+			XCTAssertNotNil(self.mobileMessagingInstance.resolveInstallation().pushServiceToken)
+			XCTAssertNotNil(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 			DispatchQueue.main.async {
 				MMTestCase.startWithApplicationCode("newApplicationCode")
-				XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, "newApplicationCode")
-				XCTAssertNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-				XCTAssertNil(self.mobileMessagingInstance.currentInstallation.pushRegistrationId)
+				XCTAssertEqual(self.mobileMessagingInstance.internalData().applicationCode, "newApplicationCode")
+				XCTAssertNil(MobileMessaging.getInstallation()!.pushServiceToken)
+				XCTAssertNil(MobileMessaging.getInstallation()!.pushRegistrationId)
 				finished?.fulfill()
 			}
 		}
 
 		waitForExpectations(timeout: 10, handler: nil)
 	}
-	
+
 	func testThatRegistrationIsNotCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
 		let remoteProviderMock = RemoteApiInstanceAttributesMock()
 		remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
 			completion(
 				FetchInstanceDataResult.Success(
-					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
 				)
 			)
 		}
@@ -345,47 +382,44 @@ final class RegistrationTests: MMTestCase {
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 
 		weak var finished = self.expectation(description: "finished")
-		
+
 		// registration gets updated:
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-			
+
 			// assertions:
-			let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
-			ctx.performAndWait {
-				let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
-				XCTAssertNotNil(installation.applicationCode, "application code must be persisted")
-			}
-			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.pushRegistrationId)
-			
+
+			let internalData = InternalData.unarchive()
+			let installation = Installation.unarchive()
+			XCTAssertNotNil(internalData.applicationCode, "application code must be persisted")
+			XCTAssertNotNil(installation.pushServiceToken)
+			XCTAssertNotNil(installation.pushRegistrationId)
+
 			DispatchQueue.main.async {
-				
+
 				// user want to stop persisting application code:
 				MobileMessaging.privacySettings.applicationCodePersistingDisabled = true
-				
+
 				// user must call cleanUpAndStop manually before using newApplicationCode:
-				self.mobileMessagingInstance.cleanUpAndStop()
-				
+				self.mobileMessagingInstance.stop()
+
 				// then restart with new application code:
 				MMTestCase.startWithApplicationCode("newApplicationCode")
-				
+
 				// registration gets updated:
 				self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!, completion: { error in
-					
+
 					// assertions:
-					let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
-					ctx.performAndWait {
-						let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
-						XCTAssertNil(installation.applicationCode, "application code must not be persisted")
-					}
-					XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, "newApplicationCode", "Application code available in-memory")
+					let internalDataPersisted = NSKeyedUnarchiver.unarchiveObject(withFile: InternalData.currentPath) as! InternalData
+					let internalDataCached = MobileMessaging.sharedInstance!.internalData()
+					XCTAssertNil(internalDataPersisted.applicationCode, "application code must not be persisted")
+					XCTAssertEqual(internalDataCached.applicationCode, "newApplicationCode", "Application code available in-memory")
 					finished?.fulfill()
 				})
 			}
 		}
 		waitForExpectations(timeout: 60, handler: nil)
 	}
-	
+
 	//https://openradar.appspot.com/29489461
 	func testThatExpireRequestBeingSentAfterReinstallation(){
 		weak var expirationRequested = self.expectation(description: "expirationRequested")
@@ -399,16 +433,16 @@ final class RegistrationTests: MMTestCase {
 			}
 			remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
 				completion(FetchInstanceDataResult.Success(
-					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
 				))
 			}
 			self.mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 		}
 
 		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-			XCTAssertEqual(self.mobileMessagingInstance.currentInstallation.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
-			XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation.deviceToken)
-			let firstInternalId = self.mobileMessagingInstance.currentInstallation.pushRegistrationId
+			XCTAssertEqual(self.mobileMessagingInstance.internalData().applicationCode, MMTestConstants.kTestCorrectApplicationCode)
+			XCTAssertNotNil(self.mobileMessagingInstance.resolveInstallation().pushServiceToken)
+			let firstInternalId = self.mobileMessagingInstance.resolveInstallation().pushRegistrationId
 			XCTAssertNotNil(firstInternalId)
 
 			// uninstall >
@@ -451,10 +485,10 @@ final class RegistrationTests: MMTestCase {
 				}
 
 				// try to reasonably expire
-				self.mobileMessagingInstance.currentInstallation.syncWithServer({ _ in
+				self.mobileMessagingInstance.installationService.syncWithServer({ _ in
 					// <
 					XCTAssertNotEqual(self.mobileMessagingInstance.keychain.pushRegId, firstInternalId)
-					XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, self.mobileMessagingInstance.currentInstallation.pushRegistrationId)
+					XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 
 					do {
 						let remoteProviderMock = RemoteApiInstanceAttributesMock()
@@ -465,8 +499,8 @@ final class RegistrationTests: MMTestCase {
 					}
 
 					// try to redundantly expire
-					self.mobileMessagingInstance.currentInstallation.syncWithServer({ _ in
-						XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, self.mobileMessagingInstance.currentInstallation.pushRegistrationId)
+					self.mobileMessagingInstance.installationService.syncWithServer({ _ in
+						XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 						registration3Done?.fulfill()
 					})
 				})
@@ -490,7 +524,9 @@ class NotificationsEnabledMock: MMApplication {
 	func registerForRemoteNotifications() {}
 	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
 	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
-	var currentUserNotificationSettings: UIUserNotificationSettings? { return UIUserNotificationSettings(types: .alert, categories: nil) }
+	var currentUserNotificationSettings: UIUserNotificationSettings? {
+		return UIUserNotificationSettings(types: .alert, categories: nil)
+	}
 }
 
 class NotificationsDisabledMock: MMApplication {
@@ -506,7 +542,9 @@ class NotificationsDisabledMock: MMApplication {
 	func registerForRemoteNotifications() {}
 	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
 	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
-	var currentUserNotificationSettings: UIUserNotificationSettings? { return nil /*UIUserNotificationSettings(types: [], categories: nil)*/ }
+	var currentUserNotificationSettings: UIUserNotificationSettings? {
+		return UIUserNotificationSettings(types: [], categories: nil)
+	}
 }
 
 

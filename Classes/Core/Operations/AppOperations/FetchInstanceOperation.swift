@@ -9,24 +9,16 @@ import Foundation
 
 class FetchInstanceOperation : Operation {
 	let mmContext: MobileMessaging
-	let installation: InstallationDataService
-	let attributesSet: AttributesSet
+	let currentInstallation: Installation
 	let finishBlock: ((FetchInstanceDataResult) -> Void)?
 	var result: FetchInstanceDataResult = FetchInstanceDataResult.Cancel
 	let pushRegistrationId: String
 
-	init?(attributesSet: AttributesSet, installation: InstallationDataService, mmContext: MobileMessaging, finishBlock: ((FetchInstanceDataResult) -> Void)?) {
-		self.installation = installation
+	init?(currentInstallation: Installation, mmContext: MobileMessaging, finishBlock: ((FetchInstanceDataResult) -> Void)?) {
+		self.currentInstallation = currentInstallation
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
-		if attributesSet.isEmpty {
-			MMLogDebug("[FetchInstanceOperation] There are no attributes to fetch. Aborting...")
-			return nil
-		} else {
-			self.attributesSet = attributesSet
-		}
-
-		if let pushRegistrationId = installation.pushRegistrationId {
+		if let pushRegistrationId = currentInstallation.pushRegistrationId {
 			self.pushRegistrationId = pushRegistrationId
 		} else {
 			MMLogDebug("[FetchInstanceOperation] There is no registration. Abortin...")
@@ -64,29 +56,10 @@ class FetchInstanceOperation : Operation {
 			return
 		}
 		switch result {
-		case .Success(let response):
-			//TODO: use apply Installation to InstallationService
-			attributesSet.forEach { (att) in
-				switch att {
-				case .pushRegistrationId:
-					installation.pushRegistrationId = response.pushRegistrationId
-				case .applicationUserId:
-					installation.applicationUserId = response.applicationUserId
-				case .registrationEnabled:
-					installation.isPushRegistrationEnabled = response.isPushRegistrationEnabled
-				case .isPrimaryDevice:
-					installation.isPrimaryDevice = response.isPrimaryDevice
-				case .customInstanceAttributes:
-					installation.customAttributes = response.customAttributes
-				case .systemDataHash:
-					installation.systemDataHash = Int64(MobileMessaging.userAgent.systemData.hashValue)
-				case .customInstanceAttribute(key: _),.applicationCode,.badgeNumber,.birthday,.customUserAttribute(key: _),.customUserAttributes,.pushServiceToken,.emails,.externalUserId,.firstName,.gender,.phones,.instances,.lastName,.location,.depersonalizeFailCounter,.depersonalizeStatusValue,.middleName,.tags:
-					break
-				}
-			}
-			installation.persist()
-			installation.resetNeedToSync(attributesSet: attributesSet)
-			installation.persist()
+		case .Success(let responseInstallation):
+
+			responseInstallation.archiveAll()
+
 			MMLogDebug("[FetchInstanceOperation] successfully synced")
 		case .Failure(let error):
 			MMLogError("[FetchInstanceOperation] sync request failed with error: \(error.orNil)")

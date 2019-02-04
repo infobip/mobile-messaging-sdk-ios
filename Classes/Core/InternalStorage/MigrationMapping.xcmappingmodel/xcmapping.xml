@@ -201,7 +201,7 @@ cBIAAYagrxEEhwAHAAgAFwAzADQANQBBAEIAQwBEAF8AYABhAGcAaAB0AIoAiwCMAI0AjgCPAJAAkQCS
     </object>
     <object type="XDDEVENTITYMAPPING" id="z136">
         <attribute name="userinfodata" type="binary">YnBsaXN0MDDUAQIDBAUGGhtYJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoKUH
-CBESE1UkbnVsbNMJCgsMDhBXTlMua2V5c1pOUy5vYmplY3RzViRjbGFzc6ENgAKhD4ADgARXdmVyc2lvblEy0hQVFhdaJGNsYXNzbmFtZVgkY2xhc3Nlc18QE05TTXV0YWJsZURpY3Rpb25hcnmjFhgZXE5TRGljdGlvbmFyeVhOU09iamVjdF8QD05TS2V5ZWRBcmNoaXZlctEcHVRyb290gAEIERojLTI3PUNKUl1kZmhqbG52eH2IkaeruMHT1tsAAAAAAAABAQAAAAAAAAAeAAAAAAAAAAAAAAAAAAAA3Q==
+CBESE1UkbnVsbNMJCgsMDhBXTlMua2V5c1pOUy5vYmplY3RzViRjbGFzc6ENgAKhD4ADgARXdmVyc2lvblMxXzLSFBUWF1okY2xhc3NuYW1lWCRjbGFzc2VzXxATTlNNdXRhYmxlRGljdGlvbmFyeaMWGBlcTlNEaWN0aW9uYXJ5WE5TT2JqZWN0XxAPTlNLZXllZEFyY2hpdmVy0RwdVHJvb3SAAQgRGiMtMjc9Q0pSXWRmaGpsbnZ6f4qTqa26w9XY3QAAAAAAAAEBAAAAAAAAAB4AAAAAAAAAAAAAAAAAAADf
 </attribute>
         <attribute name="migrationpolicyclassname" type="string">MobileMessaging.InstallationMigrationPolicy</attribute>
         <attribute name="sourcename" type="string">InstallationManagedObject</attribute>
@@ -210,7 +210,7 @@ CBESE1UkbnVsbNMJCgsMDhBXTlMua2V5c1pOUy5vYmplY3RzViRjbGFzc6ENgAKhD4ADgARXdmVyc2lv
         <attribute name="destinationname" type="string">InstallationManagedObject</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z128"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z121 z105 z131 z103 z143 z132 z111 z139 z120 z127 z116 z130 z133 z123 z109 z110 z119 z134 z142 z102 z118 z114 z129 z140"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z134 z127 z123 z132 z114 z121 z109 z129 z110 z103 z120 z105 z119 z139 z116 z133 z130 z102 z118 z140 z142 z111 z143 z131"></relationship>
         <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING"></relationship>
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z137">

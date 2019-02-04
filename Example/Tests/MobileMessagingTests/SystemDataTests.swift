@@ -13,7 +13,7 @@ class SystemDataTests: MMTestCase {
 	func testSystemDataUpdates() {
 		weak var requestsCompleted = expectation(description: "requestsCompleted")
 
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		let remoteProviderMock = RemoteApiInstanceAttributesMock()
 		remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, installation, attributesSet, completion in
 			completion(UpdateInstanceDataResult.Success(EmptyResponse()))
@@ -22,20 +22,20 @@ class SystemDataTests: MMTestCase {
 		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		
-		let geoDisabledSystemDataHash = MobileMessaging.currentInstallation!.systemDataHash
+		let geoDisabledSystemDataHash = mobileMessagingInstance.internalData().systemDataHash
 		var geoEnabledSystemDataHash: Int64!
 		
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		
-		MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
+		MobileMessaging.sharedInstance?.installationService?.syncSystemDataWithServer(completion: { (error) in
 			DispatchQueue.main.async {
-				geoEnabledSystemDataHash = MobileMessaging.currentInstallation!.systemDataHash
+				geoEnabledSystemDataHash = self.mobileMessagingInstance.internalData().systemDataHash
 				
 				GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: self.mobileMessagingInstance)
 				GeofencingService.sharedInstance!.start({ _ in })
 				
-				MobileMessaging.currentInstallation?.syncSystemDataWithServer(completion: { (error) in
+				self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { (error) in
 					requestsCompleted?.fulfill()
 				})
 			}
@@ -44,8 +44,8 @@ class SystemDataTests: MMTestCase {
 		self.waitForExpectations(timeout: 60) { _ in
 			XCTAssertEqual(geoDisabledSystemDataHash, 0)
 			XCTAssertNotEqual(geoDisabledSystemDataHash, geoEnabledSystemDataHash)
-			XCTAssertNotEqual(MobileMessaging.currentInstallation!.systemDataHash, geoDisabledSystemDataHash)
-			XCTAssertNotEqual(MobileMessaging.currentInstallation!.systemDataHash, geoEnabledSystemDataHash)
+			XCTAssertNotEqual(self.mobileMessagingInstance.internalData().systemDataHash, geoDisabledSystemDataHash)
+			XCTAssertNotEqual(self.mobileMessagingInstance.internalData().systemDataHash, geoEnabledSystemDataHash)
 		}
 	}
 	
@@ -54,30 +54,28 @@ class SystemDataTests: MMTestCase {
 		weak var expectation = self.expectation(description: "registration sent")
 		var sentSettings = [Bool]()
 		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-		remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, installation, attributesSet, completion in
+		remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, installation, requestBody, completion in
 			sentSettings.append(MobileMessaging.userAgent.notificationsEnabled)
 			completion(UpdateInstanceDataResult.Success(EmptyResponse()))
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 
 		//requirements
-		mobileMessagingInstance.currentInstallation.deviceToken = "stub"
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = "stub"
-		mobileMessagingInstance.currentInstallation.systemDataHash = 0
-		mobileMessagingInstance.currentInstallation.persist()
+		mobileMessagingInstance.pushRegistrationId = "stub"
+		mobileMessagingInstance.systemDataHash = 0
 
 		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
 		MobileMessaging.application = NotificationsEnabledMock()
 
-		// system data sends notificationsEnabled: true (initial) +1
-		self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
+		// system data sends notificationsEnabled: true (initial sync because systemDataHash == 0) + 1
+		self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
 			
 			MobileMessaging.application = NotificationsDisabledMock()
 			// system data sends notificationsEnabled: false  (notification settings changed) +1
-			self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
+			self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
 
-				// system data request sending not expected (notification settings the same)
-				self.mobileMessagingInstance.currentInstallation.syncSystemDataWithServer(completion: { error in
+				// system data request sending not expected (notification settings non changed)
+				self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
 					expectation?.fulfill()
 				})
 			})

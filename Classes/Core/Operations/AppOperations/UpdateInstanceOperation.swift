@@ -9,27 +9,41 @@ import Foundation
 
 class UpdateInstanceOperation : Operation {
 	let mmContext: MobileMessaging
-	let installation: InstallationDataService
-	var attributesSet: AttributesSet
+	let currentInstallation: Installation
+	let body: RequestBody
 	let finishBlock: ((UpdateInstanceDataResult) -> Void)?
 	var result: UpdateInstanceDataResult = UpdateInstanceDataResult.Cancel
 	let requireResponse: Bool
 	let registrationPushRegIdToUpdate: String
 	let authPushRegistrationId: String
+	let dirtyInstallation: Installation
 
-	init?(installation: InstallationDataService, registrationPushRegIdToUpdate: String?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: ((UpdateInstanceDataResult) -> Void)?) {
-		self.installation = installation
+	init?(currentInstallation: Installation, dirtyInstallation: Installation?, registrationPushRegIdToUpdate: String?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: ((UpdateInstanceDataResult) -> Void)?) {
+		self.currentInstallation = currentInstallation
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse
-		self.attributesSet = []
+
+		if let dirtyInstallation = dirtyInstallation {
+			self.dirtyInstallation = dirtyInstallation
+			self.body = InstallationDataMapper.requestPayload(currentInstallation: currentInstallation, dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
+			if self.body.isEmpty {
+				MMLogWarn("[UpdateInstanceOperation] There is no data to send. Aborting...")
+				return nil
+			}
+		} else {
+			MMLogDebug("[UpdateInstanceOperation] There are no attributes to sync save. Aborting...")
+			return nil
+		}
+
 		if let registrationPushRegIdToUpdate = registrationPushRegIdToUpdate {
 			self.registrationPushRegIdToUpdate = registrationPushRegIdToUpdate
 		} else {
 			MMLogWarn("[UpdateInstanceOperation] There is no reference registration. Aborting...")
 			return nil
 		}
-		if let authPushRegistrationId = installation.pushRegistrationId  {
+
+		if let authPushRegistrationId = currentInstallation.pushRegistrationId  {
 			self.authPushRegistrationId = authPushRegistrationId
 		} else {
 			MMLogWarn("[UpdateInstanceOperation] There is no authentication registration. Aborting...")
@@ -38,15 +52,8 @@ class UpdateInstanceOperation : Operation {
 	}
 
 	override func execute() {
-		let systemDataAtts = ((installation.systemDataHash != Int64(MobileMessaging.userAgent.systemData.hashValue)) ? [Attributes.systemDataHash] : [])
-		attributesSet = installation.dirtyAttributesAll.union(systemDataAtts)
 		guard !isCancelled else {
 			MMLogDebug("[UpdateInstanceOperation] cancelled...")
-			finish()
-			return
-		}
-		if attributesSet.isEmpty {
-			MMLogDebug("[UpdateInstanceOperation] There are no attributes to sync save. Aborting...")
 			finish()
 			return
 		}
@@ -60,13 +67,10 @@ class UpdateInstanceOperation : Operation {
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		if let body = InstallationDataMapper.requestPayload(with: installation, forAttributesSet: attributesSet) {
-			mmContext.remoteApiProvider.patchInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: registrationPushRegIdToUpdate, body: body) { (result) in
-				self.handleResult(result)
-				self.finishWithError(result.error)
-			}
-		} else {
-			self.finish()
+		
+		mmContext.remoteApiProvider.patchInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: registrationPushRegIdToUpdate, body: body) { (result) in
+			self.handleResult(result)
+			self.finishWithError(result.error)
 		}
 	}
 
@@ -82,13 +86,14 @@ class UpdateInstanceOperation : Operation {
 		}
 		switch result {
 		case .Success:
-			if (attributesSet.contains(.systemDataHash)) {
-				installation.systemDataHash = Int64(MobileMessaging.userAgent.systemData.hashValue)
-			}
-			installation.persist()
-			installation.resetNeedToSync(attributesSet: attributesSet)
-			installation.persist()
-			UserEventsManager.postInstallationSyncedEvent(installation.dataObject)
+
+			let id = mmContext.internalData()
+			id.systemDataHash = Int64(MobileMessaging.userAgent.systemData.hashValue)
+			id.archive()
+
+			dirtyInstallation.archiveCurrent()
+
+			UserEventsManager.postInstallationSyncedEvent(mmContext.currentInstallation())
 			MMLogDebug("[UpdateInstanceOperation] successfully synced")
 		case .Failure(let error):
 			MMLogError("[UpdateInstanceOperation] sync request failed with error: \(error.orNil)")

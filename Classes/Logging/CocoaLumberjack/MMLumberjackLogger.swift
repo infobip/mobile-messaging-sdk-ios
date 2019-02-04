@@ -117,12 +117,13 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 	
 	public func sendLogs(fromViewController vc: UIViewController) {
 		var objectsToShare: [Any] = [MobileMessaging.userAgent.currentUserAgentString]
-		
-		if let dt = MobileMessaging.sharedInstance?.currentInstallation?.deviceToken {
+
+		let ins = MobileMessaging.sharedInstance?.resolveInstallation()
+		if let dt = ins?.pushServiceToken {
 			objectsToShare.append("APNS device token: \(dt)")
 		}
 		
-		if let id = MobileMessaging.sharedInstance?.currentInstallation?.pushRegistrationId {
+		if let id = ins?.pushRegistrationId {
 			objectsToShare.append("Push registration ID: \(id)")
 		}
 		

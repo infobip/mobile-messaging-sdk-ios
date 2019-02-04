@@ -64,6 +64,9 @@ class DataModelsTests: MMTestCase {
 	func testUserDataPayload() {
 		// date
 		do {
+			User.resetDirty()//dup
+			User.resetCurrent()
+
 			let comps = NSDateComponents()
 			comps.year = 2016
 			comps.month = 12
@@ -75,17 +78,13 @@ class DataModelsTests: MMTestCase {
 			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
 			let date = comps.date!
 
-			let user = MobileMessaging.currentUser!
-			user.cleanup()
-			user.persist()
-			user.resetNeedToSync(attributesSet: Attributes.userDataAttributesSet)
-
+			let user = MobileMessaging.getUser()!
 			user.firstName = "JohnDow1"
 			user.birthday = date
-			_ = user.set(customAttribute: date as NSDate, forKey: "registrationDate")
-			user.persist()
+			user.customAttributes = ["registrationDate": date as NSDate]
+			user.archiveDirty()
 
-			let body = UserDataMapper.requestPayload(with: user, forAttributesSet: user.dirtyAttributesAll)!
+			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
 
 			let expectedDict: NSDictionary = [
@@ -100,17 +99,16 @@ class DataModelsTests: MMTestCase {
 
 		// number
 		do {
-			let user = MobileMessaging.currentUser!
-			user.cleanup()
-			user.persist()
-			user.resetNeedToSync(attributesSet: Attributes.userDataAttributesSet)
+			User.resetDirty()//dup
+			User.resetCurrent()
 
+			let user = MobileMessaging.getUser()!
 			user.firstName = "JohnDow2"
 			user.externalUserId = "externalUserId2"
-			_ = user.set(customAttribute: 9.5 as NSNumber, forKey: "bootsize")
-			user.persist()
+			user.customAttributes = ["bootsize": 9.5 as NSNumber]
+			user.archiveDirty()
 
-			let body = UserDataMapper.requestPayload(with: user, forAttributesSet: user.dirtyAttributesAll)!
+			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
 
 			let expectedDict: NSDictionary = [
@@ -125,17 +123,15 @@ class DataModelsTests: MMTestCase {
 
 		//phones, emails
 		do {
-			let user = MobileMessaging.currentUser!
-			user.cleanup()
-			user.persist()
-			user.resetNeedToSync(attributesSet: Attributes.userDataAttributesSet)
-			MMLogVerbose(">>>>: \(user.dirtyAttributesAll)")
+			User.resetDirty()
+			User.resetCurrent()
 
+			let user = MobileMessaging.getUser()!
 			user.emails = ["1@mail.com"]
 			user.phones = ["1"]
-			user.persist()
+			user.archiveDirty()
 
-			let body = UserDataMapper.requestPayload(with: user, forAttributesSet: user.dirtyAttributesAll)!
+			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
 
 			let expectedDict: NSDictionary = [
@@ -147,19 +143,19 @@ class DataModelsTests: MMTestCase {
 
 		// nils
 		do {
-			let user = MobileMessaging.currentUser!
-			user.cleanup()
-			user.persist()
-			user.resetNeedToSync(attributesSet: Attributes.userDataAttributesSet)
+			User.resetDirty()
+			User.resetCurrent()
 
+			let user = MobileMessaging.getUser()!
 			user.firstName = "JohnDow3"
 			user.externalUserId = "externalUserId3"
-			user.persist()
+			user.archiveCurrent()
+
 			user.firstName = nil
 			user.externalUserId = nil
-			user.persist()
+			user.archiveDirty()
 
-			let body = UserDataMapper.requestPayload(with: user, forAttributesSet: user.dirtyAttributesAll)!
+			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
 
 			let expectedDict: NSDictionary = [
@@ -171,17 +167,16 @@ class DataModelsTests: MMTestCase {
 
 		// null
 		do {
-			let user = MobileMessaging.currentUser!
-			user.cleanup()
-			user.persist()
-			user.resetNeedToSync(attributesSet: Attributes.userDataAttributesSet)
+			User.resetDirty()
+			User.resetCurrent()
 
+			let user = MobileMessaging.getUser()!
 			user.firstName = "JohnDow4"
 			user.externalUserId = "externalUserId4"
-			_ = user.set(customAttribute: nil, forKey: "registrationDate")
-			user.persist()
+			user.customAttributes = ["registrationDate": NSNull()]
+			user.archiveDirty()
 
-			let body = UserDataMapper.requestPayload(with: user, forAttributesSet: user.dirtyAttributesAll)!
+			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
 
 			let expectedDict: NSDictionary = [
@@ -196,8 +191,8 @@ class DataModelsTests: MMTestCase {
 	}
 
 	func testInstallationDataPayloadMapper() {
-		MobileMessaging.currentInstallation?.pushRegistrationId = "pushRegistrationId"
-		let installation = MobileMessaging.installation!
+//		MobileMessaging.currentInstallation?.pushRegistrationId =
+		let installation = MobileMessaging.getInstallation()!
 		installation.applicationUserId = "applicationUserId"
 		installation.customAttributes = ["dateField": NSDate(timeIntervalSince1970: 0),
 										 "numberField": NSNumber(floatLiteral: 1.1),
@@ -206,13 +201,14 @@ class DataModelsTests: MMTestCase {
 										]
 		installation.isPrimaryDevice = true
 		installation.isPushRegistrationEnabled = false
+		installation.pushRegistrationId = "pushRegistrationId"
 		MobileMessaging.persistInstallation(installation)
+
 		MobileMessaging.userAgent = UserAgentStub()
-		let body = InstallationDataMapper.requestPayload(with: MobileMessaging.currentInstallation!, forAttributesSet: Attributes.instanceAttributesSet)!
+		let body = InstallationDataMapper.requestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
 		let request = PatchInstance(applicationCode: "", authPushRegistrationId: "", refPushRegistrationId: "", body: body, returnPushServiceToken: false)!
 
 		let expectedDict: NSDictionary = [
-			"pushServiceToken": NSNull(),
 			"applicationUserId": "applicationUserId",
 			"pushRegId": "pushRegistrationId",
 			"customAttributes": ["dateField": "1970-01-01",

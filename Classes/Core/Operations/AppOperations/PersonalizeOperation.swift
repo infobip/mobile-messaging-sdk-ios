@@ -40,7 +40,7 @@ class PersonalizeOperation: Operation {
 	}
 
 	private func sendServerRequestIfNeeded() {
-		guard let pushRegistrationId = mmContext.currentInstallation.pushRegistrationId else {
+		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			MMLogWarn("[PersonalizeOperation] there is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
@@ -75,6 +75,9 @@ class PersonalizeOperation: Operation {
 			self.handleSuccessfulPersonalize(result.value)
 		case .Failure(let error):
 			MMLogError("[PersonalizeOperation] failed with force depersonalizing \(forceDepersonalize) with error: \(error.orNil)")
+			if error?.mm_code == "USER_MERGE_INTERRUPTED" {
+				rollbackUserIdentity()
+			}
 			if forceDepersonalize {
 				DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
 			}
@@ -83,12 +86,18 @@ class PersonalizeOperation: Operation {
 		}
 	}
 
+	private func rollbackUserIdentity() {
+		let currentUser = mmContext.currentUser()
+		let dirtyUser = mmContext.dirtyUser()
+		dirtyUser.phones = currentUser.phones
+		dirtyUser.emails = currentUser.emails
+		dirtyUser.externalUserId = currentUser.externalUserId
+		dirtyUser.archiveDirty()
+	}
+
 	private func handleSuccessfulPersonalize(_ user: User?) {
 		if let user = user {
-			UserDataMapper.apply(userData: user, to: mmContext.currentUser)
-			mmContext.currentUser.persist()
-			mmContext.currentUser.resetNeedToSync(attributesSet: Attributes.userDataAttributesSet)
-			mmContext.currentUser.persist()
+			user.archiveAll()
 		}
 		UserEventsManager.postPersonalizedEvent()
 	}

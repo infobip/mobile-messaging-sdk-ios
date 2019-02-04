@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14460.32" systemVersion="18A391" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+    <entity name="GeoEventReportObject" representedClassName=".GeoEventReportObject" syncable="YES">
+        <attribute name="campaignId" attributeType="String" syncable="YES"/>
+        <attribute name="eventDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="eventType" attributeType="String" syncable="YES"/>
+        <attribute name="geoAreaId" attributeType="String" syncable="YES"/>
+        <attribute name="messageId" attributeType="String" syncable="YES"/>
+        <attribute name="messageShown" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="sdkMessageId" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="InstallationManagedObject" syncable="YES"/>
+    <entity name="MessageManagedObject" representedClassName=".MessageManagedObject" syncable="YES">
+        <attribute name="campaignId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="campaignStateValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="creationDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="deliveryMethod" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="deliveryReportedDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="isSilent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="messageId" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="messageTypeValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="payload" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="reportSent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="seenDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="seenStatusValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="150"/>
+        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="225"/>
+        <element name="InstallationManagedObject" positionX="-54" positionY="117" width="128" height="45"/>
+    </elements>
+</model>

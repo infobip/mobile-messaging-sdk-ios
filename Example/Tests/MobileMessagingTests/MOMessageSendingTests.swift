@@ -33,7 +33,7 @@ class MOMessageSendingTests: MMTestCase {
 		//Precondiotions
 		let messageSyncQ = mobileMessagingInstance.remoteApiProvider.messageSyncQueue
 		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing()
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
@@ -102,7 +102,7 @@ class MOMessageSendingTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Sending finished")
 		
 		//Precondiotions
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
@@ -136,7 +136,7 @@ class MOMessageSendingTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
 		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing()
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)

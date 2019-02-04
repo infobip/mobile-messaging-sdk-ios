@@ -9,31 +9,20 @@ import UIKit
 import CoreData
 
 final class RegistrationResetOperation: Operation {
-	let installation: InstallationDataService
-	let user: UserDataService
+	let mmContext: MobileMessaging
 	let finishBlock: ((NSError?) -> Void)?
 	let apnsRegistrationManager: ApnsRegistrationManager
 	
-	init(user: UserDataService, installation: InstallationDataService, apnsRegistrationManager: ApnsRegistrationManager, finishBlock: ((NSError?) -> Void)?) {
-		self.user = user
-		self.installation = installation
+	init(mmContext: MobileMessaging, apnsRegistrationManager: ApnsRegistrationManager, finishBlock: ((NSError?) -> Void)?) {
 		self.finishBlock = finishBlock
 		self.apnsRegistrationManager = apnsRegistrationManager
+		self.mmContext = mmContext
 		super.init()
 	}
 	
 	override func execute() {
 		MMLogDebug("[Registration reset] Started...")
-		installation.pushRegistrationId = nil
-		installation.deviceToken = nil
-		installation.isPushRegistrationEnabled = true
-		installation.isPrimaryDevice = false
-		installation.persist()
-
-		installation.depersonalizeFailCounter = 0
-		installation.currentDepersonalizationStatus = .undefined
-		user.persist()
-		
+		Installation.empty.archiveAll()
 		apnsRegistrationManager.setRegistrationIsHealthy()
 		
 		finish()

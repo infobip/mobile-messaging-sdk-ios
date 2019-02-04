@@ -10,21 +10,19 @@ import XCTest
 
 class PrimaryDeviceTests: MMTestCase {
 	func testDataPersisting() {
-		XCTAssertFalse(MobileMessaging.currentInstallation!.isPrimaryDevice)
-		MobileMessaging.currentInstallation!.isPrimaryDevice = true
-		MobileMessaging.currentInstallation!.persist()
-		XCTAssertTrue(MobileMessaging.currentInstallation!.isPrimaryDevice)
-		let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
-		ctx.performAndWait {
-			let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
-			XCTAssertTrue(installation.dirtyAttsSet.contains(Attributes.isPrimaryDevice))
-			XCTAssertTrue(installation.isPrimary)
-		}
+		XCTAssertFalse(MobileMessaging.getInstallation()!.isPrimaryDevice)
+		MobileMessaging.sharedInstance!.isPrimaryDevice = true
+
+		XCTAssertTrue(MobileMessaging.getInstallation()!.isPrimaryDevice)
+
+		let installation = MobileMessaging.getInstallation()!
+		XCTAssertNotNil(Installation.delta["isPrimaryDevice"])
+		XCTAssertTrue(installation.isPrimaryDevice)
 	}
 	
 	func testPutSync() {
 		weak var expectation = self.expectation(description: "sync completed")
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = "123"
+		mobileMessagingInstance.pushRegistrationId = "123"
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (request) in
 			
 		}, completionCompanionBlock: { (request) in
@@ -39,7 +37,7 @@ class PrimaryDeviceTests: MMTestCase {
 			}
 		})
 
-		let installation = MobileMessaging.installation!
+		let installation = MobileMessaging.getInstallation()!
 		XCTAssertFalse(installation.isPrimaryDevice)
 		installation.isPrimaryDevice = true
 		MobileMessaging.saveInstallation(installation) { (error) in
@@ -47,18 +45,15 @@ class PrimaryDeviceTests: MMTestCase {
 		}
 
 		waitForExpectations(timeout: 20, handler: { _ in
-			let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
-			ctx.performAndWait {
-				let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
-				XCTAssertFalse(installation.dirtyAttsSet.contains(Attributes.isPrimaryDevice))
-				XCTAssertTrue(installation.isPrimary)
-			}
+			let installation = MobileMessaging.getInstallation()!
+			XCTAssertNil(Installation.delta["isPrimaryDevice"])
+			XCTAssertTrue(installation.isPrimaryDevice)
 		})
 	}
 	
 	func testGetSync() {
 		weak var expectation = self.expectation(description: "sync completed")
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = "123"
+		mobileMessagingInstance.pushRegistrationId = "123"
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (request) in
 			
 		}, completionCompanionBlock: { (request) in
@@ -78,12 +73,9 @@ class PrimaryDeviceTests: MMTestCase {
 		}
 
 		waitForExpectations(timeout: 20, handler: { _ in
-			let ctx = self.mobileMessagingInstance.currentInstallation.coreDataProvider.context
-			ctx.performAndWait {
-				let installation = InstallationManagedObject.MM_findFirstInContext(ctx)!
-				XCTAssertFalse(installation.dirtyAttsSet.contains(Attributes.isPrimaryDevice))
-				XCTAssertFalse(installation.isPrimary)
-			}
+			let installation = MobileMessaging.getInstallation()!
+			XCTAssertNil(Installation.delta["isPrimaryDevice"])
+			XCTAssertFalse(installation.isPrimaryDevice)
 		})
 	}
 }

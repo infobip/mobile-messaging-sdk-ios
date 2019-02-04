@@ -9,26 +9,20 @@ import Foundation
 
 class FetchUserOperation: Operation {
 	let mmContext: MobileMessaging
-	let user: UserDataService
+	let user: User
+	let dirtyUserVersion: Int
 	let finishBlock: ((FetchUserDataResult) -> Void)?
 	var result: FetchUserDataResult = .Cancel
-	let attributesSet: AttributesSet
 
-	init?(attributesSet: AttributesSet, user: UserDataService, mmContext: MobileMessaging, finishBlock: ((FetchUserDataResult) -> Void)?) {
-		self.user = user
+	init?(currentUser: User, dirtyUser: User?, mmContext: MobileMessaging, finishBlock: ((FetchUserDataResult) -> Void)?) {
+		self.user = currentUser
+		self.dirtyUserVersion = dirtyUser?.version ?? 0
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
-
-		if attributesSet.isEmpty {
-			MMLogDebug("[FetchUserOperation] There are no attributes to fetch. Aborting...")
-			return nil
-		} else {
-			self.attributesSet = attributesSet
-		}
 	}
 
 	override func execute() {
-		guard mmContext.currentInstallation.currentDepersonalizationStatus != .pending else {
+		guard mmContext.internalData().currentDepersonalizationStatus != .pending else {
 			MMLogWarn("[FetchUserOperation] Logout pending. Canceling...")
 			finishWithError(NSError(type: MMInternalErrorType.PendingLogout))
 			return
@@ -44,7 +38,7 @@ class FetchUserOperation: Operation {
 	}
 
 	private func fetchUserDataIfNeeded() {
-		guard let pushRegistrationId = mmContext.currentInstallation.pushRegistrationId else {
+		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			MMLogWarn("[FetchUserOperation] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
@@ -75,42 +69,12 @@ class FetchUserOperation: Operation {
 		self.result = result
 
 		switch result {
-		case .Success(let response):
-			if user.isChanged {
+		case .Success(let responseUser):
+			if self.dirtyUserVersion != mmContext.dirtyUser().version {
 				return
 			}
-			//TODO: use apply User to UserService
-			attributesSet.forEach { (att) in
-				switch att {
-				case .customUserAttributes:
-					user.customAttributes = response.customAttributes
-				case .firstName:
-					user.firstName = response.firstName
-				case .middleName:
-					user.middleName = response.middleName
-				case .lastName:
-					user.lastName = response.lastName
-				case .externalUserId:
-					user.externalUserId = response.externalUserId
-				case .birthday:
-					user.birthday = response.birthday
-				case .gender:
-					user.gender = response.gender
-				case .emails:
-					user.emails = response.emails
-				case .phones:
-					user.phones = response.phones
-				case .tags:
-					user.tags = response.tags
-				case .instances:
-					user.installations = response.installations
-				case .customInstanceAttributes,.customInstanceAttribute(key: _),.customUserAttribute(key: _),.applicationCode,.applicationUserId,.badgeNumber,.pushServiceToken,.isPrimaryDevice,.location,.depersonalizeFailCounter,.depersonalizeStatusValue,.pushRegistrationId,.registrationEnabled,.systemDataHash:
-					break
-				}
-			}
-			user.persist()
-			user.resetNeedToSync(attributesSet: attributesSet)
-			user.persist()
+			responseUser.archiveAll()
+
 			MMLogDebug("[FetchUserOperation] successfully synced")
 		case .Failure(let error):
 			MMLogError("[FetchUserOperation] sync request failed with error: \(error.orNil)")

@@ -36,12 +36,16 @@ class SeenStatusSendingOperation: Operation {
 				return SeenData(messageId: msg.messageId, seenDate: seenDate)
 			}
 			
-			self.mmContext.remoteApiProvider.sendSeenStatus(applicationCode: self.mmContext.applicationCode, pushRegistrationId: self.mmContext.currentInstallation?.pushRegistrationId, seenList: seenStatusesToSend) { result in
-                self.result = result
-				self.handleSeenResult(result, messages: seenNotSentMessages) {
-					self.finishWithError(result.error)
-				}
-			}
+			self.mmContext.remoteApiProvider.sendSeenStatus(
+				applicationCode: self.mmContext.applicationCode,
+				pushRegistrationId: self.mmContext.currentInstallation().pushRegistrationId,
+				seenList: seenStatusesToSend,
+				completion: { result in
+					self.result = result
+					self.handleSeenResult(result, messages: seenNotSentMessages) {
+						self.finishWithError(result.error)
+					}
+			})
 		}
 	}
 	

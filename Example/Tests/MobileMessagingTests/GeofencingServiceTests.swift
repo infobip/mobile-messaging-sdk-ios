@@ -288,7 +288,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		var sentSdkMessageId: String!
 		
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(performRequestCompanionBlock:
@@ -360,7 +360,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		var sentSdkMessageId: String!
 		
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(performRequestCompanionBlock:
@@ -434,7 +434,7 @@ class GeofencingServiceTests: MMTestCase {
 		
 		var sentSdkMessageId: String!
 		
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(performRequestCompanionBlock:
@@ -576,7 +576,7 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(message.isLiveNow(for: .exit))
 		
 		var sentSdkMessageId: String!
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		GeofencingService.sharedInstance!.geofencingServiceQueue = MMRemoteAPIMock(performRequestCompanionBlock:
@@ -636,7 +636,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTFail()
 			return
 		}
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		GeofencingService.sharedInstance!.geofencingServiceQueue = geofencingServiceQueueMock()
@@ -927,7 +927,7 @@ class GeofencingServiceTests: MMTestCase {
 				eventReported?.fulfill()
 			}
 		}
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
@@ -952,7 +952,7 @@ class GeofencingServiceTests: MMTestCase {
 		weak var report1 = self.expectation(description: "report1")
 		weak var messageReceived = self.expectation(description: "messageReceived")
 		
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
@@ -990,7 +990,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTFail()
 			return
 		}
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
 			//Should be in main because Geofencing service saves data asynchronously in main
 			DispatchQueue.main.async {
@@ -1026,7 +1026,7 @@ class GeofencingServiceTests: MMTestCase {
 		}
 		
 		var sentSdkMessageId: String!
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
@@ -1240,7 +1240,7 @@ class GeofencingServiceTests: MMTestCase {
         let pulaObject = geoSignalingMessage.regions.findPula
         var sentSdkMessageId: String!
         
-        mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
@@ -1358,7 +1358,7 @@ class GeofencingServiceTests: MMTestCase {
 			}
 		}
 
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
@@ -1485,7 +1485,7 @@ class GeofencingServiceTests: MMTestCase {
 			}
 		}
 		
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.remoteApiProvider.seenStatusQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (r) in
 			XCTFail() // the seen must not be sent, there are only sdk generated message ids
 		}, completionCompanionBlock: { (r) in
@@ -1603,7 +1603,7 @@ class GeofencingServiceTests: MMTestCase {
 
 		MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 		
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		GeofencingService.sharedInstance!.geofencingServiceQueue = geofencingServiceQueueMock()
@@ -1668,7 +1668,7 @@ class GeofencingServiceTests: MMTestCase {
 		let pulaObject = message.regions.findPula
 		
 		// expect remote api queue called
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })

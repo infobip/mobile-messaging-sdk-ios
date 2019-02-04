@@ -151,7 +151,7 @@ class MessageStorageTests: MMTestCase {
 		let messageStorageStub = MessageStorageStub()
 		XCTAssertEqual(messageStorageStub.moMessages.count, 0)
 		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		do {
 			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: nil, initialMessageId: nil, sentStatus: .Undefined, deliveryMethod: .generatedLocally)
@@ -200,7 +200,7 @@ class MessageStorageTests: MMTestCase {
 		
 		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
 
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey": "customValue2" as NSString], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)

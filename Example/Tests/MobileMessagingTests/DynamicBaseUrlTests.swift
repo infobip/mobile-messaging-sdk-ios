@@ -103,6 +103,7 @@ class DynamicBaseUrlTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		var retriesStarted = false
 		let mm = MobileMessaging.withApplicationCode("", notificationType: UserNotificationType(options: []) , backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)!
+		mm.start()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
 		MobileMessaging.httpSessionManager = SessionManagerMock(requestResponseMap: {
 			// given: registration call returns NSURLErrorCannotFindHost error

@@ -250,7 +250,7 @@ public class UserAgent: NSObject {
 	}
 
 	public var pushServiceType: String {
-		return "APNS"
+		return Consts.APIValues.platformType
 	}
 
 	var currentUserAgentString: String {

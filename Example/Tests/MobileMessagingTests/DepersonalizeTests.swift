@@ -19,7 +19,7 @@ class DepersonalizeTests: MMTestCase {
 	
 	func testThatGeoCleanedUpAfterDepersonalize() {
 		weak var depersonalizeFinished = expectation(description: "DepersonalizeFinished")
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		let events = [makeEventDict(ofType: .entry, limit: 1)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
 		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
@@ -55,15 +55,15 @@ class DepersonalizeTests: MMTestCase {
 	
 	func testThatUserDataCleanedUpAfterDepersonalize() {
 		weak var depersonalizeFinished = expectation(description: "Depersonalize")
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		
-		mobileMessagingInstance.currentUser.firstName = "Darth"
-		_ = mobileMessagingInstance.currentUser.set(customAttribute: 9.5 as NSNumber, forKey: "bootsize")
-		mobileMessagingInstance.currentUser.persist()
-		
-		XCTAssertEqual(mobileMessagingInstance.currentUser.firstName, "Darth")
-		XCTAssertEqual(mobileMessagingInstance.currentUser.customAttribute(forKey: "bootsize") as? NSNumber, 9.5)
+		let user = MobileMessaging.getUser()!
+		user.firstName = "Darth"
+		user.customAttributes = ["bootsize": 9.5 as NSNumber]
+		user.archiveDirty()
+
+		XCTAssertEqual(MobileMessaging.getUser()!.firstName, "Darth")
+		XCTAssertEqual(MobileMessaging.getUser()!.customAttributes!["bootsize"] as? NSNumber, 9.5)
 		
 		MobileMessaging.depersonalize() { status, _ in
 			XCTAssertTrue(status == SuccessPending.undefined)
@@ -72,8 +72,9 @@ class DepersonalizeTests: MMTestCase {
 		
 		waitForExpectations(timeout: 20) { _ in
 			// assert there is no user data
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.firstName)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.customAttribute(forKey: "bootsize"))
+			let user = MobileMessaging.getUser()!
+			XCTAssertNil(user.firstName)
+			XCTAssertNil(user.customAttributes?["bootsize"])
 		}
 	}
 	
@@ -83,7 +84,7 @@ class DepersonalizeTests: MMTestCase {
 		let sentMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 		
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		_ = mobileMessagingInstance.withDefaultMessageStorage()
 		MobileMessaging.defaultMessageStorage?.start()
 
@@ -106,7 +107,7 @@ class DepersonalizeTests: MMTestCase {
 		}
 		
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(SuccessPending.undefined, self.mobileMessagingInstance.currentInstallation.currentDepersonalizationStatus)
+			XCTAssertEqual(SuccessPending.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			// assert there is not any message in message storage
 			let messages = Message.MM_findAllWithPredicate(nil, context: MobileMessaging.defaultMessageStorage!.context!)
 			XCTAssertTrue(messages == nil || messages?.isEmpty ?? true)
@@ -123,10 +124,10 @@ class DepersonalizeTests: MMTestCase {
 		}
 
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(.pending, self.mobileMessagingInstance.currentInstallation.currentDepersonalizationStatus)
+			XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			XCTAssertFalse(self.mobileMessagingInstance.messageHandler.isRunning)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.firstName)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.customAttribute(forKey: "bootsize"))
+			XCTAssertNil(MobileMessaging.getUser()!.firstName)
+			XCTAssertNil(MobileMessaging.getUser()!.customAttributes?["bootsize"])
 		}
 	}
 
@@ -143,10 +144,10 @@ class DepersonalizeTests: MMTestCase {
 		}
 
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(.success, self.mobileMessagingInstance.currentInstallation.currentDepersonalizationStatus)
+			XCTAssertEqual(.success, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			XCTAssertTrue(self.mobileMessagingInstance.messageHandler.isRunning)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.firstName)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.customAttribute(forKey: "bootsize"))
+			XCTAssertNil(MobileMessaging.getUser()!.firstName)
+			XCTAssertNil(MobileMessaging.getUser()!.customAttributes?["bootsize"])
 		}
 	}
 
@@ -164,10 +165,10 @@ class DepersonalizeTests: MMTestCase {
 		}
 
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(.undefined, self.mobileMessagingInstance.currentInstallation.currentDepersonalizationStatus)
+			XCTAssertEqual(.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			XCTAssertTrue(self.mobileMessagingInstance.messageHandler.isRunning)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.firstName)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.customAttribute(forKey: "bootsize"))
+			XCTAssertNil(MobileMessaging.getUser()!.firstName)
+			XCTAssertNil(MobileMessaging.getUser()!.customAttributes?["bootsize"])
 		}
 	}
 
@@ -175,17 +176,17 @@ class DepersonalizeTests: MMTestCase {
 		weak var depersonalizeFailed = expectation(description: "Depersonalize failed")
 		prepareUserData()
 		performFailedDepersonalizeCase() {
-			XCTAssertEqual(.pending, self.mobileMessagingInstance.currentInstallation.currentDepersonalizationStatus)
+			XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			MobileMessaging.stop()
 			MMTestCase.startWithCorrectApplicationCode()
 			depersonalizeFailed?.fulfill()
 		}
 
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(.pending, self.mobileMessagingInstance.currentInstallation.currentDepersonalizationStatus)
+			XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			XCTAssertFalse(self.mobileMessagingInstance.messageHandler.isRunning)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.firstName)
-			XCTAssertNil(self.mobileMessagingInstance.currentUser.customAttribute(forKey: "bootsize"))
+			XCTAssertNil(MobileMessaging.getUser()!.firstName)
+			XCTAssertNil(MobileMessaging.getUser()!.customAttributes?["bootsize"])
 		}
 	}
 
@@ -244,17 +245,17 @@ class DepersonalizeTests: MMTestCase {
 		weak var fetchFinished1 = expectation(description: "fetchFinished")
 		weak var fetchFinished2 = expectation(description: "fetchFinished")
 		weak var fetchFinished3 = expectation(description: "fetchFinished")
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		mobileMessagingInstance.currentUser.fetchFromServer { (user, e) in
+		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
 			requestCompletionCounter += 1
 			fetchFinished1?.fulfill()
 		}
-		mobileMessagingInstance.currentUser.fetchFromServer { (user, e) in
+		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
 			requestCompletionCounter += 1
 			fetchFinished2?.fulfill()
 		}
-		mobileMessagingInstance.currentUser.fetchFromServer { (user, e) in
+		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
 			requestCompletionCounter += 1
 			fetchFinished3?.fulfill()
 		}
@@ -272,14 +273,15 @@ class DepersonalizeTests: MMTestCase {
 
 	//MARK: - private
 	private func prepareUserData() {
-		mobileMessagingInstance.currentInstallation.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		mobileMessagingInstance.currentUser.firstName = "Darth"
-		_ = mobileMessagingInstance.currentUser.set(customAttribute: 9.5 as NSNumber, forKey: "bootsize")
-		mobileMessagingInstance.currentUser.persist()
+		let user = MobileMessaging.getUser()!
+		user.firstName = "Darth"
+		user.customAttributes = ["bootsize": 9.5 as NSNumber]
+		user.archiveDirty()
 
-		XCTAssertEqual(mobileMessagingInstance.currentUser.firstName, "Darth")
-		XCTAssertEqual(mobileMessagingInstance.currentUser.customAttribute(forKey: "bootsize") as? NSNumber, 9.5)
+		XCTAssertEqual(MobileMessaging.getUser()!.firstName, "Darth")
+		XCTAssertEqual(MobileMessaging.getUser()!.customAttributes!["bootsize"] as? NSNumber, 9.5)
 	}
 
 	private func performFailedDepersonalizeCase(then: (() -> Void)? = nil) {

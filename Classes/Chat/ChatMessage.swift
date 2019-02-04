@@ -169,7 +169,7 @@ public class ChatMessage: NSObject, ChatMessageProtocol {
 	var mt: MTMessage?
 	
 	public var isYours: Bool {
-		guard let pushRegId = MobileMessaging.installation?.pushRegistrationId else {
+		guard let pushRegId = MobileMessaging.getInstallation()?.pushRegistrationId else {
 			return false
 		}
 		switch author {

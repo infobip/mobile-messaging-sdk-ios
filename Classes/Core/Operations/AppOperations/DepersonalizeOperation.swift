@@ -16,7 +16,7 @@ class DepersonalizeOperation: Operation {
 	init(mmContext: MobileMessaging, finishBlock: ((SuccessPending, NSError?) -> Void)? = nil) {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
-		self.pushRegistrationId = mmContext.currentInstallation?.pushRegistrationId
+		self.pushRegistrationId = mmContext.resolveInstallation().pushRegistrationId
 		self.applicationCode = mmContext.applicationCode
 		super.init()
 	}
@@ -57,11 +57,14 @@ class DepersonalizeOperation: Operation {
 	}
 
 	class func handleSuccessfulDepersonalize(mmContext: MobileMessaging) {
-		switch mmContext.currentInstallation.currentDepersonalizationStatus {
+		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
 			MMLogDebug("[Depersonalize] current depersonalize status: pending")
-			mmContext.currentInstallation.currentDepersonalizationStatus = .success
-			mmContext.currentInstallation.persist()
+
+			let id = mmContext.internalData()
+			id.currentDepersonalizationStatus = .success
+			id.archive()
+
 			mmContext.apnsRegistrationManager.registerForRemoteNotifications()
 			
 			UserEventsManager.postDepersonalizedEvent()
@@ -72,27 +75,33 @@ class DepersonalizeOperation: Operation {
 	}
 
 	class func handleFailedDepersonalize(mmContext: MobileMessaging) {
-		mmContext.currentInstallation.depersonalizeFailCounter = mmContext.currentInstallation.depersonalizeFailCounter + 1
 
-		switch mmContext.currentInstallation.currentDepersonalizationStatus {
+		let id = mmContext.internalData()
+		id.depersonalizeFailCounter = id.depersonalizeFailCounter + 1
+
+		switch id.currentDepersonalizationStatus {
 		case .pending:
 			MMLogDebug("[Depersonalize] current depersonalize status: pending")
-			if mmContext.currentInstallation.depersonalizeFailCounter >= DepersonalizationConsts.failuresNumberLimit {
-				mmContext.currentInstallation.currentDepersonalizationStatus = .undefined
-				mmContext.currentInstallation.persist()
+			if id.depersonalizeFailCounter >= DepersonalizationConsts.failuresNumberLimit {
+
+				id.currentDepersonalizationStatus = .undefined
+				id.archive()
+
 				mmContext.apnsRegistrationManager.registerForRemoteNotifications()
 			}
 
 		case .success, .undefined:
 			MMLogDebug("[Depersonalize] current depersonalize status: undefined/successful")
-			mmContext.currentInstallation.currentDepersonalizationStatus = .pending
-			mmContext.currentInstallation.persist()
+
+			id.currentDepersonalizationStatus = .pending
+			id.archive()
+
 			mmContext.apnsRegistrationManager.unregister()
 		}
 	}
 
 	class func depersonalizeSubservices(mmContext: MobileMessaging) {
-		switch mmContext.currentInstallation.currentDepersonalizationStatus {
+		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending: break
 		case .success, .undefined:
 			let loopGroup = DispatchGroup()
@@ -110,6 +119,6 @@ class DepersonalizeOperation: Operation {
 	
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Depersonalize] finished with errors: \(errors)")
-		finishBlock?(mmContext.currentInstallation.currentDepersonalizationStatus, errors.first)
+		finishBlock?(mmContext.internalData().currentDepersonalizationStatus, errors.first)
 	}
 }

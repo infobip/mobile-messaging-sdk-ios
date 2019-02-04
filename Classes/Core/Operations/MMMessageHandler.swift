@@ -305,7 +305,7 @@ class MMMessageHandler: MobileMessagingService {
 	}
 
 	override func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {
-		switch mmContext.currentInstallation.currentDepersonalizationStatus {
+		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
 			stop({ _ in })
 		case .success, .undefined:
@@ -314,7 +314,7 @@ class MMMessageHandler: MobileMessagingService {
 	}
 
 	override func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
-		if mmContext.currentInstallation.isPushRegistrationEnabled {
+		if mmContext.resolveInstallation().isPushRegistrationEnabled {
 			start({ _ in })
 		} else {
 			stop({ _ in })

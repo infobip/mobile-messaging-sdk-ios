@@ -32,7 +32,7 @@ class MessagePostingOperation: Operation {
 	
 	override func execute() {
 		MMLogDebug("[Message posting] started...")
-		guard let pushRegistrationId = mmContext.currentInstallation.pushRegistrationId else {
+		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			MMLogWarn("[Message posting] No registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return

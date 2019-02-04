@@ -8,6 +8,67 @@
 import Foundation
 @testable import MobileMessaging
 
+extension MobileMessaging {
+	var isRegistrationStatusNeedSync: Bool {
+		return Installation.delta["isPushRegistrationEnabled"] != nil
+	}
+
+	var isPushRegistrationEnabled: Bool {
+		set {
+			let di = self.dirtyInstallation()
+			di.isPushRegistrationEnabled = newValue
+			di.archiveDirty()
+		}
+		get {
+			return self.resolveInstallation().isPushRegistrationEnabled
+		}
+	}
+
+	var pushRegistrationId: String? {
+		set {
+			Installation.modifyAll { (installation) in
+				installation.pushRegistrationId = newValue
+			}
+		}
+		get {
+			return self.resolveInstallation().pushRegistrationId
+		}
+	}
+
+	var pushServiceToken: String? {
+		set {
+			let di = self.dirtyInstallation()
+			di.pushServiceToken = newValue
+			di.archiveDirty()
+		}
+		get {
+			return self.resolveInstallation().pushRegistrationId
+		}
+	}
+
+	var isPrimaryDevice: Bool {
+		set {
+			let di = self.dirtyInstallation()
+			di.isPrimaryDevice = newValue
+			di.archiveDirty()
+		}
+		get {
+			return self.resolveInstallation().isPrimaryDevice
+		}
+	}
+
+	var systemDataHash: Int64 {
+		set {
+			let id = self.internalData()
+			id.systemDataHash = newValue
+			id.archive()
+		}
+		get {
+			return self.internalData().systemDataHash
+		}
+	}
+}
+
 struct MMTestConstants {
 	static let kTestInvalidInternalID = "someNonexistentInternalID"
 	static let kTestCorrectInternalID = "someExistingInternalID"
@@ -219,5 +280,67 @@ final class ReachabilityManagerStub: NetworkReachabilityManager {
 extension RequestData {
 	var pushRegistrationIdHeader: String? {
 		return headers?[Consts.APIHeaders.pushRegistrationId]
+	}
+}
+
+var darthVaderDateOfDeath: NSDate {
+	let comps = NSDateComponents()
+	comps.year = 1983
+	comps.month = 5
+	comps.day = 25
+	comps.hour = 0
+	comps.minute = 0
+	comps.second = 0
+	comps.timeZone = TimeZone(secondsFromGMT: 0) // has expected timezone
+	comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+	return comps.date! as NSDate
+}
+
+var darthVaderDateOfBirth: Date {
+	let comps = NSDateComponents()
+	comps.year = 1980
+	comps.month = 12
+	comps.day = 12
+	comps.hour = 0
+	comps.minute = 0
+	comps.second = 0
+	comps.timeZone = TimeZone(secondsFromGMT: 0) // has expected timezone
+	comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+	return comps.date!
+}
+
+class MessagHandlerMock: MMMessageHandler {
+	var setSeenWasCalled: (() -> Void)?
+	var sendMessageWasCalled: (([MOMessage]) -> Void)?
+
+	override var isRunning: Bool {
+		get {
+			return true
+		}
+		set {
+
+		}
+	}
+
+	convenience init(originalHandler: MMMessageHandler) {
+		self.init(storage: originalHandler.storage, mmContext: originalHandler.mmContext)
+	}
+
+	override func syncSeenStatusUpdates(_ completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+		completion?(SeenStatusSendingResult.Cancel)
+	}
+
+	override func setSeen(_ messageIds: [String], immediately: Bool, completion: ((SeenStatusSendingResult) -> Void)?) {
+		setSeenWasCalled?()
+		completion?(SeenStatusSendingResult.Cancel)
+	}
+
+	override func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: (([MOMessage]?, NSError?) -> Void)?) {
+		sendMessageWasCalled?(messages)
+		completion?(messages, nil)
+	}
+
+	override func syncMessages(handlingIteration: Int, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
+		finishBlock?(MessagesSyncResult.Cancel)
 	}
 }

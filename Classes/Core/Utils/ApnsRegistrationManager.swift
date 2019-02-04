@@ -24,7 +24,7 @@ class ApnsRegistrationManager {
 	func registerForRemoteNotifications() {
 		MMLogDebug("[APNS reg manager] Registering...")
 
-		switch mmContext.currentInstallation.currentDepersonalizationStatus {
+		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .success, .undefined:
 			break
 		case .pending:
@@ -34,7 +34,7 @@ class ApnsRegistrationManager {
 
 		registerNotificationSettings(application: MobileMessaging.application, userNotificationType: mmContext.userNotificationType)
 
-		if mmContext.currentInstallation.deviceToken == nil {
+		if mmContext.currentInstallation().pushServiceToken == nil {
 			if MobileMessaging.application.isRegisteredForRemoteNotifications {
 				MMLogDebug("[APNS reg manager] The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 				unregister()
@@ -53,7 +53,8 @@ class ApnsRegistrationManager {
 		UserEventsManager.postDeviceTokenReceivedEvent(tokenStr)
 		
 		// in most cases we either get the same token we registered earlier or we are just starting
-		if mmContext.currentInstallation.deviceToken == nil || mmContext.currentInstallation.deviceToken == tokenStr {
+		let installation = mmContext.resolveInstallation()
+		if installation.pushServiceToken == nil || installation.pushServiceToken == tokenStr {
 			setRegistrationIsHealthy()
 			updateDeviceToken(token, completion: completion)
 		} else {
@@ -68,11 +69,11 @@ class ApnsRegistrationManager {
 	}
 	
 	func resetRegistration(completion: @escaping () -> Void) {
-		mmContext.currentInstallation.resetRegistration(completion: { _ in completion() })
+		mmContext.installationService.resetRegistration(completion: { _ in completion() })
 	}
 	
 	func updateDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
-		mmContext.currentInstallation.save(deviceToken: token, completion: completion)
+		mmContext.installationService.save(deviceToken: token, completion: completion)
 	}
 	
 	private var isRegistrationHealthy_cached: Bool?

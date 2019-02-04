@@ -159,8 +159,10 @@ class MMTestCase: XCTestCase {
     
     override func setUp() {
         super.setUp()
+		MobileMessaging.logger = MMDefaultLogger()
         MobileMessaging.logger?.logOutput = .Console
         MobileMessaging.logger?.logLevel = .All
+
         MMTestCase.startWithCorrectApplicationCode()
 		MobileMessaging.reachabilityManagerFactory = { return ReachabilityManagerStub(isReachable: true) }
     }

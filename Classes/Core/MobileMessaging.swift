@@ -145,21 +145,21 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	/// Maintains attributes related to the current application installation such as APNs device token, badge number, etc.
-	public class var installation: Installation? {
-		return MobileMessaging.sharedInstance?.currentInstallation.dataObject
+	public class func getInstallation() -> Installation? {
+		return MobileMessaging.sharedInstance?.dirtyInstallation()
 	}
 
 	/// Maintains attributes related to the current user such as unique ID for the registered user, emails, phones, custom data, external id.
-	public class var user: User? {
-		return MobileMessaging.sharedInstance?.currentUser.dataObject
+	public class func getUser() -> User? {
+		return MobileMessaging.sharedInstance?.dirtyUser()
 	}
 
 	/// Tries to fetch the user data from the server.
 	/// - parameter completion: The block to execute after the server responded.
 	public class func fetchUser(completion: @escaping (User?, NSError?) -> Void) {
-		if let u = MobileMessaging.sharedInstance?.currentUser {
-			u.fetchFromServer { (fetched, error) in
-				completion(fetched.dataObject, error)
+		if let us = MobileMessaging.sharedInstance?.userService {
+			us.fetchFromServer { (fetched, error) in
+				completion(fetched, error)
 			}
 		} else {
 			completion(nil, NSError(type: .UnknownError))
@@ -169,9 +169,9 @@ public final class MobileMessaging: NSObject {
 	/// Tries to fetch the installation data from the server.
 	/// - parameter completion: The block to execute after the server responded.
 	public class func fetchInstallation(completion: @escaping (Installation?, NSError?) -> Void) {
-		if let i = MobileMessaging.sharedInstance?.currentInstallation {
-			i.fetchFromServer { (fetched, error) in
-				completion(fetched.dataObject, error)
+		if let service = MobileMessaging.sharedInstance?.installationService {
+			service.fetchFromServer { (fetched, error) in
+				completion(fetched, error)
 			}
 		} else {
 			completion(nil, NSError(type: .UnknownError))
@@ -182,8 +182,8 @@ public final class MobileMessaging: NSObject {
 	/// - parameter user: User data to save on server
 	/// - parameter completion: The block to execute after the server responded.
 	public class func saveUser(_ user: User, completion: @escaping (NSError?) -> Void) {
-		if let u = MobileMessaging.sharedInstance?.currentUser {
-			u.save(userData: user, completion: completion)
+		if let us = MobileMessaging.sharedInstance?.userService {
+			us.save(userData: user, completion: completion)
 		} else {
 			completion(NSError(type: .UnknownError))
 		}
@@ -193,25 +193,19 @@ public final class MobileMessaging: NSObject {
 	/// - parameter installation: Installation data to save on server
 	/// - parameter completion: The block to execute after the server responded.
 	public class func saveInstallation(_ installation: Installation, completion: @escaping (NSError?) -> Void) {
-		if let i = MobileMessaging.sharedInstance?.currentInstallation {
-			i.save(installationData: installation, completion: completion)
+		if let service = MobileMessaging.sharedInstance?.installationService {
+			service.save(installationData: installation, completion: completion)
 		} else {
 			completion(NSError(type: .UnknownError))
 		}
 	}
 
 	public class func persistUser(_ user: User) {
-		if let u = MobileMessaging.sharedInstance?.currentUser {
-			u.applyDataObject(user)
-			u.persist()
-		}
+		user.archiveDirty()
 	}
 
 	public class func persistInstallation(_ installation: Installation) {
-		if let i = MobileMessaging.sharedInstance?.currentInstallation {
-			i.applyDataObject(installation)
-			i.persist()
-		}
+		installation.archiveDirty()
 	}
 
 	// MARK: - Personalize/Depersonalize
@@ -227,8 +221,8 @@ public final class MobileMessaging: NSObject {
 	/// - you want depersonalized installation to still receive broadcast notifications (otherwise, you need to disable push registration via Installation.isPushRegistrationEnabled).
 	/// - parameter completion: The block to execute after the depersonalize procedure finished
 	public class func depersonalize(completion: @escaping (_ status: SuccessPending, _ error: NSError?) -> Void) {
-		if let i = MobileMessaging.sharedInstance?.currentInstallation {
-			i.depersonalize(completion: completion)
+		if let service = MobileMessaging.sharedInstance?.installationService {
+			service.depersonalize(completion: completion)
 		} else {
 			completion(SuccessPending.undefined, NSError(type: .UnknownError))
 		}
@@ -239,8 +233,8 @@ public final class MobileMessaging: NSObject {
 	}
 
 	public class func personalize(forceDepersonalize: Bool, userIdentity: UserIdentity, userAttributes: UserAttributes?, completion: @escaping (NSError?) -> Void) {
-		if let u = MobileMessaging.sharedInstance?.currentUser {
-			u.personalize(forceDepersonalize: forceDepersonalize, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
+		if let service = MobileMessaging.sharedInstance?.userService {
+			service.personalize(forceDepersonalize: forceDepersonalize, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
 		} else {
 			completion(NSError(type: .UnknownError))
 		}
@@ -249,16 +243,16 @@ public final class MobileMessaging: NSObject {
 	// MARK: - Other installations management
 
 	public class func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([Installation]?, NSError?) -> Void) {
-		if let u = MobileMessaging.sharedInstance?.currentUser {
-			u.setInstallation(withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
+		if let service = MobileMessaging.sharedInstance?.userService {
+			service.setInstallation(withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
 		} else {
 			completion(nil, NSError(type: .UnknownError))
 		}
 	}
 
 	public class func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping ([Installation]?, NSError?) -> Void) {
-		if let u = MobileMessaging.sharedInstance?.currentUser {
-			u.depersonalizeInstallation(withPushRegistrationId: pushRegId, completion: completion)
+		if let service = MobileMessaging.sharedInstance?.userService {
+			service.depersonalizeInstallation(withPushRegistrationId: pushRegId, completion: completion)
 		} else {
 			completion(nil, NSError(type: .UnknownError))
 		}
@@ -267,8 +261,8 @@ public final class MobileMessaging: NSObject {
 	// MARK: -
 
 	public class func fetchInstallations(completion: @escaping ([Installation]?, NSError?) -> Void) {
-		if let i = MobileMessaging.sharedInstance?.currentUser {
-			i.fetchFromServer { (user, error) in
+		if let service = MobileMessaging.sharedInstance?.userService {
+			service.fetchFromServer { (user, error) in
 				completion(user.installations, error)
 			}
 		} else {
@@ -373,6 +367,9 @@ public final class MobileMessaging: NSObject {
 		if (clearKeychain) {
 			keychain.clear()
 		}
+		InternalData.reset()
+		User.reset()
+		Installation.reset()
 		apnsRegistrationManager.cleanup()
 	}
 	
@@ -400,9 +397,6 @@ public final class MobileMessaging: NSObject {
 		apnsRegistrationManager = nil
 		doRegisterToApns = true
 		appListener = nil
-		currentInstallation = nil
-		currentUser = nil
-		appListener = nil
 		messageHandler = nil
 		remoteApiProvider = nil
 
@@ -415,7 +409,7 @@ public final class MobileMessaging: NSObject {
 		}
 		MMLogInfo("MobileMessaging service stopped")
 	}
-	
+
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
 		apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(token, completion: completion)
 	}
@@ -488,8 +482,13 @@ public final class MobileMessaging: NSObject {
 			return nil
 		}
 		
-		if forceCleanup || applicationCodeChanged(storage: storage, newApplicationCode: appCode) {
+		if forceCleanup || applicationCodeChanged(newApplicationCode: appCode) {
 			MMLogDebug("Data will be cleaned up due to the application code change.")
+			User.resetCurrent()
+			User.resetDirty()
+			Installation.resetCurrent()
+			Installation.resetDirty()
+			InternalData.reset()
 			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorages: messageStorages)
 			do {
 				storage = try MMCoreDataStorage.makeInternalStorage(self.storageType)
@@ -498,9 +497,13 @@ public final class MobileMessaging: NSObject {
 				return nil
 			}
 		}
-
 		self.internalStorage = storage
 		self.applicationCode = appCode
+
+		let ci = InternalData.unarchive()
+		ci.applicationCode = appCode
+		ci.archive()
+
 		self.userNotificationType = notificationType
 		self.remoteAPIBaseURL = backendBaseURL
 		if #available(iOS 10.0, *) {
@@ -511,6 +514,7 @@ public final class MobileMessaging: NSObject {
 		}
 		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 
+
 		MMLogInfo("SDK successfully initialized!")
 	}
 	
@@ -518,10 +522,13 @@ public final class MobileMessaging: NSObject {
 		if NotificationsInteractionService.sharedInstance == nil {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
 		}
+		userService = UserDataService(mmContext: self)
+		installationService = InstallationDataService(mmContext: self)
 		appListener = MMApplicationListener(mmContext: self)
 		messageStorages.values.forEach({ $0.start() })
-		
-		if currentInstallation.isPushRegistrationEnabled && currentInstallation.currentDepersonalizationStatus == .undefined  {
+
+		let currentInstall = currentInstallation()
+		if currentInstall.isPushRegistrationEnabled && internalData().currentDepersonalizationStatus == .undefined  {
 			messageHandler.start({ _ in })
 		}
 		
@@ -534,20 +541,20 @@ public final class MobileMessaging: NSObject {
 	
 	var messageStorages: [String: MessageStorageQueuedAdapter] = [:]
 	var messageStorageAdapter: MessageStorageQueuedAdapter?
+
 	let internalStorage: MMCoreDataStorage
-	lazy var coreDataProvider: CoreDataProvider = CoreDataProvider(storage: self.internalStorage)
-	lazy var inMemoryDataProvider: InMemoryDataProvider = InMemoryDataProvider()
-	lazy var currentInstallation: InstallationDataService! = InstallationDataService(
-		inMemoryProvider: self.inMemoryDataProvider,
-		coreDataProvider: self.coreDataProvider,
-		mmContext: self,
-		applicationCode: self.applicationCode)
 
-	lazy var currentUser: UserDataService! = UserDataService(
-		inMemoryProvider: self.inMemoryDataProvider,
-		coreDataProvider: self.coreDataProvider,
-		mmContext: self)
+	func internalData() -> InternalData { return InternalData.unarchive().copy() as! InternalData }
+	func currentInstallation() -> Installation { return Installation.unarchive().copy() as! Installation }
+	func currentUser() -> User { return User.unarchive().copy() as! User }
 
+	func dirtyInstallation() -> Installation { return Installation.unarchiveDirty().copy() as! Installation }
+	func dirtyUser() -> User { return User.unarchiveDirty().copy() as! User }
+
+	func resolveInstallation() -> Installation { return dirtyInstallation() }
+	func resolveUser() -> User { return dirtyUser() }
+	var userService: UserDataService!
+	var installationService: InstallationDataService!
 	var appListener: MMApplicationListener!
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)

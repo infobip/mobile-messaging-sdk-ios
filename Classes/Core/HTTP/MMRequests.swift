@@ -129,7 +129,7 @@ struct MOMessageSendingRequest: PostRequest {
 
 //MARK: - Base
 
-typealias RequestBody = [String: Any?]
+typealias RequestBody = [String: Any]
 typealias RequestParameters = [String: Any]
 typealias RequestHeaders = [String: String]
 

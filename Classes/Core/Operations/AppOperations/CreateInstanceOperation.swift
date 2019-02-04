@@ -9,21 +9,26 @@ import Foundation
 
 class CreateInstanceOperation : Operation {
 	let mmContext: MobileMessaging
-	let installation: InstallationDataService
-	let attributesSet: AttributesSet
+	let currentInstallation: Installation
+	let dirtyInstallation: Installation
 	let finishBlock: ((FetchInstanceDataResult) -> Void)?
 	var result: FetchInstanceDataResult = FetchInstanceDataResult.Cancel
 	let requireResponse: Bool
-	let deviceToken: String
+	let body: [String: Any]
 
-	init?(installation: InstallationDataService, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: ((FetchInstanceDataResult) -> Void)?) {
-		self.installation = installation
+	init?(currentInstallation: Installation, dirtyInstallation: Installation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: ((FetchInstanceDataResult) -> Void)?) {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse
-		self.attributesSet = Attributes.instanceAttributesSet
-		if let deviceToken = installation.deviceToken  {
-			self.deviceToken = deviceToken
+		self.currentInstallation = currentInstallation
+		self.dirtyInstallation = dirtyInstallation
+
+		if let _ = dirtyInstallation.pushServiceToken {
+			self.body = InstallationDataMapper.requestPayload(currentInstallation: self.currentInstallation, dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
+			if self.body.isEmpty {
+				MMLogWarn("[CreateInstanceOperation] There is no data to send. Aborting...")
+				return nil
+			}
 		} else {
 			MMLogWarn("[CreateInstanceOperation] There is no device token. Aborting...")
 			return nil
@@ -47,8 +52,6 @@ class CreateInstanceOperation : Operation {
 			return
 		}
 
-		var body = InstallationDataMapper.requestPayload(with: installation, forAttributesSet: attributesSet) ?? [:]
-		body["notificationsEnabled"] = true
 		mmContext.remoteApiProvider.postInstance(applicationCode: mmContext.applicationCode, body: body) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)
@@ -63,16 +66,22 @@ class CreateInstanceOperation : Operation {
 		}
 		switch result {
 		case .Success(let response):
-			if response.pushRegistrationId != installation.pushRegistrationId {
+			if response.pushRegistrationId != currentInstallation.pushRegistrationId {
 				// this is to force system data sync for the new registration
-				installation.systemDataHash = 0
+				let id = mmContext.internalData()
+				id.systemDataHash = 0
+				id.archive()
 			}
-			installation.pushRegistrationId = response.pushRegistrationId
-			installation.isPushRegistrationEnabled = response.isPushRegistrationEnabled
-			installation.persist()
-			installation.resetNeedToSync(attributesSet: attributesSet)
-			installation.persist()
-			UserEventsManager.postInstallationSyncedEvent(installation.dataObject)
+
+//			Installation.modifyAll { (installation) in
+//				installation.pushServiceToken = response.pushServiceToken
+//				installation.pushRegistrationId = response.pushRegistrationId
+//				installation.isPushRegistrationEnabled = response.isPushRegistrationEnabled
+//			}
+
+			response.archiveAll()
+
+			UserEventsManager.postInstallationSyncedEvent(currentInstallation)
 			if mmContext.keychain.pushRegId == nil {
 				mmContext.keychain.pushRegId = response.pushRegistrationId
 			}

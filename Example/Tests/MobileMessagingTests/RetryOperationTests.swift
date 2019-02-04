@@ -51,7 +51,7 @@ final class RetryOperationTests: MMTestCase {
 	func testReachabilityLogic() {
 		weak var expectation = self.expectation(description: "Retryable operation finished")
 
-		let body = InstallationDataMapper.requestPayload(with: mobileMessagingInstance.currentInstallation, forAttributesSet: [.pushServiceToken])!
+		let body = mobileMessagingInstance.currentInstallation().dictionaryRepresentation
 		let r: PostInstance! = PostInstance(applicationCode: "", body: body, returnPushServiceToken: true)
 
 		let op = MMTestRechabilityOperation(request: r!, reachabilityManager: MMStubNetworkReachabilityManager(), sessionManager: MobileMessaging.httpSessionManager) { op in

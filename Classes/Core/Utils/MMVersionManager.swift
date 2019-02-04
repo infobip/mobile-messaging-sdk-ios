@@ -50,7 +50,7 @@ class VersionManager {
 			return
 		}
 		
-		mmContext.remoteApiProvider.fetchRecentLibraryVersion(applicationCode: mmContext.applicationCode, pushRegistrationId: mmContext.currentInstallation.pushRegistrationId) {
+		mmContext.remoteApiProvider.fetchRecentLibraryVersion(applicationCode: mmContext.applicationCode, pushRegistrationId: mmContext.currentInstallation().pushRegistrationId) {
 			self.handleResult(result: $0)
 			completion?()
 		}

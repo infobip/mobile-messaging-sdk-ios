@@ -35,7 +35,7 @@ extension MobileMessaging {
 @objcMembers
 public class GeofencingService: MobileMessagingService {
 	override func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {
-		switch mmContext.currentInstallation.currentDepersonalizationStatus {
+		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
 			stop({ _ in })
 		case .success, .undefined:
@@ -58,7 +58,7 @@ public class GeofencingService: MobileMessagingService {
 	}
 	
 	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
-		guard GeofencingService.isGeoServiceNeedsToStart && mmContext.currentInstallation.isPushRegistrationEnabled && mmContext.currentInstallation.currentDepersonalizationStatus == .undefined else {
+		guard GeofencingService.isGeoServiceNeedsToStart && mmContext.currentInstallation().isPushRegistrationEnabled && mmContext.internalData().currentDepersonalizationStatus == .undefined else {
 			return
 		}
 		GeofencingService.isGeoServiceNeedsToStart = false
@@ -71,7 +71,7 @@ public class GeofencingService: MobileMessagingService {
 	}
 
 	override func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
-		if mmContext.currentInstallation.isPushRegistrationEnabled {
+		if mmContext.currentInstallation().isPushRegistrationEnabled {
 			start({ _ in })
 		} else {
 			stop({ _ in })
@@ -284,7 +284,7 @@ public class GeofencingService: MobileMessagingService {
 			self.locationManager.distanceFilter = GeoConstants.distanceFilter
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
 			self.datasource = GeofencingInMemoryDatasource(storage: mmContext.internalStorage)
-			self.previousLocation = mmContext.currentInstallation?.location
+			self.previousLocation = mmContext.internalData().location
 		}
 	}
 	
@@ -593,7 +593,9 @@ public class GeofencingService: MobileMessagingService {
 		assert(Thread .isMainThread)
 		restartLocationManager()
 		if let previousLocation = previousLocation {
-			mmContext.currentInstallation?.location = previousLocation
+			let internalData = mmContext.internalData()
+			internalData.location = previousLocation
+			internalData.archive()
 		}
 	}
 	

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 struct DepersonalizationConsts {
 	static var failuresNumberLimit = 3
@@ -15,7 +16,181 @@ struct DepersonalizationConsts {
 	case undefined = 0, pending, success
 }
 
-public final class Installation: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
+class InternalData : NSObject, NSCoding, NSCopying {
+	var systemDataHash: Int64
+	var location: CLLocation?
+	var badgeNumber: Int
+	var applicationCode: String?
+	var depersonalizeFailCounter: Int
+	var currentDepersonalizationStatus: SuccessPending
+
+	func copy(with zone: NSZone? = nil) -> Any {
+		let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus)
+		return copy
+	}
+
+	init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, applicationCode: String?, depersonalizeFailCounter: Int, currentDepersonalizationStatus: SuccessPending) {
+		self.systemDataHash = systemDataHash
+		self.location = location
+		self.badgeNumber = badgeNumber
+		self.applicationCode = applicationCode
+		self.depersonalizeFailCounter = depersonalizeFailCounter
+		self.currentDepersonalizationStatus = currentDepersonalizationStatus
+	}
+
+	required public init?(coder aDecoder: NSCoder) {
+		systemDataHash = aDecoder.decodeInt64(forKey: "systemDataHash")
+		location = aDecoder.decodeObject(forKey: "location") as? CLLocation
+		badgeNumber = aDecoder.decodeInteger(forKey: "badgeNumber")
+		applicationCode = aDecoder.decodeObject(forKey: "applicationCode") as? String
+		depersonalizeFailCounter = aDecoder.decodeInteger(forKey: "depersonalizeFailCounter")
+		currentDepersonalizationStatus = SuccessPending(rawValue: aDecoder.decodeInteger(forKey: "currentDepersonalizationStatus")) ?? .undefined
+	}
+
+	func encode(with aCoder: NSCoder) {
+		aCoder.encode(systemDataHash, forKey: "systemDataHash")
+		aCoder.encode(location, forKey: "location")
+		aCoder.encode(badgeNumber, forKey: "badgeNumber")
+		aCoder.encode(applicationCode, forKey: "applicationCode")
+		aCoder.encode(depersonalizeFailCounter, forKey: "depersonalizeFailCounter")
+		aCoder.encode(currentDepersonalizationStatus.rawValue, forKey: "currentDepersonalizationStatus")
+	}
+
+	func archive() {
+		let old = InternalData.unarchive()
+		archive(at: InternalData.currentPath)
+		if old.currentDepersonalizationStatus != currentDepersonalizationStatus {
+			MMLogDebug("[InternalData management] setting new depersonalize status: \(self.currentDepersonalizationStatus)")
+			MobileMessaging.sharedInstance?.updateDepersonalizeStatusForSubservices()
+		}
+	}
+
+	class func reset() {
+		InternalData.remove(at: InternalData.currentPath)
+	}
+
+	class func unarchive() -> InternalData {
+		return InternalData.unarchive(from: InternalData.currentPath) ?? InternalData.empty
+	}
+
+	static let currentPath = getDocumentsDirectory(filename: "internal-data")
+	static var cached = ThreadSafeDict<InternalData>()
+	static var empty: InternalData {
+		return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined)
+	}
+	private class func unarchive(from path: String) -> InternalData? {
+		if let cached = InternalData.cached.getValue(forKey: path) {
+			return cached
+		} else {
+			let newVal = (NSKeyedUnarchiver.unarchiveObject(withFile: path) as? InternalData)
+			InternalData.cached.set(value: newVal, forKey: path)
+			return newVal
+		}
+	}
+	private func archive(at path: String) {
+		InternalData.cached.set(value: self.copy() as? InternalData, forKey: path)
+		let save = self.copy() as! InternalData
+		save.removeSensitiveData()
+		NSKeyedArchiver.archiveRootObject(save, toFile: path)
+	}
+	private static func remove(at path: String) {
+		InternalData.cached.set(value: nil, forKey: path)
+		try? FileManager.default.removeItem(atPath: path)
+	}
+	func removeSensitiveData() {
+		if MobileMessaging.privacySettings.applicationCodePersistingDisabled  {
+			self.applicationCode = nil
+		}
+	}
+}
+
+public final class Installation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable {
+	static var delta: [String: Any] {
+		guard let currentDict = MobileMessaging.sharedInstance?.currentInstallation().dictionaryRepresentation, let dirtyDict = MobileMessaging.sharedInstance?.dirtyInstallation().dictionaryRepresentation else {
+			return [:]
+		}
+		return deltaDict(currentDict, dirtyDict)
+	}
+
+	static let currentPath = getDocumentsDirectory(filename: "installation")
+	static let dirtyPath = getDocumentsDirectory(filename: "dirty-installation")
+	static var cached = ThreadSafeDict<Installation>()
+	static var empty: Installation {
+		let systemData = UserAgent().systemData
+		return Installation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: nil, deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
+	}
+	class func modifyAll(with block: (Installation) -> Void) {
+		if let di = MobileMessaging.sharedInstance?.dirtyInstallation() {
+			block(di)
+			di.archiveDirty()
+		}
+
+		if let ci = MobileMessaging.sharedInstance?.currentInstallation() {
+			block(ci)
+			ci.archiveCurrent()
+		}
+	}
+	func archiveAll() {
+		archiveCurrent()
+		archiveDirty()
+	}
+	func archiveCurrent() {
+		let old = Installation.unarchive()
+		archive(at: Installation.currentPath)
+		if old.pushRegistrationId != pushRegistrationId {
+			UserEventsManager.postRegUpdatedEvent(pushRegistrationId)
+		}
+		if old.isPushRegistrationEnabled != isPushRegistrationEnabled {
+			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
+		}
+	}
+	func archiveDirty() {
+		let old = Installation.unarchiveDirty()
+		archive(at: Installation.dirtyPath)
+		if old.isPushRegistrationEnabled != isPushRegistrationEnabled {
+			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
+		}
+	}
+	class func reset() {
+		Installation.resetDirty()
+		Installation.resetCurrent()
+	}
+	class func resetDirty() {
+		Installation.remove(at: Installation.dirtyPath)
+	}
+	class func resetCurrent() {
+		Installation.remove(at: Installation.currentPath)
+	}
+	class func unarchive() -> Installation {
+		return Installation.unarchive(from: Installation.currentPath) ?? Installation.empty
+	}
+	class func unarchiveDirty() -> Installation {
+		return Installation.unarchive(from: Installation.dirtyPath) ?? Installation.unarchive()
+	}
+	private class func unarchive(from path: String) -> Installation? {
+		if let cached = Installation.cached.getValue(forKey: path) {
+			return cached
+		} else {
+			let newVal = (NSKeyedUnarchiver.unarchiveObject(withFile: path) as? Installation)
+			Installation.cached.set(value: newVal, forKey: path)
+			return newVal
+		}
+	}
+	private func archive(at path: String) {
+		Installation.cached.set(value: self.copy() as? Installation, forKey: path)
+		let save = self.copy() as! Installation
+		save.removeSensitiveData()
+		NSKeyedArchiver.archiveRootObject(save, toFile: path)
+	}
+	private static func remove(at path: String) {
+		Installation.cached.set(value: nil, forKey: path)
+		try? FileManager.default.removeItem(atPath: path)
+	}
+
+	func removeSensitiveData() {
+		//nothing is sensitive in installation
+	}
+
 	/// If you have a users database where every user has a unique identifier, you would leverage our External User Id API to gather and link all users devices where your application is installed. However if you have several different applications that share a common user data base you would need to separate one push message destination from another (applications may be considered as destinations here). In order to do such message destination separation, you would need to provide us with a unique Application User Id.
 	public var applicationUserId: String?
 
@@ -32,22 +207,22 @@ public final class Installation: NSObject, NSCoding, JSONDecodable, DictionaryRe
 	public var isPushRegistrationEnabled: Bool
 
 	/// Unique push registration identifier issued by server. This identifier matches one to one with APNS cloud token of the particular application installation. This identifier is only available after `MMNotificationRegistrationUpdated` event.
-	public let pushRegistrationId: String?
+	public internal(set) var pushRegistrationId: String?
 
-	public let appVersion: String?
-	public let deviceManufacturer: String?
-	public let deviceModel: String?
-	public let deviceName: String?
-	public let deviceSecure: Bool
-	public let deviceTimeZone: String?
-	public let geoEnabled: Bool
-	public let language: String?
-	public let notificationsEnabled: Bool
-	public let os: String?
-	public let osVersion: String?
-	public let pushServiceToken: String?
-	public let pushServiceType: String?
-	public let sdkVersion: String?
+	public internal(set) var appVersion: String?
+	public internal(set) var deviceManufacturer: String?
+	public internal(set) var deviceModel: String?
+	public internal(set) var deviceName: String?
+	public internal(set) var deviceSecure: Bool
+	public internal(set) var deviceTimeZone: String?
+	public internal(set) var geoEnabled: Bool
+	public internal(set) var language: String?
+	public internal(set) var notificationsEnabled: Bool
+	public internal(set) var os: String?
+	public internal(set) var osVersion: String?
+	public internal(set) var pushServiceToken: String?
+	public internal(set) var pushServiceType: String?
+	public internal(set) var sdkVersion: String?
 	// more properties needed? ok but look at the code below first.
 
 	required public init?(coder aDecoder: NSCoder) {
@@ -97,29 +272,29 @@ public final class Installation: NSObject, NSCoding, JSONDecodable, DictionaryRe
 	}
 
 	convenience init?(json: JSON) {
-		guard let pushRegId = json[Attributes.pushRegistrationId.requestPayloadKey].string else // a valid server response must contain pushregid
+		guard let pushRegId = json[Attributes.pushRegistrationId.rawValue].string else // a valid server response must contain pushregid
 		{
 			return nil
 		}
 
 		self.init(
-			applicationUserId: json[Attributes.applicationUserId.requestPayloadKey].string,
+			applicationUserId: json[Attributes.applicationUserId.rawValue].string,
 			appVersion: json[Consts.SystemDataKeys.appVer].string,
-			customAttributes: json[Attributes.customInstanceAttributes.requestPayloadKey].dictionary?.decodeCustomAttributesJSON,
+			customAttributes: json[Attributes.customAttributes.rawValue].dictionary?.decodeCustomAttributesJSON,
 			deviceManufacturer: json[Consts.SystemDataKeys.deviceManufacturer].string,
 			deviceModel: json[Consts.SystemDataKeys.deviceModel].string,
 			deviceName: json[Consts.SystemDataKeys.deviceName].string,
 			deviceSecure: json[Consts.SystemDataKeys.deviceSecure].bool ?? false,
 			deviceTimeZone: json[Consts.SystemDataKeys.deviceTimeZone].string,
 			geoEnabled: json[Consts.SystemDataKeys.geofencingServiceEnabled].bool ?? false,
-			isPrimaryDevice: json[Attributes.isPrimaryDevice.requestPayloadKey].bool ?? false,
-			isPushRegistrationEnabled: json[Attributes.registrationEnabled.requestPayloadKey].bool ?? true,
+			isPrimaryDevice: json[Attributes.isPrimaryDevice.rawValue].bool ?? false,
+			isPushRegistrationEnabled: json[Attributes.registrationEnabled.rawValue].bool ?? true,
 			language: json[Consts.SystemDataKeys.language].string,
 			notificationsEnabled: json[Consts.SystemDataKeys.notificationsEnabled].bool ?? true,
 			os: json[Consts.SystemDataKeys.OS].string,
 			osVersion: json[Consts.SystemDataKeys.osVer].string,
 			pushRegistrationId: pushRegId,
-			pushServiceToken: json[Attributes.pushServiceToken.requestPayloadKey].string,
+			pushServiceToken: json[Attributes.pushServiceToken.rawValue].string,
 			pushServiceType: json[Consts.SystemDataKeys.pushServiceType].string,
 			sdkVersion: json[Consts.SystemDataKeys.sdkVersion].string
 			)
@@ -190,11 +365,10 @@ public final class Installation: NSObject, NSCoding, JSONDecodable, DictionaryRe
 			self.pushServiceToken == object.pushServiceToken &&
 			self.pushServiceType == object.pushServiceType &&
 			self.sdkVersion == object.sdkVersion
-
 	}
 
 	// must be extracted to cordova plugin srcs
-	public convenience init?(dictRepresentation dict: DictionaryRepresentation) { // the dictionary only considered to come from js cordova plugin. key names must match properties names
+	public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
 		self.init(
 			applicationUserId: dict["applicationUserId"] as? String,
 			appVersion: dict["appVersion"] as? String,
@@ -223,7 +397,7 @@ public final class Installation: NSObject, NSCoding, JSONDecodable, DictionaryRe
 		var dict = DictionaryRepresentation()
 		dict["applicationUserId"] = applicationUserId
 		dict["appVersion"] = appVersion
-		dict["customAttributes"] = customAttributes
+		dict["customAttributes"] = UserDataMapper.makeCustomAttributesPayload(customAttributes)
 		dict["deviceManufacturer"] = deviceManufacturer
 		dict["deviceModel"] = deviceModel
 		dict["deviceName"] = deviceName
@@ -241,5 +415,10 @@ public final class Installation: NSObject, NSCoding, JSONDecodable, DictionaryRe
 		dict["pushServiceType"] = pushServiceType
 		dict["sdkVersion"] = sdkVersion
 		return dict
+	}
+
+	public func copy(with zone: NSZone? = nil) -> Any {
+		let copy = Installation(applicationUserId: applicationUserId, appVersion: appVersion, customAttributes: customAttributes, deviceManufacturer: deviceManufacturer, deviceModel: deviceModel, deviceName: deviceName, deviceSecure: deviceSecure, deviceTimeZone: deviceTimeZone, geoEnabled: geoEnabled, isPrimaryDevice: isPrimaryDevice, isPushRegistrationEnabled: isPushRegistrationEnabled, language: language, notificationsEnabled: notificationsEnabled, os: os, osVersion: osVersion, pushRegistrationId: pushRegistrationId, pushServiceToken: pushServiceToken, pushServiceType: pushServiceType, sdkVersion: sdkVersion)
+		return copy
 	}
 }

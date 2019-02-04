@@ -51,7 +51,7 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	private func syncMessages() {
-		guard let pushRegistrationId = mmContext.currentInstallation.pushRegistrationId else {
+		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			MMLogWarn("[Message fetching] No registration. Finishing...")
 			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
 			finish()
