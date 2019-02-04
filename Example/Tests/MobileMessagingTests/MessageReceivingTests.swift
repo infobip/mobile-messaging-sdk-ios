@@ -304,9 +304,11 @@ class MessageReceivingTests: MMTestCase {
 		
         let delegateMock = MessageHandlingDelegateMock()
         delegateMock.didPerformActionHandler = { action, message, _ in
-			if let message = message, action.identifier == NotificationAction.DefaultActionId {
-                tappedMessages.append(message)
-            }
+			DispatchQueue.main.sync {
+				if let message = message, action.identifier == NotificationAction.DefaultActionId {
+					tappedMessages.append(message)
+				}
+			}
         }
         MobileMessaging.messageHandlingDelegate = delegateMock
 		
