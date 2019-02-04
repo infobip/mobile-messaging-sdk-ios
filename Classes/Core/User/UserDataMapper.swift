@@ -55,19 +55,24 @@ class UserDataMapper {
 
 	class func requestPayload(currentUser: User, dirtyUser: User) -> RequestBody {
 		var ret = deltaDict(currentUser.dictionaryRepresentation, dirtyUser.dictionaryRepresentation)
-		ret["phones"] = (ret["phones"] as? [String])?.reduce([[String: Any]](), { (result, phoneNumber) -> [[String: Any]] in
-			let entry: [String: Any] = ["number": phoneNumber]
-			return result + [entry]
-		})
-		ret["emails"] = (ret["emails"] as? [String])?.reduce([[String: Any]](), { (result, address) -> [[String: Any]] in
-			let entry: [String: Any] = ["address": address]
-			return result + [entry]
-		})
+		ret["installations"] = nil
+		if let phones = (ret["phones"] as? [String]) {
+			ret["phones"] = phones.reduce([[String: Any]](), { (result, phoneNumber) -> [[String: Any]] in
+				let entry: [String: Any] = ["number": phoneNumber]
+				return result + [entry]
+			})
+		}
+		if let emails = (ret["emails"] as? [String]) {
+			ret["emails"] = emails.reduce([[String: Any]](), { (result, address) -> [[String: Any]] in
+				let entry: [String: Any] = ["address": address]
+				return result + [entry]
+			})
+		}
 		return ret
 	}
 
 	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: AttributeType]?) -> [String: Any]? {
-		guard let userCustomAttributes = userCustomAttributes else {
+		guard let userCustomAttributes = userCustomAttributes, !userCustomAttributes.isEmpty else {
 			return nil
 		}
 		let filteredCustomAttributes: [String: AttributeType] = userCustomAttributes

@@ -14,7 +14,7 @@ class CreateInstanceOperation : Operation {
 	let finishBlock: ((FetchInstanceDataResult) -> Void)?
 	var result: FetchInstanceDataResult = FetchInstanceDataResult.Cancel
 	let requireResponse: Bool
-	let body: [String: Any]
+	var body: [String: Any]
 
 	init?(currentInstallation: Installation, dirtyInstallation: Installation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: ((FetchInstanceDataResult) -> Void)?) {
 		self.mmContext = mmContext
@@ -51,7 +51,7 @@ class CreateInstanceOperation : Operation {
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-
+		body["notificationsEnabled"] = true // this is a workaround because registration may happen before user granted any permissions, so that they may be undefined. Forcing true.
 		mmContext.remoteApiProvider.postInstance(applicationCode: mmContext.applicationCode, body: body) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)
@@ -72,12 +72,6 @@ class CreateInstanceOperation : Operation {
 				id.systemDataHash = 0
 				id.archive()
 			}
-
-//			Installation.modifyAll { (installation) in
-//				installation.pushServiceToken = response.pushServiceToken
-//				installation.pushRegistrationId = response.pushRegistrationId
-//				installation.isPushRegistrationEnabled = response.isPushRegistrationEnabled
-//			}
 
 			response.archiveAll()
 
