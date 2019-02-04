@@ -157,66 +157,47 @@ class UserDataTests: MMTestCase {
 		waitForExpectations(timeout: 20, handler: nil)
 	}
 
-//	func testUserDataFetching() {
-//		weak var expectation = self.expectation(description: "save completed")
-//
-//		//Precondiotions
-//		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-//
-//		let currentUser = MobileMessaging.getUser()!
-//
-//		_ = currentUser.set(customAttribute: "Death Star" as NSString, forKey: "home")
-//		_ = currentUser.set(customAttribute: "Beer" as NSString, forKey: "drink")
-//		_ = currentUser.set(customAttribute: "Pizza" as NSString, forKey: "food")
-//		_ = currentUser.set(customAttribute: 189.5 as NSNumber, forKey: "height")
-//
-//		currentUser.externalUserId = "externalUserId"
-//		currentUser.firstName = "Darth"
-//		currentUser.lastName = "Vader"
-//		currentUser.birthday = darthVaderDateOfBirth
-//		currentUser.gender = .Male
-//
-//		currentUser.phones = ["79214444444"]
-//		currentUser.emails = ["darth@vader.com"]
-//
-//		XCTAssertTrue(currentUser.isChanged)
-//
-//		let remoteApiProvider = RemoteApiUserAttributesMock()
-//		remoteApiProvider.getClosure = { applicationCode, pushRegistrationId, completion in
-//			let response = User(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: [Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
-//
-//			completion(FetchUserDataResult.Success(response))
-//		}
-//		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
-//
-//		currentUser.resetNeedToSync(attributesSet: Attributes.userDataAttributesSet) // explicitly reset dirty attributes to accomplish the successful fetching
-//		currentUser.persist()
-//
-//		currentUser.fetchFromServer(completion: { (user, error) in
-//			XCTAssertNil(error)
-//
-//			XCTAssertNil(currentUser.externalUserId)
-//			XCTAssertFalse(currentUser.isChanged)
-//			XCTAssertEqual(currentUser.firstName, "Darth")
-//			XCTAssertEqual(currentUser.lastName, "Vader")
-//			XCTAssertEqual(currentUser.birthday, darthVaderDateOfBirth)
-//			XCTAssertEqual(currentUser.gender, .Male)
-//			XCTAssertEqual(currentUser.phones, ["79214444444"])
-//			XCTAssertEqual(currentUser.emails?.first, "darth@vader.com")
-//			XCTAssertEqual(currentUser.installations, [Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
-//
-//			XCTAssertEqual(currentUser.customAttributes?["nativePlace"] as? String, "Tatooine")
-//			XCTAssertEqual(currentUser.customAttributes?["mentor"] as? String, "Obi Wan Kenobi")
-//			XCTAssertEqual(currentUser.customAttributes?["home"] as? String, "Death Star")
-//			XCTAssertEqual(currentUser.customAttributes?["drink"] as? String, "Beer")
-//			XCTAssertEqual(currentUser.customAttributes?["food"] as? String, "Pizza")
-//			XCTAssertEqual(currentUser.customAttributes?["height"] as? NSNumber, 189.5)
-//			XCTAssertEqual(currentUser.customAttributes?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
-//			expectation?.fulfill()
-//		})
-//
-//		waitForExpectations(timeout: 20, handler: nil)
-//	}
+	func testUserDataFetching() {
+		weak var expectation = self.expectation(description: "save completed")
+
+		//Precondiotions
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+
+		let remoteApiProvider = RemoteApiUserAttributesMock()
+		remoteApiProvider.getClosure = { applicationCode, pushRegistrationId, completion in
+			let response = User(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: [Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
+
+			completion(FetchUserDataResult.Success(response))
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
+		// explicitly reset dirty attributes to accomplish the successful fetching
+
+		MobileMessaging.fetchUser(completion: { (user, error) in
+			XCTAssertNil(error)
+			let currentUser = MobileMessaging.getUser()!
+
+			XCTAssertNil(currentUser.externalUserId)
+
+			XCTAssertEqual(currentUser.firstName, "Darth")
+			XCTAssertEqual(currentUser.lastName, "Vader")
+			XCTAssertEqual(currentUser.birthday, darthVaderDateOfBirth)
+			XCTAssertEqual(currentUser.gender, .Male)
+			XCTAssertEqual(currentUser.phones, ["79214444444"])
+			XCTAssertEqual(currentUser.emails?.first, "darth@vader.com")
+			XCTAssertEqual(currentUser.installations, [Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
+
+			XCTAssertEqual(currentUser.customAttributes?["nativePlace"] as? String, "Tatooine")
+			XCTAssertEqual(currentUser.customAttributes?["mentor"] as? String, "Obi Wan Kenobi")
+			XCTAssertEqual(currentUser.customAttributes?["home"] as? String, "Death Star")
+			XCTAssertEqual(currentUser.customAttributes?["drink"] as? String, "Beer")
+			XCTAssertEqual(currentUser.customAttributes?["food"] as? String, "Pizza")
+			XCTAssertEqual(currentUser.customAttributes?["height"] as? NSNumber, 189.5)
+			XCTAssertEqual(currentUser.customAttributes?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
+			expectation?.fulfill()
+		})
+
+		waitForExpectations(timeout: 20, handler: nil)
+	}
 
 	func testThatFetchedUserDataIgnoredIfHasUnsyncedLocalChanges() {
 		MMTestCase.cleanUpAndStop()
@@ -348,7 +329,7 @@ class UserDataTests: MMTestCase {
 func performMergeInterruptedUserUpdateCase(user: User, then: (() -> Void)? = nil) {
 	MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = mergeInterruptedApiMock
 	MobileMessaging.saveUser(user, completion: { (error) in
-		XCTAssertEqual(error!.mm_code, "USER_MERGE_INTERRUPTED")
+		XCTAssertTrue(error!.mm_code == "USER_MERGE_INTERRUPTED" || error!.mm_code == "AMBIGUOUS_PERSONALIZE_CANDIDATES")
 		then?()
 	})
 }

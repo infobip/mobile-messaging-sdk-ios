@@ -54,65 +54,6 @@ class PersonalizeTests: MMTestCase {
 		}
 	}
 
-	func testThatUserAttributesAppliedAfterPersonalize() {
-		weak var depersonalizeFinished = expectation(description: "Depersonalize")
-
-		let responseStub: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is PostPersonalize):
-				let jsonStr = """
-	{
-		"firstName": "John",
-		"externalUserId": "externalUserId",
-		"lastName": "Dow",
-		"middleName": "S",
-		"tags": ["tag1","tag2"],
-		"gender": "Male",
-		"customAttributes": {
-			"bootsize": 9
-		}
-	}
-"""
-				return JSON.parse(jsonStr)
-			default:
-				return nil
-			}
-		}
-
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: nil,
-			completionCompanionBlock: nil,
-			responseSubstitution: responseStub)
-
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
-		let user = MobileMessaging.getUser()!
-		user.firstName = "Darth"
-		user.customAttributes = ["bootsize": 9.5 as NSNumber]
-		MobileMessaging.persistUser(user)
-
-		XCTAssertEqual(MobileMessaging.getUser()!.firstName, "Darth")
-		XCTAssertEqual(MobileMessaging.getUser()!.customAttributes! as NSDictionary, ["bootsize": 9.5 as NSNumber])
-
-		let givenUserAttributes = UserAttributes(firstName: "John", middleName: nil, lastName: "Dow", tags: ["tag1", "tag2"], gender: .Male, birthday: nil, customAttributes: ["bootsize": NSNumber(value: 9)])
-		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: givenUserAttributes, completion: { _ in
-			XCTAssertTrue(self.mobileMessagingInstance.internalData().currentDepersonalizationStatus == SuccessPending.undefined)
-			depersonalizeFinished?.fulfill()
-		})
-
-		waitForExpectations(timeout: 20) { _ in
-			// assert there is no user data
-			let user = MobileMessaging.getUser()!
-			XCTAssertEqual(user.firstName, "John")
-			XCTAssertEqual(user.middleName, "S")
-			XCTAssertEqual(user.externalUserId, "externalUserId")
-			XCTAssertEqual(user.lastName, "Dow")
-			XCTAssertEqual(user.tags, ["tag1","tag2"])
-			XCTAssertEqual(user.gender, .Male)
-			XCTAssertEqual(user.customAttributes! as NSDictionary, ["bootsize": NSNumber(value: 9)])
-		}
-	}
-
 	func testThatDefaultMessageStorageCleanedUpAfterDepersonalize() {
 		weak var depersonalizeFinished = expectation(description: "Depersonalize")
 		weak var messagesReceived = expectation(description: "messagesReceived")
@@ -310,6 +251,81 @@ class PersonalizeTests: MMTestCase {
 		}
 	}
 
+	func testThatAfterAmbiguousPersonalizeCandidates_UserIdentityRollsBack() {
+		weak var expectation = self.expectation(description: "expectation")
+		mobileMessagingInstance.pushRegistrationId = "123"
+
+		performAmbiguousPersonalizeCandidatesCase(userIdentity: UserIdentity(phones: ["1"], emails: ["2"], externalUserId: "123")!) {
+			expectation?.fulfill()
+		}
+
+		waitForExpectations(timeout: 20, handler: { _ in
+			let user = MobileMessaging.getUser()!
+			XCTAssertNil(user.phones)
+			XCTAssertNil(user.emails)
+			XCTAssertNil(user.externalUserId)
+		})
+	}
+
+	func testThatAfterSuccessfulPersonalizeUserIdentityAndAttributesPersisted() {
+		weak var expectation = self.expectation(description: "expectation")
+		mobileMessagingInstance.pushRegistrationId = "123"
+		let responseStub: (Any) -> JSON? = { request -> JSON? in
+			switch request {
+			case (is PostPersonalize):
+				let jsonStr = """
+	{
+		"phones": [
+			{
+				"number": "1"
+			}
+		],
+		"emails": [
+			{
+				"address": "2",
+			}
+		],
+		"customAttributes": {
+			"bootsize": 9.5
+		},
+		"externalUserId": "externalUserId",
+		"firstName": "firstName",
+		"middleName": "middleName",
+		"lastName": "lastName",
+		"tags": ["t1", "t2"],
+		"gender": "Male",
+		"birthday": "1980-12-12"
+	}
+"""
+				return JSON.parse(jsonStr)
+			default:
+				return nil
+			}
+		}
+
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: nil,
+			completionCompanionBlock: nil,
+			responseSubstitution: responseStub)
+		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: ["1"], emails: ["2"], externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
+			expectation?.fulfill()
+		})
+
+		waitForExpectations(timeout: 20, handler: { _ in
+			let user = MobileMessaging.getUser()!
+			XCTAssertEqual(user.phones, ["1"])
+			XCTAssertEqual(user.emails, ["2"])
+			XCTAssertEqual(user.externalUserId, "externalUserId")
+			XCTAssertEqual(user.firstName, "firstName")
+			XCTAssertEqual(user.middleName, "middleName")
+			XCTAssertEqual(user.lastName, "lastName")
+			XCTAssertEqual(user.tags, ["t1", "t2"])
+			XCTAssertEqual(user.gender, .Male)
+			XCTAssertEqual(user.birthday, darthVaderDateOfBirth)
+			XCTAssertEqual(user.customAttributes! as NSDictionary, ["bootsize": 9.5 as NSNumber])
+		})
+	}
+
 	//MARK: - private
 	private func prepareUserData() {
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -336,6 +352,14 @@ class PersonalizeTests: MMTestCase {
 		})
 	}
 
+	private func performAmbiguousPersonalizeCandidatesCase(userIdentity: UserIdentity, then: (() -> Void)? = nil) {
+		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = ambiguousPersonalizeCandidatesApiMock
+		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: userIdentity, userAttributes: nil, completion: { e in
+			XCTAssertNotNil(e)
+			then?()
+		})
+	}
+
 	private func performFailedDepersonalizeCaseWithOverlimit(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = failedDepersonalizeApiMock
 		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { e in
@@ -356,3 +380,20 @@ class PersonalizeTests: MMTestCase {
 		})
 	}
 }
+
+let ambiguousPersonalizeCandidatesApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+	switch request {
+	case is PostPersonalize:
+		let responseDict = ["requestError":
+			["serviceException":
+				[
+					"text": "AMBIGUOUS_PERSONALIZE_CANDIDATES",
+					"messageId": "AMBIGUOUS_PERSONALIZE_CANDIDATES"
+				]
+			]
+		]
+		return JSON(responseDict)
+	default:
+		return nil
+	}
+})
