@@ -34,7 +34,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 		}
 	}
 	///
-
+	var registrationDate: Date? = nil
 	var systemDataHash: Int64
 	var location: CLLocation?
 	var badgeNumber: Int
@@ -63,6 +63,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 		applicationCode = aDecoder.decodeObject(forKey: "applicationCode") as? String
 		depersonalizeFailCounter = aDecoder.decodeInteger(forKey: "depersonalizeFailCounter")
 		currentDepersonalizationStatus = SuccessPending(rawValue: aDecoder.decodeInteger(forKey: "currentDepersonalizationStatus")) ?? .undefined
+		registrationDate = aDecoder.decodeObject(forKey: "registrationDate") as? Date
 	}
 
 	func encode(with aCoder: NSCoder) {
@@ -72,6 +73,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 		aCoder.encode(applicationCode, forKey: "applicationCode")
 		aCoder.encode(depersonalizeFailCounter, forKey: "depersonalizeFailCounter")
 		aCoder.encode(currentDepersonalizationStatus.rawValue, forKey: "currentDepersonalizationStatus")
+		aCoder.encode(registrationDate, forKey: "registrationDate")
 	}
 }
 

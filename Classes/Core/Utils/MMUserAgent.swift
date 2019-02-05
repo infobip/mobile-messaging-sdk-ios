@@ -68,10 +68,21 @@ public class UserAgent: NSObject {
 	}
 	
 	public var notificationsEnabled: Bool {
+		if itsToEarlyToCheckNotificationsEnabledStatus() {
+			return true
+		}
 		guard let settings = MobileMessaging.application.currentUserNotificationSettings else {
 			return true
 		}
 		return !settings.types.isEmpty
+	}
+
+	private func itsToEarlyToCheckNotificationsEnabledStatus() -> Bool {
+		if let registrationTimestamp = MobileMessaging.sharedInstance?.internalData().registrationDate?.timeIntervalSince1970 {
+			return (Date().timeIntervalSince1970 - registrationTimestamp) > 60*60*1 /*1 hr*/
+		} else {
+			return true
+		}
 	}
 	
 	public var osVersion: String {
