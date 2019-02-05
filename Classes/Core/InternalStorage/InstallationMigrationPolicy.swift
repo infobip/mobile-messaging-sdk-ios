@@ -82,6 +82,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			internalData.depersonalizeFailCounter = (sInstance.value(forKey: "logoutFailCounter") as? Int) ?? 0
 	 		internalData.currentDepersonalizationStatus = (sInstance.value(forKey: "logoutStatusValue") as? Int).ifSome({SuccessPending(rawValue: $0)}) ?? .undefined
 			internalData.systemDataHash = (sInstance.value(forKey: "systemDataHash") as? Int64) ?? 0
+			internalData.registrationDate = Date()
 
 			User.empty.archiveCurrent()
 			user.archiveDirty()
@@ -120,6 +121,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			internalData.depersonalizeFailCounter = (sInstance.value(forKey: "logoutFailCounter") as? Int) ?? 0
 			internalData.currentDepersonalizationStatus = (sInstance.value(forKey: "logoutStatusValue") as? Int).ifSome({SuccessPending(rawValue: $0)}) ?? .undefined
 			internalData.systemDataHash = (sInstance.value(forKey: "systemDataHash") as? Int64) ?? 0
+			internalData.registrationDate = Date()
 
 			User.empty.archiveCurrent()
 			user.archiveDirty()
