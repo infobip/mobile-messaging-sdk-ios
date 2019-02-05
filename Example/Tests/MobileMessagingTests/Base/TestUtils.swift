@@ -119,6 +119,7 @@ final class MMGeoRemoteAPIAlwaysSucceeding : RemoteAPIQueue {
 
 class MMRemoteAPIMock: RemoteAPILocalMocks {
 	var responseMock: ((_ request: Any) -> JSON?)? // (Request) -> (JSON)
+	var errorStub: ((_ request: Any) -> NSError?)? = nil
 	var performRequestCompanionBlock: ((Any) -> Void)?
 	var completionCompanionBlock: ((Any?) -> Void)?
 	
@@ -148,6 +149,9 @@ class MMRemoteAPIMock: RemoteAPILocalMocks {
 					completion(Result.Failure(MMInternalErrorType.UnknownError.foundationError))
 					self.completionCompanionBlock?(nil)
 				}
+			} else if let error = self.errorStub?(request) {
+				completion(Result.Failure(error))
+				self.completionCompanionBlock?(nil)
 			} else {
 				completion(Result.Failure(MMInternalErrorType.UnknownError.foundationError))
 				self.completionCompanionBlock?(nil)
@@ -344,3 +348,5 @@ class MessagHandlerMock: MMMessageHandler {
 		finishBlock?(MessagesSyncResult.Cancel)
 	}
 }
+
+let retryableError = NSError(domain: NSURLErrorDomain, code: 404, userInfo: nil)

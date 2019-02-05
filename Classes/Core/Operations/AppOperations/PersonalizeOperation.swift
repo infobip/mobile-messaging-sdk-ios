@@ -75,11 +75,14 @@ class PersonalizeOperation: Operation {
 			self.handleSuccessfulPersonalize(result.value)
 		case .Failure(let error):
 			MMLogError("[PersonalizeOperation] failed with force depersonalizing \(forceDepersonalize) with error: \(error.orNil)")
-			if error?.mm_code == "AMBIGUOUS_PERSONALIZE_CANDIDATES" || error?.mm_code == "USER_MERGE_INTERRUPTED" {
-				rollbackUserIdentity()
-			}
-			if forceDepersonalize {
-				DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
+			if let error = error {
+				if error.mm_code == "AMBIGUOUS_PERSONALIZE_CANDIDATES" || error.mm_code == "USER_MERGE_INTERRUPTED" {
+					rollbackUserIdentity()
+				} else if error.mm_isRetryable {
+					if forceDepersonalize {
+						DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
+					}
+				}
 			}
 		case .Cancel:
 			MMLogWarn("[PersonalizeOperation] cancelled")

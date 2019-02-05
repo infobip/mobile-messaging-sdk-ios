@@ -326,7 +326,8 @@ let successfulDepersonalizeApiMock = MMRemoteAPIMock(performRequestCompanionBloc
 })
 
 
-let failedDepersonalizeApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+var failedDepersonalizeApiMock: MMRemoteAPIMock {
+	let ret = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
 	switch request {
 	case is PostPersonalize:
 		return nil
@@ -337,4 +338,18 @@ let failedDepersonalizeApiMock = MMRemoteAPIMock(performRequestCompanionBlock: n
 	default:
 		return nil
 	}
-})
+	})
+	ret.errorStub = { request in
+		switch request {
+		case is PostPersonalize:
+		return retryableError
+		case is PostDepersonalize:
+		return retryableError
+		case is MessagesSyncRequest:
+		return retryableError
+		default:
+		return nil
+	}
+	}
+	return ret
+}
