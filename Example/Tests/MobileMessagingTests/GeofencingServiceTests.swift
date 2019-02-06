@@ -304,7 +304,7 @@ class GeofencingServiceTests: MMTestCase {
 
 		}, completionCompanionBlock: { _ in
 			
-		}, responseMock: { r -> JSON? in
+		}, responseStub: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -377,7 +377,7 @@ class GeofencingServiceTests: MMTestCase {
 		}, completionCompanionBlock:
 			{ _ in
 				
-		}, responseMock:
+		}, responseStub:
 			{ r -> JSON? in
 				let jsonStr  =
 					"{" +
@@ -450,7 +450,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 		}, completionCompanionBlock: { _ in
 			
-		}, responseMock: { r -> JSON? in
+		}, responseStub: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -592,7 +592,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 		}, completionCompanionBlock: { _ in
 			
-		}, responseMock: { r -> JSON? in
+		}, responseStub: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -681,7 +681,7 @@ class GeofencingServiceTests: MMTestCase {
 				
 		}, completionCompanionBlock: { _ in
 			
-		}, responseMock: { r -> JSON? in
+		}, responseStub: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -1042,7 +1042,7 @@ class GeofencingServiceTests: MMTestCase {
 
 		}, completionCompanionBlock: { _ in
 			
-		}, responseMock: { r -> JSON? in
+		}, responseStub: { r -> JSON? in
 			let jsonStr  =
 				"{" +
 					"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -1273,7 +1273,7 @@ class GeofencingServiceTests: MMTestCase {
 				}
 			}
 		}, completionCompanionBlock: { _ in }
-			, responseMock: { (r) -> JSON? in
+			, responseStub: { (r) -> JSON? in
 				let jsonStr  =
 					"{" +
 						"\"\(Consts.GeoReportingAPIKeys.finishedCampaignIds)\": [\"\(finishedCampaignId)\"]," +
@@ -1375,7 +1375,7 @@ class GeofencingServiceTests: MMTestCase {
 			, completionCompanionBlock: { _ in
 
 		}
-			, responseMock: { (r) -> JSON? in
+			, responseStub: { (r) -> JSON? in
 				if MobileMessaging.reachabilityManagerFactory().currentlyReachable() {
 					let jsonStr  =
 						"{" +
@@ -1490,7 +1490,7 @@ class GeofencingServiceTests: MMTestCase {
 			XCTFail() // the seen must not be sent, there are only sdk generated message ids
 		}, completionCompanionBlock: { (r) in
 			XCTFail()
-		}, responseMock: { (r) -> JSON? in
+		}, responseStub: { (r) -> JSON? in
 			XCTFail()
 			return nil
 		})
@@ -1510,7 +1510,7 @@ class GeofencingServiceTests: MMTestCase {
 			, completionCompanionBlock: { _ in
 
 		}
-			, responseMock: { (r) -> JSON? in
+			, responseStub: { (r) -> JSON? in
 				if MobileMessaging.reachabilityManagerFactory().currentlyReachable() {
 					let jsonStr  =
 						"{" +

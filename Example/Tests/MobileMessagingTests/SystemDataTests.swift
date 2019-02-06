@@ -49,44 +49,47 @@ class SystemDataTests: MMTestCase {
 		}
 	}
 	
-//	func testThatNotificationsSettingsIsBeingSyncedAfterChanged() {
-//		//Preparations
-//		weak var expectation = self.expectation(description: "registration sent")
-//		var sentSettings = [Bool]()
-//		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-//		remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, installation, requestBody, completion in
-//			sentSettings.append(MobileMessaging.userAgent.notificationsEnabled)
-//			completion(UpdateInstanceDataResult.Success(EmptyResponse()))
-//		}
-//		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
-//
-//		//requirements
-//		mobileMessagingInstance.pushRegistrationId = "stub"
-//		mobileMessagingInstance.systemDataHash = 0
-//
-//		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
-//		MobileMessaging.application = NotificationsEnabledMock()
-//
-//		// system data sends notificationsEnabled: true (initial sync because systemDataHash == 0) + 1
-//		self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
-//			
-//			MobileMessaging.application = NotificationsDisabledMock()
-//			// system data sends notificationsEnabled: false  (notification settings changed) +1
-//			self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
-//
-//				// system data request sending not expected (notification settings non changed)
-//				self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
-//					expectation?.fulfill()
-//				})
-//			})
-//		})
-//
-//		self.waitForExpectations(timeout: 6000) { error in
-//			XCTAssertEqual(sentSettings.count, 2)
-//			XCTAssertTrue(sentSettings.contains(true))
-//			XCTAssertTrue(sentSettings.contains(false))
-//		}
-//	}
+	func testThatNotificationsSettingsIsBeingSyncedAfterChanged() {
+		//Preparations
+		weak var expectation = self.expectation(description: "registration sent")
+		var sentSettings = [Bool]()
+		let remoteProviderMock = RemoteApiInstanceAttributesMock()
+		remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, installation, requestBody, completion in
+			sentSettings.append(requestBody["notificationsEnabled"] as! Bool)
+			completion(UpdateInstanceDataResult.Success(EmptyResponse()))
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
+
+		//requirements
+		mobileMessagingInstance.pushRegistrationId = "stub"
+		mobileMessagingInstance.systemDataHash = 0
+		
+		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
+		MobileMessaging.application = NotificationsEnabledMock() //<<<
+
+		// system data sends notificationsEnabled: true (initial sync because systemDataHash == 0) + 1
+		self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
+
+			MobileMessaging.application = NotificationsDisabledMock() //<<<
+			// system data sends notificationsEnabled: false  (notification settings changed but the timeout is not expired)
+			self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
+
+				timeTravel(to: Date(timeIntervalSince1970: Date().timeIntervalSince1970 + 60*60), block: {
+
+					// system data sends notificationsEnabled: false  (now, another request is expected because timeout has expired) + 1
+					self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
+						expectation?.fulfill()
+					})
+				})
+			})
+		})
+
+		self.waitForExpectations(timeout: 6000) { error in
+			XCTAssertEqual(sentSettings.count, 2)
+			XCTAssertTrue(sentSettings.contains(true))
+			XCTAssertTrue(sentSettings.contains(false))
+		}
+	}
 
 	func testThatSystemDataRespectsPrivacySettings() {
 		do {

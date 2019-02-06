@@ -312,7 +312,7 @@ class DepersonalizeTests: MMTestCase {
 	}
 }
 
-let successfulDepersonalizeApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+let successfulDepersonalizeApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
 	switch request {
 	case is PostPersonalize:
 		return JSON.parse("")
@@ -327,7 +327,7 @@ let successfulDepersonalizeApiMock = MMRemoteAPIMock(performRequestCompanionBloc
 
 
 var failedDepersonalizeApiMock: MMRemoteAPIMock {
-	let ret = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+	let ret = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
 	switch request {
 	case is PostPersonalize:
 		return nil

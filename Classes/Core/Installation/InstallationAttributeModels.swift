@@ -20,7 +20,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 	static var currentPath = getDocumentsDirectory(filename: "internal-data")
 	static var cached = ThreadSafeDict<InternalData>()
 	static var empty: InternalData {
-		return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined)
+		return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined, registrationDate: nil)
 	}
 	func removeSensitiveData() {
 		if MobileMessaging.privacySettings.applicationCodePersistingDisabled  {
@@ -34,7 +34,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 		}
 	}
 	///
-	var registrationDate: Date? = nil
+	var registrationDate: Date?
 	var systemDataHash: Int64
 	var location: CLLocation?
 	var badgeNumber: Int
@@ -43,17 +43,18 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 	var currentDepersonalizationStatus: SuccessPending
 
 	func copy(with zone: NSZone? = nil) -> Any {
-		let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus)
+		let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus, registrationDate: registrationDate)
 		return copy
 	}
 
-	init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, applicationCode: String?, depersonalizeFailCounter: Int, currentDepersonalizationStatus: SuccessPending) {
+	init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, applicationCode: String?, depersonalizeFailCounter: Int, currentDepersonalizationStatus: SuccessPending, registrationDate: Date?) {
 		self.systemDataHash = systemDataHash
 		self.location = location
 		self.badgeNumber = badgeNumber
 		self.applicationCode = applicationCode
 		self.depersonalizeFailCounter = depersonalizeFailCounter
 		self.currentDepersonalizationStatus = currentDepersonalizationStatus
+		self.registrationDate = registrationDate
 	}
 
 	required public init?(coder aDecoder: NSCoder) {

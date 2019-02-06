@@ -27,7 +27,7 @@ class PrimaryDeviceTests: MMTestCase {
 			
 		}, completionCompanionBlock: { (request) in
 			
-		}, responseMock: { (request) -> JSON? in
+		}, responseStub: { (request) -> JSON? in
 			
 			switch request {
 			case (is PatchInstance):
@@ -58,7 +58,7 @@ class PrimaryDeviceTests: MMTestCase {
 			
 		}, completionCompanionBlock: { (request) in
 			
-		}, responseMock: { (request) -> JSON? in
+		}, responseStub: { (request) -> JSON? in
 			switch request {
 			case (is PatchInstance):
 				return JSON("")

@@ -67,7 +67,7 @@ class UpdateInstanceOperation : Operation {
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		
+	
 		mmContext.remoteApiProvider.patchInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: registrationPushRegIdToUpdate, body: body) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)

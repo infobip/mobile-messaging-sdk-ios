@@ -41,7 +41,7 @@ final class RegistrationTests: MMTestCase {
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
 			performRequestCompanionBlock: nil,
 			completionCompanionBlock: nil,
-			responseSubstitution: responseStub)
+			responseStub: responseStub)
 
 		mobileMessagingInstance.installationService.fetchFromServer(completion: { (installation, error) in
 			XCTAssertNil(error)
@@ -198,7 +198,7 @@ final class RegistrationTests: MMTestCase {
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
 			performRequestCompanionBlock: requestPerformCompanion,
 			completionCompanionBlock: nil,
-			responseSubstitution: nil)
+			responseStub: nil)
 		
 		if MobileMessaging.currentInstallation == nil {
 			XCTFail("Installation is nil")
@@ -250,7 +250,7 @@ final class RegistrationTests: MMTestCase {
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
 			performRequestCompanionBlock: requestPerformCompanion,
 			completionCompanionBlock: nil,
-			responseSubstitution: responseStub)
+			responseStub: responseStub)
 		
 		MobileMessaging.sharedInstance?.pushServiceToken = "stub"
 
@@ -314,7 +314,7 @@ final class RegistrationTests: MMTestCase {
 		mm.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
 			performRequestCompanionBlock: nil,
 			completionCompanionBlock: nil,
-			responseSubstitution: responseStatusDisabledStub)
+			responseStub: responseStatusDisabledStub)
 		
 		XCTAssertTrue(mm.messageHandler.isRunning)
 		XCTAssertTrue(GeofencingService.sharedInstance!.isRunning)

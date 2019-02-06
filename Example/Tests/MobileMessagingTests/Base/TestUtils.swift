@@ -118,27 +118,22 @@ final class MMGeoRemoteAPIAlwaysSucceeding : RemoteAPIQueue {
 }
 
 class MMRemoteAPIMock: RemoteAPILocalMocks {
-	var responseMock: ((_ request: Any) -> JSON?)? // (Request) -> (JSON)
+	var responseStub: ((_ request: Any) -> JSON?)?
 	var errorStub: ((_ request: Any) -> NSError?)? = nil
 	var performRequestCompanionBlock: ((Any) -> Void)?
 	var completionCompanionBlock: ((Any?) -> Void)?
-	
-	convenience init(performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseMock: ((_ request: Any) -> JSON?)? = nil) {
-		
-		self.init(performRequestCompanionBlock: performRequestCompanionBlock, completionCompanionBlock: completionCompanionBlock, responseSubstitution: responseMock)
-	}
-	
-	init(performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseSubstitution: ((_ request: Any) -> JSON?)? = nil) {
+
+	init(performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseStub: ((_ request: Any) -> JSON?)? = nil) {
 		self.performRequestCompanionBlock = performRequestCompanionBlock
 		self.completionCompanionBlock = completionCompanionBlock
-		self.responseMock = responseSubstitution
+		self.responseStub = responseStub
 		super.init()
 	}
 	
 	override func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
         performRequestCompanionBlock?(request)
-		if let responseSubstitution = responseMock {
-			if let responseJSON = responseSubstitution(request) {
+		if let responseStub = responseStub {
+			if let responseJSON = responseStub(request) {
 				if let errorResponse = RequestError(json: responseJSON) {
 					completion(Result.Failure(errorResponse.foundationError))
 					self.completionCompanionBlock?(errorResponse)
@@ -180,7 +175,6 @@ class RemoteApiInstanceAttributesMock : RemoteAPIProvider {
 	var patchInstanceClosure: ((String, String, String, RequestBody, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
 	var getInstanceClosure: ((String, String, @escaping (FetchInstanceDataResult) -> Void) -> Void)? = nil
 	var deleteInstanceClosure: ((String, String, String, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
-
 	var patchUserClosure: ((String, String, RequestBody, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
 	var getUserClosure: ((String, String, @escaping (FetchUserDataResult) -> Void) -> Void)? = nil
 

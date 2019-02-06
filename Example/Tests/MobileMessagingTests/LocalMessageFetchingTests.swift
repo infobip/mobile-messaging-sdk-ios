@@ -50,7 +50,7 @@ class LocalMessageFetchingTests : MMTestCase {
 					break
 				}
 				
-			}, completionCompanionBlock: nil, responseMock:
+			}, completionCompanionBlock: nil, responseStub:
                 { _ in return JSON(["payloads": []]) }
 			)
 			mobileMessagingInstance.messageHandler.syncWithServer { (error) in

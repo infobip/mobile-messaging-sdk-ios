@@ -396,7 +396,7 @@ var defaultEvent = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry
 final class MMRemoteAPICampaignStatesStub : MMRemoteAPIMock {
 
 	convenience init(mobileMessagingContext: MobileMessaging, suspendedCampaignId: String, finishedCampaignId: String) {
-		self.init(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+		self.init(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
 			if let request = request as? GeoEventReportingRequest, request.path == APIPath.GeoEventsReports{
 				let jsonStr: String
 

@@ -306,7 +306,7 @@ class PersonalizeTests: MMTestCase {
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
 			performRequestCompanionBlock: nil,
 			completionCompanionBlock: nil,
-			responseSubstitution: responseStub)
+			responseStub: responseStub)
 		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: ["1"], emails: ["2"], externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
 			expectation?.fulfill()
 		})
@@ -381,7 +381,7 @@ class PersonalizeTests: MMTestCase {
 	}
 }
 
-let ambiguousPersonalizeCandidatesApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+let ambiguousPersonalizeCandidatesApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
 	switch request {
 	case is PostPersonalize:
 		let responseDict = ["requestError":

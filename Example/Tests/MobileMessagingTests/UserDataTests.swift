@@ -111,7 +111,7 @@ class UserDataTests: MMTestCase {
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
 			performRequestCompanionBlock: nil,
 			completionCompanionBlock: nil,
-			responseSubstitution: responseStub)
+			responseStub: responseStub)
 
 		mobileMessagingInstance.userService.fetchFromServer(completion: { (user, error) in
 			XCTAssertNil(error)
@@ -293,7 +293,7 @@ class UserDataTests: MMTestCase {
 		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
 			performRequestCompanionBlock: nil,
 			completionCompanionBlock: nil,
-			responseSubstitution: responseStub)
+			responseStub: responseStub)
 
 
 		let user = MobileMessaging.getUser()!
@@ -334,7 +334,7 @@ func performMergeInterruptedUserUpdateCase(user: User, then: (() -> Void)? = nil
 	})
 }
 
-let mergeInterruptedApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+let mergeInterruptedApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
 	switch request {
 	case is PatchUser:
 		let responseDict = ["requestError":

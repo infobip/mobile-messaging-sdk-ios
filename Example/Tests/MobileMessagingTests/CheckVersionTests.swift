@@ -11,7 +11,7 @@ import XCTest
 class VersionCheckRemoteAPIManagerMock: RemoteAPIProvider {
 	init(onlineVersion: String) {
 		super.init()
-		self.versionFetchingQueue = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseSubstitution: { request -> JSON? in
+		self.versionFetchingQueue = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
 			return JSON.parse("{\"platformType\": \"APNS\", \"libraryVersion\": \"\(onlineVersion)\", \"updateUrl\": \"https://github.com/infobip/mobile-messaging-sdk-ios\"}")
 		})
 	}
