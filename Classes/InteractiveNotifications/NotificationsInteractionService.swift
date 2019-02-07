@@ -254,10 +254,9 @@ class NotificationsInteractionService: MobileMessagingService {
 	override func handleNewMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		// this code is better to be moved to UserNotificationCenterDelegate.userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification...) but on old iOS 9 this API is not present.
 		//FIXME: this code is a part of "In-App notification alert" feature along with code from UserNotificationCenterDelegate.userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification...) and both must be moved to a single common place.
-		if 	message.showInApp && message.inAppStyle == .Modal &&
+		if 	message.inAppStyle == .Modal &&
 			(
-				(message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) ||
-					message.appliedAction == nil
+				(message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) || message.appliedAction == nil
 			)
 		{
 			mmContext.interactiveAlertManager.showInteractiveAlert(forMessage: message, exclusively: MobileMessaging.application.applicationState == .background)
@@ -276,9 +275,8 @@ class NotificationsInteractionService: MobileMessagingService {
 		dispatchGroup.enter()
 		deliverActionEventToUser(message: message,
 								 action: appliedAction,
-								 notificationUserInfo: message.originalPayload) {
-									dispatchGroup.leave()
-		}
+								 notificationUserInfo: message.originalPayload,
+								 completion: { dispatchGroup.leave() })
 
 		dispatchGroup.enter()
 		self.mmContext.setSeenImmediately([message.messageId]) { _ in

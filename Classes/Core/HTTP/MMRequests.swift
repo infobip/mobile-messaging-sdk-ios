@@ -189,7 +189,7 @@ extension RequestData {
 	func mustRetryOnResponseError(_ error: NSError) -> Bool {
 		return retryLimit > 0 && error.mm_isCannotFindHost
 	}
-	var retryLimit: Int { return 1 }
+	var retryLimit: Int { return 0 }
 	var headers: RequestHeaders? { return nil }
 	var body: RequestBody? { return nil }
 	var parameters: RequestParameters? { return nil }

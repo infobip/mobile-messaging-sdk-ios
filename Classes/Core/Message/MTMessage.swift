@@ -118,9 +118,9 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 		return internalData?[Consts.InternalDataKeys.showInApp] as? Bool ?? false
 	}
 
-	public var inAppStyle: InAppNotificationStyle {
-		let defaultStyle = InAppNotificationStyle.Modal
-		let resolvedStyle: InAppNotificationStyle
+	public var inAppStyle: InAppNotificationStyle? {
+		let defaultStyle = showInApp ? InAppNotificationStyle.Modal : nil
+		let resolvedStyle: InAppNotificationStyle?
 		if #available(iOS 10.0, *) { // means foreground banner is supported
 			if let rawValue = internalData?[Consts.InternalDataKeys.inAppStyle] as? Int16 {
 				resolvedStyle = InAppNotificationStyle(rawValue: rawValue) ?? defaultStyle

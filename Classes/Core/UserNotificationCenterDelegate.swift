@@ -67,7 +67,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 	func presentationOptions(for message: MTMessage?) -> UNNotificationPresentationOptions {
 		let ret: UNNotificationPresentationOptions
 
-		if let msg = message, msg.showInApp && msg.inAppStyle == .Banner {
+		if let msg = message, msg.inAppStyle == .Banner {
 			ret = UNNotificationPresentationOptions.make(with:  MobileMessaging.sharedInstance?.userNotificationType ?? [])
 		} else {
 			ret = []
