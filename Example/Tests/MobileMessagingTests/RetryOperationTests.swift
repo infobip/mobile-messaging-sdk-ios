@@ -48,23 +48,6 @@ final class MMTestRechabilityOperation<RequestType: RequestData>: MMRetryableReq
 
 final class RetryOperationTests: MMTestCase {
 	
-	func testReachabilityLogic() {
-		weak var expectation = self.expectation(description: "Retryable operation finished")
-
-		let body = mobileMessagingInstance.currentInstallation().dictionaryRepresentation
-		let r: PostInstance! = PostInstance(applicationCode: "", body: body, returnPushServiceToken: true)
-
-		let op = MMTestRechabilityOperation(request: r!, reachabilityManager: MMStubNetworkReachabilityManager(), sessionManager: MobileMessaging.httpSessionManager) { op in
-			expectation?.fulfill()
-		}
-		let retryOpQ = MMRetryOperationQueue()
-		retryOpQ.addOperation(op)
-
-		self.waitForExpectations(timeout: 60) { _ in
-			XCTAssertEqual(operationExecutionCounter, 2, "Operation must be executed 2 times: 1st - initial, 2nd - after we get reachable status")
-		}
-	}
-
     func testRetryCounters() {
 		weak var expectation = self.expectation(description: "Retryable operation finished")
 		let retryLimit = 2
