@@ -392,15 +392,84 @@ class MessageReceivingTests: MMTestCase {
 								}
 							},
 							"internalData": {
-								"inApp": 1,
+								"inApp": true,
 								"inAppStyle": 1
 							}
 						}
 						"""
 
-		let options = UserNotificationCenterDelegate.sharedInstance.presentationOptions(for: MTMessage(payload: JSON.parse(jsonStr).dictionaryObject!, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false))
 
+		let m = MTMessage(payload: JSON.parse(jsonStr).dictionaryObject!, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
+		let options = UserNotificationCenterDelegate.sharedInstance.presentationOptions(for: m)
+		XCTAssertEqual(m.inAppStyle , InAppNotificationStyle.Banner)
 		XCTAssertEqual(options, UNNotificationPresentationOptions.make(with: mobileMessagingInstance.userNotificationType))
+	}
+
+	func testThatModalAlertWillBeResolved() {
+		let jsonStr  = """
+						{
+							"messageId": "messageId",
+							"aps": {
+								"badge": 6,
+								"sound": "default",
+								"alert": {
+									"body":"text"
+								}
+							},
+							"internalData": {
+								"inApp": true,
+								"inAppStyle": 0
+							}
+						}
+						"""
+
+
+		let m = MTMessage(payload: JSON.parse(jsonStr).dictionaryObject!, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
+		XCTAssertEqual(m.inAppStyle , InAppNotificationStyle.Modal)
+	}
+
+	func testThatBannerAlertWillBeResolvedIf_inApp_isAbsent() {
+		let jsonStr  = """
+						{
+							"messageId": "messageId",
+							"aps": {
+								"badge": 6,
+								"sound": "default",
+								"alert": {
+									"body":"text"
+								}
+							},
+							"internalData": {
+								"inAppStyle": 1
+							}
+						}
+						"""
+
+
+		let m = MTMessage(payload: JSON.parse(jsonStr).dictionaryObject!, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
+		XCTAssertEqual(m.inAppStyle , InAppNotificationStyle.Banner)
+	}
+
+	func testThatModalAlertWillBeResolvedIf_inApp_isAbsent() {
+		let jsonStr  = """
+						{
+							"messageId": "messageId",
+							"aps": {
+								"badge": 6,
+								"sound": "default",
+								"alert": {
+									"body":"text"
+								}
+							},
+							"internalData": {
+								"inAppStyle": 0
+							}
+						}
+						"""
+
+
+		let m = MTMessage(payload: JSON.parse(jsonStr).dictionaryObject!, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
+		XCTAssertEqual(m.inAppStyle , InAppNotificationStyle.Modal)
 	}
 
 	func testThatModalAlertWillBeShownForModalInAppStyle() {
@@ -415,7 +484,7 @@ class MessageReceivingTests: MMTestCase {
 								}
 							},
 							"internalData": {
-								"inApp": 1,
+								"inApp": true,
 								"inAppStyle": 0
 							}
 						}
@@ -434,7 +503,7 @@ class MessageReceivingTests: MMTestCase {
 								}
 							},
 							"internalData": {
-								"inApp": 1
+								"inApp": true
 							}
 						}
 						""")
