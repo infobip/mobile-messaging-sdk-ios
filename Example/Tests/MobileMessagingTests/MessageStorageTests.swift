@@ -10,6 +10,10 @@ import UserNotifications
 @testable import MobileMessaging
 
 class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
+	func findNonSeenMessageIds(completion: @escaping (([String]) -> Void)) {
+		completion([])
+	}
+
 	var messagesCountersUpdateHandler: ((Int, Int) -> Void)?
 	
 	func countAllMessages(completion: @escaping (Int) -> Void) {

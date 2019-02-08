@@ -55,6 +55,7 @@ public class Query: NSObject {
 	func countAllMessages(completion: @escaping (Int) -> Void)
 	func findAllMessages(completion: @escaping FetchResultBlock)
 	func findAllMessageIds(completion: @escaping (([String]) -> Void))
+	func findNonSeenMessageIds(completion: @escaping (([String]) -> Void))
 	func findMessages(withIds messageIds: [MessageId], completion: @escaping FetchResultBlock)
 	func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock)
 }

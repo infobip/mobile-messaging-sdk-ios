@@ -10,7 +10,6 @@ import CoreData
 
 /// Default implementation of the Message Storage protocol. Uses Core Data persistent storage with SQLite database.
 @objc public class MMDefaultMessageStorage: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
-	
 	var totalMessagesCount_: Int = 0
 	var nonSeenMessagesCount_: Int = 0
 	
@@ -85,13 +84,25 @@ import CoreData
 			return
 		}
 		context.perform {
+			let messageIds = Message.MM_selectAttribute("messageId", withPredicte: nil, inContext: context)
+			self.updateCounters(total: messageIds?.count ?? 0, nonSeen: nil)
+			completion(messageIds as? [String] ?? [])
+		}
+	}
+
+	public func findNonSeenMessageIds(completion: @escaping (([String]) -> Void)) {
+		guard let context = self.context else {
+			completion([])
+			return
+		}
+		context.perform {
 			let predicate = NSPredicate(format: "seenStatusValue == \(MMSeenStatus.NotSeen.rawValue)")
 			let messageIds = Message.MM_selectAttribute("messageId", withPredicte: predicate, inContext: context)
 			self.updateCounters(total: nil, nonSeen: messageIds?.count ?? 0)
 			completion(messageIds as? [String] ?? [])
 		}
 	}
-	
+
 	public func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void) {
 		persist(
 			messages,

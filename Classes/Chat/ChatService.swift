@@ -85,7 +85,7 @@ extension MobileChat: MobileChatProtocol {
 			completion()
 			return
 		}
-		storage.findAllMessageIds { (mids) in
+		storage.findNonSeenMessageIds { (mids) in
 			self.markMessagesSeen(messageIds: mids, completion: completion)
 		}
 	}

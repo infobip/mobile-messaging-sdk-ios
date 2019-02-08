@@ -428,6 +428,24 @@ public final class MobileMessaging: NSObject {
 	/** The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic. */
 	public internal(set) static var privacySettings = PrivacySettings()
 
+	/** The number currently set as the badge of the app icon in Springboard.
+	Set to 0 (zero) to hide the badge number. The default value of this property is 0. */
+	public static var badgeNumber: Int {
+		get {
+			let fact = MobileMessaging.application.applicationIconBadgeNumber
+			InternalData.modifyCurrent { (data) in
+				data.badgeNumber = fact
+			}
+			return fact
+		}
+		set {
+			MobileMessaging.application.applicationIconBadgeNumber = newValue
+			InternalData.modifyCurrent { (data) in
+				data.badgeNumber = newValue
+			}
+		}
+	}
+
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UserNotificationType
