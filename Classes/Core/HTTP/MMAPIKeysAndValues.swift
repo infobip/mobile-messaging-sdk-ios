@@ -115,7 +115,7 @@ struct Consts {
 		static let language = "language"
 		static let deviceName = "deviceName"
 		static let OS = "os"
-		static let deviceTimeZone = "deviceTimeZone"
+		static let deviceTimeZone = "deviceTimezoneOffset"
 		static let pushServiceType = "pushServiceType"
 	}
 

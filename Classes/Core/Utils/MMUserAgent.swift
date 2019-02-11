@@ -258,7 +258,7 @@ public class UserAgent: NSObject {
 	}
 
 	public var deviceTimeZone: String? {
-		return MobileMessaging.timeZone.abbreviation()
+		return DateStaticFormatters.CurrentJavaCompatibleTimeZoneOffset
 	}
 
 	public var pushServiceType: String {

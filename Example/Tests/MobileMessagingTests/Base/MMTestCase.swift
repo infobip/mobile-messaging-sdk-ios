@@ -144,7 +144,7 @@ class UserAgentStub: UserAgent {
 	override var deviceName: String {return "iPhone Galaxy"}
 	override var deviceModelName : String {return "XS"}
 	override var deviceSecure: Bool {return true}
-	override var deviceTimeZone: String? { return "GMT+3:30"}
+	override var deviceTimeZone: String? { return "GMT+03:30"}
 }
 
 

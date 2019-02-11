@@ -298,7 +298,7 @@ public final class Installation: NSObject, NSCoding, NSCopying, JSONDecodable, D
 			deviceModel: dict["deviceModel"] as? String,
 			deviceName: dict["deviceName"] as? String,
 			deviceSecure: dict["deviceSecure"] as? Bool ?? false,
-			deviceTimeZone: dict["deviceTimeZone"] as? String,
+			deviceTimeZone: dict["deviceTimezoneOffset"] as? String,
 			geoEnabled: dict["geoEnabled"] as? Bool ?? false,
 			isPrimaryDevice: dict["isPrimaryDevice"] as? Bool ?? false,
 			isPushRegistrationEnabled: dict["isPushRegistrationEnabled"] as? Bool ?? true,
@@ -323,7 +323,7 @@ public final class Installation: NSObject, NSCoding, NSCopying, JSONDecodable, D
 		dict["deviceModel"] = deviceModel
 		dict["deviceName"] = deviceName
 		dict["deviceSecure"] = deviceSecure
-		dict["deviceTimeZone"] = deviceTimeZone
+		dict["deviceTimezoneOffset"] = deviceTimeZone
 		dict["geoEnabled"] = geoEnabled
 		dict["isPrimaryDevice"] = isPrimaryDevice
 		dict["isPushRegistrationEnabled"] = isPushRegistrationEnabled

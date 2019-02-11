@@ -77,6 +77,26 @@ func contactsServiceDateEqual(_ l: Date?, _ r: Date?) -> Bool {
 }
 
 struct DateStaticFormatters {
+	/**
+	Desired format is GMT+03:00 and a special case for Greenwich Mean Time: GMT+00:00
+	*/
+	static var CurrentJavaCompatibleTimeZoneOffset: String {
+		var gmt = DateStaticFormatters.TimeZoneOffsetFormatter.string(from: MobileMessaging.date.now)
+		if gmt == "GMT" {
+			gmt = gmt + "+00:00"
+		}
+		return gmt
+	}
+	/**
+	Desired format is GMT+03:00, not GMT+3
+	*/
+	static var TimeZoneOffsetFormatter: DateFormatter = {
+		let dateFormatter = DateFormatter()
+		dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+		dateFormatter.dateFormat = "ZZZZ"
+		dateFormatter.timeZone = MobileMessaging.timeZone
+		return dateFormatter
+	}()
 	static var LoggerDateFormatter: DateFormatter = {
 		let dateFormatter = DateFormatter()
 		dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"

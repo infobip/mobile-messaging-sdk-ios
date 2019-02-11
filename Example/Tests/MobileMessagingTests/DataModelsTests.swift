@@ -22,7 +22,7 @@ class DataModelsTests: MMTestCase {
 										 deviceModel: "iPhone",
 										 deviceName: "X",
 										 deviceSecure: false,
-										 deviceTimeZone: "GMT+3:30",
+										 deviceTimeZone: "GMT+03:30",
 										 geoEnabled: false,
 										 isPrimaryDevice: true,
 										 isPushRegistrationEnabled: true,
@@ -229,7 +229,7 @@ class DataModelsTests: MMTestCase {
 			"language": "en",
 			"deviceName": "iPhone Galaxy",
 			"os": "mobile OS",
-			"deviceTimeZone" : "GMT+3:30"
+			"deviceTimezoneOffset" : "GMT+03:30"
 		]
 		XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 	}
@@ -247,7 +247,7 @@ class DataModelsTests: MMTestCase {
 			"notificationsEnabled": true,
 			"os": "iOS",
 			"applicationUserId": "applicationUserId",
-			"deviceTimeZone": "GMT+3:30",
+			"deviceTimezoneOffset": "GMT+03:30",
 			"customAttributes": {
 				"bootSize": 9.5,
 				"subscribed": true,
@@ -321,7 +321,7 @@ class DataModelsTests: MMTestCase {
 					"notificationsEnabled": true,
 					"os": "iOS",
 					"applicationUserId": "applicationUserId",
-					"deviceTimeZone" : "GMT+3:30",
+					"deviceTimezoneOffset" : "GMT+03:30",
 					"customAttributes": {
 						"bootSize": 9.5,
 						"subscribed": true,

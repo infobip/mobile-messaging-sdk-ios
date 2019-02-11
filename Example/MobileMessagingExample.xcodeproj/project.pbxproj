@@ -90,6 +90,8 @@
 		767B849E1EA8AD1100CCD81F /* Mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0015D7F1DF7EE0600DD4113 /* Mocks.swift */; };
 		76A1FD841F7D32E000924B51 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 76A1FD871F7D32E000924B51 /* Localizable.strings */; };
 		76A1FD851F7D32E000924B51 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 76A1FD871F7D32E000924B51 /* Localizable.strings */; };
+		76E49FEB22118CD0002B810D /* TimezoneFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76E49FE922118B4B002B810D /* TimezoneFormatterTests.swift */; };
+		76E49FEC22118CD1002B810D /* TimezoneFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76E49FE922118B4B002B810D /* TimezoneFormatterTests.swift */; };
 		8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */; };
 		A013D4521ED8355F00B371C0 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A013D4511ED8355F00B371C0 /* NotificationService.swift */; };
 		A013D4561ED8355F00B371C0 /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A013D44F1ED8355F00B371C0 /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -188,6 +190,7 @@
 		76BD26571F7E44AC00EB39C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		76C31EEB1F73A9D0002CBF2D /* LocalMessageFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingTests.swift; sourceTree = "<group>"; };
 		76D6C86F219AC7C800D7AC49 /* GeofencingServiceTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofencingServiceTestUtils.swift; sourceTree = "<group>"; };
+		76E49FE922118B4B002B810D /* TimezoneFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneFormatterTests.swift; sourceTree = "<group>"; };
 		76F3CAEC20359BBA008DF398 /* ApnsRegistrationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManagerTests.swift; sourceTree = "<group>"; };
 		7A7F2F98F7DF6566F2498D2A /* Pods_MobileMessagingExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		854CAD8A86B9610693BA4BC7 /* MobileMessaging.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = MobileMessaging.podspec; path = ../MobileMessaging.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
@@ -458,6 +461,7 @@
 				761D091521C7AECC00B326E8 /* InstallationsManagementTests.swift */,
 				76A9579C21EC83C2000AFD9C /* DataModelsTests.swift */,
 				7636909D21F0B7E9000CF3F8 /* PersonalizeTests.swift */,
+				76E49FE922118B4B002B810D /* TimezoneFormatterTests.swift */,
 			);
 			path = MobileMessagingTests;
 			sourceTree = "<group>";
@@ -920,6 +924,7 @@
 				762F9D35220649B900A35F1E /* ApplicationCodeHashingTests.swift in Sources */,
 				7640DC3F2205F8F800F50470 /* MOMessageSendingTests.swift in Sources */,
 				7640DC4522063FD600F50470 /* CheckVersionTests.swift in Sources */,
+				76E49FEB22118CD0002B810D /* TimezoneFormatterTests.swift in Sources */,
 				762F9D37220649BD00A35F1E /* PrimaryDeviceTests.swift in Sources */,
 				7640DC3522036EC000F50470 /* DeliveryReportingTests.swift in Sources */,
 				762F9D3922064B4000A35F1E /* InstallationMigrationTests.swift in Sources */,
@@ -958,6 +963,7 @@
 				762F9D36220649B900A35F1E /* ApplicationCodeHashingTests.swift in Sources */,
 				7640DC402205F8F800F50470 /* MOMessageSendingTests.swift in Sources */,
 				7640DC4622063FD700F50470 /* CheckVersionTests.swift in Sources */,
+				76E49FEC22118CD1002B810D /* TimezoneFormatterTests.swift in Sources */,
 				762F9D38220649BD00A35F1E /* PrimaryDeviceTests.swift in Sources */,
 				7640DC3622036EC100F50470 /* DeliveryReportingTests.swift in Sources */,
 				762F9D3A22064B4100A35F1E /* InstallationMigrationTests.swift in Sources */,
