@@ -48,7 +48,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 		MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: mtMessage, notification: notification, withCompletionHandler: { (notificationType) in
 			completionHandler(UNNotificationPresentationOptions.make(with: notificationType))
 		}) ??
-			completionHandler(presentationOptions(for: mtMessage))
+			MobileMessaging.sharedInstance?.interactiveAlertManager.showBannerNotificationIfNeeded(forMessage: mtMessage, showBannerWithOptions: completionHandler)
 
 		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(notification.request.content.userInfo, completion: { _ in })
 	}
@@ -62,17 +62,6 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 			userText: (response as? UNTextInputNotificationResponse)?.userText,
 			withCompletionHandler: { completionHandler() }
 		)
-	}
-
-	func presentationOptions(for message: MTMessage?) -> UNNotificationPresentationOptions {
-		let ret: UNNotificationPresentationOptions
-
-		if let msg = message, msg.inAppStyle == .Banner {
-			ret = UNNotificationPresentationOptions.make(with:  MobileMessaging.sharedInstance?.userNotificationType ?? [])
-		} else {
-			ret = []
-		}
-		return ret
 	}
 
 	func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {

@@ -12,8 +12,8 @@ import UserNotifications
 
 class InteractiveMessageAlertManagerMock : InteractiveMessageAlertManager {
 	var showInteractiveAlertClosure: ((MTMessage, Bool) -> Void)?
-	override func showInteractiveAlert(forMessage message: MTMessage, exclusively: Bool) {
-		showInteractiveAlertClosure?(message, exclusively)
+	override func showModalNotificationIfNeeded(forMessage message: MTMessage) {
+		showInteractiveAlertClosure?(message, true)
 	}
 }
 
@@ -400,7 +400,7 @@ class MessageReceivingTests: MMTestCase {
 
 
 		let m = MTMessage(payload: JSON.parse(jsonStr).dictionaryObject!, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
-		let options = UserNotificationCenterDelegate.sharedInstance.presentationOptions(for: m)
+		let options = InteractiveMessageAlertManager.presentationOptions(for: m)
 		XCTAssertEqual(m.inAppStyle , InAppNotificationStyle.Banner)
 		XCTAssertEqual(options, UNNotificationPresentationOptions.make(with: mobileMessagingInstance.userNotificationType))
 	}
