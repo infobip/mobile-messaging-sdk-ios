@@ -21,6 +21,8 @@ NSString* MMNotificationActionTapped = @"com.mobile-messaging.notification.actio
 NSString* MMNotificationDepersonalized = @"com.mobile-messaging.notification.depersonalization-completed";
 NSString* MMNotificationPersonalized = @"com.mobile-messaging.notification.personalization-completed";
 NSString* MMNotificationInstallationSynced = @"com.mobile-messaging.notification.userdata-synced";
+NSString* MMNotificationCenterAuthRequestFinished = @"com.mobile-messaging.notification.nc-auth-request-finished";
+
 
 //MARK: Notification keys
 NSString* MMNotificationKeyRegistrationInternalId = @"com.mobile-messaging.notification.key.registration";
@@ -45,3 +47,5 @@ NSString* MMNotificationKeyMobileMessagingContext = @"com.mobile-messaging.notif
 NSString* MMNotificationKeyIsPrimaryDevice = @"com.mobile-messaging.notification.key.is_primary_device";
 NSString* MMNotificationKeyUser = @"com.mobile-messaging.notification.key.user";
 NSString* MMNotificationKeyInstallation = @"com.mobile-messaging.notification.key.installation";
+NSString* MMNotificationKeyGranted = @"com.mobile-messaging.notification.key.granted";
+NSString* MMNotificationKeyError = @"com.mobile-messaging.notification.key.error";

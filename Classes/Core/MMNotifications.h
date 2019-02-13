@@ -87,6 +87,11 @@ FOUNDATION_EXPORT NSString* MMNotificationPersonalized;
  */
 FOUNDATION_EXPORT NSString* MMNotificationInstallationSynced;
 
+/**
+ Posted after `UNUserNotificationCenter.requestAuthorization` completed.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationCenterAuthRequestFinished;
+
 
 //MARK: Notification keys
 
@@ -161,3 +166,13 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyUser;
  Contains a current installation data.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyInstallation;
+
+/**
+ Key name for `granted` boolean. See MMNotificationCenterAuthRequestFinished.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyGranted;
+
+/**
+ Key name for optional `error` object. See MMNotificationCenterAuthRequestFinished.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyError;

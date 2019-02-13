@@ -145,6 +145,7 @@ class ApnsRegistrationManager {
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
 			UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
+				UserEventsManager.postNotificationCenterAuthRequestFinished(granted: granted, error: error)
 				guard granted else {
 					MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
 					return

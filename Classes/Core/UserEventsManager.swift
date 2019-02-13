@@ -80,6 +80,14 @@ class UserEventsManager {
 		post(MMNotificationGeoServiceDidStart)
 	}
 
+	class func postNotificationCenterAuthRequestFinished(granted: Bool, error: Error?) {
+		var userInfo: [String: Any] = [MMNotificationKeyGranted: granted]
+		if let error = error {
+			userInfo[MMNotificationKeyError] = error
+		}
+		post(MMNotificationCenterAuthRequestFinished, userInfo)
+	}
+
 	class func post(_ name: String, _ userInfo: [String: Any]? = nil) {
 		MMQueue.Main.queue.executeAsync {
 			NotificationCenter.default.post(name: NSNotification.Name(rawValue: name), object: self, userInfo: userInfo)
