@@ -25,15 +25,19 @@ func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any
 				ret[k] = NSNull()
 			}
 		} else {
-			if currentV is AnyHashable && dirtyV is AnyHashable {
-				if (currentV as! AnyHashable) != (dirtyV as! AnyHashable){
-					ret[k] = dirtyV
-				}
+			if (currentV is [String : Any] && dirtyV is [String : Any]) {
+				ret[k] = deltaDict(currentV as! [String : Any], dirtyV as! [String : Any])
 			} else {
-				if case Optional<Any>.none = currentV {
-					ret[k] = dirtyV
+				if currentV is AnyHashable && dirtyV is AnyHashable {
+					if (currentV as! AnyHashable) != (dirtyV as! AnyHashable){
+						ret[k] = dirtyV
+					}
 				} else {
-					ret[k] = NSNull()
+					if case Optional<Any>.none = currentV {
+						ret[k] = dirtyV
+					} else {
+						ret[k] = NSNull()
+					}
 				}
 			}
 		}

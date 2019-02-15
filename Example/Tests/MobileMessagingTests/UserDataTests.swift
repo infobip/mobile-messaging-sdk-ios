@@ -324,6 +324,118 @@ class UserDataTests: MMTestCase {
 			XCTAssertNil(user.externalUserId)
 		})
 	}
+
+	func testThatDirtyUserAttributesSentToServer() {
+		weak var expectation = self.expectation(description: "")
+		var sent = [Any]()
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+
+		let requestBlock: (Any) -> Void = { request in
+			switch request {
+			case (is PatchUser):
+				if let patchRequest = request as? PatchUser {
+					sent.append(patchRequest.body as Any)
+				}
+			default:
+				break
+			}
+		}
+
+		let responseBlock: (Any) -> JSON? = { request -> JSON? in
+			switch request {
+			case (is PatchUser):
+				return JSON.parse("")
+			default:
+				return nil
+			}
+		}
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: requestBlock,
+			completionCompanionBlock: nil,
+			responseStub: responseBlock)
+
+		let user = MobileMessaging.getUser()!
+		user.firstName = "A"
+		user.customAttributes = ["string": "x" as NSString, "bool": true as NSNumber, "num": 9.5 as NSNumber, "bool2": true as NSNumber, "num2": 9.5 as NSNumber, "empty": "empty" as NSString]
+		MobileMessaging.saveUser(user) { (error) in
+			XCTAssertNil(error)
+
+			let user = MobileMessaging.getUser()!
+			user.firstName = "B"
+			user.customAttributes = ["string": "y" as NSString, "bool": false as NSNumber, "num": 10 as NSNumber, "bool2": true as NSNumber, "num2": 9.5 as NSNumber, "empty": NSNull()]
+			MobileMessaging.saveUser(user) { (error) in
+				XCTAssertNil(error)
+				expectation?.fulfill()
+			}
+		}
+		waitForExpectations(timeout: 20, handler: { _ in
+			let first = sent.first(where: { (element) -> Bool in
+				(element as! NSDictionary).isEqual(to: ["firstName": "A", "customAttributes":["string": "x", "bool": true, "num": 9.5, "bool2": true, "num2": 9.5, "empty": "empty"]])
+			})
+
+			let second = sent.first(where: { (element) -> Bool in
+				(element as! NSDictionary).isEqual(to: ["firstName": "B", "customAttributes":["string": "y", "bool": false, "num": 10, "empty": NSNull()]])
+			})
+
+			XCTAssertNotNil(first)
+			XCTAssertNotNil(second)
+		})
+	}
+
+	func testThatEmptyCustomAttributesSentAsNull() {
+		weak var expectation = self.expectation(description: "")
+		var sent = [Any]()
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+
+		let requestBlock: (Any) -> Void = { request in
+			switch request {
+			case (is PatchUser):
+				if let patchRequest = request as? PatchUser {
+					sent.append(patchRequest.body as Any)
+				}
+			default:
+				break
+			}
+		}
+
+		let responseBlock: (Any) -> JSON? = { request -> JSON? in
+			switch request {
+			case (is PatchUser):
+				return JSON.parse("")
+			default:
+				return nil
+			}
+		}
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: requestBlock,
+			completionCompanionBlock: nil,
+			responseStub: responseBlock)
+
+		let user = MobileMessaging.getUser()!
+		user.customAttributes = ["string": "x" as NSString, "bool": true as NSNumber, "num": 9.5 as NSNumber, "bool2": true as NSNumber, "num2": 9.5 as NSNumber]
+		MobileMessaging.saveUser(user) { (error) in
+			XCTAssertNil(error)
+
+			let user = MobileMessaging.getUser()!
+			user.customAttributes = [:]
+			MobileMessaging.saveUser(user) { (error) in
+				XCTAssertNil(error)
+				expectation?.fulfill()
+			}
+		}
+		waitForExpectations(timeout: 20, handler: { _ in
+			let first = sent.first(where: { (element) -> Bool in
+				(element as! NSDictionary).isEqual(to: ["customAttributes":["string": "x", "bool": true, "num": 9.5, "bool2": true, "num2": 9.5]])
+			})
+
+			let second = sent.first(where: { (element) -> Bool in
+				(element as! NSDictionary).isEqual(to: ["customAttributes": NSNull()])
+			})
+
+			XCTAssertNotNil(first)
+			XCTAssertNotNil(second)
+		})
+	}
 }
 
 func performMergeInterruptedUserUpdateCase(user: User, then: (() -> Void)? = nil) {
