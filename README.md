@@ -154,7 +154,7 @@ If all the steps implemented correctly, you should see the logs in Xcode console
 ...
 2019-01-28 18:25:44:144 [MobileMessaging] ℹ️ [APNS reg manager] Application did register with device token <...>
 ```
-If you don't see any logs, set up the default logger before starting the SDK: `MobileMessaging.logger = MMDefaultLogger()`. Please not that the logs are only collected while your project is in debug configuration.
+If you don't see any logs, set up the default logger before starting the SDK: `MobileMessaging.logger = MMDefaultLogger()`. Please note that the logs are only collected while your project is in debug configuration.
 
 <br>
 <p align="center"><b>NEXT STEPS: <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile">User profile</a></b></p>
