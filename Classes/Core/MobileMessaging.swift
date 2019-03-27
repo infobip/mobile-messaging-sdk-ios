@@ -388,11 +388,11 @@ public final class MobileMessaging: NSObject {
 	Asynchronously sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
 	- parameter messageIds: Array of identifiers of messages that need to be marked as seen.
 	*/
-	public class func setSeen(messageIds: [String]) {
+	public class func setSeen(messageIds: [String], completion: @escaping () -> Void) {
 		guard let mm = MobileMessaging.sharedInstance else {
 			return
 		}
-		mm.setSeen(messageIds) { _ in }
+		mm.setSeen(messageIds, immediately: false, completion: completion)
 	}
 
 	/**
@@ -570,14 +570,9 @@ public final class MobileMessaging: NSObject {
 		}
 	}
 
-	func setSeen(_ messageIds: [String], completion: @escaping (SeenStatusSendingResult) -> Void) {
-		MMLogDebug("Setting seen status: \(messageIds)")
-		messageHandler.setSeen(messageIds, completion: completion)
-	}
-
-	func setSeenImmediately(_ messageIds: [String], completion: @escaping (SeenStatusSendingResult) -> Void) {
-		MMLogDebug("Setting seen status immediately: \(messageIds)")
-		messageHandler.setSeen(messageIds, immediately: true, completion: completion)
+	func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
+		MMLogDebug("Setting seen status: \(messageIds), immediately \(immediately)")
+		messageHandler.setSeen(messageIds, immediately: immediately, completion: completion)
 	}
 
 	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {

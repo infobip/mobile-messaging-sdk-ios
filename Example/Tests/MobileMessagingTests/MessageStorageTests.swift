@@ -259,6 +259,62 @@ class MessageStorageTests: MMTestCase {
 
 		self.waitForExpectations(timeout: 60, handler: nil)
     }
+
+	func testThatSeenStatusUpdatesPersisted() {
+		MMTestCase.cleanUpAndStop()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+
+		weak var findAllMessagesIdsExp = expectation(description: "Check finished")
+		weak var setSeenExpectation = expectation(description: "Check finished")
+		weak var checkExp = expectation(description: "Check finished")
+		let expectedMessagesCount = 5
+		var iterationCounter: Int = 0
+		var notSeenCounter = -1
+		var totalCounter = -1
+
+		MobileMessaging.defaultMessageStorage?.messagesCountersUpdateHandler = {(total:Int, notSeen: Int)in
+			notSeenCounter = notSeen
+			totalCounter = total
+		}
+
+		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
+
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
+				DispatchQueue.main.async {
+					iterationCounter += 1
+					if iterationCounter == expectedMessagesCount {
+						MobileMessaging.defaultMessageStorage?.findNonSeenMessageIds { (messageIds) in
+							XCTAssertEqual(messageIds.count, 5)
+							MobileMessaging.setSeen(messageIds: messageIds, completion: {})
+							setSeenExpectation?.fulfill()
+						}
+					}
+				}
+			})
+		}
+
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+			MobileMessaging.defaultMessageStorage?.findNonSeenMessageIds { (messageIds) in
+				XCTAssertEqual(messageIds.count, 0)
+				MobileMessaging.defaultMessageStorage?.findMessages(withIds: messageIds, completion: { (messages: [BaseMessage]?) in
+					XCTAssertNil(messages)
+					findAllMessagesIdsExp?.fulfill()
+				})
+			}
+
+			let q = Query()
+			q.sortDescriptors = [NSSortDescriptor(key: "createdDate", ascending: false)]
+			MobileMessaging.defaultMessageStorage?.findMessages(withQuery: q, completion: { (messages: [BaseMessage]?) in
+				XCTAssertEqual(messages!.count, 5)
+				checkExp?.fulfill()
+			})
+		}
+
+		self.waitForExpectations(timeout: 60, handler: { error in
+			XCTAssertEqual(notSeenCounter, 0)
+			XCTAssertEqual(totalCounter, 5)
+		})
+	}
 	
 	func testCustomPersistingAndFetching() {
 		MMTestCase.cleanUpAndStop()

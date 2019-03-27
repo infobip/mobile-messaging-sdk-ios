@@ -328,9 +328,9 @@ class MessagHandlerMock: MMMessageHandler {
 		completion?(SeenStatusSendingResult.Cancel)
 	}
 
-	override func setSeen(_ messageIds: [String], immediately: Bool, completion: ((SeenStatusSendingResult) -> Void)?) {
+	override func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping (() -> Void)) {
 		setSeenWasCalled?()
-		completion?(SeenStatusSendingResult.Cancel)
+		completion()
 	}
 
 	override func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: (([MOMessage]?, NSError?) -> Void)?) {

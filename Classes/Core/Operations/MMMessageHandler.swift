@@ -152,22 +152,18 @@ class MMMessageHandler: MobileMessagingService {
 	func evictOldMessages(_ messageAge: TimeInterval? = nil, completion: @escaping () -> Void) {
 		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
     }
-	
-	func setSeen(_ messageIds: [String], completion: @escaping (SeenStatusSendingResult) -> Void) {
-		setSeen(messageIds, immediately: false, completion: completion)
-    }
     
-	func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping (SeenStatusSendingResult) -> Void) {
+	func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
         guard !messageIds.isEmpty else {
-			completion(SeenStatusSendingResult.Cancel)
+			completion()
             return
         }
-        messageSyncQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext))
+		messageSyncQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
         if immediately {
-            syncSeenStatusUpdates(completion)
+			syncSeenStatusUpdates()
         } else {
             seenPostponer.postponeBlock() {
-                self.syncSeenStatusUpdates(completion)
+				self.syncSeenStatusUpdates()
             }
         }
     }

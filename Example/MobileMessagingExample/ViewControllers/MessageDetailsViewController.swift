@@ -69,7 +69,7 @@ class MessageDetailsViewController: UIViewController {
 			return
 		}
 		
-		MobileMessaging.setSeen(messageIds: [messageId])
+		MobileMessaging.setSeen(messageIds: [messageId], completion: {})
 		message?.seen = true
 	}
 

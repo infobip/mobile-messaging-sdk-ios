@@ -77,7 +77,7 @@ public class MobileChat: MobileMessagingService {
 extension MobileChat: MobileChatProtocol {
 	
 	public func markMessagesSeen(messageIds: [String], completion: @escaping () -> Void) {
-		mmContext.setSeen(messageIds, completion: { _ in completion() })
+		mmContext.setSeen(messageIds, immediately: false, completion: completion)
 	}
 	
 	public func markAllMessagesSeen(completion: @escaping () -> Void) {

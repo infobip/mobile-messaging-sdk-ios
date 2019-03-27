@@ -17,7 +17,7 @@ class MessageSeenTests: MMTestCase {
 		let messageId = "m1"
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": messageId]) { _ in
-			self.mobileMessagingInstance.setSeen([messageId], completion: { result in
+			self.mobileMessagingInstance.setSeen([messageId], immediately: false, completion: {
 				 seenRequestCompleted?.fulfill()
 			})
 		}
@@ -27,7 +27,7 @@ class MessageSeenTests: MMTestCase {
 			ctx.performAndWait {
 				if let messages = MessageManagedObject.MM_findAllInContext(ctx) {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
-					XCTAssertEqual(m1!.seenStatus, MMSeenStatus.SeenSent, "m1 must be seen and synced")
+					XCTAssertEqual(m1!.seenStatus, MMSeenStatus.SeenNotSent, "m1 must be seen and synced")
 				} else {
 					XCTFail("There should be some messages in database")
 				}
@@ -39,7 +39,7 @@ class MessageSeenTests: MMTestCase {
         weak var expectation = self.expectation(description: "expectation")
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"]) { _ in
-			self.mobileMessagingInstance.setSeen([], completion: { result in
+			self.mobileMessagingInstance.setSeen([], immediately: false, completion: {
 				expectation?.fulfill()
 			})
 		}
@@ -71,7 +71,7 @@ class MessageSeenTests: MMTestCase {
 		}
 		
 		messageReceivingGroup.notify(queue: DispatchQueue.main) { 
-			self.mobileMessagingInstance.setSeen(["m1", "m2"], completion: { result in
+			self.mobileMessagingInstance.setSeen(["m1", "m2"], immediately: false, completion: {
 				
 				var messagesSeenDates = [String: Date?]()
 				let ctx = self.storage.mainThreadManagedObjectContext!
@@ -80,7 +80,7 @@ class MessageSeenTests: MMTestCase {
 					if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["m1", "m2"]), context: ctx) , messages.count > 0 {
 						
 						for m in messages {
-							XCTAssertEqual(m.seenStatus, MMSeenStatus.SeenSent)
+							XCTAssertEqual(m.seenStatus, MMSeenStatus.SeenNotSent)
 							messagesSeenDates[m.messageId] = m.seenDate
 						}
 						
@@ -92,7 +92,7 @@ class MessageSeenTests: MMTestCase {
 					}
 				}
 				
-				self.mobileMessagingInstance.setSeen(["m1", "m2", "m3"], completion: { result in
+				self.mobileMessagingInstance.setSeen(["m1", "m2", "m3"], immediately: false, completion: {
 
 					let ctx = self.storage.mainThreadManagedObjectContext!
 					ctx.reset()
@@ -100,7 +100,7 @@ class MessageSeenTests: MMTestCase {
 						if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["m1", "m2"]), context: ctx) , messages.count > 0 {
 							
 							for m in messages {
-								XCTAssertEqual(m.seenStatus, MMSeenStatus.SeenSent)
+								XCTAssertEqual(m.seenStatus, MMSeenStatus.SeenNotSent)
 								XCTAssertEqual(m.seenDate, messagesSeenDates[m.messageId]!)
 							}
 

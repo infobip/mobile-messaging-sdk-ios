@@ -66,7 +66,7 @@ class FetchMessagesTest: MMTestCase {
 			prepconditionExpectation?.fulfill()
 			
 			//Actions
-			self.mobileMessagingInstance.setSeen(["m2"], completion: { result in
+			self.mobileMessagingInstance.setSeen(["m2"], immediately: false, completion: {
 				seenExpectation?.fulfill()
 			})
 		})
@@ -87,7 +87,7 @@ class FetchMessagesTest: MMTestCase {
 				if let messages = MessageManagedObject.MM_findAllInContext(ctx) {
 					let m1 = messages.filter({$0.messageId == "m1"}).first
 					let m2 = messages.filter({$0.messageId == "m2"}).first
-					XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenSent, "m2 must be seen and synced")
+					XCTAssertEqual(m2?.seenStatus, MMSeenStatus.SeenNotSent, "m2 must be seen and synced")
 					XCTAssertEqual(m2?.reportSent, true, "m2 delivery report must be delivered")
 					XCTAssertEqual(m1?.seenStatus, MMSeenStatus.NotSeen, "m1 must be not seen")
 					XCTAssertEqual(m1?.reportSent, true, "m1 delivery report must be delivered")

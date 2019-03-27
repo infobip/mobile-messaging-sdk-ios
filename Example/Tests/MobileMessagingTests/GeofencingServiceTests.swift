@@ -1542,7 +1542,7 @@ class GeofencingServiceTests: MMTestCase {
 						MobileMessaging.reachabilityManagerFactory = { return ReachabilityManagerStub(isReachable: true) }
 						
 						// now lets try to set seen on the sdk generated message id
-						self.mobileMessagingInstance.setSeen([sentSdkMessageId], completion: { (seenResult) in
+						self.mobileMessagingInstance.setSeen([sentSdkMessageId], immediately: false, completion: { 
 							checkSeenPersistanceExpectations()
 							seenForSdkGeneratedIdCompleted?.fulfill()
 							

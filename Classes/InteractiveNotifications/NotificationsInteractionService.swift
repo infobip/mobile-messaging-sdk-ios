@@ -271,7 +271,7 @@ class NotificationsInteractionService: MobileMessagingService {
 								 completion: { dispatchGroup.leave() })
 
 		dispatchGroup.enter()
-		self.mmContext.setSeenImmediately([message.messageId]) { _ in
+		self.mmContext.setSeen([message.messageId], immediately: true) {
 			dispatchGroup.leave()
 		}
 
