@@ -165,7 +165,7 @@ platform :ios do
 
 		unless options[:no_github]
 			desc "Pushing to Github repo"
-			sh "git push github HEAD:#{branch} --tags"
+			sh "git push github -f HEAD:#{branch} --tags"
 
 			set_github_release(
 				description: release_notes,
