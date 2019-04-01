@@ -387,6 +387,7 @@ public final class MobileMessaging: NSObject {
 	/**
 	Asynchronously sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
 	- parameter messageIds: Array of identifiers of messages that need to be marked as seen.
+	- parameter completion: The block to execute after the seen status "SeenNotSent" is persisted. Synchronization with the server will be performed eventually.
 	*/
 	public class func setSeen(messageIds: [String], completion: @escaping () -> Void) {
 		guard let mm = MobileMessaging.sharedInstance else {

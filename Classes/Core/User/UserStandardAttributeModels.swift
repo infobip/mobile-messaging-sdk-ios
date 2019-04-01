@@ -132,7 +132,7 @@ public class UserIdentity: NSObject {
 	public let externalUserId: String?
 
 	/// Default initializer. The object won't be initialized if all three arguments are nil/empty. Unique user identity must have at least one value.
-	public init?(phones: [String]?, emails: [String]?, externalUserId: String?) {
+	@objc public init?(phones: [String]?, emails: [String]?, externalUserId: String?) {
 		if (phones == nil || phones!.isEmpty) && (emails == nil || emails!.isEmpty) && externalUserId == nil {
 			return nil
 		}

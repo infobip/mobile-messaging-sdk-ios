@@ -285,28 +285,29 @@ class MessageStorageTests: MMTestCase {
 					if iterationCounter == expectedMessagesCount {
 						MobileMessaging.defaultMessageStorage?.findNonSeenMessageIds { (messageIds) in
 							XCTAssertEqual(messageIds.count, 5)
-							MobileMessaging.setSeen(messageIds: messageIds, completion: {})
-							setSeenExpectation?.fulfill()
+							MobileMessaging.setSeen(messageIds: messageIds, completion: {
+								setSeenExpectation?.fulfill()
+
+								// assertion 1
+								MobileMessaging.defaultMessageStorage?.findNonSeenMessageIds { (messageIds) in
+									XCTAssertEqual(messageIds.count, 0)
+									MobileMessaging.defaultMessageStorage?.findMessages(withIds: messageIds, completion: { (messages: [BaseMessage]?) in
+										XCTAssertNil(messages)
+										findAllMessagesIdsExp?.fulfill()
+									})
+								}
+
+								// assertion 2
+								let q = Query()
+								q.sortDescriptors = [NSSortDescriptor(key: "createdDate", ascending: false)]
+								MobileMessaging.defaultMessageStorage?.findMessages(withQuery: q, completion: { (messages: [BaseMessage]?) in
+									XCTAssertEqual(messages!.count, 5)
+									checkExp?.fulfill()
+								})
+							})
 						}
 					}
 				}
-			})
-		}
-
-		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
-			MobileMessaging.defaultMessageStorage?.findNonSeenMessageIds { (messageIds) in
-				XCTAssertEqual(messageIds.count, 0)
-				MobileMessaging.defaultMessageStorage?.findMessages(withIds: messageIds, completion: { (messages: [BaseMessage]?) in
-					XCTAssertNil(messages)
-					findAllMessagesIdsExp?.fulfill()
-				})
-			}
-
-			let q = Query()
-			q.sortDescriptors = [NSSortDescriptor(key: "createdDate", ascending: false)]
-			MobileMessaging.defaultMessageStorage?.findMessages(withQuery: q, completion: { (messages: [BaseMessage]?) in
-				XCTAssertEqual(messages!.count, 5)
-				checkExp?.fulfill()
 			})
 		}
 
