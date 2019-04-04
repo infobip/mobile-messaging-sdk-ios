@@ -264,6 +264,7 @@ class MessageStorageTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
 
+
 		weak var findAllMessagesIdsExp = expectation(description: "Check finished")
 		weak var setSeenExpectation = expectation(description: "Check finished")
 		weak var checkExp = expectation(description: "Check finished")
@@ -284,7 +285,7 @@ class MessageStorageTests: MMTestCase {
 					iterationCounter += 1
 					if iterationCounter == expectedMessagesCount {
 						MobileMessaging.defaultMessageStorage?.findNonSeenMessageIds { (messageIds) in
-							XCTAssertEqual(messageIds.count, 5)
+							XCTAssertEqual(messageIds.count, expectedMessagesCount)
 							MobileMessaging.setSeen(messageIds: messageIds, completion: {
 								setSeenExpectation?.fulfill()
 
@@ -301,7 +302,7 @@ class MessageStorageTests: MMTestCase {
 								let q = Query()
 								q.sortDescriptors = [NSSortDescriptor(key: "createdDate", ascending: false)]
 								MobileMessaging.defaultMessageStorage?.findMessages(withQuery: q, completion: { (messages: [BaseMessage]?) in
-									XCTAssertEqual(messages!.count, 5)
+									XCTAssertEqual(messages!.count, expectedMessagesCount)
 									checkExp?.fulfill()
 								})
 							})
@@ -313,7 +314,7 @@ class MessageStorageTests: MMTestCase {
 
 		self.waitForExpectations(timeout: 60, handler: { error in
 			XCTAssertEqual(notSeenCounter, 0)
-			XCTAssertEqual(totalCounter, 5)
+			XCTAssertEqual(totalCounter, expectedMessagesCount)
 		})
 	}
 	

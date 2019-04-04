@@ -28,42 +28,39 @@ final class SeenStatusPersistingOperation: Operation {
 	
 	private func markMessagesAsSeen() {
 		guard !self.messageIds.isEmpty else {
+			MMLogDebug("[Seen status persisting] no messages to mark seen. Finishing")
 			finish()
 			return
 		}
 		context.performAndWait {
 			context.reset()
-			guard let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.NotSeen.rawValue) AND messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId  IN %@", self.messageIds), context: self.context), !dbMessages.isEmpty else
-			{
-				self.finish()
-				return
-			}
-			
-			dbMessages.forEach { message in
-				switch message.seenStatus {
-				case .NotSeen:
+			if let dbMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "seenStatusValue == \(MMSeenStatus.NotSeen.rawValue) AND messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId  IN %@", self.messageIds), context: self.context), !dbMessages.isEmpty {
+
+				dbMessages.forEach { message in
+					MMLogDebug("[Seen status persisting] message \(message.messageId) marked as seen")
 					message.seenStatus = .SeenNotSent
 					message.seenDate = MobileMessaging.date.now // we store only the very first seen date, any repeated seen update is ignored
-				case .SeenSent:
-					message.seenStatus = .SeenNotSent
-				case .SeenNotSent: break
 				}
+				self.context.MM_saveToPersistentStoreAndWait()
+			} else {
+				MMLogDebug("[Seen status persisting] no messages in internal storage to set seen")
 			}
-			self.context.MM_saveToPersistentStoreAndWait()
-			self.updateMessageStorage(with: dbMessages) {
+
+			self.updateMessageStorage(with: messageIds) {
 				self.finish()
 			}
 		}
 	}
 	
-	private func updateMessageStorage(with messages: [MessageManagedObject], completion: @escaping () -> Void) {
-		guard !messages.isEmpty else {
+	private func updateMessageStorage(with messageIds: [String], completion: @escaping () -> Void) {
+		guard !messageIds.isEmpty else {
+			MMLogDebug("[Seen status persisting] no message ids to set seen in message storage")
 			completion()
 			return
 		}
-		let storages = mmContext.messageStorages.values
-		storages.forEachAsync({ (storage, finishBlock) in
-			storage.batchSeenStatusUpdate(messages: messages, completion: finishBlock)
+		MMLogDebug("[Seen status persisting] updating message storage")
+		mmContext.messageStorages.values.forEachAsync({ (storage, finishBlock) in
+			storage.batchSeenStatusUpdate(messageIds: messageIds, seenStatus: .SeenNotSent, completion: finishBlock)
 		}, completion: completion)
 	}
 	

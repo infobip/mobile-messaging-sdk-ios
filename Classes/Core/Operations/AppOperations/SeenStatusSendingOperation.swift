@@ -59,7 +59,7 @@ class SeenStatusSendingOperation: Operation {
 					message.seenStatus = .SeenSent
 				}
 				self.context.MM_saveToPersistentStoreAndWait()
-				self.updateMessageStorage(with: messages, completion: completion)
+				self.updateMessageStorage(with: messages.map({ $0.messageId }), completion: completion)
 			}
 		case .Failure(let error):
 			MMLogError("[Seen status reporting] Request failed with error: \(error.orNil)")
@@ -70,14 +70,14 @@ class SeenStatusSendingOperation: Operation {
 		}
 	}
 	
-	private func updateMessageStorage(with messages: [MessageManagedObject], completion: @escaping () -> Void) {
-		guard !messages.isEmpty else {
+	private func updateMessageStorage(with messageIds: [String], completion: @escaping () -> Void) {
+		guard !messageIds.isEmpty else {
 			completion()
 			return
 		}
 		let storages = mmContext.messageStorages.values
 		storages.forEachAsync({ (storage, finishBlock) in
-			storage.batchSeenStatusUpdate(messages: messages, completion: finishBlock)
+			storage.batchSeenStatusUpdate(messageIds: messageIds, seenStatus: .SeenSent, completion: finishBlock)
 		}, completion: completion)
 	}
 	

@@ -404,11 +404,11 @@ extension MessageStorage {
 		updatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
 	}
 	
-	func batchSeenStatusUpdate(messages: [MessageManagedObject], completion: @escaping () -> Void) {
+	func batchSeenStatusUpdate(messageIds: [String], seenStatus: MMSeenStatus, completion: @escaping () -> Void) {
 		let updatingGroup = DispatchGroup()
-		messages.forEach {
+		messageIds.forEach {
 			updatingGroup.enter()
-			self.update(messageSeenStatus: $0.seenStatus, for: $0.messageId, completion: {
+			self.update(messageSeenStatus: seenStatus, for: $0, completion: {
 				updatingGroup.leave()
 			})
 		}
