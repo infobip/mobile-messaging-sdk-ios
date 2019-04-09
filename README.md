@@ -11,17 +11,18 @@ Mobile Messaging SDK is designed and developed to easily enable push notificatio
 - Swift 4.2
 - iOS 9.0+
 
-<!-- ## Usage -->
 ## Quick start guide
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application.
 
 1. Make sure to <a href="https://dev.infobip.com/push-messaging" target="_blank">setup application at Infobip portal</a>, if you haven't already.
+
 2. Configure your project to support Push Notifications:
     1. Click on "Capabilities", then turn on Push Notifications. Entitlements file should be automatically created by Xcode with set `aps-environment` value.
     <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/push_capabilities.png?raw=true" alt="Enable Push Notifications capability"/>
     
     2. Turn on Background Modes and check the Remote notifications checkbox.
     <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/background_modes.png?raw=true" alt="Enable Remote Notifications in Background Modes settings"/>
+    
 3. Using <a href="https://guides.cocoapods.org/using/getting-started.html#getting-started" target="_blank">CocoaPods</a>, specify it in your `Podfile`:
 
     ```ruby
@@ -154,7 +155,9 @@ If all the steps implemented correctly, run your application on a real device, y
 ...
 2019-01-28 18:25:44:144 [MobileMessaging] ℹ️ [APNS reg manager] Application did register with device token <...>
 ```
-If you don't see any logs, set up the default logger before starting the SDK: `MobileMessaging.logger = MMDefaultLogger()`. Please note that the logs are only collected while your project is in debug configuration.
+If you don't see any logs, set up the default logger before starting the SDK: `MobileMessaging.logger = MMDefaultLogger()`. Please note that the logs are only collected while your project is in "debug" configuration.
+
+**Please pay close attention to a Provisioning Profile that is used for your project build. It must match the APNs environment! If they don't, we'll invalidate the device push registration (more information here [I don't receive push notifications!](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/I-don't-receive-push-notifications)**
 
 <br>
 <p align="center"><b>NEXT STEPS: <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile">User profile</a></b></p>
