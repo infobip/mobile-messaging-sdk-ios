@@ -107,12 +107,15 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 	
 	convenience override init() {
 		let logOutput: MMLogOutput
+		let logLevel: MMLogLevel
 		#if DEBUG || IO
 			logOutput = .Console
+			logLevel = .Info
 		#else
 			logOutput = .File
+			logLevel = .Warning
 		#endif
-		self.init(logOutput: logOutput, logLevel: .Warning)
+		self.init(logOutput: logOutput, logLevel: logLevel)
 	}
 	
 	public func sendLogs(fromViewController vc: UIViewController) {
