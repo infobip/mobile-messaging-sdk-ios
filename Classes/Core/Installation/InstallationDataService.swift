@@ -96,7 +96,7 @@ final class InstallationDataService: MobileMessagingService{
 					finishBlock: { completion($0.error) }
 				)
 
-				MMLogDebug("[InstallationDataService] Expired push registration id found: \(deleteExpiredInstanceOp)")
+				MMLogDebug("[InstallationDataService] Expired push registration id found: \(keychainPushRegId)")
 				installationQueue.addOperation(deleteExpiredInstanceOp)
 			} else {
 				completion(error)
