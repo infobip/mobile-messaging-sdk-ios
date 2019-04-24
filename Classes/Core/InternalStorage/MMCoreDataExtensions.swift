@@ -271,19 +271,18 @@ extension NSManagedObjectContext {
 			} catch {
 				MMLogError("Unable to perform save: \(error)")
 			}
-			defer {
-				if saved == false {
-					completion?(saved, error)
+
+			if saved == false {
+				completion?(saved, error)
+			} else {
+				// If we should not save the parent context, or there is not a parent context to save (root context), call the completion block
+				if let parentCtx = self.parent , saveParentContexts {
+					let parentContentSaveOptions: MMContextSaveOptions = [.SaveSynchronously, .SaveParent]
+					parentCtx.MM_saveWithOptions(parentContentSaveOptions, completion:completion)
 				} else {
-					// If we should not save the parent context, or there is not a parent context to save (root context), call the completion block
-					if let parentCtx = self.parent , saveParentContexts {
-						let parentContentSaveOptions: MMContextSaveOptions = [.SaveSynchronously, .SaveParent]
-						parentCtx.MM_saveWithOptions(parentContentSaveOptions, completion:completion)
-					} else {
-						// If we are not the default context (And therefore need to save the root context, do the completion action if one was specified
-						MMLogDebug("→ Finished saving: \(self.MM_description)")
-						completion?(saved, error)
-					}
+					// If we are not the default context (And therefore need to save the root context, do the completion action if one was specified
+					MMLogDebug("→ Finished saving: \(self.MM_description)")
+					completion?(saved, error)
 				}
 			}
 		}

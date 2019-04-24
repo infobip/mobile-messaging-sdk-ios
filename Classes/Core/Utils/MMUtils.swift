@@ -507,11 +507,11 @@ public class MobileMessagingService: NSObject {
 }
 
 public extension UIDevice {
-	public func SYSTEM_VERSION_LESS_THAN(_ version: String) -> Bool {
+	func SYSTEM_VERSION_LESS_THAN(_ version: String) -> Bool {
 		return self.systemVersion.compare(version, options: .numeric) == .orderedAscending
 	}
 	
-	@objc public var IS_IOS_BEFORE_10: Bool { return SYSTEM_VERSION_LESS_THAN("10.0") }
+	@objc var IS_IOS_BEFORE_10: Bool { return SYSTEM_VERSION_LESS_THAN("10.0") }
 }
 
 class MMDate {
@@ -544,7 +544,6 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
 		if #available(iOS 10.0, *) {
 			UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-				let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-Consts.SDKSettings.messagesRetentionPeriod).timeIntervalSince1970
 				let messages = notifications
 					.compactMap({
 						MTMessage(payload: $0.request.content.userInfo,
@@ -553,9 +552,6 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 								  deliveryReportDate: nil,
 								  seenStatus: .NotSeen,
 								  isDeliveryReportSent: false)
-					})
-					.filter({
-						$0.sendDateTime > dateToCompare
 					})
 				completionHandler(messages)
 			}

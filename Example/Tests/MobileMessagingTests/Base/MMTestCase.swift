@@ -72,12 +72,12 @@ class MessageHandlingDelegateMock : MessageHandlingDelegate {
 }
 
 
-let sendDateTimeMillis = 1503583689984 as Double
+let testEnvironmentTimestampMillisSince1970 = 1503583689984 as Double
 func apnsNormalMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
     return [
         "messageId": messageId,
         "aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-        Consts.APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey": "internalValue"],
+        Consts.APNSPayloadKeys.internalData: ["sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey": "internalValue"],
         Consts.APNSPayloadKeys.customPayload: ["customKey": "customValue"]
     ]
 }
@@ -162,7 +162,7 @@ class MMTestCase: XCTestCase {
 		MobileMessaging.logger = MMDefaultLogger()
         MobileMessaging.logger?.logOutput = .Console
         MobileMessaging.logger?.logLevel = .All
-
+		MobileMessaging.date = DateStub(nowStub: Date(timeIntervalSince1970: testEnvironmentTimestampMillisSince1970/1000))
         MMTestCase.startWithCorrectApplicationCode()
 		MobileMessaging.reachabilityManagerFactory = { return ReachabilityManagerStub(isReachable: true) }
     }
@@ -223,5 +223,93 @@ class MMTestCase: XCTestCase {
 		let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestWrongApplicationCode)!
 		mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
 		mm.start()
+	}
+}
+
+class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
+	func findNonSeenMessageIds(completion: @escaping (([String]) -> Void)) {
+		completion([])
+	}
+
+	var messagesCountersUpdateHandler: ((Int, Int) -> Void)?
+
+	func countAllMessages(completion: @escaping (Int) -> Void) {
+		completion(mtMessages.count + moMessages.count)
+	}
+
+	func removeAllMessages(completion: @escaping ([MessageId]) -> Void) {
+		mtMessages.removeAll()
+		moMessages.removeAll()
+	}
+
+	func findAllMessageIds(completion: @escaping ([String]) -> Void) {
+		completion(mtMessages.map({$0.messageId}))
+	}
+
+	func remove(withIds messageIds: [MessageId], completion: @escaping ([MessageId]) -> Void) {
+
+	}
+
+	func remove(withQuery query: Query, completion: @escaping ([MessageId]) -> Void) {
+
+	}
+
+	func findAllMessages(completion: @escaping FetchResultBlock) {
+		completion(mtMessages + moMessages)
+	}
+
+	func findMessages(withIds messageIds: [MessageId], completion: @escaping FetchResultBlock) {
+		completion((mtMessages + moMessages).filter({ messageIds.contains($0.messageId) }))
+	}
+
+	func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock) {
+		completion((mtMessages + moMessages).filter({ query.predicate?.evaluate(with: $0) ?? true }))
+	}
+
+	let updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)?
+
+	init(updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)? = nil) {
+		self.updateMessageSentStatusHook = updateMessageSentStatusHook
+	}
+
+	var queue: DispatchQueue {
+		return DispatchQueue.main
+	}
+	var mtMessages = [BaseMessage]()
+	var moMessages = [BaseMessage]()
+	func insert(incoming messages: [BaseMessage], completion: @escaping () -> Void) {
+		messages.forEach { (message) in
+			self.mtMessages.append(message)
+		}
+		completion()
+	}
+	func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void) {
+		messages.forEach { (message) in
+			self.moMessages.append(message)
+		}
+		completion()
+	}
+	func findMessage(withId messageId: MessageId) -> BaseMessage? {
+		if let idx = moMessages.index(where: { $0.messageId == messageId }) {
+			return BaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId], deliveryMethod: .undefined)
+		} else {
+			return nil
+		}
+	}
+	func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId, completion: @escaping () -> Void) {
+		completion()
+	}
+	func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void) {
+		completion()
+	}
+	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
+		updateMessageSentStatusHook?(status)
+		completion()
+	}
+	func start() {
+
+	}
+	func stop() {
+
 	}
 }

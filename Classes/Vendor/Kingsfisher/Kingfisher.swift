@@ -61,7 +61,7 @@ internal protocol KingfisherCompatible {
 }
 
 internal extension KingfisherCompatible {
-    internal var kf: Kingfisher<Self> {
+	var kf: Kingfisher<Self> {
         return Kingfisher(self)
     }
 }

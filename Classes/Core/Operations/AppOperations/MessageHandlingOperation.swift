@@ -55,7 +55,7 @@ final class MessageHandlingOperation: Operation {
 		guard !newMessages.isEmpty else
 		{
 			MMLogDebug("[Message handling] There is no new messages to handle.")
-			handleExistentMessageTappedIfNeeded()
+			handleExistingMessageTappedIfNeeded()
 			finish()
 			return
 		}
@@ -137,9 +137,9 @@ final class MessageHandlingOperation: Operation {
 		handleNotificationTappedIfNeeded(with: newMessage)
 	}
 
-	private func handleExistentMessageTappedIfNeeded() {
-		guard let existentMessage = intersectingMessages.first else { return }
-		handleNotificationTappedIfNeeded(with: existentMessage)
+	private func handleExistingMessageTappedIfNeeded() {
+		guard let existingMessage = intersectingMessages.first else { return }
+		handleNotificationTappedIfNeeded(with: existingMessage)
 	}
 	
 	private func handleNotificationTappedIfNeeded(with message: MTMessage) {
@@ -161,14 +161,25 @@ final class MessageHandlingOperation: Operation {
 	
 	private lazy var newMessages: Set<MTMessage> = {
 		guard !self.messagesToHandle.isEmpty else { return Set<MTMessage>() }
-		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
-		return Set(messagesToHandleMetasSet.subtracting(self.storedMessageMetasSet).compactMap { return self.mtMessage(from: $0) })
+		let retentionPeriodStart = MobileMessaging.date.now.addingTimeInterval(-Consts.SDKSettings.messagesRetentionPeriod).timeIntervalSince1970
+		let messagesToHandleMetasSet = Set(self.messagesToHandle.filter({ $0.sendDateTime >= retentionPeriodStart }).map(MMMessageMeta.init))
+		if !messagesToHandleMetasSet.isEmpty {
+			let storedMessages = self.storedMessageMetasSet
+			return Set(messagesToHandleMetasSet.subtracting(storedMessages).compactMap { return self.mtMessage(from: $0) })
+		} else {
+			return Set()
+		}
 	}()
 	
 	private lazy var intersectingMessages: [MTMessage] = {
 		guard !self.messagesToHandle.isEmpty else { return [MTMessage]() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
-		return messagesToHandleMetasSet.intersection(self.storedMessageMetasSet).compactMap { return self.mtMessage(from: $0) }
+		if !messagesToHandleMetasSet.isEmpty {
+			let storedMessages = self.storedMessageMetasSet
+			return messagesToHandleMetasSet.intersection(storedMessages).compactMap { return self.mtMessage(from: $0) }
+		} else {
+			return []
+		}
 	}()
 	
 //MARK: - Lazy message collections

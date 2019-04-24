@@ -9,105 +9,85 @@ import XCTest
 import UserNotifications
 @testable import MobileMessaging
 
-class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
-	func findNonSeenMessageIds(completion: @escaping (([String]) -> Void)) {
-		completion([])
-	}
-
-	var messagesCountersUpdateHandler: ((Int, Int) -> Void)?
-	
-	func countAllMessages(completion: @escaping (Int) -> Void) {
-		completion(mtMessages.count + moMessages.count)
-	}
-	
-	func removeAllMessages(completion: @escaping ([MessageId]) -> Void) {
-		mtMessages.removeAll()
-		moMessages.removeAll()
-	}
-	
-	func findAllMessageIds(completion: @escaping ([String]) -> Void) {
-		completion(mtMessages.map({$0.messageId}))
-	}
-	
-	func remove(withIds messageIds: [MessageId], completion: @escaping ([MessageId]) -> Void) {
-		
-	}
-	
-	func remove(withQuery query: Query, completion: @escaping ([MessageId]) -> Void) {
-		
-	}
-	
-	func findAllMessages(completion: @escaping FetchResultBlock) {
-		completion(mtMessages + moMessages)
-	}
-	
-	func findMessages(withIds messageIds: [MessageId], completion: @escaping FetchResultBlock) {
-		completion((mtMessages + moMessages).filter({ messageIds.contains($0.messageId) }))
-	}
-	
-	func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock) {
-		completion((mtMessages + moMessages).filter({ query.predicate?.evaluate(with: $0) ?? true }))
-	}
-	
-	let updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)?
-	
-	init(updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)? = nil) {
-		self.updateMessageSentStatusHook = updateMessageSentStatusHook
-	}
-	
-	var queue: DispatchQueue {
-		return DispatchQueue.main
-	}
-	var mtMessages = [BaseMessage]()
-	var moMessages = [BaseMessage]()
-	func insert(incoming messages: [BaseMessage], completion: @escaping () -> Void) {
-		messages.forEach { (message) in
-			self.mtMessages.append(message)
-		}
-		completion()
-	}
-	func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void) {
-		messages.forEach { (message) in
-			self.moMessages.append(message)
-		}
-		completion()
-	}
-	func findMessage(withId messageId: MessageId) -> BaseMessage? {
-		if let idx = moMessages.index(where: { $0.messageId == messageId }) {
-			return BaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId], deliveryMethod: .undefined)
-		} else {
-			return nil
-		}
-	}
-	func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId, completion: @escaping () -> Void) {
-		completion()
-	}
-	func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void) {
-		completion()
-	}
-	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
-		updateMessageSentStatusHook?(status)
-		completion()
-	}
-	func start() {
-		
-	}
-	func stop() {
-		
-	}
-}
-
 class MessageStorageTests: MMTestCase {
 	
 	func apnsChatMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 		return [
 			"messageId": messageId,
 			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-			"internalData": ["sendDateTime": sendDateTimeMillis, "internalKey": "internalValue"],
+			"internalData": ["sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey": "internalValue"],
 			"customPayload": ["isChat": true, "customKey": "customValue"]
 		]
 	}
 
+	func testThatMessagesFromAPNSAndFromNotificationExtensionStorageDontRepeatAfterEviction() {
+		// 1 receive message
+		// 2 evict
+		// 3 fetch the same message from extension
+		// 4 assert no duplicates in message storage
+
+		MMTestCase.cleanUpAndStop()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+
+		mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
+
+		weak var findAllMessagesIdsExp = expectation(description: "Check finished")
+		let expectedMessagesCount = 1
+
+		weak var findAllMessagesExp2 = expectation(description: "Check finished")
+
+		self.mobileMessagingInstance.didReceiveRemoteNotification(apnsNormalMessagePayload("m2"), completion: { _ in
+			self.mobileMessagingInstance.messageHandler.evictOldMessages {
+				self.mobileMessagingInstance.messageHandler.syncMessagesWithOuterLocalSources {
+					DispatchQueue.main.async {
+						self.defaultMessageStorage?.findAllMessageIds(completion: { ids in
+							XCTAssertEqual(ids.count, expectedMessagesCount)
+							findAllMessagesIdsExp?.fulfill()
+						})
+						self.defaultMessageStorage?.findAllMessages { messages in
+							XCTAssertEqual(messages?.count, expectedMessagesCount)
+							findAllMessagesExp2?.fulfill()
+						}
+					}
+				}
+			}
+		})
+
+		self.waitForExpectations(timeout: 60, handler: nil)
+	}
+
+	func testThatMessagesFromAPNSAndFromNotificationExtensionStorageDontRepeat() {
+		// 1 receive message
+		// 2 fetch the same message from extension
+		// 3 assert no duplicates in message storage
+
+		MMTestCase.cleanUpAndStop()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+
+		mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
+
+		weak var findAllMessagesIdsExp = expectation(description: "Check finished")
+		let expectedMessagesCount = 1
+
+		weak var findAllMessagesExp2 = expectation(description: "Check finished")
+
+		self.mobileMessagingInstance.didReceiveRemoteNotification(apnsNormalMessagePayload("m2"), completion: { _ in
+			self.mobileMessagingInstance.messageHandler.syncMessagesWithOuterLocalSources {
+				DispatchQueue.main.async {
+					self.defaultMessageStorage?.findAllMessageIds(completion: { ids in
+						XCTAssertEqual(ids.count, expectedMessagesCount)
+						findAllMessagesIdsExp?.fulfill()
+					})
+					self.defaultMessageStorage?.findAllMessages { messages in
+						XCTAssertEqual(messages?.count, expectedMessagesCount)
+						findAllMessagesExp2?.fulfill()
+					}
+				}
+			}
+		})
+
+		self.waitForExpectations(timeout: 60, handler: nil)
+	}
 	
 	func testThatChatMessagesDontGetToMessageStorage() {
 		MMTestCase.cleanUpAndStop()
@@ -140,6 +120,43 @@ class MessageStorageTests: MMTestCase {
 			XCTAssertEqual(messageStorageStub.mtMessages.count, expectedMessagesCount)
 			XCTAssertEqual(messageStorageStub.moMessages.count, 0)
 			XCTAssertEqual(chatStorageStub.mtMessages.count, 1)
+			XCTAssertEqual(chatStorageStub.moMessages.count, 0)
+		})
+	}
+
+	func testThatOldMessagesDontGetToMessageStorage() {
+		MMTestCase.cleanUpAndStop()
+
+		let messageStorageStub = MessageStorageStub()
+		let chatStorageStub = MessageStorageStub()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withMobileChat(storage: chatStorageStub).start()
+
+		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
+
+		let expectedMessagesCount = 5
+		weak var expectation = self.expectation(description: "Check finished")
+		var iterationCounter: Int = 0
+
+		timeTravel(to: Date()) {
+			self.mobileMessagingInstance.didReceiveRemoteNotification(apnsChatMessagePayload("chatmessageid"), completion: { _ in
+
+				sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
+					self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
+						DispatchQueue.main.async {
+							iterationCounter += 1
+							if iterationCounter == expectedMessagesCount {
+								expectation?.fulfill()
+							}
+						}
+					})
+				}
+			})
+		}
+
+		self.waitForExpectations(timeout: 60, handler: { _ in
+			XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
+			XCTAssertEqual(messageStorageStub.moMessages.count, 0)
+			XCTAssertEqual(chatStorageStub.mtMessages.count, 0)
 			XCTAssertEqual(chatStorageStub.moMessages.count, 0)
 		})
 	}

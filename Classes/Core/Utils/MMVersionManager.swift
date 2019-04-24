@@ -43,7 +43,7 @@ class VersionManager {
 	func validateVersion(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("[Checking versions] started...")
 		
-		guard lastCheckDate == nil || (lastCheckDate?.addingTimeInterval(defaultTimeout).compare(MobileMessaging.date.now) == ComparisonResult.orderedAscending) else
+		guard lastCheckDate == nil || (lastCheckDate?.addingTimeInterval(defaultTimeout).compare(MobileMessaging.date.now) != ComparisonResult.orderedDescending) else
 		{
 			self.waitUntilItsTime()
 			completion?()

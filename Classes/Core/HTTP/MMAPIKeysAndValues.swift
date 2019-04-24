@@ -186,7 +186,7 @@ struct Consts {
 	}
 
 	struct SDKSettings {
-		static var messagesRetentionPeriod: TimeInterval = 7 * 24 * 60 * 60 //one week
+		static var messagesRetentionPeriod: TimeInterval = 2 * 7 * 24 * 60 * 60 //two weeks
 		static var reachabilityMonitoringTimeout = DispatchTimeInterval.seconds(10)
 	}
 }

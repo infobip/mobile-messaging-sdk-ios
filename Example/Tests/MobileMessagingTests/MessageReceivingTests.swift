@@ -75,7 +75,7 @@ func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 	return [
 		"messageId": messageId,
 		"aps": ["content-available": 1, "badge": 6],
-		Consts.APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
+		Consts.APNSPayloadKeys.internalData: ["sendDateTime": testEnvironmentTimestampMillisSince1970, "silent" : [ "title": "msg_title", "body": "msg_body", "sound": "default"], "internalKey": "internalValue"],
 		Consts.APNSPayloadKeys.customPayload: ["customKey": "customValue"]
 	]
 }
@@ -139,7 +139,7 @@ class MessageReceivingTests: MMTestCase {
 		let resultDict = [
 							"messageId": "m1",
 							"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-							Consts.APNSPayloadKeys.internalData: ["sendDateTime": sendDateTimeMillis, "internalKey1": "internalValue1", Consts.InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
+							Consts.APNSPayloadKeys.internalData: ["sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey1": "internalValue1", Consts.InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
 							Consts.APNSPayloadKeys.customPayload: ["customKey" : "customValue"],
 						] as APNSPayload
 		let message = MTMessage(messageSyncResponseJson: JSON.parse(jsonstring))
@@ -170,7 +170,7 @@ class MessageReceivingTests: MMTestCase {
 			XCTAssertEqual(message.messageId, id, "Message Id must be parsed")
 			XCTAssertEqual(message.contentUrl, "pic.url")
 			
-			XCTAssertEqual(message.sendDateTime, sendDateTimeMillis/1000, accuracy: 0.0001)
+			XCTAssertEqual(message.sendDateTime, testEnvironmentTimestampMillisSince1970/1000, accuracy: 0.0001)
 		} else {
 			XCTFail("Message decoding failed")
 		}

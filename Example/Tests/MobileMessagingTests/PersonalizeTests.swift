@@ -228,20 +228,23 @@ class PersonalizeTests: MMTestCase {
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			requestCompletionCounter += 1
+			DispatchQueue.main.async { requestCompletionCounter += 1 }
 			fetchFinished1?.fulfill()
 		}
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			requestCompletionCounter += 1
+			DispatchQueue.main.async { requestCompletionCounter += 1 }
 			fetchFinished2?.fulfill()
 		}
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			requestCompletionCounter += 1
+			DispatchQueue.main.async { requestCompletionCounter += 1 }
 			fetchFinished3?.fulfill()
 		}
 		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
-			requestCompletionCounter += 1
-			depersonalizeTurn = requestCompletionCounter
+			DispatchQueue.main.async {
+				requestCompletionCounter += 1
+				depersonalizeTurn = requestCompletionCounter
+			}
+
 			depersonalizeFinished?.fulfill()
 		})
 

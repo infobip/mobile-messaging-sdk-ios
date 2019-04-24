@@ -8,10 +8,10 @@
 import Foundation
 
 class RemoteAPIProvider {
-	internal(set) var versionFetchingQueue: RemoteAPIQueue
-	internal(set) var registrationQueue: RemoteAPIQueue
-	internal(set) var messageSyncQueue: RemoteAPIQueue
-	internal(set) var seenStatusQueue: RemoteAPIQueue
+	var versionFetchingQueue: RemoteAPIQueue
+	var registrationQueue: RemoteAPIQueue
+	var messageSyncQueue: RemoteAPIQueue
+	var seenStatusQueue: RemoteAPIQueue
 	
 	init() {
 		registrationQueue = RemoteAPIQueue()

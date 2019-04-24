@@ -311,15 +311,22 @@ import CoreData
 			completion()
 			return
 		}
-		
-		var newMessages = [Message]()
-		context.performAndWait {
-			newMessages = messages.compactMap { storageMessageConstructor($0, context) }
-			context.MM_saveToPersistentStoreAndWait()
+
+		let persistedMessageIds: Set<String> = Set(Message.MM_selectAttribute("messageId", withPredicte: nil, inContext: context) as? Array<String> ?? Array())
+
+		let messagesToStore = messages.filter({ !persistedMessageIds.contains($0.messageId) })
+		if !messagesToStore.isEmpty {
+			context.performAndWait {
+				messagesToStore.forEach({
+					_ = storageMessageConstructor($0, context)
+				})
+				context.MM_saveToPersistentStoreAndWait()
+			}
 		}
+
 		completion()
 		callDelegateIfNeeded {
-			self.delegate?.didInsertNewMessages(newMessages.baseMessages)
+			self.delegate?.didInsertNewMessages(messagesToStore)
 		}
 	}
 	
