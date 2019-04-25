@@ -138,7 +138,7 @@ import CoreData
 	}
 	
 	public func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
-		updateMessage(
+		updateMessages(
 			foundWith: NSPredicate(format: "messageId == %@", messageId),
 			applyChanges: { message in message.sentStatusValue = status.rawValue },
 			completion: completion)
@@ -146,7 +146,7 @@ import CoreData
 	
 	public func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void) {
 		var newSeenMessagsCount = 0
-		updateMessage(
+		updateMessages(
 			foundWith: NSPredicate(format: "messageId == %@", messageId),
 			applyChanges: { message in
 				message.seenStatusValue = status.rawValue
@@ -164,7 +164,7 @@ import CoreData
 	}
 	
 	public func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId, completion: @escaping () -> Void) {
-		updateMessage(
+		updateMessages(
 			foundWith: NSPredicate(format: "messageId == %@", messageId),
 			applyChanges: { message in
 				message.isDeliveryReportSent = isDelivered
@@ -355,16 +355,16 @@ import CoreData
 		}
 	}
 	
-	private func updateMessage(foundWith predicate: NSPredicate, applyChanges: @escaping (Message) -> Void, completion: @escaping () -> Void) {
+	private func updateMessages(foundWith predicate: NSPredicate, applyChanges: @escaping (Message) -> Void, completion: @escaping () -> Void) {
 		guard let context = context else {
 			completion()
 			return
 		}
 		context.performAndWait {
-			if let message = Message.MM_findFirstWithPredicate(predicate, context: context) {
-				applyChanges(message)
+			Message.MM_findAllWithPredicate(predicate, context: context)?.forEach {
+				applyChanges($0)
 				context.MM_saveToPersistentStoreAndWait()
-				self.didUpdate(message: message)
+				self.didUpdate(message: $0)
 			}
 		}
 		completion()
