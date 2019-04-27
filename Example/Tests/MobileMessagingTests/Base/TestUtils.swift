@@ -344,3 +344,41 @@ class MessagHandlerMock: MMMessageHandler {
 }
 
 let retryableError = NSError(domain: NSURLErrorDomain, code: 404, userInfo: nil)
+
+class ApnsRegistrationManagerMock: ApnsRegistrationManager {
+	var _isRegistrationHealthy: Bool = false
+	var deviceTokenUpdateWasCalled: Bool = false
+	var regResetWasCalled: Bool = false
+	var unregisterCalled: (() -> Void)? = nil
+	var registerCalled: (() -> Void)? = nil
+
+	override var isRegistrationHealthy: Bool {
+		return _isRegistrationHealthy
+	}
+
+	override func setRegistrationIsHealthy() {
+		_isRegistrationHealthy = true
+	}
+
+	override func cleanup() {
+		_isRegistrationHealthy = false
+	}
+
+	override func updateDeviceToken(_ token: String, completion: ((NSError?) -> Void)?) {
+		deviceTokenUpdateWasCalled = true
+		completion?(nil)
+	}
+
+	override func resetRegistration(withToken token: String, completion: @escaping (NSError?) -> Void) {
+		regResetWasCalled = true
+		super.resetRegistration(withToken: token, completion: completion)
+	}
+
+	override func registerForRemoteNotifications() {
+		registerCalled?()
+	}
+
+	override func unregister() {
+		unregisterCalled?()
+	}
+}

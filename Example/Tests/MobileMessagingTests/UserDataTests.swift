@@ -305,6 +305,63 @@ class UserDataTests: MMTestCase {
 		waitForExpectations(timeout: 20, handler: nil)
 	}
 
+	func testThat_NO_REGISTRATION_errorLeadsToRegistrationAndUserDataReset() {
+		weak var expectation = self.expectation(description: "data fetched")
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+
+		let responseStub: (Any) -> JSON? = { request -> JSON? in
+			switch request {
+			case (is PatchUser), (is PostInstance), (is PatchInstance):
+				let jsonStr = """
+				{
+					"requestError": {
+						"serviceException" : {
+							"messageId" : "NO_REGISTRATION",
+							"text" : "something"
+						}
+					}
+			   }
+"""
+				return JSON.parse(jsonStr)
+			default:
+				return nil
+			}
+		}
+
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: nil,
+			completionCompanionBlock: nil,
+			responseStub: responseStub)
+
+
+		let user = MobileMessaging.getUser()!
+		user.firstName = "john"
+		user.archiveAll()
+		user.lastName = "dow"
+
+		XCTAssertNotNil(self.mobileMessagingInstance.currentInstallation().pushRegistrationId)
+		XCTAssertNotNil(self.mobileMessagingInstance.dirtyInstallation().pushRegistrationId)
+
+		XCTAssertNotNil(self.mobileMessagingInstance.dirtyUser().firstName)
+		XCTAssertNotNil(self.mobileMessagingInstance.currentUser().firstName)
+
+		MobileMessaging.saveUser(user) { (error) in
+			XCTAssertNotNil(error)
+
+			XCTAssertNil(self.mobileMessagingInstance.currentInstallation().pushRegistrationId)
+			XCTAssertNil(self.mobileMessagingInstance.dirtyInstallation().pushRegistrationId)
+
+			XCTAssertNil(self.mobileMessagingInstance.currentUser().firstName)
+			XCTAssertNil(self.mobileMessagingInstance.currentUser().lastName)
+
+			XCTAssertNotNil(self.mobileMessagingInstance.dirtyUser().firstName)
+			XCTAssertNotNil(self.mobileMessagingInstance.dirtyUser().lastName)
+
+			expectation?.fulfill()
+		}
+		waitForExpectations(timeout: 20, handler: nil)
+	}
+
 	func testThatAfterMergeInterrupted_UserIdentityRollsBack() {
 		weak var expectation = self.expectation(description: "expectation")
 		mobileMessagingInstance.pushRegistrationId = "123"

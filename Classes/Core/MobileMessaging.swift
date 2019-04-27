@@ -539,6 +539,7 @@ public final class MobileMessaging: NSObject {
 		appListener = nil
 		messageHandler = nil
 		remoteApiProvider = nil
+		apiErrorHandler = nil
 
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
@@ -694,7 +695,7 @@ public final class MobileMessaging: NSObject {
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider()
 	lazy var keychain: MMKeychain! = MMKeychain()
 	lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
-
+	lazy var apiErrorHandler: APIErrorHandler! = APIErrorHandler.sharedInstance
 	//FIXME: explicit unwrapping is a subject for removing
 	static var httpSessionManager: DynamicBaseUrlHTTPSessionManager!
 	static var reachabilityManagerFactory: () -> ReachabilityManagerProtocol = { return NetworkReachabilityManager() }

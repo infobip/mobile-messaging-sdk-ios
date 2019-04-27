@@ -16,9 +16,9 @@ final class InstallationDataService: MobileMessagingService{
 		super.init(mmContext: mmContext, id: "InstallationDataService")
 	}
 
-	func save(deviceToken: Data, completion: @escaping (NSError?) -> Void) {
+	func save(deviceToken: String, completion: @escaping (NSError?) -> Void) {
 		let di = mmContext.dirtyInstallation()
-		di.pushServiceToken = deviceToken.mm_toHexString
+		di.pushServiceToken = deviceToken
 		di.archiveDirty()
 		syncWithServer(completion)
 	}
@@ -73,6 +73,14 @@ final class InstallationDataService: MobileMessagingService{
 		installationQueue.addOperation(op)
 	}
 
+	func resetCurrentPushRegistration() {
+		let currentInstallation = mmContext.dirtyInstallation()
+		currentInstallation.pushRegistrationId = nil
+		currentInstallation.archiveDirty()
+		Installation.empty.archiveCurrent()
+		save(installationData: currentInstallation, completion: { _ in })
+	}
+
 	// MARK: - MobileMessagingService protocol
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		MMLogDebug("[InstallationDataService] log out")
@@ -125,5 +133,4 @@ final class InstallationDataService: MobileMessagingService{
 			followingBlock(nil)
 		}
 	}
-	// MARK: }
 }

@@ -130,6 +130,22 @@ final class UserDataService: MobileMessagingService {
 		}
 	}
 
+	func rollbackUserIdentity() {
+		let currentUser = mmContext.currentUser()
+		let dirtyUser = mmContext.dirtyUser()
+		dirtyUser.phones = currentUser.phones
+		dirtyUser.emails = currentUser.emails
+		dirtyUser.externalUserId = currentUser.externalUserId
+		dirtyUser.archiveDirty()
+	}
+
+	func resyncUserData() {
+		let currentUser = mmContext.dirtyUser()
+		currentUser.archiveDirty()
+		User.empty.archiveCurrent()
+		save(userData: currentUser, completion: { _ in })
+	}
+
 	// MARK: - MobileMessagingService protocol {
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		MMLogDebug("[UserDataService] log out")

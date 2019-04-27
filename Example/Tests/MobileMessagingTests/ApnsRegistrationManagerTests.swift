@@ -9,45 +9,6 @@ import XCTest
 import Foundation
 @testable import MobileMessaging
 
-class ApnsRegistrationManagerMock: ApnsRegistrationManager {
-	var _isRegistrationHealthy: Bool = false
-	var deviceTokenUpdateWasCalled: Bool = false
-	var regResetWasCalled: Bool = false
-	var unregisterCalled: (() -> Void)? = nil
-	var registerCalled: (() -> Void)? = nil
-
-	override var isRegistrationHealthy: Bool {
-		return _isRegistrationHealthy
-	}
-	
-	override func setRegistrationIsHealthy() {
-		_isRegistrationHealthy = true
-	}
-	
-	override func cleanup() {
-		_isRegistrationHealthy = false
-	}
-	
-	override func updateDeviceToken(_ token: Data, completion: ((NSError?) -> Void)?) {
-		deviceTokenUpdateWasCalled = true
-		completion?(nil)
-	}
-	
-	override func resetRegistration(completion: @escaping () -> Void) {
-		regResetWasCalled = true
-		setRegistrationIsHealthy()
-		completion()
-	}
-
-	override func registerForRemoteNotifications() {
-		registerCalled?()
-	}
-
-	override func unregister() {
-		unregisterCalled?()
-	}
-}
-
 class ApnsRegistrationManagerTests: MMTestCase {
 	func testThatRegistrationResetLeadsToHealthyRegFlag() {
 		weak var resetFinished = expectation(description: "regFinished")

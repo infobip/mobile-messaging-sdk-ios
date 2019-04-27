@@ -82,22 +82,14 @@ class UpdateUserOperation: Operation {
 			UserEventsManager.postUserSyncedEvent(MobileMessaging.currentUser)
 			MMLogDebug("[UpdateUserOperation] successfully synced")
 		case .Failure(let error):
+			mmContext.apiErrorHandler.handleApiError(error: error)
 			if error?.mm_code == "USER_MERGE_INTERRUPTED" {
-				rollbackUserIdentity()
+				mmContext.userService.rollbackUserIdentity()
 			}
 			MMLogError("[UpdateUserOperation] sync request failed with error: \(error.orNil)")
 		case .Cancel:
 			MMLogWarn("[UpdateUserOperation] sync request cancelled.")
 		}
-	}
-
-	private func rollbackUserIdentity() {
-		let currentUser = mmContext.currentUser()
-		let dirtyUser = mmContext.dirtyUser()
-		dirtyUser.phones = currentUser.phones
-		dirtyUser.emails = currentUser.emails
-		dirtyUser.externalUserId = currentUser.externalUserId
-		dirtyUser.archiveDirty()
 	}
 
 	override func finished(_ errors: [NSError]) {
