@@ -7,7 +7,32 @@
 
 import Foundation
 
-@objc public enum Gender: Int {
+@objc public enum GenderNonnull: Int {
+	case Female
+	case Male
+	case Undefined
+
+	var toGender: Gender? {
+		switch self {
+		case .Female : return .Female
+		case .Male : return .Male
+		case .Undefined : return nil
+		}
+	}
+
+	static func make(from gender: Gender?) -> GenderNonnull {
+		if let gender = gender {
+			switch gender {
+			case .Female: return .Female
+			case .Male: return .Male
+			}
+		} else {
+			return .Undefined
+		}
+	}
+}
+
+public enum Gender: Int {
 	case Female
 	case Male
 
@@ -30,7 +55,8 @@ import Foundation
 	}
 }
 
-final class Phone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
+
+@objcMembers public final class Phone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
 	public let number: String
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
@@ -78,7 +104,7 @@ final class Phone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
 	}
 }
 
-final class Email: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
+@objcMembers public final class Email: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
 	public let address: String
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
@@ -126,7 +152,7 @@ final class Email: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
 	}
 }
 
-public class UserIdentity: NSObject {
+@objcMembers public class UserIdentity: NSObject {
 	public let phones: [String]?
 	public let emails: [String]?
 	public let externalUserId: String?
@@ -142,7 +168,7 @@ public class UserIdentity: NSObject {
 	}
 }
 
-public class UserAttributes: NSObject, DictionaryRepresentable {
+@objcMembers public class UserAttributes: NSObject, DictionaryRepresentable {
 	/// The user's first name. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var firstName: String?
 
@@ -158,11 +184,27 @@ public class UserAttributes: NSObject, DictionaryRepresentable {
 	/// A user's gender. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var gender: Gender?
 
+	public var genderNonnull: GenderNonnull {
+		set { gender = newValue.toGender }
+		get { return GenderNonnull.make(from: gender) }
+	}
+
 	/// A user's birthday. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var birthday: Date?
 
 	/// Returns user's custom data. Arbitrary attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var customAttributes: [String: AttributeType]?
+
+	convenience public init(firstName: String?
+		,middleName: String?
+		,lastName: String?
+		,tags: Array<String>?
+		,genderNonnull: GenderNonnull
+		,birthday: Date?
+		,customAttributes: [String: AttributeType]?) {
+
+		self.init(firstName: firstName, middleName: middleName, lastName: lastName, tags: tags, gender: genderNonnull.toGender, birthday: birthday, customAttributes: customAttributes)
+	}
 
 	public init(firstName: String?
 		,middleName: String?
@@ -207,7 +249,7 @@ public class UserAttributes: NSObject, DictionaryRepresentable {
 	}
 }
 
-public final class User: UserAttributes, JSONDecodable, NSCoding, NSCopying, Archivable {
+@objcMembers public final class User: UserAttributes, JSONDecodable, NSCoding, NSCopying, Archivable {
 	var version: Int = 0
 	static var currentPath = getDocumentsDirectory(filename: "user")
 	static var dirtyPath = getDocumentsDirectory(filename: "dirty-user")

@@ -78,7 +78,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 	}
 }
 
-public final class Installation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable, Archivable {
+@objcMembers public final class Installation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable, Archivable {
 	var version: Int = 0
 	static var currentPath = getDocumentsDirectory(filename: "installation")
 	static var dirtyPath = getDocumentsDirectory(filename: "dirty-installation")
