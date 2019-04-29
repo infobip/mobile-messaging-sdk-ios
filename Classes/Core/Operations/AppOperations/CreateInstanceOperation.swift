@@ -83,7 +83,6 @@ class CreateInstanceOperation : Operation {
 			MMLogDebug("[CreateInstanceOperation] successfully created registration \(String(describing: response.pushRegistrationId))")
 		case .Failure(let error):
 			MMLogError("[CreateInstanceOperation] sync request failed with error: \(error.orNil)")
-			mmContext.apiErrorHandler.handleApiError(error: error)
 		case .Cancel:
 			MMLogWarn("[CreateInstanceOperation] sync request cancelled.")
 		}

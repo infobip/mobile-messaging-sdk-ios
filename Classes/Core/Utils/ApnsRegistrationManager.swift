@@ -56,25 +56,23 @@ class ApnsRegistrationManager {
 		let installation = mmContext.resolveInstallation()
 		if installation.pushServiceToken == nil || installation.pushServiceToken == tokenStr {
 			setRegistrationIsHealthy()
-			updateDeviceToken(token.mm_toHexString, completion: completion)
+			updateDeviceToken(token, completion: completion)
 		} else {
 			// let's check if a special healthy flag is true. It may be false only due to iOS reserve copy restoration
 			if isRegistrationHealthy == false {
 				// if we face the reserve copy restoration we force a new registration
-				resetRegistration(withToken: token.mm_toHexString, completion: completion)
+				resetRegistration { self.updateDeviceToken(token, completion: completion) }
 			} else { // in other cases it is the APNS changing the device token
-				updateDeviceToken(token.mm_toHexString, completion: completion)
+				updateDeviceToken(token, completion: completion)
 			}
 		}
 	}
 	
-	func resetRegistration(withToken token: String, completion: @escaping (NSError?) -> Void) {
-		mmContext.installationService.resetRegistration(completion: { _ in
-			self.updateDeviceToken(token, completion: completion)
-		})
+	func resetRegistration(completion: @escaping () -> Void) {
+		mmContext.installationService.resetRegistration(completion: { _ in completion() })
 	}
 	
-	func updateDeviceToken(_ token: String, completion: @escaping (NSError?) -> Void) {
+	func updateDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
 		mmContext.installationService.save(deviceToken: token, completion: completion)
 	}
 	

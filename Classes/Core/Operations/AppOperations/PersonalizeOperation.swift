@@ -75,10 +75,9 @@ class PersonalizeOperation: Operation {
 			self.handleSuccessfulPersonalize(result.value)
 		case .Failure(let error):
 			MMLogError("[PersonalizeOperation] failed with force depersonalizing \(forceDepersonalize) with error: \(error.orNil)")
-			mmContext.apiErrorHandler.handleApiError(error: error)
 			if let error = error {
 				if error.mm_code == "AMBIGUOUS_PERSONALIZE_CANDIDATES" || error.mm_code == "USER_MERGE_INTERRUPTED" {
-					mmContext.userService.rollbackUserIdentity()
+					rollbackUserIdentity()
 				} else if error.mm_isRetryable {
 					if forceDepersonalize {
 						DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
@@ -88,6 +87,15 @@ class PersonalizeOperation: Operation {
 		case .Cancel:
 			MMLogWarn("[PersonalizeOperation] cancelled")
 		}
+	}
+
+	private func rollbackUserIdentity() {
+		let currentUser = mmContext.currentUser()
+		let dirtyUser = mmContext.dirtyUser()
+		dirtyUser.phones = currentUser.phones
+		dirtyUser.emails = currentUser.emails
+		dirtyUser.externalUserId = currentUser.externalUserId
+		dirtyUser.archiveDirty()
 	}
 
 	private func handleSuccessfulPersonalize(_ user: User?) {

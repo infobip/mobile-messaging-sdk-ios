@@ -182,7 +182,6 @@
 		766565DB1FDE825F00709036 /* ComposeBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7696BCB51FDA86F10030A5A8 /* ComposeBar.swift */; };
 		766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A71FC824140047DA47 /* RemoteAPIProvider.swift */; };
 		76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */; };
-		769433342273686D00950B3B /* APIErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769433332273686D00950B3B /* APIErrorHandler.swift */; };
 		7696BCB21FDA86C90030A5A8 /* ComposeBar_Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7696BCB11FDA86C90030A5A8 /* ComposeBar_Button.swift */; };
 		7696BCB41FDA86E00030A5A8 /* ComposeBar_TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7696BCB31FDA86E00030A5A8 /* ComposeBar_TextView.swift */; };
 		76A8A77921959F84004F6E39 /* UpdateInstanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A8A77821959F84004F6E39 /* UpdateInstanceOperation.swift */; };
@@ -428,7 +427,6 @@
 		766863A71FC824140047DA47 /* RemoteAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteAPIProvider.swift; sourceTree = "<group>"; };
 		766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlHTTPSessionManager.swift; sourceTree = "<group>"; };
 		76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManager.swift; sourceTree = "<group>"; };
-		769433332273686D00950B3B /* APIErrorHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIErrorHandler.swift; sourceTree = "<group>"; };
 		7696BCB11FDA86C90030A5A8 /* ComposeBar_Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeBar_Button.swift; sourceTree = "<group>"; };
 		7696BCB31FDA86E00030A5A8 /* ComposeBar_TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeBar_TextView.swift; sourceTree = "<group>"; };
 		7696BCB51FDA86F10030A5A8 /* ComposeBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeBar.swift; sourceTree = "<group>"; };
@@ -669,7 +667,6 @@
 				764555DD1F78FF4E00B8F14B /* InternalStorage */,
 				764555E81F78FF4E00B8F14B /* Localization */,
 				7645560B1F78FF4F00B8F14B /* MMKeychain.swift */,
-				769433332273686D00950B3B /* APIErrorHandler.swift */,
 				7645560C1F78FF4F00B8F14B /* MMLoggingUtil.swift */,
 				7645560D1F78FF4F00B8F14B /* MMNotifications.h */,
 				7645560E1F78FF4F00B8F14B /* MMNotifications.m */,
@@ -1043,7 +1040,6 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				ar,
 				cs,
@@ -1293,7 +1289,6 @@
 				764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */,
 				764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */,
 				76F58AD81FB1C91D00A91B3E /* CPBarButtonItem.swift in Sources */,
-				769433342273686D00950B3B /* APIErrorHandler.swift in Sources */,
 				D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

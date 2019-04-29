@@ -98,7 +98,6 @@ class UpdateInstanceOperation : Operation {
 			MMLogDebug("[UpdateInstanceOperation] successfully synced")
 		case .Failure(let error):
 			MMLogError("[UpdateInstanceOperation] sync request failed with error: \(error.orNil)")
-			mmContext.apiErrorHandler.handleApiError(error: error)
 		case .Cancel:
 			MMLogWarn("[UpdateInstanceOperation] sync request cancelled.")
 		}

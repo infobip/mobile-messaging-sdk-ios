@@ -63,7 +63,6 @@ class FetchInstanceOperation : Operation {
 			MMLogDebug("[FetchInstanceOperation] successfully synced")
 		case .Failure(let error):
 			MMLogError("[FetchInstanceOperation] sync request failed with error: \(error.orNil)")
-			mmContext.apiErrorHandler.handleApiError(error: error)
 		case .Cancel:
 			MMLogWarn("[FetchInstanceOperation] sync request cancelled.")
 		}
