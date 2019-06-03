@@ -11,14 +11,13 @@ class UpdateInstanceOperation : Operation {
 	let mmContext: MobileMessaging
 	let currentInstallation: Installation
 	let body: RequestBody
-	let finishBlock: ((UpdateInstanceDataResult) -> Void)?
-	var result: UpdateInstanceDataResult = UpdateInstanceDataResult.Cancel
+	let finishBlock: ((NSError?) -> Void)
 	let requireResponse: Bool
 	let registrationPushRegIdToUpdate: String
 	let authPushRegistrationId: String
 	let dirtyInstallation: Installation
 
-	init?(currentInstallation: Installation, dirtyInstallation: Installation?, registrationPushRegIdToUpdate: String?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: ((UpdateInstanceDataResult) -> Void)?) {
+	init?(currentInstallation: Installation, dirtyInstallation: Installation?, registrationPushRegIdToUpdate: String?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.currentInstallation = currentInstallation
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
@@ -75,7 +74,6 @@ class UpdateInstanceOperation : Operation {
 	}
 
 	private func handleResult(_ result: UpdateInstanceDataResult) {
-		self.result = result
 		guard authPushRegistrationId == registrationPushRegIdToUpdate else {
 			MMLogDebug("[UpdateInstanceOperation] updated other installation, no need to persist data. Finishing.")
 			return
@@ -105,6 +103,6 @@ class UpdateInstanceOperation : Operation {
 
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[UpdateInstanceOperation] finished with errors: \(errors)")
-		finishBlock?(self.result)
+		finishBlock(errors.first)
 	}
 }

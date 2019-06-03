@@ -10,11 +10,10 @@ import Foundation
 class FetchInstanceOperation : Operation {
 	let mmContext: MobileMessaging
 	let currentInstallation: Installation
-	let finishBlock: ((FetchInstanceDataResult) -> Void)?
-	var result: FetchInstanceDataResult = FetchInstanceDataResult.Cancel
+	let finishBlock: ((NSError?) -> Void)
 	let pushRegistrationId: String
 
-	init?(currentInstallation: Installation, mmContext: MobileMessaging, finishBlock: ((FetchInstanceDataResult) -> Void)?) {
+	init?(currentInstallation: Installation, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.currentInstallation = currentInstallation
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
@@ -50,7 +49,6 @@ class FetchInstanceOperation : Operation {
 	}
 
 	private func handleResult(_ result: FetchInstanceDataResult) {
-		self.result = result
 		guard !isCancelled else {
 			MMLogDebug("[FetchInstanceOperation] cancelled.")
 			return
@@ -70,6 +68,6 @@ class FetchInstanceOperation : Operation {
 
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[FetchInstanceOperation] finished with errors: \(errors)")
-		finishBlock?(result) //check what to do with errors/
+		finishBlock(errors.first) //check what to do with errors/
 	}
 }

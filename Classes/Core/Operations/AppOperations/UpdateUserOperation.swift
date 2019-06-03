@@ -9,13 +9,12 @@ import Foundation
 
 class UpdateUserOperation: Operation {
 	let mmContext: MobileMessaging
-	let finishBlock: ((UpdateUserDataResult) -> Void)?
-	var result: UpdateUserDataResult = UpdateUserDataResult.Cancel
+	let finishBlock: ((NSError?) -> Void)
 	let requireResponse: Bool
 	let body: RequestBody
 	let dirtyUser: User
 
-	init?(currentUser: User, dirtyUser: User?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: ((UpdateUserDataResult) -> Void)?) {
+	init?(currentUser: User, dirtyUser: User?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse
@@ -70,7 +69,6 @@ class UpdateUserOperation: Operation {
 	}
 
 	private func handleUserDataUpdateResult(_ result: UpdateUserDataResult) {
-		self.result = result
 		guard !isCancelled else {
 			MMLogDebug("[UpdateUserOperation] cancelled.")
 			return
@@ -102,6 +100,6 @@ class UpdateUserOperation: Operation {
 
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[UpdateUserOperation] finished with errors: \(errors)")
-		finishBlock?(self.result)
+		finishBlock(errors.first)
 	}
 }

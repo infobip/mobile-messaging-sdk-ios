@@ -13,9 +13,6 @@
 //  - This notice may not be removed or altered from any source or binary distribution.
 //
 
-@available(*, deprecated: 0.6.0, renamed: "Digest")
-public typealias Hash = Digest
-
 /// Hash functions to calculate Digest.
 public struct Digest {
     /// Calculate SHA1 Digest

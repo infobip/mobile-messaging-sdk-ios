@@ -11,12 +11,11 @@ class PersonalizeOperation: Operation {
 	let mmContext: MobileMessaging
 	let userIdentity: UserIdentity
 	let userAttributes: UserAttributes?
-	let finishBlock: ((PersonalizeResult) -> Void)?
-	var result: PersonalizeResult = PersonalizeResult.Cancel
+	let finishBlock: ((NSError?) -> Void)?
 	let requireResponse: Bool
 	let forceDepersonalize: Bool
 
-	init?(forceDepersonalize: Bool, userIdentity: UserIdentity, userAttributes: UserAttributes?, mmContext: MobileMessaging, finishBlock: ((PersonalizeResult) -> Void)?) {
+	init(forceDepersonalize: Bool, userIdentity: UserIdentity, userAttributes: UserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
 		self.forceDepersonalize = forceDepersonalize
 		self.userIdentity = userIdentity
 		self.userAttributes = userAttributes
@@ -60,7 +59,6 @@ class PersonalizeOperation: Operation {
 	}
 
 	private func handlePersonalizeResult(_ result: PersonalizeResult) {
-		self.result = result
 		guard !isCancelled else {
 			MMLogDebug("[PersonalizeOperation] cancelled")
 			return
@@ -107,6 +105,6 @@ class PersonalizeOperation: Operation {
 
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[PersonalizeOperation] finished with errors: \(errors)")
-		finishBlock?(self.result)
+		finishBlock?(errors.first)
 	}
 }

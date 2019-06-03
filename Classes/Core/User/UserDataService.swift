@@ -101,33 +101,27 @@ final class UserDataService: MobileMessagingService {
 		}
 		du.archiveDirty()
 
-
-		if let op = PersonalizeOperation(
+		let op = PersonalizeOperation(
 			forceDepersonalize: forceDepersonalize,
 			userIdentity: userIdentity,
 			userAttributes: userAttributes,
 			mmContext: mmContext,
-			finishBlock: { completion($0.error) })
-		{
-			op.queuePriority = .veryHigh
-			installationQueue.addOperation(op)
-		} else {
-			completion(nil)
-		}
+			finishBlock: { completion($0) })
+
+		op.queuePriority = .veryHigh
+		installationQueue.addOperation(op)
+
 	}
 
 	func fetchFromServer(completion: @escaping (User, NSError?) -> Void) {
 		MMLogDebug("[UserDataService] fetch from server")
-		if let op = FetchUserOperation(
+		let op = FetchUserOperation(
 			currentUser: mmContext.currentUser(),
 			dirtyUser: mmContext.dirtyUser(),
 			mmContext: mmContext,
-			finishBlock: { completion(self.mmContext.resolveUser(), $0.error) })
-		{
-			installationQueue.addOperation(op)
-		} else {
-			completion(mmContext.resolveUser(), nil)
-		}
+			finishBlock: { completion(self.mmContext.resolveUser(), $0) })
+
+		installationQueue.addOperation(op)
 	}
 
 	// MARK: - MobileMessagingService protocol {
@@ -145,7 +139,7 @@ final class UserDataService: MobileMessagingService {
 			dirtyUser: mmContext.dirtyUser(),
 			mmContext: mmContext,
 			requireResponse: false,
-			finishBlock: { completion($0.error) })
+			finishBlock: { completion($0) })
 		{
 			installationQueue.addOperation(op)
 		} else {

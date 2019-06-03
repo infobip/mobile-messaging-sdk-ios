@@ -40,7 +40,7 @@ final class InstallationDataService: MobileMessagingService{
 			registrationPushRegIdToUpdate: currentInstallation.pushRegistrationId,
 			mmContext: mmContext,
 			requireResponse: false,
-			finishBlock: { completion($0.error)} )
+			finishBlock: { completion($0)} )
 		{
 			installationQueue.addOperation(op)
 		} else {
@@ -53,7 +53,7 @@ final class InstallationDataService: MobileMessagingService{
 		if let op = FetchInstanceOperation(
 			currentInstallation: mmContext.currentInstallation(),
 			mmContext: mmContext,
-			finishBlock: { completion(self.mmContext.resolveInstallation(), $0.error) })
+			finishBlock: { completion(self.mmContext.resolveInstallation(), $0) })
 		{
 			installationQueue.addOperation(op)
 		} else {
@@ -111,14 +111,14 @@ final class InstallationDataService: MobileMessagingService{
 			registrationPushRegIdToUpdate: ci.pushRegistrationId,
 			mmContext: mmContext,
 			requireResponse: false,
-			finishBlock: { followingBlock($0.error) })
+			finishBlock: { followingBlock($0) })
 			??
 			CreateInstanceOperation(
 				currentInstallation: ci,
 				dirtyInstallation: di,
 				mmContext: mmContext,
 				requireResponse: true,
-				finishBlock: { followingBlock($0.error) })
+				finishBlock: { followingBlock($0) })
 		{
 			installationQueue.addOperation(op)
 		} else {

@@ -11,12 +11,11 @@ class CreateInstanceOperation : Operation {
 	let mmContext: MobileMessaging
 	let currentInstallation: Installation
 	let dirtyInstallation: Installation
-	let finishBlock: ((FetchInstanceDataResult) -> Void)?
-	var result: FetchInstanceDataResult = FetchInstanceDataResult.Cancel
+	let finishBlock: ((NSError?) -> Void)
 	let requireResponse: Bool
 	var body: [String: Any]
 
-	init?(currentInstallation: Installation, dirtyInstallation: Installation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: ((FetchInstanceDataResult) -> Void)?) {
+	init?(currentInstallation: Installation, dirtyInstallation: Installation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse
@@ -59,7 +58,6 @@ class CreateInstanceOperation : Operation {
 	}
 
 	private func handleResult(_ result: FetchInstanceDataResult) {
-		self.result = result
 		guard !isCancelled else {
 			MMLogDebug("[CreateInstanceOperation] cancelled.")
 			return
@@ -90,6 +88,6 @@ class CreateInstanceOperation : Operation {
 
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[CreateInstanceOperation] finished with errors: \(errors)")
-		finishBlock?(self.result)
+		finishBlock(errors.first)
 	}
 }

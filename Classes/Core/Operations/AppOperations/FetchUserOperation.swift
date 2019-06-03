@@ -11,10 +11,9 @@ class FetchUserOperation: Operation {
 	let mmContext: MobileMessaging
 	let user: User
 	let dirtyUserVersion: Int
-	let finishBlock: ((FetchUserDataResult) -> Void)?
-	var result: FetchUserDataResult = .Cancel
+	let finishBlock: ((NSError?) -> Void)
 
-	init?(currentUser: User, dirtyUser: User?, mmContext: MobileMessaging, finishBlock: ((FetchUserDataResult) -> Void)?) {
+	init(currentUser: User, dirtyUser: User?, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.user = currentUser
 		self.dirtyUserVersion = dirtyUser?.version ?? 0
 		self.mmContext = mmContext
@@ -66,7 +65,6 @@ class FetchUserOperation: Operation {
 			MMLogDebug("[FetchUserOperation] cancelled.")
 			return
 		}
-		self.result = result
 
 		switch result {
 		case .Success(let responseUser):
@@ -87,6 +85,6 @@ class FetchUserOperation: Operation {
 
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[FetchUserOperation] finished with errors: \(errors)")
-		finishBlock?(result) //check what to do with errors/
+		finishBlock(errors.first) //check what to do with errors/
 	}
 }

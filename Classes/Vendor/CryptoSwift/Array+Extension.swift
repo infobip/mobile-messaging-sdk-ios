@@ -75,21 +75,6 @@ extension Array where Element == UInt8 {
 }
 
 extension Array where Element == UInt8 {
-    /// split in chunks with given chunk size
-    @available(*, deprecated: 0.8.0, message: "")
-    public func chunks(size chunksize: Int) -> Array<Array<Element>> {
-        var words = Array<Array<Element>>()
-        words.reserveCapacity(count / chunksize)
-        for idx in stride(from: chunksize, through: count, by: chunksize) {
-            words.append(Array(self[idx - chunksize..<idx])) // slow for large table
-        }
-        let remainder = suffix(count % chunksize)
-        if !remainder.isEmpty {
-            words.append(Array(remainder))
-        }
-        return words
-    }
-
     public func sha1() -> [Element] {
         return Digest.sha1(self)
     }
