@@ -25,7 +25,7 @@ class UpdateInstanceOperation : Operation {
 
 		if let dirtyInstallation = dirtyInstallation {
 			self.dirtyInstallation = dirtyInstallation
-			self.body = InstallationDataMapper.requestPayload(currentInstallation: currentInstallation, dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
+			self.body = InstallationDataMapper.patchRequestPayload(currentInstallation: currentInstallation, dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
 			if self.body.isEmpty {
 				MMLogWarn("[UpdateInstanceOperation] There is no data to send. Aborting...")
 				return nil

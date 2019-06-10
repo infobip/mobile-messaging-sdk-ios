@@ -22,16 +22,18 @@ class CreateInstanceOperation : Operation {
 		self.currentInstallation = currentInstallation
 		self.dirtyInstallation = dirtyInstallation
 
-		if let _ = dirtyInstallation.pushServiceToken {
-			self.body = InstallationDataMapper.requestPayload(currentInstallation: self.currentInstallation, dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
-			if self.body.isEmpty {
-				MMLogWarn("[CreateInstanceOperation] There is no data to send. Aborting...")
-				return nil
-			}
-		} else {
-			MMLogWarn("[CreateInstanceOperation] There is no device token. Aborting...")
+		var createInstanceRequestBody = InstallationDataMapper.postRequestPayload(dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
+
+		if (createInstanceRequestBody[Attributes.pushServiceToken.rawValue] == nil ||
+			createInstanceRequestBody[Consts.SystemDataKeys.pushServiceType] == nil ||
+			currentInstallation.pushServiceToken == dirtyInstallation.pushServiceToken ||
+			dirtyInstallation.pushServiceToken == nil)
+		{
+			MMLogWarn("[CreateInstanceOperation] There is no registration data to send. Aborting...")
 			return nil
 		}
+
+		self.body = createInstanceRequestBody
 	}
 
 	override func execute() {

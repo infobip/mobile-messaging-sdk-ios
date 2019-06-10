@@ -20,18 +20,19 @@ struct SystemData: Hashable {
 		var result : [String: AnyHashable] = [
 			Consts.SystemDataKeys.geofencingServiceEnabled: false,
 			Consts.SystemDataKeys.notificationsEnabled: notificationsEnabled,
-			Consts.SystemDataKeys.sdkVersion: SDKVersion
+			Consts.SystemDataKeys.sdkVersion: SDKVersion,
+			Consts.SystemDataKeys.pushServiceType: pushServiceType,
+			Consts.SystemDataKeys.OS: os,
+			Consts.SystemDataKeys.osVer: OSVer,
+			Consts.SystemDataKeys.deviceManufacturer: deviceManufacturer
 		]
+
 		if (!MobileMessaging.privacySettings.systemInfoSendingDisabled) {
-			result[Consts.SystemDataKeys.osVer] = OSVer
-			result[Consts.SystemDataKeys.deviceManufacturer] = deviceManufacturer
 			result[Consts.SystemDataKeys.deviceModel] = deviceModel
 			result[Consts.SystemDataKeys.appVer] = appVer
 			result[Consts.SystemDataKeys.deviceSecure] = deviceSecure
 			result[Consts.SystemDataKeys.language] = language
 			result[Consts.SystemDataKeys.deviceName] = deviceName
-			result[Consts.SystemDataKeys.OS] = os
-			result[Consts.SystemDataKeys.pushServiceType] = pushServiceType
 			result[Consts.SystemDataKeys.deviceTimeZone] = deviceTimeZone
 		}
 		return (result as [String: AnyHashable]).mm_applySubservicesSystemData()

@@ -96,9 +96,7 @@ class SystemDataTests: MMTestCase {
 			MobileMessaging.privacySettings.systemInfoSendingDisabled = true
 			let body = MobileMessaging.userAgent.systemData.requestPayload
 			XCTAssertNil(body[Consts.SystemDataKeys.appVer])
-			XCTAssertNil(body[Consts.SystemDataKeys.deviceManufacturer])
 			XCTAssertNil(body[Consts.SystemDataKeys.deviceModel])
-			XCTAssertNil(body[Consts.SystemDataKeys.osVer])
 			XCTAssertNil(body[Consts.SystemDataKeys.language])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.sdkVersion])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.geofencingServiceEnabled])
@@ -109,6 +107,8 @@ class SystemDataTests: MMTestCase {
 		do {
 			MobileMessaging.privacySettings.systemInfoSendingDisabled = false
 			let body = MobileMessaging.userAgent.systemData.requestPayload
+			XCTAssertNotNil(body[Consts.SystemDataKeys.deviceManufacturer])
+			XCTAssertNotNil(body[Consts.SystemDataKeys.osVer])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.appVer])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.deviceManufacturer])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.deviceModel])

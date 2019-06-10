@@ -190,10 +190,13 @@ class DataModelsTests: MMTestCase {
 		}
 	}
 
-	func testInstallationDataPayloadMapper() {
-//		MobileMessaging.currentInstallation?.pushRegistrationId =
+	func testInstallationDataPayloadMapperForPatchRequest() {
 		let installation = MobileMessaging.getInstallation()!
 		installation.applicationUserId = "applicationUserId"
+		installation.pushRegistrationId = "pushRegistrationId"
+
+		installation.archiveCurrent()
+
 		installation.customAttributes = ["dateField": NSDate(timeIntervalSince1970: 0),
 										 "numberField": NSNumber(floatLiteral: 1.1),
 										 "stringField": "foo" as NSString,
@@ -201,11 +204,58 @@ class DataModelsTests: MMTestCase {
 										]
 		installation.isPrimaryDevice = true
 		installation.isPushRegistrationEnabled = false
-		installation.pushRegistrationId = "pushRegistrationId"
-		MobileMessaging.persistInstallation(installation)
+
+		installation.archiveDirty()
 
 		MobileMessaging.userAgent = UserAgentStub()
-		let body = InstallationDataMapper.requestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
+		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
+		let request = PatchInstance(applicationCode: "", authPushRegistrationId: "", refPushRegistrationId: "", body: body, returnPushServiceToken: false)!
+
+		let expectedDict: NSDictionary = [
+			"customAttributes": ["dateField": "1970-01-01",
+								 "numberField": 1.1,
+								 "stringField": "foo",
+								 "nullString": NSNull()],
+			"isPrimary": true,
+			"regEnabled": false,
+			"geoEnabled": false,
+			"notificationsEnabled": true,
+			"pushServiceType": "APNS",
+			"osVersion": "1.0",
+			"deviceSecure": true,
+			"appVersion": "1.0",
+			"sdkVersion": "1.0.0",
+			"deviceManufacturer": "GoogleApple",
+			"deviceModel": "XS",
+			"language": "en",
+			"deviceName": "iPhone Galaxy",
+			"os": "mobile OS",
+			"deviceTimezoneOffset" : "GMT+03:30"
+		]
+		XCTAssertEqual((request.body! as NSDictionary), expectedDict)
+	}
+
+	func testInstallationDataPayloadMapperForPostRequest() {
+
+		let installation = MobileMessaging.getInstallation()!
+
+		installation.applicationUserId = "applicationUserId"
+		installation.pushRegistrationId = "pushRegistrationId"
+
+		installation.archiveCurrent()
+
+		installation.customAttributes = ["dateField": NSDate(timeIntervalSince1970: 0),
+										 "numberField": NSNumber(floatLiteral: 1.1),
+										 "stringField": "foo" as NSString,
+										 "nullString": NSNull()
+		]
+		installation.isPrimaryDevice = true
+		installation.isPushRegistrationEnabled = false
+
+		installation.archiveDirty()
+
+		MobileMessaging.userAgent = UserAgentStub()
+		let body = InstallationDataMapper.postRequestPayload(dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
 		let request = PatchInstance(applicationCode: "", authPushRegistrationId: "", refPushRegistrationId: "", body: body, returnPushServiceToken: false)!
 
 		let expectedDict: NSDictionary = [
