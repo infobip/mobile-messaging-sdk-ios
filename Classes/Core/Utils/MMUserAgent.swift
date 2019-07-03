@@ -92,7 +92,7 @@ public class UserAgent: NSObject {
 	}
 	
 	public var osName: String {
-		return UIDevice.current.systemName
+		return "iOS"
 	}
 
 	public var libraryVersion: String {
