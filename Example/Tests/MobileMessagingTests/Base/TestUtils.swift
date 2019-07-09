@@ -344,3 +344,7 @@ class MessagHandlerMock: MMMessageHandler {
 }
 
 let retryableError = NSError(domain: NSURLErrorDomain, code: 404, userInfo: nil)
+
+func performAfterDelay(_ delay: Int, work: @escaping () -> Void) {
+	DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(delay), execute: { work() })
+}

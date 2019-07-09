@@ -246,23 +246,22 @@ class DepersonalizeTests: MMTestCase {
 		weak var fetchFinished2 = expectation(description: "fetchFinished")
 		weak var fetchFinished3 = expectation(description: "fetchFinished")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
+		let remoteApiMock = RemoteApiInstanceAttributesMock()
+		remoteApiMock.getUserClosure = {  (applicationCode, pushRegistrationId, completion) in
+			performAfterDelay(200, work: { completion(FetchUserDataResult.Failure(nil)) })
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiMock
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			requestCompletionCounter += 1
-			fetchFinished1?.fulfill()
+			DispatchQueue.main.async { requestCompletionCounter += 1; fetchFinished1?.fulfill() }
 		}
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			requestCompletionCounter += 1
-			fetchFinished2?.fulfill()
+			DispatchQueue.main.async { requestCompletionCounter += 1; fetchFinished2?.fulfill() }
 		}
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			requestCompletionCounter += 1
-			fetchFinished3?.fulfill()
+			DispatchQueue.main.async { requestCompletionCounter += 1; fetchFinished3?.fulfill() }
 		}
 		MobileMessaging.depersonalize() { status, _ in
-			requestCompletionCounter += 1
-			depersonalizeTurn = requestCompletionCounter
-			depersonalizeFinished?.fulfill()
+			DispatchQueue.main.async { requestCompletionCounter += 1; depersonalizeTurn = requestCompletionCounter; depersonalizeFinished?.fulfill() }
 		}
 
 		waitForExpectations(timeout: 20) { _ in

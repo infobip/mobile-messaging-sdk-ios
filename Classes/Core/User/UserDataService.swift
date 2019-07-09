@@ -4,7 +4,7 @@
 
 import Foundation
 
-final class UserDataService: MobileMessagingService {
+class UserDataService: MobileMessagingService {
 	init(mmContext: MobileMessaging) {
 		super.init(mmContext: mmContext, id: "UserDataService")
 	}
@@ -120,7 +120,7 @@ final class UserDataService: MobileMessagingService {
 			dirtyUser: mmContext.dirtyUser(),
 			mmContext: mmContext,
 			finishBlock: { completion(self.mmContext.resolveUser(), $0) })
-
+		
 		installationQueue.addOperation(op)
 	}
 

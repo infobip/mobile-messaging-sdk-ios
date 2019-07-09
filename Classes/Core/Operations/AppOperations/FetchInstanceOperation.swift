@@ -55,15 +55,19 @@ class FetchInstanceOperation : Operation {
 		}
 		switch result {
 		case .Success(let responseInstallation):
-
-			responseInstallation.archiveAll()
-
+			if fetchedInstallationMayBeSaved(fetchedInstallation: responseInstallation) {
+				responseInstallation.archiveAll()
+			}
 			MMLogDebug("[FetchInstanceOperation] successfully synced")
 		case .Failure(let error):
 			MMLogError("[FetchInstanceOperation] sync request failed with error: \(error.orNil)")
 		case .Cancel:
 			MMLogWarn("[FetchInstanceOperation] sync request cancelled.")
 		}
+	}
+
+	private func fetchedInstallationMayBeSaved(fetchedInstallation: Installation) -> Bool {
+		return fetchedInstallation.pushRegistrationId == mmContext.dirtyInstallation().pushRegistrationId
 	}
 
 	override func finished(_ errors: [NSError]) {

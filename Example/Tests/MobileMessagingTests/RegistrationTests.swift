@@ -21,7 +21,7 @@ final class RegistrationTests: MMTestCase {
 				let jsonStr = """
 				{
 					"notificationsEnabled": true,
-					"pushRegId": "pushregid1",
+					"pushRegId": "\(MMTestConstants.kTestCorrectInternalID)",
 					"isPrimary": true,
 					"regEnabled": true,
 					"applicationUserId": "appUserId",
@@ -45,12 +45,46 @@ final class RegistrationTests: MMTestCase {
 
 		mobileMessagingInstance.installationService.fetchFromServer(completion: { (installation, error) in
 			XCTAssertNil(error)
-			XCTAssertEqual(installation.pushRegistrationId, "pushregid1")
+			XCTAssertEqual(installation.pushRegistrationId, MMTestConstants.kTestCorrectInternalID)
 			XCTAssertEqual(installation.isPrimaryDevice, true)
 			XCTAssertEqual(installation.isPushRegistrationEnabled, true)
 			XCTAssertEqual(installation.applicationUserId, "appUserId")
 
 			XCTAssertEqual(installation.customAttributes! as NSDictionary, ["Manufacturer" : "_Apple_", "Model": NSNumber(value: 1), "ReleaseDate": darthVaderDateOfDeath])
+			expectation?.fulfill()
+		})
+
+		waitForExpectations(timeout: 20, handler: nil)
+	}
+
+	func testInstanceDataFetchingMustBeIgnoredIfPushRegIdDifferent() {
+		weak var expectation = self.expectation(description: "data fetched")
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+
+		let responseStub: (Any) -> JSON? = { request -> JSON? in
+			switch request {
+			case (is GetInstance):
+				let jsonStr = """
+				{
+				"pushRegId": "differentPushRegId",
+				"applicationUserId": "appUserId"
+				}
+				"""
+				return JSON.parse(jsonStr)
+			default:
+				return nil
+			}
+		}
+
+		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
+			performRequestCompanionBlock: nil,
+			completionCompanionBlock: nil,
+			responseStub: responseStub)
+
+		mobileMessagingInstance.installationService.fetchFromServer(completion: { (installation, error) in
+			XCTAssertNil(error)
+			XCTAssertEqual(installation.pushRegistrationId, MMTestConstants.kTestCorrectInternalID)
+			XCTAssertEqual(installation.applicationUserId, nil)
 			expectation?.fulfill()
 		})
 
