@@ -31,12 +31,6 @@ class FetchUserOperation: Operation {
 			finish()
 			return
 		}
-		MMLogDebug("[FetchUserOperation] Started...")
-
-		fetchUserDataIfNeeded()
-	}
-
-	private func fetchUserDataIfNeeded() {
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			MMLogWarn("[FetchUserOperation] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
@@ -47,12 +41,13 @@ class FetchUserOperation: Operation {
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
+		MMLogDebug("[FetchUserOperation] Started...")
 
-		MMLogDebug("[FetchUserOperation] fetching from server...")
-		fetchUserData(pushRegistrationId: pushRegistrationId)
+		performRequest(pushRegistrationId: pushRegistrationId)
 	}
 
-	private func fetchUserData(pushRegistrationId: String) {
+	private func performRequest(pushRegistrationId: String) {
+		MMLogDebug("[FetchUserOperation] fetching from server...")
 		mmContext.remoteApiProvider.getUser(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId)
 		{ result in
 			self.handleResult(result)

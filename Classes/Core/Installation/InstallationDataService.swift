@@ -87,22 +87,6 @@ final class InstallationDataService: MobileMessagingService{
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		MMLogDebug("[InstallationDataService] sync installation data with server...")
 
-		let followingBlock: (NSError?) -> Void = { error in
-			if let actualPushRegId = self.mmContext.currentInstallation().pushRegistrationId, let keychainPushRegId = self.mmContext.keychain.pushRegId, actualPushRegId != keychainPushRegId {
-				let deleteExpiredInstanceOp = DeleteInstanceOperation(
-					pushRegistrationId: actualPushRegId,
-					expiredPushRegistrationId: keychainPushRegId,
-					mmContext: self.mmContext,
-					finishBlock: { completion($0.error) }
-				)
-
-				MMLogDebug("[InstallationDataService] Expired push registration id found: \(keychainPushRegId)")
-				installationQueue.addOperation(deleteExpiredInstanceOp)
-			} else {
-				completion(error)
-			}
-		}
-
 		let ci = mmContext.currentInstallation()
 		let di = mmContext.dirtyInstallation()
 		if let op = UpdateInstanceOperation(
@@ -111,19 +95,36 @@ final class InstallationDataService: MobileMessagingService{
 			registrationPushRegIdToUpdate: ci.pushRegistrationId,
 			mmContext: mmContext,
 			requireResponse: false,
-			finishBlock: { followingBlock($0) })
+			finishBlock: { self.expireIfNeeded(error: $0, completion) })
 			??
 			CreateInstanceOperation(
 				currentInstallation: ci,
 				dirtyInstallation: di,
 				mmContext: mmContext,
 				requireResponse: true,
-				finishBlock: { followingBlock($0) })
+				finishBlock: { self.expireIfNeeded(error: $0, completion) })
 		{
 			installationQueue.addOperation(op)
 		} else {
-			followingBlock(nil)
+			expireIfNeeded(error: nil, completion)
 		}
 	}
+
 	// MARK: }
+
+	private func expireIfNeeded(error: NSError?, _ completion: @escaping (NSError?) -> Void) {
+		if let actualPushRegId = self.mmContext.currentInstallation().pushRegistrationId, let keychainPushRegId = self.mmContext.keychain.pushRegId, actualPushRegId != keychainPushRegId {
+			let deleteExpiredInstanceOp = DeleteInstanceOperation(
+				pushRegistrationId: actualPushRegId,
+				expiredPushRegistrationId: keychainPushRegId,
+				mmContext: self.mmContext,
+				finishBlock: { completion($0.error) }
+			)
+
+			MMLogDebug("[InstallationDataService] Expired push registration id found: \(keychainPushRegId)")
+			installationQueue.addOperation(deleteExpiredInstanceOp)
+		} else {
+			completion(error)
+		}
+	}
 }

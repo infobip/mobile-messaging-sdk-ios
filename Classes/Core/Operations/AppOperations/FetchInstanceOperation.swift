@@ -31,17 +31,16 @@ class FetchInstanceOperation : Operation {
 			finish()
 			return
 		}
-		MMLogDebug("[FetchInstanceOperation] started...")
-		sendServerRequestIfNeeded()
-	}
-
-	private func sendServerRequestIfNeeded() {
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogWarn("[FetchInstanceOperation] Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
+		MMLogDebug("[FetchInstanceOperation] started...")
+		performRequest()
+	}
 
+	private func performRequest() {
 		mmContext.remoteApiProvider.getInstance(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)

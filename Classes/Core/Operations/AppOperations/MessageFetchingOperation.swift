@@ -36,7 +36,13 @@ final class MessageFetchingOperation: Operation {
 			finish()
 			return
 		}
-		syncMessages()
+		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
+			MMLogWarn("[Message fetching] No registration. Finishing...")
+			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
+			finish()
+			return
+		}
+		performRequest(pushRegistrationId: pushRegistrationId)
 	}
 	
 	let messageTypesFilter = [MMMessageType.Default.rawValue, MMMessageType.Geo.rawValue]
@@ -50,14 +56,7 @@ final class MessageFetchingOperation: Operation {
 		return MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "reportSent == false AND messageTypeValue IN %@", messageTypesFilter), context: self.context)?.map{ $0.messageId }
 	}
 	
-	private func syncMessages() {
-		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogWarn("[Message fetching] No registration. Finishing...")
-			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
-			finish()
-			return
-		}
-
+	private func performRequest(pushRegistrationId: String) {
 		context.performAndWait {
 			context.reset()
 			

@@ -42,16 +42,16 @@ class CreateInstanceOperation : Operation {
 			finish()
 			return
 		}
-		MMLogDebug("[CreateInstanceOperation] started...")
-		sendServerRequestIfNeeded()
-	}
-
-	private func sendServerRequestIfNeeded() {
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogWarn("[CreateInstanceOperation] Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
+		MMLogDebug("[CreateInstanceOperation] started...")
+		performRequest()
+	}
+
+	private func performRequest() {
 		body["notificationsEnabled"] = true // this is a workaround because registration may happen before user granted any permissions, so that they may be undefined. Forcing true.
 		mmContext.remoteApiProvider.postInstance(applicationCode: mmContext.applicationCode, body: body) { (result) in
 			self.handleResult(result)

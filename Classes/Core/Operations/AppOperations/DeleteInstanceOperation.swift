@@ -27,17 +27,16 @@ class DeleteInstanceOperation : Operation {
 			finish()
 			return
 		}
-		MMLogDebug("[DeleteInstanceOperation] started...")
-		sendServerRequestIfNeeded()
-	}
-
-	private func sendServerRequestIfNeeded() {
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogWarn("[DeleteInstanceOperation] Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
+		MMLogDebug("[DeleteInstanceOperation] started...")
+		performRequest()
+	}
 
+	private func performRequest() {
 		mmContext.remoteApiProvider.deleteInstance(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)

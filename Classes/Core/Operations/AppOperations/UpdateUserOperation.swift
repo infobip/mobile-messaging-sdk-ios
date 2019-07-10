@@ -43,11 +43,6 @@ class UpdateUserOperation: Operation {
 			finish()
 			return
 		}
-		MMLogDebug("[UpdateUserOperation] started...")
-		sendServerRequestIfNeeded()
-	}
-
-	private func sendServerRequestIfNeeded() {
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			MMLogWarn("[UpdateUserOperation] There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
@@ -58,7 +53,11 @@ class UpdateUserOperation: Operation {
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
+		MMLogDebug("[UpdateUserOperation] started...")
+		performRequest(pushRegistrationId: pushRegistrationId)
+	}
 
+	private func performRequest(pushRegistrationId: String) {
 		mmContext.remoteApiProvider.patchUser(applicationCode: mmContext.applicationCode,
 											  pushRegistrationId: pushRegistrationId,
 											  body: body)

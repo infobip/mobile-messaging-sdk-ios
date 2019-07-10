@@ -56,17 +56,16 @@ class UpdateInstanceOperation : Operation {
 			finish()
 			return
 		}
-		MMLogDebug("[UpdateInstanceOperation] started...")
-		sendServerRequestIfNeeded()
-	}
-
-	private func sendServerRequestIfNeeded() {
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			MMLogWarn("[UpdateInstanceOperation] Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-	
+		MMLogDebug("[UpdateInstanceOperation] started...")
+		performRequest()
+	}
+
+	private func performRequest() {
 		mmContext.remoteApiProvider.patchInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: registrationPushRegIdToUpdate, body: body) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)
