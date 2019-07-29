@@ -28,9 +28,6 @@ public final class MMDefaultLogger: NSObject, MMLogging {
 	}
 
 	private func log(_ icon: LogIcons, _ message: String) {
-		guard logOutput == .Console else {
-			return
-		}
 		print(formattedLogEntry(date: Date(), icon: icon, message: message))
 	}
 
