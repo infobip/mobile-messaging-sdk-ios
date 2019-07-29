@@ -24,11 +24,7 @@ public final class MMDefaultLogger: NSObject, MMLogging {
     }
 
 	public override init() {
-		#if DEBUG
-			self.logOutput = .Console
-		#else
-			self.logOutput = .None
-		#endif
+		self.logOutput = .Console
 	}
 
 	private func log(_ icon: LogIcons, _ message: String) {
