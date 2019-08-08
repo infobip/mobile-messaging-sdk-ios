@@ -257,7 +257,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 		self.os = os
 		self.osVersion = osVersion
 		self.pushRegistrationId = pushRegistrationId
-		self.pushServiceToken = pushServiceToken
+		self.pushServiceToken = pushServiceToken?.lowercased()
 		self.pushServiceType = pushServiceType
 		self.sdkVersion = sdkVersion
 	}
