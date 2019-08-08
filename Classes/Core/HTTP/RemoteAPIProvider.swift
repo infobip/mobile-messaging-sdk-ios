@@ -72,7 +72,7 @@ class RemoteAPIProvider {
 	}
 
 	func postInstance(applicationCode: String, body: RequestBody, completion: @escaping (FetchInstanceDataResult) -> Void) {
-		if let request = PostInstance(applicationCode: applicationCode, body: body, returnPushServiceToken: false) {
+		if let request = PostInstance(applicationCode: applicationCode, body: body, returnPushServiceToken: true) {
 			registrationQueue.perform(request: request, completion: completion)
 		} else {
 			completion(.Cancel)
@@ -80,7 +80,7 @@ class RemoteAPIProvider {
 	}
 
 	func getInstance(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchInstanceDataResult) -> Void) {
-		let request = GetInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, returnPushServiceToken: false)
+		let request = GetInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, returnPushServiceToken: true)
 		registrationQueue.perform(request: request, completion: completion)
 	}
 
