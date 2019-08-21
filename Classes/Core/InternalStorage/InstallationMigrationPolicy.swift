@@ -18,40 +18,9 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			return
 		}
 
+		MMLogDebug("[MobileMessaging] starting \(mapping.userInfo?["version"] as? String) migration")
 		switch (mapping.userInfo?["version"] as? String) {
-		case "1_2":
-			let destinationInstallation = NSEntityDescription.insertNewObject(forEntityName: destinationEntityName, into: manager.destinationContext)
-			let predefinedUserData = sInstance.value(forKey: "predefinedUserData") as? [String: Any]
-
-
-			destinationInstallation.setValue(sInstance.value(forKey: "applicationCode"), 	forKey: "applicationCode")
-			destinationInstallation.setValue(nil,											forKey: "applicationUserId")
-			destinationInstallation.setValue(nil,											forKey: "customInstanceAttributes")
-			destinationInstallation.setValue(sInstance.value(forKey: "badgeNumber"), 		forKey: "badgeNumber")
-			destinationInstallation.setValue(predefinedUserData?["birthdate"] as? String, 	forKey: "birthday")
-			destinationInstallation.setValue(sInstance.value(forKey: "customUserData"), 	forKey: "customUserAttributes")
-			destinationInstallation.setValue(sInstance.value(forKey: "dirtyAttributesString"),forKey: "dirtyAttributesString")
-			destinationInstallation.setValue(migrateEmail(from: predefinedUserData), 		forKey: "emails")
-			destinationInstallation.setValue(sInstance.value(forKey: "externalUserId"), 	forKey: "externalUserId")
-			destinationInstallation.setValue(predefinedUserData?["firstName"] as? String, 	forKey: "firstName")
-			destinationInstallation.setValue(migrateGender(from: predefinedUserData), 		forKey: "gender")
-			destinationInstallation.setValue(migrateMsisdn(from: predefinedUserData),		forKey: "phones")
-			destinationInstallation.setValue(nil, 											forKey: "instances")
-			destinationInstallation.setValue(sInstance.value(forKey: "isPrimaryDevice"), 	forKey: "isPrimary")
-			destinationInstallation.setValue(predefinedUserData?["lastName"] as? String, 	forKey: "lastName")
-			destinationInstallation.setValue(sInstance.value(forKey: "location"), 			forKey: "location")
-			destinationInstallation.setValue(sInstance.value(forKey: "logoutFailCounter"), 	forKey: "logoutFailCounter")
-			destinationInstallation.setValue(sInstance.value(forKey: "logoutStatusValue"), 	forKey: "logoutStatusValue")
-			destinationInstallation.setValue(predefinedUserData?["middleName"] as? String, 	forKey: "middleName")
-			destinationInstallation.setValue(sInstance.value(forKey: "internalUserId"), 	forKey: "pushRegId")
-			destinationInstallation.setValue(sInstance.value(forKey: "deviceToken"), 		forKey: "pushServiceToken")
-			destinationInstallation.setValue(sInstance.value(forKey: "isRegistrationEnabled"), forKey: "regEnabled")
-			destinationInstallation.setValue(sInstance.value(forKey: "systemDataHash"), 	forKey: "systemDataHash")
-			destinationInstallation.setValue(nil, 											forKey: "tags")
-
-
-			manager.associate(sourceInstance: sInstance, withDestinationInstance: destinationInstallation, for: mapping)
-		case "1_3":
+		case "0_3", "1_3":
 			let predefinedUserData = sInstance.value(forKey: "predefinedUserData") as? [String: Any]
 			let installation = Installation.unarchiveCurrent()
 			installation.applicationUserId = nil
@@ -89,7 +58,6 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			Installation.empty.archiveCurrent()
 			installation.archiveDirty()
 			internalData.archiveCurrent()
-
 			break
 		case "2_3":
 			let installation = Installation.unarchiveCurrent()
@@ -128,11 +96,11 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			Installation.empty.archiveCurrent()
 			installation.archiveDirty()
 			internalData.archiveCurrent()
-
 			break
 		default:
 			break
 		}
+		MMLogDebug("[MobileMessaging] migration \(mapping.userInfo?["version"] as? String) finished")
 	}
 
 	private func migrateEmail(from predefinedUserData: [String: Any]?) -> Any? {

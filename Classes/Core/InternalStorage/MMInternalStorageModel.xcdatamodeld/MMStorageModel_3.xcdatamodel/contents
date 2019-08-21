@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14460.32" systemVersion="18A391" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14492.1" systemVersion="18G87" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="3">
     <entity name="GeoEventReportObject" representedClassName=".GeoEventReportObject" syncable="YES">
         <attribute name="campaignId" attributeType="String" syncable="YES"/>
         <attribute name="eventDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -26,7 +26,7 @@
     </entity>
     <elements>
         <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="150"/>
-        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="225"/>
         <element name="InstallationManagedObject" positionX="-54" positionY="117" width="128" height="45"/>
+        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="225"/>
     </elements>
 </model>

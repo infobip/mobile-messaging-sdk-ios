@@ -69,16 +69,12 @@
 		7614C3401FB5E06C006ADC84 /* ChatMessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7614C33F1FB5E06B006ADC84 /* ChatMessagesController.swift */; };
 		76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76212E7121B043D5002FB8D9 /* UserStandardAttributeModels.swift */; };
 		76212E7421B04443002FB8D9 /* InstallationAttributeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76212E7321B04443002FB8D9 /* InstallationAttributeModels.swift */; };
-		762175DC21F4DFC4001416EA /* MigrationMapping.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 762175DB21F4DFC4001416EA /* MigrationMapping.xcmappingmodel */; };
-		762F9D4722065EBC00A35F1E /* MigrationMapping_1_3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 762F9D4622065EBC00A35F1E /* MigrationMapping_1_3.xcmappingmodel */; };
-		762F9D4F220777C900A35F1E /* MigrationMapping_2_3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 762F9D4E220777C900A35F1E /* MigrationMapping_2_3.xcmappingmodel */; };
 		7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7632809A2092013B001B9E8F /* AlertQueue.swift */; };
 		7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7636909A21F06E25000CF3F8 /* UserEventsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909921F06E25000CF3F8 /* UserEventsManager.swift */; };
 		7636909C21F07330000CF3F8 /* PersonalizeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909B21F07330000CF3F8 /* PersonalizeOperation.swift */; };
 		7638B26722089F2000A98144 /* Archivable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7638B26622089F2000A98144 /* Archivable.swift */; };
 		7642820D21920F5F0053A063 /* InstallationMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7642820C21920F5F0053A063 /* InstallationMigrationPolicy.swift */; };
-		764282132192126F0053A063 /* MMInternalStorageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 764282102192126F0053A063 /* MMInternalStorageModel.xcdatamodeld */; };
 		7642821E219305780053A063 /* FetchUserOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7642821D219305780053A063 /* FetchUserOperation.swift */; };
 		764556741F78FF5800B8F14B /* MMKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560B1F78FF4F00B8F14B /* MMKeychain.swift */; };
 		764556751F78FF5800B8F14B /* MMLoggingUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560C1F78FF4F00B8F14B /* MMLoggingUtil.swift */; };
@@ -183,6 +179,10 @@
 		76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */; };
 		7696BCB21FDA86C90030A5A8 /* ComposeBar_Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7696BCB11FDA86C90030A5A8 /* ComposeBar_Button.swift */; };
 		7696BCB41FDA86E00030A5A8 /* ComposeBar_TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7696BCB31FDA86E00030A5A8 /* ComposeBar_TextView.swift */; };
+		76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CAD230D58A900F00717 /* MMInternalStorageModel.xcdatamodeld */; };
+		76A26CB4230D593200F00717 /* Migration_0_3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CB3230D593200F00717 /* Migration_0_3.xcmappingmodel */; };
+		76A26CB6230D59A200F00717 /* Migration_1_3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CB5230D59A200F00717 /* Migration_1_3.xcmappingmodel */; };
+		76A26CB8230D59CC00F00717 /* Migration_2_3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CB7230D59CC00F00717 /* Migration_2_3.xcmappingmodel */; };
 		76A8A77921959F84004F6E39 /* UpdateInstanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A8A77821959F84004F6E39 /* UpdateInstanceOperation.swift */; };
 		76A8A77B2195B97F004F6E39 /* UpdateUserOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A8A77A2195B97F004F6E39 /* UpdateUserOperation.swift */; };
 		76A8A77D2195BB80004F6E39 /* FetchInstanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A8A77C2195BB80004F6E39 /* FetchInstanceOperation.swift */; };
@@ -278,17 +278,11 @@
 		7614C33F1FB5E06B006ADC84 /* ChatMessagesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatMessagesController.swift; sourceTree = "<group>"; };
 		76212E7121B043D5002FB8D9 /* UserStandardAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStandardAttributeModels.swift; sourceTree = "<group>"; };
 		76212E7321B04443002FB8D9 /* InstallationAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationAttributeModels.swift; sourceTree = "<group>"; };
-		762175DB21F4DFC4001416EA /* MigrationMapping.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MigrationMapping.xcmappingmodel; sourceTree = "<group>"; };
-		762F9D3F220651C700A35F1E /* MMStorageModel_3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_3.xcdatamodel; sourceTree = "<group>"; };
-		762F9D4622065EBC00A35F1E /* MigrationMapping_1_3.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MigrationMapping_1_3.xcmappingmodel; sourceTree = "<group>"; };
-		762F9D4E220777C900A35F1E /* MigrationMapping_2_3.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MigrationMapping_2_3.xcmappingmodel; sourceTree = "<group>"; };
 		7632809A2092013B001B9E8F /* AlertQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertQueue.swift; sourceTree = "<group>"; };
 		7636909921F06E25000CF3F8 /* UserEventsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEventsManager.swift; sourceTree = "<group>"; };
 		7636909B21F07330000CF3F8 /* PersonalizeOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalizeOperation.swift; sourceTree = "<group>"; };
 		7638B26622089F2000A98144 /* Archivable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Archivable.swift; sourceTree = "<group>"; };
 		7642820C21920F5F0053A063 /* InstallationMigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationMigrationPolicy.swift; sourceTree = "<group>"; };
-		764282112192126F0053A063 /* MMStorageModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel.xcdatamodel; sourceTree = "<group>"; };
-		764282122192126F0053A063 /* MMStorageModel_2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_2.xcdatamodel; sourceTree = "<group>"; };
 		7642821D219305780053A063 /* FetchUserOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchUserOperation.swift; sourceTree = "<group>"; };
 		764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNotificationAction.swift; sourceTree = "<group>"; };
 		764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNotificationCategory.swift; sourceTree = "<group>"; };
@@ -428,6 +422,13 @@
 		7696BCB11FDA86C90030A5A8 /* ComposeBar_Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeBar_Button.swift; sourceTree = "<group>"; };
 		7696BCB31FDA86E00030A5A8 /* ComposeBar_TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeBar_TextView.swift; sourceTree = "<group>"; };
 		7696BCB51FDA86F10030A5A8 /* ComposeBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeBar.swift; sourceTree = "<group>"; };
+		76A26CAE230D58A900F00717 /* MMStorageModel_3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_3.xcdatamodel; sourceTree = "<group>"; };
+		76A26CAF230D58A900F00717 /* MMStorageModel_0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_0.xcdatamodel; sourceTree = "<group>"; };
+		76A26CB0230D58A900F00717 /* MMStorageModel_2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_2.xcdatamodel; sourceTree = "<group>"; };
+		76A26CB1230D58A900F00717 /* MMStorageModel_1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_1.xcdatamodel; sourceTree = "<group>"; };
+		76A26CB3230D593200F00717 /* Migration_0_3.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Migration_0_3.xcmappingmodel; sourceTree = "<group>"; };
+		76A26CB5230D59A200F00717 /* Migration_1_3.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Migration_1_3.xcmappingmodel; sourceTree = "<group>"; };
+		76A26CB7230D59CC00F00717 /* Migration_2_3.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Migration_2_3.xcmappingmodel; sourceTree = "<group>"; };
 		76A8A77821959F84004F6E39 /* UpdateInstanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateInstanceOperation.swift; sourceTree = "<group>"; };
 		76A8A77A2195B97F004F6E39 /* UpdateUserOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpdateUserOperation.swift; sourceTree = "<group>"; };
 		76A8A77C2195BB80004F6E39 /* FetchInstanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchInstanceOperation.swift; sourceTree = "<group>"; };
@@ -703,7 +704,7 @@
 		764555DD1F78FF4E00B8F14B /* InternalStorage */ = {
 			isa = PBXGroup;
 			children = (
-				764282102192126F0053A063 /* MMInternalStorageModel.xcdatamodeld */,
+				76A26CAD230D58A900F00717 /* MMInternalStorageModel.xcdatamodeld */,
 				764555DE1F78FF4E00B8F14B /* GeoEventReportObject+CoreDataProperties.swift */,
 				764555DF1F78FF4E00B8F14B /* GeoEventReportObject.swift */,
 				764555E01F78FF4E00B8F14B /* InstallationManagedObject+CoreDataProperties.swift */,
@@ -713,10 +714,10 @@
 				764555E41F78FF4E00B8F14B /* MMCoreDataExtensions.swift */,
 				764555E51F78FF4E00B8F14B /* MMCoreDataStorage.swift */,
 				7642820C21920F5F0053A063 /* InstallationMigrationPolicy.swift */,
-				762175DB21F4DFC4001416EA /* MigrationMapping.xcmappingmodel */,
-				762F9D4622065EBC00A35F1E /* MigrationMapping_1_3.xcmappingmodel */,
-				762F9D4E220777C900A35F1E /* MigrationMapping_2_3.xcmappingmodel */,
 				7638B26622089F2000A98144 /* Archivable.swift */,
+				76A26CB3230D593200F00717 /* Migration_0_3.xcmappingmodel */,
+				76A26CB5230D59A200F00717 /* Migration_1_3.xcmappingmodel */,
+				76A26CB7230D59CC00F00717 /* Migration_2_3.xcmappingmodel */,
 			);
 			path = InternalStorage;
 			sourceTree = "<group>";
@@ -1120,7 +1121,6 @@
 				7601F1A9208E056500738C1A /* ImagePrefetcher.swift in Sources */,
 				7636909A21F06E25000CF3F8 /* UserEventsManager.swift in Sources */,
 				764556951F78FF7F00B8F14B /* MMOperationQueue.swift in Sources */,
-				762F9D4722065EBC00A35F1E /* MigrationMapping_1_3.xcmappingmodel in Sources */,
 				764556771F78FF5800B8F14B /* MMNotifications.m in Sources */,
 				764556911F78FF7F00B8F14B /* MMApplicationListener.swift in Sources */,
 				76626D11218B097800E95E2C /* PrivacySettings.swift in Sources */,
@@ -1173,11 +1173,14 @@
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
 				76626D0F218AFCA600E95E2C /* InstallationDataService.swift in Sources */,
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
+				76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */,
 				7601F1B2208E057F00738C1A /* LoadingImageView.swift in Sources */,
 				7601F1B1208E057F00738C1A /* InteractiveMessageAlertController.swift in Sources */,
+				76A26CB6230D59A200F00717 /* Migration_1_3.xcmappingmodel in Sources */,
 				764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */,
 				764556961F78FF7F00B8F14B /* MMRetryableOperation.swift in Sources */,
 				7645568A1F78FF6500B8F14B /* InstallationManagedObject.swift in Sources */,
+				76A26CB4230D593200F00717 /* Migration_0_3.xcmappingmodel in Sources */,
 				764556A21F78FF8500B8F14B /* SeenStatusPersistingOperation.swift in Sources */,
 				764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */,
 				76A8A77D2195BB80004F6E39 /* FetchInstanceOperation.swift in Sources */,
@@ -1186,6 +1189,7 @@
 				764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */,
 				764556821F78FF5D00B8F14B /* MMRemoteAPIQueue.swift in Sources */,
 				7601F19A208E056500738C1A /* Resource.swift in Sources */,
+				76A26CB8230D59CC00F00717 /* Migration_2_3.xcmappingmodel in Sources */,
 				29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */,
 				7645569F1F78FF8500B8F14B /* MessagesSyncOperation.swift in Sources */,
 				76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */,
@@ -1259,13 +1263,11 @@
 				760085831F977E3300837D75 /* MOMessage.swift in Sources */,
 				7601F195208E056500738C1A /* ImageView+Kingfisher.swift in Sources */,
 				7645569E1F78FF8500B8F14B /* MessagesEvictionOperation.swift in Sources */,
-				764282132192126F0053A063 /* MMInternalStorageModel.xcdatamodeld in Sources */,
 				7645567F1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.m in Sources */,
 				760929FD1FAA212F00128E48 /* CPUtils.swift in Sources */,
 				7601F192208E056400738C1A /* ThreadHelper.swift in Sources */,
 				764556CD1F78FFD900B8F14B /* KeychainSwift.swift in Sources */,
 				764556BA1F78FFB200B8F14B /* Message.swift in Sources */,
-				762F9D4F220777C900A35F1E /* MigrationMapping_2_3.xcmappingmodel in Sources */,
 				760085871F9790BE00837D75 /* BaseMessage.swift in Sources */,
 				ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
@@ -1282,7 +1284,6 @@
 				764556CE1F78FFD900B8F14B /* KeychainSwiftAccessOptions.swift in Sources */,
 				7601F19B208E056500738C1A /* ImageDownloader.swift in Sources */,
 				7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */,
-				762175DC21F4DFC4001416EA /* MigrationMapping.xcmappingmodel in Sources */,
 				764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */,
 				764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */,
 				76F58AD81FB1C91D00A91B3E /* CPBarButtonItem.swift in Sources */,
@@ -1520,18 +1521,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		764282102192126F0053A063 /* MMInternalStorageModel.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				762F9D3F220651C700A35F1E /* MMStorageModel_3.xcdatamodel */,
-				764282112192126F0053A063 /* MMStorageModel.xcdatamodel */,
-				764282122192126F0053A063 /* MMStorageModel_2.xcdatamodel */,
-			);
-			currentVersion = 762F9D3F220651C700A35F1E /* MMStorageModel_3.xcdatamodel */;
-			path = MMInternalStorageModel.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
 		764556421F78FF4F00B8F14B /* MMMessageStorageModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
@@ -1539,6 +1528,19 @@
 			);
 			currentVersion = 764556431F78FF4F00B8F14B /* MMMessageStorage.xcdatamodel */;
 			path = MMMessageStorageModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		76A26CAD230D58A900F00717 /* MMInternalStorageModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				76A26CAE230D58A900F00717 /* MMStorageModel_3.xcdatamodel */,
+				76A26CAF230D58A900F00717 /* MMStorageModel_0.xcdatamodel */,
+				76A26CB0230D58A900F00717 /* MMStorageModel_2.xcdatamodel */,
+				76A26CB1230D58A900F00717 /* MMStorageModel_1.xcdatamodel */,
+			);
+			currentVersion = 76A26CAE230D58A900F00717 /* MMStorageModel_3.xcdatamodel */;
+			path = MMInternalStorageModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
