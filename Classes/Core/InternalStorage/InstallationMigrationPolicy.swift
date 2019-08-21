@@ -53,10 +53,9 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			internalData.systemDataHash = (sInstance.value(forKey: "systemDataHash") as? Int64) ?? 0
 			internalData.registrationDate = Date()
 
-			User.empty.archiveCurrent()
-			user.archiveDirty()
-			Installation.empty.archiveCurrent()
-			installation.archiveDirty()
+
+			user.archiveAll()
+			installation.archiveAll()
 			internalData.archiveCurrent()
 			break
 		case "2_3":
@@ -91,10 +90,8 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			internalData.systemDataHash = (sInstance.value(forKey: "systemDataHash") as? Int64) ?? 0
 			internalData.registrationDate = Date()
 
-			User.empty.archiveCurrent()
-			user.archiveDirty()
-			Installation.empty.archiveCurrent()
-			installation.archiveDirty()
+			user.archiveAll()
+			installation.archiveAll()
 			internalData.archiveCurrent()
 			break
 		default:
