@@ -106,29 +106,3 @@ struct GeoConstants {
 	/// This callback is triggered after the geo event occurs. Default behaviour is implemented by `MMDefaultGeoEventHandling` class.
 	func didEnter(region: MMRegion)
 }
-
-struct GeoEventReportingRequest: PostRequest {
-	var applicationCode: String
-	var pushRegistrationId: String?
-	typealias ResponseType = GeoEventReportingResponse
-	var path: APIPath { return .GeoEventsReports }
-	var body: RequestBody? {
-		return [
-			Consts.PushRegistration.platform: Consts.APIValues.platformType,
-			Consts.PushRegistration.internalId: pushRegistrationId ?? "n/a",
-			Consts.GeoReportingAPIKeys.reports: eventsDataList.map { $0.dictionaryRepresentation },
-			Consts.GeoReportingAPIKeys.messages: geoMessages.map { $0.geoEventReportFormat }
-		]
-	}
-
-	let eventsDataList: [GeoEventReportData]
-	let geoMessages: [MMGeoMessage]
-	
-	init(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage]) {
-		self.applicationCode = applicationCode
-		self.pushRegistrationId = pushRegistrationId
-		self.eventsDataList = eventsDataList
-		self.geoMessages = geoMessages
-	}
-}
-

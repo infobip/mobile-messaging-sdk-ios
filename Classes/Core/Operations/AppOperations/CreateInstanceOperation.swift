@@ -22,7 +22,7 @@ class CreateInstanceOperation : Operation {
 		self.currentInstallation = currentInstallation
 		self.dirtyInstallation = dirtyInstallation
 
-		var createInstanceRequestBody = InstallationDataMapper.postRequestPayload(dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
+		let createInstanceRequestBody = InstallationDataMapper.postRequestPayload(dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
 
 		if (createInstanceRequestBody[Attributes.pushServiceToken.rawValue] == nil ||
 			createInstanceRequestBody[Consts.SystemDataKeys.pushServiceType] == nil ||

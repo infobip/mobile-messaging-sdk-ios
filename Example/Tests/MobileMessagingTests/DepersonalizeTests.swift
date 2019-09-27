@@ -9,12 +9,43 @@ import XCTest
 import Foundation
 @testable import MobileMessaging
 
+let successfulDepersonalizeApiMock = { () -> RemoteAPIProviderStub in
+	let ret = RemoteAPIProviderStub()
+	ret.depersonalizeClosure = { _, _, _ -> DepersonalizeResult in
+		return DepersonalizeResult.Success(EmptyResponse(json: JSON.parse(""))!)
+	}
+
+	ret.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+		return PersonalizeResult.Success(User(json: JSON.parse(""))!)
+	}
+	ret.syncMessagesClosure = { _, _, _, _ -> MessagesSyncResult in
+		return MessagesSyncResult.Failure(retryableError)
+	}
+	return ret
+}()
+
+let failedDepersonalizeApiMock = { () -> RemoteAPIProviderStub in
+	let ret = RemoteAPIProviderStub()
+	ret.depersonalizeClosure = { _, _, _ -> DepersonalizeResult in
+		return DepersonalizeResult.Failure(retryableError)
+	}
+
+	ret.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+		return PersonalizeResult.Failure(retryableError)
+	}
+
+	ret.syncMessagesClosure = { _, _, _, _ -> MessagesSyncResult in
+		return MessagesSyncResult.Failure(retryableError)
+	}
+	return ret
+}()
+
+
 class DepersonalizeTests: MMTestCase {
 	
 	override func setUp() {
 		super.setUp()
-		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = successfulDepersonalizeApiMock
-		MobileMessaging.sharedInstance?.remoteApiProvider.messageSyncQueue = successfulDepersonalizeApiMock
+		MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 	}
 	
 	func testThatGeoCleanedUpAfterDepersonalize() {
@@ -246,25 +277,31 @@ class DepersonalizeTests: MMTestCase {
 		weak var fetchFinished2 = expectation(description: "fetchFinished")
 		weak var fetchFinished3 = expectation(description: "fetchFinished")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		let remoteApiMock = RemoteApiInstanceAttributesMock()
-		remoteApiMock.getUserClosure = {  (applicationCode, pushRegistrationId, completion) in
-			performAfterDelay(200, work: { completion(FetchUserDataResult.Failure(nil)) })
+		let remoteApiMock = RemoteAPIProviderStub()
+		remoteApiMock.getUserClosure = {  (applicationCode, pushRegistrationId) in
+			Thread.sleep(forTimeInterval: 0.2)
+			return FetchUserDataResult.Failure(nil)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiMock
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			DispatchQueue.main.async { requestCompletionCounter += 1; fetchFinished1?.fulfill() }
+			DispatchQueue.main.async { requestCompletionCounter += 1;
+				fetchFinished1?.fulfill() }
 		}
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			DispatchQueue.main.async { requestCompletionCounter += 1; fetchFinished2?.fulfill() }
+			DispatchQueue.main.async { requestCompletionCounter += 1;
+				fetchFinished2?.fulfill() }
 		}
 		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			DispatchQueue.main.async { requestCompletionCounter += 1; fetchFinished3?.fulfill() }
+			DispatchQueue.main.async { requestCompletionCounter += 1;
+				fetchFinished3?.fulfill() }
 		}
+		
 		MobileMessaging.depersonalize() { status, _ in
-			DispatchQueue.main.async { requestCompletionCounter += 1; depersonalizeTurn = requestCompletionCounter; depersonalizeFinished?.fulfill() }
+			DispatchQueue.main.async { requestCompletionCounter += 1; depersonalizeTurn = requestCompletionCounter;
+				depersonalizeFinished?.fulfill() }
 		}
 
-		waitForExpectations(timeout: 20) { _ in
+		waitForExpectations(timeout: 200) { _ in
 			XCTAssertGreaterThan(depersonalizeTurn, -1) // should have valid value
 			XCTAssertLessThan(depersonalizeTurn, 4) // should not be the latest performed because has higher priority
 		}
@@ -284,7 +321,7 @@ class DepersonalizeTests: MMTestCase {
 	}
 
 	private func performFailedDepersonalizeCase(then: (() -> Void)? = nil) {
-		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = failedDepersonalizeApiMock
+		MobileMessaging.sharedInstance?.remoteApiProvider = failedDepersonalizeApiMock
 		MobileMessaging.depersonalize() { s, e in
 			XCTAssertEqual(SuccessPending.pending, s)
 			XCTAssertNotNil(e)
@@ -293,7 +330,7 @@ class DepersonalizeTests: MMTestCase {
 	}
 
 	private func performFailedDepersonalizeCaseWithOverlimit(then: (() -> Void)? = nil) {
-		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = failedDepersonalizeApiMock
+		MobileMessaging.sharedInstance?.remoteApiProvider = failedDepersonalizeApiMock
 		MobileMessaging.depersonalize() { s, e in
 			XCTAssertEqual(SuccessPending.undefined, s)
 			XCTAssertNotNil(e)
@@ -302,53 +339,11 @@ class DepersonalizeTests: MMTestCase {
 	}
 
 	private func performSuccessfullDepersonalizeCase(then: (() -> Void)? = nil) {
-		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = successfulDepersonalizeApiMock
+		MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 		MobileMessaging.depersonalize() { s, e in
 			XCTAssertEqual(SuccessPending.success, s)
 			XCTAssertNil(e)
 			then?()
 		}
 	}
-}
-
-let successfulDepersonalizeApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
-	switch request {
-	case is PostPersonalize:
-		return JSON.parse("")
-	case is PostDepersonalize:
-		return JSON.parse("")
-	case is MessagesSyncRequest:
-		return nil
-	default:
-		return nil
-	}
-})
-
-
-var failedDepersonalizeApiMock: MMRemoteAPIMock {
-	let ret = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
-	switch request {
-	case is PostPersonalize:
-		return nil
-	case is PostDepersonalize:
-		return nil
-	case is MessagesSyncRequest:
-		return nil
-	default:
-		return nil
-	}
-	})
-	ret.errorStub = { request in
-		switch request {
-		case is PostPersonalize:
-		return retryableError
-		case is PostDepersonalize:
-		return retryableError
-		case is MessagesSyncRequest:
-		return retryableError
-		default:
-		return nil
-	}
-	}
-	return ret
 }

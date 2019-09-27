@@ -7,6 +7,29 @@
 
 import Foundation
 
+class SanitizedJSONSerialization: JSONSerialization {
+	override class func data(withJSONObject obj: Any, options opt: JSONSerialization.WritingOptions = []) throws -> Data {
+
+		let data = try super.data(withJSONObject: obj, options: opt)
+		let jsonString = String(data: data, encoding: String.Encoding.utf8)
+		let sanitizedString = jsonString?.replacingOccurrences(of: "\\/", with: "/")
+		return sanitizedString?.data(using: String.Encoding.utf8) ?? Data()
+	}
+}
+
+struct JSONRequestEncoding<R: RequestData>: ParameterEncoding {
+	let request: R
+	func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+		var urlRequest = try urlRequest.asURLRequest()
+		if let jsonBody = request.body {
+			urlRequest.httpBody = try SanitizedJSONSerialization.data(withJSONObject: jsonBody, options: [])
+		}
+		urlRequest = try URLEncoding.queryString.encode(urlRequest, with: parameters)
+		return urlRequest
+	}
+}
+
+
 class DynamicBaseUrlStorage: SingleKVStorage {
 	var backingStorage: KVOperations = UserDefaults.standard
 	typealias ValueType = URL
@@ -21,13 +44,18 @@ class DynamicBaseUrlStorage: SingleKVStorage {
 
 class DynamicBaseUrlHTTPSessionManager {
 	var dynamicBaseUrl: URL?
-	let originalBaseUrl: URL?
-	let configuration: URLSessionConfiguration?
+	var originalBaseUrl: URL
+	let configuration: URLSessionConfiguration
+	let alamofireSessionManager: SessionManager
+
 	let appGroupId: String?
 	var storage: DynamicBaseUrlStorage
-	
-	init(baseURL url: URL?, sessionConfiguration configuration: URLSessionConfiguration?, appGroupId: String?) {
-		self.configuration = configuration
+
+	init(baseURL url: URL, sessionConfiguration configuration: URLSessionConfiguration?, appGroupId: String?) {
+		self.configuration = configuration ?? URLSessionConfiguration.default
+		self.configuration.timeoutIntervalForResource = 20
+		self.configuration.timeoutIntervalForRequest = 20
+		self.alamofireSessionManager = SessionManager(configuration: self.configuration)
 		self.originalBaseUrl = url
 		self.appGroupId = appGroupId
 		if let appGroupId = appGroupId, let sharedUserDefaults = UserDefaults(suiteName: appGroupId) {
@@ -35,9 +63,10 @@ class DynamicBaseUrlHTTPSessionManager {
 		} else {
 			self.storage = DynamicBaseUrlStorage(backingStorage: UserDefaults.standard)
 		}
+
 		self.dynamicBaseUrl = getStoredDynamicBaseUrl() ?? url
 	}
-	
+
 	private func storeDynamicBaseUrl(_ url: URL?) {
 		if let url = url {
 			storage.set(url)
@@ -45,55 +74,68 @@ class DynamicBaseUrlHTTPSessionManager {
 			storage.cleanUp()
 		}
 	}
-	
+
 	private func getStoredDynamicBaseUrl() -> URL? {
 		return storage.get()
 	}
-	
-	func sendRequest<R: RequestData>(_ request: R, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		let sessionManager = makeSessionManager(for: request)
-		
-		let successBlock = { (task: URLSessionDataTask, obj: Any?) -> Void in
-			self.handleDynamicBaseUrl(response: task.response, error: nil)
-			if let obj = obj as? R.ResponseType {
-				completion(Result.Success(obj))
-			} else {
-				let error = NSError(domain: AFURLResponseSerializationErrorDomain, code: NSURLErrorCannotDecodeContentData, userInfo:[NSLocalizedFailureReasonErrorKey : "Request succeeded with no return value or return value wasn't a ResponseType value."])
-				completion(Result.Failure(error))
+
+	func url<R: RequestData>(_ r: R) -> String {
+		return (dynamicBaseUrl ?? originalBaseUrl).absoluteString + r.resolvedPath
+	}
+
+	func getDataResponse<R: RequestData>(_ r: R, completion: @escaping (HTTPURLResponse?, JSON?, NSError?) -> Void) {
+		let request = alamofireSessionManager.request(url(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
+		MMLogDebug("Sending request: \n\(String(reflecting: request))")
+
+		request.responseData { dataResult in
+			let httpResponse = dataResult.response
+			if let error = dataResult.error {
+				MMLogWarn("""
+					Error while performing request
+					\(error.localizedDescription)
+					""")
+				completion(httpResponse, nil, error as NSError)
+				return
 			}
+
+			guard let response = dataResult.response else {
+				MMLogWarn("""
+						Empty response received
+						""")
+				completion(httpResponse, nil, nil)
+				return
+			}
+
+			guard let data = dataResult.data else {
+				MMLogWarn("""
+					Empty data received
+					url: \(response.url.orNil)
+					status code: \(response.statusCode)
+					headers: \(String(describing: response.allHeaderFields))
+					""")
+				completion(httpResponse, nil, MMInternalErrorType.UnknownError.foundationError)
+				return
+			}
+
+			MMLogDebug("""
+				Response received
+				url: \(response.url.orNil)
+				status code: \(response.statusCode)
+				headers: \(String(describing: response.allHeaderFields))
+				data: \(String(data: data, encoding: String.Encoding.utf8).orNil)
+				""")
+
+			completion(httpResponse, JSON(data: data), nil)
 		}
-		
-		let failureBlock = { (task: URLSessionDataTask?, error: Error) -> Void in
-			self.handleDynamicBaseUrl(response: task?.response, error: error as NSError?)
-			completion(Result<R.ResponseType>.Failure(error as NSError?))
-		}
-		
-		performRequest(request, sessionManager: sessionManager, successBlock: successBlock, failureBlock: failureBlock)
 	}
-	
-	func makeSessionManager<R: RequestData>(for request: R) -> MM_AFHTTPSessionManager {
-		let sessionManager = MM_AFHTTPSessionManager(baseURL: dynamicBaseUrl, sessionConfiguration: configuration)
-		sessionManager.responseSerializer = ResponseSerializer<R.ResponseType>()
-		sessionManager.requestSerializer = RequestSerializer(applicationCode: request.applicationCode, jsonBody: request.body, pushRegistrationId: request.pushRegistrationId, headers: request.headers)
-		return sessionManager
-	}
-	
-	func performRequest<R: RequestData>(_ request: R, sessionManager: MM_AFHTTPSessionManager, successBlock: @escaping (URLSessionDataTask, Any?) -> Void, failureBlock: @escaping (URLSessionDataTask?, Error) -> Void) {
-		
-		switch request.method {
-		case .POST:
-			sessionManager.post(request.resolvedPath, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
-		case .PUT:
-			sessionManager.put(request.resolvedPath, parameters: request.parameters, success: successBlock, failure: failureBlock)
-		case .GET:
-			sessionManager.get(request.resolvedPath, parameters: request.parameters, progress: nil, success: successBlock, failure: failureBlock)
-		case .PATCH:
-			sessionManager.patch(request.resolvedPath, parameters: request.parameters, success: successBlock, failure: failureBlock)
-		case .DELETE:
-			sessionManager.delete(request.resolvedPath, parameters: request.parameters, success: successBlock, failure: failureBlock)
+
+	func sendRequest<R: RequestData>(_ r: R, completion: @escaping (JSON?, NSError?) -> Void) {
+		getDataResponse(r) { httpResponse, json, error in
+			self.handleDynamicBaseUrl(response: httpResponse, error: error as NSError?)
+			completion(json, error)
 		}
 	}
-	
+
 	func handleDynamicBaseUrl(response: URLResponse?, error: NSError?) {
 		if let error = error, error.mm_isCannotFindHost {
 			storeDynamicBaseUrl(nil)

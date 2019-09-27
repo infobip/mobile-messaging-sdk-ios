@@ -491,8 +491,8 @@ class MessageStorageTests: MMTestCase {
 }
 
 class SuccessfullDeliveryReporterStub: DeliveryReporting {
-	func report(applicationCode: String, messageIds: [String], completion: @escaping (DeliveryReportResult) -> Void) {
-		completion(Result.Success(EmptyResponse()))
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void) {
+		completion(nil)
 	}
 }
 

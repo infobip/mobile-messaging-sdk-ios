@@ -31,8 +31,14 @@ class MOMessageSendingTests: MMTestCase {
 	func testInteractionMOAndRetries() {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
-		let messageSyncQ = mobileMessagingInstance.remoteApiProvider.messageSyncQueue
-		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing()
+		let remoteApiProvider1 = mobileMessagingInstance.remoteApiProvider
+
+		let remoteApiProviderAlwaysFailing = RemoteAPIProviderStub()
+		remoteApiProviderAlwaysFailing.sendMessagesClosure = { _, _, _ -> MOMessageSendingResult in
+			return MOMessageSendingResult.Failure(MMInternalErrorType.UnknownError.foundationError)
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProviderAlwaysFailing
+
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
@@ -46,7 +52,7 @@ class MOMessageSendingTests: MMTestCase {
 			
 			self.assertMoMessagesCount(2) {
 			
-				self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = messageSyncQ
+				self.mobileMessagingInstance.remoteApiProvider = remoteApiProvider1
 				
 				// we re-try next time and succeed
 				self.mobileMessagingInstance.retryMoMessageSending() { (messages, error) in
@@ -135,7 +141,12 @@ class MOMessageSendingTests: MMTestCase {
 	func testUserInitiatedMO() {
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
-		mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing()
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.sendMessagesClosure = { _, _, _ -> MOMessageSendingResult in
+			return MOMessageSendingResult.Failure(MMInternalErrorType.UnknownError.foundationError)
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
+
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)

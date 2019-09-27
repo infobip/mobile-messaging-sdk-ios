@@ -226,10 +226,9 @@ class MMMessageHandler: MobileMessagingService {
 			let ctx = self.storage.newPrivateContext()
 			ctx.performAndWait {
 				MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId IN %@", sdkMessageIds), context: ctx)?.forEach { messageObj in
-					guard let realMessageId = messageIdsMap[messageObj.messageId] else {
-						return
+					if let realMessageId = messageIdsMap[messageObj.messageId] {
+						messageObj.messageId = realMessageId
 					}
-					messageObj.messageId = realMessageId
 				}
 			}
 			ctx.MM_saveToPersistentStoreAndWait()

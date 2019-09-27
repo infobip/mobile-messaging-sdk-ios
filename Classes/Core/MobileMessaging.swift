@@ -645,7 +645,7 @@ public final class MobileMessaging: NSObject {
 				self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
 			}
 		}
-		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
+		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 
 
 		MMLogInfo("SDK successfully initialized!")
@@ -691,13 +691,12 @@ public final class MobileMessaging: NSObject {
 	var appListener: MMApplicationListener!
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
-	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider()
+	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)
 	lazy var keychain: MMKeychain! = MMKeychain()
 	lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
 
 	//FIXME: explicit unwrapping is a subject for removing
 	static var httpSessionManager: DynamicBaseUrlHTTPSessionManager!
-	static var reachabilityManagerFactory: () -> ReachabilityManagerProtocol = { return NetworkReachabilityManager() }
 	static var application: MMApplication = MainThreadedUIApplication()
 	static var date: MMDate = MMDate() // testability
 	static var timeZone: TimeZone = TimeZone.current // for tests

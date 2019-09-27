@@ -108,18 +108,16 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	func testThatNewDataFetched() {
 		weak var exp = expectation(description: "Handler called")
-		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub:
-			{ (request) -> JSON? in
-				if let request = request as? MessagesSyncRequest {
-					if (request.dlrMsgIds ?? [String]()) == ["newData"]  {
-						return JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]])
-					} else {
-						return JSON(["payloads": []])
-					}
-				}
-				return nil
+		let apiProvider = RemoteAPIProviderStub()
+		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
+			if (dlrMsgIds ?? [String]()) == ["newData"]  {
+				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]]))!)
+			} else {
+				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
+			}
 		}
-		)
+		self.mobileMessagingInstance.remoteApiProvider = apiProvider
+
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
 			XCTAssertEqual(result.backgroundFetchResult, .newData)
 			exp?.fulfill()
@@ -137,18 +135,17 @@ class FetchMessagesCompletionTests: MMTestCase {
         }
 
         MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
-        self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub:
-            { (request) -> JSON? in
-                if let request = request as? MessagesSyncRequest {
-                    if (request.dlrMsgIds ?? [String]()) == ["newData"]  {
-                        return JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]])
-                    } else {
-                        return JSON(["payloads": []])
-                    }
-                }
-                return nil
-        }
-        )
+
+		let apiProvider = RemoteAPIProviderStub()
+		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
+			if (dlrMsgIds ?? [String]()) == ["newData"]  {
+				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]]))!)
+			} else {
+				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
+			}
+		}
+        self.mobileMessagingInstance.remoteApiProvider = apiProvider
+
         mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
             XCTAssertEqual(result.backgroundFetchResult, .newData)
             messageHandled?.fulfill()
@@ -159,14 +156,13 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	func testThatNoDataFetched() {
 		weak var exp = expectation(description: "Handler called")
-		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub:
-			{ (request) -> JSON? in
-				if request is MessagesSyncRequest {
-					return JSON(["payloads": []])
-				}
-				return nil
+
+		let apiProvider = RemoteAPIProviderStub()
+		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
+				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
 		}
-		)
+		self.mobileMessagingInstance.remoteApiProvider = apiProvider
+
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "noData"],  completion: { result in
 			XCTAssertEqual(result.backgroundFetchResult, .noData)
 			exp?.fulfill()
@@ -177,7 +173,12 @@ class FetchMessagesCompletionTests: MMTestCase {
 	
 	func testThatDataFetchFailed() {
 		weak var exp = expectation(description: "Handler called")
-		self.mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIAlwaysFailing()
+		let apiProvider = RemoteAPIProviderStub()
+		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
+			return MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.UnknownError))
+		}
+		self.mobileMessagingInstance.remoteApiProvider = apiProvider
+
 		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "Failed"],  completion: { result in
 			XCTAssertEqual(result.backgroundFetchResult, .failed)
 			XCTAssertNotNil(result.error)

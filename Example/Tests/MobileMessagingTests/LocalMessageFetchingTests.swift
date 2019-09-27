@@ -40,19 +40,17 @@ class LocalMessageFetchingTests : MMTestCase {
 			mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 			mobileMessagingInstance.userNotificationCenterStorage = UserNotificationCenterStorageStub()
 			mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
-			mobileMessagingInstance.remoteApiProvider.messageSyncQueue = MMRemoteAPIMock(performRequestCompanionBlock: { request in
-				switch request {
-				case (let r as MessagesSyncRequest):
-					if let dls = r.dlrMsgIds {
-						dlrs.append(contentsOf: dls)
-					}
-				default:
-					break
+
+
+			let remoteApiProvider = RemoteAPIProviderStub()
+			remoteApiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
+				if let dls = dlrMsgIds {
+					dlrs.append(contentsOf: dls)
 				}
-				
-			}, completionCompanionBlock: nil, responseStub:
-                { _ in return JSON(["payloads": []]) }
-			)
+				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
+			}
+			mobileMessagingInstance.remoteApiProvider = remoteApiProvider
+
 			mobileMessagingInstance.messageHandler.syncWithServer { (error) in
 				expectation?.fulfill()
 			}

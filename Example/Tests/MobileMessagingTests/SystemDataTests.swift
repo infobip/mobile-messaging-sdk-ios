@@ -14,9 +14,9 @@ class SystemDataTests: MMTestCase {
 		weak var requestsCompleted = expectation(description: "requestsCompleted")
 
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-		remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, installation, attributesSet, completion in
-			completion(UpdateInstanceDataResult.Success(EmptyResponse()))
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.patchInstanceClosure = { _, _, _, _ in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
@@ -53,10 +53,10 @@ class SystemDataTests: MMTestCase {
 		//Preparations
 		weak var expectation = self.expectation(description: "registration sent")
 		var sentSettings = [Bool]()
-		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-		remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, installation, requestBody, completion in
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.patchInstanceClosure = { _, _, _, requestBody in
 			sentSettings.append(requestBody["notificationsEnabled"] as! Bool)
-			completion(UpdateInstanceDataResult.Success(EmptyResponse()))
+			return UpdateInstanceDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 

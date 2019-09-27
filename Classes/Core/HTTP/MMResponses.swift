@@ -6,6 +6,31 @@
 //  
 //
 
+enum MMResult<ValueType> {
+	case Success(ValueType)
+	case Failure(NSError?)
+	case Cancel
+
+	var value: ValueType? {
+		switch self {
+		case .Success(let value):
+			return value
+		case .Failure, .Cancel:
+			return nil
+		}
+	}
+
+	var error: NSError? {
+		switch self {
+		case .Success, .Cancel:
+			return nil
+		case .Failure(let error):
+			return error
+		}
+	}
+}
+
+
 struct EmptyResponse { }
 
 struct GeoEventReportingResponse {
@@ -29,18 +54,18 @@ struct MOMessageSendingResponse {
 }
 
 //MARK: - Request results
-typealias MessagesSyncResult = Result<MessagesSyncResponse>
-typealias SeenStatusSendingResult = Result<EmptyResponse>
-typealias DepersonalizeResult = Result<EmptyResponse>
-typealias MOMessageSendingResult = Result<MOMessageSendingResponse>
-typealias LibraryVersionResult = Result<LibraryVersionResponse>
-typealias GeoEventReportingResult = Result<GeoEventReportingResponse>
-typealias FetchUserDataResult = Result<User>
-typealias UpdateUserDataResult = Result<EmptyResponse>
-typealias FetchInstanceDataResult = Result<Installation>
-typealias UpdateInstanceDataResult = Result<EmptyResponse>
-typealias PersonalizeResult = Result<User>
-typealias DeliveryReportResult = Result<EmptyResponse>
+typealias MessagesSyncResult = MMResult<MessagesSyncResponse>
+typealias SeenStatusSendingResult = MMResult<EmptyResponse>
+typealias DepersonalizeResult = MMResult<EmptyResponse>
+typealias MOMessageSendingResult = MMResult<MOMessageSendingResponse>
+typealias LibraryVersionResult = MMResult<LibraryVersionResponse>
+typealias GeoEventReportingResult = MMResult<GeoEventReportingResponse>
+typealias FetchUserDataResult = MMResult<User>
+typealias UpdateUserDataResult = MMResult<EmptyResponse>
+typealias FetchInstanceDataResult = MMResult<Installation>
+typealias UpdateInstanceDataResult = MMResult<EmptyResponse>
+typealias PersonalizeResult = MMResult<User>
+typealias DeliveryReportResult = MMResult<EmptyResponse>
 
 public struct RequestError {
 	public let messageId: String

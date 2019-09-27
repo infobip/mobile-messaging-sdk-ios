@@ -76,7 +76,7 @@ class PersonalizeOperation: Operation {
 			if let error = error {
 				if error.mm_code == "AMBIGUOUS_PERSONALIZE_CANDIDATES" || error.mm_code == "USER_MERGE_INTERRUPTED" {
 					rollbackUserIdentity()
-				} else if error.mm_isRetryable {
+				} else {
 					if forceDepersonalize {
 						DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
 					}

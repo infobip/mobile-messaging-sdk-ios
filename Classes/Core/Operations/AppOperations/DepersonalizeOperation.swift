@@ -50,9 +50,7 @@ class DepersonalizeOperation: Operation {
 			DepersonalizeOperation.handleSuccessfulDepersonalize(mmContext: self.mmContext)
 		case .Failure(let error):
 			MMLogError("[Depersonalize] request failed with error: \(error.orNil)")
-			if let error = error, error.mm_isRetryable {
-				DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
-			}
+			DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
 		case .Cancel:
 			MMLogWarn("[Depersonalize] request cancelled.")
 		}

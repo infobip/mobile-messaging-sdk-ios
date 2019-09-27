@@ -88,161 +88,199 @@ enum TestResult {
 	case cancel
 }
 
-final class MMRemoteAPIAlwaysFailing : RemoteAPIQueue {
-	var completionCompanionBlock : ((Any) -> Void)?
-	
-	init(completionCompanionBlock: ((Any) -> Void)? = nil) {
-		self.completionCompanionBlock = completionCompanionBlock
-		super.init()
-	}
-
-	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		completion(Result.Failure(NSError(type: MMInternalErrorType.UnknownError)))
-		completionCompanionBlock?(request)
+extension MobileMessaging {
+	func setupApiSessionManagerStubbed() {
+		MobileMessaging.sharedInstance?.remoteApiProvider = RemoteAPIProviderStub()
 	}
 }
 
-final class MMGeoRemoteAPIAlwaysSucceeding : RemoteAPIQueue {
-	var completionCompanionBlock : ((Any) -> Void)?
-	
-	init(completionCompanionBlock: ((Any) -> Void)? = nil) {
-		self.completionCompanionBlock = completionCompanionBlock
-		super.init()
+class RemoteGeoAPIProviderStub : GeoRemoteAPIProvider {
+	var isOffline: Bool = false
+	init() {
+		super.init(sessionManager: SessionManagerStubBase())
 	}
-	
-	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
-		let response = R.ResponseType(json: JSON.parse("{ \"messageIds\": {\"tm1\": \"m1\", \"tm2\": \"m2\", \"tm3\": \"m3\"} }"))
-		completion(Result.Success(response!))
-		completionCompanionBlock?(request)
-	}
-}
 
-class MMRemoteAPIMock: RemoteAPILocalMocks {
-	var responseStub: ((_ request: Any) -> JSON?)?
-	var errorStub: ((_ request: Any) -> NSError?)? = nil
-	var performRequestCompanionBlock: ((Any) -> Void)?
-	var completionCompanionBlock: ((Any?) -> Void)?
+	var reportGeoEventClosure: ((String, String, [GeoEventReportData], [MMGeoMessage]) -> GeoEventReportingResult)? = nil
 
-	init(performRequestCompanionBlock: ((Any) -> Void)? = nil, completionCompanionBlock: ((Any) -> Void)? = nil, responseStub: ((_ request: Any) -> JSON?)? = nil) {
-		self.performRequestCompanionBlock = performRequestCompanionBlock
-		self.completionCompanionBlock = completionCompanionBlock
-		self.responseStub = responseStub
-		super.init()
-	}
-	
-	override func perform<R: RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
-        performRequestCompanionBlock?(request)
-		if let responseStub = responseStub {
-			if let responseJSON = responseStub(request) {
-				if let errorResponse = RequestError(json: responseJSON) {
-					completion(Result.Failure(errorResponse.foundationError))
-					self.completionCompanionBlock?(errorResponse)
-				} else if let response = R.ResponseType(json: responseJSON) {
-					completion(Result.Success(response))
-					self.completionCompanionBlock?(response)
-				} else {
-					completion(Result.Failure(MMInternalErrorType.UnknownError.foundationError))
-					self.completionCompanionBlock?(nil)
-				}
-			} else if let error = self.errorStub?(request) {
-				completion(Result.Failure(error))
-				self.completionCompanionBlock?(nil)
+	override func reportGeoEvent(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage], completion: @escaping (GeoEventReportingResult) -> Void) {
+
+		if let reportGeoEventClosure = reportGeoEventClosure {
+			if isOffline {
+				reportGeoEventClosure(applicationCode, pushRegistrationId, eventsDataList, geoMessages)
+				completion(GeoEventReportingResult.Failure(MMInternalErrorType.UnknownError.foundationError))
 			} else {
-				completion(Result.Failure(MMInternalErrorType.UnknownError.foundationError))
-				self.completionCompanionBlock?(nil)
+				completion(reportGeoEventClosure(applicationCode, pushRegistrationId, eventsDataList, geoMessages))
 			}
 		} else {
-			super.perform(request: request) { (response) in
-				completion(response)
-				self.completionCompanionBlock?(response)
+			if isOffline {
+				completion(GeoEventReportingResult.Failure(MMInternalErrorType.UnknownError.foundationError))
+			} else {
+				super.reportGeoEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, eventsDataList: eventsDataList, geoMessages: geoMessages, completion: completion)
 			}
 		}
 	}
 }
 
-extension MobileMessaging {
-	func setupMockedQueues() {
-		remoteApiProvider.registrationQueue = RemoteAPILocalMocks()
-		remoteApiProvider.seenStatusQueue = RemoteAPILocalMocks()
-		remoteApiProvider.messageSyncQueue = RemoteAPILocalMocks()
-		remoteApiProvider.versionFetchingQueue = RemoteAPILocalMocks()
+class RemoteAPIProviderStub : RemoteAPIProvider {
+
+	init() {
+		super.init(sessionManager: SessionManagerStubBase())
 	}
-}
 
-class RemoteApiInstanceAttributesMock : RemoteAPIProvider {
+	var sendSeenStatusClosure: ((String, _ pushRegistrationId: String?, _ seenList: [SeenData]) -> SeenStatusSendingResult)? = nil
+	var sendMessagesClosure: ((String, _ pushRegistrationId: String, _ messages: [MOMessage]) -> MOMessageSendingResult)? = nil
+	var syncMessagesClosure: ((String, _ pushRegistrationId: String, _ archiveMsgIds: [String]?, _ dlrMsgIds: [String]?) -> MessagesSyncResult)? = nil
+	var fetchRecentLibraryVersionClosure: ((String, _ pushRegistrationId: String?) -> LibraryVersionResult)? = nil
+	var depersonalizeClosure: ((String, _ pushRegistrationId: String, _ pushRegistrationIdToDepersonalize: String) -> DepersonalizeResult)? = nil
+	var personalizeClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody, _ forceDepersonalize: Bool) -> PersonalizeResult)? = nil
+	var patchOtherInstanceClosure: ((String, _ authPushRegistrationId: String, _ pushRegistrationId: String, _ body: RequestBody) -> UpdateInstanceDataResult)? = nil
+	var postInstanceClosure: ((String, RequestBody) -> FetchInstanceDataResult)? = nil
+	var patchInstanceClosure: ((String, String, String, RequestBody) -> UpdateInstanceDataResult)? = nil
+	var getInstanceClosure: ((String, String) -> FetchInstanceDataResult)? = nil
+	var deleteInstanceClosure: ((String, String, String) -> UpdateInstanceDataResult)? = nil
+	var patchUserClosure: ((String, String, RequestBody) -> UpdateUserDataResult)? = nil
+	var getUserClosure: ((String, String) -> FetchUserDataResult)? = nil
 
-	var postInstanceClosure: ((String, RequestBody, @escaping (FetchInstanceDataResult) -> Void) -> Void)? = nil
-	var patchInstanceClosure: ((String, String, String, RequestBody, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
-	var getInstanceClosure: ((String, String, @escaping (FetchInstanceDataResult) -> Void) -> Void)? = nil
-	var deleteInstanceClosure: ((String, String, String, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
-	var patchUserClosure: ((String, String, RequestBody, @escaping (UpdateInstanceDataResult) -> Void) -> Void)? = nil
-	var getUserClosure: ((String, String, @escaping (FetchUserDataResult) -> Void) -> Void)? = nil
+	override func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData], completion: @escaping (SeenStatusSendingResult) -> Void) {
+		if let sendSeenStatusClosure = sendSeenStatusClosure {
+			completion(sendSeenStatusClosure(applicationCode,pushRegistrationId,seenList))
+		} else {
+			super.sendSeenStatus(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, seenList: seenList, completion: completion)
+		}
+	}
+
+	override func sendMessages(applicationCode: String, pushRegistrationId: String, messages: [MOMessage], completion: @escaping (MOMessageSendingResult) -> Void) {
+		if let sendMessagesClosure = sendMessagesClosure {
+			completion(sendMessagesClosure(applicationCode, pushRegistrationId,messages))
+		} else {
+			super.sendMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, messages: messages, completion: completion)
+		}
+	}
+
+	override func syncMessages(applicationCode: String, pushRegistrationId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void) {
+		if let syncMessagesClosure = syncMessagesClosure {
+			completion(syncMessagesClosure(applicationCode,pushRegistrationId,archiveMsgIds,dlrMsgIds))
+		} else {
+			super.syncMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, archiveMsgIds: archiveMsgIds, dlrMsgIds: dlrMsgIds, completion: completion)
+		}
+	}
+
+	override func fetchRecentLibraryVersion(applicationCode: String, pushRegistrationId: String?, completion: @escaping (LibraryVersionResult) -> Void) {
+		if let fetchRecentLibraryVersionClosure = fetchRecentLibraryVersionClosure {
+			completion(fetchRecentLibraryVersionClosure(applicationCode,pushRegistrationId))
+		} else {
+			super.fetchRecentLibraryVersion(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, completion: completion)
+		}
+	}
+
+	override func depersonalize(applicationCode: String, pushRegistrationId: String, pushRegistrationIdToDepersonalize: String, completion: @escaping (DepersonalizeResult) -> Void) {
+		if let depersonalizeClosure = depersonalizeClosure {
+			completion(depersonalizeClosure(applicationCode,pushRegistrationId,pushRegistrationIdToDepersonalize))
+		} else {
+			super.depersonalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, pushRegistrationIdToDepersonalize: pushRegistrationIdToDepersonalize, completion: completion)
+		}
+	}
+
+	override func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, completion: @escaping (PersonalizeResult) -> Void) {
+		if let personalizeClosure = personalizeClosure {
+			completion(personalizeClosure(applicationCode, pushRegistrationId,body,forceDepersonalize))
+		} else {
+			super.personalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, completion: completion)
+		}
+	}
 
 	override func patchInstance(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void) {
-		patchInstanceClosure?(applicationCode, authPushRegistrationId, refPushRegistrationId, body, completion) ?? completion(UpdateInstanceDataResult.Cancel)
+		if let patchInstanceClosure = patchInstanceClosure {
+			completion(patchInstanceClosure(applicationCode, authPushRegistrationId, refPushRegistrationId, body))
+		} else {
+			super.patchInstance(applicationCode: applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: refPushRegistrationId, body: body, completion: completion)
+		}
+	}
+
+	override func patchOtherInstance(applicationCode: String, authPushRegistrationId: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void) {
+		if let patchOtherInstanceClosure = patchOtherInstanceClosure {
+			completion(patchOtherInstanceClosure(applicationCode,authPushRegistrationId,pushRegistrationId,body))
+		} else {
+			super.patchOtherInstance(applicationCode: applicationCode, authPushRegistrationId: authPushRegistrationId, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+		}
 	}
 
 	override func getInstance(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchInstanceDataResult) -> Void) {
-		getInstanceClosure?(applicationCode, pushRegistrationId, completion) ?? completion(FetchInstanceDataResult.Cancel)
+		if let getInstanceClosure = getInstanceClosure {
+			completion(getInstanceClosure(applicationCode, pushRegistrationId))
+		} else {
+			super.getInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, completion: completion)
+		}
 	}
 
 	override func postInstance(applicationCode: String, body: RequestBody, completion: @escaping (FetchInstanceDataResult) -> Void) {
-		postInstanceClosure?(applicationCode, body, completion) ?? completion(FetchInstanceDataResult.Cancel)
+		if let postInstanceClosure = postInstanceClosure {
+			completion(postInstanceClosure(applicationCode, body))
+		} else {
+			super.postInstance(applicationCode: applicationCode, body: body, completion: completion)
+		}
 	}
 
 	override func deleteInstance(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String, completion: @escaping (UpdateInstanceDataResult) -> Void) {
-		deleteInstanceClosure?(applicationCode, pushRegistrationId, expiredPushRegistrationId, completion) ?? completion(UpdateInstanceDataResult.Cancel)
+		if let deleteInstanceClosure = deleteInstanceClosure {
+			completion(deleteInstanceClosure(applicationCode, pushRegistrationId, expiredPushRegistrationId))
+		} else {
+			super.deleteInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId, completion: completion)
+		}
 	}
 
 	override func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateUserDataResult) -> Void) {
-		patchUserClosure?(applicationCode, pushRegistrationId, body, completion) ?? completion(UpdateUserDataResult.Cancel)
+		if let patchUserClosure = patchUserClosure {
+			completion(patchUserClosure(applicationCode, pushRegistrationId, body))
+		} else {
+			super.patchUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+		}
 	}
 
 	override func getUser(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchUserDataResult) -> Void) {
-		getUserClosure?(applicationCode, pushRegistrationId, completion) ?? completion(FetchUserDataResult.Cancel)
+		if let getUserClosure = getUserClosure {
+			completion(getUserClosure(applicationCode, pushRegistrationId))
+		} else {
+			super.getUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, completion: completion)
+		}
+
 	}
 }
 
-class RemoteApiUserAttributesMock : RemoteAPIProvider {
-
-	var patchClosure: ((String, String, RequestBody, @escaping (UpdateUserDataResult) -> Void) -> Void)? = nil
-	var getClosure: ((String, String, @escaping (FetchUserDataResult) -> Void) -> Void)? = nil
-
-	override func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateUserDataResult) -> Void) {
-		patchClosure?(applicationCode, pushRegistrationId, body, completion)
+class SessionManagerOfflineStubBase : DynamicBaseUrlHTTPSessionManager {
+	init() {
+		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: nil, appGroupId: nil)
 	}
 
-	override func getUser(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchUserDataResult) -> Void) {
-		getClosure?(applicationCode, pushRegistrationId, completion)
+	override func sendRequest<R: RequestData>(_ request: R, completion: @escaping (JSON?, NSError?) -> Void) {
+		completion(nil, MMInternalErrorType.UnknownError.foundationError)
 	}
 }
 
-class RemoteAPILocalMocks: RemoteAPIQueue {
+class SessionManagerStubBase : DynamicBaseUrlHTTPSessionManager {
+	init() {
+		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: nil, appGroupId: nil)
+	}
 
-	override func perform<R : RequestData>(request: R, exclusively: Bool = false, completion: @escaping (Result<R.ResponseType>) -> Void) {
+	override func sendRequest<R: RequestData>(_ request: R, completion: @escaping (JSON?, NSError?) -> Void) {
 		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: request.applicationCode, pushRegistrationId: request.pushRegistrationId) {
-			
+
 			let statusCode = responseJSON[MockKeys.responseStatus].intValue
 			switch statusCode {
 			case 0..<400:
-				if let response = R.ResponseType(json: responseJSON) {
-					completion(Result.Success(response))
-				} else {
-					print("Could not create response object. Figure out the workaround.")
-					completion(Result.Failure(nil))
-				}
+				completion(responseJSON, nil)
 			case 400..<600:
 				if let requestError = RequestError(json: responseJSON) {
-					completion(Result.Failure(requestError.foundationError))
+					completion(nil, requestError.foundationError)
 				} else {
-					completion(Result.Failure(nil))
+					completion(nil, MMInternalErrorType.UnknownError.foundationError)
 				}
 			default:
 				print("Unexpected mocked status code: \(responseJSON)")
-				completion(Result.Failure(nil))
+				completion(nil, MMInternalErrorType.UnknownError.foundationError)
 			}
 		} else {
-			completion(Result.Failure(nil))
+			completion(nil, MMInternalErrorType.UnknownError.foundationError)
 		}
 	}
 }
@@ -261,18 +299,6 @@ func timeTravel(to date: Date, block: () -> Void) {
 	MobileMessaging.date = DateStub(nowStub: date)
 	block()
 	MobileMessaging.date = MMDate()
-}
-
-final class ReachabilityManagerStub: NetworkReachabilityManager {
-	let isReachable: Bool
-	
-	init(isReachable: Bool) {
-		self.isReachable = isReachable
-	}
-	
-	override func currentlyReachable() -> Bool {
-		return isReachable
-	}
 }
 
 extension RequestData {

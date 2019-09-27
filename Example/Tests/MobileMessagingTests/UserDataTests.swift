@@ -47,10 +47,7 @@ class UserDataTests: MMTestCase {
 
 		let currentUser = MobileMessaging.getUser()!
 
-		let responseStub: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is GetUser):
-				let jsonStr = """
+		let jsonStr = """
 	{
 		"phones": [
 			{
@@ -102,16 +99,12 @@ class UserDataTests: MMTestCase {
 		]
 	}
 """
-				return JSON.parse(jsonStr)
-			default:
-				return nil
-			}
+		let json = JSON.parse(jsonStr)
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.getUserClosure = { (_, _) -> FetchUserDataResult in
+			return FetchUserDataResult.Success(User(json: json)!)
 		}
-
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: nil,
-			completionCompanionBlock: nil,
-			responseStub: responseStub)
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
 		mobileMessagingInstance.userService.fetchFromServer(completion: { (user, error) in
 			XCTAssertNil(error)
@@ -120,7 +113,7 @@ class UserDataTests: MMTestCase {
 
 			let primaryInstallation = (user.installations?.first(where: {$0.isPrimaryDevice}))!
 			XCTAssertEqual(primaryInstallation.deviceModel, "iPhone 1")
-		    XCTAssertEqual(primaryInstallation.deviceManufacturer, "Apple")
+			XCTAssertEqual(primaryInstallation.deviceManufacturer, "Apple")
 			XCTAssertEqual(primaryInstallation.pushRegistrationId, "pushregid1")
 			XCTAssertEqual(primaryInstallation.deviceName, "Johns iPhone")
 			XCTAssertEqual(primaryInstallation,
@@ -163,11 +156,11 @@ class UserDataTests: MMTestCase {
 		//Precondiotions
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		let remoteApiProvider = RemoteApiUserAttributesMock()
-		remoteApiProvider.getClosure = { applicationCode, pushRegistrationId, completion in
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.getUserClosure = { _, _ -> FetchUserDataResult in
 			let response = User(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: [Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
 
-			completion(FetchUserDataResult.Success(response))
+			return FetchUserDataResult.Success(response)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 		// explicitly reset dirty attributes to accomplish the successful fetching
@@ -203,12 +196,16 @@ class UserDataTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithCorrectApplicationCode()
 		weak var expectation = self.expectation(description: "data received")
+		weak var expectationAPICallPerformed = self.expectation(description: "expectationAPICallPerformed")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		let remoteApiProvider = RemoteApiUserAttributesMock()
-		remoteApiProvider.getClosure = { applicationCode, pushRegistrationId, completion in
+
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.getUserClosure = { _, _ -> FetchUserDataResult in
+			expectationAPICallPerformed?.fulfill()
 			let response = User(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: nil)
-			completion(FetchUserDataResult.Success(response))
+			return FetchUserDataResult.Success(response)
 		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
 		let user = MobileMessaging.getUser()!
 		user.firstName = "John" // unsynced local change
@@ -267,34 +264,29 @@ class UserDataTests: MMTestCase {
 		XCTAssertEqual(inMemoryUser.customAttributes?["home"] as? NSString, "Death Star")
 	}
 
+	//TODO:
+	// test that error parses to a UpdateUserDataResult.Failure(NSError(domain: x, code: x, userInfo: [Consts.APIKeys.errorMessageId : "USER_MERGE_INTERRUPTED"]))
+
 	func testThatUnwantedMergeErrorIsPorpagated() {
 		weak var expectation = self.expectation(description: "data fetched")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		let responseStub: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is PatchUser):
-				let jsonStr = """
-				{
-					"requestError": {
-						"serviceException" : {
-							"messageId" : "USER_MERGE_INTERRUPTED",
-							"text" : "something"
-						}
-					}
-			   }
-"""
-				return JSON.parse(jsonStr)
-			default:
-				return nil
+		let jsonStr = """
+		{
+			"requestError": {
+				"serviceException" : {
+					"messageId" : "USER_MERGE_INTERRUPTED",
+					"text" : "something"
+				}
 			}
 		}
-
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: nil,
-			completionCompanionBlock: nil,
-			responseStub: responseStub)
-
+	"""
+		let requestError = RequestError(json: JSON.parse(jsonStr))
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.patchUserClosure = { (_, _, _) -> UpdateUserDataResult in
+			return UpdateUserDataResult.Failure(requestError?.foundationError)
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
 		let user = MobileMessaging.getUser()!
 		user.firstName = "john"
@@ -330,29 +322,12 @@ class UserDataTests: MMTestCase {
 		var sent = [Any]()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		let requestBlock: (Any) -> Void = { request in
-			switch request {
-			case (is PatchUser):
-				if let patchRequest = request as? PatchUser {
-					sent.append(patchRequest.body as Any)
-				}
-			default:
-				break
-			}
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.patchUserClosure = { (_, _, requestBody) -> UpdateUserDataResult in
+			sent.append(requestBody as Any)
+			return UpdateUserDataResult.Success(EmptyResponse())
 		}
-
-		let responseBlock: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is PatchUser):
-				return JSON.parse("")
-			default:
-				return nil
-			}
-		}
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: requestBlock,
-			completionCompanionBlock: nil,
-			responseStub: responseBlock)
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
 		let user = MobileMessaging.getUser()!
 		user.firstName = "A"
@@ -387,29 +362,13 @@ class UserDataTests: MMTestCase {
 		var sent = [Any]()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		let requestBlock: (Any) -> Void = { request in
-			switch request {
-			case (is PatchUser):
-				if let patchRequest = request as? PatchUser {
-					sent.append(patchRequest.body as Any)
-				}
-			default:
-				break
-			}
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.patchUserClosure = { (_, _, requestBody) -> UpdateUserDataResult in
+			sent.append(requestBody as Any)
+			return UpdateUserDataResult.Success(EmptyResponse())
 		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
-		let responseBlock: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is PatchUser):
-				return JSON.parse("")
-			default:
-				return nil
-			}
-		}
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: requestBlock,
-			completionCompanionBlock: nil,
-			responseStub: responseBlock)
 
 		let user = MobileMessaging.getUser()!
 		user.customAttributes = ["string": "x" as NSString, "bool": true as NSNumber, "num": 9.5 as NSNumber, "bool2": true as NSNumber, "num2": 9.5 as NSNumber]
@@ -439,26 +398,24 @@ class UserDataTests: MMTestCase {
 }
 
 func performMergeInterruptedUserUpdateCase(user: User, then: (() -> Void)? = nil) {
-	MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = mergeInterruptedApiMock
+	let remoteApiProvider = RemoteAPIProviderStub()
+	remoteApiProvider.patchUserClosure = { (_, _, _) -> UpdateUserDataResult in
+		let jsonStr = """
+		{
+			"requestError": {
+				"serviceException" : {
+					"messageId" : "USER_MERGE_INTERRUPTED",
+					"text" : "something"
+				}
+			}
+		}
+	"""
+		let requestError = RequestError(json: JSON.parse(jsonStr))
+		return UpdateUserDataResult.Failure(requestError?.foundationError)
+	}
+	MobileMessaging.sharedInstance?.remoteApiProvider = remoteApiProvider
 	MobileMessaging.saveUser(user, completion: { (error) in
 		XCTAssertTrue(error!.mm_code == "USER_MERGE_INTERRUPTED" || error!.mm_code == "AMBIGUOUS_PERSONALIZE_CANDIDATES")
 		then?()
 	})
 }
-
-let mergeInterruptedApiMock = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
-	switch request {
-	case is PatchUser:
-		let responseDict = ["requestError":
-			["serviceException":
-				[
-					"text": "USER_MERGE_INTERRUPTED",
-					"messageId": "USER_MERGE_INTERRUPTED"
-				]
-			]
-		]
-		return JSON(responseDict)
-	default:
-		return nil
-	}
-})

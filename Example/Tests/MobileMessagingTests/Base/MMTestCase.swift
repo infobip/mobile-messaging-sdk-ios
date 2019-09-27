@@ -164,7 +164,6 @@ class MMTestCase: XCTestCase {
         MobileMessaging.logger?.logLevel = .All
 		MobileMessaging.date = DateStub(nowStub: Date(timeIntervalSince1970: testEnvironmentTimestampMillisSince1970/1000))
         MMTestCase.startWithCorrectApplicationCode()
-		MobileMessaging.reachabilityManagerFactory = { return ReachabilityManagerStub(isReachable: true) }
     }
     
     class func cleanUpAndStop() {
@@ -206,8 +205,8 @@ class MMTestCase: XCTestCase {
 	}
 	
 	class func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
-		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: "")!
-		mm.setupMockedQueues()
+		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: "http://url.com")!
+		mm.setupApiSessionManagerStubbed()
 		MobileMessaging.application = ActiveApplicationStub()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
 		return mm

@@ -61,10 +61,8 @@ class GeoEventReportingOperation: Operation {
 			
 			if !originGeoMessagesValues.isEmpty, !geoEventReportsData.isEmpty {
 				MMLogDebug("[Geo event reporting] reporting started for \(geoEventReportsData.count) geo events from \(originGeoMessagesValues.count) campaigns.")
-				let request = GeoEventReportingRequest(applicationCode: self.mmContext.applicationCode, pushRegistrationId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues)
-				
-				self.geoContext.geofencingServiceQueue.perform(request: request, completion: { result in
-					self.result = result
+
+				self.geoContext.remoteApiProvider.reportGeoEvent(applicationCode: self.mmContext.applicationCode, pushRegistrationId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues, completion: { (result) in
 					self.handleRequestResult(result) {
 						self.finishWithError(result.error)
 					}
@@ -93,6 +91,7 @@ class GeoEventReportingOperation: Operation {
 	typealias MTMessagesDatasource = [MessageId: (MMGeoMessage, AreaId)]
 	
 	private func handleRequestResult(_ result: GeoEventReportingResult, completion: @escaping () -> Void) {
+		self.result = result
 		let messagesUpdatingGroup = DispatchGroup()
 		switch result {
 		case .Success(let response):

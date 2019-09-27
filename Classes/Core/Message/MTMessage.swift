@@ -188,7 +188,7 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 	
 	/// Designated init
 	public init?(payload: APNSPayload, deliveryMethod: MessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool) {
-		guard 	var payload = payload as? StringKeyPayload,
+		guard 	let payload = payload as? StringKeyPayload,
 				let messageId = payload[Consts.APNSPayloadKeys.messageId] as? String else
 		{
 			return nil

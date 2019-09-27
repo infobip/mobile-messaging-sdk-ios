@@ -8,12 +8,12 @@
 import XCTest
 @testable import MobileMessaging
 
-class VersionCheckRemoteAPIManagerMock: RemoteAPIProvider {
+class VersionCheckRemoteAPIManagerMock: RemoteAPIProviderStub {
 	init(onlineVersion: String) {
 		super.init()
-		self.versionFetchingQueue = MMRemoteAPIMock(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
-			return JSON.parse("{\"platformType\": \"APNS\", \"libraryVersion\": \"\(onlineVersion)\", \"updateUrl\": \"https://github.com/infobip/mobile-messaging-sdk-ios\"}")
-		})
+		self.fetchRecentLibraryVersionClosure = { _, _ in
+			return MMResult.Success(LibraryVersionResponse(json: JSON.parse("{\"platformType\": \"APNS\", \"libraryVersion\": \"\(onlineVersion)\", \"updateUrl\": \"https://github.com/infobip/mobile-messaging-sdk-ios\"}"))!)
+		}
 	}
 }
 

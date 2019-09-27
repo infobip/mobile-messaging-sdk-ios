@@ -34,6 +34,9 @@ extension MobileMessaging {
 
 @objcMembers
 public class GeofencingService: MobileMessagingService {
+
+	lazy var remoteApiProvider: GeoRemoteAPIProvider! = GeoRemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)
+
 	override func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
@@ -144,7 +147,7 @@ public class GeofencingService: MobileMessagingService {
 	
 	static var isGeoServiceNeedsToStart: Bool = false
 	static var sharedInstance: GeofencingService?
-	var geofencingServiceQueue: RemoteAPIQueue!
+	var sessionManager: DynamicBaseUrlHTTPSessionManager!
 	var locationManager: CLLocationManager!
 	var datasource: GeofencingInMemoryDatasource!
 	let locationManagerQueue = MMQueue.Main.queue
@@ -278,7 +281,7 @@ public class GeofencingService: MobileMessagingService {
 		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.GeofencingService")
 		
 		locationManagerQueue.executeSync() {
-			self.geofencingServiceQueue = RemoteAPIQueue()
+			self.sessionManager = MobileMessaging.httpSessionManager
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = GeoConstants.distanceFilter

@@ -53,9 +53,6 @@ struct MessagesSyncRequest: PostRequest {
 	var applicationCode: String
 	var pushRegistrationId: String?
 	typealias ResponseType = MessagesSyncResponse
-	func mustRetryOnResponseError(_ error: NSError) -> Bool {
-		return retryLimit > 0 && error.mm_isRetryable
-	}
 	var path: APIPath { return .SyncMessages }
 	var parameters: RequestParameters? {
 		var params = RequestParameters()
@@ -131,15 +128,6 @@ struct MOMessageSendingRequest: PostRequest {
 
 typealias RequestBody = [String: Any]
 typealias RequestParameters = [String: Any]
-typealias RequestHeaders = [String: String]
-
-enum Method: String {
-	case POST
-	case PUT
-	case GET
-	case PATCH
-	case DELETE
-}
 
 protocol RequestResponsable {
 	associatedtype ResponseType: JSONDecodable
@@ -148,49 +136,53 @@ protocol RequestResponsable {
 protocol RequestData: RequestResponsable {
 	var applicationCode: String {get}
 	var pushRegistrationId: String? {get}
-	var method: Method {get}
+	var method: HTTPMethod {get}
 	var path: APIPath {get}
 	var parameters: RequestParameters? {get}
 	var pathParameters: [String: String]? {get}
-	var headers: RequestHeaders? {get}
-	var retryLimit: Int {get}
+	var headers: HTTPHeaders? {get}
 	var body: RequestBody? {get}
-	func mustRetryOnResponseError(_ error: NSError) -> Bool
 }
 
 protocol GetRequest: RequestData { }
 extension GetRequest {
-	var method: Method { return .GET }
+	var method: HTTPMethod { return .get }
 	var body: RequestBody? { return nil }
 }
 
 protocol PostRequest: RequestData { }
 extension PostRequest {
-	var method: Method { return .POST }
+	var method: HTTPMethod { return .post }
 }
 
 protocol DeleteRequest: RequestData { }
 extension DeleteRequest {
-	var method: Method { return .DELETE }
+	var method: HTTPMethod { return .delete }
 }
 
 protocol PutRequest: RequestData { }
 extension PutRequest {
-	var method: Method { return .PUT }
+	var method: HTTPMethod { return .put }
 }
 
 protocol PatchRequest: RequestData { }
 extension PatchRequest {
-	var method: Method { return .PATCH }
+	var method: HTTPMethod { return .patch }
 }
 
 
 extension RequestData {
-	func mustRetryOnResponseError(_ error: NSError) -> Bool {
-		return retryLimit > 0 && error.mm_isCannotFindHost
+	var headers: HTTPHeaders? {
+		var headers: HTTPHeaders = [:]
+		headers["Authorization"] = "App \(self.applicationCode)"
+		headers["applicationcode"] = calculateAppCodeHash(self.applicationCode)
+		headers["User-Agent"] = MobileMessaging.userAgent.currentUserAgentString
+		headers["foreground"] = String(MobileMessaging.application.isInForegroundState)
+		headers["pushregistrationid"] = self.pushRegistrationId
+		headers["Accept"] = "application/json"
+		headers["Content-Type"] = "application/json"
+		return headers
 	}
-	var retryLimit: Int { return 0 }
-	var headers: RequestHeaders? { return nil }
 	var body: RequestBody? { return nil }
 	var parameters: RequestParameters? { return nil }
 	var pathParameters: [String: String]? { return nil }
@@ -216,7 +208,7 @@ struct SeenData: DictionaryRepresentable {
 	}
 	var dictionaryRepresentation: DictionaryRepresentation {
 		return [Consts.APIKeys.messageId: messageId,
-		        Consts.APIKeys.seenTimestampDelta: seenDate.timestampDelta]
+				Consts.APIKeys.seenTimestampDelta: seenDate.timestampDelta]
 	}
 	static func requestBody(seenList: [SeenData]) -> RequestBody {
 		return [Consts.APIKeys.seenMessages: seenList.map{ $0.dictionaryRepresentation } ]

@@ -2,14 +2,4 @@ framework module MobileMessaging {
 	umbrella header "MobileMessaging-umbrella.h"
 	
 	export *
-	
-	explicit module Private {
-		private header "MM_AFHTTPSessionManager.h"
-		private header "MM_AFNetworking.h"
-		private header "MM_AFNetworkReachabilityManager.h"
-		private header "MM_AFSecurityPolicy.h"
-		private header "MM_AFURLRequestSerialization.h"
-		private header "MM_AFURLResponseSerialization.h"
-		private header "MM_AFURLSessionManager.h"
-	}
 }

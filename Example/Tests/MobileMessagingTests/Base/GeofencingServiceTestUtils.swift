@@ -393,24 +393,29 @@ func makeDeliveryTimeDict(withTimeIntervalString timeInterval: String? = nil, da
 
 var defaultEvent = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry"] as APNSPayload
 
-final class MMRemoteAPICampaignStatesStub : MMRemoteAPIMock {
-
-	convenience init(mobileMessagingContext: MobileMessaging, suspendedCampaignId: String, finishedCampaignId: String) {
-		self.init(performRequestCompanionBlock: nil, completionCompanionBlock: nil, responseStub: { request -> JSON? in
-			if let request = request as? GeoEventReportingRequest, request.path == APIPath.GeoEventsReports{
-				let jsonStr: String
-
-				if request.eventsDataList.first?.campaignId == suspendedCampaignId {
-					jsonStr = "{\"messageIds\": {\"tm1\": \"m1\", \"tm2\": \"m2\", \"tm3\": \"m3\"}, \"suspendedCampaignIds\": [\"\(suspendedCampaignId)\"]}"
-				} else if request.eventsDataList.first?.campaignId == finishedCampaignId {
-					jsonStr = "{\"messageIds\": {\"tm1\": \"m1\", \"tm2\": \"m2\", \"tm3\": \"m3\"}, \"finishedCampaignIds\": [\"\(finishedCampaignId)\"]}"
-				} else {
-					return nil
+var succeedingApiStub: RemoteGeoAPIProviderStub = {
+	let remoteApiProvider = RemoteGeoAPIProviderStub()
+	remoteApiProvider.reportGeoEventClosure = { _,_,_,_ -> GeoEventReportingResult in
+		return GeoEventReportingResult.Success(GeoEventReportingResponse(json: JSON.parse(
+			"""
+				{
+					"messageIds": {
+						"tm1": "m1",
+						"tm2": "m2",
+						"tm3": "m3"
+					}
 				}
-				return JSON.parse(jsonStr)
-			} else {
-				return nil
-			}
-		})
+			"""
+		))!)
+
 	}
-}
+	return remoteApiProvider
+}()
+
+var failingApiStub: RemoteGeoAPIProviderStub = {
+	let remoteApiProvider = RemoteGeoAPIProviderStub()
+	remoteApiProvider.reportGeoEventClosure = { _,_,_,_ -> GeoEventReportingResult in
+		return GeoEventReportingResult.Failure(MMInternalErrorType.UnknownError.foundationError)
+	}
+	return remoteApiProvider
+}()

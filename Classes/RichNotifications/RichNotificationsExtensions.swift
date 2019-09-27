@@ -114,8 +114,8 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		let handlingGroup = DispatchGroup()
 		
 		handlingGroup.enter()
-		sharedInstance.reportDelivery(mtMessage) { result in
-			mtMessage.isDeliveryReportSent = result.error == nil
+		sharedInstance.reportDelivery(mtMessage) { error in
+			mtMessage.isDeliveryReportSent = error == nil
 			mtMessage.deliveryReportedDate = mtMessage.isDeliveryReportSent ? MobileMessaging.date.now : nil
 			MMLogDebug("[Notification Extension] saving message to shared storage \(sharedInstance.sharedNotificationExtensionStorage.orNil)")
 			sharedInstance.sharedNotificationExtensionStorage?.save(message: mtMessage)
@@ -145,7 +145,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	private init(appCode: String, appGroupId: String) {
 		self.applicationCode = appCode
 		self.appGroupId = appGroupId
-		self.sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: Consts.APIValues.prodDynamicBaseURLString), sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
+		self.sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: Consts.APIValues.prodDynamicBaseURLString)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 	}
 	
 	private func retrieveNotificationContent(for message: MTMessage, originalContent: UNNotificationContent, completion: @escaping (UNNotificationContent) -> Void) {
@@ -168,7 +168,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		}
 	}
 	
-	private func reportDelivery(_ message: MTMessage, completion: @escaping (DeliveryReportResult) -> Void) {
+	private func reportDelivery(_ message: MTMessage, completion: @escaping (NSError?) -> Void) {
 		deliveryReporter.report(applicationCode: applicationCode, messageIds: [message.messageId], completion: completion)
 	}
 	
@@ -181,20 +181,20 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 }
 
 protocol DeliveryReporting {
-	func report(applicationCode: String, messageIds: [String], completion: @escaping (DeliveryReportResult) -> Void)
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void)
 }
 
 @available(iOS 10.0, *)
 class DeliveryReporter: DeliveryReporting {
-	func report(applicationCode: String, messageIds: [String], completion: @escaping (DeliveryReportResult) -> Void) {
+	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void) {
 		MMLogDebug("[Notification Extension] reporting delivery for message ids \(messageIds)")
 		guard let dlr = DeliveryReportRequest(applicationCode: applicationCode, dlrIds: messageIds), let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance else
 		{
 			MMLogDebug("[Notification Extension] could not report delivery")
-			completion(Result.Cancel)
+			completion(nil)
 			return
 		}
-		extensionInstance.sessionManager.sendRequest(dlr, completion: completion)
+		extensionInstance.sessionManager.sendRequest(dlr, completion: { completion($1) })
 	}
 }
 

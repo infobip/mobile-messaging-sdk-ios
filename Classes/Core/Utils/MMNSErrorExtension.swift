@@ -9,7 +9,6 @@ import Foundation
 
 public let MMInternalErrorDomain = "com.mobile-messaging"
 
-
 public enum MMInternalErrorType: Error {
     case UnknownError
 	case NoRegistration
@@ -93,30 +92,6 @@ extension NSError {
 		return domain == NSURLErrorDomain && code == NSURLErrorCannotFindHost
 	}
 	
-	var mm_isRetryable: Bool {
-		
-		var retryableCodes = Set<Int>()
-		
-		for i in 404..<600 {
-			retryableCodes.insert(i)
-		}
-		retryableCodes.insert(NSURLErrorUnknown)
-		retryableCodes.insert(NSURLErrorCancelled)
-		retryableCodes.insert(NSURLErrorTimedOut)
-		retryableCodes.insert(NSURLErrorCannotFindHost)
-		retryableCodes.insert(NSURLErrorCannotConnectToHost)
-		retryableCodes.insert(NSURLErrorNetworkConnectionLost)
-		retryableCodes.insert(NSURLErrorDNSLookupFailed)
-		retryableCodes.insert(NSURLErrorResourceUnavailable)
-		retryableCodes.insert(NSURLErrorNotConnectedToInternet)
-		retryableCodes.insert(NSURLErrorBadServerResponse)
-		retryableCodes.insert(NSURLErrorCannotDecodeRawData)
-		retryableCodes.insert(NSURLErrorCannotDecodeContentData)
-		retryableCodes.insert(NSURLErrorCannotParseResponse)
-		
-		return (domain == NSURLErrorDomain || domain == AFURLResponseSerializationErrorDomain) && retryableCodes.contains(code)
-	}
-
     public convenience init(type: MMInternalErrorType) {
         self.init(domain: MMInternalErrorDomain, code: type.errorCode, userInfo: type.userInfo)
     }

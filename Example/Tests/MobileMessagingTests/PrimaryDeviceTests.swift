@@ -23,19 +23,12 @@ class PrimaryDeviceTests: MMTestCase {
 	func testPutSync() {
 		weak var expectation = self.expectation(description: "sync completed")
 		mobileMessagingInstance.pushRegistrationId = "123"
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (request) in
-			
-		}, completionCompanionBlock: { (request) in
-			
-		}, responseStub: { (request) -> JSON? in
-			
-			switch request {
-			case (is PatchInstance):
-				return JSON("")
-			default:
-				return nil
-			}
-		})
+
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
 		let installation = MobileMessaging.getInstallation()!
 		XCTAssertFalse(installation.isPrimaryDevice)
@@ -54,18 +47,11 @@ class PrimaryDeviceTests: MMTestCase {
 	func testGetSync() {
 		weak var expectation = self.expectation(description: "sync completed")
 		mobileMessagingInstance.pushRegistrationId = "123"
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { (request) in
-			
-		}, completionCompanionBlock: { (request) in
-			
-		}, responseStub: { (request) -> JSON? in
-			switch request {
-			case (is PatchInstance):
-				return JSON("")
-			default:
-				return nil
-			}
-		})
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
 		MobileMessaging.fetchInstallation { (installation, error) in
 			XCTAssertFalse(installation!.isPrimaryDevice)

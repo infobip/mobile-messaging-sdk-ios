@@ -15,33 +15,27 @@ final class RegistrationTests: MMTestCase {
 		weak var expectation = self.expectation(description: "data fetched")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		let responseStub: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is GetInstance):
-				let jsonStr = """
-				{
-					"notificationsEnabled": true,
-					"pushRegId": "\(MMTestConstants.kTestCorrectInternalID)",
-					"isPrimary": true,
-					"regEnabled": true,
-					"applicationUserId": "appUserId",
-					"customAttributes": {
-						"Manufacturer": "_Apple_",
-						"Model": 1,
-						"ReleaseDate": "1983-05-25"
-					}
-				}
-"""
-				return JSON.parse(jsonStr)
-			default:
-				return nil
-			}
-		}
 
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: nil,
-			completionCompanionBlock: nil,
-			responseStub: responseStub)
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.getInstanceClosure = { appcode, pushreg -> FetchInstanceDataResult in
+			let jsonStr = """
+			{
+			"notificationsEnabled": true,
+			"pushRegId": "\(MMTestConstants.kTestCorrectInternalID)",
+			"isPrimary": true,
+			"regEnabled": true,
+			"applicationUserId": "appUserId",
+			"customAttributes": {
+			"Manufacturer": "_Apple_",
+			"Model": 1,
+			"ReleaseDate": "1983-05-25"
+			}
+			}
+			"""
+
+			return FetchInstanceDataResult.Success(Installation(json: JSON.parse(jsonStr))!)
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
 		mobileMessagingInstance.installationService.fetchFromServer(completion: { (installation, error) in
 			XCTAssertNil(error)
@@ -61,25 +55,18 @@ final class RegistrationTests: MMTestCase {
 		weak var expectation = self.expectation(description: "data fetched")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		let responseStub: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is GetInstance):
-				let jsonStr = """
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.getInstanceClosure = { appcode, pushreg -> FetchInstanceDataResult in
+			let jsonStr = """
 				{
 				"pushRegId": "differentPushRegId",
 				"applicationUserId": "appUserId"
 				}
 				"""
-				return JSON.parse(jsonStr)
-			default:
-				return nil
-			}
-		}
 
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: nil,
-			completionCompanionBlock: nil,
-			responseStub: responseStub)
+			return FetchInstanceDataResult.Success(Installation(json: JSON.parse(jsonStr))!)
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
 		mobileMessagingInstance.installationService.fetchFromServer(completion: { (installation, error) in
 			XCTAssertNil(error)
@@ -97,16 +84,12 @@ final class RegistrationTests: MMTestCase {
 		weak var tokensexp = expectation(description: "device tokens saved")
 		let maxCount = 2
 
-		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-		remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
-			completion(
-				FetchInstanceDataResult.Success(Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil))
-			)
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			return	FetchInstanceDataResult.Success(Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil))
 		}
-		remoteProviderMock.patchInstanceClosure = { _, _, _, _, completion in
-			completion(
-				UpdateInstanceDataResult.Success(EmptyResponse())
-			)
+		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 
@@ -129,18 +112,14 @@ final class RegistrationTests: MMTestCase {
 	func testRegisterForRemoteNotificationsWithDeviceToken() {
 		weak var token2Saved = expectation(description: "token2 saved")
 
-		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-		remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
-			completion(
-				FetchInstanceDataResult.Success(
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			return FetchInstanceDataResult.Success(
 					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 				)
-			)
 		}
-		remoteProviderMock.patchInstanceClosure = { _, _, _, _, completion in
-			completion(
-				UpdateInstanceDataResult.Success(EmptyResponse())
-			)
+		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 
@@ -161,18 +140,12 @@ final class RegistrationTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithWrongApplicationCode()
 
-		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-		remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
-			completion(
-				FetchInstanceDataResult.Failure(
-					NSError(type: .UnknownError)
-				)
-			)
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			return FetchInstanceDataResult.Failure(NSError(type: .UnknownError))
 		}
-		remoteProviderMock.patchInstanceClosure = { _, _, _, _, completion in
-			completion(
-				UpdateInstanceDataResult.Success(EmptyResponse())
-			)
+		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 		
@@ -190,15 +163,17 @@ final class RegistrationTests: MMTestCase {
 	func testTokenSendsTwice() {
 		var requestSentCounter = 0
 		MobileMessaging.userAgent = UserAgentStub()
-		
-		MobileMessaging.sharedInstance?.remoteApiProvider.registrationQueue = MMRemoteAPIMock(performRequestCompanionBlock: { request in
-			switch request {
-			case (is PostInstance), (is PatchInstance):
-				requestSentCounter += 1
-			default:
-				break
-			}
-		})
+
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			requestSentCounter += 1
+			return FetchInstanceDataResult.Success(Installation.empty)
+		}
+		remoteApiProvider.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			requestSentCounter += 1
+			return UpdateInstanceDataResult.Success(EmptyResponse())
+		}
+		MobileMessaging.sharedInstance?.remoteApiProvider = remoteApiProvider
 
 		weak var expectation1 = expectation(description: "notification1")
 		weak var expectation2 = expectation(description: "notification2")
@@ -221,18 +196,17 @@ final class RegistrationTests: MMTestCase {
 	func testRegistrationDataNotSendsWithoutToken() {
 		weak var syncInstallationWithServer = expectation(description: "sync1")
 		var requestSentCounter = 0
-		let requestPerformCompanion: (Any) -> Void = { request in
-			switch request {
-			case (is PostInstance), (is PatchInstance):
-				requestSentCounter += 1
-			default:
-				break
-			}
+
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			requestSentCounter += 1
+			return FetchInstanceDataResult.Success(Installation.empty)
 		}
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: requestPerformCompanion,
-			completionCompanionBlock: nil,
-			responseStub: nil)
+		remoteApiProvider.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			requestSentCounter += 1
+			return UpdateInstanceDataResult.Success(EmptyResponse())
+		}
+		MobileMessaging.sharedInstance?.remoteApiProvider = remoteApiProvider
 		
 		if MobileMessaging.currentInstallation == nil {
 			XCTFail("Installation is nil")
@@ -254,20 +228,7 @@ final class RegistrationTests: MMTestCase {
 		weak var regEnabled2StatusSynced = self.expectation(description: "registration sent")
 		
 		var requestSentCounter = 0
-		
-		let requestPerformCompanion: (Any) -> Void = { request in
-			switch request {
-			case  (is PatchInstance):
-				requestSentCounter += 1
-			default:
-				break
-			}
-		}
-		
-		let responseStub: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is PostInstance), (is PatchInstance):
-				let jsonStr = """
+		let stubInstallation = Installation(json: JSON.parse("""
 					{
 						"regEnabled": true,
 						"pushRegId": "stub",
@@ -275,16 +236,16 @@ final class RegistrationTests: MMTestCase {
 						"notificationsEnabled": true
 					}
 """
-				return JSON.parse(jsonStr)
-			default:
-				return nil
-			}
+		))!
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			return FetchInstanceDataResult.Success(stubInstallation)
 		}
-		
-		mobileMessagingInstance.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: requestPerformCompanion,
-			completionCompanionBlock: nil,
-			responseStub: responseStub)
+		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			requestSentCounter += 1
+			return UpdateInstanceDataResult.Success(EmptyResponse())
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 		
 		MobileMessaging.sharedInstance?.pushServiceToken = "stub"
 
@@ -321,11 +282,8 @@ final class RegistrationTests: MMTestCase {
 		// and started once push reg status enabled
 		
 		weak var registrationSynced = self.expectation(description: "registration synced")
-		
-		let responseStatusDisabledStub: (Any) -> JSON? = { request -> JSON? in
-			switch request {
-			case (is PostInstance), (is PatchInstance):
-				let jsonStr = """
+
+		let stubInstallation = Installation(json: JSON.parse("""
 					{
 						"regEnabled": false,
 						"pushRegId": "stub",
@@ -333,22 +291,23 @@ final class RegistrationTests: MMTestCase {
 						"notificationsEnabled": true
 					}
 """
-				return JSON.parse(jsonStr)
-			default:
-				return nil
-			}
+		))!
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			return FetchInstanceDataResult.Success(stubInstallation)
 		}
+		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
+		}
+
 
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode("stub")!.withGeofencingService()
 		GeofencingService.sharedInstance = GeofencingServiceStartStopMock(mmContext: mm)
 		GeofencingService.sharedInstance!.start({ _ in })
 		
 		mm.start()
-		
-		mm.remoteApiProvider.registrationQueue = MMRemoteAPIMock(
-			performRequestCompanionBlock: nil,
-			completionCompanionBlock: nil,
-			responseStub: responseStatusDisabledStub)
+		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
+
 		
 		XCTAssertTrue(mm.messageHandler.isRunning)
 		XCTAssertTrue(GeofencingService.sharedInstance!.isRunning)
@@ -367,18 +326,14 @@ final class RegistrationTests: MMTestCase {
 	}
 	
 	func testThatRegistrationCleanedIfAppCodeChanged() {
-		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-		remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
-			completion(
-				FetchInstanceDataResult.Success(
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			return FetchInstanceDataResult.Success(
 					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
 				)
-			)
 		}
-		remoteProviderMock.patchInstanceClosure = { _, _, _, _, completion in
-			completion(
-				UpdateInstanceDataResult.Success(EmptyResponse())
-			)
+		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 
@@ -400,18 +355,14 @@ final class RegistrationTests: MMTestCase {
 	}
 
 	func testThatRegistrationIsNotCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
-		let remoteProviderMock = RemoteApiInstanceAttributesMock()
-		remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
-			completion(
-				FetchInstanceDataResult.Success(
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			return FetchInstanceDataResult.Success(
 					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
 				)
-			)
 		}
-		remoteProviderMock.patchInstanceClosure = { _, _, _, _, completion in
-			completion(
-				UpdateInstanceDataResult.Success(EmptyResponse())
-			)
+		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+			return UpdateInstanceDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 
@@ -456,19 +407,22 @@ final class RegistrationTests: MMTestCase {
 
 	//https://openradar.appspot.com/29489461
 	func testThatExpireRequestBeingSentAfterReinstallation(){
+		self.mobileMessagingInstance.cleanUpAndStop(true)
+		MMTestCase.startWithCorrectApplicationCode()
+
 		weak var expirationRequested = self.expectation(description: "expirationRequested")
 		weak var registration2Done = self.expectation(description: "registration2Done")
 		weak var registration3Done = self.expectation(description: "registration3Done")
 
 		do {
-			let remoteProviderMock = RemoteApiInstanceAttributesMock()
-			remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, refPushRegistrationId, body, completion in
-				completion(UpdateInstanceDataResult.Success(EmptyResponse()))
+			let remoteProviderMock = RemoteAPIProviderStub()
+			remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+				return UpdateInstanceDataResult.Success(EmptyResponse())
 			}
-			remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
-				completion(FetchInstanceDataResult.Success(
+			remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+				return FetchInstanceDataResult.Success(
 					Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
-				))
+				)
 			}
 			self.mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 		}
@@ -491,53 +445,45 @@ final class RegistrationTests: MMTestCase {
 			XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, firstInternalId)
 
 			do {
-				let remoteProviderMock = RemoteApiInstanceAttributesMock()
-				remoteProviderMock.patchInstanceClosure = { applicationCode, pushRegistrationId, refPushRegistrationId, body, completion in
-					completion(UpdateInstanceDataResult.Success(EmptyResponse()))
+				let remoteProviderMock = RemoteAPIProviderStub()
+				remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+					return UpdateInstanceDataResult.Success(EmptyResponse())
 				}
-				remoteProviderMock.postInstanceClosure = { applicationCode, body, completion in
-					completion(FetchInstanceDataResult.Success(
+				remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+					return FetchInstanceDataResult.Success(
 						Installation(applicationUserId: nil, appVersion: nil, customAttributes: nil, deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled:false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
-					))
+					)
+				}
+				remoteProviderMock.deleteInstanceClosure = { (_, _, expiredPushRef) -> UpdateInstanceDataResult in
+					XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, firstInternalId)
+					XCTAssertEqual(expiredPushRef, firstInternalId)
+					expirationRequested?.fulfill()
+					return UpdateInstanceDataResult.Success(EmptyResponse())
 				}
 				self.mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 			}
 
+			// tries to expire after new reg created
 			self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) { error in
 				registration2Done?.fulfill()
 
-				// call to expire, then >
-				do {
-					let remoteProviderMock = RemoteApiInstanceAttributesMock()
-					remoteProviderMock.deleteInstanceClosure = { applicationCode, pushReg, expiredPushRef, completion in
-						XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, firstInternalId)
-						XCTAssertEqual(expiredPushRef, firstInternalId)
-						completion(UpdateInstanceDataResult.Success(EmptyResponse()))
-						expirationRequested?.fulfill()
-					}
-					self.mobileMessagingInstance.remoteApiProvider = remoteProviderMock
-				}
-
-				// try to reasonably expire
-				self.mobileMessagingInstance.installationService.syncWithServer({ _ in
-					// <
 					XCTAssertNotEqual(self.mobileMessagingInstance.keychain.pushRegId, firstInternalId)
 					XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 
 					do {
-						let remoteProviderMock = RemoteApiInstanceAttributesMock()
-						remoteProviderMock.deleteInstanceClosure = { applicationCode, pushReg, expiredPushRef, completion in
-							XCTFail()
+						let remoteProviderMock = RemoteAPIProviderStub()
+						remoteProviderMock.deleteInstanceClosure = { (_, _, _) -> UpdateInstanceDataResult in
+							XCTFail("should not call expire API with no reason ")
+							return UpdateInstanceDataResult.Success(EmptyResponse())
 						}
 						self.mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 					}
 
-					// try to redundantly expire
+					// try to redundantly expire again
 					self.mobileMessagingInstance.installationService.syncWithServer({ _ in
 						XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 						registration3Done?.fulfill()
 					})
-				})
 			}
 		}
 

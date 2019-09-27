@@ -31,10 +31,13 @@ class UserDataService: MobileMessagingService {
 				return
 			}
 			let body = ["isPrimary": primary]
-			if let request = PatchInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: pushRegId, body: body, returnPushServiceToken: false) {
-				MobileMessaging.httpSessionManager.sendRequest(request, completion: { finish($0.error) })
-			} else {
-				completion(mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.UnknownError))
+			mmContext.remoteApiProvider.patchOtherInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, pushRegistrationId: pushRegId, body: body) { (result) in
+				switch result {
+				case .Cancel :
+					finish(NSError(type: MMInternalErrorType.UnknownError)) // cannot happen!
+				default:
+					finish(result.error)
+				}
 			}
 		}
 	}
@@ -51,8 +54,8 @@ class UserDataService: MobileMessagingService {
 			return
 		}
 
-		let request = PostDepersonalize(applicationCode: mmContext.applicationCode, pushRegistrationId: authPushRegistrationId, pushRegistrationIdToDepersonalize: pushRegId)
-		MobileMessaging.httpSessionManager.sendRequest(request) { result in
+		mmContext.remoteApiProvider.depersonalize(applicationCode: mmContext.applicationCode, pushRegistrationId: authPushRegistrationId, pushRegistrationIdToDepersonalize: pushRegId) { (result) in
+
 			if result.error == nil {
 				let ins = self.resolveInstallationsAfterLogout(pushRegId)
 				User.modifyAll(with: { (user) in
