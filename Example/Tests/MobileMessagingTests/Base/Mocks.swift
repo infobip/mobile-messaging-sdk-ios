@@ -9,9 +9,7 @@
 
 extension JSON {
 	func requestJsonMatches(requestResponseMock: RequestResponseMock) -> Bool {
-		print("requesting>", self.debugDescription)
-		print("candidate>",requestResponseMock.requestJson.debugDescription)
-		var requestJsonMock = requestResponseMock.requestJson.dictionary
+		let requestJsonMock = requestResponseMock.requestJson.dictionary
 		
 		if var mockHeaders = requestJsonMock?["headers"]?.dictionaryObject as? [String: String], var selfHeaders = self["headers"].dictionaryObject as? [String: String] {
 		

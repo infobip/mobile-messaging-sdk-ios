@@ -142,7 +142,7 @@ class ComposeBar: UIView, UITextViewDelegate {
 			return maxTextHeight / ComposeBarConsts.kTextViewLineHeight
 		}
 		set {
-			let maxTextHeight = maxLinesCount * ComposeBarConsts.kTextViewLineHeight
+			let maxTextHeight = newValue * ComposeBarConsts.kTextViewLineHeight
 			let maxHeight = maxTextHeight - ComposeBarConsts.kTextViewLineHeight + ComposeBarConsts.initialHeight
 			self.maxHeight = maxHeight
 		}

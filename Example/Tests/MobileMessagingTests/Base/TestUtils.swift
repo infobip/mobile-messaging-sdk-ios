@@ -82,12 +82,6 @@ struct MMTestConstants {
 	static let kTestOldRegistrationId = "fffe73006f006d00650054006f006b0065006e00"
 }
 
-enum TestResult {
-	case success()
-	case failure(error: NSError?)
-	case cancel
-}
-
 extension MobileMessaging {
 	func setupApiSessionManagerStubbed() {
 		MobileMessaging.sharedInstance?.remoteApiProvider = RemoteAPIProviderStub()
