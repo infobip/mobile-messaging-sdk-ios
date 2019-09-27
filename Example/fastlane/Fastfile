@@ -47,7 +47,7 @@ platform :ios do
 			scan(
 				skip_build: true,
 				scheme: "MobileMessagingExample",
-				devices: ["iPhone Xs (12.4)"]
+				devices: ["iPhone 11s"]
 				)
 		end
 	end
