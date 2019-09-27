@@ -72,7 +72,7 @@ class UserDataMapper {
 	}
 
 	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: AttributeType]?) -> [String: Any]? {
-		guard let userCustomAttributes = userCustomAttributes, !userCustomAttributes.isEmpty else {
+		guard let userCustomAttributes = userCustomAttributes else {
 			return nil
 		}
 		let filteredCustomAttributes: [String: AttributeType] = userCustomAttributes

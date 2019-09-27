@@ -13,14 +13,14 @@ class GeoEventReportingOperation: Operation {
 	typealias CampaignsDictionary = [CampaignId: MMGeoMessage]
 	typealias MessageId = String
 	let context: NSManagedObjectContext
-	let finishBlock: ((GeoEventReportingResult) -> Void)?
+	let finishBlock: (GeoEventReportingResult) -> Void
 	var result = GeoEventReportingResult.Cancel
 	var happenedEventObjectIds = [NSManagedObjectID]()
 	var signalingGeoMessages = CampaignsDictionary()
 	let mmContext: MobileMessaging
 	let geoContext: GeofencingService
 	
-	init(context: NSManagedObjectContext, mmContext: MobileMessaging, geoContext: GeofencingService, finishBlock: ((GeoEventReportingResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, mmContext: MobileMessaging, geoContext: GeofencingService, finishBlock: @escaping (GeoEventReportingResult) -> Void) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
@@ -190,7 +190,7 @@ class GeoEventReportingOperation: Operation {
 		if let error = errors.first {
 			result = GeoEventReportingResult.Failure(error)
 		}
-		finishBlock?(result)
+		finishBlock(result)
 	}
 	
 	//MARK: Utils

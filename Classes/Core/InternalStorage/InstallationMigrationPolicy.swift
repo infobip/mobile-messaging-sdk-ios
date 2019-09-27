@@ -24,7 +24,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			let predefinedUserData = sInstance.value(forKey: "predefinedUserData") as? [String: Any]
 			let installation = Installation.unarchiveCurrent()
 			installation.applicationUserId = nil
-			installation.customAttributes = nil
+			installation.customAttributes = [:]
 			installation.isPrimaryDevice = (sInstance.value(forKey: "isPrimaryDevice") as? Bool) ?? false
 			installation.pushRegistrationId = sInstance.value(forKey: "internalUserId") as? String
 			installation.pushServiceToken = sInstance.value(forKey: "deviceToken") as? String
@@ -61,7 +61,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 		case "2_3":
 			let installation = Installation.unarchiveCurrent()
 			installation.applicationUserId = sInstance.value(forKey: "applicationUserId") as? String
-			installation.customAttributes = sInstance.value(forKey: "customInstanceAttributes") as? [String: AttributeType]
+			installation.customAttributes = (sInstance.value(forKey: "customInstanceAttributes") as? [String: AttributeType]) ?? [:]
 			installation.isPrimaryDevice = (sInstance.value(forKey: "isPrimary") as? Bool) ?? false
 			installation.pushRegistrationId = sInstance.value(forKey: "pushRegId") as? String
 			installation.pushServiceToken = sInstance.value(forKey: "pushServiceToken") as? String

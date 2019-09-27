@@ -34,12 +34,12 @@ struct MMMessageMeta : MMMessageMetadata {
 
 final class MessageHandlingOperation: Operation {
 	let context: NSManagedObjectContext
-	let finishBlock: ((NSError?, Set<MTMessage>?) -> Void)?
+	let finishBlock: (NSError?, Set<MTMessage>?) -> Void
 	let messagesToHandle: [MTMessage]
 	let isNotificationTapped: Bool
 	let mmContext: MobileMessaging
 	
-	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: ((NSError?, Set<MTMessage>?) -> Void)? = nil) {
+	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: @escaping (NSError?, Set<MTMessage>?) -> Void) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.finishBlock = finishBlock
@@ -192,6 +192,6 @@ final class MessageHandlingOperation: Operation {
 //MARK: -
 	override func finished(_ errors: [NSError]) {
 		MMLogDebug("[Message handling] Message handling finished with errors: \(errors)")
-		self.finishBlock?(errors.first, newMessages)
+		self.finishBlock(errors.first, newMessages)
 	}
 }

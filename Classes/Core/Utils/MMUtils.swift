@@ -26,7 +26,13 @@ func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any
 			}
 		} else {
 			if (currentV is [String : Any] && dirtyV is [String : Any]) {
-				ret[k] = deltaDict(currentV as! [String : Any], dirtyV as! [String : Any])
+				let currentDict = currentV as! [String : Any]
+				let dirtyDict = dirtyV as! [String : Any]
+				if currentDict.isEmpty && dirtyDict.isEmpty {
+					ret[k] = nil
+				} else {
+					ret[k] = deltaDict(currentDict, dirtyDict)
+				}
 			} else {
 				if currentV is AnyHashable && dirtyV is AnyHashable {
 					if (currentV as! AnyHashable) != (dirtyV as! AnyHashable){

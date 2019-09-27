@@ -85,7 +85,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 	static var cached = ThreadSafeDict<Installation>()
 	static var empty: Installation {
 		let systemData = UserAgent().systemData
-		return Installation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: nil, deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
+		return Installation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
 	}
 	func removeSensitiveData() {
 		//nothing is sensitive in installation
@@ -116,7 +116,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 	public var applicationUserId: String?
 
 	/// Returns installations custom data. Arbitrary attributes that are related to the current installation. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var customAttributes: [String: AttributeType]?
+	public var customAttributes: [String: AttributeType]
 
 	/// Primary device setting
 	/// Single user profile on Infobip Portal can have one or more mobile devices with the application installed. You might want to mark one of such devices as a primary device and send push messages only to this device (i.e. receive bank authorization codes only on one device).
@@ -148,7 +148,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 
 	required public init?(coder aDecoder: NSCoder) {
 		applicationUserId = aDecoder.decodeObject(forKey: "applicationUserId") as? String
-		customAttributes = aDecoder.decodeObject(forKey: "customAttributes") as? [String: AttributeType]
+		customAttributes = (aDecoder.decodeObject(forKey: "customAttributes") as? [String: AttributeType]) ?? [:]
 		isPrimaryDevice = aDecoder.decodeBool(forKey: "isPrimary")
 		isPushRegistrationEnabled = aDecoder.decodeBool(forKey: "regEnabled")
 		pushRegistrationId = aDecoder.decodeObject(forKey: "pushRegId") as? String
@@ -201,7 +201,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 		self.init(
 			applicationUserId: json[Attributes.applicationUserId.rawValue].string,
 			appVersion: json[Consts.SystemDataKeys.appVer].string,
-			customAttributes: json[Attributes.customAttributes.rawValue].dictionary?.decodeCustomAttributesJSON,
+			customAttributes: (json[Attributes.customAttributes.rawValue].dictionary ?? [:]).decodeCustomAttributesJSON,
 			deviceManufacturer: json[Consts.SystemDataKeys.deviceManufacturer].string,
 			deviceModel: json[Consts.SystemDataKeys.deviceModel].string,
 			deviceName: json[Consts.SystemDataKeys.deviceName].string,
@@ -223,7 +223,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 
 	init(applicationUserId: String?,
 		 appVersion: String?,
-		 customAttributes: [String: AttributeType]?,
+		 customAttributes: [String: AttributeType],
 		 deviceManufacturer: String?,
 		 deviceModel: String?,
 		 deviceName: String?,
@@ -293,7 +293,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 		self.init(
 			applicationUserId: dict["applicationUserId"] as? String,
 			appVersion: dict["appVersion"] as? String,
-			customAttributes: dict["customAttributes"] as? [String: AttributeType],
+			customAttributes: (dict["customAttributes"] as? [String: AttributeType]) ?? [:],
 			deviceManufacturer: dict["deviceManufacturer"] as? String,
 			deviceModel: dict["deviceModel"] as? String,
 			deviceName: dict["deviceName"] as? String,

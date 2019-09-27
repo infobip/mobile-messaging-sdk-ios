@@ -110,6 +110,8 @@ class GeofencingServiceTests: MMTestCase {
 	
 	func testThatTwoSequentalCampaignsAppearTwice() {
 		weak var expectationCampaign = self.expectation(description: "")
+		weak var didReceiveRemoteNotification1 = self.expectation(description: "didReceiveRemoteNotification")
+		weak var didReceiveRemoteNotification2 = self.expectation(description: "didReceiveRemoteNotification2")
 		GeofencingService.currentDate = expectedStartDate
 		var counter = 0
 		let zagreb = CLLocation(latitude: 45.80869126677998, longitude: 15.97206115722656)
@@ -121,18 +123,18 @@ class GeofencingServiceTests: MMTestCase {
 			}
 		}
 		GeofencingService.sharedInstance = geoStub
-		GeofencingService.sharedInstance!.start({ _ in })
-		
-		
-		let m1 = (baseAPNSDict(messageId: "m1") + [Consts.APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
-		self.mobileMessagingInstance.didReceiveRemoteNotification(m1,  completion: { _ in
+		GeofencingService.sharedInstance!.start({ _ in
+			let m1 = (baseAPNSDict(messageId: "m1") + [Consts.APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
+			self.mobileMessagingInstance.didReceiveRemoteNotification(m1,  completion: { _ in
+				didReceiveRemoteNotification1?.fulfill()
+			})
+
+			let m2 = (baseAPNSDict(messageId: "m2") + [Consts.APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
+			self.mobileMessagingInstance.didReceiveRemoteNotification(m2,  completion: { _ in
+				didReceiveRemoteNotification2?.fulfill()
+			})
 		})
-		
-		let m2 = (baseAPNSDict(messageId: "m2") + [Consts.APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
-		self.mobileMessagingInstance.didReceiveRemoteNotification(m2,  completion: { _ in
-		})
-		
-		self.waitForExpectations(timeout: 5, handler: { _ in
+		self.waitForExpectations(timeout: 20, handler: { _ in
 		})
 	}
 	
@@ -975,8 +977,8 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.start({ _ in })
 		GeofencingService.sharedInstance!.remoteApiProvider = succeedingApiStub
 		geoServiceStub.stubbedLocationManager.locationStub = CLLocation(latitude: 45.80869126677998, longitude: 15.97206115722656)
-		geoServiceStub.add(message: message1)
-		geoServiceStub.add(message: message2)
+		geoServiceStub.add(message: message1) {}
+		geoServiceStub.add(message: message2) {}
 
 		geoServiceStub.locationManager(geoServiceStub.stubbedLocationManager, didEnterRegion: message1.regions.findPula.circularRegion)
 
@@ -1023,8 +1025,8 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance!.remoteApiProvider = succeedingApiStub
 
 		geoServiceStub.stubbedLocationManager.locationStub = CLLocation(latitude: pulaObject1.center.latitude, longitude: pulaObject1.center.longitude)
-		geoServiceStub.add(message: message1)
-		geoServiceStub.add(message: message2)
+		geoServiceStub.add(message: message1) {}
+		geoServiceStub.add(message: message2) {}
 
 		waitForExpectations(timeout: 60, handler: nil)
 	}
@@ -1467,7 +1469,7 @@ class GeofencingServiceTests: MMTestCase {
 		GeofencingService.sharedInstance = geoStub
 		GeofencingService.sharedInstance!.start({ _ in })
 
-		GeofencingService.sharedInstance?.add(message: message1)
+		GeofencingService.sharedInstance?.add(message: message1) {}
 
 		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(5), execute: {
 			didEnterExpectation?.fulfill()

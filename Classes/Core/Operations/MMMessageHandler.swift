@@ -63,9 +63,9 @@ class MMMessageHandler: MobileMessagingService {
 	}
 
     //MARK: Intenal	
-	func handleAPNSMessage(_ userInfo: APNSPayload, completion: ((MessageHandlingResult) -> Void)? = nil) {
+	func handleAPNSMessage(_ userInfo: APNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true else {
-			completion?(.noData)
+			completion(.noData)
 			return
 		}
 
@@ -79,17 +79,17 @@ class MMMessageHandler: MobileMessagingService {
 			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(userInfo as? [String : Any], applicationState: MobileMessaging.application.applicationState), completion: completion)
 		} else {
 			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
-			completion?(.failed(NSError.init(type: .UnknownError)))
+			completion(.failed(NSError.init(type: .UnknownError)))
 		}
 	}
 	
-	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: ((MessageHandlingResult) -> Void)? = nil) {
+	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
 		handleMTMessages([message], notificationTapped: notificationTapped, handlingIteration: handlingIteration, completion: completion)
 	}
 	
-	func handleMTMessages(_ messages: [MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: ((MessageHandlingResult) -> Void)? = nil) {
+	func handleMTMessages(_ messages: [MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true, !messages.isEmpty else {
-			completion?(.noData)
+			completion(.noData)
 			return
 		}
 		
@@ -99,10 +99,12 @@ class MMMessageHandler: MobileMessagingService {
 				
 				for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
 					newMessages?.forEach { m in
+						print("{{{{")
 						group.enter()
 						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start new message handling \(m.messageId)")
 						subservice.handleNewMessage(m, completion: { _ in
 							MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop new message handling \(m.messageId)")
+							print("}}}}")
 							group.leave()
 						})
 					}
@@ -126,12 +128,12 @@ class MMMessageHandler: MobileMessagingService {
 				
 				group.notify(queue: DispatchQueue.global(qos: .default)) {
 					MMLogDebug("[Message Handler] message handling finished")
-					completion?(result)
+					completion(result)
 				}
 			}))
 	}
 
-	func syncMessages(handlingIteration: Int, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
+	func syncMessages(handlingIteration: Int, finishBlock: @escaping (MessagesSyncResult) -> Void) {
 		self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(), mmContext: self.mmContext, handlingIteration: handlingIteration, finishBlock: finishBlock))
 	}
 	

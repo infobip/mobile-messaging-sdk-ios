@@ -235,6 +235,32 @@ class DataModelsTests: MMTestCase {
 		XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 	}
 
+	func testThatCustomAttributesDeltaIsCorrect_regression() {
+		let installation = MobileMessaging.getInstallation()!
+		installation.customAttributes = [:]
+		installation.archiveCurrent()
+
+		installation.customAttributes = [:]
+		installation.archiveDirty()
+
+		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
+
+		XCTAssertNil(body["customAttributes"])
+	}
+
+	func testThatCustomAttributesDeltaIsCorrect_regression2() {
+		let installation = MobileMessaging.getInstallation()!
+		installation.customAttributes = ["1":"2"] as [String : AttributeType]
+		installation.archiveCurrent()
+
+		installation.customAttributes = [:]
+		installation.archiveDirty()
+
+		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
+
+		XCTAssertNotNil(body["customAttributes"])
+	}
+
 	func testInstallationDataPayloadMapperForPostRequest() {
 
 		let installation = MobileMessaging.getInstallation()!

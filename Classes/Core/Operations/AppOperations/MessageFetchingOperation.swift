@@ -10,12 +10,12 @@ import CoreData
 final class MessageFetchingOperation: Operation {
 	
 	let context: NSManagedObjectContext
-	let finishBlock: ((MessagesSyncResult) -> Void)?
+	let finishBlock: (MessagesSyncResult) -> Void
 	var result = MessagesSyncResult.Cancel
 	let mmContext: MobileMessaging
 	let handlingIteration: Int
 	
-	init(context: NSManagedObjectContext, mmContext: MobileMessaging, handlingIteration: Int = 0, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
+	init(context: NSManagedObjectContext, mmContext: MobileMessaging, handlingIteration: Int = 0, finishBlock: @escaping (MessagesSyncResult) -> Void) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
@@ -135,13 +135,13 @@ final class MessageFetchingOperation: Operation {
 			if let messages = fetchResponse.messages, !messages.isEmpty, handlingIteration < Consts.MessageFetchingSettings.fetchingIterationLimit {
 				MMLogDebug("[Message fetching] triggering handling for fetched messages \(messages.count)...")
 				self.mmContext.messageHandler.handleMTMessages(messages, notificationTapped: false, handlingIteration: handlingIteration + 1, completion: { _ in
-					self.finishBlock?(self.result)
+					self.finishBlock(self.result)
 				})
 			} else {
 				fallthrough
 			}
 		default:
-			self.finishBlock?(result)
+			self.finishBlock(result)
 		}
 	}
 }

@@ -79,8 +79,9 @@ class GeofencingServiceAlwaysRunningStub: GeofencingService {
 
 	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
 
-	override func onEnter(datasourceRegion: MMRegion, completion: (() -> Void)?) {
+	override func onEnter(datasourceRegion: MMRegion, completion: @escaping () -> Void) {
 		self.didEnterRegionCallback?(datasourceRegion)
+		completion()
 	}
 
 	override func stop(_ completion: ((Bool) -> Void)?) {
@@ -121,8 +122,9 @@ class GeofencingServiceDisabledStub: GeofencingService {
 
 	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
 
-	override func onEnter(datasourceRegion: MMRegion, completion: (() -> Void)?) {
+	override func onEnter(datasourceRegion: MMRegion, completion: @escaping () -> Void) {
 		self.didEnterRegionCallback?(datasourceRegion)
+		completion()
 	}
 
 	override func stop(_ completion: ((Bool) -> Void)?) {

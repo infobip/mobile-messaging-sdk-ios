@@ -78,7 +78,7 @@ final class InstallationDataService: MobileMessagingService{
 		MMLogDebug("[InstallationDataService] log out")
 
 		let ci = mmContext.currentInstallation() //dup
-		ci.customAttributes = nil
+		ci.customAttributes = [:]
 		ci.archiveAll()
 
 		completion()

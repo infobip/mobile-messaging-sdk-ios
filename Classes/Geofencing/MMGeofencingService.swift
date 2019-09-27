@@ -244,13 +244,13 @@ public class GeofencingService: MobileMessagingService {
 	
 	/// Accepts a geo message, which contains regions that should be monitored.
 	/// - parameter message: A message object to add to the monitoring. Object of `MMGeoMessage` class.
-	public func add(message: MMGeoMessage, completion: (() -> Void)? = nil) {
+	public func add(message: MMGeoMessage, completion: @escaping (() -> Void)) {
 		locationManagerQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] trying to add a message")
 			guard self.isRunning == true else
 			{
 				MMLogDebug("[GeofencingService] isRunning = \(self.isRunning). Cancelling...")
-				completion?()
+				completion()
 				return
 			}
 			
@@ -266,7 +266,7 @@ public class GeofencingService: MobileMessagingService {
 		locationManagerQueue.executeAsync() {
 			self.datasource.removeMessage(withId: messageId)
 			MMLogDebug("[GeofencingService] message removed \(messageId)")
-			self.refreshMonitoredRegions()
+			self.refreshMonitoredRegions(completion: {})
 		}
 	}
 	
@@ -477,7 +477,7 @@ public class GeofencingService: MobileMessagingService {
 			}
 			
 			self.restartLocationManager()
-			self.refreshMonitoredRegions()
+			self.refreshMonitoredRegions(completion: {})
 			
 			UserEventsManager.postGeoServiceStartedEvent()
 			
@@ -541,7 +541,7 @@ public class GeofencingService: MobileMessagingService {
 		group.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
 	}
 	
-	fileprivate func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil, completion: (() -> Void)? = nil) {
+	fileprivate func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil, completion: @escaping (() -> Void)) {
 		locationManagerQueue.executeAsync() {
 			
 			var monitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.compactMap { $0 as? CLCircularRegion })
@@ -566,7 +566,7 @@ public class GeofencingService: MobileMessagingService {
 			
 			//try to enter, if we are already inside added region
 			guard let newRegions = newRegions else {
-				completion?()
+				completion()
 				return
 			}
 			let monitoredDataSourceRegionsArr = self.dataSourceRegions(from: monitoredRegions)
@@ -575,7 +575,7 @@ public class GeofencingService: MobileMessagingService {
 				return newRegions.contains(where: {$0.dataSourceIdentifier == region.dataSourceIdentifier})
 			})
 			
-			self.triggerEventsForRegionsInCaseWeAreInside(Set(monitoredNewRegions), completion: completion ?? {})
+			self.triggerEventsForRegionsInCaseWeAreInside(Set(monitoredNewRegions), completion: completion)
 		}
 	}
 	
@@ -649,7 +649,7 @@ extension GeofencingService: CLLocationManagerDelegate {
 		assert(Thread.isMainThread)
 		MMLogDebug("[GeofencingService] will enter region \(region)")
 		datasource.validRegionsForEntryEventNow(with: region.identifier)?.forEach { datasourceRegion in
-			onEnter(datasourceRegion: datasourceRegion)
+			onEnter(datasourceRegion: datasourceRegion) {}
 		}
 	}
 	
@@ -667,7 +667,7 @@ extension GeofencingService: CLLocationManagerDelegate {
 		}
 		if self.shouldRefreshRegionsWithNewLocation(location: location) {
 			self.previousLocation = location
-			self.refreshMonitoredRegions()
+			self.refreshMonitoredRegions(completion: {})
 		}
 	}
 	
@@ -682,14 +682,11 @@ extension GeofencingService: CLLocationManagerDelegate {
         MMLogDebug("[GeofencingService] distance from previous point = \(distanceFromPreviousPoint), monitorableRegionsCount = \(monitorableRegionsCount)")
         return distanceFromPreviousPoint > GeoConstants.regionRefreshThreshold && monitorableRegionsCount > GeoConstants.monitoringRegionsLimit
     }
-}
-
-extension GeofencingService {
 	
-	func onEnter(datasourceRegion: MMRegion, completion: (() -> Void)? = nil) {
+	func onEnter(datasourceRegion: MMRegion, completion: @escaping () -> Void) {
 		assert(Thread.isMainThread)
 		guard let message = datasourceRegion.message else {
-			completion?()
+			completion()
 			return
 		}
 		
@@ -698,11 +695,11 @@ extension GeofencingService {
 			if campaignState == .Active {
 				self.didEnterActiveCampaignRegion(datasourceRegion)
 			}
-			completion?()
+			completion()
 		})
 	}
 	
-	func report(on eventType: RegionEventType, forRegionId regionId: String, geoMessage: MMGeoMessage, completion: ((CampaignState) -> Void)?) {
+	func report(on eventType: RegionEventType, forRegionId regionId: String, geoMessage: MMGeoMessage, completion: @escaping (CampaignState) -> Void) {
 		eventsHandlingQueue.addOperation {
 			let ctx = self.datasource.context
 			ctx.performAndWait {
@@ -724,7 +721,7 @@ extension GeofencingService {
 				campaignState = .Active
 			}
 			
-			completion?(campaignState)
+			completion(campaignState)
 		}
 	}
 	
@@ -736,10 +733,10 @@ extension GeofencingService {
 		UserEventsManager.postGeoRegionEnteredEvent(datasourceRegion)
 	}
 	
-	private func reportOnEvents(completion: ((GeoEventReportingResult?) -> ())?) {
+	private func reportOnEvents(completion: @escaping (GeoEventReportingResult?) -> ()) {
 		// we don't consider isRunning status here on purpose
 		eventsHandlingQueue.addOperation(GeoEventReportingOperation(context: datasource.context, mmContext: mmContext, geoContext: self, finishBlock: { result in
-			completion?(result)
+			completion(result)
 		}))
 	}
 	
@@ -747,7 +744,7 @@ extension GeofencingService {
         datasource.reload()
     }
 	
-	func syncWithServer(completion: ((GeoEventReportingResult?) -> ())? = nil) {
+	func syncWithServer(completion: @escaping (GeoEventReportingResult?) -> ()) {
 		reportOnEvents(completion: completion)
 	}
 }
