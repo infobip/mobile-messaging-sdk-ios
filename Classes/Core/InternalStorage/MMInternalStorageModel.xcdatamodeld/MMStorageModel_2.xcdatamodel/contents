@@ -14,26 +14,26 @@
         <attribute name="applicationUserId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="badgeNumber" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="birthday" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="customInstanceAttributes" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
-        <attribute name="customUserAttributes" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
+        <attribute name="customInstanceAttributes" optional="YES" attributeType="Transformable" valueTransformerName="MobileMessaging.DefaultTransformer" syncable="YES"/>
+        <attribute name="customUserAttributes" optional="YES" attributeType="Transformable" valueTransformerName="MobileMessaging.DefaultTransformer" syncable="YES"/>
         <attribute name="dirtyAttributesString" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="emails" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
+        <attribute name="emails" optional="YES" attributeType="Transformable" valueTransformerName="MobileMessaging.EmailTransformer" syncable="YES"/>
         <attribute name="externalUserId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="firstName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="gender" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="instances" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
+        <attribute name="instances" optional="YES" attributeType="Transformable" valueTransformerName="MobileMessaging.InstallationTransformer" syncable="YES"/>
         <attribute name="isPrimary" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="lastName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="location" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
+        <attribute name="location" optional="YES" attributeType="Transformable" valueTransformerName="MobileMessaging.DefaultTransformer" syncable="YES"/>
         <attribute name="logoutFailCounter" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="logoutStatusValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="middleName" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="phones" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
+        <attribute name="phones" optional="YES" attributeType="Transformable" valueTransformerName="MobileMessaging.PhoneTransformer" syncable="YES"/>
         <attribute name="pushRegId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="pushServiceToken" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="regEnabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="systemDataHash" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="tags" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
+        <attribute name="tags" optional="YES" attributeType="Transformable" valueTransformerName="MobileMessaging.DefaultTransformer" syncable="YES"/>
     </entity>
     <entity name="MessageManagedObject" representedClassName=".MessageManagedObject" syncable="YES">
         <attribute name="campaignId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
@@ -44,7 +44,7 @@
         <attribute name="isSilent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="messageId" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="messageTypeValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="payload" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
+        <attribute name="payload" optional="YES" attributeType="Transformable" valueTransformerName="MobileMessaging.DefaultTransformer" syncable="YES"/>
         <attribute name="reportSent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="seenDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="seenStatusValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>

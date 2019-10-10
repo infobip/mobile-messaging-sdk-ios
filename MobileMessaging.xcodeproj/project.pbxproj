@@ -177,6 +177,7 @@
 		7663A2721FC8262600903C12 /* DynamicBaseUrlHTTPSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */; };
 		766565DB1FDE825F00709036 /* ComposeBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7696BCB51FDA86F10030A5A8 /* ComposeBar.swift */; };
 		766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A71FC824140047DA47 /* RemoteAPIProvider.swift */; };
+		76790D1F234E14CA000D6587 /* Transformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76790D1E234E14CA000D6587 /* Transformer.swift */; };
 		76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */; };
 		7696BCB21FDA86C90030A5A8 /* ComposeBar_Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7696BCB11FDA86C90030A5A8 /* ComposeBar_Button.swift */; };
 		7696BCB41FDA86E00030A5A8 /* ComposeBar_TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7696BCB31FDA86E00030A5A8 /* ComposeBar_TextView.swift */; };
@@ -418,6 +419,7 @@
 		76626D14218B2CD200E95E2C /* UserCustomAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCustomAttributeModels.swift; sourceTree = "<group>"; };
 		766863A71FC824140047DA47 /* RemoteAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteAPIProvider.swift; sourceTree = "<group>"; };
 		766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlHTTPSessionManager.swift; sourceTree = "<group>"; };
+		76790D1E234E14CA000D6587 /* Transformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transformer.swift; sourceTree = "<group>"; };
 		76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManager.swift; sourceTree = "<group>"; };
 		7696BCB11FDA86C90030A5A8 /* ComposeBar_Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeBar_Button.swift; sourceTree = "<group>"; };
 		7696BCB31FDA86E00030A5A8 /* ComposeBar_TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeBar_TextView.swift; sourceTree = "<group>"; };
@@ -738,6 +740,7 @@
 				76A26CB3230D593200F00717 /* Migration_0_3.xcmappingmodel */,
 				76A26CB5230D59A200F00717 /* Migration_1_3.xcmappingmodel */,
 				76A26CB7230D59CC00F00717 /* Migration_2_3.xcmappingmodel */,
+				76790D1E234E14CA000D6587 /* Transformer.swift */,
 			);
 			path = InternalStorage;
 			sourceTree = "<group>";
@@ -1269,6 +1272,7 @@
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
 				7645569C1F78FF8500B8F14B /* MessageHandlingOperation.swift in Sources */,
 				764556BD1F78FFB700B8F14B /* StorageProtocols.swift in Sources */,
+				76790D1F234E14CA000D6587 /* Transformer.swift in Sources */,
 				764556741F78FF5800B8F14B /* MMKeychain.swift in Sources */,
 				7601F19F208E056500738C1A /* KingfisherManager.swift in Sources */,
 				7608E307219A095500EC7289 /* CreateInstanceOperation.swift in Sources */,

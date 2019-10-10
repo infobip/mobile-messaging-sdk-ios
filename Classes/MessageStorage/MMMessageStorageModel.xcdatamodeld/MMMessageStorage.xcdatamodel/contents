@@ -7,7 +7,7 @@
         <attribute name="direction" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="isDeliveryReportSent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="messageId" attributeType="String" syncable="YES"/>
-        <attribute name="payload" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
+        <attribute name="payload" attributeType="Transformable" valueTransformerName="MobileMessaging.DefaultTransformer" syncable="YES"/>
         <attribute name="seenDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="seenStatusValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="sentStatusValue" attributeType="Integer 16" defaultValueString="-1" usesScalarValueType="NO" syncable="YES"/>
