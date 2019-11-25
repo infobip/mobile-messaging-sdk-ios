@@ -1179,6 +1179,7 @@
 				PRODUCT_NAME = MobileMessagingExample;
 				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -1208,6 +1209,7 @@
 				PRODUCT_NAME = MobileMessagingExample;
 				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

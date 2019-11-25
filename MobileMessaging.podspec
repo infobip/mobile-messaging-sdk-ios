@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
     s.source        = { :git => "https://github.com/infobip/mobile-messaging-sdk-ios.git", :tag => s.version }
     s.social_media_url = 'https://twitter.com/infobip'
     s.platform      = :ios, '9.0'
-    s.swift_version = "4.2"
+    s.swift_version = "5"
     s.requires_arc  = true
     s.pod_target_xcconfig =  {
         'SWIFT_VERSION' => '4.2',
@@ -30,7 +30,7 @@ Pod::Spec.new do |s|
     s.subspec 'CocoaLumberjack' do |cl|
         cl.dependency 'MobileMessaging/Core'
         cl.source_files = 'Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
-        cl.dependency 'CocoaLumberjack', '3.4.2'
+        cl.dependency 'CocoaLumberjack', '3.6'
     end
 
     s.subspec 'Geofencing' do |geo|
@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
         geo.frameworks = 'CoreLocation'
         geo.source_files = 'Classes/Geofencing/**/*.{h,m,swift}'
     end
-    
+
     s.subspec 'MobileChat' do |chat|
         chat.frameworks = 'AudioToolbox'
         chat.dependency 'MobileMessaging/Core'

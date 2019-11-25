@@ -1473,6 +1473,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.infobip.MobileMessaging;
 				PRODUCT_NAME = MobileMessaging;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -1494,6 +1495,7 @@
 				PRODUCT_NAME = MobileMessaging;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
