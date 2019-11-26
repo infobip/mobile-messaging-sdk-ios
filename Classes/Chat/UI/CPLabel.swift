@@ -19,7 +19,11 @@ class CPLabel: UILabel {
 				if let maxLineHeight = maxLineHeight {
 					paragraphStyle.maximumLineHeight = maxLineHeight
 				}
-                ats.addAttributes([NSAttributedString.Key.paragraphStyle : paragraphStyle, NSAttributedString.Key.font : font, NSAttributedString.Key.foregroundColor : textColor], range: NSRange(location: 0, length: ats.length))
+				ats.addAttributes([
+					NSAttributedString.Key.paragraphStyle: paragraphStyle,
+					NSAttributedString.Key.font: font as Any,
+					NSAttributedString.Key.foregroundColor: textColor as Any],
+								  range: NSRange(location: 0, length: ats.length))
 				attributedText = ats
 			} else {
 				attributedText = nil

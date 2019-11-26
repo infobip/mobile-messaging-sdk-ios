@@ -425,7 +425,10 @@ public class GeofencingService: MobileMessagingService {
 				// return .NotDetermined so that we can prompt to upgrade the permission
 				return .notDetermined
 			}
+		@unknown default: return .notDetermined
 		}
+
+
 	}
 	
 	// MARK: - Private
@@ -627,6 +630,8 @@ extension GeofencingService: CLLocationManagerDelegate {
 				completion(.notAvailable)
 			case .notDetermined:
 				fatalError("Unreachable due to the if statement, but included to keep clang happy")
+			@unknown default:
+				completion(.notDetermined)
 			}
 		}
 		

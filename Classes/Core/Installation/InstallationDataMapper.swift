@@ -12,7 +12,7 @@ class InstallationDataMapper {
 		let currentDict = currentInstallation.dictionaryRepresentation
 		let nonReportedDict = dirtyInstallation.dictionaryRepresentation
 		var ret = deltaDict(currentDict, nonReportedDict)
-		if internalData.systemDataHash != Int64(MobileMessaging.userAgent.systemData.hashValue) {
+		if internalData.systemDataHash != Int64(MobileMessaging.userAgent.systemData.stableHashValue) {
 			ret.merge(MobileMessaging.userAgent.systemData.requestPayload, uniquingKeysWith: { (l, r) -> Any in
 				return r
 			})

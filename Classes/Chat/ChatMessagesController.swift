@@ -20,6 +20,8 @@ extension NSFetchedResultsChangeType {
 			return ChatMessagesChangeType.move
 		case .update:
 			return ChatMessagesChangeType.update
+		@unknown default:
+			fatalError()
 		}
 	}
 }

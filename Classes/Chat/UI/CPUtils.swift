@@ -281,9 +281,11 @@ func ==(l: SelectedMessageMeta, r: SelectedMessageMeta) -> Bool {
 struct SelectedMessageMeta: Hashable {
 	let isSeen: Bool
 	let messageId: String
-	var hashValue: Int {
-		return messageId.hashValue
+	
+	func hash(into hasher: inout Hasher) {
+		hasher.combine(messageId)
 	}
+
 	init(_ msg: ChatMessage) {
 		isSeen = msg.isSeen
 		messageId = msg.id

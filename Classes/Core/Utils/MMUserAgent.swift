@@ -9,9 +9,9 @@ import CoreTelephony
 import LocalAuthentication
 
 func ==(lhs: SystemData, rhs: SystemData) -> Bool {
-	return lhs.hashValue == rhs.hashValue
+	return lhs.stableHashValue == rhs.stableHashValue
 }
-struct SystemData: Hashable {
+struct SystemData {
 	let SDKVersion, OSVer, deviceManufacturer, deviceModel, appVer, language, deviceName, os, pushServiceType: String
 	let deviceTimeZone: String?
 	let notificationsEnabled, deviceSecure: Bool
@@ -38,7 +38,7 @@ struct SystemData: Hashable {
 		return (result as [String: AnyHashable]).mm_applySubservicesSystemData()
 	}
 	
-	var hashValue: Int {
+	var stableHashValue: Int {
 		//we care only about values!
 		return requestPayload.valuesStableHash
 	}
