@@ -125,7 +125,8 @@ class DynamicBaseUrlHTTPSessionManager {
 				data: \(String(data: data, encoding: String.Encoding.utf8).orNil)
 				""")
 
-			completion(httpResponse, JSON(data: data), nil)
+			let responseJson = JSON(data: data)
+			completion(httpResponse, responseJson, RequestError(json: responseJson)?.foundationError)
 		}
 	}
 

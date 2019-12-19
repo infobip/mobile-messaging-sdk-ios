@@ -43,10 +43,14 @@ protocol SessionManagement {
 
 extension SessionManagement {
 	func convertJSONToResult<R: RequestData>(request: R, json: JSON?, error: NSError?) -> MMResult<R.ResponseType> {
-		if let json = json, let response = R.ResponseType(json: json) {
-			return MMResult.Success(response)
-		} else {
+		if let error = error {
 			return MMResult.Failure(error)
+		} else {
+			if let json = json, let response = R.ResponseType(json: json) {
+				return MMResult.Success(response)
+			} else {
+				return MMResult.Failure(nil)
+			}
 		}
 	}
 	func performRequest<R: RequestData>(request: R, completion: @escaping (MMResult<R.ResponseType>) -> Void) {

@@ -292,6 +292,7 @@ class UserDataTests: MMTestCase {
 		user.firstName = "john"
 		MobileMessaging.saveUser(user) { (error) in
 			XCTAssertNotNil(error)
+			XCTAssertEqual(error?.mm_code, "USER_MERGE_INTERRUPTED")
 			expectation?.fulfill()
 		}
 		waitForExpectations(timeout: 20, handler: nil)
