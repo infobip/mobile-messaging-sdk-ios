@@ -179,7 +179,7 @@ public enum Gender: Int {
 	public var lastName: String?
 
 	/// A user's tags. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var tags: Array<String>?
+	public var tags: Set<String>?
 
 	/// A user's gender. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var gender: Gender?
@@ -198,7 +198,7 @@ public enum Gender: Int {
 	convenience public init(firstName: String?
 		,middleName: String?
 		,lastName: String?
-		,tags: Array<String>?
+		,tags: Set<String>?
 		,genderNonnull: GenderNonnull
 		,birthday: Date?
 		,customAttributes: [String: AttributeType]?) {
@@ -209,7 +209,7 @@ public enum Gender: Int {
 	public init(firstName: String?
 		,middleName: String?
 		,lastName: String?
-		,tags: Array<String>?
+		,tags: Set<String>?
 		,gender: Gender?
 		,birthday: Date?
 		,customAttributes: [String: AttributeType]?) {
@@ -229,7 +229,7 @@ public enum Gender: Int {
 		self.init(firstName: value["firstName"].string,
 				  middleName: value["middleName"].string,
 				  lastName: value["lastName"].string,
-				  tags: (value["tags"].arrayObject as? [String]),
+				  tags: (Set(value["tags"].arrayObject as? [String] ?? [])),
 				  gender: value["gender"].string.ifSome({ Gender.make(with: $0) }),
 				  birthday: value["birthday"].string.ifSome({ DateStaticFormatters.ContactsServiceDateFormatter.date(from: $0) }),
 				  customAttributes: value["customAttributes"].dictionary?.decodeCustomAttributesJSON)
@@ -323,7 +323,7 @@ public enum Gender: Int {
 		,lastName: String?
 		,phones: Array<String>?
 		,emails: Array<String>?
-		,tags: Array<String>?
+		,tags: Set<String>?
 		,gender: Gender?
 		,birthday: Date?
 		,customAttributes: [String: AttributeType]?
@@ -343,7 +343,7 @@ public enum Gender: Int {
 				  lastName: value[Attributes.lastName.rawValue].string,
 				  phones: value[Attributes.phones.rawValue].array?.compactMap({ return Phone(json: $0)?.number }),
 				  emails: value[Attributes.emails.rawValue].array?.compactMap({ return Email(json: $0)?.address }),
-				  tags: (value[Attributes.tags.rawValue].arrayObject as? [String]),
+				  tags: Set(value[Attributes.tags.rawValue].arrayObject as? [String] ?? []),
 				  gender: value[Attributes.gender.rawValue].string.ifSome({ Gender.make(with: $0) }),
 				  birthday: value[Attributes.birthday.rawValue].string.ifSome({ DateStaticFormatters.ContactsServiceDateFormatter.date(from: $0) }),
 				  customAttributes: value[Attributes.customAttributes.rawValue].dictionary?.decodeCustomAttributesJSON,
@@ -359,7 +359,7 @@ public enum Gender: Int {
 				  lastName: value["lastName"].string,
 				  phones: value["phones"].array?.compactMap({ return Phone(json: $0)?.number }),
 				  emails: value["emails"].array?.compactMap({ return Email(json: $0)?.address }),
-				  tags: (value["tags"].arrayObject as? [String]),
+				  tags: Set(value["tags"].arrayObject as? [String] ?? []),
 				  gender: value["gender"].string.ifSome({ Gender.make(with: $0) }),
 				  birthday: value["birthday"].string.ifSome({ DateStaticFormatters.ContactsServiceDateFormatter.date(from: $0) }),
 				  customAttributes: value["customAttributes"].dictionary?.decodeCustomAttributesJSON,
@@ -398,7 +398,7 @@ public enum Gender: Int {
 		super.init(firstName: aDecoder.decodeObject(forKey: "firstName") as? String,
 				   middleName: aDecoder.decodeObject(forKey: "middleName") as? String,
 				   lastName: aDecoder.decodeObject(forKey: "lastName") as? String,
-				   tags: aDecoder.decodeObject(forKey: "tags") as? Array<String>,
+				   tags: Set(aDecoder.decodeObject(forKey: "tags") as? [String] ?? []),
 				   gender: Gender(rawValue: (aDecoder.decodeObject(forKey: "gender") as? Int) ?? 999) ,
 				   birthday: aDecoder.decodeObject(forKey: "birthday") as? Date,
 				   customAttributes: aDecoder.decodeObject(forKey: "customAttributes") as? [String: AttributeType])
