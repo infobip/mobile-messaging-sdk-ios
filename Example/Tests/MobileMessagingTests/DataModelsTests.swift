@@ -51,7 +51,7 @@ class DataModelsTests: MMTestCase {
 			"userAttributes": [
 				"middleName": "middleName",
 				"lastName": "lastName",
-				"tags": ["tags1","tags2"],
+				"tags": Set(["tags1","tags2"]),
 				"birthday": "1970-01-01",
 				"gender": "Male",
 				"customAttributes": [ "bootsize": NSNumber(value: 9) ]
