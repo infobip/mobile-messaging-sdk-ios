@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
         core.resources = 'Classes/InteractiveNotifications/MessageAlert/*.xib', 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcmappingmodel', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings'
         core.public_header_files = 'Classes/Core/**/*.h','Classes/MobileMessaging-umbrella.h'
         core.private_header_files = 'Classes/Vendor/**/*.h'
-        core.source_files = 'Classes/Core/**/*.{h,m,swift}', 'Classes/Vendor/**/*.{h,m,swift}', 'Classes/MessageStorage/**/*.{h,m,swift}', 'Classes/RichNotifications/**', 'Classes/InteractiveNotifications/**/*.{h,m,swift}', 'Classes/MobileMessaging-umbrella.h'
+        core.source_files = 'Classes/Core/**/*.{h,m,swift}', 'Classes/Vendor/**/*.{h,m,swift}', 'Classes/MessageStorage/**/*.{h,m,swift}', 'Classes/RichNotifications/**', 'Classes/UserSession/**', 'Classes/InteractiveNotifications/**/*.{h,m,swift}', 'Classes/MobileMessaging-umbrella.h'
     end
 
     s.subspec 'CocoaLumberjack' do |cl|

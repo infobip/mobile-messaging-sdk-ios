@@ -220,7 +220,6 @@ class UserDataTests: MMTestCase {
 		})
 	}
 
-
 	func testThatUserDataIsNotPersistedIfPrivacySettingsSpecified() {
 		MobileMessaging.privacySettings.userDataPersistingDisabled = true
 		mobileMessagingInstance.pushRegistrationId = "123"

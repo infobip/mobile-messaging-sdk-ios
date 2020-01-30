@@ -238,7 +238,7 @@ extension NSManagedObjectContext {
 		performAndWait{ ctxHasChanges = self.hasChanges }
 		
 		if ctxHasChanges == false {
-			MMLogDebug("NO CHANGES IN ** \(name ?? "UNNAMED") ** CONTEXT - NOT SAVING")
+			MMLogVerbose("NO CHANGES IN ** \(name ?? "UNNAMED") ** CONTEXT - NOT SAVING")
 			if (saveParentContexts && parent != nil) {
 				MMLogVerbose("Proceeding to save parent context \(String(describing:parent?.MM_description))")
 			} else {
@@ -281,7 +281,7 @@ extension NSManagedObjectContext {
 					parentCtx.MM_saveWithOptions(parentContentSaveOptions, completion:completion)
 				} else {
 					// If we are not the default context (And therefore need to save the root context, do the completion action if one was specified
-					MMLogDebug("→ Finished saving: \(self.MM_description)")
+					MMLogVerbose("→ Finished saving: \(self.MM_description)")
 					completion?(saved, error)
 				}
 			}

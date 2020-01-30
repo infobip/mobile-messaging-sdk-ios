@@ -56,6 +56,7 @@ struct MOMessageSendingResponse {
 //MARK: - Request results
 typealias MessagesSyncResult = MMResult<MessagesSyncResponse>
 typealias SeenStatusSendingResult = MMResult<EmptyResponse>
+typealias UserSessionSendingResult = MMResult<EmptyResponse>
 typealias DepersonalizeResult = MMResult<EmptyResponse>
 typealias MOMessageSendingResult = MMResult<MOMessageSendingResponse>
 typealias LibraryVersionResult = MMResult<LibraryVersionResponse>

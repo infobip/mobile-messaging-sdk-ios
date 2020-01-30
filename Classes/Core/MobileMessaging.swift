@@ -655,6 +655,7 @@ public final class MobileMessaging: NSObject {
 		if NotificationsInteractionService.sharedInstance == nil {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
 		}
+		userSessionService = UserSessionService(mmContext: self)
 		userService = UserDataService(mmContext: self)
 		installationService = InstallationDataService(mmContext: self)
 		appListener = MMApplicationListener(mmContext: self)
@@ -689,6 +690,7 @@ public final class MobileMessaging: NSObject {
 	var userService: UserDataService!
 	var installationService: InstallationDataService!
 	var appListener: MMApplicationListener!
+	var userSessionService: UserSessionService!
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)

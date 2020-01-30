@@ -7,24 +7,31 @@
 
 import Foundation
 
-struct InteractionConstants {
-	struct NotificationActionKeys {
-		static let identifier = "identifier"
-		static let title = "title"
-		static let titleLocalizationKey = "titleLocalizationKey"
-		static let foreground = "foreground"
-		static let authenticationRequired = "authenticationRequired"
-		static let moRequired = "moRequired"
-		static let destructive = "destructive"
-		static let mm_prefix = "mm_"
-		static let textInputActionButtonTitle = "textInputActionButtonTitle"
-		static let textInputPlaceholder = "textInputPlaceholder"
+struct Consts {
+
+	struct UserSessions {
+		static let sessionTimeoutSec = 30.0
+		static let sessionSaveInterval = 5.0
+		static let sessionStarts = "sessionStarts"
+		static let sessionBounds = "sessionBounds"
 	}
 
-	static let actionHandlingTimeout = 20
-}
+	struct Interaction {
+		struct ActionKeys {
+			static let identifier = "identifier"
+			static let title = "title"
+			static let titleLocalizationKey = "titleLocalizationKey"
+			static let foreground = "foreground"
+			static let authenticationRequired = "authenticationRequired"
+			static let moRequired = "moRequired"
+			static let destructive = "destructive"
+			static let mm_prefix = "mm_"
+			static let textInputActionButtonTitle = "textInputActionButtonTitle"
+			static let textInputPlaceholder = "textInputPlaceholder"
+		}
 
-struct Consts {
+		static let actionHandlingTimeout = 20
+	}
 
 	static let UUIDRegexPattern = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 
@@ -187,7 +194,6 @@ struct Consts {
 
 	struct SDKSettings {
 		static var messagesRetentionPeriod: TimeInterval = 2 * 7 * 24 * 60 * 60 //two weeks
-		static var reachabilityMonitoringTimeout = DispatchTimeInterval.seconds(10)
 	}
 }
 

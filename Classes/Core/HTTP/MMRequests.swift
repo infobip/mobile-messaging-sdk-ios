@@ -18,6 +18,8 @@ enum APIPath: String {
 	case AppInstanceUser_CRUD = "/mobile/1/appinstance/{pushRegistrationId}/user"
 	case AppInstance_xRUD = "/mobile/1/appinstance/{pushRegistrationId}"
 	case AppInstance_Cxxx = "/mobile/1/appinstance"
+	case UserSession = "/mobile/1/appinstance/{pushRegistrationId}/user/events/session"
+
 }
 
 struct SeenStatusSendingRequest: PostRequest {
@@ -29,6 +31,7 @@ struct SeenStatusSendingRequest: PostRequest {
 	let seenList: [SeenData]
 	var body: RequestBody? { return SeenData.requestBody(seenList: seenList) }
 
+	//TODO: requestBody: RequestBody? arg
 	init(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData]) {
 		self.applicationCode = applicationCode
 		self.pushRegistrationId = pushRegistrationId
@@ -70,6 +73,7 @@ struct MessagesSyncRequest: PostRequest {
 		return result
 	}
 
+	//TODO: requestBody: RequestBody? arg
 	init(applicationCode: String, pushRegistrationId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?) {
 		self.applicationCode = applicationCode
 		self.pushRegistrationId = pushRegistrationId
@@ -85,7 +89,8 @@ struct DeliveryReportRequest: PostRequest {
 	var path: APIPath { return .DeliveryReport }
 	let dlrIds: [String]
 	var body: RequestBody? { return [Consts.DeliveryReport.dlrMessageIds: dlrIds] }
-	
+
+	//TODO: requestBody: RequestBody? arg
 	init?(applicationCode: String, dlrIds: [String]?) {
 		guard let dlrIds = dlrIds else {
 			return nil
@@ -117,6 +122,7 @@ struct MOMessageSendingRequest: PostRequest {
 
 	let messages: [MOMessage]
 
+	//TODO: requestBody: RequestBody? arg
 	init(applicationCode: String, pushRegistrationId: String, messages: [MOMessage]) {
 		self.applicationCode = applicationCode
 		self.pushRegistrationId = pushRegistrationId

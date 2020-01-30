@@ -8,6 +8,8 @@
 import Foundation
 
 protocol GeneralRemoteAPIProtocol: SessionManagement {
+	func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UserSessionSendingResult) -> Void)
+	
 	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData], completion: @escaping (SeenStatusSendingResult) -> Void)
 
 	func sendMessages(applicationCode: String, pushRegistrationId: String, messages: [MOMessage], completion: @escaping (MOMessageSendingResult) -> Void)
@@ -69,6 +71,11 @@ class RemoteAPIProvider: GeneralRemoteAPIProtocol {
 
 	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData], completion: @escaping (SeenStatusSendingResult) -> Void) {
 		let request = SeenStatusSendingRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, seenList: seenList)
+		performRequest(request: request, completion: completion)
+	}
+
+	func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UserSessionSendingResult) -> Void) {
+		let request = UserSessionReportRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, requestBody: body)
 		performRequest(request: request, completion: completion)
 	}
 	

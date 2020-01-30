@@ -33,6 +33,7 @@ class UpdateUserOperation: Operation {
 	}
 
 	override func execute() {
+		//TODO: move to conditions abstraction
 		guard mmContext.internalData().currentDepersonalizationStatus != .pending else {
 			MMLogWarn("[UpdateUserOperation] Logout pending. Canceling...")
 			finishWithError(NSError(type: MMInternalErrorType.PendingLogout))

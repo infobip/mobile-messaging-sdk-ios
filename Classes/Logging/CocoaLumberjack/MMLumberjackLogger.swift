@@ -197,6 +197,8 @@ final class MMLogFormatter: NSObject, DDLogFormatter {
 			icon = LogIcons.all
 		case .off:
 			icon = LogIcons.off
+		@unknown default:
+			fatalError()
 		}
 		return formattedLogEntry(date: logMessage.timestamp, icon: icon, message: logMessage.message)
 	}
