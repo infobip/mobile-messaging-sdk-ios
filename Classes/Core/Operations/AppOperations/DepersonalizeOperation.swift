@@ -66,12 +66,10 @@ class DepersonalizeOperation: Operation {
 			id.archiveCurrent()
 
 			mmContext.apnsRegistrationManager.registerForRemoteNotifications()
-			
-			UserEventsManager.postDepersonalizedEvent()
-
 		case .success, .undefined:
 			MMLogDebug("[Depersonalize] current depersonalize status: undefined/succesful")
 		}
+		UserEventsManager.postDepersonalizedEvent()
 	}
 
 	class func handleFailedDepersonalize(mmContext: MobileMessaging) {
