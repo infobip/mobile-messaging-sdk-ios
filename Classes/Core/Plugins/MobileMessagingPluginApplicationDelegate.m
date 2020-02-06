@@ -2,20 +2,20 @@
 // Created by Goran Tomasic on 10/10/2016.
 //
 
-#import "MobileMessagingCordovaApplicationDelegate.h"
+#import "MobileMessagingPluginApplicationDelegate.h"
 #import <MobileMessaging/MobileMessaging-Swift.h>
 
 NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.application-launched-by-notification";
 
-@interface MobileMessagingCordovaApplicationDelegate() {
+@interface MobileMessagingPluginApplicationDelegate() {
 	id<UIApplicationDelegate> _applicationDelegate;
 }
 @end
 
-@implementation MobileMessagingCordovaApplicationDelegate
+@implementation MobileMessagingPluginApplicationDelegate
 
 + (instancetype)sharedInstaller {
-	static MobileMessagingCordovaApplicationDelegate *_sharedInstaller = nil;
+	static MobileMessagingPluginApplicationDelegate *_sharedInstaller = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
 		_sharedInstaller = [[self alloc] init];

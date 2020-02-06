@@ -6,7 +6,7 @@
 
 extern NSString *ApplicationLaunchedByNotification_Key;
 
-@interface MobileMessagingCordovaApplicationDelegate : UIResponder <UIApplicationDelegate>
+@interface MobileMessagingPluginApplicationDelegate : UIResponder <UIApplicationDelegate>
 
 + (instancetype)sharedInstaller;
 + (void) install;

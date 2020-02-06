@@ -46,7 +46,7 @@ struct SystemData {
 
 @objcMembers
 public class UserAgent: NSObject {
-	public var cordovaPluginVersion: String?
+	public var pluginVersion: String?
 	
 	struct DataOptions : OptionSet {
 		let rawValue: Int
@@ -57,7 +57,7 @@ public class UserAgent: NSObject {
 	}
 	
 	var systemData: SystemData {
-		return SystemData(SDKVersion: libraryVersion.appending(cordovaPluginVersion == nil ? "" : " (cordova \(cordovaPluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceModelName, appVer: hostingAppVersion, language: language, deviceName: deviceName, os: osName, pushServiceType: pushServiceType, deviceTimeZone: deviceTimeZone, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
+		return SystemData(SDKVersion: libraryVersion.appending(pluginVersion == nil ? "" : " (\(pluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceModelName, appVer: hostingAppVersion, language: language, deviceName: deviceName, os: osName, pushServiceType: pushServiceType, deviceTimeZone: deviceTimeZone, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
 	}
 
 	public var language: String {
@@ -307,7 +307,7 @@ public class UserAgent: NSObject {
 			let outputHostingAppName = allowed ? hostingAppName : ""
 			let outputHostingAppVersion = allowed ? hostingAppVersion : ""
 
-			let result = "\(libraryName)/\(libraryVersion.appending(cordovaPluginVersion == nil ? "" : "-cordova-\(cordovaPluginVersion!)"))(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion);\(deviceNameS)"
+			let result = "\(libraryName)/\(libraryVersion.appending(pluginVersion == nil ? "" : " \(pluginVersion!)"))(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion);\(deviceNameS)"
 			
 			return result
 		}

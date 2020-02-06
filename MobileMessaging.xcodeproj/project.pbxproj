@@ -101,8 +101,8 @@
 		764556771F78FF5800B8F14B /* MMNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 7645560E1F78FF4F00B8F14B /* MMNotifications.m */; };
 		764556781F78FF5800B8F14B /* MMVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560F1F78FF4F00B8F14B /* MMVersion.swift */; };
 		7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556111F78FF4F00B8F14B /* MobileMessaging.swift */; };
-		7645567E1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556151F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		7645567F1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 764556161F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.m */; };
+		7645567E1F78FF5800B8F14B /* MobileMessagingPluginApplicationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556151F78FF4F00B8F14B /* MobileMessagingPluginApplicationDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7645567F1F78FF5800B8F14B /* MobileMessagingPluginApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 764556161F78FF4F00B8F14B /* MobileMessagingPluginApplicationDelegate.m */; };
 		764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D61F78FF4E00B8F14B /* MMAPIKeysAndValues.swift */; };
 		764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D91F78FF4E00B8F14B /* MMRequests.swift */; };
 		764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DA1F78FF4E00B8F14B /* MMResponses.swift */; };
@@ -364,8 +364,8 @@
 		7645560F1F78FF4F00B8F14B /* MMVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMVersion.swift; sourceTree = "<group>"; };
 		764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MobileMessaging-umbrella.h"; path = "Classes/MobileMessaging-umbrella.h"; sourceTree = "<group>"; };
 		764556111F78FF4F00B8F14B /* MobileMessaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileMessaging.swift; sourceTree = "<group>"; };
-		764556151F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileMessagingCordovaApplicationDelegate.h; sourceTree = "<group>"; };
-		764556161F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MobileMessagingCordovaApplicationDelegate.m; sourceTree = "<group>"; };
+		764556151F78FF4F00B8F14B /* MobileMessagingPluginApplicationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileMessagingPluginApplicationDelegate.h; sourceTree = "<group>"; };
+		764556161F78FF4F00B8F14B /* MobileMessagingPluginApplicationDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MobileMessagingPluginApplicationDelegate.m; sourceTree = "<group>"; };
 		764556181F78FF4F00B8F14B /* MessageUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageUtils.swift; sourceTree = "<group>"; };
 		7645561C1F78FF4F00B8F14B /* MessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageFetchingOperation.swift; sourceTree = "<group>"; };
 		7645561D1F78FF4F00B8F14B /* MessageHandlingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHandlingOperation.swift; sourceTree = "<group>"; };
@@ -713,8 +713,7 @@
 				7645560F1F78FF4F00B8F14B /* MMVersion.swift */,
 				764556111F78FF4F00B8F14B /* MobileMessaging.swift */,
 				765B9FBD2012126700B1E77A /* MessageHandlingDelegate.swift */,
-				764556151F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.h */,
-				764556161F78FF4F00B8F14B /* MobileMessagingCordovaApplicationDelegate.m */,
+				A03FD20923EC52F90066390C /* Plugins */,
 				764556171F78FF4F00B8F14B /* Message */,
 				764556191F78FF4F00B8F14B /* Operations */,
 				764556301F78FF4F00B8F14B /* UserNotificationCenterDelegate.swift */,
@@ -993,6 +992,15 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
+		A03FD20923EC52F90066390C /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				764556151F78FF4F00B8F14B /* MobileMessagingPluginApplicationDelegate.h */,
+				764556161F78FF4F00B8F14B /* MobileMessagingPluginApplicationDelegate.m */,
+			);
+			path = Plugins;
+			sourceTree = "<group>";
+		};
 		ADF20331208663FB00E157D7 /* CryptoSwift */ = {
 			isa = PBXGroup;
 			children = (
@@ -1022,7 +1030,7 @@
 			files = (
 				764556761F78FF5800B8F14B /* MMNotifications.h in Headers */,
 				7601F19C208E056500738C1A /* Kingfisher.h in Headers */,
-				7645567E1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.h in Headers */,
+				7645567E1F78FF5800B8F14B /* MobileMessagingPluginApplicationDelegate.h in Headers */,
 				7617505423351827000438A8 /* Alamofire.h in Headers */,
 				7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */,
 			);
@@ -1300,7 +1308,7 @@
 				760085831F977E3300837D75 /* MOMessage.swift in Sources */,
 				7601F195208E056500738C1A /* ImageView+Kingfisher.swift in Sources */,
 				7645569E1F78FF8500B8F14B /* MessagesEvictionOperation.swift in Sources */,
-				7645567F1F78FF5800B8F14B /* MobileMessagingCordovaApplicationDelegate.m in Sources */,
+				7645567F1F78FF5800B8F14B /* MobileMessagingPluginApplicationDelegate.m in Sources */,
 				760929FD1FAA212F00128E48 /* CPUtils.swift in Sources */,
 				7601F192208E056400738C1A /* ThreadHelper.swift in Sources */,
 				764556CD1F78FFD900B8F14B /* KeychainSwift.swift in Sources */,
