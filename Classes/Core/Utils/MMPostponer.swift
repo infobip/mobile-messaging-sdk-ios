@@ -7,7 +7,7 @@
 import Foundation
 class MMPostponer: NSObject {
 	private var block: (() -> Void)?
-	private var schedulerQueue = MMQueue.Serial.New.PostponerQueue.queue
+	private var schedulerQueue = MMQueue.Serial.newQueue(queueName: "com.mobile-messaging.queue.serial.postponer")
 	private var timer: DispatchSourceTimer?
 	private var executionQueue: DispatchQueue
 	

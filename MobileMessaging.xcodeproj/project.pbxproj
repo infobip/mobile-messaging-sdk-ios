@@ -92,7 +92,6 @@
 		7636909A21F06E25000CF3F8 /* UserEventsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909921F06E25000CF3F8 /* UserEventsManager.swift */; };
 		7636909C21F07330000CF3F8 /* PersonalizeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909B21F07330000CF3F8 /* PersonalizeOperation.swift */; };
 		7638B26722089F2000A98144 /* Archivable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7638B26622089F2000A98144 /* Archivable.swift */; };
-		763A1AE923E224DC00C997BC /* RepeatingTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763A1AE823E224DC00C997BC /* RepeatingTimer.swift */; };
 		7642820D21920F5F0053A063 /* InstallationMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7642820C21920F5F0053A063 /* InstallationMigrationPolicy.swift */; };
 		7642821E219305780053A063 /* FetchUserOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7642821D219305780053A063 /* FetchUserOperation.swift */; };
 		764556741F78FF5800B8F14B /* MMKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560B1F78FF4F00B8F14B /* MMKeychain.swift */; };
@@ -167,7 +166,6 @@
 		764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566E1F78FF4F00B8F14B /* OperationObserver.swift */; };
 		764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566F1F78FF4F00B8F14B /* OperationQueue.swift */; };
 		764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556711F78FF4F00B8F14B /* SwiftyJSON.swift */; };
-		764E651623DA2BB6002F07D2 /* UserSessionMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764E651523DA2BB6002F07D2 /* UserSessionMapper.swift */; };
 		765259D21FB1FE6300058788 /* ChatSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765259D11FB1FE6300058788 /* ChatSettings.swift */; };
 		765259DA1FB323B500058788 /* ChatExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765259D91FB323B500058788 /* ChatExtensions.swift */; };
 		76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76531B3C2031F0150019A246 /* RegistrationResetOperation.swift */; };
@@ -194,11 +192,6 @@
 		76A957A221ECAA00000AFD9C /* DepersonalizeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A957A121ECAA00000AFD9C /* DepersonalizeOperation.swift */; };
 		76A957A421ECAA82000AFD9C /* InstallationDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A957A321ECAA82000AFD9C /* InstallationDataMapper.swift */; };
 		76B70DA721AD3A6E00E87BD5 /* DeleteInstanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B70DA621AD3A6D00E87BD5 /* DeleteInstanceOperation.swift */; };
-		76C3C99A23D1F47900562C57 /* UserSessionPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C99923D1F47900562C57 /* UserSessionPersistingOperation.swift */; };
-		76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C99B23D1F4A300562C57 /* UserSessionsReportingOperation.swift */; };
-		76C3C9B423D5B2E200562C57 /* UserSessionReportObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C9B223D5B2E200562C57 /* UserSessionReportObject.swift */; };
-		76C3C9B523D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C9B323D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift */; };
-		76C3C9B823D60E9800562C57 /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C9B723D60E9800562C57 /* UserSessionService.swift */; };
 		76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */ = {isa = PBXBuildFile; fileRef = 764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */; };
 		76F58AD41FB1C2D100A91B3E /* CPChatNavigationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F58AD31FB1C2D100A91B3E /* CPChatNavigationVC.swift */; };
 		76F58AD61FB1C53C00A91B3E /* CPEditingToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F58AD51FB1C53C00A91B3E /* CPEditingToolbar.swift */; };
@@ -307,7 +300,6 @@
 		7636909921F06E25000CF3F8 /* UserEventsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEventsManager.swift; sourceTree = "<group>"; };
 		7636909B21F07330000CF3F8 /* PersonalizeOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalizeOperation.swift; sourceTree = "<group>"; };
 		7638B26622089F2000A98144 /* Archivable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Archivable.swift; sourceTree = "<group>"; };
-		763A1AE823E224DC00C997BC /* RepeatingTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepeatingTimer.swift; sourceTree = "<group>"; };
 		7642820C21920F5F0053A063 /* InstallationMigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationMigrationPolicy.swift; sourceTree = "<group>"; };
 		7642821D219305780053A063 /* FetchUserOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchUserOperation.swift; sourceTree = "<group>"; };
 		764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNotificationAction.swift; sourceTree = "<group>"; };
@@ -417,7 +409,6 @@
 		7645566E1F78FF4F00B8F14B /* OperationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationObserver.swift; sourceTree = "<group>"; };
 		7645566F1F78FF4F00B8F14B /* OperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationQueue.swift; sourceTree = "<group>"; };
 		764556711F78FF4F00B8F14B /* SwiftyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
-		764E651523DA2BB6002F07D2 /* UserSessionMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionMapper.swift; sourceTree = "<group>"; };
 		765259D11FB1FE6300058788 /* ChatSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSettings.swift; sourceTree = "<group>"; };
 		765259D91FB323B500058788 /* ChatExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatExtensions.swift; sourceTree = "<group>"; };
 		76531B3C2031F0150019A246 /* RegistrationResetOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationResetOperation.swift; sourceTree = "<group>"; };
@@ -447,12 +438,6 @@
 		76A957A121ECAA00000AFD9C /* DepersonalizeOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DepersonalizeOperation.swift; sourceTree = "<group>"; };
 		76A957A321ECAA82000AFD9C /* InstallationDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationDataMapper.swift; sourceTree = "<group>"; };
 		76B70DA621AD3A6D00E87BD5 /* DeleteInstanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteInstanceOperation.swift; sourceTree = "<group>"; };
-		76C3C99923D1F47900562C57 /* UserSessionPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionPersistingOperation.swift; sourceTree = "<group>"; };
-		76C3C99B23D1F4A300562C57 /* UserSessionsReportingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionsReportingOperation.swift; sourceTree = "<group>"; };
-		76C3C9B123D5AEDD00562C57 /* MMStorageModel_4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_4.xcdatamodel; sourceTree = "<group>"; };
-		76C3C9B223D5B2E200562C57 /* UserSessionReportObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionReportObject.swift; sourceTree = "<group>"; };
-		76C3C9B323D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSessionReportObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		76C3C9B723D60E9800562C57 /* UserSessionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
 		76F58AD31FB1C2D100A91B3E /* CPChatNavigationVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPChatNavigationVC.swift; sourceTree = "<group>"; };
 		76F58AD51FB1C53C00A91B3E /* CPEditingToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPEditingToolbar.swift; sourceTree = "<group>"; };
 		76F58AD71FB1C91D00A91B3E /* CPBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPBarButtonItem.swift; sourceTree = "<group>"; };
@@ -700,7 +685,6 @@
 		764555D41F78FF4E00B8F14B /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				76C3C9B623D60E9800562C57 /* UserSession */,
 				76212E7021B043BB002FB8D9 /* Installation */,
 				76212E6F21B043A0002FB8D9 /* User */,
 				764555D51F78FF4E00B8F14B /* HTTP */,
@@ -742,8 +726,6 @@
 			isa = PBXGroup;
 			children = (
 				76A26CAD230D58A900F00717 /* MMInternalStorageModel.xcdatamodeld */,
-				76C3C9B223D5B2E200562C57 /* UserSessionReportObject.swift */,
-				76C3C9B323D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift */,
 				764555DE1F78FF4E00B8F14B /* GeoEventReportObject+CoreDataProperties.swift */,
 				764555DF1F78FF4E00B8F14B /* GeoEventReportObject.swift */,
 				764555E01F78FF4E00B8F14B /* InstallationManagedObject+CoreDataProperties.swift */,
@@ -812,8 +794,6 @@
 				7608E306219A095500EC7289 /* CreateInstanceOperation.swift */,
 				76B70DA621AD3A6D00E87BD5 /* DeleteInstanceOperation.swift */,
 				7636909B21F07330000CF3F8 /* PersonalizeOperation.swift */,
-				76C3C99923D1F47900562C57 /* UserSessionPersistingOperation.swift */,
-				76C3C99B23D1F4A300562C57 /* UserSessionsReportingOperation.swift */,
 			);
 			path = AppOperations;
 			sourceTree = "<group>";
@@ -948,17 +928,6 @@
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
-		};
-		76C3C9B623D60E9800562C57 /* UserSession */ = {
-			isa = PBXGroup;
-			children = (
-				76C3C9B723D60E9800562C57 /* UserSessionService.swift */,
-				764E651523DA2BB6002F07D2 /* UserSessionMapper.swift */,
-				763A1AE823E224DC00C997BC /* RepeatingTimer.swift */,
-			);
-			name = UserSession;
-			path = Classes/UserSession;
-			sourceTree = SOURCE_ROOT;
 		};
 		7DB346D0F39D3F0E887471402A8071AB = {
 			isa = PBXGroup;
@@ -1148,7 +1117,6 @@
 				ADF203472086642C00E157D7 /* BatchedCollection.swift in Sources */,
 				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,
 				7645569B1F78FF8500B8F14B /* MessageFetchingOperation.swift in Sources */,
-				76C3C9B523D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift in Sources */,
 				764556D41F78FFE000B8F14B /* GroupOperation.swift in Sources */,
 				764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */,
 				764556BB1F78FFB200B8F14B /* MMDefaultMessageStorage.swift in Sources */,
@@ -1167,7 +1135,6 @@
 				764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */,
 				764556BE1F78FFCB00B8F14B /* RetryableDownloadTask.swift in Sources */,
 				7617505723351827000438A8 /* Validation.swift in Sources */,
-				763A1AE923E224DC00C997BC /* RepeatingTimer.swift in Sources */,
 				765B9FBE2012126700B1E77A /* MessageHandlingDelegate.swift in Sources */,
 				764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */,
 				7601F199208E056500738C1A /* UIButton+Kingfisher.swift in Sources */,
@@ -1212,7 +1179,6 @@
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
 				76626D0F218AFCA600E95E2C /* InstallationDataService.swift in Sources */,
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
-				76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */,
 				76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */,
 				7601F1B2208E057F00738C1A /* LoadingImageView.swift in Sources */,
 				7617505E23351827000438A8 /* TaskDelegate.swift in Sources */,
@@ -1228,14 +1194,12 @@
 				ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */,
 				7601F1A4208E056500738C1A /* ImageProcessor.swift in Sources */,
 				764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */,
-				764E651623DA2BB6002F07D2 /* UserSessionMapper.swift in Sources */,
 				7601F19A208E056500738C1A /* Resource.swift in Sources */,
 				76A26CB8230D59CC00F00717 /* Migration_2_3.xcmappingmodel in Sources */,
 				7617506123351827000438A8 /* ResponseSerialization.swift in Sources */,
 				29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */,
 				7645569F1F78FF8500B8F14B /* MessagesSyncOperation.swift in Sources */,
 				76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */,
-				76C3C9B423D5B2E200562C57 /* UserSessionReportObject.swift in Sources */,
 				765259D21FB1FE6300058788 /* ChatSettings.swift in Sources */,
 				ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */,
 				764556901F78FF7300B8F14B /* MessageUtils.swift in Sources */,
@@ -1269,7 +1233,6 @@
 				7642821E219305780053A063 /* FetchUserOperation.swift in Sources */,
 				760929FC1FAA212F00128E48 /* CPProgressIndicationLayer.swift in Sources */,
 				764556D31F78FFE000B8F14B /* ExclusivityController.swift in Sources */,
-				76C3C9B823D60E9800562C57 /* UserSessionService.swift in Sources */,
 				764556A31F78FF8500B8F14B /* SeenStatusSendingOperation.swift in Sources */,
 				760929FB1FAA212F00128E48 /* CPUserDataVC.swift in Sources */,
 				ADF203462086642C00E157D7 /* Updatable.swift in Sources */,
@@ -1302,7 +1265,6 @@
 				7601F1A1208E056500738C1A /* ImageTransition.swift in Sources */,
 				764556D61F78FFE700B8F14B /* NSOperation+Operations.swift in Sources */,
 				760929F31FAA212F00128E48 /* CPViewController.swift in Sources */,
-				76C3C99A23D1F47900562C57 /* UserSessionPersistingOperation.swift in Sources */,
 				ADF2034A2086642C00E157D7 /* SHA1.swift in Sources */,
 				7645569D1F78FF8500B8F14B /* MessagePostingOperation.swift in Sources */,
 				760085831F977E3300837D75 /* MOMessage.swift in Sources */,
@@ -1580,13 +1542,12 @@
 		76A26CAD230D58A900F00717 /* MMInternalStorageModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				76C3C9B123D5AEDD00562C57 /* MMStorageModel_4.xcdatamodel */,
 				76A26CAE230D58A900F00717 /* MMStorageModel_3.xcdatamodel */,
 				76A26CAF230D58A900F00717 /* MMStorageModel_0.xcdatamodel */,
 				76A26CB0230D58A900F00717 /* MMStorageModel_2.xcdatamodel */,
 				76A26CB1230D58A900F00717 /* MMStorageModel_1.xcdatamodel */,
 			);
-			currentVersion = 76C3C9B123D5AEDD00562C57 /* MMStorageModel_4.xcdatamodel */;
+			currentVersion = 76A26CAE230D58A900F00717 /* MMStorageModel_3.xcdatamodel */;
 			path = MMInternalStorageModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

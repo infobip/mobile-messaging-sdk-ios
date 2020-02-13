@@ -42,7 +42,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "98187DB7F38DD7B8ECEA98E421E29ED4"
+               BlueprintIdentifier = "F1DF80448F2ABCFE157C028619E54FFE"
                BuildableName = "MobileMessaging.framework"
                BlueprintName = "MobileMessaging"
                ReferencedContainer = "container:Pods/Pods.xcodeproj">
@@ -54,8 +54,20 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "NO"
-      disableMainThreadChecker = "YES">
+      disableMainThreadChecker = "YES"
+      shouldUseLaunchSchemeArgsEnv = "NO">
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "607FACE41AFB9204008FA782"
+               BuildableName = "MobileMessagingExample_Tests.xctest"
+               BlueprintName = "MobileMessagingExample_Tests"
+               ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -68,7 +80,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-IsStartedToRunTests 1"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-com.apple.CoreData.ConcurrencyDebug 1"
@@ -86,18 +98,8 @@
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
-      <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "MobileMessagingExample_Tests.xctest"
-               BlueprintName = "MobileMessagingExample_Tests"
-               ReferencedContainer = "container:MobileMessagingExample.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -126,10 +128,6 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-com.apple.CoreData.MigrationDebug 1"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "-com.apple.CoreData.SQLDebug 1"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -141,6 +139,8 @@
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

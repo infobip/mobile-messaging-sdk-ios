@@ -134,15 +134,6 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 	var deleteInstanceClosure: ((String, String, String) -> UpdateInstanceDataResult)? = nil
 	var patchUserClosure: ((String, String, RequestBody) -> UpdateUserDataResult)? = nil
 	var getUserClosure: ((String, String) -> FetchUserDataResult)? = nil
-	var sendUserSessionClosure: ((String, String, RequestBody) -> UserSessionSendingResult)? = nil
-
-	override func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UserSessionSendingResult) -> Void) {
-		if let sendUserSessionClosure = sendUserSessionClosure {
-			completion(sendUserSessionClosure(applicationCode, pushRegistrationId, body))
-		} else {
-			super.sendUserSessionReport(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
-		}
-	}
 
 	override func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData], completion: @escaping (SeenStatusSendingResult) -> Void) {
 		if let sendSeenStatusClosure = sendSeenStatusClosure {
@@ -301,6 +292,7 @@ class DateStub: MMDate {
 func timeTravel(to date: Date, block: () -> Void) {
 	MobileMessaging.date = DateStub(nowStub: date)
 	block()
+	MobileMessaging.date = MMDate()
 }
 
 extension RequestData {

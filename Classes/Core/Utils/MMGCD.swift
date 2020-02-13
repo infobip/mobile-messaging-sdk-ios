@@ -103,9 +103,8 @@ enum MMQueue {
 	
 	enum Serial {
 		enum New: String, MMQueueEnum {
+			case RetryableRequest = "com.mobile-messaging.queue.serial.request-retry"
 			case MessageStorageQueue = "com.mobile-messaging.queue.serial.message-storage"
-			case UserSessionQueue = "com.mobile-messaging.queue.serial.user-session"
-			case PostponerQueue = "com.mobile-messaging.queue.serial.postponer"
 			var queueName: String { return rawValue }
 			var queue: MMQueueObject { return Serial.newQueue(queueName: queueName) }
 		}

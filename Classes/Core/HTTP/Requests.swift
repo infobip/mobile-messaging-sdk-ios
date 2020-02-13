@@ -7,21 +7,6 @@
 
 import Foundation
 
-struct UserSessionReportRequest: PostRequest {
-	var applicationCode: String
-	var pushRegistrationId: String?
-	typealias ResponseType = EmptyResponse
-	var pathParameters: [String: String]? { return ["{pushRegistrationId}": pushRegistrationId!] }
-	var path: APIPath { return .UserSession }
-	var body: RequestBody?
-
-	init(applicationCode: String, pushRegistrationId: String, requestBody: RequestBody?) {
-		self.applicationCode = applicationCode
-		self.pushRegistrationId = pushRegistrationId
-		self.body = requestBody
-	}
-}
-
 struct GetInstance: GetRequest {
 	var returnPushServiceToken: Bool
 	var parameters: RequestParameters? { return ["rt": returnPushServiceToken] }
