@@ -87,7 +87,7 @@ class DynamicBaseUrlHTTPSessionManager {
 		let request = alamofireSessionManager.request(url(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
 		MMLogDebug("Sending request: \n\(String(reflecting: request))")
 
-		request.responseData { dataResult in
+		request.validate(statusCode: 200..<401).responseData { dataResult in
 			let httpResponse = dataResult.response
 			if let error = dataResult.error {
 				MMLogWarn("""
