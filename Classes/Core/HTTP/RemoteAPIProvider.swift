@@ -49,7 +49,7 @@ extension SessionManagement {
 			if let json = json, let response = R.ResponseType(json: json) {
 				return MMResult.Success(response)
 			} else {
-				return MMResult.Failure(nil)
+				return MMResult.Failure(NSError(type: .UnknownResponseFormat))
 			}
 		}
 	}

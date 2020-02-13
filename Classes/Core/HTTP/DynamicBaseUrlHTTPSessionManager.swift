@@ -36,7 +36,7 @@ class DynamicBaseUrlStorage: SingleKVStorage {
 	var key: String {
 		return Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey
 	}
-	
+
 	init(backingStorage: KVOperations = UserDefaults.standard) {
 		self.backingStorage = backingStorage
 	}
@@ -83,26 +83,18 @@ class DynamicBaseUrlHTTPSessionManager {
 		return (dynamicBaseUrl ?? originalBaseUrl).absoluteString + r.resolvedPath
 	}
 
-	func getDataResponse<R: RequestData>(_ r: R, completion: @escaping (HTTPURLResponse?, JSON?, NSError?) -> Void) {
+	func sendRequest<R: RequestData>(_ r: R, completion: @escaping (JSON?, NSError?) -> Void) {
+
 		let request = alamofireSessionManager.request(url(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
 		MMLogDebug("Sending request: \n\(String(reflecting: request))")
 
-		request.validate(statusCode: 200..<401).responseData { dataResult in
-			let httpResponse = dataResult.response
-			if let error = dataResult.error {
-				MMLogWarn("""
-					Error while performing request
-					\(error.localizedDescription)
-					""")
-				completion(httpResponse, nil, error as NSError)
-				return
-			}
+		request.validate().responseData { dataResult in
+			let error = dataResult.error as NSError?
+			self.handleDynamicBaseUrl(response: dataResult.response, error: error)
 
 			guard let response = dataResult.response else {
-				MMLogWarn("""
-						Empty response received
-						""")
-				completion(httpResponse, nil, nil)
+				MMLogWarn("Empty response received")
+				completion(nil, error)
 				return
 			}
 
@@ -113,7 +105,7 @@ class DynamicBaseUrlHTTPSessionManager {
 					status code: \(response.statusCode)
 					headers: \(String(describing: response.allHeaderFields))
 					""")
-				completion(httpResponse, nil, MMInternalErrorType.UnknownError.foundationError)
+				completion(nil, error)
 				return
 			}
 
@@ -126,14 +118,15 @@ class DynamicBaseUrlHTTPSessionManager {
 				""")
 
 			let responseJson = JSON(data: data)
-			completion(httpResponse, responseJson, RequestError(json: responseJson)?.foundationError)
-		}
-	}
-
-	func sendRequest<R: RequestData>(_ r: R, completion: @escaping (JSON?, NSError?) -> Void) {
-		getDataResponse(r) { httpResponse, json, error in
-			self.handleDynamicBaseUrl(response: httpResponse, error: error as NSError?)
-			completion(json, error)
+			if let serviceError = RequestError(json: responseJson) {
+				MMLogWarn("""
+				Service error while performing request:
+				\(serviceError)
+				""")
+				completion(responseJson, serviceError.foundationError)
+			} else {
+				completion(responseJson, error)
+			}
 		}
 	}
 

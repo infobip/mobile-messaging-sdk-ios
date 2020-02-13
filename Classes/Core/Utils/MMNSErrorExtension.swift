@@ -17,7 +17,8 @@ public enum MMInternalErrorType: Error {
 	case InvalidRegistration
 	case CantLogoutCurrentRegistration
 	case CantSetPrimaryCurrentRegistration
-    
+	case UnknownResponseFormat
+
     fileprivate var errorCode: Int {
         switch self {
         case .UnknownError:
@@ -34,6 +35,8 @@ public enum MMInternalErrorType: Error {
 			return 5
 		case .CantLogoutCurrentRegistration:
 			return 6
+		case .UnknownResponseFormat:
+			return 7
 		}
     }
 
@@ -59,6 +62,8 @@ public enum MMInternalErrorType: Error {
 			errorDescription = NSLocalizedString("You are trying to depersonalize current installation with wrong API. Please use MobileMessaging.sharedInstance?.currentInstallation?.depersonalize(completion:) instead.", comment: "")
 		case .CantSetPrimaryCurrentRegistration:
 			errorDescription = NSLocalizedString("You are trying to set primary for current installation with wrong API. Please use MobileMessaging.sharedInstance?.currentInstallation?.save(isPrimaryDevice:completion:) instead.", comment: "")
+		case .UnknownResponseFormat:
+			errorDescription = NSLocalizedString("Unknown remote API response format, could not convert to a supported response type", comment: "")
         }
 
         return [NSLocalizedDescriptionKey: errorDescription]
