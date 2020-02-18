@@ -14,6 +14,10 @@ import UserNotifications
 
 public typealias DictionaryRepresentation = [String: Any]
 
+func arrayToSet<T>(arr: [T]?) -> Set<T>? {
+	return arr != nil ? Set<T>(arr!) : nil
+}
+
 func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any] {
 	var ret:[String: Any] = [:]
 	dirty.keys.forEach { (k) in

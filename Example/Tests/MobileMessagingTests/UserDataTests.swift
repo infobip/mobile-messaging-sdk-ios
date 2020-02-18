@@ -220,6 +220,16 @@ class UserDataTests: MMTestCase {
 		})
 	}
 
+	func testTagsConvertedToArray() {
+		mobileMessagingInstance.pushRegistrationId = "123"
+
+		let currentUser = MobileMessaging.getUser()!
+		currentUser.tags = Set(["t1"])
+
+		let b = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: currentUser)
+		XCTAssertTrue(b["tags"] is [String])
+	}
+
 
 	func testThatUserDataIsNotPersistedIfPrivacySettingsSpecified() {
 		MobileMessaging.privacySettings.userDataPersistingDisabled = true

@@ -35,7 +35,7 @@ class DataModelsTests: MMTestCase {
 
 	func testPersonalizePayload() {
 		let identity = UserIdentity(phones: ["1", "2"], emails: ["email"], externalUserId: nil)!
-		let atts = UserAttributes(firstName: nil, middleName: "middleName", lastName: "lastName", tags: ["tags1", "tags2"], gender: .Male, birthday: Date.init(timeIntervalSince1970: 0), customAttributes: ["bootsize": NSNumber(value: 9)])
+		let atts = UserAttributes(firstName: nil, middleName: "middleName", lastName: "lastName", tags: ["tags1"], gender: .Male, birthday: Date.init(timeIntervalSince1970: 0), customAttributes: ["bootsize": NSNumber(value: 9)])
 		let payload = UserDataMapper.personalizeRequestPayload(userIdentity: identity, userAttributes: atts)
 		let expected: NSDictionary = [
 
@@ -51,7 +51,7 @@ class DataModelsTests: MMTestCase {
 			"userAttributes": [
 				"middleName": "middleName",
 				"lastName": "lastName",
-				"tags": Set(["tags1","tags2"]),
+				"tags": ["tags1"],
 				"birthday": "1970-01-01",
 				"gender": "Male",
 				"customAttributes": [ "bootsize": NSNumber(value: 9) ]

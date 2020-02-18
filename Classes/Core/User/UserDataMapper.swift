@@ -17,7 +17,7 @@ class UserDataMapper {
 			Attributes.firstName.rawValue			: userAttributes.firstName as Any,
 			Attributes.middleName.rawValue			: userAttributes.middleName as Any,
 			Attributes.lastName.rawValue			: userAttributes.lastName as Any,
-			Attributes.tags.rawValue				: userAttributes.tags as Any,
+			Attributes.tags.rawValue				: userAttributes.tags?.asArray as Any,
 			Attributes.gender.rawValue				: userAttributes.gender?.name as Any,
 			Attributes.birthday.rawValue			: userAttributes.birthday != nil ? (DateStaticFormatters.ContactsServiceDateFormatter.string(from: userAttributes.birthday!) as Any) : (NSNull() as Any),
 			Attributes.customAttributes.rawValue	: UserDataMapper.makeCustomAttributesPayload(userAttributes.customAttributes) as Any

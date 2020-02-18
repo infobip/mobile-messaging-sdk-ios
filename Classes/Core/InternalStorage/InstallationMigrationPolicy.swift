@@ -78,7 +78,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			user.installations = sInstance.value(forKey: "instances") as? [Installation]
 			user.lastName = sInstance.value(forKey: "lastName") as? String
 			user.middleName = sInstance.value(forKey: "middleName") as? String
-			user.tags = Set(sInstance.value(forKey: "tags") as? [String] ?? [])
+			user.tags = arrayToSet(arr: sInstance.value(forKey: "tags") as? [String])
 
 
 			let internalData = InternalData.unarchiveCurrent()
