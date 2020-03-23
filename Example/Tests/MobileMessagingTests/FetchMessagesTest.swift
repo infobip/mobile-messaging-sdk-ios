@@ -109,8 +109,8 @@ class FetchMessagesCompletionTests: MMTestCase {
 	func testThatNewDataFetched() {
 		weak var exp = expectation(description: "Handler called")
 		let apiProvider = RemoteAPIProviderStub()
-		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
-			if (dlrMsgIds ?? [String]()) == ["newData"]  {
+		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
+			if ((body["drIDs"] as? [String]) ?? [String]()) == ["newData"]  {
 				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]]))!)
 			} else {
 				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
@@ -137,8 +137,8 @@ class FetchMessagesCompletionTests: MMTestCase {
         MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 
 		let apiProvider = RemoteAPIProviderStub()
-		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
-			if (dlrMsgIds ?? [String]()) == ["newData"]  {
+		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
+			if ((body["drIDs"] as? [String]) ?? [String]()) == ["newData"]  {
 				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": [["aps": ["key":"value"], "messageId": "mId2"]]]))!)
 			} else {
 				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
@@ -158,7 +158,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 		weak var exp = expectation(description: "Handler called")
 
 		let apiProvider = RemoteAPIProviderStub()
-		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
+		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
 				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
 		}
 		self.mobileMessagingInstance.remoteApiProvider = apiProvider
@@ -174,7 +174,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 	func testThatDataFetchFailed() {
 		weak var exp = expectation(description: "Handler called")
 		let apiProvider = RemoteAPIProviderStub()
-		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
+		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
 			return MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.UnknownError))
 		}
 		self.mobileMessagingInstance.remoteApiProvider = apiProvider

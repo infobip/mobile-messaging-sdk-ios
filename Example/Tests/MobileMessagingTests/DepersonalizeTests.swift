@@ -18,7 +18,7 @@ let successfulDepersonalizeApiMock = { () -> RemoteAPIProviderStub in
 	ret.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
 		return PersonalizeResult.Success(User(json: JSON.parse(""))!)
 	}
-	ret.syncMessagesClosure = { _, _, _, _ -> MessagesSyncResult in
+	ret.syncMessagesClosure = { _, _, _ -> MessagesSyncResult in
 		return MessagesSyncResult.Failure(retryableError)
 	}
 	return ret
@@ -34,7 +34,7 @@ let failedDepersonalizeApiMock = { () -> RemoteAPIProviderStub in
 		return PersonalizeResult.Failure(retryableError)
 	}
 
-	ret.syncMessagesClosure = { _, _, _, _ -> MessagesSyncResult in
+	ret.syncMessagesClosure = { _, _, _ -> MessagesSyncResult in
 		return MessagesSyncResult.Failure(retryableError)
 	}
 	return ret

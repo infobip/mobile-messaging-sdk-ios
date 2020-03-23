@@ -417,8 +417,6 @@ public class MobileMessagingService: NSObject {
 		isRunning = false
 		completion(isRunning)
 	}
-	func syncWithServer(_ completion: @escaping (NSError?) -> Void) { completion(nil) }
-	
 	/// A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
 	var systemData: [String: AnyHashable]? { return nil }
 
@@ -426,10 +424,18 @@ public class MobileMessagingService: NSObject {
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool { return false }
 	func handleNewMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
 	func handleAnyMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
+	func geoServiceDidStart(_ notification: Notification) {}
 	func mobileMessagingWillStart(_ mmContext: MobileMessaging) {}
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {}
 	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {}
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {}
+	func appWillEnterForeground(_ notification: Notification) {}
+	func appDidFinishLaunching(_ notification: Notification) {}
+	func appDidBecomeActive(_ notification: Notification) {}
+	func appWillResignActive(_ notification: Notification) {}
+	func appWillTerminate(_ notification: Notification) {}
+	func appDidEnterBackground(_ notification: Notification) {}
+	func syncWithServer(_ completion: @escaping (NSError?) -> Void) {}
 	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {}
 	func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {}
 	func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
@@ -501,9 +507,14 @@ protocol MMApplication {
 	func presentLocalNotificationNow(_ notification: UILocalNotification)
 	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings)
 	var currentUserNotificationSettings: UIUserNotificationSettings? { get }
+	var rootViewController: UIViewController? { get }
 }
 
-extension UIApplication: MMApplication {}
+extension UIApplication: MMApplication {
+	var rootViewController: UIViewController? {
+		return self.keyWindow?.rootViewController
+	}
+}
 
 extension MMApplication {
 	var isInForegroundState: Bool {
@@ -512,7 +523,6 @@ extension MMApplication {
 }
 
 class MainThreadedUIApplication: MMApplication {
-	
 	init() {
 		
 	}
@@ -524,6 +534,10 @@ class MainThreadedUIApplication: MMApplication {
 		set {
 			inMainWait(block: { app.applicationIconBadgeNumber = newValue })
 		}
+	}
+
+	var rootViewController: UIViewController? {
+		return getFromMain(getter: { app.keyWindow?.rootViewController })
 	}
 	
 	var applicationState: UIApplication.State {

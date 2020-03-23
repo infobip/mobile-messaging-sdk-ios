@@ -211,7 +211,7 @@ extension Date {
 	func toAgoTimeString() -> String {
 		let formatter = DateFormatter()
 		// если меньше 24 часов
-		let diffSec = Int(Date().timeIntervalSinceReferenceDate - self.timeIntervalSinceReferenceDate)
+		let diffSec = Int(MobileMessaging.date.now.timeIntervalSinceReferenceDate - self.timeIntervalSinceReferenceDate)
 		let day: Int = 60*60*24
 		switch diffSec {
 		case 0...day:

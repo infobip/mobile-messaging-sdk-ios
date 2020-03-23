@@ -188,13 +188,14 @@ protocol DeliveryReporting {
 class DeliveryReporter: DeliveryReporting {
 	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void) {
 		MMLogDebug("[Notification Extension] reporting delivery for message ids \(messageIds)")
-		guard let dlr = DeliveryReportRequest(applicationCode: applicationCode, dlrIds: messageIds), let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance else
+		guard let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance, messageIds.isEmpty else
 		{
 			MMLogDebug("[Notification Extension] could not report delivery")
 			completion(nil)
 			return
 		}
-		extensionInstance.sessionManager.sendRequest(dlr, completion: { completion($1) })
+		let request = DeliveryReportRequest(applicationCode: applicationCode, body: [Consts.DeliveryReport.dlrMessageIds: messageIds])
+		extensionInstance.sessionManager.getDataResponse(request, completion: { completion($1) })
 	}
 }
 

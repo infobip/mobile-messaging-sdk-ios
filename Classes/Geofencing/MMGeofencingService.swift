@@ -53,8 +53,8 @@ public class GeofencingService: MobileMessagingService {
 			self.cleanup(completion)
 		}
 	}
-	
-	override public func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+
+	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		syncWithServer(completion: { (result) in
 			completion(result?.error)
 		})
@@ -481,18 +481,12 @@ public class GeofencingService: MobileMessagingService {
 			
 			self.restartLocationManager()
 			self.refreshMonitoredRegions(completion: {})
-			
 			UserEventsManager.postGeoServiceStartedEvent()
-			
-			NotificationCenter.default.addObserver(self, selector: #selector(GeofencingService.handleApplicationDidFinishLaunchingNotification(_:)), name: UIApplication.didFinishLaunchingNotification, object: nil)
-			NotificationCenter.default.addObserver(self, selector: #selector(GeofencingService.handleApplicationDidEnterBackgroundNotification(_:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
-			NotificationCenter.default.addObserver(self, selector: #selector(GeofencingService.handleApplicationDidBecomeActiveNotification(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
-			
 			self.isRunning = true
 			MMLogDebug("[GeofencingService] started.")
 		}
 	}
-	
+
 	fileprivate func stopMonitoringMonitoredRegions(completion: @escaping () -> Void) {
 		locationManagerQueue.executeAsync() {
 			MMLogDebug("[GeofencingService] stopping monitoring all regions")
@@ -585,16 +579,19 @@ public class GeofencingService: MobileMessagingService {
 	fileprivate var previousLocation: CLLocation?
 	
 	//MARK: Notifications handling
-	
-	@objc func handleApplicationDidFinishLaunchingNotification(_ notification: Notification) {
-		assert(Thread .isMainThread)
+	override func appDidFinishLaunching(_ notification: Notification) {
+		assert(Thread.isMainThread)
 		if notification.userInfo?[UIApplication.LaunchOptionsKey.location] != nil {
 			MMLogDebug("[GeofencingService] The app relaunched by the OS.")
 			restartLocationManager()
 		}
 	}
-	
-	@objc func handleApplicationDidEnterBackgroundNotification(_ notification: Notification) {
+
+	override func appWillEnterForeground(_ notification: Notification) {
+		syncWithServer({_ in})
+	}
+
+	override func appDidEnterBackground(_ notification: Notification) {
 		MMLogDebug("[GeofencingService] App did enter background.")
 		assert(Thread .isMainThread)
 		restartLocationManager()
@@ -605,7 +602,7 @@ public class GeofencingService: MobileMessagingService {
 		}
 	}
 	
-	@objc func handleApplicationDidBecomeActiveNotification(_ notification: Notification) {
+	override func appDidBecomeActive(_ notification: Notification) {
 		MMLogDebug("[GeofencingService] App did become active.")
 		assert(Thread .isMainThread)
 		restartLocationManager()

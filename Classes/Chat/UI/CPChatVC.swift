@@ -44,7 +44,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 	
 	var titleView: UILabel?
 	var scrollingRecognizer: UIPanGestureRecognizer!
-	var lastComposingStateSentDateTime: TimeInterval = Date().timeIntervalSinceReferenceDate
+	var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
 	fileprivate var isVeryFirstRefetch: Bool = true
 	fileprivate var isScrollToBottomNeeded: Bool = false
 	fileprivate var isScrollToBottomEnabled: Bool = true

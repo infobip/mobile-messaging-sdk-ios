@@ -121,9 +121,9 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 		super.init(sessionManager: SessionManagerStubBase())
 	}
 
-	var sendSeenStatusClosure: ((String, _ pushRegistrationId: String?, _ seenList: [SeenData]) -> SeenStatusSendingResult)? = nil
-	var sendMessagesClosure: ((String, _ pushRegistrationId: String, _ messages: [MOMessage]) -> MOMessageSendingResult)? = nil
-	var syncMessagesClosure: ((String, _ pushRegistrationId: String, _ archiveMsgIds: [String]?, _ dlrMsgIds: [String]?) -> MessagesSyncResult)? = nil
+	var sendSeenStatusClosure: ((String, _ pushRegistrationId: String?, _ body: RequestBody) -> SeenStatusSendingResult)? = nil
+	var sendMessagesClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody) -> MOMessageSendingResult)? = nil
+	var syncMessagesClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody) -> MessagesSyncResult)? = nil
 	var fetchRecentLibraryVersionClosure: ((String, _ pushRegistrationId: String?) -> LibraryVersionResult)? = nil
 	var depersonalizeClosure: ((String, _ pushRegistrationId: String, _ pushRegistrationIdToDepersonalize: String) -> DepersonalizeResult)? = nil
 	var personalizeClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody, _ forceDepersonalize: Bool) -> PersonalizeResult)? = nil
@@ -134,28 +134,46 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 	var deleteInstanceClosure: ((String, String, String) -> UpdateInstanceDataResult)? = nil
 	var patchUserClosure: ((String, String, RequestBody) -> UpdateUserDataResult)? = nil
 	var getUserClosure: ((String, String) -> FetchUserDataResult)? = nil
+	var sendUserSessionClosure: ((String, String, RequestBody) -> UserSessionSendingResult)? = nil
+	var sendCustomEventClosure: ((String, String, Bool, RequestBody) -> CustomEventResult)? = nil
 
-	override func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData], completion: @escaping (SeenStatusSendingResult) -> Void) {
+	override func sendCustomEvent(applicationCode: String, pushRegistrationId: String, validate: Bool, body: RequestBody, completion: @escaping (CustomEventResult) -> Void) {
+		if let sendCustomEventClosure = sendCustomEventClosure {
+			completion(sendCustomEventClosure(applicationCode, pushRegistrationId, validate, body))
+		} else {
+			super.sendCustomEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, validate: validate, body: body, completion: completion)
+		}
+	}
+
+	override func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UserSessionSendingResult) -> Void) {
+		if let sendUserSessionClosure = sendUserSessionClosure {
+			completion(sendUserSessionClosure(applicationCode, pushRegistrationId, body))
+		} else {
+			super.sendUserSessionReport(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+		}
+	}
+
+	override func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, completion: @escaping (SeenStatusSendingResult) -> Void) {
 		if let sendSeenStatusClosure = sendSeenStatusClosure {
-			completion(sendSeenStatusClosure(applicationCode,pushRegistrationId,seenList))
+			completion(sendSeenStatusClosure(applicationCode,pushRegistrationId, body))
 		} else {
-			super.sendSeenStatus(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, seenList: seenList, completion: completion)
+			super.sendSeenStatus(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
 		}
 	}
 
-	override func sendMessages(applicationCode: String, pushRegistrationId: String, messages: [MOMessage], completion: @escaping (MOMessageSendingResult) -> Void) {
+	override func sendMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (MOMessageSendingResult) -> Void) {
 		if let sendMessagesClosure = sendMessagesClosure {
-			completion(sendMessagesClosure(applicationCode, pushRegistrationId,messages))
+			completion(sendMessagesClosure(applicationCode, pushRegistrationId, body))
 		} else {
-			super.sendMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, messages: messages, completion: completion)
+			super.sendMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
 		}
 	}
 
-	override func syncMessages(applicationCode: String, pushRegistrationId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void) {
+	override func syncMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (MessagesSyncResult) -> Void) {
 		if let syncMessagesClosure = syncMessagesClosure {
-			completion(syncMessagesClosure(applicationCode,pushRegistrationId,archiveMsgIds,dlrMsgIds))
+			completion(syncMessagesClosure(applicationCode,pushRegistrationId, body))
 		} else {
-			super.syncMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, archiveMsgIds: archiveMsgIds, dlrMsgIds: dlrMsgIds, completion: completion)
+			super.syncMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
 		}
 	}
 
@@ -246,7 +264,7 @@ class SessionManagerOfflineStubBase : DynamicBaseUrlHTTPSessionManager {
 		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: nil, appGroupId: nil)
 	}
 
-	override func sendRequest<R: RequestData>(_ request: R, completion: @escaping (JSON?, NSError?) -> Void) {
+	override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
 		completion(nil, MMInternalErrorType.UnknownError.foundationError)
 	}
 }
@@ -256,8 +274,8 @@ class SessionManagerStubBase : DynamicBaseUrlHTTPSessionManager {
 		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: nil, appGroupId: nil)
 	}
 
-	override func sendRequest<R: RequestData>(_ request: R, completion: @escaping (JSON?, NSError?) -> Void) {
-		if let responseJSON = Mocks.mockedResponseForRequest(request: request, appCode: request.applicationCode, pushRegistrationId: request.pushRegistrationId) {
+	override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
+		if let responseJSON = Mocks.mockedResponseForRequest(request: r, appCode: r.applicationCode, pushRegistrationId: r.pushRegistrationId) {
 
 			let statusCode = responseJSON[MockKeys.responseStatus].intValue
 			switch statusCode {
@@ -292,7 +310,6 @@ class DateStub: MMDate {
 func timeTravel(to date: Date, block: () -> Void) {
 	MobileMessaging.date = DateStub(nowStub: date)
 	block()
-	MobileMessaging.date = MMDate()
 }
 
 extension RequestData {

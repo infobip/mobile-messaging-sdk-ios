@@ -259,6 +259,7 @@ class DataModelsTests: MMTestCase {
 		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
 
 		XCTAssertNotNil(body["customAttributes"])
+		XCTAssertTrue((body["customAttributes"] as! [String : AttributeType]).isEmpty)
 	}
 
 	func testInstallationDataPayloadMapperForPostRequest() {

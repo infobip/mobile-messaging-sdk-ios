@@ -202,7 +202,7 @@ var buddhistCalendarDate_06_08_2560__12_20_16: Date {
 
 var japCalendarDate_06_08_0029__12_20_16: Date {
 	let comps = NSDateComponents()
-	comps.year = -1
+	comps.year = 29
 	comps.month = 8
 	comps.day = 6
 	comps.hour = 12

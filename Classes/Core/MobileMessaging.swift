@@ -82,7 +82,7 @@ public final class MobileMessaging: NSObject {
 	}
 
 	/** Syncronizes all available subservices with the server. */
-	public static func sync() {
+	public class func sync() {
 		MobileMessaging.sharedInstance?.sync()
 	}
 
@@ -91,7 +91,7 @@ public final class MobileMessaging: NSObject {
 	Use this method to completely drop any data persisted by the SDK (i.e. internal SDK data, optional user data, optional messages metadata).
 	- parameter clearKeychain: defines whether the internalId in keychain will be cleaned. True by default.
 	*/
-	public static func cleanUpAndStop(_ clearKeychain: Bool = true) {
+	public class func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		MobileMessaging.sharedInstance?.cleanUpAndStop(clearKeychain)
 	}
 
@@ -197,7 +197,7 @@ public final class MobileMessaging: NSObject {
 				completion(fetched, error)
 			}
 		} else {
-			completion(nil, NSError(type: .UnknownError))
+			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -215,7 +215,7 @@ public final class MobileMessaging: NSObject {
 				completion(fetched, error)
 			}
 		} else {
-			completion(nil, NSError(type: .UnknownError))
+			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -231,7 +231,7 @@ public final class MobileMessaging: NSObject {
 		if let us = MobileMessaging.sharedInstance?.userService {
 			us.save(userData: user, completion: completion)
 		} else {
-			completion(NSError(type: .UnknownError))
+			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -247,7 +247,7 @@ public final class MobileMessaging: NSObject {
 		if let service = MobileMessaging.sharedInstance?.installationService {
 			service.save(installationData: installation, completion: completion)
 		} else {
-			completion(NSError(type: .UnknownError))
+			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -292,7 +292,7 @@ public final class MobileMessaging: NSObject {
 		if let service = MobileMessaging.sharedInstance?.installationService {
 			service.depersonalize(completion: completion)
 		} else {
-			completion(SuccessPending.undefined, NSError(type: .UnknownError))
+			completion(SuccessPending.undefined, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -327,7 +327,7 @@ public final class MobileMessaging: NSObject {
 		if let service = MobileMessaging.sharedInstance?.userService {
 			service.personalize(forceDepersonalize: forceDepersonalize, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
 		} else {
-			completion(NSError(type: .UnknownError))
+			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -345,7 +345,7 @@ public final class MobileMessaging: NSObject {
 		if let service = MobileMessaging.sharedInstance?.userService {
 			service.setInstallation(withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
 		} else {
-			completion(nil, NSError(type: .UnknownError))
+			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -362,7 +362,7 @@ public final class MobileMessaging: NSObject {
 		if let service = MobileMessaging.sharedInstance?.userService {
 			service.depersonalizeInstallation(withPushRegistrationId: pushRegId, completion: completion)
 		} else {
-			completion(nil, NSError(type: .UnknownError))
+			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -380,7 +380,7 @@ public final class MobileMessaging: NSObject {
 				completion(user.installations, error)
 			}
 		} else {
-			completion(nil, NSError(type: .UnknownError))
+			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 
@@ -391,6 +391,7 @@ public final class MobileMessaging: NSObject {
 	*/
 	public class func setSeen(messageIds: [String], completion: @escaping () -> Void) {
 		guard let mm = MobileMessaging.sharedInstance else {
+			completion()
 			return
 		}
 		mm.setSeen(messageIds, immediately: false, completion: completion)
@@ -399,14 +400,14 @@ public final class MobileMessaging: NSObject {
 	/**
 	Asynchronously sends mobile originated messages to the server.
 	- parameter messages: Array of objects of `MOMessage` class that need to be sent.
-	- parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages, that cont
+	- parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages
 	- parameter messages: List of messages sent if no error happened
 	- parameter error: Optional error
 	*/
 	public class func sendMessages(_ messages: [MOMessage], completion: @escaping (_ messages: [MOMessage]?, _ error: NSError?) -> Void) {
 		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
 		guard let mm = MobileMessaging.sharedInstance else {
-			completion(nil, NSError(type: MMInternalErrorType.UnknownError))
+			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 			return
 		}
 		mm.sendMessagesUserInitiated(messages, completion: completion)
@@ -445,6 +446,28 @@ public final class MobileMessaging: NSObject {
 				data.badgeNumber = newValue
 			}
 		}
+	}
+
+	/**
+	Asynchronously submits a custom event and immediately sends it to the server. If any connection error occured or the server responded with "Bad request" error, you have to handle the error yourself, perform retries if needed.
+	- parameter customEvent: Custom event to be sent to the server.
+	- parameter completion: The block to execute after the server responded.
+	- parameter error: Optional error.
+	*/
+	public class func submitEvent(_ customEvent: CustomEvent, completion: @escaping (_ error: NSError?) -> Void) {
+		if let es = MobileMessaging.sharedInstance?.eventsService {
+			es.submitEvent(customEvent: customEvent, reportImmediately: true, completion: completion)
+		} else {
+			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
+		}
+	}
+
+	/**
+	Asynchronously submits the custom event and sends it to the server eventually. If something went wrong during the communication with the server, the request will be retied until the event succesfully accepted.
+	- parameter customEvent: Custom event to be sent to the server.
+	*/
+	public class func submitEvent(_ customEvent: CustomEvent) {
+		MobileMessaging.sharedInstance?.eventsService.submitEvent(customEvent: customEvent, reportImmediately: false, completion: {_ in})
 	}
 
 	//MARK: Internal
@@ -539,6 +562,8 @@ public final class MobileMessaging: NSObject {
 		appListener = nil
 		messageHandler = nil
 		remoteApiProvider = nil
+		userSessionService = nil
+		eventsService = nil
 
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
@@ -655,7 +680,9 @@ public final class MobileMessaging: NSObject {
 		if NotificationsInteractionService.sharedInstance == nil {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
 		}
+		userSessionService = UserSessionService(mmContext: self)
 		userService = UserDataService(mmContext: self)
+		eventsService = EventsService(mmContext: self)
 		installationService = InstallationDataService(mmContext: self)
 		appListener = MMApplicationListener(mmContext: self)
 		messageStorages.values.forEach({ $0.start() })
@@ -689,6 +716,8 @@ public final class MobileMessaging: NSObject {
 	var userService: UserDataService!
 	var installationService: InstallationDataService!
 	var appListener: MMApplicationListener!
+	var userSessionService: UserSessionService!
+	var eventsService: EventsService!
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)

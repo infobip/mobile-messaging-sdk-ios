@@ -17,7 +17,7 @@ public final class MMDefaultLogger: NSObject, MMLogging {
     
     public var logLevel: MMLogLevel = .All
     
-    public var logFilePath: String? = nil
+    public var logFilePaths: [String]? = nil
     
     public func sendLogs(fromViewController vc: UIViewController) {
         
@@ -69,7 +69,7 @@ func formattedLogEntry(date: Date, icon: LogIcons, message: String) -> String {
 @objc public protocol MMLogging {
 	var logOutput: MMLogOutput {set get}
 	var logLevel: MMLogLevel {set get}
-	var logFilePath: String? {get}
+	var logFilePaths: [String]? {get}
 	func sendLogs(fromViewController vc: UIViewController)
 	func logDebug(message: String)
 	func logInfo(message: String)

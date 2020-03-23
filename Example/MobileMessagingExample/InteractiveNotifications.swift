@@ -11,7 +11,7 @@ import MobileMessaging
 extension AppDelegate {
 	func setupLogging() {
 		MobileMessaging.logger?.logOutput = MMLogOutput.Console
-		MobileMessaging.logger?.logLevel = .All
+		MobileMessaging.logger?.logLevel = .Debug
 	}
 	
 	var customCategories: Set<NotificationCategory> {

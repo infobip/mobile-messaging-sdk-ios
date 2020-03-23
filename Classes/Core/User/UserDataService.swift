@@ -134,6 +134,14 @@ class UserDataService: MobileMessagingService {
 		completion()
 	}
 
+	override func appWillEnterForeground(_ n: Notification) {
+		syncWithServer({_ in})
+	}
+
+	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
+		syncWithServer({_ in})
+	}
+
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		MMLogDebug("[UserDataService] sync user data with server")
 

@@ -43,7 +43,7 @@ extension ArchivableCurrent where Self: NSCopying {
 		handleCurrentChanges(old: old, new: self)
 	}
 	func archive(at path: String) {
-		MMLogDebug("Archiving \(self) at \(path)")
+		MMLogVerbose("Archiving \(self) at \(path)")
 		let save = self.copy() as! Self
 		save.removeSensitiveData()
 		NSKeyedArchiver.archiveRootObject(save, toFile: path)
@@ -63,15 +63,15 @@ extension ArchivableCurrent where Self: NSCopying {
 	}
 	static func unarchive(from path: String) -> Self? {
 		let unarchived = NSKeyedUnarchiver.unarchiveObject(withFile: path) as? Self
-		MMLogDebug("Unarchived \(String(describing: unarchived)) from \(path)")
+		MMLogVerbose("Unarchived \(String(describing: unarchived)) from \(path)")
 		return unarchived
 	}
 	static func removeArchive(at path: String) {
-		MMLogDebug("Removing archive at \(path)")
+		MMLogVerbose("Removing archive at \(path)")
 		do {
 			try FileManager.default.removeItem(atPath: path)
 		} catch {
-			MMLogDebug("Unexpected error while removing archive at \(path): \(error)")
+			MMLogError("Unexpected error while removing archive at \(path): \(error)")
 		}
 	}
 	static func modifyCurrent(with block: (Self) -> Void) {

@@ -17,8 +17,8 @@ class SanitizedJSONSerialization: JSONSerialization {
 	}
 }
 
-struct JSONRequestEncoding<R: RequestData>: ParameterEncoding {
-	let request: R
+struct JSONRequestEncoding: ParameterEncoding {
+	let request: RequestData
 	func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
 		var urlRequest = try urlRequest.asURLRequest()
 		if let jsonBody = request.body {
@@ -79,12 +79,11 @@ class DynamicBaseUrlHTTPSessionManager {
 		return storage.get()
 	}
 
-	func url<R: RequestData>(_ r: R) -> String {
+	func url(_ r: RequestData) -> String {
 		return (dynamicBaseUrl ?? originalBaseUrl).absoluteString + r.resolvedPath
 	}
 
-	func sendRequest<R: RequestData>(_ r: R, completion: @escaping (JSON?, NSError?) -> Void) {
-
+	func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
 		let request = alamofireSessionManager.request(url(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
 		MMLogDebug("Sending request: \n\(String(reflecting: request))")
 
@@ -118,6 +117,7 @@ class DynamicBaseUrlHTTPSessionManager {
 				""")
 
 			let responseJson = JSON(data: data)
+
 			if let serviceError = RequestError(json: responseJson) {
 				MMLogWarn("""
 				Service error while performing request:

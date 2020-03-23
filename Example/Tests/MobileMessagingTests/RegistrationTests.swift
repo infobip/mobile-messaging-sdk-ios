@@ -493,12 +493,11 @@ final class RegistrationTests: MMTestCase {
 
 class NotificationsEnabledMock: MMApplication {
 	var applicationState: UIApplication.State { return .active }
-	
 	var applicationIconBadgeNumber: Int {
 		get { return 0 }
 		set {}
 	}
-	
+	var rootViewController: UIViewController? { return nil }
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
@@ -511,12 +510,11 @@ class NotificationsEnabledMock: MMApplication {
 
 class NotificationsDisabledMock: MMApplication {
 	var applicationState: UIApplication.State { return .active }
-	
 	var applicationIconBadgeNumber: Int {
 		get { return 0 }
 		set {}
 	}
-	
+	var rootViewController: UIViewController? { return nil }
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}

@@ -8,51 +8,119 @@
 
 import Foundation
 
-final class MMApplicationListener: NSObject {
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-	init(mmContext: MobileMessaging) {
-		self.mmContext = mmContext
-        super.init()
+final class MMApplicationListener: MobileMessagingService {
+	deinit {
+		NotificationCenter.default.removeObserver(self)
+	}
 
-		if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {
-		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppWillEnterForegroundNotification), name: UIApplication.willEnterForegroundNotification, object: nil)
-		
-		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleAppDidFinishLaunchingNotification(n:)), name: UIApplication.didFinishLaunchingNotification, object: nil)
-		
-		NotificationCenter.default.addObserver(self, selector: #selector(MMApplicationListener.handleGeoServiceDidStartNotification), name: NSNotification.Name(rawValue: MMNotificationGeoServiceDidStart), object: nil)
-		}
-    }
+	init(mmContext: MobileMessaging) {
+		super.init(mmContext: mmContext, id: "MMApplicationListener")
+	}
+
+	override func mobileMessagingWillStart(_ mmContext: MobileMessaging) {
+		start({ _ in})
+	}
+
+	override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
+		stop({ _ in})
+	}
+
+	override func start(_ completion: @escaping (Bool) -> Void) {
+		setupObservers()
+		super.start(completion)
+	}
+
+	override func stop(_ completion: @escaping (Bool) -> Void) {
+		NotificationCenter.default.removeObserver(self)
+		super.stop({ _ in })
+	}
 	
 	//MARK: Internal
-	@objc func handleAppWillEnterForegroundNotification() {
-		performPeriodicWork()
+	@objc func handleAppWillEnterForegroundNotification(_ n: Notification) {
+		mmContext.performForEachSubservice { (s) in
+			s.appWillEnterForeground(n)
+		}
 	}
 	
-	@objc func handleAppDidFinishLaunchingNotification(n: Notification) {
+	@objc func handleAppDidFinishLaunchingNotification(_ n: Notification) {
 		guard n.userInfo?[UIApplication.LaunchOptionsKey.remoteNotification] == nil else {
-			// we don't want to perfrom sync on launching when push received.
+			// we don't want to work on launching when push received.
 			return
 		}
-		performPeriodicWork()
+		mmContext.performForEachSubservice { (s) in
+			s.appDidFinishLaunching(n)
+		}
 	}
 	
-	@objc func handleGeoServiceDidStartNotification() {
-		mmContext?.installationService?.syncSystemDataWithServer() { _ in }
+	@objc func handleGeoServiceDidStartNotification(_ n: Notification) {
+		mmContext.performForEachSubservice { (s) in
+			s.geoServiceDidStart(n)
+		}
 	}
+
+	@objc private func handleDidBecomeActive(_ n: Notification) {
+		mmContext.performForEachSubservice { (s) in
+			s.appDidBecomeActive(n)
+		}
+	}
+
+	@objc private func handleAppWillResignActive(_ n: Notification) {
+		mmContext.performForEachSubservice { (s) in
+			s.appWillResignActive(n)
+		}
+	}
+
+	@objc private func handleAppWillTerminate(_ n: Notification) {
+		mmContext.performForEachSubservice { (s) in
+			s.appWillTerminate(n)
+		}
+	}
+
+	@objc private func handleAppDidEnterBackground(_ n: Notification) {
+		mmContext.performForEachSubservice { (s) in
+			s.appDidEnterBackground(n)
+		}
+	}
+
 	
 	//MARK: Private
-	weak private var mmContext: MobileMessaging?
-
-	private func performPeriodicWork() {
-		guard let mm = mmContext else {
+	private func setupObservers() {
+		guard !isTestingProcessRunning else {
 			return
 		}
-		mm.sync()
-		if mm.internalData().currentDepersonalizationStatus == .pending {
-			mm.installationService.depersonalize(completion: { _, _ in })
-		}
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleAppWillResignActive(_:)),
+			name: UIApplication.willResignActiveNotification, object: nil)
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleDidBecomeActive(_:)),
+			name: UIApplication.didBecomeActiveNotification, object: nil)
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleAppWillTerminate(_:)),
+			name: UIApplication.willTerminateNotification, object: nil)
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleAppDidEnterBackground(_:)),
+			name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleAppWillEnterForegroundNotification(_:)),
+			name: UIApplication.willEnterForegroundNotification, object: nil)
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleAppDidFinishLaunchingNotification(_:)),
+			name: UIApplication.didFinishLaunchingNotification, object: nil)
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(handleGeoServiceDidStartNotification(_:)),
+			name: NSNotification.Name(rawValue: MMNotificationGeoServiceDidStart), object: nil)
 	}
 }

@@ -39,7 +39,7 @@ class SessionManagerSuccessMock: DynamicBaseUrlHTTPSessionManager {
 		self.storage = DynamicBaseUrlStorageStub()
 	}
 
-	override func sendRequest<R>(_ request: R, completion: @escaping (JSON?, NSError?) -> Void) where R : RequestData {
+	override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
 		completion(responseJson(request), nil)
 	}
 }

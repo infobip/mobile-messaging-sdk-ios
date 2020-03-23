@@ -230,7 +230,6 @@ class UserDataTests: MMTestCase {
 		XCTAssertTrue(b["tags"] is [String])
 	}
 
-
 	func testThatUserDataIsNotPersistedIfPrivacySettingsSpecified() {
 		MobileMessaging.privacySettings.userDataPersistingDisabled = true
 		mobileMessagingInstance.pushRegistrationId = "123"

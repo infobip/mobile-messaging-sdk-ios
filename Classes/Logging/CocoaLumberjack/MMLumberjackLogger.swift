@@ -52,7 +52,7 @@ func lumberjackLogLevel(from mmLogLevel: MMLogLevel) -> DDLogLevel {
 /// - setting up logging options and logging levels.
 /// - obtaining a path to the logs file, in case the Logging utility is set up to log in file (logging options contains `.File` option).
 public final class MMLumberjackLogger: NSObject, MMLogging {
-	let context = "mobilemessaging".hash
+	let context = "mobilemessaging".stableHash
 	
 
 	/// An array of `MMLoggingOptions` instances to setup log outputs. For debug builds, default value is `Console`. For release builds, default value is `File`.
@@ -90,12 +90,14 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 	/// Path to the logs file.
 	///
 	/// Non null, if `loggingOption` contains `.file`.
-	public var logFilePath: String? {
+	public var logFilePaths: [String]? {
 		guard let filelogger = self.fileLogger else {
 			return nil
 		}
 		
-		return filelogger.currentLogFileInfo.filePath
+		return filelogger.logFileManager.sortedLogFileInfos.map({ (info) -> String in
+			return info.filePath
+		}) // .currentLogFileInfo.filePath
 	}
 	
 	public init(logOutput: MMLogOutput, logLevel: MMLogLevel) {
@@ -130,12 +132,13 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 			objectsToShare.append("Push registration ID: \(id)")
 		}
 		
-		if let filePath = self.logFilePath {
-			let url = NSURL(fileURLWithPath: filePath)
-			objectsToShare.append(url)
-			let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
-			vc.present(activityVC, animated: true, completion: nil)
-		}
+
+		self.logFilePaths?.forEach({ (path) in
+			objectsToShare.append(NSURL(fileURLWithPath: path))
+		})
+		let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+		vc.present(activityVC, animated: true, completion: nil)
+
 	}
 	
 	//MARK: Private
@@ -197,6 +200,8 @@ final class MMLogFormatter: NSObject, DDLogFormatter {
 			icon = LogIcons.all
 		case .off:
 			icon = LogIcons.off
+		@unknown default:
+			fatalError()
 		}
 		return formattedLogEntry(date: logMessage.timestamp, icon: icon, message: logMessage.message)
 	}

@@ -19,7 +19,7 @@ class SeenStatusSendingOperation: Operation {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 	}
-	
+
 	override func execute() {
 		context.perform {
 			self.context.reset()
@@ -29,17 +29,11 @@ class SeenStatusSendingOperation: Operation {
 				self.finish()
 				return
 			}
-			let seenStatusesToSend = seenNotSentMessages.compactMap { msg -> SeenData? in
-				guard let seenDate = msg.seenDate else {
-					return nil
-				}
-				return SeenData(messageId: msg.messageId, seenDate: seenDate)
-			}
 			
 			self.mmContext.remoteApiProvider.sendSeenStatus(
 				applicationCode: self.mmContext.applicationCode,
 				pushRegistrationId: self.mmContext.currentInstallation().pushRegistrationId,
-				seenList: seenStatusesToSend,
+				body: SeenReportMapper.requestBody(seenNotSentMessages),
 				completion: { result in
 					self.result = result
 					self.handleSeenResult(result, messages: seenNotSentMessages) {

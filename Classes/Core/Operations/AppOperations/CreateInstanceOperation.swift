@@ -69,7 +69,7 @@ class CreateInstanceOperation : Operation {
 			if response.pushRegistrationId != currentInstallation.pushRegistrationId {
 				// this is to force system data sync for the new registration
 				let id = mmContext.internalData()
-				id.registrationDate = id.registrationDate ?? Date()
+				id.registrationDate = id.registrationDate ?? MobileMessaging.date.now
 				id.systemDataHash = 0
 				id.archiveCurrent()
 			}

@@ -27,6 +27,8 @@ final class MessagesEvictionOperation: Operation {
 			let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-self.messageMaximumAge)
 			
 			MessageManagedObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "creationDate <= %@", dateToCompare as CVarArg), inContext: self.context)
+			UserSessionReportObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "startDate <= %@", dateToCompare as CVarArg), inContext: self.context)
+			CustomEventObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "eventDate <= %@", dateToCompare as CVarArg), inContext: self.context)
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		finish()

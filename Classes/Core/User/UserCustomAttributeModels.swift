@@ -50,6 +50,7 @@ import Foundation
 //	}
 //}
 
+public typealias EventPropertyType = AttributeType
 @objc public protocol AttributeType: AnyObject {}
 extension NSDate: AttributeType {}
 extension NSNumber: AttributeType {}

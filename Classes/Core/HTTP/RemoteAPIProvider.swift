@@ -7,59 +7,6 @@
 
 import Foundation
 
-protocol GeneralRemoteAPIProtocol: SessionManagement {
-	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData], completion: @escaping (SeenStatusSendingResult) -> Void)
-
-	func sendMessages(applicationCode: String, pushRegistrationId: String, messages: [MOMessage], completion: @escaping (MOMessageSendingResult) -> Void)
-
-	func syncMessages(applicationCode: String, pushRegistrationId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void)
-
-	func fetchRecentLibraryVersion(applicationCode: String, pushRegistrationId: String?, completion: @escaping (LibraryVersionResult) -> Void)
-
-	func depersonalize(applicationCode: String, pushRegistrationId: String, pushRegistrationIdToDepersonalize: String, completion: @escaping (DepersonalizeResult) -> Void)
-
-	func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, completion: @escaping (PersonalizeResult) -> Void)
-
-	func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateUserDataResult) -> Void)
-
-	func getUser(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchUserDataResult) -> Void)
-
-	func patchInstance(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void)
-
-	func postInstance(applicationCode: String, body: RequestBody, completion: @escaping (FetchInstanceDataResult) -> Void)
-
-	func patchOtherInstance(applicationCode: String, authPushRegistrationId: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void)
-
-	func getInstance(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchInstanceDataResult) -> Void)
-
-	func deleteInstance(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String, completion: @escaping (UpdateInstanceDataResult) -> Void)
-}
-
-protocol SessionManagement {
-	var sessionManager: DynamicBaseUrlHTTPSessionManager { get }
-	func convertJSONToResult<R: RequestData>(request: R, json: JSON?, error: NSError?) -> MMResult<R.ResponseType>
-	func performRequest<R: RequestData>(request: R, completion: @escaping (MMResult<R.ResponseType>) -> Void)
-}
-
-extension SessionManagement {
-	func convertJSONToResult<R: RequestData>(request: R, json: JSON?, error: NSError?) -> MMResult<R.ResponseType> {
-		if let error = error {
-			return MMResult.Failure(error)
-		} else {
-			if let json = json, let response = R.ResponseType(json: json) {
-				return MMResult.Success(response)
-			} else {
-				return MMResult.Failure(NSError(type: .UnknownResponseFormat))
-			}
-		}
-	}
-	func performRequest<R: RequestData>(request: R, completion: @escaping (MMResult<R.ResponseType>) -> Void) {
-		sessionManager.sendRequest(request, completion: {
-			completion(self.convertJSONToResult(request: request, json: $0, error: $1))
-		})
-	}
-}
-
 class RemoteAPIProvider: GeneralRemoteAPIProtocol {
 	var sessionManager: DynamicBaseUrlHTTPSessionManager
 
@@ -67,18 +14,28 @@ class RemoteAPIProvider: GeneralRemoteAPIProtocol {
 		self.sessionManager = sessionManager
 	}
 
-	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, seenList: [SeenData], completion: @escaping (SeenStatusSendingResult) -> Void) {
-		let request = SeenStatusSendingRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, seenList: seenList)
+	func sendCustomEvent(applicationCode: String, pushRegistrationId: String, validate: Bool, body: RequestBody, completion: @escaping (CustomEventResult) -> Void) {
+		let request = PostCustomEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, validate: validate, requestBody: body)
+		performRequest(request: request, completion: completion)
+	}
+
+	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, completion: @escaping (SeenStatusSendingResult) -> Void) {
+		let request = SeenStatusSendingRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body)
+		performRequest(request: request, completion: completion)
+	}
+
+	func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UserSessionSendingResult) -> Void) {
+		let request = PostUserSession(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, requestBody: body)
 		performRequest(request: request, completion: completion)
 	}
 	
-	func sendMessages(applicationCode: String, pushRegistrationId: String, messages: [MOMessage], completion: @escaping (MOMessageSendingResult) -> Void) {
-		let request = MOMessageSendingRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, messages: messages)
+	func sendMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (MOMessageSendingResult) -> Void) {
+		let request = MOMessageSendingRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body)
 		performRequest(request: request, completion: completion)
 	}
 	
-	func syncMessages(applicationCode: String, pushRegistrationId: String, archiveMsgIds: [String]?, dlrMsgIds: [String]?, completion: @escaping (MessagesSyncResult) -> Void) {
-		let request = MessagesSyncRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, archiveMsgIds: archiveMsgIds, dlrMsgIds: dlrMsgIds)
+	func syncMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (MessagesSyncResult) -> Void) {
+		let request = MessagesSyncRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body)
 		performRequest(request: request, completion: completion)
 	}
 
@@ -144,4 +101,61 @@ class RemoteAPIProvider: GeneralRemoteAPIProtocol {
 		let request = DeleteInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId)
 		performRequest(request: request, completion: completion)
 	}
+}
+
+protocol SessionManagement {
+	var sessionManager: DynamicBaseUrlHTTPSessionManager { get }
+	func convertJSONToResult<Response: JSONDecodable>(request: RequestData, json: JSON?, error: NSError?) -> MMResult<Response>
+	func performRequest<Response: JSONDecodable>(request: RequestData, completion: @escaping (MMResult<Response>) -> Void)
+}
+
+extension SessionManagement {
+	func convertJSONToResult<Response: JSONDecodable>(request: RequestData, json: JSON?, error: NSError?) -> MMResult<Response> {
+		if let error = error {
+			return MMResult.Failure(error)
+		} else {
+			if let json = json, let response = Response(json: json) {
+				return MMResult.Success(response)
+			} else {
+				return MMResult.Failure(nil)
+			}
+		}
+	}
+	func performRequest<Response: JSONDecodable>(request: RequestData, completion: @escaping (MMResult<Response>) -> Void) {
+		sessionManager.getDataResponse(request, completion: {
+			completion(self.convertJSONToResult(request: request, json: $0, error: $1))
+		})
+	}
+}
+
+protocol GeneralRemoteAPIProtocol: SessionManagement {
+	func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UserSessionSendingResult) -> Void)
+
+	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, completion: @escaping (SeenStatusSendingResult) -> Void)
+
+	func sendMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (MOMessageSendingResult) -> Void)
+
+	func syncMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (MessagesSyncResult) -> Void)
+
+	func fetchRecentLibraryVersion(applicationCode: String, pushRegistrationId: String?, completion: @escaping (LibraryVersionResult) -> Void)
+
+	func depersonalize(applicationCode: String, pushRegistrationId: String, pushRegistrationIdToDepersonalize: String, completion: @escaping (DepersonalizeResult) -> Void)
+
+	func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, completion: @escaping (PersonalizeResult) -> Void)
+
+	func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateUserDataResult) -> Void)
+
+	func getUser(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchUserDataResult) -> Void)
+
+	func patchInstance(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void)
+
+	func postInstance(applicationCode: String, body: RequestBody, completion: @escaping (FetchInstanceDataResult) -> Void)
+
+	func patchOtherInstance(applicationCode: String, authPushRegistrationId: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void)
+
+	func getInstance(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchInstanceDataResult) -> Void)
+
+	func deleteInstance(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String, completion: @escaping (UpdateInstanceDataResult) -> Void)
+
+	func sendCustomEvent(applicationCode: String, pushRegistrationId: String, validate: Bool, body: RequestBody, completion: @escaping (CustomEventResult) -> Void)
 }

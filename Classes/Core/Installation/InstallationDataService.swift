@@ -84,6 +84,21 @@ final class InstallationDataService: MobileMessagingService{
 		completion()
 	}
 
+	override func appWillEnterForeground(_ n: Notification) {
+		syncWithServer({_ in})
+		performDepersonalizeIfNeeded()
+	}
+
+	override func geoServiceDidStart(_ n: Notification) {
+		syncSystemDataWithServer() { _ in }
+	}
+
+	private func performDepersonalizeIfNeeded() {
+		if mmContext.internalData().currentDepersonalizationStatus == .pending {
+			depersonalize(completion: { _, _ in })
+		}
+	}
+
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		MMLogDebug("[InstallationDataService] sync installation data with server...")
 

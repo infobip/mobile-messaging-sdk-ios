@@ -43,8 +43,8 @@ class LocalMessageFetchingTests : MMTestCase {
 
 
 			let remoteApiProvider = RemoteAPIProviderStub()
-			remoteApiProvider.syncMessagesClosure = { appcode, pushRegistrationId, archiveMsgIds, dlrMsgIds -> MessagesSyncResult in
-				if let dls = dlrMsgIds {
+			remoteApiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
+				if let dls = body["drIDs"] as? [String] {
 					dlrs.append(contentsOf: dls)
 				}
 				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)

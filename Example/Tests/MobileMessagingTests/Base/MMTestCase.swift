@@ -95,15 +95,12 @@ func sendPushes(_ preparingFunc:(String) -> [AnyHashable: Any], count: Int, rece
 
 
 class ActiveApplicationStub: MMApplication {
-	var applicationState: UIApplication.State {
-		return .active
-	}
-	
+	var applicationState: UIApplication.State { return .active }
 	var applicationIconBadgeNumber: Int {
 		get { return 0 }
 		set {}
 	}
-	
+	var rootViewController: UIViewController? { return nil }
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
@@ -112,17 +109,28 @@ class ActiveApplicationStub: MMApplication {
 	var currentUserNotificationSettings: UIUserNotificationSettings? { return nil }
 }
 
-
-class InactiveApplicationStub: MMApplication {
-	var applicationState: UIApplication.State {
-		return .inactive
-	}
-	
+class DefaultApplicationStub: MMApplication {
+	var applicationState: UIApplication.State { return .active }
 	var applicationIconBadgeNumber: Int {
 		get { return 0 }
 		set {}
 	}
+	var rootViewController: UIViewController? { return nil }
+	var isRegisteredForRemoteNotifications: Bool { return true }
+	func unregisterForRemoteNotifications() {}
+	func registerForRemoteNotifications() {}
+	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
+	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
+	var currentUserNotificationSettings: UIUserNotificationSettings? { return nil }
+}
 
+class InactiveApplicationStub: MMApplication {
+	var applicationState: UIApplication.State { return .inactive }
+	var applicationIconBadgeNumber: Int {
+		get { return 0 }
+		set {}
+	}
+	var rootViewController: UIViewController? { return nil }
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
@@ -161,7 +169,7 @@ class MMTestCase: XCTestCase {
         super.setUp()
 		MobileMessaging.logger = MMDefaultLogger()
         MobileMessaging.logger?.logOutput = .Console
-        MobileMessaging.logger?.logLevel = .All
+        MobileMessaging.logger?.logLevel = .Debug
 		MobileMessaging.date = DateStub(nowStub: Date(timeIntervalSince1970: testEnvironmentTimestampMillisSince1970/1000))
         MMTestCase.startWithCorrectApplicationCode()
     }

@@ -116,6 +116,10 @@ public class ChatMessage: NSObject, ChatMessageProtocol {
 	public var sendDateTime: TimeInterval {
 		return mt?.sendDateTime ?? 0
 	}
+
+	public var inAppExpiryDateTime: TimeInterval? {
+		return mt?.inAppExpiryDateTime
+	}
 	
 	public var seenStatus: MMSeenStatus {
 		return mt?.seenStatus ?? .NotSeen

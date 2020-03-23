@@ -99,12 +99,10 @@ class MMMessageHandler: MobileMessagingService {
 				
 				for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
 					newMessages?.forEach { m in
-						print("{{{{")
 						group.enter()
 						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start new message handling \(m.messageId)")
 						subservice.handleNewMessage(m, completion: { _ in
 							MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop new message handling \(m.messageId)")
-							print("}}}}")
 							group.leave()
 						})
 					}
@@ -248,6 +246,10 @@ class MMMessageHandler: MobileMessagingService {
 				completion(result.value?.messages, result.error)
 			}
 		))
+	}
+
+	override func appWillEnterForeground(_ n: Notification) {
+		syncWithServer({_ in})
 	}
 
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {

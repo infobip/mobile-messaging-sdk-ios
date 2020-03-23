@@ -97,7 +97,8 @@ class MessagePostingOperation: Operation {
 	
 	func sendMessages(_ msgs: [MOMessage], pushRegistrationId: String) {
 		UserEventsManager.postWillSendMessageEvent(msgs)
-		self.mmContext.remoteApiProvider.sendMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, messages: msgs) { result in
+		let body = MOSendingMapper.requestBody(pushRegistrationId: pushRegistrationId, messages: msgs)
+		self.mmContext.remoteApiProvider.sendMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body) { result in
 			self.operationResult = result
 			self.handleResult(result: result, originalMessagesToSend: msgs) {
 				self.finishWithError(result.error)

@@ -27,7 +27,7 @@ class MMOperationQueue: OperationQueue {
 	var operationName: String {
 		return "com.mobile-messaging.default-queue"
 	}
-	
+
 	class var newSerialQueue: MMOperationQueue {
 		let newQ = MMOperationQueue()
 		newQ.maxConcurrentOperationCount = 1

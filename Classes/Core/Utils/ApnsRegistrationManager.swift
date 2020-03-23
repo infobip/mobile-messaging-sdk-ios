@@ -109,7 +109,7 @@ class ApnsRegistrationManager {
 		}
 		
 		do {
-			let dateString = DateStaticFormatters.ISO8601SecondsFormatter.string(from: Date())
+			let dateString = DateStaticFormatters.ISO8601SecondsFormatter.string(from: MobileMessaging.date.now)
 			try dateString.write(to: flagUrl, atomically: true, encoding: ApnsRegistrationManager.encoding)
 			
 			var resourceValues = URLResourceValues()

@@ -64,8 +64,9 @@ final class MessageFetchingOperation: Operation {
 			let archveMessageIds = self.getArchiveMessageIds()
 			
 			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
-			
-			self.mmContext.remoteApiProvider.syncMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds) { result in
+
+			let body = MessageSyncMapper.requestBody(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
+			self.mmContext.remoteApiProvider.syncMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body) { result in
 				self.result = result
 				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds) {
 					self.finish()

@@ -295,6 +295,10 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 	}
 
+	override func appWillEnterForeground(_ n: Notification) {
+		syncWithServer({_ in})
+	}
+
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		self.mmContext.retryMoMessageSending() { (_, error) in
 			completion(error)

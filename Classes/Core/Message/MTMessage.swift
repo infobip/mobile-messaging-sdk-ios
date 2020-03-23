@@ -47,6 +47,9 @@ public protocol MTMessageProtocol {
 	
 	/// Servers datetime
 	var sendDateTime: TimeInterval {get} // seconds
+
+	/// Date of message expiration (validity period)
+	var inAppExpiryDateTime: TimeInterval? {get} // seconds
 	
 	/// Messages seen status
 	var seenStatus: MMSeenStatus {get}
@@ -72,11 +75,14 @@ public protocol MTMessageProtocol {
 
 @objcMembers
 public class MTMessage: BaseMessage, MTMessageProtocol {
+
 	public var appliedAction: NotificationAction?
 	
 	public var aps: PushPayloadAPS
 	
 	public var sendDateTime: TimeInterval
+
+	public var inAppExpiryDateTime: TimeInterval?
 	
 	public var seenStatus: MMSeenStatus
 	
@@ -131,6 +137,14 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 			resolvedStyle = defaultStyle
 		}
 		return resolvedStyle
+	}
+
+	public var isExpired: Bool {
+		if let expirationDateTime = inAppExpiryDateTime {
+			return MobileMessaging.date.now.timeIntervalSince1970 > expirationDateTime
+		} else {
+			return false
+		}
 	}
 	
 	public var isGeoSignalingMessage: Bool {
@@ -213,6 +227,9 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 			self.sendDateTime = sendDateTimeMillis/1000
 		} else {
 			self.sendDateTime = MobileMessaging.date.now.timeIntervalSince1970
+		}
+		if let expirationMillis = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.inAppExpiryDateTime] as? Double {
+			self.inAppExpiryDateTime = expirationMillis/1000
 		}
 		self.seenStatus = seenStatus
 		self.isDeliveryReportSent = isDeliveryReportSent

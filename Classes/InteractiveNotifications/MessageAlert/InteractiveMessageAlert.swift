@@ -8,6 +8,10 @@
 import Foundation
 import UserNotifications
 
+@objc protocol InAppAlertDelegate {
+	func willDisplay(_ message: MTMessage)
+}
+
 public class InteractiveMessageAlertSettings: NSObject {
 	public static var errorPlaceholderText: String = "Sorry, couldn't load the image"
 	public static var tintColor = UIColor(red: 0, green: 122, blue: 255, alpha: 1)
@@ -16,13 +20,14 @@ public class InteractiveMessageAlertSettings: NSObject {
 
 class InteractiveMessageAlertManager {
 	static let sharedInstance = InteractiveMessageAlertManager()
-	
+	var delegate: InAppAlertDelegate?
+
 	func cancelAllAlerts() {
 		AlertQueue.sharedInstace.cancelAllAlerts()
 	}
 
 	func showModalNotificationIfNeeded(forMessage message: MTMessage) {
-		guard let inAppStyle = message.inAppStyle, shouldShowInAppNotification(forMessage: message) else {
+		guard let inAppStyle = message.inAppStyle else {
 			return
 		}
 
@@ -50,12 +55,15 @@ class InteractiveMessageAlertManager {
 	}
 
 	private func shouldShowInAppNotification(forMessage message: MTMessage) -> Bool {
-		return (message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) || message.appliedAction == nil
+		let enabled = InteractiveMessageAlertSettings.enabled
+		let notExpired = !message.isExpired
+		let noActionPerformed = (message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) || message.appliedAction == nil
+		let inAppRequired = message.inAppStyle != nil
+		return enabled && notExpired && inAppRequired && noActionPerformed
 	}
 
 	private func showModalNotification(forMessage message: MTMessage, exclusively: Bool) {
-		guard InteractiveMessageAlertSettings.enabled, let text = message.text else
-		{
+		guard shouldShowInAppNotification(forMessage: message), let text = message.text else {
 			return
 		}
 
