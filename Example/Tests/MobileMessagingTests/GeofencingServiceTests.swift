@@ -11,14 +11,14 @@ import CoreLocation
 
 class GeofencingServiceTests: MMTestCase {
 	
-	func testDatesFromDifferentCalendarsCanBeCompared() {
-		MMTestCase.cleanUpAndStop()
-		XCTAssertEqual(japCalendarDate_06_08_0029__12_20_16, gregorianCalendarDate_06_08_2017__12_20_16)
-		XCTAssertEqual(japCalendarDate_06_08_0029__12_20_16.compare(gregorianCalendarDate_06_08_2017__12_20_16), .orderedSame)
-		
-		XCTAssertEqual(buddhistCalendarDate_06_08_2560__12_20_16, gregorianCalendarDate_06_08_2017__12_20_16)
-		XCTAssertEqual(buddhistCalendarDate_06_08_2560__12_20_16.compare(gregorianCalendarDate_06_08_2017__12_20_16), .orderedSame)
-	}
+//	func testDatesFromDifferentCalendarsCanBeCompared() {
+//		MMTestCase.cleanUpAndStop()
+//		XCTAssertEqual(japCalendarDate_06_08_0029__12_20_16, gregorianCalendarDate_06_08_2017__12_20_16)
+//		XCTAssertEqual(japCalendarDate_06_08_0029__12_20_16.compare(gregorianCalendarDate_06_08_2017__12_20_16), .orderedSame)
+//
+//		XCTAssertEqual(buddhistCalendarDate_06_08_2560__12_20_16, gregorianCalendarDate_06_08_2017__12_20_16)
+//		XCTAssertEqual(buddhistCalendarDate_06_08_2560__12_20_16.compare(gregorianCalendarDate_06_08_2017__12_20_16), .orderedSame)
+//	}
 	
 	func testThatDifferentCalendarsSupported() {
 		MMTestCase.cleanUpAndStop()
