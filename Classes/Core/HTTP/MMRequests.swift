@@ -186,6 +186,7 @@ class RequestData {
 		headers["sessionId"] = MobileMessaging.sharedInstance?.userSessionService.currentSessionId
 		headers["Accept"] = "application/json"
 		headers["Content-Type"] = "application/json"
+		headers["installationid"] = MobileMessaging.sharedInstance?.installationService?.getUniversalInstallationId()
 		return headers
 	}
 	let body: RequestBody?

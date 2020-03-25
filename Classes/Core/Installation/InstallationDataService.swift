@@ -16,6 +16,17 @@ final class InstallationDataService: MobileMessagingService{
 		super.init(mmContext: mmContext, id: "InstallationDataService")
 	}
 
+	func getUniversalInstallationId() -> String {
+		let key = "com.mobile-messaging.universal-installation-id"
+		if let universalInstallationId = UserDefaults.standard.string(forKey: key) {
+			return universalInstallationId
+		} else {
+			let universalInstallationId = UUID().uuidString
+			UserDefaults.standard.set(value: universalInstallationId, key: key)
+			return universalInstallationId
+		}
+	}
+
 	func save(deviceToken: Data, completion: @escaping (NSError?) -> Void) {
 		let di = mmContext.dirtyInstallation()
 		di.pushServiceToken = deviceToken.mm_toHexString
