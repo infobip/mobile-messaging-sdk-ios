@@ -63,13 +63,21 @@ func ==(_ l: AttributeType, _r: AttributeType) -> Bool {
 
 extension Dictionary where Value == JSON, Key == String {
 	var decodeCustomAttributesJSON: [String : AttributeType] {
+		return decodeJSON(attributes: self, withDateFormatter: DateStaticFormatters.ContactsServiceDateFormatter)
+	}
+	
+	var decodeCustomEventPropertiesJSON: [String : AttributeType] {
+		return decodeJSON(attributes: self, withDateFormatter: DateStaticFormatters.ISO8601SecondsFormatter)
+	}
+	
+	func decodeJSON(attributes: [String : JSON], withDateFormatter dateFormatter: DateFormatter) -> [String : AttributeType] {
 		return self.reduce([String: AttributeType](), { (result, pair) -> [String: AttributeType] in
 			if var value = pair.value.rawValue as? AttributeType {
 				if value is NSNull {
 					return result
 				}
 				if let stringValue = value as? String, stringValue.prefix(1).isNumber {
-					if let date = DateStaticFormatters.ContactsServiceDateFormatter.date(from: stringValue) {
+					if let date = dateFormatter.date(from: stringValue) {
 						value = date as NSDate
 					}
 				}

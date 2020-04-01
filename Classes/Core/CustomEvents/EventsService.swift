@@ -36,6 +36,16 @@ CustomEvent class represents Custom event. Events allow you to track arbitrary u
 		self.properties = properties
 		super.init(definitionId: definitionId)
 	}
+	
+	//Method is needed for plugins support
+	public required convenience init?(dictRepresentation dict: DictionaryRepresentation) {
+		let value = JSON.init(dict)
+		guard let definitionId = value["definitionId"].string else {
+			return nil
+		}
+		self.init(definitionId: definitionId,
+				  properties: value["properties"].dictionary?.decodeCustomEventPropertiesJSON)
+	}
 }
 
 class EventsService: MobileMessagingService {
