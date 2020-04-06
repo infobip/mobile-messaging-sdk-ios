@@ -69,6 +69,7 @@ class MessageHandlingDelegateMock : MessageHandlingDelegate {
         didPerformActionHandler?(action, message, completion)
         completion()
     }
+
 }
 
 

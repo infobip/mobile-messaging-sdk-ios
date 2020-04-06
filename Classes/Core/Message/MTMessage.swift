@@ -120,6 +120,14 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 
 	//	var downloadedPictureUrl: URL? //NOTE: this field may be used to keep url of downloaded content/cache
 
+	public var webViewUrl: URL? {
+		if let urlString = internalData?[Consts.InternalDataKeys.webViewUrl] as? String {
+			return URL.init(string: urlString)
+		} else {
+			return nil
+		}
+	}
+
 	public var showInApp: Bool {
 		return internalData?[Consts.InternalDataKeys.showInApp] as? Bool ?? false
 	}

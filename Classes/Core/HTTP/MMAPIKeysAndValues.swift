@@ -153,6 +153,7 @@ struct Consts {
 		static let showInApp = "inApp"
 		static let inAppStyle = "inAppStyle"
 		static let inAppExpiryDateTime = "inAppExpiryDateTime"
+		static let webViewUrl = "webViewUrl"
 	}
 
 	struct CustomPayloadKeys {

@@ -30,5 +30,15 @@ import UserNotifications
     /// - parameter message: `MTMessage` message, for which action button was displayed, you can use `message.categoryId` in order to check the categoryId for action.
 	/// - parameter notificationUserInfo: a dictionary representing original local/remote notification's userInfo
     /// - parameter completion: The block to execute when specified action performing is finished. **You must call this block either immediately or after your handling is completed.** The block is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:completionHandler:)` callback as a `completionHandler` parameter.
-	@objc func didPerform(action: NotificationAction, forMessage message: MTMessage?, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void)
+	@objc optional func didPerform(action: NotificationAction, forMessage message: MTMessage?, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void)
+
+	/// Called when a web view is about to be shown. It's required to provide a view controller that will present the web view.
+	/// - parameter message: `MTMessage` object, that has a special URL (see `webViewUrl` property) to be opened in the web view.
+	/// - returns: Parent view controller that would be used to present the web view. If you return `nil`, the web view would not be shown up.
+	@objc optional func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController?
+
+	/// Called when a web view is about to be shown. This callback is intended to be the customization point for WebViewController. You are able to customize WebViewController's behaviour and appearance within this callback implementation.
+	/// - parameter webViewController: A ViewController that is responsible for displaying the web view.
+	/// - message: `MTMessage` object, that has a special URL (see `webViewUrl` property) to be opened in the web view.
+	@objc optional func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage)
 }

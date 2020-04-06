@@ -89,6 +89,7 @@
 		76212E7421B04443002FB8D9 /* InstallationAttributeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76212E7321B04443002FB8D9 /* InstallationAttributeModels.swift */; };
 		7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7632809A2092013B001B9E8F /* AlertQueue.swift */; };
 		7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7635ABBD2431404E0069AE1D /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7635ABBC2431404E0069AE1D /* WebViewController.swift */; };
 		7636909A21F06E25000CF3F8 /* UserEventsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909921F06E25000CF3F8 /* UserEventsManager.swift */; };
 		7636909C21F07330000CF3F8 /* PersonalizeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909B21F07330000CF3F8 /* PersonalizeOperation.swift */; };
 		7638B26722089F2000A98144 /* Archivable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7638B26622089F2000A98144 /* Archivable.swift */; };
@@ -311,6 +312,7 @@
 		76212E7121B043D5002FB8D9 /* UserStandardAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStandardAttributeModels.swift; sourceTree = "<group>"; };
 		76212E7321B04443002FB8D9 /* InstallationAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationAttributeModels.swift; sourceTree = "<group>"; };
 		7632809A2092013B001B9E8F /* AlertQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertQueue.swift; sourceTree = "<group>"; };
+		7635ABBC2431404E0069AE1D /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		7636909921F06E25000CF3F8 /* UserEventsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEventsManager.swift; sourceTree = "<group>"; };
 		7636909B21F07330000CF3F8 /* PersonalizeOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalizeOperation.swift; sourceTree = "<group>"; };
 		7638B26622089F2000A98144 /* Archivable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Archivable.swift; sourceTree = "<group>"; };
@@ -698,6 +700,14 @@
 			path = Installation;
 			sourceTree = "<group>";
 		};
+		7635ABBB243140320069AE1D /* WebViewController */ = {
+			isa = PBXGroup;
+			children = (
+				7635ABBC2431404E0069AE1D /* WebViewController.swift */,
+			);
+			path = WebViewController;
+			sourceTree = "<group>";
+		};
 		763A1AF823E4908500C997BC /* CustomEvents */ = {
 			isa = PBXGroup;
 			children = (
@@ -718,6 +728,7 @@
 		764555CF1F78FF4E00B8F14B /* InteractiveNotifications */ = {
 			isa = PBXGroup;
 			children = (
+				7635ABBB243140320069AE1D /* WebViewController */,
 				7601F176208E054400738C1A /* MessageAlert */,
 				764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */,
 				764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */,
@@ -1376,6 +1387,7 @@
 				7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */,
 				764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */,
 				764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */,
+				7635ABBD2431404E0069AE1D /* WebViewController.swift in Sources */,
 				76F58AD81FB1C91D00A91B3E /* CPBarButtonItem.swift in Sources */,
 				D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */,
 			);

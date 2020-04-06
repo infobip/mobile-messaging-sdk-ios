@@ -19,54 +19,54 @@ class InteractiveMessageAlertManagerMock : InteractiveMessageAlertManager {
 
 func backendJSONSilentMessage(messageId: String) -> String {
 	return """
-		{
-			"messageId": "\(messageId)",
-			"internalData": {
-				"silent": {
-					"badge": 6,
-					"sound": "default",
-					"alert": {
-						"title": "msg_title",
-						"body": "msg_body"
-					}
-				},
-				"sendDateTime": 1503583689984,
-				"internalKey1": "internalValue1"
-			},
-			"customPayload": {
-				"customKey": "customValue"
-			}
-		}
+	{
+	"messageId": "\(messageId)",
+	"internalData": {
+	"silent": {
+	"badge": 6,
+	"sound": "default",
+	"alert": {
+	"title": "msg_title",
+	"body": "msg_body"
+	}
+	},
+	"sendDateTime": 1503583689984,
+	"internalKey1": "internalValue1"
+	},
+	"customPayload": {
+	"customKey": "customValue"
+	}
+	}
 	"""
 }
 
 func backendJSONRegularMessage(messageId: String) -> String {
 	return """
-		{
-			"messageId": "\(messageId)",
-			"aps": {
-				"badge": 6,
-				"sound": "default",
-				"alert": {
-					"title": "msg_title",
-					"body": "msg_body"
-				}
-			},
-			"internalData": {
-				"sendDateTime": 1503583689984,
-				"internalKey1": "internalValue1",
-				"atts": [
-				{
-					"url": "pic.url",
-					"t": "string"
-				}
-				]
-			},
-			"customPayload": {
-				"customKey": "customValue"
-			}
-		}
-		"""
+	{
+	"messageId": "\(messageId)",
+	"aps": {
+	"badge": 6,
+	"sound": "default",
+	"alert": {
+	"title": "msg_title",
+	"body": "msg_body"
+	}
+	},
+	"internalData": {
+	"sendDateTime": 1503583689984,
+	"internalKey1": "internalValue1",
+	"atts": [
+	{
+	"url": "pic.url",
+	"t": "string"
+	}
+	]
+	},
+	"customPayload": {
+	"customKey": "customValue"
+	}
+	}
+	"""
 }
 
 let jsonWithoutMessageId = "{\"foo\":\"bar\"}"
@@ -137,11 +137,11 @@ class MessageReceivingTests: MMTestCase {
 	func testJSONToNSObjects() {
 		let jsonstring = backendJSONRegularMessage(messageId: "m1")
 		let resultDict = [
-							"messageId": "m1",
-							"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-							Consts.APNSPayloadKeys.internalData: ["sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey1": "internalValue1", Consts.InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
-							Consts.APNSPayloadKeys.customPayload: ["customKey" : "customValue"],
-						] as APNSPayload
+			"messageId": "m1",
+			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
+			Consts.APNSPayloadKeys.internalData: ["sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey1": "internalValue1", Consts.InternalDataKeys.attachments: [["url": "pic.url", "t": "string"]]],
+			Consts.APNSPayloadKeys.customPayload: ["customKey" : "customValue"],
+			] as APNSPayload
 		let message = MTMessage(messageSyncResponseJson: JSON.parse(jsonstring))
 		
 		XCTAssertEqual(message!.originalPayload as NSDictionary, resultDict as NSDictionary)
@@ -176,8 +176,8 @@ class MessageReceivingTests: MMTestCase {
 		}
 	}
 
-    func testMessagesPersisting() {
-        weak var expectation = self.expectation(description: "Check finished")
+	func testMessagesPersisting() {
+		weak var expectation = self.expectation(description: "Check finished")
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
@@ -189,7 +189,7 @@ class MessageReceivingTests: MMTestCase {
 					}
 				}
 			})
-        }
+		}
 		self.waitForExpectations(timeout: 60, handler: { error in
 			XCTAssertEqual(MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
@@ -227,11 +227,11 @@ class MessageReceivingTests: MMTestCase {
 		
 		weak var messageHandlingFinished = self.expectation(description: "messages handling finished")
 		
-        #if swift(>=4)
-            let notificationName = NSNotification.Name(MMNotificationMessageReceived)
-        #else
-            let notificationName = MMNotificationMessageReceived
-        #endif
+		#if swift(>=4)
+		let notificationName = NSNotification.Name(MMNotificationMessageReceived)
+		#else
+		let notificationName = MMNotificationMessageReceived
+		#endif
 		expectation(forNotification: notificationName, object: nil) { (notification) -> Bool in
 			if let message = notification.userInfo?[MMNotificationKeyMessage] as? MTMessage, message.isSilent == true {
 				eventsCounter += 1
@@ -255,7 +255,7 @@ class MessageReceivingTests: MMTestCase {
 	
 	func testTapHandlingForInactiveApplication() {
 		collectSixTappedMessages(forApplication: InactiveApplicationStub()) { tappedMessages in
-		
+
 			XCTAssertEqual(tappedMessages.count, 6)
 			
 			XCTAssertTrue(tappedMessages.contains(where: { (m) -> Bool in
@@ -302,15 +302,15 @@ class MessageReceivingTests: MMTestCase {
 		var tappedMessages = [MTMessage]()
 		MobileMessaging.application = application
 		
-        let delegateMock = MessageHandlingDelegateMock()
-        delegateMock.didPerformActionHandler = { action, message, _ in
+		let delegateMock = MessageHandlingDelegateMock()
+		delegateMock.didPerformActionHandler = { action, message, _ in
 			DispatchQueue.main.sync {
 				if let message = message, action.identifier == NotificationAction.DefaultActionId {
 					tappedMessages.append(message)
 				}
 			}
-        }
-        MobileMessaging.messageHandlingDelegate = delegateMock
+		}
+		MobileMessaging.messageHandlingDelegate = delegateMock
 		
 		let payload1 = apnsNormalMessagePayload("m1") + additionalPayload
 		let payload2 = apnsNormalMessagePayload("m2") + additionalPayload
@@ -355,26 +355,26 @@ class MessageReceivingTests: MMTestCase {
 		}
 	}
 	
-    @available(iOS 10.0, *)
-    func testThatNotificationCenterDelegateRecognizesTaps() {
-        guard #available(iOS 10.0, *) else {
-            return
-        }
-        
-        weak var eventReceived = self.expectation(description: "eventReceived")
-        weak var tapHandled = self.expectation(description: "tapHandled")
-        let delegateMock = MessageHandlingDelegateMock()
-        delegateMock.didPerformActionHandler = { action, message, _ in
-            if action.identifier == NotificationAction.DefaultActionId {
-                tapHandled?.fulfill()
-            }
-        }
-        MobileMessaging.messageHandlingDelegate = delegateMock
-        
-        UserNotificationCenterDelegate.sharedInstance.didReceive(notificationUserInfo: apnsNormalMessagePayload("1"), actionId: UNNotificationDefaultActionIdentifier, categoryId: nil, userText: nil, withCompletionHandler: {eventReceived?.fulfill()})
+	@available(iOS 10.0, *)
+	func testThatNotificationCenterDelegateRecognizesTaps() {
+		guard #available(iOS 10.0, *) else {
+			return
+		}
+
+		weak var eventReceived = self.expectation(description: "eventReceived")
+		weak var tapHandled = self.expectation(description: "tapHandled")
+		let delegateMock = MessageHandlingDelegateMock()
+		delegateMock.didPerformActionHandler = { action, message, _ in
+			if action.identifier == NotificationAction.DefaultActionId {
+				tapHandled?.fulfill()
+			}
+		}
+		MobileMessaging.messageHandlingDelegate = delegateMock
+
+		UserNotificationCenterDelegate.sharedInstance.didReceive(notificationUserInfo: apnsNormalMessagePayload("1"), actionId: NotificationAction.DefaultActionId, categoryId: nil, userText: nil, withCompletionHandler: {eventReceived?.fulfill()})
 		
-        self.waitForExpectations(timeout: 60, handler: { error in })
-    }
+		self.waitForExpectations(timeout: 60, handler: { error in })
+	}
 
 	@available(iOS 10.0, *)
 	func testThatBannerAlertWillBeResolved() {
@@ -507,6 +507,137 @@ class MessageReceivingTests: MMTestCase {
 							}
 						}
 						""")
+	}
+
+	@available(iOS 10.0, *)
+	func testThatInAppWebViewShownForWebViewUrlWhenTapActionPerformed() {
+		guard #available(iOS 10.0, *) else {
+			return
+		}
+		let message = """
+		{
+			"messageId": "messageId",
+			"aps": {
+				"badge": 6,
+				"sound": "default",
+				"alert": {
+					"body":"text"
+				}
+			},
+			"internalData": {
+				"webViewUrl": "www.hello.com"
+			}
+		}
+		"""
+		weak var webViewShown = self.expectation(description: "webViewShown")
+		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
+
+		class MessageHandlingDelegateStub: MessageHandlingDelegate {
+			var expectation: XCTestExpectation? = nil
+			func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage) {
+				XCTAssertEqual("www.hello.com", webViewController.url)
+				expectation?.fulfill()
+			}
+			func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController? {
+				XCTAssertEqual("www.hello.com", message.webViewUrl?.absoluteString)
+				return UIApplication.shared.keyWindow?.rootViewController
+			}
+		}
+
+		let messageHandlingDelegate = MessageHandlingDelegateStub()
+		messageHandlingDelegate.expectation = webViewShown
+		MobileMessaging.messageHandlingDelegate = messageHandlingDelegate
+
+		UserNotificationCenterDelegate.sharedInstance.didReceive(notificationUserInfo: JSON.parse(message).dictionaryObject!, actionId: NotificationAction.DefaultActionId, categoryId: nil, userText: nil, withCompletionHandler: {
+			tapEventReceived?.fulfill()
+
+		})
+
+		self.waitForExpectations(timeout: 60, handler: { error in })
+	}
+
+	@available(iOS 10.0, *)
+	func testThatInAppWebViewNotShownForWebViewUrlWhenDismissAction() {
+		guard #available(iOS 10.0, *) else {
+			return
+		}
+		let message = """
+		{
+			"messageId": "messageId",
+			"aps": {
+				"badge": 6,
+				"sound": "default",
+				"alert": {
+					"body":"text"
+				}
+			},
+			"internalData": {
+				"webViewUrl": "www.hello.com"
+			}
+		}
+		"""
+		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
+
+		class MessageHandlingDelegateStub: MessageHandlingDelegate {
+			func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage) {
+				XCTFail()
+			}
+			func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController? {
+				XCTFail()
+				return UIApplication.shared.keyWindow?.rootViewController
+			}
+		}
+
+		let messageHandlingDelegate = MessageHandlingDelegateStub()
+		MobileMessaging.messageHandlingDelegate = messageHandlingDelegate
+
+		UserNotificationCenterDelegate.sharedInstance.didReceive(notificationUserInfo: JSON.parse(message).dictionaryObject!, actionId: NotificationAction.DismissActionId, categoryId: nil, userText: nil, withCompletionHandler: {
+			tapEventReceived?.fulfill()
+
+		})
+
+		self.waitForExpectations(timeout: 60, handler: { error in })
+	}
+
+	@available(iOS 10.0, *)
+	func testThatInAppWebViewNotInitializedWhenWebViewUrlOmitted() {
+		guard #available(iOS 10.0, *) else {
+			return
+		}
+		let message = """
+		{
+			"messageId": "messageId",
+			"aps": {
+				"badge": 6,
+				"sound": "default",
+				"alert": {
+					"body":"text"
+				}
+			},
+			"internalData": {}
+		}
+		"""
+		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
+
+		class MessageHandlingDelegateStub: MessageHandlingDelegate {
+			func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage) {
+				XCTFail()
+			}
+			func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController? {
+				XCTFail()
+				return UIApplication.shared.keyWindow?.rootViewController
+			}
+		}
+
+		let messageHandlingDelegate = MessageHandlingDelegateStub()
+		MobileMessaging.messageHandlingDelegate = messageHandlingDelegate
+
+		UserNotificationCenterDelegate.sharedInstance.didReceive(notificationUserInfo: JSON.parse(message).dictionaryObject!, actionId: NotificationAction.DefaultActionId, categoryId: nil, userText: nil, withCompletionHandler: {
+			tapEventReceived?.fulfill()
+
+		})
+
+		self.waitForExpectations(timeout: 60, handler: { error in })
 	}
 
 	private func testThatModalAlertWillBeShownForModalStyle(_ pushJson: String) {

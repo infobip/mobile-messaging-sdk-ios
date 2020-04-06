@@ -66,9 +66,9 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 
 	func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
 		MMLogDebug("[Notification Center Delegate] received response")
-		guard let service = NotificationsInteractionService.sharedInstance else
+		guard let identifier = actionId, let service = NotificationsInteractionService.sharedInstance else
 		{
-			MMLogDebug("[Notification Center Delegate] stopped due to unintialized iteraction service")
+			MMLogDebug("[Notification Center Delegate] canceled handling actionId \(actionId ?? "nil"), service is initialized \(NotificationsInteractionService.sharedInstance != nil)")
 			completionHandler()
 			return
 		}
@@ -89,7 +89,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 			isDeliveryReportSent: false)
 		
 		service.handleAction(
-			identifier: actionId,
+			identifier: identifier,
 			categoryId: categoryId,
 			message: message,
 			notificationUserInfo: notificationUserInfo as? [String: Any],
