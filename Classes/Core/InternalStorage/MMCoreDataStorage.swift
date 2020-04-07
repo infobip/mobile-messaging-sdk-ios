@@ -28,10 +28,8 @@ struct MMStorageSettings {
 
 	static var defaultStoreOptions: MMStoreOptions {
 		var result: MMStoreOptions = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
-		if #available(iOS 10.0, *) {
-			// by doing this, we stick to old behaviour until we have time to investigate possible issues (i.e. http://stackoverflow.com/questions/39438433/xcode-8-gm-sqlite-error-code6922-disk-i-o-error)
-			result[NSPersistentStoreConnectionPoolMaxSizeKey] = 1
-		}
+		// by doing this, we stick to old behaviour until we have time to investigate possible issues (i.e. http://stackoverflow.com/questions/39438433/xcode-8-gm-sqlite-error-code6922-disk-i-o-error)
+		result[NSPersistentStoreConnectionPoolMaxSizeKey] = 1
 		return result
 	}
 }

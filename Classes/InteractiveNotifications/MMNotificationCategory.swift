@@ -48,18 +48,7 @@ public final class NotificationCategory: NSObject {
 		self.options = []
 		self.intentIdentifiers = []
 	}
-	
-	@available(iOS, deprecated: 10.0, message: "Use unUserNotificationCategory")
-	var uiUserNotificationCategory: UIUserNotificationCategory {
-		let category = UIMutableUserNotificationCategory()
-		category.identifier = identifier
-		let uiUserNotificationActions = actions.map { $0.uiUserNotificationAction }
-		category.setActions(uiUserNotificationActions, for: .default)
-		category.setActions(uiUserNotificationActions, for: .minimal)
-		return category
-	}
-	
-	@available(iOS 10.0, *)
+
 	var unUserNotificationCategory: UNNotificationCategory {
 		var categoryOptions: UNNotificationCategoryOptions = []
 		categoryOptions.insert(.customDismissAction)
@@ -101,17 +90,10 @@ public final class NotificationCategoryOptions : NSObject {
 		
 	// Whether notifications of this category should be allowed in CarPlay
 	/// - remark: This option is available only for iOS 10+
-	@available(iOS 10.0, *)
 	public static let allowInCarPlay = NotificationCategoryOptions(rawValue: 1 << 0)
 }
 
 extension Set where Element: NotificationCategory {
-	@available(iOS, deprecated: 10.0, message: "Use unNotificationCategories")
-	var uiUserNotificationCategories: Set<UIUserNotificationCategory>? {
-		return Set<UIUserNotificationCategory>(self.map{ $0.uiUserNotificationCategory })
-	}
-	
-	@available(iOS 10.0, *)
 	var unNotificationCategories: Set<UNNotificationCategory>? {
 		return Set<UNNotificationCategory>(self.map{ $0.unUserNotificationCategory })
 	}

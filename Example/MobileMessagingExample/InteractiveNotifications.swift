@@ -33,24 +33,15 @@ extension AppDelegate {
 											 title: "Share",
 											 options: [.foreground, .authenticationRequired])!
 		
-		let category: NotificationCategory!
-		if #available(iOS 10.0, *) {
-			category = NotificationCategory(identifier: "category_share_cancel",
+		let category = NotificationCategory(identifier: "category_share_cancel",
 											actions: [shareAction, cancelAction],
 											options: nil,
 											intentIdentifiers: nil)
-		} else {
-			category = NotificationCategory(identifier: "category_share_cancel",
-											actions: [shareAction, cancelAction],
-											options: nil,
-											intentIdentifiers: nil)
-		}
-		return category
+		return category!
 	}
 	
 	var replyCategory: NotificationCategory? {
-		if #available(iOS 9.0, *),
-			let replyAction = TextInputNotificationAction(identifier: "reply", title: "Reply", options: [], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print reply here") {
+		if let replyAction = TextInputNotificationAction(identifier: "reply", title: "Reply", options: [], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print reply here") {
 			return NotificationCategory(identifier: "category_reply",
 										actions: [replyAction],
 										options: nil,

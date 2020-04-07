@@ -10,19 +10,11 @@ import UserNotifications
 public class NotificationAction: NSObject {
 	
 	public static var DismissActionId: String {
-		if #available(iOS 10.0, *) {
-			return UNNotificationDismissActionIdentifier
-		} else {
-			return "com.apple.UNNotificationDismissActionIdentifier"
-		}
+		return UNNotificationDismissActionIdentifier
 	}
 	
 	public static var DefaultActionId: String {
-		if #available(iOS 10.0, *) {
-			return UNNotificationDefaultActionIdentifier
-		} else {
-			return "com.apple.UNNotificationDefaultActionIdentifier"
-		}
+		return UNNotificationDefaultActionIdentifier
 	}
 	
 	public let identifier: String
@@ -33,7 +25,7 @@ public class NotificationAction: NSObject {
     }
 	
 	class func makeAction(dictionary: [String: Any]) -> NotificationAction? {
-		if #available(iOS 9.0, *), let _ = dictionary[Consts.Interaction.ActionKeys.textInputActionButtonTitle] as? String, let _ = dictionary[Consts.Interaction.ActionKeys.textInputPlaceholder] as? String {
+		if let _ = dictionary[Consts.Interaction.ActionKeys.textInputActionButtonTitle] as? String, let _ = dictionary[Consts.Interaction.ActionKeys.textInputPlaceholder] as? String {
 			return TextInputNotificationAction(dictionary: dictionary)
 		} else {
 			return NotificationAction(dictionary: dictionary)
@@ -69,18 +61,6 @@ public class NotificationAction: NSObject {
         return NotificationAction(actionIdentifier: DefaultActionId, title: "", options: nil)
     }
 	
-	@available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
-	var uiUserNotificationAction: UIUserNotificationAction {
-		let action = UIMutableUserNotificationAction()
-		action.identifier = identifier
-		action.title = title
-		action.activationMode = options.contains(.foreground) ? .foreground : .background
-		action.isDestructive = options.contains(.destructive)
-		action.isAuthenticationRequired = options.contains(.authenticationRequired)
-		return action
-	}
-	
-	@available(iOS 10.0, *)
 	var unUserNotificationAction: UNNotificationAction {
 		var actionOptions: UNNotificationActionOptions = []
 		if options.contains(.foreground) {
@@ -135,7 +115,6 @@ public class NotificationAction: NSObject {
 }
 
 /// Allows text input from the user
-@available(iOS 9.0, *)
 public final class TextInputNotificationAction: NotificationAction {
     public let textInputActionButtonTitle: String
     public let textInputPlaceholder: String
@@ -170,21 +149,7 @@ public final class TextInputNotificationAction: NotificationAction {
 		
 		super.init(dictionary: dictionary)
 	}
-	
-    @available(iOS, deprecated: 10.0, message: "Use unUserNotificationAction")
-    override var uiUserNotificationAction: UIUserNotificationAction {
-        let action = UIMutableUserNotificationAction()
-        action.identifier = identifier
-        action.title = title
-        action.activationMode = options.contains(.foreground) ? .foreground : .background
-        action.isDestructive = options.contains(.destructive)
-        action.isAuthenticationRequired = options.contains(.authenticationRequired)
-        action.behavior = .textInput
-        action.parameters = [UIUserNotificationTextInputActionButtonTitleKey : textInputActionButtonTitle]
-        return action
-    }
     
-    @available(iOS 10.0, *)
     override var unUserNotificationAction: UNNotificationAction {
         var actionOptions: UNNotificationActionOptions = []
         if options.contains(.foreground) {

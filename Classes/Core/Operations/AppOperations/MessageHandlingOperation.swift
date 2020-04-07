@@ -115,11 +115,7 @@ final class MessageHandlingOperation: Operation {
                 
                 self.presentLocalNotificationIfNeeded(with: message)
                 UserEventsManager.postMessageReceivedEvent(message)
-
 				MobileMessaging.messageHandlingDelegate?.didReceiveNewMessage?(message: message)
-                if MobileMessaging.application.isInForegroundState {
-                    MobileMessaging.messageHandlingDelegate?.didReceiveNewMessageInForeground?(message: message)
-                }
 			}
 		}))
 		group.wait()

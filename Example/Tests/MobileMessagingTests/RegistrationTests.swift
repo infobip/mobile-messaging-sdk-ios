@@ -501,11 +501,7 @@ class NotificationsEnabledMock: MMApplication {
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
-	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
-	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
-	var currentUserNotificationSettings: UIUserNotificationSettings? {
-		return UIUserNotificationSettings(types: .alert, categories: nil)
-	}
+	var notificationEnabled: Bool { return true }
 }
 
 class NotificationsDisabledMock: MMApplication {
@@ -518,11 +514,7 @@ class NotificationsDisabledMock: MMApplication {
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
-	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
-	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
-	var currentUserNotificationSettings: UIUserNotificationSettings? {
-		return UIUserNotificationSettings(types: [], categories: nil)
-	}
+	var notificationEnabled: Bool { return false }
 }
 
 

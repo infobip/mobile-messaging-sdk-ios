@@ -12,7 +12,7 @@ import UserNotifications
 @objcMembers
 public final class MobileMessaging: NSObject {
 	//MARK: Public
-
+	
 	/**
 	Fabric method for Mobile Messaging session.
 	- parameter code: The application code of your Application from Push Portal website.
@@ -21,7 +21,7 @@ public final class MobileMessaging: NSObject {
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
 	}
-
+	
 	/**
 	Fabric method for Mobile Messaging session.
 	- parameter code: The application code of your Application from Push Portal website.
@@ -32,7 +32,7 @@ public final class MobileMessaging: NSObject {
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString, forceCleanup: forceCleanup)
 	}
-
+	
 	/**
 	Fabric method for Mobile Messaging session.
 	- parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
@@ -42,7 +42,7 @@ public final class MobileMessaging: NSObject {
 	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: false)
 	}
-
+	
 	/**
 	Fabric method for Mobile Messaging session.
 	It is possible to supply a default implementation of Message Storage to the Mobile Messaging library during initialization. In this case the library will save all received Push messages using the `MMDefaultMessageStorage`. Library can also be initialized either without message storage or with user-provided one (see `withMessageStorage(messageStorage:)`).
@@ -51,7 +51,7 @@ public final class MobileMessaging: NSObject {
 		self.messageStorages[MessageStorageKind.messages.rawValue] = MessageStorageQueuedAdapter.makeDefaultMessagesStoragaAdapter()
 		return self
 	}
-
+	
 	/**
 	Fabric method for Mobile Messaging session.
 	It is possible to supply an implementation of Message Storage to the Mobile Messaging library during initialization. In this case the library will save all received Push messages to the supplied `messageStorage`. Library can also be initialized either without message storage or with the default message storage (see `withDefaultMessageStorage()` method).
@@ -61,7 +61,7 @@ public final class MobileMessaging: NSObject {
 		self.messageStorages[MessageStorageKind.messages.rawValue] = MessageStorageQueuedAdapter.makeMessagesStoragaAdapter(storage: messageStorage)
 		return self
 	}
-
+	
 	/**
 	Fabric method for Mobile Messaging session.
 	It is possible to postpone the registration for Push Notifications. It is up to you to define when and where the user will be promt to allow receiving Push Notifications. By default the registration is being performed by `MobileMessaging.start()` call.
@@ -71,7 +71,7 @@ public final class MobileMessaging: NSObject {
 		doRegisterToApns = false
 		return self
 	}
-
+	
 	/**
 	Synchronously starts a new Mobile Messaging session.
 	This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
@@ -80,12 +80,12 @@ public final class MobileMessaging: NSObject {
 	public func start(_ completion: (() -> Void)? = nil) {
 		self.doStart(completion)
 	}
-
+	
 	/** Syncronizes all available subservices with the server. */
 	public class func sync() {
 		MobileMessaging.sharedInstance?.sync()
 	}
-
+	
 	/**
 	Synchronously cleans up all persisted data.
 	Use this method to completely drop any data persisted by the SDK (i.e. internal SDK data, optional user data, optional messages metadata).
@@ -94,7 +94,7 @@ public final class MobileMessaging: NSObject {
 	public class func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		MobileMessaging.sharedInstance?.cleanUpAndStop(clearKeychain)
 	}
-
+	
 	/**
 	Stops all the currently running Mobile Messaging services.
 	- parameter cleanUpData: defines whether the Mobile Messaging internal storage will be dropped. False by default.
@@ -107,19 +107,19 @@ public final class MobileMessaging: NSObject {
 			MobileMessaging.sharedInstance?.stop()
 		}
 	}
-
+	
 	/** Call this method to initiate the registration process with Apple Push Notification service. User will be promt to allow receiving Push Notifications. */
 	public class func registerForRemoteNotifications() {
 		MobileMessaging.sharedInstance?.apnsRegistrationManager.registerForRemoteNotifications()
 	}
-
+	
 	/**
 	Logging utility is used for:
 	- setting up the logging options and logging levels.
 	- obtaining a path to the logs file in case the Logging utility is set up to log in file (logging options contains `.file` option).
 	*/
 	public static var logger: MMLogging? = (MMLoggerFactory() as MMLoggerFactoryProtocol).createLogger?()
-
+	
 	/**
 	This method handles a new APNs device token and updates user's registration on the server.
 	This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
@@ -129,7 +129,7 @@ public final class MobileMessaging: NSObject {
 		// The app might call this method in other rare circumstances, such as when the user launches an app after having restored a device from data that is not the device’s backup data. In this exceptional case, the app won’t know the new device’s token until the user launches it. Thus we must persist this token as soon as we can so the SDK knows about it regardless of SDK's startup delays.
 		MobileMessaging.sharedInstance?.didRegisterForRemoteNotificationsWithDeviceToken(token) { _ in }
 	}
-
+	
 	/**
 	This method handles incoming remote notifications and triggers sending procedure for delivery reports. The method should be called from AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback.
 	- parameter userInfo: A dictionary that contains information related to the remote notification, potentially including a badge number for the app icon, an alert sound, an alert message to display to the user, a notification identifier, and custom data.
@@ -144,48 +144,41 @@ public final class MobileMessaging: NSObject {
 			completionHandler(result.backgroundFetchResult)
 		})
 	}
-
+	
 	/**
 	This method is called when a running app receives a local notification. The method should be called from AppDelegate's `application(_:didReceiveLocalNotification:)` or `application(_:didReceive:)` callback.
 	- parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
 	- parameter completion: A block to be executed when local notification handling is finished.
 	*/
-	@available(iOS, deprecated: 10.0, message: "If your apps minimum deployment target is iOS 10 or later, you don't need to forward your App Delegate calls to this method. Handling local notifications on iOS since 10.0 is done by Mobile Messaging SDK by implementing UNUserNotificationCenterDelegate under the hood.")
-	public class func didReceiveLocalNotification(_ notification: UILocalNotification, completion: (() -> Void)? = nil) {
-		if let service = NotificationsInteractionService.sharedInstance, MMMessageHandler.isNotificationTapped(notification.userInfo as? [String: Any], applicationState: MobileMessaging.application.applicationState)
-		{
-			service.handleLocalNotificationTap(localNotification: notification, completion: completion)
-		} else {
-			completion?()
-		}
-	}
-
+	@available(iOS, obsoleted: 10.0, message: "If your apps minimum deployment target is iOS 10 or later, you don't need to forward your App Delegate calls to this method. Handling local notifications on iOS since 10.0 is done by Mobile Messaging SDK by implementing UNUserNotificationCenterDelegate under the hood.")
+	public class func didReceiveLocalNotification(_ notification: UILocalNotification, completion: (() -> Void)? = nil) { }
+	
 	/** Returns the default message storage if used. For more information see `MMDefaultMessageStorage` class description. */
 	public class var defaultMessageStorage: MMDefaultMessageStorage? {
 		return MobileMessaging.sharedInstance?.messageStorages[MessageStorageKind.messages.rawValue]?.adapteeStorage as? MMDefaultMessageStorage
 	}
-
+	
 	/**
 	Synchronously retrieves current installation data such as APNs device token, badge number, etc.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	*/
 	public class func getInstallation() -> Installation? {
 		return MobileMessaging.sharedInstance?.dirtyInstallation()
 	}
-
+	
 	/**
 	Synchronously retrieves current user data such as unique push registration id for the registered user, emails, phones, custom data, external user id, etc.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	*/
 	public class func getUser() -> User? {
 		return MobileMessaging.sharedInstance?.dirtyUser()
 	}
-
+	
 	/**
 	Asynchronously fetches the user data from the server.
-
+	
 	For more information and examples see: [User profile](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile)
 	- parameter completion: The block to execute after the server responded.
 	- parameter user: Fetched user. Contains actual data if not error happened.
@@ -200,10 +193,10 @@ public final class MobileMessaging: NSObject {
 			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously fetches the installation data from the server.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter completion: The block to execute after the server responded.
 	- parameter installation: Fetched installation. Contains actual data if not error happened.
@@ -218,10 +211,10 @@ public final class MobileMessaging: NSObject {
 			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously saves changed user data on the server.
-
+	
 	For more information and examples see: [User profile](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile)
 	- parameter user: User data to save on server.
 	- parameter completion: The block to execute after the server responded.
@@ -234,10 +227,10 @@ public final class MobileMessaging: NSObject {
 			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously saves changed installation (registration data, custom installation attributes abd system data) on the server.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter installation: Installation data to save on server.
 	- parameter completion: The block to execute after the server responded.
@@ -250,28 +243,28 @@ public final class MobileMessaging: NSObject {
 			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Synchronously persists user data to the disk. Pivacy settings are applied according to `MobileMessaging.privacySettings` settings.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter user: User data to persist.
 	*/
 	public class func persistUser(_ user: User) {
 		user.archiveDirty()
 	}
-
+	
 	/**
 	Synchronously persists installation data to the disk. Pivacy settings are applied according to `MobileMessaging.privacySettings` settings.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	*/
 	public class func persistInstallation(_ installation: Installation) {
 		installation.archiveDirty()
 	}
-
+	
 	// MARK: - Personalize/Depersonalize
-
+	
 	/**
 	Asynchronously ereases currently persisted user data associated with push registration along with messages in SDK storage.
 	User's data synced over MobileMessaging is by default associated with created push registration. Depersonalizing an installation means that a push registration and device specific data will remain, but user's data (such as first name, custom data, ...) will be wiped out.
@@ -282,7 +275,7 @@ public final class MobileMessaging: NSObject {
 	- your application has logout functionality;
 	- you don't want new personalized installation to be targeted by other user's data, e.g. first name;
 	- you want depersonalized installation from user and still be able to receive broadcast notifications (otherwise, you need to disable push registration via Installation.isPushRegistrationEnabled).
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter completion: The block to execute after the server responded.
 	- parameter status: Current depersonalization status.
@@ -295,7 +288,7 @@ public final class MobileMessaging: NSObject {
 			completion(SuccessPending.undefined, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously personalizes current installation with a person on the server.
 	Each user can have Phone numbers, Emails and External user ID. These fields are unique identifiers of a user profile on Infobip platform and provide capability to personalize any app installation with a user profile. The platform provides data grouping functions based on these parameters. For example, if two installations of a particular app will try to save the same Phone number, then both of them will be collected under a single user. Phone number, Email and External user ID are also widely used when targeting users with messages across different channels via Infobip platform.
@@ -303,7 +296,7 @@ public final class MobileMessaging: NSObject {
 	```
 	MobileMessaging.personalize(forceDepersonalize: true, userIdentity: userAttributes: completion:)
 	```
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter userIdentity: A combination of phones, emails and an external user id that will form a unique key for a person.
 	- parameter userAttributes: Optional user data to be saved for the person.
@@ -312,11 +305,11 @@ public final class MobileMessaging: NSObject {
 	public class func personalize(withUserIdentity identity: UserIdentity, userAttributes: UserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
 		personalize(forceDepersonalize: false, userIdentity: identity, userAttributes: userAttributes, completion: completion)
 	}
-
+	
 	/**
 	Asynchronously personalizes current installation with a person on the server.
 	Each user can have Phone numbers, Emails and External user ID. These fields are unique identifiers of a user profile on Infobip platform and provide capability to personalize any app installation with a user profile. The platform provides data grouping functions based on these parameters. For example, if two installations of a particular app will try to save the same Phone number, then both of them will be collected under a single user. Phone number, Email and External user ID are also widely used when targeting users with messages across different channels via Infobip platform.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter forceDepersonalize: Determines whether or not the depersonalization should be performed on our server in order to depersonalize the installation from previous user profile.
 	- parameter userIdentity: A combination of phones, emails and an external user id that will form a unique key for a person.
@@ -330,10 +323,10 @@ public final class MobileMessaging: NSObject {
 			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously sets a current users arbitrary installation as primary.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter pushRegId: Push Registration Id of the installation to be updated.
 	- parameter primary: New primary value.
@@ -348,10 +341,10 @@ public final class MobileMessaging: NSObject {
 			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously depersonalizes current users arbitrary installation from the current user.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter pushRegId: Push Registration Id of the installation to be depersonalized.
 	- parameter completion: The block to execute after the server responded.
@@ -365,10 +358,10 @@ public final class MobileMessaging: NSObject {
 			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously fetches all installations personalized with the current user.
-
+	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter completion: The block to execute after the server responded.
 	- parameter installations: A list of fetched installations. Contains actual data if no error happened.
@@ -383,7 +376,7 @@ public final class MobileMessaging: NSObject {
 			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously sets seen status for messages and sends a corresponding request to the server. If something went wrong, the library will repeat the request until it reaches the server.
 	- parameter messageIds: Array of identifiers of messages that need to be marked as seen.
@@ -396,7 +389,7 @@ public final class MobileMessaging: NSObject {
 		}
 		mm.setSeen(messageIds, immediately: false, completion: completion)
 	}
-
+	
 	/**
 	Asynchronously sends mobile originated messages to the server.
 	- parameter messages: Array of objects of `MOMessage` class that need to be sent.
@@ -412,24 +405,24 @@ public final class MobileMessaging: NSObject {
 		}
 		mm.sendMessagesUserInitiated(messages, completion: completion)
 	}
-
+	
 	/** An auxillary component provides the convinient access to the user agent data. */
 	public internal(set) static var userAgent = UserAgent()
-
+	
 	/**
 	The `MessageHandlingDelegate` protocol defines methods for responding to actionable notifications and receiving new notifications. You assign your delegate object to the `messageHandlingDelegate` property of the `MobileMessaging` class. The MobileMessaging SDK calls methods of your delegate at appropriate times to deliver information. */
 	public static var messageHandlingDelegate: MessageHandlingDelegate? = nil
-
+	
 	/**
 	The `URLSessionConfiguration` used for all url connections in the SDK
 	Default value is `URLSessionConfiguration.default`.
 	You can provide your own configuration to define a custom NSURLProtocol, policies etc.
 	*/
 	public static var urlSessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
-
+	
 	/** The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic. */
 	public internal(set) static var privacySettings = PrivacySettings()
-
+	
 	/** The number currently set as the badge of the app icon in Springboard.
 	Set to 0 (zero) to hide the badge number. The default value of this property is 0. */
 	public static var badgeNumber: Int {
@@ -447,7 +440,7 @@ public final class MobileMessaging: NSObject {
 			}
 		}
 	}
-
+	
 	/**
 	Asynchronously submits a custom event and immediately sends it to the server. If any connection error occured or the server responded with "Bad request" error, you have to handle the error yourself, perform retries if needed.
 	- parameter customEvent: Custom event to be sent to the server.
@@ -461,7 +454,7 @@ public final class MobileMessaging: NSObject {
 			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
-
+	
 	/**
 	Asynchronously submits the custom event and sends it to the server eventually. If something went wrong during the communication with the server, the request will be retied until the event succesfully accepted.
 	- parameter customEvent: Custom event to be sent to the server.
@@ -469,63 +462,61 @@ public final class MobileMessaging: NSObject {
 	public class func submitEvent(_ customEvent: CustomEvent) {
 		MobileMessaging.sharedInstance?.eventsService.submitEvent(customEvent: customEvent, reportImmediately: false, completion: {_ in})
 	}
-
+	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
 	let userNotificationType: UserNotificationType
 	let applicationCode: String
 	var doRegisterToApns: Bool = true
-
+	
 	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
-
+	
 	class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
-
+		
 		if let sharedInstance = sharedInstance, sharedInstance.applicationCode != code || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
 			MobileMessaging.stop()
 		}
 		sharedInstance = MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: forceCleanup)
 		return sharedInstance
 	}
-
+	
 	func sync() {
 		performForEachSubservice { subservice in
 			subservice.syncWithServer({ _ in })
 		}
 	}
-
+	
 	func doStart(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
-
+		
 		self.startСomponents()
-
+		
 		self.performForEachSubservice {
 			$0.mobileMessagingWillStart(self)
 		}
-
+		
 		if self.doRegisterToApns == true {
 			apnsRegistrationManager.registerForRemoteNotifications()
 		}
-
+		
 		self.performForEachSubservice {
 			$0.mobileMessagingDidStart(self)
 		}
-
+		
 		completion?()
-
+		
 		MMLogDebug("Service started with subservices: \(self.subservices)")
 	}
-
+	
 	func cleanUpAndStop(_ clearKeychain: Bool = true) {
 		cleanUp(clearKeychain)
 		stop()
 	}
-
+	
 	func cleanUp(_ clearKeychain: Bool = true) {
 		MMLogDebug("Cleaning up MobileMessaging service...")
-		if #available(iOS 10.0, *) {
-			sharedNotificationExtensionStorage?.cleanupMessages()
-		}
+		sharedNotificationExtensionStorage?.cleanupMessages()
 		MMCoreDataStorage.dropStorages(internalStorage: internalStorage, messageStorages: messageStorages)
 		if (clearKeychain) {
 			keychain.clear()
@@ -535,27 +526,27 @@ public final class MobileMessaging: NSObject {
 		Installation.resetAll()
 		apnsRegistrationManager.cleanup()
 	}
-
+	
 	func stop() {
 		MMLogInfo("Stopping MobileMessaging service...")
-
+		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingWillStop(self)
 		}
-
+		
 		apnsRegistrationManager.unregister()
-
+		
 		messageStorages.values.forEach({$0.stop()})
 		messageStorages.removeAll()
-
+		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingDidStop(self)
 		}
-
+		
 		MobileMessaging.messageHandlingDelegate = nil
-
+		
 		cleanupSubservices()
-
+		
 		// just to break retain cycles:
 		apnsRegistrationManager = nil
 		doRegisterToApns = true
@@ -564,58 +555,56 @@ public final class MobileMessaging: NSObject {
 		remoteApiProvider = nil
 		userSessionService = nil
 		eventsService = nil
-
+		
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
 		MobileMessaging.application = MainThreadedUIApplication()
 		MobileMessaging.sharedInstance = nil
-		if #available(iOS 10.0, *) {
-			UNUserNotificationCenter.current().delegate = nil
-		}
+		UNUserNotificationCenter.current().delegate = nil
 		MMLogInfo("MobileMessaging service stopped")
 	}
-
+	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
 		apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(token, completion: completion)
 	}
-
+	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: @escaping (MessageHandlingResult) -> Void) {
 		MMLogDebug("New remote notification received \(userInfo)")
 		messageHandler.handleAPNSMessage(userInfo, completion: completion)
 	}
-
+	
 	func updateRegistrationEnabledSubservicesStatus() {
 		performForEachSubservice { subservice in
 			subservice.pushRegistrationStatusDidChange(self)
 		}
 	}
-
+	
 	func updateDepersonalizeStatusForSubservices() {
 		performForEachSubservice { subservice in
 			subservice.depersonalizationStatusDidChange(self)
 		}
 	}
-
+	
 	func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
 		MMLogDebug("Setting seen status: \(messageIds), immediately \(immediately)")
 		messageHandler.setSeen(messageIds, immediately: immediately, completion: completion)
 	}
-
+	
 	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		MMLogDebug("Sending mobile originated messages (SDK initiated)...")
 		messageHandler.sendMessages(messages, isUserInitiated: false, completion: completion)
 	}
-
+	
 	func retryMoMessageSending(completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		MMLogDebug("Retrying sending mobile originated messages...")
 		messageHandler.sendMessages([], isUserInitiated: false, completion: completion)
 	}
-
+	
 	func sendMessagesUserInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		MMLogDebug("Sending mobile originated messages (User initiated)...")
 		messageHandler.sendMessages(messages, isUserInitiated: true, completion: completion)
 	}
-
+	
 	var subservices: [String: MobileMessagingService] = [:]
 	func registerSubservice(_ ss: MobileMessagingService) {
 		subservices[ss.uniqueIdentifier] = ss
@@ -623,25 +612,25 @@ public final class MobileMessaging: NSObject {
 	func cleanupSubservices() {
 		subservices.removeAll()
 	}
-
+	
 	func performForEachSubservice(_ block: (MobileMessagingService) -> Void) {
 		subservices.values.forEach { subservice in
 			block(subservice)
 		}
 	}
-
+	
 	//MARK: Private
 	internal init?(appCode: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool, internalStorage: MMCoreDataStorage? = nil) {
-
+		
 		let logCoreDataInitializationError = {
 			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
 		}
-
+		
 		guard var storage = internalStorage == nil ? try? MMCoreDataStorage.makeInternalStorage(self.storageType) : internalStorage else {
 			logCoreDataInitializationError()
 			return nil
 		}
-
+		
 		if forceCleanup || applicationCodeChanged(newApplicationCode: appCode) {
 			MMLogDebug("Data will be cleaned up due to the application code change.")
 			User.resetAll()
@@ -657,25 +646,23 @@ public final class MobileMessaging: NSObject {
 		}
 		self.internalStorage = storage
 		self.applicationCode = appCode
-
+		
 		let ci = InternalData.unarchiveCurrent()
 		ci.applicationCode = appCode
 		ci.archiveCurrent()
-
+		
 		self.userNotificationType = notificationType
 		self.remoteAPIBaseURL = backendBaseURL
-		if #available(iOS 10.0, *) {
-			if let appGroupId = Bundle.mainAppBundle.appGroupId {
-				self.appGroupId = appGroupId
-				self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
-			}
+		if let appGroupId = Bundle.mainAppBundle.appGroupId {
+			self.appGroupId = appGroupId
+			self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
 		}
 		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
-
-
+		
+		
 		MMLogInfo("SDK successfully initialized!")
 	}
-
+	
 	private func startСomponents() {
 		if NotificationsInteractionService.sharedInstance == nil {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
@@ -686,31 +673,31 @@ public final class MobileMessaging: NSObject {
 		installationService = InstallationDataService(mmContext: self)
 		appListener = MMApplicationListener(mmContext: self)
 		messageStorages.values.forEach({ $0.start() })
-
+		
 		let currentInstall = currentInstallation()
 		if currentInstall.isPushRegistrationEnabled && internalData().currentDepersonalizationStatus == .undefined  {
 			messageHandler.start({ _ in })
 		}
-
+		
 		if !isTestingProcessRunning {
 			#if DEBUG
 			VersionManager(mmContext: self).validateVersion()
 			#endif
 		}
 	}
-
+	
 	var messageStorages: [String: MessageStorageQueuedAdapter] = [:]
 	var messageStorageAdapter: MessageStorageQueuedAdapter?
-
+	
 	let internalStorage: MMCoreDataStorage
-
+	
 	func internalData() -> InternalData { return InternalData.unarchiveCurrent() }
 	func currentInstallation() -> Installation { return Installation.unarchiveCurrent() }
 	func currentUser() -> User { return User.unarchiveCurrent() }
-
+	
 	func dirtyInstallation() -> Installation { return Installation.unarchiveDirty() }
 	func dirtyUser() -> User { return User.unarchiveDirty().copy() as! User }
-
+	
 	func resolveInstallation() -> Installation { return dirtyInstallation() }
 	func resolveUser() -> User { return dirtyUser() }
 	var userService: UserDataService!
@@ -723,7 +710,7 @@ public final class MobileMessaging: NSObject {
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)
 	lazy var keychain: MMKeychain! = MMKeychain()
 	lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
-
+	
 	//FIXME: explicit unwrapping is a subject for removing
 	static var httpSessionManager: DynamicBaseUrlHTTPSessionManager!
 	static var application: MMApplication = MainThreadedUIApplication()
@@ -733,6 +720,6 @@ public final class MobileMessaging: NSObject {
 	var appGroupId: String?
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 	lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()
-
+	
 	static let bundle = Bundle(for: MobileMessaging.self)
 }

@@ -9,7 +9,6 @@ import Foundation
 import UserNotifications
 
 extension MTMessage {
-	@available(iOS 10.0, *)
 	class func make(with notification: UNNotification) -> MTMessage? {
 		return MTMessage(payload: notification.request.content.userInfo,
 						 deliveryMethod: .undefined,
@@ -20,7 +19,6 @@ extension MTMessage {
 	}
 }
 
-@available(iOS 10.0, *)
 extension UNNotificationPresentationOptions {
 	static func make(with userNotificationType: UserNotificationType) -> UNNotificationPresentationOptions {
 		var ret: UNNotificationPresentationOptions = []
@@ -37,7 +35,6 @@ extension UNNotificationPresentationOptions {
 	}
 }
 
-@available(iOS 10.0, *)
 class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
 	static let sharedInstance = UserNotificationCenterDelegate()
 
@@ -54,7 +51,8 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 	}
 
 	public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
-		
+
+		// just remapping response to plain data for testing purposes
 		didReceive(
 			notificationUserInfo: response.notification.request.content.userInfo,
 			actionId: response.actionIdentifier,
@@ -72,14 +70,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 			completionHandler()
 			return
 		}
-		
-		let responseInfo: [AnyHashable: Any]?
-		if let userText = userText {
-			responseInfo = [UIUserNotificationActionResponseTypedTextKey : userText]
-		} else {
-			responseInfo = nil
-		}
-		
+
 		let message = MTMessage(
 			payload: notificationUserInfo,
 			deliveryMethod: .undefined,
@@ -87,13 +78,13 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 			deliveryReportDate: nil,
 			seenStatus: .NotSeen,
 			isDeliveryReportSent: false)
-		
+
 		service.handleAction(
 			identifier: identifier,
 			categoryId: categoryId,
 			message: message,
 			notificationUserInfo: notificationUserInfo as? [String: Any],
-			responseInfo: responseInfo,
+			userText: userText,
 			completionHandler: completionHandler
 		)
 	}

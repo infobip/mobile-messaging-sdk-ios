@@ -23,7 +23,7 @@ class InteractiveNotificationsTests: MMTestCase {
 			seenCalled?.fulfill()
 		}
 		mobileMessagingInstance.messageHandler = msgHandlerMock
-	
+
 		MobileMessaging.application = InactiveApplicationStub()
 		MobileMessaging.didReceiveRemoteNotification(apnsNormalMessagePayload("m1")) { _ in
 			messageReceived?.fulfill()
@@ -33,11 +33,11 @@ class InteractiveNotificationsTests: MMTestCase {
 			XCTAssertTrue(isSeenSet)
 		})
 	}
-	
+
 	func testActionHandlerCalledAndMOSent() {
 		weak var testCompleted = expectation(description: "testCompleted")
 		let action = NotificationAction(identifier: actionId, title: "Action", options: [.moRequired])!
-		checkActionHandlerCalledAndMoSent(withAction: action, responseInfo: nil) { _action, completionHandler in
+		checkActionHandlerCalledAndMoSent(withAction: action, userText: nil) { _action, completionHandler in
 			if _action == action {
 				testCompleted?.fulfill()
 			}
@@ -45,15 +45,12 @@ class InteractiveNotificationsTests: MMTestCase {
 		}
 		waitForExpectations(timeout: 10, handler: nil)
 	}
-	
+
 	func testTextInputActionHandlerCalledAndMOSent() {
-		guard #available(iOS 9.0, *) else {
-			return
-		}
 		let typedText = "Hello world!"
 		weak var testCompleted = expectation(description: "testCompleted")
 		let textInputAction = TextInputNotificationAction(identifier: "textInputActionId", title: "Reply", options: [.moRequired], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print text here")!
-		checkActionHandlerCalledAndMoSent(withAction: textInputAction, responseInfo: [UIUserNotificationActionResponseTypedTextKey: typedText]) { _action, completionHandler in
+		checkActionHandlerCalledAndMoSent(withAction: textInputAction, userText: typedText) { _action, completionHandler in
 			if let _textInputAction = _action as? TextInputNotificationAction,
 				_textInputAction == textInputAction {
 				XCTAssertEqual(typedText, _textInputAction.typedText)
@@ -63,39 +60,42 @@ class InteractiveNotificationsTests: MMTestCase {
 		}
 		waitForExpectations(timeout: 10, handler: nil)
 	}
-	
-	func checkActionHandlerCalledAndMoSent(withAction action: NotificationAction, responseInfo: [AnyHashable: Any]?, completion: @escaping (NotificationAction, () -> Void) -> Void) {
+
+	func checkActionHandlerCalledAndMoSent(withAction action: NotificationAction, userText: String?, completion: @escaping (NotificationAction, () -> Void) -> Void) {
 		let category = NotificationCategory(identifier: categoryId, actions: [action], options: nil, intentIdentifiers: nil)!
 		var set = Set<NotificationCategory>()
 		set.insert(category)
-		
+
 		MMTestCase.cleanUpAndStop()
-		
+
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
 		mm.start()
-		
+
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		weak var seenCalled = expectation(description: "seenCalled")
-        weak var actionHandled = expectation(description: "actionHandled")
+		weak var actionHandled = expectation(description: "actionHandled")
 		weak var sendMessageCalled = expectation(description: "sendMessageCalled")
 		msgHandlerMock.sendMessageWasCalled = { messages in
 			XCTAssertEqual(messages.first!.text, "\(self.categoryId) \(action.identifier)")
 			sendMessageCalled?.fulfill()
 		}
 		msgHandlerMock.setSeenWasCalled = {
-            seenCalled?.fulfill()
-            
-        }
+			seenCalled?.fulfill()
+
+		}
 		mm.messageHandler = msgHandlerMock
-		
-        let messageHandlingDelegateMock = MessageHandlingDelegateMock()
-        messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
-            actionHandled?.fulfill()
-            completion(action, {})
-        }
-        MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
-		
-		MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: responseInfo) {}
+
+		let messageHandlingDelegateMock = MessageHandlingDelegateMock()
+		messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
+			actionHandled?.fulfill()
+			completion(action, {})
+		}
+		MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
+
+		let info = ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]] as [String : Any]
+		let msg = MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
+
+		MobileMessaging.handleAction(identifier: action.identifier, category: category.identifier, message: msg, notificationUserInfo: info, userText: userText, completionHandler: {})
 	}
 	
 	func testActionOptions() {
@@ -103,18 +103,12 @@ class InteractiveNotificationsTests: MMTestCase {
 		let checkingBlock: ([NotificationActionOptions]) -> Void = { options in
 			let action = NotificationAction(identifier: "actionId1", title: "Action", options: options)
 			XCTAssertTrue(action != nil)
-			let uiUserNotificationAction = action!.uiUserNotificationAction
-			XCTAssertTrue(uiUserNotificationAction.isAuthenticationRequired == options.contains(.authenticationRequired))
-			XCTAssertTrue(uiUserNotificationAction.isDestructive == options.contains(.destructive))
-			XCTAssertTrue(uiUserNotificationAction.activationMode == (options.contains(.foreground) ? .foreground : .background))
-			
-			if #available(iOS 10.0, *) {
-				let unUserNotificationAction = action!.unUserNotificationAction
-				
-				XCTAssertTrue(unUserNotificationAction.options.contains(.authenticationRequired) == options.contains(.authenticationRequired))
-				XCTAssertTrue(unUserNotificationAction.options.contains(.destructive) == options.contains(.destructive))
-				XCTAssertTrue(unUserNotificationAction.options.contains(.foreground) == options.contains(.foreground))
-			}
+
+			let unUserNotificationAction = action!.unUserNotificationAction
+
+			XCTAssertTrue(unUserNotificationAction.options.contains(.authenticationRequired) == options.contains(.authenticationRequired))
+			XCTAssertTrue(unUserNotificationAction.options.contains(.destructive) == options.contains(.destructive))
+			XCTAssertTrue(unUserNotificationAction.options.contains(.foreground) == options.contains(.foreground))
 		}
 		
 		checkingBlock([.foreground])
@@ -130,102 +124,91 @@ class InteractiveNotificationsTests: MMTestCase {
 		let testIntentIds = ["test_intent_id"]
 		let action = NotificationAction(identifier: actionId, title: "Action", options: nil)
 		XCTAssertNotNil(action)
-		let category: NotificationCategory!
-		if #available(iOS 10.0, *) {
-			category = NotificationCategory(identifier: categoryId,
-			                                actions: [action!],
-			                                options: [.allowInCarPlay],
-			                                intentIdentifiers: testIntentIds)
-		} else {
-			category = NotificationCategory(identifier: categoryId,
-			                                actions: [action!],
-			                                options: nil,
-			                                intentIdentifiers: nil)
-		}
+		let category = NotificationCategory(identifier: categoryId,
+											actions: [action!],
+											options: [.allowInCarPlay],
+											intentIdentifiers: testIntentIds)
+
 		XCTAssertNotNil(category)
-		let uiCategory = category?.uiUserNotificationCategory
-		XCTAssertTrue(uiCategory?.actions(for: .minimal)?.count == 1)
-		XCTAssertTrue(uiCategory?.actions(for: .default)?.count == 1)
-		
-		if #available(iOS 10.0, *) {
-			let unCategory = category!.unUserNotificationCategory
-			XCTAssertTrue(unCategory.actions.count == 1)
-			XCTAssertTrue(unCategory.options.contains(.allowInCarPlay))
-			XCTAssertTrue(unCategory.options.contains(.customDismissAction))
-			XCTAssertTrue(unCategory.intentIdentifiers == testIntentIds)
-		}
+
+		let unCategory = category!.unUserNotificationCategory
+		XCTAssertTrue(unCategory.actions.count == 1)
+		XCTAssertTrue(unCategory.options.contains(.allowInCarPlay))
+		XCTAssertTrue(unCategory.options.contains(.customDismissAction))
+		XCTAssertTrue(unCategory.intentIdentifiers == testIntentIds)
 	}
-	
+
 	func testThatPredefinedCategoriesWork() {
 		weak var testCompleted = expectation(description: "testCompleted")
 		XCTAssertEqual(NotificationsInteractionService.sharedInstance?.allNotificationCategories?.count, PredefinedCategoriesTest().categoriesIds?.count)
-		
+
 		let allActions = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.reduce([String](), { (result, category) -> [String] in
 			return result + category.actions.reduce([String](), { (result, action) -> [String] in
 				return result + ["\(category.identifier)+\(action.identifier)"]
 			})
 		})
-		
+
 		var actionsWithExpectations = [String: XCTestExpectation]()
-		
+
 		for action in allActions! {
 			weak var actionHandled = expectation(description: action)
 			actionsWithExpectations[action] = actionHandled
 		}
 
-        let messageHandlingDelegateMock = MessageHandlingDelegateMock()
-        messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
-            actionsWithExpectations["\(message!.category!)+\(action.identifier)"]?.fulfill()
-        }
-        MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
-		
+		let messageHandlingDelegateMock = MessageHandlingDelegateMock()
+		messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
+			actionsWithExpectations["\(message!.category!)+\(action.identifier)"]?.fulfill()
+		}
+		MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
+
 		mobileMessagingInstance.messageHandler = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
-		
+
 		NotificationsInteractionService.sharedInstance?.allNotificationCategories?.forEach { category in
 			category.actions.forEach { action in
-				MobileMessaging.handleActionWithIdentifier(identifier: action.identifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: nil) {
-					// do nothing
-				}
+
+				let info = ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]] as [String : Any]
+				let msg = MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
+				MobileMessaging.handleAction(identifier: action.identifier, category: category.identifier, message: msg, notificationUserInfo: info, userText: nil, completionHandler: {})
 			}
 		}
-		
+
 		testCompleted?.fulfill()
 		waitForExpectations(timeout: 60, handler: nil)
 	}
-	
+
 	func testSystemDefinedDismissAction() {
-		guard #available(iOS 10.0, *) else {
-			return
-		}
-        weak var handlingCompleted = expectation(description: "handlingCompleted")
+		weak var handlingCompleted = expectation(description: "handlingCompleted")
 		weak var testCompleted = expectation(description: "testCompleted")
-		
+
 		let category = NotificationCategory(identifier: categoryId, actions: [], options: [], intentIdentifiers: nil)!
 		var set = Set<NotificationCategory>()
 		set.insert(category)
-		
+
 		MMTestCase.cleanUpAndStop()
-		
+
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
 		mm.start()
-		
+
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		weak var seenCalled = expectation(description: "seenCalled")
 		msgHandlerMock.setSeenWasCalled = { seenCalled?.fulfill() }
 		mm.messageHandler = msgHandlerMock
-		
-        let messageHandlingDelegateMock = MessageHandlingDelegateMock()
-        messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
-            if action.identifier == UNNotificationDismissActionIdentifier {
-                testCompleted?.fulfill()
-            }
-        }
-        MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
-		
-		MobileMessaging.handleActionWithIdentifier(identifier: UNNotificationDismissActionIdentifier, forRemoteNotification: ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]], responseInfo: nil) {
-            handlingCompleted?.fulfill()
-        }
-		
+
+		let messageHandlingDelegateMock = MessageHandlingDelegateMock()
+		messageHandlingDelegateMock.didPerformActionHandler = { action, message, _ in
+			if action.identifier == UNNotificationDismissActionIdentifier {
+				testCompleted?.fulfill()
+			}
+		}
+		MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
+
+
+		let info = ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]] as [String : Any]
+		let msg = MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
+		MobileMessaging.handleAction(identifier: UNNotificationDismissActionIdentifier, category: category.identifier, message: msg, notificationUserInfo: info, userText: nil, completionHandler: {
+			handlingCompleted?.fulfill()
+		})
+
 		waitForExpectations(timeout: 10, handler: nil)
 	}
 }

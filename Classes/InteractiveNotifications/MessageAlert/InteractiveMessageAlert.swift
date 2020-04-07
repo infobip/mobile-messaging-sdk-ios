@@ -39,7 +39,6 @@ class InteractiveMessageAlertManager {
 		}
 	}
 
-	@available(iOS 10.0, *)
 	func showBannerNotificationIfNeeded(forMessage message: MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
 		guard let message = message, let inAppStyle = message.inAppStyle, shouldShowInAppNotification(forMessage: message) else {
 			showBannerWithOptions([])
@@ -75,7 +74,6 @@ class InteractiveMessageAlertManager {
 		AlertQueue.sharedInstace.enqueueAlert(message: message, text: text)
 	}
 
-	@available(iOS 10.0, *)
 	static func presentationOptions(for message: MTMessage?) -> UNNotificationPresentationOptions {
 		let ret: UNNotificationPresentationOptions
 

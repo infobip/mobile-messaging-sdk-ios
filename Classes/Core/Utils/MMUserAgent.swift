@@ -70,10 +70,7 @@ public class UserAgent: NSObject {
 	
 	public var notificationsEnabled: Bool {
 		if itsTimeToCheckNotificationsEnabledStatus() {
-			guard let settings = MobileMessaging.application.currentUserNotificationSettings else {
-				return true
-			}
-			return !settings.types.isEmpty
+			return MobileMessaging.application.notificationEnabled
 		} else {
 			return true
 		}
@@ -257,24 +254,7 @@ public class UserAgent: NSObject {
 	}
 
 	public var deviceSecure: Bool {
-		if #available(iOS 9.0, *) {
-			return LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
-		} else {
-			if let secret = "Device has passcode set?".data(using: String.Encoding.utf8, allowLossyConversion: false) {
-				let attributes = [kSecClass as String:kSecClassGenericPassword,
-								  kSecAttrService as String:"LocalDeviceServices",
-								  kSecAttrAccount as String:"NoAccount",
-								  kSecValueData as String:secret,
-								  kSecAttrAccessible as String:kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly] as [String : Any]
-
-				let status = SecItemAdd(attributes as CFDictionary, nil)
-				if status == 0 {
-					SecItemDelete(attributes as CFDictionary)
-					return true
-				}
-			}
-			return false
-		}
+		return LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
 	}
 
 	public var deviceTimeZone: String? {

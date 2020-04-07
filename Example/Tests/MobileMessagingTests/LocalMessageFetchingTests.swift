@@ -34,31 +34,30 @@ class NotificationExtensionStorageStub: AppGroupMessageStorage {
 class LocalMessageFetchingTests : MMTestCase {
 	
 	func testThatMessagesFetchedLocallyAreConsideredAsDelivered() {
-		if #available(iOS 10.0, *) {
-			weak var expectation = self.expectation(description: "server sync finished")
-			var dlrs = [String]()
-			mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-			mobileMessagingInstance.userNotificationCenterStorage = UserNotificationCenterStorageStub()
-			mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
-
-
-			let remoteApiProvider = RemoteAPIProviderStub()
-			remoteApiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
-				if let dls = body["drIDs"] as? [String] {
-					dlrs.append(contentsOf: dls)
-				}
-				return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
+		
+		weak var expectation = self.expectation(description: "server sync finished")
+		var dlrs = [String]()
+		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessagingInstance.userNotificationCenterStorage = UserNotificationCenterStorageStub()
+		mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
+		
+		
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
+			if let dls = body["drIDs"] as? [String] {
+				dlrs.append(contentsOf: dls)
 			}
-			mobileMessagingInstance.remoteApiProvider = remoteApiProvider
-
-			mobileMessagingInstance.messageHandler.syncWithServer { (error) in
-				expectation?.fulfill()
-			}
-			
-			waitForExpectations(timeout: 10) { (err) in
-				XCTAssert(dlrs.contains("m1"))
-				XCTAssert(dlrs.contains("m2"))
-			}
+			return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": []]))!)
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
+		
+		mobileMessagingInstance.messageHandler.syncWithServer { (error) in
+			expectation?.fulfill()
+		}
+		
+		waitForExpectations(timeout: 10) { (err) in
+			XCTAssert(dlrs.contains("m1"))
+			XCTAssert(dlrs.contains("m2"))
 		}
 	}
 }

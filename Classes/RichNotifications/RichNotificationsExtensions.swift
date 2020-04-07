@@ -18,10 +18,8 @@ extension MobileMessaging {
 	/// - parameter appGroupId: An ID of an App Group
 	@available(*, deprecated, message: "The function is deprecated. Please put your App Group Id as a String value for a key `com.mobilemessaging.app_group` in your main info dictionary (Info.plist by default).")
 	public func withAppGroupId(_ appGroupId: String) -> MobileMessaging {
-		if #available(iOS 10.0, *) {
-			self.appGroupId = appGroupId
-			self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
-		}
+		self.appGroupId = appGroupId
+		self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
 		return self
 	}
 }
@@ -50,7 +48,6 @@ extension MTMessage {
 
 }
 
-@available(iOS 10.0, *)
 @objcMembers
 final public class MobileMessagingNotificationServiceExtension: NSObject {
 	
@@ -184,7 +181,6 @@ protocol DeliveryReporting {
 	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void)
 }
 
-@available(iOS 10.0, *)
 class DeliveryReporter: DeliveryReporting {
 	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void) {
 		MMLogDebug("[Notification Extension] reporting delivery for message ids \(messageIds)")
@@ -206,7 +202,6 @@ protocol AppGroupMessageStorage {
 	func cleanupMessages()
 }
 
-@available(iOS 10.0, *)
 class DefaultSharedDataStorage: AppGroupMessageStorage {
 	let applicationCode: String
 	let appGroupId: String

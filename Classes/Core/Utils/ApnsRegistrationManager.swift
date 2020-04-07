@@ -14,16 +14,16 @@ class ApnsRegistrationManager {
 	init(mmContext: MobileMessaging) {
 		self.mmContext = mmContext
 	}
-
+	
 	func unregister() {
 		if MobileMessaging.application.isRegisteredForRemoteNotifications {
 			MobileMessaging.application.unregisterForRemoteNotifications()
 		}
 	}
-
+	
 	func registerForRemoteNotifications() {
 		MMLogDebug("[APNS reg manager] Registering...")
-
+		
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .success, .undefined:
 			break
@@ -31,9 +31,9 @@ class ApnsRegistrationManager {
 			MMLogDebug("[APNS reg manager] canceling due to pending depersonalize state...")
 			return
 		}
-
+		
 		registerNotificationSettings(application: MobileMessaging.application, userNotificationType: mmContext.userNotificationType)
-
+		
 		if mmContext.currentInstallation().pushServiceToken == nil {
 			if MobileMessaging.application.isRegisteredForRemoteNotifications {
 				MMLogDebug("[APNS reg manager] The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
@@ -49,7 +49,7 @@ class ApnsRegistrationManager {
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
 		let tokenStr = token.mm_toHexString
 		MMLogInfo("[APNS reg manager] Application did register with device token \(tokenStr)")
-
+		
 		UserEventsManager.postDeviceTokenReceivedEvent(tokenStr)
 		
 		// in most cases we either get the same token we registered earlier or we are just starting
@@ -142,20 +142,16 @@ class ApnsRegistrationManager {
 	private static let encoding: String.Encoding = .utf8
 	
 	private func registerNotificationSettings(application: MMApplication, userNotificationType: UserNotificationType) {
-		if #available(iOS 10.0, *) {
-			UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
-			UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
-				UserEventsManager.postNotificationCenterAuthRequestFinished(granted: granted, error: error)
-				guard granted else {
-					MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
-					return
-				}
-				if let categories = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.unNotificationCategories {
-					UNUserNotificationCenter.current().setNotificationCategories(categories)
-				}
+		UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
+		UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
+			UserEventsManager.postNotificationCenterAuthRequestFinished(granted: granted, error: error)
+			guard granted else {
+				MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
+				return
 			}
-		} else {
-			application.registerUserNotificationSettings(UIUserNotificationSettings(types: userNotificationType.uiUserNotificationType, categories: NotificationsInteractionService.sharedInstance?.allNotificationCategories?.uiUserNotificationCategories))
+			if let categories = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.unNotificationCategories {
+				UNUserNotificationCenter.current().setNotificationCategories(categories)
+			}
 		}
 	}
 }

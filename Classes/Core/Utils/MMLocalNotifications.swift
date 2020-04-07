@@ -10,16 +10,10 @@ import UserNotifications
 
 class LocalNotifications {
 	class func presentLocalNotification(with message: MTMessage) {
-        MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
-        if #available(iOS 10.0, *) {
-            LocalNotifications.scheduleUserNotification(with: message)
-        } else {
-            MMLogDebug("[Local Notification] presenting notification for \(message.messageId)")
-            MobileMessaging.application.presentLocalNotificationNow(UILocalNotification.make(with: message))
-        }
+		MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
+		LocalNotifications.scheduleUserNotification(with: message)
 	}
 	
-	@available(iOS 10.0, *)
 	class func scheduleUserNotification(with message: MTMessage) {
 		guard let txt = message.text else {
 			return
@@ -47,24 +41,12 @@ class LocalNotifications {
 					let att = try UNNotificationAttachment(identifier: downloadedFileUrl.absoluteString, url: downloadedFileUrl)
 					content.attachments = [att]
 				} catch let e {
-					MMLogError("Error while building local notification attachment: \(e as? String)")
+					MMLogError("Error while building local notification attachment: \(String(describing: e))")
 				}
 			}
 			let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)
 			MMLogDebug("[Local Notification] scheduling notification for \(message.messageId)")
 			UNUserNotificationCenter.current().add(req, withCompletionHandler: nil)
 		})
-	}
-}
-
-extension UILocalNotification {
-	class func make(with message: MTMessage) -> UILocalNotification {
-		let localNotification = UILocalNotification()
-		localNotification.userInfo = message.originalPayload
-		localNotification.alertBody = message.text
-		localNotification.soundName = message.sound
-		localNotification.alertTitle = message.title
-		localNotification.category = message.aps.category
-		return localNotification
 	}
 }

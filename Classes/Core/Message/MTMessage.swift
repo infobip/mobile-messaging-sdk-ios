@@ -47,7 +47,7 @@ public protocol MTMessageProtocol {
 	
 	/// Servers datetime
 	var sendDateTime: TimeInterval {get} // seconds
-
+	
 	/// Date of message expiration (validity period)
 	var inAppExpiryDateTime: TimeInterval? {get} // seconds
 	
@@ -75,13 +75,13 @@ public protocol MTMessageProtocol {
 
 @objcMembers
 public class MTMessage: BaseMessage, MTMessageProtocol {
-
+	
 	public var appliedAction: NotificationAction?
 	
 	public var aps: PushPayloadAPS
 	
 	public var sendDateTime: TimeInterval
-
+	
 	public var inAppExpiryDateTime: TimeInterval?
 	
 	public var seenStatus: MMSeenStatus
@@ -117,9 +117,9 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 			return nil
 		}
 	}
-
+	
 	//	var downloadedPictureUrl: URL? //NOTE: this field may be used to keep url of downloaded content/cache
-
+	
 	public var webViewUrl: URL? {
 		if let urlString = internalData?[Consts.InternalDataKeys.webViewUrl] as? String {
 			return URL.init(string: urlString)
@@ -127,26 +127,22 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 			return nil
 		}
 	}
-
+	
 	public var showInApp: Bool {
 		return internalData?[Consts.InternalDataKeys.showInApp] as? Bool ?? false
 	}
-
+	
 	public var inAppStyle: InAppNotificationStyle? {
 		let defaultStyle = showInApp ? InAppNotificationStyle.Modal : nil
 		let resolvedStyle: InAppNotificationStyle?
-		if #available(iOS 10.0, *) { // means foreground banner is supported
-			if let rawValue = internalData?[Consts.InternalDataKeys.inAppStyle] as? Int16 {
-				resolvedStyle = InAppNotificationStyle(rawValue: rawValue) ?? defaultStyle
-			} else {
-				resolvedStyle = defaultStyle
-			}
+		if let rawValue = internalData?[Consts.InternalDataKeys.inAppStyle] as? Int16 {
+			resolvedStyle = InAppNotificationStyle(rawValue: rawValue) ?? defaultStyle
 		} else {
 			resolvedStyle = defaultStyle
 		}
 		return resolvedStyle
 	}
-
+	
 	public var isExpired: Bool {
 		if let expirationDateTime = inAppExpiryDateTime {
 			return MobileMessaging.date.now.timeIntervalSince1970 > expirationDateTime
@@ -194,7 +190,7 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 		}
 		self.deliveryMethod = .pull
 	}
-
+	
 	/// Initializes the MTMessage from Message storage's message
 	convenience init?(messageStorageMessageManagedObject m: Message) {
 		guard let deliveryMethod = MessageDeliveryMethod(rawValue: m.deliveryMethod) else {
@@ -211,14 +207,14 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 	/// Designated init
 	public init?(payload: APNSPayload, deliveryMethod: MessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool) {
 		guard 	let payload = payload as? StringKeyPayload,
-				let messageId = payload[Consts.APNSPayloadKeys.messageId] as? String else
+			let messageId = payload[Consts.APNSPayloadKeys.messageId] as? String else
 		{
 			return nil
 		}
 		//workaround for cordova
 		let internData = payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload
 		let nativeAPS = payload[Consts.APNSPayloadKeys.aps] as? StringKeyPayload
-
+		
 		if isSilentInternalData(internData) {
 			if let silentAPS = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.silent] as? StringKeyPayload {
 				self.aps = PushPayloadAPS.SilentAPS(apsByMerging(nativeAPS: nativeAPS ?? [:], withSilentAPS: silentAPS))

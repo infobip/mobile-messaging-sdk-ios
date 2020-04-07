@@ -47,10 +47,8 @@ public final class UserNotificationType: NSObject, ExpressibleByArrayLiteral {
 	
 	///The ability to display notifications in a CarPlay environment.
 	/// - remark: This option is available only for iOS 10+
-	@available(iOS 10.0, *)
 	public static let carPlay = UserNotificationType(rawValue: 1 << 3)
     
-	@available(iOS 10.0, *)
 	var unAuthorizationOptions: UNAuthorizationOptions {
 		var options: UNAuthorizationOptions = []
 		if contains(options: .alert) {
@@ -66,20 +64,5 @@ public final class UserNotificationType: NSObject, ExpressibleByArrayLiteral {
 			options.formUnion(.carPlay)
 		}
 		return options
-	}
-	
-	@available(iOS, deprecated: 10.0, message: "Use unAuthorizationOptions")
-	var uiUserNotificationType: UIUserNotificationType {
-		var type: UIUserNotificationType = []
-		if contains(options: .alert) {
-			type.formUnion(.alert)
-		}
-		if contains(options: .sound) {
-			type.formUnion(.sound)
-		}
-		if contains(options: .badge) {
-			type.formUnion(.badge)
-		}
-		return type
 	}
 }

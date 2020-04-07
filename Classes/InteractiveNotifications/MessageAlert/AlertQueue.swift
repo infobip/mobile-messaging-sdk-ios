@@ -107,7 +107,7 @@ class AlertOperation: Foundation.Operation {
 						category: categoryId,
 						message: message,
 						notificationUserInfo: message.originalPayload,
-						responseInfo: nil,
+						userText: nil,
 						completionHandler: {}
 					)
 			})
@@ -124,7 +124,7 @@ class AlertOperation: Foundation.Operation {
 						category: nil,
 						message: message,
 						notificationUserInfo: message.originalPayload,
-						responseInfo: nil,
+						userText: nil,
 						completionHandler: {}
 					)
 			})

@@ -278,13 +278,7 @@ class MessageReceivingTests: MMTestCase {
 			}))
 		}
 	}
-	
-	func testTapHandlingForActiveApplication() {
-		collectSixTappedMessages(forApplication: ActiveApplicationStub()) { tappedMessages in
-			XCTAssertEqual(tappedMessages.count, 0)
-		}
-	}
-	
+
 	func testTapHandlerCalledIfUserInfoContainsApplicationLaunchedByNotificationKey() {
 		collectSixTappedMessages(forApplication: ActiveApplicationStub(), additionalPayload: [ApplicationLaunchedByNotification_Key: true]) { (tappedMessages) in
 			XCTAssertEqual(tappedMessages.count, 6)
@@ -304,7 +298,7 @@ class MessageReceivingTests: MMTestCase {
 		
 		let delegateMock = MessageHandlingDelegateMock()
 		delegateMock.didPerformActionHandler = { action, message, _ in
-			DispatchQueue.main.sync {
+			DispatchQueue.main.async {
 				if let message = message, action.identifier == NotificationAction.DefaultActionId {
 					tappedMessages.append(message)
 				}
@@ -330,13 +324,17 @@ class MessageReceivingTests: MMTestCase {
 				messageReceived4?.fulfill()
 			})
 		})
-		
-		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload1)) {
+
+		let msg1 = MTMessage.init(payload: payload1, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
+		msg1.appliedAction = NotificationAction.defaultAction
+		let msg2 = MTMessage.init(payload: payload2, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
+		msg2.appliedAction = NotificationAction.defaultAction
+		NotificationsInteractionService.sharedInstance?.handleAnyMessage(msg1, completion: { (result) in
 			localNotificationHandled1?.fulfill()
-		}
-		MobileMessaging.didReceiveLocalNotification(UILocalNotification.mm_localNotification(with: payload2)) {
+		})
+		NotificationsInteractionService.sharedInstance?.handleAnyMessage(msg2, completion: { (result) in
 			localNotificationHandled2?.fulfill()
-		}
+		})
 		
 		self.waitForExpectations(timeout: 60, handler: { error in
 			assertionsBlock(tappedMessages)
@@ -354,13 +352,8 @@ class MessageReceivingTests: MMTestCase {
 			XCTFail("Message decoding failed")
 		}
 	}
-	
-	@available(iOS 10.0, *)
-	func testThatNotificationCenterDelegateRecognizesTaps() {
-		guard #available(iOS 10.0, *) else {
-			return
-		}
 
+	func testThatNotificationCenterDelegateRecognizesTaps() {
 		weak var eventReceived = self.expectation(description: "eventReceived")
 		weak var tapHandled = self.expectation(description: "tapHandled")
 		let delegateMock = MessageHandlingDelegateMock()
@@ -372,15 +365,11 @@ class MessageReceivingTests: MMTestCase {
 		MobileMessaging.messageHandlingDelegate = delegateMock
 
 		UserNotificationCenterDelegate.sharedInstance.didReceive(notificationUserInfo: apnsNormalMessagePayload("1"), actionId: NotificationAction.DefaultActionId, categoryId: nil, userText: nil, withCompletionHandler: {eventReceived?.fulfill()})
-		
+
 		self.waitForExpectations(timeout: 60, handler: { error in })
 	}
 
-	@available(iOS 10.0, *)
 	func testThatBannerAlertWillBeResolved() {
-		guard #available(iOS 10.0, *) else {
-			return
-		}
 		let jsonStr  = """
 						{
 							"messageId": "messageId",
@@ -509,26 +498,22 @@ class MessageReceivingTests: MMTestCase {
 						""")
 	}
 
-	@available(iOS 10.0, *)
 	func testThatInAppWebViewShownForWebViewUrlWhenTapActionPerformed() {
-		guard #available(iOS 10.0, *) else {
-			return
-		}
 		let message = """
-		{
-			"messageId": "messageId",
-			"aps": {
-				"badge": 6,
-				"sound": "default",
-				"alert": {
-					"body":"text"
+			{
+				"messageId": "messageId",
+				"aps": {
+					"badge": 6,
+					"sound": "default",
+					"alert": {
+						"body":"text"
+					}
+				},
+				"internalData": {
+					"webViewUrl": "www.hello.com"
 				}
-			},
-			"internalData": {
-				"webViewUrl": "www.hello.com"
 			}
-		}
-		"""
+			"""
 		weak var webViewShown = self.expectation(description: "webViewShown")
 		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
 
@@ -556,26 +541,22 @@ class MessageReceivingTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: { error in })
 	}
 
-	@available(iOS 10.0, *)
 	func testThatInAppWebViewNotShownForWebViewUrlWhenDismissAction() {
-		guard #available(iOS 10.0, *) else {
-			return
-		}
 		let message = """
-		{
-			"messageId": "messageId",
-			"aps": {
-				"badge": 6,
-				"sound": "default",
-				"alert": {
-					"body":"text"
+			{
+				"messageId": "messageId",
+				"aps": {
+					"badge": 6,
+					"sound": "default",
+					"alert": {
+						"body":"text"
+					}
+				},
+				"internalData": {
+					"webViewUrl": "www.hello.com"
 				}
-			},
-			"internalData": {
-				"webViewUrl": "www.hello.com"
 			}
-		}
-		"""
+			"""
 		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
 
 		class MessageHandlingDelegateStub: MessageHandlingDelegate {
@@ -599,24 +580,20 @@ class MessageReceivingTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: { error in })
 	}
 
-	@available(iOS 10.0, *)
 	func testThatInAppWebViewNotInitializedWhenWebViewUrlOmitted() {
-		guard #available(iOS 10.0, *) else {
-			return
-		}
 		let message = """
-		{
-			"messageId": "messageId",
-			"aps": {
-				"badge": 6,
-				"sound": "default",
-				"alert": {
-					"body":"text"
-				}
-			},
-			"internalData": {}
-		}
-		"""
+			{
+				"messageId": "messageId",
+				"aps": {
+					"badge": 6,
+					"sound": "default",
+					"alert": {
+						"body":"text"
+					}
+				},
+				"internalData": {}
+			}
+			"""
 		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
 
 		class MessageHandlingDelegateStub: MessageHandlingDelegate {
@@ -654,16 +631,5 @@ class MessageReceivingTests: MMTestCase {
 		})
 
 		self.waitForExpectations(timeout: 60, handler: { error in })
-	}
-}
-
-extension UILocalNotification {
-	class func mm_localNotification(with payload: [AnyHashable: Any]) -> UILocalNotification {
-		let m = MTMessage(payload: payload, deliveryMethod: .pull, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
-		let localNotification = UILocalNotification()
-		localNotification.userInfo = payload
-		localNotification.alertBody = m.text
-		localNotification.soundName = m.sound
-		return localNotification
 	}
 }

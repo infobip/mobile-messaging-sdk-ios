@@ -33,27 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
 		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
 	}
-	
-	func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
-		MobileMessaging.didReceiveLocalNotification(notification)
-	}
-	
-	func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
-		MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: nil, completionHandler: completionHandler)
-	}
-	
-	func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
-		MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: nil, completionHandler: completionHandler)
-	}
-	
-	func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
-		MobileMessaging.handleActionWithIdentifier(identifier: identifier, localNotification: notification, responseInfo: responseInfo, completionHandler: completionHandler)
-	}
-	
-	func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], withResponseInfo responseInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
-		MobileMessaging.handleActionWithIdentifier(identifier: identifier, forRemoteNotification: userInfo, responseInfo: responseInfo, completionHandler: completionHandler)
-	}
-	
+
 	func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
 		return LinksHandler.openDeeplink(url: url, withMessage: nil)
 	}

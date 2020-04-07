@@ -22,20 +22,16 @@ class LocalMessageFetchingOperation : Operation {
 	}
 	
 	override func execute() {
-		if #available(iOS 10.0, *) {
-			self.retrieveMessagesFromNotificationServiceExtension(completion: { messages in
-				MMLogDebug("[Local Fetching] Retrieved \(messages.count) messages from notification extension storage.")
-					self.result.formUnion(messages)
-				
-				self.retrieveMessagesFromUserNotificationCenter(completion: { messages in
-					MMLogDebug("[Local Fetching] Retrieved \(messages.count) messages from notification center.")
-					self.result.formUnion(messages)
-					self.finish()
-				})
+		self.retrieveMessagesFromNotificationServiceExtension(completion: { messages in
+			MMLogDebug("[Local Fetching] Retrieved \(messages.count) messages from notification extension storage.")
+			self.result.formUnion(messages)
+			
+			self.retrieveMessagesFromUserNotificationCenter(completion: { messages in
+				MMLogDebug("[Local Fetching] Retrieved \(messages.count) messages from notification center.")
+				self.result.formUnion(messages)
+				self.finish()
 			})
-		} else {
-			self.finish()
-		}
+		})
 	}
 	
 	private func retrieveMessagesFromNotificationServiceExtension(completion: @escaping ([MTMessage]) -> Void) {
@@ -48,7 +44,7 @@ class LocalMessageFetchingOperation : Operation {
 			completion([])
 		}
 	}
-
+	
 	private func retrieveMessagesFromUserNotificationCenter(completion: @escaping ([MTMessage]) -> Void) {
 		userNotificationCenterStorage.getDeliveredMessages(completionHandler: completion)
 	}

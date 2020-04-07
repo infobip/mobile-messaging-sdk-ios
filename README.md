@@ -9,7 +9,7 @@ Mobile Messaging SDK is designed and developed to easily enable push notificatio
 ## Requirements
 - Xcode 11
 - Swift 4.2
-- iOS 9.0+
+- iOS 10.0+
 
 ## Quick start guide
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application.
@@ -27,7 +27,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
     ```ruby
     source 'https://github.com/CocoaPods/Specs.git'
-    platform :ios, '9.0'
+    platform :ios, '10.0'
     use_frameworks!
     pod 'MobileMessaging'
     ```

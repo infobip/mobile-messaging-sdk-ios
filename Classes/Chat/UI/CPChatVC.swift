@@ -9,9 +9,9 @@ import UIKit
 open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, ChatMessagesControllerDelegate, UIGestureRecognizerDelegate
 {
 	func applySettings() {
-        guard let settings = MobileMessaging.mobileChat?.settings else {
-            return
-        }
+		guard let settings = MobileMessaging.mobileChat?.settings else {
+			return
+		}
 		composeBarView.buttonTintColor = settings.tintColor
 		title = settings.title
 	}
@@ -28,7 +28,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		})
 		ret.title = "Edit" //FIXME: translate for localization
 		return ret
-    }()
+	}()
 	
 	lazy var dismissBtn: CPBarButtonItem! = {
 		let ret = CPBarButtonItem(actionBlock: { [weak self] _ in
@@ -36,11 +36,11 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		})
 		ret.title = MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel")
 		return ret
-    }()
+	}()
 	
 	lazy var editingToolbar: CPEditingToolbar! = {
 		return CPEditingToolbar(markAsReadBtn: CPBarButtonItem(actionBlock: { [weak self] _ in self?.markAsRead() }), deleteBtn: CPBarButtonItem(actionBlock: {[weak self]  _ in  self?.deleteMessages() }))
-    }()
+	}()
 	
 	var titleView: UILabel?
 	var scrollingRecognizer: UIPanGestureRecognizer!
@@ -94,7 +94,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		super.viewWillAppear(animated)
 		if isVeryFirstRefetch {
 			chatMessagesController?.performFetch()
-            tableView.reloadData()
+			tableView.reloadData()
 			if let chatNC = navigationController as? CPChatNavigationVC, chatNC.isModal {
 				navigationItem.leftBarButtonItem = dismissBtn
 			}
@@ -106,10 +106,10 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		setAllVisibleMessagesAsSeen()
 	}
 	
-    @objc func applicationDidBecomeActive() {
+	@objc func applicationDidBecomeActive() {
 		setAllVisibleMessagesAsSeen()
 	}
-
+	
 	func setAllVisibleMessagesAsSeen() {
 		guard isVisible else {
 			return
@@ -174,7 +174,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		if UIApplication.shared.applicationState == UIApplication.State.active {
 			let visibleTableViewAreaHeight = (tableView.cp_y + tableView.contentInset.top + composeBarView.cp_y - tableView.contentInset.bottom)
 			isScrollToBottomNeeded = isScrollToBottomEnabled && isScrollToBottomNeeded && tableView.contentSize.height > visibleTableViewAreaHeight
-
+			
 			if isScrollToBottomNeeded {
 				isScrollToBottomNeeded = false
 				if let indexPath = lastIndexPath {
@@ -189,7 +189,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		}
 		updateEditBtnAvailability()
 	}
-		
+	
 	func configureCell(_ cell: CPMessageCell, atIndexPath indexPath: IndexPath, withExplicitMessage message: ChatMessage? = nil) {
 		let messageToSet: ChatMessage?
 		if message != nil {
@@ -216,9 +216,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		MobileMessaging.mobileChat?.defaultChatStorage?.messagesCountersUpdateHandler = { total, notseen in
 			if !self.isVisible || notseen == 0 {
 				tabbaritem.badgeValue = notseen > 0 ? "\(notseen)" : nil
-				if #available(iOS 10.0, *) {
-					tabbaritem.badgeColor = UIColor.MAIN()
-				}
+				tabbaritem.badgeColor = UIColor.MAIN()
 			}
 		}
 	}
@@ -251,7 +249,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 	}
 	
 	//MARK: gestures
-    @objc func handlePanning() {
+	@objc func handlePanning() {
 		composeBarView.resignFirstResponder()
 	}
 	
@@ -306,7 +304,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 		}
 	}
 	
-    @objc func resetAutoScrollingEnabled() {
+	@objc func resetAutoScrollingEnabled() {
 		if !isScrollToBottomEnabled {
 			isScrollToBottomEnabled = true
 		}
@@ -322,7 +320,7 @@ open class CPChatVC: CPUserDataVC, CPUserDataProtocol, ChatSettingsApplicable, C
 }
 
 extension CPChatVC {
-//MARK: Editing utils
+	//MARK: Editing utils
 	func deleteMessages() {
 		let completion = {
 			self.switchTableViewEditing(animated: true)
@@ -365,13 +363,13 @@ extension CPChatVC {
 		}
 		let duration: TimeInterval = (animated ? 0.3 : 0.0)
 		UIView.animate(withDuration: duration,
-		               delay: 0.0,
+					   delay: 0.0,
 					   options: UIView.AnimationOptions.curveLinear,
-		               animations: { [weak self] () -> Void in
+					   animations: { [weak self] () -> Void in
 						self?.editingToolbar.layer.opacity = visible ? 1 : 0
 		})
 	}
-
+	
 	func switchTableViewEditing(animated: Bool) {
 		selectedMessages.removeAll()
 		updateEditingModeButtons()
@@ -380,14 +378,14 @@ extension CPChatVC {
 		setEditingToolbarVisible(visible: tableView.isEditing, animated: animated)
 		editBtn.title = tableView.isEditing ? "Cancel" : "Edit"
 	}
-
+	
 	func updateEditingModeButtons() {
 		let cnt = selectedMessages.count
 		let isEmpty = cnt == 0
 		editingToolbar.deleteBtn.title = isEmpty ? "Delete all" : "Delete (\(cnt))"
 		editingToolbar.markAsReadBtn.title = isEmpty ? "Mark all as read" : "Mark as read (\(cnt))"
 	}
-
+	
 	func updateEditBtnAvailability() {
 		editBtn.isEnabled = !tableView.visibleCells.isEmpty || tableView.isEditing
 	}

@@ -53,7 +53,7 @@ class CPMessageCell: CPBubbleCell {
 					categoryId: categoryId,
 					message: message.mt,
 					notificationUserInfo: message.originalPayload as? [String: Any],
-					responseInfo: nil,
+					userText: nil,
 					completionHandler: {}
 				)
 			}

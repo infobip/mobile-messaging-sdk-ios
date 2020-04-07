@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
     s.authors       = { 'Andrey Kadochnikov' => 'andrey.kadochnikov@infobip.com', 'Olga Koroleva' => 'olga.koroleva@infobip.com' }
     s.source        = { :git => 'https://github.com/infobip/mobile-messaging-sdk-ios.git', :tag => s.version }
     s.platform      = :ios
-    s.ios.deployment_target = '9.0'
+    s.ios.deployment_target = '10.0'
     s.swift_version = '5'
     s.requires_arc  = true
     s.pod_target_xcconfig =  {

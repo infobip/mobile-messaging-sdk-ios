@@ -362,14 +362,6 @@ func !=(lhs : [AnyHashable : AttributeType], rhs: [AnyHashable : AttributeType])
 	return !NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
-func isIOS9() -> Bool {
-	if #available(iOS 9.0, *) {
-		return true
-	} else {
-		return false
-	}
-}
-
 protocol DictionaryRepresentable {
 	init?(dictRepresentation dict: DictionaryRepresentation)
 	var dictionaryRepresentation: DictionaryRepresentation {get}
@@ -479,21 +471,17 @@ protocol UserNotificationCenterStorage {
 
 class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
 	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
-		if #available(iOS 10.0, *) {
-			UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-				let messages = notifications
-					.compactMap({
-						MTMessage(payload: $0.request.content.userInfo,
-								  deliveryMethod: .local,
-								  seenDate: nil,
-								  deliveryReportDate: nil,
-								  seenStatus: .NotSeen,
-								  isDeliveryReportSent: false)
-					})
-				completionHandler(messages)
-			}
-		} else {
-			return completionHandler([])
+		UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+			let messages = notifications
+				.compactMap({
+					MTMessage(payload: $0.request.content.userInfo,
+							  deliveryMethod: .local,
+							  seenDate: nil,
+							  deliveryReportDate: nil,
+							  seenStatus: .NotSeen,
+							  isDeliveryReportSent: false)
+				})
+			completionHandler(messages)
 		}
 	}
 }
@@ -504,9 +492,7 @@ protocol MMApplication {
 	var isRegisteredForRemoteNotifications: Bool { get }
 	func unregisterForRemoteNotifications()
 	func registerForRemoteNotifications()
-	func presentLocalNotificationNow(_ notification: UILocalNotification)
-	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings)
-	var currentUserNotificationSettings: UIUserNotificationSettings? { get }
+	var notificationEnabled: Bool { get }
 	var rootViewController: UIViewController? { get }
 }
 
@@ -519,6 +505,23 @@ extension UIApplication: MMApplication {
 extension MMApplication {
 	var isInForegroundState: Bool {
 		return applicationState == .active
+	}
+
+	var notificationEnabled: Bool {
+		var notificationSettings: UNNotificationSettings?
+		let semasphore = DispatchSemaphore(value: 0)
+
+		DispatchQueue.global().async {
+			UNUserNotificationCenter.current().getNotificationSettings { settings in
+				notificationSettings = settings
+				semasphore.signal()
+			}
+		}
+
+		semasphore.wait()
+		return notificationSettings?.alertSetting == UNNotificationSetting.enabled ||
+			notificationSettings?.badgeSetting == UNNotificationSetting.enabled ||
+			notificationSettings?.soundSetting == UNNotificationSetting.enabled
 	}
 }
 
@@ -555,18 +558,6 @@ class MainThreadedUIApplication: MMApplication {
 	func registerForRemoteNotifications() {
 		inMainWait { app.registerForRemoteNotifications() }
 	}
-	
-	func presentLocalNotificationNow(_ notification: UILocalNotification) {
-		inMainWait { app.presentLocalNotificationNow(notification) }
-	}
-	
-	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {
-		inMainWait { app.registerUserNotificationSettings(notificationSettings) }
-	}
-	
-	var currentUserNotificationSettings: UIUserNotificationSettings? {
-		return getFromMain(getter: { app.currentUserNotificationSettings })
-	}
 }
 
 func getDocumentsDirectory(filename: String) -> String {
@@ -584,19 +575,10 @@ extension String {
 	static func localizedUserNotificationStringOrFallback(key: String?, args: [String]?, fallback: String?) -> String? {
 		let ret: String?
 		if let key = key {
-			if #available(iOS 10.0, *) {
-				if let args = args {
-					ret = NSString.localizedUserNotificationString(forKey: key, arguments: args)
-				} else {
-					ret = NSLocalizedString(key, comment: "") as String
-				}
+			if let args = args {
+				ret = NSString.localizedUserNotificationString(forKey: key, arguments: args)
 			} else {
-				let localizedString = NSLocalizedString(key, comment: "")
-				if let args = args {
-					ret = String(format: localizedString as String, arguments: args)
-				} else {
-					ret = localizedString as String
-				}
+				ret = NSLocalizedString(key, comment: "") as String
 			}
 		} else {
 			ret = fallback
@@ -711,7 +693,6 @@ extension UIColor {
 	}
 	
 	func darker(_ percents: CGFloat) -> UIColor {
-		let color = UIColor.purple
 		var r:CGFloat = 0, g:CGFloat = 0, b:CGFloat = 0, a:CGFloat = 0
 		self.getRed(&r, green: &g, blue: &b, alpha: &a)
 		func reduce(_ value: CGFloat) -> CGFloat {
@@ -722,7 +703,6 @@ extension UIColor {
 	}
 	
 	func lighter(_ percents: CGFloat) -> UIColor {
-		let color = UIColor.purple
 		var r:CGFloat = 0, g:CGFloat = 0, b:CGFloat = 0, a:CGFloat = 0
 		self.getRed(&r, green: &g, blue: &b, alpha: &a)
 		func reduce(_ value: CGFloat) -> CGFloat {

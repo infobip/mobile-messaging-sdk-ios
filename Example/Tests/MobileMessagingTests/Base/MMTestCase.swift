@@ -42,10 +42,7 @@ class MessageHandlingDelegateMock : MessageHandlingDelegate {
     var didPerformActionHandler: ((NotificationAction, MTMessage?, () -> Void) -> Void)?
     var didReceiveNewMessageInForegroundHandler: ((MTMessage) -> Void)?
     var willScheduleLocalNotification: ((MTMessage) -> Void)?
-    
-    func didReceiveNewMessageInForeground(message: MTMessage) {
-        didReceiveNewMessageInForegroundHandler?(message)
-    }
+
     
     func willScheduleLocalNotification(for message: MTMessage) {
         willScheduleLocalNotification?(message)
@@ -54,10 +51,8 @@ class MessageHandlingDelegateMock : MessageHandlingDelegate {
     func didReceiveNewMessage(message: MTMessage) {
         didReceiveNewMessageHandler?(message)
     }
-    
-    @available(iOS 10.0, *)
+
     func willPresentInForeground(message: MTMessage?, withCompletionHandler completionHandler: @escaping (UserNotificationType) -> Void) {
-        
         completionHandler(willPresentInForegroundHandler?(message) ?? UserNotificationType.none)
     }
     
@@ -105,9 +100,7 @@ class ActiveApplicationStub: MMApplication {
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
-	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
-	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
-	var currentUserNotificationSettings: UIUserNotificationSettings? { return nil }
+	var notificationEnabled: Bool { return true }
 }
 
 class DefaultApplicationStub: MMApplication {
@@ -120,9 +113,7 @@ class DefaultApplicationStub: MMApplication {
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
-	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
-	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
-	var currentUserNotificationSettings: UIUserNotificationSettings? { return nil }
+	var notificationEnabled: Bool { return true }
 }
 
 class InactiveApplicationStub: MMApplication {
@@ -135,9 +126,7 @@ class InactiveApplicationStub: MMApplication {
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
-	func presentLocalNotificationNow(_ notification: UILocalNotification) {}
-	func registerUserNotificationSettings(_ notificationSettings: UIUserNotificationSettings) {}
-	var currentUserNotificationSettings: UIUserNotificationSettings? { return nil }
+	var notificationEnabled: Bool { return true }
 }
 
 class UserAgentStub: UserAgent {
