@@ -15,7 +15,7 @@ class CustomEventMapper {
 		return ["events": events.map({ (customEvent) -> RequestBody in
 			return [
 				"definitionId": customEvent.definitionId,
-				"properties": customEvent.payload as Any,
+				"properties": CustomEventMapper.makeCustomAttributesPayload(customEvent.payload as? [String: EventPropertyType]) as Any,
 				"date": DateStaticFormatters.ISO8601SecondsFormatter.string(from: customEvent.eventDate)
 				].compactMapValues { $0 }
 		})
