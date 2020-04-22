@@ -37,7 +37,7 @@ extension MobileMessaging {
 	/// - parameter completionHandler: A block that you must call when you are finished performing the action. It is originally passed to AppDelegate's `application(_:handleActionWithIdentifier:forRemoteNotification:withResponseInfo:completionHandler:)` callback as a `completionHandler` parameter.
 	@available(iOS, obsoleted: 10.0, message: "If your apps minimum deployment target is iOS 10 or later, you don't need to forward your App Delegate calls to this method. Handling notifications actions on iOS since 10.0 is done by Mobile Messaging SDK by implementing UNUserNotificationCenterDelegate under the hood.")
 	public class func handleActionWithIdentifier(identifier: String?, forRemoteNotification userInfo: [AnyHashable: Any], responseInfo: [AnyHashable: Any]?, completionHandler: @escaping () -> Void) {}
-	
+
 	/// This method handles interactive notifications actions and performs work that is defined for this action.
 	///
 	/// - parameter identifier: The identifier for the interactive notification action.
@@ -51,10 +51,10 @@ extension MobileMessaging {
 			completionHandler()
 			return
 		}
-		
+
 		service.handleAction(identifier: actionId, categoryId: category, message: message, notificationUserInfo: notificationUserInfo, userText: userText, completionHandler: completionHandler)
 	}
-	
+
 	/// Returns `NotificationCategory` object for provided category Id. Category Id can be obtained from `MTMessage` object with `MTMessage.category` method.
 	/// - parameter identifier: The identifier associated with the category of interactive notification
 	public class func category(withId identifier: String) -> NotificationCategory? {
@@ -64,22 +64,22 @@ extension MobileMessaging {
 
 class NotificationsInteractionService: MobileMessagingService {
 	let customNotificationCategories: Set<NotificationCategory>?
-	
+
 	var allNotificationCategories: Set<NotificationCategory>? {
 		return customNotificationCategories + NotificationCategories.predefinedCategories
 	}
-	
+
 	static var sharedInstance: NotificationsInteractionService?
-	
+
 	init(mmContext: MobileMessaging, categories: Set<NotificationCategory>?) {
 		self.customNotificationCategories = categories
 		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.NotificationsInteractionService")
 	}
-		
+
 	func handleAction(identifier: String, categoryId: String?, message: MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
-		
+
 		MMLogDebug("[NotificationsInteractionService] handling action \(identifier) for message \(message?.messageId ?? "n/a"), user text empty \(userText?.isEmpty ?? true)")
-		
+
 		guard isRunning else {
 			MMLogWarn("[NotificationsInteractionService] cancelled handling, service stopped")
 			completionHandler()
@@ -110,12 +110,12 @@ class NotificationsInteractionService: MobileMessagingService {
 
 	fileprivate func handleNotificationTap(message: MTMessage, completion: @escaping () -> Void) {
 		DispatchQueue.main.async {
-			if let urlString = message.webViewUrl?.absoluteString, let vc = MobileMessaging.messageHandlingDelegate?.inAppWebViewPresentingViewController?(for: message) {
+			if let urlString = message.webViewUrl?.absoluteString, let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppWebViewPresentingViewController?(for: message) {
 
 				let webViewController = WebViewController()
 				webViewController.url = urlString
 				MobileMessaging.messageHandlingDelegate?.inAppWebViewWillShowUp?(webViewController, for: message)
-				vc.present(webViewController, animated: true)
+				presentingVc.presentPanModal(webViewController)
 			}
 			completion()
 		}
@@ -153,7 +153,7 @@ class NotificationsInteractionService: MobileMessagingService {
 			return nil
 		}
 	}
-	
+
 	fileprivate func deliverActionEventToUser(message: MTMessage?, action: NotificationAction, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void) {
 		var userInfo = [
 			MMNotificationKeyMessage: message as Any,
