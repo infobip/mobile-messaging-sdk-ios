@@ -28,6 +28,10 @@ public class WebViewController: UINavigationController {
 		fatalError("init(coder:) has not been implemented")
 	}
 
+	public var rootWebViewController: WebViewControllerBase? {
+		return viewControllers.first as? WebViewControllerBase
+	}
+
 	public var tintColor: UIColor? {
 		set { navigationBar.tintColor = newValue }
 		get { return navigationBar.tintColor } }

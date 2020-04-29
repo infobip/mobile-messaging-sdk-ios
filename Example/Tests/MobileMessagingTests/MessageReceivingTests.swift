@@ -520,7 +520,7 @@ class MessageReceivingTests: MMTestCase {
 		class MessageHandlingDelegateStub: MessageHandlingDelegate {
 			var expectation: XCTestExpectation? = nil
 			func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage) {
-				XCTAssertEqual("www.hello.com", webViewController.url)
+				XCTAssertEqual("www.hello.com", webViewController.rootWebViewController!.url)
 				expectation?.fulfill()
 			}
 			func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController? {
