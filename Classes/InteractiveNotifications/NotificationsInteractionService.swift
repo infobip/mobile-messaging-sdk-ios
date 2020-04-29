@@ -108,14 +108,17 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 	}
 
+	static func presentInAppWebview(_ urlString: String, _ presentingVc: UIViewController, _ message: MTMessage) {
+		let webViewController = WebViewController(url: urlString)
+		webViewController.modalPresentationStyle = .fullScreen
+		presentingVc.present(webViewController, animated: true, completion: nil)
+		MobileMessaging.messageHandlingDelegate?.inAppWebViewWillShowUp?(webViewController, for: message)
+	}
+
 	fileprivate func handleNotificationTap(message: MTMessage, completion: @escaping () -> Void) {
 		DispatchQueue.main.async {
 			if let urlString = message.webViewUrl?.absoluteString, let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppWebViewPresentingViewController?(for: message) {
-
-				let webViewController = WebViewController()
-				webViewController.url = urlString
-				MobileMessaging.messageHandlingDelegate?.inAppWebViewWillShowUp?(webViewController, for: message)
-				presentingVc.presentPanModal(webViewController)
+				NotificationsInteractionService.presentInAppWebview(urlString, presentingVc, message)
 			}
 			completion()
 		}

@@ -87,6 +87,7 @@
 		7617506723351827000438A8 /* MultipartFormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617505323351827000438A8 /* MultipartFormData.swift */; };
 		76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76212E7121B043D5002FB8D9 /* UserStandardAttributeModels.swift */; };
 		76212E7421B04443002FB8D9 /* InstallationAttributeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76212E7321B04443002FB8D9 /* InstallationAttributeModels.swift */; };
+		76263E8F24586F0300E5C97D /* WebViewToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76263E8E24586F0300E5C97D /* WebViewToolbar.swift */; };
 		7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7632809A2092013B001B9E8F /* AlertQueue.swift */; };
 		7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7635ABBD2431404E0069AE1D /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7635ABBC2431404E0069AE1D /* WebViewController.swift */; };
@@ -177,20 +178,6 @@
 		764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645566F1F78FF4F00B8F14B /* OperationQueue.swift */; };
 		764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556711F78FF4F00B8F14B /* SwiftyJSON.swift */; };
 		764E651623DA2BB6002F07D2 /* UserSessionMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764E651523DA2BB6002F07D2 /* UserSessionMapper.swift */; };
-		7650DC7C245049CE0016233D /* PanModalPresentable+Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC68245049CE0016233D /* PanModalPresentable+Defaults.swift */; };
-		7650DC7D245049CE0016233D /* PanModalPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC69245049CE0016233D /* PanModalPresentable.swift */; };
-		7650DC7E245049CE0016233D /* PanModalPresentable+LayoutHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC6A245049CE0016233D /* PanModalPresentable+LayoutHelpers.swift */; };
-		7650DC7F245049CE0016233D /* PanModalHeight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC6B245049CE0016233D /* PanModalHeight.swift */; };
-		7650DC80245049CE0016233D /* PanModalPresentable+UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC6C245049CE0016233D /* PanModalPresentable+UIViewController.swift */; };
-		7650DC81245049CE0016233D /* PanModal.h in Headers */ = {isa = PBXBuildFile; fileRef = 7650DC6D245049CE0016233D /* PanModal.h */; };
-		7650DC82245049CE0016233D /* UIViewController+PanModalPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC6F245049CE0016233D /* UIViewController+PanModalPresenter.swift */; };
-		7650DC83245049CE0016233D /* PanModalPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC70245049CE0016233D /* PanModalPresenter.swift */; };
-		7650DC84245049CE0016233D /* PanModalPresentationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC72245049CE0016233D /* PanModalPresentationDelegate.swift */; };
-		7650DC85245049CE0016233D /* PanModalAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC74245049CE0016233D /* PanModalAnimator.swift */; };
-		7650DC86245049CE0016233D /* PanModalPresentationAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC75245049CE0016233D /* PanModalPresentationAnimator.swift */; };
-		7650DC87245049CE0016233D /* PanModalPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC77245049CE0016233D /* PanModalPresentationController.swift */; };
-		7650DC88245049CE0016233D /* PanContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC79245049CE0016233D /* PanContainerView.swift */; };
-		7650DC89245049CE0016233D /* DimmedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC7A245049CE0016233D /* DimmedView.swift */; };
 		765259D21FB1FE6300058788 /* ChatSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765259D11FB1FE6300058788 /* ChatSettings.swift */; };
 		765259DA1FB323B500058788 /* ChatExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765259D91FB323B500058788 /* ChatExtensions.swift */; };
 		76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76531B3C2031F0150019A246 /* RegistrationResetOperation.swift */; };
@@ -325,6 +312,7 @@
 		7617505323351827000438A8 /* MultipartFormData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultipartFormData.swift; sourceTree = "<group>"; };
 		76212E7121B043D5002FB8D9 /* UserStandardAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStandardAttributeModels.swift; sourceTree = "<group>"; };
 		76212E7321B04443002FB8D9 /* InstallationAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationAttributeModels.swift; sourceTree = "<group>"; };
+		76263E8E24586F0300E5C97D /* WebViewToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewToolbar.swift; sourceTree = "<group>"; };
 		7632809A2092013B001B9E8F /* AlertQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertQueue.swift; sourceTree = "<group>"; };
 		7635ABBC2431404E0069AE1D /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		7636909921F06E25000CF3F8 /* UserEventsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEventsManager.swift; sourceTree = "<group>"; };
@@ -449,20 +437,6 @@
 		7645566F1F78FF4F00B8F14B /* OperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationQueue.swift; sourceTree = "<group>"; };
 		764556711F78FF4F00B8F14B /* SwiftyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
 		764E651523DA2BB6002F07D2 /* UserSessionMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionMapper.swift; sourceTree = "<group>"; };
-		7650DC68245049CE0016233D /* PanModalPresentable+Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+Defaults.swift"; sourceTree = "<group>"; };
-		7650DC69245049CE0016233D /* PanModalPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentable.swift; sourceTree = "<group>"; };
-		7650DC6A245049CE0016233D /* PanModalPresentable+LayoutHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+LayoutHelpers.swift"; sourceTree = "<group>"; };
-		7650DC6B245049CE0016233D /* PanModalHeight.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalHeight.swift; sourceTree = "<group>"; };
-		7650DC6C245049CE0016233D /* PanModalPresentable+UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PanModalPresentable+UIViewController.swift"; sourceTree = "<group>"; };
-		7650DC6D245049CE0016233D /* PanModal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanModal.h; sourceTree = "<group>"; };
-		7650DC6F245049CE0016233D /* UIViewController+PanModalPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+PanModalPresenter.swift"; sourceTree = "<group>"; };
-		7650DC70245049CE0016233D /* PanModalPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresenter.swift; sourceTree = "<group>"; };
-		7650DC72245049CE0016233D /* PanModalPresentationDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentationDelegate.swift; sourceTree = "<group>"; };
-		7650DC74245049CE0016233D /* PanModalAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalAnimator.swift; sourceTree = "<group>"; };
-		7650DC75245049CE0016233D /* PanModalPresentationAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentationAnimator.swift; sourceTree = "<group>"; };
-		7650DC77245049CE0016233D /* PanModalPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanModalPresentationController.swift; sourceTree = "<group>"; };
-		7650DC79245049CE0016233D /* PanContainerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PanContainerView.swift; sourceTree = "<group>"; };
-		7650DC7A245049CE0016233D /* DimmedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DimmedView.swift; sourceTree = "<group>"; };
 		765259D11FB1FE6300058788 /* ChatSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSettings.swift; sourceTree = "<group>"; };
 		765259D91FB323B500058788 /* ChatExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatExtensions.swift; sourceTree = "<group>"; };
 		76531B3C2031F0150019A246 /* RegistrationResetOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationResetOperation.swift; sourceTree = "<group>"; };
@@ -732,6 +706,7 @@
 			isa = PBXGroup;
 			children = (
 				7635ABBC2431404E0069AE1D /* WebViewController.swift */,
+				76263E8E24586F0300E5C97D /* WebViewToolbar.swift */,
 			);
 			path = WebViewController;
 			sourceTree = "<group>";
@@ -969,7 +944,6 @@
 		7645564F1F78FF4F00B8F14B /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
-				7650DC66245049CE0016233D /* PanModal */,
 				7617503F23351817000438A8 /* Alamofire */,
 				7601F177208E056400738C1A /* Kingsfisher */,
 				ADF20331208663FB00E157D7 /* CryptoSwift */,
@@ -1017,75 +991,6 @@
 				764556711F78FF4F00B8F14B /* SwiftyJSON.swift */,
 			);
 			path = SwiftyJSON;
-			sourceTree = "<group>";
-		};
-		7650DC66245049CE0016233D /* PanModal */ = {
-			isa = PBXGroup;
-			children = (
-				7650DC67245049CE0016233D /* Presentable */,
-				7650DC6D245049CE0016233D /* PanModal.h */,
-				7650DC6E245049CE0016233D /* Presenter */,
-				7650DC71245049CE0016233D /* Delegate */,
-				7650DC73245049CE0016233D /* Animator */,
-				7650DC76245049CE0016233D /* Controller */,
-				7650DC78245049CE0016233D /* View */,
-			);
-			path = PanModal;
-			sourceTree = "<group>";
-		};
-		7650DC67245049CE0016233D /* Presentable */ = {
-			isa = PBXGroup;
-			children = (
-				7650DC68245049CE0016233D /* PanModalPresentable+Defaults.swift */,
-				7650DC69245049CE0016233D /* PanModalPresentable.swift */,
-				7650DC6A245049CE0016233D /* PanModalPresentable+LayoutHelpers.swift */,
-				7650DC6B245049CE0016233D /* PanModalHeight.swift */,
-				7650DC6C245049CE0016233D /* PanModalPresentable+UIViewController.swift */,
-			);
-			path = Presentable;
-			sourceTree = "<group>";
-		};
-		7650DC6E245049CE0016233D /* Presenter */ = {
-			isa = PBXGroup;
-			children = (
-				7650DC6F245049CE0016233D /* UIViewController+PanModalPresenter.swift */,
-				7650DC70245049CE0016233D /* PanModalPresenter.swift */,
-			);
-			path = Presenter;
-			sourceTree = "<group>";
-		};
-		7650DC71245049CE0016233D /* Delegate */ = {
-			isa = PBXGroup;
-			children = (
-				7650DC72245049CE0016233D /* PanModalPresentationDelegate.swift */,
-			);
-			path = Delegate;
-			sourceTree = "<group>";
-		};
-		7650DC73245049CE0016233D /* Animator */ = {
-			isa = PBXGroup;
-			children = (
-				7650DC74245049CE0016233D /* PanModalAnimator.swift */,
-				7650DC75245049CE0016233D /* PanModalPresentationAnimator.swift */,
-			);
-			path = Animator;
-			sourceTree = "<group>";
-		};
-		7650DC76245049CE0016233D /* Controller */ = {
-			isa = PBXGroup;
-			children = (
-				7650DC77245049CE0016233D /* PanModalPresentationController.swift */,
-			);
-			path = Controller;
-			sourceTree = "<group>";
-		};
-		7650DC78245049CE0016233D /* View */ = {
-			isa = PBXGroup;
-			children = (
-				7650DC79245049CE0016233D /* PanContainerView.swift */,
-				7650DC7A245049CE0016233D /* DimmedView.swift */,
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		765B9FBF2012402300B1E77A /* Recovered References */ = {
@@ -1178,7 +1083,6 @@
 				7601F19C208E056500738C1A /* Kingfisher.h in Headers */,
 				7645567E1F78FF5800B8F14B /* MobileMessagingPluginApplicationDelegate.h in Headers */,
 				7617505423351827000438A8 /* Alamofire.h in Headers */,
-				7650DC81245049CE0016233D /* PanModal.h in Headers */,
 				7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1298,7 +1202,6 @@
 				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,
 				7645569B1F78FF8500B8F14B /* MessageFetchingOperation.swift in Sources */,
 				76C3C9B523D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift in Sources */,
-				7650DC80245049CE0016233D /* PanModalPresentable+UIViewController.swift in Sources */,
 				764556D41F78FFE000B8F14B /* GroupOperation.swift in Sources */,
 				764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */,
 				764556BB1F78FFB200B8F14B /* MMDefaultMessageStorage.swift in Sources */,
@@ -1308,12 +1211,10 @@
 				7601F1A9208E056500738C1A /* ImagePrefetcher.swift in Sources */,
 				7636909A21F06E25000CF3F8 /* UserEventsManager.swift in Sources */,
 				764556951F78FF7F00B8F14B /* MMOperationQueue.swift in Sources */,
-				7650DC7E245049CE0016233D /* PanModalPresentable+LayoutHelpers.swift in Sources */,
 				764556771F78FF5800B8F14B /* MMNotifications.m in Sources */,
 				764556911F78FF7F00B8F14B /* MMApplicationListener.swift in Sources */,
 				76626D11218B097800E95E2C /* PrivacySettings.swift in Sources */,
 				766565DB1FDE825F00709036 /* ComposeBar.swift in Sources */,
-				7650DC88245049CE0016233D /* PanContainerView.swift in Sources */,
 				76B70DA721AD3A6E00E87BD5 /* DeleteInstanceOperation.swift in Sources */,
 				ADF203422086642C00E157D7 /* DigestType.swift in Sources */,
 				764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */,
@@ -1323,8 +1224,6 @@
 				765B9FBE2012126700B1E77A /* MessageHandlingDelegate.swift in Sources */,
 				764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */,
 				763A1B0123E5D12100C997BC /* SeenReportMapper.swift in Sources */,
-				7650DC87245049CE0016233D /* PanModalPresentationController.swift in Sources */,
-				7650DC7D245049CE0016233D /* PanModalPresentable.swift in Sources */,
 				7601F199208E056500738C1A /* UIButton+Kingfisher.swift in Sources */,
 				76A8A77B2195B97F004F6E39 /* UpdateUserOperation.swift in Sources */,
 				760929F21FAA212F00128E48 /* CPChatComposing.swift in Sources */,
@@ -1333,7 +1232,6 @@
 				76212E7421B04443002FB8D9 /* InstallationAttributeModels.swift in Sources */,
 				76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */,
 				764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */,
-				7650DC7C245049CE0016233D /* PanModalPresentable+Defaults.swift in Sources */,
 				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
 				6C60A4A31FD6B169001744BC /* State.swift in Sources */,
 				76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */,
@@ -1350,7 +1248,6 @@
 				764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */,
 				7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */,
 				764556B31F78FF9500B8F14B /* MMGeofencingService.swift in Sources */,
-				7650DC7F245049CE0016233D /* PanModalHeight.swift in Sources */,
 				7601F19D208E056500738C1A /* Box.swift in Sources */,
 				7614C3401FB5E06C006ADC84 /* ChatMessagesController.swift in Sources */,
 				764556D21F78FFE000B8F14B /* Dictionary+Operations.swift in Sources */,
@@ -1365,7 +1262,7 @@
 				764556D01F78FFE000B8F14B /* BlockObserver.swift in Sources */,
 				76A957A421ECAA82000AFD9C /* InstallationDataMapper.swift in Sources */,
 				7617506023351827000438A8 /* Timeline.swift in Sources */,
-				7650DC86245049CE0016233D /* PanModalPresentationAnimator.swift in Sources */,
+				76263E8F24586F0300E5C97D /* WebViewToolbar.swift in Sources */,
 				7617506423351827000438A8 /* Alamofire.swift in Sources */,
 				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
@@ -1373,7 +1270,6 @@
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
 				76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */,
 				76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */,
-				7650DC89245049CE0016233D /* DimmedView.swift in Sources */,
 				7601F1B2208E057F00738C1A /* LoadingImageView.swift in Sources */,
 				7617505E23351827000438A8 /* TaskDelegate.swift in Sources */,
 				7617506323351827000438A8 /* ServerTrustPolicy.swift in Sources */,
@@ -1390,7 +1286,6 @@
 				763A1AFA23E490A000C997BC /* CustomEventMapper.swift in Sources */,
 				764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */,
 				764E651623DA2BB6002F07D2 /* UserSessionMapper.swift in Sources */,
-				7650DC83245049CE0016233D /* PanModalPresenter.swift in Sources */,
 				7601F19A208E056500738C1A /* Resource.swift in Sources */,
 				76A26CB8230D59CC00F00717 /* Migration_2_3.xcmappingmodel in Sources */,
 				7617506123351827000438A8 /* ResponseSerialization.swift in Sources */,
@@ -1401,7 +1296,6 @@
 				765259D21FB1FE6300058788 /* ChatSettings.swift in Sources */,
 				ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */,
 				764556901F78FF7300B8F14B /* MessageUtils.swift in Sources */,
-				7650DC84245049CE0016233D /* PanModalPresentationDelegate.swift in Sources */,
 				764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */,
 				ADF203432086642C00E157D7 /* Data+Extension.swift in Sources */,
 				7601F1A0208E056500738C1A /* FormatIndicatedCacheSerializer.swift in Sources */,
@@ -1488,12 +1382,10 @@
 				7601F19F208E056500738C1A /* KingfisherManager.swift in Sources */,
 				7608E307219A095500EC7289 /* CreateInstanceOperation.swift in Sources */,
 				764556BC1F78FFB400B8F14B /* MMMessageStorageModel.xcdatamodeld in Sources */,
-				7650DC82245049CE0016233D /* UIViewController+PanModalPresenter.swift in Sources */,
 				7601F1A7208E056500738C1A /* KingfisherOptionsInfo.swift in Sources */,
 				7600857F1F9759F200837D75 /* ChatService.swift in Sources */,
 				760929FF1FAA219000128E48 /* CPLabel.swift in Sources */,
 				7696BCB41FDA86E00030A5A8 /* ComposeBar_TextView.swift in Sources */,
-				7650DC85245049CE0016233D /* PanModalAnimator.swift in Sources */,
 				764556CE1F78FFD900B8F14B /* KeychainSwiftAccessOptions.swift in Sources */,
 				7601F19B208E056500738C1A /* ImageDownloader.swift in Sources */,
 				7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */,
