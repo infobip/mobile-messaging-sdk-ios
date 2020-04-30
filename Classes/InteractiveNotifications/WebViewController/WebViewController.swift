@@ -72,15 +72,6 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 		webView.contentMode = .scaleAspectFit
 		webView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
 		webView.addObserver(self, forKeyPath: "title", options: .new, context: nil)
-		if #available(iOS 13, *) {
-			view.backgroundColor = UIColor.systemBackground
-			webView.scrollView.backgroundColor = UIColor.systemBackground
-			webView.backgroundColor = UIColor.systemBackground
-		} else {
-			view.backgroundColor = UIColor.white
-			webView.scrollView.backgroundColor = UIColor.white
-			webView.backgroundColor = UIColor.white
-		}
 		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(webViewToolbarDidPressDismiss))
 	}
 
@@ -90,6 +81,15 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 
 	override public func viewDidLoad() {
 		super.viewDidLoad()
+		if #available(iOS 13, *) {
+			view.backgroundColor = UIColor.systemBackground
+			webView.scrollView.backgroundColor = UIColor.systemBackground
+			webView.backgroundColor = UIColor.systemBackground
+		} else {
+			view.backgroundColor = UIColor.white
+			webView.scrollView.backgroundColor = UIColor.white
+			webView.backgroundColor = UIColor.white
+		}
 		view.addSubview(webView)
 	}
 
