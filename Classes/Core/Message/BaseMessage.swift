@@ -48,7 +48,7 @@ public class BaseMessage: NSObject, MessageProtocol {
 	public var text: String?
 	
 	public var isChatMessage: Bool {
-		return customPayload?.isChatMessage ?? false
+		return false
 	}
 	
 	class func makeMessage(withMessageStorageMessageManagedObject m: Message) -> BaseMessage? {

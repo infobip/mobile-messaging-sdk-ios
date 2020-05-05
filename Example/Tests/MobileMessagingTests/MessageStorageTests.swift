@@ -15,8 +15,8 @@ class MessageStorageTests: MMTestCase {
 		return [
 			"messageId": messageId,
 			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
-			"internalData": ["sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey": "internalValue"],
-			"customPayload": ["isChat": true, "customKey": "customValue"]
+			"internalData": ["sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey": "internalValue", "messageType": "chat"],
+			"customPayload": ["customKey": "customValue"]
 		]
 	}
 

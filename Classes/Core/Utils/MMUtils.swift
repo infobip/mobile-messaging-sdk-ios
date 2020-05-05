@@ -596,12 +596,6 @@ enum MessageStorageKind: String {
 	case messages = "messages", chat = "chat"
 }
 
-extension Dictionary where Key == String {
-	var isChatMessage: Bool {
-		return (self[Consts.CustomPayloadKeys.isChat] as? Bool) ?? false
-	}
-}
-
 extension UIImage {
 	convenience init?(mm_named: String) {
 		self.init(named: mm_named, in: MobileMessaging.bundle, compatibleWith: nil)

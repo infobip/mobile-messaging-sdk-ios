@@ -177,6 +177,13 @@ public class MTMessage: BaseMessage, MTMessageProtocol {
 		set {}
 	}
 	
+	public override var isChatMessage: Bool {
+		guard let messageTypeValue = internalData?[Consts.InternalDataKeys.messageType] as? String else {
+			return false
+		}
+		return messageTypeValue == Consts.APIValues.MessageTypeValues.chat
+	}
+	
 	convenience init?(messageSyncResponseJson json: JSON) {
 		if let payload = json.dictionaryObject {
 			self.init(payload: payload,

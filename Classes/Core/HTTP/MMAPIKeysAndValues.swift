@@ -156,10 +156,6 @@ struct Consts {
 		static let webViewUrl = "webViewUrl"
 	}
 
-	struct CustomPayloadKeys {
-		static let isChat: String = "isChat"
-	}
-
 	struct Attachments {
 		struct Keys {
 			static let url = "url"
@@ -192,6 +188,10 @@ struct Consts {
 		static let prodDynamicBaseURLString = "https://mobile.infobip.com"
 		static let prodBaseURLString = "https://oneapi2.infobip.com" // not in use afte migration on https://mobile.infobip.com
 		static let platformType = "APNS"
+		
+		struct MessageTypeValues {
+			static let chat = "chat"
+		}
 	}
 
 	struct SDKSettings {
