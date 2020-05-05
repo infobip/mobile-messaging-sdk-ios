@@ -93,8 +93,7 @@ class MessageStorageTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 		
 		let messageStorageStub = MessageStorageStub()
-		let chatStorageStub = MessageStorageStub()
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withMobileChat(storage: chatStorageStub).start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withInAppChat().start()
 		
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
@@ -119,8 +118,6 @@ class MessageStorageTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: { _ in
 			XCTAssertEqual(messageStorageStub.mtMessages.count, expectedMessagesCount)
 			XCTAssertEqual(messageStorageStub.moMessages.count, 0)
-			XCTAssertEqual(chatStorageStub.mtMessages.count, 1)
-			XCTAssertEqual(chatStorageStub.moMessages.count, 0)
 		})
 	}
 
@@ -128,8 +125,7 @@ class MessageStorageTests: MMTestCase {
 		MMTestCase.cleanUpAndStop()
 
 		let messageStorageStub = MessageStorageStub()
-		let chatStorageStub = MessageStorageStub()
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withMobileChat(storage: chatStorageStub).start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withInAppChat().start()
 
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 
@@ -156,8 +152,6 @@ class MessageStorageTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: { _ in
 			XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 			XCTAssertEqual(messageStorageStub.moMessages.count, 0)
-			XCTAssertEqual(chatStorageStub.mtMessages.count, 0)
-			XCTAssertEqual(chatStorageStub.moMessages.count, 0)
 		})
 	}
 	
