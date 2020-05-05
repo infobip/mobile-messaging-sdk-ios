@@ -23,21 +23,20 @@ class ViewController: UIViewController, InAppChatDelegate {
 	}
 	
 	@IBAction func showChatInNavigationP(_ sender: Any) {
-		let vc = CPChatViewController.makeChildNavigationViewController()
+		let vc = ChatViewController.makeChildNavigationViewController()
 		navigationController?.pushViewController(vc, animated: true)
 	}
 	@IBAction func showChatModallyP(_ sender: Any) {
-		let vc = CPChatViewController.makeModalViewController()
+		let vc = ChatViewController.makeModalViewController()
 		navigationController?.present(vc, animated: true, completion: nil)
 	}
 	@IBAction func presentRootNavigationVC(_ sender: Any) {
-		let vc = CPChatViewController.makeRootNavigationViewController()
-		vc.modalPresentationStyle = .fullScreen
+		let vc = ChatViewController.makeRootNavigationViewController()
 		navigationController?.present(vc, animated: true, completion: nil)
 	}
 
 	func inAppChatIsEnabled(_ enabled: Bool) {
-		enableButtons(enabled: enabled)
+		enableButtons(enabled: false)
 	}
 	
 	func enableButtons(enabled: Bool) {

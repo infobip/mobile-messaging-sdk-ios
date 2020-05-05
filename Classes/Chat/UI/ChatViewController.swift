@@ -12,18 +12,25 @@ protocol ChatWebViewDelegate {
 	func enableControls(_ enabled: Bool)
 }
 
-open class CPChatViewController: CPMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable {
+///Key component to use for displaying In-app chat view.
+///We support two ways to quickly embed it into your own application:
+/// - via Interface Builder: set it as `Custom class` for your view controller object.
+/// - programmatically: use one of the `make` methods provided.
+open class ChatViewController: CPMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable {
 
-	public static func makeRootNavigationViewController() -> CPChatNavigationVC {
-		return CPChatNavigationVC.makeWebViewChatNavigationViewController()
+	///Will make UINavigationController with ChatViewController as root
+	public static func makeRootNavigationViewController() -> ChatNavigationVC {
+		return ChatNavigationVC.makeWebViewChatNavigationViewController()
 	}
 
-	public static func makeChildNavigationViewController() -> CPChatViewController {
-		return CPChatViewController(type: .back)
+	//Will make ChatViewController, for usage in navigation
+	public static func makeChildNavigationViewController() -> ChatViewController {
+		return ChatViewController(type: .back)
 	}
 	
-	public static func makeModalViewController() -> CPChatViewController {
-		return CPChatViewController(type: .dismiss)
+	//Will make ChatViewController, for presenting modally
+	public static func makeModalViewController() -> ChatViewController {
+		return ChatViewController(type: .dismiss)
 	}
 	
 	var webView: ChatWebView!
@@ -114,7 +121,7 @@ open class CPChatViewController: CPMessageComposingViewController, ChatWebViewDe
 
 }
 
-extension CPChatViewController: WKNavigationDelegate {
+extension ChatViewController: WKNavigationDelegate {
 	public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
 		guard navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url, UIApplication.shared.canOpenURL(url) else {
 			decisionHandler(.allow)

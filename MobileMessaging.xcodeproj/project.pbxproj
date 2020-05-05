@@ -163,7 +163,7 @@
 		7650DC33244EEB480016233D /* MobileMessagingChatImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7650DC1F244EEB480016233D /* MobileMessagingChatImages.xcassets */; };
 		7650DC34244EEB480016233D /* CPViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC20244EEB480016233D /* CPViewController.swift */; };
 		7650DC36244EEB480016233D /* CPUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC22244EEB480016233D /* CPUtils.swift */; };
-		7650DC37244EEB480016233D /* CPChatNavigationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC23244EEB480016233D /* CPChatNavigationVC.swift */; };
+		7650DC37244EEB480016233D /* ChatNavigationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC23244EEB480016233D /* ChatNavigationVC.swift */; };
 		7650DC38244EEB480016233D /* ComposeBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC25244EEB480016233D /* ComposeBar.swift */; };
 		7650DC39244EEB480016233D /* ComposeBar_Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC26244EEB480016233D /* ComposeBar_Button.swift */; };
 		7650DC3A244EEB480016233D /* ComposeBar_TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7650DC27244EEB480016233D /* ComposeBar_TextView.swift */; };
@@ -208,7 +208,7 @@
 		A08CB26E2459B0C600ED91B6 /* ChatJSWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB26B2459B0C600ED91B6 /* ChatJSWrapper.swift */; };
 		A08CB2702459BEBF00ED91B6 /* ChatAPIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB26F2459BEBF00ED91B6 /* ChatAPIKeys.swift */; };
 		A08CB2722459C3BE00ED91B6 /* ChatWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB2712459C3BE00ED91B6 /* ChatWebView.swift */; };
-		A0E49BBD2455A4A500BABC7E /* CPChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E49BBC2455A4A500BABC7E /* CPChatViewController.swift */; };
+		A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
 		ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203322086642B00E157D7 /* String+Extension.swift */; };
 		ADF203402086642C00E157D7 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203332086642B00E157D7 /* Utils.swift */; };
@@ -418,7 +418,7 @@
 		7650DC1F244EEB480016233D /* MobileMessagingChatImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = MobileMessagingChatImages.xcassets; sourceTree = "<group>"; };
 		7650DC20244EEB480016233D /* CPViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CPViewController.swift; sourceTree = "<group>"; };
 		7650DC22244EEB480016233D /* CPUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CPUtils.swift; sourceTree = "<group>"; };
-		7650DC23244EEB480016233D /* CPChatNavigationVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CPChatNavigationVC.swift; sourceTree = "<group>"; };
+		7650DC23244EEB480016233D /* ChatNavigationVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatNavigationVC.swift; sourceTree = "<group>"; };
 		7650DC25244EEB480016233D /* ComposeBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposeBar.swift; sourceTree = "<group>"; };
 		7650DC26244EEB480016233D /* ComposeBar_Button.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposeBar_Button.swift; sourceTree = "<group>"; };
 		7650DC27244EEB480016233D /* ComposeBar_TextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComposeBar_TextView.swift; sourceTree = "<group>"; };
@@ -469,7 +469,7 @@
 		A08CB26B2459B0C600ED91B6 /* ChatJSWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatJSWrapper.swift; sourceTree = "<group>"; };
 		A08CB26F2459BEBF00ED91B6 /* ChatAPIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAPIKeys.swift; sourceTree = "<group>"; };
 		A08CB2712459C3BE00ED91B6 /* ChatWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChatWebView.swift; path = Classes/Chat/ChatWebView.swift; sourceTree = SOURCE_ROOT; };
-		A0E49BBC2455A4A500BABC7E /* CPChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CPChatViewController.swift; sourceTree = "<group>"; };
+		A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		ADF203322086642B00E157D7 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		ADF203332086642B00E157D7 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -947,12 +947,12 @@
 			isa = PBXGroup;
 			children = (
 				A08CB2712459C3BE00ED91B6 /* ChatWebView.swift */,
-				A0E49BBC2455A4A500BABC7E /* CPChatViewController.swift */,
+				A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */,
 				A08CB2612459B06F00ED91B6 /* UIColorExtension.swift */,
 				7650DC1E244EEB480016233D /* Resources */,
 				7650DC20244EEB480016233D /* CPViewController.swift */,
 				7650DC22244EEB480016233D /* CPUtils.swift */,
-				7650DC23244EEB480016233D /* CPChatNavigationVC.swift */,
+				7650DC23244EEB480016233D /* ChatNavigationVC.swift */,
 				7650DC24244EEB480016233D /* ComposeBar */,
 				7650DC28244EEB480016233D /* CPMessageComposingViewController.swift */,
 				7650DC29244EEB480016233D /* CPLabel.swift */,
@@ -1201,7 +1201,7 @@
 				7636909A21F06E25000CF3F8 /* UserEventsManager.swift in Sources */,
 				764556951F78FF7F00B8F14B /* MMOperationQueue.swift in Sources */,
 				764556771F78FF5800B8F14B /* MMNotifications.m in Sources */,
-				7650DC37244EEB480016233D /* CPChatNavigationVC.swift in Sources */,
+				7650DC37244EEB480016233D /* ChatNavigationVC.swift in Sources */,
 				764556911F78FF7F00B8F14B /* MMApplicationListener.swift in Sources */,
 				76626D11218B097800E95E2C /* PrivacySettings.swift in Sources */,
 				76B70DA721AD3A6E00E87BD5 /* DeleteInstanceOperation.swift in Sources */,
@@ -1342,7 +1342,7 @@
 				7636909C21F07330000CF3F8 /* PersonalizeOperation.swift in Sources */,
 				7601F191208E056400738C1A /* ImageCache.swift in Sources */,
 				7601F1A1208E056500738C1A /* ImageTransition.swift in Sources */,
-				A0E49BBD2455A4A500BABC7E /* CPChatViewController.swift in Sources */,
+				A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */,
 				764556D61F78FFE700B8F14B /* NSOperation+Operations.swift in Sources */,
 				76C3C99A23D1F47900562C57 /* UserSessionPersistingOperation.swift in Sources */,
 				ADF2034A2086642C00E157D7 /* SHA1.swift in Sources */,

@@ -7,8 +7,8 @@
 
 import Foundation
 
-/// Default chat view implementation, extends UINavigationController with a CPChatViewController put as a root view controller.
-open class CPChatNavigationVC: UINavigationController {
+/// Chat view implementation, extends UINavigationController with a ChatViewController put as a root view controller.
+open class ChatNavigationVC: UINavigationController {
 	var isModal: Bool = false
 
 	public required init?(coder aDecoder: NSCoder) {
@@ -32,7 +32,7 @@ open class CPChatNavigationVC: UINavigationController {
 		}
 	}
 
-	static func makeWebViewChatNavigationViewController() -> CPChatNavigationVC {
-		return CPChatNavigationVC.init(rootViewController : CPChatViewController(type: .dismiss))
+	static func makeWebViewChatNavigationViewController() -> ChatNavigationVC {
+		return ChatNavigationVC.init(rootViewController : ChatViewController(type: .dismiss))
 	}
 }
