@@ -7,13 +7,22 @@
 
 import Foundation
 
-/// Default chat view implementation, extends UINavigationController with a CPChatVC put as a root view controller.
-public class CPChatNavigationVC: UINavigationController, ChatSettingsApplicable {
-    
-    /// Default chat view implementation, extends UIViewController.
-	public let chatViewController: CPChatVC = CPChatVC()
-	
+/// Default chat view implementation, extends UINavigationController with a CPChatViewController put as a root view controller.
+open class CPChatNavigationVC: UINavigationController {
 	var isModal: Bool = false
+
+	public required init?(coder aDecoder: NSCoder) {
+		super.init(coder: aDecoder)
+	}
+
+	override init(rootViewController: UIViewController) {
+        super.init(rootViewController: rootViewController)
+    }
+
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    }
+	
 	public override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		if isBeingPresented {
@@ -22,28 +31,8 @@ public class CPChatNavigationVC: UINavigationController, ChatSettingsApplicable 
 			isModal = false
 		}
 	}
-	
-	override public func viewDidLoad() {
-		super.viewDidLoad()
-		registerToChatSettingsChanges()
-	}
-	
-	func applySettings() {
-        guard let settings = MobileMessaging.mobileChat?.settings else {
-            return
-        }
-		navigationBar.barTintColor = settings.navBarColor
-		navigationBar.tintColor = settings.navBarItemsTintColor
-		navigationBar.isTranslucent = false
-        navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : settings.navBarTitleColor]
-	}
-	
-	init() {
-		super.init(rootViewController: chatViewController)
-	}
-	
-	public required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-		self.viewControllers = [chatViewController]
+
+	static func makeWebViewChatNavigationViewController() -> CPChatNavigationVC {
+		return CPChatNavigationVC.init(rootViewController : CPChatViewController(type: .dismiss))
 	}
 }

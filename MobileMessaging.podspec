@@ -39,10 +39,10 @@ Pod::Spec.new do |s|
         geo.source_files = 'Classes/Geofencing/**/*.{h,m,swift}'
     end
     
-    s.subspec 'MobileChat' do |chat|
+    s.subspec 'InAppChat' do |chat|
         chat.frameworks = 'AudioToolbox'
         chat.dependency 'MobileMessaging/Core'
         chat.source_files = 'Classes/Chat/**/*.{h,m,swift}'
-        chat.resource_bundle = { 'MobileMessaging' => ['Classes/Chat/UI/Resources/**/*.{xcassets,png}'] }
+        chat.resources = 'Classes/Chat/Resources/**/*.{xcassets,png,html}'
     end
 end

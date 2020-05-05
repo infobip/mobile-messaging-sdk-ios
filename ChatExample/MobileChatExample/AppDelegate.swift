@@ -14,9 +14,9 @@ import MobileMessaging
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
-
+	
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-		MobileMessaging.withApplicationCode("<# your application code #>", notificationType: .alert)?.withMobileChat().start()
+		MobileMessaging.withApplicationCode("<# your application code #>", notificationType: .alert)?.withInAppChat().start()
 		MobileMessaging.logger?.logLevel = .All
 		MobileMessaging.logger?.logOutput = .Console
 		return true

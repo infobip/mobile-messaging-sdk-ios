@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import WebKit
 
 public class ChatSettings: NSObject {
 	
@@ -17,15 +18,14 @@ public class ChatSettings: NSObject {
 	
 	public var title: String = "Chat" { didSet { postAppearanceChangedNotification() } }
 	
-	public var tintColor = UIColor.ACTIVE_TINT() { didSet { postAppearanceChangedNotification() } }
+	public var sendButtonTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
-	public var navBarItemsTintColor = UIColor.white { didSet { postAppearanceChangedNotification() } }
+	public var navBarItemsTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
-	public var navBarColor = UIColor.ACTIVE_TINT() { didSet { postAppearanceChangedNotification() } }
+	public var navBarColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
-	public var navBarTitleColor = UIColor.white { didSet { postAppearanceChangedNotification() } }
+	public var navBarTitleColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
-	public var isUsernameRequired = false
 }
 
 class ChatSettingsManager {

@@ -40,6 +40,12 @@ class InteractiveMessageAlertManager {
 	}
 
 	func showBannerNotificationIfNeeded(forMessage message: MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
+		
+		if let handlingSubservice = MobileMessaging.sharedInstance?.subservices.values.first(where: { $0.handlesInAppNotification(forMessage: message)}) {
+			handlingSubservice.showBannerNotificationIfNeeded(forMessage: message, showBannerWithOptions: showBannerWithOptions)
+			return
+		}
+				
 		guard let message = message, let inAppStyle = message.inAppStyle, shouldShowInAppNotification(forMessage: message) else {
 			showBannerWithOptions([])
 			return

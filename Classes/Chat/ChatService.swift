@@ -1,164 +1,154 @@
 //
 //  ChatService.swift
+//  MobileMessaging
 //
-//  Created by okoroleva on 06.10.17.
+//  Created by okoroleva on 26.04.2020.
 //
 
 import Foundation
-import CoreData
+import WebKit
 
-@objc public protocol MobileChatProtocol {
-	/// Sends message with a specified text to a particular chat id.
-	/// - Parameters:
-	///   - chatId: id of destination chat
-	///   - text: body of the message
-	///   - completion: a block to be executed when sending is finished
-	func send(chatId: String?, text: String, completion: @escaping (ChatMessage?, NSError?) -> Void)
-	
-	/// Sends message with a specified text to a particular chat id.
-	/// - Parameters:
-	///   - chatId: id of destination chat
-	///   - text: body of the message
-	///   - customPayload: additional data to send along with the chat message
-	///   - completion: a block to be executed when sending is finished. Contains a sent message object and an error
-	func send(chatId: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes], completion: @escaping (ChatMessage?, NSError?) -> Void)
-	
-	/// Sets user info for curren chat user.
-	/// - Parameters:
-	///   - info: object representing chat user data
-	///   - completion: a block to be executed when operation is finished. Contains an error object
-	func setUserInfo(info: ChatParticipant, completion: @escaping (NSError?) -> Void)
-	
-	/// Returns chat users profile cached locally.
-	/// - Returns: `ChatParticipant` object representing chat user data
-	func getUserInfo() -> ChatParticipant?
-	
-	/// Returns chat users profile from the server.
-	/// - Parameters:
-	///  - completion: a block to be executed when operation is finished. Contains the fetched chat user data
-	func fetchUserInfo(completion: @escaping (ChatParticipant?) -> Void)
+extension MobileMessaging {
 
-	/// Returns the default chat messsage storage if used. For more information see `MMDefaultMessageStorage` class description.
-	var defaultChatStorage: MMDefaultChatStorage? { get }
-	
-	/// Marks all messages as seen
-	func markAllMessagesSeen(completion: @escaping  () -> Void)
-	
-	/// Marks specific messages as seen
-	func markMessagesSeen(messageIds: [String], completion: @escaping () -> Void)
-	
-	/// A wrapper around NSFetchedResultsController set up to manage the results of a Core Data fetch request applied to chat message storage. Only available for default chat message storage (returns `nil` otherwise).
-	var chatMessagesController: ChatMessagesController? {get}
+	/// You access the In-app Chat service APIs through this property.
+	public class var inAppChat: InAppChatService? {
+		if InAppChatService.sharedInstance == nil {
+			guard let defaultContext = MobileMessaging.sharedInstance else {
+				return nil
+			}
+			InAppChatService.sharedInstance = InAppChatService(mmContext: defaultContext)
+		}
+		return InAppChatService.sharedInstance
+	}
+
+	/// Fabric method for Mobile Messaging session.
+	/// Use this method to enable the In-app Chat service.
+	public func withInAppChat() -> MobileMessaging {
+		if InAppChatService.sharedInstance == nil {
+			if let defaultContext = MobileMessaging.sharedInstance
+			{
+				InAppChatService.sharedInstance = InAppChatService(mmContext: defaultContext)
+			}
+		}
+		return self
+	}
 }
 
-public class MobileChat: MobileMessagingService {
-	let storage: MessageStorage
-
+/// This service manages the In-app Chat.
+public class InAppChatService: MobileMessagingService {
+	
+	///You can define your own custom appearance for chat view by accessing a chat settings object.
+    public let settings: ChatSettings = ChatSettings.sharedInstance
+	
+	///Method for clean up WKWebView's cache. Mobile Messaging SDK will call it in case of user depersonalization. You can call it additionaly in case your user logouts from In-app Chat.
+	///`completion` will be called when cache clean up is finished.
+	public func cleanCache(completion: (() -> Void)? = nil) {
+		MMLogDebug("[InAppChat] cache cleanup")
+		DispatchQueue.main.async {
+			WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+													modifiedSince: Date.init(timeIntervalSince1970: 0)) {
+														self.update(withChatWidget: self.chatWidget)
+														completion?()
+			}
+		}
+	}
+	
+	///In-app Chat delegate, can be set to receive additional chat info.
+	public var delegate: InAppChatDelegate? {
+		didSet {
+			self.delegate?.inAppChatIsEnabled(isEnabled)
+		}
+	}
+	
+	private let getWidgetQueue = MMOperationQueue.newSerialQueue
+	private var chatWidget: ChatWidget?
+	private var isEnabled: Bool = false
+	var isChatScreenVisible: Bool = false
+	
 	override var systemData: [String: AnyHashable]? {
-		return ["chat": true]
+		return ["inappchat": true]
+	}
+	var webViewDelegate: ChatWebViewDelegate? {
+		didSet {
+			update(withChatWidget: chatWidget)
+		}
+	}
+	
+	static var sharedInstance: InAppChatService?
+
+	init(mmContext: MobileMessaging) {
+		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.inappchat")
 	}
 
 	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
-		stop({ _ in })
-		MobileChat.sharedInstance = nil
-	}
-
-	static var sharedInstance: MobileChat?
-	
-	init(mmContext: MobileMessaging, storage: MessageStorage) {
-		self.storage = storage
-		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.ChatService")
-		self.mmContext.chatStorage = storage
+		self.isEnabled = false
+		chatWidget = nil
+		cleanCache()
+		stop {_ in }
+		InAppChatService.sharedInstance = nil
 	}
 	
-    public let settings: ChatSettings = ChatSettings.sharedInstance
-}
-
-extension MobileChat: MobileChatProtocol {
-	
-	public func markMessagesSeen(messageIds: [String], completion: @escaping () -> Void) {
-		mmContext.setSeen(messageIds, immediately: false, completion: completion)
+	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
+		start { _ in }
+		getChatWidget()
 	}
 	
-	public func markAllMessagesSeen(completion: @escaping () -> Void) {
-		guard let storage = (mmContext.chatStorage as? MessageStorageFinders) else {
-			completion()
+	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+		cleanCache(completion: completion)
+	}
+	
+	override func handlesInAppNotification(forMessage message: MTMessage?) -> Bool {
+		MMLogDebug("[InAppChat] handlesInAppNotification: \(message?.isChatMessage ?? false)")
+		return message?.isChatMessage ?? false
+	}
+	
+	override func showBannerNotificationIfNeeded(forMessage message: MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
+		MMLogDebug("[InAppChat] showBannerNotificationIfNeeded isChatMessage: \(message?.isChatMessage ?? false), isExpired: \(message?.isExpired ?? false),  isChatScreenVisible: \(isChatScreenVisible), enabled: \(InteractiveMessageAlertSettings.enabled)")
+		guard let message = message, !message.isExpired, InteractiveMessageAlertSettings.enabled, !isChatScreenVisible else {
+				showBannerWithOptions([])
+				return
+		}
+		
+		showBannerWithOptions(UNNotificationPresentationOptions.make(with:  MobileMessaging.sharedInstance?.userNotificationType ?? []))
+	}
+	
+	private func getChatWidget() {
+		getWidgetQueue.addOperation(GetChatWidgetOperation(mmContext: mmContext) { (error, widget)  in
+			self.chatWidget = widget
+			self.isEnabled = (error == nil)
+			self.delegate?.inAppChatIsEnabled(self.isEnabled)
+			self.update(withChatWidget: self.chatWidget)
+		})
+	}
+	
+	private func update(withChatWidget: ChatWidget?) {
+		guard let chatWidget = chatWidget else {
 			return
 		}
-		storage.findNonSeenMessageIds { (mids) in
-			self.markMessagesSeen(messageIds: mids, completion: completion)
+		
+		let update = { [weak self] (widget: ChatWidget) in
+			self?.webViewDelegate?.loadWidget(widget)
+			if let title = widget.title {
+				self?.settings.title = title
+			}
+			if let primaryColor = widget.primaryColor {
+				self?.settings.sendButtonTintColor = UIColor(hexString: primaryColor)
+			}
+		}
+		if let pushRegEnabled = MobileMessaging.currentInstallation?.isPushRegistrationEnabled,
+			pushRegEnabled {
+			update(chatWidget)
+		} else {
+			NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil, queue: nil) { (notification) in
+				update(chatWidget)
+				NotificationCenter.default.removeObserver(self)
+			}
 		}
 	}
-	
-	public var chatMessagesController: ChatMessagesController? {
-		guard let frc = defaultChatStorage?.fetchedResultController else {
-			return nil
-		}
-		return ChatMessagesController(frc: frc)
-	}
-	
-	public var defaultChatStorage: MMDefaultChatStorage? {
-		return mmContext.chatStorage as? MMDefaultChatStorage
-	}
-	
-	public func send(chatId: String? = nil, text: String, completion: @escaping (ChatMessage?, NSError?) -> Void) {
-        doSend(chatId: chatId, text: text, customPayload: nil, completion: completion)
-	}
-	
-	public func send(chatId: String? = nil, text: String, customPayload: [String : CustomPayloadSupportedTypes], completion: @escaping (ChatMessage?, NSError?) -> Void) {
-		doSend(chatId: chatId, text: text, customPayload: customPayload, completion: completion)
-	}
-	
-	public func setUserInfo(info: ChatParticipant, completion: @escaping (NSError?) -> Void) {
-		MMLogDebug("[Mobile chat] setting chat user info...")
+}
 
-		if let currentUserData = MobileMessaging.sharedInstance?.resolveUser() {
-			currentUserData.externalUserId = info.id
-			currentUserData.firstName = info.firstName
-			currentUserData.lastName = info.lastName
-			currentUserData.middleName = info.middleName
-			currentUserData.emails = info.email == nil ? nil : [info.email!]
-			currentUserData.phones = info.gsm == nil ? nil : [info.gsm!]
-			currentUserData.customAttributes?[CustomUserDataChatKeys.customData] = jsonToCustomUserDataValue(json: info.customData)
-
-			MobileMessaging.saveUser(currentUserData, completion: completion)
-		}
-	}
-	
-	public func getUserInfo() -> ChatParticipant? {
-		MMLogDebug("[Mobile chat] getting chat user info...")
-		return ChatParticipant.current(with: mmContext.resolveUser(), installation: mmContext.resolveInstallation())
-	}
-	
-	public func fetchUserInfo(completion: @escaping (ChatParticipant?) -> Void) {
-		MMLogDebug("[Mobile chat] fetching chat user info...")
-		mmContext.userService.fetchFromServer { (currentUser, error) in
-			MMLogDebug("[Mobile chat] fetching chat user info finished. Error: \(error.debugDescription)")
-			completion(ChatParticipant.current(with: currentUser, installation: self.mmContext.resolveInstallation()))
-		}
-	}
-	
-	public var messageStorage: MessageStorage {
-		return storage
-	}
-    
-    private func doSend(chatId: String?, text: String, customPayload: [String : CustomPayloadSupportedTypes]?, completion: ((ChatMessage?, NSError?) -> Void)?) {
-        MMLogDebug("[Mobile chat] sending message...")
-        guard let author = ChatParticipant.current, let chatServiceMo = ChatMessage(chatId: chatId, text: text, customPayload: customPayload, composedData: MobileMessaging.date.now, author: author).mo else {
-            MMLogDebug("[Mobile chat] sending message interrupted: current user unavailable")
-            completion?(nil, nil)
-            return
-        }
-        
-        mmContext.sendMessagesUserInitiated([chatServiceMo]) { (mss, error) in
-            if let moresponse = mss?.first {
-                let chatMessage = ChatMessage(moMessage: moresponse)
-				MMLogDebug("[Mobile chat] message sending finished. Message: \(String(describing: chatMessage?.id)). Error: \(error.debugDescription)")
-                completion?(chatMessage, error)
-            } else {
-                MMLogDebug("[Mobile chat] message sending finished. No message in response! Error: \(error.debugDescription)")
-                completion?(nil, error)
-            }
-        }
-    }
+public protocol InAppChatDelegate {
+	///In-app Chat can be disabled or not bind to the application on the Infobip portal. In these cases `enabled` will be `false`.
+	///You can use this, for example, to show or not chat button to the user.
+	func inAppChatIsEnabled(_ enabled: Bool)
 }

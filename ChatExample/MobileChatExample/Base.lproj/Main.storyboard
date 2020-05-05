@@ -1,73 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Chat-->
-        <scene sceneID="Td1-62-4ns">
-            <objects>
-                <tableViewController title="Chat" id="NiU-ca-aQJ" customClass="ViewController" customModule="MobileChatExample" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="60" sectionHeaderHeight="28" sectionFooterHeight="28" id="dq1-vg-XZJ">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="messageCell" textLabel="lfy-gN-RMe" style="IBUITableViewCellStyleDefault" id="58c-qS-uvx">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="58c-qS-uvx" id="hHT-16-A7o">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="lfy-gN-RMe">
-                                            <rect key="frame" x="16" y="0.0" width="343" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                            <nil key="textColor"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                    </subviews>
-                                </tableViewCellContentView>
-                            </tableViewCell>
-                        </prototypes>
-                        <connections>
-                            <outlet property="dataSource" destination="NiU-ca-aQJ" id="Oq0-RN-UEV"/>
-                            <outlet property="delegate" destination="NiU-ca-aQJ" id="gZo-d9-FxU"/>
-                        </connections>
-                    </tableView>
-                    <navigationItem key="navigationItem" title="Chat" id="vQ1-37-1WX">
-                        <barButtonItem key="rightBarButtonItem" systemItem="compose" id="9pa-2E-dHg">
-                            <connections>
-                                <action selector="composeMessage:" destination="NiU-ca-aQJ" id="gag-px-Ya3"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="LvW-en-7JT" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="434" y="-3"/>
-        </scene>
         <!--Navigation Controller-->
         <scene sceneID="LRh-Hc-snD">
             <objects>
                 <navigationController id="3sj-pJ-ba1" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ny9-46-MJe">
-                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
-                        <segue destination="NiU-ca-aQJ" kind="relationship" relationship="rootViewController" id="CNe-JZ-DrA"/>
+                        <segue destination="nTL-13-0bE" kind="relationship" relationship="rootViewController" id="L3c-73-3i5"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="PM0-hL-jvT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-519" y="-3"/>
         </scene>
+        <!--View Controller-->
+        <scene sceneID="8HS-an-r6l">
+            <objects>
+                <viewController id="nTL-13-0bE" customClass="ViewController" customModule="MobileChatExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="rAI-7V-Yda">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PsB-pf-9zh">
+                                <rect key="frame" x="53" y="77" width="288" height="170"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnd-DA-n6K">
+                                        <rect key="frame" x="0.0" y="0.0" width="288" height="30"/>
+                                        <state key="normal" title="pushNavigationItem"/>
+                                        <connections>
+                                            <segue destination="tdS-Cj-hT3" kind="show" id="VRA-fe-yMa"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wLg-pL-jri">
+                                        <rect key="frame" x="0.0" y="35" width="288" height="30"/>
+                                        <state key="normal" title="presentModal"/>
+                                        <connections>
+                                            <segue destination="tdS-Cj-hT3" kind="presentation" id="xZc-v0-WuA"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z3a-nU-cMh">
+                                        <rect key="frame" x="0.0" y="70" width="288" height="30"/>
+                                        <state key="normal" title="pushNavigationItem  (programmatically)"/>
+                                        <connections>
+                                            <action selector="showChatInNavigationP:" destination="nTL-13-0bE" eventType="touchUpInside" id="Mmz-sE-sgf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TqP-fC-b1J">
+                                        <rect key="frame" x="0.0" y="105" width="288" height="30"/>
+                                        <state key="normal" title="presentModal (programmatically)"/>
+                                        <connections>
+                                            <action selector="showChatModallyP:" destination="nTL-13-0bE" eventType="touchUpInside" id="j8D-Ra-54v"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eKg-U7-Pn0">
+                                        <rect key="frame" x="0.0" y="140" width="288" height="30"/>
+                                        <state key="normal" title="presentRootNavigationVC"/>
+                                        <connections>
+                                            <action selector="presentRootNavigationVC:" destination="nTL-13-0bE" eventType="touchUpInside" id="JgS-L4-LbW"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="PsB-pf-9zh" firstAttribute="top" secondItem="WCv-J8-KMI" secondAttribute="top" constant="33" id="UfJ-mx-pja"/>
+                            <constraint firstItem="PsB-pf-9zh" firstAttribute="leading" secondItem="WCv-J8-KMI" secondAttribute="leading" constant="53" id="fgF-uI-qCj"/>
+                            <constraint firstItem="WCv-J8-KMI" firstAttribute="trailing" secondItem="PsB-pf-9zh" secondAttribute="trailing" constant="34" id="mbj-ed-QeO"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="WCv-J8-KMI"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="eRM-3m-t8h"/>
+                    <connections>
+                        <outlet property="presentRootNavigationVC" destination="eKg-U7-Pn0" id="a3C-eo-lfr"/>
+                        <outlet property="showChatInNavigation" destination="Gnd-DA-n6K" id="3lW-TG-n5g"/>
+                        <outlet property="showChatInNavigationProgrammatically" destination="Z3a-nU-cMh" id="g0F-Uv-QcJ"/>
+                        <outlet property="showChatModally" destination="wLg-pL-jri" id="i7C-QM-Qjb"/>
+                        <outlet property="showChatModallyProgrammatically" destination="TqP-fC-b1J" id="zz6-Sf-ZDC"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0dp-lf-ulk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="242" y="-3"/>
+        </scene>
+        <!--Chat View Controller-->
+        <scene sceneID="kZ0-7o-tYY">
+            <objects>
+                <viewController id="tdS-Cj-hT3" customClass="CPChatViewController" customModule="MobileMessaging" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="oi5-2K-uWB">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="lUC-Ih-vMY"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="rsn-PL-Z7T"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="9fh-2h-TsH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1073" y="-509"/>
+        </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="xZc-v0-WuA"/>
+    </inferredMetricsTieBreakers>
 </document>

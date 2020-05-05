@@ -433,6 +433,11 @@ public class MobileMessagingService: NSObject {
 	func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		completion()
 	}
+	
+	func handlesInAppNotification(forMessage message: MTMessage?) -> Bool { return false }
+	func showBannerNotificationIfNeeded(forMessage message: MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
+		showBannerWithOptions([])
+	}
 }
 
 public extension UIDevice {
@@ -599,12 +604,7 @@ extension Dictionary where Key == String {
 
 extension UIImage {
 	convenience init?(mm_named: String) {
-		if let url = MobileMessaging.bundle.url(forResource: "MobileMessaging", withExtension: "bundle") {
-			let bundle = Bundle(url: url)
-			self.init(named: mm_named, in: bundle, compatibleWith: nil)
-		} else {
-			return nil
-		}
+		self.init(named: mm_named, in: MobileMessaging.bundle, compatibleWith: nil)
 	}
 }
 

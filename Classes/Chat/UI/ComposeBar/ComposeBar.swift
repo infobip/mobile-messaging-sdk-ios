@@ -23,14 +23,14 @@ struct ComposeBarConsts {
 	static let kTextContainerLeftPadding: CGFloat   	=  3.0
 	static let kTextContainerRightPadding: CGFloat  	=  2.0
 	static let kTextContainerTopPadding: CGFloat    	=  4.0
-	static let kTextContainerCornerRadius: CGFloat  	= 5.25
+	static let kTextContainerCornerRadius: CGFloat  	= 8.0
 	static let kTextViewTopMargin: CGFloat          	= -8.0
 	static let kPlaceholderHeight: CGFloat          	= 25.0
 	static let kPlaceholderSideMargin: CGFloat      	=  8.0
 	static let kPlaceholderTopMargin: CGFloat       	=  2.0
 	static let kButtonHeight: CGFloat               	= 26.0
 	static let kButtonTouchableOverlap: CGFloat     	=  6.0
-	static let kButtonRightMargin: CGFloat          	= -2.0
+	static let kButtonRightMargin: CGFloat          	= 8.0
 	static let kButtonBottomMargin: CGFloat         	=  8.0
 	static let kUtilityButtonWidth: CGFloat         	= 25.0
 	static let kUtilityButtonHeight: CGFloat        	= 25.0
@@ -76,24 +76,19 @@ class ComposeBar: UIView, UITextViewDelegate {
 			}()
 		}
 	}
-	lazy var button: UIButton! = {
-		let ret = ComposeBar_Button(type: UIButton.ButtonType.custom)
+	lazy var button: ComposeBar_Send_Button! = {
+		let ret = ComposeBar_Send_Button()
 		ret.frame = CGRect(x: self.bounds.size.width - ComposeBarConsts.kHorizontalSpacing - ComposeBarConsts.kButtonRightMargin - ComposeBarConsts.kButtonTouchableOverlap, y: self.bounds.size.height - ComposeBarConsts.kButtonBottomMargin - ComposeBarConsts.kButtonHeight, width: 2 * ComposeBarConsts.kButtonTouchableOverlap, height: ComposeBarConsts.kButtonHeight)
-		ret.titleEdgeInsets = UIEdgeInsets(top: 0.5, left: 0, bottom: 0, right: 0)
 		ret.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
-		ret.setTitle(self.buttonTitle, for: .normal)
-		ret.setTitleColor(UIColor(hue: 240/360, saturation: 0.03, brightness: 0.58, alpha: 1), for: .disabled)
-		ret.setTitleColor(UIColor(hue: 211/360, saturation: 1, brightness: 1, alpha: 1), for: .normal)
 		ret.addTarget(self, action: #selector(ComposeBar.didPressButton), for: .touchUpInside)
-		ret.titleLabel?.font = UIFont.boldSystemFont(ofSize: ComposeBarConsts.kFontSize)
 		return ret
 	}()
 	public var buttonTintColor: UIColor? {
 		get {
-			return button.titleColor(for: .normal)
+			return button.enabledTintColor
 		}
 		set {
-			button.setTitleColor(newValue, for: .normal)
+			button.enabledTintColor = newValue
 		}
 	}
 	
@@ -160,7 +155,11 @@ class ComposeBar: UIView, UITextViewDelegate {
 		ret.backgroundColor = UIColor.clear
 		ret.isUserInteractionEnabled = false
 		ret.font = UIFont.systemFont(ofSize: ComposeBarConsts.kFontSize)
-		ret.textColor = UIColor(hue: 240/360, saturation: 0.02, brightness: 0.8, alpha: 1.0)
+		if #available(iOS 13, *) {
+			ret.textColor = UIColor.systemGray2
+		} else {
+			ret.textColor = UIColor(hue: 240/360, saturation: 0.02, brightness: 0.8, alpha: 1.0)
+		}
 		ret.autoresizingMask = .flexibleWidth
 		ret.adjustsFontSizeToFitWidth = true
 		ret.minimumScaleFactor = UIFont.smallSystemFontSize / ComposeBarConsts.kFontSize
@@ -178,7 +177,11 @@ class ComposeBar: UIView, UITextViewDelegate {
 		let ret = ComposeBar_TextView(frame: CGRect.zero)
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		ret.scrollIndicatorInsets = UIEdgeInsets(top: 8.0, left: 0, bottom: 8.0, right: 0.5)
-		ret.backgroundColor = UIColor.clear
+		if #available(iOS 13, *) {
+			ret.backgroundColor = UIColor.systemBackground
+		} else {
+			ret.backgroundColor = UIColor.clear
+		}
 		ret.font = UIFont.systemFont(ofSize: ComposeBarConsts.kFontSize)
 		return ret
 	}()
@@ -213,17 +216,14 @@ class ComposeBar: UIView, UITextViewDelegate {
 		let ret = UIToolbar(frame: frame)
 		ret.barStyle = .default
 		ret.isTranslucent = false
-		ret.barTintColor = UIColor(white: 0.95, alpha: 1)
-		ret.tintColor = UIColor(white: 1, alpha: 1)
+		if #available(iOS 13, *) {
+			ret.barTintColor = UIColor.systemBackground
+			ret.tintColor = UIColor.systemBackground
+		} else {
+			ret.barTintColor = UIColor(white: 0.95, alpha: 1)
+			ret.tintColor = UIColor(white: 1, alpha: 1)
+		}
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-		return ret
-	}()
-	lazy var topLineView: UIView! = {
-		var frame = self.bounds
-		frame.size.height = 0.5
-		let ret = UIView(frame: frame)
-		ret.backgroundColor = UIColor(white: 0.98, alpha: 1.0)
-		ret.autoresizingMask = .flexibleWidth
 		return ret
 	}()
 	lazy var charCountLabel: UILabel! = {
@@ -235,6 +235,7 @@ class ComposeBar: UIView, UITextViewDelegate {
 		ret.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
 		return ret
 	}()
+
 	lazy var textContainer: UIButton! = {
 		let textContainerFrame = CGRect(x: ComposeBarConsts.kHorizontalSpacing, y:
 			ComposeBarConsts.kTextContainerTopMargin, width:
@@ -243,13 +244,12 @@ class ComposeBar: UIView, UITextViewDelegate {
 		let ret = UIButton(type: .custom)
 		ret.frame = textContainerFrame
 		ret.clipsToBounds = true
-		ret.backgroundColor = UIColor.white
+		if #available(iOS 13, *) {
+			ret.backgroundColor = UIColor.systemBackground
+		} else {
+			ret.backgroundColor = UIColor.white
+		}
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-		let layer = ret.layer
-		layer.borderColor = UIColor(hue: 240/360, saturation: 0.02, brightness: 0.8, alpha: 1).cgColor
-		layer.borderWidth = 0.5
-		layer.cornerRadius = ComposeBarConsts.kTextContainerCornerRadius
-		
 		let txtH = self.textHeight
 		self.previousTextHeight = txtH
 		var textViewFrame = textContainerFrame
@@ -318,14 +318,7 @@ class ComposeBar: UIView, UITextViewDelegate {
 	
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		
-		// Correct top line size:
-		topLineView.frame = {
-			var ret = topLineView.frame
-			ret.size.height = 0.5
-			return ret
-		}()
-		
+
 		// Correct background view position:
 		backgroundView.frame = {
 			var ret = backgroundView.frame
@@ -374,8 +367,7 @@ class ComposeBar: UIView, UITextViewDelegate {
 		maxHeight = 200.0
 		
 		autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-		
-		addSubview(topLineView)
+
 		addSubview(backgroundView)
 		addSubview(charCountLabel)
 		addSubview(button)

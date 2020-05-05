@@ -7,20 +7,6 @@
 import UIKit
 import CoreData
 
-extension NSFetchedResultsController where ResultType == Message {
-	func messageAt(_ indexPath: IndexPath) -> ChatMessage? {
-		let storedmessage = self.object(at: indexPath)
-		let msg = ChatMessage(message: storedmessage)
-		return msg
-	}
-	
-	var chatMessages: [ChatMessage] {
-		return self.fetchedObjects?.compactMap({ storedmessage in
-			return ChatMessage(message: storedmessage)
-		}) ?? []
-	}
-}
-
 
 public enum CPMessageDeliveryStatus: Int32 {
 	case pendingSending = 0, pendingFileUploading, sent, delivered, failed
@@ -275,32 +261,9 @@ extension UIViewController {
 	}
 }
 
-func ==(l: SelectedMessageMeta, r: SelectedMessageMeta) -> Bool {
-	return l.messageId == r.messageId
-}
-struct SelectedMessageMeta: Hashable {
-	let isSeen: Bool
-	let messageId: String
-	
-	func hash(into hasher: inout Hasher) {
-		hasher.combine(messageId)
-	}
-
-	init(_ msg: ChatMessage) {
-		isSeen = msg.isSeen
-		messageId = msg.id
-	}
-}
-
 extension Message {
 	var seenStatus: MMSeenStatus {
 		return MMSeenStatus(rawValue: seenStatusValue) ?? .NotSeen
-	}
-}
-
-extension ChatMessage {
-	var isSeen: Bool {
-		return seenStatus != .NotSeen
 	}
 }
 

@@ -8,6 +8,8 @@
 import Foundation
 
 class ComposeBar_Button: UIButton {
+	var enabledTintColor: UIColor! = UIColor.systemBlue
+	var disabledTintColor: UIColor! = UIColor.gray
 	override var isHighlighted: Bool {
 		didSet {
 			if (isHighlighted) {
@@ -16,5 +18,27 @@ class ComposeBar_Button: UIButton {
 				UIView.animate(withDuration: 0.2, delay: 0, options: .beginFromCurrentState, animations: { self.alpha = 1.0 }, completion: nil)
 			}
 		}
+	}
+	override var isEnabled: Bool {
+		didSet {
+			if (isEnabled) {
+				tintColor = enabledTintColor
+			} else {
+				tintColor = disabledTintColor
+			}
+		}
+	}
+}
+
+class ComposeBar_Send_Button: ComposeBar_Button {
+	init() {
+		super.init(frame: CGRect.zero)
+		setImage(UIImage(mm_named: "sendButton")?.withRenderingMode(.alwaysTemplate), for: .normal)
+		titleEdgeInsets = UIEdgeInsets(top: 0.5, left: 0, bottom: 0, right: 0)
+		tintColor = enabledTintColor
+	}
+
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
 	}
 }
