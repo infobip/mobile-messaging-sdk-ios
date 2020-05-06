@@ -29,44 +29,51 @@ class AlertOperation: Foundation.Operation {
 			cancelAlert()
 			return
 		}
-		
-		DispatchQueue.main.async() {
-			if self.message.contentUrl?.safeUrl != nil {
-				MMLogDebug("[InAppAlert] downloading image attachment \(String(describing: self.message.contentUrl?.safeUrl))...")
-				self.message.downloadImageAttachment(completion: { (url, error) in
-					let img: Image?
-					if let url = url, let data = try? Data(contentsOf: url) {
-						MMLogDebug("[InAppAlert] image attachment downloaded")
-						img = DefaultImageProcessor().process(item: ImageProcessItem.data(data), options: [])
-					} else {
-						MMLogDebug("[InAppAlert] could not dowonload image attachment")
-						img = nil
-					}
-					self.presentAlert(with: img)
-				})
-			} else {
-				self.presentAlert(with: nil)
-			}
+
+		if self.message.contentUrl?.safeUrl != nil {
+			MMLogDebug("[InAppAlert] downloading image attachment \(String(describing: self.message.contentUrl?.safeUrl))...")
+			self.message.downloadImageAttachment(completion: { (url, error) in
+				let img: Image?
+				if let url = url, let data = try? Data(contentsOf: url) {
+					MMLogDebug("[InAppAlert] image attachment downloaded")
+					img = DefaultImageProcessor().process(item: ImageProcessItem.data(data), options: [])
+				} else {
+					MMLogDebug("[InAppAlert] could not dowonload image attachment")
+					img = nil
+				}
+				self.presentAlert(with: img)
+			})
+		} else {
+			self.presentAlert(with: nil)
 		}
-		
+
+		waitUntilAlertDismissed()
+	}
+
+	private func waitUntilAlertDismissed() {
 		semaphore.wait()
 	}
+
+	private func notifyAlertDismissed() {
+		semaphore.signal()
+	}
 	
-	func presentAlert(with image: UIImage?) {
+	private func presentAlert(with image: UIImage?) {
 		guard shouldProceed else {
 			self.cancelAlert()
 			return
 		}
-		
-		let a = self.makeAlert(with: self.message, image: image, text: self.text)
-		self.alert = a
-		MobileMessaging.sharedInstance?.interactiveAlertManager?.delegate?.willDisplay(self.message)
-		if let rootVc = MobileMessaging.application.rootViewController {
-			MMLogDebug("[InAppAlert] presenting in-app alert, root vc: \(rootVc)")
-			rootVc.present(a, animated: true, completion: nil)
-		} else {
-			MMLogDebug("[InAppAlert] could not define root vc to present in-app alert")
-			cancelAlert()
+		DispatchQueue.main.async() {
+			let a = self.makeAlert(with: self.message, image: image, text: self.text)
+			self.alert = a
+			MobileMessaging.sharedInstance?.interactiveAlertManager?.delegate?.willDisplay(self.message)
+			if let rootVc = MobileMessaging.application.rootViewController {
+				MMLogDebug("[InAppAlert] presenting in-app alert, root vc: \(rootVc)")
+				rootVc.present(a, animated: true, completion: nil)
+			} else {
+				MMLogDebug("[InAppAlert] could not define root vc to present in-app alert")
+				cancelAlert()
+			}
 		}
 	}
 
@@ -86,8 +93,10 @@ class AlertOperation: Foundation.Operation {
 
 	private func cancelAlert() {
 		MMLogDebug("[InAppAlert] canceled. Message expired?: \(message.isExpired.description)")
-		self.alert?.dismiss(animated: false)
-		self.semaphore.signal()
+		DispatchQueue.main.async() {
+			self.alert?.dismiss(animated: false)
+		}
+		notifyAlertDismissed()
 	}
 	
 	private func makeAlert(with message: MTMessage, image: Image?, text: String) -> InteractiveMessageAlertController {
