@@ -72,7 +72,7 @@ class AlertOperation: Foundation.Operation {
 				rootVc.present(a, animated: true, completion: nil)
 			} else {
 				MMLogDebug("[InAppAlert] could not define root vc to present in-app alert")
-				cancelAlert()
+				self.cancelAlert()
 			}
 		}
 	}
