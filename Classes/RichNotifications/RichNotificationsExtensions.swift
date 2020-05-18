@@ -184,7 +184,7 @@ protocol DeliveryReporting {
 class DeliveryReporter: DeliveryReporting {
 	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void) {
 		MMLogDebug("[Notification Extension] reporting delivery for message ids \(messageIds)")
-		guard let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance, messageIds.isEmpty else
+		guard let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance, !messageIds.isEmpty else
 		{
 			MMLogDebug("[Notification Extension] could not report delivery")
 			completion(nil)
