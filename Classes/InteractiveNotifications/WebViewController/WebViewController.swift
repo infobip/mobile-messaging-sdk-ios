@@ -32,6 +32,11 @@ public class WebViewController: UINavigationController {
 		return viewControllers.first as? WebViewControllerBase
 	}
 
+	public var activityIndicator: ActivityIndicatorProtocol? {
+		set { rootWebViewController?.activityIndicator = newValue }
+		get { return rootWebViewController?.activityIndicator }
+	}
+
 	public var tintColor: UIColor? {
 		set { navigationBar.tintColor = newValue }
 		get { return navigationBar.tintColor } }
@@ -45,10 +50,18 @@ public class WebViewController: UINavigationController {
 		get { return navigationBar.titleTextAttributes?[NSAttributedString.Key.foregroundColor] as? UIColor } }
 
 	public override var title: String? {
-		set { (viewControllers.first as? WebViewControllerBase)?.customTitle = newValue }
-		get { return viewControllers.first?.title } }
+		set { rootWebViewController?.customTitle = newValue }
+		get { return rootWebViewController?.title } }
 }
 
+@objc public protocol ActivityIndicatorProtocol where Self: UIView {
+	func startAnimating()
+	func stopAnimating()
+}
+
+extension UIActivityIndicatorView: ActivityIndicatorProtocol {
+
+}
 
 public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WKNavigationDelegate {
 	let url: String
@@ -57,7 +70,12 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 			self.title = customTitle
 		}
 	}
-	lazy var webView: WKWebView = WKWebView()
+	lazy var webView = WKWebView()
+	var activityIndicator: ActivityIndicatorProtocol? {
+		didSet {
+			activityIndicator?.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
+		}
+	}
 
 	deinit {
 		webView.removeObserver(self, forKeyPath: "title")
@@ -66,13 +84,20 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 	init(url: String) {
 		self.url = url
 		super.init(nibName: nil, bundle: nil)
-
 		webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		webView.navigationDelegate = self
 		webView.contentMode = .scaleAspectFit
-		webView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height)
 		webView.addObserver(self, forKeyPath: "title", options: .new, context: nil)
+		if #available(iOS 13, *) {
+			webView.scrollView.backgroundColor = UIColor.systemBackground
+			webView.backgroundColor = UIColor.systemBackground
+		} else {
+			webView.scrollView.backgroundColor = UIColor.white
+			webView.backgroundColor = UIColor.white
+		}
 		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(webViewToolbarDidPressDismiss))
+
+		self.activityIndicator = defaultActivityIndicator()
 	}
 
 	required init?(coder: NSCoder) {
@@ -81,16 +106,23 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 
 	override public func viewDidLoad() {
 		super.viewDidLoad()
+
 		if #available(iOS 13, *) {
 			view.backgroundColor = UIColor.systemBackground
-			webView.scrollView.backgroundColor = UIColor.systemBackground
-			webView.backgroundColor = UIColor.systemBackground
 		} else {
 			view.backgroundColor = UIColor.white
-			webView.scrollView.backgroundColor = UIColor.white
-			webView.backgroundColor = UIColor.white
 		}
+
+		webView.frame = view.bounds
 		view.addSubview(webView)
+
+		if let activityIndicator = self.activityIndicator {
+			view.addSubview(activityIndicator)
+		}
+	}
+	public override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		activityIndicator?.center = view.convert(view.center, from: view.superview)
 	}
 
 	public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -114,19 +146,47 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 		enterFailedState()
 	}
 
+	public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+		displayActivityIndicator(false)
+	}
+
+	private func displayActivityIndicator(_ isVisible: Bool) {
+		webView.isHidden = isVisible
+		activityIndicator?.isHidden = !isVisible
+		if isVisible {
+			activityIndicator?.startAnimating()
+		} else {
+			activityIndicator?.stopAnimating()
+		}
+	}
+
 	@objc func reload() {
 		guard let targetUrl = URL(string: url) else {
 			return
 		}
+		displayActivityIndicator(true)
 		navigationItem.leftBarButtonItem = nil
 		webView.load(URLRequest(url: targetUrl))
 	}
 
 	@objc func webViewToolbarDidPressDismiss() {
+		activityIndicator?.stopAnimating()
 		dismiss(animated: true)
 	}
 
 	private func enterFailedState() {
+		displayActivityIndicator(false)
 		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reload))
+	}
+
+	private func defaultActivityIndicator() -> UIActivityIndicatorView {
+		let indicator = UIActivityIndicatorView()
+		if #available(iOS 13, *) {
+			indicator.color = UIColor.systemGray
+			indicator.style = .large
+		} else {
+			indicator.style = .gray
+		}
+		return indicator
 	}
 }

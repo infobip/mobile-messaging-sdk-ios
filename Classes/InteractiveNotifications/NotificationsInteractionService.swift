@@ -111,8 +111,8 @@ class NotificationsInteractionService: MobileMessagingService {
 	static func presentInAppWebview(_ urlString: String, _ presentingVc: UIViewController, _ message: MTMessage) {
 		let webViewController = WebViewController(url: urlString)
 		webViewController.modalPresentationStyle = .fullScreen
-		presentingVc.present(webViewController, animated: true, completion: nil)
 		MobileMessaging.messageHandlingDelegate?.inAppWebViewWillShowUp?(webViewController, for: message)
+		presentingVc.present(webViewController, animated: true, completion: nil)
 	}
 
 	fileprivate func handleNotificationTap(message: MTMessage, completion: @escaping () -> Void) {
