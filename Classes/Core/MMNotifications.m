@@ -22,6 +22,7 @@ NSString* MMNotificationDepersonalized = @"com.mobile-messaging.notification.dep
 NSString* MMNotificationPersonalized = @"com.mobile-messaging.notification.personalization-completed";
 NSString* MMNotificationInstallationSynced = @"com.mobile-messaging.notification.userdata-synced";
 NSString* MMNotificationCenterAuthRequestFinished = @"com.mobile-messaging.notification.nc-auth-request-finished";
+NSString* MMNotificationInAppChatAvailabilityUpdated = @"com.mobile-messaging.notification.inappchat-availability-updated";
 
 
 //MARK: Notification keys
@@ -49,3 +50,4 @@ NSString* MMNotificationKeyUser = @"com.mobile-messaging.notification.key.user";
 NSString* MMNotificationKeyInstallation = @"com.mobile-messaging.notification.key.installation";
 NSString* MMNotificationKeyGranted = @"com.mobile-messaging.notification.key.granted";
 NSString* MMNotificationKeyError = @"com.mobile-messaging.notification.key.error";
+NSString* MMNotificationKeyInAppChatEnabled = @"com.mobile-messaging.notification.inappchat-enabled";

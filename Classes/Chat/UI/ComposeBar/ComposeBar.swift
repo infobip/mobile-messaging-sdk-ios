@@ -17,7 +17,7 @@ struct ComposeBarConsts {
 	static let kResizeAnimationOptions 		= UIView.AnimationOptions.curveEaseInOut
 	static let kResizeAnimationDuration: CGFloat 	= 0.25
 	static let kHorizontalSpacing: CGFloat          	=  8.0
-	static let kFontSize: CGFloat                   	= 17.0
+	static let kFontSize: CGFloat                   	= 16.0
 	static let kTextContainerTopMargin: CGFloat     	=  8.0
 	static let kTextContainerBottomMargin: CGFloat  	=  8.0
 	static let kTextContainerLeftPadding: CGFloat   	=  3.0

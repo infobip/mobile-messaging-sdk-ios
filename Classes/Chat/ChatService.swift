@@ -81,6 +81,7 @@ public class InAppChatService: MobileMessagingService {
 	}
 
 	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
+        getWidgetQueue.cancelAllOperations()
 		self.isEnabled = false
 		chatWidget = nil
 		cleanCache()
@@ -94,6 +95,7 @@ public class InAppChatService: MobileMessagingService {
 	}
 	
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+        getWidgetQueue.cancelAllOperations()
 		cleanCache(completion: completion)
 	}
 	
@@ -116,6 +118,7 @@ public class InAppChatService: MobileMessagingService {
 		getWidgetQueue.addOperation(GetChatWidgetOperation(mmContext: mmContext) { (error, widget)  in
 			self.chatWidget = widget
 			self.isEnabled = (error == nil)
+            UserEventsManager.postInAppChatAvailabilityUpdatedEvent(self.isEnabled)
 			self.delegate?.inAppChatIsEnabled(self.isEnabled)
 			self.update(withChatWidget: self.chatWidget)
 		})
@@ -128,10 +131,10 @@ public class InAppChatService: MobileMessagingService {
 		
 		let update = { [weak self] (widget: ChatWidget) in
 			self?.webViewDelegate?.loadWidget(widget)
-			if let title = widget.title {
+            if let title = widget.title, self?.settings.title == nil {
 				self?.settings.title = title
 			}
-			if let primaryColor = widget.primaryColor {
+            if let primaryColor = widget.primaryColor, self?.settings.sendButtonTintColor == nil {
 				self?.settings.sendButtonTintColor = UIColor(hexString: primaryColor)
 			}
 		}
@@ -151,4 +154,10 @@ public protocol InAppChatDelegate {
 	///In-app Chat can be disabled or not bind to the application on the Infobip portal. In these cases `enabled` will be `false`.
 	///You can use this, for example, to show or not chat button to the user.
 	func inAppChatIsEnabled(_ enabled: Bool)
+}
+
+extension UserEventsManager {
+    class func postInAppChatAvailabilityUpdatedEvent(_ inAppChatEnabled: Bool) {
+        post(MMNotificationInAppChatAvailabilityUpdated, [MMNotificationKeyInAppChatEnabled: inAppChatEnabled])
+    }
 }

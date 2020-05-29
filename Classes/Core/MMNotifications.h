@@ -92,6 +92,11 @@ FOUNDATION_EXPORT NSString* MMNotificationInstallationSynced;
  */
 FOUNDATION_EXPORT NSString* MMNotificationCenterAuthRequestFinished;
 
+/**
+ Posted after the in-app chat availability status received from backend server.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationInAppChatAvailabilityUpdated;
+
 
 //MARK: Notification keys
 
@@ -176,3 +181,9 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyGranted;
  Key name for optional `error` object. See MMNotificationCenterAuthRequestFinished.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyError;
+
+/**
+ Key for entry in userInfo dictionary of `MMNotificationInAppChatAvailabilityUpdated` notification.
+ Value is boolean, chat can be enabled or not.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyInAppChatEnabled;

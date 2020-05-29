@@ -16,7 +16,7 @@ public class ChatSettings: NSObject {
 		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "com.mobile-messaging.chat.settings.updated"), object: self)
 	}
 	
-	public var title: String = "Chat" { didSet { postAppearanceChangedNotification() } }
+	public var title: String? { didSet { postAppearanceChangedNotification() } }
 	
 	public var sendButtonTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
