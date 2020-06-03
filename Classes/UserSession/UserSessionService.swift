@@ -11,8 +11,8 @@ import CoreData
 class UserSessionService : MobileMessagingService {
 
 	var currentSessionId: String? {
-		if let pushRegId = mmContext.currentInstallation().pushRegistrationId, let currentSession = fetchCurrentSession(pushRegistrationId: pushRegId) {
-			return "\(currentSession.pushRegistrationId)_\(Int(floor(currentSession.startDate.timeIntervalSince1970 * 1000)))"
+		if let pushRegId = mmContext.currentInstallation().pushRegistrationId, let currentSessionStartDate = fetchCurrentSessionStartDate(pushRegistrationId: pushRegId) {
+			return "\(pushRegId)_\(Int(floor(currentSessionStartDate.timeIntervalSince1970 * 1000)))"
 		} else {
 			return nil
 		}
@@ -90,6 +90,14 @@ class UserSessionService : MobileMessagingService {
 	}
 
 	//MARK: -
+
+	func fetchCurrentSessionStartDate(pushRegistrationId: String) -> Date? {
+		var result: Date? = nil
+		context.performAndWait {
+			result = fetchCurrentSession(pushRegistrationId: pushRegistrationId)?.startDate
+		}
+		return result
+	}
 
 	func fetchCurrentSession(pushRegistrationId: String) -> UserSessionReportObject? {
 		var result: UserSessionReportObject? = nil
