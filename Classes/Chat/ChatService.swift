@@ -131,12 +131,7 @@ public class InAppChatService: MobileMessagingService {
 		
 		let update = { [weak self] (widget: ChatWidget) in
 			self?.webViewDelegate?.loadWidget(widget)
-            if let title = widget.title, self?.settings.title == nil {
-				self?.settings.title = title
-			}
-            if let primaryColor = widget.primaryColor, self?.settings.sendButtonTintColor == nil {
-				self?.settings.sendButtonTintColor = UIColor(hexString: primaryColor)
-			}
+            self?.settings.update(withChatWidget: widget)
 		}
 		if let pushRegEnabled = MobileMessaging.currentInstallation?.isPushRegistrationEnabled,
 			pushRegEnabled {

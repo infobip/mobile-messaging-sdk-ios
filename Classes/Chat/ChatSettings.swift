@@ -26,6 +26,20 @@ public class ChatSettings: NSObject {
 	
 	public var navBarTitleColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
+    func update(withChatWidget widget: ChatWidget) {
+        if let widgetTitle = widget.title, title == nil {
+            title = widgetTitle
+        }
+        if let primaryColor = widget.primaryColor {
+            let color = UIColor(hexString: primaryColor)
+            if sendButtonTintColor == nil {
+                sendButtonTintColor = color
+            }
+            if navBarColor == nil {
+                navBarColor = color
+            }
+        }
+    }
 }
 
 class ChatSettingsManager {

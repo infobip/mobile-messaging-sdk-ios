@@ -123,6 +123,7 @@ extension SessionManagement {
 	}
 	func performRequest<Response: JSONDecodable>(request: RequestData, completion: @escaping (MMResult<Response>) -> Void) {
 		sessionManager.getDataResponse(request, completion: {
+            UserEventsManager.postApiErrorEvent($1)
 			completion(self.convertJSONToResult(request: request, json: $0, error: $1))
 		})
 	}
