@@ -12,7 +12,7 @@ class UserSessionService : MobileMessagingService {
 
 	var currentSessionId: String? {
 		if let pushRegId = mmContext.currentInstallation().pushRegistrationId, let currentSessionStartDate = fetchCurrentSessionStartDate(pushRegistrationId: pushRegId) {
-			return "\(pushRegId)_\(Int(floor(currentSessionStartDate.timeIntervalSince1970 * 1000)))"
+			return "\(pushRegId)_\(Int64(floor(currentSessionStartDate.timeIntervalSince1970 * 1000)))"
 		} else {
 			return nil
 		}
