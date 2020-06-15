@@ -10,6 +10,7 @@ import WebKit
 protocol ChatWebViewDelegate {
 	func loadWidget(_ widget: ChatWidget)
 	func enableControls(_ enabled: Bool)
+    func handleChatErrors(_ errors: ChatErrors)
 }
 
 ///Key component to use for displaying In-app chat view.
@@ -42,10 +43,13 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 	override var scrollViewContainer: UIView! {
 		return webView
 	}
-
+    
+    var chatNotAvailableLabel: ChatNotAvailableLabel!
+    
 	open override func loadView() {
 		super.loadView()
 		setupWebView()
+        setupChatNotAvailableLabel()
 	}
 
 	open override func viewDidLoad() {
@@ -103,13 +107,25 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 	
 	// ChatWebViewDelegate
 	func loadWidget(_ widget: ChatWidget) {
-		webView.loadWidget(widget)
+        webView.loadWidget(widget)
 	}
 	
 	func enableControls(_ enabled: Bool) {
 		webView.isUserInteractionEnabled = enabled
+        webView.isLoaded = enabled
 		composeBarView.isEnabled = enabled
 	}
+    
+    func handleChatErrors(_ errors: ChatErrors) {
+         if errors == .none {
+             chatNotAvailableLabel.hide()
+             if !(webView.isLoaded) {
+                 webView.reload()
+             }
+         } else {
+             chatNotAvailableLabel.show()
+         }
+     }
 	
 	// Private
 	private func setupWebView() {
@@ -118,7 +134,11 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 		webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(webView)
 	}
-
+    
+    private func setupChatNotAvailableLabel() {
+        chatNotAvailableLabel = ChatNotAvailableLabel(frame: CGRect(x: 0, y: -ChatNotAvailableLabel.kHeight, width: self.view.bounds.width, height: ChatNotAvailableLabel.kHeight))
+        self.view.addSubview(self.chatNotAvailableLabel)
+    }
 }
 
 extension ChatViewController: WKNavigationDelegate {

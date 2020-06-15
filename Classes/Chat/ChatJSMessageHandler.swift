@@ -50,6 +50,7 @@ class ErrorMessageHandler: ScriptMessageHandler {
 				return
 		}
 		MMLogError("[InAppChat] JSError received: \(jsMessage.message)")
+        MobileMessaging.inAppChat?.handleJSError(jsMessage.message)
 	}
 }
 

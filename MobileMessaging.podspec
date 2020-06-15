@@ -43,6 +43,6 @@ Pod::Spec.new do |s|
         chat.frameworks = 'AudioToolbox'
         chat.dependency 'MobileMessaging/Core'
         chat.source_files = 'Classes/Chat/**/*.{h,m,swift}'
-        chat.resources = 'Classes/Chat/Resources/**/*.{xcassets,png,html}'
+        chat.resources = 'Classes/Chat/Resources/**/*.{xcassets,png,html}', 'Classes/Chat/Localization/**/*.strings'
     end
 end

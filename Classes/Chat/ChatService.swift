@@ -56,13 +56,19 @@ public class InAppChatService: MobileMessagingService {
 	///In-app Chat delegate, can be set to receive additional chat info.
 	public var delegate: InAppChatDelegate? {
 		didSet {
-			self.delegate?.inAppChatIsEnabled(isEnabled)
+			self.delegate?.inAppChatIsEnabled(isConfigurationSynced)
 		}
 	}
 	
 	private let getWidgetQueue = MMOperationQueue.newSerialQueue
 	private var chatWidget: ChatWidget?
-	private var isEnabled: Bool = false
+    private var isConfigurationSynced: Bool = false {
+        didSet {
+            UserEventsManager.postInAppChatAvailabilityUpdatedEvent(isConfigurationSynced)
+            delegate?.inAppChatIsEnabled(isConfigurationSynced)
+        }
+    }
+    
 	var isChatScreenVisible: Bool = false
 	
 	override var systemData: [String: AnyHashable]? {
@@ -70,6 +76,7 @@ public class InAppChatService: MobileMessagingService {
 	}
 	var webViewDelegate: ChatWebViewDelegate? {
 		didSet {
+            webViewDelegate?.handleChatErrors(chatErrors)
 			update(withChatWidget: chatWidget)
 		}
 	}
@@ -82,16 +89,18 @@ public class InAppChatService: MobileMessagingService {
 
 	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
         getWidgetQueue.cancelAllOperations()
-		self.isEnabled = false
+		self.isConfigurationSynced = false
 		chatWidget = nil
 		cleanCache()
 		stop {_ in }
+        stopReachabilityListener()
 		InAppChatService.sharedInstance = nil
 	}
 	
 	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
 		start { _ in }
-		getChatWidget()
+        startReachabilityListener()
+        syncWithServer { _ in}
 	}
 	
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
@@ -113,14 +122,26 @@ public class InAppChatService: MobileMessagingService {
 		
 		showBannerWithOptions(UNNotificationPresentationOptions.make(with:  MobileMessaging.sharedInstance?.userNotificationType ?? []))
 	}
+    
+    override func appWillEnterForeground(_ n: Notification) {
+        syncWithServer({_ in})
+    }
+
+    override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+        if !isConfigurationSynced {
+            chatErrors.remove(.configurationSyncError)
+            chatErrors.remove(.jsError)
+            getChatWidget(completion)
+        }
+    }
 	
-	private func getChatWidget() {
+    private func getChatWidget(_ completion: ((NSError?) -> Void)? = nil) {
 		getWidgetQueue.addOperation(GetChatWidgetOperation(mmContext: mmContext) { (error, widget)  in
 			self.chatWidget = widget
-			self.isEnabled = (error == nil)
-            UserEventsManager.postInAppChatAvailabilityUpdatedEvent(self.isEnabled)
-			self.delegate?.inAppChatIsEnabled(self.isEnabled)
+            self.isConfigurationSynced = (error == nil)
+            self.handleConfigurationSyncError(error)
 			self.update(withChatWidget: self.chatWidget)
+            completion?(error)
 		})
 	}
 	
@@ -129,20 +150,53 @@ public class InAppChatService: MobileMessagingService {
 			return
 		}
 		
-		let update = { [weak self] (widget: ChatWidget) in
-			self?.webViewDelegate?.loadWidget(widget)
-            self?.settings.update(withChatWidget: widget)
-		}
-		if let pushRegEnabled = MobileMessaging.currentInstallation?.isPushRegistrationEnabled,
-			pushRegEnabled {
-			update(chatWidget)
+        if MobileMessaging.currentInstallation?.pushRegistrationId != nil {
+            webViewDelegate?.loadWidget(chatWidget)
 		} else {
 			NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil, queue: nil) { (notification) in
-				update(chatWidget)
+                self.webViewDelegate?.loadWidget(chatWidget)
 				NotificationCenter.default.removeObserver(self)
 			}
 		}
+        self.settings.update(withChatWidget: chatWidget)
 	}
+    
+    /*
+     Errors handling
+     */
+    
+    private var chatErrors: ChatErrors = .none {
+            didSet {
+                webViewDelegate?.handleChatErrors(chatErrors)
+            }
+        }
+    private let networkReachabilityManager = NetworkReachabilityManager();
+    
+    private func handleConfigurationSyncError(_ error: NSError?) {
+        if !isConfigurationSynced {
+            chatErrors.insert(.configurationSyncError)
+        }
+    }
+    
+   func handleJSError(_ error: String?) {
+        chatErrors.insert(.jsError)
+    }
+    
+    private func startReachabilityListener() {
+        networkReachabilityManager?.listener = { status in
+            if status == .notReachable {
+                self.chatErrors.insert(.noInternetConnectionError)
+            } else {
+                self.chatErrors.remove(.noInternetConnectionError)
+                self.syncWithServer {_ in}
+            }
+        }
+        networkReachabilityManager?.startListening()
+    }
+    
+    private func stopReachabilityListener() {
+        networkReachabilityManager?.stopListening()
+    }
 }
 
 public protocol InAppChatDelegate {
@@ -155,4 +209,13 @@ extension UserEventsManager {
     class func postInAppChatAvailabilityUpdatedEvent(_ inAppChatEnabled: Bool) {
         post(MMNotificationInAppChatAvailabilityUpdated, [MMNotificationKeyInAppChatEnabled: inAppChatEnabled])
     }
+}
+
+struct ChatErrors: OptionSet {
+    let rawValue: Int
+    init(rawValue: Int = 0) { self.rawValue = rawValue }
+    static let none = ChatErrors([])
+    static let jsError = ChatErrors(rawValue: 1 << 0)
+    static let configurationSyncError = ChatErrors(rawValue: 1 << 1)
+    static let noInternetConnectionError = ChatErrors(rawValue: 1 << 2)
 }

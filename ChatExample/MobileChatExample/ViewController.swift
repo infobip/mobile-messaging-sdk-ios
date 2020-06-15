@@ -36,7 +36,7 @@ class ViewController: UIViewController, InAppChatDelegate {
 	}
 
 	func inAppChatIsEnabled(_ enabled: Bool) {
-		enableButtons(enabled: false)
+		enableButtons(enabled: enabled)
 	}
 	
 	func enableButtons(enabled: Bool) {

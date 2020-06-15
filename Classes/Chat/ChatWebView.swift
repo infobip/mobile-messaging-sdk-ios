@@ -10,7 +10,8 @@ import WebKit
 
 class ChatWebView: WKWebView {
 	let scriptHandler = ChatScriptMessageHandler()
-
+    var isLoaded = false
+    
 	deinit {
 		self.stopLoading()
 		for value in JSMessageType.allCases {

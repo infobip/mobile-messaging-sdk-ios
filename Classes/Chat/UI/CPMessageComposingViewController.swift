@@ -57,7 +57,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 						   height: ComposeBarConsts.initialHeight)
 		composeBarView = ComposeBar(frame: frame)
 		composeBarView.maxLinesCount = 5
-		composeBarView.placeholder = "Send a message"
+        composeBarView.placeholder = ChatLocalization.localizedString(forKey: "mm_send_message_placeholder", defaultString: "Send a message")
 		composeBarView.delegate = composeBarDelegate
 		composeBarView.alpha = 1
 		view.addSubview(composeBarView)
