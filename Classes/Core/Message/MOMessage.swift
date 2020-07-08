@@ -7,35 +7,21 @@
 
 import Foundation
 
-public protocol MOMessageProtocol {
-	
-	/// Destination indicates where the message is being sent
-	var destination: String? {get}
-	
-	/// Sent status
-	var sentStatus: MOMessageSentStatus {get}
-	
-	/// Indicates when the message was composed
-	var composedDate: Date {get}
-	
-	/// Indicates the bulk id that the message was sent within
-	var bulkId: String? {get}
-	
-	/// Indicates id of the associated message
-	var initialMessageId: String? {get}
-}
-
 @objcMembers
-public class MOMessage: BaseMessage, MOMessageProtocol
-{
+public class MOMessage: BaseMessage {
+	/// Destination indicates where the message is being sent
 	public var destination: String?
-	
+
+	/// Sent status
 	public var sentStatus: MOMessageSentStatus
-	
+
+	/// Indicates when the message was composed
 	public var composedDate: Date
-	
+
+	/// Indicates the bulk id that the message was sent within
 	public var bulkId: String?
-	
+
+	/// Indicates id of the associated message
 	public var initialMessageId: String?
 	
 	var dictRepresentation: DictionaryRepresentation {

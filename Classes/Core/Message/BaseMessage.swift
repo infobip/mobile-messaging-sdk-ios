@@ -7,46 +7,30 @@
 
 import Foundation
 
-protocol MessageProtocol {
-	/// Indicates whether the message is incoming (MT) or outgoing (MO)
-	var direction: MessageDirection {get}
-	
-	/// Message id
-	var messageId: String {get}
-	
-	/// Original message payload
-	var originalPayload: StringKeyPayload {get}
-	
-	/// Text of the message
-	var text: String? {get set}
-	
+@objcMembers
+public class BaseMessage: NSObject {
+
 	/// Custom data
-	var customPayload: StringKeyPayload? {get}
-	
-	/// Indicates whether the message is chat message
-	var isChatMessage: Bool {get}
-	
+	public var customPayload: StringKeyPayload?
+
+	/// Indicates whether the message is incoming (MT) or outgoing (MO)
+	public var direction: MessageDirection
+
+	/// Message id
+	public var messageId: String
+
+	/// Original message payload
+	public var originalPayload: StringKeyPayload
+
 	/// Defines the origin of a message.
 	///
 	/// Message may be either pushed by APNS, generated locally or pulled from the server.
-	var deliveryMethod: MessageDeliveryMethod {get}
-}
-
-@objcMembers
-public class BaseMessage: NSObject, MessageProtocol {
-	
-	public var customPayload: StringKeyPayload?
-	
-	public var direction: MessageDirection
-	
-	public var messageId: String
-	
-	public var originalPayload: StringKeyPayload
-	
 	public var deliveryMethod: MessageDeliveryMethod
-	
+
+	/// Text of the message
 	public var text: String?
-	
+
+	/// Indicates whether the message is chat message
 	public var isChatMessage: Bool {
 		return false
 	}

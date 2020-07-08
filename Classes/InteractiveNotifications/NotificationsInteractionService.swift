@@ -128,7 +128,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		if identifier == NotificationAction.DismissActionId
 		{
 			MMLogDebug("[NotificationsInteractionService] handling dismiss action")
-			return NotificationAction.dismissAction
+			return NotificationAction.dismissAction()
 		}
 		else if identifier == NotificationAction.DefaultActionId
 		{

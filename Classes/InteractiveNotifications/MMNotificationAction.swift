@@ -49,12 +49,12 @@ public class NotificationAction: NSObject {
 		self.options = options ?? []
 	}
 	
-	class var dismissAction: NotificationAction {
-		return NotificationAction(actionIdentifier: DismissActionId, title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), options: nil)
+	class func dismissAction(title: String = MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel")) -> NotificationAction {
+		return NotificationAction(actionIdentifier: DismissActionId, title: title, options: nil)
 	}
 	
-	class var openAction: NotificationAction {
-		return NotificationAction(actionIdentifier: DefaultActionId, title: MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open"), options: [NotificationActionOptions.foreground])
+	class func openAction(title: String = MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open")) -> NotificationAction {
+		return NotificationAction(actionIdentifier: DefaultActionId, title: title, options: [NotificationActionOptions.foreground])
 	}
     
     class var defaultAction: NotificationAction {

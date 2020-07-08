@@ -126,6 +126,8 @@ class AlertOperation: Foundation.Operation {
 				messageText: text,
 				imageURL: nil,
 				image: image,
+				dismissTitle: message.inAppDismissTitle,
+				openTitle: message.inAppOpenTitle,
 				actionHandler: {
 					action in
 					MobileMessaging.handleAction(

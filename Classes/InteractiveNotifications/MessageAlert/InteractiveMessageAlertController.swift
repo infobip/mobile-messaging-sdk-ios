@@ -26,7 +26,7 @@ class InteractiveMessageAlertController: UIViewController {
 	var actionHandler: ((NotificationAction) -> Void)?
 	var dismissHandler: (() -> Void)?
 	
-	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, actionHandler: ((NotificationAction) -> Void)? = nil) {
+	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, dismissTitle: String?, openTitle: String?, actionHandler: ((NotificationAction) -> Void)? = nil) {
 		self.titleText = titleText
 		self.messageText = messageText
 		self.imageURL = imageURL
@@ -36,13 +36,15 @@ class InteractiveMessageAlertController: UIViewController {
 		super.init(nibName: "AlertController", bundle: Bundle(for: type(of: self)))
 		
 		self.buttons = {
-			let actions = [NotificationAction.dismissAction, NotificationAction.openAction]
+			let openAction = openTitle != nil ? NotificationAction.openAction(title: openTitle!) : NotificationAction.openAction()
+			let dismissAction = dismissTitle != nil ? NotificationAction.dismissAction(title: dismissTitle!) : NotificationAction.dismissAction()
+			let actions = [dismissAction, openAction]
 			let ret = actions.map { action in
 				return InteractiveMessageButton(title: action.title,
 												style: action.options.contains(.destructive) ? .destructive : .default,
 												isBold: action.identifier == NotificationAction.DefaultActionId,
 												handler: {
-					self.actionHandler?(action)
+													self.actionHandler?(action)
 				})
 			}
 			return ret
@@ -68,7 +70,7 @@ class InteractiveMessageAlertController: UIViewController {
 					style: action.options.contains(.destructive) ? .destructive : .default,
 					isBold: action.identifier == "mm_accept",
 					handler: {
-					self.actionHandler?(action)
+						self.actionHandler?(action)
 				})
 			}
 			return ret
@@ -121,7 +123,7 @@ class InteractiveMessageAlertController: UIViewController {
 	}
 
 	@objc private func dismissAction(_ sender: InteractiveMessageButton){
-		actionHandler?(NotificationAction.dismissAction)
+		actionHandler?(NotificationAction.dismissAction())
 		dismiss(animated: true, completion: {
 			self.dismissHandler?()
 		})
