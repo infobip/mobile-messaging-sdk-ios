@@ -16,7 +16,7 @@ struct ComposeBarConsts {
 	static let kResizeAnimationCurve 		= UIView.AnimationCurve.easeInOut
 	static let kResizeAnimationOptions 		= UIView.AnimationOptions.curveEaseInOut
 	static let kResizeAnimationDuration: CGFloat 	= 0.25
-	static let kHorizontalSpacing: CGFloat          	=  8.0
+	static let kHorizontalSpacing: CGFloat          	=  4.0
 	static let kFontSize: CGFloat                   	= 16.0
 	static let kTextContainerTopMargin: CGFloat     	=  8.0
 	static let kTextContainerBottomMargin: CGFloat  	=  8.0
@@ -32,9 +32,9 @@ struct ComposeBarConsts {
 	static let kButtonTouchableOverlap: CGFloat     	=  6.0
 	static let kButtonRightMargin: CGFloat          	= 8.0
 	static let kButtonBottomMargin: CGFloat         	=  8.0
-	static let kUtilityButtonWidth: CGFloat         	= 25.0
-	static let kUtilityButtonHeight: CGFloat        	= 25.0
-	static let kUtilityButtonBottomMargin: CGFloat  	=  9.0
+	static let kUtilityButtonWidth: CGFloat         	= 32.0
+	static let kUtilityButtonHeight: CGFloat        	= 32.0
+	static let kUtilityButtonBottomMargin: CGFloat  	=  6.0
 	static let kCaretYOffset: CGFloat               	=  7.0
 	static let kCharCountFontSize: CGFloat          	= 11.0
 	static let kCharCountTopMargin: CGFloat			= 15.0
@@ -91,6 +91,15 @@ class ComposeBar: UIView, UITextViewDelegate {
 			button.enabledTintColor = newValue
 		}
 	}
+    
+    public var utilityButtonTintColor: UIColor? {
+        get {
+            return utilityButton.enabledTintColor
+        }
+        set {
+            utilityButton.enabledTintColor = newValue
+        }
+    }
 	
 	private var _buttonTitle: String?
 	public var buttonTitle: String? {
@@ -185,7 +194,7 @@ class ComposeBar: UIView, UITextViewDelegate {
 		ret.font = UIFont.systemFont(ofSize: ComposeBarConsts.kFontSize)
 		return ret
 	}()
-	lazy var utilityButton: UIButton! = {
+	lazy var utilityButton: ComposeBar_Button! = {
 		let ret = ComposeBar_Button(type: .custom)
 		ret.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
 		ret.frame = CGRect(x: 0, y: self.bounds.size.height - ComposeBarConsts.kUtilityButtonHeight - ComposeBarConsts.kUtilityButtonBottomMargin, width: ComposeBarConsts.kUtilityButtonWidth, height: ComposeBarConsts.kUtilityButtonHeight)

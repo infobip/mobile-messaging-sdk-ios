@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Žiadne spojenie";
 "mm_send_message_placeholder" = "Poslať správu";
+"mm_action_sheet_take_photo_or_video" = "Urobte fotografiu alebo video";
+"mm_action_sheet_photo_library" = "Knižnica fotografií";
+"mm_action_sheet_browse" = "Prehliadať";
+"mm_button_settings" = "Nastavenie";
+"mm_attachment_upload_failed_alert_title" = "Odovzdanie prílohy zlyhalo";
+"mm_attachment_upload_failed_alert_message" = "Bola prekročená maximálna povolená veľkosť";
+"mm_permissions_alert_message" = "Ak chcete udeliť povolenia, prejdite na Nastavenia";

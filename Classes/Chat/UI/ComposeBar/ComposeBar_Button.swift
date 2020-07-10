@@ -8,7 +8,13 @@
 import Foundation
 
 class ComposeBar_Button: UIButton {
-	var enabledTintColor: UIColor! = UIColor.systemBlue
+    var enabledTintColor: UIColor! = UIColor.systemBlue {
+        didSet {
+            if (isEnabled) {
+                tintColor = enabledTintColor
+            }
+        }
+    }
 	var disabledTintColor: UIColor! = UIColor.gray
 	override var isHighlighted: Bool {
 		didSet {

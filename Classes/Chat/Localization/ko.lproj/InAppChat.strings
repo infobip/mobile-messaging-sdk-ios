@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "연결이 없습니다";
 "mm_send_message_placeholder" = "메시지를 보내다";
+"mm_action_sheet_take_photo_or_video" = "사진 또는 비디오 찍기";
+"mm_action_sheet_photo_library" = "사진 자료실";
+"mm_action_sheet_browse" = "검색";
+"mm_button_settings" = "설정";
+"mm_attachment_upload_failed_alert_title" = "첨부 파일 업로드 실패";
+"mm_attachment_upload_failed_alert_message" = "최대 허용 크기를 초과했습니다";
+"mm_permissions_alert_message" = "권한을 부여하려면 설정으로 이동하십시오";

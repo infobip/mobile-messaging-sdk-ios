@@ -13,6 +13,7 @@ struct ChatAPIKeys {
 		static let title = "title"
 		static let primaryColor = "primaryColor"
 		static let backgroundColor = "backgroundColor"
+        static let maxUploadContentSize = "maxUploadContentSize"
 	}
 	struct QueryParams {
 		static let pushRegId = "pushRegId"

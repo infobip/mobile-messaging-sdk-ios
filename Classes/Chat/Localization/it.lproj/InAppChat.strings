@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Nessuna connessione";
 "mm_send_message_placeholder" = "Mandare un messaggio";
+"mm_action_sheet_take_photo_or_video" = "Scatta foto o video";
+"mm_action_sheet_photo_library" = "Fototeca";
+"mm_action_sheet_browse" = "Navigare";
+"mm_button_settings" = "impostazioni";
+"mm_attachment_upload_failed_alert_title" = "Caricamento allegato non riuscito";
+"mm_attachment_upload_failed_alert_message" = "Dimensione massima consentita superata";
+"mm_permissions_alert_message" = "Per concedere le autorizzazioni, vai su Impostazioni";

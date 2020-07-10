@@ -40,10 +40,13 @@
 					window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
 				 }
 		   });
-	   
-		   function sendMessage(message) {
-			   liveChat('send', message);
-		   }
+       
+           function sendMessage(message, attachmentBase64) {
+                   liveChat('send', {
+                       'message': message,
+                       'attachment': attachmentBase64
+                   });
+           }
 	   
 		   function getQueryParameter(name){
 			  if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))

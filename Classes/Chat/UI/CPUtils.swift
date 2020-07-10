@@ -273,3 +273,12 @@ class Weak<T: AnyObject> {
 		self.value = value
 	}
 }
+
+extension UInt {
+    var mbSize: String {
+        let bcf = ByteCountFormatter()
+        bcf.allowedUnits = .useMB
+        bcf.countStyle = .binary
+        return bcf.string(fromByteCount: Int64(self))
+    }
+}

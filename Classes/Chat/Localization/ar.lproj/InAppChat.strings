@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "لا يوجد اتصال";
 "mm_send_message_placeholder" = "ارسل رسالة";
+"mm_action_sheet_take_photo_or_video" = "التقاط صورة أو فيديو";
+"mm_action_sheet_photo_library" = "مكتبة الصور";
+"mm_action_sheet_browse" = "تصفح";
+"mm_button_settings" = "الإعدادات";
+"mm_attachment_upload_failed_alert_title" = "فشل تحميل المرفق";
+"mm_attachment_upload_failed_alert_message" = "تم تجاوز الحجم الأقصى المسموح به";
+"mm_permissions_alert_message" = "لمنح الأذونات ، انتقل إلى الإعدادات";

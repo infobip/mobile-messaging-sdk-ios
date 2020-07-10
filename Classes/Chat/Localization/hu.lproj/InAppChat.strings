@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Nincs kapcsolat";
 "mm_send_message_placeholder" = "Üzenetet küldeni";
+"mm_action_sheet_take_photo_or_video" = "Készítsen fényképet vagy videót";
+"mm_action_sheet_photo_library" = "Fotókönyvtár";
+"mm_action_sheet_browse" = "Böngészés";
+"mm_button_settings" = "Beállítások";
+"mm_attachment_upload_failed_alert_title" = "A melléklet feltöltése sikertelen";
+"mm_attachment_upload_failed_alert_message" = "A maximális megengedett méret meghaladta";
+"mm_permissions_alert_message" = "Az engedélyek megadásához nyissa meg a Beállítások menüpontot";

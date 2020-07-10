@@ -187,8 +187,10 @@ public class InAppChatService: MobileMessagingService {
             if status == .notReachable {
                 self.chatErrors.insert(.noInternetConnectionError)
             } else {
-                self.chatErrors.remove(.noInternetConnectionError)
-                self.syncWithServer {_ in}
+                if self.chatErrors.contains(.noInternetConnectionError) {
+                    self.chatErrors.remove(.noInternetConnectionError)
+                    self.syncWithServer {_ in}
+                }
             }
         }
         networkReachabilityManager?.startListening()

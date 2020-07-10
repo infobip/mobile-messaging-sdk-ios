@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "कोई कनेक्शन नहीं";
 "mm_send_message_placeholder" = "एक संदेश भेजें";
+"mm_action_sheet_take_photo_or_video" = "फोटो या वीडियो लें";
+"mm_action_sheet_photo_library" = "फोटो लाइब्रेरी";
+"mm_action_sheet_browse" = "ब्राउज़";
+"mm_button_settings" = "समायोजन";
+"mm_attachment_upload_failed_alert_title" = "अनुलग्नक अपलोड विफल रहा";
+"mm_attachment_upload_failed_alert_message" = "अधिकतम अनुमत आकार पार हो गया";
+"mm_permissions_alert_message" = "अनुमतियाँ देने के लिए सेटिंग्स पर जाएँ";

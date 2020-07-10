@@ -7,11 +7,13 @@
 
 import Foundation
 
-open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate {
+open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UINavigationControllerDelegate {
 
 	lazy var composeBarDelegate = CPComposeBarDelegate(scrollView: self.scrollView, sendTextBlock: { [weak self] text in
 		self?.didTapSendText(text)
-	})
+        }, utilityButtonClickedBlock: {
+            self.utilityButtonClicked()
+    })
 
 	var scrollingRecognizer: UIPanGestureRecognizer!
 	var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
@@ -64,6 +66,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 
 		scrollViewContainer.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h, right: 0))
 		scrollView.delegate = self
+        composeBarView.utilityButtonImage = UIImage(mm_named: "attachmentButton")?.withRenderingMode(.alwaysTemplate)
 	}
 
 	func didTapSendText(_ text: String) {
@@ -155,4 +158,6 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 	}
 
 	var timer = Timer()
+        
+    func utilityButtonClicked() {}
 }

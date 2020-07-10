@@ -14,12 +14,16 @@
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>MobileChatExample wants to use camera to take photos and videos</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>MobileChatExample wants to use microphone to record audio</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

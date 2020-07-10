@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Geen connectie";
 "mm_send_message_placeholder" = "Stuur een bericht";
+"mm_action_sheet_take_photo_or_video" = "Maak een foto of video";
+"mm_action_sheet_photo_library" = "Fotogalerij";
+"mm_action_sheet_browse" = "Bladeren";
+"mm_button_settings" = "Instellingen";
+"mm_attachment_upload_failed_alert_title" = "Uploaden van bijlage mislukt";
+"mm_attachment_upload_failed_alert_message" = "Maximaal toegestane grootte overschreden";
+"mm_permissions_alert_message" = "Ga naar Instellingen om machtigingen te verlenen";

@@ -35,7 +35,8 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 	}
 	
 	var webView: ChatWebView!
-
+    private var chatWidget: ChatWidget?
+    
 	override var scrollView: UIScrollView! {
 		return webView.scrollView
 	}
@@ -80,6 +81,12 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 	override func didTapSendText(_ text: String) {
 		webView.sendMessage(text)
 	}
+    
+    private lazy var chatAttachmentPicker: ChatAttachmentPicker = ChatAttachmentPicker(delegate: self)
+    
+    override func utilityButtonClicked() {
+        chatAttachmentPicker.present(presentationController: self)
+    }
 	
 	//ChatSettingsApplicable
 	func applySettings() {
@@ -102,11 +109,13 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 		
 		if let sendButtonTintColor = settings.sendButtonTintColor {
 			composeBarView.buttonTintColor = sendButtonTintColor
+            composeBarView.utilityButtonTintColor = sendButtonTintColor
 		}
 	}
 	
 	// ChatWebViewDelegate
 	func loadWidget(_ widget: ChatWidget) {
+        chatWidget = widget
         webView.loadWidget(widget)
 	}
 	
@@ -139,6 +148,50 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
         chatNotAvailableLabel = ChatNotAvailableLabel(frame: CGRect(x: 0, y: -ChatNotAvailableLabel.kHeight, width: self.view.bounds.width, height: ChatNotAvailableLabel.kHeight))
         self.view.addSubview(self.chatNotAvailableLabel)
     }
+    
+}
+
+extension ChatViewController: ChatAttachmentPickerDelegate {
+    func didSelect(attachment: ChatAttachment) {
+        webView.sendMessage(attachment: attachment)
+    }
+    
+    func permissionNotGranted(permissionKeys: [String]?) {
+        guard let permissionKeys = permissionKeys else {
+            return
+        }
+        var accessDescription: String? = nil
+        for key in permissionKeys {
+            if let permissionDescription = Bundle.main.object(forInfoDictionaryKey: key) as? String {
+                accessDescription = accessDescription != nil ? "\(accessDescription!)\n\(permissionDescription)" : permissionDescription
+            }
+        }
+        let alert = UIAlertController(title: accessDescription ?? "Required permissions not granted",
+                                      message: ChatLocalization.localizedString(forKey: "mm_permissions_alert_message", defaultString: "To give permissions go to Settings"),
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: nil))
+        if let settingsUrl = NSURL(string: UIApplication.openSettingsURLString, relativeTo: nil) as URL?,
+            UIApplication.shared.canOpenURL(settingsUrl) {
+            alert.addAction(UIAlertAction(title: ChatLocalization.localizedString(forKey: "mm_button_settings", defaultString: "Settings"), style: .default, handler: { (action) in
+                UIApplication.shared.open(settingsUrl, options: [:], completionHandler: nil)
+            }))
+        }
+        self.present(alert, animated: true, completion: nil)
+        
+    }
+    
+    func validateAttachmentSize(size: Int) -> Bool {
+        return size <= maxUploadAttachmentSize
+    }
+    
+    func attachmentSizeExceeded() {
+        let title = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_title", defaultString: "Attachment upload failed")
+        let message = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_message", defaultString: "Maximum allowed size exceeded")
+        MMLogError("[InAppChat] \(title). \(message) (\(maxUploadAttachmentSize.mbSize))")
+        showAlert(title, message: message)
+    }
+    
+    private var maxUploadAttachmentSize: UInt { return chatWidget?.maxUploadContentSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize}
 }
 
 extension ChatViewController: WKNavigationDelegate {

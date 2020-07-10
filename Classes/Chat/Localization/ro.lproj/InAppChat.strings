@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Nici o legătură";
 "mm_send_message_placeholder" = "Trimite un mesaj";
+"mm_action_sheet_take_photo_or_video" = "Faceți fotografie sau video";
+"mm_action_sheet_photo_library" = "Biblioteca Foto";
+"mm_action_sheet_browse" = "Naviga";
+"mm_button_settings" = "Setări";
+"mm_attachment_upload_failed_alert_title" = "Încărcarea atașamentului a eșuat";
+"mm_attachment_upload_failed_alert_message" = "A fost depășită dimensiunea maximă permisă";
+"mm_permissions_alert_message" = "Pentru a acorda permisiunile accesați Setări";

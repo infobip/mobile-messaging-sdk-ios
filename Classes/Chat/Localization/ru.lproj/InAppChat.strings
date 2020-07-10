@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Нет соединения";
 "mm_send_message_placeholder" = "Отправить сообщение";
+"mm_action_sheet_take_photo_or_video" = "Сделать фото или видео";
+"mm_action_sheet_photo_library" = "Медиатека";
+"mm_action_sheet_browse" = "Обзор";
+"mm_button_settings" = "Настройки";
+"mm_attachment_upload_failed_alert_title" = "Не удалось загрузить файл";
+"mm_attachment_upload_failed_alert_message" = "Превышен максимально допустимый размер";
+"mm_permissions_alert_message" = "Чтобы предоставить разрешения, перейдите в Настройки";

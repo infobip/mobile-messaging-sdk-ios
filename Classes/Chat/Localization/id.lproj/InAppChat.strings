@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Tidak ada koneksi";
 "mm_send_message_placeholder" = "Kirim pesan";
+"mm_action_sheet_take_photo_or_video" = "Ambil Foto atau Video";
+"mm_action_sheet_photo_library" = "Perpustakaan Foto";
+"mm_action_sheet_browse" = "Telusuri";
+"mm_button_settings" = "Pengaturan";
+"mm_attachment_upload_failed_alert_title" = "Unggahan lampiran gagal";
+"mm_attachment_upload_failed_alert_message" = "Ukuran maksimum yang diizinkan terlampaui";
+"mm_permissions_alert_message" = "Untuk memberikan izin, buka Pengaturan";

@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "אין חיבור";
 "mm_send_message_placeholder" = "שלח הודעה";
+"mm_action_sheet_take_photo_or_video" = "צלם תמונה או וידאו";
+"mm_action_sheet_photo_library" = "ספריית תמונות";
+"mm_action_sheet_browse" = "לְדַפדֵף";
+"mm_button_settings" = "הגדרות";
+"mm_attachment_upload_failed_alert_title" = "העלאת הקובץ המצורף נכשלה";
+"mm_attachment_upload_failed_alert_message" = "חרג מהגודל המרבי המותר";
+"mm_permissions_alert_message" = "כדי להעניק הרשאות כנסו להגדרות";

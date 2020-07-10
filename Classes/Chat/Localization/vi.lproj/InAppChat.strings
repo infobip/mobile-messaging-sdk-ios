@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Không có kết nối";
 "mm_send_message_placeholder" = "Gửi tin nhắn";
+"mm_action_sheet_take_photo_or_video" = "Chụp ảnh hoặc quay video";
+"mm_action_sheet_photo_library" = "Thư viện ảnh";
+"mm_action_sheet_browse" = "Duyệt";
+"mm_button_settings" = "Cài đặt";
+"mm_attachment_upload_failed_alert_title" = "Tải lên tệp đính kèm không thành công";
+"mm_attachment_upload_failed_alert_message" = "Vượt quá kích thước tối đa cho phép";
+"mm_permissions_alert_message" = "Để cấp quyền, hãy đi tới Cài đặt";

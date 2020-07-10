@@ -64,7 +64,7 @@ class ChatSettingsManager {
 	
 	@objc func appearanceUpdated() {
 		objects.forEach { obj in
-			if let appearanceObject = obj as? ChatSettingsApplicable {
+			if let appearanceObject = obj.value as? ChatSettingsApplicable {
 				appearanceObject.applySettings()
 			}
 		}

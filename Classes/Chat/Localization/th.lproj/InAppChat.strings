@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "ไม่มีการเชื่อมต่อ";
 "mm_send_message_placeholder" = "ส่งข้อความ";
+"mm_action_sheet_take_photo_or_video" = "ถ่ายภาพหรือวิดีโอ";
+"mm_action_sheet_photo_library" = "ห้องสมุดภาพถ่าย";
+"mm_action_sheet_browse" = "หมวด";
+"mm_button_settings" = "การตั้งค่า";
+"mm_attachment_upload_failed_alert_title" = "การอัปโหลดไฟล์แนบล้มเหลว";
+"mm_attachment_upload_failed_alert_message" = "เกินขนาดสูงสุดที่อนุญาต";
+"mm_permissions_alert_message" = "หากต้องการให้สิทธิ์ไปที่การตั้งค่า";

@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "無連接";
 "mm_send_message_placeholder" = "發送信息";
+"mm_action_sheet_take_photo_or_video" = "拍照或錄像";
+"mm_action_sheet_photo_library" = "照片庫";
+"mm_action_sheet_browse" = "瀏覽";
+"mm_button_settings" = "設定值";
+"mm_attachment_upload_failed_alert_title" = "附件上傳失敗";
+"mm_attachment_upload_failed_alert_message" = "超過最大允許大小";
+"mm_permissions_alert_message" = "要授予權限，請轉到設置";

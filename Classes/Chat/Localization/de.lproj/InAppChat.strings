@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Keine Verbindung";
 "mm_send_message_placeholder" = "Eine Nachricht schicken";
+"mm_action_sheet_take_photo_or_video" = "Foto oder Video aufnehmen";
+"mm_action_sheet_photo_library" = "Fotobibliothek";
+"mm_action_sheet_browse" = "Durchsuche";
+"mm_button_settings" = "Einstellungen";
+"mm_attachment_upload_failed_alert_title" = "Anhang-Upload fehlgeschlagen";
+"mm_attachment_upload_failed_alert_message" = "Maximal zulässige Größe überschritten";
+"mm_permissions_alert_message" = "Um Berechtigungen zu erteilen, gehen Sie zu Einstellungen";

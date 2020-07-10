@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Ei yhteyttä";
 "mm_send_message_placeholder" = "Lähetä viesti";
+"mm_action_sheet_take_photo_or_video" = "Ota valokuva tai video";
+"mm_action_sheet_photo_library" = "Valokuvakirjasto";
+"mm_action_sheet_browse" = "Selaa";
+"mm_button_settings" = "Asetukset";
+"mm_attachment_upload_failed_alert_title" = "Liitteen lähettäminen epäonnistui";
+"mm_attachment_upload_failed_alert_message" = "Suurin sallittu koko ylitetty";
+"mm_permissions_alert_message" = "Voit myöntää käyttöoikeudet siirtymällä kohtaan Asetukset";

@@ -1,2 +1,9 @@
 "mm_no_connection_label" = "Ingen forbindelse";
 "mm_send_message_placeholder" = "Send en melding";
+"mm_action_sheet_take_photo_or_video" = "Ta bilde eller video";
+"mm_action_sheet_photo_library" = "Fotobibliotek";
+"mm_action_sheet_browse" = "Bla";
+"mm_button_settings" = "Innstillinger";
+"mm_attachment_upload_failed_alert_title" = "Opplastingen av vedlegg mislyktes";
+"mm_attachment_upload_failed_alert_message" = "Maksimal tillatt størrelse overskredet";
+"mm_permissions_alert_message" = "Gå til Innstillinger for å gi tillatelser";
