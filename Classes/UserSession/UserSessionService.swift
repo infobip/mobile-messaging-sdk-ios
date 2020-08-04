@@ -11,7 +11,7 @@ import CoreData
 class UserSessionService : MobileMessagingService {
 
 	var currentSessionId: String? {
-		if let pushRegId = mmContext.currentInstallation().pushRegistrationId, let currentSessionStartDate = fetchCurrentSessionStartDate(pushRegistrationId: pushRegId) {
+		if let pushRegId = mmContext.currentInstallation().pushRegistrationId, let currentSessionStartDate = fetchCurrentSessionStartDate() {
 			return "\(pushRegId)_\(Int64(floor(currentSessionStartDate.timeIntervalSince1970 * 1000)))"
 		} else {
 			return nil
@@ -19,9 +19,9 @@ class UserSessionService : MobileMessagingService {
 	}
 
 	private enum State {
-        case suspended
-        case resumed
-    }
+		case suspended
+		case resumed
+	}
 	private var state: State = .suspended
 	private let serviceQueue = MMQueue.Serial.New.UserSessionQueue.queue.queue
 	private let userSessionPersistingQueue = MMOperationQueue.newSerialQueue
@@ -91,22 +91,22 @@ class UserSessionService : MobileMessagingService {
 
 	//MARK: -
 
-	func fetchCurrentSessionStartDate(pushRegistrationId: String) -> Date? {
+	func fetchCurrentSessionStartDate() -> Date? {
 		var result: Date? = nil
 		context.performAndWait {
-			result = fetchCurrentSession(pushRegistrationId: pushRegistrationId)?.startDate
+			result = fetchCurrentSession()?.startDate
 		}
 		return result
 	}
 
-	func fetchCurrentSession(pushRegistrationId: String) -> UserSessionReportObject? {
+	func fetchCurrentSession() -> UserSessionReportObject? {
 		var result: UserSessionReportObject? = nil
 		context.performAndWait {
 			result = UserSessionReportObject.MM_find(
-				withPredicate: NSPredicate(format: "pushRegistrationId == %@ AND endDate > %@", pushRegistrationId, MobileMessaging.date.now.addingTimeInterval(-Consts.UserSessions.sessionTimeoutSec) as NSDate),
+				withPredicate: NSPredicate(format: "endDate > %@", MobileMessaging.date.now.addingTimeInterval(-Consts.UserSessions.sessionTimeoutSec) as NSDate),
 				fetchLimit: 1,
 				sortedBy: "startDate",
-				ascending: false,
+				ascending: true,
 				inContext: context)?.first
 		}
 		return result
