@@ -47,7 +47,7 @@ class LocalNotifications {
 					let att = try UNNotificationAttachment(identifier: downloadedFileUrl.absoluteString, url: downloadedFileUrl)
 					content.attachments = [att]
 				} catch let e {
-					MMLogError("Error while building local notification attachment: \(e as? String)")
+					MMLogError("Error while building local notification attachment: \(e)")
 				}
 			}
 			let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)

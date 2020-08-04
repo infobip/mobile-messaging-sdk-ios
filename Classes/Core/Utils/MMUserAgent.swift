@@ -51,7 +51,7 @@ public class UserAgent: NSObject {
 	struct DataOptions : OptionSet {
 		let rawValue: Int
 		init(rawValue: Int = 0) { self.rawValue = rawValue }
-		static let None = DataOptions(rawValue: 0)
+		static let None = DataOptions([])
 		static let System = DataOptions(rawValue: 1 << 0)
 		static let Carrier = DataOptions(rawValue: 1 << 1)
 	}

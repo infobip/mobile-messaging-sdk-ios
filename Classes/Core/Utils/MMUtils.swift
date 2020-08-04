@@ -711,7 +711,7 @@ extension UIColor {
 	}
 	
 	func darker(_ percents: CGFloat) -> UIColor {
-		let color = UIColor.purple
+		_ = UIColor.purple
 		var r:CGFloat = 0, g:CGFloat = 0, b:CGFloat = 0, a:CGFloat = 0
 		self.getRed(&r, green: &g, blue: &b, alpha: &a)
 		func reduce(_ value: CGFloat) -> CGFloat {
@@ -722,7 +722,7 @@ extension UIColor {
 	}
 	
 	func lighter(_ percents: CGFloat) -> UIColor {
-		let color = UIColor.purple
+		_ = UIColor.purple
 		var r:CGFloat = 0, g:CGFloat = 0, b:CGFloat = 0, a:CGFloat = 0
 		self.getRed(&r, green: &g, blue: &b, alpha: &a)
 		func reduce(_ value: CGFloat) -> CGFloat {
