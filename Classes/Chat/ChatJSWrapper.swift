@@ -11,10 +11,18 @@ import WebKit
 class ChatAttachment {
     let base64: String
     let mimeType: String
+    let fileName: String
     
     init(data: Data) {
         self.base64 = data.base64EncodedString(options: NSData.Base64EncodingOptions.init(rawValue: 0))
         self.mimeType = ChatAttachmentUtils.mimeType(forData: data)
+        
+        let fileName = UUID().uuidString
+        if let fileExtension = ChatAttachmentUtils.fileExtension(forData: data) {
+            self.fileName = fileName + "." + fileExtension
+        } else {
+            self.fileName = fileName
+        }
     }
     
     func base64UrlString() -> String {
@@ -33,7 +41,7 @@ extension WKWebView: ChatJSWrapper {
 			MMLogDebug("[InAppChat] sendMessage failed, neither message nor the attachment provided")
 			return
 		}
-        self.evaluateJavaScript("sendMessage(\(escapedMessage ?? "''"), '\(attachment?.base64UrlString() ?? "")')") { (response, error) in
+        self.evaluateJavaScript("sendMessage(\(escapedMessage ?? "''"), '\(attachment?.base64UrlString() ?? "")', '\(attachment?.fileName ?? "")')") { (response, error) in
 			MMLogDebug("[InAppChat] sendMessage call got a response: \(response.debugDescription), error: \(error?.localizedDescription ?? "")")
 		}
 	}

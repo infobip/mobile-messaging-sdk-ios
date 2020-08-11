@@ -41,10 +41,11 @@
 				 }
 		   });
        
-           function sendMessage(message, attachmentBase64) {
+           function sendMessage(message, attachmentBase64, fileName) {
                    liveChat('send', {
                        'message': message,
-                       'attachment': attachmentBase64
+                       'attachment': attachmentBase64,
+                       'fileName': fileName
                    });
            }
 	   
