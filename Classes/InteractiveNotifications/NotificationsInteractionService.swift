@@ -119,7 +119,10 @@ class NotificationsInteractionService: MobileMessagingService {
 		DispatchQueue.main.async {
 			if let urlString = message.webViewUrl?.absoluteString, let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppWebViewPresentingViewController?(for: message) {
 				NotificationsInteractionService.presentInAppWebview(urlString, presentingVc, message)
-			}
+            } else if let browserUrl = message.browserUrl,
+                UIApplication.shared.canOpenURL(browserUrl) {
+                UIApplication.shared.open(browserUrl)
+            }
 			completion()
 		}
 	}

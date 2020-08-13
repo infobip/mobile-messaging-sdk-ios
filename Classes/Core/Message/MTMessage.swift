@@ -85,6 +85,14 @@ public class MTMessage: BaseMessage {
 			return nil
 		}
 	}
+    
+    public var browserUrl: URL? {
+        if let urlString = internalData?[Consts.InternalDataKeys.browserUrl] as? String {
+            return URL.init(string: urlString)
+        } else {
+            return nil
+        }
+    }
 	
 	public var showInApp: Bool {
 		return internalData?[Consts.InternalDataKeys.showInApp] as? Bool ?? false

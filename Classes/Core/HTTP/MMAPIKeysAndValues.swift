@@ -154,6 +154,7 @@ struct Consts {
 		static let inAppStyle = "inAppStyle"
 		static let inAppExpiryDateTime = "inAppExpiryDateTime"
 		static let webViewUrl = "webViewUrl"
+        static let browserUrl = "browserUrl"
 		static let inAppDismissTitle = "inAppDismissTitle"
 		static let inAppOpenTitle = "inAppOpenTitle"
 	}
