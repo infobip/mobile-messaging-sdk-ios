@@ -13,17 +13,9 @@ var supportedViewControllers: [DeeplinkLandingViewController.Type] = [RedViewCon
 class LinksHandler {
 	class func handleLinks(fromMessage message: MTMessage) {
 		
-		//checking do we have "deeplink" in custom payload
-		if let deeplink = message.customPayload?["deeplink"] as? String,
-			let deeplinkUrl = URL(string: deeplink) {
-			
-			_ = openDeeplink(url: deeplinkUrl, withMessage: message)
-
-		// checking do we have "url" in custom payload
-		} else if let path = message.customPayload?["url"] as? String,
-			let url = URL(string: path) {
-		
-			UIApplication.shared.keyWindow?.visibleViewController?.present(WebViewController(url: url), animated: false)
+		//checking do we have "deeplink" in message object
+        if let deeplink = message.deeplink {
+			_ = openDeeplink(url: deeplink, withMessage: message)
 		}
 	}
 	

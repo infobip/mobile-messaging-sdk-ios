@@ -93,6 +93,14 @@ public class MTMessage: BaseMessage {
             return nil
         }
     }
+
+    public var deeplink: URL? {
+        if let urlString = internalData?[Consts.InternalDataKeys.deeplink] as? String {
+            return URL.init(string: urlString)
+        } else {
+            return nil
+        }
+    }
 	
 	public var showInApp: Bool {
 		return internalData?[Consts.InternalDataKeys.showInApp] as? Bool ?? false
