@@ -17,8 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {
 			setupLogging()
 			MobileMessaging
-			.withApplicationCode(
-				"3c59f6e341a6896fc05b8cd7e3f3fdf8-031a75db-fd8f-46b0-9f2b-a2e915d7b952_",
+            .withApplicationCode(
+                "<# your application code #>",
 				notificationType: UserNotificationType(options: [.alert, .sound]))?
 			.withInteractiveNotificationCategories(customCategories)
 			.start()
