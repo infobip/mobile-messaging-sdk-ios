@@ -8,7 +8,7 @@
 import Foundation
 import UserNotifications
 
-class LocalNotifications {
+class LocalNotifications: NamedLogger {
 	class func presentLocalNotification(with message: MTMessage) {
 		MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
 		LocalNotifications.scheduleUserNotification(with: message)
@@ -41,11 +41,11 @@ class LocalNotifications {
 					let att = try UNNotificationAttachment(identifier: downloadedFileUrl.absoluteString, url: downloadedFileUrl)
 					content.attachments = [att]
 				} catch let e {
-					MMLogError("Error while building local notification attachment: \(String(describing: e))")
+					logError("Error while building local notification attachment: \(String(describing: e))")
 				}
 			}
 			let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)
-			MMLogDebug("[Local Notification] scheduling notification for \(message.messageId)")
+			logDebug("scheduling notification for \(message.messageId)")
 			UNUserNotificationCenter.current().add(req, withCompletionHandler: nil)
 		})
 	}

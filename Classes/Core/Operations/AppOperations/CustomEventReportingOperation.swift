@@ -8,7 +8,8 @@
 import Foundation
 import CoreData
 
-class CustomEventReportingOperation: Operation {
+class CustomEventReportingOperation: MMOperation {
+	
 	let mmContext: MobileMessaging
 	var eventManagedObjects: [CustomEventObject]?
 	let finishBlock: ((NSError?) -> Void)
@@ -24,21 +25,21 @@ class CustomEventReportingOperation: Operation {
 
 	override func execute() {
 		guard !isCancelled else {
-			MMLogDebug("[CustomEventReportingOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogWarn("[CustomEventReportingOperation] There is no registration. Finishing...")
+			logWarn("There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[CustomEventReportingOperation] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		MMLogDebug("[CustomEventReportingOperation] Started...")
+		logDebug("Started...")
 
 		performRequest(pushRegistrationId: pushRegistrationId)
 	}
@@ -57,7 +58,7 @@ class CustomEventReportingOperation: Operation {
 		}
 
 		if let body = body {
-			MMLogDebug("[CustomEventReportingOperation] sending request...")
+			logDebug("sending request...")
 			let validate = isEventProvidedByUser
 			mmContext.remoteApiProvider.sendCustomEvent(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, validate: validate, body: body, completion:
 				{ result in
@@ -65,7 +66,7 @@ class CustomEventReportingOperation: Operation {
 					self.finishWithError(result.error)
 			})
 		} else {
-			MMLogDebug("[CustomEventReportingOperation] nothing to send, finishing...")
+			logDebug("nothing to send, finishing...")
 			self.finish()
 		}
 	}
@@ -77,14 +78,14 @@ class CustomEventReportingOperation: Operation {
 	private func handleResult(_ result: CustomEventResult) {
 		switch result {
 		case .Success( _):
-			MMLogDebug("[CustomEventReportingOperation] successfully synced")
+			logDebug("successfully synced")
 			if isEventProvidedByUser {
 				// do nothing, just pass the result
 			} else {
 				// report retry finished, remove reported events from persistant storage
 				context.performAndWait {
 					if let eventManagedObjects = self.eventManagedObjects, !eventManagedObjects.isEmpty {
-						MMLogDebug("[CustomEventReportingOperation] deleting \(eventManagedObjects.count) reported events")
+						logDebug("deleting \(eventManagedObjects.count) reported events")
 						eventManagedObjects.forEach {
 							self.context.delete($0)
 						}
@@ -98,16 +99,16 @@ class CustomEventReportingOperation: Operation {
 			} else {
 				// do nothing. in this case all business errors are silenced on the server, only 5xx may be returned here, we keep the state until next request attempt
 			}
-			MMLogError("[CustomEventReportingOperation] request failed with error: \(error.orNil)")
+			logError("request failed with error: \(error.orNil)")
 			return
 		case .Cancel:
-			MMLogWarn("[CustomEventReportingOperation] request cancelled.")
+			logWarn("request cancelled.")
 			return
 		}
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[CustomEventReportingOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first)
 	}
 }

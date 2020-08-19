@@ -8,7 +8,7 @@
 import Foundation
 
 @objcMembers
-public class MTMessage: BaseMessage {
+public class MTMessage: BaseMessage, NamedLogger {
 
 	/// Contains info about the action was applied to the message
 	public var appliedAction: NotificationAction?

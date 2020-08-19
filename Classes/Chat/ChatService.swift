@@ -43,7 +43,7 @@ public class InAppChatService: MobileMessagingService {
 	///Method for clean up WKWebView's cache. Mobile Messaging SDK will call it in case of user depersonalization. You can call it additionaly in case your user logouts from In-app Chat.
 	///`completion` will be called when cache clean up is finished.
 	public func cleanCache(completion: (() -> Void)? = nil) {
-		MMLogDebug("[InAppChat] cache cleanup")
+		logDebug("cache cleanup")
 		DispatchQueue.main.async {
 			WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
 													modifiedSince: Date.init(timeIntervalSince1970: 0)) {
@@ -83,10 +83,6 @@ public class InAppChatService: MobileMessagingService {
 	
 	static var sharedInstance: InAppChatService?
 
-	init(mmContext: MobileMessaging) {
-		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.inappchat")
-	}
-
 	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
         getWidgetQueue.cancelAllOperations()
 		self.isConfigurationSynced = false
@@ -109,12 +105,12 @@ public class InAppChatService: MobileMessagingService {
 	}
 	
 	override func handlesInAppNotification(forMessage message: MTMessage?) -> Bool {
-		MMLogDebug("[InAppChat] handlesInAppNotification: \(message?.isChatMessage ?? false)")
+		logDebug("handlesInAppNotification: \(message?.isChatMessage ?? false)")
 		return message?.isChatMessage ?? false
 	}
 	
 	override func showBannerNotificationIfNeeded(forMessage message: MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
-		MMLogDebug("[InAppChat] showBannerNotificationIfNeeded isChatMessage: \(message?.isChatMessage ?? false), isExpired: \(message?.isExpired ?? false),  isChatScreenVisible: \(isChatScreenVisible), enabled: \(InteractiveMessageAlertSettings.enabled)")
+		logDebug("showBannerNotificationIfNeeded isChatMessage: \(message?.isChatMessage ?? false), isExpired: \(message?.isExpired ?? false),  isChatScreenVisible: \(isChatScreenVisible), enabled: \(InteractiveMessageAlertSettings.enabled)")
 		guard let message = message, !message.isExpired, InteractiveMessageAlertSettings.enabled, !isChatScreenVisible else {
 				showBannerWithOptions([])
 				return

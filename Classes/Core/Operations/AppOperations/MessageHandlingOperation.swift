@@ -32,7 +32,8 @@ struct MMMessageMeta : MMMessageMetadata {
 	}
 }
 
-final class MessageHandlingOperation: Operation {
+final class MessageHandlingOperation: MMOperation {
+	
 	let context: NSManagedObjectContext
 	let finishBlock: (NSError?, Set<MTMessage>?) -> Void
 	let messagesToHandle: [MTMessage]
@@ -51,16 +52,16 @@ final class MessageHandlingOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("[Message handling] Starting message handling operation...")
+		logDebug("Starting message handling operation...")
 		guard !newMessages.isEmpty else
 		{
-			MMLogDebug("[Message handling] There is no new messages to handle.")
+			logDebug("There is no new messages to handle.")
 			handleExistingMessageTappedIfNeeded()
 			finish()
 			return
 		}
 		
-		MMLogDebug("[Message handling] There are \(newMessages.count) new messages to handle.")
+		logDebug("There are \(newMessages.count) new messages to handle.")
 		
 		context.performAndWait {
 			context.reset()
@@ -71,7 +72,7 @@ final class MessageHandlingOperation: Operation {
 					messageWasPopulatedBySubservice = subservice.populateNewPersistedMessage(&newDBMessage, originalMessage: newMessage) || messageWasPopulatedBySubservice
 				}
 				if !messageWasPopulatedBySubservice {
-					MMLogDebug("[Message handling] message \(newMessage.messageId) was not populated by any subservice")
+					logDebug("message \(newMessage.messageId) was not populated by any subservice")
 					self.context.delete(newDBMessage)
 					self.newMessages.remove(newMessage)
 				}
@@ -95,7 +96,7 @@ final class MessageHandlingOperation: Operation {
 			return
 		}
 		let storages = mmContext.messageStorages.values
-		MMLogDebug("[Message handling] inserting messages in message storage: \(messages)")
+		logDebug("inserting messages in message storage: \(messages)")
 		storages.forEachAsync({ (storage, finishBlock) in
 			storage.insert(incoming: messages, completion: finishBlock)
 		}, completion: completion)
@@ -111,7 +112,7 @@ final class MessageHandlingOperation: Operation {
 		let group = DispatchGroup()
 		DispatchQueue.main.async(group: group, execute: DispatchWorkItem(block: {
 			messages.forEach { message in
-				MMLogDebug("[Message handling] calling back for didReceiveNewMessage \(message.messageId)")
+				self.logDebug("calling back for didReceiveNewMessage \(message.messageId)")
                 
                 self.presentLocalNotificationIfNeeded(with: message)
                 UserEventsManager.postMessageReceivedEvent(message)
@@ -187,7 +188,7 @@ final class MessageHandlingOperation: Operation {
 	
 //MARK: -
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Message handling] Message handling finished with errors: \(errors)")
+		logDebug("Message handling finished with errors: \(errors)")
 		self.finishBlock(errors.first, newMessages)
 	}
 }

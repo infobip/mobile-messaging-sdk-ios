@@ -8,7 +8,8 @@
 import Foundation
 import CoreData
 
-class UserSessionsReportingOperation : Operation {
+class UserSessionsReportingOperation : MMOperation {
+	
 	let context: NSManagedObjectContext
 	let mmContext: MobileMessaging
 	var finishedSessionReports: [UserSessionReportObject]?
@@ -24,22 +25,22 @@ class UserSessionsReportingOperation : Operation {
 
 	override func execute() {
 		guard mmContext.internalData().currentDepersonalizationStatus != .pending else {
-			MMLogWarn("[UserSessionsReporting] Logout pending. Canceling...")
+			logWarn("Logout pending. Canceling...")
 			finishWithError(NSError(type: MMInternalErrorType.PendingLogout))
 			return
 		}
 		guard !isCancelled else {
-			MMLogDebug("[UserSessionsReporting] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogWarn("[UserSessionsReporting] There is no registration. Finishing...")
+			logWarn("There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[UserSessionsReporting] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
@@ -73,43 +74,43 @@ class UserSessionsReportingOperation : Operation {
 
 	fileprivate func logSessionReports() {
 		if let finishedSessionReports = finishedSessionReports?.map({ "\($0.pushRegistrationId) \($0.startDate) \($0.endDate)" }) {
-			MMLogDebug("[UserSessionsReporting] finished session reports found: \(finishedSessionReports)")
+			logDebug("finished session reports found: \(finishedSessionReports)")
 		} else {
-			MMLogDebug("[UserSessionsReporting] no finished session reports found")
+			logDebug("no finished session reports found")
 		}
 		if let newSessionReports = self.startedSessionReports?.map({ "\($0.pushRegistrationId) \($0.startDate) \($0.endDate)" }) {
-			MMLogDebug("[UserSessionsReporting] new session reports found: \(newSessionReports)")
+			logDebug("new session reports found: \(newSessionReports)")
 		} else {
-			MMLogDebug("[UserSessionsReporting] no new session reports found")
+			logDebug("no new session reports found")
 		}
 	}
 
 	private func handleResult(_ result: UserSessionSendingResult) {
 		switch result {
 		case .Success(_):
-			MMLogDebug("[UserSessionsReporting] Request succeeded")
+			logDebug("Request succeeded")
 			if !(self.startedSessionReports?.isEmpty ?? true) || !(self.finishedSessionReports?.isEmpty ?? true) {
 				context.performAndWait {
 					self.startedSessionReports?.forEach { (obj) in
-						MMLogDebug("[UserSessionsReporting] marking start reported: \(obj)")
+						logDebug("marking start reported: \(obj)")
 						obj.startReported = true
 					}
 					self.finishedSessionReports?.forEach { (obj) in
-						MMLogDebug("[UserSessionsReporting] removing: \(obj)")
+						logDebug("removing: \(obj)")
 						self.context.delete(obj)
 					}
 				}
 				context.MM_saveToPersistentStoreAndWait()
 			}
 		case .Failure(let error):
-			MMLogError("[UserSessionsReporting] Request failed with error: \(error.orNil)")
+			logError("Request failed with error: \(error.orNil)")
 		case .Cancel:
 			break
 		}
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[UserSessionsReporting] finished: \(errors)")
+		logDebug("finished: \(errors)")
 		finishBlock(errors.first)
 	}
 }

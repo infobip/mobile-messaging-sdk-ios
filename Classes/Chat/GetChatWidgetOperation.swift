@@ -7,7 +7,7 @@
 
 import Foundation
 
-class GetChatWidgetOperation: Operation {
+class GetChatWidgetOperation: MMOperation {
 	let mmContext: MobileMessaging
 	let finishBlock: ((NSError?, ChatWidget?) -> Void)
 	var operationResult = GetChatWidgetResult.Cancel
@@ -19,16 +19,16 @@ class GetChatWidgetOperation: Operation {
 
 	override func execute() {
 		guard !isCancelled else {
-			MMLogDebug("[GetChatWidgetOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[GetChatWidgetOperation] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		MMLogDebug("[GetChatWidgetOperation] Started...")
+		logDebug("Started...")
 
 		performRequest()
 	}
@@ -41,7 +41,7 @@ class GetChatWidgetOperation: Operation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[GetChatWidgetOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first, operationResult.value?.widget)
 	}
 }

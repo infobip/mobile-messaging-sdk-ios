@@ -7,7 +7,7 @@
 
 import Foundation
 
-class AlertOperation: Foundation.Operation {
+class AlertOperation: Foundation.Operation, NamedLogger {
 	var semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
 	var alert: InteractiveMessageAlertController?
 	let message: MTMessage
@@ -31,14 +31,14 @@ class AlertOperation: Foundation.Operation {
 		}
 
 		if self.message.contentUrl?.safeUrl != nil {
-			MMLogDebug("[InAppAlert] downloading image attachment \(String(describing: self.message.contentUrl?.safeUrl))...")
+			logDebug("downloading image attachment \(String(describing: self.message.contentUrl?.safeUrl))...")
 			self.message.downloadImageAttachment(completion: { (url, error) in
 				let img: Image?
 				if let url = url, let data = try? Data(contentsOf: url) {
-					MMLogDebug("[InAppAlert] image attachment downloaded")
+					self.logDebug("image attachment downloaded")
 					img = DefaultImageProcessor().process(item: ImageProcessItem.data(data), options: [])
 				} else {
-					MMLogDebug("[InAppAlert] could not dowonload image attachment")
+					self.logDebug("could not dowonload image attachment")
 					img = nil
 				}
 				self.presentAlert(with: img)
@@ -68,10 +68,10 @@ class AlertOperation: Foundation.Operation {
 			self.alert = a
 			MobileMessaging.sharedInstance?.interactiveAlertManager?.delegate?.willDisplay(self.message)
 			if let rootVc = MobileMessaging.application.rootViewController {
-				MMLogDebug("[InAppAlert] presenting in-app alert, root vc: \(rootVc)")
+				self.logDebug("presenting in-app alert, root vc: \(rootVc)")
 				rootVc.present(a, animated: true, completion: nil)
 			} else {
-				MMLogDebug("[InAppAlert] could not define root vc to present in-app alert")
+				self.logDebug("could not define root vc to present in-app alert")
 				self.cancelAlert()
 			}
 		}
@@ -92,7 +92,7 @@ class AlertOperation: Foundation.Operation {
 	}
 
 	private func cancelAlert() {
-		MMLogDebug("[InAppAlert] canceled. Message expired?: \(message.isExpired.description)")
+		logDebug("canceled. Message expired?: \(message.isExpired.description)")
 		DispatchQueue.main.async() {
 			self.alert?.dismiss(animated: false)
 		}

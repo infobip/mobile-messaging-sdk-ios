@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 import CoreLocation
 
-class InstallationMigrationPolicy : NSEntityMigrationPolicy {
+class InstallationMigrationPolicy : NSEntityMigrationPolicy, NamedLogger {
 	override func createDestinationInstances(forSource sInstance: NSManagedObject, in mapping: NSEntityMapping, manager: NSMigrationManager) throws {
 		guard mapping.destinationEntityName != nil
 			else
@@ -18,7 +18,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 			return
 		}
 
-		MMLogDebug("[MobileMessaging] starting \(String(describing: mapping.userInfo?["version"] as? String)) migration")
+		logDebug("starting \(String(describing: mapping.userInfo?["version"] as? String)) migration")
 		switch (mapping.userInfo?["version"] as? String) {
 		case "0_3", "1_3":
 			let predefinedUserData = sInstance.value(forKey: "predefinedUserData") as? [String: Any]
@@ -97,7 +97,7 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy {
 		default:
 			break
 		}
-		MMLogDebug("[MobileMessaging] migration \(String(describing: mapping.userInfo?["version"] as? String)) finished")
+		logDebug("migration \(String(describing: mapping.userInfo?["version"] as? String)) finished")
 	}
 
 	private func migrateEmail(from predefinedUserData: [String: Any]?) -> Any? {

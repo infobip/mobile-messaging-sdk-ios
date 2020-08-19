@@ -7,7 +7,8 @@
 
 import Foundation
 
-class FetchInstanceOperation : Operation {
+class FetchInstanceOperation : MMOperation {
+	
 	let mmContext: MobileMessaging
 	let currentInstallation: Installation
 	let finishBlock: ((NSError?) -> Void)
@@ -20,23 +21,23 @@ class FetchInstanceOperation : Operation {
 		if let pushRegistrationId = currentInstallation.pushRegistrationId {
 			self.pushRegistrationId = pushRegistrationId
 		} else {
-			MMLogDebug("[FetchInstanceOperation] There is no registration. Abortin...")
+			Self.logDebug("There is no registration. Abortin...")
 			return nil
 		}
 	}
 
 	override func execute() {
 		guard !isCancelled else {
-			MMLogDebug("[FetchInstanceOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[FetchInstanceOperation] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		MMLogDebug("[FetchInstanceOperation] started...")
+		logDebug("started...")
 		performRequest()
 	}
 
@@ -49,7 +50,7 @@ class FetchInstanceOperation : Operation {
 
 	private func handleResult(_ result: FetchInstanceDataResult) {
 		guard !isCancelled else {
-			MMLogDebug("[FetchInstanceOperation] cancelled.")
+			logDebug("cancelled.")
 			return
 		}
 		switch result {
@@ -57,11 +58,11 @@ class FetchInstanceOperation : Operation {
 			if fetchedInstallationMayBeSaved(fetchedInstallation: responseInstallation) {
 				responseInstallation.archiveAll()
 			}
-			MMLogDebug("[FetchInstanceOperation] successfully synced")
+			logDebug("successfully synced")
 		case .Failure(let error):
-			MMLogError("[FetchInstanceOperation] sync request failed with error: \(error.orNil)")
+			logError("sync request failed with error: \(error.orNil)")
 		case .Cancel:
-			MMLogWarn("[FetchInstanceOperation] sync request cancelled.")
+			logWarn("sync request cancelled.")
 		}
 	}
 
@@ -70,7 +71,7 @@ class FetchInstanceOperation : Operation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[FetchInstanceOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first) //check what to do with errors/
 	}
 }

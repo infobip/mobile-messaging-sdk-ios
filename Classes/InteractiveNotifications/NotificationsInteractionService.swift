@@ -73,15 +73,15 @@ class NotificationsInteractionService: MobileMessagingService {
 
 	init(mmContext: MobileMessaging, categories: Set<NotificationCategory>?) {
 		self.customNotificationCategories = categories
-		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.NotificationsInteractionService")
+		super.init(mmContext: mmContext)
 	}
 
 	func handleAction(identifier: String, categoryId: String?, message: MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
 
-		MMLogDebug("[NotificationsInteractionService] handling action \(identifier) for message \(message?.messageId ?? "n/a"), user text empty \(userText?.isEmpty ?? true)")
+		logDebug("handling action \(identifier) for message \(message?.messageId ?? "n/a"), user text empty \(userText?.isEmpty ?? true)")
 
 		guard isRunning else {
-			MMLogWarn("[NotificationsInteractionService] cancelled handling, service stopped")
+			logWarn("cancelled handling, service stopped")
 			completionHandler()
 			return
 		}
@@ -130,12 +130,12 @@ class NotificationsInteractionService: MobileMessagingService {
 	fileprivate func makeAction(_ identifier: String?, _ message: MTMessage?, _ categoryId: String?, _ userText: String?) -> NotificationAction? {
 		if identifier == NotificationAction.DismissActionId
 		{
-			MMLogDebug("[NotificationsInteractionService] handling dismiss action")
+			logDebug("handling dismiss action")
 			return NotificationAction.dismissAction()
 		}
 		else if identifier == NotificationAction.DefaultActionId
 		{
-			MMLogDebug("[NotificationsInteractionService] handling default action")
+			logDebug("handling default action")
 			return NotificationAction.defaultAction
 		}
 		else if	let categoryId = categoryId,
@@ -146,16 +146,16 @@ class NotificationsInteractionService: MobileMessagingService {
 				let action = action as? TextInputNotificationAction,
 				let typedText = userText
 			{
-				MMLogDebug("[NotificationsInteractionService] handling text input")
+				logDebug("handling text input")
 				action.typedText = typedText
 				return action
 			} else {
-				MMLogDebug("[NotificationsInteractionService] handling regular action")
+				logDebug("handling regular action")
 				return action
 			}
 		}
 		else {
-			MMLogDebug("[NotificationsInteractionService] nothing to handle")
+			logDebug("nothing to handle")
 			return nil
 		}
 	}

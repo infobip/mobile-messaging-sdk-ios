@@ -8,7 +8,8 @@
 import UIKit
 import CoreData
 
-class MessagePostingOperation: Operation {
+class MessagePostingOperation: MMOperation {
+	
 	let context: NSManagedObjectContext
 	let finishBlock: ((MOMessageSendingResult) -> Void)?
 	let messages: Set<MOMessage>?
@@ -31,15 +32,15 @@ class MessagePostingOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("[Message posting] started...")
+		logDebug("started...")
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogWarn("[Message posting] No registration. Finishing...")
+			logWarn("No registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[Message posting] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
@@ -72,7 +73,7 @@ class MessagePostingOperation: Operation {
 				}
 			}
 
-			MMLogDebug("[Message posting] posting new MO messages...")
+			logDebug("posting new MO messages...")
 			self.populateMessageStorageIfNeeded(with: messagesToSend) {
 				self.sendMessages(Array(messagesToSend), pushRegistrationId: pushRegistrationId)
 			}
@@ -85,10 +86,10 @@ class MessagePostingOperation: Operation {
 				messagesToSend = mmos.compactMap({MOMessage.init(messageManagedObject: $0)})
 			}
 			if !messagesToSend.isEmpty {
-				MMLogDebug("[Message posting] posting pending MO messages...")
+				logDebug("posting pending MO messages...")
 				self.sendMessages(Array(messagesToSend), pushRegistrationId: pushRegistrationId)
 			} else {
-				MMLogDebug("[Message posting] nothing to send...")
+				logDebug("nothing to send...")
 				self.finish()
 			}
 		}
@@ -179,20 +180,20 @@ class MessagePostingOperation: Operation {
 				completion()
 			}
 
-			MMLogDebug("[Message posting] successfuly finished")
+			logDebug("successfuly finished")
 		case .Failure(let error):
-			MMLogError("[Message posting] request failed with error: \(error.orNil)")
+			logError("request failed with error: \(error.orNil)")
 			self.updateMessageStorageOnFailureIfNeeded(with: originalMessagesToSend.map { $0.messageId } , completion: {
 				completion()
 			})
 		case .Cancel:
-			MMLogWarn("[Message posting] cancelled")
+			logWarn("cancelled")
 			completion()
 		}
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Message posting] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? operationResult : MOMessageSendingResult.Failure(errors.first)
 		self.finishBlock?(finishResult)
 	}

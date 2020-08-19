@@ -8,7 +8,7 @@
 import Foundation
 import UserNotifications
 
-class ApnsRegistrationManager {
+class ApnsRegistrationManager: NamedLogger {
 	let mmContext: MobileMessaging
 	
 	init(mmContext: MobileMessaging) {
@@ -22,13 +22,13 @@ class ApnsRegistrationManager {
 	}
 	
 	func registerForRemoteNotifications() {
-		MMLogDebug("[APNS reg manager] Registering...")
+		logDebug("Registering...")
 		
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .success, .undefined:
 			break
 		case .pending:
-			MMLogDebug("[APNS reg manager] canceling due to pending depersonalize state...")
+			logDebug("canceling due to pending depersonalize state...")
 			return
 		}
 		
@@ -36,7 +36,7 @@ class ApnsRegistrationManager {
 		
 		if mmContext.currentInstallation().pushServiceToken == nil {
 			if MobileMessaging.application.isRegisteredForRemoteNotifications {
-				MMLogDebug("[APNS reg manager] The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
+				logDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
 				unregister()
 			}
 			setRegistrationIsHealthy()
@@ -48,7 +48,7 @@ class ApnsRegistrationManager {
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
 		let tokenStr = token.mm_toHexString
-		MMLogInfo("[APNS reg manager] Application did register with device token \(tokenStr)")
+		logInfo("Application did register with device token \(tokenStr)")
 		
 		UserEventsManager.postDeviceTokenReceivedEvent(tokenStr)
 		
@@ -84,7 +84,7 @@ class ApnsRegistrationManager {
 		}
 		
 		guard let flagUrl = ApnsRegistrationManager.registrationHealthCheckFlagUrl else {
-			MMLogError("[APNS reg manager] registration health flag url is invalid")
+			logError("registration health flag url is invalid")
 			return false
 		}
 		
@@ -94,7 +94,7 @@ class ApnsRegistrationManager {
 		} catch {
 			apnsRegistrationHealthyFlagValue = nil
 			if !error.mm_isNoSuchFile {
-				MMLogError("[APNS reg manager] failed to read flag: \(error)")
+				logError("failed to read flag: \(error)")
 			}
 		}
 		
@@ -103,7 +103,7 @@ class ApnsRegistrationManager {
 	}
 	
 	func setRegistrationIsHealthy() {
-		MMLogDebug("[APNS reg manager] setting healthy flag")
+		logDebug("setting healthy flag")
 		guard isRegistrationHealthy == false, var flagUrl = ApnsRegistrationManager.registrationHealthCheckFlagUrl else {
 			return
 		}
@@ -117,14 +117,14 @@ class ApnsRegistrationManager {
 			try flagUrl.setResourceValues(resourceValues)
 			isRegistrationHealthy_cached = true
 		} catch {
-			MMLogError("[APNS reg manager] failed to write healthy flag: \(error)")
+			logError("failed to write healthy flag: \(error)")
 		}
 	}
 	
 	func cleanup() {
-		MMLogDebug("[APNS reg manager] cleaning up...")
+		logDebug("cleaning up...")
 		guard let flagUrl = ApnsRegistrationManager.registrationHealthCheckFlagUrl else {
-			MMLogError("[APNS reg manager] failed to define urls for cleaning")
+			logError("failed to define urls for cleaning")
 			return
 		}
 		
@@ -132,7 +132,7 @@ class ApnsRegistrationManager {
 			try FileManager.default.removeItem(at: flagUrl)
 		} catch {
 			if !error.mm_isNoSuchFile {
-				MMLogError("[APNS reg manager] failed to remove flag: \(error)")
+				logError("failed to remove flag: \(error)")
 			}
 		}
 	}
@@ -146,7 +146,7 @@ class ApnsRegistrationManager {
 		UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
 			UserEventsManager.postNotificationCenterAuthRequestFinished(granted: granted, error: error)
 			guard granted else {
-				MMLogDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
+				self.logDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
 				return
 			}
 			if let categories = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.unNotificationCategories {

@@ -7,7 +7,8 @@
 
 import Foundation
 
-class DeleteInstanceOperation : Operation {
+class DeleteInstanceOperation : MMOperation {
+	
 	let mmContext: MobileMessaging
 	let finishBlock: ((UpdateInstanceDataResult) -> Void)?
 	var result: UpdateInstanceDataResult = UpdateInstanceDataResult.Cancel
@@ -23,16 +24,16 @@ class DeleteInstanceOperation : Operation {
 
 	override func execute() {
 		guard !isCancelled else {
-			MMLogDebug("[DeleteInstanceOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[DeleteInstanceOperation] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		MMLogDebug("[DeleteInstanceOperation] started...")
+		logDebug("started...")
 		performRequest()
 	}
 
@@ -48,16 +49,16 @@ class DeleteInstanceOperation : Operation {
 		switch result {
 		case .Success:
 			mmContext.keychain.pushRegId = pushRegistrationId // rewrite expired with actual one
-			MMLogDebug("[DeleteInstanceOperation] succeeded")
+			logDebug("succeeded")
 		case .Failure(let error):
-			MMLogError("[DeleteInstanceOperation] sync request failed with error: \(error.orNil)")
+			logError("sync request failed with error: \(error.orNil)")
 		case .Cancel:
-			MMLogWarn("[DeleteInstanceOperation] sync request cancelled.")
+			logWarn("sync request cancelled.")
 		}
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[DeleteInstanceOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock?(result) //check what to do with errors/
 	}
 }

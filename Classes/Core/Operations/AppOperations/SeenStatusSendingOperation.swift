@@ -8,7 +8,8 @@
 import UIKit
 import CoreData
 
-class SeenStatusSendingOperation: Operation {
+class SeenStatusSendingOperation: MMOperation {
+	
 	let context: NSManagedObjectContext
 	let finishBlock: ((SeenStatusSendingResult) -> Void)?
 	var result = SeenStatusSendingResult.Cancel
@@ -25,7 +26,7 @@ class SeenStatusSendingOperation: Operation {
 			self.context.reset()
 			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue) AND NOT(messageId MATCHES [c] '\(Consts.UUIDRegexPattern)')"), context: self.context), !seenNotSentMessages.isEmpty else
 			{
-				MMLogDebug("[Seen status reporting] There is no non-seen meessages to send to the server. Finishing...")
+				self.logDebug("There is no non-seen meessages to send to the server. Finishing...")
 				self.finish()
 				return
 			}
@@ -46,7 +47,7 @@ class SeenStatusSendingOperation: Operation {
 	private func handleSeenResult(_ result: SeenStatusSendingResult, messages: [MessageManagedObject], completion: @escaping () -> Void) {
 		switch result {
 		case .Success(_):
-			MMLogDebug("[Seen status reporting] Request succeeded")
+			logDebug("Request succeeded")
 
 			context.performAndWait {
 				messages.forEach { message in
@@ -56,7 +57,7 @@ class SeenStatusSendingOperation: Operation {
 				self.updateMessageStorage(with: messages.map({ $0.messageId }), completion: completion)
 			}
 		case .Failure(let error):
-			MMLogError("[Seen status reporting] Request failed with error: \(error.orNil)")
+			logError("Request failed with error: \(error.orNil)")
 			completion()
 		case .Cancel:
 			completion()
@@ -76,7 +77,7 @@ class SeenStatusSendingOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Seen status reporting] finished: \(errors)")
+		logDebug("finished: \(errors)")
 		if let error = errors.first {
 			result = SeenStatusSendingResult.Failure(error)
 		}

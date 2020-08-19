@@ -10,11 +10,7 @@ import CoreLocation
 
 let installationQueue = MMOperationQueue.newSerialQueue
 
-final class InstallationDataService: MobileMessagingService{
-
-	init(mmContext: MobileMessaging) {
-		super.init(mmContext: mmContext, id: "InstallationDataService")
-	}
+final class InstallationDataService: MobileMessagingService {
 
 	func getUniversalInstallationId() -> String {
 		let key = "com.mobile-messaging.universal-installation-id"
@@ -35,13 +31,13 @@ final class InstallationDataService: MobileMessagingService{
 	}
 
 	func save(installationData: Installation, completion: @escaping (NSError?) -> Void) {
-		MMLogDebug("[InstallationDataService] saving \(installationData.dictionaryRepresentation)")
+		logDebug("saving \(installationData.dictionaryRepresentation)")
 		installationData.archiveDirty()
 		syncWithServer(completion)
 	}
 
 	func syncSystemDataWithServer(completion: @escaping ((NSError?) -> Void)) {
-		MMLogDebug("[InstallationDataService] send system data to server...")
+		logDebug("send system data to server...")
 		let currentInstallation = mmContext.currentInstallation()
 		let dirtyInstallation = mmContext.dirtyInstallation()
 		
@@ -60,7 +56,7 @@ final class InstallationDataService: MobileMessagingService{
 	}
 
 	func fetchFromServer(completion: @escaping ((Installation, NSError?) -> Void)) {
-		MMLogDebug("[InstallationDataService] fetch from server")
+		logDebug("fetch from server")
 		if let op = FetchInstanceOperation(
 			currentInstallation: mmContext.currentInstallation(),
 			mmContext: mmContext,
@@ -73,7 +69,7 @@ final class InstallationDataService: MobileMessagingService{
 	}
 
 	func resetRegistration(completion: @escaping (NSError?) -> Void) {
-		MMLogDebug("[InstallationDataService] resetting registration...")
+		logDebug("resetting registration...")
 		let op = RegistrationResetOperation(mmContext: mmContext, apnsRegistrationManager: mmContext.apnsRegistrationManager, finishBlock: completion)
 		installationQueue.addOperation(op)
 	}
@@ -86,7 +82,7 @@ final class InstallationDataService: MobileMessagingService{
 
 	// MARK: - MobileMessagingService protocol
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
-		MMLogDebug("[InstallationDataService] log out")
+		logDebug("log out")
 
 		let ci = mmContext.currentInstallation() //dup
 		ci.customAttributes = [:]
@@ -111,7 +107,7 @@ final class InstallationDataService: MobileMessagingService{
 	}
 
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
-		MMLogDebug("[InstallationDataService] sync installation data with server...")
+		logDebug("sync installation data with server...")
 
 		let ci = mmContext.currentInstallation()
 		let di = mmContext.dirtyInstallation()
@@ -147,7 +143,7 @@ final class InstallationDataService: MobileMessagingService{
 				finishBlock: { completion($0.error) }
 			)
 
-			MMLogDebug("[InstallationDataService] Expired push registration id found: \(keychainPushRegId)")
+			logDebug("Expired push registration id found: \(keychainPushRegId)")
 			installationQueue.addOperation(deleteExpiredInstanceOp)
 		} else {
 			completion(error)

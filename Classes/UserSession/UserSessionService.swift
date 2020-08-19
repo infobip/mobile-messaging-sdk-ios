@@ -30,16 +30,16 @@ class UserSessionService : MobileMessagingService {
 	private var timer: RepeatingTimer?
 	private let context: NSManagedObjectContext
 
-	init(mmContext: MobileMessaging) {
+	override init(mmContext: MobileMessaging) {
 		self.context = mmContext.internalStorage.newPrivateContext()
-		super.init(mmContext: mmContext, id: "UserSessionService")
+		super.init(mmContext: mmContext)
 	}
 
 	//MARK: -
 
 	override func stop(_ completion: @escaping (Bool) -> Void) {
 		serviceQueue.async {
-			MMLogDebug("[User Session Service] stops")
+			self.logDebug("stops")
 			self.timer = nil
 			self.cancelOperations()
 			super.stop(completion)
@@ -48,7 +48,7 @@ class UserSessionService : MobileMessagingService {
 
 	override func start(_ completion: @escaping (Bool) -> Void) {
 		serviceQueue.async {
-			MMLogDebug("[User Session Service] starts")
+			self.logDebug("starts")
 			self.setupTimer()
 			super.start(completion)
 		}
@@ -70,21 +70,21 @@ class UserSessionService : MobileMessagingService {
 
 	override func appDidBecomeActive(_ notification: Notification) {
 		serviceQueue.async {
-			MMLogDebug("[User Session Service] timer resumes: app did become active state")
+			self.logDebug("timer resumes: app did become active state")
 			self.timer?.resume()
 		}
 	}
 
 	override func appWillResignActive(_ notification: Notification) {
 		serviceQueue.async {
-			MMLogDebug("[User Session Service] timer suspends: app will resign active state")
+			self.logDebug("timer suspends: app will resign active state")
 			self.timer?.suspend()
 		}
 	}
 
 	override func appWillTerminate(_ n: Notification) {
 		serviceQueue.async {
-			MMLogDebug("[User Session Service] timer cancels: app will terminate")
+			self.logDebug("timer cancels: app will terminate")
 			self.stop({ _ in })
 		}
 	}
@@ -114,12 +114,12 @@ class UserSessionService : MobileMessagingService {
 
 	func performSessionTracking(doReporting: Bool, completion: @escaping () -> Void) {
 		guard MobileMessaging.application.applicationState == .active else {
-			MMLogDebug("[User Session Service] app is not in active state, skipping session tracking.")
+			logDebug("app is not in active state, skipping session tracking.")
 			completion()
 			return
 		}
 		guard let pushRegId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogDebug("[User Session Service] no push registration id. Aborting...")
+			logDebug("no push registration id. Aborting...")
 			completion()
 			return
 		}

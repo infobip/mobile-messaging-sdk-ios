@@ -8,7 +8,8 @@
 import Foundation
 import UserNotifications
 
-class LocalMessageFetchingOperation : Operation {
+class LocalMessageFetchingOperation : MMOperation {
+	
 	let notificationExtensionStorage: AppGroupMessageStorage?
 	let finishBlock: ([MTMessage]) -> Void
 	let userNotificationCenterStorage: UserNotificationCenterStorage
@@ -23,11 +24,11 @@ class LocalMessageFetchingOperation : Operation {
 	
 	override func execute() {
 		self.retrieveMessagesFromNotificationServiceExtension(completion: { messages in
-			MMLogDebug("[Local Fetching] Retrieved \(messages.count) messages from notification extension storage.")
+			self.logDebug("Retrieved \(messages.count) messages from notification extension storage.")
 			self.result.formUnion(messages)
 			
 			self.retrieveMessagesFromUserNotificationCenter(completion: { messages in
-				MMLogDebug("[Local Fetching] Retrieved \(messages.count) messages from notification center.")
+				self.logDebug("Retrieved \(messages.count) messages from notification center.")
 				self.result.formUnion(messages)
 				self.finish()
 			})
@@ -50,7 +51,7 @@ class LocalMessageFetchingOperation : Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Local Fetching] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		let messages = Array(result)
 		finishBlock(messages)
 	}

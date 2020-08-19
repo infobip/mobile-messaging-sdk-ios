@@ -8,7 +8,8 @@
 import UIKit
 import CoreData
 
-final class RegistrationResetOperation: Operation {
+final class RegistrationResetOperation: MMOperation {
+	
 	let mmContext: MobileMessaging
 	let finishBlock: ((NSError?) -> Void)?
 	let apnsRegistrationManager: ApnsRegistrationManager
@@ -21,7 +22,7 @@ final class RegistrationResetOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("[Registration reset] Started...")
+		logDebug("Started...")
 		Installation.empty.archiveAll()
 		apnsRegistrationManager.setRegistrationIsHealthy()
 		
@@ -29,7 +30,7 @@ final class RegistrationResetOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Registration reset] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock?(errors.first)
 	}
 }

@@ -44,12 +44,12 @@ class EnableControlsMessageHandler: ScriptMessageHandler {
 	}
 }
 
-class ErrorMessageHandler: ScriptMessageHandler {
+class ErrorMessageHandler: ScriptMessageHandler, NamedLogger {
 	class func handleMessage(message: WKScriptMessage) {
 		guard let jsMessage = ErrorJSMessage(message: message) else {
 				return
 		}
-		MMLogError("[InAppChat] JSError received: \(jsMessage.message)")
+		logError("JSError received: \(jsMessage.message)")
         MobileMessaging.inAppChat?.handleJSError(jsMessage.message)
 	}
 }
@@ -58,26 +58,26 @@ protocol JSMessage {
 	init?(message: WKScriptMessage)
 }
 
-class ErrorJSMessage : JSMessage {
+class ErrorJSMessage : JSMessage, NamedLogger {
 	let message: String
 	
 	required init?(message: WKScriptMessage) {
 		guard let bodyDict = message.body as? [String: AnyObject],
 			let errorMessage = bodyDict[ChatAPIKeys.JSMessageKeys.errorMessage] as? String else {
-				MMLogDebug("[InAppChat] Error while handling js error message, data wasn't provided")
+				ErrorJSMessage.logError("Error while handling js error message, data wasn't provided")
 				return nil
 		}
 		self.message = errorMessage
 	}
 }
 
-class EnableControlsJSMessage : JSMessage {
+class EnableControlsJSMessage : JSMessage, NamedLogger {
 	let enabled: Bool
 	
 	required init?(message: WKScriptMessage) {
 		guard let bodyDict = message.body as? [String: AnyObject],
 			let enabled = bodyDict[ChatAPIKeys.JSMessageKeys.enabled] as? Bool else {
-				MMLogDebug("[InAppChat] Error while handling js enableControls message, data wasn't provided")
+				ErrorJSMessage.logError("Error while handling js enableControls message, data wasn't provided")
 				return nil
 		}
 		self.enabled = enabled

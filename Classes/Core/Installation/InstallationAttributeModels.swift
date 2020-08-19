@@ -16,7 +16,7 @@ struct DepersonalizationConsts {
 	case undefined = 0, pending, success
 }
 
-final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
+final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, NamedLogger {
 	static var currentPath = getDocumentsDirectory(filename: "internal-data")
 	static var cached = ThreadSafeDict<InternalData>()
 	static var empty: InternalData {
@@ -29,7 +29,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent {
 	}
 	func handleCurrentChanges(old: InternalData, new: InternalData) {
 		if old.currentDepersonalizationStatus != new.currentDepersonalizationStatus {
-			MMLogDebug("[InternalData management] setting new depersonalize status: \(self.currentDepersonalizationStatus)")
+			logDebug("setting new depersonalize status: \(self.currentDepersonalizationStatus)")
 			MobileMessaging.sharedInstance?.updateDepersonalizeStatusForSubservices()
 		}
 	}

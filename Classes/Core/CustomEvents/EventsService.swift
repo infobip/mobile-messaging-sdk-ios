@@ -54,9 +54,9 @@ class EventsService: MobileMessagingService {
 	private let context: NSManagedObjectContext
 	lazy var reportPostponer = MMPostponer(executionQueue: DispatchQueue.global())
 
-	init(mmContext: MobileMessaging) {
+	override init(mmContext: MobileMessaging) {
 		self.context = mmContext.internalStorage.newPrivateContext()
-		super.init(mmContext: mmContext, id: "EventsService")
+		super.init(mmContext: mmContext)
 	}
 
 	func submitEvent(customEvent: CustomEvent, reportImmediately: Bool, completion: @escaping (NSError?) -> Void) {

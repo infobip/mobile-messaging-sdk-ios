@@ -5,10 +5,7 @@
 import Foundation
 
 class UserDataService: MobileMessagingService {
-	init(mmContext: MobileMessaging) {
-		super.init(mmContext: mmContext, id: "UserDataService")
-	}
-
+	
 	func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([Installation]?, NSError?) -> Void) {
 		let finish: (NSError?) -> Void = { (error) in
 			if error == nil {
@@ -26,7 +23,7 @@ class UserDataService: MobileMessagingService {
 			mmContext.installationService.save(installationData: ci, completion: finish)
 		} else {
 			guard let authPushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-				MMLogError("[OtherInstallation] There is no registration. Finishing...")
+				logError("There is no registration. Finishing setting other reg primary...")
 				completion(self.mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.NoRegistration))
 				return
 			}
@@ -44,12 +41,12 @@ class UserDataService: MobileMessagingService {
 
 	func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping ([Installation]?, NSError?) -> Void) {
 		guard pushRegId != mmContext.currentInstallation().pushRegistrationId else {
-			MMLogError("[OtherInstallation] Attempt to depersonalize current installation with inappropriate API. Aborting...")
+			logError("Attempt to depersonalize current installation with inappropriate API. Aborting depersonalizing other oreg...")
 			completion(mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.CantLogoutCurrentRegistration))
 			return
 		}
 		guard let authPushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogError("[OtherInstallation] There is no registration. Finishing...")
+			logError("There is no registration. Finishing depersonalizing other reg...")
 			completion(mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
@@ -67,7 +64,7 @@ class UserDataService: MobileMessagingService {
 	}
 
 	func save(userData: User, completion: @escaping (NSError?) -> Void) {
-		MMLogDebug("[UserDataService] saving \(userData.dictionaryRepresentation)")
+		logDebug("saving \(userData.dictionaryRepresentation)")
 		userData.archiveDirty()
 		syncWithServer(completion)
 	}
@@ -117,7 +114,7 @@ class UserDataService: MobileMessagingService {
 	}
 
 	func fetchFromServer(completion: @escaping (User, NSError?) -> Void) {
-		MMLogDebug("[UserDataService] fetch from server")
+		logDebug("fetch from server")
 		let op = FetchUserOperation(
 			currentUser: mmContext.currentUser(),
 			dirtyUser: mmContext.dirtyUser(),
@@ -129,7 +126,7 @@ class UserDataService: MobileMessagingService {
 
 	// MARK: - MobileMessagingService protocol {
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
-		MMLogDebug("[UserDataService] log out")
+		logDebug("log out")
 		User.empty.archiveAll()
 		completion()
 	}
@@ -143,7 +140,7 @@ class UserDataService: MobileMessagingService {
 	}
 
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
-		MMLogDebug("[UserDataService] sync user data with server")
+		logDebug("sync user data with server")
 
 		if let op = UpdateUserOperation(
 			currentUser: mmContext.currentUser(),

@@ -18,7 +18,7 @@ public class InteractiveMessageAlertSettings: NSObject {
 	public static var enabled: Bool = true
 }
 
-class InteractiveMessageAlertManager {
+class InteractiveMessageAlertManager: NamedLogger {
 	static let sharedInstance = InteractiveMessageAlertManager()
 	var delegate: InAppAlertDelegate?
 
@@ -72,7 +72,7 @@ class InteractiveMessageAlertManager {
 			return
 		}
 
-		MMLogDebug("Alert for message will be shown: \(message.messageId) text: \(message.text.orNil)")
+		logDebug("Alert for message will be shown: \(message.messageId) text: \(message.text.orNil)")
 
 		if exclusively {
 			cancelAllAlerts()

@@ -34,15 +34,16 @@ protocol ChatJSWrapper {
     func sendMessage(_ message: String?, attachment: ChatAttachment?)
 }
 
+extension WKWebView: NamedLogger {}
 extension WKWebView: ChatJSWrapper {
     func sendMessage(_ message: String? = nil, attachment: ChatAttachment? = nil) {
         let escapedMessage = message?.javaScriptEscapedString()
         guard escapedMessage != nil || attachment != nil else {
-			MMLogDebug("[InAppChat] sendMessage failed, neither message nor the attachment provided")
+			logDebug("sendMessage failed, neither message nor the attachment provided")
 			return
 		}
         self.evaluateJavaScript("sendMessage(\(escapedMessage ?? "''"), '\(attachment?.base64UrlString() ?? "")', '\(attachment?.fileName ?? "")')") { (response, error) in
-			MMLogDebug("[InAppChat] sendMessage call got a response: \(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+			self.logDebug("sendMessage call got a response: \(response.debugDescription), error: \(error?.localizedDescription ?? "")")
 		}
 	}
 }

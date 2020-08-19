@@ -9,7 +9,8 @@ import UIKit
 import CoreData
 
 
-final class MessagesEvictionOperation: Operation {
+final class MessagesEvictionOperation: MMOperation {
+	
 	var messageMaximumAge: TimeInterval
 	var context: NSManagedObjectContext
 	var finishBlock: (() -> Void)?
@@ -21,7 +22,7 @@ final class MessagesEvictionOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("[Message eviction] started...")
+		logDebug("started...")
 		context.performAndWait {
 			context.reset()
 			let dateToCompare = MobileMessaging.date.now.addingTimeInterval(-self.messageMaximumAge)
@@ -35,7 +36,7 @@ final class MessagesEvictionOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Message eviction] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock?()
 	}
 }

@@ -34,7 +34,7 @@ class ChatWebView: WKWebView {
 	func loadWidget(_ widget: ChatWidget){
 		guard let pushRegistrationId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
 			let request = request(forWidgetId: widget.widgetId, pushRegId: pushRegistrationId) else {
-				MMLogDebug("[InAppChat] no push registration id, can't start chat")
+				logDebug("no push registration id, can't start chat")
 				return
 		}
 		if let backgroundColor = widget.backgroundColor {
@@ -45,12 +45,12 @@ class ChatWebView: WKWebView {
 	}
 	
 	private func request(forWidgetId widgetId: String, pushRegId: String) -> URLRequest? {
-		MMLogDebug("[InAppChat] pushregId: \(pushRegId) widgetId: \(widgetId)")
+		logDebug("pushregId: \(pushRegId) widgetId: \(widgetId)")
 		
 		guard let url = MobileMessaging.bundle.url(forResource: "ChatConnector", withExtension: "html"),
 		      loadFileURL(url, allowingReadAccessTo: url) != nil,
 		      var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-				MMLogDebug("[InAppChat] can't load ChatConnector.html")
+				logDebug("can't load ChatConnector.html")
 			return nil
 		}
 		components.queryItems = [
@@ -59,7 +59,7 @@ class ChatWebView: WKWebView {
 		]
 		
 		guard let componentsUrl = components.url else {
-			MMLogDebug("[InAppChat] can't load ChatConnector.html, components.url = nil")
+			logDebug("can't load ChatConnector.html, components.url = nil")
 			return nil
 		}
 		return URLRequest(url: componentsUrl)

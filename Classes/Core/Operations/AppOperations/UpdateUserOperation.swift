@@ -7,7 +7,8 @@
 
 import Foundation
 
-class UpdateUserOperation: Operation {
+class UpdateUserOperation: MMOperation {
+
 	let mmContext: MobileMessaging
 	let finishBlock: ((NSError?) -> Void)
 	let requireResponse: Bool
@@ -23,11 +24,11 @@ class UpdateUserOperation: Operation {
 			self.dirtyUser = dirtyUser
 			self.body = UserDataMapper.requestPayload(currentUser: currentUser, dirtyUser: dirtyUser)
 			if self.body.isEmpty {
-				MMLogWarn("[UpdateUserOperation] There is no data to send. Aborting...")
+				Self.logWarn("There is no data to send. Aborting...")
 				return nil
 			}
 		} else {
-			MMLogDebug("[UpdateUserOperation] There are no attributes to sync save. Aborting...")
+			Self.logDebug("There are no attributes to sync save. Aborting...")
 			return nil
 		}
 	}
@@ -35,26 +36,26 @@ class UpdateUserOperation: Operation {
 	override func execute() {
 		//TODO: move to conditions abstraction
 		guard mmContext.internalData().currentDepersonalizationStatus != .pending else {
-			MMLogWarn("[UpdateUserOperation] Logout pending. Canceling...")
+			logWarn("Logout pending. Canceling...")
 			finishWithError(NSError(type: MMInternalErrorType.PendingLogout))
 			return
 		}
 		guard !isCancelled else {
-			MMLogDebug("[UpdateUserOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogWarn("[UpdateUserOperation] There is no registration. Finishing...")
+			logWarn("There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[UpdateUserOperation] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		MMLogDebug("[UpdateUserOperation] started...")
+		logDebug("started...")
 		performRequest(pushRegistrationId: pushRegistrationId)
 	}
 
@@ -70,7 +71,7 @@ class UpdateUserOperation: Operation {
 
 	private func handleUserDataUpdateResult(_ result: UpdateUserDataResult) {
 		guard !isCancelled else {
-			MMLogDebug("[UpdateUserOperation] cancelled.")
+			logDebug("cancelled.")
 			return
 		}
 
@@ -78,14 +79,14 @@ class UpdateUserOperation: Operation {
 		case .Success:
 			dirtyUser.archiveCurrent()
 			UserEventsManager.postUserSyncedEvent(MobileMessaging.currentUser)
-			MMLogDebug("[UpdateUserOperation] successfully synced")
+			logDebug("successfully synced")
 		case .Failure(let error):
 			if error?.mm_code == "USER_MERGE_INTERRUPTED" {
 				rollbackUserIdentity()
 			}
-			MMLogError("[UpdateUserOperation] sync request failed with error: \(error.orNil)")
+			logError("sync request failed with error: \(error.orNil)")
 		case .Cancel:
-			MMLogWarn("[UpdateUserOperation] sync request cancelled.")
+			logWarn("sync request cancelled.")
 		}
 	}
 
@@ -99,7 +100,7 @@ class UpdateUserOperation: Operation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[UpdateUserOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first)
 	}
 }

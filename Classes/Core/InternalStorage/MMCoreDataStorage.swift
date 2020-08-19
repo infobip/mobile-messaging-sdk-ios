@@ -34,7 +34,7 @@ struct MMStorageSettings {
 	}
 }
 
-final class MMCoreDataStorage {
+final class MMCoreDataStorage: NamedLogger {
 
 	init(settings: MMStorageSettings) throws {
 		self.databaseFileName = settings.databaseFileName
@@ -104,7 +104,7 @@ final class MMCoreDataStorage {
 			do {
 				try _persistentStoreCoordinator?.remove(ps)
 			} catch (let exception) {
-				MMLogError("Removing persistent store \(exception)")
+				logError("Removing persistent store \(exception)")
 			}
 		}
 		_persistentStoreCoordinator = nil
@@ -131,11 +131,11 @@ final class MMCoreDataStorage {
 		if let storePath = storePath {
 			let storeURL = URL(fileURLWithPath: storePath)
 			do {
-				MMLogDebug("Adding persistent store at \(storeURL)")
+				logDebug("Adding persistent store at \(storeURL)")
 				_persistentStore = try psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)
-				MMLogDebug("Persistent store added successfully")
+				logDebug("Persistent store added successfully")
 			} catch let error as NSError {
-				MMLogError("Error occured while adding persistent store: \(error)")
+				logError("Error occured while adding persistent store: \(error)")
 
 
 				let isMigrationError = error.code == NSMigrationError ||
@@ -144,13 +144,13 @@ final class MMCoreDataStorage {
 					error.code == NSMigrationMissingMappingModelError
 
 				if error.domain == NSCocoaErrorDomain && isMigrationError {
-					MMLogError("Couldn't open the database, because of migration error, database will be recreated")
+					logError("Couldn't open the database, because of migration error, database will be recreated")
 					NSPersistentStore.MM_removePersistentStoreFilesAtURL(storeURL)
 					_persistentStore = try psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)
 				}
 			}
 		} else {
-			MMLogDebug("Adding in-memory store")
+			logDebug("Adding in-memory store")
 			_persistentStore = try psc.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil, options: nil)
 		}
 	}
@@ -185,7 +185,7 @@ final class MMCoreDataStorage {
 				let momUrl = URL(fileURLWithPath: momPath)
 				_managedObjectModel = NSManagedObjectModel(contentsOf: momUrl)
 			} else {
-				MMLogError("Couldn't find managedObjectModel file \(momName)")
+				logError("Couldn't find managedObjectModel file \(momName)")
 			}
 			return _managedObjectModel
 		}
@@ -238,7 +238,7 @@ final class MMCoreDataStorage {
 	}
 
 	private func didNotAddPersistentStoreWithPath(_ storePath: String?, options: MMStoreOptions?, error: NSError?) {
-		MMLogError("Failed creating persistent store: \(error.orNil)")
+		logError("Failed creating persistent store: \(error.orNil)")
 	}
 
 	private var _mainThreadManagedObjectContext: NSManagedObjectContext?

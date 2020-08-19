@@ -8,7 +8,8 @@
 import Foundation
 import CoreData
 
-class UserSessionPersistingOperation : Operation {
+class UserSessionPersistingOperation : MMOperation {
+	
 	let context: NSManagedObjectContext
 	let mmContext: MobileMessaging
 	let finishBlock: (Error?) -> Void
@@ -24,17 +25,17 @@ class UserSessionPersistingOperation : Operation {
 	}
 
 	override func execute() {
-		MMLogVerbose("[UserSessionPersisting] started...")
+		logVerbose("started...")
 		context.performAndWait {
 
 			if let currentSessions = UserSessionReportObject.MM_findAllWithPredicate(NSPredicate(format: "endDate > %@", MobileMessaging.date.now.addingTimeInterval(-Consts.UserSessions.sessionTimeoutSec) as NSDate), context: context), !currentSessions.isEmpty {
-				MMLogVerbose("[UserSessionPersisting] \(currentSessions.count) current sessions found, updating endDate \(self.sessionTimestamp)")
+				self.logVerbose("\(currentSessions.count) current sessions found, updating endDate \(self.sessionTimestamp)")
 				currentSessions.forEach { currentSession in
 					currentSession.endDate = self.sessionTimestamp
 					currentSession.pushRegistrationId = self.pushRegId
 				}
 			} else {
-				MMLogVerbose("[UserSessionPersisting] saving new session \(self.sessionTimestamp)")
+				self.logVerbose("saving new session \(self.sessionTimestamp)")
 				let newSession = UserSessionReportObject.MM_createEntityInContext(context: self.context)
 				newSession.startDate = self.sessionTimestamp
 				newSession.endDate = self.sessionTimestamp.addingTimeInterval(Consts.UserSessions.sessionSaveInterval) // minimum session len
@@ -47,7 +48,7 @@ class UserSessionPersistingOperation : Operation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogVerbose("[UserSessionPersisting] finished: \(errors)")
+		logVerbose("finished: \(errors)")
 		finishBlock(errors.first)
 	}
 }

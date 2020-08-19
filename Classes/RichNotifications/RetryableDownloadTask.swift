@@ -5,7 +5,7 @@
 //
 //
 
-class RetryableDownloadTask {
+class RetryableDownloadTask: NamedLogger {
 	let contentUrl: URL
 	let destinationResolver: (URL, URLResponse) -> URL
 	let completion: (URL?, Error?) -> Void
@@ -25,14 +25,14 @@ class RetryableDownloadTask {
 	
 	func resume() {
 		let request = URLRequest(url: contentUrl)
-		MMLogDebug("[Notification Extension] starting downloading with request \(request)...")
+		logDebug("starting downloading with request \(request)...")
 		
 		let destination: DownloadRequest.DownloadFileDestination = { url, urlResponse in
 			return (self.destinationResolver(url, urlResponse), DownloadRequest.DownloadOptions.removePreviousFile)
 		}
 		sessionManager.download(request, to: destination).responseData { (downloadResult) in
 			
-			MMLogDebug("[Notification Extension] finishing with error \(downloadResult.error.orNil)")
+			self.logDebug("finishing with error \(downloadResult.error.orNil)")
 			self.completion(downloadResult.destinationURL, downloadResult.error as NSError?)
 		}
 	}

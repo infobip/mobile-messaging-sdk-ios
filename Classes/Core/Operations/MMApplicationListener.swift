@@ -13,10 +13,6 @@ final class MMApplicationListener: MobileMessagingService {
 		NotificationCenter.default.removeObserver(self)
 	}
 
-	init(mmContext: MobileMessaging) {
-		super.init(mmContext: mmContext, id: "MMApplicationListener")
-	}
-
 	override func mobileMessagingWillStart(_ mmContext: MobileMessaging) {
 		start({ _ in})
 	}

@@ -8,7 +8,8 @@
 import UIKit
 import CoreData
 
-final class MessagesSyncOperation: GroupOperation {
+final class MessagesSyncOperation: GroupOperation, NamedLogger {
+	static var loggerName: String = String(describing: self)
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?) -> Void)?
 	let mmContext: MobileMessaging
@@ -28,7 +29,7 @@ final class MessagesSyncOperation: GroupOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Message syncing] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock?(errors.first)
 	}
 }

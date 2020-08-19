@@ -28,7 +28,7 @@ extension MTMessage {
 	
 	@discardableResult func downloadImageAttachment(appGroupId: String? = nil, completion: @escaping (URL?, Error?) -> Void) -> RetryableDownloadTask? {
 		guard let contentURL = contentUrl?.safeUrl else {
-			MMLogDebug("[Notification Extension] could not init content url to download")
+			logDebug("could not init content url to download")
 			completion(nil, nil)
 			return nil
 		}
@@ -40,7 +40,7 @@ extension MTMessage {
 		}
 
 		let task = RetryableDownloadTask(attemptsCount: 3, contentUrl: contentURL, destinationResolver: destinationResolver, completion: completion)
-		MMLogDebug("[Notification Extension] downloading rich content for message...")
+		logDebug("downloading rich content for message...")
 		task.resume()
 		
 		return task
@@ -49,7 +49,7 @@ extension MTMessage {
 }
 
 @objcMembers
-final public class MobileMessagingNotificationServiceExtension: NSObject {
+final public class MobileMessagingNotificationServiceExtension: NSObject, NamedLogger {
 	
 	/// Starts a new Mobile Messaging Notification Service Extension session.
 	///
@@ -78,7 +78,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	/// Although this warning doesn't mean that our code doesn't work, you can shut it up by prefixing your App Group ID with a Team ID of a certificate that you are signing the build with. For example: `"9S95Y6XXXX.group.com.mobile-messaging.notification-service-extension"`. The App Group ID itself doesn't need to be changed though.
 	public class func startWithApplicationCode(_ applicationCode: String) {
 		guard let appGroupId = Bundle.mainAppBundle.appGroupId else {
-			MMLogError("[MobileMessagingNotificationServiceExtension] App Group Id is not provided in Notification Extension target info dictionary")
+			logError("App Group Id is not provided in Notification Extension target info dictionary")
 			return
 		}
 		if sharedInstance == nil {
@@ -92,7 +92,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 	/// - parameter request: The original notification request. Use this object to get the original content of the notification.
 	/// - parameter contentHandler: The block to execute with the modified content. The block will be called after the delivery reporting and contend downloading finished.
 	public class func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-		MMLogDebug("[Notification Extension] did receive request \(request)")
+		logDebug("did receive request \(request)")
 		var result: UNNotificationContent = request.content
 		
 		guard let sharedInstance = sharedInstance,
@@ -103,7 +103,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 									  seenStatus: .NotSeen,
 									  isDeliveryReportSent: false) else
 		{
-			MMLogDebug("[Notification Extension] could not recognize message")
+			logDebug("could not recognize message")
 			contentHandler(result)
 			return
 		}
@@ -114,7 +114,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		sharedInstance.reportDelivery(mtMessage) { error in
 			mtMessage.isDeliveryReportSent = error == nil
 			mtMessage.deliveryReportedDate = mtMessage.isDeliveryReportSent ? MobileMessaging.date.now : nil
-			MMLogDebug("[Notification Extension] saving message to shared storage \(sharedInstance.sharedNotificationExtensionStorage.orNil)")
+			logDebug("saving message to shared storage \(sharedInstance.sharedNotificationExtensionStorage.orNil)")
 			sharedInstance.sharedNotificationExtensionStorage?.save(message: mtMessage)
 			handlingGroup.leave()
 		}
@@ -126,7 +126,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 		}
 		
 		handlingGroup.notify(queue: DispatchQueue.main) {
-			MMLogDebug("[Notification Extension] message handling finished")
+			logDebug("message handling finished")
 			contentHandler(result)
 		}
 	}
@@ -153,14 +153,14 @@ final public class MobileMessagingNotificationServiceExtension: NSObject {
 				let attachment = try? UNNotificationAttachment(identifier: downloadedFileUrl.absoluteString.sha1(), url: downloadedFileUrl, options: nil)
 				else
 			{
-				MMLogDebug("[Notification Extension] rich content downloading completed, could not init content attachment")
+				self.logDebug("rich content downloading completed, could not init content attachment")
 				completion(originalContent)
 				return
 			}
 
 //			message.downloadedPictureUrl = downloadedFileUrl
 			mContent.attachments = [attachment]
-			MMLogDebug("[Notification Extension] rich content downloading completed succesfully")
+			self.logDebug("rich content downloading completed succesfully")
 			completion((mContent.copy() as? UNNotificationContent) ?? originalContent)
 		}
 	}
@@ -181,12 +181,12 @@ protocol DeliveryReporting {
 	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void)
 }
 
-class DeliveryReporter: DeliveryReporting {
+class DeliveryReporter: DeliveryReporting, NamedLogger {
 	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void) {
-		MMLogDebug("[Notification Extension] reporting delivery for message ids \(messageIds)")
+		logDebug("reporting delivery for message ids \(messageIds)")
 		guard let extensionInstance = MobileMessagingNotificationServiceExtension.sharedInstance, !messageIds.isEmpty else
 		{
-			MMLogDebug("[Notification Extension] could not report delivery")
+			logDebug("[Notification Extension] could not report delivery")
 			completion(nil)
 			return
 		}

@@ -54,7 +54,7 @@ class MMMessageHandler: MobileMessagingService {
 	
 	init(storage: MMCoreDataStorage, mmContext: MobileMessaging) {
 		self.storage = storage
-		super.init(mmContext: mmContext, id: "com.mobile-messaging.subservice.MessageHandler")
+		super.init(mmContext: mmContext)
     }
 
 	override func start(_ completion: @escaping (Bool) -> Void) {
@@ -78,7 +78,7 @@ class MMMessageHandler: MobileMessagingService {
 		{
 			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(userInfo as? [String : Any], applicationState: MobileMessaging.application.applicationState), completion: completion)
 		} else {
-			MMLogError("Error while converting payload:\n\(userInfo)\nto MMMessage")
+			logError("Error while converting payload:\n\(userInfo)\nto MMMessage")
 			completion(.failed(NSError.init(type: .UnknownError)))
 		}
 	}
@@ -100,18 +100,18 @@ class MMMessageHandler: MobileMessagingService {
 				for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
 					newMessages?.forEach { m in
 						group.enter()
-						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start new message handling \(m.messageId)")
+						self.logDebug("subservice \(subservice.uniqueIdentifier) will start new message handling \(m.messageId)")
 						subservice.handleNewMessage(m, completion: { _ in
-							MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop new message handling \(m.messageId)")
+							self.logDebug("subservice \(subservice.uniqueIdentifier) did stop new message handling \(m.messageId)")
 							group.leave()
 						})
 					}
 					
 					messages.forEach { m in
 						group.enter()
-						MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) will start any message handling \(m.messageId)")
+						self.logDebug("subservice \(subservice.uniqueIdentifier) will start any message handling \(m.messageId)")
 						subservice.handleAnyMessage(m, completion: { _ in
-							MMLogDebug("[Message Handler] subservice \(subservice.uniqueIdentifier) did stop any message handling \(m.messageId)")
+							self.logDebug("subservice \(subservice.uniqueIdentifier) did stop any message handling \(m.messageId)")
 							group.leave()
 						})
 					}
@@ -125,7 +125,7 @@ class MMMessageHandler: MobileMessagingService {
 				})
 				
 				group.notify(queue: DispatchQueue.global(qos: .default)) {
-					MMLogDebug("[Message Handler] message handling finished")
+					self.logDebug("message handling finished")
 					completion(result)
 				}
 			}))
@@ -264,7 +264,7 @@ class MMMessageHandler: MobileMessagingService {
 
 	override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
 		guard !originalMessage.isGeoSignalingMessage else {
-			MMLogDebug("[Message Handler] cannot populate message \(message.messageId)")
+			logDebug("cannot populate message \(message.messageId)")
 			return false
 		}
 		
@@ -276,7 +276,7 @@ class MMMessageHandler: MobileMessagingService {
 		message.deliveryReportedDate = originalMessage.deliveryReportedDate
 		message.messageType = .Default
 		message.payload = originalMessage.originalPayload
-		MMLogDebug("[Message Handler] attributes fulfilled for message \(message.messageId)")
+		logDebug("attributes fulfilled for message \(message.messageId)")
 		return true
 	}
 
@@ -286,7 +286,7 @@ class MMMessageHandler: MobileMessagingService {
 	}
 
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
-		MMLogDebug("[Message handler] log out")
+		logDebug("log out")
 		cancelOperations()
 		messageSyncQueue.addOperation {
 			if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {

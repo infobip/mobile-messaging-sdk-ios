@@ -7,7 +7,7 @@
 
 import CoreData
 
-class DepersonalizeOperation: Operation {
+class DepersonalizeOperation: MMOperation {
 	let mmContext: MobileMessaging
 	let finishBlock: ((SuccessPending, NSError?) -> Void)?
 	let pushRegistrationId: String?
@@ -22,7 +22,7 @@ class DepersonalizeOperation: Operation {
 	}
 	
 	override func execute() {
-		MMLogDebug("[Depersonalize] starting...")
+		logDebug("starting...")
 		DepersonalizeOperation.depersonalizeSubservices(mmContext: mmContext)
 		self.sendRequest()
 	}
@@ -33,7 +33,7 @@ class DepersonalizeOperation: Operation {
 			return
 		}
 		if let pushRegistrationId = pushRegistrationId {
-			MMLogDebug("[Depersonalize] performing request...")
+			logDebug("performing request...")
 			mmContext.remoteApiProvider.depersonalize(applicationCode: self.applicationCode, pushRegistrationId: pushRegistrationId, pushRegistrationIdToDepersonalize: pushRegistrationId, completion: { result in
 				self.handleResult(result)
 				self.finishWithError(result.error)
@@ -46,20 +46,20 @@ class DepersonalizeOperation: Operation {
 	private func handleResult(_ result: DepersonalizeResult) {
 		switch result {
 		case .Success:
-			MMLogDebug("[Depersonalize] request secceeded")
+			logDebug("request secceeded")
 			DepersonalizeOperation.handleSuccessfulDepersonalize(mmContext: self.mmContext)
 		case .Failure(let error):
-			MMLogError("[Depersonalize] request failed with error: \(error.orNil)")
+			logError("request failed with error: \(error.orNil)")
 			DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
 		case .Cancel:
-			MMLogWarn("[Depersonalize] request cancelled.")
+			logWarn("request cancelled.")
 		}
 	}
 
 	class func handleSuccessfulDepersonalize(mmContext: MobileMessaging) {
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
-			MMLogDebug("[Depersonalize] current depersonalize status: pending")
+			DepersonalizeOperation.logDebug("current depersonalize status: pending")
 
 			let id = mmContext.internalData()
 			id.currentDepersonalizationStatus = .success
@@ -67,7 +67,7 @@ class DepersonalizeOperation: Operation {
 
 			mmContext.apnsRegistrationManager.registerForRemoteNotifications()
 		case .success, .undefined:
-			MMLogDebug("[Depersonalize] current depersonalize status: undefined/succesful")
+			DepersonalizeOperation.logDebug("current depersonalize status: undefined/succesful")
 		}
 		UserEventsManager.postDepersonalizedEvent()
 	}
@@ -79,7 +79,7 @@ class DepersonalizeOperation: Operation {
 
 		switch id.currentDepersonalizationStatus {
 		case .pending:
-			MMLogDebug("[Depersonalize] current depersonalize status: pending")
+			logDebug("current depersonalize status: pending")
 			if id.depersonalizeFailCounter >= DepersonalizationConsts.failuresNumberLimit {
 
 				id.currentDepersonalizationStatus = .undefined
@@ -89,7 +89,7 @@ class DepersonalizeOperation: Operation {
 			}
 
 		case .success, .undefined:
-			MMLogDebug("[Depersonalize] current depersonalize status: undefined/successful")
+			logDebug("current depersonalize status: undefined/successful")
 
 			id.currentDepersonalizationStatus = .pending
 			id.archiveCurrent()
@@ -103,7 +103,7 @@ class DepersonalizeOperation: Operation {
 		case .pending: break
 		case .success, .undefined:
 			let loopGroup = DispatchGroup()
-			MMLogDebug("[Depersonalize] depersonalizing subservices...")
+			logDebug("depersonalizing subservices...")
 			mmContext.subservices.values.forEach { subservice in
 				loopGroup.enter()
 				subservice.depersonalizeService(mmContext, completion: {
@@ -116,7 +116,7 @@ class DepersonalizeOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Depersonalize] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock?(mmContext.internalData().currentDepersonalizationStatus, errors.first)
 	}
 }

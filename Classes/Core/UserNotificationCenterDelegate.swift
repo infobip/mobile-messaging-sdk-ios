@@ -35,7 +35,7 @@ extension UNNotificationPresentationOptions {
 	}
 }
 
-class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
+class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate, NamedLogger {
 	static let sharedInstance = UserNotificationCenterDelegate()
 
 	public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
@@ -63,10 +63,10 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 	}
 
 	func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
-		MMLogDebug("[Notification Center Delegate] received response")
+		logDebug("received response")
 		guard let identifier = actionId, let service = NotificationsInteractionService.sharedInstance else
 		{
-			MMLogDebug("[Notification Center Delegate] canceled handling actionId \(actionId ?? "nil"), service is initialized \(NotificationsInteractionService.sharedInstance != nil)")
+			logDebug("canceled handling actionId \(actionId ?? "nil"), service is initialized \(NotificationsInteractionService.sharedInstance != nil)")
 			completionHandler()
 			return
 		}

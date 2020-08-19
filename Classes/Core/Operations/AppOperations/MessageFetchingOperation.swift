@@ -7,7 +7,7 @@
 import Foundation
 import CoreData
 
-final class MessageFetchingOperation: Operation {
+final class MessageFetchingOperation: MMOperation {
 	
 	let context: NSManagedObjectContext
 	let finishBlock: (MessagesSyncResult) -> Void
@@ -25,19 +25,19 @@ final class MessageFetchingOperation: Operation {
 	
 	override func execute() {
 		guard !isCancelled else {
-			MMLogDebug("[Message fetching] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
-		MMLogDebug("[Message fetching] Starting operation...")
+		logDebug("Starting operation...")
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[Message fetching] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.InvalidRegistration))
 			finish()
 			return
 		}
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogWarn("[Message fetching] No registration. Finishing...")
+			logWarn("No registration. Finishing...")
 			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))
 			finish()
 			return
@@ -63,7 +63,7 @@ final class MessageFetchingOperation: Operation {
 			let nonReportedMessageIds = self.getNonReportedMessageIds()
 			let archveMessageIds = self.getArchiveMessageIds()
 			
-			MMLogDebug("[Message fetching] Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
+			logDebug("Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
 
 			let body = MessageSyncMapper.requestBody(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
 			self.mmContext.remoteApiProvider.syncMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body) { result in
@@ -78,20 +78,20 @@ final class MessageFetchingOperation: Operation {
 	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?, completion: @escaping () -> Void) {
 		switch result {
 		case .Success(let fetchResponse):
-			MMLogDebug("[Message fetching] succeded: received \(String(describing: fetchResponse.messages?.count))")
+			logDebug("succeded: received \(String(describing: fetchResponse.messages?.count))")
 
 			if let nonReportedMessageIds = nonReportedMessageIds {
 				self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds, completion: completion)
-				MMLogDebug("[Message fetching] delivery report sent for messages: \(nonReportedMessageIds)")
+				logDebug("delivery report sent for messages: \(nonReportedMessageIds)")
 				UserEventsManager.postDLRSentEvent(nonReportedMessageIds)
 			} else {
 				completion()
 			}
 		case .Failure(_):
-			MMLogError("[Message fetching] request failed")
+			logError("request failed")
 			completion()
 		case .Cancel:
-			MMLogWarn("[Message fetching] cancelled")
+			logWarn("cancelled")
 			completion()
 		}
 	}
@@ -110,7 +110,7 @@ final class MessageFetchingOperation: Operation {
 				$0.deliveryReportedDate = MobileMessaging.date.now
 			}
 
-			MMLogDebug("[Message fetching] marked as delivered: \(messages.map{ $0.messageId })")
+			logDebug("marked as delivered: \(messages.map{ $0.messageId })")
 			context.MM_saveToPersistentStoreAndWait()
 			updateMessageStorage(with: messages, completion: completion)
 		}
@@ -129,12 +129,12 @@ final class MessageFetchingOperation: Operation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Message fetching] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		
 		switch result {
 		case .Success(let fetchResponse):
 			if let messages = fetchResponse.messages, !messages.isEmpty, handlingIteration < Consts.MessageFetchingSettings.fetchingIterationLimit {
-				MMLogDebug("[Message fetching] triggering handling for fetched messages \(messages.count)...")
+				logDebug("triggering handling for fetched messages \(messages.count)...")
 				self.mmContext.messageHandler.handleMTMessages(messages, notificationTapped: false, handlingIteration: handlingIteration + 1, completion: { _ in
 					self.finishBlock(self.result)
 				})

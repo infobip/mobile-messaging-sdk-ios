@@ -78,6 +78,37 @@ func formattedLogEntry(date: Date, icon: LogIcons, message: String) -> String {
 	func logVerbose(message: String)
 }
 
+protocol NamedLogger {
+}
+
+extension NamedLogger {
+	static func logDebug(_ message: String) {
+		MMLogDebug("[\(String(describing: self))] \(message)")
+	}
+	static func logError(_ message: String) {
+		MMLogError("[\(String(describing: self))] \(message)")
+	}
+	static func logWarn(_ message: String) {
+		MMLogWarn("[\(String(describing: self))] \(message)")
+	}
+	func logVerbose(_ message: String) {
+		MMLogVerbose("[\(String(describing: type(of: self)))] \(message)")
+	}
+	func logDebug(_ message: String) {
+		MMLogDebug("[\(String(describing: type(of: self)))] \(message)")
+	}
+	func logError(_ message: String) {
+		MMLogError("[\(String(describing: type(of: self)))] \(message)")
+	}
+	func logWarn(_ message: String) {
+		MMLogWarn("[\(String(describing: type(of: self)))] \(message)")
+	}
+	func logInfo(_ message: String) {
+		MMLogInfo("[\(String(describing: type(of: self)))] \(message)")
+	}
+}
+
+
 public func MMLogDebug(_ message: String) {
 	MobileMessaging.logger?.logDebug(message: message)
 }

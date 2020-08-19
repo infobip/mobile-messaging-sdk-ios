@@ -7,7 +7,8 @@
 
 import Foundation
 
-class UpdateInstanceOperation : Operation {
+class UpdateInstanceOperation : MMOperation {
+	
 	let mmContext: MobileMessaging
 	let currentInstallation: Installation
 	let body: RequestBody
@@ -27,41 +28,41 @@ class UpdateInstanceOperation : Operation {
 			self.dirtyInstallation = dirtyInstallation
 			self.body = InstallationDataMapper.patchRequestPayload(currentInstallation: currentInstallation, dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
 			if self.body.isEmpty {
-				MMLogWarn("[UpdateInstanceOperation] There is no data to send. Aborting...")
+				Self.logWarn("There is no data to send. Aborting...")
 				return nil
 			}
 		} else {
-			MMLogDebug("[UpdateInstanceOperation] There are no attributes to sync save. Aborting...")
+			Self.logDebug("There are no attributes to sync save. Aborting...")
 			return nil
 		}
 
 		if let registrationPushRegIdToUpdate = registrationPushRegIdToUpdate {
 			self.registrationPushRegIdToUpdate = registrationPushRegIdToUpdate
 		} else {
-			MMLogWarn("[UpdateInstanceOperation] There is no reference registration. Aborting...")
+			Self.logWarn("There is no reference registration. Aborting...")
 			return nil
 		}
 
 		if let authPushRegistrationId = currentInstallation.pushRegistrationId  {
 			self.authPushRegistrationId = authPushRegistrationId
 		} else {
-			MMLogWarn("[UpdateInstanceOperation] There is no authentication registration. Aborting...")
+			Self.logWarn("There is no authentication registration. Aborting...")
 			return nil
 		}
 	}
 
 	override func execute() {
 		guard !isCancelled else {
-			MMLogDebug("[UpdateInstanceOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[UpdateInstanceOperation] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		MMLogDebug("[UpdateInstanceOperation] started...")
+		logDebug("started...")
 		performRequest()
 	}
 
@@ -74,11 +75,11 @@ class UpdateInstanceOperation : Operation {
 
 	private func handleResult(_ result: UpdateInstanceDataResult) {
 		guard authPushRegistrationId == registrationPushRegIdToUpdate else {
-			MMLogDebug("[UpdateInstanceOperation] updated other installation, no need to persist data. Finishing.")
+			logDebug("updated other installation, no need to persist data. Finishing.")
 			return
 		}
 		guard !isCancelled else {
-			MMLogDebug("[UpdateInstanceOperation] cancelled.")
+			logDebug("cancelled.")
 			return
 		}
 		switch result {
@@ -92,16 +93,16 @@ class UpdateInstanceOperation : Operation {
 			dirtyInstallation.archiveCurrent()
 
 			UserEventsManager.postInstallationSyncedEvent(mmContext.currentInstallation())
-			MMLogDebug("[UpdateInstanceOperation] successfully synced")
+			logDebug("successfully synced")
 		case .Failure(let error):
-			MMLogError("[UpdateInstanceOperation] sync request failed with error: \(error.orNil)")
+			logError("sync request failed with error: \(error.orNil)")
 		case .Cancel:
-			MMLogWarn("[UpdateInstanceOperation] sync request cancelled.")
+			logWarn("sync request cancelled.")
 		}
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[UpdateInstanceOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first)
 	}
 }

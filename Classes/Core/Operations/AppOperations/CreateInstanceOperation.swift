@@ -7,7 +7,8 @@
 
 import Foundation
 
-class CreateInstanceOperation : Operation {
+class CreateInstanceOperation : MMOperation {
+	
 	let mmContext: MobileMessaging
 	let currentInstallation: Installation
 	let dirtyInstallation: Installation
@@ -29,7 +30,7 @@ class CreateInstanceOperation : Operation {
 			currentInstallation.pushServiceToken == dirtyInstallation.pushServiceToken ||
 			dirtyInstallation.pushServiceToken == nil)
 		{
-			MMLogWarn("[CreateInstanceOperation] There is no registration data to send. Aborting...")
+			Self.logWarn("There is no registration data to send. Aborting...")
 			return nil
 		}
 
@@ -38,16 +39,16 @@ class CreateInstanceOperation : Operation {
 
 	override func execute() {
 		guard !isCancelled else {
-			MMLogDebug("[CreateInstanceOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[CreateInstanceOperation] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		MMLogDebug("[CreateInstanceOperation] started...")
+		logDebug("started...")
 		performRequest()
 	}
 
@@ -61,7 +62,7 @@ class CreateInstanceOperation : Operation {
 
 	private func handleResult(_ result: FetchInstanceDataResult) {
 		guard !isCancelled else {
-			MMLogDebug("[CreateInstanceOperation] cancelled.")
+			logDebug("cancelled.")
 			return
 		}
 		switch result {
@@ -80,16 +81,16 @@ class CreateInstanceOperation : Operation {
 			if mmContext.keychain.pushRegId == nil {
 				mmContext.keychain.pushRegId = response.pushRegistrationId
 			}
-			MMLogDebug("[CreateInstanceOperation] successfully created registration \(String(describing: response.pushRegistrationId))")
+			logDebug("successfully created registration \(String(describing: response.pushRegistrationId))")
 		case .Failure(let error):
-			MMLogError("[CreateInstanceOperation] sync request failed with error: \(error.orNil)")
+			logError("sync request failed with error: \(error.orNil)")
 		case .Cancel:
-			MMLogWarn("[CreateInstanceOperation] sync request cancelled.")
+			logWarn("sync request cancelled.")
 		}
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[CreateInstanceOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first)
 	}
 }

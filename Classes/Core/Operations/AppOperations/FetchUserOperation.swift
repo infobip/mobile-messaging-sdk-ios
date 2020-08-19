@@ -7,7 +7,8 @@
 
 import Foundation
 
-class FetchUserOperation: Operation {
+class FetchUserOperation: MMOperation {
+	
 	let mmContext: MobileMessaging
 	let user: User
 	let dirtyUserVersion: Int
@@ -22,32 +23,32 @@ class FetchUserOperation: Operation {
 
 	override func execute() {
 		guard mmContext.internalData().currentDepersonalizationStatus != .pending else {
-			MMLogWarn("[FetchUserOperation] Logout pending. Canceling...")
+			logWarn("Logout pending. Canceling...")
 			finishWithError(NSError(type: MMInternalErrorType.PendingLogout))
 			return
 		}
 		guard !isCancelled else {
-			MMLogDebug("[FetchUserOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogWarn("[FetchUserOperation] There is no registration. Finishing...")
+			logWarn("There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogWarn("[FetchUserOperation] Registration is not healthy. Finishing...")
+			logWarn("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
-		MMLogDebug("[FetchUserOperation] Started...")
+		logDebug("Started...")
 
 		performRequest(pushRegistrationId: pushRegistrationId)
 	}
 
 	private func performRequest(pushRegistrationId: String) {
-		MMLogDebug("[FetchUserOperation] fetching from server...")
+		logDebug("fetching from server...")
 		mmContext.remoteApiProvider.getUser(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId)
 		{ result in
 			self.handleResult(result)
@@ -57,7 +58,7 @@ class FetchUserOperation: Operation {
 
 	private func handleResult(_ result: FetchUserDataResult) {
 		guard !isCancelled else {
-			MMLogDebug("[FetchUserOperation] cancelled.")
+			logDebug("cancelled.")
 			return
 		}
 
@@ -68,18 +69,18 @@ class FetchUserOperation: Operation {
 			}
 			responseUser.archiveAll()
 
-			MMLogDebug("[FetchUserOperation] successfully synced")
+			logDebug("successfully synced")
 		case .Failure(let error):
-			MMLogError("[FetchUserOperation] sync request failed with error: \(error.orNil)")
+			logError("sync request failed with error: \(error.orNil)")
 			return
 		case .Cancel:
-			MMLogWarn("[FetchUserOperation] sync request cancelled.")
+			logWarn("sync request cancelled.")
 			return
 		}
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[FetchUserOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first) //check what to do with errors/
 	}
 }

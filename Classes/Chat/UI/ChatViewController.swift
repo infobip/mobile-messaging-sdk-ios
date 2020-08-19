@@ -17,7 +17,7 @@ protocol ChatWebViewDelegate {
 ///We support two ways to quickly embed it into your own application:
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
 /// - programmatically: use one of the `make` methods provided.
-open class ChatViewController: CPMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable {
+open class ChatViewController: CPMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
 
 	///Will make UINavigationController with ChatViewController as root
 	public static func makeRootNavigationViewController() -> ChatNavigationVC {
@@ -200,7 +200,7 @@ extension ChatViewController: WKNavigationDelegate {
 			decisionHandler(.allow)
 			return
 		}
-		MMLogDebug("[InAppChat] will open URL: \(url)")
+		logDebug("will open URL: \(url)")
 		UIApplication.shared.open(url)
 		decisionHandler(.cancel)
 	}

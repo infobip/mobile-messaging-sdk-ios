@@ -30,7 +30,7 @@ extension String {
 	}
 }
 
-class VersionManager {
+class VersionManager: NamedLogger {
 	var lastCheckDate : Date?
 	let defaultTimeout: Double = 60 * 60 * 24 // a day
 	let mmContext: MobileMessaging
@@ -41,7 +41,7 @@ class VersionManager {
 	}
 	
 	func validateVersion(_ completion: (() -> Void)? = nil) {
-		MMLogDebug("[Checking versions] started...")
+		logDebug("started...")
 		
 		guard lastCheckDate == nil || (lastCheckDate?.addingTimeInterval(defaultTimeout).compare(MobileMessaging.date.now) != ComparisonResult.orderedDescending) else
 		{
@@ -71,11 +71,11 @@ class VersionManager {
 	}
 	
 	func waitUntilItsTime() {
-		MMLogDebug("There's no need to check the library version at this time.")
+		logDebug("There's no need to check the library version at this time.")
 	}
 	
 	func handleUpToDateCase() {
-		MMLogDebug("[Checking versions] Your MobileMessaging library is up to date.")
+		logDebug("Your MobileMessaging library is up to date.")
 		// save the date only if our version is the new one. Otherwise, we warn the dev in the console every time until he/she updates
 		self.lastCheckDate = MobileMessaging.date.now
 		UserDefaults.standard.set(self.lastCheckDate, forKey: Consts.VersionCheck.lastCheckDateKey)
@@ -90,7 +90,7 @@ class VersionManager {
 				handleUpToDateCase()
 			}
 		} else {
-			MMLogError("[Checking versions] An error occurred while trying to validate library version: \(result.error.orNil)")
+			logError("An error occurred while trying to validate library version: \(result.error.orNil)")
 		}
 	}
 }

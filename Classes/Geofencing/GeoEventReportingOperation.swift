@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class GeoEventReportingOperation: Operation {
+class GeoEventReportingOperation: MMOperation {
 	typealias CampaignId = String
 	typealias CampaignsDictionary = [CampaignId: MMGeoMessage]
 	typealias MessageId = String
@@ -29,13 +29,13 @@ class GeoEventReportingOperation: Operation {
 	
 	override func execute() {
 		guard let internalId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogDebug("[Geo event reporting] installation object not found, finishing the operation...")
+			logDebug("installation object not found, finishing the operation...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 		
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			MMLogDebug("[Geo event reporting] Registration is not healthy. Finishing...")
+			logDebug("Registration is not healthy. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
@@ -43,7 +43,7 @@ class GeoEventReportingOperation: Operation {
 		context.perform {
 			guard let happenedEvents = GeoEventReportObject.MM_findAllInContext(self.context), !happenedEvents.isEmpty else
 			{
-				MMLogDebug("[Geo event reporting] There is no non-reported geo events to send to the server. Finishing...")
+				self.logDebug("There is no non-reported geo events to send to the server. Finishing...")
 				self.finish()
 				return
 			}
@@ -60,7 +60,7 @@ class GeoEventReportingOperation: Operation {
 			let originGeoMessagesValues = Array(self.signalingGeoMessages.values)
 			
 			if !originGeoMessagesValues.isEmpty, !geoEventReportsData.isEmpty {
-				MMLogDebug("[Geo event reporting] reporting started for \(geoEventReportsData.count) geo events from \(originGeoMessagesValues.count) campaigns.")
+				self.logDebug("reporting started for \(geoEventReportsData.count) geo events from \(originGeoMessagesValues.count) campaigns.")
 
 				self.geoContext.remoteApiProvider.reportGeoEvent(applicationCode: self.mmContext.applicationCode, pushRegistrationId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues, completion: { (result) in
 					self.handleRequestResult(result) {
@@ -68,7 +68,7 @@ class GeoEventReportingOperation: Operation {
 					}
 				})
 			} else {
-				MMLogDebug("[Geo event reporting] There is no non-reported geo events to send to the server. Finishing...")
+				self.logDebug("There is no non-reported geo events to send to the server. Finishing...")
 				self.finish()
 			}
 		}
@@ -127,7 +127,7 @@ class GeoEventReportingOperation: Operation {
 				
 				switch result {
 				case .Success(let response):
-					MMLogDebug("[Geo event reporting] Geo event reporting request succeeded.")
+					logDebug("Geo event reporting request succeeded.")
 					// we are about to generate a mt message only for active campaigns
 					if let key = response.tempMessageIdRealMessageId[event.sdkMessageId],
 						   (response.finishedCampaignIds + response.suspendedCampaignIds).contains(event.campaignId) == false,
@@ -139,7 +139,7 @@ class GeoEventReportingOperation: Operation {
 					self.context.delete(event)
 					
 				case .Failure(let error):
-					MMLogError("[Geo event reporting] Geo event reporting request failed with error: \(error.orNil)")
+					logError("Geo event reporting request failed with error: \(error.orNil)")
 					if event.messageShown == false {
 						// if we had a failed request, we should generate a message for the campaign immediately regardless the campaign status
 						// we'll use the sdk generated message id to generate a mt message with it further in `generateAndHandleGeoVirtualMessages`
@@ -159,24 +159,24 @@ class GeoEventReportingOperation: Operation {
 			let completionsGroup = DispatchGroup()
 			if let mtMessagesDatasource = mtMessagesDatasource, !mtMessagesDatasource.isEmpty {
 				completionsGroup.enter()
-				MMLogDebug("[Geo event reporting] updating stored payloads...")
+				self.logDebug("updating stored payloads...")
 				self.mmContext.messageHandler.updateOriginalPayloadsWithMessages(messages: changedSigMessages) {
-					MMLogDebug("[Geo event reporting] stopped updating stored payloads.")
+					self.logDebug("stopped updating stored payloads.")
 					completionsGroup.leave()
 				}
 				
 				completionsGroup.enter()
-				MMLogDebug("[Geo event reporting] generating geo campaign messages...")
+				self.logDebug("generating geo campaign messages...")
 				self.generateMessages(mtMessagesDatasource) { _ in
-					MMLogDebug("[Geo event reporting] stopped generating geo campaign messages.")
+					self.logDebug("stopped generating geo campaign messages.")
 					completionsGroup.leave()
 				}
 			}
 			
 			completionsGroup.enter()
-			MMLogDebug("[Geo event reporting] syncing seen status...")
+			self.logDebug("syncing seen status...")
 			self.mmContext.messageHandler.syncSeenStatusUpdates({ _ in
-				MMLogDebug("[Geo event reporting] stopped syncing seen status.")
+				self.logDebug("stopped syncing seen status.")
 				completionsGroup.leave()
 			})
 			
@@ -185,7 +185,7 @@ class GeoEventReportingOperation: Operation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[Geo event reporting] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		
 		if let error = errors.first {
 			result = GeoEventReportingResult.Failure(error)

@@ -18,7 +18,7 @@ protocol ChatAttachmentPickerDelegate: class {
     func attachmentSizeExceeded()
 }
 
-class ChatAttachmentPicker: NSObject {
+class ChatAttachmentPicker: NSObject, NamedLogger {
     
     let infoPlistKeys = [UIImagePickerController.SourceType.camera: ["NSCameraUsageDescription", "NSMicrophoneUsageDescription"],
                          UIImagePickerController.SourceType.photoLibrary: ["NSPhotoLibraryUsageDescription"]]
@@ -45,7 +45,7 @@ class ChatAttachmentPicker: NSObject {
         if let infoPlistKeys = infoPlistKeys[type] {
             for key in infoPlistKeys {
                 guard let _ = Bundle.main.infoDictionary?.index(forKey: key) else {
-                    MMLogWarn("[InAppChat] \(key) isn't defined in info.plist")
+                    logWarn("\(key) isn't defined in info.plist")
                     return nil
                 }
             }
@@ -105,7 +105,7 @@ class ChatAttachmentPicker: NSObject {
         }
         
         guard let data = try? Data.init(contentsOf: url) else {
-            MMLogError("[InAppChat] can't get data from contentsOf url: \(url)")
+            logError("can't get data from contentsOf url: \(url)")
             return
         }
         didSelect(data: data)
@@ -115,7 +115,7 @@ class ChatAttachmentPicker: NSObject {
         controller.dismiss(animated: true, completion: nil)
         guard let image = image,
             let data = image.jpegData(compressionQuality: 1) else {
-                MMLogError("[InAppChat] can't convert UIImage to jpegData")
+                logError("can't convert UIImage to jpegData")
             return
         }
         didSelect(data: data)

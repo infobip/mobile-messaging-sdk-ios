@@ -7,7 +7,8 @@
 
 import Foundation
 
-class PersonalizeOperation: Operation {
+class PersonalizeOperation: MMOperation {
+	
 	let mmContext: MobileMessaging
 	let userIdentity: UserIdentity
 	let userAttributes: UserAttributes?
@@ -26,11 +27,11 @@ class PersonalizeOperation: Operation {
 
 	override func execute() {
 		guard !isCancelled else {
-			MMLogDebug("[PersonalizeOperation] cancelled...")
+			logDebug("cancelled...")
 			finish()
 			return
 		}
-		MMLogDebug("[PersonalizeOperation] started...")
+		logDebug("started...")
 		if forceDepersonalize {
 			DepersonalizeOperation.depersonalizeSubservices(mmContext: mmContext)
 		}
@@ -40,14 +41,14 @@ class PersonalizeOperation: Operation {
 
 	private func sendServerRequestIfNeeded() {
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
-			MMLogWarn("[PersonalizeOperation] there is no registration. Finishing...")
+			logWarn("there is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
 		
 		let body = UserDataMapper.personalizeRequestPayload(userIdentity: userIdentity, userAttributes: userAttributes) ?? [:]
 
-		MMLogDebug("[PersonalizeOperation] sending request with force depersonalizing \(forceDepersonalize)")
+		logDebug("sending request with force depersonalizing \(forceDepersonalize)")
 		mmContext.remoteApiProvider.personalize(applicationCode: mmContext.applicationCode,
 												pushRegistrationId: pushRegistrationId,
 												body: body,
@@ -60,19 +61,19 @@ class PersonalizeOperation: Operation {
 
 	private func handlePersonalizeResult(_ result: PersonalizeResult) {
 		guard !isCancelled else {
-			MMLogDebug("[PersonalizeOperation] cancelled")
+			logDebug("cancelled")
 			return
 		}
 
 		switch result {
 		case .Success:
-			MMLogDebug("[PersonalizeOperation] succeeded with force depersonalizing \(forceDepersonalize)")
+			logDebug("succeeded with force depersonalizing \(forceDepersonalize)")
 			if forceDepersonalize {
 				DepersonalizeOperation.handleSuccessfulDepersonalize(mmContext: self.mmContext)
 			}
 			self.handleSuccessfulPersonalize(result.value)
 		case .Failure(let error):
-			MMLogError("[PersonalizeOperation] failed with force depersonalizing \(forceDepersonalize) with error: \(error.orNil)")
+			logError("failed with force depersonalizing \(forceDepersonalize) with error: \(error.orNil)")
 			if let error = error {
 				if error.mm_code == "AMBIGUOUS_PERSONALIZE_CANDIDATES" || error.mm_code == "USER_MERGE_INTERRUPTED" {
 					rollbackUserIdentity()
@@ -83,7 +84,7 @@ class PersonalizeOperation: Operation {
 				}
 			}
 		case .Cancel:
-			MMLogWarn("[PersonalizeOperation] cancelled")
+			logWarn("cancelled")
 		}
 	}
 
@@ -104,7 +105,7 @@ class PersonalizeOperation: Operation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-		MMLogDebug("[PersonalizeOperation] finished with errors: \(errors)")
+		logDebug("finished with errors: \(errors)")
 		finishBlock?(errors.first)
 	}
 }

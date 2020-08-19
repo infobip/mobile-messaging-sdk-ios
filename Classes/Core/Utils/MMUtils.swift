@@ -388,24 +388,24 @@ extension Optional where Wrapped: Any {
 	}
 }
 
-public class MobileMessagingService: NSObject {
+public class MobileMessagingService: NSObject, NamedLogger {
 	let mmContext: MobileMessaging
 	let uniqueIdentifier: String
 	var isRunning: Bool
-	init(mmContext: MobileMessaging, id: String) {
+	init(mmContext: MobileMessaging) {
 		self.isRunning = false
 		self.mmContext = mmContext
-		self.uniqueIdentifier = id
+		self.uniqueIdentifier = String(describing: type(of: self))
 		super.init()
 		self.mmContext.registerSubservice(self)
 	}
 	func start(_ completion: @escaping (Bool) -> Void) {
-		MMLogDebug("[\(uniqueIdentifier)] starting")
+		logDebug("starting")
 		isRunning = true
 		completion(isRunning)
 	}
 	func stop(_ completion: @escaping (Bool) -> Void) {
-		MMLogDebug("[\(uniqueIdentifier)] stopping")
+		logDebug("stopping")
 		isRunning = false
 		completion(isRunning)
 	}
