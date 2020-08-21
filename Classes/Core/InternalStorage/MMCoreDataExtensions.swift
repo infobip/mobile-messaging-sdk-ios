@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import MobileMessaging.Private
 
 extension String {
 	/// Skips initial space characters (whitespaceSet). Returns true if the firsh character is one of "Y", "y", "T", "t".
@@ -49,15 +50,19 @@ extension UpdatableResult where Self: NSManagedObject {
 	@discardableResult
 	static func MM_batchUpdate(propertiesToUpdate: [AnyHashable: Any], predicate: NSPredicate?, inContext ctx: NSManagedObjectContext) -> NSBatchUpdateResult? {
 		let request = self.MM_batchUpdateRequest(predicate, propertiesToUpdate: propertiesToUpdate)
-		let result: NSPersistentStoreResult?
-		
-		do {
-			result = try ctx.execute(request)
-		}
-		catch let error as NSError {
-			result = nil
-			MMLogError("[Core Data] batch update error: \(error)")
-		}
+		var result: NSPersistentStoreResult? = nil
+
+		SwiftTryCatch.try({
+			do {
+				result = try ctx.execute(request)
+			} catch let error as NSError {
+				result = nil
+				MMLogError("[Core Data] batch update error: \(error)")
+			}
+		}, catch: { (e) in
+			MMLogError("[Core Data] Exception while performin batch update \(String(describing: e?.description))")
+		}, finallyBlock: {})
+
 		return result as? NSBatchUpdateResult
 	}
 	
@@ -78,16 +83,18 @@ extension FetchableResult where Self: NSManagedObject {
 	}
 	
 	static func MM_executeRequest(_ request: NSFetchRequest<NSFetchRequestResult>, inContext ctx: NSManagedObjectContext) -> [Any]? {
-		var results: [Any]?
-		let requestBlock = {
-			do {
-				results = try ctx.fetch(request)
-			} catch let error as NSError {
-				results = nil
-				MMLogError("[Core Data] Fetching error: \(error)")
-			}
+		var results: [Any]? = nil
+		ctx.performAndWait {
+			SwiftTryCatch.try({
+				do {
+					results = try ctx.fetch(request)
+				} catch let error as NSError {
+					MMLogError("[Core Data] Fetching error: \(error)")
+				}
+			}, catch: { (e) in
+				MMLogError("[Core Data] Exception while fetching \(String(describing: e?.description))")
+			}, finallyBlock: {})
 		}
-		ctx.performAndWait(requestBlock)
 		return results
 	}
 	
@@ -134,11 +141,16 @@ extension FetchableResult where Self: NSManagedObject {
 	
 	static func MM_countOfEntitiesWithPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) -> Int {
 		var count = 0
-		do {
-			count = try context.count(for: MM_requestAll(predicate))
-		} catch let error as NSError {
-			MMLogError(error.description)
-		}
+		SwiftTryCatch.try({
+			do {
+				count = try context.count(for: MM_requestAll(predicate))
+			} catch let error as NSError {
+				MMLogError("[Core Data] error while counting \(error.description)")
+			}
+		}, catch: { (e) in
+			MMLogError("[Core Data] Exception while counting objects \(String(describing: e?.description))")
+		}, finallyBlock: {})
+
 		return count
 	}
 	
@@ -216,14 +228,20 @@ extension NSManagedObject {
 
 	@discardableResult
 	func MM_deleteEntityInContext(_ context: NSManagedObjectContext) -> Bool {
-		do {
-			let objectInContext = try context.existingObject(with: objectID)
-			context.delete(objectInContext)
-			return objectInContext.MM_isEntityDeleted
-		} catch let error as NSError {
-			MMLogError("An error occured while deleting an object \(self): \(error)")
-		}
-		return false
+		var ret: Bool = false
+		SwiftTryCatch.try({
+			do {
+				let objectInContext = try context.existingObject(with: self.objectID)
+				context.delete(objectInContext)
+				ret = objectInContext.MM_isEntityDeleted
+			} catch let error as NSError {
+				MMLogError("[Core Data] Error while deleting an object \(self): \(error)")
+			}
+		}, catch: { (e) in
+			MMLogError("[Core Data] Exception while deleting object \(String(describing: e?.description))")
+		}, finallyBlock: {})
+
+		return ret
 	}
 }
 
@@ -237,9 +255,9 @@ extension NSManagedObjectContext {
 		performAndWait{ ctxHasChanges = self.hasChanges }
 		
 		if ctxHasChanges == false {
-			MMLogVerbose("NO CHANGES IN ** \(name ?? "UNNAMED") ** CONTEXT - NOT SAVING")
+			MMLogVerbose("[Core Data] NO CHANGES IN ** \(name ?? "UNNAMED") ** CONTEXT - NOT SAVING")
 			if (saveParentContexts && parent != nil) {
-				MMLogVerbose("Proceeding to save parent context \(String(describing:parent?.MM_description))")
+				MMLogVerbose("[Core Data] Proceeding to save parent context \(String(describing:parent?.MM_description))")
 			} else {
 				completion?(true, nil)
 				return
@@ -255,21 +273,25 @@ extension NSManagedObjectContext {
 			let numberOfDeletedObjects = self.deletedObjects.count
 
 
-			MMLogVerbose("Objects - Inserted \(numberOfInsertedObjects), Updated \(numberOfUpdatedObjects), Deleted \(numberOfDeletedObjects)")
+			MMLogVerbose("[Core Data] Objects - Inserted \(numberOfInsertedObjects), Updated \(numberOfUpdatedObjects), Deleted \(numberOfDeletedObjects)")
 			
-			MMLogVerbose("→ Saving \(self.MM_description) [\(optionsSummary)]")
+			MMLogVerbose("[Core Data] Saving \(self.MM_description) [\(optionsSummary)]")
 			
 			var error: NSError?
 			var saved = false
-			do {
-				try self.save()
-				saved = true
-			} catch let err as NSError {
-				error = err
-				MMLogError("Unable to perform save: \(err)")
-			} catch {
-				MMLogError("Unable to perform save: \(error)")
-			}
+			SwiftTryCatch.try({
+				do {
+					try self.save()
+					saved = true
+				} catch let err as NSError {
+					error = err
+					MMLogError("[Core Data] Unable to perform save: \(err)")
+				} catch {
+					MMLogError("[Core Data] Unable to perform save: \(error)")
+				}
+			}, catch: { (e) in
+				MMLogError("[Core Data] Exception while saving to persistent store \(String(describing: e?.description))")
+			}, finallyBlock: {})
 
 			if saved == false {
 				completion?(saved, error)
@@ -280,7 +302,7 @@ extension NSManagedObjectContext {
 					parentCtx.MM_saveWithOptions(parentContentSaveOptions, completion:completion)
 				} else {
 					// If we are not the default context (And therefore need to save the root context, do the completion action if one was specified
-					MMLogVerbose("→ Finished saving: \(self.MM_description)")
+					MMLogVerbose("[Core Data] Finished saving: \(self.MM_description)")
 					completion?(saved, error)
 				}
 			}
@@ -340,7 +362,7 @@ extension NSPersistentStore {
 				// If the file doesn't exist, that's OK — that's still a successful result!
 			} catch let error {
 				removeItemResult = false
-				MMLogError("An error occured while deleting persistent store files: \(error)")
+				MMLogError("[Core Data] An error occured while deleting persistent store files: \(error)")
 			}
 		}
 		

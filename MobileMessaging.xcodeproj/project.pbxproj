@@ -201,6 +201,8 @@
 		76A957A021ECA906000AFD9C /* UserDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A9579F21ECA906000AFD9C /* UserDataMapper.swift */; };
 		76A957A221ECAA00000AFD9C /* DepersonalizeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A957A121ECAA00000AFD9C /* DepersonalizeOperation.swift */; };
 		76A957A421ECAA82000AFD9C /* InstallationDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A957A321ECAA82000AFD9C /* InstallationDataMapper.swift */; };
+		76B0A7C324EFB43F0006A815 /* SwiftTryCatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 76B0A7C024EFB43F0006A815 /* SwiftTryCatch.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		76B0A7C424EFB43F0006A815 /* SwiftTryCatch.m in Sources */ = {isa = PBXBuildFile; fileRef = 76B0A7C124EFB43F0006A815 /* SwiftTryCatch.m */; };
 		76B70DA721AD3A6E00E87BD5 /* DeleteInstanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B70DA621AD3A6D00E87BD5 /* DeleteInstanceOperation.swift */; };
 		76C3C99A23D1F47900562C57 /* UserSessionPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C99923D1F47900562C57 /* UserSessionPersistingOperation.swift */; };
 		76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C99B23D1F4A300562C57 /* UserSessionsReportingOperation.swift */; };
@@ -462,6 +464,8 @@
 		76A9579F21ECA906000AFD9C /* UserDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataMapper.swift; sourceTree = "<group>"; };
 		76A957A121ECAA00000AFD9C /* DepersonalizeOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DepersonalizeOperation.swift; sourceTree = "<group>"; };
 		76A957A321ECAA82000AFD9C /* InstallationDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationDataMapper.swift; sourceTree = "<group>"; };
+		76B0A7C024EFB43F0006A815 /* SwiftTryCatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftTryCatch.h; sourceTree = "<group>"; };
+		76B0A7C124EFB43F0006A815 /* SwiftTryCatch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SwiftTryCatch.m; sourceTree = "<group>"; };
 		76B70DA621AD3A6D00E87BD5 /* DeleteInstanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteInstanceOperation.swift; sourceTree = "<group>"; };
 		76C3C99923D1F47900562C57 /* UserSessionPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionPersistingOperation.swift; sourceTree = "<group>"; };
 		76C3C99B23D1F4A300562C57 /* UserSessionsReportingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionsReportingOperation.swift; sourceTree = "<group>"; };
@@ -941,6 +945,7 @@
 		7645564F1F78FF4F00B8F14B /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
+				76B0A7BF24EFB43F0006A815 /* SwiftTryCatch */,
 				7617503F23351817000438A8 /* Alamofire */,
 				7601F177208E056400738C1A /* Kingsfisher */,
 				ADF20331208663FB00E157D7 /* CryptoSwift */,
@@ -995,6 +1000,15 @@
 			children = (
 			);
 			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		76B0A7BF24EFB43F0006A815 /* SwiftTryCatch */ = {
+			isa = PBXGroup;
+			children = (
+				76B0A7C024EFB43F0006A815 /* SwiftTryCatch.h */,
+				76B0A7C124EFB43F0006A815 /* SwiftTryCatch.m */,
+			);
+			path = SwiftTryCatch;
 			sourceTree = "<group>";
 		};
 		76C3C9B623D60E9800562C57 /* UserSession */ = {
@@ -1080,6 +1094,7 @@
 				7601F19C208E056500738C1A /* Kingfisher.h in Headers */,
 				7645567E1F78FF5800B8F14B /* MobileMessagingPluginApplicationDelegate.h in Headers */,
 				7617505423351827000438A8 /* Alamofire.h in Headers */,
+				76B0A7C324EFB43F0006A815 /* SwiftTryCatch.h in Headers */,
 				7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1324,6 +1339,7 @@
 				764556D31F78FFE000B8F14B /* ExclusivityController.swift in Sources */,
 				76C3C9B823D60E9800562C57 /* UserSessionService.swift in Sources */,
 				764556A31F78FF8500B8F14B /* SeenStatusSendingOperation.swift in Sources */,
+				76B0A7C424EFB43F0006A815 /* SwiftTryCatch.m in Sources */,
 				763A1AF623E4873000C997BC /* CustomEventObject+CoreDataClass.swift in Sources */,
 				760929FB1FAA212F00128E48 /* CPUserDataVC.swift in Sources */,
 				ADF203462086642C00E157D7 /* Updatable.swift in Sources */,
