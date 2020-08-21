@@ -489,7 +489,6 @@ public final class MobileMessaging: NSObject {
 	
 	func doStart(_ completion: (() -> Void)? = nil) {
 		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
-		
 		self.startСomponents()
 		
 		self.performForEachSubservice {
