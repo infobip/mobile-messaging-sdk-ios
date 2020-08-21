@@ -392,10 +392,11 @@ public class MobileMessagingService: NSObject, NamedLogger {
 	let mmContext: MobileMessaging
 	let uniqueIdentifier: String
 	var isRunning: Bool
-	init(mmContext: MobileMessaging) {
+
+	init(mmContext: MobileMessaging, uniqueIdentifier: String) {
 		self.isRunning = false
 		self.mmContext = mmContext
-		self.uniqueIdentifier = String(describing: type(of: self))
+		self.uniqueIdentifier = uniqueIdentifier
 		super.init()
 		self.mmContext.registerSubservice(self)
 	}

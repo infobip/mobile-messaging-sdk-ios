@@ -30,9 +30,9 @@ class UserSessionService : MobileMessagingService {
 	private var timer: RepeatingTimer?
 	private let context: NSManagedObjectContext
 
-	override init(mmContext: MobileMessaging) {
+	init(mmContext: MobileMessaging) {
 		self.context = mmContext.internalStorage.newPrivateContext()
-		super.init(mmContext: mmContext)
+		super.init(mmContext: mmContext, uniqueIdentifier: "UserSessionService")
 	}
 
 	//MARK: -

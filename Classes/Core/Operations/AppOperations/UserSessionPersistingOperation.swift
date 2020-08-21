@@ -22,6 +22,7 @@ class UserSessionPersistingOperation : MMOperation {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		self.context = context
+		super.init()
 	}
 
 	override func execute() {

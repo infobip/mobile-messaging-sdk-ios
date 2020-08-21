@@ -29,6 +29,7 @@ class MessagePostingOperation: MMOperation {
 		}
 		self.mmContext = mmContext
 		super.init()
+		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 	
 	override func execute() {
@@ -36,12 +37,6 @@ class MessagePostingOperation: MMOperation {
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			logWarn("No registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
-		}
-
-		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			logWarn("Registration is not healthy. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
 

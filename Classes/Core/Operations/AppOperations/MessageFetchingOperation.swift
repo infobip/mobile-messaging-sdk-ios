@@ -21,6 +21,7 @@ final class MessageFetchingOperation: MMOperation {
 		self.mmContext = mmContext
 		self.handlingIteration = handlingIteration
 		super.init()
+		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 	
 	override func execute() {
@@ -30,12 +31,6 @@ final class MessageFetchingOperation: MMOperation {
 			return
 		}
 		logDebug("Starting operation...")
-		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			logWarn("Registration is not healthy. Finishing...")
-			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.InvalidRegistration))
-			finish()
-			return
-		}
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			logWarn("No registration. Finishing...")
 			result = MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.NoRegistration))

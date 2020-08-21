@@ -19,6 +19,7 @@ final class MessagesEvictionOperation: MMOperation {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.messageMaximumAge = messageMaximumAge ?? Consts.SDKSettings.messagesRetentionPeriod
+		super.init()
 	}
 	
 	override func execute() {

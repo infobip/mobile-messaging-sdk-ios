@@ -54,7 +54,7 @@ class MMMessageHandler: MobileMessagingService {
 	
 	init(storage: MMCoreDataStorage, mmContext: MobileMessaging) {
 		self.storage = storage
-		super.init(mmContext: mmContext)
+		super.init(mmContext: mmContext, uniqueIdentifier: "MMMessageHandler")
     }
 
 	override func start(_ completion: @escaping (Bool) -> Void) {

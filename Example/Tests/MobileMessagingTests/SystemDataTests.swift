@@ -28,7 +28,7 @@ class SystemDataTests: MMTestCase {
 		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: mobileMessagingInstance)
 		GeofencingService.sharedInstance!.start({ _ in })
 		
-		MobileMessaging.sharedInstance?.installationService?.syncSystemDataWithServer(completion: { (error) in
+		self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { (error) in
 			DispatchQueue.main.async {
 				geoEnabledSystemDataHash = self.mobileMessagingInstance.internalData().systemDataHash
 				

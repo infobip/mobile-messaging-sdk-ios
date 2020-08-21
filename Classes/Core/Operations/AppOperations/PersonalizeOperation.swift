@@ -23,6 +23,7 @@ class PersonalizeOperation: MMOperation {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = false
+		super.init()
 	}
 
 	override func execute() {

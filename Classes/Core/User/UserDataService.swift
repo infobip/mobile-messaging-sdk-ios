@@ -5,7 +5,11 @@
 import Foundation
 
 class UserDataService: MobileMessagingService {
-	
+
+	init(mmContext: MobileMessaging) {
+		super.init(mmContext: mmContext, uniqueIdentifier: "UserDataService")
+	}
+
 	func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([Installation]?, NSError?) -> Void) {
 		let finish: (NSError?) -> Void = { (error) in
 			if error == nil {

@@ -68,6 +68,8 @@
 		7617506723351827000438A8 /* MultipartFormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617505323351827000438A8 /* MultipartFormData.swift */; };
 		76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76212E7121B043D5002FB8D9 /* UserStandardAttributeModels.swift */; };
 		76212E7421B04443002FB8D9 /* InstallationAttributeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76212E7321B04443002FB8D9 /* InstallationAttributeModels.swift */; };
+		7626040E24EC1AA40052A36C /* HealthyRegistrationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7626040D24EC1AA40052A36C /* HealthyRegistrationCondition.swift */; };
+		7626041124EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7626041024EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift */; };
 		76263E8F24586F0300E5C97D /* WebViewToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76263E8E24586F0300E5C97D /* WebViewToolbar.swift */; };
 		7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7632809A2092013B001B9E8F /* AlertQueue.swift */; };
 		7633E3F71F7903F0000990F8 /* MobileMessaging-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -181,6 +183,9 @@
 		766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A71FC824140047DA47 /* RemoteAPIProvider.swift */; };
 		76790D1F234E14CA000D6587 /* Transformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76790D1E234E14CA000D6587 /* Transformer.swift */; };
 		76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */; };
+		7689347524ED6BD200411B1D /* EventPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347424ED6BD200411B1D /* EventPersistingOperation.swift */; };
+		7689347724ED700600411B1D /* GeoEventPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347624ED700600411B1D /* GeoEventPersistingOperation.swift */; };
+		7689347924ED71FF00411B1D /* GeoCleanupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347824ED71FF00411B1D /* GeoCleanupOperation.swift */; };
 		7692B56124EC4783000DA5A2 /* MMOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7692B56024EC4783000DA5A2 /* MMOperation.swift */; };
 		76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CAD230D58A900F00717 /* MMInternalStorageModel.xcdatamodeld */; };
 		76A26CB4230D593200F00717 /* Migration_0_3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CB3230D593200F00717 /* Migration_0_3.xcmappingmodel */; };
@@ -301,6 +306,8 @@
 		7617505323351827000438A8 /* MultipartFormData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultipartFormData.swift; sourceTree = "<group>"; };
 		76212E7121B043D5002FB8D9 /* UserStandardAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStandardAttributeModels.swift; sourceTree = "<group>"; };
 		76212E7321B04443002FB8D9 /* InstallationAttributeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationAttributeModels.swift; sourceTree = "<group>"; };
+		7626040D24EC1AA40052A36C /* HealthyRegistrationCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthyRegistrationCondition.swift; sourceTree = "<group>"; };
+		7626041024EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotPendingDepersonalizationCondition.swift; sourceTree = "<group>"; };
 		76263E8E24586F0300E5C97D /* WebViewToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewToolbar.swift; sourceTree = "<group>"; };
 		7632809A2092013B001B9E8F /* AlertQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertQueue.swift; sourceTree = "<group>"; };
 		7635ABBC2431404E0069AE1D /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
@@ -448,6 +455,9 @@
 		766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlHTTPSessionManager.swift; sourceTree = "<group>"; };
 		76790D1E234E14CA000D6587 /* Transformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transformer.swift; sourceTree = "<group>"; };
 		76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManager.swift; sourceTree = "<group>"; };
+		7689347424ED6BD200411B1D /* EventPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPersistingOperation.swift; sourceTree = "<group>"; };
+		7689347624ED700600411B1D /* GeoEventPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoEventPersistingOperation.swift; sourceTree = "<group>"; };
+		7689347824ED71FF00411B1D /* GeoCleanupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoCleanupOperation.swift; sourceTree = "<group>"; };
 		7692B56024EC4783000DA5A2 /* MMOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMOperation.swift; sourceTree = "<group>"; };
 		76A26CAE230D58A900F00717 /* MMStorageModel_3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_3.xcdatamodel; sourceTree = "<group>"; };
 		76A26CAF230D58A900F00717 /* MMStorageModel_0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_0.xcdatamodel; sourceTree = "<group>"; };
@@ -713,6 +723,15 @@
 			path = Installation;
 			sourceTree = "<group>";
 		};
+		7626040F24EC1ABC0052A36C /* Conditions */ = {
+			isa = PBXGroup;
+			children = (
+				7626040D24EC1AA40052A36C /* HealthyRegistrationCondition.swift */,
+				7626041024EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift */,
+			);
+			path = Conditions;
+			sourceTree = "<group>";
+		};
 		7635ABBB243140320069AE1D /* WebViewController */ = {
 			isa = PBXGroup;
 			children = (
@@ -845,6 +864,7 @@
 		764556191F78FF4F00B8F14B /* Operations */ = {
 			isa = PBXGroup;
 			children = (
+				7626040F24EC1ABC0052A36C /* Conditions */,
 				7645561A1F78FF4F00B8F14B /* AppOperations */,
 				764556271F78FF4F00B8F14B /* MMApplicationListener.swift */,
 				7645562A1F78FF4F00B8F14B /* MMMessageHandler.swift */,
@@ -877,6 +897,7 @@
 				76C3C99B23D1F4A300562C57 /* UserSessionsReportingOperation.swift */,
 				763A1AEA23E4633E00C997BC /* CustomEventReportingOperation.swift */,
 				7692B56024EC4783000DA5A2 /* MMOperation.swift */,
+				7689347424ED6BD200411B1D /* EventPersistingOperation.swift */,
 			);
 			path = AppOperations;
 			sourceTree = "<group>";
@@ -948,6 +969,8 @@
 				7645564C1F78FF4F00B8F14B /* MMGeofencingService.swift */,
 				7645564D1F78FF4F00B8F14B /* MMGeoMessage.swift */,
 				7645564E1F78FF4F00B8F14B /* MMGeoRequests.swift */,
+				7689347624ED700600411B1D /* GeoEventPersistingOperation.swift */,
+				7689347824ED71FF00411B1D /* GeoCleanupOperation.swift */,
 			);
 			name = Geofencing;
 			path = Classes/Geofencing;
@@ -1349,6 +1372,7 @@
 				7601F196208E056500738C1A /* Image.swift in Sources */,
 				76626D15218B2CD200E95E2C /* UserCustomAttributeModels.swift in Sources */,
 				7617505B23351827000438A8 /* SessionManager.swift in Sources */,
+				7626040E24EC1AA40052A36C /* HealthyRegistrationCondition.swift in Sources */,
 				764556B41F78FF9500B8F14B /* MMGeoMessage.swift in Sources */,
 				7601F193208E056400738C1A /* Kingfisher.swift in Sources */,
 				7617506723351827000438A8 /* MultipartFormData.swift in Sources */,
@@ -1359,6 +1383,7 @@
 				7617506423351827000438A8 /* Alamofire.swift in Sources */,
 				A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */,
 				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
+				7626041124EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift in Sources */,
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
 				76626D0F218AFCA600E95E2C /* InstallationDataService.swift in Sources */,
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
@@ -1374,6 +1399,7 @@
 				764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */,
 				7645568A1F78FF6500B8F14B /* InstallationManagedObject.swift in Sources */,
 				76A26CB4230D593200F00717 /* Migration_0_3.xcmappingmodel in Sources */,
+				7689347524ED6BD200411B1D /* EventPersistingOperation.swift in Sources */,
 				764556A21F78FF8500B8F14B /* SeenStatusPersistingOperation.swift in Sources */,
 				A08CB2682459B0BB00ED91B6 /* GetChatWidgetOperation.swift in Sources */,
 				764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */,
@@ -1392,6 +1418,7 @@
 				7650DC3E244EEB480016233D /* CPChatComposing.swift in Sources */,
 				76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */,
 				76C3C9B423D5B2E200562C57 /* UserSessionReportObject.swift in Sources */,
+				7689347924ED71FF00411B1D /* GeoCleanupOperation.swift in Sources */,
 				ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */,
 				764556901F78FF7300B8F14B /* MessageUtils.swift in Sources */,
 				764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */,
@@ -1486,6 +1513,7 @@
 				7650DC39244EEB480016233D /* ComposeBar_Button.swift in Sources */,
 				7632809B2092013B001B9E8F /* AlertQueue.swift in Sources */,
 				764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */,
+				7689347724ED700600411B1D /* GeoEventPersistingOperation.swift in Sources */,
 				764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */,
 				7635ABBD2431404E0069AE1D /* WebViewController.swift in Sources */,
 				D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */,

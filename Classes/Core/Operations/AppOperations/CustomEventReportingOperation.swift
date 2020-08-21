@@ -21,6 +21,8 @@ class CustomEventReportingOperation: MMOperation {
 		self.context = context
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
+		super.init()
+		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 
 	override func execute() {
@@ -32,11 +34,6 @@ class CustomEventReportingOperation: MMOperation {
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			logWarn("There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
-		}
-		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			logWarn("Registration is not healthy. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
 		logDebug("Started...")

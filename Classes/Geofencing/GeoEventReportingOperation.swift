@@ -25,6 +25,8 @@ class GeoEventReportingOperation: MMOperation {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		self.geoContext = geoContext
+		super.init()
+		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 	
 	override func execute() {
@@ -33,13 +35,7 @@ class GeoEventReportingOperation: MMOperation {
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
-		
-		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			logDebug("Registration is not healthy. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
-			return
-		}
-		
+
 		context.perform {
 			guard let happenedEvents = GeoEventReportObject.MM_findAllInContext(self.context), !happenedEvents.isEmpty else
 			{

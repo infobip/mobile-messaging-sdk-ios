@@ -19,6 +19,7 @@ public enum MMInternalErrorType: Error {
 	case CantSetPrimaryCurrentRegistration
 	case UnknownResponseFormat
 	case MobileMessagingInstanceNotInitialized
+	case ProtectedDataUnavailable
     
     fileprivate var errorCode: Int {
         switch self {
@@ -40,6 +41,8 @@ public enum MMInternalErrorType: Error {
 			return 7
 		case .MobileMessagingInstanceNotInitialized:
 			return 8
+		case .ProtectedDataUnavailable:
+			return 9
 		}
     }
 
@@ -69,7 +72,10 @@ public enum MMInternalErrorType: Error {
 			errorDescription = NSLocalizedString("Unknown remote API response format, could not convert to a supported response type", comment: "")
 		case .MobileMessagingInstanceNotInitialized:
 			errorDescription = NSLocalizedString("Mobile Messaging instance not initialized. It's either you haven't started it or there were fatal errors due to initialization. Check Mobile Messaging logs for troubleshooting.", comment: "")
-        }
+		case .ProtectedDataUnavailable:
+			errorDescription = NSLocalizedString("Protected data is unavailable at this moment.", comment: "")
+		}
+
 
         return [NSLocalizedDescriptionKey: errorDescription]
     }

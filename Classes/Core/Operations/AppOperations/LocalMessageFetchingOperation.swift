@@ -20,6 +20,7 @@ class LocalMessageFetchingOperation : MMOperation {
 		self.notificationExtensionStorage = notificationExtensionStorage
 		self.finishBlock = finishBlock
 		self.userNotificationCenterStorage = userNotificationCenterStorage
+		super.init()
 	}
 	
 	override func execute() {

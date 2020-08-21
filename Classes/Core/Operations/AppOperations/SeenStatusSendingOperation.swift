@@ -19,6 +19,7 @@ class SeenStatusSendingOperation: MMOperation {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
+		super.init()
 	}
 
 	override func execute() {

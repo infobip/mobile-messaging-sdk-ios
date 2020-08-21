@@ -7,5 +7,5 @@
 
 import Foundation
 
-class MMOperation : Operation, NamedLogger {
-}
+extension Operation : NamedLogger {}
+class MMOperation : Operation {}

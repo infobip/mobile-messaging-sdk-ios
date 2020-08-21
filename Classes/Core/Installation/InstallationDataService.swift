@@ -11,7 +11,10 @@ import CoreLocation
 let installationQueue = MMOperationQueue.newSerialQueue
 
 final class InstallationDataService: MobileMessagingService {
-
+	init(mmContext: MobileMessaging) {
+		super.init(mmContext: mmContext, uniqueIdentifier: "InstallationDataService")
+	}
+	
 	func getUniversalInstallationId() -> String {
 		let key = "com.mobile-messaging.universal-installation-id"
 		if let universalInstallationId = UserDefaults.standard.string(forKey: key) {

@@ -73,7 +73,7 @@ class NotificationsInteractionService: MobileMessagingService {
 
 	init(mmContext: MobileMessaging, categories: Set<NotificationCategory>?) {
 		self.customNotificationCategories = categories
-		super.init(mmContext: mmContext)
+		super.init(mmContext: mmContext, uniqueIdentifier: "NotificationsInteractionService")
 	}
 
 	func handleAction(identifier: String, categoryId: String?, message: MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {

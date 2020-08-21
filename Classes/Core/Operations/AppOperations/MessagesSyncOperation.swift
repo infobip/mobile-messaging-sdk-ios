@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-final class MessagesSyncOperation: GroupOperation, NamedLogger {
+final class MessagesSyncOperation: GroupOperation {
 	static var loggerName: String = String(describing: self)
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?) -> Void)?
@@ -18,7 +18,7 @@ final class MessagesSyncOperation: GroupOperation, NamedLogger {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
-		
+
 		let seenStatusSending = SeenStatusSendingOperation(context: context, mmContext: mmContext)
 		
 		super.init(operations: [seenStatusSending])

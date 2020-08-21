@@ -54,9 +54,9 @@ class EventsService: MobileMessagingService {
 	private let context: NSManagedObjectContext
 	lazy var reportPostponer = MMPostponer(executionQueue: DispatchQueue.global())
 
-	override init(mmContext: MobileMessaging) {
+	init(mmContext: MobileMessaging) {
 		self.context = mmContext.internalStorage.newPrivateContext()
-		super.init(mmContext: mmContext)
+		super.init(mmContext: mmContext, uniqueIdentifier: "EventsService")
 	}
 
 	func submitEvent(customEvent: CustomEvent, reportImmediately: Bool, completion: @escaping (NSError?) -> Void) {
@@ -78,17 +78,7 @@ class EventsService: MobileMessagingService {
 	}
 
 	private func persistEvent(_ customEvent: CustomEvent, _ pushRegistrationId: String, completion: @escaping () -> Void) {
-		eventPersistingQueue.addOperation {
-			self.context.performAndWait {
-				let new = CustomEventObject.MM_createEntityInContext(context: self.context)
-				new.eventDate = MobileMessaging.date.now
-				new.definitionId = customEvent.definitionId
-				new.payload = customEvent.properties
-				new.pushRegistrationId = pushRegistrationId
-			}
-			self.context.MM_saveToPersistentStoreAndWait()
-			completion()
-		}
+		eventPersistingQueue.addOperation(EventPersistingOperation(customEvent: customEvent, mmContext: mmContext, pushRegId: pushRegistrationId, context: context, finishBlock: { _ in completion() }))
 	}
 
 	private func reportEvents(immediately: Bool, completion: @escaping (NSError?) -> Void) {

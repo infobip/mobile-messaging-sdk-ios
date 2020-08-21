@@ -24,17 +24,14 @@ class FetchInstanceOperation : MMOperation {
 			Self.logDebug("There is no registration. Abortin...")
 			return nil
 		}
+		super.init()
+		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 
 	override func execute() {
 		guard !isCancelled else {
 			logDebug("cancelled...")
 			finish()
-			return
-		}
-		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			logWarn("Registration is not healthy. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
 		logDebug("started...")

@@ -36,7 +36,9 @@ extension MobileMessaging {
 
 /// This service manages the In-app Chat.
 public class InAppChatService: MobileMessagingService {
-	
+	init(mmContext: MobileMessaging) {
+		super.init(mmContext: mmContext, uniqueIdentifier: "InAppChatService")
+	}
 	///You can define your own custom appearance for chat view by accessing a chat settings object.
     public let settings: ChatSettings = ChatSettings.sharedInstance
 	

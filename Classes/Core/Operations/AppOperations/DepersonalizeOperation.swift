@@ -29,6 +29,7 @@ class DepersonalizeOperation: MMOperation {
 	
 	private func sendRequest() {
 		guard !isCancelled else {
+			logDebug("cancelled...")
 			finish()
 			return
 		}

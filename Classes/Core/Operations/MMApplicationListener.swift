@@ -9,6 +9,10 @@
 import Foundation
 
 final class MMApplicationListener: MobileMessagingService {
+	init(mmContext: MobileMessaging) {
+		super.init(mmContext: mmContext, uniqueIdentifier: "MMApplicationListener")
+	}
+
 	deinit {
 		NotificationCenter.default.removeObserver(self)
 	}

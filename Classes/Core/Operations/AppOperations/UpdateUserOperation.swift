@@ -31,15 +31,12 @@ class UpdateUserOperation: MMOperation {
 			Self.logDebug("There are no attributes to sync save. Aborting...")
 			return nil
 		}
+		super.init()
+		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
+		self.addCondition(NotPendingDepersonalizationCondition(mmContext: mmContext))
 	}
 
 	override func execute() {
-		//TODO: move to conditions abstraction
-		guard mmContext.internalData().currentDepersonalizationStatus != .pending else {
-			logWarn("Logout pending. Canceling...")
-			finishWithError(NSError(type: MMInternalErrorType.PendingLogout))
-			return
-		}
 		guard !isCancelled else {
 			logDebug("cancelled...")
 			finish()
@@ -48,11 +45,6 @@ class UpdateUserOperation: MMOperation {
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			logWarn("There is no registration. Finishing...")
 			finishWithError(NSError(type: MMInternalErrorType.NoRegistration))
-			return
-		}
-		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
-			logWarn("Registration is not healthy. Finishing...")
-			finishWithError(NSError(type: MMInternalErrorType.InvalidRegistration))
 			return
 		}
 		logDebug("started...")

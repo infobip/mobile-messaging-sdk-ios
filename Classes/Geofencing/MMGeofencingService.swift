@@ -277,8 +277,8 @@ public class GeofencingService: MobileMessagingService {
 	
 	// MARK: - Internal
 	//FIXME: use background queue. (initialize separate NSThread which lives as long as geo service running)
-	override init(mmContext: MobileMessaging) {
-		super.init(mmContext: mmContext)
+	init(mmContext: MobileMessaging) {
+		super.init(mmContext: mmContext, uniqueIdentifier: "GeofencingService")
 		
 		locationManagerQueue.executeSync() {
 			self.sessionManager = MobileMessaging.httpSessionManager
@@ -441,17 +441,9 @@ public class GeofencingService: MobileMessagingService {
 	}
 
 	private func cleanup(_ completion: @escaping () -> Void) {
-		eventsHandlingQueue.addOperation {
-			self.datasource.cleanup()
-
-			let ctx = self.datasource.context
-			ctx.performAndWait {
-				MessageManagedObject.MM_deleteAllMatchingPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Geo.rawValue)"), inContext: ctx)
-				GeoEventReportObject.MM_deleteAllMatchingPredicate(nil, inContext: ctx)
-			}
-			ctx.MM_saveToPersistentStoreAndWait()
+		eventsHandlingQueue.addOperation(GeoCleanupOperation(datasource: datasource, finishBlock: { _ in
 			completion()
-		}
+		}))
 	}
 
 	fileprivate func restartLocationManager() {
@@ -702,13 +694,7 @@ extension GeofencingService: CLLocationManagerDelegate {
 	}
 	
 	func report(on eventType: RegionEventType, forRegionId regionId: String, geoMessage: MMGeoMessage, completion: @escaping (CampaignState) -> Void) {
-		eventsHandlingQueue.addOperation {
-			let ctx = self.datasource.context
-			ctx.performAndWait {
-				GeoEventReportObject.createEntity(withCampaignId: geoMessage.campaignId, eventType: eventType.rawValue, regionId: regionId, messageId: geoMessage.messageId, in: ctx)
-			}
-			ctx.MM_saveToPersistentStoreAndWait()
-		}
+		eventsHandlingQueue.addOperation(GeoEventPersistingOperation(geoMessage: geoMessage, regionId: regionId, eventType: eventType, context: datasource.context, finishBlock: { _ in }))
 		
         reportOnEvents { eventsReportingResponse in
 
