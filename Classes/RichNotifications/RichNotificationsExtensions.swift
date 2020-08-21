@@ -216,20 +216,18 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 	}
 	
 	func save(message: MTMessage) {
-		var savedMessageDicts = storage.object(forKey: applicationCode) as? [StringKeyPayload] ?? [StringKeyPayload]()
+		var savedMessageDicts = retrieveSavedPayloadDictionaries()
 		var msgDict: StringKeyPayload = ["p": message.originalPayload, "dlr": message.isDeliveryReportSent]
 //		msgDict["downloadedPicUrl"] = message.downloadedPictureUrl?.absoluteString
 		msgDict["dlrd"] = message.deliveryReportedDate
 		savedMessageDicts.append(msgDict)
-		storage.set(savedMessageDicts, forKey: applicationCode)
+        let data = NSKeyedArchiver.archivedData(withRootObject: savedMessageDicts)
+		storage.set(data, forKey: applicationCode)
 		storage.synchronize()
 	}
 	
 	func retrieveMessages() -> [MTMessage] {
-		guard let messageDataDicts = storage.array(forKey: applicationCode) as? [StringKeyPayload] else
-		{
-			return []
-		}
+        let messageDataDicts = retrieveSavedPayloadDictionaries()
 		let messages = messageDataDicts.compactMap({ messageDataTuple -> MTMessage? in
 			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let dlrSent =  messageDataTuple["dlr"] as? Bool else
 			{
@@ -253,4 +251,15 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 	func cleanupMessages() {
 		storage.removeObject(forKey: applicationCode)
 	}
+    
+    private func retrieveSavedPayloadDictionaries() -> [StringKeyPayload] {
+        var payloadDictionaries = [StringKeyPayload]();
+        if let data = storage.object(forKey: applicationCode) as? Data,
+           let dictionaries = NSKeyedUnarchiver.unarchiveObject(with: data) as? [StringKeyPayload] { //saved as Data for supporting NSNull in payload
+            payloadDictionaries = dictionaries
+        } else if let dictionaries = storage.object(forKey: applicationCode) as? [StringKeyPayload] { //migration from saving as Dictionaries
+            payloadDictionaries = dictionaries
+        }
+        return payloadDictionaries
+    }
 }
