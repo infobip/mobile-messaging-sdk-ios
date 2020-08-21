@@ -22,11 +22,11 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
     
     let infoPlistKeys = [UIImagePickerController.SourceType.camera: ["NSCameraUsageDescription", "NSMicrophoneUsageDescription"],
                          UIImagePickerController.SourceType.photoLibrary: ["NSPhotoLibraryUsageDescription"]]
-
+    
     private let imagePickerController: UIImagePickerController
     private let documentPickerController: UIDocumentPickerViewController
     private weak var delegate: ChatAttachmentPickerDelegate?
-
+    
     init(delegate: ChatAttachmentPickerDelegate) {
         self.imagePickerController = UIImagePickerController()
         self.documentPickerController = UIDocumentPickerViewController(documentTypes: [kUTTypeContent as String], in: .open)
@@ -35,11 +35,11 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
         self.documentPickerController.delegate = self
         self.delegate = delegate
     }
-
+    
     private func action(for type: UIImagePickerController.SourceType, title: String, presentationController: UIViewController) -> UIAlertAction? {
         guard UIImagePickerController.isSourceTypeAvailable(type),
-              let mediaTypes = UIImagePickerController.availableMediaTypes(for: type) else {
-            return nil
+            let mediaTypes = UIImagePickerController.availableMediaTypes(for: type) else {
+                return nil
         }
         
         if let infoPlistKeys = infoPlistKeys[type] {
@@ -50,14 +50,14 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
                 }
             }
         }
-
+        
         self.imagePickerController.mediaTypes = mediaTypes
-
+        
         return UIAlertAction(title: title, style: .default) { [unowned self, unowned presentationController] _ in
             guard self.checkPermissionsGranted(forSourceType: type) ||
-                  !self.checkPermissionsDetermined(forSourceType: type) else {
-                self.delegate?.permissionNotGranted(permissionKeys: self.infoPlistKeys[type])
-                return
+                !self.checkPermissionsDetermined(forSourceType: type) else {
+                    self.delegate?.permissionNotGranted(permissionKeys: self.infoPlistKeys[type])
+                    return
             }
             self.imagePickerController.sourceType = type
             presentationController.present(self.imagePickerController, animated: true)
@@ -65,14 +65,22 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
     }
     
     private func browseAction(title: String, presentationController: UIViewController) -> UIAlertAction? {
+        guard isDocumentsAvailable() else {
+            logDebug("[InAppChat] documents unavailable")
+            return nil
+        }
         return UIAlertAction(title: title, style: .default) { [unowned self, unowned presentationController] _ in
             presentationController.present(self.documentPickerController, animated: true)
         }
     }
-
-   func present(presentationController: UIViewController) {
+    
+    private func isDocumentsAvailable() -> Bool {
+        return FileManager.default.ubiquityIdentityToken != nil
+    }
+    
+    func present(presentationController: UIViewController) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-
+        
         if let action = self.action(for: .camera,
                                     title: ChatLocalization.localizedString(forKey: "mm_action_sheet_take_photo_or_video", defaultString: "Take Photo or Video"),
                                     presentationController: presentationController) {
@@ -87,10 +95,10 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
             alertController.addAction(action)
         }
         alertController.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: nil))
-
+        
         presentationController.present(alertController, animated: true)
     }
-
+    
     private func pickerController(_ controller: UIViewController, didSelectURL url: URL?) {
         controller.dismiss(animated: true, completion: nil)
         guard let url = url else {
@@ -116,7 +124,7 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
         guard let image = image,
             let data = image.jpegData(compressionQuality: 1) else {
                 logError("can't convert UIImage to jpegData")
-            return
+                return
         }
         didSelect(data: data)
     }

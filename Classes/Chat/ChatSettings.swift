@@ -70,3 +70,33 @@ class ChatSettingsManager {
 		}
 	}
 }
+
+//For Plugins
+extension ChatSettings {
+    struct Keys {
+        static let title = "title"
+        static let sendButtonColor = "sendButtonColor"
+        static let navigationBarItemsColor = "navigationBarItemsColor"
+        static let navigationBarColor = "navigationBarColor"
+        static let navigationBarTitleColor = "navigationBarTitleColor"
+    }
+
+    public func configureWith(rawConfig: [String: AnyObject]) {
+        if let title = rawConfig[ChatSettings.Keys.title] as? String {
+            self.title = title
+        }
+        if let sendButtonColor = rawConfig[ChatSettings.Keys.sendButtonColor] as? String {
+            self.sendButtonTintColor = UIColor(hexString: sendButtonColor)
+        }
+        if let navigationBarItemsColor = rawConfig[ChatSettings.Keys.navigationBarItemsColor] as? String {
+            self.navBarItemsTintColor = UIColor(hexString: navigationBarItemsColor)
+        }
+        if let navigationBarColor = rawConfig[ChatSettings.Keys.navigationBarColor] as? String {
+            self.navBarColor = UIColor(hexString: navigationBarColor)
+        }
+        if let navigationBarTitleColor = rawConfig[ChatSettings.Keys.navigationBarTitleColor] as? String {
+            self.navBarTitleColor = UIColor(hexString: navigationBarTitleColor)
+        }
+    }
+}
+

@@ -213,6 +213,9 @@
 		A08E503B249650D000F026ED /* InAppChat.strings in Resources */ = {isa = PBXBuildFile; fileRef = A08E501A249650D000F026ED /* InAppChat.strings */; };
 		A08E503D249652FD00F026ED /* ChatNotAvailableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08E503C249652FD00F026ED /* ChatNotAvailableLabel.swift */; };
 		A08E503F2496536700F026ED /* ChatLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08E503E2496536700F026ED /* ChatLocalization.swift */; };
+		A0E1D3A624EC28F500373B47 /* ChatConnector.html in Resources */ = {isa = PBXBuildFile; fileRef = A0E1D3A524EC28F500373B47 /* ChatConnector.html */; };
+		A0E1D3C924ED196400373B47 /* ChatConnector.html in Resources */ = {isa = PBXBuildFile; fileRef = A0E1D3C824ED196400373B47 /* ChatConnector.html */; };
+		A0E1D3CB24ED197400373B47 /* MobileMessagingChatImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0E1D3CA24ED197400373B47 /* MobileMessagingChatImages.xcassets */; };
 		A0E4439E24AF59F300387CDD /* MimeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E4439D24AF59F300387CDD /* MimeType.swift */; };
 		A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E4439F24AF5C8300387CDD /* ChatAttachmentUtils.swift */; };
 		A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */; };
@@ -512,6 +515,9 @@
 		A08E503A249650D000F026ED /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A08E503C249652FD00F026ED /* ChatNotAvailableLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatNotAvailableLabel.swift; sourceTree = "<group>"; };
 		A08E503E2496536700F026ED /* ChatLocalization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLocalization.swift; sourceTree = "<group>"; };
+		A0E1D3A524EC28F500373B47 /* ChatConnector.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = ChatConnector.html; path = Classes/Chat/Resources/ChatConnector.html; sourceTree = SOURCE_ROOT; };
+		A0E1D3C824ED196400373B47 /* ChatConnector.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ChatConnector.html; sourceTree = "<group>"; };
+		A0E1D3CA24ED197400373B47 /* MobileMessagingChatImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = MobileMessagingChatImages.xcassets; sourceTree = "<group>"; };
 		A0E4439D24AF59F300387CDD /* MimeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MimeType.swift; sourceTree = "<group>"; };
 		A0E4439F24AF5C8300387CDD /* ChatAttachmentUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAttachmentUtils.swift; sourceTree = "<group>"; };
 		A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
@@ -592,6 +598,7 @@
 		7600857D1F9759F200837D75 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				A0E1D3C724ED196400373B47 /* Resources */,
 				A0E4439C24AF59D700387CDD /* Vendor */,
 				A036A5BC24AB35A100B426EF /* ChatAttachmentPicker.swift */,
 				A08E503E2496536700F026ED /* ChatLocalization.swift */,
@@ -1018,6 +1025,7 @@
 		7650DC1E244EEB480016233D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A0E1D3A524EC28F500373B47 /* ChatConnector.html */,
 				7650DC1F244EEB480016233D /* MobileMessagingChatImages.xcassets */,
 			);
 			path = Resources;
@@ -1098,6 +1106,15 @@
 				A08E501A249650D000F026ED /* InAppChat.strings */,
 			);
 			path = Localization;
+			sourceTree = "<group>";
+		};
+		A0E1D3C724ED196400373B47 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A0E1D3C824ED196400373B47 /* ChatConnector.html */,
+				A0E1D3CA24ED197400373B47 /* MobileMessagingChatImages.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		A0E4439C24AF59D700387CDD /* Vendor */ = {
@@ -1231,6 +1248,9 @@
 			files = (
 				7601F1AF208E057F00738C1A /* AlertController.xib in Resources */,
 				A08E503B249650D000F026ED /* InAppChat.strings in Resources */,
+				A0E1D3CB24ED197400373B47 /* MobileMessagingChatImages.xcassets in Resources */,
+				A0E1D3C924ED196400373B47 /* ChatConnector.html in Resources */,
+				A0E1D3A624EC28F500373B47 /* ChatConnector.html in Resources */,
 				76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */,
 				7650DC33244EEB480016233D /* MobileMessagingChatImages.xcassets in Resources */,
 				7601F1B3208E057F00738C1A /* LoadingImageView.xib in Resources */,
