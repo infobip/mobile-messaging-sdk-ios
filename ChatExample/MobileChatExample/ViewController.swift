@@ -11,13 +11,14 @@ import UIKit
 import MobileMessaging
 
 class ViewController: UIViewController, InAppChatDelegate {
-	@IBOutlet weak var showChatInNavigation: UIButton!
-	@IBOutlet weak var showChatModally: UIButton!
-	@IBOutlet weak var showChatInNavigationProgrammatically: UIButton!
-	@IBOutlet weak var showChatModallyProgrammatically: UIButton!
-	@IBOutlet weak var presentRootNavigationVC: UIButton!
-
-	override func viewDidLoad() {
+	@IBOutlet weak var showChatInNavigationButton: UIButton!
+	@IBOutlet weak var showChatModallyButton: UIButton!
+	@IBOutlet weak var showChatInNavigationProgrammaticallyButton: UIButton!
+	@IBOutlet weak var showChatModallyProgrammaticallyButton: UIButton!
+	@IBOutlet weak var presentRootNavigationVCButton: UIButton!
+    @IBOutlet weak var presentNavigationRootVCCustomTransButton: UIButton!
+    
+    override func viewDidLoad() {
 		super.viewDidLoad()
 		MobileMessaging.inAppChat?.delegate = self
 	}
@@ -35,15 +36,21 @@ class ViewController: UIViewController, InAppChatDelegate {
 		navigationController?.present(vc, animated: true, completion: nil)
 	}
 
-	func inAppChatIsEnabled(_ enabled: Bool) {
+    @IBAction func presentNavigationVCCustomTrans(_ sender: Any) {
+        let vc = ChatViewController.makeRootNavigationViewControllerWithCustomTransition()
+        navigationController?.present(vc, animated: true, completion: nil)
+    }
+    
+    func inAppChatIsEnabled(_ enabled: Bool) {
 		enableButtons(enabled: enabled)
 	}
 	
 	func enableButtons(enabled: Bool) {
-		showChatInNavigation.isEnabled = enabled
-		showChatModally.isEnabled = enabled
-		showChatInNavigationProgrammatically.isEnabled = enabled
-		showChatModallyProgrammatically.isEnabled = enabled
-		presentRootNavigationVC.isEnabled = enabled
+		showChatInNavigationButton.isEnabled = enabled
+		showChatModallyButton.isEnabled = enabled
+		showChatInNavigationProgrammaticallyButton.isEnabled = enabled
+		showChatModallyProgrammaticallyButton.isEnabled = enabled
+		presentRootNavigationVCButton.isEnabled = enabled
+        presentNavigationRootVCCustomTransButton.isEnabled = enabled
 	}
 }

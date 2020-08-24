@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -29,11 +29,11 @@
             <objects>
                 <viewController id="nTL-13-0bE" customClass="ViewController" customModule="MobileChatExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="rAI-7V-Yda">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PsB-pf-9zh">
-                                <rect key="frame" x="53" y="77" width="288" height="170"/>
+                                <rect key="frame" x="53" y="77" width="288" height="205"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnd-DA-n6K">
                                         <rect key="frame" x="0.0" y="0.0" width="288" height="30"/>
@@ -70,6 +70,14 @@
                                             <action selector="presentRootNavigationVC:" destination="nTL-13-0bE" eventType="touchUpInside" id="JgS-L4-LbW"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lGS-4e-btD">
+                                        <rect key="frame" x="0.0" y="175" width="288" height="30"/>
+                                        <state key="normal" title="presentRootNavigationVC+CustomTransition"/>
+                                        <connections>
+                                            <action selector="presentNavigationVCCustomTrans:" destination="nTL-13-0bE" eventType="touchUpInside" id="1Rn-zC-scP"/>
+                                            <action selector="presentRootNavigationVC:" destination="nTL-13-0bE" eventType="touchUpInside" id="ZWj-ug-rY1"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </stackView>
                         </subviews>
@@ -83,11 +91,12 @@
                     </view>
                     <navigationItem key="navigationItem" id="eRM-3m-t8h"/>
                     <connections>
-                        <outlet property="presentRootNavigationVC" destination="eKg-U7-Pn0" id="a3C-eo-lfr"/>
-                        <outlet property="showChatInNavigation" destination="Gnd-DA-n6K" id="3lW-TG-n5g"/>
-                        <outlet property="showChatInNavigationProgrammatically" destination="Z3a-nU-cMh" id="g0F-Uv-QcJ"/>
-                        <outlet property="showChatModally" destination="wLg-pL-jri" id="i7C-QM-Qjb"/>
-                        <outlet property="showChatModallyProgrammatically" destination="TqP-fC-b1J" id="zz6-Sf-ZDC"/>
+                        <outlet property="presentNavigationRootVCCustomTransButton" destination="lGS-4e-btD" id="aKj-An-jJW"/>
+                        <outlet property="presentRootNavigationVCButton" destination="eKg-U7-Pn0" id="a3C-eo-lfr"/>
+                        <outlet property="showChatInNavigationButton" destination="Gnd-DA-n6K" id="3lW-TG-n5g"/>
+                        <outlet property="showChatInNavigationProgrammaticallyButton" destination="Z3a-nU-cMh" id="g0F-Uv-QcJ"/>
+                        <outlet property="showChatModallyButton" destination="wLg-pL-jri" id="i7C-QM-Qjb"/>
+                        <outlet property="showChatModallyProgrammaticallyButton" destination="TqP-fC-b1J" id="zz6-Sf-ZDC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0dp-lf-ulk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

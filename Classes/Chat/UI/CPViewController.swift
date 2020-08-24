@@ -9,6 +9,7 @@ import UIKit
 enum CPBackButtonType {
 	case back
 	case dismiss
+    case custom
 }
 
 open class CPModalDismissableViewController: UIViewController {
@@ -26,16 +27,16 @@ open class CPModalDismissableViewController: UIViewController {
 		super.init(coder: aDecoder)!
 	}
 
-	init(type: CPBackButtonType) {
+	init(type: CPBackButtonType, image: UIImage? = nil) {
 		super.init(nibName: nil, bundle: nil)
-		self.setupType(type)
+        self.setupType(type, image: image)
 	}
 
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
 	}
 	
-	func setupType(_ type: CPBackButtonType) {
+    func setupType(_ type: CPBackButtonType, image: UIImage? = nil) {
 		switch type {
 		case .back:
 			self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: UIBarButtonItem.Style.plain, target: self, action: nil)
@@ -43,6 +44,9 @@ open class CPModalDismissableViewController: UIViewController {
 		case .dismiss:
 			let dismissBarBtn = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(CPModalDismissableViewController.closeVC))
 			self.navigationItem.rightBarButtonItem = dismissBarBtn;
+        case .custom:
+            let dismissBarBtn = UIBarButtonItem(image: image?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(CPModalDismissableViewController.closeVC))
+            self.navigationItem.leftBarButtonItem = dismissBarBtn;
 		}
 	}
 	

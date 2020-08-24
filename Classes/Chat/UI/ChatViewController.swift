@@ -21,13 +21,18 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 
 	///Will make UINavigationController with ChatViewController as root
 	public static func makeRootNavigationViewController() -> ChatNavigationVC {
-		return ChatNavigationVC.makeWebViewChatNavigationViewController()
+		return ChatNavigationVC.makeChatNavigationViewController()
 	}
 
 	//Will make ChatViewController, for usage in navigation
 	public static func makeChildNavigationViewController() -> ChatViewController {
 		return ChatViewController(type: .back)
 	}
+    
+    ///Will make UINavigationController with ChatViewController as root with custom transition
+    public static func makeRootNavigationViewControllerWithCustomTransition() -> ChatNavigationVC {
+        return ChatNavigationVC.makeChatNavigationViewController(transitioningDelegate: ChatCustomTransitionDelegate())
+    }
 	
 	//Will make ChatViewController, for presenting modally
 	public static func makeModalViewController() -> ChatViewController {
