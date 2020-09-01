@@ -108,10 +108,12 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 	}
 
-	static func presentInAppWebview(_ urlString: String, _ presentingVc: UIViewController, _ message: MTMessage) {
+	static func presentInAppWebview(_ urlString: String, _ presentingVc: UIViewController, _ message: MTMessage?) {
 		let webViewController = WebViewController(url: urlString)
 		webViewController.modalPresentationStyle = .fullScreen
-		MobileMessaging.messageHandlingDelegate?.inAppWebViewWillShowUp?(webViewController, for: message)
+		if let message = message {
+			MobileMessaging.messageHandlingDelegate?.inAppWebViewWillShowUp?(webViewController, for: message)
+		}
 		presentingVc.present(webViewController, animated: true, completion: nil)
 	}
 
