@@ -24,8 +24,10 @@
 	<string>MobileChatExample wants to use camera to take photos and videos</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>MobileChatExample wants to use microphone to record audio</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>MobileChatExample wants to save attachments to photo library</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>MobileChatExample wants to use library to send attachments</string>
+	<string>MobileChatExample wants to use photo library to send attachments</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -41,6 +43,7 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

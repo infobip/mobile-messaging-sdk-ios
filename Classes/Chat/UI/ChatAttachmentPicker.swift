@@ -12,7 +12,7 @@ import MobileCoreServices
 import Photos
 
 protocol ChatAttachmentPickerDelegate: class {
-    func didSelect(attachment: ChatAttachment)
+    func didSelect(attachment: ChatMobileAttachment)
     func permissionNotGranted(permissionKeys: [String]?)
     func validateAttachmentSize(size: Int) -> Bool
     func attachmentSizeExceeded()
@@ -44,8 +44,7 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
         
         if let infoPlistKeys = infoPlistKeys[type] {
             for key in infoPlistKeys {
-                guard let _ = Bundle.main.infoDictionary?.index(forKey: key) else {
-                    logWarn("\(key) isn't defined in info.plist")
+                guard ChatAttachmentUtils.isInfoPlistKeyDefined(key) else {
                     return nil
                 }
             }
@@ -134,7 +133,7 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
             delegate?.attachmentSizeExceeded()
             return
         }
-        delegate?.didSelect(attachment: ChatAttachment(data: data))
+        delegate?.didSelect(attachment: ChatMobileAttachment(data: data))
     }
     
     /*Permissions*/

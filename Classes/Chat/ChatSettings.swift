@@ -25,6 +25,10 @@ public class ChatSettings: NSObject {
 	public var navBarColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
 	public var navBarTitleColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    
+    public var attachmentPreviewBarsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    
+    public var attachmentPreviewItemsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
     func update(withChatWidget widget: ChatWidget) {
         if let widgetTitle = widget.title, title == nil {

@@ -31,7 +31,7 @@ class ChatWebView: WKWebView {
 		super.init(coder: coder)
 	}
 	
-	func loadWidget(_ widget: ChatWidget){
+	func loadWidget(_ widget: ChatWidget) {
 		guard let pushRegistrationId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
 			let request = request(forWidgetId: widget.widgetId, pushRegId: pushRegistrationId) else {
 				logDebug("no push registration id, can't start chat")

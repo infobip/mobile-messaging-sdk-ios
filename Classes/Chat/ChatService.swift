@@ -46,14 +46,22 @@ public class InAppChatService: MobileMessagingService {
 	///`completion` will be called when cache clean up is finished.
 	public func cleanCache(completion: (() -> Void)? = nil) {
 		logDebug("cache cleanup")
+        
+        //removing saved attachments
+        do {
+            try FileManager.default.removeItem(at: URL.chatAttachmentDestinationFolderUrl(createIfNotExist: false))
+        } catch {
+            logError("error while removing attachments folder: \(error)")
+        }
+        
 		DispatchQueue.main.async {
 			WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
 													modifiedSince: Date.init(timeIntervalSince1970: 0)) {
 														self.update(withChatWidget: self.chatWidget)
 														completion?()
 			}
-		}
-	}
+        }
+    }
 	
 	///In-app Chat delegate, can be set to receive additional chat info.
 	public var delegate: InAppChatDelegate? {

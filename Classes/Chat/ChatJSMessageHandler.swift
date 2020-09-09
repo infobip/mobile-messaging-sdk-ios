@@ -12,12 +12,15 @@ import WebKit
 enum JSMessageType: String, CaseIterable {
 	case enableControls
 	case onError
+    case openAttachmentPreview
 	var handler: ScriptMessageHandler.Type? {
 		switch self {
 		case .enableControls:
 			return EnableControlsMessageHandler.self
 		case .onError:
 			return ErrorMessageHandler.self
+        case .openAttachmentPreview:
+            return AttachmentPreviewMessageHandler.self
 		}
 	}
 }
@@ -54,6 +57,19 @@ class ErrorMessageHandler: ScriptMessageHandler, NamedLogger {
 	}
 }
 
+class AttachmentPreviewMessageHandler: ScriptMessageHandler {
+    class func handleMessage(message: WKScriptMessage) {
+        guard let jsMessage = AttachmentPreviewJSMessage(message: message) else {
+            return
+        }
+        guard let attachment = ChatWebAttachment(url: jsMessage.url, typeString: jsMessage.type, fileName: jsMessage.caption) else {
+            return
+        }
+        
+        MobileMessaging.inAppChat?.webViewDelegate?.openPreview(forAttachment: attachment)
+    }
+}
+
 protocol JSMessage {
 	init?(message: WKScriptMessage)
 }
@@ -82,4 +98,23 @@ class EnableControlsJSMessage : JSMessage, NamedLogger {
 		}
 		self.enabled = enabled
 	}
+}
+
+class AttachmentPreviewJSMessage: JSMessage, NamedLogger {
+    let url: URL
+    let type: String
+    let caption: String?
+    
+    required init?(message: WKScriptMessage) {
+        guard let bodyDict = message.body as? [String: AnyObject],
+            let urlString = bodyDict[ChatAPIKeys.JSMessageKeys.attachmentUrl] as? String,
+            let url = URL(string: urlString),
+            let type = bodyDict[ChatAPIKeys.JSMessageKeys.attachmentType] as? String else {
+                ErrorJSMessage.logError("Error while handling js openAttachmentPreview message, data wasn't provided")
+                return nil
+        }
+        self.url = url
+        self.type = type
+        self.caption = (bodyDict[ChatAPIKeys.JSMessageKeys.attachmentCaption] as? String)
+    }
 }

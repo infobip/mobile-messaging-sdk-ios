@@ -8,35 +8,13 @@
 import Foundation
 import WebKit
 
-class ChatAttachment {
-    let base64: String
-    let mimeType: String
-    let fileName: String
-    
-    init(data: Data) {
-        self.base64 = data.base64EncodedString(options: NSData.Base64EncodingOptions.init(rawValue: 0))
-        self.mimeType = ChatAttachmentUtils.mimeType(forData: data)
-        
-        let fileName = UUID().uuidString
-        if let fileExtension = ChatAttachmentUtils.fileExtension(forData: data) {
-            self.fileName = fileName + "." + fileExtension
-        } else {
-            self.fileName = fileName
-        }
-    }
-    
-    func base64UrlString() -> String {
-        return "data:\(self.mimeType);base64,\(self.base64)"
-    }
-}
-
 protocol ChatJSWrapper {
-    func sendMessage(_ message: String?, attachment: ChatAttachment?)
+    func sendMessage(_ message: String?, attachment: ChatMobileAttachment?)
 }
 
 extension WKWebView: NamedLogger {}
 extension WKWebView: ChatJSWrapper {
-    func sendMessage(_ message: String? = nil, attachment: ChatAttachment? = nil) {
+    func sendMessage(_ message: String? = nil, attachment: ChatMobileAttachment? = nil) {
         let escapedMessage = message?.javaScriptEscapedString()
         guard escapedMessage != nil || attachment != nil else {
 			logDebug("sendMessage failed, neither message nor the attachment provided")

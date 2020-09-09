@@ -25,5 +25,8 @@ struct ChatAPIKeys {
 		static let errorCode = "errorCode"
 		static let errorMessage = "errorMessage"
 		static let enabled = "enabled"
+        static let attachmentUrl = "url"
+        static let attachmentType = "type"
+        static let attachmentCaption = "caption"
 	}
 }

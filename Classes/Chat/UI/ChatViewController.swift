@@ -11,6 +11,7 @@ protocol ChatWebViewDelegate {
 	func loadWidget(_ widget: ChatWidget)
 	func enableControls(_ enabled: Bool)
     func handleChatErrors(_ errors: ChatErrors)
+    func openPreview(forAttachment attachment: ChatWebAttachment)
 }
 
 ///Key component to use for displaying In-app chat view.
@@ -139,7 +140,12 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
          } else {
              chatNotAvailableLabel.show()
          }
-     }
+    }
+    
+    func openPreview(forAttachment attachment: ChatWebAttachment) {
+        let vc =  AttachmentPreviewController.makeRootInNavigationController(forAttachment: attachment)
+        self.present(vc, animated: true, completion: nil)
+    }
 	
 	// Private
 	private func setupWebView() {
@@ -157,7 +163,7 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 }
 
 extension ChatViewController: ChatAttachmentPickerDelegate {
-    func didSelect(attachment: ChatAttachment) {
+    func didSelect(attachment: ChatMobileAttachment) {
         webView.sendMessage(attachment: attachment)
     }
     
@@ -192,7 +198,7 @@ extension ChatViewController: ChatAttachmentPickerDelegate {
     func attachmentSizeExceeded() {
         let title = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_title", defaultString: "Attachment upload failed")
         let message = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_message", defaultString: "Maximum allowed size exceeded")
-        MMLogError("[InAppChat] \(title). \(message) (\(maxUploadAttachmentSize.mbSize))")
+        logError("\(title). \(message) (\(maxUploadAttachmentSize.mbSize))")
         showAlert(title, message: message)
     }
     

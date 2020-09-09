@@ -8,7 +8,7 @@
 import Foundation
 import MobileCoreServices
 
-class ChatAttachmentUtils {
+class ChatAttachmentUtils: NamedLogger {
     static let DefaultMaxAttachmentSize: UInt = 10*1024*1024
     static func mimeType(forData data: Data) -> String {
         var result = "application/octet-stream"
@@ -29,5 +29,13 @@ class ChatAttachmentUtils {
         }
 
         return mimeType as String
+    }
+    
+    static func isInfoPlistKeyDefined(_ key: String) -> Bool {
+        let result = ((Bundle.main.infoDictionary?.index(forKey: key)) != nil)
+        if !result {
+            logWarn("\(key) isn't defined in info.plist")
+        }
+        return result
     }
 }
