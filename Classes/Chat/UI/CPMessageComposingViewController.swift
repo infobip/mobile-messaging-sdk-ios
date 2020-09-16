@@ -54,7 +54,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 	func setupComposerBar() {
 		let viewBounds = view.bounds
 		let frame = CGRect(x: 0,
-						   y: viewBounds.size.height - ComposeBarConsts.initialHeight,
+						   y: viewBounds.size.height - ComposeBarConsts.initialHeight - safeAreaBottomMargin(),
 						   width: viewBounds.size.width,
 						   height: ComposeBarConsts.initialHeight)
 		composeBarView = ComposeBar(frame: frame)
@@ -64,7 +64,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 		composeBarView.alpha = 1
 		view.addSubview(composeBarView)
 
-		scrollViewContainer.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h, right: 0))
+		scrollViewContainer.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h + safeAreaBottomMargin(), right: 0))
 		scrollView.delegate = self
         composeBarView.utilityButtonImage = UIImage(mm_named: "attachmentButton")?.withRenderingMode(.alwaysTemplate)
 	}
@@ -84,7 +84,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 	override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
 		super.keyboardWillHide(duration, curve: curve, options: options, height: height)
 		let block = {
-			self.composeBarView.frame.y = self.view.frame.height - self.composeBarView.frame.height
+            self.composeBarView.frame.y = self.view.frame.height - self.composeBarView.frame.height - self.safeAreaBottomMargin()
 		}
 		UIView.animate(withDuration: duration, delay: 0, options: options, animations: block, completion: nil)
 	}
