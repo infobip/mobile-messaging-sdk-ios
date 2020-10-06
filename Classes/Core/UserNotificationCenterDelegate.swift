@@ -42,10 +42,17 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 
 		let mtMessage: MTMessage? = MTMessage.make(with: notification)
 
-		MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: mtMessage, notification: notification, withCompletionHandler: { (notificationType) in
-			completionHandler(UNNotificationPresentationOptions.make(with: notificationType))
-		}) ??
-			MobileMessaging.sharedInstance?.interactiveAlertManager.showBannerNotificationIfNeeded(forMessage: mtMessage, showBannerWithOptions: completionHandler)
+		MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: mtMessage, notification: notification, withCompletionHandler: { notificationType in
+            DispatchQueue.main.async {
+                completionHandler(UNNotificationPresentationOptions.make(with: notificationType))
+            }
+		})
+        ??
+        MobileMessaging.sharedInstance?.interactiveAlertManager.showBannerNotificationIfNeeded(forMessage: mtMessage, showBannerWithOptions: { options in
+            DispatchQueue.main.async {
+                completionHandler(options)
+            }
+        })
 
 		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(notification.request.content.userInfo, completion: { _ in })
 	}
@@ -58,7 +65,11 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 			actionId: response.actionIdentifier,
 			categoryId: response.notification.request.content.categoryIdentifier,
 			userText: (response as? UNTextInputNotificationResponse)?.userText,
-			withCompletionHandler: { completionHandler() }
+			withCompletionHandler: {
+                DispatchQueue.main.async {
+                    completionHandler()
+                }
+            }
 		)
 	}
 
