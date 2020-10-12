@@ -9,44 +9,44 @@ import XCTest
 @testable import MobileMessaging
 
 class UserDataTests: MMTestCase {
-
+	
 	func testDateJsonEncoding() {
 		XCTAssertEqual(Date(timeIntervalSince1970: 1468593199).toJSON(), "2016-07-15")
 	}
-
+	
 	func testDataPersisting() {
 		weak var expectation = self.expectation(description: "done")
-
+		
 		let u = MobileMessaging.getUser()!
 		u.customAttributes = ["nickname": "Crusher" as NSString, "nilElement": NSNull()]
 		u.externalUserId = "someExternalId"
 		u.phones = ["123"]
 		u.emails = ["some@mail.com"]
 		u.birthday = darthVaderDateOfBirth
-
+		
 		MobileMessaging.saveUser(u) { (error) in
 			// Assert delta content
-
+			
 			let u = MobileMessaging.getUser()!
-
+			
 			XCTAssertEqual(u.customAttributes?["nickname"] as? String, "Crusher")
 			XCTAssertEqual(u.customAttributes?["nilElement"] as? NSNull, NSNull())
 			XCTAssertEqual(u.phones, ["123"])
 			XCTAssertEqual(u.birthday, darthVaderDateOfBirth)
 			XCTAssertEqual(u.emails, ["some@mail.com"])
-
+			
 			expectation?.fulfill()
 		}
 		waitForExpectations(timeout: 20, handler: { _ in
 		})
 	}
-
+	
 	func testJsonDecoding() {
 		weak var expectation = self.expectation(description: "data fetched")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
+		
 		let currentUser = MobileMessaging.getUser()!
-
+		
 		let jsonStr = """
 	{
 		"phones": [
@@ -73,7 +73,11 @@ class UserDataTests: MMTestCase {
 			"nativePlace": "Tatooine",
 			"height": 189.5,
 			"dateOfDeath": "1983-05-25",
-			"car": null
+			"car": null,
+			"purchases": [
+				{"item": "laptop", "price": 1000.50, "date": "2020-01-15", "preOwned": true},
+				{"item": "phone", "price": 500.10, "date": "2019-01-15", "preOwned": false}
+			]
 		},
 		"instances": [
 			{
@@ -105,12 +109,12 @@ class UserDataTests: MMTestCase {
 			return FetchUserDataResult.Success(User(json: json)!)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
-
+		
 		mobileMessagingInstance.userService.fetchFromServer(completion: { (user, error) in
 			XCTAssertNil(error)
-
+			
 			XCTAssertNil(currentUser.customAttributes?["car"])
-
+			
 			let primaryInstallation = (user.installations?.first(where: {$0.isPrimaryDevice}))!
 			XCTAssertEqual(primaryInstallation.deviceModel, "iPhone 1")
 			XCTAssertEqual(primaryInstallation.deviceManufacturer, "Apple")
@@ -119,7 +123,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(primaryInstallation,
 						   Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone 1", deviceName: "Johns iPhone", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushregid1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 			)
-
+			
 			let secondaryInstallation = (user.installations?.first(where: {!$0.isPrimaryDevice}))!
 			XCTAssertEqual(secondaryInstallation.deviceModel, "Galaxy")
 			XCTAssertEqual(secondaryInstallation.deviceManufacturer, "Samsung")
@@ -128,49 +132,53 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(secondaryInstallation,
 						   Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Samsung", deviceModel: "Galaxy", deviceName: "Johns Sam", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: false, language: nil, notificationsEnabled: true, os: "Android", osVersion: nil, pushRegistrationId: "pushregid2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 			)
-
+			
 			XCTAssertTrue(user.phones?.contains("1") ?? false)
 			XCTAssertTrue(user.phones?.contains("2") ?? false)
-
+			
 			XCTAssertTrue(user.emails?.contains("1xxx@xxx.com") ?? false)
 			XCTAssertTrue(user.emails?.contains("2xxx@xxx.com") ?? false)
-
+			
 			XCTAssertEqual(user.customAttributes?["nativePlace"] as? String, "Tatooine")
 			XCTAssertEqual(user.customAttributes?["height"] as? NSNumber, 189.5)
 			XCTAssertEqual(user.customAttributes?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
-
+			
 			let customAtts = user.customAttributes!
 			XCTAssertNil(customAtts["car"])
 			XCTAssertEqual(customAtts["nativePlace"] as? String, "Tatooine")
 			XCTAssertEqual(customAtts["height"] as? NSNumber, 189.5)
 			XCTAssertEqual(customAtts["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
+			XCTAssertEqual(customAtts["purchases"] as? NSArray, [
+				["item": "laptop", "price": NSNumber(value:1000.50), "date": "2020-01-15", "preOwned": true],
+				["item": "phone", "price": NSNumber(value:500.10), "date": "2019-01-15", "preOwned": false]
+			])
 			expectation?.fulfill()
 		})
-
+		
 		waitForExpectations(timeout: 20, handler: nil)
 	}
-
+	
 	func testUserDataFetching() {
 		weak var expectation = self.expectation(description: "save completed")
-
+		
 		//Precondiotions
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
+		
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.getUserClosure = { _, _ -> FetchUserDataResult in
 			let response = User(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: [Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
-
+			
 			return FetchUserDataResult.Success(response)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 		// explicitly reset dirty attributes to accomplish the successful fetching
-
+		
 		MobileMessaging.fetchUser(completion: { (user, error) in
 			XCTAssertNil(error)
 			let currentUser = MobileMessaging.getUser()!
-
+			
 			XCTAssertNil(currentUser.externalUserId)
-
+			
 			XCTAssertEqual(currentUser.firstName, "Darth")
 			XCTAssertEqual(currentUser.lastName, "Vader")
 			XCTAssertEqual(currentUser.birthday, darthVaderDateOfBirth)
@@ -178,7 +186,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.phones, ["79214444444"])
 			XCTAssertEqual(currentUser.emails?.first, "darth@vader.com")
 			XCTAssertEqual(currentUser.installations, [Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
-
+			
 			XCTAssertEqual(currentUser.customAttributes?["nativePlace"] as? String, "Tatooine")
 			XCTAssertEqual(currentUser.customAttributes?["mentor"] as? String, "Obi Wan Kenobi")
 			XCTAssertEqual(currentUser.customAttributes?["home"] as? String, "Death Star")
@@ -188,17 +196,17 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.customAttributes?["dateOfDeath"] as? NSDate, darthVaderDateOfDeath)
 			expectation?.fulfill()
 		})
-
+		
 		waitForExpectations(timeout: 20, handler: nil)
 	}
-
+	
 	func testThatFetchedUserDataIgnoredIfHasUnsyncedLocalChanges() {
 		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithCorrectApplicationCode()
 		weak var expectation = self.expectation(description: "data received")
 		weak var expectationAPICallPerformed = self.expectation(description: "expectationAPICallPerformed")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
+		
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.getUserClosure = { _, _ -> FetchUserDataResult in
 			expectationAPICallPerformed?.fulfill()
@@ -206,34 +214,34 @@ class UserDataTests: MMTestCase {
 			return FetchUserDataResult.Success(response)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
-
+		
 		let user = MobileMessaging.getUser()!
 		user.firstName = "John" // unsynced local change
 		user.archiveDirty()
-
+		
 		mobileMessagingInstance.userService.fetchFromServer { (_, _) in
 			expectation?.fulfill()
 		}
-
+		
 		waitForExpectations(timeout: 20, handler: { _ in
 			XCTAssertEqual(user.firstName, "John") // must be preserved
 		})
 	}
-
+	
 	func testTagsConvertedToArray() {
 		mobileMessagingInstance.pushRegistrationId = "123"
-
+		
 		let currentUser = MobileMessaging.getUser()!
 		currentUser.tags = Set(["t1"])
-
+		
 		let b = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: currentUser)
-		XCTAssertTrue(b["tags"] is [String])
+		XCTAssertTrue(b!["tags"] is [String])
 	}
-
+	
 	func testThatUserDataIsNotPersistedIfPrivacySettingsSpecified() {
 		MobileMessaging.privacySettings.userDataPersistingDisabled = true
 		mobileMessagingInstance.pushRegistrationId = "123"
-
+		
 		let currentUser = MobileMessaging.getUser()!
 		currentUser.lastName = "Skywalker"
 		currentUser.gender = .Male
@@ -242,7 +250,7 @@ class UserDataTests: MMTestCase {
 		currentUser.externalUserId = "123"
 		currentUser.customAttributes = ["home": "Death Star" as NSString]
 		currentUser.archiveAll()
-
+		
 		do {
 			let dirtyUser = NSKeyedUnarchiver.unarchiveObject(withFile: User.dirtyPath) as! User
 			// we havent stored on disk
@@ -252,7 +260,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertNil(dirtyUser.emails, "userdata must not be persisted")
 			XCTAssertNil(dirtyUser.customAttributes, "userdata must not be persisted")
 			XCTAssertNil(dirtyUser.externalUserId, "userdata must not be persisted")
-
+			
 			let currentUser = NSKeyedUnarchiver.unarchiveObject(withFile: User.currentPath) as! User
 			// we havent stored on disk
 			XCTAssertNil(currentUser.phones, "userdata must not be persisted")
@@ -262,7 +270,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertNil(currentUser.customAttributes, "userdata must not be persisted")
 			XCTAssertNil(currentUser.externalUserId, "userdata must not be persisted")
 		}
-
+		
 		// but we still able to get data from memory
 		let inMemoryUser = MobileMessaging.getUser()!
 		XCTAssertEqual(inMemoryUser.emails, ["luke@starwars.com"])
@@ -272,14 +280,14 @@ class UserDataTests: MMTestCase {
 		XCTAssertEqual(inMemoryUser.gender, .Male)
 		XCTAssertEqual(inMemoryUser.customAttributes?["home"] as? NSString, "Death Star")
 	}
-
+	
 	//TODO:
 	// test that error parses to a UpdateUserDataResult.Failure(NSError(domain: x, code: x, userInfo: [Consts.APIKeys.errorMessageId : "USER_MERGE_INTERRUPTED"]))
-
+	
 	func testThatUnwantedMergeErrorIsPorpagated() {
 		weak var expectation = self.expectation(description: "data fetched")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
+		
 		let jsonStr = """
 		{
 			"requestError": {
@@ -296,7 +304,7 @@ class UserDataTests: MMTestCase {
 			return UpdateUserDataResult.Failure(requestError?.foundationError)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
-
+		
 		let user = MobileMessaging.getUser()!
 		user.firstName = "john"
 		MobileMessaging.saveUser(user) { (error) in
@@ -306,7 +314,7 @@ class UserDataTests: MMTestCase {
 		}
 		waitForExpectations(timeout: 20, handler: nil)
 	}
-
+	
 	func testThatAfterMergeInterrupted_UserIdentityRollsBack() {
 		weak var expectation = self.expectation(description: "expectation")
 		mobileMessagingInstance.pushRegistrationId = "123"
@@ -314,11 +322,11 @@ class UserDataTests: MMTestCase {
 		user.phones = ["1"]
 		user.emails = ["2"]
 		user.externalUserId = "3"
-
+		
 		performMergeInterruptedUserUpdateCase(user: user) {
 			expectation?.fulfill()
 		}
-
+		
 		waitForExpectations(timeout: 20, handler: { _ in
 			let user = MobileMessaging.getUser()!
 			XCTAssertNil(user.phones)
@@ -326,25 +334,25 @@ class UserDataTests: MMTestCase {
 			XCTAssertNil(user.externalUserId)
 		})
 	}
-
+	
 	func testThatDirtyUserAttributesSentToServer() {
 		weak var expectation = self.expectation(description: "")
 		var sent = [Any]()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
+		
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.patchUserClosure = { (_, _, requestBody) -> UpdateUserDataResult in
 			sent.append(requestBody as Any)
 			return UpdateUserDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
-
+		
 		let user = MobileMessaging.getUser()!
 		user.firstName = "A"
 		user.customAttributes = ["string": "x" as NSString, "bool": true as NSNumber, "num": 9.5 as NSNumber, "bool2": true as NSNumber, "num2": 9.5 as NSNumber, "empty": "empty" as NSString]
 		MobileMessaging.saveUser(user) { (error) in
 			XCTAssertNil(error)
-
+			
 			let user = MobileMessaging.getUser()!
 			user.firstName = "B"
 			user.customAttributes = ["string": "y" as NSString, "bool": false as NSNumber, "num": 10 as NSNumber, "bool2": true as NSNumber, "num2": 9.5 as NSNumber, "empty": NSNull()]
@@ -357,34 +365,34 @@ class UserDataTests: MMTestCase {
 			let first = sent.first(where: { (element) -> Bool in
 				(element as! NSDictionary).isEqual(to: ["firstName": "A", "customAttributes":["string": "x", "bool": true, "num": 9.5, "bool2": true, "num2": 9.5, "empty": "empty"]])
 			})
-
+			
 			let second = sent.first(where: { (element) -> Bool in
 				(element as! NSDictionary).isEqual(to: ["firstName": "B", "customAttributes":["string": "y", "bool": false, "num": 10, "empty": NSNull()]])
 			})
-
+			
 			XCTAssertNotNil(first)
 			XCTAssertNotNil(second)
 		})
 	}
-
+	
 	func testThatEmptyCustomAttributesSentAsNull() {
 		weak var expectation = self.expectation(description: "")
 		var sent = [Any]()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
+		
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.patchUserClosure = { (_, _, requestBody) -> UpdateUserDataResult in
 			sent.append(requestBody as Any)
 			return UpdateUserDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
-
-
+		
+		
 		let user = MobileMessaging.getUser()!
 		user.customAttributes = ["string": "x" as NSString, "bool": true as NSNumber, "num": 9.5 as NSNumber, "bool2": true as NSNumber, "num2": 9.5 as NSNumber]
 		MobileMessaging.saveUser(user) { (error) in
 			XCTAssertNil(error)
-
+			
 			let user = MobileMessaging.getUser()!
 			user.customAttributes = [:]
 			MobileMessaging.saveUser(user) { (error) in
@@ -396,11 +404,11 @@ class UserDataTests: MMTestCase {
 			let first = sent.first(where: { (element) -> Bool in
 				(element as! NSDictionary).isEqual(to: ["customAttributes":["string": "x", "bool": true, "num": 9.5, "bool2": true, "num2": 9.5]])
 			})
-
+			
 			let second = sent.first(where: { (element) -> Bool in
 				(element as! NSDictionary).isEqual(to: ["customAttributes": NSNull()])
 			})
-
+			
 			XCTAssertNotNil(first)
 			XCTAssertNil(second)
 		})

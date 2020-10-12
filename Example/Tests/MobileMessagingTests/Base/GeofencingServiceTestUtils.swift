@@ -3,7 +3,7 @@
 //  MobileMessagingExample
 //
 //  Created by Andrey Kadochnikov on 13/11/2018.
-//  Copyright © 2018 CocoaPods. All rights reserved.
+
 //
 
 import Foundation

@@ -3,7 +3,7 @@
 //  MobileMessagingExample
 //
 //  Created by Andrey Kadochnikov on 17/12/2018.
-//  Copyright © 2018 CocoaPods. All rights reserved.
+//
 //
 
 import Foundation
@@ -52,7 +52,7 @@ class InstallationsManagementTests: MMTestCase {
 
 
 
-			XCTAssertNil(User.delta["instances"])
+			XCTAssertNil(User.delta?["instances"])
 			managementFinished?.fulfill()
 		})
 
@@ -83,7 +83,7 @@ class InstallationsManagementTests: MMTestCase {
 			XCTAssertEqual(installations?.count, 3)
 			XCTAssertNil(installations?.first(where: { $0.pushRegistrationId == "pr-1"} ))
 			
-			XCTAssertNil(User.delta["instances"])
+			XCTAssertNil(User.delta?["instances"])
 			managementFinished?.fulfill()
 		})
 

@@ -22,11 +22,13 @@ class UpdateUserOperation: MMOperation {
 
 		if let dirtyUser = dirtyUser {
 			self.dirtyUser = dirtyUser
-			self.body = UserDataMapper.requestPayload(currentUser: currentUser, dirtyUser: dirtyUser)
-			if self.body.isEmpty {
-				Self.logWarn("There is no data to send. Aborting...")
-				return nil
-			}
+            if let b = UserDataMapper.requestPayload(currentUser: currentUser, dirtyUser: dirtyUser) {
+                self.body = b
+            } else {
+                Self.logWarn("There is no data to send. Aborting...")
+                return nil
+            }
+
 		} else {
 			Self.logDebug("There are no attributes to sync save. Aborting...")
 			return nil

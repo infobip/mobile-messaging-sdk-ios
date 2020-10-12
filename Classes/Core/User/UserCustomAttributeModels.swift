@@ -7,59 +7,13 @@
 
 import Foundation
 
-//public class AttributeType : NSObject {
-//	enum FoundationType {
-//		case Number, String, Null, Date
-//	}
-//	let foundationType: FoundationType
-//	let value: AnyObject
-//
-//	init(date: NSDate) {
-//		self.foundationType = .Date
-//		self.value = date
-//	}
-//
-//	init(number: NSNumber) {
-//		self.foundationType = .Number
-//		self.value = number
-//	}
-//
-//	init(null: NSNull) {
-//		self.foundationType = .Date
-//		self.value = null
-//	}
-//
-//	init(string: NSString) {
-//		self.foundationType = .String
-//		self.value = string
-//	}
-//
-//	public override func isEqual(_ object: Any?) -> Bool {
-//		guard let object = object as? AttributeType else {
-//			return false
-//		}
-//		guard self.foundationType == object.foundationType else {
-//			return false
-//		}
-//		switch self.foundationType {
-//		case .Date:
-//			return contactsServiceDateEqual((self.value as! Date), (object.value as! Date))
-//		default:
-//			return self.value.isEqual(object.value)
-//		}
-//	}
-//}
-
 public typealias EventPropertyType = AttributeType
 @objc public protocol AttributeType: AnyObject {}
 extension NSDate: AttributeType {}
 extension NSNumber: AttributeType {}
 extension NSString: AttributeType {}
 extension NSNull: AttributeType {}
-
-func ==(_ l: AttributeType, _r: AttributeType) -> Bool {
-	return true
-}
+extension NSArray: AttributeType {}
 
 extension Dictionary where Value == JSON, Key == String {
 	var decodeCustomAttributesJSON: [String : AttributeType] {

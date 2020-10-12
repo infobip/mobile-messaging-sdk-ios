@@ -10,7 +10,7 @@ import Foundation
 
 extension MobileMessaging {
 	var isRegistrationStatusNeedSync: Bool {
-		return Installation.delta["isPushRegistrationEnabled"] != nil
+		return Installation.delta?["isPushRegistrationEnabled"] != nil
 	}
 
 	var isPushRegistrationEnabled: Bool {

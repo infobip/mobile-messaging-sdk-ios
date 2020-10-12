@@ -3,7 +3,7 @@
 //  MobileMessagingExample
 //
 //  Created by Andrey Kadochnikov on 14/01/2019.
-//  Copyright © 2019 CocoaPods. All rights reserved.
+//
 //
 
 import Foundation
@@ -11,8 +11,6 @@ import XCTest
 @testable import MobileMessaging
 
 class DataModelsTests: MMTestCase {
-
-
 	let givenInstallation = Installation(applicationUserId: "applicationUserId",
 										 appVersion: nil,
 										 customAttributes: ["bootSize": 9.5 as NSNumber,
@@ -38,7 +36,6 @@ class DataModelsTests: MMTestCase {
 		let atts = UserAttributes(firstName: nil, middleName: "middleName", lastName: "lastName", tags: ["tags1"], gender: .Male, birthday: Date.init(timeIntervalSince1970: 0), customAttributes: ["bootsize": NSNumber(value: 9)])
 		let payload = UserDataMapper.personalizeRequestPayload(userIdentity: identity, userAttributes: atts)
 		let expected: NSDictionary = [
-
 			"userIdentity": [
 				"emails": [
 					["address": "email"]
@@ -62,6 +59,45 @@ class DataModelsTests: MMTestCase {
 	}
 
 	func testUserDataPayload() {
+		// list
+		do {
+			User.resetDirty()
+			User.resetCurrent()
+
+			let comps = NSDateComponents()
+			comps.year = 2016
+			comps.month = 12
+			comps.day = 31
+			comps.hour = 23
+			comps.minute = 55
+			comps.second = 00
+			comps.timeZone = TimeZone(secondsFromGMT: 5*60*60) // has expected timezone
+			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+			let date = comps.date!
+
+			let user = MobileMessaging.getUser()!
+			user.customAttributes = [
+				"list": [
+					["registrationDate": date as NSDate, "bootsize": 9.5 as NSNumber, "nothing": NSNull(), "isEmployee": true as NSNumber],
+					["registrationDate": date as NSDate, "bootsize": 10 as NSNumber, "nothing": NSNull(), "isEmployee": false as NSNumber]
+				] as NSArray
+			]
+			user.archiveDirty()
+
+			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
+			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
+
+			let expectedDict: NSDictionary = [
+				"customAttributes": [
+					"list": [
+						["registrationDate" : "2016-12-31", "bootsize" : 9.5,"nothing": NSNull(),"isEmployee": true],
+						["registrationDate" : "2016-12-31", "bootsize" : 10,"nothing": NSNull(),"isEmployee": false]
+					]
+				]
+			]
+			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
+		}
+
 		// date
 		do {
 			User.resetDirty()//dup
@@ -137,7 +173,7 @@ class DataModelsTests: MMTestCase {
 			let expectedDict: NSDictionary = [
 				"phones": [["number": "1"]],
 				"emails": [["address": "1@mail.com"]],
-				]
+			]
 			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 		}
 
@@ -197,11 +233,12 @@ class DataModelsTests: MMTestCase {
 
 		installation.archiveCurrent()
 
-		installation.customAttributes = ["dateField": NSDate(timeIntervalSince1970: 0),
-										 "numberField": NSNumber(floatLiteral: 1.1),
-										 "stringField": "foo" as NSString,
-										 "nullString": NSNull()
-										]
+		installation.customAttributes = [
+			"dateField": NSDate(timeIntervalSince1970: 0),
+			"numberField": NSNumber(floatLiteral: 1.1),
+			"stringField": "foo" as NSString,
+			"nullString": NSNull()
+		]
 		installation.isPrimaryDevice = true
 		installation.isPushRegistrationEnabled = false
 
@@ -248,7 +285,7 @@ class DataModelsTests: MMTestCase {
 		XCTAssertNil(body["customAttributes"])
 	}
 
-	func testThatCustomAttributesDeltaIsCorrect_regression2() {
+	func testThatCustomAttributesChangedFromNonEmptyToEmptyShouldBeSentAsEmpty_regression2() {
 		let installation = MobileMessaging.getInstallation()!
 		installation.customAttributes = ["1":"2"] as [String : AttributeType]
 		installation.archiveCurrent()
@@ -260,6 +297,38 @@ class DataModelsTests: MMTestCase {
 
 		XCTAssertNotNil(body["customAttributes"])
 		XCTAssertTrue((body["customAttributes"] as! [String : AttributeType]).isEmpty)
+	}
+
+	func testThatUnsupportedDatatypeElementMustBeOmitted() {
+		User.resetDirty()
+		User.resetCurrent()
+
+		let user = MobileMessaging.getUser()!
+		user.customAttributes = [
+			"list": [
+				["unsupportedTypeValue": NSData()]
+			] as NSArray
+		]
+		user.archiveDirty()
+
+		let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
+		XCTAssertNil(body)
+	}
+
+	func testThatCustomAttributesWithNoDifferenceShouldNotBeSent() {
+		let installation = MobileMessaging.getInstallation()!
+		installation.customAttributes = ["1":"2"] as [String : AttributeType]
+		installation.archiveCurrent()
+
+		installation.customAttributes = [:]
+		installation.archiveDirty()
+
+		installation.customAttributes = ["1":"2"] as [String : AttributeType]
+		installation.archiveDirty()
+
+		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
+
+		XCTAssertNil(body["customAttributes"])
 	}
 
 	func testInstallationDataPayloadMapperForPostRequest() {

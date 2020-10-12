@@ -18,7 +18,7 @@ func arrayToSet<T>(arr: [T]?) -> Set<T>? {
 	return arr != nil ? Set<T>(arr!) : nil
 }
 
-func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any] {
+func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any]? {
 	var ret:[String: Any] = [:]
 	dirty.keys.forEach { (k) in
 		let currentV = current[k] as Any
@@ -52,7 +52,7 @@ func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any
 			}
 		}
 	}
-	return ret
+    return ret.isEmpty ? (!current.isEmpty && !dirty.isEmpty ? nil : ret) : ret
 }
 
 extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
@@ -169,6 +169,12 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 	var nilIfEmpty: [Key: Value]? {
 		return self.isEmpty ? nil : self
 	}
+}
+
+extension Collection {
+    var nilIfEmpty: Self? {
+        return self.isEmpty ? nil : self
+    }
 }
 
 extension Data {

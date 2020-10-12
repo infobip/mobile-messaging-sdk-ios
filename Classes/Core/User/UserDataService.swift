@@ -74,7 +74,7 @@ class UserDataService: MobileMessagingService {
 	}
 
 	var isChanged: Bool {
-		return !User.delta.isEmpty
+		return User.delta != nil
 	}
 
 	func resolveInstallationsAfterPrimaryChange(_ pushRegId: String, _ isPrimary: Bool) -> [Installation]? {

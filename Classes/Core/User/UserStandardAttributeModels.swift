@@ -223,7 +223,6 @@ public enum Gender: Int {
 		self.customAttributes = customAttributes
 	}
 
-	// must be extracted to cordova plugin srcs
 	public required convenience init?(dictRepresentation dict: DictionaryRepresentation) {
 		let value = JSON.init(dict)
 		self.init(firstName: value["firstName"].string,
@@ -235,7 +234,6 @@ public enum Gender: Int {
 				  customAttributes: value["customAttributes"].dictionary?.decodeCustomAttributesJSON)
 	}
 
-	// must be extracted to cordova plugin srcs
 	public var dictionaryRepresentation: DictionaryRepresentation {
 		return [
 			"firstName"				: firstName as Any,
@@ -278,7 +276,7 @@ public enum Gender: Int {
 	}
 
 	//
-	static var delta: [String: Any] {
+	static var delta: [String: Any]? {
 		guard let currentUserDict = MobileMessaging.sharedInstance?.currentUser().dictionaryRepresentation, let dirtyUserDict = MobileMessaging.sharedInstance?.dirtyUser().dictionaryRepresentation else {
 			return [:]
 		}
@@ -366,7 +364,6 @@ public enum Gender: Int {
 				  installations: value["installations"].array?.compactMap({ Installation(json: $0) }))
 	}
 
-	// must be extracted to cordova plugin srcs, only public atts exposed
 	public override var dictionaryRepresentation: DictionaryRepresentation {
 		var ret = super.dictionaryRepresentation
 		ret["externalUserId"] = externalUserId as Any

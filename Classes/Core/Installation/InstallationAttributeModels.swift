@@ -105,7 +105,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	}
 	
 //
-	static var delta: [String: Any] {
+	static var delta: [String: Any]? {
 		guard let currentDict = MobileMessaging.sharedInstance?.currentInstallation().dictionaryRepresentation, let dirtyDict = MobileMessaging.sharedInstance?.dirtyInstallation().dictionaryRepresentation else {
 			return [:]
 		}
@@ -313,7 +313,6 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		)
 	}
 
-	// must be extracted to cordova plugin srcs
 	public var dictionaryRepresentation: DictionaryRepresentation {
 		var dict = DictionaryRepresentation()
 		dict["applicationUserId"] = applicationUserId

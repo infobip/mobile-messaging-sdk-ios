@@ -133,7 +133,10 @@ class GetUser: GetRequest {
 class PatchUser: PatchRequest {
 	typealias ResponseType = EmptyResponse
 
-	init?(applicationCode: String, pushRegistrationId: String, body: RequestBody, returnInstance: Bool, returnPushServiceToken: Bool) {
+	init?(applicationCode: String, pushRegistrationId: String, body: RequestBody?, returnInstance: Bool, returnPushServiceToken: Bool) {
+        guard let body = body else {
+            return nil
+        }
 		super.init(applicationCode: applicationCode, path: .AppInstanceUser_CRUD, pushRegistrationId: pushRegistrationId, body: body, parameters: ["rt": returnPushServiceToken, "ri": returnInstance], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
 		if self.body?.isEmpty ?? true {
 			return nil

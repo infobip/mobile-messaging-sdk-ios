@@ -3,7 +3,7 @@
 //  MobileMessagingExample
 //
 //  Created by Andrey Kadochnikov on 17/01/2019.
-//  Copyright © 2019 CocoaPods. All rights reserved.
+//
 //
 
 import XCTest

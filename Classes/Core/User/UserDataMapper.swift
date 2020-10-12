@@ -13,15 +13,7 @@ extension Optional : OptionalProtocol {}
 class UserDataMapper {
 
 	class func personalizeRequestPayload(userAttributes: UserAttributes) -> RequestBody? {
-		return [
-			Attributes.firstName.rawValue			: userAttributes.firstName as Any,
-			Attributes.middleName.rawValue			: userAttributes.middleName as Any,
-			Attributes.lastName.rawValue			: userAttributes.lastName as Any,
-			Attributes.tags.rawValue				: userAttributes.tags?.asArray as Any,
-			Attributes.gender.rawValue				: userAttributes.gender?.name as Any,
-			Attributes.birthday.rawValue			: userAttributes.birthday != nil ? (DateStaticFormatters.ContactsServiceDateFormatter.string(from: userAttributes.birthday!) as Any) : (NSNull() as Any),
-			Attributes.customAttributes.rawValue	: UserDataMapper.makeCustomAttributesPayload(userAttributes.customAttributes) as Any
-		].noNulls
+		return userAttributes.dictionaryRepresentation.noNulls
 	}
 
 	class func personalizeRequestPayload(userIdentity: UserIdentity) -> RequestBody? {
@@ -53,17 +45,17 @@ class UserDataMapper {
 		return ret
 	}
 
-	class func requestPayload(currentUser: User, dirtyUser: User) -> RequestBody {
+	class func requestPayload(currentUser: User, dirtyUser: User) -> RequestBody? {
 		var ret = deltaDict(currentUser.dictionaryRepresentation, dirtyUser.dictionaryRepresentation)
-		ret["installations"] = nil
-		if let phones = (ret["phones"] as? [String]) {
-			ret["phones"] = phones.reduce([[String: Any]](), { (result, phoneNumber) -> [[String: Any]] in
+		ret?["installations"] = nil
+		if let phones = (ret?["phones"] as? [String]) {
+			ret?["phones"] = phones.reduce([[String: Any]](), { (result, phoneNumber) -> [[String: Any]] in
 				let entry: [String: Any] = ["number": phoneNumber]
 				return result + [entry]
 			})
 		}
-		if let emails = (ret["emails"] as? [String]) {
-			ret["emails"] = emails.reduce([[String: Any]](), { (result, address) -> [[String: Any]] in
+		if let emails = (ret?["emails"] as? [String]) {
+			ret?["emails"] = emails.reduce([[String: Any]](), { (result, address) -> [[String: Any]] in
 				let entry: [String: Any] = ["address": address]
 				return result + [entry]
 			})
@@ -72,30 +64,42 @@ class UserDataMapper {
 	}
 
 	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: AttributeType]?) -> [String: Any]? {
-		guard let userCustomAttributes = userCustomAttributes else {
-			return nil
+		if let userCustomAttributes = userCustomAttributes, userCustomAttributes.isEmpty {
+			return userCustomAttributes
 		}
-		let filteredCustomAttributes: [String: AttributeType] = userCustomAttributes
-
-		return filteredCustomAttributes
+		return userCustomAttributes?
 			.reduce([String: Any](), { result, pair -> [String: Any] in
-				var value: AttributeType = pair.value
-				switch value {
-				case (is NSNumber):
-					break;
-				case (is NSString):
-					break;
-				case (is Date):
-					value = DateStaticFormatters.ContactsServiceDateFormatter.string(from: value as! Date) as NSString
-				case (is NSNull):
-					break;
-				default:
-					break;
+				if let convertedValue = convertValue(input: pair.value) {
+					return result + [pair.key: convertedValue]
+				} else {
+					return result
 				}
-				return result + [pair.key: value]
-			})
+			}).nilIfEmpty
 	}
 
+	class func convertValue(input: AttributeType) -> AttributeType? {
+		switch input {
+		case (is NSNumber):
+			return input
+		case (is NSString):
+			return input
+		case (is Date):
+			return DateStaticFormatters.ContactsServiceDateFormatter.string(from: input as! Date) as NSString
+		case (is NSNull):
+			return input
+		case (is NSArray):
+			return (input as! NSArray)
+				.compactMap({ element -> [String: Any]? in
+					if let element = element as? [String: AttributeType] {
+						return makeCustomAttributesPayload(element)?.nilIfEmpty
+					}
+					return nil
+				}).nilIfEmpty as AttributeType?
+		default:
+			return nil
+		}
+	}
+	
 	class func apply(userSource: User, to userDestination: User) {
 		userDestination.externalUserId = userSource.externalUserId
 		userDestination.firstName = userSource.firstName
