@@ -15,7 +15,8 @@ class DataModelsTests: MMTestCase {
 										 appVersion: nil,
 										 customAttributes: ["bootSize": 9.5 as NSNumber,
 															"subscribed": true as NSNumber,
-															"createdAt": NSDate(timeIntervalSince1970: 0)],
+															"createdAt": NSDate(timeIntervalSince1970: 0),
+															"dateTime": DateTime(date: Date(timeIntervalSince1970: 0))],
 										 deviceManufacturer: "Apple",
 										 deviceModel: "iPhone",
 										 deviceName: "X",
@@ -30,7 +31,7 @@ class DataModelsTests: MMTestCase {
 										 osVersion: "12",
 										 pushRegistrationId: "pushRegId",
 										 pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
-
+	
 	func testPersonalizePayload() {
 		let identity = UserIdentity(phones: ["1", "2"], emails: ["email"], externalUserId: nil)!
 		let atts = UserAttributes(firstName: nil, middleName: "middleName", lastName: "lastName", tags: ["tags1"], gender: .Male, birthday: Date.init(timeIntervalSince1970: 0), customAttributes: ["bootsize": NSNumber(value: 9)])
@@ -54,16 +55,16 @@ class DataModelsTests: MMTestCase {
 				"customAttributes": [ "bootsize": NSNumber(value: 9) ]
 			]
 		]
-
+		
 		XCTAssertEqual(payload! as NSDictionary, expected)
 	}
-
+	
 	func testUserDataPayload() {
-		// list
+		// datetime
 		do {
 			User.resetDirty()
 			User.resetCurrent()
-
+			
 			let comps = NSDateComponents()
 			comps.year = 2016
 			comps.month = 12
@@ -74,7 +75,38 @@ class DataModelsTests: MMTestCase {
 			comps.timeZone = TimeZone(secondsFromGMT: 5*60*60) // has expected timezone
 			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
 			let date = comps.date!
-
+			
+			let user = MobileMessaging.getUser()!
+			user.customAttributes = ["registrationDateTime": DateTime(date: date) ]
+			user.archiveDirty()
+			
+			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
+			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
+			
+			let expectedDict: NSDictionary = [
+				"customAttributes": [
+					"registrationDateTime" : "2016-12-31T18:55:00Z"
+				]
+			]
+			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
+		}
+		
+		// list
+		do {
+			User.resetDirty()
+			User.resetCurrent()
+			
+			let comps = NSDateComponents()
+			comps.year = 2016
+			comps.month = 12
+			comps.day = 31
+			comps.hour = 23
+			comps.minute = 55
+			comps.second = 00
+			comps.timeZone = TimeZone(secondsFromGMT: 5*60*60) // has expected timezone
+			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+			let date = comps.date!
+			
 			let user = MobileMessaging.getUser()!
 			user.customAttributes = [
 				"list": [
@@ -83,10 +115,10 @@ class DataModelsTests: MMTestCase {
 				] as NSArray
 			]
 			user.archiveDirty()
-
+			
 			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
-
+			
 			let expectedDict: NSDictionary = [
 				"customAttributes": [
 					"list": [
@@ -97,12 +129,12 @@ class DataModelsTests: MMTestCase {
 			]
 			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 		}
-
+		
 		// date
 		do {
 			User.resetDirty()//dup
 			User.resetCurrent()
-
+			
 			let comps = NSDateComponents()
 			comps.year = 2016
 			comps.month = 12
@@ -113,16 +145,16 @@ class DataModelsTests: MMTestCase {
 			comps.timeZone = TimeZone(secondsFromGMT: 5*60*60) // has expected timezone
 			comps.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
 			let date = comps.date!
-
+			
 			let user = MobileMessaging.getUser()!
 			user.firstName = "JohnDow1"
 			user.birthday = date
 			user.customAttributes = ["registrationDate": date as NSDate]
 			user.archiveDirty()
-
+			
 			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
-
+			
 			let expectedDict: NSDictionary = [
 				"firstName": "JohnDow1",
 				"birthday": "2016-12-31",
@@ -132,21 +164,21 @@ class DataModelsTests: MMTestCase {
 			]
 			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 		}
-
+		
 		// number
 		do {
 			User.resetDirty()//dup
 			User.resetCurrent()
-
+			
 			let user = MobileMessaging.getUser()!
 			user.firstName = "JohnDow2"
 			user.externalUserId = "externalUserId2"
 			user.customAttributes = ["bootsize": 9.5 as NSNumber]
 			user.archiveDirty()
-
+			
 			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
-
+			
 			let expectedDict: NSDictionary = [
 				"firstName": "JohnDow2",
 				"externalUserId": "externalUserId2",
@@ -156,65 +188,65 @@ class DataModelsTests: MMTestCase {
 			]
 			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 		}
-
+		
 		//phones, emails
 		do {
 			User.resetDirty()
 			User.resetCurrent()
-
+			
 			let user = MobileMessaging.getUser()!
 			user.emails = ["1@mail.com"]
 			user.phones = ["1"]
 			user.archiveDirty()
-
+			
 			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
-
+			
 			let expectedDict: NSDictionary = [
 				"phones": [["number": "1"]],
 				"emails": [["address": "1@mail.com"]],
 			]
 			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 		}
-
+		
 		// nils
 		do {
 			User.resetDirty()
 			User.resetCurrent()
-
+			
 			let user = MobileMessaging.getUser()!
 			user.firstName = "JohnDow3"
 			user.externalUserId = "externalUserId3"
 			user.archiveCurrent()
-
+			
 			user.firstName = nil
 			user.externalUserId = nil
 			user.archiveDirty()
-
+			
 			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
-
+			
 			let expectedDict: NSDictionary = [
 				"firstName": NSNull(),
 				"externalUserId": NSNull()
 			]
 			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 		}
-
+		
 		// null
 		do {
 			User.resetDirty()
 			User.resetCurrent()
-
+			
 			let user = MobileMessaging.getUser()!
 			user.firstName = "JohnDow4"
 			user.externalUserId = "externalUserId4"
 			user.customAttributes = ["registrationDate": NSNull()]
 			user.archiveDirty()
-
+			
 			let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 			let request = PatchUser(applicationCode: "", pushRegistrationId: "", body: body, returnInstance: false, returnPushServiceToken: false)!
-
+			
 			let expectedDict: NSDictionary = [
 				"firstName": "JohnDow4",
 				"externalUserId": "externalUserId4",
@@ -225,34 +257,34 @@ class DataModelsTests: MMTestCase {
 			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 		}
 	}
-
+	
 	func testInstallationDataPayloadMapperForPatchRequest() {
 		let installation = MobileMessaging.getInstallation()!
 		installation.applicationUserId = "applicationUserId"
 		installation.pushRegistrationId = "pushRegistrationId"
-
+		
 		installation.archiveCurrent()
-
-		installation.customAttributes = [
-			"dateField": NSDate(timeIntervalSince1970: 0),
-			"numberField": NSNumber(floatLiteral: 1.1),
-			"stringField": "foo" as NSString,
-			"nullString": NSNull()
-		]
+		
+		installation.customAttributes = ["dateField": NSDate(timeIntervalSince1970: 0),
+										 "numberField": NSNumber(floatLiteral: 1.1),
+										 "stringField": "foo" as NSString,
+										 "nullString": NSNull(),
+										 "dateTime": DateTime(date: Date(timeIntervalSince1970: 0))]
 		installation.isPrimaryDevice = true
 		installation.isPushRegistrationEnabled = false
-
+		
 		installation.archiveDirty()
-
+		
 		MobileMessaging.userAgent = UserAgentStub()
 		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
 		let request = PatchInstance(applicationCode: "", authPushRegistrationId: "", refPushRegistrationId: "", body: body, returnPushServiceToken: false)!
-
+		
 		let expectedDict: NSDictionary = [
 			"customAttributes": ["dateField": "1970-01-01",
 								 "numberField": 1.1,
 								 "stringField": "foo",
-								 "nullString": NSNull()],
+								 "nullString": NSNull(),
+								 "dateTime": "1970-01-01T00:00:00Z"],
 			"isPrimary": true,
 			"regEnabled": false,
 			"geoEnabled": false,
@@ -271,38 +303,38 @@ class DataModelsTests: MMTestCase {
 		]
 		XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 	}
-
+	
 	func testThatCustomAttributesDeltaIsCorrect_regression() {
 		let installation = MobileMessaging.getInstallation()!
 		installation.customAttributes = [:]
 		installation.archiveCurrent()
-
+		
 		installation.customAttributes = [:]
 		installation.archiveDirty()
-
+		
 		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
-
+		
 		XCTAssertNil(body["customAttributes"])
 	}
-
+	
 	func testThatCustomAttributesChangedFromNonEmptyToEmptyShouldBeSentAsEmpty_regression2() {
 		let installation = MobileMessaging.getInstallation()!
 		installation.customAttributes = ["1":"2"] as [String : AttributeType]
 		installation.archiveCurrent()
-
+		
 		installation.customAttributes = [:]
 		installation.archiveDirty()
-
+		
 		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
-
+		
 		XCTAssertNotNil(body["customAttributes"])
 		XCTAssertTrue((body["customAttributes"] as! [String : AttributeType]).isEmpty)
 	}
-
+	
 	func testThatUnsupportedDatatypeElementMustBeOmitted() {
 		User.resetDirty()
 		User.resetCurrent()
-
+		
 		let user = MobileMessaging.getUser()!
 		user.customAttributes = [
 			"list": [
@@ -310,57 +342,58 @@ class DataModelsTests: MMTestCase {
 			] as NSArray
 		]
 		user.archiveDirty()
-
+		
 		let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 		XCTAssertNil(body)
 	}
-
+	
 	func testThatCustomAttributesWithNoDifferenceShouldNotBeSent() {
 		let installation = MobileMessaging.getInstallation()!
 		installation.customAttributes = ["1":"2"] as [String : AttributeType]
 		installation.archiveCurrent()
-
+		
 		installation.customAttributes = [:]
 		installation.archiveDirty()
-
+		
 		installation.customAttributes = ["1":"2"] as [String : AttributeType]
 		installation.archiveDirty()
-
+		
 		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
-
+		
 		XCTAssertNil(body["customAttributes"])
 	}
-
+	
 	func testInstallationDataPayloadMapperForPostRequest() {
-
+		
 		let installation = MobileMessaging.getInstallation()!
-
+		
 		installation.applicationUserId = "applicationUserId"
 		installation.pushRegistrationId = "pushRegistrationId"
-
+		
 		installation.archiveCurrent()
-
+		
 		installation.customAttributes = ["dateField": NSDate(timeIntervalSince1970: 0),
 										 "numberField": NSNumber(floatLiteral: 1.1),
 										 "stringField": "foo" as NSString,
-										 "nullString": NSNull()
-		]
+										 "nullString": NSNull(),
+										 "dateTime": DateTime(date: Date(timeIntervalSince1970: 0))]
 		installation.isPrimaryDevice = true
 		installation.isPushRegistrationEnabled = false
-
+		
 		installation.archiveDirty()
-
+		
 		MobileMessaging.userAgent = UserAgentStub()
 		let body = InstallationDataMapper.postRequestPayload(dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
 		let request = PatchInstance(applicationCode: "", authPushRegistrationId: "", refPushRegistrationId: "", body: body, returnPushServiceToken: false)!
-
+		
 		let expectedDict: NSDictionary = [
 			"applicationUserId": "applicationUserId",
 			"pushRegId": "pushRegistrationId",
 			"customAttributes": ["dateField": "1970-01-01",
 								 "numberField": 1.1,
 								 "stringField": "foo",
-								 "nullString": NSNull()],
+								 "nullString": NSNull(),
+								 "dateTime": "1970-01-01T00:00:00Z"],
 			"isPrimary": true,
 			"regEnabled": false,
 			"geoEnabled": false,
@@ -379,7 +412,7 @@ class DataModelsTests: MMTestCase {
 		]
 		XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 	}
-
+	
 	func testInstallationObjectsConstructor() {
 		let json = JSON.parse("""
 		{
@@ -397,16 +430,17 @@ class DataModelsTests: MMTestCase {
 			"customAttributes": {
 				"bootSize": 9.5,
 				"subscribed": true,
-				"createdAt": "1970-01-01"
+				"createdAt": "1970-01-01",
+				"dateTime": "1970-01-01T00:00:00Z"
 			}
 		}
 """
 		)
 		let i2 = Installation(json: json)
-
+		
 		XCTAssertEqual(givenInstallation, i2)
 	}
-
+	
 	func testUserObjectsConstructor() {
 		let u1 = User(externalUserId: "externalUserId",
 					  firstName: "firstName",
@@ -421,8 +455,8 @@ class DataModelsTests: MMTestCase {
 										 "subscribed": NSNumber(value: true),
 										 "createdAt": NSDate(timeIntervalSince1970: 0)],
 					  installations: [givenInstallation])
-
-
+		
+		
 		let json = JSON.parse("""
 		{
 			"externalUserId": "externalUserId",
@@ -471,15 +505,118 @@ class DataModelsTests: MMTestCase {
 					"customAttributes": {
 						"bootSize": 9.5,
 						"subscribed": true,
-						"createdAt": "1970-01-01"
+						"createdAt": "1970-01-01",
+						"dateTime": "1970-01-01T00:00:00Z"
 					}
 				}
 			]
 		}
 """)
-
+		
 		let u2 = User(json: json)!
 		XCTAssertEqual(u1, u2)
+	}
+	
+	
+	func testCustomAttributesValidation() {
+		do {
+			let atts: [String: AttributeType] = [
+				"name": "Andrey" as NSString,
+				"list": [
+					["registrationDate": Date() as NSDate, "bootsize": 9.5 as NSNumber, "nothing": NSNull(), "isEmployee": true as NSNumber],
+					["registrationDate": Date() as NSDate, "bootsize": 10 as NSNumber, "nothing": NSNull(), "isEmployee": false as NSNumber, "data": NSData()]
+				] as NSArray,
+				"list2": [
+					["name": "andrey"],
+					["name": "john"]
+				] as NSArray,
+				"list3": [
+					["name": ["name": "john"]]
+				] as NSArray
+			]
+			XCTAssert(atts.validateListObjectsContainOnlySupportedTypes() == false)
+			XCTAssert(atts.validateListObjectsHaveTheSameStructure() == false)
+		}
+		
+		do {
+			let atts: [String: AttributeType] = [
+				"name": "Andrey" as NSString,
+				"list": [
+					["registrationDate": Date() as NSDate, "bootsize": 9.5 as NSNumber, "nothing": NSNull(), "isEmployee": true as NSNumber],
+					["registrationDate": Date() as NSDate, "bootsize": 10 as NSNumber, "nothing": NSNull(), "Employee": true as NSNumber]
+				] as NSArray,
+				"list2": [
+					["name": "andrey"],
+					["name": "john"]
+				] as NSArray,
+				"list3": [
+					["name": ["name": "john"]]
+				] as NSArray
+			]
+			XCTAssert(atts.validateListObjectsContainOnlySupportedTypes() == false)
+			XCTAssert(atts.validateListObjectsHaveTheSameStructure() == false)
+		}
+		
+		do {
+			let atts: [String: AttributeType] = [
+				"name": "Andrey" as NSString,
+				"list": [
+					["registrationDate": Date() as NSDate, "bootsize": 9.5 as NSNumber, "nothing": NSNull(), "isEmployee": true as NSNumber],
+					["registrationDate": Date() as NSDate, "bootsize": 10 as NSNumber, "nothing": NSNull(), "isEmployee": "false"]
+				] as NSArray,
+				"list2": [
+					["name": "andrey"],
+					["name": "john"]
+				] as NSArray
+			]
+			XCTAssert(atts.validateListObjectsContainOnlySupportedTypes() == true)
+			XCTAssert(atts.validateListObjectsHaveTheSameStructure() == false)
+		}
+		
+		do {
+			let atts: [String: AttributeType] = [
+				"name": "Andrey" as NSString,
+				"list": [
+					["registrationDate": Date() as NSDate, "bootsize": 9.5 as NSNumber, "nothing": NSNull(), "isEmployee": true as NSNumber],
+					["registrationDate": Date() as NSDate, "bootsize": 10 as NSNumber, "nothing": NSNull(), "isEmployee": false as NSNumber]
+				] as NSArray,
+				"list2": [
+					["name": "andrey"],
+					["name": "john"]
+				] as NSArray,
+				"list3": [
+					["name": ["name": "john"]]
+				] as NSArray
+			]
+			XCTAssert(atts.validateListObjectsContainOnlySupportedTypes() == false)
+			XCTAssert(atts.validateListObjectsHaveTheSameStructure() == true)
+		}
+		
+		do {
+			let atts: [String: AttributeType] = [
+				"name": "Andrey" as NSString,
+				"list": [
+					["registrationDate": Date() as NSDate, "bootsize": 9.5 as NSNumber, "nothing": NSNull(), "isEmployee": true as NSNumber],
+					["registrationDate": Date() as NSDate, "bootsize": 10 as NSNumber, "nothing": NSNull(), "isEmployee": false as NSNumber]
+				] as NSArray,
+				"list2": [
+					["name": "andrey"],
+					["name": "john"]
+				] as NSArray
+			]
+			XCTAssert(atts.validateListObjectsContainOnlySupportedTypes() == true)
+			XCTAssert(atts.validateListObjectsHaveTheSameStructure() == true)
+		}
+		
+		do {
+			let atts: [String: AttributeType] = ["dateField": NSDate(timeIntervalSince1970: 0),
+												 "numberField": NSNumber(floatLiteral: 1.1),
+												 "stringField": "foo" as NSString,
+												 "nullString": NSNull(),
+												 "dateTime": DateTime(date: Date(timeIntervalSince1970: 0))]
+			XCTAssert(atts.validateListObjectsContainOnlySupportedTypes() == true)
+			XCTAssert(atts.validateListObjectsHaveTheSameStructure() == true)
+		}
 	}
 }
 

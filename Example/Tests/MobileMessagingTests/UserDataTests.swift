@@ -9,11 +9,6 @@ import XCTest
 @testable import MobileMessaging
 
 class UserDataTests: MMTestCase {
-	
-	func testDateJsonEncoding() {
-		XCTAssertEqual(Date(timeIntervalSince1970: 1468593199).toJSON(), "2016-07-15")
-	}
-	
 	func testDataPersisting() {
 		weak var expectation = self.expectation(description: "done")
 		

@@ -97,12 +97,6 @@ extension EmptyResponse: JSONDecodable {
 	}
 }
 
-extension Date: JSONEncodable {
-	func toJSON() -> JSON {
-		return JSON(DateStaticFormatters.ContactsServiceDateFormatter.string(from: self))
-	}
-}
-
 extension RequestError: JSONDecodable {
 	init?(json value: JSON) {
 		let serviceException = value[Consts.APIKeys.requestError][Consts.APIKeys.serviceException]

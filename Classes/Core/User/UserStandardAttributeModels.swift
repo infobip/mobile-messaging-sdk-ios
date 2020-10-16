@@ -193,7 +193,11 @@ public enum Gender: Int {
 	public var birthday: Date?
 
 	/// Returns user's custom data. Arbitrary attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var customAttributes: [String: AttributeType]?
+	public var customAttributes: [String: AttributeType]? {
+		willSet {
+			newValue?.assertCustomAttributesValid()
+		}
+	}
 
 	convenience public init(firstName: String?
 		,middleName: String?

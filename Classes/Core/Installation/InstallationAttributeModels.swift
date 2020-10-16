@@ -103,8 +103,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
 		}
 	}
-	
-//
+
 	static var delta: [String: Any]? {
 		guard let currentDict = MobileMessaging.sharedInstance?.currentInstallation().dictionaryRepresentation, let dirtyDict = MobileMessaging.sharedInstance?.dirtyInstallation().dictionaryRepresentation else {
 			return [:]
@@ -116,7 +115,11 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	public var applicationUserId: String?
 
 	/// Returns installations custom data. Arbitrary attributes that are related to the current installation. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var customAttributes: [String: AttributeType]
+	public var customAttributes: [String: AttributeType] {
+		willSet {
+			newValue.assertCustomAttributesValid()
+		}
+	}
 
 	/// Primary device setting
 	/// Single user profile on Infobip Portal can have one or more mobile devices with the application installed. You might want to mark one of such devices as a primary device and send push messages only to this device (i.e. receive bank authorization codes only on one device).

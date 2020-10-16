@@ -42,7 +42,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "98187DB7F38DD7B8ECEA98E421E29ED4"
+               BlueprintIdentifier = "AEF6026D4423DABCDACE9FAC4AFC458D"
                BuildableName = "MobileMessaging.framework"
                BlueprintName = "MobileMessaging"
                ReferencedContainer = "container:Pods/Pods.xcodeproj">
@@ -51,7 +51,7 @@
       </BuildActionEntries>
    </BuildAction>
    <TestAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "NO"

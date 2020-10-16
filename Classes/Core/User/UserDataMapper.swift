@@ -85,6 +85,8 @@ class UserDataMapper {
 			return input
 		case (is Date):
 			return DateStaticFormatters.ContactsServiceDateFormatter.string(from: input as! Date) as NSString
+		case (is DateTime):
+			return DateStaticFormatters.ISO8601SecondsFormatter.string(from: (input as! DateTime).date as Date) as NSString
 		case (is NSNull):
 			return input
 		case (is NSArray):
