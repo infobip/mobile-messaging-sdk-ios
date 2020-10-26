@@ -83,8 +83,8 @@ extension ArchivableCurrent where Self: NSCopying {
 
 extension Archivable where Self: NSCopying {
 	func archiveAll() {
-		archiveCurrent()
 		archiveDirty()
+		archiveCurrent()
 	}
 	func archiveDirty() {
 		if var copy = self.copy() as? Self {

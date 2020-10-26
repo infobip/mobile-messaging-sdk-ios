@@ -112,6 +112,31 @@ final class RegistrationTests: MMTestCase {
 		})
 	}
 	
+	func testPushRegIdAvailableOnRegistrationUpdatedNotification_regression() {
+		// preconditions
+		weak var tokensexp = expectation(description: "device tokens saved")
+		let deviceToken = "token".data(using: String.Encoding.utf16)
+		
+		let remoteProviderMock = RemoteAPIProviderStub()
+		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+			return FetchInstanceDataResult.Success(Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil))
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
+		
+		// assetion
+		expectation(forNotification: NSNotification.Name(rawValue: MMNotificationRegistrationUpdated), object: nil) { (n) -> Bool in
+			XCTAssertNotNil(MobileMessaging.getInstallation()!.pushRegistrationId)
+			return true
+		}
+		
+		// actions
+		self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken!) { error in
+			tokensexp?.fulfill()
+		}
+		
+		waitForExpectations(timeout: 100, handler: { err in })
+	}
+	
 	func testRegisterForRemoteNotificationsWithDeviceToken() {
 		weak var token2Saved = expectation(description: "token2 saved")
 		
