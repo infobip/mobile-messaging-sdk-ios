@@ -88,6 +88,7 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 		webView.navigationDelegate = self
 		webView.contentMode = .scaleAspectFit
 		webView.addObserver(self, forKeyPath: "title", options: .new, context: nil)
+		webView.isOpaque = false
 		if #available(iOS 13, *) {
 			webView.scrollView.backgroundColor = UIColor.systemBackground
 			webView.backgroundColor = UIColor.systemBackground
@@ -149,6 +150,18 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 	public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
 		displayActivityIndicator(false)
 	}
+	
+	public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+		if let url = navigationAction.request.url, url.scheme != "http", url.scheme != "https", UIApplication.shared.canOpenURL(url) {
+			webView.stopLoading()
+			UIApplication.shared.open(url, options: [:], completionHandler: {_ in
+				self.stopAndDismiss(animated: false)
+			})
+			decisionHandler(WKNavigationActionPolicy.cancel)
+		} else {
+			decisionHandler(WKNavigationActionPolicy.allow)
+		}
+	}
 
 	private func displayActivityIndicator(_ isVisible: Bool) {
 		webView.isHidden = isVisible
@@ -170,8 +183,13 @@ public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WK
 	}
 
 	@objc func webViewToolbarDidPressDismiss() {
+		stopAndDismiss(animated: true)
+	}
+	
+	private func stopAndDismiss(animated: Bool) {
 		activityIndicator?.stopAnimating()
-		dismiss(animated: true)
+		webView.stopLoading()
+		dismiss(animated: animated)
 	}
 
 	private func enterFailedState() {
