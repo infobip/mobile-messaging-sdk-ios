@@ -510,7 +510,7 @@ class MessageReceivingTests: MMTestCase {
 					}
 				},
 				"internalData": {
-					"webViewUrl": "www.hello.com"
+					"webViewUrl": "http://www.hello.com"
 				}
 			}
 			"""
@@ -520,11 +520,11 @@ class MessageReceivingTests: MMTestCase {
 		class MessageHandlingDelegateStub: MessageHandlingDelegate {
 			var expectation: XCTestExpectation? = nil
 			func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage) {
-				XCTAssertEqual("www.hello.com", webViewController.rootWebViewController!.url)
+				XCTAssertEqual("http://www.hello.com", webViewController.rootWebViewController!.url)
 				expectation?.fulfill()
 			}
 			func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController? {
-				XCTAssertEqual("www.hello.com", message.webViewUrl?.absoluteString)
+				XCTAssertEqual("http://www.hello.com", message.webViewUrl?.absoluteString)
 				return UIApplication.shared.keyWindow?.rootViewController
 			}
 		}
