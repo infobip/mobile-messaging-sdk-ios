@@ -462,6 +462,11 @@ public final class MobileMessaging: NSObject {
 	public class func submitEvent(_ customEvent: CustomEvent) {
 		MobileMessaging.sharedInstance?.eventsService.submitEvent(customEvent: customEvent, reportImmediately: false, completion: {_ in})
 	}
+    
+    /**
+     You can define your own custom appearance for in-app webView, which will appear if user taps on push notification, by accessing a webView settings object.
+     */
+    public let webViewSettings: WebViewSettings = WebViewSettings.sharedInstance
 	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?

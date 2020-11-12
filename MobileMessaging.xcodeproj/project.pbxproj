@@ -223,6 +223,7 @@
 		A08E503F2496536700F026ED /* ChatLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08E503E2496536700F026ED /* ChatLocalization.swift */; };
 		A0B24DBF25066782005C5403 /* AttachmentPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B24DBD25066782005C5403 /* AttachmentPreviewController.swift */; };
 		A0B24DC025066782005C5403 /* ChatAttachmentImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B24DBE25066782005C5403 /* ChatAttachmentImageView.swift */; };
+		A0B63167255C666800B692E4 /* WebViewSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B63166255C666800B692E4 /* WebViewSettings.swift */; };
 		A0E1D3C924ED196400373B47 /* ChatConnector.html in Resources */ = {isa = PBXBuildFile; fileRef = A0E1D3C824ED196400373B47 /* ChatConnector.html */; };
 		A0E1D3CB24ED197400373B47 /* MobileMessagingChatImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0E1D3CA24ED197400373B47 /* MobileMessagingChatImages.xcassets */; };
 		A0E4439E24AF59F300387CDD /* MimeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E4439D24AF59F300387CDD /* MimeType.swift */; };
@@ -534,6 +535,7 @@
 		A08E503E2496536700F026ED /* ChatLocalization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLocalization.swift; sourceTree = "<group>"; };
 		A0B24DBD25066782005C5403 /* AttachmentPreviewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachmentPreviewController.swift; sourceTree = "<group>"; };
 		A0B24DBE25066782005C5403 /* ChatAttachmentImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatAttachmentImageView.swift; sourceTree = "<group>"; };
+		A0B63166255C666800B692E4 /* WebViewSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewSettings.swift; sourceTree = "<group>"; };
 		A0E1D3C824ED196400373B47 /* ChatConnector.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ChatConnector.html; sourceTree = "<group>"; };
 		A0E1D3CA24ED197400373B47 /* MobileMessagingChatImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = MobileMessagingChatImages.xcassets; sourceTree = "<group>"; };
 		A0E4439D24AF59F300387CDD /* MimeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MimeType.swift; sourceTree = "<group>"; };
@@ -742,6 +744,7 @@
 			children = (
 				7635ABBC2431404E0069AE1D /* WebViewController.swift */,
 				76263E8E24586F0300E5C97D /* WebViewToolbar.swift */,
+				A0B63166255C666800B692E4 /* WebViewSettings.swift */,
 			);
 			path = WebViewController;
 			sourceTree = "<group>";
@@ -1400,6 +1403,7 @@
 				7689347524ED6BD200411B1D /* EventPersistingOperation.swift in Sources */,
 				764556A21F78FF8500B8F14B /* SeenStatusPersistingOperation.swift in Sources */,
 				A08CB2682459B0BB00ED91B6 /* GetChatWidgetOperation.swift in Sources */,
+				A0B63167255C666800B692E4 /* WebViewSettings.swift in Sources */,
 				764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */,
 				A0B24DBF25066782005C5403 /* AttachmentPreviewController.swift in Sources */,
 				76A8A77D2195BB80004F6E39 /* FetchInstanceOperation.swift in Sources */,

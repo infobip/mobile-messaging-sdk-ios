@@ -52,6 +52,24 @@ public class WebViewController: UINavigationController {
 	public override var title: String? {
 		set { rootWebViewController?.customTitle = newValue }
 		get { return rootWebViewController?.title } }
+    
+    public func applySettings(_ settings: WebViewSettings?) {
+        guard let settings = settings else {
+            return
+        }
+        if let title = settings.title {
+            self.title = title
+        }
+        if let barTintColor = settings.barTintColor {
+            self.barTintColor = barTintColor
+        }
+        if let titleColor = settings.titleColor {
+            self.titleColor = titleColor
+        }
+        if let tintColor = settings.tintColor {
+            self.tintColor = tintColor
+        }
+    }
 }
 
 @objc public protocol ActivityIndicatorProtocol where Self: UIView {
