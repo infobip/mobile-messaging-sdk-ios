@@ -209,7 +209,6 @@
 		A00D332F252B81480024BB12 /* ChatAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00D332E252B81480024BB12 /* ChatAttachment.swift */; };
 		A036A5BD24AB35A200B426EF /* ChatAttachmentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A036A5BC24AB35A100B426EF /* ChatAttachmentPicker.swift */; };
 		A070E19824F1579500583840 /* ChatCoverHorisontalTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A070E19724F1579500583840 /* ChatCoverHorisontalTransition.swift */; };
-		A08CB2622459B07000ED91B6 /* UIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB2612459B06F00ED91B6 /* UIColorExtension.swift */; };
 		A08CB2662459B0BB00ED91B6 /* ChatJSMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB2632459B0BB00ED91B6 /* ChatJSMessageHandler.swift */; };
 		A08CB2672459B0BB00ED91B6 /* ChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB2642459B0BB00ED91B6 /* ChatService.swift */; };
 		A08CB2682459B0BB00ED91B6 /* GetChatWidgetOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB2652459B0BB00ED91B6 /* GetChatWidgetOperation.swift */; };
@@ -490,7 +489,6 @@
 		A00D332E252B81480024BB12 /* ChatAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatAttachment.swift; sourceTree = "<group>"; };
 		A036A5BC24AB35A100B426EF /* ChatAttachmentPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChatAttachmentPicker.swift; path = UI/ChatAttachmentPicker.swift; sourceTree = "<group>"; };
 		A070E19724F1579500583840 /* ChatCoverHorisontalTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatCoverHorisontalTransition.swift; sourceTree = "<group>"; };
-		A08CB2612459B06F00ED91B6 /* UIColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorExtension.swift; sourceTree = "<group>"; };
 		A08CB2632459B0BB00ED91B6 /* ChatJSMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatJSMessageHandler.swift; sourceTree = "<group>"; };
 		A08CB2642459B0BB00ED91B6 /* ChatService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatService.swift; sourceTree = "<group>"; };
 		A08CB2652459B0BB00ED91B6 /* GetChatWidgetOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetChatWidgetOperation.swift; sourceTree = "<group>"; };
@@ -1046,7 +1044,6 @@
 				A08E503C249652FD00F026ED /* ChatNotAvailableLabel.swift */,
 				A08CB2712459C3BE00ED91B6 /* ChatWebView.swift */,
 				A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */,
-				A08CB2612459B06F00ED91B6 /* UIColorExtension.swift */,
 				7650DC20244EEB480016233D /* CPViewController.swift */,
 				7650DC22244EEB480016233D /* CPUtils.swift */,
 				7650DC23244EEB480016233D /* ChatNavigationVC.swift */,
@@ -1317,7 +1314,6 @@
 				A070E19824F1579500583840 /* ChatCoverHorisontalTransition.swift in Sources */,
 				A036A5BD24AB35A200B426EF /* ChatAttachmentPicker.swift in Sources */,
 				7645569B1F78FF8500B8F14B /* MessageFetchingOperation.swift in Sources */,
-				A08CB2622459B07000ED91B6 /* UIColorExtension.swift in Sources */,
 				76C3C9B523D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift in Sources */,
 				764556D41F78FFE000B8F14B /* GroupOperation.swift in Sources */,
 				764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */,
