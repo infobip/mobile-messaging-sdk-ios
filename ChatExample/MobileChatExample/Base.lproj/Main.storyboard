@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -29,48 +30,48 @@
             <objects>
                 <viewController id="nTL-13-0bE" customClass="ViewController" customModule="MobileChatExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="rAI-7V-Yda">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PsB-pf-9zh">
-                                <rect key="frame" x="53" y="77" width="288" height="205"/>
+                                <rect key="frame" x="53" y="77" width="288" height="240"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnd-DA-n6K">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnd-DA-n6K">
                                         <rect key="frame" x="0.0" y="0.0" width="288" height="30"/>
                                         <state key="normal" title="pushNavigationItem"/>
                                         <connections>
                                             <segue destination="tdS-Cj-hT3" kind="show" id="VRA-fe-yMa"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wLg-pL-jri">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wLg-pL-jri">
                                         <rect key="frame" x="0.0" y="35" width="288" height="30"/>
                                         <state key="normal" title="presentModal"/>
                                         <connections>
                                             <segue destination="tdS-Cj-hT3" kind="presentation" id="xZc-v0-WuA"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z3a-nU-cMh">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z3a-nU-cMh">
                                         <rect key="frame" x="0.0" y="70" width="288" height="30"/>
                                         <state key="normal" title="pushNavigationItem  (programmatically)"/>
                                         <connections>
                                             <action selector="showChatInNavigationP:" destination="nTL-13-0bE" eventType="touchUpInside" id="Mmz-sE-sgf"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TqP-fC-b1J">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TqP-fC-b1J">
                                         <rect key="frame" x="0.0" y="105" width="288" height="30"/>
                                         <state key="normal" title="presentModal (programmatically)"/>
                                         <connections>
                                             <action selector="showChatModallyP:" destination="nTL-13-0bE" eventType="touchUpInside" id="j8D-Ra-54v"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eKg-U7-Pn0">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eKg-U7-Pn0">
                                         <rect key="frame" x="0.0" y="140" width="288" height="30"/>
                                         <state key="normal" title="presentRootNavigationVC"/>
                                         <connections>
                                             <action selector="presentRootNavigationVC:" destination="nTL-13-0bE" eventType="touchUpInside" id="JgS-L4-LbW"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lGS-4e-btD">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lGS-4e-btD">
                                         <rect key="frame" x="0.0" y="175" width="288" height="30"/>
                                         <state key="normal" title="presentRootNavigationVC+CustomTransition"/>
                                         <connections>
@@ -78,16 +79,23 @@
                                             <action selector="presentRootNavigationVC:" destination="nTL-13-0bE" eventType="touchUpInside" id="ZWj-ug-rY1"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yHQ-V6-aoc">
+                                        <rect key="frame" x="0.0" y="210" width="288" height="30"/>
+                                        <state key="normal" title="showInTabBar"/>
+                                        <connections>
+                                            <segue destination="XRw-Ph-JoT" kind="show" id="A5J-Od-7MI"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="WCv-J8-KMI"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="PsB-pf-9zh" firstAttribute="top" secondItem="WCv-J8-KMI" secondAttribute="top" constant="33" id="UfJ-mx-pja"/>
                             <constraint firstItem="PsB-pf-9zh" firstAttribute="leading" secondItem="WCv-J8-KMI" secondAttribute="leading" constant="53" id="fgF-uI-qCj"/>
                             <constraint firstItem="WCv-J8-KMI" firstAttribute="trailing" secondItem="PsB-pf-9zh" secondAttribute="trailing" constant="34" id="mbj-ed-QeO"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="WCv-J8-KMI"/>
                     </view>
                     <navigationItem key="navigationItem" id="eRM-3m-t8h"/>
                     <connections>
@@ -95,6 +103,7 @@
                         <outlet property="presentRootNavigationVCButton" destination="eKg-U7-Pn0" id="a3C-eo-lfr"/>
                         <outlet property="showChatInNavigationButton" destination="Gnd-DA-n6K" id="3lW-TG-n5g"/>
                         <outlet property="showChatInNavigationProgrammaticallyButton" destination="Z3a-nU-cMh" id="g0F-Uv-QcJ"/>
+                        <outlet property="showChatInTabBar" destination="yHQ-V6-aoc" id="2TG-6G-Kfh"/>
                         <outlet property="showChatModallyButton" destination="wLg-pL-jri" id="i7C-QM-Qjb"/>
                         <outlet property="showChatModallyProgrammaticallyButton" destination="TqP-fC-b1J" id="zz6-Sf-ZDC"/>
                     </connections>
@@ -103,6 +112,40 @@
             </objects>
             <point key="canvasLocation" x="242" y="-3"/>
         </scene>
+        <!--Item 2-->
+        <scene sceneID="m0o-tN-g6U">
+            <objects>
+                <viewController id="f4i-Kj-cxL" customClass="ChatViewController" customModule="MobileMessaging" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="aZ2-iZ-l2e">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="mBe-cE-DFK"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Item 2" id="hUE-a3-k63"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="2Cx-3C-0gB" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2154" y="338"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="bW7-h0-XyU">
+            <objects>
+                <tabBarController id="XRw-Ph-JoT" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="W0X-kb-GVV"/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="1Ei-CU-pkT">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="49"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="f4i-Kj-cxL" kind="relationship" relationship="viewControllers" id="aFR-JA-g6d"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gJ8-GN-uCu" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1153" y="338"/>
+        </scene>
         <!--Chat View Controller-->
         <scene sceneID="kZ0-7o-tYY">
             <objects>
@@ -110,8 +153,8 @@
                     <view key="view" contentMode="scaleToFill" id="oi5-2K-uWB">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="647"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <viewLayoutGuide key="safeArea" id="lUC-Ih-vMY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <navigationItem key="navigationItem" id="rsn-PL-Z7T"/>
                 </viewController>
@@ -123,4 +166,9 @@
     <inferredMetricsTieBreakers>
         <segue reference="xZc-v0-WuA"/>
     </inferredMetricsTieBreakers>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

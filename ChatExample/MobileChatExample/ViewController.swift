@@ -17,6 +17,7 @@ class ViewController: UIViewController, InAppChatDelegate {
 	@IBOutlet weak var showChatModallyProgrammaticallyButton: UIButton!
 	@IBOutlet weak var presentRootNavigationVCButton: UIButton!
     @IBOutlet weak var presentNavigationRootVCCustomTransButton: UIButton!
+    @IBOutlet weak var showChatInTabBar: UIButton!
     
     override func viewDidLoad() {
 		super.viewDidLoad()
@@ -52,5 +53,6 @@ class ViewController: UIViewController, InAppChatDelegate {
 		showChatModallyProgrammaticallyButton.isEnabled = enabled
 		presentRootNavigationVCButton.isEnabled = enabled
         presentNavigationRootVCCustomTransButton.isEnabled = enabled
+        showChatInTabBar.isEnabled = enabled
 	}
 }

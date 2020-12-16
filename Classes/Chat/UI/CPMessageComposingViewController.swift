@@ -54,7 +54,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 	func setupComposerBar() {
 		let viewBounds = view.bounds
 		let frame = CGRect(x: 0,
-						   y: viewBounds.size.height - ComposeBarConsts.initialHeight - safeAreaBottomMargin(),
+                           y: viewBounds.size.height - ComposeBarConsts.initialHeight - safeAreaInsets.bottom,
 						   width: viewBounds.size.width,
 						   height: ComposeBarConsts.initialHeight)
 		composeBarView = ComposeBar(frame: frame)
@@ -64,10 +64,22 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 		composeBarView.alpha = 1
 		view.addSubview(composeBarView)
 
-		scrollViewContainer.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h + safeAreaBottomMargin(), right: 0))
+		scrollViewContainer.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h + safeAreaInsets.bottom, right: 0))
 		scrollView.delegate = self
         composeBarView.utilityButtonImage = UIImage(mm_named: "attachmentButton")?.withRenderingMode(.alwaysTemplate)
 	}
+    
+    override func updateViewsFor(safeAreaInsets: UIEdgeInsets, safeAreaLayoutGuide: UILayoutGuide) {
+        var composeBarFrame = composeBarView.frame
+        guard composeBarFrame.maxY > safeAreaLayoutGuide.layoutFrame.maxY else {
+            return
+        }
+        composeBarFrame.y = view.bounds.height - (composeBarFrame.height + safeAreaInsets.bottom)
+        composeBarView.frame = composeBarFrame
+        var scrollViewContainerFrame = scrollViewContainer.frame
+        scrollViewContainerFrame.height = view.bounds.height - (composeBarFrame.height + safeAreaInsets.bottom)
+        scrollViewContainer.frame = scrollViewContainerFrame
+    }
 
 	func didTapSendText(_ text: String) {
 		// override
@@ -84,7 +96,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 	override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
 		super.keyboardWillHide(duration, curve: curve, options: options, height: height)
 		let block = {
-            self.composeBarView.frame.y = self.view.frame.height - self.composeBarView.frame.height - self.safeAreaBottomMargin()
+            self.composeBarView.frame.y = self.view.frame.height - self.composeBarView.frame.height - self.safeAreaInsets.bottom
 		}
 		UIView.animate(withDuration: duration, delay: 0, options: options, animations: block, completion: nil)
 	}
