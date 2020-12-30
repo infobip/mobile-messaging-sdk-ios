@@ -64,7 +64,7 @@ class InteractiveMessageAlertManager: NamedLogger {
 		let notExpired = !message.isExpired
 		let noActionPerformed = (message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) || message.appliedAction == nil
 		let inAppRequired = message.inAppStyle != nil
-		return enabled && notExpired && inAppRequired && noActionPerformed
+        return enabled && notExpired && inAppRequired && noActionPerformed && !message.isGeoSignalingMessage
 	}
 
 	private func showModalNotification(forMessage message: MTMessage, exclusively: Bool) {
