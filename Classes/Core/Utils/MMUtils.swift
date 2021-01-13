@@ -505,12 +505,12 @@ protocol MMApplication {
 	func unregisterForRemoteNotifications()
 	func registerForRemoteNotifications()
 	var notificationEnabled: Bool { get }
-	var rootViewController: UIViewController? { get }
+	var visibleViewController: UIViewController? { get }
 }
 
 extension UIApplication: MMApplication {
-	var rootViewController: UIViewController? {
-		return self.keyWindow?.rootViewController
+	var visibleViewController: UIViewController? {
+        return self.keyWindow?.visibleViewController
 	}
 }
 
@@ -551,8 +551,8 @@ class MainThreadedUIApplication: MMApplication {
 		}
 	}
 
-	var rootViewController: UIViewController? {
-		return getFromMain(getter: { app.keyWindow?.rootViewController })
+	var visibleViewController: UIViewController? {
+		return getFromMain(getter: { app.keyWindow?.visibleViewController })
 	}
 	
 	var applicationState: UIApplication.State {
@@ -871,4 +871,29 @@ class ThreadSafeDict<T> {
 		}
 		return ret
 	}
+}
+
+extension UIWindow {
+    var visibleViewController: UIViewController? {
+        return UIWindow.getVisibleViewControllerFrom(self.rootViewController)
+    }
+    
+    static func getVisibleViewControllerFrom(_ vc: UIViewController?) -> UIViewController? {
+        if let nc = vc as? UINavigationController {
+            return UIWindow.getVisibleViewControllerFrom(nc.visibleViewController)
+        } else if let tc = vc as? UITabBarController {
+            let moreNavigationController = tc.moreNavigationController
+            if let visible = moreNavigationController.visibleViewController , visible.view.window != nil {
+                return UIWindow.getVisibleViewControllerFrom(moreNavigationController)
+            } else {
+                return UIWindow.getVisibleViewControllerFrom(tc.selectedViewController)
+            }
+        } else {
+            if let pvc = vc?.presentedViewController {
+                return UIWindow.getVisibleViewControllerFrom(pvc)
+            } else {
+                return vc
+            }
+        }
+    }
 }

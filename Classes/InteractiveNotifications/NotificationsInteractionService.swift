@@ -125,7 +125,7 @@ class NotificationsInteractionService: MobileMessagingService {
 					if (UIApplication.shared.canOpenURL(url)) {
 						UIApplication.shared.open(url, options: [:], completionHandler: nil)
 					}
-				} else if let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppWebViewPresentingViewController?(for: message) {
+				} else if let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: message) ?? MobileMessaging.application.visibleViewController {
 					NotificationsInteractionService.presentInAppWebview(urlString, presentingVc, message)
 				}
             } else if let browserUrl = message.browserUrl, UIApplication.shared.canOpenURL(browserUrl) {

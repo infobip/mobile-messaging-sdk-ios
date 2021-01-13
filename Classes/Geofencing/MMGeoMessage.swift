@@ -414,6 +414,12 @@ extension MTMessage {
 		newInternalData[Consts.InternalDataKeys.attachments] = geoMessage.internalData?[Consts.InternalDataKeys.attachments]
 		newInternalData[Consts.InternalDataKeys.showInApp] = geoMessage.internalData?[Consts.InternalDataKeys.showInApp]
 		newInternalData[Consts.InternalDataKeys.inAppStyle] = geoMessage.internalData?[Consts.InternalDataKeys.inAppStyle]
+        newInternalData[Consts.InternalDataKeys.inAppDismissTitle] = geoMessage.internalData?[Consts.InternalDataKeys.inAppDismissTitle]
+        newInternalData[Consts.InternalDataKeys.inAppOpenTitle] = geoMessage.internalData?[Consts.InternalDataKeys.inAppOpenTitle]
+        newInternalData[Consts.InternalDataKeys.inAppExpiryDateTime] = geoMessage.internalData?[Consts.InternalDataKeys.inAppExpiryDateTime]
+        newInternalData[Consts.InternalDataKeys.webViewUrl] = geoMessage.internalData?[Consts.InternalDataKeys.webViewUrl]
+        newInternalData[Consts.InternalDataKeys.browserUrl] = geoMessage.internalData?[Consts.InternalDataKeys.browserUrl]
+        newInternalData[Consts.InternalDataKeys.deeplink] = geoMessage.internalData?[Consts.InternalDataKeys.deeplink]
 		
 		var newpayload = geoMessage.originalPayload
 		newpayload[Consts.APNSPayloadKeys.aps] = apsConcat

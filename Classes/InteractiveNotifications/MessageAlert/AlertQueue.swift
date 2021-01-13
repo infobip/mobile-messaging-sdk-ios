@@ -67,9 +67,10 @@ class AlertOperation: Foundation.Operation, NamedLogger {
 			let a = self.makeAlert(with: self.message, image: image, text: self.text)
 			self.alert = a
 			MobileMessaging.sharedInstance?.interactiveAlertManager?.delegate?.willDisplay(self.message)
-			if let rootVc = MobileMessaging.application.rootViewController {
-				self.logDebug("presenting in-app alert, root vc: \(rootVc)")
-				rootVc.present(a, animated: true, completion: nil)
+            
+            if let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: self.message) ?? MobileMessaging.application.visibleViewController {
+				self.logDebug("presenting in-app alert, root vc: \(presentingVc)")
+                presentingVc.present(a, animated: true, completion: nil)
 			} else {
 				self.logDebug("could not define root vc to present in-app alert")
 				self.cancelAlert()

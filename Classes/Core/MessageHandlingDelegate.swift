@@ -34,10 +34,16 @@ import UserNotifications
 	/// Called when a web view is about to be shown. It's required to provide a view controller that will present the web view.
 	/// - parameter message: `MTMessage` object, that has a special URL (see `webViewUrl` property) to be opened in the web view.
 	/// - returns: Parent view controller that would be used to present the web view. If you return `nil`, the web view would not be shown up.
+    @available(*, unavailable, renamed:"inAppPresentingViewController(for:)", message: "The method is unavailable. Please, use `inAppPresentingViewController(for:)` instead.")
 	@objc optional func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController?
 
 	/// Called when a web view is about to be shown. This callback is intended to be the customization point for WebViewController. You are able to customize WebViewController's behaviour and appearance within this callback implementation.
 	/// - parameter webViewController: A ViewController that is responsible for displaying the web view.
 	/// - message: `MTMessage` object, that has a special URL (see `webViewUrl` property) to be opened in the web view.
 	@objc optional func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage)
+    
+    /// Called when an in-app notification or in-app web view is about to be shown. It's required to provide a view controller that will present in-app notification or in-app web view. Do not implement this method, if you want to leave default behaviour, by default topmost visible view controller will be used.
+    /// - parameter message: `MTMessage` object
+    /// - returns: Parent view controller that would be used to present an in-app notification or in-app web view.
+    @objc optional func inAppPresentingViewController(for message: MTMessage) -> UIViewController?
 }

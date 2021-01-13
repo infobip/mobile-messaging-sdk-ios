@@ -44,7 +44,7 @@ class InteractiveMessageAlertController: UIViewController {
 												style: action.options.contains(.destructive) ? .destructive : .default,
 												isBold: action.identifier == NotificationAction.DefaultActionId,
 												handler: {
-													self.actionHandler?(action)
+													self.dismissAndPerformAction(action)
 				})
 			}
 			return ret
@@ -70,7 +70,7 @@ class InteractiveMessageAlertController: UIViewController {
 					style: action.options.contains(.destructive) ? .destructive : .default,
 					isBold: action.identifier == "mm_accept",
 					handler: {
-						self.actionHandler?(action)
+						self.dismissAndPerformAction(action)
 				})
 			}
 			return ret
@@ -111,22 +111,18 @@ class InteractiveMessageAlertController: UIViewController {
 				alertStackViewHeightConstraint.constant = InteractiveMessageAlertController.buttonHeight
 				alertActionStackView.axis = .horizontal
 			}
-			
-			button.addTarget(self, action: #selector(InteractiveMessageAlertController.dismiss(_:)), for: .touchUpInside)
 		}
 	}
 	
-	@objc private func dismiss(_ sender: InteractiveMessageButton){
+	private func dismissAndPerformAction(_ action: NotificationAction) {
 		dismiss(animated: true, completion: {
 			self.dismissHandler?()
+			self.actionHandler?(action)
 		})
 	}
 
 	@objc private func dismissAction(_ sender: InteractiveMessageButton){
-		actionHandler?(NotificationAction.dismissAction())
-		dismiss(animated: true, completion: {
-			self.dismissHandler?()
-		})
+		dismissAndPerformAction(NotificationAction.dismissAction())
 	}
 	
 	private func setShadowAlertView(){
