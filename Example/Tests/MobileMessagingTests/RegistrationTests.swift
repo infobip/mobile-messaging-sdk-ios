@@ -525,7 +525,7 @@ class NotificationsEnabledMock: MMApplication {
 		get { return 0 }
 		set {}
 	}
-	var rootViewController: UIViewController? { return nil }
+	var visibleViewController: UIViewController? { return nil }
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
@@ -538,7 +538,7 @@ class NotificationsDisabledMock: MMApplication {
 		get { return 0 }
 		set {}
 	}
-	var rootViewController: UIViewController? { return nil }
+	var visibleViewController: UIViewController? { return nil }
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}

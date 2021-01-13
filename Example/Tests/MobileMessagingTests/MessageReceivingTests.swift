@@ -523,7 +523,7 @@ class MessageReceivingTests: MMTestCase {
 				XCTAssertEqual("http://www.hello.com", webViewController.rootWebViewController!.url)
 				expectation?.fulfill()
 			}
-			func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController? {
+			func inAppPresentingViewController(for message: MTMessage) -> UIViewController? {
 				XCTAssertEqual("http://www.hello.com", message.webViewUrl?.absoluteString)
 				return UIApplication.shared.keyWindow?.rootViewController
 			}
@@ -563,7 +563,7 @@ class MessageReceivingTests: MMTestCase {
 			func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage) {
 				XCTFail()
 			}
-			func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController? {
+            func inAppPresentingViewController(for message: MTMessage) -> UIViewController? {
 				XCTFail()
 				return UIApplication.shared.keyWindow?.rootViewController
 			}
@@ -600,7 +600,7 @@ class MessageReceivingTests: MMTestCase {
 			func inAppWebViewWillShowUp(_ webViewController: WebViewController, for message: MTMessage) {
 				XCTFail()
 			}
-			func inAppWebViewPresentingViewController(for message: MTMessage) -> UIViewController? {
+            func inAppPresentingViewController(for message: MTMessage) -> UIViewController? {
 				XCTFail()
 				return UIApplication.shared.keyWindow?.rootViewController
 			}
