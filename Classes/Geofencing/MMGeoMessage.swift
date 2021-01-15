@@ -401,15 +401,11 @@ extension MTMessage {
 	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String, region: MMRegion) -> MTMessage? {
 		guard let aps = geoMessage.originalPayload[Consts.APNSPayloadKeys.aps] as? [String: Any],
 			let internalData = geoMessage.originalPayload[Consts.APNSPayloadKeys.internalData] as? [String: Any],
-			var silentAps = internalData[Consts.InternalDataKeys.silent] as? [String: Any],
-			let body = silentAps[Consts.APNSPayloadKeys.body] as? String else
+			let silentAps = internalData[Consts.InternalDataKeys.silent] as? [String: Any] else
 		{
 			return nil
 		}
-		
-		silentAps[Consts.APNSPayloadKeys.alert] = [Consts.APNSPayloadKeys.body: body]
-		silentAps[Consts.APNSPayloadKeys.body] = nil
-		let apsConcat = aps + silentAps
+        
 		var newInternalData: [String: Any] = [Consts.InternalDataKeys.geo: [region.dictionaryRepresentation]]
 		newInternalData[Consts.InternalDataKeys.attachments] = geoMessage.internalData?[Consts.InternalDataKeys.attachments]
 		newInternalData[Consts.InternalDataKeys.showInApp] = geoMessage.internalData?[Consts.InternalDataKeys.showInApp]
@@ -422,7 +418,7 @@ extension MTMessage {
         newInternalData[Consts.InternalDataKeys.deeplink] = geoMessage.internalData?[Consts.InternalDataKeys.deeplink]
 		
 		var newpayload = geoMessage.originalPayload
-		newpayload[Consts.APNSPayloadKeys.aps] = apsConcat
+		newpayload[Consts.APNSPayloadKeys.aps] = apsByMerging(nativeAPS: aps, withSilentAPS: silentAps)
 		newpayload[Consts.APNSPayloadKeys.internalData] = newInternalData
 		newpayload[Consts.APNSPayloadKeys.messageId] = messageId
 		

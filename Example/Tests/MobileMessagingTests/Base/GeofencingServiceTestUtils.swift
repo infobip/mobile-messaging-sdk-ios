@@ -141,6 +141,13 @@ class GeofencingServiceDisabledStub: GeofencingService {
 let expectedCampaignId = "campaign 1"
 let expectedMessageId = "message 1"
 let expectedCampaignText = "campaign text"
+let expectedCampaignTitle = "campaign title"
+let expectedInAppDismissBtnTitle = "Dismiss Button"
+let expectedInAppOpenBtnTitle = "Open Button"
+let expectedContentUrl = "http://hello.com"
+let expectedInAppWebViewUrl = "http://hello.com"
+let expectedInAppBrowserUrl = "http://hello.com"
+let expectedInAppDeeplink = "mydomain://hello.com/first/second"
 let expectedSound = "default"
 
 let expectedStartDateString = "2016-08-05T12:20:16+03:00"
@@ -292,13 +299,19 @@ let jsonStr = """
 "campaignId": "\(expectedCampaignId)",
 "silent": {
 	"body": "\(expectedCampaignText)",
+    "title": "\(expectedCampaignTitle)",
 	"sound": "\(expectedSound)"
 },
-"atts": [{"url": "http://hello.com"}],
+"atts": [{"url": "\(expectedContentUrl)"}],
 "startTime": "\(expectedStartDateString)",
 "expiryTime": "\(expectedExpiryDateString)",
 "inApp": 1,
 "inAppStyle": 1,
+"inAppDismissTitle": "\(expectedInAppDismissBtnTitle)",
+"inAppOpenTitle": "\(expectedInAppOpenBtnTitle)",
+"webViewUrl": "\(expectedInAppWebViewUrl)",
+"browserUrl": "\(expectedInAppBrowserUrl)",
+"deeplink": "\(expectedInAppDeeplink)",
 "geo": [
 {
 "id": "\(zagrebId)",
@@ -318,6 +331,56 @@ let jsonStr = """
 }
 }
 """
+
+let jsonStrFromPushUp = """
+{
+"aps": {
+"sound": "\(expectedSound)",
+"alert": {
+    "body": "\(expectedCampaignText)",
+    "title": "\(expectedCampaignTitle)"
+},
+"silent": true,
+},
+"messageId": "lY8Ja3GKmeN65J5hNlL9B9lLA9LrN//C/nH75iK+2KI=",
+"internalData": {
+"campaignId": "\(expectedCampaignId)",
+"messageType":"geo",
+"silent": {
+    "body": "\(expectedCampaignText)",
+    "title": "\(expectedCampaignTitle)",
+    "sound": "\(expectedSound)"
+},
+"atts": [{"url": "\(expectedContentUrl)"}],
+"startTime": "\(expectedStartDateString)",
+"expiryTime": "\(expectedExpiryDateString)",
+"inApp": 1,
+"inAppStyle": 1,
+"inAppDismissTitle": "\(expectedInAppDismissBtnTitle)",
+"inAppOpenTitle": "\(expectedInAppOpenBtnTitle)",
+"webViewUrl": "\(expectedInAppWebViewUrl)",
+"browserUrl": "\(expectedInAppBrowserUrl)",
+"deeplink": "\(expectedInAppDeeplink)",
+"geo": [
+{
+"id": "\(zagrebId)",
+"latitude": 45.80869126677998,
+"longitude": 15.97206115722656,
+"radiusInMeters": 9492.0,
+"title": "Zagreb"
+},
+{
+"id": "\(pulaId)",
+"latitude": 44.86803631018752,
+"longitude": 13.84586334228516,
+"radiusInMeters": 5257.0,
+"title": "Pula"
+}
+]
+}
+}
+"""
+
 
 let jsonStrWithoutStartTime =
 	"{" +

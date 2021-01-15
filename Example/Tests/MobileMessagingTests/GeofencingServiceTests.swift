@@ -1401,8 +1401,39 @@ class GeofencingServiceTests: MMTestCase {
 		XCTAssertTrue(mt!.showInApp)
 		XCTAssertEqual(mt!.inAppStyle, InAppNotificationStyle.Banner)
 		XCTAssertFalse(mt!.isGeoSignalingMessage)
-		XCTAssertEqual(mt!.contentUrl, "http://hello.com")
+        XCTAssertEqual(mt!.contentUrl, expectedContentUrl)
+        XCTAssertEqual(mt!.webViewUrl?.absoluteString, expectedInAppWebViewUrl)
+        XCTAssertEqual(mt!.browserUrl?.absoluteString, expectedInAppBrowserUrl)
+        XCTAssertEqual(mt!.deeplink?.absoluteString, expectedInAppDeeplink)
+        XCTAssertEqual(mt!.inAppDismissTitle, expectedInAppDismissBtnTitle)
+        XCTAssertEqual(mt!.inAppOpenTitle, expectedInAppOpenBtnTitle)
+        XCTAssertEqual(mt!.title, expectedCampaignTitle)
+        XCTAssertEqual(mt!.text, expectedCampaignText)
+        XCTAssertEqual(mt!.sound, expectedSound)
 	}
+    
+    func testThatGeneratedMessageHasAppropriateInternalDataFromSignalingMesageFromPushUp() {
+        guard let payload = JSON.parse(jsonStrFromPushUp).dictionaryObject,
+            let geoMessage = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else
+        {
+            XCTFail()
+            return
+        }
+
+        let mt = MTMessage.make(fromGeoMessage: geoMessage, messageId: "", region: geoMessage.regions.first!)
+        XCTAssertTrue(mt!.showInApp)
+        XCTAssertEqual(mt!.inAppStyle, InAppNotificationStyle.Banner)
+        XCTAssertFalse(mt!.isGeoSignalingMessage)
+        XCTAssertEqual(mt!.contentUrl, expectedContentUrl)
+        XCTAssertEqual(mt!.webViewUrl?.absoluteString, expectedInAppWebViewUrl)
+        XCTAssertEqual(mt!.browserUrl?.absoluteString, expectedInAppBrowserUrl)
+        XCTAssertEqual(mt!.deeplink?.absoluteString, expectedInAppDeeplink)
+        XCTAssertEqual(mt!.inAppDismissTitle, expectedInAppDismissBtnTitle)
+        XCTAssertEqual(mt!.inAppOpenTitle, expectedInAppOpenBtnTitle)
+        XCTAssertEqual(mt!.title, expectedCampaignTitle)
+        XCTAssertEqual(mt!.text, expectedCampaignText)
+        XCTAssertEqual(mt!.sound, expectedSound)
+    }
 
 	func testHandlingOfFetchedGeoPayload() {
 		let regionId = "7867EB6623F628AE2EC71EF3135A2B29"
