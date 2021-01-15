@@ -144,15 +144,7 @@ public final class MobileMessaging: NSObject {
 			completionHandler(result.backgroundFetchResult)
 		})
 	}
-	
-	/**
-	This method is called when a running app receives a local notification. The method should be called from AppDelegate's `application(_:didReceiveLocalNotification:)` or `application(_:didReceive:)` callback.
-	- parameter notification: A local notification that encapsulates details about the notification, potentially including custom data.
-	- parameter completion: A block to be executed when local notification handling is finished.
-	*/
-	@available(iOS, obsoleted: 10.0, message: "If your apps minimum deployment target is iOS 10 or later, you don't need to forward your App Delegate calls to this method. Handling local notifications on iOS since 10.0 is done by Mobile Messaging SDK by implementing UNUserNotificationCenterDelegate under the hood.")
-	public class func didReceiveLocalNotification(_ notification: UILocalNotification, completion: (() -> Void)? = nil) { }
-	
+		
 	/** Returns the default message storage if used. For more information see `MMDefaultMessageStorage` class description. */
 	public class var defaultMessageStorage: MMDefaultMessageStorage? {
 		return MobileMessaging.sharedInstance?.messageStorages[MessageStorageKind.messages.rawValue]?.adapteeStorage as? MMDefaultMessageStorage

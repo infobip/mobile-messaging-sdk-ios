@@ -67,10 +67,10 @@ class AlertOperation: Foundation.Operation, NamedLogger {
 			let a = self.makeAlert(with: self.message, image: image, text: self.text)
 			self.alert = a
 			MobileMessaging.sharedInstance?.interactiveAlertManager?.delegate?.willDisplay(self.message)
-            
-            if let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: self.message) ?? MobileMessaging.application.visibleViewController {
+			
+			if let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: self.message) ?? MobileMessaging.application.visibleViewController {
 				self.logDebug("presenting in-app alert, root vc: \(presentingVc)")
-                presentingVc.present(a, animated: true, completion: nil)
+				presentingVc.present(a, animated: true, completion: nil)
 			} else {
 				self.logDebug("could not define root vc to present in-app alert")
 				self.cancelAlert()
@@ -157,6 +157,39 @@ class AlertQueue {
 		ret.maxConcurrentOperationCount = 1
 		return ret
 	}()
+	
+	init() {
+		setupObservers()
+		// the queue must perform operations only in apps active state
+		oq.isSuspended = !MobileMessaging.application.isInForegroundState
+	}
+	
+	private func setupObservers() {
+		guard !isTestingProcessRunning else {
+			return
+		}
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(self.handleAppWillResignActive(notification:)),
+			name: UIApplication.willResignActiveNotification, object: nil)
+
+		NotificationCenter.default.addObserver(
+			self,
+			selector: #selector(self.handleDidBecomeActive(notification:)),
+			name: UIApplication.didBecomeActiveNotification, object: nil)
+	}
+	
+	deinit {
+		NotificationCenter.default.removeObserver(self)
+	}
+	
+	@objc private func handleDidBecomeActive(notification: Notification) {
+		oq.isSuspended = false
+	}
+
+	@objc private func handleAppWillResignActive(notification: Notification) {
+		oq.isSuspended = true
+	}
 	
 	func cancelAllAlerts() {
 		oq.cancelAllOperations()

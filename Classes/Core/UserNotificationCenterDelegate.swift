@@ -75,12 +75,6 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 
 	func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
 		logDebug("received response")
-		guard let identifier = actionId, let service = NotificationsInteractionService.sharedInstance else
-		{
-			logDebug("canceled handling actionId \(actionId ?? "nil"), service is initialized \(NotificationsInteractionService.sharedInstance != nil)")
-			completionHandler()
-			return
-		}
 
 		let message = MTMessage(
 			payload: notificationUserInfo,
@@ -89,14 +83,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 			deliveryReportDate: nil,
 			seenStatus: .NotSeen,
 			isDeliveryReportSent: false)
-
-		service.handleAction(
-			identifier: identifier,
-			categoryId: categoryId,
-			message: message,
-			notificationUserInfo: notificationUserInfo as? [String: Any],
-			userText: userText,
-			completionHandler: completionHandler
-		)
+		
+		MobileMessaging.handleAction(identifier: actionId, category: categoryId, message: message, notificationUserInfo: notificationUserInfo as? [String: Any], userText: userText, completionHandler: completionHandler)
 	}
 }
