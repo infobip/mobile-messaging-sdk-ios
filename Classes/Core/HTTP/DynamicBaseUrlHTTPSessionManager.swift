@@ -29,19 +29,6 @@ struct JSONRequestEncoding: ParameterEncoding {
 	}
 }
 
-
-class DynamicBaseUrlStorage: SingleKVStorage {
-	var backingStorage: KVOperations = UserDefaults.standard
-	typealias ValueType = URL
-	var key: String {
-		return Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey
-	}
-
-	init(backingStorage: KVOperations = UserDefaults.standard) {
-		self.backingStorage = backingStorage
-	}
-}
-
 class DynamicBaseUrlHTTPSessionManager {
 	var dynamicBaseUrl: URL?
 	var originalBaseUrl: URL
@@ -49,7 +36,7 @@ class DynamicBaseUrlHTTPSessionManager {
 	let alamofireSessionManager: SessionManager
 
 	let appGroupId: String?
-	var storage: DynamicBaseUrlStorage
+	var storage: UserDefaults
 
 	init(baseURL url: URL, sessionConfiguration configuration: URLSessionConfiguration?, appGroupId: String?) {
 		self.configuration = configuration ?? URLSessionConfiguration.default
@@ -59,9 +46,9 @@ class DynamicBaseUrlHTTPSessionManager {
 		self.originalBaseUrl = url
 		self.appGroupId = appGroupId
 		if let appGroupId = appGroupId, let sharedUserDefaults = UserDefaults(suiteName: appGroupId) {
-			self.storage = DynamicBaseUrlStorage(backingStorage: sharedUserDefaults)
+			self.storage = sharedUserDefaults
 		} else {
-			self.storage = DynamicBaseUrlStorage(backingStorage: UserDefaults.standard)
+			self.storage = UserDefaults.standard
 		}
 
 		self.dynamicBaseUrl = getStoredDynamicBaseUrl() ?? url
@@ -69,14 +56,15 @@ class DynamicBaseUrlHTTPSessionManager {
 
 	private func storeDynamicBaseUrl(_ url: URL?) {
 		if let url = url {
-			storage.set(url)
+			storage.set(url, forKey: Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
 		} else {
-			storage.cleanUp()
+			storage.removeObject(forKey: Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
+			storage.synchronize()
 		}
 	}
 
 	private func getStoredDynamicBaseUrl() -> URL? {
-		return storage.get()
+		return storage.url(forKey: Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
 	}
 
 	func url(_ r: RequestData) -> String {

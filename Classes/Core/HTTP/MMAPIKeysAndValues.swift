@@ -47,7 +47,7 @@ struct Consts {
 	}
 
 	struct DynamicBaseUrlConsts {
-		static let newBaseUrlHeader = "newbaseurl"
+		static let newBaseUrlHeader = "New-Base-URL"
 		static let storedDynamicBaseUrlKey = "com.mobile-messaging.dynamic-base-url"
 	}
 

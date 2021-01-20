@@ -8,35 +8,12 @@ import XCTest
 import Foundation
 @testable import MobileMessaging
 
-class DynamicBaseUrlBackingStorageStub: KVOperations {
-	func get(key: String) -> Any? {
-		return dynamicUrl
-	}
-	
-	func cleanUp(forKey: String) {
-		dynamicUrl = nil
-	}
-	
-	func set(value: Any, key: String) {
-		dynamicUrl = value
-	}
-	
-	var dynamicUrl: Any? = nil
-}
-
-class DynamicBaseUrlStorageStub: DynamicBaseUrlStorage {
-	init() {
-		super.init(backingStorage: DynamicBaseUrlBackingStorageStub())
-	}
-}
-
 class SessionManagerSuccessMock: DynamicBaseUrlHTTPSessionManager {
 	var responseJson: (Any) -> JSON
 
 	init(responseJson: @escaping (Any) -> JSON) {
 		self.responseJson = responseJson
 		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: "")
-		self.storage = DynamicBaseUrlStorageStub()
 	}
 
 	override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
@@ -50,7 +27,6 @@ class DynamicBaseUrlTests: MMTestCase {
 		let initialUrl = URL(string: "https://initial.com")!
 		
 		let sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: "")
-		sessionManager.storage = DynamicBaseUrlStorageStub()
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
 		
 		// assert that DBU changed if a new one received
@@ -65,7 +41,6 @@ class DynamicBaseUrlTests: MMTestCase {
 		
 		// assert that cached DBU restored after session reinitialization
 		let newSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: "")
-		newSessionManager.storage = DynamicBaseUrlStorageStub()
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://new.com")
 		
 		// assert that DBU reset if specific error happened

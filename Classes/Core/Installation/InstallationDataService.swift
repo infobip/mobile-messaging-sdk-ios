@@ -21,7 +21,7 @@ final class InstallationDataService: MobileMessagingService {
 			return universalInstallationId
 		} else {
 			let universalInstallationId = UUID().uuidString
-			UserDefaults.standard.set(value: universalInstallationId, key: key)
+			UserDefaults.standard.set(universalInstallationId, forKey: key)
 			return universalInstallationId
 		}
 	}

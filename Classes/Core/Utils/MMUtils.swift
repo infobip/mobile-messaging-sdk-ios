@@ -623,50 +623,6 @@ let isDebug: Bool = {
 	return isDebug
 }()
 
-protocol SingleKVStorage {
-	associatedtype ValueType
-	var backingStorage: KVOperations {set get}
-	var key: String {get}
-	func get() -> ValueType?
-	func cleanUp()
-	func set(_ value: ValueType)
-}
-
-extension SingleKVStorage {
-	func get() -> ValueType? {
-		return backingStorage.get(key: key) as? ValueType
-	}
-	
-	func cleanUp() {
-		backingStorage.cleanUp(forKey: key)
-	}
-	
-	func set(_ value: ValueType) {
-		backingStorage.set(value: value, key: key)
-	}
-}
-
-protocol KVOperations {
-	func get(key: String) -> Any?
-	func cleanUp(forKey: String)
-	func set(value: Any, key: String)
-}
-
-extension UserDefaults: KVOperations {
-	func cleanUp(forKey key: String) {
-		removeObject(forKey: key)
-		synchronize()
-	}
-	
-	func get(key: String) -> Any? {
-		return object(forKey: key)
-	}
-	
-	func set(value: Any, key: String) {
-		set(value, forKey: key)
-	}
-}
-
 func calculateAppCodeHash(_ appCode: String) -> String { return String(appCode.sha1().prefix(10)) }
 
 extension Sequence {
