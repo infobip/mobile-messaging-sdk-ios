@@ -48,6 +48,13 @@
                        'fileName': fileName
                    });
            }
+       
+           function sendDraft(draft) {
+                   liveChat('send', {
+                       'message': draft,
+                       'type': 'DRAFT'
+                   });
+           }
 	   
 		   function getQueryParameter(name){
 			  if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))

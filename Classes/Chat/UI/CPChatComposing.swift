@@ -10,11 +10,20 @@ class CPComposeBarDelegate: NSObject, ComposeBarDelegate {
 	weak var scrollView: UIScrollView?
 	let sendTextBlock: (String) -> Void
     let utilityButtonClickedBlock: () -> Void
+    let textViewDidChangedBlock: (String) -> Void
+    
+    let userInputDebounceTimeMs = 250.0
+    
+    lazy var draftPostponer = MMPostponer(executionQueue: DispatchQueue.main)
 	
-	init(scrollView: UIScrollView, sendTextBlock: @escaping (String) -> Void, utilityButtonClickedBlock: @escaping () -> Void) {
+	init(scrollView: UIScrollView,
+         sendTextBlock: @escaping(String) -> Void,
+         utilityButtonClickedBlock: @escaping () -> Void,
+         textViewDidChangedBlock: @escaping (String) -> Void) {
 		self.scrollView = scrollView
 		self.sendTextBlock = sendTextBlock
         self.utilityButtonClickedBlock = utilityButtonClickedBlock
+        self.textViewDidChangedBlock = textViewDidChangedBlock
 	}
 	
 	public func composeBarDidPressButton(composeBar: ComposeBar) {
@@ -35,7 +44,11 @@ class CPComposeBarDelegate: NSObject, ComposeBarDelegate {
 	}
 	
 	func composeBarTextViewDidBeginEditing(composeBar: ComposeBar) {}
-	func composeBarTextViewDidChange(composeBar: ComposeBar) {}
+	func composeBarTextViewDidChange(composeBar: ComposeBar) {
+        draftPostponer.postponeBlock(delay: userInputDebounceTimeMs) { [weak self] in
+            self?.textViewDidChangedBlock(composeBar.text)
+        }
+    }
 	func composeBar(composeBar: ComposeBar, didChangeFromFrame startFrame: CGRect, toFrame endFrame: CGRect) {}
 }
 

@@ -10,6 +10,7 @@ import WebKit
 
 protocol ChatJSWrapper {
     func sendMessage(_ message: String?, attachment: ChatMobileAttachment?)
+    func sendDraft(_ message: String?)
 }
 
 extension WKWebView: NamedLogger {}
@@ -24,6 +25,19 @@ extension WKWebView: ChatJSWrapper {
 			self.logDebug("sendMessage call got a response: \(response.debugDescription), error: \(error?.localizedDescription ?? "")")
 		}
 	}
+    
+    func sendDraft(_ message: String?) {
+        let escapedMessage = message?.javaScriptEscapedString()
+        guard escapedMessage != nil else {
+            logDebug("sendDraft failed, message not provided")
+            return
+        }
+        
+        self.evaluateJavaScript("sendDraft(\(escapedMessage ?? ""))"){
+            (response, error) in
+            self.logDebug("sendDraft call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+        }
+    }
 }
 
 extension String

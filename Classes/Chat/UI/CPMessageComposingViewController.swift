@@ -9,11 +9,18 @@ import Foundation
 
 open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UINavigationControllerDelegate {
 
-	lazy var composeBarDelegate = CPComposeBarDelegate(scrollView: self.scrollView, sendTextBlock: { [weak self] text in
-		self?.didTapSendText(text)
-        }, utilityButtonClickedBlock: {
-            self.utilityButtonClicked()
-    })
+	lazy var composeBarDelegate = CPComposeBarDelegate(
+        scrollView: self.scrollView,
+        sendTextBlock: { [weak self] text in
+            self?.didTapSendText(text)
+        },
+        utilityButtonClickedBlock: { [weak self] in
+            self?.utilityButtonClicked()
+        },
+        textViewDidChangedBlock: { [weak self] text in
+            self?.textViewDidChange(text)
+        }
+    )
 
 	var scrollingRecognizer: UIPanGestureRecognizer!
 	var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
@@ -43,6 +50,9 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 
 	override open func viewWillDisappear(_ animated: Bool) {
 		composeBarView.resignFirstResponder()
+        composeBarDelegate.draftPostponer.postponeBlock(delay: 0) { [weak self] in
+            self?.composeBarDelegate.textViewDidChangedBlock(self?.composeBarView.text ?? "")
+        }
 		super.viewWillDisappear(animated)
 	}
 
@@ -84,6 +94,10 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 	func didTapSendText(_ text: String) {
 		// override
 	}
+    
+    func textViewDidChange(_ text: String) {
+        // override
+    }
 
 	//MARK: keyboard
 	override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {

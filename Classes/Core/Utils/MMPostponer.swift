@@ -15,7 +15,7 @@ class MMPostponer: NSObject {
 		self.executionQueue = executionQueue
 	}
 	
-	func postponeBlock(delay: Double = 2, block: @escaping () -> Void) {
+	func postponeBlock(delay: Double = 2000, block: @escaping () -> Void) {
 		schedulerQueue.executeAsync {
 			self.invalidateTimer()
 			self.block = block
@@ -39,8 +39,8 @@ class MMPostponer: NSObject {
 	
 	private func createDispatchTimer(_ delay: Double, queue: DispatchQueue, block: @escaping () -> Void) -> DispatchSourceTimer {
 		let timer : DispatchSourceTimer = DispatchSource.makeTimerSource(queue: queue)
-		let deadline = DispatchTime.now() + DispatchTimeInterval.seconds(Int(delay))
-		let leeway = DispatchTimeInterval.seconds(0)
+		let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(Int(delay))
+        let leeway = DispatchTimeInterval.milliseconds(0)
 		timer.schedule(deadline: deadline, leeway: leeway)
 		timer.setEventHandler(handler: block)
 		timer.resume()

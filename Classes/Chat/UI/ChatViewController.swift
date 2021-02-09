@@ -88,6 +88,10 @@ open class ChatViewController: CPMessageComposingViewController, ChatWebViewDele
 		webView.sendMessage(text)
 	}
     
+    override func textViewDidChange(_ text: String) {
+        webView.sendDraft(text)
+    }
+    
     private lazy var chatAttachmentPicker: ChatAttachmentPicker = ChatAttachmentPicker(delegate: self)
     
     override func utilityButtonClicked() {
