@@ -427,8 +427,6 @@ public class GeofencingService: MobileMessagingService {
 			}
 		@unknown default: return .notDetermined
 		}
-
-
 	}
 	
 	// MARK: - Private

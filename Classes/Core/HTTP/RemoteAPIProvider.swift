@@ -13,6 +13,11 @@ class RemoteAPIProvider: GeneralRemoteAPIProtocol {
 	init(sessionManager: DynamicBaseUrlHTTPSessionManager) {
 		self.sessionManager = sessionManager
 	}
+    
+    func getBaseUrl(applicationCode: String, completion: @escaping (BaseUrlResult) -> Void) {
+        let request = BaseUrlRequest(applicationCode: applicationCode)
+        performRequest(request: request, completion: completion)
+    }
 
 	func sendCustomEvent(applicationCode: String, pushRegistrationId: String, validate: Bool, body: RequestBody, completion: @escaping (CustomEventResult) -> Void) {
 		let request = PostCustomEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, validate: validate, requestBody: body)
@@ -130,6 +135,8 @@ extension SessionManagement {
 }
 
 protocol GeneralRemoteAPIProtocol: SessionManagement {
+    func getBaseUrl(applicationCode: String, completion: @escaping (BaseUrlResult) -> Void)
+    
 	func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UserSessionSendingResult) -> Void)
 
 	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, completion: @escaping (SeenStatusSendingResult) -> Void)

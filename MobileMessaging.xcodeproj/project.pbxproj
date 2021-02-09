@@ -186,6 +186,7 @@
 		7689347724ED700600411B1D /* GeoEventPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347624ED700600411B1D /* GeoEventPersistingOperation.swift */; };
 		7689347924ED71FF00411B1D /* GeoCleanupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347824ED71FF00411B1D /* GeoCleanupOperation.swift */; };
 		7692B56124EC4783000DA5A2 /* MMOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7692B56024EC4783000DA5A2 /* MMOperation.swift */; };
+		76978E2625C30C1200912DB4 /* BaseUrlManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76978E2525C30C1200912DB4 /* BaseUrlManager.swift */; };
 		76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CAD230D58A900F00717 /* MMInternalStorageModel.xcdatamodeld */; };
 		76A26CB4230D593200F00717 /* Migration_0_3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CB3230D593200F00717 /* Migration_0_3.xcmappingmodel */; };
 		76A26CB6230D59A200F00717 /* Migration_1_3.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 76A26CB5230D59A200F00717 /* Migration_1_3.xcmappingmodel */; };
@@ -460,6 +461,7 @@
 		7689347624ED700600411B1D /* GeoEventPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoEventPersistingOperation.swift; sourceTree = "<group>"; };
 		7689347824ED71FF00411B1D /* GeoCleanupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoCleanupOperation.swift; sourceTree = "<group>"; };
 		7692B56024EC4783000DA5A2 /* MMOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMOperation.swift; sourceTree = "<group>"; };
+		76978E2525C30C1200912DB4 /* BaseUrlManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseUrlManager.swift; sourceTree = "<group>"; };
 		76A26CAE230D58A900F00717 /* MMStorageModel_3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_3.xcdatamodel; sourceTree = "<group>"; };
 		76A26CAF230D58A900F00717 /* MMStorageModel_0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_0.xcdatamodel; sourceTree = "<group>"; };
 		76A26CB0230D58A900F00717 /* MMStorageModel_2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_2.xcdatamodel; sourceTree = "<group>"; };
@@ -921,6 +923,7 @@
 				764556391F78FF4F00B8F14B /* MMVersionManager.swift */,
 				7645563A1F78FF4F00B8F14B /* UserNotificationType.swift */,
 				76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */,
+				76978E2525C30C1200912DB4 /* BaseUrlManager.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1387,6 +1390,7 @@
 				76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */,
 				76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */,
 				7601F1B2208E057F00738C1A /* LoadingImageView.swift in Sources */,
+				76978E2625C30C1200912DB4 /* BaseUrlManager.swift in Sources */,
 				7617505E23351827000438A8 /* TaskDelegate.swift in Sources */,
 				7650DC3C244EEB480016233D /* CPLabel.swift in Sources */,
 				7650DC3D244EEB480016233D /* CPKeyboardAwareScrollViewController.swift in Sources */,

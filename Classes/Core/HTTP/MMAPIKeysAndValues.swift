@@ -92,6 +92,11 @@ struct Consts {
 		static let pushRegistrationId = "pushregistrationid"
 		static let applicationcode = "applicationcode"
 	}
+    
+    struct BaseUrlRecovery {
+        static let lastCheckDateKey = "com.mobile-messaging.base-url-validation.last-check-date"
+        static let baseUrl = "baseUrl"
+    }
 
 	struct VersionCheck {
 		//MARK: Library Version API
@@ -190,7 +195,6 @@ struct Consts {
 
 	struct APIValues {
 		static let prodDynamicBaseURLString = "https://mobile.infobip.com"
-		static let prodBaseURLString = "https://oneapi2.infobip.com" // not in use afte migration on https://mobile.infobip.com
 		static let platformType = "APNS"
 		
 		struct MessageTypeValues {

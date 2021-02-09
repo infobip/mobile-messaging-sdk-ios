@@ -10,7 +10,7 @@ import Foundation
 import UserNotifications
 
 @objcMembers
-public final class MobileMessaging: NSObject {
+public final class MobileMessaging: NSObject, NamedLogger {
 	//MARK: Public
 	
 	/**
@@ -485,7 +485,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	func doStart(_ completion: (() -> Void)? = nil) {
-		MMLogDebug("Starting service (with apns registration=\(doRegisterToApns))...")
+		logDebug("Starting service (with apns registration=\(doRegisterToApns))...")
 		self.startСomponents()
 		
 		self.performForEachSubservice {
@@ -502,7 +502,7 @@ public final class MobileMessaging: NSObject {
 		
 		completion?()
 		
-		MMLogDebug("Service started with subservices: \(self.subservices)")
+		logDebug("Service started with subservices: \(self.subservices)")
 	}
 	
 	func cleanUpAndStop(_ clearKeychain: Bool = true) {
@@ -511,7 +511,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	func cleanUp(_ clearKeychain: Bool = true) {
-		MMLogDebug("Cleaning up MobileMessaging service...")
+		logDebug("Cleaning up MobileMessaging service...")
 		sharedNotificationExtensionStorage?.cleanupMessages()
 		MMCoreDataStorage.dropStorages(internalStorage: internalStorage, messageStorages: messageStorages)
 		if (clearKeychain) {
@@ -524,7 +524,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	func stop() {
-		MMLogInfo("Stopping MobileMessaging service...")
+		logInfo("Stopping MobileMessaging service...")
 		
 		performForEachSubservice { subservice in
 			subservice.mobileMessagingWillStop(self)
@@ -551,13 +551,14 @@ public final class MobileMessaging: NSObject {
 		remoteApiProvider = nil
 		userSessionService = nil
 		eventsService = nil
+        baseUrlManager = nil
 		
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
 		MobileMessaging.application = MainThreadedUIApplication()
 		MobileMessaging.sharedInstance = nil
 		UNUserNotificationCenter.current().delegate = nil
-		MMLogInfo("MobileMessaging service stopped")
+		logInfo("MobileMessaging service stopped")
 	}
 	
 	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
@@ -565,7 +566,7 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: @escaping (MessageHandlingResult) -> Void) {
-		MMLogDebug("New remote notification received \(userInfo)")
+		logDebug("New remote notification received \(userInfo)")
 		messageHandler.handleAPNSMessage(userInfo, completion: completion)
 	}
 	
@@ -582,22 +583,22 @@ public final class MobileMessaging: NSObject {
 	}
 	
 	func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
-		MMLogDebug("Setting seen status: \(messageIds), immediately \(immediately)")
+		logDebug("Setting seen status: \(messageIds), immediately \(immediately)")
 		messageHandler.setSeen(messageIds, immediately: immediately, completion: completion)
 	}
 	
 	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
-		MMLogDebug("Sending mobile originated messages (SDK initiated)...")
+		logDebug("Sending mobile originated messages (SDK initiated)...")
 		messageHandler.sendMessages(messages, isUserInitiated: false, completion: completion)
 	}
 	
 	func retryMoMessageSending(completion: @escaping ([MOMessage]?, NSError?) -> Void) {
-		MMLogDebug("Retrying sending mobile originated messages...")
+		logDebug("Retrying sending mobile originated messages...")
 		messageHandler.sendMessages([], isUserInitiated: false, completion: completion)
 	}
 	
 	func sendMessagesUserInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
-		MMLogDebug("Sending mobile originated messages (User initiated)...")
+		logDebug("Sending mobile originated messages (User initiated)...")
 		messageHandler.sendMessages(messages, isUserInitiated: true, completion: completion)
 	}
 	
@@ -619,7 +620,7 @@ public final class MobileMessaging: NSObject {
 	internal init?(appCode: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool, internalStorage: MMCoreDataStorage? = nil) {
 		
 		let logCoreDataInitializationError = {
-			MMLogError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
+            Self.logError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
 		}
 		
 		guard var storage = internalStorage == nil ? try? MMCoreDataStorage.makeInternalStorage(self.storageType) : internalStorage else {
@@ -628,7 +629,7 @@ public final class MobileMessaging: NSObject {
 		}
 		
 		if forceCleanup || applicationCodeChanged(newApplicationCode: appCode) {
-			MMLogDebug("Data will be cleaned up due to the application code change.")
+            Self.logDebug("Data will be cleaned up due to the application code change.")
 			User.resetAll()
 			Installation.resetAll()
 			InternalData.resetCurrent()
@@ -655,14 +656,16 @@ public final class MobileMessaging: NSObject {
 		}
 		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 		
-		
-		MMLogInfo("SDK successfully initialized!")
+        super.init()
+        
+        logInfo("SDK successfully initialized!")
 	}
 	
 	private func startСomponents() {
 		if NotificationsInteractionService.sharedInstance == nil {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
 		}
+        baseUrlManager = BaseUrlManager(mmContext: self)
 		userSessionService = UserSessionService(mmContext: self)
 		userService = UserDataService(mmContext: self)
 		eventsService = EventsService(mmContext: self)
@@ -700,6 +703,7 @@ public final class MobileMessaging: NSObject {
 	var installationService: InstallationDataService!
 	var appListener: MMApplicationListener!
 	var userSessionService: UserSessionService!
+    var baseUrlManager: BaseUrlManager!
 	var eventsService: EventsService!
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)

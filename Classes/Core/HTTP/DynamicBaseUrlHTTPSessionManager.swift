@@ -29,7 +29,7 @@ struct JSONRequestEncoding: ParameterEncoding {
 	}
 }
 
-class DynamicBaseUrlHTTPSessionManager {
+class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 	var dynamicBaseUrl: URL?
 	var originalBaseUrl: URL
 	let configuration: URLSessionConfiguration
@@ -67,26 +67,26 @@ class DynamicBaseUrlHTTPSessionManager {
 		return storage.url(forKey: Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
 	}
 
-	func url(_ r: RequestData) -> String {
-		return (dynamicBaseUrl ?? originalBaseUrl).absoluteString + r.resolvedPath
+	func resolveUrl(_ r: RequestData) -> String {
+        return (r.baseUrl ?? dynamicBaseUrl ?? originalBaseUrl).absoluteString + r.resolvedPath
 	}
 
 	func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
-		let request = alamofireSessionManager.request(url(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
-		MMLogDebug("Sending request: \n\(String(reflecting: request))")
+		let request = alamofireSessionManager.request(resolveUrl(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
+		logDebug("Sending request: \n\(String(reflecting: request))")
 
 		request.validate().responseData { dataResult in
 			let error = dataResult.error as NSError?
 			self.handleDynamicBaseUrl(response: dataResult.response, error: error)
 
 			guard let response = dataResult.response else {
-				MMLogWarn("Empty response received")
+                self.logWarn("Empty response received")
 				completion(nil, error)
 				return
 			}
 
 			guard let data = dataResult.data else {
-				MMLogWarn("""
+                self.logWarn("""
 					Empty data received
 					url: \(response.url.orNil)
 					status code: \(response.statusCode)
@@ -96,7 +96,7 @@ class DynamicBaseUrlHTTPSessionManager {
 				return
 			}
 
-			MMLogDebug("""
+            self.logDebug("""
 				Response received
 				url: \(response.url.orNil)
 				status code: \(response.statusCode)
@@ -107,7 +107,7 @@ class DynamicBaseUrlHTTPSessionManager {
 			let responseJson = JSON(data: data)
 
 			if let serviceError = RequestError(json: responseJson) {
-				MMLogWarn("""
+                self.logWarn("""
 				Service error while performing request:
 				\(serviceError)
 				""")
@@ -118,15 +118,28 @@ class DynamicBaseUrlHTTPSessionManager {
 		}
 	}
 
-	func handleDynamicBaseUrl(response: URLResponse?, error: NSError?) {
+    func handleDynamicBaseUrl(response: URLResponse?, error: NSError?) {
 		if let error = error, error.mm_isCannotFindHost {
-			storeDynamicBaseUrl(nil)
-			dynamicBaseUrl = originalBaseUrl
+			resetBaseUrl()
 		} else {
 			if let httpResponse = response as? HTTPURLResponse, let newBaseUrlString = httpResponse.allHeaderFields[Consts.DynamicBaseUrlConsts.newBaseUrlHeader] as? String, let newDynamicBaseUrl = URL(string: newBaseUrlString) {
-				storeDynamicBaseUrl(newDynamicBaseUrl)
-				dynamicBaseUrl = newDynamicBaseUrl
+				setNewBaseUrl(newBaseUrl: newDynamicBaseUrl)
 			}
 		}
 	}
+    
+    func resetBaseUrl() {
+        storeDynamicBaseUrl(nil)
+        dynamicBaseUrl = originalBaseUrl
+    }
+    
+    func setNewBaseUrl(newBaseUrl: URL) {
+        if newBaseUrl != dynamicBaseUrl {
+            logDebug("Setting new base URL \(newBaseUrl)")
+            storeDynamicBaseUrl(newBaseUrl)
+            dynamicBaseUrl = newBaseUrl
+        } else {
+            logDebug("Setting new base URL \(newBaseUrl)")
+        }
+    }
 }

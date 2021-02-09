@@ -33,6 +33,10 @@ enum MMResult<ValueType> {
 
 struct EmptyResponse { }
 
+struct BaseUrlResponse {
+    let baseUrl: String
+}
+
 struct GeoEventReportingResponse {
 	let finishedCampaignIds: [String]?
 	let suspendedCampaignIds: [String]?
@@ -61,6 +65,7 @@ typealias CustomEventResult = MMResult<EmptyResponse>
 typealias DepersonalizeResult = MMResult<EmptyResponse>
 typealias MOMessageSendingResult = MMResult<MOMessageSendingResponse>
 typealias LibraryVersionResult = MMResult<LibraryVersionResponse>
+typealias BaseUrlResult = MMResult<BaseUrlResponse>
 typealias GeoEventReportingResult = MMResult<GeoEventReportingResponse>
 typealias FetchUserDataResult = MMResult<User>
 typealias UpdateUserDataResult = MMResult<EmptyResponse>
@@ -134,6 +139,15 @@ extension LibraryVersionResponse: JSONDecodable {
 		self.libraryVersion = libraryVersion
 		self.updateUrl = updateUrl
 	}
+}
+
+extension BaseUrlResponse: JSONDecodable {
+    init?(json value: JSON) {
+        guard let baseUrl = value[Consts.BaseUrlRecovery.baseUrl].rawString() else {
+            return nil
+        }
+        self.baseUrl = baseUrl
+    }
 }
 
 extension MessagesSyncResponse: JSONDecodable{

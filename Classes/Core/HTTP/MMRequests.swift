@@ -10,6 +10,7 @@ enum APIPath: String {
 	case SyncMessages = "/mobile/5/messages"
 	case MOMessage = "/mobile/1/messages/mo"
 	case LibraryVersion = "/mobile/3/version"
+    case BaseURL = "/mobile/1/baseurl"
 	case GeoEventsReports = "/mobile/4/geo/event"
 	case DeliveryReport = "/mobile/1/messages/deliveryreport"
 
@@ -39,6 +40,15 @@ class LibraryVersionRequest: GetRequest {
 		super.init(applicationCode: applicationCode, path: .LibraryVersion, pushRegistrationId: pushRegistrationId, parameters: [Consts.PushRegistration.platform: Consts.APIValues.platformType])
 	}
 }
+
+class BaseUrlRequest: GetRequest {
+    typealias ResponseType = BaseUrlResponse
+
+    init(applicationCode: String) {
+        super.init(applicationCode: applicationCode, path: .BaseURL, baseUrl: URL.init(string: Consts.APIValues.prodDynamicBaseURLString))
+    }
+}
+
 
 class MessagesSyncRequest: PostRequest {
 	typealias ResponseType = MessagesSyncResponse
@@ -167,7 +177,7 @@ typealias RequestBody = [String: Any]
 typealias RequestParameters = [String: Any]
 
 class RequestData {
-	init(applicationCode: String, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
+    init(applicationCode: String, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
 		self.applicationCode = applicationCode
 		self.method = method
 		self.path = path
@@ -175,11 +185,13 @@ class RequestData {
 		self.body = body
 		self.parameters = parameters
 		self.pathParameters = pathParameters
+        self.baseUrl = baseUrl
 	}
 	let applicationCode: String
 	let pushRegistrationId: String?
 	let method: HTTPMethod
 	let path: APIPath
+    let baseUrl: URL?
 
 	var headers: HTTPHeaders? {
 		var headers: HTTPHeaders = [:]
@@ -208,8 +220,8 @@ class RequestData {
 }
 
 class GetRequest: RequestData {
-	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, method: .get, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
+    init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
+		super.init(applicationCode: applicationCode, method: .get, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, baseUrl: baseUrl)
 	}
 }
 

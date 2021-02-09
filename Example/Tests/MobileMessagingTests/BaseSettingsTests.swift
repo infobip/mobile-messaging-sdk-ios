@@ -11,7 +11,6 @@ import XCTest
 class BaseSettingsTests: XCTestCase {
 	func testBaseSettings() {
 		XCTAssertEqual(Consts.APIValues.prodDynamicBaseURLString, "https://mobile.infobip.com")
-		XCTAssertEqual(Consts.APIValues.prodBaseURLString, "https://oneapi2.infobip.com")
 		XCTAssertEqual(Consts.APIValues.platformType, "APNS")
 	}
 }

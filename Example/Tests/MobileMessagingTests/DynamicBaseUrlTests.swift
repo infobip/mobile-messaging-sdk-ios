@@ -23,6 +23,15 @@ class SessionManagerSuccessMock: DynamicBaseUrlHTTPSessionManager {
 
 class DynamicBaseUrlTests: MMTestCase {
 
+    func testThatBaseUrlRequestAlwaysGoesToDefaultUrl() {
+        let initialUrl = URL(string: "https://initial.com")!
+        let baseUrlReques = BaseUrlRequest(applicationCode: "appcode")
+        let sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: "")
+        XCTAssertEqual(sessionManager.originalBaseUrl.absoluteString, "https://initial.com")
+        XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
+        XCTAssertEqual(sessionManager.resolveUrl(baseUrlReques), "https://mobile.infobip.com/mobile/1/baseurl")
+    }
+    
 	func testThatNewBaseUrlIsAppliedForFollowingRequests() {
 		let initialUrl = URL(string: "https://initial.com")!
 		
@@ -48,6 +57,28 @@ class DynamicBaseUrlTests: MMTestCase {
 		XCTAssertEqual(newSessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
 	}
 	
+    func testThatNewBaseUrlIsAppliedWhenReceivedFromBaseUrlEndpint() {
+        // given
+        weak var ex = expectation(description: "expectation")
+        let sessionManager = MobileMessaging.httpSessionManager!
+        let remoteApi = RemoteAPIProviderStub()
+        remoteApi.getBaseUrlClosure = { _ -> BaseUrlResult in
+            return BaseUrlResult.Success(BaseUrlResponse(baseUrl: "https://new.com"))
+        }
+        mobileMessagingInstance.remoteApiProvider = remoteApi
+        
+        // when
+        mobileMessagingInstance.baseUrlManager.checkBaseUrl {
+            ex?.fulfill()
+        }
+        
+        // then
+        self.waitForExpectations(timeout: 10) { _ in
+            XCTAssertEqual(sessionManager.dynamicBaseUrl, URL(string: "https://new.com"))
+        }
+    }
+
+    
 	func testThatWeDoRetryAfterCannotFindHost() {
 		weak var registrationFinishedExpectation = expectation(description: "registration finished")
 		weak var retriesStartedExpectation = expectation(description: "expectationRetriesStarted")

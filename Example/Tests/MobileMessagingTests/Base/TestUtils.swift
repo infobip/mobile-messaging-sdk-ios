@@ -121,6 +121,7 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 		super.init(sessionManager: SessionManagerStubBase())
 	}
 
+    var getBaseUrlClosure: ((String) -> BaseUrlResult)? = nil
 	var sendSeenStatusClosure: ((String, _ pushRegistrationId: String?, _ body: RequestBody) -> SeenStatusSendingResult)? = nil
 	var sendMessagesClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody) -> MOMessageSendingResult)? = nil
 	var syncMessagesClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody) -> MessagesSyncResult)? = nil
@@ -137,6 +138,14 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 	var sendUserSessionClosure: ((String, String, RequestBody) -> UserSessionSendingResult)? = nil
 	var sendCustomEventClosure: ((String, String, Bool, RequestBody) -> CustomEventResult)? = nil
 
+    override func getBaseUrl(applicationCode: String, completion: @escaping (BaseUrlResult) -> Void) {
+        if let getBaseUrlClosure = getBaseUrlClosure {
+            completion(getBaseUrlClosure(applicationCode))
+        } else {
+            super.getBaseUrl(applicationCode: applicationCode, completion: completion)
+        }
+    }
+    
 	override func sendCustomEvent(applicationCode: String, pushRegistrationId: String, validate: Bool, body: RequestBody, completion: @escaping (CustomEventResult) -> Void) {
 		if let sendCustomEventClosure = sendCustomEventClosure {
 			completion(sendCustomEventClosure(applicationCode, pushRegistrationId, validate, body))
