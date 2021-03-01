@@ -106,7 +106,7 @@ class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 
 			let responseJson = JSON(data: data)
 
-			if let serviceError = MMRequestError(json: responseJson) {
+			if let serviceError = RequestError(json: responseJson) {
                 self.logWarn("""
 				Service error while performing request:
 				\(serviceError)

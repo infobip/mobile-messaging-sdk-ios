@@ -19,21 +19,21 @@ class SystemDataTests: MMTestCase {
 			return UpdateInstanceDataResult.Success(EmptyResponse())
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
-		MMGeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
-		MMGeofencingService.sharedInstance!.start({ _ in })
+		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
+		GeofencingService.sharedInstance!.start({ _ in })
 		
 		let geoDisabledSystemDataHash = mobileMessagingInstance.internalData().systemDataHash
 		var geoEnabledSystemDataHash: Int64!
 		
-		MMGeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: mobileMessagingInstance)
-		MMGeofencingService.sharedInstance!.start({ _ in })
+		GeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: mobileMessagingInstance)
+		GeofencingService.sharedInstance!.start({ _ in })
 		
 		self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { (error) in
 			DispatchQueue.main.async {
 				geoEnabledSystemDataHash = self.mobileMessagingInstance.internalData().systemDataHash
 				
-				MMGeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: self.mobileMessagingInstance)
-				MMGeofencingService.sharedInstance!.start({ _ in })
+				GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: self.mobileMessagingInstance)
+				GeofencingService.sharedInstance!.start({ _ in })
 				
 				self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { (error) in
 					requestsCompleted?.fulfill()
@@ -64,7 +64,7 @@ class SystemDataTests: MMTestCase {
 		mobileMessagingInstance.pushRegistrationId = "stub"
 		mobileMessagingInstance.systemDataHash = 0
 		
-		MMGeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
+		GeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
 		MobileMessaging.application = NotificationsEnabledMock() //<<<
 
 		// system data sends notificationsEnabled: true (initial sync because systemDataHash == 0) + 1

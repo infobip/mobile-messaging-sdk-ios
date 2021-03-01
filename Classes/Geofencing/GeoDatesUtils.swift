@@ -7,20 +7,20 @@
 
 import Foundation
 
-extension MMGeofencingService {
+extension GeofencingService {
 	@nonobjc static var currentDate: Date? // @nonobjc is to shut up the "A declaration cannot be both 'final' and 'dynamic'" error
 	
 	static func isGeoCampaignNotExpired(campaign: MMGeoMessage) -> Bool {
-		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
+		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
 		
 		return campaign.campaignState == .Active && now.compare(campaign.expiryTime) == .orderedAscending && campaign.hasValidEventsStateInGeneral
 	}
 	
-	static func isNowAppropriateDay(forDeliveryTime dt: MMDeliveryTime) -> Bool {
+	static func isNowAppropriateDay(forDeliveryTime dt: DeliveryTime) -> Bool {
 		guard let days = dt.days, !days.isEmpty else {
 			return true
 		}
-		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
+		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
 		let calendar = MobileMessaging.calendar
 		let comps = calendar.dateComponents(in: MobileMessaging.timeZone, from: now)
 		if let systemWeekDay = comps.weekday {
@@ -34,16 +34,16 @@ extension MMGeofencingService {
 		return false
 	}
 	
-	static func isNowAppropriateTime(forDeliveryTimeInterval dti: MMDeliveryTimeInterval) -> Bool {
-		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
-		return MMDeliveryTimeInterval.isTime(now, between: dti.fromTime, and: dti.toTime)
+	static func isNowAppropriateTime(forDeliveryTimeInterval dti: DeliveryTimeInterval) -> Bool {
+		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
+		return DeliveryTimeInterval.isTime(now, between: dti.fromTime, and: dti.toTime)
 	}
 	
 	static func isRegionEventValidNow(_ regionEvent: RegionEvent) -> Bool {
-		guard MMGeofencingService.isRegionEventValidInGeneral(regionEvent) else {
+		guard GeofencingService.isRegionEventValidInGeneral(regionEvent) else {
 			return false
 		}
-		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
+		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
 		return regionEvent.lastOccuring?.addingTimeInterval(TimeInterval(regionEvent.timeout * 60)).compare(now) != .orderedDescending
 	}
 	

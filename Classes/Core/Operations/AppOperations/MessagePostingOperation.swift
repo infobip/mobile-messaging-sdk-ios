@@ -12,13 +12,13 @@ class MessagePostingOperation: MMOperation {
 	
 	let context: NSManagedObjectContext
 	let finishBlock: ((MOMessageSendingResult) -> Void)?
-	let messages: Set<MM_MOMessage>?
+	let messages: Set<MOMessage>?
 	let mmContext: MobileMessaging
 	let isUserInitiated: Bool
 	var sentMessageObjectIds = [NSManagedObjectID]()
 	var operationResult = MOMessageSendingResult.Cancel
 	
-	init(messages: [MM_MOMessage]?, isUserInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
+	init(messages: [MOMessage]?, isUserInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
 		self.isUserInitiated = isUserInitiated
 		self.context = context
 		self.finishBlock = finishBlock
@@ -44,7 +44,7 @@ class MessagePostingOperation: MMOperation {
 
 		// if there were explicit messages to send
 		if let messages = self.messages {
-			var messagesToSend: [MM_MOMessage] = []
+			var messagesToSend: [MOMessage] = []
 
 			context.performAndWait {
 				// new messages sending
@@ -73,12 +73,12 @@ class MessagePostingOperation: MMOperation {
 				self.sendMessages(Array(messagesToSend), pushRegistrationId: pushRegistrationId)
 			}
 		} else {
-			var messagesToSend: [MM_MOMessage] = []
+			var messagesToSend: [MOMessage] = []
 			context.performAndWait {
 				// let's send persisted messages (retries)
 				let mmos = MessagePostingOperation.persistedMessages(inContext: self.context)
 				self.sentMessageObjectIds.append(contentsOf: mmos.map({$0.objectID}))
-				messagesToSend = mmos.compactMap({MM_MOMessage.init(messageManagedObject: $0)})
+				messagesToSend = mmos.compactMap({MOMessage.init(messageManagedObject: $0)})
 			}
 			if !messagesToSend.isEmpty {
 				logDebug("posting pending MO messages...")
@@ -91,7 +91,7 @@ class MessagePostingOperation: MMOperation {
 
 	}
 	
-	func sendMessages(_ msgs: [MM_MOMessage], pushRegistrationId: String) {
+	func sendMessages(_ msgs: [MOMessage], pushRegistrationId: String) {
 		UserEventsManager.postWillSendMessageEvent(msgs)
 		let body = MOSendingMapper.requestBody(pushRegistrationId: pushRegistrationId, messages: msgs)
 		self.mmContext.remoteApiProvider.sendMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body) { result in
@@ -102,7 +102,7 @@ class MessagePostingOperation: MMOperation {
 		}
 	}
 	
-	static func findNewMOMessages(among messages: Set<MM_MOMessage>, inContext context: NSManagedObjectContext) -> [MM_MOMessage] {
+	static func findNewMOMessages(among messages: Set<MOMessage>, inContext context: NSManagedObjectContext) -> [MOMessage] {
 		return Set(messages.map(MMMessageMeta.init)).subtracting(MessagePostingOperation.persistedMessageMetas(inContext: context)).compactMap { meta in
 			return messages.first() { msg -> Bool in
 				return msg.messageId == meta.messageId
@@ -118,15 +118,15 @@ class MessagePostingOperation: MMOperation {
 		return ret
 	}
 	
-	static func persistedMoMessages(inContext ctx: NSManagedObjectContext) -> [MM_MOMessage] {
-		return MessagePostingOperation.persistedMessages(inContext: ctx).compactMap(MM_MOMessage.init)
+	static func persistedMoMessages(inContext ctx: NSManagedObjectContext) -> [MOMessage] {
+		return MessagePostingOperation.persistedMessages(inContext: ctx).compactMap(MOMessage.init)
 	}
 	
 	static func persistedMessageMetas(inContext ctx: NSManagedObjectContext) -> [MMMessageMeta] {
 		return MessagePostingOperation.persistedMessages(inContext: ctx).map(MMMessageMeta.init)
 	}
 	
-	private func populateMessageStorageIfNeeded(with messages: [MM_MOMessage], completion: @escaping () -> Void) {
+	private func populateMessageStorageIfNeeded(with messages: [MOMessage], completion: @escaping () -> Void) {
 		guard isUserInitiated else {
 			completion()
 			return
@@ -137,7 +137,7 @@ class MessagePostingOperation: MMOperation {
 		}, completion: completion)
 	}
 	
-	private func updateMessageStorageIfNeeded(with messages: [MM_MOMessage], completion: @escaping () -> Void) {
+	private func updateMessageStorageIfNeeded(with messages: [MOMessage], completion: @escaping () -> Void) {
 		guard !messages.isEmpty, isUserInitiated else {
 			completion()
 			return
@@ -159,7 +159,7 @@ class MessagePostingOperation: MMOperation {
 		}, completion: completion)
 	}
 	
-	private func handleResult(result: MOMessageSendingResult, originalMessagesToSend: Array<MM_MOMessage>, completion: @escaping () -> Void) {
+	private func handleResult(result: MOMessageSendingResult, originalMessagesToSend: Array<MOMessage>, completion: @escaping () -> Void) {
 		switch result {
 		case .Success(let response):
 			context.performAndWait {

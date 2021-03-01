@@ -8,9 +8,9 @@
 import Foundation
 import WebKit
 
-public class MMChatSettings: NSObject {
+public class ChatSettings: NSObject {
 	
-    public static let sharedInstance = MMChatSettings()
+    public static let sharedInstance = ChatSettings()
     
     func postAppearanceChangedNotification() {
 		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "com.mobile-messaging.chat.settings.updated"), object: self)
@@ -76,7 +76,7 @@ class ChatSettingsManager {
 }
 
 //For Plugins
-extension MMChatSettings {
+extension ChatSettings {
     struct Keys {
         static let title = "title"
         static let sendButtonColor = "sendButtonColor"
@@ -86,19 +86,19 @@ extension MMChatSettings {
     }
 
     public func configureWith(rawConfig: [String: AnyObject]) {
-        if let title = rawConfig[MMChatSettings.Keys.title] as? String {
+        if let title = rawConfig[ChatSettings.Keys.title] as? String {
             self.title = title
         }
-        if let sendButtonColor = rawConfig[MMChatSettings.Keys.sendButtonColor] as? String {
+        if let sendButtonColor = rawConfig[ChatSettings.Keys.sendButtonColor] as? String {
             self.sendButtonTintColor = UIColor(hexString: sendButtonColor)
         }
-        if let navigationBarItemsColor = rawConfig[MMChatSettings.Keys.navigationBarItemsColor] as? String {
+        if let navigationBarItemsColor = rawConfig[ChatSettings.Keys.navigationBarItemsColor] as? String {
             self.navBarItemsTintColor = UIColor(hexString: navigationBarItemsColor)
         }
-        if let navigationBarColor = rawConfig[MMChatSettings.Keys.navigationBarColor] as? String {
+        if let navigationBarColor = rawConfig[ChatSettings.Keys.navigationBarColor] as? String {
             self.navBarColor = UIColor(hexString: navigationBarColor)
         }
-        if let navigationBarTitleColor = rawConfig[MMChatSettings.Keys.navigationBarTitleColor] as? String {
+        if let navigationBarTitleColor = rawConfig[ChatSettings.Keys.navigationBarTitleColor] as? String {
             self.navBarTitleColor = UIColor(hexString: navigationBarTitleColor)
         }
     }

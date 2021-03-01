@@ -9,10 +9,10 @@ import Foundation
 import UserNotifications
 
 @objc protocol InAppAlertDelegate {
-	func willDisplay(_ message: MM_MTMessage)
+	func willDisplay(_ message: MTMessage)
 }
 
-public class MMInteractiveMessageAlertSettings: NSObject {
+public class InteractiveMessageAlertSettings: NSObject {
 	public static var errorPlaceholderText: String = "Sorry, couldn't load the image"
 	public static var tintColor = UIColor(red: 0, green: 122, blue: 255, alpha: 1)
 	public static var enabled: Bool = true
@@ -26,7 +26,7 @@ class InteractiveMessageAlertManager: NamedLogger {
 		AlertQueue.sharedInstace.cancelAllAlerts()
 	}
 
-	func showModalNotificationIfNeeded(forMessage message: MM_MTMessage) {
+	func showModalNotificationIfNeeded(forMessage message: MTMessage) {
 		guard let inAppStyle = message.inAppStyle else {
 			return
 		}
@@ -39,7 +39,7 @@ class InteractiveMessageAlertManager: NamedLogger {
 		}
 	}
 
-	func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
+	func showBannerNotificationIfNeeded(forMessage message: MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
 		
 		if let handlingSubservice = MobileMessaging.sharedInstance?.subservices.values.first(where: { $0.handlesInAppNotification(forMessage: message)}) {
 			handlingSubservice.showBannerNotificationIfNeeded(forMessage: message, showBannerWithOptions: showBannerWithOptions)
@@ -59,15 +59,15 @@ class InteractiveMessageAlertManager: NamedLogger {
 		}
 	}
 
-	private func shouldShowInAppNotification(forMessage message: MM_MTMessage) -> Bool {
-		let enabled = MMInteractiveMessageAlertSettings.enabled
+	private func shouldShowInAppNotification(forMessage message: MTMessage) -> Bool {
+		let enabled = InteractiveMessageAlertSettings.enabled
 		let notExpired = !message.isExpired
-		let noActionPerformed = (message.category != nil && message.appliedAction?.identifier == MMNotificationAction.DefaultActionId) || message.appliedAction == nil
+		let noActionPerformed = (message.category != nil && message.appliedAction?.identifier == NotificationAction.DefaultActionId) || message.appliedAction == nil
 		let inAppRequired = message.inAppStyle != nil
         return enabled && notExpired && inAppRequired && noActionPerformed && !message.isGeoSignalingMessage
 	}
 
-	private func showModalNotification(forMessage message: MM_MTMessage, exclusively: Bool) {
+	private func showModalNotification(forMessage message: MTMessage, exclusively: Bool) {
 		guard shouldShowInAppNotification(forMessage: message), let text = message.text else {
 			return
 		}
@@ -80,7 +80,7 @@ class InteractiveMessageAlertManager: NamedLogger {
 		AlertQueue.sharedInstace.enqueueAlert(message: message, text: text)
 	}
 
-	static func presentationOptions(for message: MM_MTMessage?) -> UNNotificationPresentationOptions {
+	static func presentationOptions(for message: MTMessage?) -> UNNotificationPresentationOptions {
 		let ret: UNNotificationPresentationOptions
 
 		if let msg = message, msg.inAppStyle == .Banner {

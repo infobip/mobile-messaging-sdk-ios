@@ -16,7 +16,7 @@ class PrimaryDeviceTests: MMTestCase {
 		XCTAssertTrue(MobileMessaging.getInstallation()!.isPrimaryDevice)
 
 		let installation = MobileMessaging.getInstallation()!
-		XCTAssertNotNil(MMInstallation.delta!["isPrimaryDevice"])
+		XCTAssertNotNil(Installation.delta!["isPrimaryDevice"])
 		XCTAssertTrue(installation.isPrimaryDevice)
 	}
 	
@@ -39,7 +39,7 @@ class PrimaryDeviceTests: MMTestCase {
 
 		waitForExpectations(timeout: 20, handler: { _ in
 			let installation = MobileMessaging.getInstallation()!
-			XCTAssertNil(MMInstallation.delta?["isPrimaryDevice"])
+			XCTAssertNil(Installation.delta?["isPrimaryDevice"])
 			XCTAssertTrue(installation.isPrimaryDevice)
 		})
 	}
@@ -60,7 +60,7 @@ class PrimaryDeviceTests: MMTestCase {
 
 		waitForExpectations(timeout: 20, handler: { _ in
 			let installation = MobileMessaging.getInstallation()!
-			XCTAssertNil(MMInstallation.delta?["isPrimaryDevice"])
+			XCTAssertNil(Installation.delta?["isPrimaryDevice"])
 			XCTAssertFalse(installation.isPrimaryDevice)
 		})
 	}

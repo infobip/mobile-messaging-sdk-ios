@@ -8,27 +8,27 @@
 import UserNotifications
 
 @objcMembers
-public final class MMNotificationCategory: NSObject {
-	///The category identifier passed in a `MM_MTMessage` object
+public final class NotificationCategory: NSObject {
+	///The category identifier passed in a `MTMessage` object
 	public let identifier: String
 	
 	///Actions in the order to be displayed for available contexts.
 	/// - remark: If there are more than four action objects in the array, the notification displays only the first four. When displaying banner notifications, the system displays only the first two actions.
-	public let actions: [MMNotificationAction]
+	public let actions: [NotificationAction]
 	
 	///Options indicating how to handle notifications associated with category.
-	public let options: [MMNotificationCategoryOptions]
+	public let options: [NotificationCategoryOptions]
 	
 	///The intent identifier strings, which defined in Intents framework, that you want to associate with notifications of this category.
 	/// - remark: Intent identifier may be useful for SiriKit support.
 	public let intentIdentifiers: [String]
 	
-	///Initializes the `MMNotificationCategory`
+	///Initializes the `NotificationCategory`
 	/// - parameter identifier: category identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
 	/// - parameter actions: Actions in the order to be displayed for available contexts.
 	/// - parameter options: Options indicating how to handle notifications associated with category. Supported only for iOS 10+.
 	/// - parameter intentIdentifiers: The intent identifier strings, which defined in Intents framework, that you want to associate with notifications of this category. Supported only for iOS 10+.
-	public init?(identifier: String, actions: [MMNotificationAction], options: [MMNotificationCategoryOptions]?, intentIdentifiers: [String]?) {
+	public init?(identifier: String, actions: [NotificationAction], options: [NotificationCategoryOptions]?, intentIdentifiers: [String]?) {
 		guard !identifier.hasPrefix(NotificationCategoryConstants.categoryNamePrefix) else {
 			return nil
 		}
@@ -39,7 +39,7 @@ public final class MMNotificationCategory: NSObject {
 	}
 	
 	public init?(dictionary: [String: Any]) {
-		guard let actions = (dictionary[NotificationCategoryConstants.actions] as? [[String: Any]])?.compactMap(MMNotificationAction.makeAction), !actions.isEmpty, let identifier = dictionary[NotificationCategoryConstants.identifier] as? String else
+		guard let actions = (dictionary[NotificationCategoryConstants.actions] as? [[String: Any]])?.compactMap(NotificationAction.makeAction), !actions.isEmpty, let identifier = dictionary[NotificationCategoryConstants.identifier] as? String else
 		{
 			return nil
 		}
@@ -63,7 +63,7 @@ public final class MMNotificationCategory: NSObject {
 	}
 	
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let obj = object as? MMNotificationCategory else {
+		guard let obj = object as? NotificationCategory else {
 			return false
 		}
 		return identifier == obj.identifier
@@ -71,29 +71,29 @@ public final class MMNotificationCategory: NSObject {
 }
 
 @objcMembers
-public final class MMNotificationCategoryOptions : NSObject {
+public final class NotificationCategoryOptions : NSObject {
 	let rawValue: Int
 	
 	init(rawValue: Int) {
 		self.rawValue = rawValue
 	}
 	
-	public init(options: [MMNotificationCategoryOptions]) {
+	public init(options: [NotificationCategoryOptions]) {
 		self.rawValue = options.reduce(0) { (total, option) -> Int in
 			return total | option.rawValue
 		}
 	}
 	
-	public func contains(options: MMNotificationCategoryOptions) -> Bool {
+	public func contains(options: NotificationCategoryOptions) -> Bool {
 		return rawValue & options.rawValue != 0
 	}
 		
 	// Whether notifications of this category should be allowed in CarPlay
 	/// - remark: This option is available only for iOS 10+
-	public static let allowInCarPlay = MMNotificationCategoryOptions(rawValue: 1 << 0)
+	public static let allowInCarPlay = NotificationCategoryOptions(rawValue: 1 << 0)
 }
 
-extension Set where Element: MMNotificationCategory {
+extension Set where Element: NotificationCategory {
 	var unNotificationCategories: Set<UNNotificationCategory>? {
 		return Set<UNNotificationCategory>(self.map{ $0.unUserNotificationCategory })
 	}
@@ -102,9 +102,9 @@ extension Set where Element: MMNotificationCategory {
 struct NotificationCategories {
 	static let path: String? = MobileMessaging.bundle.path(forResource: NotificationCategoryConstants.plistName, ofType: "plist")
 
-    static var predefinedCategories: Set<MMNotificationCategory>? {
+    static var predefinedCategories: Set<NotificationCategory>? {
 		if let path = path, let categories = NSArray(contentsOfFile: path) as? [[String: Any]] {
-			return Set(categories.compactMap(MMNotificationCategory.init))
+			return Set(categories.compactMap(NotificationCategory.init))
 		} else {
 			return nil
 		}

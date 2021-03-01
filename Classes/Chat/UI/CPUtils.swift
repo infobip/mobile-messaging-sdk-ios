@@ -8,7 +8,7 @@ import UIKit
 import CoreData
 
 
-public enum MMMessageDeliveryStatus: Int32 {
+public enum CPMessageDeliveryStatus: Int32 {
 	case pendingSending = 0, pendingFileUploading, sent, delivered, failed
 	
 	public var name: String {
@@ -27,15 +27,15 @@ public enum MMMessageDeliveryStatus: Int32 {
 	}
 }
 
-extension MM_MOMessageSentStatus {
-	var deliveryStatus: MMMessageDeliveryStatus {
+extension MOMessageSentStatus {
+	var deliveryStatus: CPMessageDeliveryStatus {
 		switch self {
 		case .SentSuccessfully:
-			return MMMessageDeliveryStatus.sent
+			return CPMessageDeliveryStatus.sent
 		case .SentWithFailure:
-			return MMMessageDeliveryStatus.failed
+			return CPMessageDeliveryStatus.failed
 		case .Undefined:
-			return MMMessageDeliveryStatus.pendingSending
+			return CPMessageDeliveryStatus.pendingSending
 		}
 	}
 }

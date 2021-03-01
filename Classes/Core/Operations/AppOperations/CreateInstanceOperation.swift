@@ -10,13 +10,13 @@ import Foundation
 class CreateInstanceOperation : MMOperation {
 	
 	let mmContext: MobileMessaging
-	let currentInstallation: MMInstallation
-	let dirtyInstallation: MMInstallation
+	let currentInstallation: Installation
+	let dirtyInstallation: Installation
 	let finishBlock: ((NSError?) -> Void)
 	let requireResponse: Bool
 	var body: [String: Any]
 
-	init?(currentInstallation: MMInstallation, dirtyInstallation: MMInstallation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
+	init?(currentInstallation: Installation, dirtyInstallation: Installation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse

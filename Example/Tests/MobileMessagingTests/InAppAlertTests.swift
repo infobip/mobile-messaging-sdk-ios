@@ -13,7 +13,7 @@ import Foundation
 
 class AlertsDelegate: InAppAlertDelegate {
 	var displayed: Bool = false
-	func willDisplay(_ message: MM_MTMessage) {
+	func willDisplay(_ message: MTMessage) {
 		displayed = true
 	}
 }

@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-@objcMembers public class MMBaseEvent: NSObject {
+@objcMembers public class BaseEvent: NSObject {
 	/**
 	Event ID that is generated on the Portal for your custom Event Definition.
 	*/
@@ -21,18 +21,18 @@ import CoreData
 /**
 CustomEvent class represents Custom event. Events allow you to track arbitrary user actions and collect arbitrary contextual information represented by event key-value properties.
 */
-@objcMembers public class MMCustomEvent: MMBaseEvent {
+@objcMembers public class CustomEvent: BaseEvent {
 	/**
 	Arbitrary contextual data of the custom event.
 	*/
-	public let properties: [String: MMEventPropertyType]?
+	public let properties: [String: EventPropertyType]?
 
 	/**
 	Initializes a custom event.
 	- parameter definitionId: Event ID that is generated on the Portal for your custom Event Definition.
 	- parameter properties: Arbitrary contextual data of the custom event.
 	*/
-	public init(definitionId: String, properties: [String: MMEventPropertyType]?) {
+	public init(definitionId: String, properties: [String: EventPropertyType]?) {
 		self.properties = properties
 		super.init(definitionId: definitionId)
 	}
@@ -59,7 +59,7 @@ class EventsService: MobileMessagingService {
 		super.init(mmContext: mmContext, uniqueIdentifier: "EventsService")
 	}
 
-	func submitEvent(customEvent: MMCustomEvent, reportImmediately: Bool, completion: @escaping (NSError?) -> Void) {
+	func submitEvent(customEvent: CustomEvent, reportImmediately: Bool, completion: @escaping (NSError?) -> Void) {
 		guard let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			completion(NSError(type: .NoRegistration))
 			return
@@ -77,7 +77,7 @@ class EventsService: MobileMessagingService {
 		scheduleReport(completion: { _ in })
 	}
 
-	private func persistEvent(_ customEvent: MMCustomEvent, _ pushRegistrationId: String, completion: @escaping () -> Void) {
+	private func persistEvent(_ customEvent: CustomEvent, _ pushRegistrationId: String, completion: @escaping () -> Void) {
 		eventPersistingQueue.addOperation(EventPersistingOperation(customEvent: customEvent, mmContext: mmContext, pushRegId: pushRegistrationId, context: context, finishBlock: { _ in completion() }))
 	}
 

@@ -63,13 +63,13 @@ class MMMessageHandler: MobileMessagingService {
 	}
 
     //MARK: Intenal	
-	func handleAPNSMessage(_ userInfo: MMAPNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
+	func handleAPNSMessage(_ userInfo: APNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true else {
 			completion(.noData)
 			return
 		}
 
-		if let msg = MM_MTMessage(payload: userInfo,
+		if let msg = MTMessage(payload: userInfo,
 							   deliveryMethod: .push,
 							   seenDate: nil,
 							   deliveryReportDate: nil,
@@ -83,11 +83,11 @@ class MMMessageHandler: MobileMessagingService {
 		}
 	}
 	
-	func handleMTMessage(_ message: MM_MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
+	func handleMTMessage(_ message: MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
 		handleMTMessages([message], notificationTapped: notificationTapped, handlingIteration: handlingIteration, completion: completion)
 	}
 	
-	func handleMTMessages(_ messages: [MM_MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
+	func handleMTMessages(_ messages: [MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true, !messages.isEmpty else {
 			completion(.noData)
 			return
@@ -172,7 +172,7 @@ class MMMessageHandler: MobileMessagingService {
 		messageSyncQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
 	}
 	
-	func updateOriginalPayloadsWithMessages(messages: [MessageId: MM_MTMessage], completion: (() -> Void)?) {
+	func updateOriginalPayloadsWithMessages(messages: [MessageId: MTMessage], completion: (() -> Void)?) {
 		guard !messages.isEmpty else
 		{
 			completion?()
@@ -205,7 +205,7 @@ class MMMessageHandler: MobileMessagingService {
 		messageHandlingQueue.addOperation({
 			let ctx = self.storage.newPrivateContext()
 			ctx.performAndWait {
-				MessageManagedObject.MM_batchUpdate(propertiesToUpdate: ["campaignStateValue": MMCampaignState.Finished.rawValue], predicate: NSPredicate(format: "campaignId IN %@", finishedCampaignIds), inContext: ctx)
+				MessageManagedObject.MM_batchUpdate(propertiesToUpdate: ["campaignStateValue": CampaignState.Finished.rawValue], predicate: NSPredicate(format: "campaignId IN %@", finishedCampaignIds), inContext: ctx)
 			}
 			ctx.MM_saveToPersistentStoreAndWait()
 			completion?()
@@ -236,7 +236,7 @@ class MMMessageHandler: MobileMessagingService {
 		})
 	}
 	
-	func sendMessages(_ messages: [MM_MOMessage], isUserInitiated: Bool, completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
+	func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: @escaping ([MOMessage]?, NSError?) -> Void) {
 		messageSendingQueue.addOperation(MessagePostingOperation(messages: messages,
 		                                                         isUserInitiated: isUserInitiated,
 		                                                         context: storage.newPrivateContext(),
@@ -262,7 +262,7 @@ class MMMessageHandler: MobileMessagingService {
 		}
 	}
 
-	override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool {
+	override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
 		guard !originalMessage.isGeoSignalingMessage else {
 			logDebug("cannot populate message \(message.messageId)")
 			return false

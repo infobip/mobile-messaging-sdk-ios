@@ -7,7 +7,7 @@
 import UserNotifications
 
 @objcMembers
-public class MMNotificationAction: NSObject {
+public class NotificationAction: NSObject {
 	
 	public static var DismissActionId: String {
 		return UNNotificationDismissActionIdentifier
@@ -19,46 +19,46 @@ public class MMNotificationAction: NSObject {
 	
 	public let identifier: String
 	public let title: String
-	public let options: [MMNotificationActionOptions]
+	public let options: [NotificationActionOptions]
     public var isTapOnNotificationAlert: Bool {
-        return identifier == MMNotificationAction.DefaultActionId
+        return identifier == NotificationAction.DefaultActionId
     }
 	
-	class func makeAction(dictionary: [String: Any]) -> MMNotificationAction? {
+	class func makeAction(dictionary: [String: Any]) -> NotificationAction? {
 		if let _ = dictionary[Consts.Interaction.ActionKeys.textInputActionButtonTitle] as? String, let _ = dictionary[Consts.Interaction.ActionKeys.textInputPlaceholder] as? String {
-			return MMTextInputNotificationAction(dictionary: dictionary)
+			return TextInputNotificationAction(dictionary: dictionary)
 		} else {
-			return MMNotificationAction(dictionary: dictionary)
+			return NotificationAction(dictionary: dictionary)
 		}
 	}
 	
-	/// Initializes the `MMNotificationAction`
+	/// Initializes the `NotificationAction`
 	/// - parameter identifier: action identifier. "mm_" prefix is reserved for Mobile Messaging ids and cannot be used as a prefix.
 	/// - parameter title: Title of the button which will be displayed.
 	/// - parameter options: Options with which to perform the action.
-	convenience public init?(identifier: String, title: String, options: [MMNotificationActionOptions]?) {
+	convenience public init?(identifier: String, title: String, options: [NotificationActionOptions]?) {
 		guard !identifier.hasPrefix(Consts.Interaction.ActionKeys.mm_prefix) else {
 			return nil
 		}
 		self.init(actionIdentifier: identifier, title: title, options: options)
 	}
 	
-	init(actionIdentifier: String, title: String, options: [MMNotificationActionOptions]?) {
+	init(actionIdentifier: String, title: String, options: [NotificationActionOptions]?) {
 		self.identifier = actionIdentifier
 		self.title = title
 		self.options = options ?? []
 	}
 	
-	class func dismissAction(title: String = MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel")) -> MMNotificationAction {
-		return MMNotificationAction(actionIdentifier: DismissActionId, title: title, options: nil)
+	class func dismissAction(title: String = MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel")) -> NotificationAction {
+		return NotificationAction(actionIdentifier: DismissActionId, title: title, options: nil)
 	}
 	
-	class func openAction(title: String = MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open")) -> MMNotificationAction {
-		return MMNotificationAction(actionIdentifier: DefaultActionId, title: title, options: [MMNotificationActionOptions.foreground])
+	class func openAction(title: String = MMLocalization.localizedString(forKey: "mm_button_open", defaultString: "Open")) -> NotificationAction {
+		return NotificationAction(actionIdentifier: DefaultActionId, title: title, options: [NotificationActionOptions.foreground])
 	}
     
-    class var defaultAction: MMNotificationAction {
-        return MMNotificationAction(actionIdentifier: DefaultActionId, title: "", options: nil)
+    class var defaultAction: NotificationAction {
+        return NotificationAction(actionIdentifier: DefaultActionId, title: "", options: nil)
     }
 	
 	var unUserNotificationAction: UNNotificationAction {
@@ -80,7 +80,7 @@ public class MMNotificationAction: NSObject {
 	}
 	
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let object = object as? MMNotificationAction else {
+		guard let object = object as? NotificationAction else {
 			return false
 		}
 		return identifier == object.identifier
@@ -93,7 +93,7 @@ public class MMNotificationAction: NSObject {
 			return nil
 		}
 		
-		var opts = [MMNotificationActionOptions]()
+		var opts = [NotificationActionOptions]()
 		if let isForeground = dictionary[Consts.Interaction.ActionKeys.foreground] as? Bool, isForeground {
 			opts.append(.foreground)
 		}
@@ -115,7 +115,7 @@ public class MMNotificationAction: NSObject {
 }
 
 /// Allows text input from the user
-public final class MMTextInputNotificationAction: MMNotificationAction {
+public final class TextInputNotificationAction: NotificationAction {
     public let textInputActionButtonTitle: String
     public let textInputPlaceholder: String
     
@@ -128,7 +128,7 @@ public final class MMTextInputNotificationAction: MMNotificationAction {
     /// - parameter options: Options with which to perform the action.
     /// - parameter textInputActionButtonTitle: Title of the text input action button
     /// - parameter textInputPlaceholder: Placeholder in the text input field.
-	public init?(identifier: String, title: String, options: [MMNotificationActionOptions]?, textInputActionButtonTitle: String, textInputPlaceholder: String) {
+	public init?(identifier: String, title: String, options: [NotificationActionOptions]?, textInputActionButtonTitle: String, textInputPlaceholder: String) {
         guard !identifier.hasPrefix(Consts.Interaction.ActionKeys.mm_prefix) else {
             return nil
         }
@@ -166,14 +166,14 @@ public final class MMTextInputNotificationAction: MMNotificationAction {
 }
 
 @objcMembers
-public final class MMNotificationActionOptions : NSObject {
+public final class NotificationActionOptions : NSObject {
 	let rawValue: Int
     
 	init(rawValue: Int) {
         self.rawValue = rawValue
     }
     
-	public init(options: [MMNotificationActionOptions]) {
+	public init(options: [NotificationActionOptions]) {
         self.rawValue = options.reduce(0) { (total, option) -> Int in
             return total | option.rawValue
         }
@@ -184,18 +184,18 @@ public final class MMNotificationActionOptions : NSObject {
 	}
 	
 	/// Causes the launch of the application.
-	public static let foreground = MMNotificationActionOptions(rawValue: 0)
+	public static let foreground = NotificationActionOptions(rawValue: 0)
 	
 	/// Marks the action button as destructive.
-	public static let destructive = MMNotificationActionOptions(rawValue: 1 << 0)
+	public static let destructive = NotificationActionOptions(rawValue: 1 << 0)
 	
 	/// Requires the device to be unlocked.
 	/// - remark: If the action options contains `.foreground`, then the action is considered as requiring authentication automatically.
-	public static let authenticationRequired = MMNotificationActionOptions(rawValue: 1 << 1)
+	public static let authenticationRequired = NotificationActionOptions(rawValue: 1 << 1)
 	
 	/// Indicates whether the SDK must generate MO message to report on users interaction.
-	public static let moRequired = MMNotificationActionOptions(rawValue: 1 << 2)
+	public static let moRequired = NotificationActionOptions(rawValue: 1 << 2)
 	
 	/// Indicates whether action is compatible with chat messages. If it is compatible, the action button will be shown in the SDK buil-in chat view.
-	public static let chatCompatible = MMNotificationActionOptions(rawValue: 1 << 3)
+	public static let chatCompatible = NotificationActionOptions(rawValue: 1 << 3)
 }

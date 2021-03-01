@@ -10,11 +10,11 @@ import Foundation
 class FetchUserOperation: MMOperation {
 	
 	let mmContext: MobileMessaging
-	let user: MMUser
+	let user: User
 	let dirtyUserVersion: Int
 	let finishBlock: ((NSError?) -> Void)
 
-	init(currentUser: MMUser, dirtyUser: MMUser?, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
+	init(currentUser: User, dirtyUser: User?, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.user = currentUser
 		self.dirtyUserVersion = dirtyUser?.version ?? 0
 		self.mmContext = mmContext

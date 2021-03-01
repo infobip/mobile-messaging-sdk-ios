@@ -10,13 +10,13 @@ import MobileMessaging
 
 protocol DeeplinkLandingViewController {
 	static var deeplinkIdentifier: String { get }
-	func handle(message: MM_MTMessage)
+	func handle(message: MTMessage)
 }
 
 class RedViewController: ViewControllerWithToolbar, DeeplinkLandingViewController, LabelPresentor {
 	static let deeplinkIdentifier = "redScreen"
 	
-	func handle(message: MM_MTMessage) {
+	func handle(message: MTMessage) {
 		showLabel(withText: message.text)
 	}
 	
@@ -30,7 +30,7 @@ class RedViewController: ViewControllerWithToolbar, DeeplinkLandingViewControlle
 class GreenViewController: ViewControllerWithToolbar, DeeplinkLandingViewController, LabelPresentor {
 	static let deeplinkIdentifier = "greenScreen"
 	
-	func handle(message: MM_MTMessage) {
+	func handle(message: MTMessage) {
 		showLabel(withText: message.text)
 	}
 	
@@ -44,7 +44,7 @@ class GreenViewController: ViewControllerWithToolbar, DeeplinkLandingViewControl
 class BlueViewController: ViewControllerWithToolbar, DeeplinkLandingViewController, LabelPresentor {
 	static let deeplinkIdentifier = "blueScreen"
 	
-	func handle(message: MM_MTMessage) {
+	func handle(message: MTMessage) {
 		showLabel(withText: message.text)
 	}
 	

@@ -35,32 +35,32 @@ class ApnsRegistrationManagerStub: ApnsRegistrationManager {
 	}
 }
 
-class MessageHandlingDelegateMock : MMMessageHandlingDelegate {
-    var didReceiveNewMessageHandler: ((MM_MTMessage) -> Void)?
-    var willPresentInForegroundHandler: ((MM_MTMessage?) -> MMUserNotificationType)?
-    var canPresentInForeground: ((MM_MTMessage) -> Void)?
-    var didPerformActionHandler: ((MMNotificationAction, MM_MTMessage?, () -> Void) -> Void)?
-    var didReceiveNewMessageInForegroundHandler: ((MM_MTMessage) -> Void)?
-    var willScheduleLocalNotification: ((MM_MTMessage) -> Void)?
+class MessageHandlingDelegateMock : MessageHandlingDelegate {
+    var didReceiveNewMessageHandler: ((MTMessage) -> Void)?
+    var willPresentInForegroundHandler: ((MTMessage?) -> UserNotificationType)?
+    var canPresentInForeground: ((MTMessage) -> Void)?
+    var didPerformActionHandler: ((NotificationAction, MTMessage?, () -> Void) -> Void)?
+    var didReceiveNewMessageInForegroundHandler: ((MTMessage) -> Void)?
+    var willScheduleLocalNotification: ((MTMessage) -> Void)?
 
     
-    func willScheduleLocalNotification(for message: MM_MTMessage) {
+    func willScheduleLocalNotification(for message: MTMessage) {
         willScheduleLocalNotification?(message)
     }
     
-    func didReceiveNewMessage(message: MM_MTMessage) {
+    func didReceiveNewMessage(message: MTMessage) {
         didReceiveNewMessageHandler?(message)
     }
 
-    func willPresentInForeground(message: MM_MTMessage?, withCompletionHandler completionHandler: @escaping (MMUserNotificationType) -> Void) {
-        completionHandler(willPresentInForegroundHandler?(message) ?? MMUserNotificationType.none)
+    func willPresentInForeground(message: MTMessage?, withCompletionHandler completionHandler: @escaping (UserNotificationType) -> Void) {
+        completionHandler(willPresentInForegroundHandler?(message) ?? UserNotificationType.none)
     }
     
-    func canPresentInForeground(message: MM_MTMessage) {
+    func canPresentInForeground(message: MTMessage) {
         canPresentInForeground?(message)
     }
     
-    func didPerform(action: MMNotificationAction, forMessage message: MM_MTMessage?, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void) {
+    func didPerform(action: NotificationAction, forMessage message: MTMessage?, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void) {
         didPerformActionHandler?(action, message, completion)
         completion()
     }
@@ -81,7 +81,7 @@ func apnsNormalMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 func sendPushes(_ preparingFunc:(String) -> [AnyHashable: Any], count: Int, receivingHandler: ([AnyHashable: Any]) -> Void) {
     for _ in 0..<count {
         let newMessageId = UUID().uuidString
-        if let payload = MM_MTMessage(payload: preparingFunc(newMessageId), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)?.originalPayload {
+        if let payload = MTMessage(payload: preparingFunc(newMessageId), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)?.originalPayload {
             receivingHandler(payload)
         } else {
             XCTFail()
@@ -129,7 +129,7 @@ class InactiveApplicationStub: MMApplication {
 	var notificationEnabled: Bool { return true }
 }
 
-class UserAgentStub: MMUserAgent {
+class UserAgentStub: UserAgent {
 	override var language: String {return "en"}
 	override var notificationsEnabled: Bool {return true}
 	override var osVersion: String {return "1.0"}
@@ -172,11 +172,11 @@ class MMTestCase: XCTestCase {
     override func tearDown() {
         super.tearDown()
 		MMTestCase.cleanUpAndStop()
-		MobileMessaging.privacySettings = MMPrivacySettings()
-		MMGeofencingService.currentDate = nil
+		MobileMessaging.privacySettings = PrivacySettings()
+		GeofencingService.currentDate = nil
 		MobileMessaging.timeZone = TimeZone.current
 		MobileMessaging.calendar = Calendar.current
-		MobileMessaging.userAgent = MMUserAgent()
+		MobileMessaging.userAgent = UserAgent()
 	}
     
     class func nonReportedStoredMessagesCount(_ ctx: NSManagedObjectContext) -> Int {
@@ -203,7 +203,7 @@ class MMTestCase: XCTestCase {
 	}
 	
 	class func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
-		let mm = MobileMessaging.withApplicationCode(code, notificationType: MMUserNotificationType(options: []) , backendBaseURL: "http://url.com")!
+		let mm = MobileMessaging.withApplicationCode(code, notificationType: UserNotificationType(options: []) , backendBaseURL: "http://url.com")!
 		mm.setupApiSessionManagerStubbed()
 		MobileMessaging.application = ActiveApplicationStub()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
@@ -223,7 +223,7 @@ class MMTestCase: XCTestCase {
 	}
 }
 
-class MessageStorageStub: NSObject, MMMessageStorage, MMMessageStorageFinders, MMMessageStorageRemovers {
+class MessageStorageStub: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
 	func findNonSeenMessageIds(completion: @escaping (([String]) -> Void)) {
 		completion([])
 	}
@@ -247,7 +247,7 @@ class MessageStorageStub: NSObject, MMMessageStorage, MMMessageStorageFinders, M
 
 	}
 
-	func remove(withQuery query: MMQuery, completion: @escaping ([MessageId]) -> Void) {
+	func remove(withQuery query: Query, completion: @escaping ([MessageId]) -> Void) {
 
 	}
 
@@ -259,36 +259,36 @@ class MessageStorageStub: NSObject, MMMessageStorage, MMMessageStorageFinders, M
 		completion((mtMessages + moMessages).filter({ messageIds.contains($0.messageId) }))
 	}
 
-	func findMessages(withQuery query: MMQuery, completion: @escaping FetchResultBlock) {
+	func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock) {
 		completion((mtMessages + moMessages).filter({ query.predicate?.evaluate(with: $0) ?? true }))
 	}
 
-	let updateMessageSentStatusHook: ((MM_MOMessageSentStatus) -> Void)?
+	let updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)?
 
-	init(updateMessageSentStatusHook: ((MM_MOMessageSentStatus) -> Void)? = nil) {
+	init(updateMessageSentStatusHook: ((MOMessageSentStatus) -> Void)? = nil) {
 		self.updateMessageSentStatusHook = updateMessageSentStatusHook
 	}
 
 	var queue: DispatchQueue {
 		return DispatchQueue.main
 	}
-	var mtMessages = [MMBaseMessage]()
-	var moMessages = [MMBaseMessage]()
-	func insert(incoming messages: [MMBaseMessage], completion: @escaping () -> Void) {
+	var mtMessages = [BaseMessage]()
+	var moMessages = [BaseMessage]()
+	func insert(incoming messages: [BaseMessage], completion: @escaping () -> Void) {
 		messages.forEach { (message) in
 			self.mtMessages.append(message)
 		}
 		completion()
 	}
-	func insert(outgoing messages: [MMBaseMessage], completion: @escaping () -> Void) {
+	func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void) {
 		messages.forEach { (message) in
 			self.moMessages.append(message)
 		}
 		completion()
 	}
-	func findMessage(withId messageId: MessageId) -> MMBaseMessage? {
+	func findMessage(withId messageId: MessageId) -> BaseMessage? {
 		if let idx = moMessages.index(where: { $0.messageId == messageId }) {
-			return MMBaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId], deliveryMethod: .undefined)
+			return BaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId], deliveryMethod: .undefined)
 		} else {
 			return nil
 		}
@@ -299,7 +299,7 @@ class MessageStorageStub: NSObject, MMMessageStorage, MMMessageStorageFinders, M
 	func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId, completion: @escaping () -> Void) {
 		completion()
 	}
-	func update(messageSentStatus status: MM_MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
+	func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
 		updateMessageSentStatusHook?(status)
 		completion()
 	}

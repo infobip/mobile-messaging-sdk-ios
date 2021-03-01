@@ -16,7 +16,7 @@ let successfulDepersonalizeApiMock = { () -> RemoteAPIProviderStub in
 	}
 
 	ret.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
-		return PersonalizeResult.Success(MMUser(json: JSON.parse(""))!)
+		return PersonalizeResult.Success(User(json: JSON.parse(""))!)
 	}
 	ret.syncMessagesClosure = { _, _, _ -> MessagesSyncResult in
 		return MessagesSyncResult.Failure(retryableError)
@@ -59,16 +59,16 @@ class DepersonalizeTests: MMTestCase {
 		}
 		
 		let geServiceStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance, locationManagerStub: LocationManagerStub())
-		MMGeofencingService.sharedInstance = geServiceStub
-		MMGeofencingService.sharedInstance!.start({ _ in })
+		GeofencingService.sharedInstance = geServiceStub
+		GeofencingService.sharedInstance!.start({ _ in })
 		
 		mobileMessagingInstance.didReceiveRemoteNotification(payload) { _ in
-			let validEntryRegions = MMGeofencingService.sharedInstance?.datasource.validRegionsForEntryEventNow(with: pulaId)
+			let validEntryRegions = GeofencingService.sharedInstance?.datasource.validRegionsForEntryEventNow(with: pulaId)
 			XCTAssertEqual(validEntryRegions?.count, 1)
 			XCTAssertEqual(validEntryRegions?.first?.dataSourceIdentifier, message.regions.first?.dataSourceIdentifier)
 		
 			MobileMessaging.depersonalize() { status, _ in
-				XCTAssertTrue(status == MMSuccessPending.undefined)
+				XCTAssertTrue(status == SuccessPending.undefined)
 				depersonalizeFinished?.fulfill()
 			}
 		}
@@ -80,7 +80,7 @@ class DepersonalizeTests: MMTestCase {
 			}
 			
 			// assert there is no more monitored regions
-			XCTAssertTrue(MMGeofencingService.sharedInstance?.locationManager.monitoredRegions.isEmpty ?? false)
+			XCTAssertTrue(GeofencingService.sharedInstance?.locationManager.monitoredRegions.isEmpty ?? false)
 		}
 	}
 	
@@ -97,7 +97,7 @@ class DepersonalizeTests: MMTestCase {
 		XCTAssertEqual(MobileMessaging.getUser()!.customAttributes!["bootsize"] as? NSNumber, 9.5)
 		
 		MobileMessaging.depersonalize() { status, _ in
-			XCTAssertTrue(status == MMSuccessPending.undefined)
+			XCTAssertTrue(status == SuccessPending.undefined)
 			depersonalizeFinished?.fulfill()
 		}
 		
@@ -138,7 +138,7 @@ class DepersonalizeTests: MMTestCase {
 		}
 		
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(MMSuccessPending.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
+			XCTAssertEqual(SuccessPending.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			// assert there is not any message in message storage
 			let messages = Message.MM_findAllWithPredicate(nil, context: MobileMessaging.defaultMessageStorage!.context!)
 			XCTAssertTrue(messages == nil || messages?.isEmpty ?? true)
@@ -323,7 +323,7 @@ class DepersonalizeTests: MMTestCase {
 	private func performFailedDepersonalizeCase(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider = failedDepersonalizeApiMock
 		MobileMessaging.depersonalize() { s, e in
-			XCTAssertEqual(MMSuccessPending.pending, s)
+			XCTAssertEqual(SuccessPending.pending, s)
 			XCTAssertNotNil(e)
 			then?()
 		}
@@ -332,7 +332,7 @@ class DepersonalizeTests: MMTestCase {
 	private func performFailedDepersonalizeCaseWithOverlimit(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider = failedDepersonalizeApiMock
 		MobileMessaging.depersonalize() { s, e in
-			XCTAssertEqual(MMSuccessPending.undefined, s)
+			XCTAssertEqual(SuccessPending.undefined, s)
 			XCTAssertNotNil(e)
 			then?()
 		}
@@ -341,7 +341,7 @@ class DepersonalizeTests: MMTestCase {
 	private func performSuccessfullDepersonalizeCase(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 		MobileMessaging.depersonalize() { s, e in
-			XCTAssertEqual(MMSuccessPending.success, s)
+			XCTAssertEqual(SuccessPending.success, s)
 			XCTAssertNil(e)
 			then?()
 		}

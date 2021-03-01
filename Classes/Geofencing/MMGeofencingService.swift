@@ -11,29 +11,29 @@ extension MobileMessaging {
 	/// This service manages geofencing areas, emits geografical regions entering/exiting notifications.
 	///
 	/// You access the Geofencing service APIs through this property.
-	public class var geofencingService: MMGeofencingService? {
-		if MMGeofencingService.sharedInstance == nil {
+	public class var geofencingService: GeofencingService? {
+		if GeofencingService.sharedInstance == nil {
 			guard let defaultContext = MobileMessaging.sharedInstance else {
 				return nil
 			}
-			MMGeofencingService.sharedInstance = MMGeofencingService(mmContext: defaultContext)
+			GeofencingService.sharedInstance = GeofencingService(mmContext: defaultContext)
 		}
-		return MMGeofencingService.sharedInstance
+		return GeofencingService.sharedInstance
 	}
 	
 	/// Fabric method for Mobile Messaging session.
 	/// Use this method to enable the Geofencing service.
 	public func withGeofencingService() -> MobileMessaging {
-		MMGeofencingService.isGeoServiceNeedsToStart = true
-		if MMGeofencingService.sharedInstance == nil {
-			MMGeofencingService.sharedInstance = MMGeofencingService(mmContext: self)
+		GeofencingService.isGeoServiceNeedsToStart = true
+		if GeofencingService.sharedInstance == nil {
+			GeofencingService.sharedInstance = GeofencingService(mmContext: self)
 		}
 		return self
 	}
 }
 
 @objcMembers
-public class MMGeofencingService: MobileMessagingService {
+public class GeofencingService: MobileMessagingService {
 
 	lazy var remoteApiProvider: GeoRemoteAPIProvider! = GeoRemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)
 
@@ -61,16 +61,16 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 	
 	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
-		guard MMGeofencingService.isGeoServiceNeedsToStart && mmContext.currentInstallation().isPushRegistrationEnabled && mmContext.internalData().currentDepersonalizationStatus == .undefined else {
+		guard GeofencingService.isGeoServiceNeedsToStart && mmContext.currentInstallation().isPushRegistrationEnabled && mmContext.internalData().currentDepersonalizationStatus == .undefined else {
 			return
 		}
-		MMGeofencingService.isGeoServiceNeedsToStart = false
+		GeofencingService.isGeoServiceNeedsToStart = false
 		start({ _ in })
 	}
 
 	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
 		stop()
-		MMGeofencingService.sharedInstance = nil
+		GeofencingService.sharedInstance = nil
 	}
 
 	override func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
@@ -81,9 +81,9 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
 	
-	override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool {
+	override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool {
 		guard let geoSignalingMessage = MMGeoMessage(payload: originalMessage.originalPayload,
-													 deliveryMethod: MMMessageDeliveryMethod(rawValue: message.deliveryMethod) ?? .undefined,
+													 deliveryMethod: MessageDeliveryMethod(rawValue: message.deliveryMethod) ?? .undefined,
 													 seenDate: message.seenDate,
 													 deliveryReportDate: message.deliveryReportedDate,
 													 seenStatus: message.seenStatus,
@@ -105,7 +105,7 @@ public class MMGeofencingService: MobileMessagingService {
 		return true
 	}
 	
-	override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
+	override func handleNewMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard let geoSignalingMessage = MMGeoMessage(payload: message.originalPayload,
 													 deliveryMethod: message.deliveryMethod,
 													 seenDate: message.seenDate,
@@ -142,11 +142,11 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 
 	public static var isGeofencingServiceEnabled: Bool {
-		return currentCapabilityStatus == MMGeofencingCapabilityStatus.authorized
+		return currentCapabilityStatus == GeofencingCapabilityStatus.authorized
 	}
 	
 	static var isGeoServiceNeedsToStart: Bool = false
-	static var sharedInstance: MMGeofencingService?
+	static var sharedInstance: GeofencingService?
 	var sessionManager: DynamicBaseUrlHTTPSessionManager!
 	var locationManager: CLLocationManager!
 	var datasource: GeofencingInMemoryDatasource!
@@ -169,15 +169,15 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 	
 	/// Returns current capability status for Geofencing Service. For more information see `MMCapabilityStatus`.
-	public class var currentCapabilityStatus: MMGeofencingCapabilityStatus {
-		return MMGeofencingService.currentCapabilityStatus(forService: MMLocationServiceKind.regionMonitoring, usage: GeoConstants.minimumAllowedUsage)
+	public class var currentCapabilityStatus: GeofencingCapabilityStatus {
+		return GeofencingService.currentCapabilityStatus(forService: LocationServiceKind.regionMonitoring, usage: GeoConstants.minimumAllowedUsage)
 	}
 	
 	/// Requests permission to use location services whenever the app is running.
 	/// - parameter usage: Defines the usage type for which permissions is requested.
 	/// - parameter completion: A block that will be triggered once the authorization request is finished and the capability statys is defined. The current capability status is passed to the block as a parameter.
-	public func authorize(usage: MMLocationServiceUsage, completion: @escaping (MMGeofencingCapabilityStatus) -> Void) {
-		authorizeService(kind: MMLocationServiceKind.regionMonitoring, usage: usage, completion: completion)
+	public func authorize(usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
+		authorizeService(kind: LocationServiceKind.regionMonitoring, usage: usage, completion: completion)
 	}
 	
 	/// Starts the Geofencing Service
@@ -203,7 +203,7 @@ public class MMGeofencingService: MobileMessagingService {
 				completion(true)
 			case .notDetermined:
 				self.logDebug("capability is 'not determined', authorizing...")
-				self.authorizeService(kind: MMLocationServiceKind.regionMonitoring, usage: GeoConstants.preferableUsage) { capability in
+				self.authorizeService(kind: LocationServiceKind.regionMonitoring, usage: GeoConstants.preferableUsage) { capability in
 					switch capability {
 					case .authorized:
 						self.logDebug("successfully authorized for `Always` mode")
@@ -272,8 +272,8 @@ public class MMGeofencingService: MobileMessagingService {
 	
 	/// The geo event handling object defines the behaviour that is triggered during the geo event.
 	///
-	/// You can implement your own geo event handling either by subclassing `MMDefaultGeoEventHandling` or implementing the `MMGeoEventHandling` protocol.
-	public static var geoEventsHandler: MMGeoEventHandling?
+	/// You can implement your own geo event handling either by subclassing `MMDefaultGeoEventHandling` or implementing the `GeoEventHandling` protocol.
+	public static var geoEventsHandler: GeoEventHandling?
 	
 	// MARK: - Internal
 	//FIXME: use background queue. (initialize separate NSThread which lives as long as geo service running)
@@ -309,7 +309,7 @@ public class MMGeofencingService: MobileMessagingService {
 		return Bundle.main.object(forInfoDictionaryKey: "NSLocationAlwaysAndWhenInUseUsageDescription") != nil
 	}
 	
-	func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMGeofencingCapabilityStatus) -> Void) {
+	func authorizeService(kind: LocationServiceKind, usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
 		locationManagerQueue.executeAsync() {
 			guard self.capabilityCompletion == nil else
 			{
@@ -318,7 +318,7 @@ public class MMGeofencingService: MobileMessagingService {
 			
 			let locationServicesEnabled = CLLocationManager.locationServicesEnabled()
 			let regionMonitoringAvailable = CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self)
-			guard locationServicesEnabled && (!kind.contains(options: MMLocationServiceKind.regionMonitoring) || regionMonitoringAvailable) else
+			guard locationServicesEnabled && (!kind.contains(options: LocationServiceKind.regionMonitoring) || regionMonitoringAvailable) else
 			{
 				self.logDebug("not available (locationServicesEnabled = \(locationServicesEnabled), regionMonitoringAvailable = \(regionMonitoringAvailable))")
 				completion(.notAvailable)
@@ -332,7 +332,7 @@ public class MMGeofencingService: MobileMessagingService {
 			case .whenInUse:
 				self.logDebug("requesting 'WhenInUse'")
 				
-				if !MMGeofencingService.isDescriptionProvidedForWhenInUseUsage {
+				if !GeofencingService.isDescriptionProvidedForWhenInUseUsage {
 					self.logWarn("NSLocationWhenInUseUsageDescription is not defined. Geo service cannot be used")
 					completion(.notAvailable)
 				} else {
@@ -341,7 +341,7 @@ public class MMGeofencingService: MobileMessagingService {
 			case .always:
 				self.logDebug("requesting 'Always'")
 				
-				if !MMGeofencingService.isDescriptionProvidedForAlwaysUsage {
+				if !GeofencingService.isDescriptionProvidedForAlwaysUsage {
 					self.logWarn("NSLocationAlwaysUsageDescription is not defined. Geo service cannot be used")
 					completion(.notAvailable)
 				} else {
@@ -375,7 +375,7 @@ public class MMGeofencingService: MobileMessagingService {
 		let notExpiredRegions = Set(datasource.liveRegions.map { $0.circularRegion })
 		let number = GeoConstants.monitoringRegionsLimit - monitoredRegions.count
 		let location = locationManager.location ?? previousLocation
-		let array = MMGeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { monitoredRegions.contains($0) == false })
+		let array = GeofencingService.closestLiveRegions(withNumberLimit: number, forLocation: location, fromRegions: notExpiredRegions, filter: { monitoredRegions.contains($0) == false })
 		return Set(array)
 	}
 	
@@ -402,13 +402,13 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
 	
-	class func currentCapabilityStatus(forService kind: MMLocationServiceKind, usage: MMLocationServiceUsage) -> MMGeofencingCapabilityStatus {
-		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(options: MMLocationServiceKind.regionMonitoring) || CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self)) else
+	class func currentCapabilityStatus(forService kind: LocationServiceKind, usage: LocationServiceUsage) -> GeofencingCapabilityStatus {
+		guard CLLocationManager.locationServicesEnabled() && (!kind.contains(options: LocationServiceKind.regionMonitoring) || CLLocationManager.isMonitoringAvailable(for: CLCircularRegion.self)) else
 		{
 			return .notAvailable
 		}
 		
-		if (usage == .whenInUse && !MMGeofencingService.isDescriptionProvidedForWhenInUseUsage) || (usage == .always && !MMGeofencingService.isDescriptionProvidedForAlwaysUsage) {
+		if (usage == .whenInUse && !GeofencingService.isDescriptionProvidedForWhenInUseUsage) || (usage == .always && !GeofencingService.isDescriptionProvidedForAlwaysUsage) {
 			return .notAvailable
 		}
 		
@@ -418,7 +418,7 @@ public class MMGeofencingService: MobileMessagingService {
 		case .denied: return .denied
 		case .authorizedAlways: return .authorized
 		case .authorizedWhenInUse:
-			if usage == MMLocationServiceUsage.whenInUse {
+			if usage == LocationServiceUsage.whenInUse {
 				return .authorized
 			} else {
 				// the user wants .Always, but has .WhenInUse
@@ -430,9 +430,9 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 	
 	// MARK: - Private
-	fileprivate var desirableUsageKind = MMLocationServiceUsage.whenInUse
+	fileprivate var desirableUsageKind = LocationServiceUsage.whenInUse
 	
-	fileprivate var capabilityCompletion: ((MMGeofencingCapabilityStatus) -> Void)?
+	fileprivate var capabilityCompletion: ((GeofencingCapabilityStatus) -> Void)?
 
 	private func cancelOperations() {
 		eventsHandlingQueue.cancelAllOperations()
@@ -599,7 +599,7 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 }
 
-extension MMGeofencingService: CLLocationManagerDelegate {
+extension GeofencingService: CLLocationManagerDelegate {
 	public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
 		assert(Thread.isMainThread)
 		logDebug("locationManager did change the authorization status \(status.rawValue)")
@@ -610,7 +610,7 @@ extension MMGeofencingService: CLLocationManagerDelegate {
 			case .authorizedAlways:
 				completion(.authorized)
 			case .authorizedWhenInUse:
-				completion(self.desirableUsageKind == MMLocationServiceUsage.whenInUse ? .authorized : .denied)
+				completion(self.desirableUsageKind == LocationServiceUsage.whenInUse ? .authorized : .denied)
 			case .denied:
 				completion(.denied)
 			case .restricted:
@@ -691,14 +691,14 @@ extension MMGeofencingService: CLLocationManagerDelegate {
 		})
 	}
 	
-	func report(on eventType: RegionEventType, forRegionId regionId: String, geoMessage: MMGeoMessage, completion: @escaping (MMCampaignState) -> Void) {
+	func report(on eventType: RegionEventType, forRegionId regionId: String, geoMessage: MMGeoMessage, completion: @escaping (CampaignState) -> Void) {
 		eventsHandlingQueue.addOperation(GeoEventPersistingOperation(geoMessage: geoMessage, regionId: regionId, eventType: eventType, context: datasource.context, finishBlock: { _ in }))
 		
         reportOnEvents { eventsReportingResponse in
 
             self.refreshDatasource()
             
-			let campaignState: MMCampaignState
+			let campaignState: CampaignState
 			if let scIds = eventsReportingResponse?.value?.suspendedCampaignIds, scIds.contains(geoMessage.campaignId) {
 				campaignState = .Suspended
 			} else if let fcIds = eventsReportingResponse?.value?.finishedCampaignIds, fcIds.contains(geoMessage.campaignId) {
@@ -714,7 +714,7 @@ extension MMGeofencingService: CLLocationManagerDelegate {
 	private func didEnterActiveCampaignRegion(_ datasourceRegion: MMRegion) {
 		delegate?.didEnterRegion(region: datasourceRegion)
 		
-		MMGeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
+		GeofencingService.geoEventsHandler?.didEnter(region: datasourceRegion)
 
 		UserEventsManager.postGeoRegionEnteredEvent(datasourceRegion)
 	}

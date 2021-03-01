@@ -8,9 +8,9 @@
 import Foundation
 import UserNotifications
 
-extension MM_MTMessage {
-	class func make(with notification: UNNotification) -> MM_MTMessage? {
-		return MM_MTMessage(payload: notification.request.content.userInfo,
+extension MTMessage {
+	class func make(with notification: UNNotification) -> MTMessage? {
+		return MTMessage(payload: notification.request.content.userInfo,
 						 deliveryMethod: .undefined,
 						 seenDate: nil,
 						 deliveryReportDate: nil,
@@ -20,7 +20,7 @@ extension MM_MTMessage {
 }
 
 extension UNNotificationPresentationOptions {
-	static func make(with userNotificationType: MMUserNotificationType) -> UNNotificationPresentationOptions {
+	static func make(with userNotificationType: UserNotificationType) -> UNNotificationPresentationOptions {
 		var ret: UNNotificationPresentationOptions = []
 		if userNotificationType.contains(options: .alert) {
 			ret.insert(.alert)
@@ -40,7 +40,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 
 	public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
 
-		let mtMessage: MM_MTMessage? = MM_MTMessage.make(with: notification)
+		let mtMessage: MTMessage? = MTMessage.make(with: notification)
 
 		MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: mtMessage, notification: notification, withCompletionHandler: { notificationType in
             DispatchQueue.main.async {
@@ -76,7 +76,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 	func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
 		logDebug("received response")
 
-		let message = MM_MTMessage(
+		let message = MTMessage(
 			payload: notificationUserInfo,
 			deliveryMethod: .undefined,
 			seenDate: nil,

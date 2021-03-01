@@ -7,20 +7,20 @@
 
 import Foundation
 
-@objc public enum MMMessageDeliveryMethod: Int16 {
+@objc public enum MessageDeliveryMethod: Int16 {
 	case undefined = 0, push, pull, generatedLocally, local
 }
 
-@objc public enum MMMessageDirection: Int16 {
+@objc public enum MessageDirection: Int16 {
 	case MT = 0, MO
 }
 
-public typealias MMAPNSPayload = [AnyHashable: Any]
-public typealias MMStringKeyPayload = [String: Any]
+public typealias APNSPayload = [AnyHashable: Any]
+public typealias StringKeyPayload = [String: Any]
 
-public enum MMPushPayloadAPS {
-	case SilentAPS(MMAPNSPayload)
-	case NativeAPS(MMAPNSPayload)
+public enum PushPayloadAPS {
+	case SilentAPS(APNSPayload)
+	case NativeAPS(APNSPayload)
 	case undefined
 	
 	var badge: Int? {
@@ -48,10 +48,10 @@ public enum MMPushPayloadAPS {
 	var text: String? {
 		switch self {
 		case .NativeAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["body"] as? String
 		case .SilentAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["body"] as? String
 		case .undefined:
 			return nil
@@ -61,10 +61,10 @@ public enum MMPushPayloadAPS {
 	var title: String? {
 		switch self {
 		case .NativeAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["title"] as? String
 		case .SilentAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["title"] as? String
 		case .undefined:
 			return nil
@@ -74,10 +74,10 @@ public enum MMPushPayloadAPS {
 	var loc_key: String? {
 		switch self {
 		case .NativeAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["loc-key"] as? String
 		case .SilentAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["loc-key"] as? String
 		case .undefined:
 			return nil
@@ -87,10 +87,10 @@ public enum MMPushPayloadAPS {
 	var loc_args: [String]? {
 		switch self {
 		case .NativeAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["loc-args"] as? [String]
 		case .SilentAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["loc-args"] as? [String]
 		case .undefined:
 			return nil
@@ -100,10 +100,10 @@ public enum MMPushPayloadAPS {
 	var title_loc_key: String? {
 		switch self {
 		case .NativeAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["title-loc-key"] as? String
 		case .SilentAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["title-loc-key"] as? String
 		case .undefined:
 			return nil
@@ -113,10 +113,10 @@ public enum MMPushPayloadAPS {
 	var title_loc_args: [String]? {
 		switch self {
 		case .NativeAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["title-loc-args"] as? [String]
 		case .SilentAPS(let dict):
-			let alert = dict["alert"] as? MMAPNSPayload
+			let alert = dict["alert"] as? APNSPayload
 			return alert?["title-loc-args"] as? [String]
 		case .undefined:
 			return nil
@@ -140,27 +140,27 @@ protocol MMMessageMetadata: Hashable {
 	var messageId: String {get}
 }
 
-func ==(lhs: MM_MTMessage, rhs: MM_MTMessage) -> Bool {
+func ==(lhs: MTMessage, rhs: MTMessage) -> Bool {
 	return lhs.messageId == rhs.messageId
 }
 
-@objc public enum MM_MOMessageSentStatus : Int16 {
+@objc public enum MOMessageSentStatus : Int16 {
 	case Undefined = -1
 	case SentSuccessfully = 0
 	case SentWithFailure = 1
 }
 
-@objc public protocol MMCustomPayloadSupportedTypes {}
-extension NSString: MMCustomPayloadSupportedTypes {}
-extension NSNull: MMCustomPayloadSupportedTypes {}
-extension NSNumber: MMCustomPayloadSupportedTypes {}
+@objc public protocol CustomPayloadSupportedTypes {}
+extension NSString: CustomPayloadSupportedTypes {}
+extension NSNull: CustomPayloadSupportedTypes {}
+extension NSNumber: CustomPayloadSupportedTypes {}
 
 protocol MOMessageAttributes {
 	var destination: String? {get}
 	var text: String {get}
-	var customPayload: MMStringKeyPayload? {get}
+	var customPayload: StringKeyPayload? {get}
 	var messageId: String {get}
-	var sentStatus: MM_MOMessageSentStatus {get}
+	var sentStatus: MOMessageSentStatus {get}
     var bulkId: String? {get}
     var initialMessageId: String? {get}
 }
@@ -168,9 +168,9 @@ protocol MOMessageAttributes {
 struct MOAttributes: MOMessageAttributes {
 	let destination: String?
 	let text: String
-	let customPayload: MMStringKeyPayload?
+	let customPayload: StringKeyPayload?
 	let messageId: String
-	let sentStatus: MM_MOMessageSentStatus
+	let sentStatus: MOMessageSentStatus
     let bulkId: String?
     let initialMessageId: String?
 	
@@ -187,9 +187,9 @@ struct MOAttributes: MOMessageAttributes {
 	}
 }
 
-func apsByMerging(nativeAPS: MMStringKeyPayload?, withSilentAPS silentAPS: MMStringKeyPayload) -> MMStringKeyPayload {
-	var resultAps = nativeAPS ?? MMStringKeyPayload()
-	var alert = MMStringKeyPayload()
+func apsByMerging(nativeAPS: StringKeyPayload?, withSilentAPS silentAPS: StringKeyPayload) -> StringKeyPayload {
+	var resultAps = nativeAPS ?? StringKeyPayload()
+	var alert = StringKeyPayload()
 	
 	if let body = silentAPS[Consts.APNSPayloadKeys.body] as? String {
 		alert[Consts.APNSPayloadKeys.body] = body

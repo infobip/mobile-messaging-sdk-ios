@@ -10,8 +10,8 @@ import UserNotifications
 @testable import MobileMessaging
 
 class UserNotificationCenterStorageStub : UserNotificationCenterStorage {
-	func getDeliveredMessages(completionHandler: @escaping ([MM_MTMessage]) -> Swift.Void) {
-		completionHandler([MM_MTMessage(payload: apnsNormalMessagePayload("m1"), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!])
+	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
+		completionHandler([MTMessage(payload: apnsNormalMessagePayload("m1"), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!])
 	}
 }
 
@@ -22,12 +22,12 @@ class NotificationExtensionStorageStub: AppGroupMessageStorage {
 	
 	required init?(applicationCode: String, appGroupId: String) {}
 	
-	func save(message: MM_MTMessage) {}
+	func save(message: MTMessage) {}
 	
 	func cleanupMessages() {}
 	
-	func retrieveMessages() -> [MM_MTMessage] {
-		return [MM_MTMessage(payload: apnsNormalMessagePayload("m2"), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!]
+	func retrieveMessages() -> [MTMessage] {
+		return [MTMessage(payload: apnsNormalMessagePayload("m2"), deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!]
 	}
 }
 

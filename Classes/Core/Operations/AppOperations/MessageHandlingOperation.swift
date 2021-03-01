@@ -21,12 +21,12 @@ struct MMMessageMeta : MMMessageMetadata {
 		self.isSilent = message.isSilent
 	}
 	
-	init(message: MM_MTMessage) {
+	init(message: MTMessage) {
 		self.messageId = message.messageId
 		self.isSilent = message.isSilent
 	}
 	
-	init(message: MM_MOMessage) {
+	init(message: MOMessage) {
 		self.messageId = message.messageId
 		self.isSilent = false
 	}
@@ -35,12 +35,12 @@ struct MMMessageMeta : MMMessageMetadata {
 final class MessageHandlingOperation: MMOperation {
 	
 	let context: NSManagedObjectContext
-	let finishBlock: (NSError?, Set<MM_MTMessage>?) -> Void
-	let messagesToHandle: [MM_MTMessage]
+	let finishBlock: (NSError?, Set<MTMessage>?) -> Void
+	let messagesToHandle: [MTMessage]
 	let isNotificationTapped: Bool
 	let mmContext: MobileMessaging
 	
-	init(messagesToHandle: [MM_MTMessage], context: NSManagedObjectContext, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: @escaping (NSError?, Set<MM_MTMessage>?) -> Void) {
+	init(messagesToHandle: [MTMessage], context: NSManagedObjectContext, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: @escaping (NSError?, Set<MTMessage>?) -> Void) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.finishBlock = finishBlock
@@ -80,7 +80,7 @@ final class MessageHandlingOperation: MMOperation {
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		
-		let regularMessages: [MM_MTMessage] = newMessages.filter { !$0.isGeoSignalingMessage } //workaround. The message handling must not know about geo messages. Redesign needed.
+		let regularMessages: [MTMessage] = newMessages.filter { !$0.isGeoSignalingMessage } //workaround. The message handling must not know about geo messages. Redesign needed.
 		populateMessageStorageWithNewMessages(regularMessages) {
 			self.notifyAboutNewMessages(regularMessages) {
 				self.handleNotificationTappedIfNeeded(regularMessages)
@@ -89,7 +89,7 @@ final class MessageHandlingOperation: MMOperation {
 		}
 	}
 	
-	private func populateMessageStorageWithNewMessages(_ messages: [MM_MTMessage], completion: @escaping () -> Void) {
+	private func populateMessageStorageWithNewMessages(_ messages: [MTMessage], completion: @escaping () -> Void) {
 		guard !messages.isEmpty else
 		{
 			completion()
@@ -102,7 +102,7 @@ final class MessageHandlingOperation: MMOperation {
 		}, completion: completion)
 	}
 	
-	private func notifyAboutNewMessages(_ messages: [MM_MTMessage], completion: (() -> Void)? = nil) {
+	private func notifyAboutNewMessages(_ messages: [MTMessage], completion: (() -> Void)? = nil) {
 		guard !messages.isEmpty else
 		{
 			completion?()
@@ -124,12 +124,12 @@ final class MessageHandlingOperation: MMOperation {
 	}
 	
 //MARK: - Notification tap handling
-    private func presentLocalNotificationIfNeeded(with message: MM_MTMessage) {
+    private func presentLocalNotificationIfNeeded(with message: MTMessage) {
         guard (!message.isSilent || message.isGeoSignalingMessage) && (message.deliveryMethod == .pull || message.deliveryMethod == .generatedLocally) else { return }
         LocalNotifications.presentLocalNotification(with: message)
     }
     
-	private func handleNotificationTappedIfNeeded(_ messages: [MM_MTMessage]) {
+	private func handleNotificationTappedIfNeeded(_ messages: [MTMessage]) {
 		guard let newMessage = messages.first else { return }
 		handleNotificationTappedIfNeeded(with: newMessage)
 	}
@@ -139,9 +139,9 @@ final class MessageHandlingOperation: MMOperation {
 		handleNotificationTappedIfNeeded(with: existingMessage)
 	}
 	
-	private func handleNotificationTappedIfNeeded(with message: MM_MTMessage) {
+	private func handleNotificationTappedIfNeeded(with message: MTMessage) {
         guard isNotificationTapped else { return }
-        message.appliedAction = MMNotificationAction.defaultAction
+        message.appliedAction = NotificationAction.defaultAction
 	}
 	
 //MARK: - Lazy message collections
@@ -156,8 +156,8 @@ final class MessageHandlingOperation: MMOperation {
 		return result
 	}()
 	
-	private lazy var newMessages: Set<MM_MTMessage> = {
-		guard !self.messagesToHandle.isEmpty else { return Set<MM_MTMessage>() }
+	private lazy var newMessages: Set<MTMessage> = {
+		guard !self.messagesToHandle.isEmpty else { return Set<MTMessage>() }
 		let retentionPeriodStart = MobileMessaging.date.now.addingTimeInterval(-Consts.SDKSettings.messagesRetentionPeriod).timeIntervalSince1970
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.filter({ $0.sendDateTime >= retentionPeriodStart }).map(MMMessageMeta.init))
 		if !messagesToHandleMetasSet.isEmpty {
@@ -168,8 +168,8 @@ final class MessageHandlingOperation: MMOperation {
 		}
 	}()
 	
-	private lazy var intersectingMessages: [MM_MTMessage] = {
-		guard !self.messagesToHandle.isEmpty else { return [MM_MTMessage]() }
+	private lazy var intersectingMessages: [MTMessage] = {
+		guard !self.messagesToHandle.isEmpty else { return [MTMessage]() }
 		let messagesToHandleMetasSet = Set(self.messagesToHandle.map(MMMessageMeta.init))
 		if !messagesToHandleMetasSet.isEmpty {
 			let storedMessages = self.storedMessageMetasSet
@@ -180,7 +180,7 @@ final class MessageHandlingOperation: MMOperation {
 	}()
 	
 //MARK: - Lazy message collections
-	private func mtMessage(from meta: MMMessageMeta) -> MM_MTMessage? {
+	private func mtMessage(from meta: MMMessageMeta) -> MTMessage? {
 		return messagesToHandle.first() { msg -> Bool in
 			return msg.messageId == meta.messageId
 		}

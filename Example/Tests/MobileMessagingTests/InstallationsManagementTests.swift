@@ -18,10 +18,10 @@ class InstallationsManagementTests: MMTestCase {
 
 		let currentUser = MobileMessaging.getUser()!
 		currentUser.installations = [
-			MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone", deviceName: "iphone", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: "1.2", pushRegistrationId: "pr-0", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
-            MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone", deviceName: "Jo I", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: "2.2", pushRegistrationId: "pr-1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
-            MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Samsung", deviceModel: "Galaxy", deviceName: "Jo S", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "Android", osVersion: "3.1", pushRegistrationId: "pr-2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
-            MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Xiaomi", deviceModel: "Mi 8", deviceName: "Jo M", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "Android", osVersion: "1.2.2", pushRegistrationId: "pr-3", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+			Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone", deviceName: "iphone", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: "1.2", pushRegistrationId: "pr-0", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
+			Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone", deviceName: "Jo I", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: "2.2", pushRegistrationId: "pr-1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
+			Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Samsung", deviceModel: "Galaxy", deviceName: "Jo S", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "Android", osVersion: "3.1", pushRegistrationId: "pr-2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
+			Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Xiaomi", deviceModel: "Mi 8", deviceName: "Jo M", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "Android", osVersion: "1.2.2", pushRegistrationId: "pr-3", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 		]
 		currentUser.archiveAll()
 
@@ -52,7 +52,7 @@ class InstallationsManagementTests: MMTestCase {
 
 
 
-			XCTAssertNil(MMUser.delta?["instances"])
+			XCTAssertNil(User.delta?["instances"])
 			managementFinished?.fulfill()
 		})
 
@@ -64,10 +64,10 @@ class InstallationsManagementTests: MMTestCase {
 		let currentUser = MobileMessaging.getUser()!
 		mobileMessagingInstance.pushRegistrationId = "pr-0"
 		currentUser.installations = [
-            MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone", deviceName: "iphone", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: "1.2", pushRegistrationId: "pr-0", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
-            MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone", deviceName: "Jo I", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: "2.2", pushRegistrationId: "pr-1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
-            MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Samsung", deviceModel: "Galaxy", deviceName: "Jo S", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "Android", osVersion: "3.1", pushRegistrationId: "pr-2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
-            MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Xiaomi", deviceModel: "Mi 8", deviceName: "Jo M", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "Android", osVersion: "1.2.2", pushRegistrationId: "pr-3", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+			Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone", deviceName: "iphone", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: "1.2", pushRegistrationId: "pr-0", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
+			Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone", deviceName: "Jo I", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: "2.2", pushRegistrationId: "pr-1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
+			Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Samsung", deviceModel: "Galaxy", deviceName: "Jo S", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "Android", osVersion: "3.1", pushRegistrationId: "pr-2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil),
+			Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Xiaomi", deviceModel: "Mi 8", deviceName: "Jo M", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "Android", osVersion: "1.2.2", pushRegistrationId: "pr-3", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 		]
 		currentUser.archiveAll()
 
@@ -83,7 +83,7 @@ class InstallationsManagementTests: MMTestCase {
 			XCTAssertEqual(installations?.count, 3)
 			XCTAssertNil(installations?.first(where: { $0.pushRegistrationId == "pr-1"} ))
 			
-			XCTAssertNil(MMUser.delta?["instances"])
+			XCTAssertNil(User.delta?["instances"])
 			managementFinished?.fulfill()
 		})
 

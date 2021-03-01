@@ -102,7 +102,7 @@ class InstallationMigrationTests: XCTestCase {
 	func testDataModel_Migration_2_3() {
 		MobileMessaging.stop(true) //removes any existing storage
 
-		let instance = MMInstallation(applicationUserId: "applicationUserId", appVersion: nil, customAttributes: ["foo": "bar" as MMAttributeType], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "pushRegistrationId", pushServiceToken: "pushServiceToken", pushServiceType: nil, sdkVersion: nil)
+		let instance = Installation(applicationUserId: "applicationUserId", appVersion: nil, customAttributes: ["foo": "bar" as AttributeType], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "pushRegistrationId", pushServiceToken: "pushServiceToken", pushServiceType: nil, sdkVersion: nil)
 		do {
 			let storage = makeStorageForModel(at: "MMInternalStorageModel.momd/MMStorageModel_2")
 			let mm = startMmWithStorage(storage)
@@ -115,8 +115,8 @@ class InstallationMigrationTests: XCTestCase {
 				i.setValue("Vader", forKey: "lastName")
 				i.setValue("1980-12-12", forKey: "birthday")
 				i.setValue("Male", forKey: "gender")
-				i.setValue([MMPhone(number: "79214444444", preferred: false)], forKey: "phones")
-				i.setValue([MMEmail(address: "darth@vader.com", preferred: false)], forKey: "emails")
+				i.setValue([Phone(number: "79214444444", preferred: false)], forKey: "phones")
+				i.setValue([Email(address: "darth@vader.com", preferred: false)], forKey: "emails")
 				i.setValue("pushRegId", forKey: "pushRegId")
 				i.setValue("extUserId", forKey: "externalUserId")
 				i.setValue("applicationUserId", forKey: "applicationUserId")
@@ -189,7 +189,7 @@ class InstallationMigrationTests: XCTestCase {
 	}
 
 	private func startMmWithStorage(_ storage: MMCoreDataStorage) -> MobileMessaging {
-		let mm = MobileMessaging(appCode: "appCode", notificationType: MMUserNotificationType.init(options: [.alert]), backendBaseURL: "http://url.com", forceCleanup: false, internalStorage: storage)!
+		let mm = MobileMessaging(appCode: "appCode", notificationType: UserNotificationType.init(options: [.alert]), backendBaseURL: "http://url.com", forceCleanup: false, internalStorage: storage)!
 		mm.setupApiSessionManagerStubbed()
 		MobileMessaging.application = ActiveApplicationStub()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)

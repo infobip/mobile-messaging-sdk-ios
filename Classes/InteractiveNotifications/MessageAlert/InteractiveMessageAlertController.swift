@@ -23,10 +23,10 @@ class InteractiveMessageAlertController: UIViewController {
 	private let image: Image?
 	private var buttons: [InteractiveMessageButton]!
 	
-	var actionHandler: ((MMNotificationAction) -> Void)?
+	var actionHandler: ((NotificationAction) -> Void)?
 	var dismissHandler: (() -> Void)?
 	
-	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, dismissTitle: String?, openTitle: String?, actionHandler: ((MMNotificationAction) -> Void)? = nil) {
+	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, dismissTitle: String?, openTitle: String?, actionHandler: ((NotificationAction) -> Void)? = nil) {
 		self.titleText = titleText
 		self.messageText = messageText
 		self.imageURL = imageURL
@@ -36,13 +36,13 @@ class InteractiveMessageAlertController: UIViewController {
 		super.init(nibName: "AlertController", bundle: Bundle(for: type(of: self)))
 		
 		self.buttons = {
-			let openAction = openTitle != nil ? MMNotificationAction.openAction(title: openTitle!) : MMNotificationAction.openAction()
-			let dismissAction = dismissTitle != nil ? MMNotificationAction.dismissAction(title: dismissTitle!) : MMNotificationAction.dismissAction()
+			let openAction = openTitle != nil ? NotificationAction.openAction(title: openTitle!) : NotificationAction.openAction()
+			let dismissAction = dismissTitle != nil ? NotificationAction.dismissAction(title: dismissTitle!) : NotificationAction.dismissAction()
 			let actions = [dismissAction, openAction]
 			let ret = actions.map { action in
 				return InteractiveMessageButton(title: action.title,
 												style: action.options.contains(.destructive) ? .destructive : .default,
-												isBold: action.identifier == MMNotificationAction.DefaultActionId,
+												isBold: action.identifier == NotificationAction.DefaultActionId,
 												handler: {
 													self.dismissAndPerformAction(action)
 				})
@@ -54,7 +54,7 @@ class InteractiveMessageAlertController: UIViewController {
 		self.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
 	}
 	
-	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, category: MMNotificationCategory, actionHandler: ((MMNotificationAction) -> Void)? = nil) {
+	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, category: NotificationCategory, actionHandler: ((NotificationAction) -> Void)? = nil) {
 		self.titleText = titleText
 		self.messageText = messageText
 		self.imageURL = imageURL
@@ -114,7 +114,7 @@ class InteractiveMessageAlertController: UIViewController {
 		}
 	}
 	
-	private func dismissAndPerformAction(_ action: MMNotificationAction) {
+	private func dismissAndPerformAction(_ action: NotificationAction) {
 		dismiss(animated: true, completion: {
 			self.dismissHandler?()
 			self.actionHandler?(action)
@@ -122,7 +122,7 @@ class InteractiveMessageAlertController: UIViewController {
 	}
 
 	@objc private func dismissAction(_ sender: InteractiveMessageButton){
-		dismissAndPerformAction(MMNotificationAction.dismissAction())
+		dismissAndPerformAction(NotificationAction.dismissAction())
 	}
 	
 	private func setShadowAlertView(){

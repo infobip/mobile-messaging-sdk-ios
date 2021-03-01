@@ -10,11 +10,11 @@ class UserDataService: MobileMessagingService {
 		super.init(mmContext: mmContext, uniqueIdentifier: "UserDataService")
 	}
 
-	func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
+	func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([Installation]?, NSError?) -> Void) {
 		let finish: (NSError?) -> Void = { (error) in
 			if error == nil {
 				let ins = self.resolveInstallationsAfterPrimaryChange(pushRegId, primary)
-				MMUser.modifyAll(with: { user in
+				User.modifyAll(with: { user in
 					user.installations = ins
 				})
 			}
@@ -43,7 +43,7 @@ class UserDataService: MobileMessagingService {
 		}
 	}
 
-	func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
+	func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping ([Installation]?, NSError?) -> Void) {
 		guard pushRegId != mmContext.currentInstallation().pushRegistrationId else {
 			logError("Attempt to depersonalize current installation with inappropriate API. Aborting depersonalizing other oreg...")
 			completion(mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.CantLogoutCurrentRegistration))
@@ -59,7 +59,7 @@ class UserDataService: MobileMessagingService {
 
 			if result.error == nil {
 				let ins = self.resolveInstallationsAfterLogout(pushRegId)
-				MMUser.modifyAll(with: { (user) in
+				User.modifyAll(with: { (user) in
 					user.installations = ins
 				})
 			}
@@ -67,17 +67,17 @@ class UserDataService: MobileMessagingService {
 		}
 	}
 
-	func save(userData: MMUser, completion: @escaping (NSError?) -> Void) {
+	func save(userData: User, completion: @escaping (NSError?) -> Void) {
 		logDebug("saving \(userData.dictionaryRepresentation)")
 		userData.archiveDirty()
 		syncWithServer(completion)
 	}
 
 	var isChanged: Bool {
-		return MMUser.delta != nil
+		return User.delta != nil
 	}
 
-	func resolveInstallationsAfterPrimaryChange(_ pushRegId: String, _ isPrimary: Bool) -> [MMInstallation]? {
+	func resolveInstallationsAfterPrimaryChange(_ pushRegId: String, _ isPrimary: Bool) -> [Installation]? {
 		let ret = mmContext.resolveUser().installations
 		if let idx = ret?.firstIndex(where: { $0.isPrimaryDevice == true }) {
 			ret?[idx].isPrimaryDevice = false
@@ -88,7 +88,7 @@ class UserDataService: MobileMessagingService {
 		return ret
 	}
 
-	func resolveInstallationsAfterLogout(_ pushRegId: String) -> [MMInstallation]? {
+	func resolveInstallationsAfterLogout(_ pushRegId: String) -> [Installation]? {
 		var ret = mmContext.resolveUser().installations
 		if let idx = ret?.firstIndex(where: { $0.pushRegistrationId == pushRegId }) {
 			ret?.remove(at: idx)
@@ -96,7 +96,7 @@ class UserDataService: MobileMessagingService {
 		return ret
 	}
 
-	func personalize(forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (NSError?) -> Void) {
+	func personalize(forceDepersonalize: Bool, userIdentity: UserIdentity, userAttributes: UserAttributes?, completion: @escaping (NSError?) -> Void) {
 
 		let du = mmContext.dirtyUser()
 		UserDataMapper.apply(userIdentity: userIdentity, to: du)
@@ -117,7 +117,7 @@ class UserDataService: MobileMessagingService {
 
 	}
 
-	func fetchFromServer(completion: @escaping (MMUser, NSError?) -> Void) {
+	func fetchFromServer(completion: @escaping (User, NSError?) -> Void) {
 		logDebug("fetch from server")
 		let op = FetchUserOperation(
 			currentUser: mmContext.currentUser(),
@@ -131,7 +131,7 @@ class UserDataService: MobileMessagingService {
 	// MARK: - MobileMessagingService protocol {
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		logDebug("log out")
-		MMUser.empty.archiveAll()
+		User.empty.archiveAll()
 		completion()
 	}
 

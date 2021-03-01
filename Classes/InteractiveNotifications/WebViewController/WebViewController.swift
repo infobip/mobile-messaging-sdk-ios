@@ -7,9 +7,9 @@
 
 import WebKit
 
-public class MMWebViewController: UINavigationController {
+public class WebViewController: UINavigationController {
 	init(url: String) {
-		super.init(rootViewController: MMWebViewControllerBase(url: url))
+		super.init(rootViewController: WebViewControllerBase(url: url))
 		navigationBar.isTranslucent = false
 		if #available(iOS 13.0, *) {
 			navigationBar.tintColor = UIColor.label
@@ -28,11 +28,11 @@ public class MMWebViewController: UINavigationController {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	public var rootWebViewController: MMWebViewControllerBase? {
-		return viewControllers.first as? MMWebViewControllerBase
+	public var rootWebViewController: WebViewControllerBase? {
+		return viewControllers.first as? WebViewControllerBase
 	}
 
-	public var activityIndicator: MMActivityIndicatorProtocol? {
+	public var activityIndicator: ActivityIndicatorProtocol? {
 		set { rootWebViewController?.activityIndicator = newValue }
 		get { return rootWebViewController?.activityIndicator }
 	}
@@ -53,7 +53,7 @@ public class MMWebViewController: UINavigationController {
 		set { rootWebViewController?.customTitle = newValue }
 		get { return rootWebViewController?.title } }
     
-    public func applySettings(_ settings: MMWebViewSettings?) {
+    public func applySettings(_ settings: WebViewSettings?) {
         guard let settings = settings else {
             return
         }
@@ -72,16 +72,16 @@ public class MMWebViewController: UINavigationController {
     }
 }
 
-@objc public protocol MMActivityIndicatorProtocol where Self: UIView {
+@objc public protocol ActivityIndicatorProtocol where Self: UIView {
 	func startAnimating()
 	func stopAnimating()
 }
 
-extension UIActivityIndicatorView: MMActivityIndicatorProtocol {
+extension UIActivityIndicatorView: ActivityIndicatorProtocol {
 
 }
 
-public class MMWebViewControllerBase: UIViewController, WebViewToolbarDelegate, WKNavigationDelegate {
+public class WebViewControllerBase: UIViewController, WebViewToolbarDelegate, WKNavigationDelegate {
 	let url: String
 	var customTitle: String? {
 		didSet {
@@ -89,7 +89,7 @@ public class MMWebViewControllerBase: UIViewController, WebViewToolbarDelegate, 
 		}
 	}
 	lazy var webView = WKWebView()
-	var activityIndicator: MMActivityIndicatorProtocol? {
+	var activityIndicator: ActivityIndicatorProtocol? {
 		didSet {
 			activityIndicator?.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
 		}

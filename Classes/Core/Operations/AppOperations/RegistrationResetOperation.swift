@@ -23,7 +23,7 @@ final class RegistrationResetOperation: MMOperation {
 	
 	override func execute() {
 		logDebug("Started...")
-		MMInstallation.empty.archiveAll()
+		Installation.empty.archiveAll()
 		apnsRegistrationManager.setRegistrationIsHealthy()
 		
 		finish()

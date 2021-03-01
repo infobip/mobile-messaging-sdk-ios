@@ -13,9 +13,9 @@ class UpdateUserOperation: MMOperation {
 	let finishBlock: ((NSError?) -> Void)
 	let requireResponse: Bool
 	let body: RequestBody
-	let dirtyUser: MMUser
+	let dirtyUser: User
 
-	init?(currentUser: MMUser, dirtyUser: MMUser?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
+	init?(currentUser: User, dirtyUser: User?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse

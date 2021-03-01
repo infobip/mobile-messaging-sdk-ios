@@ -8,8 +8,8 @@
 import UserNotifications
 
 @objcMembers
-public final class MMUserNotificationType: NSObject, ExpressibleByArrayLiteral {
-    public typealias ArrayLiteralElement = MMUserNotificationType
+public final class UserNotificationType: NSObject, ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = UserNotificationType
 	let rawValue: Int
 
 	public override var description: String {
@@ -24,30 +24,30 @@ public final class MMUserNotificationType: NSObject, ExpressibleByArrayLiteral {
         self.init(options: arrayLiteral)
     }
 
-	public init(options: [MMUserNotificationType]) {
+	public init(options: [UserNotificationType]) {
 		self.rawValue = options.reduce(0) { (total, option) -> Int in
 			return total | option.rawValue
 		}
 	}
 	
-	public func contains(options: MMUserNotificationType) -> Bool {
+	public func contains(options: UserNotificationType) -> Bool {
 		return rawValue & options.rawValue != 0
 	}
 	
-	public static let none = MMUserNotificationType(rawValue: 0)
+	public static let none = UserNotificationType(rawValue: 0)
 	
 	///The ability to display alerts.
-	public static let alert = MMUserNotificationType(rawValue: 1 << 0)
+	public static let alert = UserNotificationType(rawValue: 1 << 0)
 	
 	///The ability to update the app’s badge.
-	public static let badge = MMUserNotificationType(rawValue: 1 << 1)
+	public static let badge = UserNotificationType(rawValue: 1 << 1)
 	
 	///The ability to play sounds.
-	public static let sound = MMUserNotificationType(rawValue: 1 << 2)
+	public static let sound = UserNotificationType(rawValue: 1 << 2)
 	
 	///The ability to display notifications in a CarPlay environment.
 	/// - remark: This option is available only for iOS 10+
-	public static let carPlay = MMUserNotificationType(rawValue: 1 << 3)
+	public static let carPlay = UserNotificationType(rawValue: 1 << 3)
     
 	var unAuthorizationOptions: UNAuthorizationOptions {
 		var options: UNAuthorizationOptions = []

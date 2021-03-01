@@ -7,7 +7,7 @@
 
 import Foundation
 
-class MMLabel: UILabel {
+class CPLabel: UILabel {
 	var maxLineHeight: CGFloat? = nil
 	
 	override var text: String? {

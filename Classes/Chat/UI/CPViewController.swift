@@ -12,7 +12,7 @@ enum CPBackButtonType {
     case custom
 }
 
-open class MMModalDismissableViewController: UIViewController {
+open class CPModalDismissableViewController: UIViewController {
 	var isModal: Bool = false
 
 	public override func viewWillAppear(_ animated: Bool) {
@@ -42,10 +42,10 @@ open class MMModalDismissableViewController: UIViewController {
 			self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: UIBarButtonItem.Style.plain, target: self, action: nil)
 			self.navigationItem.backBarButtonItem?.title = ""
 		case .dismiss:
-			let dismissBarBtn = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(MMModalDismissableViewController.closeVC))
+			let dismissBarBtn = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(CPModalDismissableViewController.closeVC))
 			self.navigationItem.rightBarButtonItem = dismissBarBtn;
         case .custom:
-            let dismissBarBtn = UIBarButtonItem(image: image?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(MMModalDismissableViewController.closeVC))
+            let dismissBarBtn = UIBarButtonItem(image: image?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(CPModalDismissableViewController.closeVC))
             self.navigationItem.leftBarButtonItem = dismissBarBtn;
 		}
 	}

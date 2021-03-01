@@ -10,13 +10,13 @@ import Foundation
 class PersonalizeOperation: MMOperation {
 	
 	let mmContext: MobileMessaging
-	let userIdentity: MMUserIdentity
-	let userAttributes: MMUserAttributes?
+	let userIdentity: UserIdentity
+	let userAttributes: UserAttributes?
 	let finishBlock: ((NSError?) -> Void)?
 	let requireResponse: Bool
 	let forceDepersonalize: Bool
 
-	init(forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
+	init(forceDepersonalize: Bool, userIdentity: UserIdentity, userAttributes: UserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
 		self.forceDepersonalize = forceDepersonalize
 		self.userIdentity = userIdentity
 		self.userAttributes = userAttributes
@@ -98,7 +98,7 @@ class PersonalizeOperation: MMOperation {
 		dirtyUser.archiveDirty()
 	}
 
-	private func handleSuccessfulPersonalize(_ user: MMUser?) {
+	private func handleSuccessfulPersonalize(_ user: User?) {
 		if let user = user {
 			user.archiveAll()
 		}

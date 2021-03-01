@@ -50,11 +50,11 @@ struct LibraryVersionResponse {
 }
 
 struct MessagesSyncResponse {
-	let messages: [MM_MTMessage]?
+	let messages: [MTMessage]?
 }
 
 struct MOMessageSendingResponse {
-	let messages: [MM_MOMessage]
+	let messages: [MOMessage]
 }
 
 //MARK: - Request results
@@ -67,14 +67,14 @@ typealias MOMessageSendingResult = MMResult<MOMessageSendingResponse>
 typealias LibraryVersionResult = MMResult<LibraryVersionResponse>
 typealias BaseUrlResult = MMResult<BaseUrlResponse>
 typealias GeoEventReportingResult = MMResult<GeoEventReportingResponse>
-typealias FetchUserDataResult = MMResult<MMUser>
+typealias FetchUserDataResult = MMResult<User>
 typealias UpdateUserDataResult = MMResult<EmptyResponse>
-typealias FetchInstanceDataResult = MMResult<MMInstallation>
+typealias FetchInstanceDataResult = MMResult<Installation>
 typealias UpdateInstanceDataResult = MMResult<EmptyResponse>
-typealias PersonalizeResult = MMResult<MMUser>
+typealias PersonalizeResult = MMResult<User>
 typealias DeliveryReportResult = MMResult<EmptyResponse>
 
-public struct MMRequestError {
+public struct RequestError {
 	public let messageId: String
 	
 	public let text: String
@@ -102,7 +102,7 @@ extension EmptyResponse: JSONDecodable {
 	}
 }
 
-extension MMRequestError: JSONDecodable {
+extension RequestError: JSONDecodable {
 	init?(json value: JSON) {
 		let serviceException = value[Consts.APIKeys.requestError][Consts.APIKeys.serviceException]
 		guard
@@ -152,7 +152,7 @@ extension BaseUrlResponse: JSONDecodable {
 
 extension MessagesSyncResponse: JSONDecodable{
 	init?(json value: JSON) {
-		self.messages = value[Consts.APNSPayloadKeys.payloads].arrayValue.compactMap { MM_MTMessage(messageSyncResponseJson: $0) }
+		self.messages = value[Consts.APNSPayloadKeys.payloads].arrayValue.compactMap { MTMessage(messageSyncResponseJson: $0) }
 	}
 }
 
@@ -164,6 +164,6 @@ extension Substring  {
 
 extension MOMessageSendingResponse: JSONDecodable {
 	init?(json value: JSON) {
-		self.messages = value[Consts.APIKeys.MO.messages].arrayValue.compactMap({MM_MOMessage.init(moResponseJson: $0)})
+		self.messages = value[Consts.APIKeys.MO.messages].arrayValue.compactMap({MOMessage.init(moResponseJson: $0)})
 	}
 }

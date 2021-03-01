@@ -23,7 +23,7 @@ class InteractiveMessageButton: UIButton {
 		self.setTitle(title, for: .normal)
 	
 		self.titleLabel?.font = isBold ? UIFont.boldSystemFont(ofSize: InteractiveMessageButton.fontSize) : UIFont.systemFont(ofSize: InteractiveMessageButton.fontSize)
-		self.setTitleColor(actionStyle == .destructive ? UIColor.red : MMInteractiveMessageAlertSettings.tintColor, for: .normal)
+		self.setTitleColor(actionStyle == .destructive ? UIColor.red : InteractiveMessageAlertSettings.tintColor, for: .normal)
 		self.addHorizontalSeparator()
 		self.addVerticalSeparator()
 	}

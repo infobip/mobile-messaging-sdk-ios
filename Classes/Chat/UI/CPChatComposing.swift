@@ -6,7 +6,7 @@
 import Foundation
 
 //MARK: Compose bar
-class MMComposeBarDelegate: NSObject, ComposeBarDelegate {
+class CPComposeBarDelegate: NSObject, ComposeBarDelegate {
 	weak var scrollView: UIScrollView?
 	let sendTextBlock: (String) -> Void
     let utilityButtonClickedBlock: () -> Void

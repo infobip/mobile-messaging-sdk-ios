@@ -10,7 +10,7 @@ import Foundation
 
 extension MobileMessaging {
 	var isRegistrationStatusNeedSync: Bool {
-		return MMInstallation.delta?["isPushRegistrationEnabled"] != nil
+		return Installation.delta?["isPushRegistrationEnabled"] != nil
 	}
 
 	var isPushRegistrationEnabled: Bool {
@@ -26,7 +26,7 @@ extension MobileMessaging {
 
 	var pushRegistrationId: String? {
 		set {
-			MMInstallation.modifyAll { (installation) in
+			Installation.modifyAll { (installation) in
 				installation.pushRegistrationId = newValue
 			}
 		}
@@ -291,7 +291,7 @@ class SessionManagerStubBase : DynamicBaseUrlHTTPSessionManager {
 			case 0..<400:
 				completion(responseJSON, nil)
 			case 400..<600:
-				if let requestError = MMRequestError(json: responseJSON) {
+				if let requestError = RequestError(json: responseJSON) {
 					completion(nil, requestError.foundationError)
 				} else {
 					completion(nil, MMInternalErrorType.UnknownError.foundationError)
@@ -355,7 +355,7 @@ var darthVaderDateOfBirth: Date {
 
 class MessagHandlerMock: MMMessageHandler {
 	var setSeenWasCalled: (() -> Void)?
-	var sendMessageWasCalled: (([MM_MOMessage]) -> Void)?
+	var sendMessageWasCalled: (([MOMessage]) -> Void)?
 
 	override var isRunning: Bool {
 		get {
@@ -379,7 +379,7 @@ class MessagHandlerMock: MMMessageHandler {
 		completion()
 	}
 
-	override func sendMessages(_ messages: [MM_MOMessage], isUserInitiated: Bool, completion: (([MM_MOMessage]?, NSError?) -> Void)?) {
+	override func sendMessages(_ messages: [MOMessage], isUserInitiated: Bool, completion: (([MOMessage]?, NSError?) -> Void)?) {
 		sendMessageWasCalled?(messages)
 		completion?(messages, nil)
 	}

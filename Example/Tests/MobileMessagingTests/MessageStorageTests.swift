@@ -169,14 +169,14 @@ class MessageStorageTests: MMTestCase {
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		do {
-			let moMessage = MM_MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: nil, initialMessageId: nil, sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: nil, initialMessageId: nil, sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 			MobileMessaging.sendMessages([moMessage]) { (messages, error) in
 				expectation1?.fulfill()
 			}
 		}
 		
 		do {
-			let moMessage = MM_MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: nil, initialMessageId: nil, sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+			let moMessage = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: nil, initialMessageId: nil, sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 			MobileMessaging.sendMessages([moMessage]) { (messages, error) in
 				expectation2?.fulfill()
 			}
@@ -217,8 +217,8 @@ class MessageStorageTests: MMTestCase {
 
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-		let moMessage1 = MM_MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
-		let moMessage2 = MM_MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey": "customValue2" as NSString], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey": "customValue1" as NSString], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey": "customValue2" as NSString], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		
 		MobileMessaging.sendMessages([moMessage1, moMessage2]) { (messages, error) in
 			expectation?.fulfill()
@@ -303,16 +303,16 @@ class MessageStorageTests: MMTestCase {
 								// assertion 1
 								MobileMessaging.defaultMessageStorage?.findNonSeenMessageIds { (messageIds) in
 									XCTAssertEqual(messageIds.count, 0)
-									MobileMessaging.defaultMessageStorage?.findMessages(withIds: messageIds, completion: { (messages: [MMBaseMessage]?) in
+									MobileMessaging.defaultMessageStorage?.findMessages(withIds: messageIds, completion: { (messages: [BaseMessage]?) in
 										XCTAssertNil(messages)
 										findAllMessagesIdsExp?.fulfill()
 									})
 								}
 
 								// assertion 2
-								let q = MMQuery()
+								let q = Query()
 								q.sortDescriptors = [NSSortDescriptor(key: "createdDate", ascending: false)]
-								MobileMessaging.defaultMessageStorage?.findMessages(withQuery: q, completion: { (messages: [MMBaseMessage]?) in
+								MobileMessaging.defaultMessageStorage?.findMessages(withQuery: q, completion: { (messages: [BaseMessage]?) in
 									XCTAssertEqual(messages!.count, expectedMessagesCount)
 									checkExp?.fulfill()
 								})
@@ -408,7 +408,7 @@ class MessageStorageTests: MMTestCase {
 		}
 		
 		messageReceivingGroup.notify(queue: DispatchQueue.main) { 
-			let q = MMQuery()
+			let q = Query()
 			let fetchLimit = 2
 			q.skip = 1
 			q.limit = fetchLimit
@@ -492,14 +492,14 @@ class NotificationExtensionMessageStorageStub: AppGroupMessageStorage {
 		self.applicationCode = applicationCode
 	}
 	
-	func save(message: MM_MTMessage) {
-		var msgs = (inMemStorage[applicationCode] as? [MM_MTMessage]) ?? [MM_MTMessage]()
+	func save(message: MTMessage) {
+		var msgs = (inMemStorage[applicationCode] as? [MTMessage]) ?? [MTMessage]()
 		msgs.append(message)
 		inMemStorage[applicationCode] = msgs
 	}
 	
-	func retrieveMessages() -> [MM_MTMessage] {
-		return (inMemStorage[applicationCode] as? [MM_MTMessage]) ?? [MM_MTMessage]()
+	func retrieveMessages() -> [MTMessage] {
+		return (inMemStorage[applicationCode] as? [MTMessage]) ?? [MTMessage]()
 	}
 	
 	func cleanupMessages() {

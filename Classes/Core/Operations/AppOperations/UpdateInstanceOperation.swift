@@ -10,15 +10,15 @@ import Foundation
 class UpdateInstanceOperation : MMOperation {
 	
 	let mmContext: MobileMessaging
-	let currentInstallation: MMInstallation
+	let currentInstallation: Installation
 	let body: RequestBody
 	let finishBlock: ((NSError?) -> Void)
 	let requireResponse: Bool
 	let registrationPushRegIdToUpdate: String
 	let authPushRegistrationId: String
-	let dirtyInstallation: MMInstallation
+	let dirtyInstallation: Installation
 
-	init?(currentInstallation: MMInstallation, dirtyInstallation: MMInstallation?, registrationPushRegIdToUpdate: String?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
+	init?(currentInstallation: Installation, dirtyInstallation: Installation?, registrationPushRegIdToUpdate: String?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.currentInstallation = currentInstallation
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock

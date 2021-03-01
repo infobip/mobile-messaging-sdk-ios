@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import MobileMessaging
 
-class ViewController: UIViewController, MMInAppChatDelegate {
+class ViewController: UIViewController, InAppChatDelegate {
 	@IBOutlet weak var showChatInNavigationButton: UIButton!
 	@IBOutlet weak var showChatModallyButton: UIButton!
 	@IBOutlet weak var showChatInNavigationProgrammaticallyButton: UIButton!
@@ -25,20 +25,20 @@ class ViewController: UIViewController, MMInAppChatDelegate {
 	}
 	
 	@IBAction func showChatInNavigationP(_ sender: Any) {
-		let vc = MMChatViewController.makeChildNavigationViewController()
+		let vc = ChatViewController.makeChildNavigationViewController()
 		navigationController?.pushViewController(vc, animated: true)
 	}
 	@IBAction func showChatModallyP(_ sender: Any) {
-		let vc = MMChatViewController.makeModalViewController()
+		let vc = ChatViewController.makeModalViewController()
 		navigationController?.present(vc, animated: true, completion: nil)
 	}
 	@IBAction func presentRootNavigationVC(_ sender: Any) {
-		let vc = MMChatViewController.makeRootNavigationViewController()
+		let vc = ChatViewController.makeRootNavigationViewController()
 		navigationController?.present(vc, animated: true, completion: nil)
 	}
 
     @IBAction func presentNavigationVCCustomTrans(_ sender: Any) {
-        let vc = MMChatViewController.makeRootNavigationViewControllerWithCustomTransition()
+        let vc = ChatViewController.makeRootNavigationViewControllerWithCustomTransition()
         navigationController?.present(vc, animated: true, completion: nil)
     }
     

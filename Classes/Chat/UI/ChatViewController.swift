@@ -18,26 +18,26 @@ protocol ChatWebViewDelegate {
 ///We support two ways to quickly embed it into your own application:
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
 /// - programmatically: use one of the `make` methods provided.
-open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
+open class ChatViewController: CPMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
 
 	///Will make UINavigationController with ChatViewController as root
-	public static func makeRootNavigationViewController() -> MMChatNavigationVC {
-		return MMChatNavigationVC.makeChatNavigationViewController()
+	public static func makeRootNavigationViewController() -> ChatNavigationVC {
+		return ChatNavigationVC.makeChatNavigationViewController()
 	}
 
 	//Will make ChatViewController, for usage in navigation
-	public static func makeChildNavigationViewController() -> MMChatViewController {
-		return MMChatViewController(type: .back)
+	public static func makeChildNavigationViewController() -> ChatViewController {
+		return ChatViewController(type: .back)
 	}
     
     ///Will make UINavigationController with ChatViewController as root with custom transition
-    public static func makeRootNavigationViewControllerWithCustomTransition() -> MMChatNavigationVC {
-        return MMChatNavigationVC.makeChatNavigationViewController(transitioningDelegate: ChatCustomTransitionDelegate())
+    public static func makeRootNavigationViewControllerWithCustomTransition() -> ChatNavigationVC {
+        return ChatNavigationVC.makeChatNavigationViewController(transitioningDelegate: ChatCustomTransitionDelegate())
     }
 	
 	//Will make ChatViewController, for presenting modally
-	public static func makeModalViewController() -> MMChatViewController {
-		return MMChatViewController(type: .dismiss)
+	public static func makeModalViewController() -> ChatViewController {
+		return ChatViewController(type: .dismiss)
 	}
 	
 	var webView: ChatWebView!
@@ -166,7 +166,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     
 }
 
-extension MMChatViewController: ChatAttachmentPickerDelegate {
+extension ChatViewController: ChatAttachmentPickerDelegate {
     func didSelect(attachment: ChatMobileAttachment) {
         webView.sendMessage(attachment: attachment)
     }
@@ -209,7 +209,7 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
     private var maxUploadAttachmentSize: UInt { return chatWidget?.maxUploadContentSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize}
 }
 
-extension MMChatViewController: WKNavigationDelegate {
+extension ChatViewController: WKNavigationDelegate {
 	public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
 		guard navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url, UIApplication.shared.canOpenURL(url) else {
 			decisionHandler(.allow)

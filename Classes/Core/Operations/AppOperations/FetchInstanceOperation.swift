@@ -10,11 +10,11 @@ import Foundation
 class FetchInstanceOperation : MMOperation {
 	
 	let mmContext: MobileMessaging
-	let currentInstallation: MMInstallation
+	let currentInstallation: Installation
 	let finishBlock: ((NSError?) -> Void)
 	let pushRegistrationId: String
 
-	init?(currentInstallation: MMInstallation, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
+	init?(currentInstallation: Installation, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.currentInstallation = currentInstallation
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
@@ -63,7 +63,7 @@ class FetchInstanceOperation : MMOperation {
 		}
 	}
 
-	private func fetchedInstallationMayBeSaved(fetchedInstallation: MMInstallation) -> Bool {
+	private func fetchedInstallationMayBeSaved(fetchedInstallation: Installation) -> Bool {
 		return fetchedInstallation.pushRegistrationId == mmContext.dirtyInstallation().pushRegistrationId
 	}
 

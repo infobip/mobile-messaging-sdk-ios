@@ -58,7 +58,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     ```swift
     // Swift
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        MobileMessaging.withApplicationCode(<#your application code#>, notificationType: <#for example MMUserNotificationType(options: [.alert, .sound])#>)?.start()
+        MobileMessaging.withApplicationCode(<#your application code#>, notificationType: <#for example UserNotificationType(options: [.alert, .sound])#>)?.start()
         ...
     }   
     ```
@@ -68,7 +68,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
     ```objective-c
     - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-        MMUserNotificationType *userNotificationType = [[MMUserNotificationType alloc] initWithOptions:<#for example @[MMUserNotificationType.alert, MMUserNotificationType.sound]#>;
+        UserNotificationType *userNotificationType = [[UserNotificationType alloc] initWithOptions:<#for example @[UserNotificationType.alert, UserNotificationType.sound]#>;
         [[MobileMessaging withApplicationCode: <#your application code#> notificationType: userNotificationType] start:nil];
         ...
     }
@@ -146,7 +146,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     </p>
     </details>
 <br>
-In case of a clean project, your AppDelegate.swift code should look like following:
+In case of a clean project, your AppDeleage.swift code should look like following:
 <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/app_delegate.png?raw=true" alt="AppDelegate source code example"/>
 
 If all the steps implemented correctly, run your application on a real device, you should see the logs in Xcode console confirming that the MobileMessaging SDK has been initialized succesfully and the device has been registered on APNS to receive Push messages:

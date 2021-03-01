@@ -69,10 +69,10 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 }
 
 extension MobileMessaging {
-	class var currentInstallation: MMInstallation? {
+	class var currentInstallation: Installation? {
 		return MobileMessaging.getInstallation()
 	}
-	class var currentUser: MMUser? {
+	class var currentUser: User? {
 		return MobileMessaging.getUser()
 	}
 }
@@ -347,11 +347,11 @@ func + <Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
 	}
 }
 
-func ==(lhs : [AnyHashable : MMAttributeType], rhs: [AnyHashable : MMAttributeType]) -> Bool {
+func ==(lhs : [AnyHashable : AttributeType], rhs: [AnyHashable : AttributeType]) -> Bool {
 	return NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
-func ==(l : [String : MMAttributeType]?, r: [String : MMAttributeType]?) -> Bool {
+func ==(l : [String : AttributeType]?, r: [String : AttributeType]?) -> Bool {
 	switch (l, r) {
 	case (.none, .none):
 		return true
@@ -364,7 +364,7 @@ func ==(l : [String : MMAttributeType]?, r: [String : MMAttributeType]?) -> Bool
 	}
 }
 
-func !=(lhs : [AnyHashable : MMAttributeType], rhs: [AnyHashable : MMAttributeType]) -> Bool {
+func !=(lhs : [AnyHashable : AttributeType], rhs: [AnyHashable : AttributeType]) -> Bool {
 	return !NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
@@ -420,9 +420,9 @@ public class MobileMessagingService: NSObject, NamedLogger {
 	var systemData: [String: AnyHashable]? { return nil }
 
 	/// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
-	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool { return false }
-	func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
-	func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
+	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MTMessage) -> Bool { return false }
+	func handleNewMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
+	func handleAnyMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
 	func geoServiceDidStart(_ notification: Notification) {}
 	func mobileMessagingWillStart(_ mmContext: MobileMessaging) {}
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {}
@@ -441,8 +441,8 @@ public class MobileMessagingService: NSObject, NamedLogger {
 		completion()
 	}
 	
-	func handlesInAppNotification(forMessage message: MM_MTMessage?) -> Bool { return false }
-	func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
+	func handlesInAppNotification(forMessage message: MTMessage?) -> Bool { return false }
+	func showBannerNotificationIfNeeded(forMessage message: MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
 		showBannerWithOptions([])
 	}
 }
@@ -478,15 +478,15 @@ class MMDate {
 }
 
 protocol UserNotificationCenterStorage {
-	func getDeliveredMessages(completionHandler: @escaping ([MM_MTMessage]) -> Swift.Void)
+	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void)
 }
 
 class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
-	func getDeliveredMessages(completionHandler: @escaping ([MM_MTMessage]) -> Swift.Void) {
+	func getDeliveredMessages(completionHandler: @escaping ([MTMessage]) -> Swift.Void) {
 		UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
 			let messages = notifications
 				.compactMap({
-					MM_MTMessage(payload: $0.request.content.userInfo,
+					MTMessage(payload: $0.request.content.userInfo,
 							  deliveryMethod: .local,
 							  seenDate: nil,
 							  deliveryReportDate: nil,

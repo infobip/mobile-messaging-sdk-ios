@@ -12,7 +12,7 @@ struct DepersonalizationConsts {
 	static var failuresNumberLimit = 3
 }
 
-@objc public enum MMSuccessPending: Int {
+@objc public enum SuccessPending: Int {
 	case undefined = 0, pending, success
 }
 
@@ -40,14 +40,14 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	var badgeNumber: Int
 	var applicationCode: String?
 	var depersonalizeFailCounter: Int
-	var currentDepersonalizationStatus: MMSuccessPending
+	var currentDepersonalizationStatus: SuccessPending
 
 	func copy(with zone: NSZone? = nil) -> Any {
 		let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus, registrationDate: registrationDate)
 		return copy
 	}
 
-	init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, applicationCode: String?, depersonalizeFailCounter: Int, currentDepersonalizationStatus: MMSuccessPending, registrationDate: Date?) {
+	init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, applicationCode: String?, depersonalizeFailCounter: Int, currentDepersonalizationStatus: SuccessPending, registrationDate: Date?) {
 		self.systemDataHash = systemDataHash
 		self.location = location
 		self.badgeNumber = badgeNumber
@@ -63,7 +63,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		badgeNumber = aDecoder.decodeInteger(forKey: "badgeNumber")
 		applicationCode = aDecoder.decodeObject(forKey: "applicationCode") as? String
 		depersonalizeFailCounter = aDecoder.decodeInteger(forKey: "depersonalizeFailCounter")
-		currentDepersonalizationStatus = MMSuccessPending(rawValue: aDecoder.decodeInteger(forKey: "currentDepersonalizationStatus")) ?? .undefined
+		currentDepersonalizationStatus = SuccessPending(rawValue: aDecoder.decodeInteger(forKey: "currentDepersonalizationStatus")) ?? .undefined
 		registrationDate = aDecoder.decodeObject(forKey: "registrationDate") as? Date
 	}
 
@@ -78,19 +78,19 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	}
 }
 
-@objcMembers public final class MMInstallation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable, Archivable {
+@objcMembers public final class Installation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable, Archivable {
 	var version: Int = 0
 	static var currentPath = getDocumentsDirectory(filename: "installation")
 	static var dirtyPath = getDocumentsDirectory(filename: "dirty-installation")
-	static var cached = ThreadSafeDict<MMInstallation>()
-	static var empty: MMInstallation {
-		let systemData = MMUserAgent().systemData
-		return MMInstallation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
+	static var cached = ThreadSafeDict<Installation>()
+	static var empty: Installation {
+		let systemData = UserAgent().systemData
+		return Installation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
 	}
 	func removeSensitiveData() {
 		//nothing is sensitive in installation
 	}
-	func handleCurrentChanges(old: MMInstallation, new: MMInstallation) {
+	func handleCurrentChanges(old: Installation, new: Installation) {
 		if old.pushRegistrationId != new.pushRegistrationId {
 			UserEventsManager.postRegUpdatedEvent(pushRegistrationId)
 		}
@@ -98,7 +98,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
 		}
 	}
-	func handleDirtyChanges(old: MMInstallation, new: MMInstallation) {
+	func handleDirtyChanges(old: Installation, new: Installation) {
 		if old.isPushRegistrationEnabled != new.isPushRegistrationEnabled {
 			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
 		}
@@ -115,7 +115,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	public var applicationUserId: String?
 
 	/// Returns installations custom data. Arbitrary attributes that are related to the current installation. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var customAttributes: [String: MMAttributeType] {
+	public var customAttributes: [String: AttributeType] {
 		willSet {
 			newValue.assertCustomAttributesValid()
 		}
@@ -151,7 +151,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 
 	required public init?(coder aDecoder: NSCoder) {
 		applicationUserId = aDecoder.decodeObject(forKey: "applicationUserId") as? String
-		customAttributes = (aDecoder.decodeObject(forKey: "customAttributes") as? [String: MMAttributeType]) ?? [:]
+		customAttributes = (aDecoder.decodeObject(forKey: "customAttributes") as? [String: AttributeType]) ?? [:]
 		isPrimaryDevice = aDecoder.decodeBool(forKey: "isPrimary")
 		isPushRegistrationEnabled = aDecoder.decodeBool(forKey: "regEnabled")
 		pushRegistrationId = aDecoder.decodeObject(forKey: "pushRegId") as? String
@@ -226,7 +226,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 
 	init(applicationUserId: String?,
 		 appVersion: String?,
-		 customAttributes: [String: MMAttributeType],
+		 customAttributes: [String: AttributeType],
 		 deviceManufacturer: String?,
 		 deviceModel: String?,
 		 deviceName: String?,
@@ -266,7 +266,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	}
 
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let object = object as? MMInstallation else {
+		guard let object = object as? Installation else {
 			return false
 		}
 
@@ -296,7 +296,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		self.init(
 			applicationUserId: dict["applicationUserId"] as? String,
 			appVersion: dict["appVersion"] as? String,
-			customAttributes: (dict["customAttributes"] as? [String: MMAttributeType]) ?? [:],
+			customAttributes: (dict["customAttributes"] as? [String: AttributeType]) ?? [:],
 			deviceManufacturer: dict["deviceManufacturer"] as? String,
 			deviceModel: dict["deviceModel"] as? String,
 			deviceName: dict["deviceName"] as? String,
@@ -341,7 +341,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	}
 
 	public func copy(with zone: NSZone? = nil) -> Any {
-		let copy = MMInstallation(applicationUserId: applicationUserId, appVersion: appVersion, customAttributes: customAttributes, deviceManufacturer: deviceManufacturer, deviceModel: deviceModel, deviceName: deviceName, deviceSecure: deviceSecure, deviceTimeZone: deviceTimeZone, geoEnabled: geoEnabled, isPrimaryDevice: isPrimaryDevice, isPushRegistrationEnabled: isPushRegistrationEnabled, language: language, notificationsEnabled: notificationsEnabled, os: os, osVersion: osVersion, pushRegistrationId: pushRegistrationId, pushServiceToken: pushServiceToken, pushServiceType: pushServiceType, sdkVersion: sdkVersion)
+		let copy = Installation(applicationUserId: applicationUserId, appVersion: appVersion, customAttributes: customAttributes, deviceManufacturer: deviceManufacturer, deviceModel: deviceModel, deviceName: deviceName, deviceSecure: deviceSecure, deviceTimeZone: deviceTimeZone, geoEnabled: geoEnabled, isPrimaryDevice: isPrimaryDevice, isPushRegistrationEnabled: isPushRegistrationEnabled, language: language, notificationsEnabled: notificationsEnabled, os: os, osVersion: osVersion, pushRegistrationId: pushRegistrationId, pushServiceToken: pushServiceToken, pushServiceType: pushServiceType, sdkVersion: sdkVersion)
 		return copy
 	}
 }

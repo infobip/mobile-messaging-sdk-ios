@@ -24,7 +24,7 @@ extension MobileMessaging {
 	}
 }
 
-extension MM_MTMessage {
+extension MTMessage {
 	
 	@discardableResult func downloadImageAttachment(appGroupId: String? = nil, completion: @escaping (URL?, Error?) -> Void) -> RetryableDownloadTask? {
 		guard let contentURL = contentUrl?.safeUrl else {
@@ -96,7 +96,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
 		var result: UNNotificationContent = request.content
 		
 		guard let sharedInstance = sharedInstance,
-			let mtMessage = MM_MTMessage(payload: request.content.userInfo,
+			let mtMessage = MTMessage(payload: request.content.userInfo,
 									  deliveryMethod: .push,
 									  seenDate: nil,
 									  deliveryReportDate: nil,
@@ -145,7 +145,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
 		self.sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: Consts.APIValues.prodDynamicBaseURLString)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 	}
 	
-	private func retrieveNotificationContent(for message: MM_MTMessage, originalContent: UNNotificationContent, completion: @escaping (UNNotificationContent) -> Void) {
+	private func retrieveNotificationContent(for message: MTMessage, originalContent: UNNotificationContent, completion: @escaping (UNNotificationContent) -> Void) {
 		
 		currentTask = message.downloadImageAttachment(appGroupId: appGroupId) { (downloadedFileUrl, error) in
 			guard let downloadedFileUrl = downloadedFileUrl,
@@ -165,7 +165,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
 		}
 	}
 	
-	private func reportDelivery(_ message: MM_MTMessage, completion: @escaping (NSError?) -> Void) {
+	private func reportDelivery(_ message: MTMessage, completion: @escaping (NSError?) -> Void) {
 		deliveryReporter.report(applicationCode: applicationCode, messageIds: [message.messageId], completion: completion)
 	}
 	
@@ -197,8 +197,8 @@ class DeliveryReporter: DeliveryReporting, NamedLogger {
 
 protocol AppGroupMessageStorage {
 	init?(applicationCode: String, appGroupId: String)
-	func save(message: MM_MTMessage)
-	func retrieveMessages() -> [MM_MTMessage]
+	func save(message: MTMessage)
+	func retrieveMessages() -> [MTMessage]
 	func cleanupMessages()
 }
 
@@ -215,9 +215,9 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 		self.storage = ud
 	}
 	
-	func save(message: MM_MTMessage) {
+	func save(message: MTMessage) {
 		var savedMessageDicts = retrieveSavedPayloadDictionaries()
-		var msgDict: MMStringKeyPayload = ["p": message.originalPayload, "dlr": message.isDeliveryReportSent]
+		var msgDict: StringKeyPayload = ["p": message.originalPayload, "dlr": message.isDeliveryReportSent]
 //		msgDict["downloadedPicUrl"] = message.downloadedPictureUrl?.absoluteString
 		msgDict["dlrd"] = message.deliveryReportedDate
 		savedMessageDicts.append(msgDict)
@@ -226,14 +226,14 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 		storage.synchronize()
 	}
 	
-	func retrieveMessages() -> [MM_MTMessage] {
+	func retrieveMessages() -> [MTMessage] {
         let messageDataDicts = retrieveSavedPayloadDictionaries()
-		let messages = messageDataDicts.compactMap({ messageDataTuple -> MM_MTMessage? in
-			guard let payload = messageDataTuple["p"] as? MMStringKeyPayload, let dlrSent =  messageDataTuple["dlr"] as? Bool else
+		let messages = messageDataDicts.compactMap({ messageDataTuple -> MTMessage? in
+			guard let payload = messageDataTuple["p"] as? StringKeyPayload, let dlrSent =  messageDataTuple["dlr"] as? Bool else
 			{
 				return nil
 			}
-			let newMessage = MM_MTMessage(payload: payload,
+			let newMessage = MTMessage(payload: payload,
 									   deliveryMethod: .local,
 									   seenDate: nil,
 									   deliveryReportDate: messageDataTuple["dlrd"] as? Date,
@@ -252,12 +252,12 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 		storage.removeObject(forKey: applicationCode)
 	}
     
-    private func retrieveSavedPayloadDictionaries() -> [MMStringKeyPayload] {
-        var payloadDictionaries = [MMStringKeyPayload]();
+    private func retrieveSavedPayloadDictionaries() -> [StringKeyPayload] {
+        var payloadDictionaries = [StringKeyPayload]();
         if let data = storage.object(forKey: applicationCode) as? Data,
-           let dictionaries = NSKeyedUnarchiver.unarchiveObject(with: data) as? [MMStringKeyPayload] { //saved as Data for supporting NSNull in payload
+           let dictionaries = NSKeyedUnarchiver.unarchiveObject(with: data) as? [StringKeyPayload] { //saved as Data for supporting NSNull in payload
             payloadDictionaries = dictionaries
-        } else if let dictionaries = storage.object(forKey: applicationCode) as? [MMStringKeyPayload] { //migration from saving as Dictionaries
+        } else if let dictionaries = storage.object(forKey: applicationCode) as? [StringKeyPayload] { //migration from saving as Dictionaries
             payloadDictionaries = dictionaries
         }
         return payloadDictionaries
