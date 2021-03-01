@@ -14,20 +14,20 @@ enum RegionEventType: String {
 	case exit
 }
 
-final public class MMGeoMessage: MTMessage {
+final public class MMGeoMessage: MM_MTMessage {
 	public let campaignId: String
 	public let regions: Set<MMRegion>
 	public let startTime: Date
 	public let expiryTime: Date
 	public var isNotExpired: Bool {
-		return GeofencingService.isGeoCampaignNotExpired(campaign: self)
+		return MMGeofencingService.isGeoCampaignNotExpired(campaign: self)
 	}
 	
 	var hasValidEventsStateInGeneral: Bool {
 		return events.filter({ $0.isValidInGeneral }).isEmpty == false
 	}
 	
-	public var campaignState: CampaignState = .Active
+	public var campaignState: MMCampaignState = .Active
 	
 	convenience init?(managedObject: MessageManagedObject) {
 		guard let payload = managedObject.payload else {
@@ -35,7 +35,7 @@ final public class MMGeoMessage: MTMessage {
 		}
 		
 		self.init(payload: payload,
-				  deliveryMethod: MessageDeliveryMethod(rawValue: managedObject.deliveryMethod) ?? .undefined,
+				  deliveryMethod: MMMessageDeliveryMethod(rawValue: managedObject.deliveryMethod) ?? .undefined,
 				  seenDate: managedObject.seenDate,
 				  deliveryReportDate: managedObject.deliveryReportedDate,
 				  seenStatus: managedObject.seenStatus,
@@ -51,11 +51,11 @@ final public class MMGeoMessage: MTMessage {
 		}
 	}
 	
-	override public init?(payload: APNSPayload, deliveryMethod: MessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool)
+	override public init?(payload: MMAPNSPayload, deliveryMethod: MMMessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool)
 	{
 		guard
-			let internalData = payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload,
-			let geoRegionsData = internalData[Consts.InternalDataKeys.geo] as? [StringKeyPayload],
+			let internalData = payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload,
+			let geoRegionsData = internalData[Consts.InternalDataKeys.geo] as? [MMStringKeyPayload],
 			let expiryTimeString = internalData[GeoConstants.CampaignKeys.expiryDate] as? String,
 			let startTimeString = internalData[GeoConstants.CampaignKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: MobileMessaging.date.timeInterval(sinceReferenceDate: 0)) as String?,
 			let expiryTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryTimeString),
@@ -69,9 +69,9 @@ final public class MMGeoMessage: MTMessage {
 		self.expiryTime = expiryTime
 		self.startTime = startTime
 		
-		let deliveryTime: DeliveryTime?
+		let deliveryTime: MMDeliveryTime?
 		if let deliveryTimeDict = internalData[Consts.InternalDataKeys.deliveryTime] as? DictionaryRepresentation {
-			deliveryTime = DeliveryTime(dictRepresentation: deliveryTimeDict)
+			deliveryTime = MMDeliveryTime(dictRepresentation: deliveryTimeDict)
 		} else {
 			deliveryTime = nil
 		}
@@ -99,7 +99,7 @@ final public class MMGeoMessage: MTMessage {
 	}
 	
 	//MARK: - Internal
-	let deliveryTime: DeliveryTime?
+	let deliveryTime: MMDeliveryTime?
 	
 	func isLiveNow(for type: RegionEventType) -> Bool {
 		guard events.contains(where: {$0.type == type}) else {
@@ -110,7 +110,7 @@ final public class MMGeoMessage: MTMessage {
 	}
 	
 	func isNowAppropriateTimeForNotification(for type: RegionEventType) -> Bool {
-		let now = GeofencingService.currentDate ?? MobileMessaging.date.now
+		let now = MMGeofencingService.currentDate ?? MobileMessaging.date.now
 		let isDeliveryTimeNow = deliveryTime?.isNow ?? true
 		let isCampaignNotExpired = isLiveNow(for: type)
 		let isCampaignStarted = now.compare(startTime) != .orderedAscending
@@ -119,7 +119,7 @@ final public class MMGeoMessage: MTMessage {
 	
 	let events: [RegionEvent]
     
-    var geoEventReportFormat: StringKeyPayload {
+    var geoEventReportFormat: MMStringKeyPayload {
         var geoEventReportFormat: [String: Any] = ["messageId": messageId,
                                                    "body": text ?? "",
                                                    "silent": isSilent,
@@ -144,8 +144,8 @@ final public class MMGeoMessage: MTMessage {
 }
 
 @objcMembers
-public class DeliveryTime: NSObject, DictionaryRepresentable {
-	public let timeInterval: DeliveryTimeInterval?
+public class MMDeliveryTime: NSObject, DictionaryRepresentable {
+	public let timeInterval: MMDeliveryTimeInterval?
 	public let days: Set<MMDay>?
 	var isNow: Bool {
 		let time = isNowAppropriateTime
@@ -161,11 +161,11 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 	}
 	
 	private var isNowAppropriateDay: Bool {
-		return GeofencingService.isNowAppropriateDay(forDeliveryTime: self)
+		return MMGeofencingService.isNowAppropriateDay(forDeliveryTime: self)
 	}
 	
 	required public convenience init?(dictRepresentation dict: DictionaryRepresentation) {
-		let interval = DeliveryTimeInterval(dictRepresentation: dict)
+		let interval = MMDeliveryTimeInterval(dictRepresentation: dict)
 		let days: Set<MMDay>?
 
 		if let daysArray = (dict[GeoConstants.RegionDeliveryTimeKeys.days] as? String)?.components(separatedBy: ",") {
@@ -188,11 +188,11 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 		if let days = days , !days.isEmpty {
 			result[GeoConstants.RegionDeliveryTimeKeys.days] = Array(days).compactMap({ String($0.rawValue) }).joined(separator: ",")
 		}
-		assert(DeliveryTime(dictRepresentation: result) != nil, "The dictionary representation is invalid")
+		assert(MMDeliveryTime(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
 	
-	init(timeInterval: DeliveryTimeInterval?, days: Set<MMDay>?) {
+	init(timeInterval: MMDeliveryTimeInterval?, days: Set<MMDay>?) {
 		self.timeInterval = timeInterval
 		self.days = days
 	}
@@ -205,7 +205,7 @@ public class DeliveryTime: NSObject, DictionaryRepresentable {
 }
 
 @objcMembers
-public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
+public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	static let timeIntervalSeparator = "/"
 	let fromTime: String
 	let toTime: String
@@ -216,7 +216,7 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	}
 	
 	var isNow: Bool {
-		return GeofencingService.isNowAppropriateTime(forDeliveryTimeInterval: self)
+		return MMGeofencingService.isNowAppropriateTime(forDeliveryTimeInterval: self)
 	}
 	
 	/// Checks if `time` is in the interval defined with two time strings `fromTime` and `toTime` in ISO 8601 formats: `hhmm`
@@ -248,7 +248,7 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	}
 
 	convenience public required init?(dictRepresentation dict: DictionaryRepresentation) {
-		if let comps = (dict[GeoConstants.RegionDeliveryTimeKeys.timeInterval] as? String)?.components(separatedBy: DeliveryTimeInterval.timeIntervalSeparator),
+		if let comps = (dict[GeoConstants.RegionDeliveryTimeKeys.timeInterval] as? String)?.components(separatedBy: MMDeliveryTimeInterval.timeIntervalSeparator),
 			let from = comps.first,
 			let to = comps.last , comps.count == 2
 		{
@@ -260,8 +260,8 @@ public class DeliveryTimeInterval: NSObject, DictionaryRepresentable {
 	
 	var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
-		result[GeoConstants.RegionDeliveryTimeKeys.timeInterval] = "\(fromTime)\(DeliveryTimeInterval.timeIntervalSeparator)\(toTime)"
-		assert(DeliveryTimeInterval(dictRepresentation: result) != nil, "The dictionary representation is invalid")
+		result[GeoConstants.RegionDeliveryTimeKeys.timeInterval] = "\(fromTime)\(MMDeliveryTimeInterval.timeIntervalSeparator)\(toTime)"
+		assert(MMDeliveryTimeInterval(dictRepresentation: result) != nil, "The dictionary representation is invalid")
 		return result
 	}
 }
@@ -350,11 +350,11 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	}
 	
 	var isValidNow: Bool {
-		return GeofencingService.isRegionEventValidNow(self)
+		return MMGeofencingService.isRegionEventValidNow(self)
 	}
 	
 	var isValidInGeneral: Bool {
-		return GeofencingService.isRegionEventValidInGeneral(self)
+		return MMGeofencingService.isRegionEventValidInGeneral(self)
 	}
 	
 	fileprivate func occur() {
@@ -397,8 +397,8 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 	}
 }
 
-extension MTMessage {
-	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String, region: MMRegion) -> MTMessage? {
+extension MM_MTMessage {
+	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String, region: MMRegion) -> MM_MTMessage? {
 		guard let aps = geoMessage.originalPayload[Consts.APNSPayloadKeys.aps] as? [String: Any],
 			let internalData = geoMessage.originalPayload[Consts.APNSPayloadKeys.internalData] as? [String: Any],
 			let silentAps = internalData[Consts.InternalDataKeys.silent] as? [String: Any] else
@@ -425,7 +425,7 @@ extension MTMessage {
 		//cut silent:true in case of fetched message
 		newpayload.removeValue(forKey: Consts.InternalDataKeys.silent)
 		
-		let result = MTMessage(payload: newpayload,
+		let result = MM_MTMessage(payload: newpayload,
 							   deliveryMethod: .generatedLocally,
 							   seenDate: nil,
 							   deliveryReportDate: nil,

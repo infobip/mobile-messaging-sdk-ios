@@ -14,9 +14,9 @@ class CustomEventReportingOperation: MMOperation {
 	var eventManagedObjects: [CustomEventObject]?
 	let finishBlock: ((NSError?) -> Void)
 	let context: NSManagedObjectContext
-	let customEvent: CustomEvent?
+	let customEvent: MMCustomEvent?
 
-	init(customEvent: CustomEvent?, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
+	init(customEvent: MMCustomEvent?, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.customEvent = customEvent
 		self.context = context
 		self.mmContext = mmContext

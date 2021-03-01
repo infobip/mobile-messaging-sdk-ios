@@ -50,7 +50,7 @@ class EmailTransformer: ValueTransformer {
     }
 
 	override func transformedValue(_ value: Any?) -> Any? {
-		guard let value = value as? [Email] else {
+		guard let value = value as? [MMEmail] else {
 			return nil
 		}
 		return NSKeyedArchiver.archivedData(withRootObject: value)
@@ -75,7 +75,7 @@ class InstallationTransformer: ValueTransformer {
     }
 
 	override func transformedValue(_ value: Any?) -> Any? {
-		guard let value = value as? [Installation] else {
+		guard let value = value as? [MMInstallation] else {
 			return nil
 		}
 		return NSKeyedArchiver.archivedData(withRootObject: value)
@@ -100,7 +100,7 @@ class PhoneTransformer: ValueTransformer {
     }
 
 	override func transformedValue(_ value: Any?) -> Any? {
-		guard let value = value as? [Phone] else {
+		guard let value = value as? [MMPhone] else {
 			return nil
 		}
 		return NSKeyedArchiver.archivedData(withRootObject: value)

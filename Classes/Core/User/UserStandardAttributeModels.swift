@@ -7,12 +7,12 @@
 
 import Foundation
 
-@objc public enum GenderNonnull: Int {
+@objc public enum MMGenderNonnull: Int {
 	case Female
 	case Male
 	case Undefined
 
-	var toGender: Gender? {
+	var toGender: MMGender? {
 		switch self {
 		case .Female : return .Female
 		case .Male : return .Male
@@ -20,7 +20,7 @@ import Foundation
 		}
 	}
 
-	static func make(from gender: Gender?) -> GenderNonnull {
+	static func make(from gender: MMGender?) -> MMGenderNonnull {
 		if let gender = gender {
 			switch gender {
 			case .Female: return .Female
@@ -32,7 +32,7 @@ import Foundation
 	}
 }
 
-public enum Gender: Int {
+public enum MMGender: Int {
 	case Female
 	case Male
 
@@ -43,12 +43,12 @@ public enum Gender: Int {
 		}
 	}
 
-	static func make(with name: String) -> Gender? {
+	static func make(with name: String) -> MMGender? {
 		switch name {
 		case "Female":
-			return Gender.Female
+			return MMGender.Female
 		case "Male":
-			return Gender.Male
+			return MMGender.Male
 		default:
 			return nil
 		}
@@ -56,7 +56,7 @@ public enum Gender: Int {
 }
 
 
-@objcMembers public final class Phone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
+@objcMembers public final class MMPhone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
 	public let number: String
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
@@ -74,7 +74,7 @@ public enum Gender: Int {
 	}
 
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let object = object as? Phone else {
+		guard let object = object as? MMPhone else {
 			return false
 		}
 		return self.number == object.number // preferred is not supported yet on mobile api
@@ -104,7 +104,7 @@ public enum Gender: Int {
 	}
 }
 
-@objcMembers public final class Email: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
+@objcMembers public final class MMEmail: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
 	public let address: String
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
@@ -122,7 +122,7 @@ public enum Gender: Int {
 	}
 
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let object = object as? Email else {
+		guard let object = object as? MMEmail else {
 			return false
 		}
 		return self.address == object.address
@@ -152,7 +152,7 @@ public enum Gender: Int {
 	}
 }
 
-@objcMembers public class UserIdentity: NSObject {
+@objcMembers public class MMUserIdentity: NSObject {
 	public let phones: [String]?
 	public let emails: [String]?
 	public let externalUserId: String?
@@ -168,7 +168,7 @@ public enum Gender: Int {
 	}
 }
 
-@objcMembers public class UserAttributes: NSObject, DictionaryRepresentable {
+@objcMembers public class MMUserAttributes: NSObject, DictionaryRepresentable {
 	/// The user's first name. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var firstName: String?
 
@@ -182,18 +182,18 @@ public enum Gender: Int {
 	public var tags: Set<String>?
 
 	/// A user's gender. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var gender: Gender?
+	public var gender: MMGender?
 
-	public var genderNonnull: GenderNonnull {
+	public var genderNonnull: MMGenderNonnull {
 		set { gender = newValue.toGender }
-		get { return GenderNonnull.make(from: gender) }
+		get { return MMGenderNonnull.make(from: gender) }
 	}
 
 	/// A user's birthday. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var birthday: Date?
 
 	/// Returns user's custom data. Arbitrary attributes that are related to a particular user. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
-	public var customAttributes: [String: AttributeType]? {
+	public var customAttributes: [String: MMAttributeType]? {
 		willSet {
 			newValue?.assertCustomAttributesValid()
 		}
@@ -203,9 +203,9 @@ public enum Gender: Int {
 		,middleName: String?
 		,lastName: String?
 		,tags: Set<String>?
-		,genderNonnull: GenderNonnull
+		,genderNonnull: MMGenderNonnull
 		,birthday: Date?
-		,customAttributes: [String: AttributeType]?) {
+		,customAttributes: [String: MMAttributeType]?) {
 
 		self.init(firstName: firstName, middleName: middleName, lastName: lastName, tags: tags, gender: genderNonnull.toGender, birthday: birthday, customAttributes: customAttributes)
 	}
@@ -214,9 +214,9 @@ public enum Gender: Int {
 		,middleName: String?
 		,lastName: String?
 		,tags: Set<String>?
-		,gender: Gender?
+		,gender: MMGender?
 		,birthday: Date?
-		,customAttributes: [String: AttributeType]?) {
+		,customAttributes: [String: MMAttributeType]?) {
 
 		self.firstName = firstName
 		self.middleName = middleName
@@ -233,7 +233,7 @@ public enum Gender: Int {
 				  middleName: value["middleName"].string,
 				  lastName: value["lastName"].string,
 				  tags: arrayToSet(arr: value["tags"].arrayObject as? [String]),
-				  gender: value["gender"].string.ifSome({ Gender.make(with: $0) }),
+				  gender: value["gender"].string.ifSome({ MMGender.make(with: $0) }),
 				  birthday: value["birthday"].string.ifSome({ DateStaticFormatters.ContactsServiceDateFormatter.date(from: $0) }),
 				  customAttributes: value["customAttributes"].dictionary?.decodeCustomAttributesJSON)
 	}
@@ -251,13 +251,13 @@ public enum Gender: Int {
 	}
 }
 
-@objcMembers public final class User: UserAttributes, JSONDecodable, NSCoding, NSCopying, Archivable {
+@objcMembers public final class MMUser: MMUserAttributes, JSONDecodable, NSCoding, NSCopying, Archivable {
 	var version: Int = 0
 	static var currentPath = getDocumentsDirectory(filename: "user")
 	static var dirtyPath = getDocumentsDirectory(filename: "dirty-user")
-	static var cached = ThreadSafeDict<User>()
-	static var empty: User {
-		return User(externalUserId: nil, firstName: nil, middleName: nil, lastName: nil, phones: nil, emails: nil, tags: nil, gender: nil, birthday: nil, customAttributes: nil, installations: nil)
+	static var cached = ThreadSafeDict<MMUser>()
+	static var empty: MMUser {
+		return MMUser(externalUserId: nil, firstName: nil, middleName: nil, lastName: nil, phones: nil, emails: nil, tags: nil, gender: nil, birthday: nil, customAttributes: nil, installations: nil)
 	}
 	func removeSensitiveData() {
 		if MobileMessaging.privacySettings.userDataPersistingDisabled == true {
@@ -272,10 +272,10 @@ public enum Gender: Int {
 			self.externalUserId = nil
 		}
 	}
-	func handleCurrentChanges(old: User, new: User) {
+	func handleCurrentChanges(old: MMUser, new: MMUser) {
 		// nothing to do
 	}
-	func handleDirtyChanges(old: User, new: User) {
+	func handleDirtyChanges(old: MMUser, new: MMUser) {
 		// nothing to do
 	}
 
@@ -293,29 +293,29 @@ public enum Gender: Int {
 	/// User's phone numbers. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var phones: Array<String>? {
 		set {
-			phonesObjects = newValue?.map({ return Phone(number: $0, preferred: false) })
+			phonesObjects = newValue?.map({ return MMPhone(number: $0, preferred: false) })
 		}
 		get {
 			return phonesObjects?.map({ return $0.number })
 		}
 	}
-	var phonesObjects: Array<Phone>?
+	var phonesObjects: Array<MMPhone>?
 
 	/// User's email addresses. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var emails: Array<String>? {
 		set {
-			emailsObjects = newValue?.map({ return Email(address: $0, preferred: false) })
+			emailsObjects = newValue?.map({ return MMEmail(address: $0, preferred: false) })
 		}
 		get {
 			return emailsObjects?.map({ return $0.address })
 		}
 	}
-	var emailsObjects: Array<Email>?
+	var emailsObjects: Array<MMEmail>?
 
 	/// All installations personalized with the user
-	public internal(set) var installations: Array<Installation>?
+	public internal(set) var installations: Array<MMInstallation>?
 
-	convenience init(userIdentity: UserIdentity, userAttributes: UserAttributes?) {
+	convenience init(userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?) {
 		self.init(externalUserId: userIdentity.externalUserId, firstName: userAttributes?.firstName, middleName: userAttributes?.middleName, lastName: userAttributes?.lastName, phones: userIdentity.phones, emails: userIdentity.emails, tags: userAttributes?.tags, gender: userAttributes?.gender, birthday: userAttributes?.birthday, customAttributes: userAttributes?.customAttributes, installations: nil)
 	}
 
@@ -326,10 +326,10 @@ public enum Gender: Int {
 		,phones: Array<String>?
 		,emails: Array<String>?
 		,tags: Set<String>?
-		,gender: Gender?
+		,gender: MMGender?
 		,birthday: Date?
-		,customAttributes: [String: AttributeType]?
-		,installations: Array<Installation>?) {
+		,customAttributes: [String: MMAttributeType]?
+		,installations: Array<MMInstallation>?) {
 
 		super.init(firstName: firstName, middleName: middleName, lastName: lastName, tags: tags, gender: gender, birthday: birthday, customAttributes: customAttributes)
 		self.installations = installations
@@ -343,13 +343,13 @@ public enum Gender: Int {
 				  firstName: value[Attributes.firstName.rawValue].string,
 				  middleName: value[Attributes.middleName.rawValue].string,
 				  lastName: value[Attributes.lastName.rawValue].string,
-				  phones: value[Attributes.phones.rawValue].array?.compactMap({ return Phone(json: $0)?.number }),
-				  emails: value[Attributes.emails.rawValue].array?.compactMap({ return Email(json: $0)?.address }),
+				  phones: value[Attributes.phones.rawValue].array?.compactMap({ return MMPhone(json: $0)?.number }),
+				  emails: value[Attributes.emails.rawValue].array?.compactMap({ return MMEmail(json: $0)?.address }),
 				  tags: arrayToSet(arr: value[Attributes.tags.rawValue].arrayObject as? [String]),
-				  gender: value[Attributes.gender.rawValue].string.ifSome({ Gender.make(with: $0) }),
+				  gender: value[Attributes.gender.rawValue].string.ifSome({ MMGender.make(with: $0) }),
 				  birthday: value[Attributes.birthday.rawValue].string.ifSome({ DateStaticFormatters.ContactsServiceDateFormatter.date(from: $0) }),
 				  customAttributes: value[Attributes.customAttributes.rawValue].dictionary?.decodeCustomAttributesJSON,
-				  installations: value[Attributes.instances.rawValue].array?.compactMap({ Installation(json: $0) }))
+				  installations: value[Attributes.instances.rawValue].array?.compactMap({ MMInstallation(json: $0) }))
 	}
 
 	// must be extracted to cordova plugin srcs
@@ -359,13 +359,13 @@ public enum Gender: Int {
 				  firstName: value["firstName"].string,
 				  middleName: value["middleName"].string,
 				  lastName: value["lastName"].string,
-				  phones: (value["phones"].arrayObject as? [String])?.compactMap({ return Phone(number: $0, preferred: false).number }),
-				  emails: (value["emails"].arrayObject as? [String])?.compactMap({ return Email(address: $0, preferred: false).address }),
+				  phones: (value["phones"].arrayObject as? [String])?.compactMap({ return MMPhone(number: $0, preferred: false).number }),
+				  emails: (value["emails"].arrayObject as? [String])?.compactMap({ return MMEmail(address: $0, preferred: false).address }),
 				  tags: arrayToSet(arr: value["tags"].arrayObject as? [String]),
-				  gender: value["gender"].string.ifSome({ Gender.make(with: $0) }),
+				  gender: value["gender"].string.ifSome({ MMGender.make(with: $0) }),
 				  birthday: value["birthday"].string.ifSome({ DateStaticFormatters.ContactsServiceDateFormatter.date(from: $0) }),
 				  customAttributes: value["customAttributes"].dictionary?.decodeCustomAttributesJSON,
-				  installations: value["installations"].array?.compactMap({ Installation(json: $0) }))
+				  installations: value["installations"].array?.compactMap({ MMInstallation(json: $0) }))
 	}
 
 	public override var dictionaryRepresentation: DictionaryRepresentation {
@@ -378,7 +378,7 @@ public enum Gender: Int {
 	}
 
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let object = object as? User else {
+		guard let object = object as? MMUser else {
 			return false
 		}
 
@@ -400,13 +400,13 @@ public enum Gender: Int {
 				   middleName: aDecoder.decodeObject(forKey: "middleName") as? String,
 				   lastName: aDecoder.decodeObject(forKey: "lastName") as? String,
 				   tags: arrayToSet(arr: aDecoder.decodeObject(forKey: "tags") as? [String]),
-				   gender: Gender(rawValue: (aDecoder.decodeObject(forKey: "gender") as? Int) ?? 999) ,
+				   gender: MMGender(rawValue: (aDecoder.decodeObject(forKey: "gender") as? Int) ?? 999) ,
 				   birthday: aDecoder.decodeObject(forKey: "birthday") as? Date,
-				   customAttributes: aDecoder.decodeObject(forKey: "customAttributes") as? [String: AttributeType])
+				   customAttributes: aDecoder.decodeObject(forKey: "customAttributes") as? [String: MMAttributeType])
 		externalUserId = aDecoder.decodeObject(forKey: "externalUserId") as? String
-		phonesObjects = aDecoder.decodeObject(forKey: "phones") as? Array<Phone>
-		emailsObjects = aDecoder.decodeObject(forKey: "emails") as? Array<Email>
-		installations = aDecoder.decodeObject(forKey: "installations") as? Array<Installation>
+		phonesObjects = aDecoder.decodeObject(forKey: "phones") as? Array<MMPhone>
+		emailsObjects = aDecoder.decodeObject(forKey: "emails") as? Array<MMEmail>
+		installations = aDecoder.decodeObject(forKey: "installations") as? Array<MMInstallation>
 	}
 
 	public func encode(with aCoder: NSCoder) {
@@ -424,6 +424,6 @@ public enum Gender: Int {
 	}
 
 	public func copy(with zone: NSZone? = nil) -> Any {
-		return User(externalUserId: externalUserId, firstName: firstName, middleName: middleName, lastName: lastName, phones: phones, emails: emails, tags: tags, gender: gender, birthday: birthday, customAttributes: customAttributes, installations: installations)
+		return MMUser(externalUserId: externalUserId, firstName: firstName, middleName: middleName, lastName: lastName, phones: phones, emails: emails, tags: tags, gender: gender, birthday: birthday, customAttributes: customAttributes, installations: installations)
 	}
 }

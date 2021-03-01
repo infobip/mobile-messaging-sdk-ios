@@ -8,12 +8,12 @@
 import Foundation
 
 @objcMembers
-public class MOMessage: BaseMessage {
+public class MM_MOMessage: MMBaseMessage {
 	/// Destination indicates where the message is being sent
 	public var destination: String?
 
 	/// Sent status
-	public var sentStatus: MOMessageSentStatus
+	public var sentStatus: MM_MOMessageSentStatus
 
 	/// Indicates when the message was composed
 	public var composedDate: Date
@@ -28,14 +28,14 @@ public class MOMessage: BaseMessage {
 		return MOAttributes(destination: destination, text: text ?? "", customPayload: customPayload, messageId: messageId, sentStatus: sentStatus, bulkId: bulkId, initialMessageId: initialMessageId).dictRepresentation
 	}
 	
-	convenience public init(destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil) {
+	convenience public init(destination: String?, text: String, customPayload: [String: MMCustomPayloadSupportedTypes]?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil) {
 		let mId = NSUUID().uuidString
 		self.init(messageId: mId, destination: destination, text: text, customPayload: customPayload, composedDate: composedDate, bulkId: bulkId, initialMessageId: initialMessageId, deliveryMethod: .generatedLocally)
 	}
 	
 	convenience init?(messageStorageMessageManagedObject m: Message) {
 		self.init(payload: m.payload, composedDate: m.createdDate)
-		self.sentStatus = MOMessageSentStatus(rawValue: m.sentStatusValue) ?? .Undefined //FIXME: proper init needed, move the sent status out of designated inits. also check mt mtessages if all specific attributes are initialized @NSManaged var messageId: String
+		self.sentStatus = MM_MOMessageSentStatus(rawValue: m.sentStatusValue) ?? .Undefined //FIXME: proper init needed, move the sent status out of designated inits. also check mt mtessages if all specific attributes are initialized @NSManaged var messageId: String
 	}
 	
 	convenience init?(messageManagedObject: MessageManagedObject) {
@@ -61,16 +61,16 @@ public class MOMessage: BaseMessage {
 		{
 			return nil
 		}
-		let sentStatus = MOMessageSentStatus(rawValue: Int16(status)) ?? MOMessageSentStatus.Undefined
+		let sentStatus = MM_MOMessageSentStatus(rawValue: Int16(status)) ?? MM_MOMessageSentStatus.Undefined
 		let destination = payload[Consts.APIKeys.MO.destination] as? String
-		let customPayload = payload[Consts.APIKeys.MO.customPayload] as? [String: CustomPayloadSupportedTypes]
+		let customPayload = payload[Consts.APIKeys.MO.customPayload] as? [String: MMCustomPayloadSupportedTypes]
 		let bulkId = payload[Consts.APIKeys.MO.bulkId] as? String
 		let initialMessageId = payload[Consts.APIKeys.MO.initialMessageId] as? String
 		
 		self.init(messageId: messageId, destination: destination, text: text, customPayload: customPayload, composedDate: composedDate, bulkId: bulkId, initialMessageId: initialMessageId, sentStatus: sentStatus, deliveryMethod: .pull)
 	}
 	
-	init(messageId: String, destination: String?, text: String, customPayload: [String: CustomPayloadSupportedTypes]?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil, sentStatus: MOMessageSentStatus = .Undefined, deliveryMethod: MessageDeliveryMethod) {
+	init(messageId: String, destination: String?, text: String, customPayload: [String: MMCustomPayloadSupportedTypes]?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil, sentStatus: MM_MOMessageSentStatus = .Undefined, deliveryMethod: MMMessageDeliveryMethod) {
 		let payload = MOAttributes(	destination: destination,
 									   text: text,
 									   customPayload: customPayload,

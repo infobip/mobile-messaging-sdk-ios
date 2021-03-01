@@ -12,11 +12,11 @@ extension Optional : OptionalProtocol {}
 
 class UserDataMapper {
 
-	class func personalizeRequestPayload(userAttributes: UserAttributes) -> RequestBody? {
+	class func personalizeRequestPayload(userAttributes: MMUserAttributes) -> RequestBody? {
 		return userAttributes.dictionaryRepresentation.noNulls
 	}
 
-	class func personalizeRequestPayload(userIdentity: UserIdentity) -> RequestBody? {
+	class func personalizeRequestPayload(userIdentity: MMUserIdentity) -> RequestBody? {
 		var ret = RequestBody()
 		if let phones = userIdentity.phones, !phones.isEmpty {
 			ret = ret + ["phones": phones.reduce([[String: Any]](), { (ret, phone) -> [[String: Any]] in
@@ -37,7 +37,7 @@ class UserDataMapper {
 		return ret
 	}
 
-	class func personalizeRequestPayload(userIdentity: UserIdentity, userAttributes: UserAttributes?) -> RequestBody? {
+	class func personalizeRequestPayload(userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?) -> RequestBody? {
 		var ret: RequestBody = [ "userIdentity": personalizeRequestPayload(userIdentity: userIdentity) as Any ]
 		if let userAttributes = userAttributes {
 			ret = ret + [ "userAttributes": personalizeRequestPayload(userAttributes: userAttributes)  as Any ]
@@ -45,7 +45,7 @@ class UserDataMapper {
 		return ret
 	}
 
-	class func requestPayload(currentUser: User, dirtyUser: User) -> RequestBody? {
+	class func requestPayload(currentUser: MMUser, dirtyUser: MMUser) -> RequestBody? {
 		var ret = deltaDict(currentUser.dictionaryRepresentation, dirtyUser.dictionaryRepresentation)
 		ret?["installations"] = nil
 		if let phones = (ret?["phones"] as? [String]) {
@@ -63,7 +63,7 @@ class UserDataMapper {
 		return ret
 	}
 
-	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: AttributeType]?) -> [String: Any]? {
+	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: MMAttributeType]?) -> [String: Any]? {
 		if let userCustomAttributes = userCustomAttributes, userCustomAttributes.isEmpty {
 			return userCustomAttributes
 		}
@@ -77,7 +77,7 @@ class UserDataMapper {
 			}).nilIfEmpty
 	}
 
-	class func convertValue(input: AttributeType) -> AttributeType? {
+	class func convertValue(input: MMAttributeType) -> MMAttributeType? {
 		switch input {
 		case (is NSNumber):
 			return input
@@ -85,24 +85,24 @@ class UserDataMapper {
 			return input
 		case (is Date):
 			return DateStaticFormatters.ContactsServiceDateFormatter.string(from: input as! Date) as NSString
-		case (is DateTime):
-			return DateStaticFormatters.ISO8601SecondsFormatter.string(from: (input as! DateTime).date as Date) as NSString
+		case (is MMDateTime):
+			return DateStaticFormatters.ISO8601SecondsFormatter.string(from: (input as! MMDateTime).date as Date) as NSString
 		case (is NSNull):
 			return input
 		case (is NSArray):
 			return (input as! NSArray)
 				.compactMap({ element -> [String: Any]? in
-					if let element = element as? [String: AttributeType] {
+					if let element = element as? [String: MMAttributeType] {
 						return makeCustomAttributesPayload(element)?.nilIfEmpty
 					}
 					return nil
-				}).nilIfEmpty as AttributeType?
+				}).nilIfEmpty as MMAttributeType?
 		default:
 			return nil
 		}
 	}
 	
-	class func apply(userSource: User, to userDestination: User) {
+	class func apply(userSource: MMUser, to userDestination: MMUser) {
 		userDestination.externalUserId = userSource.externalUserId
 		userDestination.firstName = userSource.firstName
 		userDestination.middleName = userSource.middleName
@@ -115,7 +115,7 @@ class UserDataMapper {
 		userDestination.customAttributes = userSource.customAttributes
 	}
 
-	class func apply(userAttributes: UserAttributes, to user: User) {
+	class func apply(userAttributes: MMUserAttributes, to user: MMUser) {
 		user.firstName = userAttributes.firstName
 		user.middleName = userAttributes.middleName
 		user.lastName = userAttributes.lastName
@@ -125,7 +125,7 @@ class UserDataMapper {
 		user.customAttributes = userAttributes.customAttributes
 	}
 
-	class func apply(userIdentity: UserIdentity, to user: User) {
+	class func apply(userIdentity: MMUserIdentity, to user: MMUser) {
 		user.externalUserId = userIdentity.externalUserId
 		user.phones = userIdentity.phones
 		user.emails = userIdentity.emails

@@ -11,12 +11,12 @@ import UserNotifications
 class LocalMessageFetchingOperation : MMOperation {
 	
 	let notificationExtensionStorage: AppGroupMessageStorage?
-	let finishBlock: ([MTMessage]) -> Void
+	let finishBlock: ([MM_MTMessage]) -> Void
 	let userNotificationCenterStorage: UserNotificationCenterStorage
 	
-	var result = Set<MTMessage>()
+	var result = Set<MM_MTMessage>()
 	
-	init(userNotificationCenterStorage: UserNotificationCenterStorage, notificationExtensionStorage: AppGroupMessageStorage?, finishBlock: @escaping ([MTMessage]) -> Void) {
+	init(userNotificationCenterStorage: UserNotificationCenterStorage, notificationExtensionStorage: AppGroupMessageStorage?, finishBlock: @escaping ([MM_MTMessage]) -> Void) {
 		self.notificationExtensionStorage = notificationExtensionStorage
 		self.finishBlock = finishBlock
 		self.userNotificationCenterStorage = userNotificationCenterStorage
@@ -36,7 +36,7 @@ class LocalMessageFetchingOperation : MMOperation {
 		})
 	}
 	
-	private func retrieveMessagesFromNotificationServiceExtension(completion: @escaping ([MTMessage]) -> Void) {
+	private func retrieveMessagesFromNotificationServiceExtension(completion: @escaping ([MM_MTMessage]) -> Void) {
 		if let messages = notificationExtensionStorage?.retrieveMessages() {
 			if !messages.isEmpty {
 				notificationExtensionStorage?.cleanupMessages()
@@ -47,7 +47,7 @@ class LocalMessageFetchingOperation : MMOperation {
 		}
 	}
 	
-	private func retrieveMessagesFromUserNotificationCenter(completion: @escaping ([MTMessage]) -> Void) {
+	private func retrieveMessagesFromUserNotificationCenter(completion: @escaping ([MM_MTMessage]) -> Void) {
 		userNotificationCenterStorage.getDeliveredMessages(completionHandler: completion)
 	}
 	

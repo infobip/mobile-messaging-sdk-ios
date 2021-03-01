@@ -38,12 +38,12 @@ FOUNDATION_EXPORT NSString* MMNotificationMessageReceived;
 FOUNDATION_EXPORT NSString* MMNotificationUserSynced;
 
 /**
- Posted after the mobile originated message sent to the server. The `userInfo` dictionary contains the following key: `MMNotificationKeyMessageSendingMOMessages` - contains an array of `MOMessage` messages with `status` of sending.
+ Posted after the mobile originated message sent to the server. The `userInfo` dictionary contains the following key: `MMNotificationKeyMessageSendingMOMessages` - contains an array of `MM_MOMessage` messages with `status` of sending.
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessagesDidSend;
 
 /**
- Posted when the mobile originated message is about to send to the server. The `userInfo` dictionary contains the following key: `MMNotificationKeyMessageSendingMOMessages` - contains an array of `MOMessage` messages with `status` of sending.
+ Posted when the mobile originated message is about to send to the server. The `userInfo` dictionary contains the following key: `MMNotificationKeyMessageSendingMOMessages` - contains an array of `MM_MOMessage` messages with `status` of sending.
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessagesWillSend;
 
@@ -126,7 +126,7 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyAPIErrorUserInfo;
 
 /**
  Key for entry in userInfo dictionary of `MMNotificationMessageTapped`, `MMNotificationActionTapped`, `MMNotificationMessageReceived` notification.
- Contains an `MTMessage` object.
+ Contains an `MM_MTMessage` object.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessage;
 
@@ -150,7 +150,7 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyActionTextInput;
 
 /**
  Key for entry in userInfo dictionary of `MMNotificationMessagesWillSend` and `MMNotificationMessagesDidSend` notification.
- Contains an array of `MOMessage` messages with `status` of sending.
+ Contains an array of `MM_MOMessage` messages with `status` of sending.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessageSendingMOMessages;
 

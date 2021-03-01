@@ -45,7 +45,7 @@ struct SystemData {
 }
 
 @objcMembers
-public class UserAgent: NSObject {
+public class MMUserAgent: NSObject {
 	public var pluginVersion: String?
 	
 	struct DataOptions : OptionSet {
@@ -266,12 +266,12 @@ public class UserAgent: NSObject {
 	}
 
 	var currentUserAgentString: String {
-		var options = [UserAgent.DataOptions.None]
+		var options = [MMUserAgent.DataOptions.None]
 		if !(MobileMessaging.privacySettings.systemInfoSendingDisabled) {
-			options.append(UserAgent.DataOptions.System)
+			options.append(MMUserAgent.DataOptions.System)
 		}
 		if !(MobileMessaging.privacySettings.carrierInfoSendingDisabled) {
-			options.append(UserAgent.DataOptions.Carrier)
+			options.append(MMUserAgent.DataOptions.Carrier)
 		}
 		return userAgentString(withOptions: options)
 	}
@@ -303,7 +303,7 @@ public class UserAgent: NSObject {
 			return ";\(mobileCarrierName);\(mobileNetworkCode);\(mobileCountryCode)"
 		}
 		
-		return systemDataString(allowed: options.contains(UserAgent.DataOptions.System)) + carrierDataString(allowed: options.contains(UserAgent.DataOptions.Carrier)) + ")"
+		return systemDataString(allowed: options.contains(MMUserAgent.DataOptions.System)) + carrierDataString(allowed: options.contains(MMUserAgent.DataOptions.Carrier)) + ")"
 	}
 }
 

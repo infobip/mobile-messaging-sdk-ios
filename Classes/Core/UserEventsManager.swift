@@ -30,17 +30,17 @@ class UserEventsManager {
 		post(MMNotificationPersonalized)
 	}
 
-	class func postUserSyncedEvent(_ user: User?) {
+	class func postUserSyncedEvent(_ user: MMUser?) {
 		if let user = user {
 			post(MMNotificationUserSynced, [MMNotificationKeyUser: user])
 		}
 	}
 
-	class func postMessageReceivedEvent(_ message: MTMessage) {
+	class func postMessageReceivedEvent(_ message: MM_MTMessage) {
 		post(MMNotificationMessageReceived, [MMNotificationKeyMessage: message])
 	}
 
-	class func postInstallationSyncedEvent(_ installation: Installation?) {
+	class func postInstallationSyncedEvent(_ installation: MMInstallation?) {
 		if let installation = installation {
 			post(MMNotificationInstallationSynced, [MMNotificationKeyInstallation: installation])
 		}
@@ -52,13 +52,13 @@ class UserEventsManager {
 		}
 	}
 
-	class func postWillSendMessageEvent(_ messagesToSend: Array<MOMessage>) {
+	class func postWillSendMessageEvent(_ messagesToSend: Array<MM_MOMessage>) {
 		if !messagesToSend.isEmpty {
 			post(MMNotificationMessagesWillSend, [MMNotificationKeyMessageSendingMOMessages: messagesToSend])
 		}
 	}
 
-	class func postMessageSentEvent(_ messages: [MOMessage]) {
+	class func postMessageSentEvent(_ messages: [MM_MOMessage]) {
 		if !messages.isEmpty {
 			post(MMNotificationMessagesDidSend, [MMNotificationKeyMessageSendingMOMessages: messages])
 		}

@@ -12,9 +12,9 @@ class EventPersistingOperation : MMOperation {
 	let context: NSManagedObjectContext
 	let finishBlock: (Error?) -> Void
 	let pushRegId: String
-	let customEvent: CustomEvent
+	let customEvent: MMCustomEvent
 
-	init(customEvent: CustomEvent, mmContext: MobileMessaging, pushRegId: String, context: NSManagedObjectContext, finishBlock: @escaping ((Error?) -> Void)) {
+	init(customEvent: MMCustomEvent, mmContext: MobileMessaging, pushRegId: String, context: NSManagedObjectContext, finishBlock: @escaping ((Error?) -> Void)) {
 		self.pushRegId = pushRegId
 		self.customEvent = customEvent
 		self.finishBlock = finishBlock

@@ -8,7 +8,7 @@
 import Foundation
 
 /// Chat view implementation, extends UINavigationController with a ChatViewController put as a root view controller.
-open class ChatNavigationVC: UINavigationController {
+open class MMChatNavigationVC: UINavigationController {
     var customTransitioningDelegate: UIViewControllerTransitioningDelegate?
 	var isModal: Bool = false
 
@@ -33,15 +33,15 @@ open class ChatNavigationVC: UINavigationController {
 		}
 	}
     
-    static func makeChatNavigationViewController(transitioningDelegate: UIViewControllerTransitioningDelegate? = nil) -> ChatNavigationVC {
+    static func makeChatNavigationViewController(transitioningDelegate: UIViewControllerTransitioningDelegate? = nil) -> MMChatNavigationVC {
         if let transitioningDelegate = transitioningDelegate {
-            let nc = ChatNavigationVC.init(rootViewController : ChatViewController(type: .custom, image: UIImage(mm_named: "backButton")))
+            let nc = MMChatNavigationVC.init(rootViewController : MMChatViewController(type: .custom, image: UIImage(mm_named: "backButton")))
             nc.customTransitioningDelegate = transitioningDelegate
             nc.transitioningDelegate = transitioningDelegate
             nc.modalPresentationStyle = .custom
             return nc
         } else {
-            let nc = ChatNavigationVC.init(rootViewController : ChatViewController(type: .dismiss))
+            let nc = MMChatNavigationVC.init(rootViewController : MMChatViewController(type: .dismiss))
             return nc
         }
     }

@@ -29,16 +29,16 @@ class PersonalizeTests: MMTestCase {
 		}
 
 		let geServiceStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance, locationManagerStub: LocationManagerStub())
-		GeofencingService.sharedInstance = geServiceStub
-		GeofencingService.sharedInstance!.start({ _ in })
+		MMGeofencingService.sharedInstance = geServiceStub
+		MMGeofencingService.sharedInstance!.start({ _ in })
 
 		mobileMessagingInstance.didReceiveRemoteNotification(payload) { _ in
-			let validEntryRegions = GeofencingService.sharedInstance?.datasource.validRegionsForEntryEventNow(with: pulaId)
+			let validEntryRegions = MMGeofencingService.sharedInstance?.datasource.validRegionsForEntryEventNow(with: pulaId)
 			XCTAssertEqual(validEntryRegions?.count, 1)
 			XCTAssertEqual(validEntryRegions?.first?.dataSourceIdentifier, message.regions.first?.dataSourceIdentifier)
 
-			MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
-				XCTAssertTrue(self.mobileMessagingInstance.internalData().currentDepersonalizationStatus == SuccessPending.undefined)
+			MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
+				XCTAssertTrue(self.mobileMessagingInstance.internalData().currentDepersonalizationStatus == MMSuccessPending.undefined)
 				personalizeFinished?.fulfill()
 			})
 		}
@@ -50,7 +50,7 @@ class PersonalizeTests: MMTestCase {
 			}
 
 			// assert there is no more monitored regions
-			XCTAssertTrue(GeofencingService.sharedInstance?.locationManager.monitoredRegions.isEmpty ?? false)
+			XCTAssertTrue(MMGeofencingService.sharedInstance?.locationManager.monitoredRegions.isEmpty ?? false)
 		}
 	}
 
@@ -74,7 +74,7 @@ class PersonalizeTests: MMTestCase {
 						XCTAssertEqual(sentMessagesCount, messages!.count)
 						XCTAssertEqual(sentMessagesCount, MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "Messages must be persisted properly")
 						messagesReceived?.fulfill()
-						MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
+						MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
 							depersonalizeFinished?.fulfill()
 						})
 					}
@@ -83,7 +83,7 @@ class PersonalizeTests: MMTestCase {
 		}
 
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(SuccessPending.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
+			XCTAssertEqual(MMSuccessPending.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			// assert there is not any message in message storage
 			let messages = Message.MM_findAllWithPredicate(nil, context: MobileMessaging.defaultMessageStorage!.context!)
 			XCTAssertTrue(messages == nil || messages?.isEmpty ?? true)
@@ -241,7 +241,7 @@ class PersonalizeTests: MMTestCase {
 		mobileMessagingInstance.userService.fetchFromServer { (_, _) in
 			DispatchQueue.main.async { requestCompletionCounter += 1; fetchFinished3?.fulfill() }
 		}
-		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
+		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
 			DispatchQueue.main.async {
 				requestCompletionCounter += 1
 				depersonalizeTurn = requestCompletionCounter
@@ -259,7 +259,7 @@ class PersonalizeTests: MMTestCase {
 		weak var expectation = self.expectation(description: "expectation")
 		mobileMessagingInstance.pushRegistrationId = "123"
 
-		performAmbiguousPersonalizeCandidatesCase(userIdentity: UserIdentity(phones: ["1"], emails: ["2"], externalUserId: "123")!) {
+		performAmbiguousPersonalizeCandidatesCase(userIdentity: MMUserIdentity(phones: ["1"], emails: ["2"], externalUserId: "123")!) {
 			expectation?.fulfill()
 		}
 
@@ -301,11 +301,11 @@ class PersonalizeTests: MMTestCase {
 		"birthday": "1980-12-12"
 	}
 """
-			return PersonalizeResult.Success(User.init(json: JSON.parse(jsonStr))!)
+			return PersonalizeResult.Success(MMUser.init(json: JSON.parse(jsonStr))!)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
-		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: ["1"], emails: ["2"], externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
+		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: ["1"], emails: ["2"], externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
 			expectation?.fulfill()
 		})
 
@@ -342,15 +342,15 @@ class PersonalizeTests: MMTestCase {
 
 	private func performFailedDepersonalizeCase(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider = failedDepersonalizeApiMock
-		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { e in
+		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { e in
 			let s = self.mobileMessagingInstance.internalData().currentDepersonalizationStatus
-			XCTAssertEqual(SuccessPending.pending, s)
+			XCTAssertEqual(MMSuccessPending.pending, s)
 			XCTAssertNotNil(e)
 			then?()
 		})
 	}
 
-	private func performAmbiguousPersonalizeCandidatesCase(userIdentity: UserIdentity, then: (() -> Void)? = nil) {
+	private func performAmbiguousPersonalizeCandidatesCase(userIdentity: MMUserIdentity, then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider = ambiguousPersonalizeCandidatesApiMock
 		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: userIdentity, userAttributes: nil, completion: { e in
 			XCTAssertNotNil(e)
@@ -360,9 +360,9 @@ class PersonalizeTests: MMTestCase {
 
 	private func performFailedDepersonalizeCaseWithOverlimit(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider = failedDepersonalizeApiMock
-		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { e in
+		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { e in
 			let s = self.mobileMessagingInstance.internalData().currentDepersonalizationStatus
-			XCTAssertEqual(SuccessPending.undefined, s)
+			XCTAssertEqual(MMSuccessPending.undefined, s)
 			XCTAssertNotNil(e)
 			then?()
 		})
@@ -370,9 +370,9 @@ class PersonalizeTests: MMTestCase {
 
 	private func performSuccessfullDepersonalizeCase(then: (() -> Void)? = nil) {
 		MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
-		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: UserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { e in
+		MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { e in
 			let s = self.mobileMessagingInstance.internalData().currentDepersonalizationStatus
-			XCTAssertEqual(SuccessPending.success, s)
+			XCTAssertEqual(MMSuccessPending.success, s)
 			XCTAssertNil(e)
 			then?()
 		})
@@ -391,7 +391,7 @@ let ambiguousPersonalizeCandidatesApiMock = { () -> RemoteAPIProviderStub in
 				]
 			]
 		]
-		let requestError = RequestError(json: JSON(responseDict))
+		let requestError = MMRequestError(json: JSON(responseDict))
 		return PersonalizeResult.Failure(requestError?.foundationError)
 	}
 	return remoteApiProvider

@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-@objc public enum InAppNotificationStyle: Int16 {
+@objc public enum MMInAppNotificationStyle: Int16 {
 	case Modal = 0
 	case Banner
 }
@@ -26,7 +26,7 @@ enum MMMessageType : Int16 {
 	case MO
 }
 
-@objc public enum CampaignState : Int16 {
+@objc public enum MMCampaignState : Int16 {
 	case Active = 0
 	case Suspended
 	case Finished
@@ -42,8 +42,8 @@ final class MessageManagedObject: NSManagedObject, FetchableResult, UpdatableRes
 		set { messageTypeValue = newValue.rawValue }
 	}
 	
-	var campaignState: CampaignState {
-		get { return CampaignState(rawValue: campaignStateValue) ?? .Active }
+	var campaignState: MMCampaignState {
+		get { return MMCampaignState(rawValue: campaignStateValue) ?? .Active }
 		set { campaignStateValue = newValue.rawValue }
 	}
 }

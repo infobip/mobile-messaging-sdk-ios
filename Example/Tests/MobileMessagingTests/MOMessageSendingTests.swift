@@ -41,8 +41,8 @@ class MOMessageSendingTests: MMTestCase {
 
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage1 = MM_MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as MMCustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage2 = MM_MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as MMCustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		
 		self.assertMoMessagesCount(0)
 		
@@ -63,13 +63,13 @@ class MOMessageSendingTests: MMTestCase {
 					XCTAssertEqual(messages?.first?.text, "message1")
 					XCTAssertEqual(messages?.first?.destination, MMTestConstants.kTestCorrectApplicationCode)
 					XCTAssertEqual(messages?.first?.customPayload as! [String: String], ["customKey" : "customValue1"])
-					XCTAssertEqual(messages?.first?.sentStatus, MOMessageSentStatus.SentSuccessfully)
+					XCTAssertEqual(messages?.first?.sentStatus, MM_MOMessageSentStatus.SentSuccessfully)
 					
 					XCTAssertEqual(messages?.last?.messageId, "m2")
 					XCTAssertEqual(messages?.last?.text, "message2")
 					XCTAssertEqual(messages?.last?.destination, MMTestConstants.kTestCorrectApplicationCode)
 					XCTAssertEqual(messages?.last?.customPayload as! [String: String], ["customKey" : "customValue2"])
-					XCTAssertEqual(messages?.last?.sentStatus, MOMessageSentStatus.SentWithFailure)
+					XCTAssertEqual(messages?.last?.sentStatus, MM_MOMessageSentStatus.SentWithFailure)
 					
 					XCTAssertNil(error)
 					
@@ -91,10 +91,10 @@ class MOMessageSendingTests: MMTestCase {
 	}
 	
 	func testMOMessageConstructors() {
-		let mo1 = MOMessage(destination: "destination", text: "text", customPayload: ["meal": "pizza" as NSString], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1")
+		let mo1 = MM_MOMessage(destination: "destination", text: "text", customPayload: ["meal": "pizza" as NSString], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1")
 		let dict1 = mo1.dictRepresentation
 		
-		let mo2 = MOMessage(payload: dict1, composedDate: Date())
+		let mo2 = MM_MOMessage(payload: dict1, composedDate: Date())
 		XCTAssertNotNil(mo2)
 		let dict2 = mo2?.dictRepresentation
 		
@@ -110,8 +110,8 @@ class MOMessageSendingTests: MMTestCase {
 		//Precondiotions
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage1 = MM_MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as MMCustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage2 = MM_MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as MMCustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 
 		self.assertMoMessagesCount(0)
 		
@@ -122,13 +122,13 @@ class MOMessageSendingTests: MMTestCase {
 			XCTAssertEqual(messages?.first?.text, "message1")
 			XCTAssertEqual(messages?.first?.destination, MMTestConstants.kTestCorrectApplicationCode)
 			XCTAssertEqual(messages?.first?.customPayload as! [String: String], ["customKey" : "customValue1"])
-			XCTAssertEqual(messages?.first?.sentStatus, MOMessageSentStatus.SentSuccessfully)
+			XCTAssertEqual(messages?.first?.sentStatus, MM_MOMessageSentStatus.SentSuccessfully)
 			
 			XCTAssertEqual(messages?.last?.messageId, "m2")
 			XCTAssertEqual(messages?.last?.text, "message2")
 			XCTAssertEqual(messages?.last?.destination, MMTestConstants.kTestCorrectApplicationCode)
 			XCTAssertEqual(messages?.last?.customPayload as! [String: String], ["customKey" : "customValue2"])
-			XCTAssertEqual(messages?.last?.sentStatus, MOMessageSentStatus.SentWithFailure)
+			XCTAssertEqual(messages?.last?.sentStatus, MM_MOMessageSentStatus.SentWithFailure)
 			
 			expectation?.fulfill()
 		}
@@ -149,8 +149,8 @@ class MOMessageSendingTests: MMTestCase {
 
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-		let moMessage1 = MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
-		let moMessage2 = MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as CustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage1 = MM_MOMessage(messageId: "m1", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message1", customPayload: ["customKey" : "customValue1" as MMCustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId1", initialMessageId: "initialMessageId1", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
+		let moMessage2 = MM_MOMessage(messageId: "m2", destination: MMTestConstants.kTestCorrectApplicationCode, text: "message2", customPayload: ["customKey" : "customValue2" as MMCustomPayloadSupportedTypes], composedDate: Date(), bulkId: "bulkId2", initialMessageId: "initialMessageId2", sentStatus: .Undefined, deliveryMethod: .generatedLocally)
 		
 		self.assertMoMessagesCount(0)
 		

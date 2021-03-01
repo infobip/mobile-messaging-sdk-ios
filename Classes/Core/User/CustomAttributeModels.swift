@@ -7,16 +7,16 @@
 
 import Foundation
 
-public typealias EventPropertyType = AttributeType
-@objc public protocol AttributeType: AnyObject {}
-extension NSDate: AttributeType {}
-extension NSNumber: AttributeType {}
-extension NSString: AttributeType {}
-extension NSNull: AttributeType {}
-extension DateTime: AttributeType{}
-extension NSArray: AttributeType {}
+public typealias MMEventPropertyType = MMAttributeType
+@objc public protocol MMAttributeType: AnyObject {}
+extension NSDate: MMAttributeType {}
+extension NSNumber: MMAttributeType {}
+extension NSString: MMAttributeType {}
+extension NSNull: MMAttributeType {}
+extension MMDateTime: MMAttributeType{}
+extension NSArray: MMAttributeType {}
 
-@objcMembers public final class DateTime: NSObject, NSCoding {
+@objcMembers public final class MMDateTime: NSObject, NSCoding {
 	public let date: NSDate
 	public init(date: Date) {
 		self.date = date as NSDate
@@ -28,21 +28,21 @@ extension NSArray: AttributeType {}
 		aCoder.encode(date, forKey: "date")
 	}
 	public override func isEqual(_ object: Any?) -> Bool {
-		guard let object = object as? DateTime else {
+		guard let object = object as? MMDateTime else {
 			return false
 		}
 		return self.date.isEqual(to: object.date as Date)
 	}
 }
 
-extension Dictionary where Value == AttributeType, Key == String {
+extension Dictionary where Value == MMAttributeType, Key == String {
 	func assertCustomAttributesValid() {
 		assert(self.validateListObjectsContainOnlySupportedTypes(), "One of the objects in list has unsupported field datatype. Check documentation https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations.")
 		assert(self.validateListObjectsHaveTheSameStructure(), "One of the object in list has different model. Check documentation https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations.")
 	}
 	
 	func validateListObjectsContainOnlySupportedTypes() -> Bool {
-		let containsArrayWithUnsupportedElements = self.values.filter({ $0 is NSArray }).contains(where: { !($0 is Array<[String: AttributeType]>) })
+		let containsArrayWithUnsupportedElements = self.values.filter({ $0 is NSArray }).contains(where: { !($0 is Array<[String: MMAttributeType]>) })
 		return !containsArrayWithUnsupportedElements
 	}
 	
@@ -71,9 +71,9 @@ extension Dictionary where Value == AttributeType, Key == String {
 }
 
 extension Dictionary where Value == JSON, Key == String {
-	var decodeCustomAttributesJSON: [String : AttributeType] {
-		return self.reduce([String: AttributeType](), { (result, pair) -> [String: AttributeType] in
-			if var value = pair.value.rawValue as? AttributeType {
+	var decodeCustomAttributesJSON: [String : MMAttributeType] {
+		return self.reduce([String: MMAttributeType](), { (result, pair) -> [String: MMAttributeType] in
+			if var value = pair.value.rawValue as? MMAttributeType {
 				if value is NSNull {
 					return result
 				}
@@ -81,7 +81,7 @@ extension Dictionary where Value == JSON, Key == String {
 					if let date = DateStaticFormatters.ContactsServiceDateFormatter.date(from: stringValue) {
 						value = date as NSDate
 					} else if let date = DateStaticFormatters.ISO8601SecondsFormatter.date(from: stringValue) {
-						value = DateTime(date: date)
+						value = MMDateTime(date: date)
 					}
 				}
 				return result + [pair.key: value]
@@ -91,9 +91,9 @@ extension Dictionary where Value == JSON, Key == String {
 		})
 	}
 	
-	var decodeCustomEventPropertiesJSON: [String : AttributeType] {
-		return self.reduce([String: AttributeType](), { (result, pair) -> [String: AttributeType] in
-			if var value = pair.value.rawValue as? AttributeType {
+	var decodeCustomEventPropertiesJSON: [String : MMAttributeType] {
+		return self.reduce([String: MMAttributeType](), { (result, pair) -> [String: MMAttributeType] in
+			if var value = pair.value.rawValue as? MMAttributeType {
 				if value is NSNull {
 					return result
 				}

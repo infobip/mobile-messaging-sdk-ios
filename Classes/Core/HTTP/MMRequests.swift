@@ -95,7 +95,7 @@ class PostUserSession: PostRequest {
 }
 
 class GetInstance: GetRequest {
-	typealias ResponseType = Installation
+	typealias ResponseType = MMInstallation
 
 	init(applicationCode: String, pushRegistrationId: String, returnPushServiceToken: Bool) {
 		super.init(applicationCode: applicationCode, path: .AppInstance_xRUD, pushRegistrationId: pushRegistrationId, parameters: ["rt": returnPushServiceToken], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
@@ -114,7 +114,7 @@ class PatchInstance: PatchRequest {
 }
 
 class PostInstance: PostRequest {
-	typealias ResponseType = Installation
+	typealias ResponseType = MMInstallation
 
 	init?(applicationCode: String, body: RequestBody, returnPushServiceToken: Bool) {
 		super.init(applicationCode: applicationCode, path: .AppInstance_Cxxx, body: body, parameters: ["rt": returnPushServiceToken])
@@ -133,7 +133,7 @@ class DeleteInstance: DeleteRequest {
 }
 
 class GetUser: GetRequest {
-	typealias ResponseType = User
+	typealias ResponseType = MMUser
 
 	init(applicationCode: String, pushRegistrationId: String, returnInstance: Bool, returnPushServiceToken: Bool) {
 		super.init(applicationCode: applicationCode, path: .AppInstanceUser_CRUD, pushRegistrationId: pushRegistrationId, parameters: ["rt": returnPushServiceToken, "ri": returnInstance], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
@@ -163,7 +163,7 @@ class PostDepersonalize: PostRequest {
 }
 
 class PostPersonalize: PostRequest {
-	typealias ResponseType = User
+	typealias ResponseType = MMUser
 
 	init(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool) {
 		super.init(applicationCode: applicationCode, path: .AppInstancePersonalize, pushRegistrationId: pushRegistrationId, body: body, parameters: ["forceDepersonalize": forceDepersonalize], pathParameters: ["{pushRegistrationId}": pushRegistrationId])

@@ -18,9 +18,9 @@ class GeoEventReportingOperation: MMOperation {
 	var happenedEventObjectIds = [NSManagedObjectID]()
 	var signalingGeoMessages = CampaignsDictionary()
 	let mmContext: MobileMessaging
-	let geoContext: GeofencingService
+	let geoContext: MMGeofencingService
 	
-	init(context: NSManagedObjectContext, mmContext: MobileMessaging, geoContext: GeofencingService, finishBlock: @escaping (GeoEventReportingResult) -> Void) {
+	init(context: NSManagedObjectContext, mmContext: MobileMessaging, geoContext: MMGeofencingService, finishBlock: @escaping (GeoEventReportingResult) -> Void) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
@@ -191,9 +191,9 @@ class GeoEventReportingOperation: MMOperation {
 	
 	//MARK: Utils
 	func generateMessages(_ mtMessagesDatasource: MTMessagesDatasource, completion: @escaping (MessageHandlingResult) -> Void ) {
-		let locallyGeneratedMessages = mtMessagesDatasource.reduce([MTMessage]()) { (result, kv: (mId: MessageId, messageData: (campaign: MMGeoMessage, areaId: AreaId))) -> [MTMessage] in
+		let locallyGeneratedMessages = mtMessagesDatasource.reduce([MM_MTMessage]()) { (result, kv: (mId: MessageId, messageData: (campaign: MMGeoMessage, areaId: AreaId))) -> [MM_MTMessage] in
 			if let region = kv.messageData.campaign.regions.filter({ return $0.identifier == kv.messageData.areaId }).first {
-				if let mtMessage = MTMessage.make(fromGeoMessage: kv.messageData.campaign, messageId: kv.mId, region: region) {
+				if let mtMessage = MM_MTMessage.make(fromGeoMessage: kv.messageData.campaign, messageId: kv.mId, region: region) {
 					return result + [mtMessage]
 				}
 			}

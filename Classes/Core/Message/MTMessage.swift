@@ -8,13 +8,13 @@
 import Foundation
 
 @objcMembers
-public class MTMessage: BaseMessage, NamedLogger {
+public class MM_MTMessage: MMBaseMessage, NamedLogger {
 
 	/// Contains info about the action was applied to the message
-	public var appliedAction: NotificationAction?
+	public var appliedAction: MMNotificationAction?
 
 	/// Structure representing APS payload attributes
-	public var aps: PushPayloadAPS
+	public var aps: MMPushPayloadAPS
 
 	/// Servers datetime
 	public var sendDateTime: TimeInterval
@@ -69,7 +69,7 @@ public class MTMessage: BaseMessage, NamedLogger {
 
 	/// URL representing rich notification content
 	public var contentUrl: String? {
-		if let atts = internalData?[Consts.InternalDataKeys.attachments] as? [StringKeyPayload], let firstOne = atts.first {
+		if let atts = internalData?[Consts.InternalDataKeys.attachments] as? [MMStringKeyPayload], let firstOne = atts.first {
 			return firstOne[Consts.Attachments.Keys.url] as? String
 		} else {
 			return nil
@@ -106,11 +106,11 @@ public class MTMessage: BaseMessage, NamedLogger {
 		return internalData?[Consts.InternalDataKeys.showInApp] as? Bool ?? false
 	}
 	
-	public var inAppStyle: InAppNotificationStyle? {
-		let defaultStyle = showInApp ? InAppNotificationStyle.Modal : nil
-		let resolvedStyle: InAppNotificationStyle?
+	public var inAppStyle: MMInAppNotificationStyle? {
+		let defaultStyle = showInApp ? MMInAppNotificationStyle.Modal : nil
+		let resolvedStyle: MMInAppNotificationStyle?
 		if let rawValue = internalData?[Consts.InternalDataKeys.inAppStyle] as? Int16 {
-			resolvedStyle = InAppNotificationStyle(rawValue: rawValue) ?? defaultStyle
+			resolvedStyle = MMInAppNotificationStyle(rawValue: rawValue) ?? defaultStyle
 		} else {
 			resolvedStyle = defaultStyle
 		}
@@ -131,18 +131,18 @@ public class MTMessage: BaseMessage, NamedLogger {
 	}
 
 	/// APNS payload (`aps` object) sent with the silent push notifications
-	public var silentData: StringKeyPayload? {
-		return internalData?[Consts.InternalDataKeys.silent] as? StringKeyPayload
+	public var silentData: MMStringKeyPayload? {
+		return internalData?[Consts.InternalDataKeys.silent] as? MMStringKeyPayload
 	}
 
 	/// Internal data for internal use
-	public var internalData: StringKeyPayload? {
-		return originalPayload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload
+	public var internalData: MMStringKeyPayload? {
+		return originalPayload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload
 	}
 	
-	public override var customPayload: StringKeyPayload? {
+	public override var customPayload: MMStringKeyPayload? {
 		get {
-			return originalPayload[Consts.APNSPayloadKeys.customPayload] as? StringKeyPayload
+			return originalPayload[Consts.APNSPayloadKeys.customPayload] as? MMStringKeyPayload
 		}
 		set {}
 	}
@@ -177,7 +177,7 @@ public class MTMessage: BaseMessage, NamedLogger {
 	
 	/// Initializes the MTMessage from Message storage's message
 	convenience init?(messageStorageMessageManagedObject m: Message) {
-		guard let deliveryMethod = MessageDeliveryMethod(rawValue: m.deliveryMethod) else {
+		guard let deliveryMethod = MMMessageDeliveryMethod(rawValue: m.deliveryMethod) else {
 			return nil
 		}
 		self.init(payload: m.payload,
@@ -189,40 +189,40 @@ public class MTMessage: BaseMessage, NamedLogger {
 	}
 	
 	/// Designated init
-	public init?(payload: APNSPayload, deliveryMethod: MessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool) {
-		guard 	let payload = payload as? StringKeyPayload,
+	public init?(payload: MMAPNSPayload, deliveryMethod: MMMessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool) {
+		guard 	let payload = payload as? MMStringKeyPayload,
 			let messageId = payload[Consts.APNSPayloadKeys.messageId] as? String else
 		{
 			return nil
 		}
 		//workaround for cordova
-		let internData = payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload
-		let nativeAPS = payload[Consts.APNSPayloadKeys.aps] as? StringKeyPayload
+		let internData = payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload
+		let nativeAPS = payload[Consts.APNSPayloadKeys.aps] as? MMStringKeyPayload
 		
 		if isSilentInternalData(internData) {
-			if let silentAPS = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.silent] as? StringKeyPayload {
-				self.aps = PushPayloadAPS.SilentAPS(apsByMerging(nativeAPS: nativeAPS ?? [:], withSilentAPS: silentAPS))
+			if let silentAPS = (payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload)?[Consts.InternalDataKeys.silent] as? MMStringKeyPayload {
+				self.aps = MMPushPayloadAPS.SilentAPS(apsByMerging(nativeAPS: nativeAPS ?? [:], withSilentAPS: silentAPS))
 			} else {
 				return nil
 			}
 		} else if let nativeAPS = nativeAPS {
-			self.aps = PushPayloadAPS.NativeAPS(nativeAPS)
+			self.aps = MMPushPayloadAPS.NativeAPS(nativeAPS)
 		} else {
 			return nil
 		}
 		
-		if let sendDateTimeMillis = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.sendDateTime] as? Double {
+		if let sendDateTimeMillis = (payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload)?[Consts.InternalDataKeys.sendDateTime] as? Double {
 			self.sendDateTime = sendDateTimeMillis/1000
 		} else {
 			self.sendDateTime = MobileMessaging.date.now.timeIntervalSince1970
 		}
-		if let expirationMillis = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.inAppExpiryDateTime] as? Double {
+		if let expirationMillis = (payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload)?[Consts.InternalDataKeys.inAppExpiryDateTime] as? Double {
 			self.inAppExpiryDateTime = expirationMillis/1000
 		}
-		if let str = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.inAppDismissTitle] as? String {
+		if let str = (payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload)?[Consts.InternalDataKeys.inAppDismissTitle] as? String {
 			self.inAppDismissTitle = str
 		}
-		if let str = (payload[Consts.APNSPayloadKeys.internalData] as? StringKeyPayload)?[Consts.InternalDataKeys.inAppOpenTitle] as? String {
+		if let str = (payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload)?[Consts.InternalDataKeys.inAppOpenTitle] as? String {
 			self.inAppOpenTitle = str
 		}
 		self.seenStatus = seenStatus
@@ -234,6 +234,6 @@ public class MTMessage: BaseMessage, NamedLogger {
 	}
 }
 
-func isSilentInternalData(_ internalData: StringKeyPayload?) -> Bool {
+func isSilentInternalData(_ internalData: MMStringKeyPayload?) -> Bool {
 	return internalData?[Consts.InternalDataKeys.silent] != nil
 }

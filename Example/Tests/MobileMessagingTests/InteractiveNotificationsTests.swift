@@ -36,7 +36,7 @@ class InteractiveNotificationsTests: MMTestCase {
 
 	func testActionHandlerCalledAndMOSent() {
 		weak var testCompleted = expectation(description: "testCompleted")
-		let action = NotificationAction(identifier: actionId, title: "Action", options: [.moRequired])!
+		let action = MMNotificationAction(identifier: actionId, title: "Action", options: [.moRequired])!
 		checkActionHandlerCalledAndMoSent(withAction: action, userText: nil) { _action, completionHandler in
 			if _action == action {
 				testCompleted?.fulfill()
@@ -49,9 +49,9 @@ class InteractiveNotificationsTests: MMTestCase {
 	func testTextInputActionHandlerCalledAndMOSent() {
 		let typedText = "Hello world!"
 		weak var testCompleted = expectation(description: "testCompleted")
-		let textInputAction = TextInputNotificationAction(identifier: "textInputActionId", title: "Reply", options: [.moRequired], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print text here")!
+		let textInputAction = MMTextInputNotificationAction(identifier: "textInputActionId", title: "Reply", options: [.moRequired], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print text here")!
 		checkActionHandlerCalledAndMoSent(withAction: textInputAction, userText: typedText) { _action, completionHandler in
-			if let _textInputAction = _action as? TextInputNotificationAction,
+			if let _textInputAction = _action as? MMTextInputNotificationAction,
 				_textInputAction == textInputAction {
 				XCTAssertEqual(typedText, _textInputAction.typedText)
 				testCompleted?.fulfill()
@@ -61,9 +61,9 @@ class InteractiveNotificationsTests: MMTestCase {
 		waitForExpectations(timeout: 10, handler: nil)
 	}
 
-	func checkActionHandlerCalledAndMoSent(withAction action: NotificationAction, userText: String?, completion: @escaping (NotificationAction, () -> Void) -> Void) {
-		let category = NotificationCategory(identifier: categoryId, actions: [action], options: nil, intentIdentifiers: nil)!
-		var set = Set<NotificationCategory>()
+	func checkActionHandlerCalledAndMoSent(withAction action: MMNotificationAction, userText: String?, completion: @escaping (MMNotificationAction, () -> Void) -> Void) {
+		let category = MMNotificationCategory(identifier: categoryId, actions: [action], options: nil, intentIdentifiers: nil)!
+		var set = Set<MMNotificationCategory>()
 		set.insert(category)
 
 		MMTestCase.cleanUpAndStop()
@@ -93,15 +93,15 @@ class InteractiveNotificationsTests: MMTestCase {
 		MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 
 		let info = ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]] as [String : Any]
-		let msg = MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
+		let msg = MM_MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
 
 		MobileMessaging.handleAction(identifier: action.identifier, category: category.identifier, message: msg, notificationUserInfo: info, userText: userText, completionHandler: {})
 	}
 	
 	func testActionOptions() {
 		
-		let checkingBlock: ([NotificationActionOptions]) -> Void = { options in
-			let action = NotificationAction(identifier: "actionId1", title: "Action", options: options)
+		let checkingBlock: ([MMNotificationActionOptions]) -> Void = { options in
+			let action = MMNotificationAction(identifier: "actionId1", title: "Action", options: options)
 			XCTAssertTrue(action != nil)
 
 			let unUserNotificationAction = action!.unUserNotificationAction
@@ -122,9 +122,9 @@ class InteractiveNotificationsTests: MMTestCase {
 	
 	func testCategoryOptions() {
 		let testIntentIds = ["test_intent_id"]
-		let action = NotificationAction(identifier: actionId, title: "Action", options: nil)
+		let action = MMNotificationAction(identifier: actionId, title: "Action", options: nil)
 		XCTAssertNotNil(action)
-		let category = NotificationCategory(identifier: categoryId,
+		let category = MMNotificationCategory(identifier: categoryId,
 											actions: [action!],
 											options: [.allowInCarPlay],
 											intentIdentifiers: testIntentIds)
@@ -167,7 +167,7 @@ class InteractiveNotificationsTests: MMTestCase {
 			category.actions.forEach { action in
 
 				let info = ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]] as [String : Any]
-				let msg = MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
+				let msg = MM_MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
 				MobileMessaging.handleAction(identifier: action.identifier, category: category.identifier, message: msg, notificationUserInfo: info, userText: nil, completionHandler: {})
 			}
 		}
@@ -180,8 +180,8 @@ class InteractiveNotificationsTests: MMTestCase {
 		weak var handlingCompleted = expectation(description: "handlingCompleted")
 		weak var testCompleted = expectation(description: "testCompleted")
 
-		let category = NotificationCategory(identifier: categoryId, actions: [], options: [], intentIdentifiers: nil)!
-		var set = Set<NotificationCategory>()
+		let category = MMNotificationCategory(identifier: categoryId, actions: [], options: [], intentIdentifiers: nil)!
+		var set = Set<MMNotificationCategory>()
 		set.insert(category)
 
 		MMTestCase.cleanUpAndStop()
@@ -204,7 +204,7 @@ class InteractiveNotificationsTests: MMTestCase {
 
 
 		let info = ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]] as [String : Any]
-		let msg = MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
+		let msg = MM_MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
 		MobileMessaging.handleAction(identifier: UNNotificationDismissActionIdentifier, category: category.identifier, message: msg, notificationUserInfo: info, userText: nil, completionHandler: {
 			handlingCompleted?.fulfill()
 		})

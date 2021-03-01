@@ -8,7 +8,7 @@
 import Foundation
 
 class InstallationDataMapper {
-	class func patchRequestPayload(currentInstallation: Installation, dirtyInstallation: Installation, internalData: InternalData) -> RequestBody {
+	class func patchRequestPayload(currentInstallation: MMInstallation, dirtyInstallation: MMInstallation, internalData: InternalData) -> RequestBody {
 		let currentDict = currentInstallation.dictionaryRepresentation
 		let nonReportedDict = dirtyInstallation.dictionaryRepresentation
         var ret = deltaDict(currentDict, nonReportedDict) ?? [:]
@@ -20,7 +20,7 @@ class InstallationDataMapper {
 		return adjustFieldNames(requestBody: ret)
 	}
 
-	class func postRequestPayload(dirtyInstallation: Installation, internalData: InternalData) -> RequestBody {
+	class func postRequestPayload(dirtyInstallation: MMInstallation, internalData: InternalData) -> RequestBody {
 		var ret = dirtyInstallation.dictionaryRepresentation
 		ret.merge(MobileMessaging.userAgent.systemData.requestPayload, uniquingKeysWith: { (l, r) -> Any in
 			return r

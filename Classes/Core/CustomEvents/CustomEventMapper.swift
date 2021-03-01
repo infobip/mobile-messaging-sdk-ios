@@ -15,14 +15,14 @@ class CustomEventMapper {
 		return ["events": events.map({ (customEvent) -> RequestBody in
 			return [
 				"definitionId": customEvent.definitionId,
-				"properties": CustomEventMapper.makeCustomAttributesPayload(customEvent.payload as? [String: EventPropertyType]) as Any,
+				"properties": CustomEventMapper.makeCustomAttributesPayload(customEvent.payload as? [String: MMEventPropertyType]) as Any,
 				"date": DateStaticFormatters.ISO8601SecondsFormatter.string(from: customEvent.eventDate)
 				].compactMapValues { $0 }
 		})
 		]
 	}
 
-	static func requestBody(event: CustomEvent) -> RequestBody {
+	static func requestBody(event: MMCustomEvent) -> RequestBody {
 		return ["events": [
 			[
 				"definitionId": event.definitionId,
@@ -33,15 +33,15 @@ class CustomEventMapper {
 		]
 	}
 
-	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: AttributeType]?) -> [String: Any]? {
+	class func makeCustomAttributesPayload(_ userCustomAttributes: [String: MMAttributeType]?) -> [String: Any]? {
 		guard let userCustomAttributes = userCustomAttributes else {
 			return nil
 		}
-		let filteredCustomAttributes: [String: AttributeType] = userCustomAttributes
+		let filteredCustomAttributes: [String: MMAttributeType] = userCustomAttributes
 
 		let ret = filteredCustomAttributes
 			.reduce([String: Any](), { result, pair -> [String: Any] in
-				var value: AttributeType = pair.value
+				var value: MMAttributeType = pair.value
 				switch value {
 				case (is NSNumber):
 					break;

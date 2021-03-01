@@ -101,7 +101,7 @@ class UserDataTests: MMTestCase {
 		let json = JSON.parse(jsonStr)
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.getUserClosure = { (_, _) -> FetchUserDataResult in
-			return FetchUserDataResult.Success(User(json: json)!)
+			return FetchUserDataResult.Success(MMUser(json: json)!)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 		
@@ -116,7 +116,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(primaryInstallation.pushRegistrationId, "pushregid1")
 			XCTAssertEqual(primaryInstallation.deviceName, "Johns iPhone")
 			XCTAssertEqual(primaryInstallation,
-						   Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone 1", deviceName: "Johns iPhone", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushregid1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+						   MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Apple", deviceModel: "iPhone 1", deviceName: "Johns iPhone", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushregid1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 			)
 			
 			let secondaryInstallation = (user.installations?.first(where: {!$0.isPrimaryDevice}))!
@@ -125,7 +125,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(secondaryInstallation.pushRegistrationId, "pushregid2")
 			XCTAssertEqual(secondaryInstallation.deviceName, "Johns Sam")
 			XCTAssertEqual(secondaryInstallation,
-						   Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Samsung", deviceModel: "Galaxy", deviceName: "Johns Sam", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: false, language: nil, notificationsEnabled: true, os: "Android", osVersion: nil, pushRegistrationId: "pushregid2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+						   MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Samsung", deviceModel: "Galaxy", deviceName: "Johns Sam", deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: false, language: nil, notificationsEnabled: true, os: "Android", osVersion: nil, pushRegistrationId: "pushregid2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 			)
 			
 			XCTAssertTrue(user.phones?.contains("1") ?? false)
@@ -161,7 +161,7 @@ class UserDataTests: MMTestCase {
 		
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.getUserClosure = { _, _ -> FetchUserDataResult in
-			let response = User(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: [Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
+			let response = MMUser(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: [MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
 			
 			return FetchUserDataResult.Success(response)
 		}
@@ -180,7 +180,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertEqual(currentUser.gender, .Male)
 			XCTAssertEqual(currentUser.phones, ["79214444444"])
 			XCTAssertEqual(currentUser.emails?.first, "darth@vader.com")
-			XCTAssertEqual(currentUser.installations, [Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
+			XCTAssertEqual(currentUser.installations, [MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: true, deviceTimeZone: nil, geoEnabled: true, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: "iOS", osVersion: nil, pushRegistrationId: "pushRegId1", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)])
 			
 			XCTAssertEqual(currentUser.customAttributes?["nativePlace"] as? String, "Tatooine")
 			XCTAssertEqual(currentUser.customAttributes?["mentor"] as? String, "Obi Wan Kenobi")
@@ -205,7 +205,7 @@ class UserDataTests: MMTestCase {
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.getUserClosure = { _, _ -> FetchUserDataResult in
 			expectationAPICallPerformed?.fulfill()
-			let response = User(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: nil)
+			let response = MMUser(externalUserId: nil, firstName: "Darth", middleName: nil, lastName: "Vader", phones: ["79214444444"], emails: ["darth@vader.com"], tags: nil, gender: .Male, birthday: DateStaticFormatters.ContactsServiceDateFormatter.date(from: "1980-12-12"), customAttributes: ["home": "Death Star" as NSString, "drink": "Beer" as NSString, "food": "Pizza" as NSString, "height": 189.5 as NSNumber, "nativePlace": "Tatooine" as NSString, "mentor": "Obi Wan Kenobi" as NSString, "dateOfDeath": darthVaderDateOfDeath as NSDate], installations: nil)
 			return FetchUserDataResult.Success(response)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
@@ -247,7 +247,7 @@ class UserDataTests: MMTestCase {
 		currentUser.archiveAll()
 		
 		do {
-			let dirtyUser = NSKeyedUnarchiver.unarchiveObject(withFile: User.dirtyPath) as! User
+			let dirtyUser = NSKeyedUnarchiver.unarchiveObject(withFile: MMUser.dirtyPath) as! MMUser
 			// we havent stored on disk
 			XCTAssertNil(dirtyUser.phones, "userdata must not be persisted")
 			XCTAssertNil(dirtyUser.lastName, "userdata must not be persisted")
@@ -256,7 +256,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertNil(dirtyUser.customAttributes, "userdata must not be persisted")
 			XCTAssertNil(dirtyUser.externalUserId, "userdata must not be persisted")
 			
-			let currentUser = NSKeyedUnarchiver.unarchiveObject(withFile: User.currentPath) as! User
+			let currentUser = NSKeyedUnarchiver.unarchiveObject(withFile: MMUser.currentPath) as! MMUser
 			// we havent stored on disk
 			XCTAssertNil(currentUser.phones, "userdata must not be persisted")
 			XCTAssertNil(currentUser.lastName, "userdata must not be persisted")
@@ -293,7 +293,7 @@ class UserDataTests: MMTestCase {
 			}
 		}
 	"""
-		let requestError = RequestError(json: JSON.parse(jsonStr))
+		let requestError = MMRequestError(json: JSON.parse(jsonStr))
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.patchUserClosure = { (_, _, _) -> UpdateUserDataResult in
 			return UpdateUserDataResult.Failure(requestError?.foundationError)
@@ -410,7 +410,7 @@ class UserDataTests: MMTestCase {
 	}
 }
 
-func performMergeInterruptedUserUpdateCase(user: User, then: (() -> Void)? = nil) {
+func performMergeInterruptedUserUpdateCase(user: MMUser, then: (() -> Void)? = nil) {
 	let remoteApiProvider = RemoteAPIProviderStub()
 	remoteApiProvider.patchUserClosure = { (_, _, _) -> UpdateUserDataResult in
 		let jsonStr = """
@@ -423,7 +423,7 @@ func performMergeInterruptedUserUpdateCase(user: User, then: (() -> Void)? = nil
 			}
 		}
 	"""
-		let requestError = RequestError(json: JSON.parse(jsonStr))
+		let requestError = MMRequestError(json: JSON.parse(jsonStr))
 		return UpdateUserDataResult.Failure(requestError?.foundationError)
 	}
 	MobileMessaging.sharedInstance?.remoteApiProvider = remoteApiProvider
