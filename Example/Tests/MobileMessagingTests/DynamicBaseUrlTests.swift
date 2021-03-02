@@ -85,7 +85,7 @@ class DynamicBaseUrlTests: MMTestCase {
 		let newDynamicURL = URL(string: "https://not-reachable-url.com")!
 		MMTestCase.cleanUpAndStop()
 		var retriesStarted = false
-		let mm = MobileMessaging.withApplicationCode("", notificationType: UserNotificationType(options: []) , backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)!
+		let mm = MobileMessaging.withApplicationCode("", notificationType: MMUserNotificationType(options: []) , backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)!
 		mm.start()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
 		let remoteApi = RemoteAPIProviderStub()

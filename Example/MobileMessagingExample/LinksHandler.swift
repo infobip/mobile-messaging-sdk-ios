@@ -11,7 +11,7 @@ import MobileMessaging
 var supportedViewControllers: [DeeplinkLandingViewController.Type] = [RedViewController.self, GreenViewController.self, BlueViewController.self]
 
 class LinksHandler {
-	class func handleLinks(fromMessage message: MTMessage) {
+	class func handleLinks(fromMessage message: MM_MTMessage) {
 		
 		//checking do we have "deeplink" in message object
         if let deeplink = message.deeplink {
@@ -19,7 +19,7 @@ class LinksHandler {
 		}
 	}
 	
-	class func openDeeplink(url: URL, withMessage message: MTMessage?) -> Bool {
+	class func openDeeplink(url: URL, withMessage message: MM_MTMessage?) -> Bool {
 		let supportedSchemes = ["com.infobip.mobilemessaging"]
 		
 		//check do we support scheme in the URL
@@ -34,7 +34,7 @@ class LinksHandler {
 		return true
 	}
 	
-	class func openViewControllers(fromPathComponents pathComponents: [String], message: MTMessage?) {
+	class func openViewControllers(fromPathComponents pathComponents: [String], message: MM_MTMessage?) {
 		guard !pathComponents.isEmpty else {
 			return
 		}

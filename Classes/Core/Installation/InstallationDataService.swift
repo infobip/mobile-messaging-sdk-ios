@@ -33,7 +33,7 @@ final class InstallationDataService: MobileMessagingService {
 		syncWithServer(completion)
 	}
 
-	func save(installationData: Installation, completion: @escaping (NSError?) -> Void) {
+	func save(installationData: MMInstallation, completion: @escaping (NSError?) -> Void) {
 		logDebug("saving \(installationData.dictionaryRepresentation)")
 		installationData.archiveDirty()
 		syncWithServer(completion)
@@ -58,7 +58,7 @@ final class InstallationDataService: MobileMessagingService {
 		}
 	}
 
-	func fetchFromServer(completion: @escaping ((Installation, NSError?) -> Void)) {
+	func fetchFromServer(completion: @escaping ((MMInstallation, NSError?) -> Void)) {
 		logDebug("fetch from server")
 		if let op = FetchInstanceOperation(
 			currentInstallation: mmContext.currentInstallation(),
@@ -77,7 +77,7 @@ final class InstallationDataService: MobileMessagingService {
 		installationQueue.addOperation(op)
 	}
 
-	func depersonalize(completion: @escaping (_ status: SuccessPending, _ error: NSError?) -> Void) {
+	func depersonalize(completion: @escaping (_ status: MMSuccessPending, _ error: NSError?) -> Void) {
 		let op = DepersonalizeOperation(mmContext: mmContext, finishBlock: completion)
 		op.queuePriority = .veryHigh
 		installationQueue.addOperation(op)

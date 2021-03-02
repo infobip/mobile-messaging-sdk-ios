@@ -9,12 +9,12 @@ import Foundation
 import UserNotifications
 
 class LocalNotifications: NamedLogger {
-	class func presentLocalNotification(with message: MTMessage) {
+	class func presentLocalNotification(with message: MM_MTMessage) {
 		MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
 		LocalNotifications.scheduleUserNotification(with: message)
 	}
 	
-	class func scheduleUserNotification(with message: MTMessage) {
+	class func scheduleUserNotification(with message: MM_MTMessage) {
 		guard let txt = message.text else {
 			return
 		}

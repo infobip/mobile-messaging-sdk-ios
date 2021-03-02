@@ -13,7 +13,7 @@ extension MobileMessaging {
 	///
 	/// - parameter categories: Set of categories to define which buttons to display and their behavour.
 	/// - remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
-	public func withInteractiveNotificationCategories(_ categories: Set<NotificationCategory>) -> MobileMessaging {
+	public func withInteractiveNotificationCategories(_ categories: Set<MMNotificationCategory>) -> MobileMessaging {
 		if !categories.isEmpty {
 			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: categories)
 		}
@@ -23,10 +23,10 @@ extension MobileMessaging {
 	/// This method handles interactive notifications actions and performs work that is defined for this action.
 	///
 	/// - parameter identifier: The identifier for the interactive notification action.
-	/// - parameter message: The `MTMessage` object the action associated with.
+	/// - parameter message: The `MM_MTMessage` object the action associated with.
 	/// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
 	/// - parameter completionHandler: A block that you must call when you are finished performing the action.
-	class func handleAction(identifier: String?, category: String?, message: MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
+	class func handleAction(identifier: String?, category: String?, message: MM_MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
 		guard let service = NotificationsInteractionService.sharedInstance, let actionId = identifier else
 		{
 			MMLogWarn("[NotificationsInteractionService] canceled handling actionId \(identifier ?? "nil"), service is initialized \(NotificationsInteractionService.sharedInstance != nil)")
@@ -37,28 +37,28 @@ extension MobileMessaging {
 		service.handleAction(identifier: actionId, categoryId: category, message: message, notificationUserInfo: notificationUserInfo, userText: userText, completionHandler: completionHandler)
 	}
 
-	/// Returns `NotificationCategory` object for provided category Id. Category Id can be obtained from `MTMessage` object with `MTMessage.category` method.
+	/// Returns `MMNotificationCategory` object for provided category Id. Category Id can be obtained from `MM_MTMessage` object with `MTMessage.category` method.
 	/// - parameter identifier: The identifier associated with the category of interactive notification
-	public class func category(withId identifier: String) -> NotificationCategory? {
+	public class func category(withId identifier: String) -> MMNotificationCategory? {
 		return NotificationsInteractionService.sharedInstance?.allNotificationCategories?.first(where: {$0.identifier == identifier})
 	}
 }
 
 class NotificationsInteractionService: MobileMessagingService {
-	let customNotificationCategories: Set<NotificationCategory>?
+	let customNotificationCategories: Set<MMNotificationCategory>?
 
-	var allNotificationCategories: Set<NotificationCategory>? {
+	var allNotificationCategories: Set<MMNotificationCategory>? {
 		return customNotificationCategories + NotificationCategories.predefinedCategories
 	}
 
 	static var sharedInstance: NotificationsInteractionService?
 
-	init(mmContext: MobileMessaging, categories: Set<NotificationCategory>?) {
+	init(mmContext: MobileMessaging, categories: Set<MMNotificationCategory>?) {
 		self.customNotificationCategories = categories
 		super.init(mmContext: mmContext, uniqueIdentifier: "NotificationsInteractionService")
 	}
 
-	func handleAction(identifier: String, categoryId: String?, message: MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
+	func handleAction(identifier: String, categoryId: String?, message: MM_MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
 
 		logDebug("handling action \(identifier) for message \(message?.messageId ?? "n/a"), user text empty \(userText?.isEmpty ?? true)")
 
@@ -73,7 +73,7 @@ class NotificationsInteractionService: MobileMessagingService {
 				mmContext.interactiveAlertManager.cancelAllAlerts()
 			}
 		} else {
-			if identifier != NotificationAction.DefaultActionId && MobileMessaging.application.applicationState != .active {
+			if identifier != MMNotificationAction.DefaultActionId && MobileMessaging.application.applicationState != .active {
 				mmContext.interactiveAlertManager.cancelAllAlerts()
 			}
 		}
@@ -90,8 +90,8 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 	}
 
-	static func presentInAppWebview(_ urlString: String, _ presentingVc: UIViewController, _ message: MTMessage?) {
-		let webViewController = WebViewController(url: urlString)
+	static func presentInAppWebview(_ urlString: String, _ presentingVc: UIViewController, _ message: MM_MTMessage?) {
+		let webViewController = MMWebViewController(url: urlString)
 		webViewController.modalPresentationStyle = .fullScreen
         webViewController.applySettings(MobileMessaging.sharedInstance?.webViewSettings)
 		if let message = message {
@@ -100,7 +100,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		presentingVc.present(webViewController, animated: true, completion: nil)
 	}
 
-	fileprivate func handleNotificationTap(message: MTMessage, completion: @escaping () -> Void) {
+	fileprivate func handleNotificationTap(message: MM_MTMessage, completion: @escaping () -> Void) {
 		DispatchQueue.main.async {
 			if let urlString = message.webViewUrl?.absoluteString {
 				if let url = URL(string: urlString), url.scheme != "http", url.scheme != "https" {
@@ -117,23 +117,23 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 	}
 
-	fileprivate func makeAction(_ identifier: String?, _ message: MTMessage?, _ categoryId: String?, _ userText: String?) -> NotificationAction? {
-		if identifier == NotificationAction.DismissActionId
+	fileprivate func makeAction(_ identifier: String?, _ message: MM_MTMessage?, _ categoryId: String?, _ userText: String?) -> MMNotificationAction? {
+		if identifier == MMNotificationAction.DismissActionId
 		{
 			logDebug("handling dismiss action")
-			return NotificationAction.dismissAction()
+			return MMNotificationAction.dismissAction()
 		}
-		else if identifier == NotificationAction.DefaultActionId
+		else if identifier == MMNotificationAction.DefaultActionId
 		{
 			logDebug("handling default action")
-			return NotificationAction.defaultAction
+			return MMNotificationAction.defaultAction
 		}
 		else if	let categoryId = categoryId,
 			let category = allNotificationCategories?.first(where: { $0.identifier == categoryId }),
 			let action = category.actions.first(where: { $0.identifier == identifier })
 		{
 			if
-				let action = action as? TextInputNotificationAction,
+				let action = action as? MMTextInputNotificationAction,
 				let typedText = userText
 			{
 				logDebug("handling text input")
@@ -150,7 +150,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 	}
 
-	fileprivate func deliverActionEventToUser(message: MTMessage?, action: NotificationAction, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void) {
+	fileprivate func deliverActionEventToUser(message: MM_MTMessage?, action: MMNotificationAction, notificationUserInfo: [String: Any]?, completion: @escaping () -> Void) {
 		var userInfo = [
 			MMNotificationKeyMessage: message as Any,
 			MMNotificationKeyNotificationUserInfo: notificationUserInfo as Any,
@@ -160,7 +160,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		if action.isTapOnNotificationAlert {
 			UserEventsManager.postMessageTappedEvent(userInfo)
 		} else {
-			if let text = (action as? TextInputNotificationAction)?.typedText {
+			if let text = (action as? MMTextInputNotificationAction)?.typedText {
 				userInfo[MMNotificationKeyActionTextInput] = text
 			}
 			UserEventsManager.postActionTappedEvent(userInfo)
@@ -182,12 +182,12 @@ class NotificationsInteractionService: MobileMessagingService {
 		start({_ in })
 	}
 
-	override func handleNewMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
+	override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		mmContext.interactiveAlertManager.showModalNotificationIfNeeded(forMessage: message)
 		completion(.noData)
 	}
 
-	override func handleAnyMessage(_ message: MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
+	override func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning, let appliedAction = message.appliedAction else {
 			completion(.noData)
 			return
@@ -212,7 +212,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		})
 
 		if appliedAction.options.contains(.moRequired) {
-			let mo = MOMessage(
+			let mo = MM_MOMessage(
 				destination: nil,
 				text: "\(message.category ?? "n/a") \(appliedAction.identifier)",
 				customPayload: nil,

@@ -210,6 +210,7 @@
 		A00D332F252B81480024BB12 /* ChatAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00D332E252B81480024BB12 /* ChatAttachment.swift */; };
 		A036A5BD24AB35A200B426EF /* ChatAttachmentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A036A5BC24AB35A100B426EF /* ChatAttachmentPicker.swift */; };
 		A070E19824F1579500583840 /* ChatCoverHorisontalTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A070E19724F1579500583840 /* ChatCoverHorisontalTransition.swift */; };
+		A08A1B4C25EE21020092AF16 /* MMRenamedClassesMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08A1B4B25EE21020092AF16 /* MMRenamedClassesMapping.swift */; };
 		A08CB2662459B0BB00ED91B6 /* ChatJSMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB2632459B0BB00ED91B6 /* ChatJSMessageHandler.swift */; };
 		A08CB2672459B0BB00ED91B6 /* ChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB2642459B0BB00ED91B6 /* ChatService.swift */; };
 		A08CB2682459B0BB00ED91B6 /* GetChatWidgetOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08CB2652459B0BB00ED91B6 /* GetChatWidgetOperation.swift */; };
@@ -491,6 +492,7 @@
 		A00D332E252B81480024BB12 /* ChatAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatAttachment.swift; sourceTree = "<group>"; };
 		A036A5BC24AB35A100B426EF /* ChatAttachmentPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ChatAttachmentPicker.swift; path = UI/ChatAttachmentPicker.swift; sourceTree = "<group>"; };
 		A070E19724F1579500583840 /* ChatCoverHorisontalTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatCoverHorisontalTransition.swift; sourceTree = "<group>"; };
+		A08A1B4B25EE21020092AF16 /* MMRenamedClassesMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRenamedClassesMapping.swift; sourceTree = "<group>"; };
 		A08CB2632459B0BB00ED91B6 /* ChatJSMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatJSMessageHandler.swift; sourceTree = "<group>"; };
 		A08CB2642459B0BB00ED91B6 /* ChatService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatService.swift; sourceTree = "<group>"; };
 		A08CB2652459B0BB00ED91B6 /* GetChatWidgetOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetChatWidgetOperation.swift; sourceTree = "<group>"; };
@@ -924,6 +926,7 @@
 				7645563A1F78FF4F00B8F14B /* UserNotificationType.swift */,
 				76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */,
 				76978E2525C30C1200912DB4 /* BaseUrlManager.swift */,
+				A08A1B4B25EE21020092AF16 /* MMRenamedClassesMapping.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1505,6 +1508,7 @@
 				764556741F78FF5800B8F14B /* MMKeychain.swift in Sources */,
 				7650DC3B244EEB480016233D /* CPMessageComposingViewController.swift in Sources */,
 				7601F19F208E056500738C1A /* KingfisherManager.swift in Sources */,
+				A08A1B4C25EE21020092AF16 /* MMRenamedClassesMapping.swift in Sources */,
 				7650DC34244EEB480016233D /* CPViewController.swift in Sources */,
 				7650DC3F244EEB480016233D /* CPKeyboardAwareViewController.swift in Sources */,
 				7608E307219A095500EC7289 /* CreateInstanceOperation.swift in Sources */,

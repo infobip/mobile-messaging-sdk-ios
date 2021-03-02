@@ -37,7 +37,7 @@ final class RegistrationTests: MMTestCase {
 			}
 			"""
 			
-			return FetchInstanceDataResult.Success(Installation(json: JSON.parse(jsonStr))!)
+			return FetchInstanceDataResult.Success(MMInstallation(json: JSON.parse(jsonStr))!)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 		
@@ -67,7 +67,7 @@ final class RegistrationTests: MMTestCase {
 				}
 				"""
 			
-			return FetchInstanceDataResult.Success(Installation(json: JSON.parse(jsonStr))!)
+			return FetchInstanceDataResult.Success(MMInstallation(json: JSON.parse(jsonStr))!)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 		
@@ -89,7 +89,7 @@ final class RegistrationTests: MMTestCase {
 		
 		let remoteProviderMock = RemoteAPIProviderStub()
 		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
-			return	FetchInstanceDataResult.Success(Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil))
+			return	FetchInstanceDataResult.Success(MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil))
 		}
 		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
 			return UpdateInstanceDataResult.Success(EmptyResponse())
@@ -108,7 +108,7 @@ final class RegistrationTests: MMTestCase {
 		
 		waitForExpectations(timeout: 100, handler: { err in
 			XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, "token\(maxCount-1)".mm_toHexademicalString, "Most recent token must be persisted")
-			XCTAssertNil(Installation.delta?["pushServiceToken"])
+			XCTAssertNil(MMInstallation.delta?["pushServiceToken"])
 		})
 	}
 	
@@ -119,7 +119,7 @@ final class RegistrationTests: MMTestCase {
 		
 		let remoteProviderMock = RemoteAPIProviderStub()
 		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
-			return FetchInstanceDataResult.Success(Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil))
+			return FetchInstanceDataResult.Success(MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil))
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 		
@@ -143,7 +143,7 @@ final class RegistrationTests: MMTestCase {
 		let remoteProviderMock = RemoteAPIProviderStub()
 		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
 			return FetchInstanceDataResult.Success(
-				Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+                MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 			)
 		}
 		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
@@ -182,7 +182,7 @@ final class RegistrationTests: MMTestCase {
 			expectation?.fulfill()
 		}
 		self.waitForExpectations(timeout: 60) { _ in
-			XCTAssertNotNil(Installation.delta!["pushServiceToken"])
+			XCTAssertNotNil(MMInstallation.delta!["pushServiceToken"])
 			XCTAssertNil(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 			XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, "someToken".mm_toHexademicalString)
 		}
@@ -195,7 +195,7 @@ final class RegistrationTests: MMTestCase {
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
 			requestSentCounter += 1
-			return FetchInstanceDataResult.Success(Installation.empty)
+			return FetchInstanceDataResult.Success(MMInstallation.empty)
 		}
 		remoteApiProvider.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
 			requestSentCounter += 1
@@ -228,7 +228,7 @@ final class RegistrationTests: MMTestCase {
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
 			requestSentCounter += 1
-			return FetchInstanceDataResult.Success(Installation.empty)
+			return FetchInstanceDataResult.Success(MMInstallation.empty)
 		}
 		remoteApiProvider.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
 			requestSentCounter += 1
@@ -256,7 +256,7 @@ final class RegistrationTests: MMTestCase {
 		weak var regEnabled2StatusSynced = self.expectation(description: "registration sent")
 		
 		var requestSentCounter = 0
-		let stubInstallation = Installation(json: JSON.parse("""
+		let stubInstallation = MMInstallation(json: JSON.parse("""
 					{
 						"regEnabled": true,
 						"pushRegId": "stub",
@@ -311,7 +311,7 @@ final class RegistrationTests: MMTestCase {
 		
 		weak var registrationSynced = self.expectation(description: "registration synced")
 		
-		let stubInstallation = Installation(json: JSON.parse("""
+		let stubInstallation = MMInstallation(json: JSON.parse("""
 					{
 						"regEnabled": false,
 						"pushRegId": "stub",
@@ -330,15 +330,15 @@ final class RegistrationTests: MMTestCase {
 		
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode("stub")!.withGeofencingService()
-		GeofencingService.sharedInstance = GeofencingServiceStartStopMock(mmContext: mm)
-		GeofencingService.sharedInstance!.start({ _ in })
+		MMGeofencingService.sharedInstance = GeofencingServiceStartStopMock(mmContext: mm)
+		MMGeofencingService.sharedInstance!.start({ _ in })
 		
 		mm.start()
 		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
 		
 		
 		XCTAssertTrue(mm.messageHandler.isRunning)
-		XCTAssertTrue(GeofencingService.sharedInstance!.isRunning)
+		XCTAssertTrue(MMGeofencingService.sharedInstance!.isRunning)
 		XCTAssertTrue(MobileMessaging.sharedInstance!.resolveInstallation().isPushRegistrationEnabled)
 		
 		mm.pushServiceToken = "stub"
@@ -357,7 +357,7 @@ final class RegistrationTests: MMTestCase {
 		let remoteProviderMock = RemoteAPIProviderStub()
 		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
 			return FetchInstanceDataResult.Success(
-				Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
+                MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
 			)
 		}
 		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
@@ -386,7 +386,7 @@ final class RegistrationTests: MMTestCase {
 		let remoteProviderMock = RemoteAPIProviderStub()
 		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
 			return FetchInstanceDataResult.Success(
-				Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
+                MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
 			)
 		}
 		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
@@ -402,7 +402,7 @@ final class RegistrationTests: MMTestCase {
 			// assertions:
 			
 			let internalData = InternalData.unarchiveCurrent()
-			let installation = Installation.unarchiveCurrent()
+			let installation = MMInstallation.unarchiveCurrent()
 			XCTAssertNotNil(internalData.applicationCode, "application code must be persisted")
 			XCTAssertNotNil(installation.pushServiceToken)
 			XCTAssertNotNil(installation.pushRegistrationId)
@@ -449,7 +449,7 @@ final class RegistrationTests: MMTestCase {
 			}
 			remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
 				return FetchInstanceDataResult.Success(
-					Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
+                    MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
 				)
 			}
 			self.mobileMessagingInstance.remoteApiProvider = remoteProviderMock
@@ -479,7 +479,7 @@ final class RegistrationTests: MMTestCase {
 				}
 				remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
 					return FetchInstanceDataResult.Success(
-						Installation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled:false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
+                        MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled:false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 					)
 				}
 				remoteProviderMock.deleteInstanceClosure = { (_, _, expiredPushRef) -> UpdateInstanceDataResult in
@@ -546,20 +546,20 @@ class NotificationsDisabledMock: MMApplication {
 }
 
 
-class GeofencingServiceStartStopMock: GeofencingService {
+class GeofencingServiceStartStopMock: MMGeofencingService {
 	override func stop(_ completion: ((Bool) -> Void)?) {
 		isRunning = false
 	}
 	override func start(_ completion: ((Bool) -> Void)?) {
 		isRunning = true
 	}
-	override func authorizeService(kind: LocationServiceKind, usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
+	override func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMGeofencingCapabilityStatus) -> Void) {
 		completion(.authorized)
 	}
 	
 	override func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {}
 	
-	override public class var currentCapabilityStatus: GeofencingCapabilityStatus {
-		return GeofencingCapabilityStatus.authorized
+	override public class var currentCapabilityStatus: MMGeofencingCapabilityStatus {
+		return MMGeofencingCapabilityStatus.authorized
 	}
 }

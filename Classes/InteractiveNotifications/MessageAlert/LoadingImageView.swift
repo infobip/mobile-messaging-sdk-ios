@@ -52,7 +52,7 @@ class LoadingImageView: UIView {
 	
 	func showErrorIfNeeded(error: Error?) {
 		if error != nil {
-			self.errorLabel?.text = InteractiveMessageAlertSettings.errorPlaceholderText
+			self.errorLabel?.text = MMInteractiveMessageAlertSettings.errorPlaceholderText
 		}
 	}
 	

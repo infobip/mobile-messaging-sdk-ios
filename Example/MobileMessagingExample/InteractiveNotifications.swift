@@ -14,8 +14,8 @@ extension AppDelegate {
 		MobileMessaging.logger?.logLevel = .Debug
 	}
 	
-	var customCategories: Set<NotificationCategory> {
-		var categories = Set<NotificationCategory>()
+	var customCategories: Set<MMNotificationCategory> {
+		var categories = Set<MMNotificationCategory>()
 		categories.insert(categoryShareCancel)
 		if let _replyCategory = replyCategory {
 			categories.insert(_replyCategory)
@@ -23,26 +23,26 @@ extension AppDelegate {
 		return categories
 	}
 	
-	var categoryShareCancel: NotificationCategory {
+	var categoryShareCancel: MMNotificationCategory {
 		//Action with title "Cancel", which will be marked as destructive and will require device to be unlocked before proceed
-		let cancelAction = NotificationAction(identifier: "cancel",
+		let cancelAction = MMNotificationAction(identifier: "cancel",
 											  title: "Cancel",
 											  options: [.destructive, .authenticationRequired])!
 		//Action with title "Share", which will require device to be unlocked before proceed and will bring application to the foreground
-		let shareAction = NotificationAction(identifier: "share",
+		let shareAction = MMNotificationAction(identifier: "share",
 											 title: "Share",
 											 options: [.foreground, .authenticationRequired])!
 		
-		let category = NotificationCategory(identifier: "category_share_cancel",
+		let category = MMNotificationCategory(identifier: "category_share_cancel",
 											actions: [shareAction, cancelAction],
 											options: nil,
 											intentIdentifiers: nil)
 		return category!
 	}
 	
-	var replyCategory: NotificationCategory? {
-		if let replyAction = TextInputNotificationAction(identifier: "reply", title: "Reply", options: [], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print reply here") {
-			return NotificationCategory(identifier: "category_reply",
+	var replyCategory: MMNotificationCategory? {
+		if let replyAction = MMTextInputNotificationAction(identifier: "reply", title: "Reply", options: [], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print reply here") {
+			return MMNotificationCategory(identifier: "category_reply",
 										actions: [replyAction],
 										options: nil,
 										intentIdentifiers: nil)

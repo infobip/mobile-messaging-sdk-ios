@@ -18,7 +18,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter code: The application code of your Application from Push Portal website.
 	- parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	*/
-	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
 	}
 	
@@ -29,7 +29,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter forceCleanup: Defines whether the SDK must be cleaned up on startup.
 	- warning: The cleanup (parameter `forceCleanup = true`) must be performed manually if you changed the application code while `PrivacySettings.applicationCodePersistingDisabled` is set to `true`.
 	*/
-	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString, forceCleanup: forceCleanup)
 	}
 	
@@ -39,7 +39,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter code: The application code of your Application from Push Portal website.
 	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is https://oneapi.infobip.com.
 	*/
-	public class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String) -> MobileMessaging? {
+	public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
 		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: false)
 	}
 	
@@ -57,7 +57,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	It is possible to supply an implementation of Message Storage to the Mobile Messaging library during initialization. In this case the library will save all received Push messages to the supplied `messageStorage`. Library can also be initialized either without message storage or with the default message storage (see `withDefaultMessageStorage()` method).
 	- parameter messageStorage: a storage object, that implements the `MessageStorage` protocol
 	*/
-	public func withMessageStorage(_ messageStorage: MessageStorage) -> MobileMessaging {
+	public func withMessageStorage(_ messageStorage: MMMessageStorage) -> MobileMessaging {
 		self.messageStorages[MessageStorageKind.messages.rawValue] = MessageStorageQueuedAdapter.makeMessagesStoragaAdapter(storage: messageStorage)
 		return self
 	}
@@ -155,7 +155,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	*/
-	public class func getInstallation() -> Installation? {
+	public class func getInstallation() -> MMInstallation? {
 		return MobileMessaging.sharedInstance?.dirtyInstallation()
 	}
 	
@@ -164,7 +164,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	*/
-	public class func getUser() -> User? {
+	public class func getUser() -> MMUser? {
 		return MobileMessaging.sharedInstance?.dirtyUser()
 	}
 	
@@ -176,7 +176,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter user: Fetched user. Contains actual data if not error happened.
 	- parameter error: Optional error.
 	*/
-	public class func fetchUser(completion: @escaping (_ user: User?, _ error: NSError?) -> Void) {
+	public class func fetchUser(completion: @escaping (_ user: MMUser?, _ error: NSError?) -> Void) {
 		if let us = MobileMessaging.sharedInstance?.userService {
 			us.fetchFromServer { (fetched, error) in
 				completion(fetched, error)
@@ -194,7 +194,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter installation: Fetched installation. Contains actual data if not error happened.
 	- parameter error: Optional error.
 	*/
-	public class func fetchInstallation(completion: @escaping (_ installation: Installation?, _ error: NSError?) -> Void) {
+	public class func fetchInstallation(completion: @escaping (_ installation: MMInstallation?, _ error: NSError?) -> Void) {
 		if let service = MobileMessaging.sharedInstance?.installationService {
 			service.fetchFromServer { (fetched, error) in
 				completion(fetched, error)
@@ -212,7 +212,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter completion: The block to execute after the server responded.
 	- parameter error: Optional error.
 	*/
-	public class func saveUser(_ user: User, completion: @escaping (_ error: NSError?) -> Void) {
+	public class func saveUser(_ user: MMUser, completion: @escaping (_ error: NSError?) -> Void) {
 		if let us = MobileMessaging.sharedInstance?.userService {
 			us.save(userData: user, completion: completion)
 		} else {
@@ -228,7 +228,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter completion: The block to execute after the server responded.
 	- parameter error: Optional error.
 	*/
-	public class func saveInstallation(_ installation: Installation, completion: @escaping (_ error: NSError?) -> Void) {
+	public class func saveInstallation(_ installation: MMInstallation, completion: @escaping (_ error: NSError?) -> Void) {
 		if let service = MobileMessaging.sharedInstance?.installationService {
 			service.save(installationData: installation, completion: completion)
 		} else {
@@ -242,7 +242,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	- parameter user: User data to persist.
 	*/
-	public class func persistUser(_ user: User) {
+	public class func persistUser(_ user: MMUser) {
 		user.archiveDirty()
 	}
 	
@@ -251,7 +251,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	
 	For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
 	*/
-	public class func persistInstallation(_ installation: Installation) {
+	public class func persistInstallation(_ installation: MMInstallation) {
 		installation.archiveDirty()
 	}
 	
@@ -273,11 +273,11 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter status: Current depersonalization status.
 	- parameter error: Optional error.
 	*/
-	public class func depersonalize(completion: @escaping (_ status: SuccessPending, _ error: NSError?) -> Void) {
+	public class func depersonalize(completion: @escaping (_ status: MMSuccessPending, _ error: NSError?) -> Void) {
 		if let service = MobileMessaging.sharedInstance?.installationService {
 			service.depersonalize(completion: completion)
 		} else {
-			completion(SuccessPending.undefined, NSError(type: .MobileMessagingInstanceNotInitialized))
+			completion(MMSuccessPending.undefined, NSError(type: .MobileMessagingInstanceNotInitialized))
 		}
 	}
 	
@@ -294,7 +294,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter userAttributes: Optional user data to be saved for the person.
 	- parameter completion: The block to execute after the server responded.
 	- parameter error: Optional error. */
-	public class func personalize(withUserIdentity identity: UserIdentity, userAttributes: UserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
+	public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
 		personalize(forceDepersonalize: false, userIdentity: identity, userAttributes: userAttributes, completion: completion)
 	}
 	
@@ -308,7 +308,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter userAttributes: Optional user data to be saved for the person.
 	- parameter completion: The block to execute after the server responded.
 	- parameter error : Optional error. */
-	public class func personalize(forceDepersonalize: Bool, userIdentity: UserIdentity, userAttributes: UserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
+	public class func personalize(forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
 		if let service = MobileMessaging.sharedInstance?.userService {
 			service.personalize(forceDepersonalize: forceDepersonalize, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
 		} else {
@@ -326,7 +326,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter installations: A list of installations. Contains actual data if no error happened.
 	- parameter error: Optional error.
 	*/
-	public class func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping (_ installations: [Installation]?, _ error: NSError?) -> Void) {
+	public class func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping (_ installations: [MMInstallation]?, _ error: NSError?) -> Void) {
 		if let service = MobileMessaging.sharedInstance?.userService {
 			service.setInstallation(withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
 		} else {
@@ -343,7 +343,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter installations: A list of installations. Contains actual data if no error happened.
 	- parameter error: Optional error.
 	*/
-	public class func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping (_ installations: [Installation]?, _ error: NSError?) -> Void) {
+	public class func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping (_ installations: [MMInstallation]?, _ error: NSError?) -> Void) {
 		if let service = MobileMessaging.sharedInstance?.userService {
 			service.depersonalizeInstallation(withPushRegistrationId: pushRegId, completion: completion)
 		} else {
@@ -359,7 +359,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter installations: A list of fetched installations. Contains actual data if no error happened.
 	- parameter error: Optional error.
 	*/
-	public class func fetchInstallations(completion: @escaping (_ installations: [Installation]?, _ error: NSError?) -> Void) {
+	public class func fetchInstallations(completion: @escaping (_ installations: [MMInstallation]?, _ error: NSError?) -> Void) {
 		if let service = MobileMessaging.sharedInstance?.userService {
 			service.fetchFromServer { (user, error) in
 				completion(user.installations, error)
@@ -384,12 +384,12 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	
 	/**
 	Asynchronously sends mobile originated messages to the server.
-	- parameter messages: Array of objects of `MOMessage` class that need to be sent.
-	- parameter completion: The block to execute after the server responded, passes an array of `MOMessage` messages
+	- parameter messages: Array of objects of `MM_MOMessage` class that need to be sent.
+	- parameter completion: The block to execute after the server responded, passes an array of `MM_MOMessage` messages
 	- parameter messages: List of messages sent if no error happened
 	- parameter error: Optional error
 	*/
-	public class func sendMessages(_ messages: [MOMessage], completion: @escaping (_ messages: [MOMessage]?, _ error: NSError?) -> Void) {
+	public class func sendMessages(_ messages: [MM_MOMessage], completion: @escaping (_ messages: [MM_MOMessage]?, _ error: NSError?) -> Void) {
 		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
 		guard let mm = MobileMessaging.sharedInstance else {
 			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
@@ -399,11 +399,11 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	}
 	
 	/** An auxillary component provides the convinient access to the user agent data. */
-	public internal(set) static var userAgent = UserAgent()
+	public internal(set) static var userAgent = MMUserAgent()
 	
 	/**
 	The `MessageHandlingDelegate` protocol defines methods for responding to actionable notifications and receiving new notifications. You assign your delegate object to the `messageHandlingDelegate` property of the `MobileMessaging` class. The MobileMessaging SDK calls methods of your delegate at appropriate times to deliver information. */
-	public static var messageHandlingDelegate: MessageHandlingDelegate? = nil
+	public static var messageHandlingDelegate: MMMessageHandlingDelegate? = nil
 	
 	/**
 	The `URLSessionConfiguration` used for all url connections in the SDK
@@ -412,8 +412,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	*/
 	public static var urlSessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
 	
-	/** The `PrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic. */
-	public internal(set) static var privacySettings = PrivacySettings()
+	/** The `MMPrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic. */
+	public internal(set) static var privacySettings = MMPrivacySettings()
 	
 	/** The number currently set as the badge of the app icon in Springboard.
 	Set to 0 (zero) to hide the badge number. The default value of this property is 0. */
@@ -439,7 +439,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter completion: The block to execute after the server responded.
 	- parameter error: Optional error.
 	*/
-	public class func submitEvent(_ customEvent: CustomEvent, completion: @escaping (_ error: NSError?) -> Void) {
+	public class func submitEvent(_ customEvent: MMCustomEvent, completion: @escaping (_ error: NSError?) -> Void) {
 		if let es = MobileMessaging.sharedInstance?.eventsService {
 			es.submitEvent(customEvent: customEvent, reportImmediately: true, completion: completion)
 		} else {
@@ -451,25 +451,25 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	Asynchronously submits the custom event and sends it to the server eventually. If something went wrong during the communication with the server, the request will be retied until the event succesfully accepted.
 	- parameter customEvent: Custom event to be sent to the server.
 	*/
-	public class func submitEvent(_ customEvent: CustomEvent) {
+	public class func submitEvent(_ customEvent: MMCustomEvent) {
 		MobileMessaging.sharedInstance?.eventsService.submitEvent(customEvent: customEvent, reportImmediately: false, completion: {_ in})
 	}
     
     /**
      You can define your own custom appearance for in-app webView, which will appear if user taps on push notification, by accessing a webView settings object.
      */
-    public let webViewSettings: WebViewSettings = WebViewSettings.sharedInstance
+    public let webViewSettings: MMWebViewSettings = MMWebViewSettings.sharedInstance
 	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?
-	let userNotificationType: UserNotificationType
+	let userNotificationType: MMUserNotificationType
 	let applicationCode: String
 	var doRegisterToApns: Bool = true
 	
 	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
 	
-	class func withApplicationCode(_ code: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
+	class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
 		
 		if let sharedInstance = sharedInstance, sharedInstance.applicationCode != code || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
 			MobileMessaging.stop()
@@ -518,8 +518,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
 			keychain.clear()
 		}
 		InternalData.resetCurrent()
-		User.resetAll()
-		Installation.resetAll()
+		MMUser.resetAll()
+		MMInstallation.resetAll()
 		apnsRegistrationManager.cleanup()
 	}
 	
@@ -587,17 +587,17 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		messageHandler.setSeen(messageIds, immediately: immediately, completion: completion)
 	}
 	
-	func sendMessagesSDKInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
+	func sendMessagesSDKInitiated(_ messages: [MM_MOMessage], completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
 		logDebug("Sending mobile originated messages (SDK initiated)...")
 		messageHandler.sendMessages(messages, isUserInitiated: false, completion: completion)
 	}
 	
-	func retryMoMessageSending(completion: @escaping ([MOMessage]?, NSError?) -> Void) {
+	func retryMoMessageSending(completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
 		logDebug("Retrying sending mobile originated messages...")
 		messageHandler.sendMessages([], isUserInitiated: false, completion: completion)
 	}
 	
-	func sendMessagesUserInitiated(_ messages: [MOMessage], completion: @escaping ([MOMessage]?, NSError?) -> Void) {
+	func sendMessagesUserInitiated(_ messages: [MM_MOMessage], completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
 		logDebug("Sending mobile originated messages (User initiated)...")
 		messageHandler.sendMessages(messages, isUserInitiated: true, completion: completion)
 	}
@@ -617,7 +617,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	}
 	
 	//MARK: Private
-	internal init?(appCode: String, notificationType: UserNotificationType, backendBaseURL: String, forceCleanup: Bool, internalStorage: MMCoreDataStorage? = nil) {
+	internal init?(appCode: String, notificationType: MMUserNotificationType, backendBaseURL: String, forceCleanup: Bool, internalStorage: MMCoreDataStorage? = nil) {
+        
+        NSKeyedUnarchiver.mm_setMappingForRenamedClasses()
 		
 		let logCoreDataInitializationError = {
             Self.logError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
@@ -630,8 +632,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		
 		if forceCleanup || applicationCodeChanged(newApplicationCode: appCode) {
             Self.logDebug("Data will be cleaned up due to the application code change.")
-			User.resetAll()
-			Installation.resetAll()
+			MMUser.resetAll()
+			MMInstallation.resetAll()
 			InternalData.resetCurrent()
 			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorages: messageStorages)
 			do {
@@ -691,14 +693,14 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	let internalStorage: MMCoreDataStorage
 	
 	func internalData() -> InternalData { return InternalData.unarchiveCurrent() }
-	func currentInstallation() -> Installation { return Installation.unarchiveCurrent() }
-	func currentUser() -> User { return User.unarchiveCurrent() }
+	func currentInstallation() -> MMInstallation { return MMInstallation.unarchiveCurrent() }
+	func currentUser() -> MMUser { return MMUser.unarchiveCurrent() }
 	
-	func dirtyInstallation() -> Installation { return Installation.unarchiveDirty() }
-	func dirtyUser() -> User { return User.unarchiveDirty().copy() as! User }
+	func dirtyInstallation() -> MMInstallation { return MMInstallation.unarchiveDirty() }
+	func dirtyUser() -> MMUser { return MMUser.unarchiveDirty().copy() as! MMUser }
 	
-	func resolveInstallation() -> Installation { return dirtyInstallation() }
-	func resolveUser() -> User { return dirtyUser() }
+	func resolveInstallation() -> MMInstallation { return dirtyInstallation() }
+	func resolveUser() -> MMUser { return dirtyUser() }
 	var userService: UserDataService!
 	var installationService: InstallationDataService!
 	var appListener: MMApplicationListener!

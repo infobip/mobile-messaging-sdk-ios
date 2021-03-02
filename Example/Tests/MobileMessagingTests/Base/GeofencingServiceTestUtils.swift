@@ -1,5 +1,5 @@
 //
-//  GeofencingServiceTestUtils.swift
+//  MMGeofencingServiceTestUtils.swift
 //  MobileMessagingExample
 //
 //  Created by Andrey Kadochnikov on 13/11/2018.
@@ -52,7 +52,7 @@ class LocationManagerStub: CLLocationManager {
 	}
 }
 
-class GeofencingServiceAlwaysRunningStub: GeofencingService {
+class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
 	init(mmContext: MobileMessaging, locationManagerStub: LocationManagerStub = LocationManagerStub()) {
 		self.stubbedLocationManager = locationManagerStub
 		super.init(mmContext: mmContext)
@@ -73,7 +73,7 @@ class GeofencingServiceAlwaysRunningStub: GeofencingService {
 
 	var stubbedLocationManager: LocationManagerStub
 
-	override func authorizeService(kind: LocationServiceKind, usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
+	override func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMGeofencingCapabilityStatus) -> Void) {
 		completion(.authorized)
 	}
 
@@ -90,12 +90,12 @@ class GeofencingServiceAlwaysRunningStub: GeofencingService {
 		stubbedLocationManager.monitoredRegionsArray = [CLRegion]()
 	}
 
-	override public class var currentCapabilityStatus: GeofencingCapabilityStatus {
-		return GeofencingCapabilityStatus.authorized
+	override public class var currentCapabilityStatus: MMGeofencingCapabilityStatus {
+		return MMGeofencingCapabilityStatus.authorized
 	}
 }
 
-class GeofencingServiceDisabledStub: GeofencingService {
+class GeofencingServiceDisabledStub: MMGeofencingService {
 	init(mmContext: MobileMessaging, locationManagerStub: LocationManagerStub = LocationManagerStub()) {
 		self.locationManagerStub = locationManagerStub
 		super.init(mmContext: mmContext)
@@ -116,7 +116,7 @@ class GeofencingServiceDisabledStub: GeofencingService {
 
 	var locationManagerStub: LocationManagerStub
 
-	override func authorizeService(kind: LocationServiceKind, usage: LocationServiceUsage, completion: @escaping (GeofencingCapabilityStatus) -> Void) {
+	override func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMGeofencingCapabilityStatus) -> Void) {
 		completion(.denied)
 	}
 
@@ -133,8 +133,8 @@ class GeofencingServiceDisabledStub: GeofencingService {
 		locationManagerStub.monitoredRegionsArray = [CLRegion]()
 	}
 
-	override public class var currentCapabilityStatus: GeofencingCapabilityStatus {
-		return GeofencingCapabilityStatus.denied
+	override public class var currentCapabilityStatus: MMGeofencingCapabilityStatus {
+		return MMGeofencingCapabilityStatus.denied
 	}
 }
 
@@ -238,7 +238,7 @@ var gregorianCalendarDate_06_08_2017__12_20_16: Date {
 
 
 
-func baseAPNSDict(messageId: String = expectedMessageId) -> APNSPayload {
+func baseAPNSDict(messageId: String = expectedMessageId) -> MMAPNSPayload {
 	return
 		[
 			Consts.APNSPayloadKeys.messageId: messageId,
@@ -254,7 +254,7 @@ let nestedPulaId = "M227A2A0D0612AFB652E9D2D80E0ZZ44"
 
 
 // modern:
-let modernZagrebDict: APNSPayload = [
+let modernZagrebDict: MMAPNSPayload = [
 	GeoConstants.RegionKeys.identifier: zagrebId,
 	GeoConstants.RegionKeys.latitude: 45.80869126677998,
 	GeoConstants.RegionKeys.longitude: 15.97206115722656,
@@ -262,7 +262,7 @@ let modernZagrebDict: APNSPayload = [
 	GeoConstants.RegionKeys.title: "Zagreb"
 ]
 
-let modernPulaDict: APNSPayload = [
+let modernPulaDict: MMAPNSPayload = [
 	GeoConstants.RegionKeys.identifier: pulaId,
 	GeoConstants.RegionKeys.latitude: 44.86803631018752,
 	GeoConstants.RegionKeys.longitude: 13.84586334228516,
@@ -270,7 +270,7 @@ let modernPulaDict: APNSPayload = [
 	GeoConstants.RegionKeys.title: "Pula"
 ]
 
-let nestedPulaDict: APNSPayload = [
+let nestedPulaDict: MMAPNSPayload = [
 	GeoConstants.RegionKeys.identifier: nestedPulaId,
 	GeoConstants.RegionKeys.latitude: 44.868036310,
 	GeoConstants.RegionKeys.longitude: 13.845863342,
@@ -278,13 +278,13 @@ let nestedPulaDict: APNSPayload = [
 	GeoConstants.RegionKeys.title: "Pula smaller"
 ]
 
-var modernInternalDataWithZagrebPulaDict: APNSPayload {
+var modernInternalDataWithZagrebPulaDict: MMAPNSPayload {
 	var result = makeBaseInternalDataDict(campaignId: expectedCampaignId)
 	result[Consts.InternalDataKeys.geo] = [modernZagrebDict, modernPulaDict]
 	return result
 }
 
-var modernAPNSPayloadZagrebPulaDict: APNSPayload {
+var modernAPNSPayloadZagrebPulaDict: MMAPNSPayload {
 	return (baseAPNSDict() + [Consts.APNSPayloadKeys.internalData: modernInternalDataWithZagrebPulaDict])!
 }
 
@@ -415,7 +415,7 @@ let jsonStrWithoutStartTime =
 let suspendedCampaignId = "suspendedCampaignId"
 let finishedCampaignId = "finishedCampaignId"
 
-func makeBaseInternalDataDict(campaignId: String) -> APNSPayload {
+func makeBaseInternalDataDict(campaignId: String) -> MMAPNSPayload {
 	return
 		[
 			GeoConstants.CampaignKeys.campaignId: campaignId,
@@ -426,13 +426,13 @@ func makeBaseInternalDataDict(campaignId: String) -> APNSPayload {
 	]
 }
 
-func makeApnsPayloadWithoutRegionsDataDict(campaignId: String, messageId: String) -> APNSPayload {
+func makeApnsPayloadWithoutRegionsDataDict(campaignId: String, messageId: String) -> MMAPNSPayload {
 	return (baseAPNSDict(messageId: messageId) + [Consts.APNSPayloadKeys.internalData: makeBaseInternalDataDict(campaignId: campaignId)])!
 }
 
-func makeApnsPayload(withEvents events: [APNSPayload]?, deliveryTime: APNSPayload?, regions: [APNSPayload], campaignId: String = expectedCampaignId, messageId: String = expectedMessageId) -> APNSPayload {
+func makeApnsPayload(withEvents events: [MMAPNSPayload]?, deliveryTime: MMAPNSPayload?, regions: [MMAPNSPayload], campaignId: String = expectedCampaignId, messageId: String = expectedMessageId) -> MMAPNSPayload {
 	var result = makeApnsPayloadWithoutRegionsDataDict(campaignId: campaignId, messageId: messageId)
-	var internalData = result[Consts.APNSPayloadKeys.internalData] as! APNSPayload
+	var internalData = result[Consts.APNSPayloadKeys.internalData] as! MMAPNSPayload
 	internalData[Consts.InternalDataKeys.geo] = regions
 	internalData[Consts.InternalDataKeys.event] = events ?? [defaultEvent]
 	internalData[Consts.InternalDataKeys.deliveryTime] = deliveryTime
@@ -442,21 +442,21 @@ func makeApnsPayload(withEvents events: [APNSPayload]?, deliveryTime: APNSPayloa
 	return result
 }
 
-func makeEventDict(ofType type: RegionEventType, limit: Int, timeout: Int? = nil) -> APNSPayload {
-	var result: APNSPayload = [GeoConstants.RegionEventKeys.type: type.rawValue,
+func makeEventDict(ofType type: RegionEventType, limit: Int, timeout: Int? = nil) -> MMAPNSPayload {
+	var result: MMAPNSPayload = [GeoConstants.RegionEventKeys.type: type.rawValue,
 							   GeoConstants.RegionEventKeys.limit: limit]
 	result[GeoConstants.RegionEventKeys.timeout] = timeout
 	return result
 }
 
-func makeDeliveryTimeDict(withTimeIntervalString timeInterval: String? = nil, daysString days: String? = nil) -> APNSPayload? {
-	var result = APNSPayload()
+func makeDeliveryTimeDict(withTimeIntervalString timeInterval: String? = nil, daysString days: String? = nil) -> MMAPNSPayload? {
+	var result = MMAPNSPayload()
 	result[GeoConstants.RegionDeliveryTimeKeys.timeInterval] = timeInterval
 	result[GeoConstants.RegionDeliveryTimeKeys.days] = days
 	return result.isEmpty ? nil : result
 }
 
-var defaultEvent = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry"] as APNSPayload
+var defaultEvent = ["limit": 1, "rate": 0, "timeoutInMinutes": 0, "type": "entry"] as MMAPNSPayload
 
 var succeedingApiStub: RemoteGeoAPIProviderStub = {
 	let remoteApiProvider = RemoteGeoAPIProviderStub()

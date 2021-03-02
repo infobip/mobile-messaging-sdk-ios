@@ -17,7 +17,7 @@ class EventsTests: MMTestCase {
 		weak var expectation2 = self.expectation(description: "case is finished")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		let event = CustomEvent(definitionId: "event1", properties: [
+		let event = MMCustomEvent(definitionId: "event1", properties: [
 			"string": "x" as NSString,
 			"bool": true as NSNumber,
 			"num": 9.5 as NSNumber
@@ -64,7 +64,7 @@ class EventsTests: MMTestCase {
 		weak var expectation2 = self.expectation(description: "case is finished")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
-		let event = CustomEvent(definitionId: "event1", properties: [
+		let event = MMCustomEvent(definitionId: "event1", properties: [
 			"string": "x" as NSString,
 			"bool": true as NSNumber,
 			"num": 9.5 as NSNumber

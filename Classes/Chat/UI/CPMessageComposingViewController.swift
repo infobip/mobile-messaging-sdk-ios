@@ -7,9 +7,9 @@
 
 import Foundation
 
-open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UINavigationControllerDelegate {
+open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UINavigationControllerDelegate {
 
-	lazy var composeBarDelegate = CPComposeBarDelegate(
+	lazy var composeBarDelegate = MMComposeBarDelegate(
         scrollView: self.scrollView,
         sendTextBlock: { [weak self] text in
             self?.didTapSendText(text)
@@ -40,7 +40,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 	var lastIndexPath: IndexPath?
 
 	override open func viewDidLoad() {
-		scrollingRecognizer = UIPanGestureRecognizer(target: self, action: #selector(CPMessageComposingViewController.handlePanning))
+		scrollingRecognizer = UIPanGestureRecognizer(target: self, action: #selector(MMMessageComposingViewController.handlePanning))
 		scrollingRecognizer.delegate = self
 		setupComposerBar()
 		dismissKeyboardIfViewTapped(self.scrollView)
@@ -167,7 +167,7 @@ open class CPMessageComposingViewController: CPKeyboardAwareScrollViewController
 		isScrollToBottomEnabled = scrolledFromBottom < 20
 
 		if !isScrollToBottomEnabled {
-			timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(CPMessageComposingViewController.resetAutoScrollingEnabled), userInfo: nil, repeats: false)
+			timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(MMMessageComposingViewController.resetAutoScrollingEnabled), userInfo: nil, repeats: false)
 		}
 	}
 

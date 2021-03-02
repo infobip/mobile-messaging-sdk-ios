@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class CPKeyboardAwareScrollViewController : CPKeyboardAwareViewController {
+open class MMKeyboardAwareScrollViewController : MMKeyboardAwareViewController {
 	var scrollView: UIScrollView! {
 		return nil
 	}

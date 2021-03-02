@@ -8,7 +8,7 @@
 import Foundation
 
 class MOSendingMapper {
-	static func requestBody(pushRegistrationId: String, messages: [MOMessage]) -> RequestBody {
+	static func requestBody(pushRegistrationId: String, messages: [MM_MOMessage]) -> RequestBody {
 		var result = RequestBody()
 		result[Consts.APIKeys.MO.from] = pushRegistrationId
 		result[Consts.APIKeys.MO.messages] = messages.map { msg -> RequestBody in

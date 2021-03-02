@@ -9,11 +9,11 @@ import CoreData
 
 class DepersonalizeOperation: MMOperation {
 	let mmContext: MobileMessaging
-	let finishBlock: ((SuccessPending, NSError?) -> Void)?
+	let finishBlock: ((MMSuccessPending, NSError?) -> Void)?
 	let pushRegistrationId: String?
 	let applicationCode: String
 	
-	init(mmContext: MobileMessaging, finishBlock: ((SuccessPending, NSError?) -> Void)? = nil) {
+	init(mmContext: MobileMessaging, finishBlock: ((MMSuccessPending, NSError?) -> Void)? = nil) {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		self.pushRegistrationId = mmContext.resolveInstallation().pushRegistrationId

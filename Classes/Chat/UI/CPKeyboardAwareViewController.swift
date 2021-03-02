@@ -7,16 +7,16 @@
 
 import Foundation
 
-open class CPKeyboardAwareViewController: CPModalDismissableViewController {
+open class MMKeyboardAwareViewController: MMModalDismissableViewController {
 	var keyboardShown: Bool = false
 
 	deinit { NotificationCenter.default.removeObserver(self) }
 
 	override open func viewDidLoad() {
-		NotificationCenter.default.addObserver(self, selector: #selector(CPKeyboardAwareViewController.keyboardDidShow(_:)), name: UIResponder.keyboardDidShowNotification, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(CPKeyboardAwareViewController.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(CPKeyboardAwareViewController.keyboardDidHide(_:)), name: UIResponder.keyboardDidHideNotification, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(CPKeyboardAwareViewController.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(MMKeyboardAwareViewController.keyboardDidShow(_:)), name: UIResponder.keyboardDidShowNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(MMKeyboardAwareViewController.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(MMKeyboardAwareViewController.keyboardDidHide(_:)), name: UIResponder.keyboardDidHideNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(MMKeyboardAwareViewController.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
 
 		super.viewDidLoad()
     }

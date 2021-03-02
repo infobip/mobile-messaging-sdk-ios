@@ -10,10 +10,10 @@ import Foundation
 class AlertOperation: Foundation.Operation, NamedLogger {
 	var semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
 	var alert: InteractiveMessageAlertController?
-	let message: MTMessage
+	let message: MM_MTMessage
 	let text: String
 	
-	init(with message: MTMessage, text: String) {
+	init(with message: MM_MTMessage, text: String) {
 		self.message = message
 		self.text = text
 		super.init()
@@ -100,10 +100,10 @@ class AlertOperation: Foundation.Operation, NamedLogger {
 		notifyAlertDismissed()
 	}
 	
-	private func makeAlert(with message: MTMessage, image: Image?, text: String) -> InteractiveMessageAlertController {
+	private func makeAlert(with message: MM_MTMessage, image: Image?, text: String) -> InteractiveMessageAlertController {
 		let alert : InteractiveMessageAlertController
 		
-		if let categoryId = message.category, let category = MobileMessaging.category(withId: categoryId), category.actions.first(where: { return $0 is TextInputNotificationAction } ) == nil {
+		if let categoryId = message.category, let category = MobileMessaging.category(withId: categoryId), category.actions.first(where: { return $0 is MMTextInputNotificationAction } ) == nil {
 			alert = InteractiveMessageAlertController(
 				titleText: message.title,
 				messageText: text,
@@ -195,7 +195,7 @@ class AlertQueue {
 		oq.cancelAllOperations()
 	}
 	
-	func enqueueAlert(message: MTMessage, text: String) {
+	func enqueueAlert(message: MM_MTMessage, text: String) {
 		oq.addOperation(AlertOperation(with: message, text: text))
 	}
 }

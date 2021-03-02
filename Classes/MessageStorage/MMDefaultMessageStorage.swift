@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 
 /// Default implementation of the Message Storage protocol. Uses Core Data persistent storage with SQLite database.
-@objc public class MMDefaultMessageStorage: NSObject, MessageStorage, MessageStorageFinders, MessageStorageRemovers {
+@objc public class MMDefaultMessageStorage: NSObject, MMMessageStorage, MMMessageStorageFinders, MMMessageStorageRemovers {
 	var totalMessagesCount_: Int = 0
 	var nonSeenMessagesCount_: Int = 0
 	
@@ -103,7 +103,7 @@ import CoreData
 		}
 	}
 
-	public func insert(outgoing messages: [BaseMessage], completion: @escaping () -> Void) {
+	public func insert(outgoing messages: [MMBaseMessage], completion: @escaping () -> Void) {
 		persist(
 			messages,
 			storageMessageConstructor: { (baseMessage, context) -> Message? in
@@ -112,7 +112,7 @@ import CoreData
 			completion: completion)
 	}
 	
-	public func insert(incoming messages: [BaseMessage], completion: @escaping () -> Void) {
+	public func insert(incoming messages: [MMBaseMessage], completion: @escaping () -> Void) {
 		persist(
 			messages,
 			storageMessageConstructor: { (baseMessage, context) -> Message? in
@@ -124,11 +124,11 @@ import CoreData
 			})
 	}
 	
-	public func findMessage(withId messageId: MessageId) -> BaseMessage? {
+	public func findMessage(withId messageId: MessageId) -> MMBaseMessage? {
 		guard let context = self.context else {
 			return nil
 		}
-		var result: BaseMessage?
+		var result: MMBaseMessage?
 		context.performAndWait {
 			if let message = Message.MM_findFirstWithPredicate(NSPredicate(format: "messageId == %@", messageId), context: context), let baseMessage = message.baseMessage {
 				result = baseMessage
@@ -137,7 +137,7 @@ import CoreData
 		return result
 	}
 	
-	public func update(messageSentStatus status: MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
+	public func update(messageSentStatus status: MM_MOMessageSentStatus, for messageId: MessageId, completion: @escaping () -> Void) {
 		updateMessages(
 			foundWith: NSPredicate(format: "messageId == %@", messageId),
 			applyChanges: { message in message.sentStatusValue = status.rawValue },
@@ -174,7 +174,7 @@ import CoreData
 	}
 	
 	//MARK: - Convenience
-	public weak var delegate: MessageStorageDelegate?
+	public weak var delegate: MMMessageStorageDelegate?
 	public var delegateQueue: DispatchQueue
 	
 	//MARK: - MessageStorageFinders
@@ -184,7 +184,7 @@ import CoreData
 				completion(nil)
 				return
 			}
-			var baseMessages: [BaseMessage]? = nil
+			var baseMessages: [MMBaseMessage]? = nil
 			context.performAndWait {
 				let messages = Message.MM_findAllWithPredicate(nil, context: context)
 				self.updateCounters(total: messages?.count ?? 0, nonSeen: nil)
@@ -208,7 +208,7 @@ import CoreData
 		}
 	}
 	
-	public func findMessages(withQuery query: Query, completion: @escaping FetchResultBlock) {
+	public func findMessages(withQuery query: MMQuery, completion: @escaping FetchResultBlock) {
 		queue.async() {
 			guard let context = self.context else {
 				completion(nil)
@@ -262,7 +262,7 @@ import CoreData
 		}
 	}
 	
-	public func remove(withQuery query: Query, completion: @escaping ([MessageId]) -> Void) {
+	public func remove(withQuery query: MMQuery, completion: @escaping ([MessageId]) -> Void) {
 		queue.async() {
 			guard let context = self.context else {
 				completion([])
@@ -306,7 +306,7 @@ import CoreData
 		}
 	}
 	
-	private func persist(_ messages: [BaseMessage], storageMessageConstructor: @escaping (BaseMessage, NSManagedObjectContext) -> Message?, completion: () -> Void) {
+	private func persist(_ messages: [MMBaseMessage], storageMessageConstructor: @escaping (MMBaseMessage, NSManagedObjectContext) -> Message?, completion: () -> Void) {
 		guard let context = self.context, !messages.isEmpty else {
 			completion()
 			return
@@ -377,7 +377,7 @@ import CoreData
 	}
 }
 
-extension MessageStorage {
+extension MMMessageStorage {
 	func batchDeliveryStatusUpdate(messages: [MessageManagedObject], completion: @escaping () -> Void) {
 		let updatingGroup = DispatchGroup()
 		messages.forEach {
@@ -393,14 +393,14 @@ extension MessageStorage {
 		let updatingGroup = DispatchGroup()
 		messageIds.forEach {
 			updatingGroup.enter()
-			self.update(messageSentStatus: MOMessageSentStatus.SentWithFailure, for: $0, completion: {
+			self.update(messageSentStatus: MM_MOMessageSentStatus.SentWithFailure, for: $0, completion: {
 				updatingGroup.leave()
 			})
 		}
 		updatingGroup.notify(queue: DispatchQueue.global(qos: .default), execute: completion)
 	}
 	
-	func batchSentStatusUpdate(messages: [MOMessage], completion: @escaping () -> Void) {
+	func batchSentStatusUpdate(messages: [MM_MOMessage], completion: @escaping () -> Void) {
 		let updatingGroup = DispatchGroup()
 		messages.forEach {
 			updatingGroup.enter()
@@ -424,7 +424,7 @@ extension MessageStorage {
 }
 
 extension Array where Element: Message {
-	fileprivate var baseMessages: [BaseMessage] {
+	fileprivate var baseMessages: [MMBaseMessage] {
 		return self.compactMap { $0.baseMessage }
 	}
 }

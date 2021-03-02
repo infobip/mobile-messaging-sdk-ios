@@ -8,7 +8,7 @@
 import Foundation
 import WebKit
 
-class AttachmentPreviewController: CPModalDismissableViewController, ChatSettingsApplicable, NamedLogger {
+class AttachmentPreviewController: MMModalDismissableViewController, ChatSettingsApplicable, NamedLogger {
     
     let attachment: ChatWebAttachment
     

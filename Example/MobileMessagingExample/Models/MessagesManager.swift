@@ -41,7 +41,7 @@ class Message: NSObject, NSCoding {
 	}
 	
 	//MARK: Util
-	class func make(from mtMessage: MTMessage) -> Message? {
+	class func make(from mtMessage: MM_MTMessage) -> Message? {
 		guard let text = mtMessage.text else {
 			return nil
 		}
@@ -123,7 +123,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
     @objc func handleNewMessageReceivedNotification(_ notification: Notification) {
 		guard let userInfo = notification.userInfo,
-			let mtmessage = userInfo[MMNotificationKeyMessage] as? MTMessage,
+			let mtmessage = userInfo[MMNotificationKeyMessage] as? MM_MTMessage,
 			let message = Message.make(from: mtmessage) else
 		{
 			return
@@ -151,7 +151,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
     
     @objc func handleTapNotification(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let message = userInfo[MMNotificationKeyMessage] as? MTMessage
+            let message = userInfo[MMNotificationKeyMessage] as? MM_MTMessage
             else {
 				return
 		}

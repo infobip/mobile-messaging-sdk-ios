@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			MobileMessaging
             .withApplicationCode(
                 "<# your application code #>",
-				notificationType: UserNotificationType(options: [.alert, .sound]))?
+				notificationType: MMUserNotificationType(options: [.alert, .sound]))?
 			.withInteractiveNotificationCategories(customCategories)
 			.start()
 		}

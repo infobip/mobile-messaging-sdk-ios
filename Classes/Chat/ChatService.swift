@@ -11,23 +11,23 @@ import WebKit
 extension MobileMessaging {
 
 	/// You access the In-app Chat service APIs through this property.
-	public class var inAppChat: InAppChatService? {
-		if InAppChatService.sharedInstance == nil {
+	public class var inAppChat: MMInAppChatService? {
+		if MMInAppChatService.sharedInstance == nil {
 			guard let defaultContext = MobileMessaging.sharedInstance else {
 				return nil
 			}
-			InAppChatService.sharedInstance = InAppChatService(mmContext: defaultContext)
+			MMInAppChatService.sharedInstance = MMInAppChatService(mmContext: defaultContext)
 		}
-		return InAppChatService.sharedInstance
+		return MMInAppChatService.sharedInstance
 	}
 
 	/// Fabric method for Mobile Messaging session.
 	/// Use this method to enable the In-app Chat service.
 	public func withInAppChat() -> MobileMessaging {
-		if InAppChatService.sharedInstance == nil {
+		if MMInAppChatService.sharedInstance == nil {
 			if let defaultContext = MobileMessaging.sharedInstance
 			{
-				InAppChatService.sharedInstance = InAppChatService(mmContext: defaultContext)
+				MMInAppChatService.sharedInstance = MMInAppChatService(mmContext: defaultContext)
 			}
 		}
 		return self
@@ -35,12 +35,12 @@ extension MobileMessaging {
 }
 
 /// This service manages the In-app Chat.
-public class InAppChatService: MobileMessagingService {
+public class MMInAppChatService: MobileMessagingService {
 	init(mmContext: MobileMessaging) {
 		super.init(mmContext: mmContext, uniqueIdentifier: "InAppChatService")
 	}
 	///You can define your own custom appearance for chat view by accessing a chat settings object.
-    public let settings: ChatSettings = ChatSettings.sharedInstance
+    public let settings: MMChatSettings = MMChatSettings.sharedInstance
 	
 	///Method for clean up WKWebView's cache. Mobile Messaging SDK will call it in case of user depersonalization. You can call it additionaly in case your user logouts from In-app Chat.
 	///`completion` will be called when cache clean up is finished.
@@ -64,7 +64,7 @@ public class InAppChatService: MobileMessagingService {
     }
 	
 	///In-app Chat delegate, can be set to receive additional chat info.
-	public var delegate: InAppChatDelegate? {
+	public var delegate: MMInAppChatDelegate? {
 		didSet {
 			self.delegate?.inAppChatIsEnabled(isConfigurationSynced)
 		}
@@ -91,7 +91,7 @@ public class InAppChatService: MobileMessagingService {
 		}
 	}
 	
-	static var sharedInstance: InAppChatService?
+	static var sharedInstance: MMInAppChatService?
 
 	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
         getWidgetQueue.cancelAllOperations()
@@ -100,7 +100,7 @@ public class InAppChatService: MobileMessagingService {
 		cleanCache()
 		stop {_ in }
         stopReachabilityListener()
-		InAppChatService.sharedInstance = nil
+		MMInAppChatService.sharedInstance = nil
 	}
 	
 	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
@@ -114,14 +114,14 @@ public class InAppChatService: MobileMessagingService {
 		cleanCache(completion: completion)
 	}
 	
-	override func handlesInAppNotification(forMessage message: MTMessage?) -> Bool {
+	override func handlesInAppNotification(forMessage message: MM_MTMessage?) -> Bool {
 		logDebug("handlesInAppNotification: \(message?.isChatMessage ?? false)")
 		return message?.isChatMessage ?? false
 	}
 	
-	override func showBannerNotificationIfNeeded(forMessage message: MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
-		logDebug("showBannerNotificationIfNeeded isChatMessage: \(message?.isChatMessage ?? false), isExpired: \(message?.isExpired ?? false),  isChatScreenVisible: \(isChatScreenVisible), enabled: \(InteractiveMessageAlertSettings.enabled)")
-		guard let message = message, !message.isExpired, InteractiveMessageAlertSettings.enabled, !isChatScreenVisible else {
+	override func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
+		logDebug("showBannerNotificationIfNeeded isChatMessage: \(message?.isChatMessage ?? false), isExpired: \(message?.isExpired ?? false),  isChatScreenVisible: \(isChatScreenVisible), enabled: \(MMInteractiveMessageAlertSettings.enabled)")
+		guard let message = message, !message.isExpired, MMInteractiveMessageAlertSettings.enabled, !isChatScreenVisible else {
 				showBannerWithOptions([])
 				return
 		}
@@ -207,7 +207,7 @@ public class InAppChatService: MobileMessagingService {
     }
 }
 
-public protocol InAppChatDelegate {
+public protocol MMInAppChatDelegate {
 	///In-app Chat can be disabled or not bind to the application on the Infobip portal. In these cases `enabled` will be `false`.
 	///You can use this, for example, to show or not chat button to the user.
 	func inAppChatIsEnabled(_ enabled: Bool)
