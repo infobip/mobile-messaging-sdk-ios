@@ -459,6 +459,14 @@ public final class MobileMessaging: NSObject, NamedLogger {
      You can define your own custom appearance for in-app webView, which will appear if user taps on push notification, by accessing a webView settings object.
      */
     public let webViewSettings: MMWebViewSettings = MMWebViewSettings.sharedInstance
+    
+    /**
+     Displays `MODAL` in-app notification for provided message, if message isn't expired.
+     - parameter message: `MM_MTMessage` object.
+     */
+    public class func showModalInAppNotification(forMessage message: MM_MTMessage) {
+        MobileMessaging.sharedInstance?.interactiveAlertManager.showModalNotificationIfNeeded(forMessage: message)
+    }
 	
 	//MARK: Internal
 	static var sharedInstance: MobileMessaging?

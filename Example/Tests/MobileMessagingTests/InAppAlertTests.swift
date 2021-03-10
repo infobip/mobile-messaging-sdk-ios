@@ -18,6 +18,13 @@ class AlertsDelegate: InAppAlertDelegate {
 	}
 }
 
+class InAppMessageHandlingDelegate : MMMessageHandlingDelegate {
+    var shouldShowInApp: Bool = false
+    func shouldShowModalInAppNotification(for message: MM_MTMessage) -> Bool {
+        return shouldShowInApp
+    }
+}
+
 class InAppAlertTests: MMTestCase {
 	func testThatInAppAlertShownIfNoExpirationSpecified() {
 		assertAlertShown(true, inAppExpiryDateTime: 0, currentDateTime: 0, json: """
@@ -45,6 +52,20 @@ class InAppAlertTests: MMTestCase {
 	func testThatInAppAlertNotShownIfExpired() {
 		assertAlertShown(false, inAppExpiryDateTime: 0, currentDateTime: 100)
 	}
+    
+    func testThatInAppNotShownIfFalseInDelegate() {
+        let inAppDelegate = InAppMessageHandlingDelegate()
+        inAppDelegate.shouldShowInApp = false
+        MobileMessaging.messageHandlingDelegate = inAppDelegate
+        assertAlertShown(false, inAppExpiryDateTime: 100, currentDateTime: 0)
+    }
+    
+    func testThatInAppShownIfTrueInDelegate() {
+        let inAppDelegate = InAppMessageHandlingDelegate()
+        inAppDelegate.shouldShowInApp = true
+        MobileMessaging.messageHandlingDelegate = inAppDelegate
+        assertAlertShown(true, inAppExpiryDateTime: 100, currentDateTime: 0)
+    }
 
 	private func assertAlertShown(_ shown: Bool, inAppExpiryDateTime: TimeInterval, currentDateTime: TimeInterval, json: String? = nil) {
 		weak var messageHandled = self.expectation(description: "messageHandled")

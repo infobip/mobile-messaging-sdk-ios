@@ -27,7 +27,7 @@ class InteractiveMessageAlertManager: NamedLogger {
 	}
 
 	func showModalNotificationIfNeeded(forMessage message: MM_MTMessage) {
-		guard let inAppStyle = message.inAppStyle else {
+		guard let inAppStyle = message.inAppStyle, shouldShowInAppNotification(forMessage: message) else {
 			return
 		}
 
@@ -35,7 +35,11 @@ class InteractiveMessageAlertManager: NamedLogger {
 		case .Banner:
 			break
 		case .Modal:
-			showModalNotification(forMessage: message, exclusively: MobileMessaging.application.applicationState == .background)
+            if (MobileMessaging.messageHandlingDelegate?.shouldShowModalInAppNotification?(for: message) ?? true) {
+                showModalNotification(forMessage: message, exclusively: MobileMessaging.application.applicationState == .background)
+            } else {
+                logDebug("Modal notification for message: \(message.messageId) text: \(message.text.orNil) is disabled by MMMessageHandlingDelegate")
+            }
 		}
 	}
 
@@ -68,16 +72,12 @@ class InteractiveMessageAlertManager: NamedLogger {
 	}
 
 	private func showModalNotification(forMessage message: MM_MTMessage, exclusively: Bool) {
-		guard shouldShowInAppNotification(forMessage: message), let text = message.text else {
-			return
-		}
-
 		logDebug("Alert for message will be shown: \(message.messageId) text: \(message.text.orNil)")
 
 		if exclusively {
 			cancelAllAlerts()
 		}
-		AlertQueue.sharedInstace.enqueueAlert(message: message, text: text)
+        AlertQueue.sharedInstace.enqueueAlert(message: message, text: message.text ?? "")
 	}
 
 	static func presentationOptions(for message: MM_MTMessage?) -> UNNotificationPresentationOptions {

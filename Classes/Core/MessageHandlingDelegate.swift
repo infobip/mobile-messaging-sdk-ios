@@ -42,4 +42,9 @@ import UserNotifications
     /// - parameter message: `MM_MTMessage` object
     /// - returns: Parent view controller that would be used to present an in-app notification or in-app web view.
     @objc optional func inAppPresentingViewController(for message: MM_MTMessage) -> UIViewController?
+    
+    /// Called when a `MODAL` in-app notification for provided message is ready to be shown. Returns a Boolean value indicating whether a `MODAL` in-app notification be displayed or not.
+    /// - parameter message: `MM_MTMessage` object for in-app notification.
+    /// - returns: Boolean value indicating should or shouldn't `MODAL` In-app notification be displayed.
+    @objc optional func shouldShowModalInAppNotification(for message: MM_MTMessage) -> Bool
 }
