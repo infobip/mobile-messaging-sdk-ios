@@ -23,8 +23,9 @@ func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any
 	dirty.keys.forEach { (k) in
 		let currentV = current[k] as Any
 		let dirtyV = dirty[k] as Any
-		if case Optional<Any>.none = dirtyV {
-			if case Optional<Any>.none = currentV {
+		if checkIfAnyIsNil(dirtyV) {
+			if checkIfAnyIsNil(currentV) {
+                
 			} else {
 				ret[k] = NSNull()
 			}
@@ -43,17 +44,40 @@ func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any
 						ret[k] = dirtyV
 					}
 				} else {
-					if case Optional<Any>.none = currentV {
-						ret[k] = dirtyV
-					} else {
-						ret[k] = NSNull()
-					}
+                    if (checkIfAnyIsNil(currentV)) {
+                        ret[k] = dirtyV
+                    } else {
+                        ret[k] = NSNull()
+                    }
 				}
 			}
 		}
 	}
     return ret.isEmpty ? (!current.isEmpty && !dirty.isEmpty ? nil : ret) : ret
 }
+
+func isOptional(_ instance: Any) -> Bool {
+    let mirror = Mirror(reflecting: instance)
+    let style = mirror.displayStyle
+    return style == .optional
+}
+
+func checkIfAnyIsNil(_ v: Any) -> Bool {
+    if (isOptional(v)) {
+        switch v {
+        case Optional<Any>.none:
+            return true
+        case Optional<Any>.some(let v):
+            return checkIfAnyIsNil(v)
+        default:
+            return false
+        }
+    } else {
+        return false
+    }
+    
+}
+
 
 extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
 	var noNulls: [Key: Value] {

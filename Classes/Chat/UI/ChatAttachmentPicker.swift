@@ -11,7 +11,7 @@ import UIKit
 import MobileCoreServices
 import Photos
 
-protocol ChatAttachmentPickerDelegate: class {
+protocol ChatAttachmentPickerDelegate: AnyObject {
     func didSelect(attachment: ChatMobileAttachment)
     func permissionNotGranted(permissionKeys: [String]?)
     func validateAttachmentSize(size: Int) -> Bool

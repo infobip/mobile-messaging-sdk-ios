@@ -97,7 +97,7 @@ internal enum KingfisherError: Int {
 internal let KingfisherErrorStatusCodeKey = "statusCode"
 
 /// Protocol of `ImageDownloader`.
-internal protocol ImageDownloaderDelegate: class {
+internal protocol ImageDownloaderDelegate: AnyObject {
     /**
     Called when the `ImageDownloader` object successfully downloaded an image from specified URL.
     
@@ -161,7 +161,7 @@ extension ImageDownloaderDelegate {
 }
 
 /// Protocol indicates that an authentication challenge could be handled.
-internal protocol AuthenticationChallengeResponsable: class {
+internal protocol AuthenticationChallengeResponsable: AnyObject {
     /**
      Called when an session level authentication challenge is received.
      This method provide a chance to handle and response to the authentication challenge before downloading could start.

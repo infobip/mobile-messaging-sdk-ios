@@ -49,7 +49,7 @@ public final class MMLocationServiceKind: NSObject {
 	case notAvailable
 }
 
-public protocol MMGeofencingServiceDelegate: class {
+public protocol MMGeofencingServiceDelegate: AnyObject {
 	/// Called after the a new geo message is added to the service data source
 	func didAddMessage(message: MMGeoMessage)
 	/// Called after the user entered the region
