@@ -34,7 +34,7 @@ enum MMResult<ValueType> {
 struct EmptyResponse { }
 
 struct BaseUrlResponse {
-    let baseUrl: String
+    let baseUrl: String?
 }
 
 struct GeoEventReportingResponse {
@@ -143,10 +143,7 @@ extension LibraryVersionResponse: JSONDecodable {
 
 extension BaseUrlResponse: JSONDecodable {
     init?(json value: JSON) {
-        guard let baseUrl = value[Consts.BaseUrlRecovery.baseUrl].rawString() else {
-            return nil
-        }
-        self.baseUrl = baseUrl
+        self.baseUrl = value[Consts.BaseUrlRecovery.baseUrl].string
     }
 }
 
