@@ -59,22 +59,84 @@ class DynamicBaseUrlTests: MMTestCase {
 	
     func testThatNewBaseUrlIsAppliedWhenReceivedFromBaseUrlEndpint() {
         // given
+        let now = MobileMessaging.date.now.timeIntervalSince1970
         weak var ex = expectation(description: "expectation")
         let sessionManager = MobileMessaging.httpSessionManager!
+        sessionManager.resetBaseUrl()
         let remoteApi = RemoteAPIProviderStub()
+        let newUrl = "https://new1.com"
         remoteApi.getBaseUrlClosure = { _ -> BaseUrlResult in
-            return BaseUrlResult.Success(BaseUrlResponse(baseUrl: "https://new.com"))
+            return BaseUrlResult.Success(BaseUrlResponse(baseUrl: newUrl))
         }
         mobileMessagingInstance.remoteApiProvider = remoteApi
-        
+        mobileMessagingInstance.baseUrlManager.resetLastCheckDate()
+    
         // when
-        mobileMessagingInstance.baseUrlManager.checkBaseUrl {
-            ex?.fulfill()
-        }
+        timeTravel(to: Date(timeIntervalSince1970: now + 24*60*60), block: {
+            mobileMessagingInstance.baseUrlManager.checkBaseUrl {
+                ex?.fulfill()
+            }
+        })
         
         // then
         self.waitForExpectations(timeout: 10) { _ in
-            XCTAssertEqual(sessionManager.dynamicBaseUrl, URL(string: "https://new.com"))
+            XCTAssertEqual(sessionManager.dynamicBaseUrl, URL(string: newUrl))
+        }
+    }
+    
+    func testThatNewBaseUrlNotRequestedUntilItsTime() {
+        // given
+        let now = MobileMessaging.date.now.timeIntervalSince1970
+        weak var ex = expectation(description: "expectation")
+        let sessionManager = MobileMessaging.httpSessionManager!
+        sessionManager.resetBaseUrl()
+        let initialUrl = sessionManager.dynamicBaseUrl
+        let newUrl = "https://new1.com"
+        let remoteApi = RemoteAPIProviderStub()
+        remoteApi.getBaseUrlClosure = { _ -> BaseUrlResult in
+            return BaseUrlResult.Success(BaseUrlResponse(baseUrl: newUrl))
+        }
+        mobileMessagingInstance.remoteApiProvider = remoteApi
+        mobileMessagingInstance.baseUrlManager.resetLastCheckDate(MobileMessaging.date.now)
+        
+        // when
+        timeTravel(to: Date(timeIntervalSince1970: now + 23*60*60), block: {
+            mobileMessagingInstance.baseUrlManager.checkBaseUrl {
+                ex?.fulfill()
+            }
+        })
+        
+        // then
+        self.waitForExpectations(timeout: 10) { _ in
+            XCTAssertEqual(sessionManager.dynamicBaseUrl, initialUrl)
+        }
+    }
+    
+    func testEmptyBaseUrlResponseHandledProperly() {
+        // given
+        let now = MobileMessaging.date.now.timeIntervalSince1970
+        weak var ex = expectation(description: "expectation")
+        let sessionManager = MobileMessaging.httpSessionManager!
+        sessionManager.resetBaseUrl()
+        let initialUrl = sessionManager.dynamicBaseUrl
+        let remoteApi = RemoteAPIProviderStub()
+        remoteApi.getBaseUrlClosure = { _ -> BaseUrlResult in
+            let jsonStr = ""
+            return BaseUrlResult.Success(BaseUrlResponse(json: JSON.parse(jsonStr))!)
+        }
+        mobileMessagingInstance.remoteApiProvider = remoteApi
+        mobileMessagingInstance.baseUrlManager.resetLastCheckDate()
+        // when
+        
+        timeTravel(to: Date(timeIntervalSince1970: now + 24*60*60), block: {
+            mobileMessagingInstance.baseUrlManager.checkBaseUrl {
+                ex?.fulfill()
+            }
+        })
+        
+        // then
+        self.waitForExpectations(timeout: 10) { _ in
+            XCTAssertEqual(sessionManager.dynamicBaseUrl, initialUrl)
         }
     }
 

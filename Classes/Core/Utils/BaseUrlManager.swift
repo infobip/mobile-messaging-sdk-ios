@@ -40,6 +40,10 @@ class BaseUrlManager: MobileMessagingService {
         }
     }
     
+    func resetLastCheckDate(_ date: Date? = nil) {
+        self.lastCheckDate = date
+    }
+    
     private func itsTimeToCheckBaseUrl() -> Bool {
         let ret = lastCheckDate == nil || (lastCheckDate?.addingTimeInterval(defaultTimeout).compare(MobileMessaging.date.now) != ComparisonResult.orderedDescending)
         if ret {
@@ -51,9 +55,13 @@ class BaseUrlManager: MobileMessagingService {
     }
 
     private func handleResult(result: BaseUrlResult) {
-        if let response = result.value, let newBaseUrl = URL(string: response.baseUrl) {
-            MobileMessaging.httpSessionManager.setNewBaseUrl(newBaseUrl: newBaseUrl)
-            self.lastCheckDate = MobileMessaging.date.now
+        if let response = result.value {
+            if let baseUrl = response.baseUrl, let newBaseUrl = URL(string: baseUrl) {
+                MobileMessaging.httpSessionManager.setNewBaseUrl(newBaseUrl: newBaseUrl)
+                self.lastCheckDate = MobileMessaging.date.now
+            } else {
+                logDebug("No base url available")
+            }
         } else {
             logError("An error occurred while trying to get base url from server: \(result.error.orNil)")
         }
