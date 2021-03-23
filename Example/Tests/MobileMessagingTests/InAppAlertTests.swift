@@ -13,21 +13,25 @@ import Foundation
 
 class AlertsDelegate: InAppAlertDelegate {
 	var displayed: Bool = false
+    var expectationDisplayed: XCTestExpectation?
+    init(expectationDisplayed: XCTestExpectation? = nil) {
+        self.expectationDisplayed = expectationDisplayed
+    }
 	func willDisplay(_ message: MM_MTMessage) {
 		displayed = true
+        expectationDisplayed?.fulfill()
 	}
 }
 
-class InAppMessageHandlingDelegate : MMMessageHandlingDelegate {
-    var shouldShowInApp: Bool = false
+class InAppMessageHandlingDelegateShouldNotShow : MMMessageHandlingDelegate {
     func shouldShowModalInAppNotification(for message: MM_MTMessage) -> Bool {
-        return shouldShowInApp
+        return false
     }
 }
 
 class InAppAlertTests: MMTestCase {
 	func testThatInAppAlertShownIfNoExpirationSpecified() {
-		assertAlertShown(true, inAppExpiryDateTime: 0, currentDateTime: 0, json: """
+		assertAlertShownAutomatically(true, inAppExpiryDateTime: 0, currentDateTime: 0, json: """
 		{
 			"messageId": "messageId",
 			"aps": {
@@ -46,28 +50,50 @@ class InAppAlertTests: MMTestCase {
 	}
 
 	func testThatInAppAlertShownIfNotExpired() {
-		assertAlertShown(true, inAppExpiryDateTime: 100, currentDateTime: 0)
+		assertAlertShownAutomatically(true, inAppExpiryDateTime: 100, currentDateTime: 0)
 	}
 
 	func testThatInAppAlertNotShownIfExpired() {
-		assertAlertShown(false, inAppExpiryDateTime: 0, currentDateTime: 100)
+		assertAlertShownAutomatically(false, inAppExpiryDateTime: 0, currentDateTime: 100)
 	}
     
-    func testThatInAppNotShownIfFalseInDelegate() {
-        let inAppDelegate = InAppMessageHandlingDelegate()
-        inAppDelegate.shouldShowInApp = false
+    func testThatInAppNotShownAutomaticallyIfFalseInDelegate() {
+        let inAppDelegate = InAppMessageHandlingDelegateShouldNotShow()
         MobileMessaging.messageHandlingDelegate = inAppDelegate
-        assertAlertShown(false, inAppExpiryDateTime: 100, currentDateTime: 0)
+        assertAlertShownAutomatically(false, inAppExpiryDateTime: 100, currentDateTime: 0)
     }
     
-    func testThatInAppShownIfTrueInDelegate() {
-        let inAppDelegate = InAppMessageHandlingDelegate()
-        inAppDelegate.shouldShowInApp = true
+    func testThatInAppShownManuallyIfFalseInDelegate() {
+        weak var displayed = self.expectation(description: "displayed")
+        let inAppDelegate = InAppMessageHandlingDelegateShouldNotShow()
         MobileMessaging.messageHandlingDelegate = inAppDelegate
-        assertAlertShown(true, inAppExpiryDateTime: 100, currentDateTime: 0)
+        let jsonStr  = """
+                        {
+                            "messageId": "messageId",
+                            "aps": {
+                                "badge": 6,
+                                "sound": "default",
+                                "alert": {
+                                    "body":"text"
+                                }
+                            }
+                        }
+                        """
+        let alertDelegate =  AlertsDelegate(expectationDisplayed: displayed)
+        mobileMessagingInstance.interactiveAlertManager.delegate = alertDelegate
+        MobileMessaging.application = DefaultApplicationStub()
+        let message = MM_MTMessage(messageSyncResponseJson: JSON.parse(jsonStr))!
+        
+        // when
+        MobileMessaging.showModalInAppNotification(forMessage: message)
+        
+        // then
+        self.waitForExpectations(timeout: 10, handler: { error in
+            XCTAssertEqual(true, alertDelegate.displayed)
+        })
     }
 
-	private func assertAlertShown(_ shown: Bool, inAppExpiryDateTime: TimeInterval, currentDateTime: TimeInterval, json: String? = nil) {
+	private func assertAlertShownAutomatically(_ shown: Bool, inAppExpiryDateTime: TimeInterval, currentDateTime: TimeInterval, json: String? = nil) {
 		weak var messageHandled = self.expectation(description: "messageHandled")
 		let jsonStr  = json ?? """
 						{

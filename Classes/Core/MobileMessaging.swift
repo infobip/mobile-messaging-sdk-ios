@@ -465,7 +465,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
      - parameter message: `MM_MTMessage` object.
      */
     public class func showModalInAppNotification(forMessage message: MM_MTMessage) {
-        MobileMessaging.sharedInstance?.interactiveAlertManager.showModalNotificationIfNeeded(forMessage: message)
+        MobileMessaging.sharedInstance?.interactiveAlertManager.showModalNotificationManually(forMessage: message)
     }
 	
 	//MARK: Internal

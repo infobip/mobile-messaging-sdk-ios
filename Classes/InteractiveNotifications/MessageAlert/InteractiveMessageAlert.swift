@@ -26,7 +26,16 @@ class InteractiveMessageAlertManager: NamedLogger {
 		AlertQueue.sharedInstace.cancelAllAlerts()
 	}
 
-	func showModalNotificationIfNeeded(forMessage message: MM_MTMessage) {
+    func showModalNotificationManually(forMessage message: MM_MTMessage) {
+        guard !message.isGeoSignalingMessage else {
+            logDebug("Geo signaling message cannot be displayed with in-app")
+            return
+        }
+        logDebug("Displaying modal in-app manually")
+        showModalNotification(forMessage: message, exclusively: false)
+    }
+    
+    func showModalNotificationAutomatically(forMessage message: MM_MTMessage) {
 		guard let inAppStyle = message.inAppStyle, shouldShowInAppNotification(forMessage: message) else {
 			return
 		}
@@ -36,6 +45,7 @@ class InteractiveMessageAlertManager: NamedLogger {
 			break
 		case .Modal:
             if (MobileMessaging.messageHandlingDelegate?.shouldShowModalInAppNotification?(for: message) ?? true) {
+                logDebug("Displaying modal in-app automatically")
                 showModalNotification(forMessage: message, exclusively: MobileMessaging.application.applicationState == .background)
             } else {
                 logDebug("Modal notification for message: \(message.messageId) text: \(message.text.orNil) is disabled by MMMessageHandlingDelegate")

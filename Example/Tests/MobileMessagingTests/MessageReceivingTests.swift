@@ -11,9 +11,9 @@ import UserNotifications
 
 
 class InteractiveMessageAlertManagerMock : InteractiveMessageAlertManager {
-	var showInteractiveAlertClosure: ((MM_MTMessage, Bool) -> Void)?
-	override func showModalNotificationIfNeeded(forMessage message: MM_MTMessage) {
-		showInteractiveAlertClosure?(message, true)
+	var showInteractiveAlertAutomaticallyClosure: ((MM_MTMessage) -> Void)?
+    override func showModalNotificationAutomatically(forMessage message: MM_MTMessage) {
+        showInteractiveAlertAutomaticallyClosure?(message)
 	}
 }
 
@@ -621,7 +621,7 @@ class MessageReceivingTests: MMTestCase {
 		weak var alertShown = self.expectation(description: "alertShown")
 		weak var messageHandled = self.expectation(description: "messageHandled")
 		let interactiveMessageAlertManagerMock = InteractiveMessageAlertManagerMock()
-		interactiveMessageAlertManagerMock.showInteractiveAlertClosure = { _, _ in
+		interactiveMessageAlertManagerMock.showInteractiveAlertAutomaticallyClosure = { _ in
 			alertShown?.fulfill()
 		}
 		mobileMessagingInstance.interactiveAlertManager = interactiveMessageAlertManagerMock
