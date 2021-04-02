@@ -29,6 +29,8 @@ public class MMChatSettings: NSObject {
     public var attachmentPreviewBarsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     
     public var attachmentPreviewItemsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    
+    public var backgroungColor: UIColor? { didSet { postAppearanceChangedNotification() } }
 	
     func update(withChatWidget widget: ChatWidget) {
         if let widgetTitle = widget.title, title == nil {
@@ -41,6 +43,12 @@ public class MMChatSettings: NSObject {
             }
             if navBarColor == nil {
                 navBarColor = color
+            }
+        }
+        if let background = widget.backgroundColor {
+            let color = UIColor(hexString: background)
+            if backgroungColor == nil {
+                backgroungColor = color
             }
         }
     }
@@ -83,6 +91,7 @@ extension MMChatSettings {
         static let navigationBarItemsColor = "navigationBarItemsColor"
         static let navigationBarColor = "navigationBarColor"
         static let navigationBarTitleColor = "navigationBarTitleColor"
+        static let backgroundColor = "backgroundColor"
     }
 
     public func configureWith(rawConfig: [String: AnyObject]) {
@@ -100,6 +109,9 @@ extension MMChatSettings {
         }
         if let navigationBarTitleColor = rawConfig[MMChatSettings.Keys.navigationBarTitleColor] as? String {
             self.navBarTitleColor = UIColor(hexString: navigationBarTitleColor)
+        }
+        if let backgroundColor = rawConfig[MMChatSettings.Keys.backgroundColor] as? String {
+            self.backgroungColor = UIColor(hexString: backgroundColor)
         }
     }
 }

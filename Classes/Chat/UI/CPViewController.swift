@@ -53,11 +53,7 @@ open class MMModalDismissableViewController: UIViewController {
 	public override func viewDidLoad() {
 		super.viewDidLoad()
 		self.edgesForExtendedLayout = UIRectEdge()
-		if #available(iOS 13, *) {
-			self.view.backgroundColor = UIColor.systemBackground
-		} else {
-			self.view.backgroundColor = UIColor.white
-		}
+        self.view.backgroundColor = UIColor.white
 		self.navigationItem.backBarButtonItem = UIBarButtonItem(title:"", style:UIBarButtonItem.Style.plain, target:nil, action:nil)
 		self.navigationItem.backBarButtonItem?.title = ""
 	}

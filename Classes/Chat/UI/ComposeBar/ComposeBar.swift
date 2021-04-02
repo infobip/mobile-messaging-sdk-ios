@@ -186,12 +186,9 @@ class ComposeBar: UIView, UITextViewDelegate {
 		let ret = ComposeBar_TextView(frame: CGRect.zero)
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		ret.scrollIndicatorInsets = UIEdgeInsets(top: 8.0, left: 0, bottom: 8.0, right: 0.5)
-		if #available(iOS 13, *) {
-			ret.backgroundColor = UIColor.systemBackground
-		} else {
-			ret.backgroundColor = UIColor.clear
-		}
-		ret.font = UIFont.systemFont(ofSize: ComposeBarConsts.kFontSize)
+        ret.backgroundColor = MobileMessaging.inAppChat?.settings.backgroungColor ?? UIColor.clear
+        ret.font = UIFont.systemFont(ofSize: ComposeBarConsts.kFontSize)
+        ret.textColor = UIColor.black
 		return ret
 	}()
 	lazy var utilityButton: ComposeBar_Button! = {
@@ -225,13 +222,9 @@ class ComposeBar: UIView, UITextViewDelegate {
 		let ret = UIToolbar(frame: frame)
 		ret.barStyle = .default
 		ret.isTranslucent = false
-		if #available(iOS 13, *) {
-			ret.barTintColor = UIColor.systemBackground
-			ret.tintColor = UIColor.systemBackground
-		} else {
-			ret.barTintColor = UIColor(white: 0.95, alpha: 1)
-			ret.tintColor = UIColor(white: 1, alpha: 1)
-		}
+        let backgroundColor = MobileMessaging.inAppChat?.settings.backgroungColor ?? UIColor(white: 1, alpha: 1)
+        ret.barTintColor = backgroundColor
+        ret.tintColor = backgroundColor
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		return ret
 	}()
@@ -253,11 +246,7 @@ class ComposeBar: UIView, UITextViewDelegate {
 		let ret = UIButton(type: .custom)
 		ret.frame = textContainerFrame
 		ret.clipsToBounds = true
-		if #available(iOS 13, *) {
-			ret.backgroundColor = UIColor.systemBackground
-		} else {
-			ret.backgroundColor = UIColor.white
-		}
+        ret.backgroundColor = MobileMessaging.inAppChat?.settings.backgroungColor ?? UIColor.white
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		let txtH = self.textHeight
 		self.previousTextHeight = txtH

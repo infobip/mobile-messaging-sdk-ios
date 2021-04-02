@@ -65,13 +65,8 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 		enableControls(false)
 		registerToChatSettingsChanges()
 
-		if #available(iOS 13, *) {
-			webView.backgroundColor = UIColor.systemBackground
-			view.backgroundColor = UIColor.systemBackground
-		} else {
-			webView.backgroundColor = UIColor.white
-			view.backgroundColor = UIColor.white
-		}
+        webView.backgroundColor = UIColor.white
+        view.backgroundColor = UIColor.white
     }
 	
 	open override func viewDidAppear(_ animated: Bool) {
