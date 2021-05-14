@@ -40,13 +40,12 @@ class MessagePostingOperation: MMOperation {
 			return
 		}
 
-		context.reset()
-
 		// if there were explicit messages to send
 		if let messages = self.messages {
 			var messagesToSend: [MM_MOMessage] = []
 
 			context.performAndWait {
+                context.reset()
 				// new messages sending
 				messagesToSend = MessagePostingOperation.findNewMOMessages(among: messages, inContext: self.context)
 				
@@ -75,6 +74,7 @@ class MessagePostingOperation: MMOperation {
 		} else {
 			var messagesToSend: [MM_MOMessage] = []
 			context.performAndWait {
+                context.reset()
 				// let's send persisted messages (retries)
 				let mmos = MessagePostingOperation.persistedMessages(inContext: self.context)
 				self.sentMessageObjectIds.append(contentsOf: mmos.map({$0.objectID}))
