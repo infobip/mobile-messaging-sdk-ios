@@ -102,16 +102,19 @@ class NotificationsInteractionService: MobileMessagingService {
 
 	fileprivate func handleNotificationTap(message: MM_MTMessage, completion: @escaping () -> Void) {
 		DispatchQueue.main.async {
-			if let urlString = message.webViewUrl?.absoluteString {
-				if let url = URL(string: urlString), url.scheme != "http", url.scheme != "https" {
-					if (UIApplication.shared.canOpenURL(url)) {
-						UIApplication.shared.open(url, options: [:], completionHandler: nil)
-					}
-				} else if let presentingVc = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: message) ?? MobileMessaging.application.visibleViewController {
-					NotificationsInteractionService.presentInAppWebview(urlString, presentingVc, message)
-				}
-            } else if let browserUrl = message.browserUrl, UIApplication.shared.canOpenURL(browserUrl) {
-                UIApplication.shared.open(browserUrl)
+            let delegate = MobileMessaging.messageHandlingDelegate
+            if let urlString = message.webViewUrl?.absoluteString {
+               if let url = URL(string: urlString), url.scheme != "http", url.scheme != "https" {
+                   if (UIApplication.shared.canOpenURL(url)) {
+                       UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                   }
+               } else if let presentingVc = delegate?.inAppPresentingViewController?(for: message) ?? 
+                           MobileMessaging.application.visibleViewController {
+                   NotificationsInteractionService.presentInAppWebview(urlString, presentingVc, message)
+               }
+            } else if let browserUrl = message.browserUrl, (delegate?.shouldOpenInBrowser?(browserUrl) ?? true),
+                     UIApplication.shared.canOpenURL(browserUrl) {
+               UIApplication.shared.open(browserUrl)
             }
 			completion()
 		}
