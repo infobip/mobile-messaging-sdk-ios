@@ -108,7 +108,6 @@
 		7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E41F78FF4E00B8F14B /* MMCoreDataExtensions.swift */; };
 		7645568E1F78FF6500B8F14B /* MMCoreDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E51F78FF4E00B8F14B /* MMCoreDataStorage.swift */; };
 		764556901F78FF7300B8F14B /* MessageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556181F78FF4F00B8F14B /* MessageUtils.swift */; };
-		764556911F78FF7F00B8F14B /* MMApplicationListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556271F78FF4F00B8F14B /* MMApplicationListener.swift */; };
 		764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562A1F78FF4F00B8F14B /* MMMessageHandler.swift */; };
 		764556951F78FF7F00B8F14B /* MMOperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645562B1F78FF4F00B8F14B /* MMOperationQueue.swift */; };
 		7645569B1F78FF8500B8F14B /* MessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645561C1F78FF4F00B8F14B /* MessageFetchingOperation.swift */; };
@@ -393,7 +392,6 @@
 		764556201F78FF4F00B8F14B /* MessagesSyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesSyncOperation.swift; sourceTree = "<group>"; };
 		764556231F78FF4F00B8F14B /* SeenStatusPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenStatusPersistingOperation.swift; sourceTree = "<group>"; };
 		764556241F78FF4F00B8F14B /* SeenStatusSendingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenStatusSendingOperation.swift; sourceTree = "<group>"; };
-		764556271F78FF4F00B8F14B /* MMApplicationListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMApplicationListener.swift; sourceTree = "<group>"; };
 		7645562A1F78FF4F00B8F14B /* MMMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMMessageHandler.swift; sourceTree = "<group>"; };
 		7645562B1F78FF4F00B8F14B /* MMOperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMOperationQueue.swift; sourceTree = "<group>"; };
 		764556301F78FF4F00B8F14B /* UserNotificationCenterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationCenterDelegate.swift; sourceTree = "<group>"; };
@@ -876,7 +874,6 @@
 			children = (
 				7626040F24EC1ABC0052A36C /* Conditions */,
 				7645561A1F78FF4F00B8F14B /* AppOperations */,
-				764556271F78FF4F00B8F14B /* MMApplicationListener.swift */,
 				7645562A1F78FF4F00B8F14B /* MMMessageHandler.swift */,
 				7645562B1F78FF4F00B8F14B /* MMOperationQueue.swift */,
 			);
@@ -1332,7 +1329,6 @@
 				764556951F78FF7F00B8F14B /* MMOperationQueue.swift in Sources */,
 				764556771F78FF5800B8F14B /* MMNotifications.m in Sources */,
 				7650DC37244EEB480016233D /* ChatNavigationVC.swift in Sources */,
-				764556911F78FF7F00B8F14B /* MMApplicationListener.swift in Sources */,
 				76626D11218B097800E95E2C /* PrivacySettings.swift in Sources */,
 				76B70DA721AD3A6E00E87BD5 /* DeleteInstanceOperation.swift in Sources */,
 				ADF203422086642C00E157D7 /* DigestType.swift in Sources */,

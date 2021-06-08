@@ -430,13 +430,20 @@ public class MobileMessagingService: NSObject, NamedLogger {
 		super.init()
 		self.mmContext.registerSubservice(self)
 	}
+    
+    deinit {
+        stopObserving()
+    }
+    
 	func start(_ completion: @escaping (Bool) -> Void) {
 		logDebug("starting")
 		isRunning = true
+        setupObservers()
 		completion(isRunning)
 	}
 	func stop(_ completion: @escaping (Bool) -> Void) {
 		logDebug("stopping")
+        stopObserving()
 		isRunning = false
 		completion(isRunning)
 	}
@@ -447,17 +454,24 @@ public class MobileMessagingService: NSObject, NamedLogger {
 	func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool { return false }
 	func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
 	func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
-	func geoServiceDidStart(_ notification: Notification) {}
+    @objc func geoServiceDidStart(_ notification: Notification) {}
 	func mobileMessagingWillStart(_ mmContext: MobileMessaging) {}
 	func mobileMessagingDidStart(_ mmContext: MobileMessaging) {}
 	func mobileMessagingWillStop(_ mmContext: MobileMessaging) {}
 	func mobileMessagingDidStop(_ mmContext: MobileMessaging) {}
-	func appWillEnterForeground(_ notification: Notification) {}
-	func appDidFinishLaunching(_ notification: Notification) {}
-	func appDidBecomeActive(_ notification: Notification) {}
-	func appWillResignActive(_ notification: Notification) {}
-	func appWillTerminate(_ notification: Notification) {}
-	func appDidEnterBackground(_ notification: Notification) {}
+	@objc func appWillEnterForeground(_ notification: Notification) {}
+	@objc func appDidFinishLaunching(_ notification: Notification) {}
+    @objc func appDidBecomeActive(_ notification: Notification) {}
+	@objc func appWillResignActive(_ notification: Notification) {}
+	@objc func appWillTerminate(_ notification: Notification) {}
+	@objc func appDidEnterBackground(_ notification: Notification) {}
+    @objc func handleAppDidFinishLaunchingNotification(_ n: Notification) {
+        guard n.userInfo?[UIApplication.LaunchOptionsKey.remoteNotification] == nil else {
+            // we don't want to work on launching when push received.
+            return
+        }
+        appDidFinishLaunching(n)
+    }
 	func syncWithServer(_ completion: @escaping (NSError?) -> Void) {}
 	func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {}
 	func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {}
@@ -469,6 +483,50 @@ public class MobileMessagingService: NSObject, NamedLogger {
 	func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
 		showBannerWithOptions([])
 	}
+    
+    private func stopObserving() {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupObservers() {
+        guard !isTestingProcessRunning else {
+            return
+        }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillResignActive(_:)),
+            name: UIApplication.willResignActiveNotification, object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidBecomeActive(_:)),
+            name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillTerminate(_:)),
+            name: UIApplication.willTerminateNotification, object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterBackground(_:)),
+            name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillEnterForeground(_:)),
+            name: UIApplication.willEnterForegroundNotification, object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppDidFinishLaunchingNotification(_:)),
+            name: UIApplication.didFinishLaunchingNotification, object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(geoServiceDidStart(_:)),
+            name: NSNotification.Name(rawValue: MMNotificationGeoServiceDidStart), object: nil)
+    }
 }
 
 public extension UIDevice {

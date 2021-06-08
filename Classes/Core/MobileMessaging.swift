@@ -554,7 +554,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		// just to break retain cycles:
 		apnsRegistrationManager = nil
 		doRegisterToApns = true
-		appListener = nil
 		messageHandler = nil
 		remoteApiProvider = nil
 		userSessionService = nil
@@ -680,7 +679,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		userService = UserDataService(mmContext: self)
 		eventsService = EventsService(mmContext: self)
 		installationService = InstallationDataService(mmContext: self)
-		appListener = MMApplicationListener(mmContext: self)
 		messageStorages.values.forEach({ $0.start() })
 		
 		let currentInstall = currentInstallation()
@@ -711,7 +709,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	func resolveUser() -> MMUser { return dirtyUser() }
 	var userService: UserDataService!
 	var installationService: InstallationDataService!
-	var appListener: MMApplicationListener!
 	var userSessionService: UserSessionService!
     var baseUrlManager: BaseUrlManager!
 	var eventsService: EventsService!
