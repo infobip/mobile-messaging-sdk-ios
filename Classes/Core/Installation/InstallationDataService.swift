@@ -14,7 +14,39 @@ final class InstallationDataService: MobileMessagingService {
 	init(mmContext: MobileMessaging) {
 		super.init(mmContext: mmContext, uniqueIdentifier: "InstallationDataService")
 	}
+    
+    override func mobileMessagingWillStart(_ mmContext: MobileMessaging) {
+        start({_ in })
+    }
+
+    override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
+        stop({_ in})
+    }
+    
+    override func start(_ completion: @escaping (Bool) -> Void) {
+        super.start(completion)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleError(_:)),
+            name: NSNotification.Name(rawValue: MMNotificationAPIError), object: nil)
+    }
 	
+    @objc func handleError(_ notifictaion: Notification) {
+        if let error = notifictaion.userInfo?[MMNotificationKeyAPIErrorUserInfo] as? NSError, error.mm_code == "NO_REGISTRATION" {
+            recoverRegistration()
+        }
+    }
+    
+    func recoverRegistration() {
+        let dirtyInstallation = mmContext.dirtyInstallation()
+        if dirtyInstallation.pushServiceToken != nil && dirtyInstallation.pushRegistrationId != nil {
+            MMInstallation.resetCurrent()
+            dirtyInstallation.pushRegistrationId = nil
+            dirtyInstallation.archiveDirty()
+            syncWithServer({ _ in })
+        }
+    }
+        
 	func getUniversalInstallationId() -> String {
 		let key = "com.mobile-messaging.universal-installation-id"
 		if let universalInstallationId = UserDefaults.standard.string(forKey: key) {

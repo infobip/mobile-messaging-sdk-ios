@@ -11,6 +11,54 @@ import CoreLocation
 
 final class RegistrationTests: MMTestCase {
 	
+    func testThatNoRegistrationErrorResetsRegistration() {
+    
+        weak var errorHandled = self.expectation(description: "errorHandled")
+        weak var regCreateRequestSent = self.expectation(description: "regCreateRequestSent")
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+        mobileMessagingInstance.pushServiceToken = "stub"
+        
+        let jsonStr = """
+        {
+            "requestError": {
+                "serviceException" : {
+                    "messageId" : "NO_REGISTRATION",
+                    "text" : "something"
+                }
+            }
+        }
+    """
+        let requestError = MMRequestError(json: JSON.parse(jsonStr))
+        
+        let remoteApiProvider = RemoteAPIProvider(sessionManager: SessionManagerStubBase(getDataResponseClosure: { requestData, completion in
+            if requestData is GetUser {
+                completion(nil, requestError?.foundationError)
+                return true
+            }
+            if requestData is PostInstance {
+                regCreateRequestSent?.fulfill()
+                return false
+            }
+            return false
+        }))
+        mobileMessagingInstance.remoteApiProvider = remoteApiProvider
+        
+        MobileMessaging.fetchUser { (user, error) in
+            XCTAssertNotNil(error)
+            XCTAssertEqual(error?.mm_code, "NO_REGISTRATION")
+        }
+        
+        //wait until notification center delivers API Error notification to IntallationDataService
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .milliseconds(1000), execute: {
+            XCTAssertNil(self.mobileMessagingInstance.dirtyInstallation().pushRegistrationId)
+            XCTAssertNil(self.mobileMessagingInstance.currentInstallation().pushRegistrationId)
+            
+            XCTAssertNotNil(self.mobileMessagingInstance.dirtyInstallation().pushServiceToken)
+            errorHandled?.fulfill()
+        })
+        waitForExpectations(timeout: 20, handler: nil)
+    }
+    
 	func testInstanceDataFetchingDecoding() {
 		weak var expectation = self.expectation(description: "data fetched")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID

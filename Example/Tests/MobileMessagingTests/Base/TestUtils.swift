@@ -279,31 +279,37 @@ class SessionManagerOfflineStubBase : DynamicBaseUrlHTTPSessionManager {
 }
 
 class SessionManagerStubBase : DynamicBaseUrlHTTPSessionManager {
-	init() {
+    let getDataResponseClosure: ((RequestData, (JSON?, NSError?) -> Void) -> Bool)?
+	init(getDataResponseClosure: ((RequestData, (JSON?, NSError?) -> Void) -> Bool)? = nil) {
+        self.getDataResponseClosure = getDataResponseClosure
 		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: nil, appGroupId: nil)
 	}
 
-	override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
-		if let responseJSON = Mocks.mockedResponseForRequest(request: r, appCode: r.applicationCode, pushRegistrationId: r.pushRegistrationId) {
-
-			let statusCode = responseJSON[MockKeys.responseStatus].intValue
-			switch statusCode {
-			case 0..<400:
-				completion(responseJSON, nil)
-			case 400..<600:
-				if let requestError = MMRequestError(json: responseJSON) {
-					completion(nil, requestError.foundationError)
-				} else {
-					completion(nil, MMInternalErrorType.UnknownError.foundationError)
-				}
-			default:
-				print("Unexpected mocked status code: \(responseJSON)")
-				completion(nil, MMInternalErrorType.UnknownError.foundationError)
-			}
-		} else {
-			completion(nil, MMInternalErrorType.UnknownError.foundationError)
-		}
-	}
+    override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
+        if let closure = getDataResponseClosure, closure(r, completion) == true {
+            // do nothing
+        } else {
+            if let responseJSON = Mocks.mockedResponseForRequest(request: r, appCode: r.applicationCode, pushRegistrationId: r.pushRegistrationId) {
+                
+                let statusCode = responseJSON[MockKeys.responseStatus].intValue
+                switch statusCode {
+                case 0..<400:
+                    completion(responseJSON, nil)
+                case 400..<600:
+                    if let requestError = MMRequestError(json: responseJSON) {
+                        completion(nil, requestError.foundationError)
+                    } else {
+                        completion(nil, MMInternalErrorType.UnknownError.foundationError)
+                    }
+                default:
+                    print("Unexpected mocked status code: \(responseJSON)")
+                    completion(nil, MMInternalErrorType.UnknownError.foundationError)
+                }
+            } else {
+                completion(nil, MMInternalErrorType.UnknownError.foundationError)
+            }
+        }
+    }
 }
 
 class DateStub: MMDate {
