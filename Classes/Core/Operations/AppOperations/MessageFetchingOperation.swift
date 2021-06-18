@@ -93,7 +93,7 @@ final class MessageFetchingOperation: MMOperation {
 	
 	private func dequeueDeliveryReports(messageIDs: [String], completion: @escaping () -> Void) {
 		context.performAndWait {
-			guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND messageId IN %@", messageIDs), context: context)
+			guard let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", messageIDs), context: context)
 				, !messages.isEmpty else
 			{
 				completion()
@@ -107,7 +107,7 @@ final class MessageFetchingOperation: MMOperation {
 
 			logDebug("marked as delivered: \(messages.map{ $0.messageId })")
 			context.MM_saveToPersistentStoreAndWait()
-			updateMessageStorage(with: messages, completion: completion)
+            updateMessageStorage(with: messages.filter({ $0.messageType == MMMessageType.Default }), completion: completion)
 		}
 	}
 	
