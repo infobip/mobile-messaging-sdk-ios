@@ -20,7 +20,7 @@ NSString* MMNotificationMessageTapped = @"com.mobile-messaging.notification.mess
 NSString* MMNotificationActionTapped = @"com.mobile-messaging.notification.action-tapped";
 NSString* MMNotificationDepersonalized = @"com.mobile-messaging.notification.depersonalization-completed";
 NSString* MMNotificationPersonalized = @"com.mobile-messaging.notification.personalization-completed";
-NSString* MMNotificationInstallationSynced = @"com.mobile-messaging.notification.userdata-synced";
+NSString* MMNotificationInstallationSynced = @"com.mobile-messaging.notification.installation-synced";
 NSString* MMNotificationCenterAuthRequestFinished = @"com.mobile-messaging.notification.nc-auth-request-finished";
 NSString* MMNotificationInAppChatAvailabilityUpdated = @"com.mobile-messaging.notification.inappchat-availability-updated";
 
