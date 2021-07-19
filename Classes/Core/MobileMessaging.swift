@@ -684,7 +684,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		let currentInstall = currentInstallation()
 		if currentInstall.isPushRegistrationEnabled && internalData().currentDepersonalizationStatus == .undefined  {
 			messageHandler.start({ _ in })
-		}
+        } else {
+            logDebug("messageHandler didn't start: reg enabled \(currentInstall.isPushRegistrationEnabled), depersonalizaton status \(internalData().currentDepersonalizationStatus.rawValue)")
+        }
 		
 		if !isTestingProcessRunning {
 			#if DEBUG

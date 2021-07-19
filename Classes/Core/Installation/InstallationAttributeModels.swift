@@ -29,7 +29,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	}
 	func handleCurrentChanges(old: InternalData, new: InternalData) {
 		if old.currentDepersonalizationStatus != new.currentDepersonalizationStatus {
-			logDebug("setting new depersonalize status: \(self.currentDepersonalizationStatus)")
+            logDebug("setting new depersonalize status: \(self.currentDepersonalizationStatus.rawValue)")
 			MobileMessaging.sharedInstance?.updateDepersonalizeStatusForSubservices()
 		}
 	}
