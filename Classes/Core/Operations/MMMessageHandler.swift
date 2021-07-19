@@ -65,6 +65,7 @@ class MMMessageHandler: MobileMessagingService {
     //MARK: Intenal	
 	func handleAPNSMessage(_ userInfo: MMAPNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true else {
+            logDebug("abort messages handling, service running \(isRunning)")
 			completion(.noData)
 			return
 		}
@@ -89,6 +90,7 @@ class MMMessageHandler: MobileMessagingService {
 	
 	func handleMTMessages(_ messages: [MM_MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true, !messages.isEmpty else {
+            logDebug("abort messages handling \(messages), service running \(isRunning)")
 			completion(.noData)
 			return
 		}
@@ -173,8 +175,7 @@ class MMMessageHandler: MobileMessagingService {
 	}
 	
 	func updateOriginalPayloadsWithMessages(messages: [MessageId: MM_MTMessage], completion: (() -> Void)?) {
-		guard !messages.isEmpty else
-		{
+		guard !messages.isEmpty else {
 			completion?()
 			return
 		}
@@ -196,8 +197,7 @@ class MMMessageHandler: MobileMessagingService {
 	}
 	
 	func updateDbMessagesCampaignFinishedState(forCampaignIds finishedCampaignIds: [String], completion: (() -> Void)?) {
-		guard !finishedCampaignIds.isEmpty else
-		{
+		guard !finishedCampaignIds.isEmpty else {
 			completion?()
 			return
 		}
@@ -216,8 +216,7 @@ class MMMessageHandler: MobileMessagingService {
 	func updateSdkGeneratedTemporaryMessageIds(withMap messageIdsMap: [MessageId: MessageId], completion: (() -> Void)?) {
 		//if the sdk generated message id was mapped with real message id, we should update all stored messages
 		let sdkMessageIds = Array(messageIdsMap.keys)
-		guard !sdkMessageIds.isEmpty else
-		{
+		guard !sdkMessageIds.isEmpty else {
 			completion?()
 			return
 		}
@@ -254,6 +253,7 @@ class MMMessageHandler: MobileMessagingService {
 
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		guard isRunning == true else {
+            logDebug("abort syncing with server, service running \(isRunning)")
 			completion(nil)
 			return
 		}
@@ -325,6 +325,7 @@ class MMMessageHandler: MobileMessagingService {
 	}
 
 	private func cancelOperations() {
+        logDebug("Canceling all messageHandlingQueue, messageSendingQueue, messageSyncQueue operations")
 		messageHandlingQueue.cancelAllOperations()
 		messageSendingQueue.cancelAllOperations()
 		messageSyncQueue.cancelAllOperations()
