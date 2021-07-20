@@ -58,8 +58,9 @@ class MMMessageHandler: MobileMessagingService {
     }
 
 	override func start(_ completion: @escaping (Bool) -> Void) {
-		self.evictOldMessages(completion: { })
+		evictOldMessages(completion: { })
 		super.start(completion)
+        syncWithServer({_ in})
 	}
 
     //MARK: Intenal	

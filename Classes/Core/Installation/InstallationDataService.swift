@@ -29,6 +29,7 @@ final class InstallationDataService: MobileMessagingService {
             self,
             selector: #selector(handleError(_:)),
             name: NSNotification.Name(rawValue: MMNotificationAPIError), object: nil)
+        syncWithServer({ _ in })
     }
 	
     @objc func handleError(_ notifictaion: Notification) {

@@ -220,6 +220,8 @@ public class MMGeofencingService: MobileMessagingService {
 				completion(false)
 			}
 		}
+        
+        syncWithServer({_ in})
 	}
 	
 	/// Stops the Geofencing Service

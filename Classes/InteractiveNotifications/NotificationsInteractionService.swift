@@ -184,7 +184,12 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 		start({_ in })
 	}
-
+    
+    override func start(_ completion: @escaping (Bool) -> Void) {
+        super.start(completion)
+        syncWithServer({_ in})
+    }
+    
 	override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		mmContext.interactiveAlertManager.showModalNotificationAutomatically(forMessage: message)
 		completion(.noData)

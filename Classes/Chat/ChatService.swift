@@ -119,9 +119,13 @@ public class MMInAppChatService: MobileMessagingService {
 	
 	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
 		start { _ in }
+	}
+    
+    override func start(_ completion: @escaping (Bool) -> Void) {
+        super.start(completion)
         startReachabilityListener()
         syncWithServer { _ in}
-	}
+    }
 	
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
         getWidgetQueue.cancelAllOperations()
