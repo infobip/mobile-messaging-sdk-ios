@@ -53,8 +53,6 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
                 completionHandler(options)
             }
         })
-
-		MobileMessaging.sharedInstance?.didReceiveRemoteNotification(notification.request.content.userInfo, completion: { _ in })
 	}
 
 	public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {

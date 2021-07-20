@@ -37,8 +37,11 @@ extension MobileMessaging {
 /// This service manages the In-app Chat.
 public class MMInAppChatService: MobileMessagingService {
 	init(mmContext: MobileMessaging) {
+        chatMessageCounterService = ChatMessageCounterService(mmContext: mmContext)
 		super.init(mmContext: mmContext, uniqueIdentifier: "InAppChatService")
+        chatMessageCounterService.chatService = self
 	}
+    
 	///You can define your own custom appearance for chat view by accessing a chat settings object.
     public let settings: MMChatSettings = MMChatSettings.sharedInstance
 	
@@ -66,16 +69,27 @@ public class MMInAppChatService: MobileMessagingService {
 	///In-app Chat delegate, can be set to receive additional chat info.
 	public var delegate: MMInAppChatDelegate? {
 		didSet {
-			self.delegate?.inAppChatIsEnabled(isConfigurationSynced)
+			delegate?.inAppChatIsEnabled?(isConfigurationSynced)
 		}
 	}
+    
+    ///Resets current unread chat push message counter to zero. MM SDK automatically resets the counter when MMChatViewController appears on screen.
+    public func resetMessageCounter() {
+        chatMessageCounterService.resetCounter()
+    }
+    
+    ///Returns current unread chat push message counter.
+    public var getMessageCounter: Int {
+        return chatMessageCounterService.getCounter()
+    }
 	
+    private let chatMessageCounterService: ChatMessageCounterService
 	private let getWidgetQueue = MMOperationQueue.newSerialQueue
 	private var chatWidget: ChatWidget?
     private var isConfigurationSynced: Bool = false {
         didSet {
             UserEventsManager.postInAppChatAvailabilityUpdatedEvent(isConfigurationSynced)
-            delegate?.inAppChatIsEnabled(isConfigurationSynced)
+            delegate?.inAppChatIsEnabled?(isConfigurationSynced)
         }
     }
     
@@ -86,7 +100,7 @@ public class MMInAppChatService: MobileMessagingService {
 	}
 	var webViewDelegate: ChatWebViewDelegate? {
 		didSet {
-            webViewDelegate?.handleChatErrors(chatErrors)
+            webViewDelegate?.didReceiveError(chatErrors)
 			update(withChatWidget: chatWidget)
 		}
 	}
@@ -157,10 +171,10 @@ public class MMInAppChatService: MobileMessagingService {
 		}
 		
         if MobileMessaging.currentInstallation?.pushRegistrationId != nil {
-            webViewDelegate?.loadWidget(chatWidget)
+            webViewDelegate?.didLoadWidget(chatWidget)
 		} else {
 			NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil, queue: nil) { (notification) in
-                self.webViewDelegate?.loadWidget(chatWidget)
+                self.webViewDelegate?.didLoadWidget(chatWidget)
 				NotificationCenter.default.removeObserver(self)
 			}
 		}
@@ -173,7 +187,7 @@ public class MMInAppChatService: MobileMessagingService {
     
     private var chatErrors: ChatErrors = .none {
             didSet {
-                webViewDelegate?.handleChatErrors(chatErrors)
+                webViewDelegate?.didReceiveError(chatErrors)
             }
         }
     private let networkReachabilityManager = NetworkReachabilityManager();
@@ -207,10 +221,20 @@ public class MMInAppChatService: MobileMessagingService {
     }
 }
 
-public protocol MMInAppChatDelegate {
+protocol ChatWebViewDelegate {
+    func didLoadWidget(_ widget: ChatWidget)
+    func didEnableControls(_ enabled: Bool)
+    func didReceiveError(_ errors: ChatErrors)
+    func didOpenPreview(forAttachment attachment: ChatWebAttachment)
+}
+
+@objc public protocol MMInAppChatDelegate {
 	///In-app Chat can be disabled or not bind to the application on the Infobip portal. In these cases `enabled` will be `false`.
-	///You can use this, for example, to show or not chat button to the user.
-	func inAppChatIsEnabled(_ enabled: Bool)
+	///You can use this, for example, to show or hide chat button for the user.
+    @objc optional func inAppChatIsEnabled(_ enabled: Bool)
+    
+    ///Called whenever a new chat push message arrives, contains current unread message counter value
+    @objc optional func didUpdateUnreadMessagesCounter(_ count: Int)
 }
 
 extension UserEventsManager {

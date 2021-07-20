@@ -7,13 +7,6 @@
 
 import WebKit
 
-protocol ChatWebViewDelegate {
-	func loadWidget(_ widget: ChatWidget)
-	func enableControls(_ enabled: Bool)
-    func handleChatErrors(_ errors: ChatErrors)
-    func openPreview(forAttachment attachment: ChatWebAttachment)
-}
-
 ///Key component to use for displaying In-app chat view.
 ///We support two ways to quickly embed it into your own application:
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
@@ -62,7 +55,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 	open override func viewDidLoad() {
 		super.viewDidLoad()
 		MobileMessaging.inAppChat?.webViewDelegate = self
-		enableControls(false)
+		didEnableControls(false)
 		registerToChatSettingsChanges()
 
         webView.backgroundColor = UIColor.white
@@ -72,6 +65,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 	open override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		MobileMessaging.inAppChat?.isChatScreenVisible = true
+        MobileMessaging.inAppChat?.resetMessageCounter()
 	}
 	
 	open override func viewDidDisappear(_ animated: Bool) {
@@ -119,18 +113,21 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 	}
 	
 	// ChatWebViewDelegate
-	func loadWidget(_ widget: ChatWidget) {
+	func didLoadWidget(_ widget: ChatWidget) {
         chatWidget = widget
         webView.loadWidget(widget)
 	}
 	
-	func enableControls(_ enabled: Bool) {
+	func didEnableControls(_ enabled: Bool) {
 		webView.isUserInteractionEnabled = enabled
         webView.isLoaded = enabled
 		composeBarView.isEnabled = enabled
+        if enabled {
+            MobileMessaging.inAppChat?.resetMessageCounter()
+        }
 	}
     
-    func handleChatErrors(_ errors: ChatErrors) {
+    func didReceiveError(_ errors: ChatErrors) {
          if errors == .none {
              chatNotAvailableLabel.hide()
              if !(webView.isLoaded) {
@@ -141,7 +138,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
          }
     }
     
-    func openPreview(forAttachment attachment: ChatWebAttachment) {
+    func didOpenPreview(forAttachment attachment: ChatWebAttachment) {
         let vc =  AttachmentPreviewController.makeRootInNavigationController(forAttachment: attachment)
         self.present(vc, animated: true, completion: nil)
     }

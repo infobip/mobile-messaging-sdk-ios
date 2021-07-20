@@ -43,7 +43,7 @@ class EnableControlsMessageHandler: ScriptMessageHandler {
 		guard let jsMessage = EnableControlsJSMessage(message: message) else {
 				return
 		}
-		MobileMessaging.inAppChat?.webViewDelegate?.enableControls(jsMessage.enabled)
+		MobileMessaging.inAppChat?.webViewDelegate?.didEnableControls(jsMessage.enabled)
 	}
 }
 
@@ -66,7 +66,7 @@ class AttachmentPreviewMessageHandler: ScriptMessageHandler {
             return
         }
         
-        MobileMessaging.inAppChat?.webViewDelegate?.openPreview(forAttachment: attachment)
+        MobileMessaging.inAppChat?.webViewDelegate?.didOpenPreview(forAttachment: attachment)
     }
 }
 
