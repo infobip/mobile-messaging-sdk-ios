@@ -171,6 +171,12 @@ class MMTestCase: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
+        
+        //todo: rework subservices to have single queue each one, then just waitUntilAllOperationsAreFinished for every subservice registered
+        MobileMessaging.sharedInstance?.messageHandler.messageSyncQueue.waitUntilAllOperationsAreFinished()
+        MobileMessaging.sharedInstance?.messageHandler.messageHandlingQueue.waitUntilAllOperationsAreFinished()
+        installationQueue.waitUntilAllOperationsAreFinished()
+        
 		MMTestCase.cleanUpAndStop()
 		MobileMessaging.privacySettings = MMPrivacySettings()
 		MMGeofencingService.currentDate = nil
