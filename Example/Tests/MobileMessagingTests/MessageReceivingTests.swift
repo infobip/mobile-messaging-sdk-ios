@@ -194,6 +194,30 @@ class MessageReceivingTests: MMTestCase {
 			XCTAssertEqual(MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), expectedMessagesCount, "Messages must be persisted properly")
 		})
 	}
+    
+    func testChatMessagesCounter() {
+        MMInAppChatService.sharedInstance = MMInAppChatService(mmContext: mobileMessagingInstance)
+        MMInAppChatService.sharedInstance?.start({ _ in })
+        
+        let chatPayload = [
+            "messageId": "messageId1",
+            "aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default"],
+            Consts.APNSPayloadKeys.internalData: ["messageType": "chat", "sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey": "internalValue"],
+            Consts.APNSPayloadKeys.customPayload: ["customKey": "customValue"]
+        ] as [AnyHashable : Any]
+        weak var expectation = self.expectation(description: "Check finished")
+            
+        let payload = MM_MTMessage(payload: chatPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!.originalPayload
+        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
+            DispatchQueue.main.async {
+                expectation?.fulfill()
+            }
+        })
+        
+        self.waitForExpectations(timeout: 60, handler: { error in
+            XCTAssertEqual(MMInAppChatService.sharedInstance?.getMessageCounter, 1)
+        })
+    }
 	
 	func testMessagesPersistingForDisabledRegistration() {
 		weak var expectation = self.expectation(description: "Check finished")
@@ -220,18 +244,13 @@ class MessageReceivingTests: MMTestCase {
 		})
 	}
 
-	func testThatSilentMessagesEvenWorks() {
+	func testThatSilentMessagesEventsWorks() {
 		let expectedEventsCount: Int = 5
 		var eventsCounter: Int = 0
 		var messageHandlingCounter: Int = 0
 		
 		weak var messageHandlingFinished = self.expectation(description: "messages handling finished")
-		
-		#if swift(>=4)
 		let notificationName = NSNotification.Name(MMNotificationMessageReceived)
-		#else
-		let notificationName = MMNotificationMessageReceived
-		#endif
 		expectation(forNotification: notificationName, object: nil) { (notification) -> Bool in
 			if let message = notification.userInfo?[MMNotificationKeyMessage] as? MM_MTMessage, message.isSilent == true {
 				eventsCounter += 1
