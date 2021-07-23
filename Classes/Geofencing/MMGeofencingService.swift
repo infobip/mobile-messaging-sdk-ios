@@ -294,7 +294,6 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 	
 	deinit {
-		NotificationCenter.default.removeObserver(self)
 		cancelOperations()
 	}
 	

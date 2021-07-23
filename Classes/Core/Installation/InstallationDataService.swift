@@ -41,6 +41,8 @@ final class InstallationDataService: MobileMessagingService {
     func recoverRegistration() {
         let dirtyInstallation = mmContext.dirtyInstallation()
         if dirtyInstallation.pushServiceToken != nil && dirtyInstallation.pushRegistrationId != nil {
+            logDebug("recovering registration...")
+            mmContext.keychain.clear()
             MMInstallation.resetCurrent()
             dirtyInstallation.pushRegistrationId = nil
             dirtyInstallation.archiveDirty()
