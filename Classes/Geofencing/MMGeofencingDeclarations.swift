@@ -100,6 +100,10 @@ struct GeoConstants {
 		static let occuringCounter = "rate"
 		static let lastOccur = "lastOccur"
 	}
+    
+    struct UserDefaultsKey {
+        static let geoEnabledFlag = "com.mobile-messaging.geofencing-enabled-flag"
+    }
 }
 
 @objc public protocol MMGeoEventHandling {

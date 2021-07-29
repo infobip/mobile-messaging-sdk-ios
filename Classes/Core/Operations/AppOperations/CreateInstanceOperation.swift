@@ -22,19 +22,16 @@ class CreateInstanceOperation : MMOperation {
 		self.requireResponse = requireResponse
 		self.currentInstallation = currentInstallation
 		self.dirtyInstallation = dirtyInstallation
-
-		let createInstanceRequestBody = InstallationDataMapper.postRequestPayload(dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
-
-		if (createInstanceRequestBody[Attributes.pushServiceToken.rawValue] == nil ||
-			createInstanceRequestBody[Consts.SystemDataKeys.pushServiceType] == nil ||
-			currentInstallation.pushServiceToken == dirtyInstallation.pushServiceToken ||
-			dirtyInstallation.pushServiceToken == nil)
+        
+		if (dirtyInstallation.pushServiceToken == nil ||
+            dirtyInstallation.pushServiceType == nil ||
+			currentInstallation.pushServiceToken == dirtyInstallation.pushServiceToken)
 		{
 			Self.logWarn("There is no registration data to send. Aborting...")
 			return nil
 		}
 
-		self.body = createInstanceRequestBody
+		self.body = InstallationDataMapper.postRequestPayload(dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
 		super.init()
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}

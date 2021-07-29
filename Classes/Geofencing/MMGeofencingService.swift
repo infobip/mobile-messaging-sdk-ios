@@ -47,7 +47,7 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
-		logDebug("[Geofencing service] log out")
+		logDebug("depersonalizing")
 		cancelOperations()
 		self.stopMonitoringMonitoredRegions() {
 			self.cleanup(completion)
@@ -138,11 +138,17 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 	
 	override var systemData: [String: AnyHashable]? {
-		return [Consts.SystemDataKeys.geofencingServiceEnabled: type(of: self).isGeofencingServiceEnabled]
+		return [Consts.SystemDataKeys.geofencingServiceEnabled: type(of: self).isSystemDataGeofencingServiceEnabled]
 	}
 
-	public static var isGeofencingServiceEnabled: Bool {
-		return currentCapabilityStatus == MMGeofencingCapabilityStatus.authorized
+	public static var isSystemDataGeofencingServiceEnabled: Bool {
+        let status = currentCapabilityStatus
+        if status == .notDetermined {
+            return UserDefaults.standard.bool(forKey: GeoConstants.UserDefaultsKey.geoEnabledFlag)
+        } else {
+            UserDefaults.standard.set(status == .authorized, forKey: GeoConstants.UserDefaultsKey.geoEnabledFlag)
+            return status == MMGeofencingCapabilityStatus.authorized
+        }
 	}
 	
 	static var isGeoServiceNeedsToStart: Bool = false
@@ -168,7 +174,7 @@ public class MMGeofencingService: MobileMessagingService {
 		return result
 	}
 	
-	/// Returns current capability status for Geofencing Service. For more information see `MMCapabilityStatus`.
+	/// Returns current capability status for Geofencing Service. For more information see `MMGeofencingCapabilityStatus`.
 	public class var currentCapabilityStatus: MMGeofencingCapabilityStatus {
 		return MMGeofencingService.currentCapabilityStatus(forService: MMLocationServiceKind.regionMonitoring, usage: GeoConstants.minimumAllowedUsage)
 	}
@@ -413,21 +419,24 @@ public class MMGeofencingService: MobileMessagingService {
 			return .notAvailable
 		}
 		
+        let ret: MMGeofencingCapabilityStatus
 		switch CLLocationManager.authorizationStatus() {
-		case .notDetermined: return .notDetermined
-		case .restricted: return .notAvailable
-		case .denied: return .denied
-		case .authorizedAlways: return .authorized
-		case .authorizedWhenInUse:
-			if usage == MMLocationServiceUsage.whenInUse {
-				return .authorized
-			} else {
-				// the user wants .Always, but has .WhenInUse
-				// return .NotDetermined so that we can prompt to upgrade the permission
-				return .notDetermined
-			}
-		@unknown default: return .notDetermined
+            case .notDetermined: ret = .notDetermined
+            case .restricted: ret = .notAvailable
+            case .denied: ret = .denied
+            case .authorizedAlways: ret = .authorized
+            case .authorizedWhenInUse:
+                switch usage {
+                case MMLocationServiceUsage.whenInUse:
+                    ret = .authorized
+                case MMLocationServiceUsage.always:
+                    // the user wants .Always, but has .WhenInUse
+                    // return .NotDetermined so that we can prompt to upgrade the permission
+                    ret = .notDetermined
+                }
+            @unknown default: ret = .notDetermined
 		}
+        return ret
 	}
 	
 	// MARK: - Private
@@ -606,21 +615,24 @@ extension MMGeofencingService: CLLocationManagerDelegate {
 		logDebug("locationManager did change the authorization status \(status.rawValue)")
 		if let completion = self.capabilityCompletion , manager == self.locationManager && status != .notDetermined {
 			self.capabilityCompletion = nil
-			
-			switch status {
+            
+
+            let geofencingCapabilityStatus: MMGeofencingCapabilityStatus
+            switch status {
 			case .authorizedAlways:
-				completion(.authorized)
+                geofencingCapabilityStatus = .authorized
 			case .authorizedWhenInUse:
-				completion(self.desirableUsageKind == MMLocationServiceUsage.whenInUse ? .authorized : .denied)
+                geofencingCapabilityStatus = self.desirableUsageKind == MMLocationServiceUsage.whenInUse ? .authorized : .denied
 			case .denied:
-				completion(.denied)
+                geofencingCapabilityStatus = .denied
 			case .restricted:
-				completion(.notAvailable)
+                geofencingCapabilityStatus = .notAvailable
 			case .notDetermined:
 				fatalError("Unreachable due to the if statement, but included to keep clang happy")
 			@unknown default:
-				completion(.notDetermined)
+                geofencingCapabilityStatus = .notDetermined
 			}
+            completion(geofencingCapabilityStatus)
 		}
 		
 		switch (self.isRunning, status) {

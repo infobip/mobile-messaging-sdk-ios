@@ -42,6 +42,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	var applicationCode: String?
 	var depersonalizeFailCounter: Int
 	var currentDepersonalizationStatus: MMSuccessPending
+    ///
 
 	func copy(with zone: NSZone? = nil) -> Any {
 		let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus, registrationDate: registrationDate, chatMessageCounter: chatMessageCounter)
