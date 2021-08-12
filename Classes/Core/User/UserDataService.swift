@@ -142,6 +142,10 @@ class UserDataService: MobileMessagingService {
 	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
 		syncWithServer({_ in})
 	}
+    
+    override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
+        MMUser.cached.reset()
+    }
 
 	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
 		logDebug("sync user data with server")

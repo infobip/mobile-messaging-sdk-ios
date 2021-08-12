@@ -20,6 +20,7 @@ final class InstallationDataService: MobileMessagingService {
     }
 
     override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
+        MMInstallation.cached.reset()
         stop({_ in})
     }
     

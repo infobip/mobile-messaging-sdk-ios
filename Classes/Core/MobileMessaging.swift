@@ -19,20 +19,21 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	*/
 	public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType) -> MobileMessaging? {
-		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
+        return MobileMessaging.makeWithApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
+    }
+    
+    /**
+    Fabric method for Mobile Messaging session.
+    - parameter code: The application code of your Application from Push Portal website.
+    - parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
+    - parameter forceCleanup: Defines whether the SDK must be cleaned up on startup.
+    - warning: The cleanup (parameter `forceCleanup = true`) must be performed manually if you changed the application code while `PrivacySettings.applicationCodePersistingDisabled` is set to `true`.
+    */
+    @available(*, deprecated, message: "The function is deprecated. `forceCleanup` argument is always considered false, however we detect app code change and cleanup SDK data for you.")
+    public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
+		return MobileMessaging.makeWithApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
 	}
-	
-	/**
-	Fabric method for Mobile Messaging session.
-	- parameter code: The application code of your Application from Push Portal website.
-	- parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
-	- parameter forceCleanup: Defines whether the SDK must be cleaned up on startup.
-	- warning: The cleanup (parameter `forceCleanup = true`) must be performed manually if you changed the application code while `PrivacySettings.applicationCodePersistingDisabled` is set to `true`.
-	*/
-	public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
-		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString, forceCleanup: forceCleanup)
-	}
-	
+		
 	/**
 	Fabric method for Mobile Messaging session.
 	- parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
@@ -40,7 +41,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is https://oneapi.infobip.com.
 	*/
 	public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
-		return MobileMessaging.withApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: false)
+		return MobileMessaging.makeWithApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL)
 	}
 	
 	/**
@@ -477,12 +478,12 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
 	
-	class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, backendBaseURL: String, forceCleanup: Bool) -> MobileMessaging? {
+	class func makeWithApplicationCode(_ code: String, notificationType: MMUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
 		
 		if let sharedInstance = sharedInstance, sharedInstance.applicationCode != code || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
 			MobileMessaging.stop()
 		}
-		sharedInstance = MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: backendBaseURL, forceCleanup: forceCleanup)
+		sharedInstance = MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: backendBaseURL)
 		return sharedInstance
 	}
 	
@@ -560,6 +561,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		eventsService = nil
         baseUrlManager = nil
 		
+        InternalData.cached.reset()
+        
 		keychain = nil
 		sharedNotificationExtensionStorage = nil
 		MobileMessaging.application = MainThreadedUIApplication()
@@ -624,7 +627,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	}
 	
 	//MARK: Private
-	internal init?(appCode: String, notificationType: MMUserNotificationType, backendBaseURL: String, forceCleanup: Bool, internalStorage: MMCoreDataStorage? = nil) {
+	internal init?(appCode: String, notificationType: MMUserNotificationType, backendBaseURL: String, internalStorage: MMCoreDataStorage? = nil) {
         
         NSKeyedUnarchiver.mm_setMappingForRenamedClasses()
 		
@@ -637,7 +640,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 			return nil
 		}
 		
-		if forceCleanup || applicationCodeChanged(newApplicationCode: appCode) {
+		if applicationCodeChanged(newApplicationCode: appCode) {
             Self.logDebug("Data will be cleaned up due to the application code change.")
 			MMUser.resetAll()
 			MMInstallation.resetAll()
@@ -655,6 +658,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		
 		let ci = InternalData.unarchiveCurrent()
 		ci.applicationCode = appCode
+        ci.applicationCodeHash = calculateAppCodeHash(appCode)
 		ci.archiveCurrent()
 		
 		self.userNotificationType = notificationType

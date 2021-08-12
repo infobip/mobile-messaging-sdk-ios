@@ -189,7 +189,7 @@ class InstallationMigrationTests: XCTestCase {
 	}
 
 	private func startMmWithStorage(_ storage: MMCoreDataStorage) -> MobileMessaging {
-		let mm = MobileMessaging(appCode: "appCode", notificationType: MMUserNotificationType.init(options: [.alert]), backendBaseURL: "http://url.com", forceCleanup: false, internalStorage: storage)!
+		let mm = MobileMessaging(appCode: "appCode", notificationType: MMUserNotificationType.init(options: [.alert]), backendBaseURL: "http://url.com", internalStorage: storage)!
 		mm.setupApiSessionManagerStubbed()
 		MobileMessaging.application = ActiveApplicationStub()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)

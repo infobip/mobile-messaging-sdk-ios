@@ -429,57 +429,46 @@ final class RegistrationTests: MMTestCase {
 		
 		waitForExpectations(timeout: 10, handler: nil)
 	}
-	
-	func testThatRegistrationIsNotCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
-		let remoteProviderMock = RemoteAPIProviderStub()
-		remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
-			return FetchInstanceDataResult.Success(
-                MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "new pushRegId", pushServiceToken: "someToken".data(using: String.Encoding.utf16)!.mm_toHexString, pushServiceType: nil, sdkVersion: nil)
-			)
-		}
-		remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
-			return UpdateInstanceDataResult.Success(EmptyResponse())
-		}
-		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
-		
-		weak var finished = self.expectation(description: "finished")
-		
-		// registration gets updated:
-		mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
-			
-			// assertions:
-			
-			let internalData = InternalData.unarchiveCurrent()
-			let installation = MMInstallation.unarchiveCurrent()
-			XCTAssertNotNil(internalData.applicationCode, "application code must be persisted")
-			XCTAssertNotNil(installation.pushServiceToken)
-			XCTAssertNotNil(installation.pushRegistrationId)
-			
-			DispatchQueue.main.async {
-				
-				// user want to stop persisting application code:
-				MobileMessaging.privacySettings.applicationCodePersistingDisabled = true
-				
-				// user must call cleanUpAndStop manually before using newApplicationCode:
-				self.mobileMessagingInstance.stop()
-				
-				// then restart with new application code:
-				MMTestCase.startWithApplicationCode("newApplicationCode")
-				
-				// registration gets updated:
-				self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!, completion: { error in
-					
-					// assertions:
-					let internalDataPersisted = NSKeyedUnarchiver.unarchiveObject(withFile: InternalData.currentPath) as! InternalData
-					let internalDataCached = MobileMessaging.sharedInstance!.internalData()
-					XCTAssertNil(internalDataPersisted.applicationCode, "application code must not be persisted")
-					XCTAssertEqual(internalDataCached.applicationCode, "newApplicationCode", "Application code available in-memory")
-					finished?.fulfill()
-				})
-			}
-		}
-		waitForExpectations(timeout: 60, handler: nil)
-	}
+    
+    func testThatRegistrationCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
+        MMTestCase.cleanUpAndStop()
+        MobileMessaging.privacySettings.applicationCodePersistingDisabled = true
+        MMTestCase.startWithApplicationCode("oldApplicationCode")
+        let token = "someToken".data(using: String.Encoding.utf16)!.mm_toHexString
+        let remoteProviderMock = RemoteAPIProviderStub()
+        let pushRegId = "new pushRegId"
+        remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
+            return FetchInstanceDataResult.Success(
+                MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: pushRegId, pushServiceToken: token, pushServiceType: nil, sdkVersion: nil)
+            )
+        }
+        remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
+            return UpdateInstanceDataResult.Success(EmptyResponse())
+        }
+        mobileMessagingInstance.remoteApiProvider = remoteProviderMock
+        
+        weak var finished = self.expectation(description: "finished")
+        mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken("someToken".data(using: String.Encoding.utf16)!) {  error in
+            let internalDataPersisted = NSKeyedUnarchiver.unarchiveObject(withFile: InternalData.currentPath) as! InternalData
+            XCTAssertNil(internalDataPersisted.applicationCode, "application code must not be persisted")
+            XCTAssertNotNil(internalDataPersisted.applicationCodeHash, "application code has must be persisted")
+            XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, token)
+            XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId, pushRegId)
+            MobileMessaging.stop()
+            
+            DispatchQueue.main.async {
+                MMTestCase.startWithApplicationCode("newApplicationCode")
+                let internalDataPersisted2 = NSKeyedUnarchiver.unarchiveObject(withFile: InternalData.currentPath) as! InternalData
+                XCTAssertNil(internalDataPersisted2.applicationCode, "application code must not be persisted")
+                XCTAssertNotNil(internalDataPersisted2.applicationCodeHash, "application code has must be persisted")
+                XCTAssertNil(MobileMessaging.getInstallation()!.pushServiceToken, "registration must be reset after app code changes")
+                XCTAssertNil(MobileMessaging.getInstallation()!.pushRegistrationId, "registration must be reset after app code changes")
+                finished?.fulfill()
+            }
+        }
+        
+        waitForExpectations(timeout: 1000, handler: nil)
+    }
 	
 	//https://openradar.appspot.com/29489461
 	func testThatExpireRequestBeingSentAfterReinstallation(){

@@ -661,8 +661,15 @@ func getDocumentsDirectory(filename: String) -> String {
 }
 
 func applicationCodeChanged(newApplicationCode: String) -> Bool {
-	let currentApplicationCode = InternalData.unarchiveCurrent().applicationCode
-	return currentApplicationCode != nil && currentApplicationCode != newApplicationCode
+    let ci = InternalData.unarchive(from: InternalData.currentPath)
+    if let currentApplicationCode = ci?.applicationCode {
+        return newApplicationCode != currentApplicationCode
+    } else if let currentApplicationCodeHash = ci?.applicationCodeHash {
+        let newApplicationCodeHash = calculateAppCodeHash(newApplicationCode)
+        return newApplicationCodeHash != currentApplicationCodeHash
+    } else {
+        return false
+    }
 }
 
 extension String {
@@ -909,6 +916,12 @@ class ThreadSafeDict<T> {
 		}
 		return ret
 	}
+    
+    func reset() {
+        queue.async {
+            self.dict.removeAll()
+        }
+    }
 }
 
 extension UIWindow {

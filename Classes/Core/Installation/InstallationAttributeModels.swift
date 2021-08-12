@@ -20,7 +20,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	static var currentPath = getDocumentsDirectory(filename: "internal-data")
 	static var cached = ThreadSafeDict<InternalData>()
 	static var empty: InternalData {
-		return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined, registrationDate: nil, chatMessageCounter: 0)
+        return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, applicationCodeHash: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined, registrationDate: nil, chatMessageCounter: 0)
 	}
 	func removeSensitiveData() {
 		if MobileMessaging.privacySettings.applicationCodePersistingDisabled  {
@@ -40,20 +40,22 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	var location: CLLocation?
 	var badgeNumber: Int
 	var applicationCode: String?
+    var applicationCodeHash: String?
 	var depersonalizeFailCounter: Int
 	var currentDepersonalizationStatus: MMSuccessPending
     ///
 
 	func copy(with zone: NSZone? = nil) -> Any {
-		let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus, registrationDate: registrationDate, chatMessageCounter: chatMessageCounter)
+        let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, applicationCodeHash: applicationCodeHash, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus, registrationDate: registrationDate, chatMessageCounter: chatMessageCounter)
 		return copy
 	}
 
-    init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, applicationCode: String?, depersonalizeFailCounter: Int, currentDepersonalizationStatus: MMSuccessPending, registrationDate: Date?, chatMessageCounter: Int) {
+    init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, applicationCode: String?, applicationCodeHash: String?, depersonalizeFailCounter: Int, currentDepersonalizationStatus: MMSuccessPending, registrationDate: Date?, chatMessageCounter: Int) {
 		self.systemDataHash = systemDataHash
 		self.location = location
 		self.badgeNumber = badgeNumber
 		self.applicationCode = applicationCode
+        self.applicationCodeHash = applicationCodeHash
 		self.depersonalizeFailCounter = depersonalizeFailCounter
 		self.currentDepersonalizationStatus = currentDepersonalizationStatus
 		self.registrationDate = registrationDate
@@ -65,6 +67,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		location = aDecoder.decodeObject(forKey: "location") as? CLLocation
 		badgeNumber = aDecoder.decodeInteger(forKey: "badgeNumber")
 		applicationCode = aDecoder.decodeObject(forKey: "applicationCode") as? String
+        applicationCodeHash = aDecoder.decodeObject(forKey: "applicationCodeHash") as? String
 		depersonalizeFailCounter = aDecoder.decodeInteger(forKey: "depersonalizeFailCounter")
 		currentDepersonalizationStatus = MMSuccessPending(rawValue: aDecoder.decodeInteger(forKey: "currentDepersonalizationStatus")) ?? .undefined
 		registrationDate = aDecoder.decodeObject(forKey: "registrationDate") as? Date
@@ -76,6 +79,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		aCoder.encode(location, forKey: "location")
 		aCoder.encode(badgeNumber, forKey: "badgeNumber")
 		aCoder.encode(applicationCode, forKey: "applicationCode")
+        aCoder.encode(applicationCodeHash, forKey: "applicationCodeHash")
 		aCoder.encode(depersonalizeFailCounter, forKey: "depersonalizeFailCounter")
 		aCoder.encode(currentDepersonalizationStatus.rawValue, forKey: "currentDepersonalizationStatus")
 		aCoder.encode(registrationDate, forKey: "registrationDate")
