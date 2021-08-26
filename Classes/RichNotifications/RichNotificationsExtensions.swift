@@ -86,17 +86,27 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
 		}
 		sharedInstance?.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
 	}
-	
-	/// This method handles an incoming notification on the Notification Service Extensions side. It performs message delivery reporting and downloads data from `contentUrl` if provided. This method must be called within `UNNotificationServiceExtension.didReceive(_: withContentHandler:)` callback.
+
+    /// This method handles an incoming notification on the Notification Service Extensions side. It performs message delivery reporting and downloads data from `contentUrl` if provided. This method must be called within `UNNotificationServiceExtension.didReceive(_: withContentHandler:)` callback.
+    ///
+    /// - parameter request: The original notification request. Use this object to get the original content of the notification.
+    /// - parameter contentHandler: The block to execute with the modified content. The block will be called after the delivery reporting and contend downloading finished.
+    public class func didReceive(_ request: UNNotificationRequest, 
+                                 withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+        logDebug("did receive request \(request)")
+        didReceive(content: request.content, withContentHandler: contentHandler)
+    }
+
+    /// This method handles an incoming notification on the Notification Service Extensions side. It performs message delivery reporting and downloads data from `contentUrl` if provided. This method must be called within `UNNotificationServiceExtension.didReceive(_: withContentHandler:)` callback.
 	///
-	/// - parameter request: The original notification request. Use this object to get the original content of the notification.
-	/// - parameter contentHandler: The block to execute with the modified content. The block will be called after the delivery reporting and contend downloading finished.
-	public class func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
-		logDebug("did receive request \(request)")
-		var result: UNNotificationContent = request.content
-		
+    /// - parameter content: The notification request content.
+    /// - parameter contentHandler: The block to execute with the modified content. The block will be called after the delivery reporting and contend downloading finished.
+	public class func didReceive(content: UNNotificationContent,
+                                 withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+        var result = content
+        
 		guard let sharedInstance = sharedInstance,
-			let mtMessage = MM_MTMessage(payload: request.content.userInfo,
+			let mtMessage = MM_MTMessage(payload: result.userInfo,
 									  deliveryMethod: .push,
 									  seenDate: nil,
 									  deliveryReportDate: nil,
