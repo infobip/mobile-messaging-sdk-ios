@@ -97,6 +97,11 @@ FOUNDATION_EXPORT NSString* MMNotificationCenterAuthRequestFinished;
  */
 FOUNDATION_EXPORT NSString* MMNotificationInAppChatAvailabilityUpdated;
 
+/**
+ Posted after the in-app chat messages counter updated. The `userInfo` dictionary contains the following key: `MMNotificationKeyInAppChatUnreadMessagesCounter` - with `Int` number.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationInAppChatUnreadMessagesCounterUpdated;
+
 
 //MARK: Notification keys
 
@@ -187,3 +192,9 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyError;
  Value is boolean, chat can be enabled or not.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyInAppChatEnabled;
+
+/**
+ Key for entry in userInfo dictionary of `MMNotificationInAppChatUnreadMessagesCounterUpdated` notification.
+ Contatins an Int value.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyInAppChatUnreadMessagesCounter;

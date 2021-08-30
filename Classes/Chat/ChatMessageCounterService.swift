@@ -30,6 +30,7 @@ class ChatMessageCounterService: MobileMessagingService {
     
     private func callCounterHandler(newValue: Int) {
         DispatchQueue.main.async {
+            UserEventsManager.postInAppChatUnreadMessagesCounterUpdatedEvent(newValue)
             self.chatService?.delegate?.didUpdateUnreadMessagesCounter?(newValue)
         }
     }

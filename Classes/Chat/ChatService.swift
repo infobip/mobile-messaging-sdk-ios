@@ -245,6 +245,10 @@ extension UserEventsManager {
     class func postInAppChatAvailabilityUpdatedEvent(_ inAppChatEnabled: Bool) {
         post(MMNotificationInAppChatAvailabilityUpdated, [MMNotificationKeyInAppChatEnabled: inAppChatEnabled])
     }
+    
+    class func postInAppChatUnreadMessagesCounterUpdatedEvent(_ counter: Int) {
+        post(MMNotificationInAppChatUnreadMessagesCounterUpdated, [MMNotificationKeyInAppChatUnreadMessagesCounter: counter])
+    }
 }
 
 struct ChatErrors: OptionSet {
