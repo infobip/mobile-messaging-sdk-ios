@@ -9,7 +9,7 @@ import Foundation
 
 open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UINavigationControllerDelegate {
 
-	lazy var composeBarDelegate = MMComposeBarDelegate(
+    lazy var composeBarDelegate = MMComposeBarDelegate(
         scrollView: self.scrollView,
         sendTextBlock: { [weak self] text in
             self?.didTapSendText(text)
@@ -22,62 +22,62 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         }
     )
 
-	var scrollingRecognizer: UIPanGestureRecognizer!
-	var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
-	var composeBarView: ComposeBar!
-	var docImportMenu: UIDocumentMenuViewController!
-	var documentAction = UIDocumentInteractionController()
-	var chatMessageCountUpdatedBlock: ((_ count: Int, _ unread: Int) -> Void)?
+    var scrollingRecognizer: UIPanGestureRecognizer!
+    var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
+    var composeBarView: ComposeBar!
+    var docImportMenu: UIDocumentMenuViewController!
+    var documentAction = UIDocumentInteractionController()
+    var chatMessageCountUpdatedBlock: ((_ count: Int, _ unread: Int) -> Void)?
 
-	fileprivate var isVeryFirstRefetch: Bool = true
-	fileprivate var isScrollToBottomNeeded: Bool = false
-	fileprivate var isScrollToBottomEnabled: Bool = true
+    fileprivate var isVeryFirstRefetch: Bool = true
+    fileprivate var isScrollToBottomNeeded: Bool = false
+    fileprivate var isScrollToBottomEnabled: Bool = true
 
-	deinit {
-		composeBarView?.delegate = nil
-	}
+    deinit {
+        composeBarView?.delegate = nil
+    }
 
-	var lastIndexPath: IndexPath?
+    var lastIndexPath: IndexPath?
 
-	override open func viewDidLoad() {
-		scrollingRecognizer = UIPanGestureRecognizer(target: self, action: #selector(MMMessageComposingViewController.handlePanning))
-		scrollingRecognizer.delegate = self
-		setupComposerBar()
-		dismissKeyboardIfViewTapped(self.scrollView)
+    override open func viewDidLoad() {
+        scrollingRecognizer = UIPanGestureRecognizer(target: self, action: #selector(MMMessageComposingViewController.handlePanning))
+        scrollingRecognizer.delegate = self
+        setupComposerBar()
+        dismissKeyboardIfViewTapped(self.scrollView)
 
-		super.viewDidLoad()
-	}
+        super.viewDidLoad()
+    }
 
-	override open func viewWillDisappear(_ animated: Bool) {
-		composeBarView.resignFirstResponder()
+    override open func viewWillDisappear(_ animated: Bool) {
+        composeBarView.resignFirstResponder()
         composeBarDelegate.draftPostponer.postponeBlock(delay: 0) { [weak self] in
             self?.composeBarDelegate.textViewDidChangedBlock(self?.composeBarView.text ?? "")
         }
-		super.viewWillDisappear(animated)
-	}
+        super.viewWillDisappear(animated)
+    }
 
-	override open func viewDidLayoutSubviews() {
-		super.viewDidLayoutSubviews()
-		scrollToBottomIfNeeded()
-	}
+    override open func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        scrollToBottomIfNeeded()
+    }
 
-	func setupComposerBar() {
-		let viewBounds = view.bounds
-		let frame = CGRect(x: 0,
+    func setupComposerBar() {
+        let viewBounds = view.bounds
+        let frame = CGRect(x: 0,
                            y: viewBounds.size.height - ComposeBarConsts.initialHeight - safeAreaInsets.bottom,
-						   width: viewBounds.size.width,
-						   height: ComposeBarConsts.initialHeight)
-		composeBarView = ComposeBar(frame: frame)
-		composeBarView.maxLinesCount = 5
+                           width: viewBounds.size.width,
+                           height: ComposeBarConsts.initialHeight)
+        composeBarView = ComposeBar(frame: frame)
+        composeBarView.maxLinesCount = 5
         composeBarView.placeholder = ChatLocalization.localizedString(forKey: "mm_send_message_placeholder", defaultString: "Send a message")
-		composeBarView.delegate = composeBarDelegate
-		composeBarView.alpha = 1
-		view.addSubview(composeBarView)
+        composeBarView.delegate = composeBarDelegate
+        composeBarView.alpha = 1
+        view.addSubview(composeBarView)
 
-		scrollViewContainer.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h + safeAreaInsets.bottom, right: 0))
-		scrollView.delegate = self
+        scrollViewContainer.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h + safeAreaInsets.bottom, right: 0))
+        scrollView.delegate = self
         composeBarView.utilityButtonImage = UIImage(mm_named: "attachmentButton")?.withRenderingMode(.alwaysTemplate)
-	}
+    }
     
     override func updateViewsFor(safeAreaInsets: UIEdgeInsets, safeAreaLayoutGuide: UILayoutGuide) {
         var composeBarFrame = composeBarView.frame
@@ -91,99 +91,99 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         scrollViewContainer.frame = scrollViewContainerFrame
     }
 
-	func didTapSendText(_ text: String) {
-		// override
-	}
+    func didTapSendText(_ text: String) {
+        // override
+    }
     
     func textViewDidChange(_ text: String) {
         // override
     }
 
-	//MARK: keyboard
-	override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
-		super.keyboardWillShow(duration, curve: curve, options: options, height: height)
-		UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-			self.composeBarView.frame.y = self.view.frame.height - height - self.composeBarView.frame.height
-		}, completion: nil)
-	}
+    //MARK: keyboard
+    override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
+        super.keyboardWillShow(duration, curve: curve, options: options, height: height + self.composeBarView.frame.height)
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            self.composeBarView.frame.y = self.view.frame.height - height - self.composeBarView.frame.height
+        }, completion: nil)
+    }
 
-	override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
-		super.keyboardWillHide(duration, curve: curve, options: options, height: height)
-		let block = {
+    override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
+        super.keyboardWillHide(duration, curve: curve, options: options, height: self.composeBarView.frame.height)
+        let block = {
             self.composeBarView.frame.y = self.view.frame.height - self.composeBarView.frame.height - self.safeAreaInsets.bottom
-		}
-		UIView.animate(withDuration: duration, delay: 0, options: options, animations: block, completion: nil)
-	}
+        }
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: block, completion: nil)
+    }
 
-	//MARK: gestures
+    //MARK: gestures
     @objc func handlePanning() {
-		composeBarView.resignFirstResponder()
-	}
+        composeBarView.resignFirstResponder()
+    }
 
-	public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-		return true
-	}
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
 
-	public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-		if let gestureRecognizer = gestureRecognizer as? UIPanGestureRecognizer {
-			let velocity = gestureRecognizer.velocity(in: self.scrollView)
-			let result = velocity.y > 200 && abs(velocity.y) > abs(velocity.x)
-			return result
-		}
-		return false
-	}
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if let gestureRecognizer = gestureRecognizer as? UIPanGestureRecognizer {
+            let velocity = gestureRecognizer.velocity(in: self.scrollView)
+            let result = velocity.y > 200 && abs(velocity.y) > abs(velocity.x)
+            return result
+        }
+        return false
+    }
 
-	//MARK: scrolling
-	func scrollToBottomIfNeeded() {
-		let scrolledFromBottom = fabsf(Float(scrollView.contentOffset.y + scrollView.bounds.height - scrollView.contentSize.height - scrollView.contentInset.bottom))
-		let doStickToBottom = scrolledFromBottom < 20
-		if doStickToBottom || isVeryFirstRefetch {
-			isVeryFirstRefetch = false
-			if scrollView.contentSize.height > scrollView.frame.size.height {
-				let offset = CGPoint(x: 0, y: scrollView.contentSize.height - scrollView.frame.size.height + scrollView.contentInset.bottom)
-				scrollView.contentOffset = offset
-			}
-		}
-	}
+    //MARK: scrolling
+    func scrollToBottomIfNeeded() {
+        let scrolledFromBottom = fabsf(Float(scrollView.contentOffset.y + scrollView.bounds.height - scrollView.contentSize.height - scrollView.contentInset.bottom))
+        let doStickToBottom = scrolledFromBottom < 20
+        if doStickToBottom || isVeryFirstRefetch {
+            isVeryFirstRefetch = false
+            if scrollView.contentSize.height > scrollView.frame.size.height {
+                let offset = CGPoint(x: 0, y: scrollView.contentSize.height - scrollView.frame.size.height + scrollView.contentInset.bottom)
+                scrollView.contentOffset = offset
+            }
+        }
+    }
 
-	public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-		isScrollToBottomEnabled = false
-		invalidateScrollingTimer()
-	}
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        isScrollToBottomEnabled = false
+        invalidateScrollingTimer()
+    }
 
-	public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-		if !decelerate {
-			resolveScrollingEnabled()
-		}
-	}
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            resolveScrollingEnabled()
+        }
+    }
 
-	public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-		resolveScrollingEnabled()
-	}
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        resolveScrollingEnabled()
+    }
 
-	func resolveScrollingEnabled() {
-		invalidateScrollingTimer()
-		let scrolledFromBottom = fabsf(Float(scrollView.contentOffset.y + scrollView.bounds.height - scrollView.contentSize.height - scrollView.contentInset.bottom))
-		isScrollToBottomEnabled = scrolledFromBottom < 20
+    func resolveScrollingEnabled() {
+        invalidateScrollingTimer()
+        let scrolledFromBottom = fabsf(Float(scrollView.contentOffset.y + scrollView.bounds.height - scrollView.contentSize.height - scrollView.contentInset.bottom))
+        isScrollToBottomEnabled = scrolledFromBottom < 20
 
-		if !isScrollToBottomEnabled {
-			timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(MMMessageComposingViewController.resetAutoScrollingEnabled), userInfo: nil, repeats: false)
-		}
-	}
+        if !isScrollToBottomEnabled {
+            timer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(MMMessageComposingViewController.resetAutoScrollingEnabled), userInfo: nil, repeats: false)
+        }
+    }
 
     @objc func resetAutoScrollingEnabled() {
-		if !isScrollToBottomEnabled {
-			isScrollToBottomEnabled = true
-		}
-	}
+        if !isScrollToBottomEnabled {
+            isScrollToBottomEnabled = true
+        }
+    }
 
-	func invalidateScrollingTimer() {
-		if timer.isValid {
-			timer.invalidate()
-		}
-	}
+    func invalidateScrollingTimer() {
+        if timer.isValid {
+            timer.invalidate()
+        }
+    }
 
-	var timer = Timer()
+    var timer = Timer()
         
     func utilityButtonClicked() {}
 }
