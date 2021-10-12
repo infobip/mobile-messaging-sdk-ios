@@ -101,18 +101,19 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
 
     //MARK: keyboard
     override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
-        super.keyboardWillShow(duration, curve: curve, options: options, height: height + self.composeBarView.frame.height)
-        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-            self.composeBarView.frame.y = self.view.frame.height - height - self.composeBarView.frame.height
-        }, completion: nil)
+        super.keyboardWillShow(duration, curve: curve, options: options, height: height)
+        updateComposeBarYAnimated(duration, options, height)
     }
 
     override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
-        super.keyboardWillHide(duration, curve: curve, options: options, height: self.composeBarView.frame.height)
-        let block = {
-            self.composeBarView.frame.y = self.view.frame.height - self.composeBarView.frame.height - self.safeAreaInsets.bottom
-        }
-        UIView.animate(withDuration: duration, delay: 0, options: options, animations: block, completion: nil)
+        super.keyboardWillHide(duration, curve: curve, options: options, height: height)
+        updateComposeBarYAnimated(duration, options, height)
+    }
+    
+    private func updateComposeBarYAnimated(_ duration: TimeInterval, _ options: UIView.AnimationOptions, _ bottomOffset: CGFloat) {
+        UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
+            self.composeBarView.frame.y = self.view.frame.height - bottomOffset
+        }, completion: nil)
     }
 
     //MARK: gestures

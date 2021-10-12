@@ -13,6 +13,7 @@ enum JSMessageType: String, CaseIterable {
 	case enableControls
 	case onError
     case openAttachmentPreview
+    case setControlsVisibility
 	var handler: ScriptMessageHandler.Type? {
 		switch self {
 		case .enableControls:
@@ -21,6 +22,8 @@ enum JSMessageType: String, CaseIterable {
 			return ErrorMessageHandler.self
         case .openAttachmentPreview:
             return AttachmentPreviewMessageHandler.self
+        case .setControlsVisibility:
+            return ControlsVisibilityHandler.self
 		}
 	}
 }
@@ -70,6 +73,15 @@ class AttachmentPreviewMessageHandler: ScriptMessageHandler {
     }
 }
 
+class ControlsVisibilityHandler: ScriptMessageHandler {
+    class func handleMessage(message: WKScriptMessage) {
+        guard let jsMessage = VisibilityControlsJSMessage(message: message) else {
+                return
+        }
+        MobileMessaging.inAppChat?.webViewDelegate?.didShowComposeBar(jsMessage.isVisible)
+    }
+}
+
 protocol JSMessage {
 	init?(message: WKScriptMessage)
 }
@@ -116,5 +128,18 @@ class AttachmentPreviewJSMessage: JSMessage, NamedLogger {
         self.url = url
         self.type = type
         self.caption = (bodyDict[ChatAPIKeys.JSMessageKeys.attachmentCaption] as? String)
+    }
+}
+
+class VisibilityControlsJSMessage : JSMessage, NamedLogger {
+    let isVisible: Bool
+    
+    required init?(message: WKScriptMessage) {
+        guard let bodyDict = message.body as? [String: AnyObject],
+            let isVisible = bodyDict[ChatAPIKeys.JSMessageKeys.isVisibleControls] as? Bool else {
+                ErrorJSMessage.logError("Error while handling js visibilityControls message, data wasn't provided")
+                return nil
+        }
+        self.isVisible = isVisible
     }
 }

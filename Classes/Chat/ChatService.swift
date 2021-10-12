@@ -228,6 +228,7 @@ public class MMInAppChatService: MobileMessagingService {
 protocol ChatWebViewDelegate {
     func didLoadWidget(_ widget: ChatWidget)
     func didEnableControls(_ enabled: Bool)
+    func didShowComposeBar(_ visible: Bool)
     func didReceiveError(_ errors: ChatErrors)
     func didOpenPreview(forAttachment attachment: ChatWebAttachment)
 }

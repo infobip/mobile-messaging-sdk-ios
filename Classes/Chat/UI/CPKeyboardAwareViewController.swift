@@ -31,11 +31,12 @@ open class MMKeyboardAwareViewController: MMModalDismissableViewController {
 			let bottomGap = UIScreen.main.bounds.height - viewFrameInWindow.maxY
 			let options = UIView.AnimationOptions(rawValue: UInt(animationCurve << 16))
 			self.keyboardWillShow(animationDuration, curve: UIView.AnimationCurve(rawValue: Int(animationCurve)) ?? .linear, options: options, height: keyboardHeight - bottomGap)
+            keyboardShown = true
 		}
 	}
 
 	func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
-		keyboardShown = true
+		
 	}
 
     @objc func keyboardDidShow(_ n: Notification) {
@@ -49,11 +50,12 @@ open class MMKeyboardAwareViewController: MMModalDismissableViewController {
 		{
 			let options = UIView.AnimationOptions(rawValue: UInt(animationCurve << 16))
 			self.keyboardWillHide(animationDuration, curve: UIView.AnimationCurve(rawValue: Int(animationCurve)) ?? .linear, options: options, height: keyboardHeight)
+            keyboardShown = false
 		}
 	}
 
 	func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
-		keyboardShown = false
+		
 	}
 
     @objc func keyboardDidHide(_ n: Notification) {
