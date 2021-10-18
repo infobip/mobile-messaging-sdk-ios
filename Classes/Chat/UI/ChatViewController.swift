@@ -162,6 +162,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             completion: { [weak self] (Bool) -> Void in
                 if !isVisible, let composeBarView = self?.composeBarView {
                     composeBarView.isHidden = true
+                    composeBarView.resignFirstResponder()
                 }
             }
         )
