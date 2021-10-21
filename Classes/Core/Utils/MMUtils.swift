@@ -612,7 +612,7 @@ extension MMApplication {
 			}
 		}
 
-		semasphore.wait()
+        let _ = semasphore.wait(timeout: .now() + 5)
 		return notificationSettings?.alertSetting == UNNotificationSetting.enabled ||
 			notificationSettings?.badgeSetting == UNNotificationSetting.enabled ||
 			notificationSettings?.soundSetting == UNNotificationSetting.enabled
