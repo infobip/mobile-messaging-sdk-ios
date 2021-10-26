@@ -62,27 +62,27 @@ class UserSessionService : MobileMessagingService {
 		stop({_ in})
 	}
 
-	override func appWillEnterForeground(_ notification: Notification) {
+	override func appWillEnterForeground() {
 		serviceQueue.async {
 			self.isReportingNeeded = true
 		}
 	}
 
-	override func appDidBecomeActive(_ notification: Notification) {
+	override func appDidBecomeActive() {
 		serviceQueue.async {
 			self.logDebug("timer resumes: app did become active state")
 			self.timer?.resume()
 		}
 	}
 
-	override func appWillResignActive(_ notification: Notification) {
+	override func appWillResignActive() {
 		serviceQueue.async {
 			self.logDebug("timer suspends: app will resign active state")
 			self.timer?.suspend()
 		}
 	}
 
-	override func appWillTerminate(_ n: Notification) {
+	override func appWillTerminate() {
 		serviceQueue.async {
 			self.logDebug("timer cancels: app will terminate")
 			self.stop({ _ in })

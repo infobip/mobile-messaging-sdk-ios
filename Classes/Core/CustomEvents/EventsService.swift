@@ -73,7 +73,7 @@ class EventsService: MobileMessagingService {
 		}
 	}
 
-	override func appWillEnterForeground(_ notification: Notification) {
+	override func appWillEnterForeground() {
 		scheduleReport(completion: { _ in })
 	}
 

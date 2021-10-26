@@ -147,7 +147,7 @@ public class MMInAppChatService: MobileMessagingService {
 		showBannerWithOptions(UNNotificationPresentationOptions.make(with:  MobileMessaging.sharedInstance?.userNotificationType ?? []))
 	}
     
-    override func appWillEnterForeground(_ n: Notification) {
+    override func appWillEnterForeground() {
         syncWithServer({_ in})
     }
 

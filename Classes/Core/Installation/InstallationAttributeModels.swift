@@ -94,7 +94,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	static var cached = ThreadSafeDict<MMInstallation>()
 	static var empty: MMInstallation {
 		let systemData = MMUserAgent().systemData
-		return MMInstallation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
+		return MMInstallation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled ?? true, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
 	}
 	func removeSensitiveData() {
 		//nothing is sensitive in installation
@@ -150,7 +150,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	public internal(set) var deviceTimeZone: String?
 	public internal(set) var geoEnabled: Bool
 	public internal(set) var language: String?
-	public internal(set) var notificationsEnabled: Bool
+	public internal(set) var notificationsEnabled: Bool?
 	public internal(set) var os: String?
 	public internal(set) var osVersion: String?
 	public internal(set) var pushServiceToken: String?
@@ -173,7 +173,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		deviceTimeZone = aDecoder.decodeObject(forKey: "deviceTimeZone") as? String
 		geoEnabled = aDecoder.decodeObject(forKey: "geoEnabled") as? Bool ?? false
 		language = aDecoder.decodeObject(forKey: "language") as? String
-		notificationsEnabled = aDecoder.decodeObject(forKey: "notificationsEnabled") as? Bool ?? true
+		notificationsEnabled = aDecoder.decodeObject(forKey: "notificationsEnabled") as? Bool
 		os = aDecoder.decodeObject(forKey: "os") as? String
 		osVersion = aDecoder.decodeObject(forKey: "osVersion") as? String
 		pushServiceToken = aDecoder.decodeObject(forKey: "pushServiceToken") as? String
@@ -196,7 +196,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		aCoder.encode(deviceTimeZone, forKey: "deviceTimeZone")
 		aCoder.encode(geoEnabled, forKey: "geoEnabled")
 		aCoder.encode(language, forKey: "language")
-		aCoder.encode(notificationsEnabled, forKey: "notificationsEnabled")
+		aCoder.encode(nil, forKey: "notificationsEnabled")
 		aCoder.encode(os, forKey: "os")
 		aCoder.encode(osVersion, forKey: "osVersion")
 		aCoder.encode(pushServiceToken, forKey: "pushServiceToken")
@@ -245,7 +245,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		 isPrimaryDevice: Bool,
 		 isPushRegistrationEnabled: Bool,
 		 language: String?,
-		 notificationsEnabled: Bool,
+		 notificationsEnabled: Bool?,
 		 os: String?,
 		 osVersion: String?,
 		 pushRegistrationId: String?,
@@ -315,7 +315,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 			isPrimaryDevice: dict["isPrimaryDevice"] as? Bool ?? false,
 			isPushRegistrationEnabled: dict["isPushRegistrationEnabled"] as? Bool ?? true,
 			language: dict["language"] as? String,
-			notificationsEnabled: dict["notificationsEnabled"] as? Bool ?? true,
+			notificationsEnabled: dict["notificationsEnabled"] as? Bool,
 			os: dict["os"] as? String,
 			osVersion: dict["osVersion"] as? String,
 			pushRegistrationId: dict["pushRegistrationId"] as? String,

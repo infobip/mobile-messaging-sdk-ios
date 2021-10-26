@@ -587,11 +587,11 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
 
-	override func appWillEnterForeground(_ notification: Notification) {
+	override func appWillEnterForeground() {
 		syncWithServer({_ in})
 	}
 
-	override func appDidEnterBackground(_ notification: Notification) {
+	override func appDidEnterBackground() {
 		logDebug("App did enter background.")
 		assert(Thread .isMainThread)
 		restartLocationManager()
@@ -602,7 +602,7 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
 	
-	override func appDidBecomeActive(_ notification: Notification) {
+	override func appDidBecomeActive() {
 		logDebug("App did become active.")
 		assert(Thread .isMainThread)
 		restartLocationManager()

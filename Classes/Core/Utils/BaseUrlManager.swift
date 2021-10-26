@@ -14,7 +14,7 @@ class BaseUrlManager: MobileMessagingService {
         super.init(mmContext: mmContext, uniqueIdentifier: "BaseUrlManager")
     }
     
-    override func appWillEnterForeground(_ notification: Notification) {
+    override func appWillEnterForeground() {
         checkBaseUrl({})
     }
     

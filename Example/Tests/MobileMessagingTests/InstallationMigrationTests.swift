@@ -102,7 +102,7 @@ class InstallationMigrationTests: XCTestCase {
 	func testDataModel_Migration_2_3() {
 		MobileMessaging.stop(true) //removes any existing storage
 
-		let instance = MMInstallation(applicationUserId: "applicationUserId", appVersion: nil, customAttributes: ["foo": "bar" as MMAttributeType], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: "pushRegistrationId", pushServiceToken: "pushServiceToken", pushServiceType: nil, sdkVersion: nil)
+		let instance = MMInstallation(applicationUserId: "applicationUserId", appVersion: nil, customAttributes: ["foo": "bar" as MMAttributeType], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: nil, os: nil, osVersion: nil, pushRegistrationId: "pushRegistrationId", pushServiceToken: "pushServiceToken", pushServiceType: nil, sdkVersion: nil)
 		do {
 			let storage = makeStorageForModel(at: "MMInternalStorageModel.momd/MMStorageModel_2")
 			let mm = startMmWithStorage(storage)

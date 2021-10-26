@@ -135,7 +135,7 @@ class UserDataService: MobileMessagingService {
 		completion()
 	}
 
-	override func appWillEnterForeground(_ n: Notification) {
+	override func appWillEnterForeground() {
 		syncWithServer({_ in})
 	}
 

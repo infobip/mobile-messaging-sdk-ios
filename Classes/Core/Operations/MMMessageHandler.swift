@@ -248,7 +248,7 @@ class MMMessageHandler: MobileMessagingService {
 		))
 	}
 
-	override func appWillEnterForeground(_ n: Notification) {
+	override func appWillEnterForeground() {
 		syncWithServer({_ in})
 	}
 
