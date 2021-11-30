@@ -15,7 +15,7 @@ class UpdateUserOperation: MMOperation {
 	let body: RequestBody
 	let dirtyUser: MMUser
 
-	init?(currentUser: MMUser, dirtyUser: MMUser?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
+    init?(userInitiated: Bool, currentUser: MMUser, dirtyUser: MMUser?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse
@@ -33,7 +33,7 @@ class UpdateUserOperation: MMOperation {
 			Self.logDebug("There are no attributes to sync save. Aborting...")
 			return nil
 		}
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 		self.addCondition(NotPendingDepersonalizationCondition(mmContext: mmContext))
 	}
@@ -56,7 +56,8 @@ class UpdateUserOperation: MMOperation {
 	private func performRequest(pushRegistrationId: String) {
 		mmContext.remoteApiProvider.patchUser(applicationCode: mmContext.applicationCode,
 											  pushRegistrationId: pushRegistrationId,
-											  body: body)
+											  body: body,
+                                              queue: underlyingQueue)
 		{ (result) in
 			self.handleUserDataUpdateResult(result)
 			self.finishWithError(result.error)
@@ -64,6 +65,7 @@ class UpdateUserOperation: MMOperation {
 	}
 
 	private func handleUserDataUpdateResult(_ result: UpdateUserDataResult) {
+        assert(!Thread.isMainThread)
 		guard !isCancelled else {
 			logDebug("cancelled.")
 			return
@@ -94,6 +96,7 @@ class UpdateUserOperation: MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first)
 	}

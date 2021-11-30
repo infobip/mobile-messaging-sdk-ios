@@ -50,20 +50,15 @@ class GeoEventReportingRequest: PostRequest {
 	}
 }
 
-protocol GeoRemoteAPIProtocol: SessionManagement {
-	func reportGeoEvent(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage], completion: @escaping (GeoEventReportingResult) -> Void)
-}
-
-
-class GeoRemoteAPIProvider : GeoRemoteAPIProtocol {
+class GeoRemoteAPIProvider : SessionManagement {
 	var sessionManager: DynamicBaseUrlHTTPSessionManager
 
 	init(sessionManager: DynamicBaseUrlHTTPSessionManager) {
 		self.sessionManager = sessionManager
 	}
 	
-	func reportGeoEvent(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage], completion: @escaping (GeoEventReportingResult) -> Void) {
+    func reportGeoEvent(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage], queue: DispatchQueue, completion: @escaping (GeoEventReportingResult) -> Void) {
 		let request = GeoEventReportingRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, eventsDataList: eventsDataList, geoMessages: geoMessages)
-		performRequest(request: request, completion: completion)
+        performRequest(request: request, queue: queue, completion: completion)
 	}
 }

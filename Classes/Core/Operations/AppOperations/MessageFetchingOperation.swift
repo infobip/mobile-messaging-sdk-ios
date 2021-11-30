@@ -15,12 +15,12 @@ final class MessageFetchingOperation: MMOperation {
 	let mmContext: MobileMessaging
 	let handlingIteration: Int
 	
-	init(context: NSManagedObjectContext, mmContext: MobileMessaging, handlingIteration: Int = 0, finishBlock: @escaping (MessagesSyncResult) -> Void) {
+    init(userInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, handlingIteration: Int = 0, finishBlock: @escaping (MessagesSyncResult) -> Void) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		self.handlingIteration = handlingIteration
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 	
@@ -61,7 +61,7 @@ final class MessageFetchingOperation: MMOperation {
 			logDebug("Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
 
 			let body = MessageSyncMapper.requestBody(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
-			self.mmContext.remoteApiProvider.syncMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body) { result in
+            self.mmContext.remoteApiProvider.syncMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: underlyingQueue) { result in
 				self.result = result
 				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds) {
 					self.finish()
@@ -71,6 +71,7 @@ final class MessageFetchingOperation: MMOperation {
 	}
 	
 	private func handleRequestResponse(result: MessagesSyncResult, nonReportedMessageIds: [String]?, completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
 		switch result {
 		case .Success(let fetchResponse):
 			logDebug("succeded: received \(String(describing: fetchResponse.messages?.count))")
@@ -124,13 +125,14 @@ final class MessageFetchingOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		
 		switch result {
 		case .Success(let fetchResponse):
 			if let messages = fetchResponse.messages, !messages.isEmpty, handlingIteration < Consts.MessageFetchingSettings.fetchingIterationLimit {
 				logDebug("triggering handling for fetched messages \(messages.count)...")
-				self.mmContext.messageHandler.handleMTMessages(messages, notificationTapped: false, handlingIteration: handlingIteration + 1, completion: { _ in
+                self.mmContext.messageHandler.handleMTMessages(userInitiated: userInitiated, messages: messages, notificationTapped: false, handlingIteration: handlingIteration + 1, completion: { _ in
 					self.finishBlock(self.result)
 				})
 			} else {

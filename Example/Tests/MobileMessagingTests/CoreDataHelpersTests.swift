@@ -17,6 +17,8 @@ func date(withDay d: Int) -> NSDate {
 
 class CoreDataHelpersTests: MMTestCase {
     func testFetchingLimits() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		let ctx = self.storage.mainThreadManagedObjectContext!
 		let summaryMessagesNumber = 100
 		let fetchLimit = 10
@@ -35,5 +37,7 @@ class CoreDataHelpersTests: MMTestCase {
 		
 		let mostRecentMsg = resultsLimited?.first!
 		XCTAssertEqual(mostRecentMsg?.creationDate, date(withDay: notOlderThanDay-1) as Date)
+        
+        waitForExpectations(timeout: 30, handler: nil)
     }
 }

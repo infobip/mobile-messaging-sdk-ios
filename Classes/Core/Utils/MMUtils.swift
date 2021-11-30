@@ -418,128 +418,6 @@ extension Optional where Wrapped: Any {
     }
 }
 
-public class MobileMessagingService: NSObject, NamedLogger {
-    let mmContext: MobileMessaging
-    let uniqueIdentifier: String
-    var isRunning: Bool
-    
-    init(mmContext: MobileMessaging, uniqueIdentifier: String) {
-        self.isRunning = false
-        self.mmContext = mmContext
-        self.uniqueIdentifier = uniqueIdentifier
-        super.init()
-        self.mmContext.registerSubservice(self)
-    }
-    
-    deinit {
-        stopObserving()
-    }
-    
-    func start(_ completion: @escaping (Bool) -> Void) {
-        logDebug("starting")
-        isRunning = true
-        setupObservers()
-        completion(isRunning)
-    }
-    func stop(_ completion: @escaping (Bool) -> Void) {
-        logDebug("stopping")
-        stopObserving()
-        isRunning = false
-        completion(isRunning)
-    }
-    /// A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
-    var systemData: [String: AnyHashable]? { return nil }
-    
-    /// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
-    func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool { return false }
-    func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
-    func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
-    
-    func mobileMessagingWillStart(_ mmContext: MobileMessaging) {}
-    func mobileMessagingDidStart(_ mmContext: MobileMessaging) {}
-    func mobileMessagingWillStop(_ mmContext: MobileMessaging) {}
-    func mobileMessagingDidStop(_ mmContext: MobileMessaging) {}
-    
-    var dispatchQueue: DispatchQueue { return DispatchQueue.global() }
-    
-    func appWillEnterForeground() {}
-    func appDidFinishLaunching(_ notification: Notification) {}
-    func appDidBecomeActive() {}
-    func appWillResignActive() {}
-    func appWillTerminate() {}
-    func appDidEnterBackground() {}
-    
-    @objc func geoServiceDidStart(_ notification: Notification) {}
-    @objc private func appWillEnterForegroundMainThread(_ notification: Notification) { dispatchQueue.async {self.appWillEnterForeground()} }
-    @objc private func appDidBecomeActiveMainThread(_ notification: Notification) { dispatchQueue.async {self.appDidBecomeActive()} }
-    @objc private func appWillResignActiveMainThread(_ notification: Notification) { dispatchQueue.async {self.appWillResignActive()} }
-    @objc private func appWillTerminateMainThread(_ notification: Notification) { dispatchQueue.async {self.appWillTerminate()} }
-    @objc private func appDidEnterBackgroundMainThread(_ notification: Notification) { dispatchQueue.async {self.appDidEnterBackground()} }
-    @objc private func handleAppDidFinishLaunchingNotification(_ n: Notification) {
-        guard n.userInfo?[UIApplication.LaunchOptionsKey.remoteNotification] == nil else {
-            // we don't want to work on launching when push received.
-            return
-        }
-        dispatchQueue.async { self.appDidFinishLaunching(n) }
-    }
-    
-    func syncWithServer(_ completion: @escaping (NSError?) -> Void) {}
-    func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {}
-    func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {}
-    func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
-        completion()
-    }
-    
-    func handlesInAppNotification(forMessage message: MM_MTMessage?) -> Bool { return false }
-    func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
-        showBannerWithOptions([])
-    }
-    
-    private func stopObserving() {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    private func setupObservers() {
-        guard !isTestingProcessRunning else {
-            return
-        }
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(appWillResignActiveMainThread(_:)),
-            name: UIApplication.willResignActiveNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(appDidBecomeActiveMainThread(_:)),
-            name: UIApplication.didBecomeActiveNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(appWillTerminateMainThread(_:)),
-            name: UIApplication.willTerminateNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(appDidEnterBackgroundMainThread(_:)),
-            name: UIApplication.didEnterBackgroundNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(appWillEnterForegroundMainThread(_:)),
-            name: UIApplication.willEnterForegroundNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleAppDidFinishLaunchingNotification(_:)),
-            name: UIApplication.didFinishLaunchingNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(geoServiceDidStart(_:)),
-            name: NSNotification.Name(rawValue: MMNotificationGeoServiceDidStart), object: nil)
-    }
-}
-
 public extension UIDevice {
     func SYSTEM_VERSION_LESS_THAN(_ version: String) -> Bool {
         return self.systemVersion.compare(version, options: .numeric) == .orderedAscending
@@ -916,7 +794,7 @@ extension Set {
 
 class ThreadSafeDict<T> {
     private var dict: [String: T] = [:]
-    private var queue: DispatchQueue = DispatchQueue.init(label: "", qos: .default, attributes: DispatchQueue.Attributes.concurrent)
+    private var queue: DispatchQueue = DispatchQueue.init(label: "", qos: .default, attributes: [.concurrent])
     func set(value: T?, forKey key: String) {
         queue.async(group: nil, qos: .default, flags: .barrier) {
             self.dict[key] = value
@@ -932,7 +810,7 @@ class ThreadSafeDict<T> {
     }
     
     func reset() {
-        queue.async {
+        queue.async(group: nil, qos: .default, flags: .barrier) {
             self.dict.removeAll()
         }
     }

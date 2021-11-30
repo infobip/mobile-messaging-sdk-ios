@@ -18,7 +18,7 @@ class UpdateInstanceOperation : MMOperation {
 	let authPushRegistrationId: String
 	let dirtyInstallation: MMInstallation
 
-	init?(currentInstallation: MMInstallation, dirtyInstallation: MMInstallation?, registrationPushRegIdToUpdate: String?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
+    init?(userInitiated: Bool, currentInstallation: MMInstallation, dirtyInstallation: MMInstallation?, registrationPushRegIdToUpdate: String?, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.currentInstallation = currentInstallation
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
@@ -49,7 +49,7 @@ class UpdateInstanceOperation : MMOperation {
 			Self.logWarn("There is no authentication registration. Aborting...")
 			return nil
 		}
-		super.init()
+        super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 
@@ -64,13 +64,14 @@ class UpdateInstanceOperation : MMOperation {
 	}
 
 	private func performRequest() {
-		mmContext.remoteApiProvider.patchInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: registrationPushRegIdToUpdate, body: body) { (result) in
+        mmContext.remoteApiProvider.patchInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: registrationPushRegIdToUpdate, body: body, queue: underlyingQueue) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}
 	}
 
 	private func handleResult(_ result: UpdateInstanceDataResult) {
+        assert(!Thread.isMainThread)
 		guard authPushRegistrationId == registrationPushRegIdToUpdate else {
 			logDebug("updated other installation, no need to persist data. Finishing.")
 			return
@@ -99,6 +100,7 @@ class UpdateInstanceOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first)
 	}

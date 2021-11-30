@@ -71,11 +71,11 @@ class DynamicBaseUrlHTTPSessionManager: NamedLogger {
         return (r.baseUrl ?? dynamicBaseUrl ?? originalBaseUrl).absoluteString + r.resolvedPath
 	}
 
-	func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
+    func getDataResponse(_ r: RequestData, queue: DispatchQueue, completion: @escaping (JSON?, NSError?) -> Void) {
 		let request = alamofireSessionManager.request(resolveUrl(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
 		logDebug("Sending request: \n\(String(reflecting: request))")
 
-		request.validate().responseData { dataResult in
+        request.validate().responseData(queue: queue) { dataResult in
 			let error = dataResult.error as NSError?
 			self.handleDynamicBaseUrl(response: dataResult.response, error: error)
 

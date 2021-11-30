@@ -28,12 +28,12 @@ class ApnsRegistrationManagerMock: ApnsRegistrationManager {
 		_isRegistrationHealthy = false
 	}
 	
-	override func updateDeviceToken(_ token: Data, completion: ((NSError?) -> Void)?) {
+    override func updateDeviceToken(userInitiated: Bool, token: Data, completion: ((NSError?) -> Void)?) {
 		deviceTokenUpdateWasCalled = true
 		completion?(nil)
 	}
 	
-	override func resetRegistration(completion: @escaping () -> Void) {
+	override func resetRegistration(userInitiated: Bool, completion: @escaping () -> Void) {
 		regResetWasCalled = true
 		setRegistrationIsHealthy()
 		completion()
@@ -52,16 +52,14 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	func testThatRegistrationResetLeadsToHealthyRegFlag() {
 		weak var resetFinished = expectation(description: "regFinished")
 		
-		MMTestCase.cleanUpAndStop()
-		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
-		mm.start()
+		mm.doStart()
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		mm.pushServiceToken = "old token".mm_toHexademicalString
 		mm.pushRegistrationId = "old push reg"
 		mm.apnsRegistrationManager = apnsManagerMock
 		
-		mm.installationService.resetRegistration { (err) in
+        mm.installationService.resetRegistration(userInitiated: false) { (err) in
 			resetFinished?.fulfill()
 		}
 		
@@ -75,15 +73,13 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	func testThatVeryFirstDeviceTokenLeadsToHealthyRegAndTokenUpdate() {
 		weak var regFinished = expectation(description: "regFinished")
 		
-		MMTestCase.cleanUpAndStop()
-		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
-		mm.start()
+		mm.doStart()
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		
 		mm.apnsRegistrationManager = apnsManagerMock
 		
-		mm.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken("very first token".data(using: String.Encoding.utf16)!) { (err) in
+		mm.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "very first token".data(using: String.Encoding.utf16)!) { (err) in
 			XCTAssertTrue(mm.apnsRegistrationManager.isRegistrationHealthy)
 			regFinished?.fulfill()
 		}
@@ -98,15 +94,13 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	func testThatSameDeviceTokenLeadsToHealthyReg() {
 		weak var regFinished = expectation(description: "regFinished")
 		
-		MMTestCase.cleanUpAndStop()
-		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
-		mm.start()
+		mm.doStart()
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		mm.apnsRegistrationManager = apnsManagerMock
 		mm.pushServiceToken = "same token".mm_toHexademicalString
 		mm.pushRegistrationId = "some push reg"
-		mm.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken("same token".data(using: String.Encoding.utf16)!) { (err) in
+        mm.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "same token".data(using: String.Encoding.utf16)!) { (err) in
 			XCTAssertTrue(mm.apnsRegistrationManager.isRegistrationHealthy)
 			regFinished?.fulfill()
 		}
@@ -121,17 +115,15 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	func testBackupRestorationCaseLeadsToHealedRegistration() {
 		weak var regFinished = expectation(description: "regFinished")
 		
-		MMTestCase.cleanUpAndStop()
-		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
-		mm.start()
+		mm.doStart()
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		mm.pushServiceToken = "old token".mm_toHexademicalString
 		mm.pushRegistrationId = "old push reg"
 		mm.apnsRegistrationManager = apnsManagerMock
 		
 		
-		mm.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken("actual token".data(using: String.Encoding.utf16)!) { (err) in
+        mm.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "actual token".data(using: String.Encoding.utf16)!) { (err) in
 			regFinished?.fulfill()
 		}
 		

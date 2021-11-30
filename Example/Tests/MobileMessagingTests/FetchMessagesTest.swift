@@ -24,7 +24,6 @@ class FetchMessagesTest: MMTestCase {
 	nothing changed in DB
 	*/
 	func testNothingToSynchronize() {
-		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
 		
 		weak var expectation = self.expectation(description: "Sync finished")
@@ -32,7 +31,7 @@ class FetchMessagesTest: MMTestCase {
 		
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
-		mobileMessagingInstance.messageHandler.syncWithServer { error in
+		mobileMessagingInstance.messageHandler.syncWithServer(userInitiated: true) { error in
 			
 			XCTAssertNil(error)
 			XCTAssertEqual(MMTestCase.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
@@ -57,27 +56,26 @@ class FetchMessagesTest: MMTestCase {
 		weak var syncExpectation = expectation(description: "Sync finished")
 		weak var newMsgExpectation = expectation(description: "New message received")
 		
-		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
 		//Precondiotions
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m2"],  completion: { _ in
+        mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "m2"],  completion: { _ in
 			prepconditionExpectation?.fulfill()
 			
 			//Actions
-			self.mobileMessagingInstance.setSeen(["m2"], immediately: false, completion: {
+			self.mobileMessagingInstance.setSeen(userInitiated: true, messageIds: ["m2"], immediately: false, completion: {
 				seenExpectation?.fulfill()
 			})
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"],  completion: { _ in
+        mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "m1"],  completion: { _ in
 			newMsgExpectation?.fulfill()
 		})
 		
-		mobileMessagingInstance.messageHandler.syncWithServer({ error in
+		mobileMessagingInstance.messageHandler.syncWithServer(userInitiated: true) { error in
 			syncExpectation?.fulfill()
-		})
+		}
 		
 		//Expectations
 		waitForExpectations(timeout: 60) { error in
@@ -100,13 +98,11 @@ class FetchMessagesTest: MMTestCase {
 }
 
 class FetchMessagesCompletionTests: MMTestCase {
-	
-	override func setUp() {
-		super.setUp()
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-	}
-	
+
 	func testThatNewDataFetched() {
+        MMTestCase.startWithCorrectApplicationCode()
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+        
 		weak var exp = expectation(description: "Handler called")
 		let apiProvider = RemoteAPIProviderStub()
 		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
@@ -118,7 +114,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 		}
 		self.mobileMessagingInstance.remoteApiProvider = apiProvider
 
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
 			XCTAssertEqual(result.backgroundFetchResult, .newData)
 			exp?.fulfill()
 		})
@@ -127,6 +123,9 @@ class FetchMessagesCompletionTests: MMTestCase {
 	}
     
     func testThatLocalNotificationScheduled() {
+        MMTestCase.startWithCorrectApplicationCode()
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+        
         weak var messageHandled = expectation(description: "messageHandled")
         weak var localNotificationScheduled = expectation(description: "localNotificationScheduled")
         let messageHandlingDelegateMock = MessageHandlingDelegateMock()
@@ -146,7 +145,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 		}
         self.mobileMessagingInstance.remoteApiProvider = apiProvider
 
-        mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
+        mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
             XCTAssertEqual(result.backgroundFetchResult, .newData)
             messageHandled?.fulfill()
         })
@@ -155,6 +154,9 @@ class FetchMessagesCompletionTests: MMTestCase {
     }
 	
 	func testThatNoDataFetched() {
+        MMTestCase.startWithCorrectApplicationCode()
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+        
 		weak var exp = expectation(description: "Handler called")
 
 		let apiProvider = RemoteAPIProviderStub()
@@ -163,7 +165,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 		}
 		self.mobileMessagingInstance.remoteApiProvider = apiProvider
 
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "noData"],  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "noData"],  completion: { result in
 			XCTAssertEqual(result.backgroundFetchResult, .noData)
 			exp?.fulfill()
 		})
@@ -172,6 +174,9 @@ class FetchMessagesCompletionTests: MMTestCase {
 	}
 	
 	func testThatDataFetchFailed() {
+        MMTestCase.startWithCorrectApplicationCode()
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+        
 		weak var exp = expectation(description: "Handler called")
 		let apiProvider = RemoteAPIProviderStub()
 		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
@@ -179,7 +184,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 		}
 		self.mobileMessagingInstance.remoteApiProvider = apiProvider
 
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "Failed"],  completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "Failed"],  completion: { result in
 			XCTAssertEqual(result.backgroundFetchResult, .failed)
 			XCTAssertNotNil(result.error)
 			XCTAssertEqual(result.error, NSError(type: MMInternalErrorType.UnknownError))

@@ -15,12 +15,12 @@ class DeleteInstanceOperation : MMOperation {
 	let pushRegistrationId: String
 	let expiredPushRegistrationId: String
 
-	init(pushRegistrationId: String, expiredPushRegistrationId: String, mmContext: MobileMessaging, finishBlock: ((UpdateInstanceDataResult) -> Void)?) {
+    init(userInitiated: Bool, pushRegistrationId: String, expiredPushRegistrationId: String, mmContext: MobileMessaging, finishBlock: ((UpdateInstanceDataResult) -> Void)?) {
 		self.pushRegistrationId = pushRegistrationId
 		self.expiredPushRegistrationId = expiredPushRegistrationId
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
-		super.init()
+        super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 
@@ -35,13 +35,14 @@ class DeleteInstanceOperation : MMOperation {
 	}
 
 	private func performRequest() {
-		mmContext.remoteApiProvider.deleteInstance(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId) { (result) in
+        mmContext.remoteApiProvider.deleteInstance(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId, queue: self.underlyingQueue) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}
 	}
 
 	private func handleResult(_ result: UpdateInstanceDataResult) {
+        assert(!Thread.isMainThread)
 		self.result = result
 		switch result {
 		case .Success:
@@ -55,6 +56,7 @@ class DeleteInstanceOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock?(result) //check what to do with errors/
 	}

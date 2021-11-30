@@ -43,14 +43,11 @@ let failedDepersonalizeApiMock = { () -> RemoteAPIProviderStub in
 
 class DepersonalizeTests: MMTestCase {
 	
-	override func setUp() {
-		super.setUp()
-		MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
-	}
-	
 	func testThatGeoCleanedUpAfterDepersonalize() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		weak var depersonalizeFinished = expectation(description: "DepersonalizeFinished")
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		let events = [makeEventDict(ofType: .entry, limit: 1)]
 		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
 		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
@@ -62,7 +59,7 @@ class DepersonalizeTests: MMTestCase {
 		MMGeofencingService.sharedInstance = geServiceStub
 		MMGeofencingService.sharedInstance!.start({ _ in })
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload) { _ in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload) { _ in
 			let validEntryRegions = MMGeofencingService.sharedInstance?.datasource.validRegionsForEntryEventNow(with: pulaId)
 			XCTAssertEqual(validEntryRegions?.count, 1)
 			XCTAssertEqual(validEntryRegions?.first?.dataSourceIdentifier, message.regions.first?.dataSourceIdentifier)
@@ -85,9 +82,10 @@ class DepersonalizeTests: MMTestCase {
 	}
 	
 	func testThatUserDataCleanedUpAfterDepersonalize() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		weak var depersonalizeFinished = expectation(description: "Depersonalize")
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-
 		let user = MobileMessaging.getUser()!
 		user.firstName = "Darth"
 		user.customAttributes = ["bootsize": 9.5 as NSNumber]
@@ -110,19 +108,22 @@ class DepersonalizeTests: MMTestCase {
 	}
 	
 	func testThatDefaultMessageStorageCleanedUpAfterDepersonalize() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
+        mobileMessagingInstance.pushRegistrationId = "rand"
+        
 		weak var depersonalizeFinished = expectation(description: "Depersonalize")
 		weak var messagesReceived = expectation(description: "messagesReceived")
 		let sentMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 		
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		_ = mobileMessagingInstance.withDefaultMessageStorage()
 		MobileMessaging.defaultMessageStorage?.start()
 
 		XCTAssertEqual(0, MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "Messages must be persisted properly")
 		
 		sendPushes(apnsNormalMessagePayload, count: sentMessagesCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo,  completion: { _ in
 				iterationCounter += 1
 				if iterationCounter == sentMessagesCount {
 					MobileMessaging.defaultMessageStorage!.findAllMessages() { messages in
@@ -148,14 +149,18 @@ class DepersonalizeTests: MMTestCase {
 	}
 
 	func testThatAfterFailedDepersonalize_DepersonalizeStatusIsPending() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 		weak var depersonalizeFailed = expectation(description: "Depersonalize failed")
+    
 		prepareUserData()
+        
 		performFailedDepersonalizeCase() {
 			depersonalizeFailed?.fulfill()
 		}
 
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
+            XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			XCTAssertFalse(self.mobileMessagingInstance.messageHandler.isRunning)
 			XCTAssertNil(MobileMessaging.getUser()!.firstName)
 			XCTAssertNil(MobileMessaging.getUser()!.customAttributes?["bootsize"])
@@ -163,18 +168,22 @@ class DepersonalizeTests: MMTestCase {
 	}
 
 	func testThatAfterSuccessfulReDepersonalize_DepersonalizeStatusIsSuccess() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 		weak var depersonalizeFailed = expectation(description: "Depersonalize failed")
 		weak var depersonalizeSucceeded = expectation(description: "Depersonalize succeded")
 
 		prepareUserData()
+        
 		performFailedDepersonalizeCase() {
 			depersonalizeFailed?.fulfill()
+            self.mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 			self.performSuccessfullDepersonalizeCase() {
 				depersonalizeSucceeded?.fulfill()
 			}
 		}
 
-		waitForExpectations(timeout: 20) { _ in
+		waitForExpectations(timeout: 5) { _ in
 			XCTAssertEqual(.success, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			XCTAssertTrue(self.mobileMessagingInstance.messageHandler.isRunning)
 			XCTAssertNil(MobileMessaging.getUser()!.firstName)
@@ -183,11 +192,14 @@ class DepersonalizeTests: MMTestCase {
 	}
 
 	func testThatAfterFailedDepersonalizeLimitExceeded_DepersonalizeStatusBecomesUndefined() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 		weak var depersonalizeFailed1 = expectation(description: "Depersonalize failed")
 		weak var depersonalizeFailed2 = expectation(description: "Depersonalize failed")
 
 		DepersonalizationConsts.failuresNumberLimit = 2 // limit of failed attempts
 		prepareUserData()
+        
 		performFailedDepersonalizeCase() { // 1st attempt
 			depersonalizeFailed1?.fulfill()
 			self.performFailedDepersonalizeCaseWithOverlimit() { // 2nd attempt
@@ -195,7 +207,7 @@ class DepersonalizeTests: MMTestCase {
 			}
 		}
 
-		waitForExpectations(timeout: 20) { _ in
+		waitForExpectations(timeout: 5) { _ in
 			XCTAssertEqual(.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			XCTAssertTrue(self.mobileMessagingInstance.messageHandler.isRunning)
 			XCTAssertNil(MobileMessaging.getUser()!.firstName)
@@ -204,6 +216,8 @@ class DepersonalizeTests: MMTestCase {
 	}
 
 	func testThatPendingDepersonalizeKeptBetweenRestarts() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 		weak var depersonalizeFailed = expectation(description: "Depersonalize failed")
 		prepareUserData()
 		performFailedDepersonalizeCase() {
@@ -222,11 +236,14 @@ class DepersonalizeTests: MMTestCase {
 	}
 
 	func testThatAPNSUnregistersOnFailedDepersonalize() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 		weak var depersonalizeFailed = expectation(description: "Depersonalize failed")
+        weak var unregisterCalled = expectation(description: "unregisterCalled")
 		let mock = ApnsRegistrationManagerMock(mmContext: mobileMessagingInstance)
-		var unregisterCalled: Bool = false
+		
 		mock.unregisterCalled = {
-			unregisterCalled = true
+            unregisterCalled?.fulfill()
 		}
 		mobileMessagingInstance.apnsRegistrationManager = mock
 
@@ -236,22 +253,22 @@ class DepersonalizeTests: MMTestCase {
 		}
 		//TODO: don' register apns until .undefined
 
-		waitForExpectations(timeout: 20) { _ in
-			XCTAssertTrue(unregisterCalled)
-		}
+        waitForExpectations(timeout: 5, handler: nil)
 	}
 
 	func testThatAPNSRegistersOnReDepersonalize() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 		weak var depersonalizeFailed = expectation(description: "Depersonalize failed")
 		weak var depersonalizeSucceeded = expectation(description: "Depersonalize succeded")
+        weak var unregisterCalled = expectation(description: "unregisterCalled")
+        weak var registerCalled = expectation(description: "registerCalled")
 		let mock = ApnsRegistrationManagerMock(mmContext: mobileMessagingInstance)
-		var unregisterCalled: Bool = false
-		var registerCalled: Bool = false
 		mock.unregisterCalled = {
-			unregisterCalled = true
+            unregisterCalled?.fulfill()
 		}
 		mock.registerCalled = {
-			registerCalled = true
+            registerCalled?.fulfill()
 		}
 
 		prepareUserData()
@@ -263,42 +280,44 @@ class DepersonalizeTests: MMTestCase {
 			}
 		}
 		
-		waitForExpectations(timeout: 20) { _ in
-			XCTAssertTrue(unregisterCalled)
-			XCTAssertTrue(registerCalled)
-		}
+		waitForExpectations(timeout: 5, handler: nil)
 	}
 
 	func testDepersonalizeHasHigherPriorityThanUserDataOperations() {
+        MMTestCase.startWithCorrectApplicationCode()
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
+        
 		var requestCompletionCounter = 0
 		var depersonalizeTurn = -1
 		weak var depersonalizeFinished = expectation(description: "Depersonalize Finished")
 		weak var fetchFinished1 = expectation(description: "fetchFinished")
 		weak var fetchFinished2 = expectation(description: "fetchFinished")
 		weak var fetchFinished3 = expectation(description: "fetchFinished")
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		
 		let remoteApiMock = RemoteAPIProviderStub()
 		remoteApiMock.getUserClosure = {  (applicationCode, pushRegistrationId) in
 			Thread.sleep(forTimeInterval: 0.2)
 			return FetchUserDataResult.Failure(nil)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiMock
-		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			DispatchQueue.main.async { requestCompletionCounter += 1;
-				fetchFinished1?.fulfill() }
+		mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (user, e) in
+			requestCompletionCounter += 1
+            fetchFinished1?.fulfill()
 		}
-		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			DispatchQueue.main.async { requestCompletionCounter += 1;
-				fetchFinished2?.fulfill() }
+		mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (user, e) in
+			requestCompletionCounter += 1
+            fetchFinished2?.fulfill()
 		}
-		mobileMessagingInstance.userService.fetchFromServer { (user, e) in
-			DispatchQueue.main.async { requestCompletionCounter += 1;
-				fetchFinished3?.fulfill() }
+		mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (user, e) in
+			requestCompletionCounter += 1
+            fetchFinished3?.fulfill()
 		}
 		
 		MobileMessaging.depersonalize() { status, _ in
-			DispatchQueue.main.async { requestCompletionCounter += 1; depersonalizeTurn = requestCompletionCounter;
-				depersonalizeFinished?.fulfill() }
+			requestCompletionCounter += 1
+            depersonalizeTurn = requestCompletionCounter
+            depersonalizeFinished?.fulfill()
 		}
 
 		waitForExpectations(timeout: 200) { _ in
@@ -315,7 +334,8 @@ class DepersonalizeTests: MMTestCase {
 		user.firstName = "Darth"
 		user.customAttributes = ["bootsize": 9.5 as NSNumber]
 		user.archiveDirty()
-
+        
+        XCTAssertNotNil(MobileMessaging.getInstallation()?.pushRegistrationId)
 		XCTAssertEqual(MobileMessaging.getUser()!.firstName, "Darth")
 		XCTAssertEqual(MobileMessaging.getUser()!.customAttributes!["bootsize"] as? NSNumber, 9.5)
 	}

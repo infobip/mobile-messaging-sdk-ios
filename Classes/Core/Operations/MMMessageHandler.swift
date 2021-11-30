@@ -46,25 +46,31 @@ enum MessageHandlingResult {
 }
 
 class MMMessageHandler: MobileMessagingService {
-	lazy var messageHandlingQueue = MMOperationQueue.newSerialQueue
-	lazy var messageSendingQueue = MMOperationQueue.userInitiatedQueue
-	lazy var messageSyncQueue = MMOperationQueue.newSerialQueue
+    private let q: DispatchQueue
+    let messageHandlingQueue: MMOperationQueue
+    let messageSendingQueue: MMOperationQueue
+    let messageSyncQueue: MMOperationQueue
 	lazy var seenPostponer = MMPostponer(executionQueue: DispatchQueue.main)
 	let storage: MMCoreDataStorage
 	
 	init(storage: MMCoreDataStorage, mmContext: MobileMessaging) {
 		self.storage = storage
+        self.q = DispatchQueue(label: "message-handler", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
+        self.messageHandlingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.messageSendingQueue = MMOperationQueue.userInitiatedQueue(underlyingQueue: q)
+        self.messageSyncQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
 		super.init(mmContext: mmContext, uniqueIdentifier: "MMMessageHandler")
     }
 
 	override func start(_ completion: @escaping (Bool) -> Void) {
-		evictOldMessages(completion: { })
-		super.start(completion)
-        syncWithServer({_ in})
+        super.start({ _ in })
+        evictOldMessages(userInitiated: false, completion: {
+            self.syncWithServer(userInitiated: false) {_ in  completion(self.isRunning)}
+        })
 	}
 
     //MARK: Intenal	
-	func handleAPNSMessage(_ userInfo: MMAPNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
+    func handleAPNSMessage(userInitiated: Bool, userInfo: MMAPNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true else {
             logDebug("abort messages handling, service running \(isRunning)")
 			completion(.noData)
@@ -78,25 +84,25 @@ class MMMessageHandler: MobileMessagingService {
 							   seenStatus: .NotSeen,
 							   isDeliveryReportSent: false)
 		{
-			handleMTMessages([msg], notificationTapped: MMMessageHandler.isNotificationTapped(userInfo as? [String : Any], applicationState: MobileMessaging.application.applicationState), completion: completion)
+            handleMTMessages(userInitiated: userInitiated, messages: [msg], notificationTapped: MMMessageHandler.isNotificationTapped(userInfo as? [String : Any], applicationState: MobileMessaging.application.applicationState), completion: completion)
 		} else {
 			logError("Error while converting payload:\n\(userInfo)\nto MMMessage")
 			completion(.failed(NSError.init(type: .UnknownError)))
 		}
 	}
 	
-	func handleMTMessage(_ message: MM_MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
-		handleMTMessages([message], notificationTapped: notificationTapped, handlingIteration: handlingIteration, completion: completion)
+    func handleMTMessage(userInitiated: Bool, message: MM_MTMessage, notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
+        handleMTMessages(userInitiated: userInitiated, messages: [message], notificationTapped: notificationTapped, handlingIteration: handlingIteration, completion: completion)
 	}
 	
-	func handleMTMessages(_ messages: [MM_MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
+    func handleMTMessages(userInitiated: Bool, messages: [MM_MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true, !messages.isEmpty else {
             logDebug("abort messages handling \(messages), service running \(isRunning)")
 			completion(.noData)
 			return
 		}
 		
-		messageHandlingQueue.addOperation(MessageHandlingOperation(messagesToHandle: messages, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
+        messageHandlingQueue.addOperation(MessageHandlingOperation(userInitiated: userInitiated, messagesToHandle: messages, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
 			{ error, newMessages in
 				let group =  DispatchGroup()
 				
@@ -122,25 +128,36 @@ class MMMessageHandler: MobileMessagingService {
 		
 				var result = MessageHandlingResult.noData
 				group.enter()
-				self.syncMessages(handlingIteration: handlingIteration, finishBlock: { res in
+                self.syncMessages(userInitiated: userInitiated, handlingIteration: handlingIteration, finishBlock: { res in
 					result = MessageHandlingResult(res)
 					group.leave()
 				})
 				
-				group.notify(queue: DispatchQueue.global(qos: .default)) {
+                let q = userInitiated ? DispatchQueue.main : DispatchQueue.global(qos: .default)
+				group.notify(queue: q) {
 					self.logDebug("message handling finished")
 					completion(result)
 				}
 			}))
 	}
 
-	func syncMessages(handlingIteration: Int, finishBlock: @escaping (MessagesSyncResult) -> Void) {
-		self.messageSyncQueue.addOperation(MessageFetchingOperation(context: self.storage.newPrivateContext(), mmContext: self.mmContext, handlingIteration: handlingIteration, finishBlock: finishBlock))
+    func syncMessages(userInitiated: Bool, handlingIteration: Int, finishBlock: @escaping (MessagesSyncResult) -> Void) {
+        guard isRunning else {
+            logDebug("abort message fethcing, service running \(isRunning)")
+            finishBlock(MessagesSyncResult.Cancel)
+            return
+        }
+        self.messageSyncQueue.addOperation(MessageFetchingOperation(userInitiated: userInitiated, context: self.storage.newPrivateContext(), mmContext: self.mmContext, handlingIteration: handlingIteration, finishBlock: finishBlock))
 	}
 	
-	func syncMessagesWithOuterLocalSources(completion: @escaping () -> Void) {
+    func syncMessagesWithOuterLocalSources(userInitiated: Bool, completion: @escaping () -> Void) {
+        guard isRunning else {
+            logDebug("abort syncing with outer local storage, service running \(isRunning)")
+            completion()
+            return
+        }
 		if !messageSyncQueue.addOperationExclusively(LocalMessageFetchingOperation(userNotificationCenterStorage: mmContext.userNotificationCenterStorage, notificationExtensionStorage: mmContext.sharedNotificationExtensionStorage, finishBlock: { messages in
-			self.handleMTMessages(messages, notificationTapped: false, handlingIteration: 0, completion: { _ in
+            self.handleMTMessages(userInitiated: userInitiated, messages: messages, notificationTapped: false, handlingIteration: 0, completion: { _ in
 				completion()
 			})
 		})) {
@@ -148,34 +165,59 @@ class MMMessageHandler: MobileMessagingService {
 		}
 	}
 	
-	func syncMessagesWithServer(_ completion: @escaping (NSError?) -> Void) {
-		messageSyncQueue.addOperation(MessagesSyncOperation(context: storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
+    func syncMessagesWithServer(userInitiated: Bool, completion: @escaping (NSError?) -> Void) {
+        guard isRunning else {
+            logDebug("abort syncing with server, service running \(isRunning)")
+            completion(nil)
+            return
+        }
+        messageSyncQueue.addOperation(MessagesSyncOperation(userInitiated: userInitiated, context: storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
 	}
 	
-	func evictOldMessages(_ messageAge: TimeInterval? = nil, completion: @escaping () -> Void) {
-		messageHandlingQueue.addOperation(MessagesEvictionOperation(context: storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
+    func evictOldMessages(userInitiated: Bool, messageAge: TimeInterval? = nil, completion: @escaping () -> Void) {
+        guard isRunning else {
+            logDebug("abort evicting, service running \(isRunning)")
+            completion()
+            return
+        }
+        messageHandlingQueue.addOperation(MessagesEvictionOperation(userInitiated: userInitiated, context: storage.newPrivateContext(), messageMaximumAge: messageAge, finishBlock: completion))
     }
     
-	func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
+	func setSeen(userInitiated: Bool, messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
+        guard isRunning else {
+            logDebug("abort setting seen, service running \(isRunning)")
+            completion()
+            return
+        }
         guard !messageIds.isEmpty else {
 			completion()
             return
         }
-		messageSyncQueue.addOperation(SeenStatusPersistingOperation(messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
+        messageSyncQueue.addOperation(SeenStatusPersistingOperation(userInitiated: userInitiated, messageIds: messageIds, context: storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
         if immediately {
-			syncSeenStatusUpdates()
+			syncSeenStatusUpdates(userInitiated: false)
         } else {
             seenPostponer.postponeBlock() {
-				self.syncSeenStatusUpdates()
+				self.syncSeenStatusUpdates(userInitiated: false)
             }
         }
     }
 	
-	func syncSeenStatusUpdates(_ completion: ((SeenStatusSendingResult) -> Void)? = nil) {
-		messageSyncQueue.addOperation(SeenStatusSendingOperation(context: self.storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
+	func syncSeenStatusUpdates(userInitiated: Bool, completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+        guard isRunning else {
+            logDebug("abort syncing seen statuses, service running \(isRunning)")
+            completion?(SeenStatusSendingResult.Cancel)
+            return
+        }
+        messageSyncQueue.addOperation(SeenStatusSendingOperation(userInitiated: userInitiated, context: self.storage.newPrivateContext(), mmContext: mmContext, finishBlock: completion))
 	}
 	
 	func updateOriginalPayloadsWithMessages(messages: [MessageId: MM_MTMessage], completion: (() -> Void)?) {
+        guard isRunning else {
+            logDebug("abort updating original paylaod, service running \(isRunning)")
+            completion?()
+            return
+        }
 		guard !messages.isEmpty else {
 			completion?()
 			return
@@ -198,6 +240,11 @@ class MMMessageHandler: MobileMessagingService {
 	}
 	
 	func updateDbMessagesCampaignFinishedState(forCampaignIds finishedCampaignIds: [String], completion: (() -> Void)?) {
+        guard isRunning else {
+            logDebug("abort updating campaigns finished status, service running \(isRunning)")
+            completion?()
+            return
+        }
 		guard !finishedCampaignIds.isEmpty else {
 			completion?()
 			return
@@ -215,6 +262,11 @@ class MMMessageHandler: MobileMessagingService {
 	
 	/// - parameter messageIdsMap: contains pairs of message ids generated by the sdk as a key and real message ids generated by IPCore as a vlue
 	func updateSdkGeneratedTemporaryMessageIds(withMap messageIdsMap: [MessageId: MessageId], completion: (() -> Void)?) {
+        guard isRunning else {
+            logDebug("abort updating temporal msg ids, service running \(isRunning)")
+            completion?()
+            return
+        }
 		//if the sdk generated message id was mapped with real message id, we should update all stored messages
 		let sdkMessageIds = Array(messageIdsMap.keys)
 		guard !sdkMessageIds.isEmpty else {
@@ -236,8 +288,14 @@ class MMMessageHandler: MobileMessagingService {
 		})
 	}
 	
-	func sendMessages(_ messages: [MM_MOMessage], isUserInitiated: Bool, completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
-		messageSendingQueue.addOperation(MessagePostingOperation(messages: messages,
+    func sendMessages(messages: [MM_MOMessage], isUserInitiated: Bool, completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
+        guard isRunning else {
+            logDebug("abort sending messages, service running \(isRunning)")
+            completion(nil, nil)
+            return
+        }
+        messageSendingQueue.addOperation(MessagePostingOperation(userInitiated: isUserInitiated,
+                                                                 messages: messages,
 		                                                         isUserInitiated: isUserInitiated,
 		                                                         context: storage.newPrivateContext(),
 		                                                         mmContext: mmContext,
@@ -248,18 +306,14 @@ class MMMessageHandler: MobileMessagingService {
 		))
 	}
 
-	override func appWillEnterForeground() {
-		syncWithServer({_ in})
+	override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+		syncWithServer(userInitiated: false) {_ in completion() }
 	}
 
-	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
-		guard isRunning == true else {
-            logDebug("abort syncing with server, service running \(isRunning)")
-			completion(nil)
-			return
-		}
-		syncMessagesWithOuterLocalSources() {
-			self.syncMessagesWithServer(completion)
+    func syncWithServer(userInitiated: Bool, completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
+        syncMessagesWithOuterLocalSources(userInitiated: userInitiated) {
+            self.syncMessagesWithServer(userInitiated: userInitiated, completion: completion)
 		}
 	}
 
@@ -281,14 +335,15 @@ class MMMessageHandler: MobileMessagingService {
 		return true
 	}
 
-	override func stop(_ completion: @escaping (Bool) -> Void) {
-		cancelOperations()
-		super.stop(completion)
+    override func suspend() {
+        logDebug("suspending...")
+        cancelOperations()
+        super.suspend()
 	}
 
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
-		logDebug("log out")
-		cancelOperations()
+		logDebug("depersonalizing...")
+        cancelOperations()
 		messageSyncQueue.addOperation {
 			if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {
 				defaultMessageStorage.removeAllMessages() { _ in
@@ -300,24 +355,22 @@ class MMMessageHandler: MobileMessagingService {
 		}
 	}
 	
-	override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
-		stop({ _ in })
-	}
-
-	override func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {
+	override func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) {
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
-			stop({ _ in })
+            suspend()
+            completion()
 		case .success, .undefined:
-			start({ _ in })
+			start({ _ in completion() })
 		}
 	}
 
-	override func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
+	override func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) {
 		if mmContext.resolveInstallation().isPushRegistrationEnabled {
-			start({ _ in })
+			start({ _ in completion() })
 		} else {
-			stop({ _ in })
+            suspend()
+            completion()
 		}
 	}
 	

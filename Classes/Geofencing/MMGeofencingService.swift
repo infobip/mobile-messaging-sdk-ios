@@ -37,47 +37,114 @@ public class MMGeofencingService: MobileMessagingService {
 
 	lazy var remoteApiProvider: GeoRemoteAPIProvider! = GeoRemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)
 
-	override func depersonalizationStatusDidChange(_ mmContext: MobileMessaging) {
+    /// Starts the Geofencing Service
+    ///
+    /// During the startup process, the service automatically asks user to grant the appropriate permissions
+    /// Once the user granted the permissions, the service succesfully lauches.
+    /// - parameter completion: A block that will be triggered once the startup process is finished. Contains a Bool flag parameter, that indicates whether the startup succeded.
+    override public func start(_ completion: @escaping (Bool) -> Void) {
+        logDebug("starting ...")
+        
+        locationManagerQueue.async {
+            guard self.isRunning == false else
+            {
+                self.logDebug("isRunning = \(self.isRunning). Cancelling...")
+                completion(false)
+                return
+            }
+            
+            let currentCapability = type(of: self).currentCapabilityStatus
+            switch currentCapability {
+            case .authorized:
+                self.startService()
+                completion(true)
+            case .notDetermined:
+                self.logDebug("capability is 'not determined', authorizing...")
+                self.authorizeService(kind: MMLocationServiceKind.regionMonitoring, usage: GeoConstants.preferableUsage) { capability in
+                    switch capability {
+                    case .authorized:
+                        self.logDebug("successfully authorized for `Always` mode")
+                        self.startService()
+                        completion(true)
+                    default:
+                        self.logDebug("was not authorized for `Always` mode. Canceling the startup.")
+                        completion(false)
+                        break
+                    }
+                }
+            case .denied, .notAvailable:
+                self.logDebug("capability is \(currentCapability.rawValue). Canceling the startup.")
+                completion(false)
+            }
+            self.syncWithServer({_ in})
+        }
+    }
+    
+    /// Stops the Geofencing Service
+    override public func suspend() {
+        logDebug("Suspending")
+        locationManagerQueue.async {
+            guard self.isRunning == true else {
+                return
+            }
+            super.suspend()
+            self.locationManager.stopMonitoringSignificantLocationChanges()
+            self.locationManager.stopUpdatingLocation()
+            self.stopMonitoringMonitoredRegions() {
+                self.logDebug("Suspended")
+            }
+        }
+    }
+    
+    override func stopService(_ completion: @escaping (Bool) -> Void) {
+        self.locationManager.delegate = nil
+        super.stopService(completion)
+    }
+    
+    override func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) {
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
-			stop({ _ in })
+            suspend()
+            completion()
 		case .success, .undefined:
-			start({ _ in })
+			start({ _ in completion() })
 		}
 	}
 
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		logDebug("depersonalizing")
-		cancelOperations()
+        cancelOperations()
 		self.stopMonitoringMonitoredRegions() {
 			self.cleanup(completion)
 		}
 	}
 
-	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
-		syncWithServer(completion: { (result) in
+	func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+        syncWithServer(completion: { (result) in
 			completion(result?.error)
 		})
 	}
 	
-	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
+	override func mobileMessagingDidStart(_ completion: @escaping () -> Void) {
 		guard MMGeofencingService.isGeoServiceNeedsToStart && mmContext.currentInstallation().isPushRegistrationEnabled && mmContext.internalData().currentDepersonalizationStatus == .undefined else {
+            completion()
 			return
 		}
 		MMGeofencingService.isGeoServiceNeedsToStart = false
-		start({ _ in })
+		start({ _ in completion() })
 	}
 
-	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
-		stop()
+	override func mobileMessagingDidStop(_ completion: @escaping () -> Void) {
 		MMGeofencingService.sharedInstance = nil
+        completion()
 	}
 
-	override func pushRegistrationStatusDidChange(_ mmContext: MobileMessaging) {
+	override func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) {
 		if mmContext.currentInstallation().isPushRegistrationEnabled {
-			start({ _ in })
+			start({ _ in completion() })
 		} else {
-			stop({ _ in })
+            suspend()
+            completion()
 		}
 	}
 	
@@ -120,26 +187,66 @@ public class MMGeofencingService: MobileMessagingService {
 			completion(.noData)
 		}
 	}
+    
+    override func appDidFinishLaunching(_ notification: Notification, completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
+        locationManagerQueue.async {
+            if notification.userInfo?[UIApplication.LaunchOptionsKey.location] != nil {
+                self.logDebug("The app relaunched by the OS.")
+                self.restartLocationManager()
+            }
+            completion()
+        }
+    }
+
+    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+        syncWithServer({_ in completion() })
+    }
+
+    override func appDidEnterBackground(_ completion: @escaping () -> Void) {
+        logDebug("App did enter background.")
+        assert(!Thread.isMainThread)
+        locationManagerQueue.async {
+            self.restartLocationManager()
+            if let previousLocation = self.previousLocation {
+                let internalData = self.mmContext.internalData()
+                internalData.location = previousLocation
+                internalData.archiveCurrent()
+            }
+            completion()
+        }
+    }
+    
+    override func appDidBecomeActive(_ completion: @escaping () -> Void) {
+        logDebug("App did become active.")
+        assert(!Thread.isMainThread)
+        locationManagerQueue.async {
+            self.restartLocationManager()
+            completion()
+        }
+    }
 	
 	private var _isRunning: Bool = false
 	override var isRunning: Bool  {
 		get {
 			var ret: Bool = false
-			locationManagerQueue.executeSync() {
+			locationManagerQueue.sync() {
 				ret = self._isRunning
 			}
 			return ret
 		}
 		set {
-			locationManagerQueue.executeAsync() {
+			locationManagerQueue.sync() {
 				self._isRunning = newValue
 			}
 		}
 	}
-	
+    
 	override var systemData: [String: AnyHashable]? {
 		return [Consts.SystemDataKeys.geofencingServiceEnabled: type(of: self).isSystemDataGeofencingServiceEnabled]
 	}
+    
+    // MARK: -
 
 	public static var isSystemDataGeofencingServiceEnabled: Bool {
         let status = currentCapabilityStatus
@@ -156,8 +263,9 @@ public class MMGeofencingService: MobileMessagingService {
 	var sessionManager: DynamicBaseUrlHTTPSessionManager!
 	var locationManager: CLLocationManager!
 	var datasource: GeofencingInMemoryDatasource!
-	let locationManagerQueue = MMQueue.Main.queue
-	lazy var eventsHandlingQueue = MMOperationQueue.newSerialQueue
+    let locationManagerQueue = MMQueue.Main.queue
+    private let q: DispatchQueue
+    let eventsHandlingQueue: MMOperationQueue
 	
 	// MARK: - Public
 	
@@ -168,7 +276,7 @@ public class MMGeofencingService: MobileMessagingService {
 	/// Returns all the regions available in the Geofencing Service storage.
 	public var allRegions: Array<MMRegion> {
 		var result = Array<MMRegion>()
-		locationManagerQueue.executeSync() {
+		locationManagerQueue.sync {
 			result = self.datasource.allRegions
 		}
 		return result
@@ -186,74 +294,10 @@ public class MMGeofencingService: MobileMessagingService {
 		authorizeService(kind: MMLocationServiceKind.regionMonitoring, usage: usage, completion: completion)
 	}
 	
-	/// Starts the Geofencing Service
-	///
-	/// During the startup process, the service automatically asks user to grant the appropriate permissions
-	/// Once the user granted the permissions, the service succesfully lauches.
-	/// - parameter completion: A block that will be triggered once the startup process is finished. Contains a Bool flag parameter, that indicates whether the startup succeded.
-	override public func start(_ completion: @escaping (Bool) -> Void) {
-		logDebug("starting ...")
-		
-		locationManagerQueue.executeAsync() {
-			guard self.isRunning == false else
-			{
-				self.logDebug("isRunning = \(self.isRunning). Cancelling...")
-				completion(false)
-				return
-			}
-			
-			let currentCapability = type(of: self).currentCapabilityStatus
-			switch currentCapability {
-			case .authorized:
-				self.startService()
-				completion(true)
-			case .notDetermined:
-				self.logDebug("capability is 'not determined', authorizing...")
-				self.authorizeService(kind: MMLocationServiceKind.regionMonitoring, usage: GeoConstants.preferableUsage) { capability in
-					switch capability {
-					case .authorized:
-						self.logDebug("successfully authorized for `Always` mode")
-						self.startService()
-						completion(true)
-					default:
-						self.logDebug("was not authorized for `Always` mode. Canceling the startup.")
-						completion(false)
-						break
-					}
-				}
-			case .denied, .notAvailable:
-				self.logDebug("capability is \(currentCapability.rawValue). Canceling the startup.")
-				completion(false)
-			}
-		}
-        
-        syncWithServer({_ in})
-	}
-	
-	/// Stops the Geofencing Service
-	override public func stop(_ completion: ((Bool) -> Void)? = nil) {
-		cancelOperations()
-		locationManagerQueue.executeAsync() {
-			guard self.isRunning == true else
-			{
-				return
-			}
-			self.isRunning = false
-			self.locationManager.delegate = nil
-			self.locationManager.stopMonitoringSignificantLocationChanges()
-			self.locationManager.stopUpdatingLocation()
-			NotificationCenter.default.removeObserver(self)
-			self.stopMonitoringMonitoredRegions() {
-				completion?(true)
-			}
-			self.logDebug("stopped.")
-		}
-	}
-	
 	/// Accepts a geo message, which contains regions that should be monitored.
 	/// - parameter message: A message object to add to the monitoring. Object of `MMGeoMessage` class.
 	public func add(message: MMGeoMessage, completion: @escaping (() -> Void)) {
-		locationManagerQueue.executeAsync() {
+		locationManagerQueue.async {
 			self.logDebug("trying to add a message")
 			guard self.isRunning == true else
 			{
@@ -271,7 +315,7 @@ public class MMGeofencingService: MobileMessagingService {
 	
 	/// Removes a message from the monitoring.
 	public func removeMessage(withId messageId: String) {
-		locationManagerQueue.executeAsync() {
+		locationManagerQueue.async {
 			self.datasource.removeMessage(withId: messageId)
 			self.logDebug("message removed \(messageId)")
 			self.refreshMonitoredRegions(completion: {})
@@ -286,9 +330,12 @@ public class MMGeofencingService: MobileMessagingService {
 	// MARK: - Internal
 	//FIXME: use background queue. (initialize separate NSThread which lives as long as geo service running)
 	init(mmContext: MobileMessaging) {
+        self.q = DispatchQueue(label: "geofencing-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
+        self.eventsHandlingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        
 		super.init(mmContext: mmContext, uniqueIdentifier: "GeofencingService")
 		
-		locationManagerQueue.executeSync() {
+		locationManagerQueue.sync {
 			self.sessionManager = MobileMessaging.httpSessionManager
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
@@ -317,7 +364,7 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 	
 	func authorizeService(kind: MMLocationServiceKind, usage: MMLocationServiceUsage, completion: @escaping (MMGeofencingCapabilityStatus) -> Void) {
-		locationManagerQueue.executeAsync() {
+		locationManagerQueue.async {
 			guard self.capabilityCompletion == nil else
 			{
 				fatalError("Attempting to authorize location when a request is already in-flight")
@@ -473,22 +520,21 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 
 	fileprivate func startService() {
-		locationManagerQueue.executeAsync() {
-			guard self.isRunning == false else
-			{
+		locationManagerQueue.async {
+			guard self.isRunning == false else {
 				return
 			}
-			
-			self.restartLocationManager()
-			self.refreshMonitoredRegions(completion: {})
-			UserEventsManager.postGeoServiceStartedEvent()
-			self.isRunning = true
-			self.logDebug("started.")
+            super.start { _ in
+                self.restartLocationManager()
+                self.refreshMonitoredRegions(completion: {})
+                UserEventsManager.postGeoServiceStartedEvent()
+                self.logDebug("started.")
+            }
 		}
 	}
 
 	fileprivate func stopMonitoringMonitoredRegions(completion: @escaping () -> Void) {
-		locationManagerQueue.executeAsync() {
+		locationManagerQueue.async {
 			self.logDebug("stopping monitoring all regions")
 			for monitoredRegion in self.locationManager.monitoredRegions {
 				self.locationManager.stopMonitoring(for: monitoredRegion)
@@ -539,7 +585,7 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 	
 	fileprivate func refreshMonitoredRegions(newRegions: Set<MMRegion>? = nil, completion: @escaping (() -> Void)) {
-		locationManagerQueue.executeAsync() {
+		locationManagerQueue.async {
 			
 			var monitoredRegions: Set<CLCircularRegion> = Set(self.locationManager.monitoredRegions.compactMap { $0 as? CLCircularRegion })
 			self.logDebug("refreshing monitored regions: \n\(monitoredRegions) \n datasource regions: \n \(self.datasource.regionsDictionary)")
@@ -577,36 +623,6 @@ public class MMGeofencingService: MobileMessagingService {
 	}
 	
 	fileprivate var previousLocation: CLLocation?
-	
-	//MARK: Notifications handling
-	override func appDidFinishLaunching(_ notification: Notification) {
-		assert(Thread.isMainThread)
-		if notification.userInfo?[UIApplication.LaunchOptionsKey.location] != nil {
-			logDebug("The app relaunched by the OS.")
-			restartLocationManager()
-		}
-	}
-
-	override func appWillEnterForeground() {
-		syncWithServer({_ in})
-	}
-
-	override func appDidEnterBackground() {
-		logDebug("App did enter background.")
-		assert(Thread .isMainThread)
-		restartLocationManager()
-		if let previousLocation = previousLocation {
-			let internalData = mmContext.internalData()
-			internalData.location = previousLocation
-			internalData.archiveCurrent()
-		}
-	}
-	
-	override func appDidBecomeActive() {
-		logDebug("App did become active.")
-		assert(Thread .isMainThread)
-		restartLocationManager()
-	}
 }
 
 extension MMGeofencingService: CLLocationManagerDelegate {
@@ -637,7 +653,7 @@ extension MMGeofencingService: CLLocationManagerDelegate {
 		
 		switch (self.isRunning, status) {
 		case (true, let status) where !GeoConstants.supportedAuthStatuses.contains(status):
-			stop()
+            suspend()
 		case (false, let status) where GeoConstants.supportedAuthStatuses.contains(status):
 			startService()
 		default:
@@ -738,14 +754,14 @@ extension MMGeofencingService: CLLocationManagerDelegate {
 			completion(result)
 		}))
 	}
+    
+    func syncWithServer(completion: @escaping (GeoEventReportingResult?) -> ()) {
+        reportOnEvents(completion: completion)
+    }
 	
     private func refreshDatasource() {
         datasource.reload()
     }
-	
-	func syncWithServer(completion: @escaping (GeoEventReportingResult?) -> ()) {
-		reportOnEvents(completion: completion)
-	}
 }
 
 extension UserEventsManager {

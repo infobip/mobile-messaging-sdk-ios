@@ -16,7 +16,7 @@ class CreateInstanceOperation : MMOperation {
 	let requireResponse: Bool
 	var body: [String: Any]
 
-	init?(currentInstallation: MMInstallation, dirtyInstallation: MMInstallation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
+    init?(userInitiated: Bool, currentInstallation: MMInstallation, dirtyInstallation: MMInstallation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = requireResponse
@@ -32,7 +32,7 @@ class CreateInstanceOperation : MMOperation {
 		}
 
 		self.body = InstallationDataMapper.postRequestPayload(dirtyInstallation: dirtyInstallation, internalData: mmContext.internalData())
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 
@@ -48,13 +48,14 @@ class CreateInstanceOperation : MMOperation {
 
 	private func performRequest() {
 		body["notificationsEnabled"] = true // this is a workaround because registration may happen before user granted any permissions, so that they may be undefined. Forcing true.
-		mmContext.remoteApiProvider.postInstance(applicationCode: mmContext.applicationCode, body: body) { (result) in
+        mmContext.remoteApiProvider.postInstance(applicationCode: mmContext.applicationCode, body: body, queue: self.underlyingQueue) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}
 	}
 
 	private func handleResult(_ result: FetchInstanceDataResult) {
+        assert(!Thread.isMainThread)
 		guard !isCancelled else {
 			logDebug("cancelled.")
 			return
@@ -84,6 +85,7 @@ class CreateInstanceOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first)
 	}

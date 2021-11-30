@@ -9,15 +9,6 @@ import Foundation
 
 class BaseUrlManager: MobileMessagingService {
     private let defaultTimeout: Double = 60 * 60 * 24 // a day
-    
-    init(mmContext: MobileMessaging) {
-        super.init(mmContext: mmContext, uniqueIdentifier: "BaseUrlManager")
-    }
-    
-    override func appWillEnterForeground() {
-        checkBaseUrl({})
-    }
-    
     private var lastCheckDate : Date? {
         set {
             UserDefaults.standard.set(newValue, forKey: Consts.BaseUrlRecovery.lastCheckDateKey)
@@ -27,6 +18,14 @@ class BaseUrlManager: MobileMessagingService {
             return UserDefaults.standard.object(forKey: Consts.BaseUrlRecovery.lastCheckDateKey) as? Date
         }
     }
+    
+    init(mmContext: MobileMessaging) {
+        super.init(mmContext: mmContext, uniqueIdentifier: "BaseUrlManager")
+    }
+    
+    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+        checkBaseUrl({ completion() })
+    }
         
     func checkBaseUrl(_ completion: @escaping (() -> Void)) {
         guard itsTimeToCheckBaseUrl() else {
@@ -34,7 +33,7 @@ class BaseUrlManager: MobileMessagingService {
             return
         }
         logDebug("Checking actual base URL...")
-        mmContext.remoteApiProvider.getBaseUrl(applicationCode: mmContext.applicationCode) {
+        mmContext.remoteApiProvider.getBaseUrl(applicationCode: mmContext.applicationCode, queue: mmContext.queue) {
             self.handleResult(result: $0)
             completion()
         }

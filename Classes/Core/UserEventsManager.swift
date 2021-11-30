@@ -89,7 +89,7 @@ class UserEventsManager {
 	}
 
 	class func post(_ name: String, _ userInfo: [String: Any]? = nil) {
-		MMQueue.Main.queue.executeAsync {
+        DispatchQueue.main.async {
 			NotificationCenter.default.post(name: NSNotification.Name(rawValue: name), object: self, userInfo: userInfo)
 		}
 	}

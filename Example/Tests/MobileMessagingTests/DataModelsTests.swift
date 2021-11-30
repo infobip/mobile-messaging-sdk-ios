@@ -55,11 +55,11 @@ class DataModelsTests: MMTestCase {
 				"customAttributes": [ "bootsize": NSNumber(value: 9) ]
 			]
 		]
-		
 		XCTAssertEqual(payload! as NSDictionary, expected)
 	}
 	
 	func testUserDataPayload() {
+		MMTestCase.startWithCorrectApplicationCode()
 		// datetime
 		do {
 			MMUser.resetDirty()
@@ -256,9 +256,12 @@ class DataModelsTests: MMTestCase {
 			]
 			XCTAssertEqual((request.body! as NSDictionary), expectedDict)
 		}
+		self.waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testInstallationDataPayloadMapperForPatchRequest() {
+		MMTestCase.startWithCorrectApplicationCode()
+		
 		let installation = MobileMessaging.getInstallation()!
 		installation.applicationUserId = "applicationUserId"
 		installation.pushRegistrationId = "pushRegistrationId"
@@ -302,9 +305,12 @@ class DataModelsTests: MMTestCase {
 			"deviceTimezoneOffset" : "GMT+03:30"
 		]
 		XCTAssertEqual((request.body! as NSDictionary), expectedDict)
+		self.waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testThatCustomAttributesDeltaIsCorrect_regression() {
+		MMTestCase.startWithCorrectApplicationCode()
+		
 		let installation = MobileMessaging.getInstallation()!
 		installation.customAttributes = [:]
 		installation.archiveCurrent()
@@ -315,9 +321,12 @@ class DataModelsTests: MMTestCase {
 		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
 		
 		XCTAssertNil(body["customAttributes"])
+		self.waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testThatCustomAttributesChangedFromNonEmptyToEmptyShouldBeSentAsEmpty_regression2() {
+		MMTestCase.startWithCorrectApplicationCode()
+		
 		let installation = MobileMessaging.getInstallation()!
 		installation.customAttributes = ["1":"2"] as [String : MMAttributeType]
 		installation.archiveCurrent()
@@ -329,9 +338,12 @@ class DataModelsTests: MMTestCase {
 		
 		XCTAssertNotNil(body["customAttributes"])
 		XCTAssertTrue((body["customAttributes"] as! [String : MMAttributeType]).isEmpty)
+		self.waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testThatUnsupportedDatatypeElementMustBeOmitted() {
+		MMTestCase.startWithCorrectApplicationCode()
+		
 		MMUser.resetDirty()
 		MMUser.resetCurrent()
 		
@@ -345,9 +357,12 @@ class DataModelsTests: MMTestCase {
 		
 		let body = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: mobileMessagingInstance.dirtyUser())
 		XCTAssertNil(body)
+		self.waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testThatCustomAttributesWithNoDifferenceShouldNotBeSent() {
+		MMTestCase.startWithCorrectApplicationCode()
+		
 		let installation = MobileMessaging.getInstallation()!
 		installation.customAttributes = ["1":"2"] as [String : MMAttributeType]
 		installation.archiveCurrent()
@@ -361,9 +376,11 @@ class DataModelsTests: MMTestCase {
 		let body = InstallationDataMapper.patchRequestPayload(currentInstallation: mobileMessagingInstance.currentInstallation(), dirtyInstallation: mobileMessagingInstance.dirtyInstallation(), internalData: mobileMessagingInstance.internalData())
 		
 		XCTAssertNil(body["customAttributes"])
+		self.waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testInstallationDataPayloadMapperForPostRequest() {
+		MMTestCase.startWithCorrectApplicationCode()
 		
 		let installation = MobileMessaging.getInstallation()!
 		
@@ -411,6 +428,7 @@ class DataModelsTests: MMTestCase {
 			"deviceTimezoneOffset" : "GMT+03:30"
 		]
 		XCTAssertEqual((request.body! as NSDictionary), expectedDict)
+		self.waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testInstallationObjectsConstructor() {

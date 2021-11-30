@@ -10,7 +10,8 @@ class UserDataService: MobileMessagingService {
 		super.init(mmContext: mmContext, uniqueIdentifier: "UserDataService")
 	}
 
-	func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
+    func setInstallation(userInitiated: Bool, withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		let finish: (NSError?) -> Void = { (error) in
 			if error == nil {
 				let ins = self.resolveInstallationsAfterPrimaryChange(pushRegId, primary)
@@ -24,7 +25,7 @@ class UserDataService: MobileMessagingService {
 		if mmContext.currentInstallation().pushRegistrationId == pushRegId {
 			let ci = mmContext.currentInstallation()
 			ci.isPrimaryDevice = primary
-			mmContext.installationService.save(installationData: ci, completion: finish)
+            mmContext.installationService.save(userInitiated: userInitiated, installationData: ci, completion: finish)
 		} else {
 			guard let authPushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 				logError("There is no registration. Finishing setting other reg primary...")
@@ -32,7 +33,7 @@ class UserDataService: MobileMessagingService {
 				return
 			}
 			let body = ["isPrimary": primary]
-			mmContext.remoteApiProvider.patchOtherInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, pushRegistrationId: pushRegId, body: body) { (result) in
+            mmContext.remoteApiProvider.patchOtherInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, pushRegistrationId: pushRegId, body: body, queue: DispatchQueue.main) { (result) in
 				switch result {
 				case .Cancel :
 					finish(NSError(type: MMInternalErrorType.UnknownError)) // cannot happen!
@@ -43,19 +44,26 @@ class UserDataService: MobileMessagingService {
 		}
 	}
 
-	func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
+    func depersonalizeInstallation(userInitiated: Bool, withPushRegistrationId pushRegId: String, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
+        assert(!Thread.isMainThread)
+        let queuedCompletion: ([MMInstallation]?, NSError?) -> Void = { installations, error in
+            let completionQueue = userInitiated ? DispatchQueue.main : installationQueue.underlyingQueue!
+            completionQueue.async {
+                completion(installations, error)
+            }
+        }
 		guard pushRegId != mmContext.currentInstallation().pushRegistrationId else {
 			logError("Attempt to depersonalize current installation with inappropriate API. Aborting depersonalizing other oreg...")
-			completion(mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.CantLogoutCurrentRegistration))
+            queuedCompletion(mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.CantLogoutCurrentRegistration))
 			return
 		}
 		guard let authPushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 			logError("There is no registration. Finishing depersonalizing other reg...")
-			completion(mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.NoRegistration))
+            queuedCompletion(mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.NoRegistration))
 			return
 		}
-
-		mmContext.remoteApiProvider.depersonalize(applicationCode: mmContext.applicationCode, pushRegistrationId: authPushRegistrationId, pushRegistrationIdToDepersonalize: pushRegId) { (result) in
+        
+        mmContext.remoteApiProvider.depersonalize(applicationCode: mmContext.applicationCode, pushRegistrationId: authPushRegistrationId, pushRegistrationIdToDepersonalize: pushRegId, queue: installationQueue.underlyingQueue!) { (result) in
 
 			if result.error == nil {
 				let ins = self.resolveInstallationsAfterLogout(pushRegId)
@@ -63,14 +71,15 @@ class UserDataService: MobileMessagingService {
 					user.installations = ins
 				})
 			}
-			completion(self.mmContext.resolveUser().installations, result.error)
+            queuedCompletion(self.mmContext.resolveUser().installations, result.error)
 		}
 	}
 
-	func save(userData: MMUser, completion: @escaping (NSError?) -> Void) {
+    func save(userInitiated: Bool, userData: MMUser, completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		logDebug("saving \(userData.dictionaryRepresentation)")
 		userData.archiveDirty()
-		syncWithServer(completion)
+        syncWithServer(userInitiated: userInitiated, completion: completion)
 	}
 
 	var isChanged: Bool {
@@ -78,6 +87,7 @@ class UserDataService: MobileMessagingService {
 	}
 
 	func resolveInstallationsAfterPrimaryChange(_ pushRegId: String, _ isPrimary: Bool) -> [MMInstallation]? {
+        assert(!Thread.isMainThread)
 		let ret = mmContext.resolveUser().installations
 		if let idx = ret?.firstIndex(where: { $0.isPrimaryDevice == true }) {
 			ret?[idx].isPrimaryDevice = false
@@ -89,6 +99,7 @@ class UserDataService: MobileMessagingService {
 	}
 
 	func resolveInstallationsAfterLogout(_ pushRegId: String) -> [MMInstallation]? {
+        assert(!Thread.isMainThread)
 		var ret = mmContext.resolveUser().installations
 		if let idx = ret?.firstIndex(where: { $0.pushRegistrationId == pushRegId }) {
 			ret?.remove(at: idx)
@@ -96,8 +107,8 @@ class UserDataService: MobileMessagingService {
 		return ret
 	}
 
-	func personalize(forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (NSError?) -> Void) {
-
+    func personalize(userInitiated: Bool, forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		let du = mmContext.dirtyUser()
 		UserDataMapper.apply(userIdentity: userIdentity, to: du)
 		if let userAttributes = userAttributes {
@@ -106,6 +117,7 @@ class UserDataService: MobileMessagingService {
 		du.archiveDirty()
 
 		let op = PersonalizeOperation(
+            userInitiated: userInitiated,
 			forceDepersonalize: forceDepersonalize,
 			userIdentity: userIdentity,
 			userAttributes: userAttributes,
@@ -117,9 +129,11 @@ class UserDataService: MobileMessagingService {
 
 	}
 
-	func fetchFromServer(completion: @escaping (MMUser, NSError?) -> Void) {
+    func fetchFromServer(userInitiated: Bool, completion: @escaping (MMUser, NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		logDebug("fetch from server")
 		let op = FetchUserOperation(
+            userInitiated: userInitiated,
 			currentUser: mmContext.currentUser(),
 			dirtyUser: mmContext.dirtyUser(),
 			mmContext: mmContext,
@@ -130,27 +144,33 @@ class UserDataService: MobileMessagingService {
 
 	// MARK: - MobileMessagingService protocol {
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
-		logDebug("log out")
+        assert(!Thread.isMainThread)
+		logDebug("depersonalizing...")
 		MMUser.empty.archiveAll()
 		completion()
 	}
 
-	override func appWillEnterForeground() {
-		syncWithServer({_ in})
+	override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
+        syncWithServer(userInitiated: false) {_ in completion() }
 	}
 
-	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
-		syncWithServer({_ in})
+	override func mobileMessagingDidStart(_ completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
+        syncWithServer(userInitiated: false) {_ in completion() }
 	}
     
-    override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
+    override func mobileMessagingWillStop(_ completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
         MMUser.cached.reset()
+        completion()
     }
 
-	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+    func syncWithServer(userInitiated: Bool, completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		logDebug("sync user data with server")
-
 		if let op = UpdateUserOperation(
+            userInitiated: userInitiated,
 			currentUser: mmContext.currentUser(),
 			dirtyUser: mmContext.dirtyUser(),
 			mmContext: mmContext,
@@ -162,5 +182,4 @@ class UserDataService: MobileMessagingService {
 			completion(nil)
 		}
 	}
-	// MARK: }
 }

@@ -18,7 +18,8 @@
     "responseBody": {
       "payloads": []
     }
-  }, {
+  },
+      {
     "responseStatus": 200,
     "headers": {
       "authorization": "App someCorrectApplicationID",
@@ -60,7 +61,8 @@
         "customPayload": ""
       }]
     }
-  }, {
+  },
+  {
     "responseStatus": 200,
     "headers": {
       "authorization": "App CorrectIdMergeSynchronization",

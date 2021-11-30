@@ -11,10 +11,10 @@ import XCTest
 
 class EventsTests: MMTestCase {
 	func testSuccessfulSyncEventSubmit() {
-		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithCorrectApplicationCode()
-		weak var expectation = self.expectation(description: "case is finished")
-		weak var expectation2 = self.expectation(description: "case is finished")
+
+		weak var expectation = self.expectation(description: "expectation1")
+		weak var expectation2 = self.expectation(description: "expectation2")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
 		let event = MMCustomEvent(definitionId: "event1", properties: [
@@ -50,7 +50,7 @@ class EventsTests: MMTestCase {
 				expectation?.fulfill()
 			}
 		})
-		waitForExpectations(timeout: 20, handler: { _ in
+		waitForExpectations(timeout: 5, handler: { _ in
 			let ctx = self.storage.mainThreadManagedObjectContext!
 			let sessions = CustomEventObject.MM_findAllInContext(ctx)!
 			XCTAssertTrue(sessions.isEmpty)
@@ -58,8 +58,8 @@ class EventsTests: MMTestCase {
 	}
 
 	func testFailedAsyncEventSubmit() {
-		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "case is finished")
 		weak var expectation2 = self.expectation(description: "case is finished")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID

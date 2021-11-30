@@ -18,7 +18,7 @@ class GeoCleanupOperation : MMOperation {
 		self.finishBlock = finishBlock
 		self.context = datasource.context
 
-		super.init()
+		super.init(isUserInitiated: false)
 	}
 
 	override func execute() {
@@ -34,6 +34,7 @@ class GeoCleanupOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logVerbose("finished: \(errors)")
 		finishBlock(errors.first)
 	}

@@ -20,7 +20,7 @@ class LocalMessageFetchingOperation : MMOperation {
 		self.notificationExtensionStorage = notificationExtensionStorage
 		self.finishBlock = finishBlock
 		self.userNotificationCenterStorage = userNotificationCenterStorage
-		super.init()
+		super.init(isUserInitiated: false)
 	}
 	
 	override func execute() {
@@ -52,6 +52,7 @@ class LocalMessageFetchingOperation : MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		let messages = Array(result)
 		finishBlock(messages)

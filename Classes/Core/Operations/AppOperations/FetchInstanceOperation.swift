@@ -14,7 +14,7 @@ class FetchInstanceOperation : MMOperation {
 	let finishBlock: ((NSError?) -> Void)
 	let pushRegistrationId: String
 
-	init?(currentInstallation: MMInstallation, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
+    init?(userInitiated: Bool, currentInstallation: MMInstallation, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.currentInstallation = currentInstallation
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
@@ -24,7 +24,7 @@ class FetchInstanceOperation : MMOperation {
 			Self.logDebug("There is no registration. Abortin...")
 			return nil
 		}
-		super.init()
+        super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 
@@ -39,13 +39,14 @@ class FetchInstanceOperation : MMOperation {
 	}
 
 	private func performRequest() {
-		mmContext.remoteApiProvider.getInstance(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId) { (result) in
+        mmContext.remoteApiProvider.getInstance(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, queue: underlyingQueue) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)
 		}
 	}
 
 	private func handleResult(_ result: FetchInstanceDataResult) {
+        assert(!Thread.isMainThread)
 		guard !isCancelled else {
 			logDebug("cancelled.")
 			return
@@ -68,6 +69,7 @@ class FetchInstanceOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first) //check what to do with errors/
 	}

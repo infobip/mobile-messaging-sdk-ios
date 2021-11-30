@@ -40,13 +40,13 @@ final class MessageHandlingOperation: MMOperation {
 	let isNotificationTapped: Bool
 	let mmContext: MobileMessaging
 	
-	init(messagesToHandle: [MM_MTMessage], context: NSManagedObjectContext, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: @escaping (NSError?, Set<MM_MTMessage>?) -> Void) {
+    init(userInitiated: Bool, messagesToHandle: [MM_MTMessage], context: NSManagedObjectContext, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: @escaping (NSError?, Set<MM_MTMessage>?) -> Void) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
 		self.finishBlock = finishBlock
 		self.isNotificationTapped = isNotificationTapped
 		self.mmContext = mmContext
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 		
 		self.userInitiated = true
 	}
@@ -99,7 +99,10 @@ final class MessageHandlingOperation: MMOperation {
 		logDebug("inserting messages in message storage: \(messages)")
 		storages.forEachAsync({ (storage, finishBlock) in
 			storage.insert(incoming: messages, completion: finishBlock)
-		}, completion: completion)
+        }, completion: {
+            self.logDebug("inserting messages in message storage: DONE")
+            completion()
+        })
 	}
 	
 	private func notifyAboutNewMessages(_ messages: [MM_MTMessage], completion: (() -> Void)? = nil) {
@@ -188,6 +191,7 @@ final class MessageHandlingOperation: MMOperation {
 	
 //MARK: -
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("Message handling finished with errors: \(errors)")
 		self.finishBlock(errors.first, newMessages)
 	}

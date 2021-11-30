@@ -14,12 +14,10 @@ class MessagePostingOperation: MMOperation {
 	let finishBlock: ((MOMessageSendingResult) -> Void)?
 	let messages: Set<MM_MOMessage>?
 	let mmContext: MobileMessaging
-	let isUserInitiated: Bool
 	var sentMessageObjectIds = [NSManagedObjectID]()
 	var operationResult = MOMessageSendingResult.Cancel
 	
-	init(messages: [MM_MOMessage]?, isUserInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
-		self.isUserInitiated = isUserInitiated
+    init(userInitiated: Bool, messages: [MM_MOMessage]?, isUserInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((MOMessageSendingResult) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		if let messages = messages, !messages.isEmpty {
@@ -28,7 +26,7 @@ class MessagePostingOperation: MMOperation {
 			self.messages = nil
 		}
 		self.mmContext = mmContext
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 	
@@ -50,7 +48,7 @@ class MessagePostingOperation: MMOperation {
 				messagesToSend = MessagePostingOperation.findNewMOMessages(among: messages, inContext: self.context)
 				
 				// if not user-initiated we must guarantee retries, thus persist the MOs
-				if !self.isUserInitiated {
+				if !self.userInitiated {
 					messagesToSend.forEach { originalMessage in
 						let newDBMessage = MessageManagedObject.MM_createEntityInContext(context: self.context)
 						newDBMessage.messageId = originalMessage.messageId
@@ -94,7 +92,7 @@ class MessagePostingOperation: MMOperation {
 	func sendMessages(_ msgs: [MM_MOMessage], pushRegistrationId: String) {
 		UserEventsManager.postWillSendMessageEvent(msgs)
 		let body = MOSendingMapper.requestBody(pushRegistrationId: pushRegistrationId, messages: msgs)
-		self.mmContext.remoteApiProvider.sendMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body) { result in
+        self.mmContext.remoteApiProvider.sendMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: underlyingQueue) { result in
 			self.operationResult = result
 			self.handleResult(result: result, originalMessagesToSend: msgs) {
 				self.finishWithError(result.error)
@@ -127,7 +125,7 @@ class MessagePostingOperation: MMOperation {
 	}
 	
 	private func populateMessageStorageIfNeeded(with messages: [MM_MOMessage], completion: @escaping () -> Void) {
-		guard isUserInitiated else {
+		guard userInitiated else {
 			completion()
 			return
 		}
@@ -138,7 +136,7 @@ class MessagePostingOperation: MMOperation {
 	}
 	
 	private func updateMessageStorageIfNeeded(with messages: [MM_MOMessage], completion: @escaping () -> Void) {
-		guard !messages.isEmpty, isUserInitiated else {
+		guard !messages.isEmpty, userInitiated else {
 			completion()
 			return
 		}
@@ -149,7 +147,7 @@ class MessagePostingOperation: MMOperation {
 	}
 	
 	private func updateMessageStorageOnFailureIfNeeded(with messageIds: [String], completion: @escaping () -> Void) {
-		guard !messageIds.isEmpty, isUserInitiated else {
+		guard !messageIds.isEmpty, userInitiated else {
 			completion()
 			return
 		}
@@ -188,6 +186,7 @@ class MessagePostingOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? operationResult : MOMessageSendingResult.Failure(errors.first)
 		self.finishBlock?(finishResult)

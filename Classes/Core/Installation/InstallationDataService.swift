@@ -8,38 +8,45 @@
 import Foundation
 import CoreLocation
 
-let installationQueue = MMOperationQueue.newSerialQueue
+let installationDispatchQueue = DispatchQueue(label: "installation-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
+let installationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: installationDispatchQueue)
 
 final class InstallationDataService: MobileMessagingService {
 	init(mmContext: MobileMessaging) {
 		super.init(mmContext: mmContext, uniqueIdentifier: "InstallationDataService")
 	}
     
-    override func mobileMessagingWillStart(_ mmContext: MobileMessaging) {
-        start({_ in })
+    override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
+        start({_ in completion() })
     }
 
-    override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
+    override func mobileMessagingWillStop(_ completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
         MMInstallation.cached.reset()
-        stop({_ in})
+        completion()
     }
     
     override func start(_ completion: @escaping (Bool) -> Void) {
+        assert(!Thread.isMainThread)
         super.start(completion)
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleError(_:)),
             name: NSNotification.Name(rawValue: MMNotificationAPIError), object: nil)
-        syncWithServer({ _ in })
+        syncWithServer(userInitiated: false) { _ in }
     }
 	
     @objc func handleError(_ notifictaion: Notification) {
-        if let error = notifictaion.userInfo?[MMNotificationKeyAPIErrorUserInfo] as? NSError, error.mm_code == "NO_REGISTRATION" {
-            recoverRegistration()
+        installationQueue.addOperation {
+            if let error = notifictaion.userInfo?[MMNotificationKeyAPIErrorUserInfo] as? NSError, error.mm_code == "NO_REGISTRATION" {
+                self.recoverRegistration(userInitiated: false)
+            }
         }
     }
     
-    func recoverRegistration() {
+    func recoverRegistration(userInitiated: Bool) {
+        assert(!Thread.isMainThread)
         let dirtyInstallation = mmContext.dirtyInstallation()
         if dirtyInstallation.pushServiceToken != nil && dirtyInstallation.pushRegistrationId != nil {
             logDebug("recovering registration...")
@@ -47,11 +54,12 @@ final class InstallationDataService: MobileMessagingService {
             MMInstallation.resetCurrent()
             dirtyInstallation.pushRegistrationId = nil
             dirtyInstallation.archiveDirty()
-            syncWithServer({ _ in })
+            syncWithServer(userInitiated: userInitiated) { _ in }
         }
     }
         
 	func getUniversalInstallationId() -> String {
+        assert(!Thread.isMainThread)
 		let key = "com.mobile-messaging.universal-installation-id"
 		if let universalInstallationId = UserDefaults.standard.string(forKey: key) {
 			return universalInstallationId
@@ -62,41 +70,26 @@ final class InstallationDataService: MobileMessagingService {
 		}
 	}
 
-	func save(deviceToken: Data, completion: @escaping (NSError?) -> Void) {
+    func save(userInitiated: Bool, deviceToken: Data, completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		let di = mmContext.dirtyInstallation()
 		di.pushServiceToken = deviceToken.mm_toHexString
 		di.archiveDirty()
-		syncWithServer(completion)
+        syncWithServer(userInitiated: userInitiated, completion)
 	}
 
-	func save(installationData: MMInstallation, completion: @escaping (NSError?) -> Void) {
+    func save(userInitiated: Bool, installationData: MMInstallation, completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		logDebug("saving \(installationData.dictionaryRepresentation)")
 		installationData.archiveDirty()
-		syncWithServer(completion)
+        syncSystemDataWithServer(userInitiated: userInitiated, completion: completion)
 	}
 
-	func syncSystemDataWithServer(completion: @escaping ((NSError?) -> Void)) {
-		logDebug("send system data to server...")
-		let currentInstallation = mmContext.currentInstallation()
-		let dirtyInstallation = mmContext.dirtyInstallation()
-		
-		if let op = UpdateInstanceOperation(
-			currentInstallation: currentInstallation,
-			dirtyInstallation: dirtyInstallation,
-			registrationPushRegIdToUpdate: currentInstallation.pushRegistrationId,
-			mmContext: mmContext,
-			requireResponse: false,
-			finishBlock: { completion($0)} )
-		{
-			installationQueue.addOperation(op)
-		} else {
-			completion(nil)
-		}
-	}
-
-	func fetchFromServer(completion: @escaping ((MMInstallation, NSError?) -> Void)) {
+    func fetchFromServer(userInitiated: Bool, completion: @escaping ((MMInstallation, NSError?) -> Void)) {
+        assert(!Thread.isMainThread)
 		logDebug("fetch from server")
 		if let op = FetchInstanceOperation(
+            userInitiated: userInitiated,
 			currentInstallation: mmContext.currentInstallation(),
 			mmContext: mmContext,
 			finishBlock: { completion(self.mmContext.resolveInstallation(), $0) })
@@ -107,21 +100,24 @@ final class InstallationDataService: MobileMessagingService {
 		}
 	}
 
-	func resetRegistration(completion: @escaping (NSError?) -> Void) {
+	func resetRegistration(userInitiated: Bool, completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		logDebug("resetting registration...")
-		let op = RegistrationResetOperation(mmContext: mmContext, apnsRegistrationManager: mmContext.apnsRegistrationManager, finishBlock: completion)
+		let op = RegistrationResetOperation(userInitiated: userInitiated, mmContext: mmContext, apnsRegistrationManager: mmContext.apnsRegistrationManager, finishBlock: completion)
 		installationQueue.addOperation(op)
 	}
 
-	func depersonalize(completion: @escaping (_ status: MMSuccessPending, _ error: NSError?) -> Void) {
-		let op = DepersonalizeOperation(mmContext: mmContext, finishBlock: completion)
+    func depersonalize(userInitiated: Bool, completion: @escaping (_ status: MMSuccessPending, _ error: NSError?) -> Void) {
+        assert(!Thread.isMainThread)
+        let op = DepersonalizeOperation(userInitiated: userInitiated, mmContext: mmContext, finishBlock: completion)
 		op.queuePriority = .veryHigh
 		installationQueue.addOperation(op)
 	}
 
 	// MARK: - MobileMessagingService protocol
 	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
-		logDebug("log out")
+        assert(!Thread.isMainThread)
+		logDebug("depersonalizing...")
 
 		let ci = mmContext.currentInstallation() //dup
 		ci.customAttributes = [:]
@@ -130,52 +126,84 @@ final class InstallationDataService: MobileMessagingService {
 		completion()
 	}
 
-	override func appWillEnterForeground() {
-		syncWithServer({_ in})
-		performDepersonalizeIfNeeded()
+	override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
+		syncWithServer(userInitiated: false) {_ in
+            self.performDepersonalizeIfNeeded(userInitiated: false, completion: completion)
+        }
 	}
 
-	override func geoServiceDidStart(_ n: Notification) {
-		syncSystemDataWithServer() { _ in }
+	override func geoServiceDidStart(_ completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
+		syncSystemDataWithServer(userInitiated: false) { _ in completion() }
 	}
 
-	private func performDepersonalizeIfNeeded() {
+    private func performDepersonalizeIfNeeded(userInitiated: Bool, completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
 		if mmContext.internalData().currentDepersonalizationStatus == .pending {
-			depersonalize(completion: { _, _ in })
-		}
+            depersonalize(userInitiated: userInitiated) { _, _ in completion() }
+        } else {
+            completion()
+        }
 	}
+    
+    func syncSystemDataWithServer(userInitiated: Bool, completion: @escaping ((NSError?) -> Void)) {
+        assert(!Thread.isMainThread)
+        logDebug("send system data to server...")
+        let ci = mmContext.currentInstallation()
+        let di = mmContext.dirtyInstallation()
+        
+        if let op = UpdateInstanceOperation(
+            userInitiated: userInitiated,
+            currentInstallation: ci,
+            dirtyInstallation: di,
+            registrationPushRegIdToUpdate: ci.pushRegistrationId,
+            mmContext: mmContext,
+            requireResponse: false,
+            finishBlock: { completion($0)} )
+        {
+            installationQueue.addOperation(op)
+        } else {
+            completion(nil)
+        }
+    }
 
-	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+    func syncWithServer(userInitiated: Bool, _ completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		logDebug("sync installation data with server...")
-
 		let ci = mmContext.currentInstallation()
 		let di = mmContext.dirtyInstallation()
+        
 		if let op = UpdateInstanceOperation(
+            userInitiated: userInitiated,
 			currentInstallation: ci,
 			dirtyInstallation: di,
 			registrationPushRegIdToUpdate: ci.pushRegistrationId,
 			mmContext: mmContext,
 			requireResponse: false,
-			finishBlock: { self.expireIfNeeded(error: $0, completion) })
+            finishBlock: { self.expireIfNeeded(userInitiated: userInitiated, error: $0, completion) })
 			??
 			CreateInstanceOperation(
+                userInitiated: userInitiated,
 				currentInstallation: ci,
 				dirtyInstallation: di,
 				mmContext: mmContext,
 				requireResponse: true,
-				finishBlock: { self.expireIfNeeded(error: $0, completion) })
+                finishBlock: { self.expireIfNeeded(userInitiated: userInitiated, error: $0, completion) })
 		{
 			installationQueue.addOperation(op)
 		} else {
-			expireIfNeeded(error: nil, completion)
+            expireIfNeeded(userInitiated: userInitiated, error: nil, completion)
 		}
 	}
 
 	// MARK: }
 
-	private func expireIfNeeded(error: NSError?, _ completion: @escaping (NSError?) -> Void) {
+    private func expireIfNeeded(userInitiated: Bool, error: NSError?, _ completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		if let actualPushRegId = self.mmContext.currentInstallation().pushRegistrationId, let keychainPushRegId = self.mmContext.keychain.pushRegId, actualPushRegId != keychainPushRegId {
 			let deleteExpiredInstanceOp = DeleteInstanceOperation(
+                userInitiated: userInitiated,
 				pushRegistrationId: actualPushRegId,
 				expiredPushRegistrationId: keychainPushRegId,
 				mmContext: self.mmContext,

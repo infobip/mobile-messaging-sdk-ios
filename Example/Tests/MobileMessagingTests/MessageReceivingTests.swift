@@ -177,11 +177,13 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testMessagesPersisting() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "Check finished")
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo,  completion: { _ in
 				DispatchQueue.main.async {
 					iterationCounter += 1
 					if iterationCounter == expectedMessagesCount {
@@ -196,6 +198,7 @@ class MessageReceivingTests: MMTestCase {
 	}
     
     func testChatMessagesCounter() {
+        MMTestCase.startWithCorrectApplicationCode()
         MMInAppChatService.sharedInstance = MMInAppChatService(mmContext: mobileMessagingInstance)
         MMInAppChatService.sharedInstance?.start({ _ in })
         
@@ -208,10 +211,8 @@ class MessageReceivingTests: MMTestCase {
         weak var expectation = self.expectation(description: "Check finished")
             
         let payload = MM_MTMessage(payload: chatPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!.originalPayload
-        self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
-            DispatchQueue.main.async {
-                expectation?.fulfill()
-            }
+        self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload,  completion: { _ in
+            expectation?.fulfill()
         })
         
         self.waitForExpectations(timeout: 60, handler: { error in
@@ -220,16 +221,18 @@ class MessageReceivingTests: MMTestCase {
     }
 	
 	func testMessagesPersistingForDisabledRegistration() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "Check finished")
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 
 		MobileMessaging.sharedInstance?.isPushRegistrationEnabled = false
-		MobileMessaging.sharedInstance?.installationService.syncWithServer({ _ in
+		MobileMessaging.sharedInstance?.installationService.syncWithServer(userInitiated: false) { _ in
 			
 			sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 				
-				self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo,  completion: { _ in
+				self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo,  completion: { _ in
 					DispatchQueue.main.async {
 						iterationCounter += 1
 						if iterationCounter == expectedMessagesCount {
@@ -238,13 +241,15 @@ class MessageReceivingTests: MMTestCase {
 					}
 				})
 			}
-		})
+		}
 		self.waitForExpectations(timeout: 60, handler: { error in
 			XCTAssertEqual(0, MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "There must be not any message in db, since we disabled the registration")
 		})
 	}
 
 	func testThatSilentMessagesEventsWorks() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		let expectedEventsCount: Int = 5
 		var eventsCounter: Int = 0
 		var messageHandlingCounter: Int = 0
@@ -259,7 +264,7 @@ class MessageReceivingTests: MMTestCase {
 		}
 		
 		sendPushes(apnsSilentMessagePayload, count: expectedEventsCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { (error) in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo, completion: { (error) in
 				messageHandlingCounter += 1
 				if (messageHandlingCounter == 5) {
 					messageHandlingFinished?.fulfill()
@@ -273,6 +278,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 	
 	func testTapHandlingForInactiveApplication() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		collectSixTappedMessages(forApplication: InactiveApplicationStub()) { tappedMessages in
 
 			XCTAssertEqual(tappedMessages.count, 6)
@@ -299,6 +306,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testTapHandlerCalledIfUserInfoContainsApplicationLaunchedByNotificationKey() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		collectSixTappedMessages(forApplication: ActiveApplicationStub(), additionalPayload: [ApplicationLaunchedByNotification_Key: true]) { (tappedMessages) in
 			XCTAssertEqual(tappedMessages.count, 6)
 		}
@@ -328,18 +337,18 @@ class MessageReceivingTests: MMTestCase {
 		let payload1 = apnsNormalMessagePayload("m1") + additionalPayload
 		let payload2 = apnsNormalMessagePayload("m2") + additionalPayload
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload1,  completion: { _ in
 			messageReceived1?.fulfill()
 			
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload1,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload1,  completion: { _ in
 				messageReceived3?.fulfill()
 			})
 		})
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { _ in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload2,  completion: { _ in
 			messageReceived2?.fulfill()
 			
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload2,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload2,  completion: { _ in
 				messageReceived4?.fulfill()
 			})
 		})
@@ -348,10 +357,10 @@ class MessageReceivingTests: MMTestCase {
 		msg1.appliedAction = MMNotificationAction.defaultAction
 		let msg2 = MM_MTMessage.init(payload: payload2, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!
 		msg2.appliedAction = MMNotificationAction.defaultAction
-		NotificationsInteractionService.sharedInstance?.handleAnyMessage(msg1, completion: { (result) in
+        mobileMessagingInstance.notificationsInteractionService?.handleAnyMessage(msg1, completion: { (result) in
 			localNotificationHandled1?.fulfill()
 		})
-		NotificationsInteractionService.sharedInstance?.handleAnyMessage(msg2, completion: { (result) in
+        mobileMessagingInstance.notificationsInteractionService?.handleAnyMessage(msg2, completion: { (result) in
 			localNotificationHandled2?.fulfill()
 		})
 		
@@ -373,6 +382,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testThatNotificationCenterDelegateRecognizesTaps() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var eventReceived = self.expectation(description: "eventReceived")
 		weak var tapHandled = self.expectation(description: "tapHandled")
 		let delegateMock = MessageHandlingDelegateMock()
@@ -389,6 +400,7 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testThatBannerAlertWillBeResolved() {
+        MMTestCase.startWithCorrectApplicationCode()
 		let jsonStr  = """
 						{
 							"messageId": "messageId",
@@ -411,6 +423,7 @@ class MessageReceivingTests: MMTestCase {
 		let options = InteractiveMessageAlertManager.presentationOptions(for: m)
 		XCTAssertEqual(m.inAppStyle , MMInAppNotificationStyle.Banner)
 		XCTAssertEqual(options, UNNotificationPresentationOptions.make(with: mobileMessagingInstance.userNotificationType))
+        self.waitForExpectations(timeout: 60, handler: { error in })
 	}
 
 	func testThatModalAlertWillBeResolved() {
@@ -481,6 +494,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testThatModalAlertWillBeShownForModalInAppStyle() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		testThatModalAlertWillBeShownForModalStyle("""
 						{
 							"messageId": "messageId",
@@ -500,6 +515,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testThatModalAlertWillBeShownForAbsentInAppStyle() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		testThatModalAlertWillBeShownForModalStyle("""
 						{
 							"messageId": "messageId",
@@ -518,6 +535,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testThatInAppWebViewShownForWebViewUrlWhenTapActionPerformed() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		let message = """
 			{
 				"messageId": "messageId",
@@ -561,6 +580,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testThatInAppWebViewNotShownForWebViewUrlWhenDismissAction() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		let message = """
 			{
 				"messageId": "messageId",
@@ -600,6 +621,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	func testThatInAppWebViewNotInitializedWhenWebViewUrlOmitted() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		let message = """
 			{
 				"messageId": "messageId",
@@ -645,7 +668,7 @@ class MessageReceivingTests: MMTestCase {
 		}
 		mobileMessagingInstance.interactiveAlertManager = interactiveMessageAlertManagerMock
 
-		mobileMessagingInstance.didReceiveRemoteNotification(JSON.parse(pushJson).dictionaryObject!, completion: { _ in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: JSON.parse(pushJson).dictionaryObject!, completion: { _ in
 			messageHandled?.fulfill()
 		})
 

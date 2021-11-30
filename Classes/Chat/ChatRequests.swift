@@ -31,8 +31,8 @@ extension GetChatWidgetResponse: JSONDecodable {
 }
 
 extension RemoteAPIProvider {
-	func getChatWidget(applicationCode: String, pushRegistrationId: String?, completion: @escaping (GetChatWidgetResult) -> Void) {
+    func getChatWidget(applicationCode: String, pushRegistrationId: String?, queue: DispatchQueue, completion: @escaping (GetChatWidgetResult) -> Void) {
 		let request = GetWidgetRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId)
-		performRequest(request: request, completion: completion)
+        performRequest(request: request, queue: queue, completion: completion)
 	}
 }

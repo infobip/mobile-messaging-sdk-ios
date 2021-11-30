@@ -14,12 +14,12 @@ class EventPersistingOperation : MMOperation {
 	let pushRegId: String
 	let customEvent: MMCustomEvent
 
-	init(customEvent: MMCustomEvent, mmContext: MobileMessaging, pushRegId: String, context: NSManagedObjectContext, finishBlock: @escaping ((Error?) -> Void)) {
+    init(customEvent: MMCustomEvent, mmContext: MobileMessaging, pushRegId: String, context: NSManagedObjectContext, finishBlock: @escaping ((Error?) -> Void)) {
 		self.pushRegId = pushRegId
 		self.customEvent = customEvent
 		self.finishBlock = finishBlock
 		self.context = context
-		super.init()
+		super.init(isUserInitiated: false)
 	}
 
 	override func execute() {
@@ -41,6 +41,7 @@ class EventPersistingOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logVerbose("finished: \(errors)")
 		finishBlock(errors.first)
 	}

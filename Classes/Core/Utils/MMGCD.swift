@@ -40,7 +40,7 @@ final class MMQueueObject: CustomStringConvertible {
 	
 	var queueLabel: String?
 	
-	func executeAsync(closure: @escaping () -> Void) {
+	func async(closure: @escaping () -> Void) {
         if isCurrentQueue {
             closure()
         } else {
@@ -48,7 +48,7 @@ final class MMQueueObject: CustomStringConvertible {
         }
     }
     
-    func executeAsyncBarier(closure: @escaping () -> Void) {
+    func asyncBarier(closure: @escaping () -> Void) {
         if isCurrentQueue {
             closure()
         } else {
@@ -58,7 +58,7 @@ final class MMQueueObject: CustomStringConvertible {
         }
     }
 
-    func executeSync(closure: () -> Void) {
+    func sync(closure: () -> Void) {
         if isCurrentQueue {
             closure()
         } else {
@@ -85,8 +85,6 @@ protocol MMQueueEnum {
 	var queue: MMQueueObject {get}
 	var queueName: String {get}
 }
-
-
 
 enum MMQueue {
 	case Main
@@ -127,9 +125,10 @@ func getFromMain<T>(getter: () -> T) -> T {
 }
 
 func inMainWait(block: () -> Void) {
-	return MMQueue.Main.queue.executeSync(closure: block)
+	return MMQueue.Main.queue.sync(closure: block)
 }
 
 func inMain(block: @escaping () -> Void) {
-	return MMQueue.Main.queue.executeAsync(closure: block)
+	return MMQueue.Main.queue.async(closure: block)
 }
+

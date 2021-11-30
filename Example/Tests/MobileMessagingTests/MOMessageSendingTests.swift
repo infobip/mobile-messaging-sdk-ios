@@ -29,6 +29,8 @@ class MOMessageSendingTests: MMTestCase {
 	}
 	
 	func testInteractionMOAndRetries() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
 		let remoteApiProvider1 = mobileMessagingInstance.remoteApiProvider
@@ -85,9 +87,7 @@ class MOMessageSendingTests: MMTestCase {
 			}
 		}
 		
-		waitForExpectations(timeout: 20, handler: { _ in
-			
-		})
+		waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testMOMessageConstructors() {
@@ -104,7 +104,7 @@ class MOMessageSendingTests: MMTestCase {
 	}
 	
     func testSendMOMessageSuccessfully() {
-		
+        MMTestCase.startWithCorrectApplicationCode()
 		weak var expectation = self.expectation(description: "Sending finished")
 		
 		//Precondiotions
@@ -139,6 +139,8 @@ class MOMessageSendingTests: MMTestCase {
     }
 	
 	func testUserInitiatedMO() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "Sending finished")
 		//Precondiotions
 		let remoteApiProvider = RemoteAPIProviderStub()

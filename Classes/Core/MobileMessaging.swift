@@ -79,12 +79,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
 	*/
 	public func start(_ completion: (() -> Void)? = nil) {
-		self.doStart(completion)
-	}
-	
-	/** Syncronizes all available subservices with the server. */
-	public class func sync() {
-		MobileMessaging.sharedInstance?.sync()
+        queue.async {
+            self.doStart(completion)
+        }
 	}
 	
 	/**
@@ -102,11 +99,11 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- attention: This function doesn't disable push notifications, they are still being received by the OS.
 	*/
 	public class func stop(_ cleanUpData: Bool = false) {
-		if cleanUpData {
-			MobileMessaging.sharedInstance?.cleanUpAndStop()
-		} else {
-			MobileMessaging.sharedInstance?.stop()
-		}
+        if cleanUpData {
+            MobileMessaging.sharedInstance?.cleanUpAndStop()
+        } else {
+            MobileMessaging.sharedInstance?.stop()
+        }
 	}
 	
 	/** Call this method to initiate the registration process with Apple Push Notification service. User will be promt to allow receiving Push Notifications. */
@@ -128,7 +125,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	*/
 	public class func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data) {
 		// The app might call this method in other rare circumstances, such as when the user launches an app after having restored a device from data that is not the device’s backup data. In this exceptional case, the app won’t know the new device’s token until the user launches it. Thus we must persist this token as soon as we can so the SDK knows about it regardless of SDK's startup delays.
-		MobileMessaging.sharedInstance?.didRegisterForRemoteNotificationsWithDeviceToken(token) { _ in }
+        MobileMessaging.sharedInstance?.queue.async {
+            MobileMessaging.sharedInstance?.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: token) { _ in }
+        }
 	}
 	
 	/**
@@ -137,13 +136,15 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter completionHandler: A block to execute when the download operation is complete. The block is originally passed to AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback as a `fetchCompletionHandler` parameter. Mobile Messaging will execute this block after sending notification's delivery report.
 	*/
 	public class func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		guard let mm = MobileMessaging.sharedInstance else {
-			completionHandler(UIBackgroundFetchResult.failed)
-			return
-		}
-		mm.didReceiveRemoteNotification(userInfo, completion: { result in
-			completionHandler(result.backgroundFetchResult)
-		})
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.didReceiveRemoteNotification(userInitiated: false, userInfo: userInfo, completion: { result in
+                    completionHandler(result.backgroundFetchResult)
+                })
+            }
+        } else {
+            completionHandler(UIBackgroundFetchResult.failed)
+        }
 	}
 		
 	/** Returns the default message storage if used. For more information see `MMDefaultMessageStorage` class description. */
@@ -178,13 +179,15 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func fetchUser(completion: @escaping (_ user: MMUser?, _ error: NSError?) -> Void) {
-		if let us = MobileMessaging.sharedInstance?.userService {
-			us.fetchFromServer { (fetched, error) in
-				completion(fetched, error)
-			}
-		} else {
-			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.userService.fetchFromServer(userInitiated: true) { (fetched, error) in
+                    completion(fetched, error)
+                }
+            }
+        } else {
+            completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -196,13 +199,15 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func fetchInstallation(completion: @escaping (_ installation: MMInstallation?, _ error: NSError?) -> Void) {
-		if let service = MobileMessaging.sharedInstance?.installationService {
-			service.fetchFromServer { (fetched, error) in
-				completion(fetched, error)
-			}
-		} else {
-			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.installationService.fetchFromServer(userInitiated: true) { (fetched, error) in
+                    completion(fetched, error)
+                }
+            }
+        } else {
+            completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -214,11 +219,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func saveUser(_ user: MMUser, completion: @escaping (_ error: NSError?) -> Void) {
-		if let us = MobileMessaging.sharedInstance?.userService {
-			us.save(userData: user, completion: completion)
-		} else {
-			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.userService.save(userInitiated: true, userData: user, completion: completion)
+            }
+        } else {
+            completion(NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -230,11 +237,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func saveInstallation(_ installation: MMInstallation, completion: @escaping (_ error: NSError?) -> Void) {
-		if let service = MobileMessaging.sharedInstance?.installationService {
-			service.save(installationData: installation, completion: completion)
-		} else {
-			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.installationService.save(userInitiated: true, installationData: installation, completion: completion)
+            }
+        } else {
+            completion(NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -275,11 +284,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func depersonalize(completion: @escaping (_ status: MMSuccessPending, _ error: NSError?) -> Void) {
-		if let service = MobileMessaging.sharedInstance?.installationService {
-			service.depersonalize(completion: completion)
-		} else {
-			completion(MMSuccessPending.undefined, NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.installationService.depersonalize(userInitiated: true, completion: completion)
+            }
+        } else {
+            completion(MMSuccessPending.undefined, NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -296,7 +307,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter completion: The block to execute after the server responded.
 	- parameter error: Optional error. */
 	public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
-		personalize(forceDepersonalize: false, userIdentity: identity, userAttributes: userAttributes, completion: completion)
+        personalize(forceDepersonalize: false, userIdentity: identity, userAttributes: userAttributes, completion: completion)
 	}
 	
 	/**
@@ -310,11 +321,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter completion: The block to execute after the server responded.
 	- parameter error : Optional error. */
 	public class func personalize(forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
-		if let service = MobileMessaging.sharedInstance?.userService {
-			service.personalize(forceDepersonalize: forceDepersonalize, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
-		} else {
-			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.userService.personalize(userInitiated: true, forceDepersonalize: forceDepersonalize, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
+            }
+        } else {
+            completion(NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -328,11 +341,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping (_ installations: [MMInstallation]?, _ error: NSError?) -> Void) {
-		if let service = MobileMessaging.sharedInstance?.userService {
-			service.setInstallation(withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
-		} else {
-			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.userService.setInstallation(userInitiated: true, withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
+            }
+        } else {
+            completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -345,11 +360,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping (_ installations: [MMInstallation]?, _ error: NSError?) -> Void) {
-		if let service = MobileMessaging.sharedInstance?.userService {
-			service.depersonalizeInstallation(withPushRegistrationId: pushRegId, completion: completion)
-		} else {
-			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.userService.depersonalizeInstallation(userInitiated: true, withPushRegistrationId: pushRegId, completion: completion)
+            }
+        } else {
+            completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -361,13 +378,15 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func fetchInstallations(completion: @escaping (_ installations: [MMInstallation]?, _ error: NSError?) -> Void) {
-		if let service = MobileMessaging.sharedInstance?.userService {
-			service.fetchFromServer { (user, error) in
-				completion(user.installations, error)
-			}
-		} else {
-			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.userService.fetchFromServer(userInitiated: true) { (user, error) in
+                    completion(user.installations, error)
+                }
+            }
+        } else {
+            completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -376,11 +395,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter completion: The block to execute after the seen status "SeenNotSent" is persisted. Synchronization with the server will be performed eventually.
 	*/
 	public class func setSeen(messageIds: [String], completion: @escaping () -> Void) {
-		guard let mm = MobileMessaging.sharedInstance else {
-			completion()
-			return
-		}
-		mm.setSeen(messageIds, immediately: false, completion: completion)
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.setSeen(userInitiated: true, messageIds: messageIds, immediately: false, completion: completion)
+            }
+        } else {
+            completion()
+        }
 	}
 	
 	/**
@@ -392,11 +413,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	*/
 	public class func sendMessages(_ messages: [MM_MOMessage], completion: @escaping (_ messages: [MM_MOMessage]?, _ error: NSError?) -> Void) {
 		//TODO: make sharedInstance non optional in order to avoid such boilerplate and decrease places for mistake
-		guard let mm = MobileMessaging.sharedInstance else {
-			completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
-			return
-		}
-		mm.sendMessagesUserInitiated(messages, completion: completion)
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.sendMessagesUserInitiated(messages, completion: completion)
+            }
+        } else {
+            completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/** An auxillary component provides the convinient access to the user agent data. */
@@ -441,11 +464,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter error: Optional error.
 	*/
 	public class func submitEvent(_ customEvent: MMCustomEvent, completion: @escaping (_ error: NSError?) -> Void) {
-		if let es = MobileMessaging.sharedInstance?.eventsService {
-			es.submitEvent(customEvent: customEvent, reportImmediately: true, completion: completion)
-		} else {
-			completion(NSError(type: .MobileMessagingInstanceNotInitialized))
-		}
+        if let mm = MobileMessaging.sharedInstance {
+            mm.queue.async {
+                mm.eventsService.submitEvent(customEvent: customEvent, reportImmediately: true, completion: completion)
+            }
+        } else {
+            completion(NSError(type: .MobileMessagingInstanceNotInitialized))
+        }
 	}
 	
 	/**
@@ -453,7 +478,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter customEvent: Custom event to be sent to the server.
 	*/
 	public class func submitEvent(_ customEvent: MMCustomEvent) {
-		MobileMessaging.sharedInstance?.eventsService.submitEvent(customEvent: customEvent, reportImmediately: false, completion: {_ in})
+        MobileMessaging.sharedInstance?.queue.async {
+            MobileMessaging.sharedInstance?.eventsService.submitEvent(customEvent: customEvent, reportImmediately: false, completion: {_ in})
+        }
 	}
     
     /**
@@ -487,31 +514,22 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		return sharedInstance
 	}
 	
-	func sync() {
-		performForEachSubservice { subservice in
-			subservice.syncWithServer({ _ in })
-		}
-	}
-	
 	func doStart(_ completion: (() -> Void)? = nil) {
-		logDebug("Starting service (with apns registration=\(doRegisterToApns))...")
-		self.startСomponents()
+        self.logDebug("Starting service (with apns registration=\(self.doRegisterToApns))...")
+		self.startComponents()
 		
-		self.performForEachSubservice {
-			$0.mobileMessagingWillStart(self)
-		}
-		
+        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingWillStart"), object: self)
+            
 		if self.doRegisterToApns == true {
-			apnsRegistrationManager.registerForRemoteNotifications()
+            self.apnsRegistrationManager.registerForRemoteNotifications()
 		}
 		
-		self.performForEachSubservice {
-			$0.mobileMessagingDidStart(self)
-		}
+        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingDidStart"), object: self)
 		
-		completion?()
-		
-		logDebug("Service started with subservices: \(self.subservices)")
+        DispatchQueue.main.async {
+            completion?()
+        }
+        self.logDebug("Service started with subservices: \(self.subservices)")
 	}
 	
 	func cleanUpAndStop(_ clearKeychain: Bool = true) {
@@ -535,18 +553,23 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	func stop() {
 		logInfo("Stopping MobileMessaging service...")
 		
-		performForEachSubservice { subservice in
-			subservice.mobileMessagingWillStop(self)
-		}
-		
+        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingWillStop"), object: self)
+        
+        let dispatchGroup = DispatchGroup()
+        performForEachSubservice { subservice in
+            dispatchGroup.enter()
+            subservice.stopService({ _ in
+                dispatchGroup.leave()
+            })
+        }
+        dispatchGroup.wait()
+            
 		apnsRegistrationManager.unregister()
 		
 		messageStorages.values.forEach({$0.stop()})
 		messageStorages.removeAll()
 		
-		performForEachSubservice { subservice in
-			subservice.mobileMessagingDidStop(self)
-		}
+        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingDidStop"), object: self)
 		
 		MobileMessaging.messageHandlingDelegate = nil
 		
@@ -558,9 +581,11 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		messageHandler = nil
 		remoteApiProvider = nil
 		userSessionService = nil
+        installationService = nil
+        userService = nil
 		eventsService = nil
         baseUrlManager = nil
-		
+        notificationsInteractionService = nil
         InternalData.cached.reset()
         
 		keychain = nil
@@ -571,45 +596,41 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		logInfo("MobileMessaging service stopped")
 	}
 	
-	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
-		apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(token, completion: completion)
+    func didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: Bool, token: Data, completion: @escaping (NSError?) -> Void) {
+        self.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: userInitiated, token: token, completion: completion)
 	}
 	
-	func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any], completion: @escaping (MessageHandlingResult) -> Void) {
+	func didReceiveRemoteNotification(userInitiated: Bool, userInfo: [AnyHashable : Any], completion: @escaping (MessageHandlingResult) -> Void) {
 		logDebug("New remote notification received \(userInfo)")
-		messageHandler.handleAPNSMessage(userInfo, completion: completion)
+        messageHandler.handleAPNSMessage(userInitiated: userInitiated, userInfo: userInfo, completion: completion)
 	}
 	
 	func updateRegistrationEnabledSubservicesStatus() {
-		performForEachSubservice { subservice in
-			subservice.pushRegistrationStatusDidChange(self)
-		}
+        NotificationCenter.default.post(name: Notification.Name.init("pushRegistrationStatusDidChange"), object: self)
 	}
 	
 	func updateDepersonalizeStatusForSubservices() {
-		performForEachSubservice { subservice in
-			subservice.depersonalizationStatusDidChange(self)
-		}
+        NotificationCenter.default.post(name: Notification.Name.init("depersonalizationStatusDidChange"), object: self)
 	}
 	
-	func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
+    func setSeen(userInitiated: Bool, messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
 		logDebug("Setting seen status: \(messageIds), immediately \(immediately)")
-		messageHandler.setSeen(messageIds, immediately: immediately, completion: completion)
+        messageHandler.setSeen(userInitiated: userInitiated, messageIds: messageIds, immediately: immediately, completion: completion)
 	}
 	
 	func sendMessagesSDKInitiated(_ messages: [MM_MOMessage], completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
 		logDebug("Sending mobile originated messages (SDK initiated)...")
-		messageHandler.sendMessages(messages, isUserInitiated: false, completion: completion)
+        messageHandler.sendMessages(messages: messages, isUserInitiated: false, completion: completion)
 	}
 	
 	func retryMoMessageSending(completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
 		logDebug("Retrying sending mobile originated messages...")
-		messageHandler.sendMessages([], isUserInitiated: false, completion: completion)
+        messageHandler.sendMessages(messages: [], isUserInitiated: false, completion: completion)
 	}
 	
 	func sendMessagesUserInitiated(_ messages: [MM_MOMessage], completion: @escaping ([MM_MOMessage]?, NSError?) -> Void) {
 		logDebug("Sending mobile originated messages (User initiated)...")
-		messageHandler.sendMessages(messages, isUserInitiated: true, completion: completion)
+        messageHandler.sendMessages(messages: messages, isUserInitiated: true, completion: completion)
 	}
 	
 	var subservices: [String: MobileMessagingService] = [:]
@@ -674,10 +695,10 @@ public final class MobileMessaging: NSObject, NamedLogger {
         logInfo("SDK successfully initialized!")
 	}
 	
-	private func startСomponents() {
-		if NotificationsInteractionService.sharedInstance == nil {
-			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: nil)
-		}
+	private func startComponents() {
+        if notificationsInteractionService == nil {
+            notificationsInteractionService = NotificationsInteractionService(mmContext: self, categories: nil)
+        }
         baseUrlManager = BaseUrlManager(mmContext: self)
 		userSessionService = UserSessionService(mmContext: self)
 		userService = UserDataService(mmContext: self)
@@ -718,6 +739,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	var userSessionService: UserSessionService!
     var baseUrlManager: BaseUrlManager!
 	var eventsService: EventsService!
+    var notificationsInteractionService: NotificationsInteractionService?
 	lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
 	lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
 	lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)
@@ -735,4 +757,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()
 	
 	static let bundle = Bundle(for: MobileMessaging.self)
+    
+    let queue = DispatchQueue(label: "com.mobile-messaging.queue.concurrent.main")
 }

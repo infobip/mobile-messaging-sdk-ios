@@ -15,7 +15,7 @@ extension MobileMessaging {
 	/// - remark: Mobile Messaging SDK reserves category Ids and action Ids with "mm_" prefix. Custom actions and categories with this prefix will be discarded.
 	public func withInteractiveNotificationCategories(_ categories: Set<MMNotificationCategory>) -> MobileMessaging {
 		if !categories.isEmpty {
-			NotificationsInteractionService.sharedInstance = NotificationsInteractionService(mmContext: self, categories: categories)
+            self.notificationsInteractionService = NotificationsInteractionService(mmContext: self, categories: categories)
 		}
 		return self
 	}
@@ -27,20 +27,21 @@ extension MobileMessaging {
 	/// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
 	/// - parameter completionHandler: A block that you must call when you are finished performing the action.
 	class func handleAction(identifier: String?, category: String?, message: MM_MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
-		guard let service = NotificationsInteractionService.sharedInstance, let actionId = identifier else
+        guard let mm = MobileMessaging.sharedInstance, let service = mm.notificationsInteractionService, let actionId = identifier else
 		{
-			MMLogWarn("[NotificationsInteractionService] canceled handling actionId \(identifier ?? "nil"), service is initialized \(NotificationsInteractionService.sharedInstance != nil)")
+			MMLogWarn("[NotificationsInteractionService] canceled handling actionId \(identifier ?? "nil"), service is initialized \(MobileMessaging.sharedInstance?.notificationsInteractionService != nil)")
 			completionHandler()
 			return
 		}
-
-		service.handleAction(identifier: actionId, categoryId: category, message: message, notificationUserInfo: notificationUserInfo, userText: userText, completionHandler: completionHandler)
+        mm.queue.async {
+            service.handleAction(userInitiated: false, identifier: actionId, categoryId: category, message: message, notificationUserInfo: notificationUserInfo, userText: userText, completionHandler: completionHandler)
+        }
 	}
 
 	/// Returns `MMNotificationCategory` object for provided category Id. Category Id can be obtained from `MM_MTMessage` object with `MTMessage.category` method.
 	/// - parameter identifier: The identifier associated with the category of interactive notification
 	public class func category(withId identifier: String) -> MMNotificationCategory? {
-		return NotificationsInteractionService.sharedInstance?.allNotificationCategories?.first(where: {$0.identifier == identifier})
+		return MobileMessaging.sharedInstance?.notificationsInteractionService?.allNotificationCategories?.first(where: {$0.identifier == identifier})
 	}
 }
 
@@ -51,14 +52,12 @@ class NotificationsInteractionService: MobileMessagingService {
 		return customNotificationCategories + NotificationCategories.predefinedCategories
 	}
 
-	static var sharedInstance: NotificationsInteractionService?
-
 	init(mmContext: MobileMessaging, categories: Set<MMNotificationCategory>?) {
 		self.customNotificationCategories = categories
 		super.init(mmContext: mmContext, uniqueIdentifier: "NotificationsInteractionService")
 	}
 
-	func handleAction(identifier: String, categoryId: String?, message: MM_MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
+    func handleAction(userInitiated: Bool, identifier: String, categoryId: String?, message: MM_MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
 
 		logDebug("handling action \(identifier) for message \(message?.messageId ?? "n/a"), user text empty \(userText?.isEmpty ?? true)")
 
@@ -81,7 +80,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		if let action = makeAction(identifier, message, categoryId, userText) {
 			if let message = message {
 				message.appliedAction = action
-				self.mmContext.messageHandler.handleMTMessage(message, notificationTapped: action.isTapOnNotificationAlert, completion: { _ in completionHandler() })
+                self.mmContext.messageHandler.handleMTMessage(userInitiated: userInitiated, message: message, notificationTapped: action.isTapOnNotificationAlert, completion: { _ in completionHandler() })
 			} else {
 				self.deliverActionEventToUser(message: nil, action: action, notificationUserInfo: notificationUserInfo, completion: { completionHandler() })
 			}
@@ -173,19 +172,16 @@ class NotificationsInteractionService: MobileMessagingService {
 			?? completion()
 	}
 
-	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
-		stop({_ in })
-		NotificationsInteractionService.sharedInstance = nil
-	}
-
-	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
+	override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
 		guard let cs = allNotificationCategories, !cs.isEmpty else {
+            completion()
 			return
 		}
-		start({_ in })
+		start({_ in completion() })
 	}
     
     override func start(_ completion: @escaping (Bool) -> Void) {
+        assert(!Thread.isMainThread)
         super.start(completion)
         syncWithServer({_ in})
     }
@@ -215,7 +211,7 @@ class NotificationsInteractionService: MobileMessagingService {
 		})
 
 		dispatchGroup.enter()
-		self.mmContext.setSeen([message.messageId], immediately: true, completion: {
+        self.mmContext.setSeen(userInitiated: false, messageIds: [message.messageId], immediately: true, completion: {
 			dispatchGroup.leave()
 		})
 
@@ -239,11 +235,13 @@ class NotificationsInteractionService: MobileMessagingService {
 		}
 	}
 
-	override func appWillEnterForeground() {
-		syncWithServer({_ in})
+	override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
+		syncWithServer({_ in completion() })
 	}
 
-	override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+    func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+        assert(!Thread.isMainThread)
 		self.mmContext.retryMoMessageSending() { (_, error) in
 			completion(error)
 		}

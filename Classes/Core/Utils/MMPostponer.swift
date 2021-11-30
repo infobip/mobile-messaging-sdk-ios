@@ -16,13 +16,13 @@ class MMPostponer: NSObject {
 	}
 	
 	func postponeBlock(delay: Double = 2000, block: @escaping () -> Void) {
-		schedulerQueue.executeAsync {
+		schedulerQueue.async {
 			self.invalidateTimer()
 			self.block = block
 			self.timer = self.createDispatchTimer(delay, queue: self.executionQueue, block:
 				{
 					var blockToExecute: (() -> Void)?
-					self.schedulerQueue.executeSync {
+					self.schedulerQueue.sync {
 						blockToExecute = self.block
 						self.invalidateTimer()
 					}

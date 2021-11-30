@@ -84,7 +84,7 @@ class GeofencingServiceAlwaysRunningStub: MMGeofencingService {
 		completion()
 	}
 
-	override func stop(_ completion: ((Bool) -> Void)?) {
+	override func suspend() {
 		eventsHandlingQueue.cancelAllOperations()
 		self.isRunning = false
 		stubbedLocationManager.monitoredRegionsArray = [CLRegion]()
@@ -127,7 +127,7 @@ class GeofencingServiceDisabledStub: MMGeofencingService {
 		completion()
 	}
 
-	override func stop(_ completion: ((Bool) -> Void)?) {
+	override func suspend() {
 		eventsHandlingQueue.cancelAllOperations()
 		self.isRunning = false
 		locationManagerStub.monitoredRegionsArray = [CLRegion]()

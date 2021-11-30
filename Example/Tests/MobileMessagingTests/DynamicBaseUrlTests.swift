@@ -15,8 +15,8 @@ class SessionManagerSuccessMock: DynamicBaseUrlHTTPSessionManager {
 		self.responseJson = responseJson
 		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: "")
 	}
-
-	override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
+    
+    override func getDataResponse(_ r: RequestData, queue: DispatchQueue, completion: @escaping (JSON?, NSError?) -> Void) {
 		completion(responseJson(request), nil)
 	}
 }
@@ -58,6 +58,8 @@ class DynamicBaseUrlTests: MMTestCase {
 	}
 	
     func testThatNewBaseUrlIsAppliedWhenReceivedFromBaseUrlEndpint() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
         weak var ex = expectation(description: "expectation")
@@ -85,6 +87,8 @@ class DynamicBaseUrlTests: MMTestCase {
     }
     
     func testThatNewBaseUrlNotRequestedUntilItsTime() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
         weak var ex = expectation(description: "expectation")
@@ -113,6 +117,8 @@ class DynamicBaseUrlTests: MMTestCase {
     }
     
     func testEmptyBaseUrlResponseHandledProperly() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
         weak var ex = expectation(description: "expectation")
@@ -141,14 +147,13 @@ class DynamicBaseUrlTests: MMTestCase {
     }
 
     
-	func testThatWeDoRetryAfterCannotFindHost() {
+	func testThatWeDoRetryAfterCannotFindHost() {        
 		weak var registrationFinishedExpectation = expectation(description: "registration finished")
 		weak var retriesStartedExpectation = expectation(description: "expectationRetriesStarted")
 		let newDynamicURL = URL(string: "https://not-reachable-url.com")!
-		MMTestCase.cleanUpAndStop()
 		var retriesStarted = false
 		let mm = MobileMessaging.withApplicationCode("", notificationType: MMUserNotificationType(options: []) , backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)!
-		mm.start()
+		mm.doStart()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
 		let remoteApi = RemoteAPIProviderStub()
 		remoteApi.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
@@ -173,7 +178,7 @@ class DynamicBaseUrlTests: MMTestCase {
 		XCTAssertEqual(MobileMessaging.httpSessionManager.originalBaseUrl.absoluteString, "https://initial-stub.com")
 		XCTAssertNotEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, MobileMessaging.httpSessionManager.originalBaseUrl)
 		
-		mm.didRegisterForRemoteNotificationsWithDeviceToken("someToken123123123".data(using: String.Encoding.utf16)!) {  error in
+        mm.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "someToken123123123".data(using: String.Encoding.utf16)!) {  error in
 			registrationFinishedExpectation?.fulfill()
 		}
 		

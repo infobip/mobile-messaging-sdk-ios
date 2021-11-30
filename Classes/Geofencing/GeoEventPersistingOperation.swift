@@ -21,7 +21,7 @@ class GeoEventPersistingOperation : MMOperation {
 		self.context = context
 		self.eventType = eventType
 		self.regionId = regionId
-		super.init()
+		super.init(isUserInitiated: false)
 	}
 
 	override func execute() {
@@ -39,6 +39,7 @@ class GeoEventPersistingOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logVerbose("finished: \(errors)")
 		finishBlock(errors.first)
 	}

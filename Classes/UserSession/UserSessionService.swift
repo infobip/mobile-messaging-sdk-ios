@@ -9,7 +9,7 @@ import Foundation
 import CoreData
 
 class UserSessionService : MobileMessagingService {
-
+    private let q: DispatchQueue
 	var currentSessionId: String? {
 		if let pushRegId = mmContext.currentInstallation().pushRegistrationId, let currentSessionStartDate = fetchCurrentSessionStartDate() {
 			return "\(pushRegId)_\(Int64(floor(currentSessionStartDate.timeIntervalSince1970 * 1000)))"
@@ -24,68 +24,63 @@ class UserSessionService : MobileMessagingService {
 	}
 	private var state: State = .suspended
 	private let serviceQueue = MMQueue.Serial.New.UserSessionQueue.queue.queue
-	private let userSessionPersistingQueue = MMOperationQueue.newSerialQueue
-	private let userSessionReportingQueue = MMOperationQueue.newSerialQueue
+    private let userSessionPersistingQueue: MMOperationQueue
+    private let userSessionReportingQueue: MMOperationQueue
 	private var isReportingNeeded = true
 	private var timer: RepeatingTimer?
 	private let context: NSManagedObjectContext
 
 	init(mmContext: MobileMessaging) {
+        self.q = DispatchQueue(label: "user-sessions-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
+        self.userSessionPersistingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.userSessionReportingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
 		self.context = mmContext.internalStorage.newPrivateContext()
 		super.init(mmContext: mmContext, uniqueIdentifier: "UserSessionService")
 	}
 
 	//MARK: -
 
-	override func stop(_ completion: @escaping (Bool) -> Void) {
+	override func suspend() {
 		serviceQueue.async {
 			self.logDebug("stops")
 			self.timer = nil
 			self.cancelOperations()
-			super.stop(completion)
+			super.suspend()
 		}
 	}
 
 	override func start(_ completion: @escaping (Bool) -> Void) {
+        super.start(completion)
 		serviceQueue.async {
 			self.logDebug("starts")
 			self.setupTimer()
-			super.start(completion)
 		}
 	}
 
-	override func mobileMessagingWillStart(_ mmContext: MobileMessaging) {
-		start({_ in })
+	override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+		start({_ in completion() })
 	}
 
-	override func mobileMessagingWillStop(_ mmContext: MobileMessaging) {
-		stop({_ in})
-	}
-
-	override func appWillEnterForeground() {
+	override func appWillEnterForeground(_ completion: @escaping () -> Void) {
 		serviceQueue.async {
 			self.isReportingNeeded = true
+            completion()
 		}
 	}
 
-	override func appDidBecomeActive() {
+	override func appDidBecomeActive(_ completion: @escaping () -> Void) {
 		serviceQueue.async {
 			self.logDebug("timer resumes: app did become active state")
 			self.timer?.resume()
+            completion()
 		}
 	}
 
-	override func appWillResignActive() {
+	override func appWillResignActive(_ completion: @escaping () -> Void) {
 		serviceQueue.async {
 			self.logDebug("timer suspends: app will resign active state")
 			self.timer?.suspend()
-		}
-	}
-
-	override func appWillTerminate() {
-		serviceQueue.async {
-			self.logDebug("timer cancels: app will terminate")
-			self.stop({ _ in })
+            completion()
 		}
 	}
 
@@ -125,11 +120,11 @@ class UserSessionService : MobileMessagingService {
 		}
 		let now = MobileMessaging.date.now
 
-		userSessionPersistingQueue.addOperation(UserSessionPersistingOperation(mmContext: mmContext, pushRegId: pushRegId, sessionTimestamp: now, context: context, finishBlock: { _ in
+        userSessionPersistingQueue.addOperation(UserSessionPersistingOperation(userInitiated: false, mmContext: mmContext, pushRegId: pushRegId, sessionTimestamp: now, context: context, finishBlock: { _ in
 
 			if doReporting {
 				self.isReportingNeeded = false
-				if !self.userSessionReportingQueue.addOperationExclusively(UserSessionsReportingOperation(mmContext: self.mmContext, context: self.context, finishBlock: {_ in
+                if !self.userSessionReportingQueue.addOperationExclusively(UserSessionsReportingOperation(userInitiated: false, mmContext: self.mmContext, context: self.context, finishBlock: {_ in
 					completion()
 				})) {
 					completion()
@@ -146,6 +141,7 @@ class UserSessionService : MobileMessagingService {
 	}
 
 	private func setupTimer() {
+        // we don't run timer during tests
 		guard !isTestingProcessRunning else {
 			return
 		}

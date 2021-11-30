@@ -13,15 +13,20 @@ class DepersonalizeOperation: MMOperation {
 	let pushRegistrationId: String?
 	let applicationCode: String
 	
-	init(mmContext: MobileMessaging, finishBlock: ((MMSuccessPending, NSError?) -> Void)? = nil) {
+    init(userInitiated: Bool, mmContext: MobileMessaging, finishBlock: ((MMSuccessPending, NSError?) -> Void)? = nil) {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		self.pushRegistrationId = mmContext.resolveInstallation().pushRegistrationId
 		self.applicationCode = mmContext.applicationCode
-		super.init()
+        super.init(isUserInitiated: userInitiated)
 	}
 	
 	override func execute() {
+        guard !isCancelled else {
+            logDebug("cancelled...")
+            finish()
+            return
+        }
 		logDebug("starting...")
 		DepersonalizeOperation.depersonalizeSubservices(mmContext: mmContext)
 		self.sendRequest()
@@ -35,7 +40,7 @@ class DepersonalizeOperation: MMOperation {
 		}
 		if let pushRegistrationId = pushRegistrationId {
 			logDebug("performing request...")
-			mmContext.remoteApiProvider.depersonalize(applicationCode: self.applicationCode, pushRegistrationId: pushRegistrationId, pushRegistrationIdToDepersonalize: pushRegistrationId, completion: { result in
+            mmContext.remoteApiProvider.depersonalize(applicationCode: self.applicationCode, pushRegistrationId: pushRegistrationId, pushRegistrationIdToDepersonalize: pushRegistrationId, queue: self.underlyingQueue, completion: { result in
 				self.handleResult(result)
 				self.finishWithError(result.error)
 			})
@@ -45,6 +50,7 @@ class DepersonalizeOperation: MMOperation {
 	}
 	
 	private func handleResult(_ result: DepersonalizeResult) {
+        assert(!Thread.isMainThread)
 		switch result {
 		case .Success:
 			logDebug("request secceeded")
@@ -67,6 +73,7 @@ class DepersonalizeOperation: MMOperation {
 			id.archiveCurrent()
 
 			mmContext.apnsRegistrationManager.registerForRemoteNotifications()
+            
 		case .success, .undefined:
 			DepersonalizeOperation.logDebug("current depersonalize status: undefined/succesful")
 		}
@@ -80,14 +87,14 @@ class DepersonalizeOperation: MMOperation {
 
 		switch id.currentDepersonalizationStatus {
 		case .pending:
-			logDebug("current depersonalize status: pending")
+			logDebug("current depersonalize status: pending, depersonalizeFailCounter: \(id.depersonalizeFailCounter)/\(DepersonalizationConsts.failuresNumberLimit)")
 			if id.depersonalizeFailCounter >= DepersonalizationConsts.failuresNumberLimit {
 
 				id.currentDepersonalizationStatus = .undefined
-				id.archiveCurrent()
 
 				mmContext.apnsRegistrationManager.registerForRemoteNotifications()
 			}
+            id.archiveCurrent()
 
 		case .success, .undefined:
 			logDebug("current depersonalize status: undefined/successful")
@@ -117,7 +124,8 @@ class DepersonalizeOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
-		finishBlock?(mmContext.internalData().currentDepersonalizationStatus, errors.first)
+        self.finishBlock?(self.mmContext.internalData().currentDepersonalizationStatus, errors.first)
 	}
 }

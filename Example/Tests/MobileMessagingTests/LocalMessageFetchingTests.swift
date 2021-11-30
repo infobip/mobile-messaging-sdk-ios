@@ -34,7 +34,8 @@ class NotificationExtensionStorageStub: AppGroupMessageStorage {
 class LocalMessageFetchingTests : MMTestCase {
 	
 	func testThatMessagesFetchedLocallyAreConsideredAsDelivered() {
-		
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "server sync finished")
 		var dlrs = [String]()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -51,7 +52,7 @@ class LocalMessageFetchingTests : MMTestCase {
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 		
-		mobileMessagingInstance.messageHandler.syncWithServer { (error) in
+		mobileMessagingInstance.messageHandler.syncWithServer(userInitiated: false) { (error) in
 			expectation?.fulfill()
 		}
 		

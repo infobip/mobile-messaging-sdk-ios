@@ -15,14 +15,19 @@ class SeenStatusSendingOperation: MMOperation {
 	var result = SeenStatusSendingResult.Cancel
 	let mmContext: MobileMessaging
 	
-	init(context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((SeenStatusSendingResult) -> Void)? = nil) {
+    init(userInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((SeenStatusSendingResult) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 	}
 
 	override func execute() {
+        guard !isCancelled else {
+            logDebug("cancelled...")
+            finish()
+            return
+        }
 		context.perform {
 			self.context.reset()
 			guard let seenNotSentMessages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageTypeValue == \(MMMessageType.Default.rawValue) AND seenStatusValue == \(MMSeenStatus.SeenNotSent.rawValue) AND NOT(messageId MATCHES [c] '\(Consts.UUIDRegexPattern)')"), context: self.context), !seenNotSentMessages.isEmpty else
@@ -32,10 +37,17 @@ class SeenStatusSendingOperation: MMOperation {
 				return
 			}
 			
+            guard !self.isCancelled else {
+                self.logDebug("cancelled...")
+                self.finish()
+                return
+            }
+            
 			self.mmContext.remoteApiProvider.sendSeenStatus(
 				applicationCode: self.mmContext.applicationCode,
 				pushRegistrationId: self.mmContext.currentInstallation().pushRegistrationId,
 				body: SeenReportMapper.requestBody(seenNotSentMessages),
+                queue: self.underlyingQueue,
 				completion: { result in
 					self.result = result
 					self.handleSeenResult(result, messages: seenNotSentMessages) {
@@ -46,6 +58,12 @@ class SeenStatusSendingOperation: MMOperation {
 	}
 	
 	private func handleSeenResult(_ result: SeenStatusSendingResult, messages: [MessageManagedObject], completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
+        guard !isCancelled else {
+            logDebug("cancelled...")
+            completion()
+            return
+        }
 		switch result {
 		case .Success(_):
 			logDebug("Request succeeded")
@@ -78,6 +96,7 @@ class SeenStatusSendingOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished: \(errors)")
 		if let error = errors.first {
 			result = SeenStatusSendingResult.Failure(error)

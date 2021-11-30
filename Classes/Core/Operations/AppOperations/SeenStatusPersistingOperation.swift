@@ -15,12 +15,12 @@ final class SeenStatusPersistingOperation: MMOperation {
 	let messageIds: [String]
 	let mmContext: MobileMessaging
 	
-	init(messageIds: [String], context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: (() -> Void)? = nil) {
+    init(userInitiated: Bool, messageIds: [String], context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: (() -> Void)? = nil) {
 		self.messageIds = messageIds
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 	}
 	
 	override func execute() {
@@ -67,6 +67,7 @@ final class SeenStatusPersistingOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock?()
 	}

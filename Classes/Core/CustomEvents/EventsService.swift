@@ -49,13 +49,17 @@ CustomEvent class represents Custom event. Events allow you to track arbitrary u
 }
 
 class EventsService: MobileMessagingService {
-	private let eventReportingQueue = MMOperationQueue.newSerialQueue
-	private let eventPersistingQueue = MMOperationQueue.newSerialQueue
+    private let q: DispatchQueue
+    private let eventReportingQueue: MMOperationQueue
+    private let eventPersistingQueue: MMOperationQueue
 	private let context: NSManagedObjectContext
 	lazy var reportPostponer = MMPostponer(executionQueue: DispatchQueue.global())
 
 	init(mmContext: MobileMessaging) {
+        self.q = DispatchQueue(label: "events-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
 		self.context = mmContext.internalStorage.newPrivateContext()
+        self.eventReportingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.eventPersistingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
 		super.init(mmContext: mmContext, uniqueIdentifier: "EventsService")
 	}
 
@@ -65,33 +69,25 @@ class EventsService: MobileMessagingService {
 			return
 		}
 		if reportImmediately {
-			eventReportingQueue.addOperation(CustomEventReportingOperation(customEvent: customEvent, context: context, mmContext: self.mmContext, finishBlock: completion))
+            self.scheduleReport(userInitiated: true, customEvent: customEvent, completion: completion)
 		} else {
 			persistEvent(customEvent, pushRegistrationId) {
-				self.reportEvents(immediately: reportImmediately, completion: completion)
+                self.reportPostponer.postponeBlock(block: {
+                    self.scheduleReport(userInitiated: false, customEvent: nil, completion: completion)
+                })
 			}
 		}
 	}
 
-	override func appWillEnterForeground() {
-		scheduleReport(completion: { _ in })
+    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+        scheduleReport(userInitiated: false, customEvent: nil, completion: { _ in completion() })
 	}
 
 	private func persistEvent(_ customEvent: MMCustomEvent, _ pushRegistrationId: String, completion: @escaping () -> Void) {
 		eventPersistingQueue.addOperation(EventPersistingOperation(customEvent: customEvent, mmContext: mmContext, pushRegId: pushRegistrationId, context: context, finishBlock: { _ in completion() }))
 	}
 
-	private func reportEvents(immediately: Bool, completion: @escaping (NSError?) -> Void) {
-		if immediately {
-			self.scheduleReport(completion: completion)
-		} else {
-			reportPostponer.postponeBlock(block: {
-				self.scheduleReport(completion: completion)
-			})
-		}
-	}
-
-	private func scheduleReport(completion: @escaping ((NSError?) -> Void)) {
-		self.eventReportingQueue.addOperation(CustomEventReportingOperation(customEvent: nil, context: context, mmContext: self.mmContext, finishBlock: completion))
+    private func scheduleReport(userInitiated: Bool, customEvent: MMCustomEvent?, completion: @escaping ((NSError?) -> Void)) {
+        self.eventReportingQueue.addOperation(CustomEventReportingOperation(userInitiated: userInitiated, customEvent: customEvent, context: context, mmContext: self.mmContext, finishBlock: completion))
 	}
 }

@@ -16,13 +16,13 @@ class UserSessionPersistingOperation : MMOperation {
 	let pushRegId: String
 	let sessionTimestamp: Date
 
-	init(mmContext: MobileMessaging, pushRegId: String, sessionTimestamp: Date, context: NSManagedObjectContext, finishBlock: @escaping ((Error?) -> Void)) {
+    init(userInitiated: Bool, mmContext: MobileMessaging, pushRegId: String, sessionTimestamp: Date, context: NSManagedObjectContext, finishBlock: @escaping ((Error?) -> Void)) {
 		self.pushRegId = pushRegId
 		self.sessionTimestamp = sessionTimestamp
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		self.context = context
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 	}
 
 	override func execute() {
@@ -49,6 +49,7 @@ class UserSessionPersistingOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logVerbose("finished: \(errors)")
 		finishBlock(errors.first)
 	}

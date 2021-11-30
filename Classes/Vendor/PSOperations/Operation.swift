@@ -15,6 +15,7 @@ import Foundation
     about interesting operation state changes
 */
 open class Operation: Foundation.Operation {
+    unowned(unsafe) open var underlyingQueue: DispatchQueue!
     
     /* The completionBlock property has unexpected behaviors such as executing twice and executing on unexpected threads. BlockObserver
      * executes in an expected manner.
@@ -49,6 +50,12 @@ open class Operation: Foundation.Operation {
     private var instanceContext = 0
     public override init() {
         super.init()
+        self.addObserver(self, forKeyPath: "isReady", options: [], context: &instanceContext)
+    }
+    
+    init(isUserInitiated: Bool) {
+        super.init()
+        self.userInitiated = isUserInitiated
         self.addObserver(self, forKeyPath: "isReady", options: [], context: &instanceContext)
     }
     
@@ -335,7 +342,12 @@ open class Operation: Foundation.Operation {
         
         _internalErrors += errors
         
-        finished(_internalErrors)
+        let finishedBlock = { self.finished(self._internalErrors) }
+        if userInitiated {
+            DispatchQueue.main.async(execute: finishedBlock)
+        } else {
+            finishedBlock()
+        }
         
         for observer in observers {
             observer.operationDidFinish(self, errors: _internalErrors)

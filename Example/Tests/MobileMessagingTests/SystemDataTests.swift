@@ -11,6 +11,8 @@ import XCTest
 class SystemDataTests: MMTestCase {
 
 	func testSystemDataUpdates() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var requestsCompleted = expectation(description: "requestsCompleted")
 
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -28,14 +30,14 @@ class SystemDataTests: MMTestCase {
 		MMGeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: mobileMessagingInstance)
 		MMGeofencingService.sharedInstance!.start({ _ in })
 		
-		self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { (error) in
+        self.mobileMessagingInstance.installationService.syncSystemDataWithServer(userInitiated: true, completion: { (error) in
 			DispatchQueue.main.async {
 				geoEnabledSystemDataHash = self.mobileMessagingInstance.internalData().systemDataHash
 				
 				MMGeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: self.mobileMessagingInstance)
 				MMGeofencingService.sharedInstance!.start({ _ in })
 				
-				self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { (error) in
+				self.mobileMessagingInstance.installationService.syncSystemDataWithServer(userInitiated: true, completion: { (error) in
 					requestsCompleted?.fulfill()
 				})
 			}
@@ -50,6 +52,8 @@ class SystemDataTests: MMTestCase {
 	}
 	
 	func testThatNotificationsSettingsIsBeingSyncedAfterChanged() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		//Preparations
 		weak var expectation = self.expectation(description: "registration sent")
 		var sentSettings = [Bool]()
@@ -68,16 +72,16 @@ class SystemDataTests: MMTestCase {
 		MobileMessaging.application = NotificationsEnabledMock() //<<<
 
 		// system data sends notificationsEnabled: true (initial sync because systemDataHash == 0) + 1
-		self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
+        self.mobileMessagingInstance.installationService.syncSystemDataWithServer(userInitiated: true, completion: { error in
 
 			MobileMessaging.application = NotificationsDisabledMock() //<<<
 			// system data sends notificationsEnabled: false  (notification settings changed but the timeout is not expired)
-			self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
+			self.mobileMessagingInstance.installationService.syncSystemDataWithServer(userInitiated: true, completion: { error in
 
 				timeTravel(to: Date(timeIntervalSince1970: Date().timeIntervalSince1970 + 60*60), block: {
 
 					// system data sends notificationsEnabled: false  (now, another request is expected because timeout has expired) + 1
-					self.mobileMessagingInstance.installationService.syncSystemDataWithServer(completion: { error in
+					self.mobileMessagingInstance.installationService.syncSystemDataWithServer(userInitiated: true, completion: { error in
 						expectation?.fulfill()
 					})
 				})

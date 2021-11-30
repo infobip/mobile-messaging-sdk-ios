@@ -14,6 +14,8 @@ class InteractiveNotificationsTests: MMTestCase {
 	let categoryId = "categoryId"
 	
 	func testThatNotificationTapTriggersSeen() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		var isSeenSet = false
 		weak var seenCalled = self.expectation(description: "seenCalled")
 		weak var messageReceived = self.expectation(description: "messageReceived")
@@ -66,10 +68,8 @@ class InteractiveNotificationsTests: MMTestCase {
 		var set = Set<MMNotificationCategory>()
 		set.insert(category)
 
-		MMTestCase.cleanUpAndStop()
-
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
-		mm.start()
+		mm.doStart()
 
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		weak var seenCalled = expectation(description: "seenCalled")
@@ -99,7 +99,6 @@ class InteractiveNotificationsTests: MMTestCase {
 	}
 	
 	func testActionOptions() {
-		
 		let checkingBlock: ([MMNotificationActionOptions]) -> Void = { options in
 			let action = MMNotificationAction(identifier: "actionId1", title: "Action", options: options)
 			XCTAssertTrue(action != nil)
@@ -139,10 +138,12 @@ class InteractiveNotificationsTests: MMTestCase {
 	}
 
 	func testThatPredefinedCategoriesWork() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var testCompleted = expectation(description: "testCompleted")
-		XCTAssertEqual(NotificationsInteractionService.sharedInstance?.allNotificationCategories?.count, PredefinedCategoriesTest().categoriesIds?.count)
+		XCTAssertEqual(mobileMessagingInstance.notificationsInteractionService?.allNotificationCategories?.count, PredefinedCategoriesTest().categoriesIds?.count)
 
-		let allActions = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.reduce([String](), { (result, category) -> [String] in
+		let allActions = mobileMessagingInstance.notificationsInteractionService?.allNotificationCategories?.reduce([String](), { (result, category) -> [String] in
 			return result + category.actions.reduce([String](), { (result, action) -> [String] in
 				return result + ["\(category.identifier)+\(action.identifier)"]
 			})
@@ -163,7 +164,7 @@ class InteractiveNotificationsTests: MMTestCase {
 
 		mobileMessagingInstance.messageHandler = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 
-		NotificationsInteractionService.sharedInstance?.allNotificationCategories?.forEach { category in
+        mobileMessagingInstance.notificationsInteractionService?.allNotificationCategories?.forEach { category in
 			category.actions.forEach { action in
 
 				let info = ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]] as [String : Any]
@@ -184,10 +185,8 @@ class InteractiveNotificationsTests: MMTestCase {
 		var set = Set<MMNotificationCategory>()
 		set.insert(category)
 
-		MMTestCase.cleanUpAndStop()
-
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withInteractiveNotificationCategories(set)
-		mm.start()
+		mm.doStart()
 
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		weak var seenCalled = expectation(description: "seenCalled")

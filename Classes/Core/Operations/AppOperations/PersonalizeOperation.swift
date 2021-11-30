@@ -16,14 +16,14 @@ class PersonalizeOperation: MMOperation {
 	let requireResponse: Bool
 	let forceDepersonalize: Bool
 
-	init(forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
+    init(userInitiated: Bool, forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
 		self.forceDepersonalize = forceDepersonalize
 		self.userIdentity = userIdentity
 		self.userAttributes = userAttributes
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = false
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 	}
 
 	override func execute() {
@@ -53,7 +53,8 @@ class PersonalizeOperation: MMOperation {
 		mmContext.remoteApiProvider.personalize(applicationCode: mmContext.applicationCode,
 												pushRegistrationId: pushRegistrationId,
 												body: body,
-												forceDepersonalize: forceDepersonalize)
+												forceDepersonalize: forceDepersonalize,
+                                                queue: underlyingQueue)
 		{ (result) in
 			self.handlePersonalizeResult(result)
 			self.finishWithError(result.error)
@@ -106,7 +107,8 @@ class PersonalizeOperation: MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
-		finishBlock?(errors.first)
+        self.finishBlock?(errors.first)
 	}
 }

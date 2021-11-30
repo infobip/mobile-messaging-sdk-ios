@@ -15,11 +15,11 @@ final class MessagesEvictionOperation: MMOperation {
 	var context: NSManagedObjectContext
 	var finishBlock: (() -> Void)?
 	
-	init(context: NSManagedObjectContext, messageMaximumAge: TimeInterval? = nil, finishBlock: (() -> Void)? = nil) {
+    init(userInitiated: Bool, context: NSManagedObjectContext, messageMaximumAge: TimeInterval? = nil, finishBlock: (() -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.messageMaximumAge = messageMaximumAge ?? Consts.SDKSettings.messagesRetentionPeriod
-		super.init()
+        super.init(isUserInitiated: userInitiated)
 	}
 	
 	override func execute() {
@@ -37,6 +37,7 @@ final class MessagesEvictionOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock?()
 	}

@@ -14,11 +14,11 @@ final class RegistrationResetOperation: MMOperation {
 	let finishBlock: ((NSError?) -> Void)?
 	let apnsRegistrationManager: ApnsRegistrationManager
 	
-	init(mmContext: MobileMessaging, apnsRegistrationManager: ApnsRegistrationManager, finishBlock: ((NSError?) -> Void)?) {
+    init(userInitiated: Bool, mmContext: MobileMessaging, apnsRegistrationManager: ApnsRegistrationManager, finishBlock: ((NSError?) -> Void)?) {
 		self.finishBlock = finishBlock
 		self.apnsRegistrationManager = apnsRegistrationManager
 		self.mmContext = mmContext
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 	}
 	
 	override func execute() {
@@ -30,6 +30,7 @@ final class RegistrationResetOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock?(errors.first)
 	}

@@ -14,21 +14,22 @@ final class MessagesSyncOperation: GroupOperation {
 	let finishBlock: ((NSError?) -> Void)?
 	let mmContext: MobileMessaging
 	
-	init(context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
+    init(userInitiated: Bool, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)? = nil) {
 		self.context = context
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 
-		let seenStatusSending = SeenStatusSendingOperation(context: context, mmContext: mmContext)
+        let seenStatusSending = SeenStatusSendingOperation(userInitiated: false, context: context, mmContext: mmContext)
 		
 		super.init(operations: [seenStatusSending])
 		
-		let messageFetching = MessageFetchingOperation(context: context, mmContext: mmContext, finishBlock: { _ in })
+        let messageFetching = MessageFetchingOperation(userInitiated: userInitiated, context: context, mmContext: mmContext, finishBlock: { _ in })
 		messageFetching.addDependency(seenStatusSending)
 		self.addOperation(messageFetching)
 	}
 	
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock?(errors.first)
 	}

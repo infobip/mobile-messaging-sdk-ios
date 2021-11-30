@@ -17,11 +17,11 @@ class UserSessionsReportingOperation : MMOperation {
 
 	let finishBlock: (Error?) -> Void
 
-	init(mmContext: MobileMessaging, context: NSManagedObjectContext, finishBlock: @escaping (Error?) -> Void) {
+    init(userInitiated: Bool, mmContext: MobileMessaging, context: NSManagedObjectContext, finishBlock: @escaping (Error?) -> Void) {
 		self.mmContext = mmContext
 		self.context = context
 		self.finishBlock = finishBlock
-		super.init()
+		super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 		self.addCondition(NotPendingDepersonalizationCondition(mmContext: mmContext))
 	}
@@ -55,6 +55,7 @@ class UserSessionsReportingOperation : MMOperation {
 					applicationCode: self.mmContext.applicationCode,
 					pushRegistrationId: pushRegistrationId,
 					body: body,
+                    queue: underlyingQueue,
 					completion: { result in
 						self.handleResult(result)
 						self.finishWithError(result.error)
@@ -103,6 +104,7 @@ class UserSessionsReportingOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished: \(errors)")
 		finishBlock(errors.first)
 	}

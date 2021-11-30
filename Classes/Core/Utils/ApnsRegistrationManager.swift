@@ -46,7 +46,7 @@ class ApnsRegistrationManager: NamedLogger {
 		MobileMessaging.application.registerForRemoteNotifications()
 	}
 	
-	func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
+    func didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: Bool, token: Data, completion: @escaping (NSError?) -> Void) {
 		let tokenStr = token.mm_toHexString
 		logInfo("Application did register with device token \(tokenStr)")
 		
@@ -56,24 +56,24 @@ class ApnsRegistrationManager: NamedLogger {
 		let installation = mmContext.resolveInstallation()
 		if installation.pushServiceToken == nil || installation.pushServiceToken == tokenStr {
 			setRegistrationIsHealthy()
-			updateDeviceToken(token, completion: completion)
+            updateDeviceToken(userInitiated: userInitiated, token: token, completion: completion)
 		} else {
 			// let's check if a special healthy flag is true. It may be false only due to iOS reserve copy restoration
 			if isRegistrationHealthy == false {
 				// if we face the reserve copy restoration we force a new registration
-				resetRegistration { self.updateDeviceToken(token, completion: completion) }
+                resetRegistration(userInitiated: userInitiated) { self.updateDeviceToken(userInitiated: userInitiated, token: token, completion: completion) }
 			} else { // in other cases it is the APNS changing the device token
-				updateDeviceToken(token, completion: completion)
+                updateDeviceToken(userInitiated: userInitiated, token: token, completion: completion)
 			}
 		}
 	}
 	
-	func resetRegistration(completion: @escaping () -> Void) {
-		mmContext.installationService.resetRegistration(completion: { _ in completion() })
+	func resetRegistration(userInitiated: Bool, completion: @escaping () -> Void) {
+        mmContext.installationService.resetRegistration(userInitiated: userInitiated, completion: { _ in completion() })
 	}
 	
-	func updateDeviceToken(_ token: Data, completion: @escaping (NSError?) -> Void) {
-		mmContext.installationService.save(deviceToken: token, completion: completion)
+    func updateDeviceToken(userInitiated: Bool, token: Data, completion: @escaping (NSError?) -> Void) {
+        mmContext.installationService.save(userInitiated: userInitiated, deviceToken: token, completion: completion)
 	}
 	
 	private var isRegistrationHealthy_cached: Bool?
@@ -149,7 +149,7 @@ class ApnsRegistrationManager: NamedLogger {
 				self.logDebug("Authorization for notification options wasn't granted with error: \(error.debugDescription)")
 				return
 			}
-			if let categories = NotificationsInteractionService.sharedInstance?.allNotificationCategories?.unNotificationCategories {
+            if let categories = self.mmContext.notificationsInteractionService?.allNotificationCategories?.unNotificationCategories {
 				UNUserNotificationCenter.current().setNotificationCategories(categories)
 			}
 		}

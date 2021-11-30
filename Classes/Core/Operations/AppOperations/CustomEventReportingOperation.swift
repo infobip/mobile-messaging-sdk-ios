@@ -16,12 +16,12 @@ class CustomEventReportingOperation: MMOperation {
 	let context: NSManagedObjectContext
 	let customEvent: MMCustomEvent?
 
-	init(customEvent: MMCustomEvent?, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
+    init(userInitiated: Bool, customEvent: MMCustomEvent?, context: NSManagedObjectContext, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.customEvent = customEvent
 		self.context = context
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
-		super.init()
+        super.init(isUserInitiated: userInitiated)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 
@@ -57,7 +57,7 @@ class CustomEventReportingOperation: MMOperation {
 		if let body = body {
 			logDebug("sending request...")
 			let validate = isEventProvidedByUser
-			mmContext.remoteApiProvider.sendCustomEvent(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, validate: validate, body: body, completion:
+            mmContext.remoteApiProvider.sendCustomEvent(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, validate: validate, body: body, queue: self.underlyingQueue, completion:
 				{ result in
 					self.handleResult(result)
 					self.finishWithError(result.error)
@@ -73,6 +73,7 @@ class CustomEventReportingOperation: MMOperation {
 	}
 
 	private func handleResult(_ result: CustomEventResult) {
+        assert(!Thread.isMainThread)
 		switch result {
 		case .Success( _):
 			logDebug("successfully synced")
@@ -105,6 +106,7 @@ class CustomEventReportingOperation: MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first)
 	}

@@ -205,6 +205,7 @@
 		76C3C9B523D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C9B323D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift */; };
 		76C3C9B823D60E9800562C57 /* UserSessionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C3C9B723D60E9800562C57 /* UserSessionService.swift */; };
 		76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */ = {isa = PBXBuildFile; fileRef = 764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */; };
+		76EA825C2727DE4300D16E66 /* MobileMessagingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76EA825B2727DE4300D16E66 /* MobileMessagingService.swift */; };
 		76F8A32D269F2F5700876E16 /* ChatMessageCounterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F8A32C269F2F5700876E16 /* ChatMessageCounterService.swift */; };
 		76FFC27C1F7A64D2009C6A2A /* LocalMessageFetchingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */; };
 		A00D332F252B81480024BB12 /* ChatAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00D332E252B81480024BB12 /* ChatAttachment.swift */; };
@@ -484,6 +485,7 @@
 		76C3C9B223D5B2E200562C57 /* UserSessionReportObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionReportObject.swift; sourceTree = "<group>"; };
 		76C3C9B323D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSessionReportObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		76C3C9B723D60E9800562C57 /* UserSessionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserSessionService.swift; sourceTree = "<group>"; };
+		76EA825B2727DE4300D16E66 /* MobileMessagingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileMessagingService.swift; sourceTree = "<group>"; };
 		76F8A32C269F2F5700876E16 /* ChatMessageCounterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageCounterService.swift; sourceTree = "<group>"; };
 		76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingOperation.swift; sourceTree = "<group>"; };
 		8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
@@ -786,6 +788,7 @@
 		764555D41F78FF4E00B8F14B /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				76EA825A2727DE2500D16E66 /* MobileMessagingService */,
 				763A1AFF23E5D10600C997BC /* SeenReports */,
 				763A1AF823E4908500C997BC /* CustomEvents */,
 				76C3C9B623D60E9800562C57 /* UserSession */,
@@ -1100,6 +1103,14 @@
 			path = Classes/UserSession;
 			sourceTree = SOURCE_ROOT;
 		};
+		76EA825A2727DE2500D16E66 /* MobileMessagingService */ = {
+			isa = PBXGroup;
+			children = (
+				76EA825B2727DE4300D16E66 /* MobileMessagingService.swift */,
+			);
+			path = MobileMessagingService;
+			sourceTree = "<group>";
+		};
 		7DB346D0F39D3F0E887471402A8071AB = {
 			isa = PBXGroup;
 			children = (
@@ -1314,6 +1325,7 @@
 				7650DC38244EEB480016233D /* ComposeBar.swift in Sources */,
 				764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */,
 				7617505923351827000438A8 /* Request.swift in Sources */,
+				76EA825C2727DE4300D16E66 /* MobileMessagingService.swift in Sources */,
 				7617505C23351827000438A8 /* AFError.swift in Sources */,
 				ADF203472086642C00E157D7 /* BatchedCollection.swift in Sources */,
 				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,

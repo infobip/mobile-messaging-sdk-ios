@@ -10,9 +10,11 @@ import XCTest
 
 class DeliveryReportingTests: MMTestCase {
     func testSendingDeliveryStatusSuccess() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
         weak var expectation = self.expectation(description: "Delivery sending completed")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"], completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "m1"], completion: { result in
 				XCTAssertNil(result.error, "Delivery reporting request failed with error")
 				XCTAssertEqual(MMTestCase.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 				expectation?.fulfill()
@@ -23,12 +25,11 @@ class DeliveryReportingTests: MMTestCase {
     }
 	
     func testSendingDeliveryStatusWrongAppIdFailure() {
-		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithWrongApplicationCode()
 		
         weak var expectation = self.expectation(description: "Delivery sending completed")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps":["key":"value"], "messageId": "m2"], completion: { result in
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps":["key":"value"], "messageId": "m2"], completion: { result in
 		
 			XCTAssertNotNil(result.error)
 			XCTAssertEqual(result.error?.localizedDescription, "Invalid Application Id")

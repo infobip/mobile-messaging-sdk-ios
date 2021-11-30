@@ -25,7 +25,7 @@ class GeoEventReportingOperation: MMOperation {
 		self.finishBlock = finishBlock
 		self.mmContext = mmContext
 		self.geoContext = geoContext
-		super.init()
+		super.init(isUserInitiated: false)
 		self.addCondition(HealthyRegistrationCondition(mmContext: mmContext))
 	}
 	
@@ -58,7 +58,7 @@ class GeoEventReportingOperation: MMOperation {
 			if !originGeoMessagesValues.isEmpty, !geoEventReportsData.isEmpty {
 				self.logDebug("reporting started for \(geoEventReportsData.count) geo events from \(originGeoMessagesValues.count) campaigns.")
 
-				self.geoContext.remoteApiProvider.reportGeoEvent(applicationCode: self.mmContext.applicationCode, pushRegistrationId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues, completion: { (result) in
+                self.geoContext.remoteApiProvider.reportGeoEvent(applicationCode: self.mmContext.applicationCode, pushRegistrationId: internalId, eventsDataList: geoEventReportsData, geoMessages: originGeoMessagesValues, queue: self.underlyingQueue, completion: { (result) in
 					self.handleRequestResult(result) {
 						self.finishWithError(result.error)
 					}
@@ -87,6 +87,7 @@ class GeoEventReportingOperation: MMOperation {
 	typealias MTMessagesDatasource = [MessageId: (MMGeoMessage, AreaId)]
 	
 	private func handleRequestResult(_ result: GeoEventReportingResult, completion: @escaping () -> Void) {
+        assert(!Thread.isMainThread)
 		self.result = result
 		let messagesUpdatingGroup = DispatchGroup()
 		switch result {
@@ -171,7 +172,7 @@ class GeoEventReportingOperation: MMOperation {
 			
 			completionsGroup.enter()
 			self.logDebug("syncing seen status...")
-			self.mmContext.messageHandler.syncSeenStatusUpdates({ _ in
+            self.mmContext.messageHandler.syncSeenStatusUpdates(userInitiated: false, completion: { _ in
 				self.logDebug("stopped syncing seen status.")
 				completionsGroup.leave()
 			})
@@ -181,8 +182,8 @@ class GeoEventReportingOperation: MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
+        assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
-		
 		if let error = errors.first {
 			result = GeoEventReportingResult.Failure(error)
 		}
@@ -199,6 +200,6 @@ class GeoEventReportingOperation: MMOperation {
 			}
 			return result
 		}
-		self.mmContext.messageHandler.handleMTMessages(locallyGeneratedMessages, handlingIteration: 2, completion: completion)
+        self.mmContext.messageHandler.handleMTMessages(userInitiated: false, messages: locallyGeneratedMessages, handlingIteration: 2, completion: completion)
 	}
 }

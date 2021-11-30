@@ -10,6 +10,8 @@ import XCTest
 
 class UserDataTests: MMTestCase {
 	func testDataPersisting() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "done")
 		
 		let u = MobileMessaging.getUser()!
@@ -32,11 +34,12 @@ class UserDataTests: MMTestCase {
 			
 			expectation?.fulfill()
 		}
-		waitForExpectations(timeout: 20, handler: { _ in
-		})
+		waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	func testJsonDecoding() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "data fetched")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
@@ -105,7 +108,7 @@ class UserDataTests: MMTestCase {
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 		
-		mobileMessagingInstance.userService.fetchFromServer(completion: { (user, error) in
+		mobileMessagingInstance.userService.fetchFromServer(userInitiated: true, completion: { (user, error) in
 			XCTAssertNil(error)
 			
 			XCTAssertNil(currentUser.customAttributes?["car"])
@@ -154,6 +157,8 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testUserDataFetching() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "save completed")
 		
 		//Precondiotions
@@ -196,8 +201,8 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testThatFetchedUserDataIgnoredIfHasUnsyncedLocalChanges() {
-		MMTestCase.cleanUpAndStop()
 		MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "data received")
 		weak var expectationAPICallPerformed = self.expectation(description: "expectationAPICallPerformed")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -214,7 +219,7 @@ class UserDataTests: MMTestCase {
 		user.firstName = "John" // unsynced local change
 		user.archiveDirty()
 		
-		mobileMessagingInstance.userService.fetchFromServer { (_, _) in
+		mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (_, _) in
 			expectation?.fulfill()
 		}
 		
@@ -224,16 +229,22 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testTagsConvertedToArray() {
+        MMTestCase.startWithCorrectApplicationCode()
 		mobileMessagingInstance.pushRegistrationId = "123"
 		
 		let currentUser = MobileMessaging.getUser()!
 		currentUser.tags = Set(["t1"])
 		
 		let b = UserDataMapper.requestPayload(currentUser: mobileMessagingInstance.currentUser(), dirtyUser: currentUser)
-		XCTAssertTrue(b!["tags"] is [String])
+        waitForExpectations(timeout: 5) { _ in
+            XCTAssertTrue(b!["tags"] is [String])
+        }
+		
 	}
 	
 	func testThatUserDataIsNotPersistedIfPrivacySettingsSpecified() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		MobileMessaging.privacySettings.userDataPersistingDisabled = true
 		mobileMessagingInstance.pushRegistrationId = "123"
 		
@@ -274,12 +285,16 @@ class UserDataTests: MMTestCase {
 		XCTAssertEqual(inMemoryUser.lastName, "Skywalker")
 		XCTAssertEqual(inMemoryUser.gender, .Male)
 		XCTAssertEqual(inMemoryUser.customAttributes?["home"] as? NSString, "Death Star")
+        
+        waitForExpectations(timeout: 20, handler: nil)
 	}
 	
 	//TODO:
 	// test that error parses to a UpdateUserDataResult.Failure(NSError(domain: x, code: x, userInfo: [Consts.APIKeys.errorMessageId : "USER_MERGE_INTERRUPTED"]))
 	
 	func testThatUnwantedMergeErrorIsPorpagated() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "data fetched")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
@@ -311,6 +326,8 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testThatAfterMergeInterrupted_UserIdentityRollsBack() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "expectation")
 		mobileMessagingInstance.pushRegistrationId = "123"
 		let user = MobileMessaging.getUser()!
@@ -331,6 +348,8 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testThatDirtyUserAttributesSentToServer() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "")
 		var sent = [Any]()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -371,6 +390,8 @@ class UserDataTests: MMTestCase {
 	}
 	
 	func testThatEmptyCustomAttributesSentAsNull() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "")
 		var sent = [Any]()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID

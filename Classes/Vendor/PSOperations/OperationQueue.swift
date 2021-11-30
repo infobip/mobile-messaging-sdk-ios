@@ -105,6 +105,7 @@ open class OperationQueue: Foundation.OperationQueue {
         */
         if let op = operation as? Operation {
             op.didEnqueue()
+            op.underlyingQueue = underlyingQueue ?? DispatchQueue.global()
         }
     }
     

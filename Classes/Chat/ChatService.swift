@@ -36,10 +36,26 @@ extension MobileMessaging {
 
 /// This service manages the In-app Chat.
 public class MMInAppChatService: MobileMessagingService {
+    private let q: DispatchQueue
+    static var sharedInstance: MMInAppChatService?
+    private let chatMessageCounterService: ChatMessageCounterService
+    private let getWidgetQueue: MMOperationQueue
+    private var chatWidget: ChatWidget?
+    private var isConfigurationSynced: Bool = false {
+        didSet {
+            UserEventsManager.postInAppChatAvailabilityUpdatedEvent(isConfigurationSynced)
+            delegate?.inAppChatIsEnabled?(isConfigurationSynced)
+        }
+    }
+    
+    var isChatScreenVisible: Bool = false
+    
 	init(mmContext: MobileMessaging) {
-        chatMessageCounterService = ChatMessageCounterService(mmContext: mmContext)
+        self.q = DispatchQueue(label: "chat-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
+        self.getWidgetQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.chatMessageCounterService = ChatMessageCounterService(mmContext: mmContext)
 		super.init(mmContext: mmContext, uniqueIdentifier: "InAppChatService")
-        chatMessageCounterService.chatService = self
+        self.chatMessageCounterService.chatService = self
 	}
     
 	///You can define your own custom appearance for chat view by accessing a chat settings object.
@@ -83,18 +99,6 @@ public class MMInAppChatService: MobileMessagingService {
         return chatMessageCounterService.getCounter()
     }
 	
-    private let chatMessageCounterService: ChatMessageCounterService
-	private let getWidgetQueue = MMOperationQueue.newSerialQueue
-	private var chatWidget: ChatWidget?
-    private var isConfigurationSynced: Bool = false {
-        didSet {
-            UserEventsManager.postInAppChatAvailabilityUpdatedEvent(isConfigurationSynced)
-            delegate?.inAppChatIsEnabled?(isConfigurationSynced)
-        }
-    }
-    
-	var isChatScreenVisible: Bool = false
-	
 	override var systemData: [String: AnyHashable]? {
 		return ["inappchat": true]
 	}
@@ -104,24 +108,30 @@ public class MMInAppChatService: MobileMessagingService {
 			update(withChatWidget: chatWidget)
 		}
 	}
-	
-	static var sharedInstance: MMInAppChatService?
 
-	override func mobileMessagingDidStop(_ mmContext: MobileMessaging) {
+    override func suspend() {
         getWidgetQueue.cancelAllOperations()
-		self.isConfigurationSynced = false
-		chatWidget = nil
-		cleanCache()
-		stop {_ in }
+        isConfigurationSynced = false
+        chatWidget = nil
+        cleanCache()
         stopReachabilityListener()
-		MMInAppChatService.sharedInstance = nil
-	}
+        super.suspend()
+    }
+    
+    override func mobileMessagingDidStop(_ completion: @escaping () -> Void) {
+        MMInAppChatService.sharedInstance = nil
+        completion()
+    }
 	
-	override func mobileMessagingDidStart(_ mmContext: MobileMessaging) {
-		start { _ in }
+	override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+		start { _ in completion() }
 	}
     
     override func start(_ completion: @escaping (Bool) -> Void) {
+        guard isRunning == false else {
+            completion(isRunning)
+            return
+        }
         super.start(completion)
         startReachabilityListener()
         syncWithServer { _ in}
@@ -147,11 +157,11 @@ public class MMInAppChatService: MobileMessagingService {
 		showBannerWithOptions(UNNotificationPresentationOptions.make(with:  MobileMessaging.sharedInstance?.userNotificationType ?? []))
 	}
     
-    override func appWillEnterForeground() {
-        syncWithServer({_ in})
+    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+        syncWithServer({_ in completion() })
     }
 
-    override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
+    func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
         if !isConfigurationSynced {
             chatErrors.remove(.configurationSyncError)
             chatErrors.remove(.jsError)
@@ -160,11 +170,15 @@ public class MMInAppChatService: MobileMessagingService {
     }
 	
     private func getChatWidget(_ completion: ((NSError?) -> Void)? = nil) {
+        guard isRunning else {
+            completion?(nil)
+            return
+        }
 		getWidgetQueue.addOperation(GetChatWidgetOperation(mmContext: mmContext) { (error, widget)  in
-			self.chatWidget = widget
+            self.chatWidget = widget
             self.isConfigurationSynced = (error == nil)
             self.handleConfigurationSyncError(error)
-			self.update(withChatWidget: self.chatWidget)
+            self.update(withChatWidget: self.chatWidget)
             completion?(error)
 		})
 	}

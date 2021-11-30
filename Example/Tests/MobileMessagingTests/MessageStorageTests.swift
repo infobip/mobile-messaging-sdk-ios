@@ -25,9 +25,7 @@ class MessageStorageTests: MMTestCase {
 		// 2 evict
 		// 3 fetch the same message from extension
 		// 4 assert no duplicates in message storage
-
-		MMTestCase.cleanUpAndStop()
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().doStart()
 
 		mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
 
@@ -36,9 +34,9 @@ class MessageStorageTests: MMTestCase {
 
 		weak var findAllMessagesExp2 = expectation(description: "Check finished")
 
-		self.mobileMessagingInstance.didReceiveRemoteNotification(apnsNormalMessagePayload("m2"), completion: { _ in
-			self.mobileMessagingInstance.messageHandler.evictOldMessages {
-				self.mobileMessagingInstance.messageHandler.syncMessagesWithOuterLocalSources {
+		self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: false, userInfo: apnsNormalMessagePayload("m2"), completion: { _ in
+            self.mobileMessagingInstance.messageHandler.evictOldMessages(userInitiated: false) {
+                self.mobileMessagingInstance.messageHandler.syncMessagesWithOuterLocalSources(userInitiated: false) {
 					DispatchQueue.main.async {
 						self.defaultMessageStorage?.findAllMessageIds(completion: { ids in
 							XCTAssertEqual(ids.count, expectedMessagesCount)
@@ -60,9 +58,7 @@ class MessageStorageTests: MMTestCase {
 		// 1 receive message
 		// 2 fetch the same message from extension
 		// 3 assert no duplicates in message storage
-
-		MMTestCase.cleanUpAndStop()
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().doStart()
 
 		mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
 
@@ -71,8 +67,8 @@ class MessageStorageTests: MMTestCase {
 
 		weak var findAllMessagesExp2 = expectation(description: "Check finished")
 
-		self.mobileMessagingInstance.didReceiveRemoteNotification(apnsNormalMessagePayload("m2"), completion: { _ in
-			self.mobileMessagingInstance.messageHandler.syncMessagesWithOuterLocalSources {
+		self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: false, userInfo: apnsNormalMessagePayload("m2"), completion: { _ in
+            self.mobileMessagingInstance.messageHandler.syncMessagesWithOuterLocalSources(userInitiated: false) {
 				DispatchQueue.main.async {
 					self.defaultMessageStorage?.findAllMessageIds(completion: { ids in
 						XCTAssertEqual(ids.count, expectedMessagesCount)
@@ -90,10 +86,8 @@ class MessageStorageTests: MMTestCase {
 	}
 	
 	func testThatChatMessagesDontGetToMessageStorage() {
-		MMTestCase.cleanUpAndStop()
-		
 		let messageStorageStub = MessageStorageStub()
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withInAppChat().start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withInAppChat().doStart()
 		
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
@@ -101,10 +95,10 @@ class MessageStorageTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Check finished")
 		var iterationCounter: Int = 0
 		
-		self.mobileMessagingInstance.didReceiveRemoteNotification(apnsChatMessagePayload("chatmessageid"), completion: { _ in
+		self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: apnsChatMessagePayload("chatmessageid"), completion: { _ in
 			
 			sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-				self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
+				self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo, completion: { _ in
 					DispatchQueue.main.async {
 						iterationCounter += 1
 						if iterationCounter == expectedMessagesCount {
@@ -122,10 +116,8 @@ class MessageStorageTests: MMTestCase {
 	}
 
 	func testThatOldMessagesDontGetToMessageStorage() {
-		MMTestCase.cleanUpAndStop()
-
 		let messageStorageStub = MessageStorageStub()
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withInAppChat().start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).withInAppChat().doStart()
 
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 
@@ -134,10 +126,10 @@ class MessageStorageTests: MMTestCase {
 		var iterationCounter: Int = 0
 
 		timeTravel(to: Date()) {
-			self.mobileMessagingInstance.didReceiveRemoteNotification(apnsChatMessagePayload("chatmessageid"), completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: apnsChatMessagePayload("chatmessageid"), completion: { _ in
 
 				sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-					self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
+					self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo, completion: { _ in
 						DispatchQueue.main.async {
 							iterationCounter += 1
 							if iterationCounter == expectedMessagesCount {
@@ -155,17 +147,17 @@ class MessageStorageTests: MMTestCase {
 		})
 	}
 	
-	var defaultMessageStorage: MMDefaultMessageStorage? {
+	private var defaultMessageStorage: MMDefaultMessageStorage? {
 		return self.mobileMessagingInstance.messageStorages["messages"]?.adapteeStorage as? MMDefaultMessageStorage
 	}
 	
 	func testMODuplication() {
-		MMTestCase.cleanUpAndStop()
 		weak var expectation1 = expectation(description: "Sending 1 finished")
 		weak var expectation2 = expectation(description: "Sending 2 finished")
+        
 		let messageStorageStub = MessageStorageStub()
 		XCTAssertEqual(messageStorageStub.moMessages.count, 0)
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).doStart()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
 		do {
@@ -188,7 +180,6 @@ class MessageStorageTests: MMTestCase {
 	}
 	
 	func testMOHooks() {
-		MMTestCase.cleanUpAndStop()
 		var isSentSuccessfully = false
 		var isSentWithFailure = false
 		
@@ -213,7 +204,7 @@ class MessageStorageTests: MMTestCase {
 		})
 		XCTAssertEqual(messageStorageStub.moMessages.count, 0)
 		
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).doStart()
 
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		
@@ -233,8 +224,7 @@ class MessageStorageTests: MMTestCase {
 	}
 	
     func testDefaultStoragePersistingAndFetching() {
-		MMTestCase.cleanUpAndStop()
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().doStart()
 		
 		weak var findAllMessagesExp1 = expectation(description: "Check finished")
 		weak var findAllMessagesIdsExp = expectation(description: "Check finished")
@@ -249,7 +239,7 @@ class MessageStorageTests: MMTestCase {
 		var iterationCounter: Int = 0
         
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo, completion: { _ in
 				
 				DispatchQueue.main.async {
 					iterationCounter += 1
@@ -272,9 +262,7 @@ class MessageStorageTests: MMTestCase {
     }
 
 	func testThatSeenStatusUpdatesPersisted() {
-		MMTestCase.cleanUpAndStop()
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
-
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().doStart()
 
 		weak var findAllMessagesIdsExp = expectation(description: "Check finished")
 		weak var setSeenExpectation = expectation(description: "Check finished")
@@ -291,7 +279,7 @@ class MessageStorageTests: MMTestCase {
 
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
 
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo, completion: { _ in
 				DispatchQueue.main.async {
 					iterationCounter += 1
 					if iterationCounter == expectedMessagesCount {
@@ -330,11 +318,9 @@ class MessageStorageTests: MMTestCase {
 	}
 	
 	func testCustomPersistingAndFetching() {
-		MMTestCase.cleanUpAndStop()
-		
 		let messageStorageStub = MessageStorageStub()
 		
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withMessageStorage(messageStorageStub).doStart()
 		
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
@@ -342,7 +328,7 @@ class MessageStorageTests: MMTestCase {
 		weak var expectation = self.expectation(description: "Check finished")
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
-			self.mobileMessagingInstance.didReceiveRemoteNotification(userInfo, completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo, completion: { _ in
 				DispatchQueue.main.async {
 					iterationCounter += 1
 					if iterationCounter == expectedMessagesCount {
@@ -360,9 +346,7 @@ class MessageStorageTests: MMTestCase {
 	
 	
 	func testQuery() {
-		MMTestCase.cleanUpAndStop()
-
-		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().start()
+		MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)?.withDefaultMessageStorage().doStart()
 		
 		let messageReceivingGroup = DispatchGroup()
 		weak var expectation = self.expectation(description: "Check finished")
@@ -370,7 +354,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("001")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload,  completion: { _ in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -378,7 +362,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("002")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload,  completion: { _ in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -386,7 +370,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("003")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload,  completion: { _ in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -394,7 +378,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("004")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload,  completion: { _ in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -402,7 +386,7 @@ class MessageStorageTests: MMTestCase {
 		do {
 			let payload = apnsNormalMessagePayload("005")
 			messageReceivingGroup.enter()
-			self.mobileMessagingInstance.didReceiveRemoteNotification(payload,  completion: { _ in
+			self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload,  completion: { _ in
 				messageReceivingGroup.leave()
 			})
 		}
@@ -429,9 +413,7 @@ class MessageStorageTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: nil)
 	}
 	
-	func testThatMessageStorageIsBeingPopulatedWithNotificationExtensionHandledMessages() {		
-		MMTestCase.cleanUpAndStop()
-		
+	func testThatMessageStorageIsBeingPopulatedWithNotificationExtensionHandledMessages() {
 		let content = UNMutableNotificationContent()
 		content.userInfo = [
 			"messageId": "mid1",
@@ -443,7 +425,6 @@ class MessageStorageTests: MMTestCase {
 		}
 		let notificationExtensionStorageStub = NotificationExtensionMessageStorageStub(applicationCode: "appCode", appGroupId: "groupId")!
 		
-
 		MobileMessagingNotificationServiceExtension.startWithApplicationCode("appCode", appGroupId: "groupId")
 		MobileMessagingNotificationServiceExtension.sharedInstance?.deliveryReporter = SuccessfullDeliveryReporterStub()
 		MobileMessagingNotificationServiceExtension.sharedInstance?.sharedNotificationExtensionStorage = notificationExtensionStorageStub
@@ -460,8 +441,7 @@ class MessageStorageTests: MMTestCase {
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(messageStorageStub)
 		mm.sharedNotificationExtensionStorage = notificationExtensionStorageStub
-		mm.start()
-		mm.sync()
+		mm.doStart()
 		
 		weak var expectation = self.expectation(description: "")
 		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {

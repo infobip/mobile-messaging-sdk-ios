@@ -12,12 +12,13 @@ import CoreData
 class MessageSeenTests: MMTestCase {
 	
 	func testSendSeenStatusUpdate() {
-		
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var seenRequestCompleted = expectation(description: "seen request completed")
 		let messageId = "m1"
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": messageId]) { _ in
-			self.mobileMessagingInstance.setSeen([messageId], immediately: false, completion: {
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": messageId]) { _ in
+            self.mobileMessagingInstance.setSeen(userInitiated: true, messageIds: [messageId], immediately: false, completion: {
 				 seenRequestCompleted?.fulfill()
 			})
 		}
@@ -36,10 +37,12 @@ class MessageSeenTests: MMTestCase {
 	}
 	
     func testSendEmpty() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
         weak var expectation = self.expectation(description: "expectation")
 		
-		mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": "m1"]) { _ in
-			self.mobileMessagingInstance.setSeen([], immediately: false, completion: {
+		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "m1"]) { _ in
+            self.mobileMessagingInstance.setSeen(userInitiated: true, messageIds: [], immediately: false, completion: {
 				expectation?.fulfill()
 			})
 		}
@@ -60,18 +63,20 @@ class MessageSeenTests: MMTestCase {
     }
 	
 	func testSendSeenAgain() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var expectation = self.expectation(description: "expectation")
 		let messageReceivingGroup = DispatchGroup()
 		
 		for mId in ["m1", "m2", "m3"] {
 			messageReceivingGroup.enter()
-			mobileMessagingInstance.didReceiveRemoteNotification(["aps": ["key":"value"], "messageId": mId],  completion: { _ in
+			mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": mId],  completion: { _ in
 				messageReceivingGroup.leave()
 			})
 		}
 		
 		messageReceivingGroup.notify(queue: DispatchQueue.main) { 
-			self.mobileMessagingInstance.setSeen(["m1", "m2"], immediately: false, completion: {
+			self.mobileMessagingInstance.setSeen(userInitiated: true, messageIds: ["m1", "m2"], immediately: false, completion: {
 				
 				var messagesSeenDates = [String: Date?]()
 				let ctx = self.storage.mainThreadManagedObjectContext!
@@ -92,7 +97,7 @@ class MessageSeenTests: MMTestCase {
 					}
 				}
 				
-				self.mobileMessagingInstance.setSeen(["m1", "m2", "m3"], immediately: false, completion: {
+                self.mobileMessagingInstance.setSeen(userInitiated: true, messageIds: ["m1", "m2", "m3"], immediately: false, completion: {
 
 					let ctx = self.storage.mainThreadManagedObjectContext!
 					ctx.reset()

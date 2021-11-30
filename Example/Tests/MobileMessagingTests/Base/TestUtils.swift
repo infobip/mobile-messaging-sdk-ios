@@ -96,11 +96,11 @@ class RemoteGeoAPIProviderStub : GeoRemoteAPIProvider {
 
 	var reportGeoEventClosure: ((String, String, [GeoEventReportData], [MMGeoMessage]) -> GeoEventReportingResult)? = nil
 
-	override func reportGeoEvent(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage], completion: @escaping (GeoEventReportingResult) -> Void) {
+    override func reportGeoEvent(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage], queue: DispatchQueue, completion: @escaping (GeoEventReportingResult) -> Void) {
 
 		if let reportGeoEventClosure = reportGeoEventClosure {
 			if isOffline {
-				reportGeoEventClosure(applicationCode, pushRegistrationId, eventsDataList, geoMessages)
+				_ = reportGeoEventClosure(applicationCode, pushRegistrationId, eventsDataList, geoMessages)
 				completion(GeoEventReportingResult.Failure(MMInternalErrorType.UnknownError.foundationError))
 			} else {
 				completion(reportGeoEventClosure(applicationCode, pushRegistrationId, eventsDataList, geoMessages))
@@ -109,7 +109,7 @@ class RemoteGeoAPIProviderStub : GeoRemoteAPIProvider {
 			if isOffline {
 				completion(GeoEventReportingResult.Failure(MMInternalErrorType.UnknownError.foundationError))
 			} else {
-				super.reportGeoEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, eventsDataList: eventsDataList, geoMessages: geoMessages, completion: completion)
+                super.reportGeoEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, eventsDataList: eventsDataList, geoMessages: geoMessages, queue: queue, completion: completion)
 			}
 		}
 	}
@@ -138,131 +138,131 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 	var sendUserSessionClosure: ((String, String, RequestBody) -> UserSessionSendingResult)? = nil
 	var sendCustomEventClosure: ((String, String, Bool, RequestBody) -> CustomEventResult)? = nil
 
-    override func getBaseUrl(applicationCode: String, completion: @escaping (BaseUrlResult) -> Void) {
+    override func getBaseUrl(applicationCode: String, queue: DispatchQueue, completion: @escaping (BaseUrlResult) -> Void) {
         if let getBaseUrlClosure = getBaseUrlClosure {
             completion(getBaseUrlClosure(applicationCode))
         } else {
-            super.getBaseUrl(applicationCode: applicationCode, completion: completion)
+            super.getBaseUrl(applicationCode: applicationCode, queue: queue, completion: completion)
         }
     }
     
-	override func sendCustomEvent(applicationCode: String, pushRegistrationId: String, validate: Bool, body: RequestBody, completion: @escaping (CustomEventResult) -> Void) {
+	override func sendCustomEvent(applicationCode: String, pushRegistrationId: String, validate: Bool, body: RequestBody, queue: DispatchQueue, completion: @escaping (CustomEventResult) -> Void) {
 		if let sendCustomEventClosure = sendCustomEventClosure {
 			completion(sendCustomEventClosure(applicationCode, pushRegistrationId, validate, body))
 		} else {
-			super.sendCustomEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, validate: validate, body: body, completion: completion)
+            super.sendCustomEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, validate: validate, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UserSessionSendingResult) -> Void) {
+	override func sendUserSessionReport(applicationCode: String, pushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (UserSessionSendingResult) -> Void) {
 		if let sendUserSessionClosure = sendUserSessionClosure {
 			completion(sendUserSessionClosure(applicationCode, pushRegistrationId, body))
 		} else {
-			super.sendUserSessionReport(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+			super.sendUserSessionReport(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, completion: @escaping (SeenStatusSendingResult) -> Void) {
+	override func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, queue: DispatchQueue, completion: @escaping (SeenStatusSendingResult) -> Void) {
 		if let sendSeenStatusClosure = sendSeenStatusClosure {
 			completion(sendSeenStatusClosure(applicationCode,pushRegistrationId, body))
 		} else {
-			super.sendSeenStatus(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+			super.sendSeenStatus(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func sendMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (MOMessageSendingResult) -> Void) {
+	override func sendMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (MOMessageSendingResult) -> Void) {
 		if let sendMessagesClosure = sendMessagesClosure {
 			completion(sendMessagesClosure(applicationCode, pushRegistrationId, body))
 		} else {
-			super.sendMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+			super.sendMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func syncMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (MessagesSyncResult) -> Void) {
+	override func syncMessages(applicationCode: String, pushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (MessagesSyncResult) -> Void) {
 		if let syncMessagesClosure = syncMessagesClosure {
 			completion(syncMessagesClosure(applicationCode,pushRegistrationId, body))
 		} else {
-			super.syncMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+			super.syncMessages(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func fetchRecentLibraryVersion(applicationCode: String, pushRegistrationId: String?, completion: @escaping (LibraryVersionResult) -> Void) {
+	override func fetchRecentLibraryVersion(applicationCode: String, pushRegistrationId: String?, queue: DispatchQueue, completion: @escaping (LibraryVersionResult) -> Void) {
 		if let fetchRecentLibraryVersionClosure = fetchRecentLibraryVersionClosure {
 			completion(fetchRecentLibraryVersionClosure(applicationCode,pushRegistrationId))
 		} else {
-			super.fetchRecentLibraryVersion(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, completion: completion)
+			super.fetchRecentLibraryVersion(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, queue: queue, completion: completion)
 		}
 	}
 
-	override func depersonalize(applicationCode: String, pushRegistrationId: String, pushRegistrationIdToDepersonalize: String, completion: @escaping (DepersonalizeResult) -> Void) {
+	override func depersonalize(applicationCode: String, pushRegistrationId: String, pushRegistrationIdToDepersonalize: String, queue: DispatchQueue, completion: @escaping (DepersonalizeResult) -> Void) {
 		if let depersonalizeClosure = depersonalizeClosure {
 			completion(depersonalizeClosure(applicationCode,pushRegistrationId,pushRegistrationIdToDepersonalize))
 		} else {
-			super.depersonalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, pushRegistrationIdToDepersonalize: pushRegistrationIdToDepersonalize, completion: completion)
+			super.depersonalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, pushRegistrationIdToDepersonalize: pushRegistrationIdToDepersonalize, queue: queue, completion: completion)
 		}
 	}
 
-	override func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, completion: @escaping (PersonalizeResult) -> Void) {
+	override func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, queue: DispatchQueue, completion: @escaping (PersonalizeResult) -> Void) {
 		if let personalizeClosure = personalizeClosure {
 			completion(personalizeClosure(applicationCode, pushRegistrationId,body,forceDepersonalize))
 		} else {
-			super.personalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, completion: completion)
+			super.personalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, queue: queue, completion: completion)
 		}
 	}
 
-	override func patchInstance(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void) {
+	override func patchInstance(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (UpdateInstanceDataResult) -> Void) {
 		if let patchInstanceClosure = patchInstanceClosure {
 			completion(patchInstanceClosure(applicationCode, authPushRegistrationId, refPushRegistrationId, body))
 		} else {
-			super.patchInstance(applicationCode: applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: refPushRegistrationId, body: body, completion: completion)
+			super.patchInstance(applicationCode: applicationCode, authPushRegistrationId: authPushRegistrationId, refPushRegistrationId: refPushRegistrationId, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func patchOtherInstance(applicationCode: String, authPushRegistrationId: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateInstanceDataResult) -> Void) {
+	override func patchOtherInstance(applicationCode: String, authPushRegistrationId: String, pushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (UpdateInstanceDataResult) -> Void) {
 		if let patchOtherInstanceClosure = patchOtherInstanceClosure {
 			completion(patchOtherInstanceClosure(applicationCode,authPushRegistrationId,pushRegistrationId,body))
 		} else {
-			super.patchOtherInstance(applicationCode: applicationCode, authPushRegistrationId: authPushRegistrationId, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+			super.patchOtherInstance(applicationCode: applicationCode, authPushRegistrationId: authPushRegistrationId, pushRegistrationId: pushRegistrationId, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func getInstance(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchInstanceDataResult) -> Void) {
+	override func getInstance(applicationCode: String, pushRegistrationId: String, queue: DispatchQueue, completion: @escaping (FetchInstanceDataResult) -> Void) {
 		if let getInstanceClosure = getInstanceClosure {
 			completion(getInstanceClosure(applicationCode, pushRegistrationId))
 		} else {
-			super.getInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, completion: completion)
+			super.getInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, queue: queue, completion: completion)
 		}
 	}
 
-	override func postInstance(applicationCode: String, body: RequestBody, completion: @escaping (FetchInstanceDataResult) -> Void) {
+	override func postInstance(applicationCode: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (FetchInstanceDataResult) -> Void) {
 		if let postInstanceClosure = postInstanceClosure {
 			completion(postInstanceClosure(applicationCode, body))
 		} else {
-			super.postInstance(applicationCode: applicationCode, body: body, completion: completion)
+			super.postInstance(applicationCode: applicationCode, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func deleteInstance(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String, completion: @escaping (UpdateInstanceDataResult) -> Void) {
+	override func deleteInstance(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String, queue: DispatchQueue, completion: @escaping (UpdateInstanceDataResult) -> Void) {
 		if let deleteInstanceClosure = deleteInstanceClosure {
 			completion(deleteInstanceClosure(applicationCode, pushRegistrationId, expiredPushRegistrationId))
 		} else {
-			super.deleteInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId, completion: completion)
+			super.deleteInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId, queue: queue, completion: completion)
 		}
 	}
 
-	override func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, completion: @escaping (UpdateUserDataResult) -> Void) {
+	override func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (UpdateUserDataResult) -> Void) {
 		if let patchUserClosure = patchUserClosure {
 			completion(patchUserClosure(applicationCode, pushRegistrationId, body))
 		} else {
-			super.patchUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, completion: completion)
+			super.patchUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func getUser(applicationCode: String, pushRegistrationId: String, completion: @escaping (FetchUserDataResult) -> Void) {
+	override func getUser(applicationCode: String, pushRegistrationId: String, queue: DispatchQueue, completion: @escaping (FetchUserDataResult) -> Void) {
 		if let getUserClosure = getUserClosure {
 			completion(getUserClosure(applicationCode, pushRegistrationId))
 		} else {
-			super.getUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, completion: completion)
+			super.getUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, queue: queue, completion: completion)
 		}
 
 	}
@@ -273,7 +273,7 @@ class SessionManagerOfflineStubBase : DynamicBaseUrlHTTPSessionManager {
 		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: nil, appGroupId: nil)
 	}
 
-	override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
+	override func getDataResponse(_ r: RequestData, queue: DispatchQueue, completion: @escaping (JSON?, NSError?) -> Void) {
 		completion(nil, MMInternalErrorType.UnknownError.foundationError)
 	}
 }
@@ -285,7 +285,7 @@ class SessionManagerStubBase : DynamicBaseUrlHTTPSessionManager {
 		super.init(baseURL: URL(string: "https://initial-stub.com")!, sessionConfiguration: nil, appGroupId: nil)
 	}
 
-    override func getDataResponse(_ r: RequestData, completion: @escaping (JSON?, NSError?) -> Void) {
+    override func getDataResponse(_ r: RequestData, queue: DispatchQueue, completion: @escaping (JSON?, NSError?) -> Void) {
         if let closure = getDataResponseClosure, closure(r, completion) == true {
             // do nothing
         } else {
@@ -376,21 +376,21 @@ class MessagHandlerMock: MMMessageHandler {
 		self.init(storage: originalHandler.storage, mmContext: originalHandler.mmContext)
 	}
 
-	override func syncSeenStatusUpdates(_ completion: ((SeenStatusSendingResult) -> Void)? = nil) {
+    override func syncSeenStatusUpdates(userInitiated: Bool, completion: ((SeenStatusSendingResult) -> Void)? = nil) {
 		completion?(SeenStatusSendingResult.Cancel)
 	}
 
-	override func setSeen(_ messageIds: [String], immediately: Bool, completion: @escaping (() -> Void)) {
+	override func setSeen(userInitiated: Bool, messageIds: [String], immediately: Bool, completion: @escaping (() -> Void)) {
 		setSeenWasCalled?()
 		completion()
 	}
 
-	override func sendMessages(_ messages: [MM_MOMessage], isUserInitiated: Bool, completion: (([MM_MOMessage]?, NSError?) -> Void)?) {
+	override func sendMessages(messages: [MM_MOMessage], isUserInitiated: Bool, completion: (([MM_MOMessage]?, NSError?) -> Void)?) {
 		sendMessageWasCalled?(messages)
 		completion?(messages, nil)
 	}
 
-	override func syncMessages(handlingIteration: Int, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
+	override func syncMessages(userInitiated: Bool, handlingIteration: Int, finishBlock: ((MessagesSyncResult) -> Void)? = nil) {
 		finishBlock?(MessagesSyncResult.Cancel)
 	}
 }

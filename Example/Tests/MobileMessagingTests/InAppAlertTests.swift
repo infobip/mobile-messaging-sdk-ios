@@ -31,6 +31,8 @@ class InAppMessageHandlingDelegateShouldNotShow : MMMessageHandlingDelegate {
 
 class InAppAlertTests: MMTestCase {
 	func testThatInAppAlertShownIfNoExpirationSpecified() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		assertAlertShownAutomatically(true, inAppExpiryDateTime: 0, currentDateTime: 0, json: """
 		{
 			"messageId": "messageId",
@@ -50,20 +52,24 @@ class InAppAlertTests: MMTestCase {
 	}
 
 	func testThatInAppAlertShownIfNotExpired() {
+        MMTestCase.startWithCorrectApplicationCode()
 		assertAlertShownAutomatically(true, inAppExpiryDateTime: 100, currentDateTime: 0)
 	}
 
 	func testThatInAppAlertNotShownIfExpired() {
+        MMTestCase.startWithCorrectApplicationCode()
 		assertAlertShownAutomatically(false, inAppExpiryDateTime: 0, currentDateTime: 100)
 	}
     
     func testThatInAppNotShownAutomaticallyIfFalseInDelegate() {
+        MMTestCase.startWithCorrectApplicationCode()
         let inAppDelegate = InAppMessageHandlingDelegateShouldNotShow()
         MobileMessaging.messageHandlingDelegate = inAppDelegate
         assertAlertShownAutomatically(false, inAppExpiryDateTime: 100, currentDateTime: 0)
     }
     
     func testThatInAppShownManuallyIfFalseInDelegate() {
+        MMTestCase.startWithCorrectApplicationCode()
         weak var displayed = self.expectation(description: "displayed")
         let inAppDelegate = InAppMessageHandlingDelegateShouldNotShow()
         MobileMessaging.messageHandlingDelegate = inAppDelegate
@@ -118,7 +124,7 @@ class InAppAlertTests: MMTestCase {
 		MobileMessaging.application = DefaultApplicationStub() // this is to have root vc uninitialized to avoid alert operation block
 
 		timeTravel(to: Date(timeIntervalSince1970: currentDateTime), block: {
-			mobileMessagingInstance.didReceiveRemoteNotification(JSON.parse(jsonStr).dictionaryObject!, completion: { _ in
+            mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: JSON.parse(jsonStr).dictionaryObject!, completion: { _ in
 				messageHandled?.fulfill()
 			})
 		})

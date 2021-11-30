@@ -12,7 +12,6 @@ import XCTest
 class UserSessionTests: MMTestCase {
     
     func testThatUserSessionDataPersisted() {
-        MMTestCase.cleanUpAndStop()
         MMTestCase.startWithCorrectApplicationCode()
         weak var expectation = self.expectation(description: "case is finished")
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -46,7 +45,6 @@ class UserSessionTests: MMTestCase {
     }
     
     func testSuccessfulSessionReporting() {
-        MMTestCase.cleanUpAndStop()
         MMTestCase.startWithCorrectApplicationCode()
         weak var expectation = self.expectation(description: "case is finished")
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -86,7 +84,6 @@ class UserSessionTests: MMTestCase {
     }
     
     func testFailedSessionReporting() {
-        MMTestCase.cleanUpAndStop()
         MMTestCase.startWithCorrectApplicationCode()
         weak var expectation = self.expectation(description: "case is finished")
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -132,7 +129,6 @@ class UserSessionTests: MMTestCase {
     }
     
     func testSessionReportDoesNotHaveSessionDuplicates() {
-        MMTestCase.cleanUpAndStop()
         MMTestCase.startWithCorrectApplicationCode()
         weak var expectation = self.expectation(description: "case is finished")
         
@@ -167,6 +163,7 @@ class UserSessionTests: MMTestCase {
     }
     
     func testDegradationUserSessionMapperCrashesWhenTwoSessionStartedWithinSecond() {
+        MMTestCase.startWithCorrectApplicationCode()
         let d1 = Date()
         let d2 = Date().addingTimeInterval(0.1)
         let ctx = self.storage.mainThreadManagedObjectContext!
@@ -180,6 +177,8 @@ class UserSessionTests: MMTestCase {
         s2.startReported = false
         s2.startDate = d2
         s2.endDate = d2
-        XCTAssertNotNil(UserSessionMapper.requestPayload(newSessions: [], finishedSessions: [s1, s2]))
+        waitForExpectations(timeout: 5, handler: { _ in
+            XCTAssertNotNil(UserSessionMapper.requestPayload(newSessions: [], finishedSessions: [s1, s2]))
+        })
     }
 }

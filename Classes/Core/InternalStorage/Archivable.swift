@@ -38,25 +38,29 @@ protocol ArchivableCurrent {
 extension ArchivableCurrent where Self: NSCopying {
 	func archiveCurrent() {
 		let old = Self.unarchiveCurrent()
+        MMLogVerbose("Setting cached value \(Thread.current.description) \(Self.currentPath)")
 		Self.cached.set(value: self.copy() as? Self, forKey: Self.currentPath)
 		archive(at: Self.currentPath)
 		handleCurrentChanges(old: old, new: self)
 	}
 	func archive(at path: String) {
-		MMLogVerbose("Archiving \(self) at \(path)")
+        MMLogVerbose("Archiving \(Thread.current.description) at \(path)")
 		let save = self.copy() as! Self
 		save.removeSensitiveData()
 		NSKeyedArchiver.archiveRootObject(save, toFile: path)
 	}
 	static func resetCurrent() {
+        MMLogVerbose("Resetting cached value \(Thread.current.description) \(Self.currentPath)")
 		Self.cached.set(value: nil, forKey: Self.currentPath)
 		Self.removeArchive(at: Self.currentPath)
 	}
 	static func unarchiveCurrent() -> Self {
 		if let cached = Self.cached.getValue(forKey: Self.currentPath), let ret = cached.copy() as? Self {
+            MMLogVerbose("Using cached value \(Thread.current.description) \(Self.currentPath)")
 			return ret
 		} else {
 			let current = Self.unarchive(from: Self.currentPath) ?? Self.empty
+            MMLogVerbose("Setting cached value \(Thread.current.description) \(current) \(Self.currentPath)")
 			Self.cached.set(value: current.copy() as? Self, forKey: Self.currentPath)
 			return current
 		}
@@ -67,7 +71,7 @@ extension ArchivableCurrent where Self: NSCopying {
 		return unarchived
 	}
 	static func removeArchive(at path: String) {
-		MMLogVerbose("Removing archive at \(path)")
+		MMLogVerbose("Removing archive \(Thread.current.description) at \(path)")
 		do {
 			try FileManager.default.removeItem(atPath: path)
 		} catch {
@@ -90,6 +94,7 @@ extension Archivable where Self: NSCopying {
 		if var copy = self.copy() as? Self {
 			copy.version = version + 1
 			let old = Self.unarchiveDirty()
+            MMLogVerbose("Setting cached value \(Thread.current.description) \(self) \(Self.dirtyPath)")
 			Self.cached.set(value: self.copy() as? Self, forKey: Self.dirtyPath)
 			copy.archive(at: Self.dirtyPath)
 			handleDirtyChanges(old: old, new: self)
@@ -100,14 +105,17 @@ extension Archivable where Self: NSCopying {
 		Self.resetCurrent()
 	}
 	static func resetDirty() {
+        MMLogVerbose("Resetting dirty \(Thread.current.description) \(Self.dirtyPath)")
 		Self.cached.set(value: nil, forKey: Self.dirtyPath)
 		Self.removeArchive(at: Self.dirtyPath)
 	}
 	static func unarchiveDirty() -> Self {
 		if let cached = Self.cached.getValue(forKey: Self.dirtyPath), let ret = cached.copy() as? Self {
+            MMLogVerbose("Using cached value \(Thread.current.description) \(Self.dirtyPath)")
 			return ret
 		} else {
 			let dirty = Self.unarchive(from: Self.dirtyPath) ?? Self.unarchiveCurrent()
+            MMLogVerbose("Setting cached value \(Thread.current.description) \(dirty) \(Self.dirtyPath)")
 			Self.cached.set(value: dirty.copy() as? Self, forKey: Self.dirtyPath)
 			return dirty
 		}

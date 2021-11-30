@@ -13,6 +13,8 @@ import XCTest
 class InstallationsManagementTests: MMTestCase {
 	
 	func testThatSettingPrimaryOtherInstallationReturnsProperInstallations() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var managementFinished = expectation(description: "managementFinished")
 		mobileMessagingInstance.pushRegistrationId = "pr-0"
 
@@ -60,6 +62,8 @@ class InstallationsManagementTests: MMTestCase {
 	}
 
 	func testThatLogoutOtherInstallationReturnsProperInstallations() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
 		weak var managementFinished = expectation(description: "managementFinished")
 		let currentUser = MobileMessaging.getUser()!
 		mobileMessagingInstance.pushRegistrationId = "pr-0"
@@ -79,7 +83,7 @@ class InstallationsManagementTests: MMTestCase {
 			}
 		})
 
-		mobileMessagingInstance.userService.depersonalizeInstallation(withPushRegistrationId: "pr-1", completion: { (installations, error) in
+        mobileMessagingInstance.userService.depersonalizeInstallation(userInitiated: true, withPushRegistrationId: "pr-1", completion: { (installations, error) in
 			XCTAssertEqual(installations?.count, 3)
 			XCTAssertNil(installations?.first(where: { $0.pushRegistrationId == "pr-1"} ))
 			

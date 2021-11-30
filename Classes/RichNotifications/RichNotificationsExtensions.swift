@@ -201,7 +201,7 @@ class DeliveryReporter: DeliveryReporting, NamedLogger {
 			return
 		}
 		let request = DeliveryReportRequest(applicationCode: applicationCode, body: [Consts.DeliveryReport.dlrMessageIds: messageIds])
-		extensionInstance.sessionManager.getDataResponse(request, completion: { completion($1) })
+        extensionInstance.sessionManager.getDataResponse(request, queue: DispatchQueue.global(), completion: { completion($1) })
 	}
 }
 

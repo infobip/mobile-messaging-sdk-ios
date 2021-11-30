@@ -50,7 +50,7 @@ class VersionManager: NamedLogger {
 			return
 		}
 		
-		mmContext.remoteApiProvider.fetchRecentLibraryVersion(applicationCode: mmContext.applicationCode, pushRegistrationId: mmContext.currentInstallation().pushRegistrationId) {
+        mmContext.remoteApiProvider.fetchRecentLibraryVersion(applicationCode: mmContext.applicationCode, pushRegistrationId: mmContext.currentInstallation().pushRegistrationId, queue: mmContext.queue) {
 			self.handleResult(result: $0)
 			completion?()
 		}
