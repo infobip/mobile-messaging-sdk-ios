@@ -10,7 +10,7 @@ import Foundation
 open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UINavigationControllerDelegate {
 
     lazy var composeBarDelegate = MMComposeBarDelegate(
-        scrollView: self.scrollView,
+        scrollViewContainer: self.scrollViewContainer,
         sendTextBlock: { [weak self] text in
             self?.didTapSendText(text)
         },

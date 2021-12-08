@@ -171,7 +171,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
         if composeBarView.isFirstResponder {
             super.keyboardWillShow(duration, curve: curve, options: options,
-                                   height: height + (isComposeBarVisible ? composeBarView.bounds.height : 0) + self.safeAreaInsets.bottom
+                                   height: height + (isComposeBarVisible ? composeBarView.bounds.height : 0)
             )
         }
     }

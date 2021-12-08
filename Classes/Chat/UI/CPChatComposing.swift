@@ -7,7 +7,7 @@ import Foundation
 
 //MARK: Compose bar
 class MMComposeBarDelegate: NSObject, ComposeBarDelegate {
-	weak var scrollView: UIScrollView?
+	weak var scrollViewContainer: UIView?
 	let sendTextBlock: (String) -> Void
     let utilityButtonClickedBlock: () -> Void
     let textViewDidChangedBlock: (String) -> Void
@@ -16,11 +16,11 @@ class MMComposeBarDelegate: NSObject, ComposeBarDelegate {
     
     lazy var draftPostponer = MMPostponer(executionQueue: DispatchQueue.main)
 	
-	init(scrollView: UIScrollView,
+	init(scrollViewContainer: UIView,
          sendTextBlock: @escaping(String) -> Void,
          utilityButtonClickedBlock: @escaping () -> Void,
          textViewDidChangedBlock: @escaping (String) -> Void) {
-		self.scrollView = scrollView
+		self.scrollViewContainer = scrollViewContainer
 		self.sendTextBlock = sendTextBlock
         self.utilityButtonClickedBlock = utilityButtonClickedBlock
         self.textViewDidChangedBlock = textViewDidChangedBlock
@@ -38,9 +38,7 @@ class MMComposeBarDelegate: NSObject, ComposeBarDelegate {
 	
 	func composeBar(composeBar: ComposeBar, willChangeFromFrame startFrame: CGRect, toFrame endFrame: CGRect, duration: TimeInterval, animationCurve: UIView.AnimationCurve) {
 		let heightDelta = startFrame.height - endFrame.height
-		
-		self.scrollView?.contentInset.top -= heightDelta
-		self.scrollView?.frame.y += heightDelta
+        scrollViewContainer?.frame.height += heightDelta;
 	}
 	
 	func composeBarTextViewDidBeginEditing(composeBar: ComposeBar) {}
