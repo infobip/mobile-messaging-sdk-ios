@@ -11,7 +11,7 @@ import CoreLocation
 let installationDispatchQueue = DispatchQueue(label: "installation-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
 let installationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: installationDispatchQueue)
 
-final class InstallationDataService: MobileMessagingService {
+class InstallationDataService: MobileMessagingService {
 	init(mmContext: MobileMessaging) {
 		super.init(mmContext: mmContext, uniqueIdentifier: "InstallationDataService")
 	}

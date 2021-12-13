@@ -109,6 +109,8 @@
 		A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */; };
 		A0953C291CAD1C660076488D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0953C271CAD1C660076488D /* Main.storyboard */; };
 		A09FE7341F4F09A7007B66E8 /* UIToolbarExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09FE7331F4F09A7007B66E8 /* UIToolbarExtension.swift */; };
+		A0CA35002767251E00517867 /* ServicesSynchronizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0CA34FF2767251E00517867 /* ServicesSynchronizationTests.swift */; };
+		A0CA35012767251E00517867 /* ServicesSynchronizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0CA34FF2767251E00517867 /* ServicesSynchronizationTests.swift */; };
 		A0DB0FBD1E2F8FC0005F5979 /* mocks in Resources */ = {isa = PBXBuildFile; fileRef = A0DB0FBC1E2F8FC0005F5979 /* mocks */; };
 		A0DB0FBE1E2F8FC0005F5979 /* mocks in Resources */ = {isa = PBXBuildFile; fileRef = A0DB0FBC1E2F8FC0005F5979 /* mocks */; };
 		A0DB0FBF1E2F8FC0005F5979 /* mocks in Resources */ = {isa = PBXBuildFile; fileRef = A0DB0FBC1E2F8FC0005F5979 /* mocks */; };
@@ -226,6 +228,7 @@
 		A09103DF1CABA839001873B4 /* FetchMessagesTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchMessagesTest.swift; sourceTree = "<group>"; };
 		A09103E01CABA839001873B4 /* TestUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
 		A09FE7331F4F09A7007B66E8 /* UIToolbarExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIToolbarExtension.swift; sourceTree = "<group>"; };
+		A0CA34FF2767251E00517867 /* ServicesSynchronizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesSynchronizationTests.swift; sourceTree = "<group>"; };
 		A0DB0FBC1E2F8FC0005F5979 /* mocks */ = {isa = PBXFileReference; lastKnownFileType = folder; path = mocks; sourceTree = "<group>"; };
 		A0ED14F81F4EEB2700EB3262 /* InteractiveNotifications.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveNotifications.swift; sourceTree = "<group>"; };
 		A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageSeenTests.swift; sourceTree = "<group>"; };
@@ -450,6 +453,7 @@
 				A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */,
 				A09103DA1CABA839001873B4 /* MessageReceivingTests.swift */,
 				A09103DB1CABA839001873B4 /* RegistrationTests.swift */,
+				A0CA34FF2767251E00517867 /* ServicesSynchronizationTests.swift */,
 				A09103DE1CABA839001873B4 /* DeliveryReportingTests.swift */,
 				A09103DF1CABA839001873B4 /* FetchMessagesTest.swift */,
 				A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */,
@@ -934,6 +938,7 @@
 				762F9D4A220724A300A35F1E /* DataModelsTests.swift in Sources */,
 				76934B37232C32D100882DAA /* UserDataTests.swift in Sources */,
 				762F9D35220649B900A35F1E /* ApplicationCodeHashingTests.swift in Sources */,
+				A0CA35002767251E00517867 /* ServicesSynchronizationTests.swift in Sources */,
 				7640DC4522063FD600F50470 /* CheckVersionTests.swift in Sources */,
 				76C3C9BA23D6126100562C57 /* UserSessionTests.swift in Sources */,
 				76E49FEB22118CD0002B810D /* TimezoneFormatterTests.swift in Sources */,
@@ -976,6 +981,7 @@
 				762F9D4B220724A400A35F1E /* DataModelsTests.swift in Sources */,
 				76934B38232C32D200882DAA /* UserDataTests.swift in Sources */,
 				762F9D36220649B900A35F1E /* ApplicationCodeHashingTests.swift in Sources */,
+				A0CA35012767251E00517867 /* ServicesSynchronizationTests.swift in Sources */,
 				7640DC4622063FD700F50470 /* CheckVersionTests.swift in Sources */,
 				76C3C9BB23D6126100562C57 /* UserSessionTests.swift in Sources */,
 				76E49FEC22118CD1002B810D /* TimezoneFormatterTests.swift in Sources */,
