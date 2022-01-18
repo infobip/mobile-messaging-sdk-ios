@@ -10,11 +10,18 @@ import WebKit
 public class MMWebViewController: UINavigationController {
 	init(url: String) {
 		super.init(rootViewController: MMWebViewControllerBase(url: url))
-		navigationBar.isTranslucent = false
 		if #available(iOS 13.0, *) {
-			navigationBar.tintColor = UIColor.label
-			navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.label as Any]
+            navigationBar.tintColor = UIColor.label
+            navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.label as Any]
+            if #available(iOS 15.0, *) {
+                let appearance = UINavigationBarAppearance()
+                appearance.configureWithOpaqueBackground()
+                appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.label as Any]
+                navigationBar.standardAppearance = appearance
+                navigationBar.scrollEdgeAppearance = appearance
+            }
 		} else {
+            navigationBar.isTranslucent = false
 			navigationBar.tintColor = UIColor.black
 			navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black as Any]
 		}
@@ -41,12 +48,24 @@ public class MMWebViewController: UINavigationController {
 		set { navigationBar.tintColor = newValue }
 		get { return navigationBar.tintColor } }
 
-	public var barTintColor: UIColor? {
-		set { navigationBar.barTintColor = newValue }
-		get { return navigationBar.barTintColor } }
-
+    public var barTintColor: UIColor? {
+        set {
+            navigationBar.barTintColor = newValue
+            if #available(iOS 15.0, *) {
+                navigationBar.standardAppearance.backgroundColor = newValue
+                navigationBar.scrollEdgeAppearance?.backgroundColor = newValue
+            }
+        }
+        get { return navigationBar.barTintColor } }
+    
 	public var titleColor: UIColor? {
-		set { navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any] }
+		set {
+            navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any]
+            if #available(iOS 15.0, *) {
+                navigationBar.standardAppearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any]
+                navigationBar.scrollEdgeAppearance?.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any]
+            }
+        }
 		get { return navigationBar.titleTextAttributes?[NSAttributedString.Key.foregroundColor] as? UIColor } }
 
 	public override var title: String? {

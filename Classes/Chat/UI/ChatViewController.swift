@@ -93,6 +93,27 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             return
         }
         
+        if #available(iOS 15.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            
+            if let navBarColor = settings.navBarColor {
+                appearance.backgroundColor = navBarColor
+            }
+                        
+            if let navBarTitleColor = settings.navBarTitleColor {
+                appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: navBarTitleColor]
+            }
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        } else {
+            navigationController?.navigationBar.isTranslucent = false
+            
+            if let navBarTitleColor = settings.navBarTitleColor {
+                navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : navBarTitleColor]
+            }
+        }
+        
         if let navBarColor = settings.navBarColor {
             navigationController?.navigationBar.barTintColor = navBarColor
         }
@@ -100,10 +121,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         if let navBarItemsTintColor = settings.navBarItemsTintColor {
             navigationController?.navigationBar.tintColor = navBarItemsTintColor
         }
-        navigationController?.navigationBar.isTranslucent = false
-        if let navBarTitleColor = settings.navBarTitleColor {
-            navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : navBarTitleColor]
-        }
+            
         title = settings.title
         
         if let sendButtonTintColor = settings.sendButtonTintColor {

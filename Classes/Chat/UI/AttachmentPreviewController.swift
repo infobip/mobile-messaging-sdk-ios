@@ -119,10 +119,20 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
         navigationController?.toolbar.isTranslucent = false
         
         //navbar
-        navigationController?.navigationBar.barTintColor = .black
         navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]
+    
+        if #available(iOS 15.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .black
+            appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        } else {
+            navigationController?.navigationBar.barTintColor = .black
+            navigationController?.navigationBar.isTranslucent = false
+            navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]
+        }
     }
     
     @objc func didPressShareButton() {
