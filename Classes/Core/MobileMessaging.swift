@@ -19,7 +19,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter notificationType: Preferable notification types that indicating how the app alerts the user when a push notification arrives.
 	*/
 	public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType) -> MobileMessaging? {
-        return MobileMessaging.makeWithApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
+        return MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
     }
     
     /**
@@ -31,7 +31,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     */
     @available(*, deprecated, message: "The function is deprecated. `forceCleanup` argument is always considered false, however we detect app code change and cleanup SDK data for you.")
     public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, forceCleanup: Bool) -> MobileMessaging? {
-		return MobileMessaging.makeWithApplicationCode(code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
+        return MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)
 	}
 		
 	/**
@@ -41,7 +41,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	- parameter backendBaseURL: Your backend server base URL, optional parameter. Default is https://oneapi.infobip.com.
 	*/
 	public class func withApplicationCode(_ code: String, notificationType: MMUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
-		return MobileMessaging.makeWithApplicationCode(code, notificationType: notificationType, backendBaseURL: backendBaseURL)
+        return MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: backendBaseURL)
 	}
 	
 	/**
@@ -74,35 +74,48 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	}
 	
 	/**
-	Synchronously starts a new Mobile Messaging session.
+	Asynchronously starts a new Mobile Messaging session.
 	This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
 	- remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
 	*/
 	public func start(_ completion: (() -> Void)? = nil) {
         queue.async {
-            self.doStart(completion)
+            if self.requiresRestart {
+                self.requiresRestart = false
+                self.doStop()
+            }
+            self.doStart()
+            completion?()
         }
 	}
 	
 	/**
-	Synchronously cleans up all persisted data.
+	Asynchronously cleans up all persisted data.
 	Use this method to completely drop any data persisted by the SDK (i.e. internal SDK data, optional user data, optional messages metadata).
 	- parameter clearKeychain: defines whether the internalId in keychain will be cleaned. True by default.
 	*/
-	public class func cleanUpAndStop(_ clearKeychain: Bool = true) {
-		MobileMessaging.sharedInstance?.cleanUpAndStop(clearKeychain)
+    public class func cleanUpAndStop(_ clearKeychain: Bool = true, completion: @escaping () -> Void) {
+        if let mm = MobileMessaging.sharedInstance {
+            mm.cleanUpAndStop(clearKeychain, completion: completion)
+        } else {
+            completion()
+        }
 	}
-	
+    	
 	/**
-	Stops all the currently running Mobile Messaging services.
+    Asynchronously stops all the currently running Mobile Messaging services.
 	- parameter cleanUpData: defines whether the Mobile Messaging internal storage will be dropped. False by default.
 	- attention: This function doesn't disable push notifications, they are still being received by the OS.
 	*/
-	public class func stop(_ cleanUpData: Bool = false) {
-        if cleanUpData {
-            MobileMessaging.sharedInstance?.cleanUpAndStop()
+    public class func stop(_ cleanUpData: Bool = false, completion: (() -> Void)? = nil) {
+        if let mm = MobileMessaging.sharedInstance {
+            if cleanUpData {
+                mm.cleanUpAndStop(true, completion: completion ?? {})
+            } else {
+                mm.stop(completion ?? {})
+            }
         } else {
-            MobileMessaging.sharedInstance?.stop()
+            completion?()
         }
 	}
 	
@@ -504,55 +517,75 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	
 	var storageType: MMStorageType = .SQLite
 	let remoteAPIBaseURL: String
-	
-	class func makeWithApplicationCode(_ code: String, notificationType: MMUserNotificationType, backendBaseURL: String) -> MobileMessaging? {
-		
-		if let sharedInstance = sharedInstance, sharedInstance.applicationCode != code || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
-			MobileMessaging.stop()
-		}
-		sharedInstance = MobileMessaging(appCode: code, notificationType: notificationType, backendBaseURL: backendBaseURL)
-		return sharedInstance
-	}
-	
-	func doStart(_ completion: (() -> Void)? = nil) {
-        self.logDebug("Starting service (with apns registration=\(self.doRegisterToApns))...")
-		self.startComponents()
-		
-        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingWillStart"), object: self)
-            
-		if self.doRegisterToApns == true {
-            self.apnsRegistrationManager.registerForRemoteNotifications()
-		}
-		
-        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingDidStart"), object: self)
-		
-        DispatchQueue.main.async {
-            completion?()
+    
+    func doStart() {
+        if appCodeChanged {
+            Self.logDebug("Data will be cleaned up due to the application code change.")
+            appCodeChanged = false
+            MobileMessaging.doCleanUp(false)
+            do {
+                self.internalStorage = try MMCoreDataStorage.makeInternalStorage(self.storageType)
+            } catch {
+                MobileMessaging.logCoreDataInitializationError()
+                return
+            }
         }
+        
+        self.logDebug("Starting service (with apns registration=\(self.doRegisterToApns))...")
+        
+        let ci = InternalData.unarchiveCurrent()
+        ci.applicationCode = self.applicationCode
+        ci.applicationCodeHash = calculateAppCodeHash(self.applicationCode)
+        ci.archiveCurrent()
+        
+        self.startComponents()
+        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingWillStart"), object: self)
+        if self.doRegisterToApns == true {
+            self.apnsRegistrationManager.registerForRemoteNotifications()
+        }
+        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingDidStart"), object: self)
         self.logDebug("Service started with subservices: \(self.subservices)")
-	}
-	
-	func cleanUpAndStop(_ clearKeychain: Bool = true) {
-		cleanUp(clearKeychain)
-		stop()
-	}
-	
-	func cleanUp(_ clearKeychain: Bool = true) {
-		logDebug("Cleaning up MobileMessaging service...")
-		sharedNotificationExtensionStorage?.cleanupMessages()
-		MMCoreDataStorage.dropStorages(internalStorage: internalStorage, messageStorages: messageStorages)
-		if (clearKeychain) {
-			keychain.clear()
-		}
-		InternalData.resetCurrent()
-		MMUser.resetAll()
-		MMInstallation.resetAll()
-		apnsRegistrationManager.cleanup()
-	}
-	
-	func stop() {
-		logInfo("Stopping MobileMessaging service...")
-		
+    }
+    
+    func cleanUpAndStop(_ clearKeychain: Bool = true, completion: @escaping () -> Void) {
+        queue.async {
+            self.doCleanupAndStop(clearKeychain)
+            completion()
+        }
+    }
+    
+    func doCleanupAndStop(_ clearKeychain: Bool = true) {
+        MobileMessaging.doCleanUp(clearKeychain)
+        self.doStop()
+    }
+    
+    class func doCleanUp(_ clearKeychain: Bool = true) {
+        self.logDebug("Cleaning up MobileMessaging service...")
+        if let mm = MobileMessaging.sharedInstance {
+            mm.sharedNotificationExtensionStorage?.cleanupMessages()
+            
+                MMCoreDataStorage.dropStorages(internalStorage: mm.internalStorage, messageStorages: mm.messageStorages)
+            
+            if (clearKeychain) {
+                mm.keychain.clear()
+            }
+            mm.apnsRegistrationManager.cleanup()
+        }
+        InternalData.resetCurrent()
+        MMUser.resetAll()
+        MMInstallation.resetAll()
+    }
+    
+    func stop(_ completion: @escaping () -> Void) {
+        queue.async {
+            self.doStop()
+            completion()
+        }
+    }
+    
+    func doStop() {
+        logInfo("Stopping MobileMessaging service...")
+            
         NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingWillStop"), object: self)
         
         let dispatchGroup = DispatchGroup()
@@ -564,37 +597,37 @@ public final class MobileMessaging: NSObject, NamedLogger {
         }
         dispatchGroup.wait()
             
-		apnsRegistrationManager.unregister()
-		
-		messageStorages.values.forEach({$0.stop()})
-		messageStorages.removeAll()
-		
+        apnsRegistrationManager.unregister()
+        
+        messageStorages.values.forEach({$0.stop()})
+        messageStorages.removeAll()
+        
         NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingDidStop"), object: self)
-		
-		MobileMessaging.messageHandlingDelegate = nil
-		
-		cleanupSubservices()
-		
-		// just to break retain cycles:
-		apnsRegistrationManager = nil
-		doRegisterToApns = true
-		messageHandler = nil
-		remoteApiProvider = nil
-		userSessionService = nil
+        
+        MobileMessaging.messageHandlingDelegate = nil
+        
+        cleanupSubservices()
+        
+        // just to break retain cycles:
+        apnsRegistrationManager = nil
+        doRegisterToApns = true
+        messageHandler = nil
+        remoteApiProvider = nil
+        userSessionService = nil
         installationService = nil
         userService = nil
-		eventsService = nil
+        eventsService = nil
         baseUrlManager = nil
         notificationsInteractionService = nil
         InternalData.cached.reset()
         
-		keychain = nil
-		sharedNotificationExtensionStorage = nil
-		MobileMessaging.application = MainThreadedUIApplication()
-		MobileMessaging.sharedInstance = nil
-		UNUserNotificationCenter.current().delegate = nil
-		logInfo("MobileMessaging service stopped")
-	}
+        keychain = nil
+        sharedNotificationExtensionStorage = nil
+        MobileMessaging.application = MainThreadedUIApplication()
+        MobileMessaging.sharedInstance = nil
+        UNUserNotificationCenter.current().delegate = nil
+        logInfo("MobileMessaging service stopped")
+    }
 	
     func didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: Bool, token: Data, completion: @escaping (NSError?) -> Void) {
         self.apnsRegistrationManager.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: userInitiated, token: token, completion: completion)
@@ -647,83 +680,67 @@ public final class MobileMessaging: NSObject, NamedLogger {
 		}
 	}
 	
-	//MARK: Private
 	internal init?(appCode: String, notificationType: MMUserNotificationType, backendBaseURL: String, internalStorage: MMCoreDataStorage? = nil) {
         
         NSKeyedUnarchiver.mm_setMappingForRenamedClasses()
-		
-		let logCoreDataInitializationError = {
-            Self.logError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
-		}
-		
-		guard var storage = internalStorage == nil ? try? MMCoreDataStorage.makeInternalStorage(self.storageType) : internalStorage else {
-			logCoreDataInitializationError()
-			return nil
-		}
-		
-		if applicationCodeChanged(newApplicationCode: appCode) {
-            Self.logDebug("Data will be cleaned up due to the application code change.")
-			MMUser.resetAll()
-			MMInstallation.resetAll()
-			InternalData.resetCurrent()
-			MMCoreDataStorage.dropStorages(internalStorage: storage, messageStorages: messageStorages)
-			do {
-				storage = try MMCoreDataStorage.makeInternalStorage(self.storageType)
-			} catch {
-				logCoreDataInitializationError()
-				return nil
-			}
-		}
-		self.internalStorage = storage
+        
+        guard let storage = internalStorage == nil ? try? MMCoreDataStorage.makeInternalStorage(self.storageType) : internalStorage else {
+            MobileMessaging.logCoreDataInitializationError()
+            return nil
+        }
+        
+        if let sharedInstance = MobileMessaging.sharedInstance, sharedInstance.applicationCode != appCode || sharedInstance.userNotificationType != notificationType || sharedInstance.remoteAPIBaseURL != backendBaseURL {
+            requiresRestart = true
+        }
+        
+        if applicationCodeChanged(newApplicationCode: appCode) {
+            appCodeChanged = true
+        }
+        self.internalStorage = storage
 		self.applicationCode = appCode
-		
-		let ci = InternalData.unarchiveCurrent()
-		ci.applicationCode = appCode
-        ci.applicationCodeHash = calculateAppCodeHash(appCode)
-		ci.archiveCurrent()
-		
-		self.userNotificationType = notificationType
-		self.remoteAPIBaseURL = backendBaseURL
-		if let appGroupId = Bundle.mainAppBundle.appGroupId {
-			self.appGroupId = appGroupId
-			self.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
-		}
-		MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
+        self.userNotificationType = notificationType
+        self.remoteAPIBaseURL = backendBaseURL
+        self.appGroupId = Bundle.mainAppBundle.appGroupId
+        
+        MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
 		
         super.init()
-        
+        MobileMessaging.sharedInstance = self
         logInfo("SDK successfully initialized!")
 	}
-	
-	private func startComponents() {
+    
+    private func startComponents() {
+        if let appGroupId = appGroupId, sharedNotificationExtensionStorage == nil {
+            sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
+        }
         if notificationsInteractionService == nil {
             notificationsInteractionService = NotificationsInteractionService(mmContext: self, categories: nil)
         }
         baseUrlManager = BaseUrlManager(mmContext: self)
-		userSessionService = UserSessionService(mmContext: self)
-		userService = UserDataService(mmContext: self)
-		eventsService = EventsService(mmContext: self)
-		installationService = InstallationDataService(mmContext: self)
-		messageStorages.values.forEach({ $0.start() })
-		
-		let currentInstall = currentInstallation()
-		if currentInstall.isPushRegistrationEnabled && internalData().currentDepersonalizationStatus == .undefined  {
-			messageHandler.start({ _ in })
+        userSessionService = UserSessionService(mmContext: self)
+        userService = UserDataService(mmContext: self)
+        eventsService = EventsService(mmContext: self)
+        installationService = InstallationDataService(mmContext: self)
+        messageStorages.values.forEach({ $0.start() })
+        
+        let currentInstall = currentInstallation()
+        if currentInstall.isPushRegistrationEnabled && internalData().currentDepersonalizationStatus == .undefined  {
+            messageHandler.start({ _ in })
         } else {
             logDebug("messageHandler didn't start: reg enabled \(currentInstall.isPushRegistrationEnabled), depersonalizaton status \(internalData().currentDepersonalizationStatus.rawValue)")
         }
-		
-		if !isTestingProcessRunning {
-			#if DEBUG
-			VersionManager(mmContext: self).validateVersion()
-			#endif
-		}
-	}
+        
+        if !isTestingProcessRunning {
+            #if DEBUG
+            VersionManager(mmContext: self).validateVersion()
+            #endif
+        }
+    }
 	
 	var messageStorages: [String: MessageStorageQueuedAdapter] = [:]
 	var messageStorageAdapter: MessageStorageQueuedAdapter?
 	
-	let internalStorage: MMCoreDataStorage
+	var internalStorage: MMCoreDataStorage
 	
 	func internalData() -> InternalData { return InternalData.unarchiveCurrent() }
 	func currentInstallation() -> MMInstallation { return MMInstallation.unarchiveCurrent() }
@@ -759,4 +776,10 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	static let bundle = Bundle(for: MobileMessaging.self)
     
     let queue = DispatchQueue(label: "com.mobile-messaging.queue.concurrent.main")
+    
+    fileprivate class func logCoreDataInitializationError() {
+        Self.logError("Unable to initialize Core Data stack. MobileMessaging SDK service stopped because of the fatal error!")
+    }
+    private var appCodeChanged = false
+    private var requiresRestart = false
 }

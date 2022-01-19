@@ -15,7 +15,7 @@ final class RegistrationTests: MMTestCase {
         MMTestCase.startWithCorrectApplicationCode()
         
         weak var errorHandled = self.expectation(description: "errorHandled")
-        weak var regCreateRequestSent = self.expectation(description: "regCreateRequestSent")
+        weak var userFetchingFinished = self.expectation(description: "userFetchingFinished")
         mobileMessagingInstance.pushRegistrationId = "rand"
         mobileMessagingInstance.pushServiceToken = "stub"
         
@@ -36,15 +36,12 @@ final class RegistrationTests: MMTestCase {
                 completion(nil, requestError?.foundationError)
                 return true
             }
-            if requestData is PostInstance {
-                regCreateRequestSent?.fulfill()
-                return false
-            }
             return false
         }))
         mobileMessagingInstance.remoteApiProvider = remoteApiProvider
         
         MobileMessaging.fetchUser { (user, error) in
+            userFetchingFinished?.fulfill()
             XCTAssertNotNil(error)
             XCTAssertEqual(error?.mm_code, "NO_REGISTRATION")
         }
@@ -57,7 +54,7 @@ final class RegistrationTests: MMTestCase {
             XCTAssertNotNil(self.mobileMessagingInstance.dirtyInstallation().pushServiceToken)
             errorHandled?.fulfill()
         })
-        waitForExpectations(timeout: 5, handler: nil)
+        waitForExpectations(timeout: 15, handler: nil)
     }
     
 	func testInstanceDataFetchingDecoding() {
@@ -394,11 +391,12 @@ final class RegistrationTests: MMTestCase {
 
 
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode("stub")!.withGeofencingService()
+        mm.doStart()
 		MMGeofencingService.sharedInstance = GeofencingServiceStartStopMock(mmContext: mm)
 		MMGeofencingService.sharedInstance!.start({ _ in })
 
-		mm.doStart()
-		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
+
+		mm.remoteApiProvider = remoteProviderMock
 
 
 		XCTAssertTrue(mm.messageHandler.isRunning)
@@ -471,7 +469,7 @@ final class RegistrationTests: MMTestCase {
             XCTAssertNotNil(internalDataPersisted.applicationCodeHash, "application code has must be persisted")
             XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, token)
             XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId, pushRegId)
-            MobileMessaging.stop()
+            MobileMessaging.sharedInstance?.doStop()
 
             DispatchQueue.main.async {
                 MMTestCase.startWithApplicationCode("newApplicationCode")
@@ -516,8 +514,7 @@ final class RegistrationTests: MMTestCase {
 			XCTAssertNotNil(firstInternalId)
 
 			// uninstall >
-			self.mobileMessagingInstance.cleanUpAndStop(false)
-			MobileMessaging.sharedInstance = nil
+            MobileMessaging.sharedInstance?.doCleanupAndStop(false)
 			// < uninstall
 
 			// reinstall >
@@ -569,7 +566,7 @@ final class RegistrationTests: MMTestCase {
 			}
 		}
 
-		waitForExpectations(timeout: 1000, handler: nil)
+		waitForExpectations(timeout: 10, handler: nil)
 	}
 }
 

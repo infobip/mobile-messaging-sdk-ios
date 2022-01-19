@@ -150,7 +150,7 @@ class DynamicBaseUrlTests: MMTestCase {
 	func testThatWeDoRetryAfterCannotFindHost() {        
 		weak var registrationFinishedExpectation = expectation(description: "registration finished")
 		weak var retriesStartedExpectation = expectation(description: "expectationRetriesStarted")
-		let newDynamicURL = URL(string: "https://not-reachable-url.com")!
+		let newDynamicURL = URL(string: "http://not-reachable-url.com")!
 		var retriesStarted = false
 		let mm = MobileMessaging.withApplicationCode("", notificationType: MMUserNotificationType(options: []) , backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)!
 		mm.doStart()

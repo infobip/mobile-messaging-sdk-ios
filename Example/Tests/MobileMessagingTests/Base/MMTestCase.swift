@@ -170,17 +170,18 @@ class MMTestCase: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        MobileMessaging.logger = MMDefaultLogger()
-        MobileMessaging.logger?.logOutput = .Console
-        MobileMessaging.logger?.logLevel = .Debug
+//        MobileMessaging.logger = MMDefaultLogger()
+//        MobileMessaging.logger?.logOutput = .Console
+//        MobileMessaging.logger?.logLevel = .Debug
         MobileMessaging.date = DateStub(nowStub: Date(timeIntervalSince1970: testEnvironmentTimestampMillisSince1970/1000))
+        MobileMessaging.doCleanUp()
     }
     
     override func tearDown() {
         super.tearDown()
         
         waitAllQueues(cancel: true)
-        MobileMessaging.stop(true)
+        MobileMessaging.sharedInstance?.doCleanupAndStop()
         MobileMessaging.privacySettings = MMPrivacySettings()
         MMGeofencingService.currentDate = nil
         MobileMessaging.timeZone = TimeZone.current

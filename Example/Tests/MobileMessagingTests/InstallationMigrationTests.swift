@@ -13,11 +13,12 @@ import CoreLocation
 class InstallationMigrationTests: XCTestCase {
 
 	func testDataModel_Migration_0_3() {
-		MobileMessaging.stop(true) //removes any existing storage
+
+        MobileMessaging.doCleanUp(false)
 
 		do {
 			let storage = makeStorageForModel(at: "MMInternalStorageModel.momd/MMStorageModel_0")
-			let mm = startMmWithStorage(storage)
+			let mm = initMmWithStorage(storage)
 			let coreDataProvider: CoreDataProvider = CoreDataProvider(storage: mm.internalStorage)
 			coreDataProvider.context.performAndWait {
 				coreDataProvider.installationObject.setValue(["firstName": "Darth",
@@ -54,13 +55,13 @@ class InstallationMigrationTests: XCTestCase {
 							"msisdn": "79214444444",
 							"email": "darth@vader.com"], coreDataProvider.installationObject.value(forKey: "predefinedUserData") as! Dictionary)
 
-			MobileMessaging.stop(false)
+            MobileMessaging.sharedInstance?.doStop()
 			MobileMessaging.sharedInstance = nil
 		}
 		do {
 			
 			let storage = makeStorageForModel(at: "MMInternalStorageModel.momd/MMStorageModel_3")
-			let mm = startMmWithStorage(storage)
+			let mm = initMmWithStorage(storage)
 
 			let installation = mm.resolveInstallation()
 			let user = mm.resolveUser()
@@ -94,18 +95,19 @@ class InstallationMigrationTests: XCTestCase {
 
 
 
-			MobileMessaging.stop(false)
+            MobileMessaging.sharedInstance?.doStop()
 			MobileMessaging.sharedInstance = nil
 		}
 	}
 
 	func testDataModel_Migration_2_3() {
-		MobileMessaging.stop(true) //removes any existing storage
+        
+        MobileMessaging.doCleanUp(false)
 
 		let instance = MMInstallation(applicationUserId: "applicationUserId", appVersion: nil, customAttributes: ["foo": "bar" as MMAttributeType], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, geoEnabled: false, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: nil, os: nil, osVersion: nil, pushRegistrationId: "pushRegistrationId", pushServiceToken: "pushServiceToken", pushServiceType: nil, sdkVersion: nil)
 		do {
 			let storage = makeStorageForModel(at: "MMInternalStorageModel.momd/MMStorageModel_2")
-			let mm = startMmWithStorage(storage)
+			let mm = initMmWithStorage(storage)
 			let coreDataProvider: CoreDataProvider = CoreDataProvider(storage: mm.internalStorage)
 			coreDataProvider.context.performAndWait {
 
@@ -139,13 +141,13 @@ class InstallationMigrationTests: XCTestCase {
 			XCTAssertEqual("pushRegId", coreDataProvider.installationObject.value(forKey: "pushRegId") as! String)
 
 
-			MobileMessaging.stop(false)
+            MobileMessaging.sharedInstance?.doStop()
 			MobileMessaging.sharedInstance = nil
 		}
 		do {
 
 			let storage = makeStorageForModel(at: "MMInternalStorageModel.momd/MMStorageModel_3")
-			let mm = startMmWithStorage(storage)
+			let mm = initMmWithStorage(storage)
 
 			let installation = mm.resolveInstallation()
 			let user = mm.resolveUser()
@@ -178,7 +180,7 @@ class InstallationMigrationTests: XCTestCase {
 
 
 
-			MobileMessaging.stop(false)
+            MobileMessaging.sharedInstance?.doStop()
 			MobileMessaging.sharedInstance = nil
 		}
 	}
@@ -188,12 +190,12 @@ class InstallationMigrationTests: XCTestCase {
 			MMStorageSettings(modelName: modelPath, databaseFileName: "MobileMessaging.sqlite", storeOptions: MMStorageSettings.defaultStoreOptions))
 	}
 
-	private func startMmWithStorage(_ storage: MMCoreDataStorage) -> MobileMessaging {
+	private func initMmWithStorage(_ storage: MMCoreDataStorage) -> MobileMessaging {
 		let mm = MobileMessaging(appCode: "appCode", notificationType: MMUserNotificationType.init(options: [.alert]), backendBaseURL: "http://url.com", internalStorage: storage)!
 		mm.setupApiSessionManagerStubbed()
 		MobileMessaging.application = ActiveApplicationStub()
 		mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
-//		mm.start()
+
 		return mm
 	}
 }

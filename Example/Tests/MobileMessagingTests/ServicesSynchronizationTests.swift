@@ -101,7 +101,7 @@ final class ServicesSynchronizationTests: MMTestCase {
         mm = mm.withGeofencingService()
         MMGeofencingService.sharedInstance = geoServiceMock
         mm.messageHandler = messageHandlerServiceMock
-        mm.doStart(nil)
+        mm.doStart()
         
         self.waitForExpectations(timeout: 15, handler: nil)
     }

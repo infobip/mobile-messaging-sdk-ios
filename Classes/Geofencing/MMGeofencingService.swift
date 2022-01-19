@@ -46,6 +46,9 @@ public class MMGeofencingService: MobileMessagingService {
         logDebug("starting ...")
         
         locationManagerQueue.async {
+            self.datasource = GeofencingInMemoryDatasource(storage: self.mmContext.internalStorage)
+            self.previousLocation = self.mmContext.internalData().location
+            
             guard self.isRunning == false else
             {
                 self.logDebug("isRunning = \(self.isRunning). Cancelling...")
@@ -341,8 +344,6 @@ public class MMGeofencingService: MobileMessagingService {
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = GeoConstants.distanceFilter
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-			self.datasource = GeofencingInMemoryDatasource(storage: mmContext.internalStorage)
-			self.previousLocation = mmContext.internalData().location
 		}
 	}
 	

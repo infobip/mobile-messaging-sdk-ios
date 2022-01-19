@@ -72,9 +72,10 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	
 	func testThatVeryFirstDeviceTokenLeadsToHealthyRegAndTokenUpdate() {
 		weak var regFinished = expectation(description: "regFinished")
-		
-		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
-		mm.doStart()
+		        
+        let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+        mm.doStart()
+        XCTAssertNil(mm.pushServiceToken)
 		let apnsManagerMock = ApnsRegistrationManagerMock(mmContext: mm)
 		
 		mm.apnsRegistrationManager = apnsManagerMock

@@ -440,8 +440,8 @@ class MessageStorageTests: MMTestCase {
 		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(messageStorageStub)
-		mm.sharedNotificationExtensionStorage = notificationExtensionStorageStub
-		mm.doStart()
+        mm.sharedNotificationExtensionStorage = notificationExtensionStorageStub
+        mm.doStart()
 		
 		weak var expectation = self.expectation(description: "")
 		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
