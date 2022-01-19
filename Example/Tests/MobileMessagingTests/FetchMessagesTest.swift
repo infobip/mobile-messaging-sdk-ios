@@ -119,7 +119,7 @@ class FetchMessagesCompletionTests: MMTestCase {
 			exp?.fulfill()
 		})
 		
-		waitForExpectations(timeout: 60) {_ in }
+		waitForExpectations(timeout: 10) {_ in }
 	}
     
     func testThatLocalNotificationScheduled() {
@@ -150,7 +150,7 @@ class FetchMessagesCompletionTests: MMTestCase {
             messageHandled?.fulfill()
         })
         
-        waitForExpectations(timeout: 60) {_ in }
+        waitForExpectations(timeout: 10) {_ in }
     }
 	
 	func testThatNoDataFetched() {
@@ -191,6 +191,6 @@ class FetchMessagesCompletionTests: MMTestCase {
 			exp?.fulfill()
 		})
 		
-		waitForExpectations(timeout: 60) {_ in }
+		waitForExpectations(timeout: 10) {_ in }
 	}
 }

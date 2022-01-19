@@ -91,11 +91,12 @@ class DepersonalizeTests: MMTestCase {
 		user.customAttributes = ["bootsize": 9.5 as NSNumber]
 		user.archiveDirty()
 
+        XCTAssertEqual(mobileMessagingInstance.internalData().currentDepersonalizationStatus, MMSuccessPending.undefined)
 		XCTAssertEqual(MobileMessaging.getUser()!.firstName, "Darth")
 		XCTAssertEqual(MobileMessaging.getUser()!.customAttributes!["bootsize"] as? NSNumber, 9.5)
 		
 		MobileMessaging.depersonalize() { status, _ in
-			XCTAssertTrue(status == MMSuccessPending.undefined)
+            XCTAssertEqual(status, MMSuccessPending.undefined)
 			depersonalizeFinished?.fulfill()
 		}
 		
