@@ -652,13 +652,13 @@ extension MMGeofencingService: CLLocationManagerDelegate {
             completion(geofencingCapabilityStatus)
 		}
 		
-		switch (self.isRunning, status) {
-		case (true, let status) where !GeoConstants.supportedAuthStatuses.contains(status):
+        switch (self.isRunning, status) {
+        case (true, let status) where !GeoConstants.supportedAuthStatuses.contains(status):
             suspend()
-		case (false, let status) where GeoConstants.supportedAuthStatuses.contains(status):
-			startService()
-		default:
-			break
+        case (false, let status) where GeoConstants.supportedAuthStatuses.contains(status):
+            start({ _ in })
+        default:
+            break
 		}
 	}
 	
