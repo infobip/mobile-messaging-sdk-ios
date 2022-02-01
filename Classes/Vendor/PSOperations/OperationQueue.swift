@@ -1,36 +1,36 @@
 /*
-Copyright (C) 2015 Apple Inc. All Rights Reserved.
-See LICENSE.txt for this sample’s licensing information
-
-Abstract:
-This file contains an NSOperationQueue subclass.
-*/
+ Copyright (C) 2015 Apple Inc. All Rights Reserved.
+ See LICENSE.txt for this sample’s licensing information
+ 
+ Abstract:
+ This file contains an NSOperationQueue subclass.
+ */
 
 import Foundation
 
 /**
-    The delegate of an `OperationQueue` can respond to `Operation` lifecycle
-    events by implementing these methods.
-
-    In general, implementing `OperationQueueDelegate` is not necessary; you would
-    want to use an `OperationObserver` instead. However, there are a couple of
-    situations where using `OperationQueueDelegate` can lead to simpler code.
-    For example, `GroupOperation` is the delegate of its own internal
-    `OperationQueue` and uses it to manage dependencies.
-*/
+ The delegate of an `OperationQueue` can respond to `Operation` lifecycle
+ events by implementing these methods.
+ 
+ In general, implementing `OperationQueueDelegate` is not necessary; you would
+ want to use an `OperationObserver` instead. However, there are a couple of
+ situations where using `OperationQueueDelegate` can lead to simpler code.
+ For example, `GroupOperation` is the delegate of its own internal
+ `OperationQueue` and uses it to manage dependencies.
+ */
 @objc public protocol OperationQueueDelegate: NSObjectProtocol {
     @objc optional func operationQueue(_ operationQueue: OperationQueue, willAddOperation operation: Foundation.Operation)
     @objc optional func operationQueue(_ operationQueue: OperationQueue, operationDidFinish operation: Foundation.Operation, withErrors errors: [NSError])
 }
 
 /**
-    `OperationQueue` is an `NSOperationQueue` subclass that implements a large
-    number of "extra features" related to the `Operation` class:
-    
-    - Notifying a delegate of all operation completion
-    - Extracting generated dependencies from operation conditions
-    - Setting up dependencies to enforce mutual exclusivity
-*/
+ `OperationQueue` is an `NSOperationQueue` subclass that implements a large
+ number of "extra features" related to the `Operation` class:
+ 
+ - Notifying a delegate of all operation completion
+ - Extracting generated dependencies from operation conditions
+ - Setting up dependencies to enforce mutual exclusivity
+ */
 open class OperationQueue: Foundation.OperationQueue {
     open weak var delegate: OperationQueueDelegate?
     
@@ -55,27 +55,27 @@ open class OperationQueue: Foundation.OperationQueue {
             let dependencies = op.conditions.compactMap {
                 $0.dependencyForOperation(op)
             }
-                
+            
             for dependency in dependencies {
                 op.addDependency(dependency)
-
+                
                 self.addOperation(dependency)
             }
             
             /*
-                With condition dependencies added, we can now see if this needs
-                dependencies to enforce mutual exclusivity.
-            */
+             With condition dependencies added, we can now see if this needs
+             dependencies to enforce mutual exclusivity.
+             */
             let concurrencyCategories: [String] = op.conditions.compactMap { condition in
                 guard type(of: condition).isMutuallyExclusive else { return nil }
                 
                 return "\(type(of: condition))"
             }
-
+            
             if !concurrencyCategories.isEmpty {
                 // Set up the mutual exclusivity dependencies.
                 let exclusivityController = ExclusivityController.sharedExclusivityController
-
+                
                 exclusivityController.addOperation(op, categories: concurrencyCategories)
                 
                 op.addObserver(BlockObserver(finishHandler:  { operation, _ in
@@ -84,43 +84,44 @@ open class OperationQueue: Foundation.OperationQueue {
             }
         } else {
             /*
-                For regular `NSOperation`s, we'll manually call out to the queue's 
-                delegate we don't want to just capture "operation" because that     
-                would lead to the operation strongly referencing itself and that's
-                the pure definition of a memory leak.
-            */
+             For regular `NSOperation`s, we'll manually call out to the queue's 
+             delegate we don't want to just capture "operation" because that     
+             would lead to the operation strongly referencing itself and that's
+             the pure definition of a memory leak.
+             */
             operation.addCompletionBlock { [weak self, weak operation] in
                 guard let queue = self, let operation = operation else { return }
                 queue.delegate?.operationQueue?(queue, operationDidFinish: operation, withErrors: [])
             }
         }
-        
+        if let op = operation as? Operation {
+            op.underlyingQueue = underlyingQueue ?? DispatchQueue.global()
+        }
         delegate?.operationQueue?(self, willAddOperation: operation)
         super.addOperation(operation)
         
         /*
-            Indicate to the operation that we've finished our extra work on it
-            and it's now it a state where it can proceed with evaluating conditions,
-            if appropriate.
-        */
+         Indicate to the operation that we've finished our extra work on it
+         and it's now it a state where it can proceed with evaluating conditions,
+         if appropriate.
+         */
         if let op = operation as? Operation {
             op.didEnqueue()
-            op.underlyingQueue = underlyingQueue ?? DispatchQueue.global()
         }
     }
     
     override open func addOperations(_ ops: [Foundation.Operation], waitUntilFinished wait: Bool) {
         /*
-            The base implementation of this method does not call `addOperation()`,
-            so we'll call it ourselves.
-        */
+         The base implementation of this method does not call `addOperation()`,
+         so we'll call it ourselves.
+         */
         for operation in ops {
             addOperation(operation)
         }
         
         if wait {
             for operation in ops {
-              operation.waitUntilFinished()
+                operation.waitUntilFinished()
             }
         }
     }
