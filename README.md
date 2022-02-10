@@ -77,7 +77,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     </p>
     </details>
 
-In case you already use other Push Notifications vendor's SDK, add `withoutRegisteringForRemoteNotifications()` to the start call:
+    In case you already use other Push Notifications vendor's SDK, add `withoutRegisteringForRemoteNotifications()` to the start call:
     
     ```swift
     // Swift
