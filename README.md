@@ -79,12 +79,14 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
     Please note that it is not very secure to keep your API key (Application Code is an API key in fact) hardcoded so if the security is a crucial aspect, consider obfuscating the Application Code string (we can recommend <a href="https://github.com/UrbanApps/UAObfuscatedString" target="_blank">UAObfuscatedString</a> for string obfuscation).
 
-6. Override method `application:didRegisterForRemoteNotificationsWithDeviceToken:` in order to inform Infobip about the new device registered:
+6. Add one line of code `MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)` to your AppDelegate method `application:didRegisterForRemoteNotificationsWithDeviceToken:` in order to inform Infobip about the new device registered:
 
     ```swift
     // Swift
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
+        
+        // other push vendors might have their code here and handle a Device Token as well
     }
     ```
 
@@ -94,18 +96,22 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     ```objective-c
     - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
         [MobileMessaging didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+
+        // other push vendors might have their code here and handle a Device Token as well
     }
     ```
 
     </p>
     </details>
 
-7. Override method `application:didReceiveRemoteNotification:fetchCompletionHandler:` in order to send notification delivery reports to Infobip:
+7. Add one line of code `MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)` to your AppDelegate method `application:didReceiveRemoteNotification:fetchCompletionHandler:` in order to send notification's delivery reports to Infobip:
 
     ```swift
     // Swift
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+
+        // other push vendors might have their code here and handle a remove notification as well
     }
     ```
 
@@ -115,6 +121,8 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     ```objective-c
     - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
         [MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+
+        // other push vendors might have their code here and handle a remove notification as well
     }
     ```
 
@@ -125,26 +133,6 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     - more accurate processing of messages and delivery stats
     - support of rich notifications on the lock screen
 
-9. **Skip this step if your apps minimum deployment target is iOS 10 or later.** Override method `application:didReceiveLocalNotification`(for Objective-C) or `application:didReceive:`(for Swift) in order the MobileMessaging SDK to be able to handle incoming local notifications internally:
-
-    ```swift
-    // Swift
-    func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
-        MobileMessaging.didReceiveLocalNotification(notification)
-    }
-    ```
-
-    <details><summary>expand to see Objective-C code</summary>
-    <p>
-
-    ```objective-c
-    -(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-        [MobileMessaging didReceiveLocalNotification:notification];
-    }
-    ```
-
-    </p>
-    </details>
 <br>
 In case of a clean project, your AppDelegate.swift code should look like following:
 <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/app_delegate.png?raw=true" alt="AppDelegate source code example"/>
