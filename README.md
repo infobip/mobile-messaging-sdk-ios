@@ -77,6 +77,16 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     </p>
     </details>
 
+In case you already use other Push Notifications vendor's SDK, add `withoutRegisteringForRemoteNotifications()` to the start call:
+    
+    ```swift
+    // Swift
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        MobileMessaging.withApplicationCode(<#your application code#>, notificationType: <#for example MMUserNotificationType(options: [.alert, .sound])#>)?.withoutRegisteringForRemoteNotifications()?.start()
+        ...
+    }   
+    ```
+
     Please note that it is not very secure to keep your API key (Application Code is an API key in fact) hardcoded so if the security is a crucial aspect, consider obfuscating the Application Code string (we can recommend <a href="https://github.com/UrbanApps/UAObfuscatedString" target="_blank">UAObfuscatedString</a> for string obfuscation).
 
 6. Add one line of code `MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)` to your AppDelegate method `application:didRegisterForRemoteNotificationsWithDeviceToken:` in order to inform Infobip about the new device registered:
