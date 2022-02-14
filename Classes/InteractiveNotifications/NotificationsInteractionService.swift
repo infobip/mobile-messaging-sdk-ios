@@ -26,7 +26,7 @@ extension MobileMessaging {
 	/// - parameter message: The `MM_MTMessage` object the action associated with.
 	/// - parameter responseInfo: The data dictionary sent by the action. Potentially could contain text entered by the user in response to the text input action.
 	/// - parameter completionHandler: A block that you must call when you are finished performing the action.
-	class func handleAction(identifier: String?, category: String?, message: MM_MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
+	public class func handleAction(identifier: String?, category: String?, message: MM_MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
         guard let mm = MobileMessaging.sharedInstance, let service = mm.notificationsInteractionService, let actionId = identifier else
 		{
 			MMLogWarn("[NotificationsInteractionService] canceled handling actionId \(identifier ?? "nil"), service is initialized \(MobileMessaging.sharedInstance?.notificationsInteractionService != nil)")
