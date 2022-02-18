@@ -356,7 +356,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 	public class func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping (_ installations: [MMInstallation]?, _ error: NSError?) -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.userService.setInstallation(userInitiated: true, withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
+                mm.userService.setInstallation(withPushRegistrationId: pushRegId, asPrimary: primary, completion: completion)
             }
         } else {
             completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))

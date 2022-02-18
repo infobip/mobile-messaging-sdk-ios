@@ -10,26 +10,34 @@ class UserDataService: MobileMessagingService {
 		super.init(mmContext: mmContext, uniqueIdentifier: "UserDataService")
 	}
 
-    func setInstallation(userInitiated: Bool, withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
+    func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
         assert(!Thread.isMainThread)
 		let finish: (NSError?) -> Void = { (error) in
 			if error == nil {
-				let ins = self.resolveInstallationsAfterPrimaryChange(pushRegId, primary)
+                let installations = self.mmContext.resolveUser().installations
+                if let idx = installations?.firstIndex(where: { $0.isPrimaryDevice == true }) {
+                    installations?[idx].isPrimaryDevice = false
+                }
+                if let idx = installations?.firstIndex(where: { $0.pushRegistrationId == pushRegId }) {
+                    installations?[idx].isPrimaryDevice = primary
+                }
 				MMUser.modifyAll(with: { user in
-					user.installations = ins
+					user.installations = installations
 				})
 			}
-			completion(self.mmContext.resolveUser().installations, error)
+            DispatchQueue.main.async {
+                completion(self.mmContext.resolveUser().installations, error)
+            }
 		}
 
 		if mmContext.currentInstallation().pushRegistrationId == pushRegId {
 			let ci = mmContext.currentInstallation()
 			ci.isPrimaryDevice = primary
-            mmContext.installationService.save(userInitiated: userInitiated, installationData: ci, completion: finish)
+            mmContext.installationService.save(userInitiated: true, installationData: ci, completion: finish)
 		} else {
 			guard let authPushRegistrationId = mmContext.currentInstallation().pushRegistrationId else {
 				logError("There is no registration. Finishing setting other reg primary...")
-				completion(self.mmContext.resolveUser().installations, NSError(type: MMInternalErrorType.NoRegistration))
+                finish(NSError(type: MMInternalErrorType.NoRegistration))
 				return
 			}
 			let body = ["isPrimary": primary]
@@ -86,19 +94,7 @@ class UserDataService: MobileMessagingService {
 		return MMUser.delta != nil
 	}
 
-	func resolveInstallationsAfterPrimaryChange(_ pushRegId: String, _ isPrimary: Bool) -> [MMInstallation]? {
-        assert(!Thread.isMainThread)
-		let ret = mmContext.resolveUser().installations
-		if let idx = ret?.firstIndex(where: { $0.isPrimaryDevice == true }) {
-			ret?[idx].isPrimaryDevice = false
-		}
-		if let idx = ret?.firstIndex(where: { $0.pushRegistrationId == pushRegId }) {
-			ret?[idx].isPrimaryDevice = isPrimary
-		}
-		return ret
-	}
-
-	func resolveInstallationsAfterLogout(_ pushRegId: String) -> [MMInstallation]? {
+    private func resolveInstallationsAfterLogout(_ pushRegId: String) -> [MMInstallation]? {
         assert(!Thread.isMainThread)
 		var ret = mmContext.resolveUser().installations
 		if let idx = ret?.firstIndex(where: { $0.pushRegistrationId == pushRegId }) {
