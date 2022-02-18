@@ -169,9 +169,9 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		deviceManufacturer = aDecoder.decodeObject(forKey: "deviceManufacturer") as? String
 		deviceModel = aDecoder.decodeObject(forKey: "deviceModel") as? String
 		deviceName = aDecoder.decodeObject(forKey: "deviceName") as? String
-		deviceSecure = aDecoder.decodeObject(forKey: "deviceSecure") as? Bool ?? false
+        deviceSecure = aDecoder.decodeBool(forKey: "deviceSecure")
 		deviceTimeZone = aDecoder.decodeObject(forKey: "deviceTimeZone") as? String
-		geoEnabled = aDecoder.decodeObject(forKey: "geoEnabled") as? Bool ?? false
+        geoEnabled = aDecoder.decodeBool(forKey: "geoEnabled")
 		language = aDecoder.decodeObject(forKey: "language") as? String
 		notificationsEnabled = aDecoder.decodeObject(forKey: "notificationsEnabled") as? Bool
 		os = aDecoder.decodeObject(forKey: "os") as? String
