@@ -86,7 +86,7 @@ platform :ios do
 	lane :snapshot_build do |options|
 		load_keys
 
-		cocoapods
+		cocoapods(repo_update: true)
 		
 		unless options[:no_tests]
 			test_on_simulator
@@ -131,7 +131,6 @@ platform :ios do
 		increment_build_number(build_number: new_build_number, xcodeproj: carthage_xcodeproj_path)
 
 		new_version_tag = "#{new_version_number}"
-
 
 		cocoapods
 
