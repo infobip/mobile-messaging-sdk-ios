@@ -91,13 +91,13 @@ enum KeychainSwiftAccessOptions {
 			return toString(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly)
 			
 		case .accessibleAlways:
-			return toString(kSecAttrAccessibleAlways)
+			return toString(kSecAttrAccessibleAfterFirstUnlock)
 			
 		case .accessibleWhenPasscodeSetThisDeviceOnly:
 			return toString(kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly)
 			
 		case .accessibleAlwaysThisDeviceOnly:
-			return toString(kSecAttrAccessibleAlwaysThisDeviceOnly)
+			return toString(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly)
 		}
 	}
 	

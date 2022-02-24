@@ -17,7 +17,7 @@ class DefaultTransformer: ValueTransformer {
 		guard let value = value as? Data else {
 			return nil
 		}
-		return NSKeyedUnarchiver.unarchiveObject(with: value)
+		return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(value)
 	}
 
 	override class func allowsReverseTransformation() -> Bool {
@@ -28,7 +28,7 @@ class DefaultTransformer: ValueTransformer {
 		guard let value = value else {
 			return nil
 		}
-		return NSKeyedArchiver.archivedData(withRootObject: value)
+		return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: false)
 	}
 }
 
@@ -42,7 +42,7 @@ class EmailTransformer: ValueTransformer {
 		guard let value = value as? Data else {
 			return nil
 		}
-		return NSKeyedUnarchiver.unarchiveObject(with: value)
+        return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(value)
 	}
 
 	override class func allowsReverseTransformation() -> Bool {
@@ -53,7 +53,7 @@ class EmailTransformer: ValueTransformer {
 		guard let value = value as? [MMEmail] else {
 			return nil
 		}
-		return NSKeyedArchiver.archivedData(withRootObject: value)
+        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: false)
 	}
 }
 
@@ -67,7 +67,7 @@ class InstallationTransformer: ValueTransformer {
 		guard let value = value as? Data else {
 			return nil
 		}
-		return NSKeyedUnarchiver.unarchiveObject(with: value)
+        return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(value)
 	}
 
 	override class func allowsReverseTransformation() -> Bool {
@@ -78,7 +78,7 @@ class InstallationTransformer: ValueTransformer {
 		guard let value = value as? [MMInstallation] else {
 			return nil
 		}
-		return NSKeyedArchiver.archivedData(withRootObject: value)
+        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: false)
 	}
 }
 
@@ -92,7 +92,7 @@ class PhoneTransformer: ValueTransformer {
 		guard let value = value as? Data else {
 			return nil
 		}
-		return NSKeyedUnarchiver.unarchiveObject(with: value)
+        return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(value)
 	}
 
 	override class func allowsReverseTransformation() -> Bool {
@@ -103,6 +103,6 @@ class PhoneTransformer: ValueTransformer {
 		guard let value = value as? [MMPhone] else {
 			return nil
 		}
-		return NSKeyedArchiver.archivedData(withRootObject: value)
+        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: false)
 	}
 }

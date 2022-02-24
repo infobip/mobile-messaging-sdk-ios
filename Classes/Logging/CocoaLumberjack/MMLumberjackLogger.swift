@@ -154,12 +154,11 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 			}
 		}
 		
-		if logOutput.contains(options: .ASL) {
-			if let logger = DDASLLogger.sharedInstance {
-				logger.logFormatter = MMLogFormatter()
-				DDLog.add(logger, with: lumberjackLogLvl) //ASL
-			}
-		}
+        if logOutput.contains(options: .ASL) {
+            let logger = DDOSLogger.sharedInstance
+            logger.logFormatter = MMLogFormatter()
+            DDLog.add(logger, with: lumberjackLogLvl) //ASL
+        }
 		
 		if logOutput.contains(options: .File) {
 			self.fileLogger = DDFileLogger()

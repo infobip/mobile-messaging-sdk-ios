@@ -49,7 +49,7 @@ import UserNotifications
     @objc optional func shouldShowModalInAppNotification(for message: MM_MTMessage) -> Bool
     
     /// Called when the tapped notification contains a browserURL. Returns a Boolean value indicating whether the URL will be open in the browser or not.
-    /// - parameter message: `URL` received in the tapped notification.
+    /// - parameter url: `URL` received in the tapped notification.
     /// - returns: Boolean value indicating should or shouldn't open the URL in the mobile's browser.
     @objc optional func shouldOpenInBrowser(_ url: URL) -> Bool
 }

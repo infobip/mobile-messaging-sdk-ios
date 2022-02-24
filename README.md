@@ -7,9 +7,9 @@
 Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in your application and access to the features of <a href="https://www.infobip.com/en/products/mobile-app-messaging" target="_blank">Infobip Mobile Apps Messaging</a>. The document describes library integration steps. Additional information can be found in our <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki" target="_blank">Wiki</a>.
 
 ## Requirements
-- Xcode 11
-- Swift 4.2
-- iOS 10.0+
+- Xcode 13.2.1+
+- Swift 4.2, Swift 5
+- iOS 12.0+
 
 ## Quick start guide
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application.
@@ -27,7 +27,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 
     ```ruby
     source 'https://github.com/CocoaPods/Specs.git'
-    platform :ios, '10.0'
+    platform :ios, '12.0'
     use_frameworks!
     pod 'MobileMessaging'
     ```

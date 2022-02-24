@@ -231,9 +231,10 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 //		msgDict["downloadedPicUrl"] = message.downloadedPictureUrl?.absoluteString
 		msgDict["dlrd"] = message.deliveryReportedDate
 		savedMessageDicts.append(msgDict)
-        let data = NSKeyedArchiver.archivedData(withRootObject: savedMessageDicts)
-		storage.set(data, forKey: applicationCode)
-		storage.synchronize()
+        if let data = try? NSKeyedArchiver.archivedData(withRootObject: savedMessageDicts, requiringSecureCoding: false) {
+            storage.set(data, forKey: applicationCode)
+            storage.synchronize()
+        }
 	}
 	
 	func retrieveMessages() -> [MM_MTMessage] {
@@ -265,7 +266,7 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
     private func retrieveSavedPayloadDictionaries() -> [MMStringKeyPayload] {
         var payloadDictionaries = [MMStringKeyPayload]();
         if let data = storage.object(forKey: applicationCode) as? Data,
-           let dictionaries = NSKeyedUnarchiver.unarchiveObject(with: data) as? [MMStringKeyPayload] { //saved as Data for supporting NSNull in payload
+           let dictionaries = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? [MMStringKeyPayload] { //saved as Data for supporting NSNull in payload
             payloadDictionaries = dictionaries
         } else if let dictionaries = storage.object(forKey: applicationCode) as? [MMStringKeyPayload] { //migration from saving as Dictionaries
             payloadDictionaries = dictionaries

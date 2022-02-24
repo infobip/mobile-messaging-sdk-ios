@@ -25,7 +25,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     var scrollingRecognizer: UIPanGestureRecognizer!
     var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
     var composeBarView: ComposeBar!
-    var docImportMenu: UIDocumentMenuViewController!
+    var docImportMenu: UIDocumentPickerViewController!
     var documentAction = UIDocumentInteractionController()
     var chatMessageCountUpdatedBlock: ((_ count: Int, _ unread: Int) -> Void)?
 

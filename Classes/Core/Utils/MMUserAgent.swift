@@ -321,8 +321,7 @@ public class MMUserAgent: NSObject {
 		
 		func carrierDataString(allowed: Bool) -> String {
 			let networkInfo = CTTelephonyNetworkInfo()
-			let carrier = allowed ? networkInfo.subscriberCellularProvider : nil
-			
+            let carrier = allowed ? networkInfo.serviceSubscriberCellularProviders?.first?.value : nil
 			let mobileCarrierName = carrier?.carrierName ?? ""
 			let mobileCountryCode = carrier?.mobileCountryCode ?? ""
 			let mobileNetworkCode = carrier?.mobileNetworkCode ?? ""

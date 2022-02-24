@@ -216,25 +216,27 @@ class DepersonalizeTests: MMTestCase {
 		}
 	}
 
-	func testThatPendingDepersonalizeKeptBetweenRestarts() {
+    func testThatPendingDepersonalizeKeptBetweenRestarts() {
         MMTestCase.startWithCorrectApplicationCode()
         MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
-		weak var depersonalizeFailed = expectation(description: "Depersonalize failed")
-		prepareUserData()
-		performFailedDepersonalizeCase() {
-			XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
+        weak var depersonalizeFailed = expectation(description: "Depersonalize failed")
+        prepareUserData()
+        
+        performFailedDepersonalizeCase() {
+            XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
             MobileMessaging.sharedInstance?.doStop()
-			MMTestCase.startWithCorrectApplicationCode()
-			depersonalizeFailed?.fulfill()
-		}
-
-		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
-			XCTAssertFalse(self.mobileMessagingInstance.messageHandler.isRunning)
-			XCTAssertNil(MobileMessaging.getUser()!.firstName)
-			XCTAssertNil(MobileMessaging.getUser()!.customAttributes?["bootsize"])
-		}
-	}
+            
+            MMTestCase.startWithCorrectApplicationCode()
+            depersonalizeFailed?.fulfill()
+        }
+        
+        waitForExpectations(timeout: 20) { _ in
+            XCTAssertEqual(MMSuccessPending.pending.rawValue, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus.rawValue)
+            XCTAssertFalse(self.mobileMessagingInstance.messageHandler.isRunning)
+            XCTAssertNil(MobileMessaging.getUser()!.firstName)
+            XCTAssertNil(MobileMessaging.getUser()!.customAttributes?["bootsize"])
+        }
+    }
 
 	func testThatAPNSUnregistersOnFailedDepersonalize() {
         MMTestCase.startWithCorrectApplicationCode()

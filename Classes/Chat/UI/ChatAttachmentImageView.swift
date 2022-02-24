@@ -116,9 +116,7 @@ class ChatAttachmentWebViewPreview: ChatAttachmentPreview {
     lazy var webView: WKWebView = {
         let configuration = WKWebViewConfiguration()
         configuration.allowsInlineMediaPlayback = true
-        if #available(iOS 10.0, *) {
-            configuration.mediaTypesRequiringUserActionForPlayback = []
-        }
+        configuration.mediaTypesRequiringUserActionForPlayback = []
         let webView = WKWebView(frame: bounds, configuration: configuration)
         webView.contentMode = .scaleAspectFit
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]

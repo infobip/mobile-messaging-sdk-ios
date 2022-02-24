@@ -47,7 +47,12 @@ extension ArchivableCurrent where Self: NSCopying {
         MMLogVerbose("Archiving \(Thread.current.description) at \(path)")
 		let save = self.copy() as! Self
 		save.removeSensitiveData()
-		NSKeyedArchiver.archiveRootObject(save, toFile: path)
+        do {
+            let dataToBeArchived = try NSKeyedArchiver.archivedData(withRootObject: save, requiringSecureCoding: false)
+            try dataToBeArchived.write(to: URL(fileURLWithPath: path))
+        } catch {
+            MMLogError("Unexpected error while archiving at \(path): \(error)")
+        }
 	}
 	static func resetCurrent() {
         MMLogVerbose("Resetting cached value \(Thread.current.description) \(Self.currentPath)")
@@ -65,11 +70,16 @@ extension ArchivableCurrent where Self: NSCopying {
 			return current
 		}
 	}
-	static func unarchive(from path: String) -> Self? {
-		let unarchived = NSKeyedUnarchiver.unarchiveObject(withFile: path) as? Self
-		MMLogVerbose("Unarchived \(String(describing: unarchived)) from \(path)")
-		return unarchived
-	}
+    static func unarchive(from path: String) -> Self? {
+        let url = URL(fileURLWithPath: path)
+        if let data = try? Data(contentsOf: url) {
+            let unarchived = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? Self
+            MMLogVerbose("Unarchived \(String(describing: unarchived)) from \(path)")
+            return unarchived
+        } else {
+            return nil
+        }
+    }
 	static func removeArchive(at path: String) {
 		MMLogVerbose("Removing archive \(Thread.current.description) at \(path)")
 		do {

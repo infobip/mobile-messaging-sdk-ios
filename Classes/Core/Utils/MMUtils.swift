@@ -422,8 +422,6 @@ public extension UIDevice {
     func SYSTEM_VERSION_LESS_THAN(_ version: String) -> Bool {
         return self.systemVersion.compare(version, options: .numeric) == .orderedAscending
     }
-    
-    @objc var IS_IOS_BEFORE_10: Bool { return SYSTEM_VERSION_LESS_THAN("10.0") }
 }
 
 class MMDate {
