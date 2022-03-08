@@ -12,6 +12,7 @@ import UserNotifications
 	func willDisplay(_ message: MM_MTMessage)
 }
 
+@objcMembers
 public class MMInteractiveMessageAlertSettings: NSObject {
 	public static var errorPlaceholderText: String = "Sorry, couldn't load the image"
 	public static var tintColor = UIColor(red: 0, green: 122, blue: 255, alpha: 1)
