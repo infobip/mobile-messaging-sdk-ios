@@ -36,6 +36,7 @@
 		76174FDB2334F9B3000438A8 /* PersonalizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909D21F0B7E9000CF3F8 /* PersonalizeTests.swift */; };
 		762E22D42417BED8003E2696 /* InAppAlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762E22D32417BED8003E2696 /* InAppAlertTests.swift */; };
 		762E22D52417BED8003E2696 /* InAppAlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762E22D32417BED8003E2696 /* InAppAlertTests.swift */; };
+		762E2E5427F1C04200CFC5ED /* OtherVendorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762E2E5327F1C04200CFC5ED /* OtherVendorsTests.swift */; };
 		762F9D2E2206409400A35F1E /* DynamicBaseUrlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766C1F2F1FC80E020058900C /* DynamicBaseUrlTests.swift */; };
 		762F9D2F2206409400A35F1E /* ApnsRegistrationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F3CAEC20359BBA008DF398 /* ApnsRegistrationManagerTests.swift */; };
 		762F9D312206409400A35F1E /* DynamicBaseUrlTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766C1F2F1FC80E020058900C /* DynamicBaseUrlTests.swift */; };
@@ -187,6 +188,7 @@
 		761D091521C7AECC00B326E8 /* InstallationsManagementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationsManagementTests.swift; sourceTree = "<group>"; };
 		76208A3EB90587B54FFE69EC /* Pods-MobileMessagingExample_Tests_Device.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests_Device/Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; sourceTree = "<group>"; };
 		762E22D32417BED8003E2696 /* InAppAlertTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppAlertTests.swift; sourceTree = "<group>"; };
+		762E2E5327F1C04200CFC5ED /* OtherVendorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherVendorsTests.swift; sourceTree = "<group>"; };
 		762F9D3B22064DCB00A35F1E /* InstallationCoreDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationCoreDataProvider.swift; sourceTree = "<group>"; };
 		7636909D21F0B7E9000CF3F8 /* PersonalizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalizeTests.swift; sourceTree = "<group>"; };
 		763A1B0723E82D8400C997BC /* EventsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsTests.swift; sourceTree = "<group>"; };
@@ -446,6 +448,7 @@
 		A09103D91CABA839001873B4 /* MobileMessagingTests */ = {
 			isa = PBXGroup;
 			children = (
+				762E2E5327F1C04200CFC5ED /* OtherVendorsTests.swift */,
 				76AAE58025FBF58000E70F13 /* UtilsTests.swift */,
 				7640DC0E2203040000F50470 /* Base */,
 				507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */,
@@ -509,9 +512,9 @@
 				607FACCC1AFB9204008FA782 /* Sources */,
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
-				5032AE441DF03EA500158A29 /* Put out Application Code */,
 				A013D45A1ED8355F00B371C0 /* Embed App Extensions */,
 				CB4A740B952F6BAE2C794EEF /* [CP] Embed Pods Frameworks */,
+				5032AE441DF03EA500158A29 /* Put out Application Code */,
 			);
 			buildRules = (
 			);
@@ -774,7 +777,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appDelegatePath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appDelegatePath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi";
+			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appDelegatePath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appDelegatePath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
 		};
 		5032AE441DF03EA500158A29 /* Put out Application Code */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -788,7 +791,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\nappExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appDelegatePath\" ]; then\nperl -i -p -e \"s/\\\"[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}\\\"/\\\"<# your application code #>\\\"/g;\" \"$appDelegatePath\"\nelse\nexit 0\nfi";
+			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appDelegatePath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"$applicationCode\\\"/\\\"<# your application code #>\\\"/g;\" \"$appDelegatePath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
 		};
 		761F1BDF2180D72700C13C00 /* Put out app code */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -806,7 +809,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ -f \"$applicationCodeCfgPath\" ] && [ -f \"$appExtensionPath\" ]; then\nperl -i -p -e \"s/\\\"[\\\\w]{32}-[\\\\w]{8}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{4}-[\\\\w]{12}\\\"/\\\"<# your application code #>\\\"/g;\" \"$appExtensionPath\"\nelse\nexit 0\nfi\n";
+			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appExtensionPath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appExtensionPath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
 		};
 		761F1BE02180D76500C13C00 /* Put in app code */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -964,6 +967,7 @@
 				76AAE58125FBF58000E70F13 /* UtilsTests.swift in Sources */,
 				767B849E1EA8AD1100CCD81F /* Mocks.swift in Sources */,
 				7640DC3722036F1900F50470 /* FetchMessagesTest.swift in Sources */,
+				762E2E5427F1C04200CFC5ED /* OtherVendorsTests.swift in Sources */,
 				7640DC2D22030D1C00F50470 /* EscapingQueryTests.swift in Sources */,
 				767B84941EA8AD1100CCD81F /* TestUtils.swift in Sources */,
 				7640DC4922063FE200F50470 /* InteractiveNotificationsTests.swift in Sources */,

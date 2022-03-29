@@ -39,11 +39,11 @@ class ApnsRegistrationManagerMock: ApnsRegistrationManager {
 		completion()
 	}
 
-	override func registerForRemoteNotifications() {
+	override func registerForRemoteNotifications(userInitiated: Bool) {
 		registerCalled?()
 	}
 
-	override func unregister() {
+	override func unregister(userInitiated: Bool) {
 		unregisterCalled?()
 	}
 }

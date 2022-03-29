@@ -10,40 +10,54 @@ import UserNotifications
 
 class ApnsRegistrationManager: NamedLogger {
 	let mmContext: MobileMessaging
-	
-	init(mmContext: MobileMessaging) {
+    
+    init(mmContext: MobileMessaging) {
 		self.mmContext = mmContext
 	}
 	
-	func unregister() {
+	func unregister(userInitiated: Bool) {
+        guard userInitiated == true || mmContext.unregisteringForRemoteNotificationsDisabled == false else {
+            logDebug("Canceling unregistering with args userInitiated \(userInitiated), unregisteringForRemoteNotificationsDisabled \(mmContext.unregisteringForRemoteNotificationsDisabled)")
+            return
+        }
 		if MobileMessaging.application.isRegisteredForRemoteNotifications {
 			MobileMessaging.application.unregisterForRemoteNotifications()
 		}
 	}
+    
+    func stop() {
+        unregister(userInitiated: false)
+        UNUserNotificationCenter.current().delegate = nil
+    }
 	
-	func registerForRemoteNotifications() {
-		logDebug("Registering...")
-		
-		switch mmContext.internalData().currentDepersonalizationStatus {
-		case .success, .undefined:
-			break
-		case .pending:
-			logDebug("canceling due to pending depersonalize state...")
-			return
-		}
-		
-		registerNotificationSettings(application: MobileMessaging.application, userNotificationType: mmContext.userNotificationType)
-		
-		if mmContext.currentInstallation().pushServiceToken == nil {
-			if MobileMessaging.application.isRegisteredForRemoteNotifications {
-				logDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
-				unregister()
-			}
-			setRegistrationIsHealthy()
-		}
-		
-		// we always registering to avoid cases when the device token stored in SDK database becomes outdated (i.e. due to iOS reserve copy restoration). `didRegisterForRemoteNotificationsWithDeviceToken` will return us the most relevant token.
-		MobileMessaging.application.registerForRemoteNotifications()
+    func registerForRemoteNotifications(userInitiated: Bool) {
+        guard userInitiated == true || mmContext.registeringForRemoteNotificationsDisabled == false else {
+            logDebug("Canceling registration with args userInitiated \(userInitiated), registeringForRemoteNotificationsDisabled \(mmContext.registeringForRemoteNotificationsDisabled)")
+            return
+        }
+        
+        switch mmContext.internalData().currentDepersonalizationStatus {
+        case .success, .undefined:
+            break
+        case .pending:
+            logDebug("Canceling registration due to pending depersonalize state. Retry will be done on depersonalize state change automatically...")
+            return
+        }
+        
+        logDebug("Registering...")
+        
+        registerNotificationSettings(application: MobileMessaging.application, userNotificationType: mmContext.userNotificationType)
+        
+        if mmContext.currentInstallation().pushServiceToken == nil {
+            if MobileMessaging.application.isRegisteredForRemoteNotifications {
+                logDebug("The application is registered for remote notifications but MobileMessaging lacks of device token. Unregistering...")
+                unregister(userInitiated: userInitiated)
+            }
+            setRegistrationIsHealthy()
+        }
+        
+        // we always registering to avoid cases when the device token stored in SDK database becomes outdated (i.e. due to iOS reserve copy restoration). `didRegisterForRemoteNotificationsWithDeviceToken` will return us the most relevant token.
+        MobileMessaging.application.registerForRemoteNotifications()
 	}
 	
     func didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: Bool, token: Data, completion: @escaping (NSError?) -> Void) {
@@ -142,7 +156,9 @@ class ApnsRegistrationManager: NamedLogger {
 	private static let encoding: String.Encoding = .utf8
 	
 	private func registerNotificationSettings(application: MMApplication, userNotificationType: MMUserNotificationType) {
-		UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
+        if mmContext.overridingNotificationCenterDeleageDisabled == false {
+            UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
+        }
 		UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
 			UserEventsManager.postNotificationCenterAuthRequestFinished(granted: granted, error: error)
 			guard granted else {
