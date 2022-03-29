@@ -72,7 +72,7 @@ class DepersonalizeOperation: MMOperation {
 			id.currentDepersonalizationStatus = .success
 			id.archiveCurrent()
 
-			mmContext.apnsRegistrationManager.registerForRemoteNotifications()
+			mmContext.apnsRegistrationManager.registerForRemoteNotifications(userInitiated: true)
             
 		case .success, .undefined:
 			DepersonalizeOperation.logDebug("current depersonalize status: undefined/succesful")
@@ -92,7 +92,7 @@ class DepersonalizeOperation: MMOperation {
 
 				id.currentDepersonalizationStatus = .undefined
 
-				mmContext.apnsRegistrationManager.registerForRemoteNotifications()
+				mmContext.apnsRegistrationManager.registerForRemoteNotifications(userInitiated: true)
 			}
             id.archiveCurrent()
 
@@ -102,7 +102,7 @@ class DepersonalizeOperation: MMOperation {
 			id.currentDepersonalizationStatus = .pending
 			id.archiveCurrent()
 
-			mmContext.apnsRegistrationManager.unregister()
+			mmContext.apnsRegistrationManager.unregister(userInitiated: false)
 		}
 	}
 

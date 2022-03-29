@@ -1076,13 +1076,6 @@
 			path = ComposeBar;
 			sourceTree = "<group>";
 		};
-		765B9FBF2012402300B1E77A /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		76B0A7BF24EFB43F0006A815 /* SwiftTryCatch */ = {
 			isa = PBXGroup;
 			children = (
@@ -1127,7 +1120,6 @@
 				20B56609144CE204DFA8221F742B2D76 /* Frameworks */,
 				1EC852B12152CDB7042DD88F7126A70F /* Products */,
 				1EB0AEE32DF73E58AC174D599FA44DFB /* Targets Support Files */,
-				765B9FBF2012402300B1E77A /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};

@@ -20,7 +20,7 @@ class ApnsRegistrationManagerDisabledStub: ApnsRegistrationManager {
         
     }
     
-    override func registerForRemoteNotifications() {
+    override func registerForRemoteNotifications(userInitiated: Bool) {
         
     }
 }
@@ -104,6 +104,9 @@ class ActiveApplicationStub: MMApplication {
 }
 
 class DefaultApplicationStub: MMApplication {
+    var registerForRemoteNotificationsStub: (() -> Void)?
+    var unregisterForRemoteNotificationsStub: (() -> Void)?
+    
     var applicationState: UIApplication.State { return .active }
     var applicationIconBadgeNumber: Int {
         get { return 0 }
@@ -111,8 +114,8 @@ class DefaultApplicationStub: MMApplication {
     }
     var visibleViewController: UIViewController? { return nil }
     var isRegisteredForRemoteNotifications: Bool { return true }
-    func unregisterForRemoteNotifications() {}
-    func registerForRemoteNotifications() {}
+    func unregisterForRemoteNotifications() { unregisterForRemoteNotificationsStub?() }
+    func registerForRemoteNotifications() { registerForRemoteNotificationsStub?() }
     var notificationEnabled: Bool { return true }
 }
 
