@@ -157,6 +157,9 @@ If you don't see any logs, set up the default logger before starting the SDK: `M
 
 **Please pay close attention to a Provisioning Profile that is used for your project build. It must match the APNs environment! If they don't, we'll invalidate the device push registration (more information here [I don't receive push notifications!](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/I-don't-receive-push-notifications)**
 
+> #### Notice
+> Push notifications (if they are not [in-app](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/In-app-notifications)) are not displayed automatically when the app is on the foreground. For further information check [FAQ - How to display messages when app is running in the foreground?](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/How-to-display-messages-when-app-is-running-in-the-foreground%3F).
+
 <br>
 <p align="center"><b>NEXT STEPS: <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile">User profile</a></b></p>
 <br>
