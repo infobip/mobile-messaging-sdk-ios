@@ -99,7 +99,7 @@ public class MMInAppChatService: MobileMessagingService {
 	override var systemData: [String: AnyHashable]? {
 		return ["inappchat": true]
 	}
-	var webViewDelegate: ChatWebViewDelegate? {
+	weak var webViewDelegate: ChatWebViewDelegate? {
 		didSet {
             webViewDelegate?.didReceiveError(chatErrors)
 			update(withChatWidget: chatWidget)
@@ -252,7 +252,7 @@ public class MMInAppChatService: MobileMessagingService {
     }
 }
 
-protocol ChatWebViewDelegate {
+protocol ChatWebViewDelegate: AnyObject {
     func didLoadWidget(_ widget: ChatWidget)
     func didEnableControls(_ enabled: Bool)
     func didShowComposeBar(_ visible: Bool)
