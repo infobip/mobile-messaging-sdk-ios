@@ -99,7 +99,7 @@ public class MMUserAgent: NSObject {
 	}
 	
 	public var libraryName: String {
-		return MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleIdentifier") as? String ?? "MobileMessaging"
+		return "MobileMessaging"
 	}
 	
 	public var hostingAppVersion: String {
