@@ -73,22 +73,17 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         composeBarView.delegate = composeBarDelegate
         composeBarView.alpha = 1
         view.addSubview(composeBarView)
-
-        scrollViewContainer.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: composeBarView.cp_h + safeAreaInsets.bottom, right: 0))
+        updateViewsFor(safeAreaInsets: safeAreaInsets, safeAreaLayoutGuide: view.safeAreaLayoutGuide)
         scrollView.delegate = self
         composeBarView.utilityButtonImage = UIImage(mm_named: "attachmentButton")?.withRenderingMode(.alwaysTemplate)
     }
-    
+        
     override func updateViewsFor(safeAreaInsets: UIEdgeInsets, safeAreaLayoutGuide: UILayoutGuide) {
         var composeBarFrame = composeBarView.frame
-        guard composeBarFrame.maxY > safeAreaLayoutGuide.layoutFrame.maxY else {
-            return
-        }
         composeBarFrame.y = view.bounds.height - (composeBarFrame.height + safeAreaInsets.bottom)
         composeBarView.frame = composeBarFrame
-        var scrollViewContainerFrame = scrollViewContainer.frame
-        scrollViewContainerFrame.height = view.bounds.height - (composeBarFrame.height + safeAreaInsets.bottom)
-        scrollViewContainer.frame = scrollViewContainerFrame
+        scrollViewContainer.frame = view.bounds.inset(
+            by: UIEdgeInsets(top: safeAreaInsets.top, left: 0, bottom: composeBarView.cp_h + safeAreaInsets.bottom, right: 0))
     }
 
     func didTapSendText(_ text: String) {

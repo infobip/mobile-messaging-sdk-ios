@@ -29,7 +29,7 @@ open class MMKeyboardAwareScrollViewController : MMKeyboardAwareViewController {
     
     private func updateScrollViewContainerHeightAnimated(_ duration: TimeInterval, _ options: UIView.AnimationOptions, _ bottomOffset: CGFloat) {
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-            self.scrollViewContainer.frame.height = self.view.bounds.height - bottomOffset
+            self.scrollViewContainer.frame.height = self.view.bounds.height - bottomOffset - self.safeAreaInsets.top
         }, completion: nil)
     }
     
