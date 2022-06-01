@@ -7,16 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		74282C3BB5834C9E2A10E333 /* Pods_MobileChatExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5BAFE2129000EDC9DA65596 /* Pods_MobileChatExample.framework */; };
 		765259EA1FB5A99100058788 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765259E91FB5A99100058788 /* AppDelegate.swift */; };
 		765259EF1FB5A99100058788 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259ED1FB5A99100058788 /* Main.storyboard */; };
 		765259F11FB5A99100058788 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 765259F01FB5A99100058788 /* Assets.xcassets */; };
 		765259F41FB5A99100058788 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259F21FB5A99100058788 /* LaunchScreen.storyboard */; };
 		A0AAC48824559976000C99E6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AAC48724559976000C99E6 /* ViewController.swift */; };
+		E3B9709EB8F63580DA5EE7BA /* Pods_MobileChatExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5BC48E2C497C7650AF88168 /* Pods_MobileChatExample.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5AD6D1BE74ACDDD6F33F459F /* Pods-MobileChatExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.debug.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.debug.xcconfig"; sourceTree = "<group>"; };
 		765259E61FB5A99100058788 /* MobileChatExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobileChatExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		765259E91FB5A99100058788 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		765259EE1FB5A99100058788 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -24,9 +23,11 @@
 		765259F31FB5A99100058788 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		765259F51FB5A99100058788 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		765259FB1FB5AC3A00058788 /* MobileChatExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobileChatExample.entitlements; sourceTree = "<group>"; };
+		A079185E28327CAC004309F5 /* MobileMessaging.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileMessaging.xcframework; path = Carthage/Build/MobileMessaging.xcframework; sourceTree = "<group>"; };
 		A0AAC48724559976000C99E6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		B5BAFE2129000EDC9DA65596 /* Pods_MobileChatExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileChatExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F8C5EB78D74615007AAE9618 /* Pods-MobileChatExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.release.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.release.xcconfig"; sourceTree = "<group>"; };
+		A5BC48E2C497C7650AF88168 /* Pods_MobileChatExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileChatExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B486BA7B428768CC999D9B6F /* Pods-MobileChatExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.release.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.release.xcconfig"; sourceTree = "<group>"; };
+		CEC857A6E609E0EE6E78E4D5 /* Pods-MobileChatExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.debug.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,20 +35,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74282C3BB5834C9E2A10E333 /* Pods_MobileChatExample.framework in Frameworks */,
+				E3B9709EB8F63580DA5EE7BA /* Pods_MobileChatExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		24E6DEDBA66A3441ABF6D591 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A079185E28327CAC004309F5 /* MobileMessaging.xcframework */,
+				A5BC48E2C497C7650AF88168 /* Pods_MobileChatExample.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		765259DD1FB5A99100058788 = {
 			isa = PBXGroup;
 			children = (
 				765259E81FB5A99100058788 /* MobileChatExample */,
 				765259E71FB5A99100058788 /* Products */,
-				CE9CD945D758C6FE5BF5D6D2 /* Pods */,
-				8AF512DA9B3F081E566F2D1C /* Frameworks */,
+				24E6DEDBA66A3441ABF6D591 /* Frameworks */,
+				FD2361AB9353549CAFF2B3EF /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -73,20 +83,13 @@
 			path = MobileChatExample;
 			sourceTree = "<group>";
 		};
-		8AF512DA9B3F081E566F2D1C /* Frameworks */ = {
+		FD2361AB9353549CAFF2B3EF /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				B5BAFE2129000EDC9DA65596 /* Pods_MobileChatExample.framework */,
+				CEC857A6E609E0EE6E78E4D5 /* Pods-MobileChatExample.debug.xcconfig */,
+				B486BA7B428768CC999D9B6F /* Pods-MobileChatExample.release.xcconfig */,
 			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		CE9CD945D758C6FE5BF5D6D2 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				5AD6D1BE74ACDDD6F33F459F /* Pods-MobileChatExample.debug.xcconfig */,
-				F8C5EB78D74615007AAE9618 /* Pods-MobileChatExample.release.xcconfig */,
-			);
+			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -97,11 +100,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 765259F81FB5A99100058788 /* Build configuration list for PBXNativeTarget "MobileChatExample" */;
 			buildPhases = (
-				15C98D5C64B74E6EF074F9C7 /* [CP] Check Pods Manifest.lock */,
+				6BB430CD9938312BC0352A6A /* [CP] Check Pods Manifest.lock */,
 				765259E21FB5A99100058788 /* Sources */,
 				765259E31FB5A99100058788 /* Frameworks */,
 				765259E41FB5A99100058788 /* Resources */,
-				F053562A1E5EE5620F02B674 /* [CP] Embed Pods Frameworks */,
+				F9F8C9988BDE57B7EFB358DB /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -168,7 +171,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		15C98D5C64B74E6EF074F9C7 /* [CP] Check Pods Manifest.lock */ = {
+		6BB430CD9938312BC0352A6A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -190,7 +193,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		F053562A1E5EE5620F02B674 /* [CP] Embed Pods Frameworks */ = {
+		F9F8C9988BDE57B7EFB358DB /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -359,7 +362,7 @@
 		};
 		765259F91FB5A99100058788 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5AD6D1BE74ACDDD6F33F459F /* Pods-MobileChatExample.debug.xcconfig */;
+			baseConfigurationReference = CEC857A6E609E0EE6E78E4D5 /* Pods-MobileChatExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;
@@ -378,7 +381,7 @@
 		};
 		765259FA1FB5A99100058788 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F8C5EB78D74615007AAE9618 /* Pods-MobileChatExample.release.xcconfig */;
+			baseConfigurationReference = B486BA7B428768CC999D9B6F /* Pods-MobileChatExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;

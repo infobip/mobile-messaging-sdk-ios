@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 
-
 extension CustomEventObject {
     @NSManaged public var eventDate: Date
 	@NSManaged public var payload: [String: Any]?

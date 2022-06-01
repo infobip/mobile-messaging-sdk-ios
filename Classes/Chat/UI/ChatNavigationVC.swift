@@ -35,7 +35,7 @@ open class MMChatNavigationVC: UINavigationController {
     
     static func makeChatNavigationViewController(transitioningDelegate: UIViewControllerTransitioningDelegate? = nil) -> MMChatNavigationVC {
         if let transitioningDelegate = transitioningDelegate {
-            let nc = MMChatNavigationVC.init(rootViewController : MMChatViewController(type: .custom, image: UIImage(mm_named: "backButton")))
+            let nc = MMChatNavigationVC.init(rootViewController : MMChatViewController(type: .custom, image: UIImage(mm_chat_named: "backButton")))
             nc.customTransitioningDelegate = transitioningDelegate
             nc.transitioningDelegate = transitioningDelegate
             nc.modalPresentationStyle = .custom

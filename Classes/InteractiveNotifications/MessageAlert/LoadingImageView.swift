@@ -22,8 +22,7 @@ class LoadingImageView: UIView {
     }
     
     func loadViewFromNib() -> UIView {
-        let bundle = Bundle(for: type(of: self))
-        let nib = UINib(nibName: "LoadingImageView", bundle: bundle)
+        let nib = UINib(nibName: "LoadingImageView", bundle: MobileMessaging.resourceBundle)
         let view = nib.instantiate(withOwner: self, options: nil)[0] as! UIView
         
         return view

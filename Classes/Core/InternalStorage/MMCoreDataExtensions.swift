@@ -6,7 +6,6 @@
 //
 
 import CoreData
-import MobileMessaging.Private
 
 extension String {
 	/// Skips initial space characters (whitespaceSet). Returns true if the firsh character is one of "Y", "y", "T", "t".

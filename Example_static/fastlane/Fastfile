@@ -1,0 +1,99 @@
+# vim:set sw=2 ft=ruby
+fastlane_version "1.68.0"
+default_platform :ios
+
+platform :ios do
+	before_all do
+		match
+		`osascript -e 'tell app "Simulator" to quit'`
+		`osascript -e 'tell app "Xcode" to quit'`
+		sleep(5)
+		ENV["DEVELOPER_DIR"] = "/Applications/Xcode.app"
+		ENV["FASTLANE_EXPLICIT_OPEN_SIMULATOR"] = "2"
+		xcode_select("/Applications/Xcode.app")
+		wait_xcrun
+	end
+
+	desc "Runs all the tests"
+	lane :test do
+		load_keys
+		cocoapods
+		test_on_simulator
+	end
+
+	lane :local_test do
+		cocoapods
+		test_on_simulator
+	end
+
+	desc "Runs all the tests on Simulators"
+	def test_on_simulator
+		begin
+			# scan(
+			# 	skip_build: true,
+			# 	scheme: "MobileMessagingExample",
+			# 	devices: ["iPhone 6 (9.3)"]
+			# 	)
+			# scan(
+			# 	skip_build: true,
+			# 	scheme: "MobileMessagingExample",
+			# 	devices: ["iPhone 7 (10.3.1)"]
+			# 	)
+			# scan(
+			# 	skip_build: true,
+			# 	scheme: "MobileMessagingExample",
+			# 	devices: ["iPhone X (11.4)"]
+			# 	)
+			scan(
+				clean: true,
+				skip_build: false,
+				scheme: "MobileMessagingExample",
+				devices: ["iPhone 11"]
+				)
+		end
+	end
+
+	desc "Runs all the tests on iPhone 5"
+	def test_on_device 
+		begin
+			scan(
+				clean: true,
+				skip_build: false,
+				scheme: "MobileMessagingExample_Tests_Device",
+				destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
+				)
+		end
+	end
+
+	def change_log_since_last_tag
+		# http://git-scm.com/docs/pretty-formats
+		# <short hash> <commit title>
+		return changelog_from_git_commits(pretty: '%h %s')
+	end
+
+	def load_keys
+		begin
+			import("keys")
+		rescue => exception
+			UI.important("fastlane/keys file not found. To use this Fastfile, copy fastlane/keys.template into fastlane/keys and fill in the values, will try to use ENV variables")
+			ENV["SIGH_USERNAME"] = ENV["APPLE_ID"]
+			ENV["PILOT_APPLE_ID"] = ENV["APPLE_ID"]
+			ENV["DELIVER_USERNAME"] = ENV["APPLE_ID"]
+		end
+	end
+
+	desc "Build a snapshot version"
+	lane :snapshot_build do |options|
+		load_keys
+
+		cocoapods(repo_update: true)
+		
+		unless options[:no_tests]
+			test_on_simulator
+		end
+
+		unless options[:no_device_tests]
+			test_on_device
+		end
+	end
+end

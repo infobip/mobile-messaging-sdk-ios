@@ -100,7 +100,7 @@ extension Set where Element: MMNotificationCategory {
 }
 
 struct NotificationCategories {
-	static let path: String? = MobileMessaging.bundle.path(forResource: NotificationCategoryConstants.plistName, ofType: "plist")
+	static let path: String? = MobileMessaging.resourceBundle.path(forResource: NotificationCategoryConstants.plistName, ofType: "plist")
 
     static var predefinedCategories: Set<MMNotificationCategory>? {
 		if let path = path, let categories = NSArray(contentsOfFile: path) as? [[String: Any]] {

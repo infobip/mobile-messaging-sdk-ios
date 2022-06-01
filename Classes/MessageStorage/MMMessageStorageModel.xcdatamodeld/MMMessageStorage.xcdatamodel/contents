@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14903" systemVersion="19A583" minimumToolsVersion="Xcode 9.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
-    <entity name="Message" representedClassName=".Message" syncable="YES">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21E258" minimumToolsVersion="Xcode 9.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+    <entity name="Message" representedClassName="Message" syncable="YES">
         <attribute name="createdDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="deliveryMethod" attributeType="Integer 16" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="deliveryReportedDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -16,6 +16,6 @@
         </fetchIndex>
     </entity>
     <elements>
-        <element name="Message" positionX="-63" positionY="-18" width="128" height="193"/>
+        <element name="Message" positionX="-63" positionY="-18" width="128" height="179"/>
     </elements>
 </model>

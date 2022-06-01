@@ -114,7 +114,7 @@ final class MMCoreDataStorage: NamedLogger {
 	//MARK: Private
 	private let managedObjectModelName: String
 	private var managedObjectModelBundle: Bundle {
-		return Bundle(for: type(of: self))
+        return MobileMessaging.resourceBundle
 	}
 	private var databaseFileName: String?
 	private var storeOptions: MMStoreOptions?

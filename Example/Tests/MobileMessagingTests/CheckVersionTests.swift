@@ -53,7 +53,7 @@ class CheckVersionTests: MMTestCase {
 	
 	func testThatValidationTimeoutWorks() {
         MMTestCase.startWithCorrectApplicationCode()
-        versionManager = VersionManagerMock(mmContext: self.mobileMessagingInstance, onlineVersion: mobileMessagingVersion)
+        versionManager = VersionManagerMock(mmContext: self.mobileMessagingInstance, onlineVersion: MMVersion.mobileMessagingVersion)
         versionManager.lastCheckDate = nil
         
 		weak var expectationUpToDate = self.expectation(description: "up to date case")

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15702" systemVersion="19D76" minimumToolsVersion="Xcode 9.0" sourceLanguage="Swift" userDefinedModelVersionIdentifier="4">
-    <entity name="CustomEventObject" representedClassName=".CustomEventObject" syncable="YES">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21E258" minimumToolsVersion="Xcode 9.0" sourceLanguage="Swift" userDefinedModelVersionIdentifier="4">
+    <entity name="CustomEventObject" representedClassName="CustomEventObject" syncable="YES">
         <attribute name="definitionId" attributeType="String" syncable="YES"/>
         <attribute name="eventDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="payload" attributeType="Transformable" valueTransformerName="MobileMessaging.DefaultTransformer" syncable="YES"/>
         <attribute name="pushRegistrationId" attributeType="String" syncable="YES"/>
     </entity>
-    <entity name="GeoEventReportObject" representedClassName=".GeoEventReportObject" syncable="YES">
+    <entity name="GeoEventReportObject" representedClassName="GeoEventReportObject" syncable="YES">
         <attribute name="campaignId" attributeType="String" syncable="YES"/>
         <attribute name="eventDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="eventType" attributeType="String" syncable="YES"/>
@@ -16,7 +16,7 @@
         <attribute name="sdkMessageId" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="InstallationManagedObject" syncable="YES"/>
-    <entity name="MessageManagedObject" representedClassName=".MessageManagedObject" syncable="YES">
+    <entity name="MessageManagedObject" representedClassName="MessageManagedObject" syncable="YES">
         <attribute name="campaignId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="campaignStateValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="creationDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -36,7 +36,7 @@
             <fetchIndexElement property="messageId" type="Binary" order="ascending"/>
         </fetchIndex>
     </entity>
-    <entity name="UserSessionReportObject" representedClassName=".UserSessionReportObject" syncable="YES">
+    <entity name="UserSessionReportObject" representedClassName="UserSessionReportObject" syncable="YES">
         <attribute name="endDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="pushRegistrationId" attributeType="String" syncable="YES"/>
         <attribute name="startDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -46,10 +46,10 @@
         </fetchIndex>
     </entity>
     <elements>
-        <element name="CustomEventObject" positionX="-54" positionY="108" width="128" height="103"/>
-        <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="150"/>
+        <element name="CustomEventObject" positionX="-54" positionY="108" width="128" height="89"/>
+        <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="134"/>
         <element name="InstallationManagedObject" positionX="-54" positionY="117" width="128" height="45"/>
-        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="223"/>
-        <element name="UserSessionReportObject" positionX="-45" positionY="117" width="128" height="103"/>
+        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="209"/>
+        <element name="UserSessionReportObject" positionX="-45" positionY="117" width="128" height="89"/>
     </elements>
 </model>

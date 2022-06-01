@@ -11,7 +11,7 @@ class MMLocalization {
 		guard let key = key else {
 			return defaultString
 		}
-		return MobileMessaging.bundle.localizedString(forKey: key, value: defaultString, table: "MobileMessaging")
+        return MobileMessaging.resourceBundle.localizedString(forKey: key, value: defaultString, table: "MobileMessaging")
 	}
 	class func localizedString(forKey key: String?, defaultString: String) -> String {
 		guard let key = key else {

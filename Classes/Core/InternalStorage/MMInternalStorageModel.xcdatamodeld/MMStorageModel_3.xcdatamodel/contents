@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14903" systemVersion="19A583" minimumToolsVersion="Xcode 9.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="3">
-    <entity name="GeoEventReportObject" representedClassName=".GeoEventReportObject" syncable="YES">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21E258" minimumToolsVersion="Xcode 9.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="3">
+    <entity name="GeoEventReportObject" representedClassName="GeoEventReportObject" syncable="YES">
         <attribute name="campaignId" attributeType="String" syncable="YES"/>
         <attribute name="eventDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="eventType" attributeType="String" syncable="YES"/>
@@ -10,7 +10,7 @@
         <attribute name="sdkMessageId" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="InstallationManagedObject" syncable="YES"/>
-    <entity name="MessageManagedObject" representedClassName=".MessageManagedObject" syncable="YES">
+    <entity name="MessageManagedObject" representedClassName="MessageManagedObject" syncable="YES">
         <attribute name="campaignId" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="campaignStateValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="creationDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -31,8 +31,8 @@
         </fetchIndex>
     </entity>
     <elements>
-        <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="150"/>
+        <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="134"/>
         <element name="InstallationManagedObject" positionX="-54" positionY="117" width="128" height="45"/>
-        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="223"/>
+        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="209"/>
     </elements>
 </model>

@@ -75,7 +75,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         view.addSubview(composeBarView)
         updateViewsFor(safeAreaInsets: safeAreaInsets, safeAreaLayoutGuide: view.safeAreaLayoutGuide)
         scrollView.delegate = self
-        composeBarView.utilityButtonImage = UIImage(mm_named: "attachmentButton")?.withRenderingMode(.alwaysTemplate)
+        composeBarView.utilityButtonImage = UIImage(mm_chat_named: "attachmentButton")?.withRenderingMode(.alwaysTemplate)
     }
         
     override func updateViewsFor(safeAreaInsets: UIEdgeInsets, safeAreaLayoutGuide: UILayoutGuide) {

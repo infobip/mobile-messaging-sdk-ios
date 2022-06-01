@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-
+@objc(GeoEventReportObject)
 final class GeoEventReportObject: NSManagedObject, FetchableResult {
 
 // Insert code here to add functionality to your managed object subclass

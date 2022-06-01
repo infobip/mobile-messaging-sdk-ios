@@ -9,7 +9,7 @@ $chatPodName = 'MobileMessaging/InAppChat'
 def includeMobileMessagingPods
 	pod $podName, :path => '../'
 	pod $geoPodName, :path => '../'
-    pod $chatPodName, :path => '../'
+	pod $chatPodName, :path => '../'
 end
 
 target 'MobileMessagingExample' do
@@ -20,7 +20,7 @@ target 'MobileMessagingExample' do
 end
 
 target 'MobileMessagingExample_Tests' do
-    includeMobileMessagingPods
+	includeMobileMessagingPods
 end
 
 target 'MobileMessagingExample_Tests_Device' do

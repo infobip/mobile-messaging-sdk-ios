@@ -11,6 +11,6 @@ class ChatLocalization {
         guard let key = key else {
             return defaultString
         }
-        return MobileMessaging.bundle.localizedString(forKey: key, value: defaultString, table: "InAppChat")
+        return MMInAppChatService.resourceBundle.localizedString(forKey: key, value: defaultString, table: "InAppChat")
     }
 }

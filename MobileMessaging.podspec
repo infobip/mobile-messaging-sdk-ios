@@ -13,24 +13,22 @@ Pod::Spec.new do |s|
     s.requires_arc  = true
     s.pod_target_xcconfig =  {
         'SWIFT_VERSION' => '5',
-        'OTHER_SWIFT_FLAGS[config=Debug]' => '-DDEBUG'
+        'OTHER_SWIFT_FLAGS[config=Debug]' => '$(inherited) -DDEBUG'
     }
-
     s.default_subspec = 'CocoaLumberjack'
-    s.module_map = 'MobileMessaging.modulemap'
 
     s.subspec 'Core' do |core|
         core.frameworks = 'CoreData', 'CoreTelephony', 'SystemConfiguration'
-        core.resources = 'Classes/InteractiveNotifications/MessageAlert/*.xib', 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcmappingmodel', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings'
-        core.public_header_files = 'Classes/Core/**/*.h','Classes/MobileMessaging-umbrella.h'
-        core.private_header_files = 'Classes/Vendor/**/*.h'
-        core.source_files = 'Classes/Core/**/*.{h,m,swift}', 'Classes/Vendor/**/*.{h,m,swift}', 'Classes/MessageStorage/**/*.{h,m,swift}', 'Classes/RichNotifications/**', 'Classes/UserSession/**', 'Classes/InteractiveNotifications/**/*.{h,m,swift}', 'Classes/MobileMessaging-umbrella.h'
+        core.resource_bundles = {'MMCore' => ['Classes/InteractiveNotifications/MessageAlert/*.xib', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings', 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcmappingmodel']}
+        core.public_header_files = 'Classes/Core/**/*.h', 'Classes/Vendor/SwiftTryCatch/*.h'
+        core.private_header_files = 'Classes/Vendor/Alamofire/*.h', 'Classes/Vendor/CryptoSwift/*.h', 'Classes/Vendor/Keychain/*.h', 'Classes/Vendor/Kingsfisher/*.h', 'Classes/Vendor/PSOperations/*.h', 'Classes/Vendor/SwiftyJSON/*.h'
+        core.source_files = 'Classes/Core/**/*.{h,m,swift}', 'Classes/Vendor/**/*.{h,m,swift}', 'Classes/MessageStorage/**/*.{h,m,swift}', 'Classes/RichNotifications/**', 'Classes/UserSession/**', 'Classes/InteractiveNotifications/**/*.{h,m,swift}', 'Headers/Public/MobileMessaging/MobileMessaging-umbrella.h'
     end
 
     s.subspec 'CocoaLumberjack' do |cl|
         cl.dependency 'MobileMessaging/Core'
         cl.source_files = 'Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
-        cl.dependency 'CocoaLumberjack', '3.7.4'
+        cl.dependency 'CocoaLumberjack/Swift', '3.7.4'
     end
 
     s.subspec 'Geofencing' do |geo|
@@ -43,6 +41,6 @@ Pod::Spec.new do |s|
         chat.frameworks = 'AudioToolbox'
         chat.dependency 'MobileMessaging/Core'
         chat.source_files = 'Classes/Chat/**/*.{h,m,swift}'
-        chat.resources = 'Classes/Chat/Resources/**/*.{xcassets,png,html}', 'Classes/Chat/Localization/**/*.strings'
+        chat.resource_bundles = {'MMInAppChat' => ['Classes/Chat/Resources/**/*.{xcassets,png,html}', 'Classes/Chat/Localization/**/*.strings']}
     end
 end

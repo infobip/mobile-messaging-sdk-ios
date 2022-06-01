@@ -9,5 +9,6 @@
 import Foundation
 import CoreData
 
+@objc(InstallationManagedObject)
 final class InstallationManagedObject: NSManagedObject, FetchableResult {
 }

@@ -47,7 +47,7 @@ class ChatWebView: WKWebView {
 	private func request(forWidgetId widgetId: String, pushRegId: String) -> URLRequest? {
 		logDebug("pushregId: \(pushRegId) widgetId: \(widgetId)")
 		
-		guard let url = MobileMessaging.bundle.url(forResource: "ChatConnector", withExtension: "html"),
+		guard let url = MMInAppChatService.resourceBundle.url(forResource: "ChatConnector", withExtension: "html"),
 		      loadFileURL(url, allowingReadAccessTo: url) != nil,
 		      var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
 				logDebug("can't load ChatConnector.html")

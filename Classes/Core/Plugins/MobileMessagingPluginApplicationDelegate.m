@@ -3,7 +3,13 @@
 //
 
 #import "MobileMessagingPluginApplicationDelegate.h"
+
+#if __has_include("MobileMessaging-Swift.h")
+#import <MobileMessaging-Swift.h>
+#else
 #import <MobileMessaging/MobileMessaging-Swift.h>
+#endif
+
 
 NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.application-launched-by-notification";
 

@@ -37,7 +37,7 @@ extension NSArray: MMAttributeType {}
 
 extension Dictionary where Value == MMAttributeType, Key == String {
 	func assertCustomAttributesValid() {
-		assert(self.validateListObjectsContainOnlySupportedTypes(), "One of the objects in list has unsupported field datatype. Check documentation https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations.")
+        assert(self.validateListObjectsContainOnlySupportedTypes(), "One of the objects in list has unsupported field datatype. Check documentation https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations.")
 		assert(self.validateListObjectsHaveTheSameStructure(), "One of the object in list has different model. Check documentation https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations.")
 	}
 	

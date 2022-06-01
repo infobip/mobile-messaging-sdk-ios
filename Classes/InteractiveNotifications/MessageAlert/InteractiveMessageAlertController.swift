@@ -33,7 +33,7 @@ class InteractiveMessageAlertController: UIViewController {
 		self.image = image
 		self.actionHandler = actionHandler
 		
-		super.init(nibName: "AlertController", bundle: Bundle(for: type(of: self)))
+        super.init(nibName: "AlertController", bundle: MobileMessaging.resourceBundle)
 		
 		self.buttons = {
 			let openAction = openTitle != nil ? MMNotificationAction.openAction(title: openTitle!) : MMNotificationAction.openAction()
@@ -61,7 +61,7 @@ class InteractiveMessageAlertController: UIViewController {
 		self.image = image
 		self.actionHandler = actionHandler
 		
-		super.init(nibName: "AlertController", bundle: Bundle(for: type(of: self)))
+        super.init(nibName: "AlertController", bundle: MobileMessaging.resourceBundle)
 		
 		self.buttons = {
 			let ret = category.actions.map { action in

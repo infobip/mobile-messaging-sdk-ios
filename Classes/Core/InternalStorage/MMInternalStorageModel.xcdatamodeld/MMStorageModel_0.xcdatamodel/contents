@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14903" systemVersion="19A583" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="0">
-    <entity name="GeoEventReportObject" representedClassName=".GeoEventReportObject" syncable="YES">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21E258" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="0">
+    <entity name="GeoEventReportObject" representedClassName="GeoEventReportObject" syncable="YES">
         <attribute name="campaignId" attributeType="String" syncable="YES"/>
         <attribute name="eventDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="eventType" attributeType="String" syncable="YES"/>
@@ -9,7 +9,7 @@
         <attribute name="messageShown" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="sdkMessageId" attributeType="String" syncable="YES"/>
     </entity>
-    <entity name="InstallationManagedObject" representedClassName=".InstallationManagedObject" syncable="YES">
+    <entity name="InstallationManagedObject" representedClassName="InstallationManagedObject" syncable="YES">
         <attribute name="applicationCode" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="badgeNumber" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="customUserData" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
@@ -25,7 +25,7 @@
         <attribute name="predefinedUserData" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
         <attribute name="systemDataHash" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
     </entity>
-    <entity name="MessageManagedObject" representedClassName=".MessageManagedObject" syncable="YES">
+    <entity name="MessageManagedObject" representedClassName="MessageManagedObject" syncable="YES">
         <attribute name="campaignId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="campaignStateValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="creationDate" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -40,8 +40,8 @@
         <attribute name="seenStatusValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
     </entity>
     <elements>
-        <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="150"/>
-        <element name="InstallationManagedObject" positionX="-63" positionY="-18" width="128" height="253"/>
-        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="223"/>
+        <element name="GeoEventReportObject" positionX="-63" positionY="63" width="128" height="134"/>
+        <element name="InstallationManagedObject" positionX="-63" positionY="-18" width="128" height="239"/>
+        <element name="MessageManagedObject" positionX="-63" positionY="18" width="128" height="209"/>
     </elements>
 </model>

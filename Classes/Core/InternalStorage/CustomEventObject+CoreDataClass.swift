@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-
+@objc(CustomEventObject)
 final class CustomEventObject: NSManagedObject, FetchableResult {
 
 }

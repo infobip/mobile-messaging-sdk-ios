@@ -95,7 +95,7 @@ public class MMUserAgent: NSObject {
 	}
 
 	public var libraryVersion: String {
-		return (MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? mobileMessagingVersion)
+        return (MobileMessaging.bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? MMVersion.mobileMessagingVersion)
 	}
 	
 	public var libraryName: String {

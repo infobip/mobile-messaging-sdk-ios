@@ -8,6 +8,7 @@
 import Foundation
 import CoreData
 
+@objc(Message)
 public final class Message: NSManagedObject, FetchableResult, UpdatableResult {
 
 	static func makeMtMessage(from message: MMBaseMessage, context: NSManagedObjectContext) -> Message? {

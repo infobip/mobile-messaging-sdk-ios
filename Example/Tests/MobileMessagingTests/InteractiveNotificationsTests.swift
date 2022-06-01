@@ -214,8 +214,9 @@ class InteractiveNotificationsTests: MMTestCase {
 
 class PredefinedCategoriesTest {
 	var bundle: Bundle? {
-		return Bundle(identifier:"org.cocoapods.MobileMessaging")
+        return MobileMessaging.resourceBundle
 	}
+    
 	var path: String? {
 		return bundle?.path(forResource: "PredefinedNotificationCategories", ofType: "plist")
 	}

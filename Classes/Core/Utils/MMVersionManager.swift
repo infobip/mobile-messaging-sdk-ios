@@ -84,8 +84,8 @@ class VersionManager: NamedLogger {
 
 	func handleResult(result: LibraryVersionResult) {
 		if let response = result.value {
-			if shouldShowNewVersionWarning(onlineVersion: response.libraryVersion, localVersion: mobileMessagingVersion) {
-				showNewVersionWarning(localVersion: mobileMessagingVersion, response: response)
+            if shouldShowNewVersionWarning(onlineVersion: response.libraryVersion, localVersion: MMVersion.mobileMessagingVersion) {
+                showNewVersionWarning(localVersion: MMVersion.mobileMessagingVersion, response: response)
 			} else {
 				handleUpToDateCase()
 			}

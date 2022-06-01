@@ -1,0 +1,41 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+platform :ios, '12.0'
+
+$podName = 'MobileMessaging'
+$geoPodName = 'MobileMessaging/Geofencing'
+$chatPodName = 'MobileMessaging/InAppChat'
+
+def includeMobileMessagingPods
+	pod $podName, :path => '../'
+	pod $geoPodName, :path => '../'
+	pod $chatPodName, :path => '../'
+end
+
+target 'MobileMessagingExample_static' do
+  includeMobileMessagingPods
+  
+  target 'NotificationServiceExtension' do
+    inherit! :search_paths
+  end
+  
+  target 'MobileMessagingExample_static_Tests' do
+    inherit! :search_paths
+  end
+
+end
+
+target 'MobileMessagingExample_static_Tests_Device' do
+	includeMobileMessagingPods
+end
+
+post_install do |installer|
+	installer.pods_project.targets.each do |target|
+		if target.name == 'MobileMessaging'
+			target.build_configurations.each do |config|
+				config.build_settings['ENABLE_TESTABILITY'] = 'YES' # for this particular project we want the SDK to be testable
+				config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
+			end
+		end
+	end
+end

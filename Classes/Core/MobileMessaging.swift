@@ -793,6 +793,14 @@ public final class MobileMessaging: NSObject, NamedLogger {
     lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()
     
     static let bundle = Bundle(for: MobileMessaging.self)
+    static let resourceBundle: Bundle = {
+        guard let resourceBundleURL = MobileMessaging.bundle.url(forResource: "MMCore", withExtension: "bundle"),
+              let result = Bundle(url: resourceBundleURL) else {
+            //in case of Carthage usage, MobileMessaging bundle will be used for getting resources
+            return MobileMessaging.bundle
+        }
+        return result
+    }()
     
     let queue = DispatchQueue(label: "com.mobile-messaging.queue.concurrent.main")
     

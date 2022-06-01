@@ -25,7 +25,7 @@ class ChatAttachmentPreview: UIView {
     
     lazy var errorView: UIImageView = {
         let view = UIImageView(frame: bounds)
-        view.image = UIImage(mm_named: "fileNotFound")?.withRenderingMode(.alwaysTemplate)
+        view.image = UIImage(mm_chat_named: "fileNotFound")?.withRenderingMode(.alwaysTemplate)
         view.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
         view.contentMode = .center
         view.isHidden = true

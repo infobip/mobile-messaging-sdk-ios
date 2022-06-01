@@ -38,6 +38,15 @@ extension MobileMessaging {
 public class MMInAppChatService: MobileMessagingService {
     private let q: DispatchQueue
     static var sharedInstance: MMInAppChatService?
+    static let resourceBundle: Bundle = {
+        guard let resourceBundleURL = MobileMessaging.bundle.url(forResource: "MMInAppChat", withExtension: "bundle"),
+              let bundle = Bundle(url: resourceBundleURL) else {
+            //in case of Carthage usage, MobileMessaging bundle will be used
+            return MobileMessaging.bundle
+        }
+        return bundle
+    }()
+    
     private let chatMessageCounterService: ChatMessageCounterService
     private let getWidgetQueue: MMOperationQueue
     private var chatWidget: ChatWidget?
