@@ -16,9 +16,11 @@ platform :ios do
 
 	desc "Runs all the tests"
 	lane :test do
+		ensure_git_status_clean
 		load_keys
 		cocoapods
 		test_on_simulator
+		reset_git_repo
 	end
 
 	lane :local_test do
