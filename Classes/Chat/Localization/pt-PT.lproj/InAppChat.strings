@@ -2,7 +2,7 @@
 "mm_send_message_placeholder" = "Envie uma mensagem";
 "mm_action_sheet_take_photo_or_video" = "Tirar foto ou vídeo";
 "mm_action_sheet_photo_library" = "Biblioteca de fotos";
-"mm_action_sheet_browse" = "Squeaky toy";
+"mm_action_sheet_browse" = "Navegar";
 "mm_button_settings" = "Configurações";
 "mm_attachment_upload_failed_alert_title" = "Falha no upload do anexo";
 "mm_attachment_upload_failed_alert_message" = "Tamanho máximo permitido excedido";

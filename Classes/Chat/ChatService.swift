@@ -259,6 +259,14 @@ public class MMInAppChatService: MobileMessagingService {
             self.delegate?.inAppChatIsEnabled?(self.isConfigurationSynced)
         }
     }
+    
+    /// Method for setting the chat language, both in the WKWebView's system messages and the inputs. We'll consider only the left side of a locale and try to recognise the language. If unsupported, English will be set instead. Language must be set before WKWebView is loaded or presented.
+    @objc public func setLanguage(_ localeString: String) {
+        let separator = localeString.contains("_") ? "_" : "-"
+        let components = localeString.components(separatedBy: separator)
+        MMLanguage.chatLanguage = MMLanguage.mapLanguage(from: components.first ??
+                                                         String(localeString.prefix(2)))
+    }
 }
 
 protocol ChatWebViewDelegate: AnyObject {

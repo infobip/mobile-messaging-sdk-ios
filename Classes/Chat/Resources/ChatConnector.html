@@ -55,6 +55,10 @@
                        'type': 'DRAFT'
                    });
            }
+           
+           function setLanguage(language) {
+               liveChat('set_language', language);
+           }
 	   
 		   function getQueryParameter(name){
 			  if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))

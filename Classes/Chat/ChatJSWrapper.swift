@@ -38,6 +38,18 @@ extension WKWebView: ChatJSWrapper {
             self.logDebug("sendDraft call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
         }
     }
+    
+    func setLanguage(_ language: MMLanguage? = nil) {
+        let mmLanguage = language ?? MMLanguage.chatLanguage // If never saved, it is MobileMessaging installation language (or English as default)
+        MMLanguage.chatLanguage = mmLanguage
+        guard let localeEscaped = mmLanguage.locale.javaScriptEscapedString() else {
+            self.logDebug("setLanguage not called, unable to obtain escaped localed for \(mmLanguage.locale)")
+        return }
+        self.evaluateJavaScript("setLanguage(\(localeEscaped))") {
+            (response, error) in
+            self.logDebug("setLanguage call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+        }
+    }
 }
 
 extension String

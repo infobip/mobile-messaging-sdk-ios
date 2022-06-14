@@ -18,6 +18,7 @@ class ViewController: UIViewController, MMInAppChatDelegate {
 	@IBOutlet weak var presentRootNavigationVCButton: UIButton!
     @IBOutlet weak var presentNavigationRootVCCustomTransButton: UIButton!
     @IBOutlet weak var showChatInTabBar: UIButton!
+    @IBOutlet weak var setLanguageBtn: UIButton!
     
     override func viewDidLoad() {
 		super.viewDidLoad()
@@ -54,5 +55,6 @@ class ViewController: UIViewController, MMInAppChatDelegate {
 		presentRootNavigationVCButton.isEnabled = enabled
         presentNavigationRootVCCustomTransButton.isEnabled = enabled
         showChatInTabBar.isEnabled = enabled
+        setLanguageBtn.isEnabled = enabled
 	}
 }

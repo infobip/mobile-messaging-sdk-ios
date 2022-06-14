@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -34,7 +34,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PsB-pf-9zh">
-                                <rect key="frame" x="53" y="77" width="288" height="240"/>
+                                <rect key="frame" x="53" y="77" width="288" height="275"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnd-DA-n6K">
                                         <rect key="frame" x="0.0" y="0.0" width="288" height="30"/>
@@ -86,6 +86,13 @@
                                             <segue destination="XRw-Ph-JoT" kind="show" id="A5J-Od-7MI"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9rW-Az-yU9">
+                                        <rect key="frame" x="0.0" y="245" width="288" height="30"/>
+                                        <state key="normal" title="setLanguage"/>
+                                        <connections>
+                                            <segue destination="geX-2H-dmN" kind="show" id="FO4-lo-f39"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </stackView>
                         </subviews>
@@ -101,6 +108,7 @@
                     <connections>
                         <outlet property="presentNavigationRootVCCustomTransButton" destination="lGS-4e-btD" id="aKj-An-jJW"/>
                         <outlet property="presentRootNavigationVCButton" destination="eKg-U7-Pn0" id="a3C-eo-lfr"/>
+                        <outlet property="setLanguageBtn" destination="9rW-Az-yU9" id="ty3-no-PaX"/>
                         <outlet property="showChatInNavigationButton" destination="Gnd-DA-n6K" id="3lW-TG-n5g"/>
                         <outlet property="showChatInNavigationProgrammaticallyButton" destination="Z3a-nU-cMh" id="g0F-Uv-QcJ"/>
                         <outlet property="showChatInTabBar" destination="yHQ-V6-aoc" id="2TG-6G-Kfh"/>
@@ -161,6 +169,35 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9fh-2h-TsH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1073" y="-509"/>
+        </scene>
+        <!--Language TableVC-->
+        <scene sceneID="2NR-8o-klF">
+            <objects>
+                <tableViewController id="geX-2H-dmN" customClass="LanguageTableVC" customModule="MobileChatExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="EOX-6d-ZN6">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="LanguageCell" id="4UC-I0-sAC">
+                                <rect key="frame" x="0.0" y="44.5" width="375" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="4UC-I0-sAC" id="IEP-jc-1Os">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="geX-2H-dmN" id="oVP-1Z-UjA"/>
+                            <outlet property="delegate" destination="geX-2H-dmN" id="A36-Qw-kM2"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" id="pui-eC-OLy"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="IrL-3i-nUk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1127" y="1079"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>

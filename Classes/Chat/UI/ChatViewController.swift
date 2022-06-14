@@ -57,7 +57,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         MobileMessaging.inAppChat?.webViewDelegate = self
         didEnableControls(false)
         registerToChatSettingsChanges()
-        
         webView.backgroundColor = UIColor.white
         view.backgroundColor = UIColor.white
     }
@@ -134,6 +133,10 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     func didLoadWidget(_ widget: ChatWidget) {
         chatWidget = widget
         webView.loadWidget(widget)
+    }
+    
+    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        self.webView.setLanguage()
     }
     
     func didEnableControls(_ enabled: Bool) {

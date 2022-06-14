@@ -11,6 +11,19 @@ class ChatLocalization {
         guard let key = key else {
             return defaultString
         }
-        return MMInAppChatService.resourceBundle.localizedString(forKey: key, value: defaultString, table: "InAppChat")
+        return ChatLocalization.languageBundle().localizedString(
+            forKey: key,
+            value: defaultString,
+            table: "InAppChat")
+    }
+    
+    private class func languageBundle() -> Bundle {
+        guard let langBundleURL = MMInAppChatService.resourceBundle.url(
+            forResource: MMLanguage.chatLanguage.stringValue,
+            withExtension: "lproj"),
+            let langBundle = Bundle(url: langBundleURL) else {
+            return MMInAppChatService.resourceBundle
+        }
+        return langBundle
     }
 }

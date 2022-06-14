@@ -233,6 +233,7 @@
 		A0E4439E24AF59F300387CDD /* MimeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E4439D24AF59F300387CDD /* MimeType.swift */; };
 		A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E4439F24AF5C8300387CDD /* ChatAttachmentUtils.swift */; };
 		A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */; };
+		A8559799284F75FC00DB1A5F /* MMLanguaje.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8559798284F75FC00DB1A5F /* MMLanguaje.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
 		ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203322086642B00E157D7 /* String+Extension.swift */; };
 		ADF203402086642C00E157D7 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203332086642B00E157D7 /* Utils.swift */; };
@@ -549,6 +550,7 @@
 		A0E4439F24AF5C8300387CDD /* ChatAttachmentUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAttachmentUtils.swift; sourceTree = "<group>"; };
 		A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		A8559798284F75FC00DB1A5F /* MMLanguaje.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMLanguaje.swift; sourceTree = "<group>"; };
 		ADF203322086642B00E157D7 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		ADF203332086642B00E157D7 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		ADF203342086642B00E157D7 /* Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
@@ -861,6 +863,7 @@
 		764555E81F78FF4E00B8F14B /* Localization */ = {
 			isa = PBXGroup;
 			children = (
+				A8559798284F75FC00DB1A5F /* MMLanguaje.swift */,
 				764555E91F78FF4E00B8F14B /* MobileMessaging.strings */,
 			);
 			path = Localization;
@@ -1355,6 +1358,7 @@
 				763A1B0123E5D12100C997BC /* SeenReportMapper.swift in Sources */,
 				7601F199208E056500738C1A /* UIButton+Kingfisher.swift in Sources */,
 				76A8A77B2195B97F004F6E39 /* UpdateUserOperation.swift in Sources */,
+				A8559799284F75FC00DB1A5F /* MMLanguaje.swift in Sources */,
 				764556D51F78FFE700B8F14B /* NSLock+Operations.swift in Sources */,
 				76212E7421B04443002FB8D9 /* InstallationAttributeModels.swift in Sources */,
 				76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */,
