@@ -37,8 +37,6 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 - (void)install {
 	if (!self.installed){
 		_applicationDelegate = [UIApplication sharedApplication].delegate;
-		UIResponder *responder = (UIResponder *) _applicationDelegate;
-		self.window = [responder valueForKey:@"window"];
 		[[UIApplication sharedApplication] setDelegate:self];
 		_installed = YES;
 	}
@@ -58,6 +56,14 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 	if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]) {
 		[_applicationDelegate application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 	}
+}
+
+- (void)setWindow:(UIWindow *)window {
+    _applicationDelegate.window = window;
+}
+
+- (UIWindow *)window{
+    return _applicationDelegate.window;
 }
 
 #pragma mark - forwardInvocation
