@@ -1,0 +1,9 @@
+"mm_no_connection_label" = "Немає з'єднання";
+"mm_send_message_placeholder" = "Надіслати повідомлення";
+"mm_action_sheet_take_photo_or_video" = "Зробити фото або відео";
+"mm_action_sheet_photo_library" = "Бібліотека фотографій";
+"mm_action_sheet_browse" = "Переглянути";
+"mm_button_settings" = "Параметри";
+"mm_attachment_upload_failed_alert_title" = "Не вдалося завантажити вкладений файл";
+"mm_attachment_upload_failed_alert_message" = "Перевищено максимально дозволений розмір";
+"mm_permissions_alert_message" = "Щоб надати дозволи, перейдіть у Параметри";
