@@ -99,7 +99,11 @@ class NotificationsInteractionService: MobileMessagingService {
 		presentingVc.present(webViewController, animated: true, completion: nil)
 	}
 
-	fileprivate func handleNotificationTap(message: MM_MTMessage, completion: @escaping () -> Void) {
+    fileprivate func handleNotificationTap(message: MM_MTMessage, attempt: Int = 0, completion: @escaping () -> Void) {
+        guard attempt < 3 else {
+            completion()
+            return
+        }
 		DispatchQueue.main.async {
             let delegate = MobileMessaging.messageHandlingDelegate
             if let urlString = message.webViewUrl?.absoluteString {
@@ -110,13 +114,20 @@ class NotificationsInteractionService: MobileMessagingService {
                } else if let presentingVc = delegate?.inAppPresentingViewController?(for: message) ?? 
                            MobileMessaging.application.visibleViewController {
                    NotificationsInteractionService.presentInAppWebview(urlString, presentingVc, message)
+               } else {
+                   // We retry handleNotificationTap because there might be a condition when MobileMessaging.application.visibleViewController
+                   // is not yet initialized in the app that is being started by user tapping on notification
+                   // we do 2 additional attempts with 1 second interval.
+                   DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+                       self.handleNotificationTap(message: message, attempt: attempt + 1, completion: {})
+                   }
                }
             } else if let browserUrl = message.browserUrl, (delegate?.shouldOpenInBrowser?(browserUrl) ?? true),
                      UIApplication.shared.canOpenURL(browserUrl) {
                UIApplication.shared.open(browserUrl)
             }
-			completion()
 		}
+        completion()
 	}
 
 	fileprivate func makeAction(_ identifier: String?, _ message: MM_MTMessage?, _ categoryId: String?, _ userText: String?) -> MMNotificationAction? {
