@@ -15,21 +15,21 @@ platform :ios do
 	end
 
 	desc "Runs all the tests"
-	lane :test do
+	lane :test do |options|
 		load_keys
 		cocoapods
-		test_on_simulator
+		test_on_simulator(options[:no_tests])
 	end
 
-	lane :local_test do
+	lane :local_test do |options|
 		cocoapods
-		test_on_simulator
+		test_on_simulator(options[:no_tests])
 	end
 
 	desc "Runs all the tests on Simulators"
-	def test_on_simulator
+	def test_on_simulator(no_tests)
 		begin
-			unless options[:no_tests]
+			unless no_tests
 				# scan(
 				# 	skip_build: true,
 				# 	scheme: "MobileMessagingExample",
@@ -56,9 +56,9 @@ platform :ios do
 	end
 
 	desc "Runs all the tests on iPhone 5"
-	def test_on_device 
+	def test_on_device(no_tests)
 		begin
-			unless options[:no_device_tests]
+			unless no_tests
 				scan(
 					clean: true,
 					skip_build: false,
@@ -90,21 +90,21 @@ platform :ios do
 	lane :snapshot_build do |options|
 		load_keys
 		cocoapods(repo_update: true)
-		test_on_simulator
-		test_on_device
+		test_on_simulator(options[:no_tests])
+		test_on_device(options[:no_device_tests])
 	end
 
 	desc "Build a release candidate and publish to Cocoapods"
 	lane :release_candidate do |options|
-		release(is_prerelease: true)
+		release(true, options)
 	end
 
 	desc "Build a release version, publish to Cocoapods"
 	lane :release do |options|
-		release(is_prerelease: false)
+		release(false, options)
 	end
 
-	def release(is_prerelease)
+	def release(is_prerelease, options)
 		begin
 			carthage_xcodeproj_path = "../MobileMessaging.xcodeproj"
 			example_xcodeproj_path = "MobileMessagingExample.xcodeproj"
@@ -141,8 +141,8 @@ platform :ios do
 
 			cocoapods
 
-			test_on_simulator
-			test_on_device
+			test_on_simulator(options[:no_tests])
+			test_on_device(options[:no_device_tests])
 
 			clean_build_artifacts
 			branch = ENV["BRANCH_NAME_TO_BUILD"]
