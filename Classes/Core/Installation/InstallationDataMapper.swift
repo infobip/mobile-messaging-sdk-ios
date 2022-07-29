@@ -25,6 +25,7 @@ class InstallationDataMapper {
 		ret.merge(MobileMessaging.userAgent.systemData.requestPayload, uniquingKeysWith: { (l, r) -> Any in
 			return r
 		})
+        ret["notificationsEnabled"] = true // this is a workaround because registration may happen before user granted any permissions, so that they may be undefined. Forcing true.
 		return adjustFieldNames(requestBody: ret)
 	}
 

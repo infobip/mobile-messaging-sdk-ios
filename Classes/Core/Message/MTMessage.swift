@@ -124,6 +124,10 @@ public class MM_MTMessage: MMBaseMessage, NamedLogger {
 			return false
 		}
 	}
+    
+    public var topic: String? {
+        return originalPayload.mm_inbox?[Consts.InternalDataKeys.topic] as? String
+    }
 
 	/// Indicates whether the message represents a geo campaign subscription
 	public var isGeoSignalingMessage: Bool {
@@ -160,14 +164,14 @@ public class MM_MTMessage: MMBaseMessage, NamedLogger {
 		}
 		return messageTypeValue == Consts.APIValues.MessageTypeValues.chat
 	}
-	
+    	
 	convenience init?(messageSyncResponseJson json: JSON) {
 		if let payload = json.dictionaryObject {
 			self.init(payload: payload,
 					  deliveryMethod: .pull,
 					  seenDate: nil,
 					  deliveryReportDate: nil,
-					  seenStatus: .NotSeen,
+                      seenStatus: (payload.mm_inbox?[Consts.InternalDataKeys.seen] as? Bool) == true ? .SeenNotSent : .NotSeen,
 					  isDeliveryReportSent: false)
 		} else {
 			return nil

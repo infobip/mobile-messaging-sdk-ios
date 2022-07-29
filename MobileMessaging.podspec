@@ -43,4 +43,10 @@ Pod::Spec.new do |s|
         chat.source_files = 'Classes/Chat/**/*.{h,m,swift}'
         chat.resource_bundles = {'MMInAppChat' => ['Classes/Chat/Resources/**/*.{xcassets,png,html}', 'Classes/Chat/Localization/**/*.strings']}
     end
+
+    s.subspec 'Inbox' do |inbox|
+        inbox.dependency 'MobileMessaging/Core'
+        inbox.source_files = 'Classes/Inbox/**/*.{h,m,swift}'
+        inbox.resources = 'Classes/Inbox/Resources/**/*.{xcassets,png,html}', 'Classes/Inbox/Localization/**/*.strings'
+    end
 end

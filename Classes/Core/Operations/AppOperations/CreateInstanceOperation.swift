@@ -14,7 +14,7 @@ class CreateInstanceOperation : MMOperation {
 	let dirtyInstallation: MMInstallation
 	let finishBlock: ((NSError?) -> Void)
 	let requireResponse: Bool
-	var body: [String: Any]
+	let body: [String: Any]
 
     init?(userInitiated: Bool, currentInstallation: MMInstallation, dirtyInstallation: MMInstallation, mmContext: MobileMessaging, requireResponse: Bool, finishBlock: @escaping ((NSError?) -> Void)) {
 		self.mmContext = mmContext
@@ -47,7 +47,6 @@ class CreateInstanceOperation : MMOperation {
 	}
 
 	private func performRequest() {
-		body["notificationsEnabled"] = true // this is a workaround because registration may happen before user granted any permissions, so that they may be undefined. Forcing true.
         mmContext.remoteApiProvider.postInstance(applicationCode: mmContext.applicationCode, body: body, queue: self.underlyingQueue) { (result) in
 			self.handleResult(result)
 			self.finishWithError(result.error)

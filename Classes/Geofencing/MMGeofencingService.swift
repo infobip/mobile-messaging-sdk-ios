@@ -46,7 +46,6 @@ public class MMGeofencingService: MobileMessagingService {
         logDebug("starting ...")
         
         locationManagerQueue.async {
-            self.datasource = GeofencingInMemoryDatasource(storage: self.mmContext.internalStorage)
             self.previousLocation = self.mmContext.internalData().location
             
             guard self.isRunning == false else
@@ -102,6 +101,7 @@ public class MMGeofencingService: MobileMessagingService {
     override func stopService(_ completion: @escaping (Bool) -> Void) {
         self.locationManager.delegate = nil
         super.stopService(completion)
+        MMGeofencingService.sharedInstance = nil
     }
     
     override func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) {
@@ -135,11 +135,6 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 		MMGeofencingService.isGeoServiceNeedsToStart = false
 		start({ _ in completion() })
-	}
-
-	override func mobileMessagingDidStop(_ completion: @escaping () -> Void) {
-		MMGeofencingService.sharedInstance = nil
-        completion()
 	}
 
 	override func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) {
@@ -333,6 +328,7 @@ public class MMGeofencingService: MobileMessagingService {
 	// MARK: - Internal
 	//FIXME: use background queue. (initialize separate NSThread which lives as long as geo service running)
 	init(mmContext: MobileMessaging) {
+        self.datasource = GeofencingInMemoryDatasource(storage: mmContext.internalStorage)
         self.q = DispatchQueue(label: "geofencing-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
         self.eventsHandlingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
         

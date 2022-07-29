@@ -621,8 +621,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
         messageStorages.values.forEach({$0.stop()})
         messageStorages.removeAll()
         
-        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingDidStop"), object: self)
-        
         MobileMessaging.messageHandlingDelegate = nil
         
         cleanupSubservices()

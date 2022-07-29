@@ -40,7 +40,7 @@ class UserDataService: MobileMessagingService {
                 finish(NSError(type: MMInternalErrorType.NoRegistration))
 				return
 			}
-			let body = ["isPrimary": primary]
+			let body = ["isPrimary": primary] // TODO: move this code to mapper class
             mmContext.remoteApiProvider.patchOtherInstance(applicationCode: mmContext.applicationCode, authPushRegistrationId: authPushRegistrationId, pushRegistrationId: pushRegId, body: body, queue: DispatchQueue.main) { (result) in
 				switch result {
 				case .Cancel :

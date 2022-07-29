@@ -32,6 +32,8 @@
 		76174FD92334F8F6000438A8 /* PrimaryDeviceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADB4039820E248690020CA64 /* PrimaryDeviceTests.swift */; };
 		76174FDA2334F9B2000438A8 /* PersonalizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909D21F0B7E9000CF3F8 /* PersonalizeTests.swift */; };
 		76174FDB2334F9B3000438A8 /* PersonalizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7636909D21F0B7E9000CF3F8 /* PersonalizeTests.swift */; };
+		7620450827CE81E8007970F8 /* InboxDataModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7620450727CE81E8007970F8 /* InboxDataModelsTests.swift */; };
+		7620450927CE81FD007970F8 /* InboxDataModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7620450727CE81E8007970F8 /* InboxDataModelsTests.swift */; };
 		762E22D42417BED8003E2696 /* InAppAlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762E22D32417BED8003E2696 /* InAppAlertTests.swift */; };
 		762E22D52417BED8003E2696 /* InAppAlertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762E22D32417BED8003E2696 /* InAppAlertTests.swift */; };
 		762E2E5427F1C04200CFC5ED /* OtherVendorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 762E2E5327F1C04200CFC5ED /* OtherVendorsTests.swift */; };
@@ -97,6 +99,8 @@
 		76E49FEC22118CD1002B810D /* TimezoneFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76E49FE922118B4B002B810D /* TimezoneFormatterTests.swift */; };
 		76ECA83C23327CD100561D13 /* GeofencingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */; };
 		76ECA83D23327CD200561D13 /* GeofencingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50829B761D62056B00BAFA46 /* GeofencingServiceTests.swift */; };
+		76ED0F7C2822BC3100A8231A /* InboxServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76ED0F7B2822BC3100A8231A /* InboxServiceTests.swift */; };
+		76ED0F7D2822BC3100A8231A /* InboxServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76ED0F7B2822BC3100A8231A /* InboxServiceTests.swift */; };
 		8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */; };
 		A013D4521ED8355F00B371C0 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A013D4511ED8355F00B371C0 /* NotificationService.swift */; };
 		A013D4561ED8355F00B371C0 /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A013D44F1ED8355F00B371C0 /* NotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -182,6 +186,8 @@
 		7416ED8734363B76246654C4 /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		7614AD6D20751913004A2F90 /* DepersonalizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepersonalizeTests.swift; sourceTree = "<group>"; };
 		761D091521C7AECC00B326E8 /* InstallationsManagementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationsManagementTests.swift; sourceTree = "<group>"; };
+		7620450727CE81E8007970F8 /* InboxDataModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxDataModelsTests.swift; sourceTree = "<group>"; };
+		76208A3EB90587B54FFE69EC /* Pods-MobileMessagingExample_Tests_Device.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; path = "Pods/Target Support Files/Pods-MobileMessagingExample_Tests_Device/Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; sourceTree = "<group>"; };
 		762E22D32417BED8003E2696 /* InAppAlertTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppAlertTests.swift; sourceTree = "<group>"; };
 		762E2E5327F1C04200CFC5ED /* OtherVendorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherVendorsTests.swift; sourceTree = "<group>"; };
 		762F9D3B22064DCB00A35F1E /* InstallationCoreDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationCoreDataProvider.swift; sourceTree = "<group>"; };
@@ -200,6 +206,7 @@
 		76C3C9B923D6126100562C57 /* UserSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionTests.swift; sourceTree = "<group>"; };
 		76D6C86F219AC7C800D7AC49 /* GeofencingServiceTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofencingServiceTestUtils.swift; sourceTree = "<group>"; };
 		76E49FE922118B4B002B810D /* TimezoneFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneFormatterTests.swift; sourceTree = "<group>"; };
+		76ED0F7B2822BC3100A8231A /* InboxServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxServiceTests.swift; sourceTree = "<group>"; };
 		76F3CAEC20359BBA008DF398 /* ApnsRegistrationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManagerTests.swift; sourceTree = "<group>"; };
 		854CAD8A86B9610693BA4BC7 /* MobileMessaging.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = MobileMessaging.podspec; path = ../MobileMessaging.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		8EC5E6051CEB4A36008D53A3 /* MobileMessagingExample_Tests_Device-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MobileMessagingExample_Tests_Device-Info.plist"; sourceTree = "<group>"; };
@@ -455,6 +462,7 @@
 		A09103D91CABA839001873B4 /* MobileMessagingTests */ = {
 			isa = PBXGroup;
 			children = (
+				7620450727CE81E8007970F8 /* InboxDataModelsTests.swift */,
 				762E2E5327F1C04200CFC5ED /* OtherVendorsTests.swift */,
 				76AAE58025FBF58000E70F13 /* UtilsTests.swift */,
 				7640DC0E2203040000F50470 /* Base */,
@@ -488,6 +496,7 @@
 				76C3C9B923D6126100562C57 /* UserSessionTests.swift */,
 				763A1B0723E82D8400C997BC /* EventsTests.swift */,
 				762E22D32417BED8003E2696 /* InAppAlertTests.swift */,
+				76ED0F7B2822BC3100A8231A /* InboxServiceTests.swift */,
 			);
 			path = MobileMessagingTests;
 			sourceTree = "<group>";
@@ -948,6 +957,7 @@
 				76174FD42334D8DD000438A8 /* SystemDataTests.swift in Sources */,
 				762F9D4A220724A300A35F1E /* DataModelsTests.swift in Sources */,
 				76934B37232C32D100882DAA /* UserDataTests.swift in Sources */,
+				7620450827CE81E8007970F8 /* InboxDataModelsTests.swift in Sources */,
 				762F9D35220649B900A35F1E /* ApplicationCodeHashingTests.swift in Sources */,
 				A0CA35002767251E00517867 /* ServicesSynchronizationTests.swift in Sources */,
 				7640DC4522063FD600F50470 /* CheckVersionTests.swift in Sources */,
@@ -962,6 +972,7 @@
 				76934B33232BD13500882DAA /* LocalMessageFetchingTests.swift in Sources */,
 				763A1B0823E82D8400C997BC /* EventsTests.swift in Sources */,
 				762F9D312206409400A35F1E /* DynamicBaseUrlTests.swift in Sources */,
+				76ED0F7C2822BC3100A8231A /* InboxServiceTests.swift in Sources */,
 				76174FD82334F8F6000438A8 /* PrimaryDeviceTests.swift in Sources */,
 				7640DC4722063FDB00F50470 /* BaseSettingsTests.swift in Sources */,
 				762F9D482207220700A35F1E /* InstallationsManagementTests.swift in Sources */,
@@ -992,6 +1003,8 @@
 				76174FD52334D8DE000438A8 /* SystemDataTests.swift in Sources */,
 				762F9D4B220724A400A35F1E /* DataModelsTests.swift in Sources */,
 				76934B38232C32D200882DAA /* UserDataTests.swift in Sources */,
+				7620450927CE81FD007970F8 /* InboxDataModelsTests.swift in Sources */,
+				76ED0F7D2822BC3100A8231A /* InboxServiceTests.swift in Sources */,
 				762F9D36220649B900A35F1E /* ApplicationCodeHashingTests.swift in Sources */,
 				A0CA35012767251E00517867 /* ServicesSynchronizationTests.swift in Sources */,
 				7640DC4622063FD700F50470 /* CheckVersionTests.swift in Sources */,
