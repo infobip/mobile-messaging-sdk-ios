@@ -47,6 +47,5 @@ Pod::Spec.new do |s|
     s.subspec 'Inbox' do |inbox|
         inbox.dependency 'MobileMessaging/Core'
         inbox.source_files = 'Classes/Inbox/**/*.{h,m,swift}'
-        inbox.resources = 'Classes/Inbox/Resources/**/*.{xcassets,png,html}', 'Classes/Inbox/Localization/**/*.strings'
     end
 end
