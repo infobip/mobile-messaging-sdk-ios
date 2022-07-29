@@ -29,39 +29,43 @@ platform :ios do
 	desc "Runs all the tests on Simulators"
 	def test_on_simulator
 		begin
-			# scan(
-			# 	skip_build: true,
-			# 	scheme: "MobileMessagingExample",
-			# 	devices: ["iPhone 6 (9.3)"]
-			# 	)
-			# scan(
-			# 	skip_build: true,
-			# 	scheme: "MobileMessagingExample",
-			# 	devices: ["iPhone 7 (10.3.1)"]
-			# 	)
-			# scan(
-			# 	skip_build: true,
-			# 	scheme: "MobileMessagingExample",
-			# 	devices: ["iPhone X (11.4)"]
-			# 	)
-			scan(
-				clean: true,
-				skip_build: false,
-				scheme: "MobileMessagingExample",
-				devices: ["iPhone 11"]
-				)
+			unless options[:no_tests]
+				# scan(
+				# 	skip_build: true,
+				# 	scheme: "MobileMessagingExample",
+				# 	devices: ["iPhone 6 (9.3)"]
+				# 	)
+				# scan(
+				# 	skip_build: true,
+				# 	scheme: "MobileMessagingExample",
+				# 	devices: ["iPhone 7 (10.3.1)"]
+				# 	)
+				# scan(
+				# 	skip_build: true,
+				# 	scheme: "MobileMessagingExample",
+				# 	devices: ["iPhone X (11.4)"]
+				# 	)
+				scan(
+					clean: true,
+					skip_build: false,
+					scheme: "MobileMessagingExample",
+					devices: ["iPhone 11"]
+					)
+			end
 		end
 	end
 
 	desc "Runs all the tests on iPhone 5"
 	def test_on_device 
 		begin
-			scan(
-				clean: true,
-				skip_build: false,
-				scheme: "MobileMessagingExample_Tests_Device",
+			unless options[:no_device_tests]
+				scan(
+					clean: true,
+					skip_build: false,
+					scheme: "MobileMessagingExample_Tests_Device",
 				destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
 				)
+			end
 		end
 	end
 
@@ -85,20 +89,13 @@ platform :ios do
 	desc "Build a snapshot version"
 	lane :snapshot_build do |options|
 		load_keys
-
 		cocoapods(repo_update: true)
-		
-		unless options[:no_tests]
-			test_on_simulator
-		end
-
-		unless options[:no_device_tests]
-			test_on_device
-		end
+		test_on_simulator
+		test_on_device
 	end
 
 	desc "Build a release candidate and publish to Cocoapods"
-	lane :relase_candidate do |options|
+	lane :release_candidate do |options|
 		release(is_prerelease: true)
 	end
 
@@ -144,13 +141,8 @@ platform :ios do
 
 			cocoapods
 
-			unless options[:no_tests]
-				test_on_simulator
-			end
-
-			unless options[:no_device_tests]
-				test_on_device
-			end
+			test_on_simulator
+			test_on_device
 
 			clean_build_artifacts
 			branch = ENV["BRANCH_NAME_TO_BUILD"]
