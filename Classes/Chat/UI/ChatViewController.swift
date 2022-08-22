@@ -92,7 +92,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             return
         }
         
-        if #available(iOS 15.0, *) {
+        if #available(iOS 13.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
             
@@ -107,6 +107,10 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             navigationController?.navigationBar.scrollEdgeAppearance = appearance
         } else {
             navigationController?.navigationBar.isTranslucent = false
+            
+            if let navBarColor = settings.navBarColor {
+                navigationController?.navigationBar.backgroundColor = navBarColor
+            }
             
             if let navBarTitleColor = settings.navBarTitleColor {
                 navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : navBarTitleColor]
