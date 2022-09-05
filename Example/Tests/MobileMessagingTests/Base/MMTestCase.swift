@@ -23,6 +23,11 @@ class ApnsRegistrationManagerDisabledStub: ApnsRegistrationManager {
     override func registerForRemoteNotifications(userInitiated: Bool) {
         
     }
+    
+    override init(mmContext: MobileMessaging) {
+        super.init(mmContext: mmContext)
+        self.readyToRegisterForNotifications = true
+    }
 }
 
 class ApnsRegistrationManagerStub: ApnsRegistrationManager {
@@ -32,6 +37,11 @@ class ApnsRegistrationManagerStub: ApnsRegistrationManager {
     
     override func setRegistrationIsHealthy() {
         
+    }
+    
+    override init(mmContext: MobileMessaging) {
+        super.init(mmContext: mmContext)
+        self.readyToRegisterForNotifications = true
     }
 }
 

@@ -15,7 +15,12 @@ class ApnsRegistrationManagerMock: ApnsRegistrationManager {
 	var regResetWasCalled: Bool = false
 	var unregisterCalled: (() -> Void)? = nil
 	var registerCalled: (() -> Void)? = nil
-
+    
+    override init(mmContext: MobileMessaging) {
+        super.init(mmContext: mmContext)
+        self.readyToRegisterForNotifications = true
+    }
+    
 	override var isRegistrationHealthy: Bool {
 		return _isRegistrationHealthy
 	}
