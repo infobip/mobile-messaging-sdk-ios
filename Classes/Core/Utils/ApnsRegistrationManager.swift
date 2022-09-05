@@ -26,6 +26,7 @@ class ApnsRegistrationManager: NamedLogger {
 	}
     
     func stop() {
+        readyToRegisterForNotifications = false
         unregister(userInitiated: false)
         UNUserNotificationCenter.current().delegate = nil
     }
@@ -58,9 +59,17 @@ class ApnsRegistrationManager: NamedLogger {
         
         // we always registering to avoid cases when the device token stored in SDK database becomes outdated (i.e. due to iOS reserve copy restoration). `didRegisterForRemoteNotificationsWithDeviceToken` will return us the most relevant token.
         MobileMessaging.application.registerForRemoteNotifications()
+        readyToRegisterForNotifications = true
 	}
 	
     func didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: Bool, token: Data, completion: @escaping (NSError?) -> Void) {
+        
+        guard readyToRegisterForNotifications else {
+            logDebug("MobileMessaging is not ready to register for notifications")
+            completion(nil)
+            return
+        }
+
 		let tokenStr = token.mm_toHexString
 		logInfo("Application did register with device token \(tokenStr)")
 		
@@ -170,5 +179,7 @@ class ApnsRegistrationManager: NamedLogger {
 			}
 		}
 	}
+    
+    var readyToRegisterForNotifications: Bool = false
 }
 

@@ -12,9 +12,14 @@ class UserDataService: MobileMessagingService {
 
     func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool, completion: @escaping ([MMInstallation]?, NSError?) -> Void) {
         assert(!Thread.isMainThread)
-		let finish: (NSError?) -> Void = { (error) in
+        
+		let finish: (NSError?) -> Void = { [weak self] (error) in
+            guard let _self = self else {
+                completion(nil, nil)
+                return
+            }
 			if error == nil {
-                let installations = self.mmContext.resolveUser().installations
+                let installations = _self.mmContext.resolveUser().installations
                 if let idx = installations?.firstIndex(where: { $0.isPrimaryDevice == true }) {
                     installations?[idx].isPrimaryDevice = false
                 }
@@ -26,7 +31,7 @@ class UserDataService: MobileMessagingService {
 				})
 			}
             DispatchQueue.main.async {
-                completion(self.mmContext.resolveUser().installations, error)
+                completion(_self.mmContext.resolveUser().installations, error)
             }
 		}
 
@@ -71,15 +76,20 @@ class UserDataService: MobileMessagingService {
 			return
 		}
         
-        mmContext.remoteApiProvider.depersonalize(applicationCode: mmContext.applicationCode, pushRegistrationId: authPushRegistrationId, pushRegistrationIdToDepersonalize: pushRegId, queue: installationQueue.underlyingQueue!) { (result) in
+        mmContext.remoteApiProvider.depersonalize(applicationCode: mmContext.applicationCode, pushRegistrationId: authPushRegistrationId, pushRegistrationIdToDepersonalize: pushRegId, queue: installationQueue.underlyingQueue!) { [weak self] (result) in
 
+            guard let _self = self else {
+                completion(nil, nil)
+                return
+            }
+            
 			if result.error == nil {
-				let ins = self.resolveInstallationsAfterLogout(pushRegId)
+				let ins = _self.resolveInstallationsAfterLogout(pushRegId)
 				MMUser.modifyAll(with: { (user) in
 					user.installations = ins
 				})
 			}
-            queuedCompletion(self.mmContext.resolveUser().installations, result.error)
+            queuedCompletion(_self.mmContext.resolveUser().installations, result.error)
 		}
 	}
 
@@ -133,7 +143,7 @@ class UserDataService: MobileMessagingService {
 			currentUser: mmContext.currentUser(),
 			dirtyUser: mmContext.dirtyUser(),
 			mmContext: mmContext,
-			finishBlock: { completion(self.mmContext.resolveUser(), $0) })
+            finishBlock: { [unowned self] in completion(self.mmContext.resolveUser(), $0) })
 		
 		installationQueue.addOperation(op)
 	}

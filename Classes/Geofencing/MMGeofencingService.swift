@@ -102,6 +102,8 @@ public class MMGeofencingService: MobileMessagingService {
     override func stopService(_ completion: @escaping (Bool) -> Void) {
         self.locationManager.delegate = nil
         super.stopService(completion)
+        cancelOperations()
+        MMGeofencingService.sharedInstance = nil
     }
     
     override func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) {
@@ -345,10 +347,6 @@ public class MMGeofencingService: MobileMessagingService {
 			self.locationManager.distanceFilter = GeoConstants.distanceFilter
 			self.locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
 		}
-	}
-	
-	deinit {
-		cancelOperations()
 	}
 	
 	class var isDescriptionProvidedForWhenInUseUsage: Bool {

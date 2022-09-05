@@ -78,11 +78,15 @@ public class MMInAppChatService: MobileMessagingService {
         }
         
 		DispatchQueue.main.async {
-			WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
-													modifiedSince: Date.init(timeIntervalSince1970: 0)) {
-														self.update(withChatWidget: self.chatWidget)
-														completion?()
-			}
+            WKWebsiteDataStore.default().removeData(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+                                                    modifiedSince: Date.init(timeIntervalSince1970: 0)) { [weak self] in
+                guard let _self = self else {
+                    completion?()
+                    return
+                }
+                _self.update(withChatWidget: _self.chatWidget)
+                completion?()
+            }
         }
     }
 	
@@ -116,6 +120,7 @@ public class MMInAppChatService: MobileMessagingService {
 	}
 
     override func suspend() {
+        NotificationCenter.default.removeObserver(self)
         getWidgetQueue.cancelAllOperations()
         isConfigurationSynced = false
         notifyForChatAvailabilityChange()
@@ -125,9 +130,10 @@ public class MMInAppChatService: MobileMessagingService {
         super.suspend()
     }
     
-    override func mobileMessagingDidStop(_ completion: @escaping () -> Void) {
+    override func stopService(_ completion: @escaping (Bool) -> Void) {
+        print("mobileMessagingDidStop chat service")
+        super.stopService(completion)
         MMInAppChatService.sharedInstance = nil
-        completion()
     }
 	
 	override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
@@ -172,10 +178,8 @@ public class MMInAppChatService: MobileMessagingService {
         if MobileMessaging.currentInstallation?.pushRegistrationId != nil {
             syncWithServerIfNeeded(completion)
         } else {
-            NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: MMNotificationRegistrationUpdated), object: nil, queue: nil) { (notification) in
-                self.syncWithServerIfNeeded(completion)
-                NotificationCenter.default.removeObserver(self)
-            }
+            NotificationCenter.default.addObserver(self, selector: #selector(notificationRegistrationUpdatedHandler), name: NSNotification.Name(rawValue: MMNotificationRegistrationUpdated), object: nil)
+            completion(nil)
         }
     }
     
@@ -192,14 +196,19 @@ public class MMInAppChatService: MobileMessagingService {
             completion?(nil)
             return
         }
-		getWidgetQueue.addOperation(GetChatWidgetOperation(mmContext: mmContext) { (error, widget)  in
-            self.chatWidget = widget
-            self.isConfigurationSynced = (error == nil)
-            self.notifyForChatAvailabilityChange()
-            if !self.isConfigurationSynced {
-                self.chatErrors.insert(.configurationSyncError)
+        
+		getWidgetQueue.addOperation(GetChatWidgetOperation(mmContext: mmContext) { [weak self]  (error, widget)  in
+            
+            guard let _self = self else {
+                return
             }
-            self.update(withChatWidget: self.chatWidget)
+            _self.chatWidget = widget
+            _self.isConfigurationSynced = (error == nil)
+            _self.notifyForChatAvailabilityChange()
+            if !_self.isConfigurationSynced {
+                _self.chatErrors.insert(.configurationSyncError)
+            }
+            _self.update(withChatWidget: _self.chatWidget)
             completion?(error)
 		})
 	}
@@ -212,13 +221,27 @@ public class MMInAppChatService: MobileMessagingService {
         if MobileMessaging.currentInstallation?.pushRegistrationId != nil {
             webViewDelegate?.didLoadWidget(chatWidget)
 		} else {
-			NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil, queue: nil) { (notification) in
-                self.webViewDelegate?.didLoadWidget(chatWidget)
-				NotificationCenter.default.removeObserver(self)
-			}
+            NotificationCenter.default.addObserver(self, selector: #selector(notificationInstallationSyncedHandler), name: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil)
 		}
         self.settings.update(withChatWidget: chatWidget)
 	}
+    
+    /*
+     Notifications handling
+     */
+    
+    @objc func notificationInstallationSyncedHandler() {
+        guard let chatWidget = chatWidget else {
+            return
+        }
+        self.webViewDelegate?.didLoadWidget(chatWidget)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil)
+    }
+    
+    @objc func notificationRegistrationUpdatedHandler() {
+        self.syncWithServerIfNeeded { _ in}
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: MMNotificationRegistrationUpdated), object: nil)
+    }
     
     /*
      Errors handling
@@ -236,13 +259,16 @@ public class MMInAppChatService: MobileMessagingService {
     }
     
     private func startReachabilityListener() {
-        networkReachabilityManager?.listener = { status in
+        networkReachabilityManager?.listener = { [weak self] status in
+            guard let _self = self else {
+                return
+            }
             if status == .notReachable {
-                self.chatErrors.insert(.noInternetConnectionError)
+                _self.chatErrors.insert(.noInternetConnectionError)
             } else {
-                if self.chatErrors.contains(.noInternetConnectionError) {
-                    self.chatErrors.remove(.noInternetConnectionError)
-                    self.syncWithServer {_ in}
+                if _self.chatErrors.contains(.noInternetConnectionError) {
+                    _self.chatErrors.remove(.noInternetConnectionError)
+                    _self.syncWithServer {_ in}
                 }
             }
         }

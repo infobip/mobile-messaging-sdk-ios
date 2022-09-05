@@ -103,24 +103,29 @@ class MMMessageHandler: MobileMessagingService {
 		}
 		
         messageHandlingQueue.addOperation(MessageHandlingOperation(userInitiated: userInitiated, messagesToHandle: messages, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
-			{ error, newMessages in
+			{ [weak self] error, newMessages in
+            
+                guard let _self = self else {
+                    completion(.noData)
+                    return
+                }
 				let group =  DispatchGroup()
 				
-				for (_, subservice) in self.mmContext.subservices where subservice.uniqueIdentifier != self.uniqueIdentifier {
+				for (_, subservice) in _self.mmContext.subservices where subservice.uniqueIdentifier != _self.uniqueIdentifier {
 					newMessages?.forEach { m in
 						group.enter()
-						self.logDebug("subservice \(subservice.uniqueIdentifier) will start new message handling \(m.messageId)")
+                        _self.logDebug("subservice \(subservice.uniqueIdentifier) will start new message handling \(m.messageId)")
 						subservice.handleNewMessage(m, completion: { _ in
-							self.logDebug("subservice \(subservice.uniqueIdentifier) did stop new message handling \(m.messageId)")
+                            _self.logDebug("subservice \(subservice.uniqueIdentifier) did stop new message handling \(m.messageId)")
 							group.leave()
 						})
 					}
 					
 					messages.forEach { m in
 						group.enter()
-						self.logDebug("subservice \(subservice.uniqueIdentifier) will start any message handling \(m.messageId)")
+                        _self.logDebug("subservice \(subservice.uniqueIdentifier) will start any message handling \(m.messageId)")
 						subservice.handleAnyMessage(m, completion: { _ in
-							self.logDebug("subservice \(subservice.uniqueIdentifier) did stop any message handling \(m.messageId)")
+                            _self.logDebug("subservice \(subservice.uniqueIdentifier) did stop any message handling \(m.messageId)")
 							group.leave()
 						})
 					}
@@ -128,14 +133,14 @@ class MMMessageHandler: MobileMessagingService {
 		
 				var result = MessageHandlingResult.noData
 				group.enter()
-                self.syncMessages(userInitiated: userInitiated, handlingIteration: handlingIteration, finishBlock: { res in
+                _self.syncMessages(userInitiated: userInitiated, handlingIteration: handlingIteration, finishBlock: { res in
 					result = MessageHandlingResult(res)
 					group.leave()
 				})
 				
                 let q = userInitiated ? DispatchQueue.main : DispatchQueue.global(qos: .default)
 				group.notify(queue: q) {
-					self.logDebug("message handling finished")
+                    _self.logDebug("message handling finished")
 					completion(result)
 				}
 			}))

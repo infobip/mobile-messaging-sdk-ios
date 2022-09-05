@@ -24,6 +24,7 @@ class InstallationDataService: MobileMessagingService {
     override func mobileMessagingWillStop(_ completion: @escaping () -> Void) {
         assert(!Thread.isMainThread)
         MMInstallation.cached.reset()
+        installationQueue.cancelAllOperations()
         completion()
     }
     
@@ -92,7 +93,7 @@ class InstallationDataService: MobileMessagingService {
             userInitiated: userInitiated,
 			currentInstallation: mmContext.currentInstallation(),
 			mmContext: mmContext,
-			finishBlock: { completion(self.mmContext.resolveInstallation(), $0) })
+            finishBlock: { [unowned self] in completion(self.mmContext.resolveInstallation(), $0) })
 		{
 			installationQueue.addOperation(op)
 		} else {
@@ -181,7 +182,12 @@ class InstallationDataService: MobileMessagingService {
 			registrationPushRegIdToUpdate: ci.pushRegistrationId,
 			mmContext: mmContext,
 			requireResponse: false,
-            finishBlock: { self.expireIfNeeded(userInitiated: userInitiated, error: $0, completion) })
+            finishBlock: { [weak self] in
+                guard let _self = self else {
+                    completion(nil)
+                    return
+                }
+                _self.expireIfNeeded(userInitiated: userInitiated, error: $0, completion) })
 			??
 			CreateInstanceOperation(
                 userInitiated: userInitiated,
@@ -189,7 +195,12 @@ class InstallationDataService: MobileMessagingService {
 				dirtyInstallation: di,
 				mmContext: mmContext,
 				requireResponse: true,
-                finishBlock: { self.expireIfNeeded(userInitiated: userInitiated, error: $0, completion) })
+                finishBlock: { [weak self] in
+                    guard let _self = self else {
+                        completion(nil)
+                        return
+                    }
+                    _self.expireIfNeeded(userInitiated: userInitiated, error: $0, completion) })
 		{
 			installationQueue.addOperation(op)
 		} else {

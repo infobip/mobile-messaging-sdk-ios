@@ -120,11 +120,16 @@ class UserSessionService : MobileMessagingService {
 		}
 		let now = MobileMessaging.date.now
 
-        userSessionPersistingQueue.addOperation(UserSessionPersistingOperation(userInitiated: false, mmContext: mmContext, pushRegId: pushRegId, sessionTimestamp: now, context: context, finishBlock: { _ in
+        userSessionPersistingQueue.addOperation(UserSessionPersistingOperation(userInitiated: false, mmContext: mmContext, pushRegId: pushRegId, sessionTimestamp: now, context: context, finishBlock: { [weak self] _ in
+            
+            guard let _self = self else {
+                completion()
+                return
+            }
 
 			if doReporting {
-				self.isReportingNeeded = false
-                if !self.userSessionReportingQueue.addOperationExclusively(UserSessionsReportingOperation(userInitiated: false, mmContext: self.mmContext, context: self.context, finishBlock: {_ in
+                _self.isReportingNeeded = false
+                if !_self.userSessionReportingQueue.addOperationExclusively(UserSessionsReportingOperation(userInitiated: false, mmContext: _self.mmContext, context: _self.context, finishBlock: {_ in
 					completion()
 				})) {
 					completion()

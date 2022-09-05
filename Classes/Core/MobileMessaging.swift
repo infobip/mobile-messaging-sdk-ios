@@ -604,8 +604,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     func doStop() {
         logInfo("Stopping MobileMessaging service...")
-        
         NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingWillStop"), object: self)
+        
+        apnsRegistrationManager.stop()
         
         let dispatchGroup = DispatchGroup()
         performForEachSubservice { subservice in
@@ -615,8 +616,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
             })
         }
         dispatchGroup.wait()
-        
-        apnsRegistrationManager.stop()
         
         messageStorages.values.forEach({$0.stop()})
         messageStorages.removeAll()
