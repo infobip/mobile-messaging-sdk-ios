@@ -24,9 +24,23 @@ class GetInbox: GetRequest {
     }
 }
 
+/**
+ The class incapsulates user inbox data.
+ */
 @objcMembers public final class MMInbox: NSObject, JSONDecodable {
+    /**
+     Total number of messages available in the Inbox. Maximum is limited to 100 messages.
+     */
     public var countTotal: Int
+    
+    /**
+     Number of messages that not yet marked as seen/read. See `MobileMessaging.inbox.setSeen(externalUserId:messageIds:completion:)`.
+     */
     public var countUnread: Int
+    
+    /**
+     Array of inbox messages ordered by message send date-time.
+     */
     public var messages: [MM_MTMessage]
     init?(json value: JSON) {
         self.messages = value[Consts.InboxKeys.messages].arrayValue.compactMap { MM_MTMessage(messageSyncResponseJson: $0) }
