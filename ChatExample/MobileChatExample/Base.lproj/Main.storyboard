@@ -34,7 +34,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PsB-pf-9zh">
-                                <rect key="frame" x="53" y="77" width="288" height="275"/>
+                                <rect key="frame" x="53" y="77" width="288" height="310"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnd-DA-n6K">
                                         <rect key="frame" x="0.0" y="0.0" width="288" height="30"/>
@@ -93,6 +93,13 @@
                                             <segue destination="geX-2H-dmN" kind="show" id="FO4-lo-f39"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gf4-Wz-MN3">
+                                        <rect key="frame" x="0.0" y="280" width="288" height="30"/>
+                                        <state key="normal" title="present + sendContextuaData"/>
+                                        <connections>
+                                            <action selector="presentAndSendContextualData:" destination="nTL-13-0bE" eventType="touchUpInside" id="P6n-xi-qNW"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </stackView>
                         </subviews>
@@ -106,14 +113,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="eRM-3m-t8h"/>
                     <connections>
-                        <outlet property="presentNavigationRootVCCustomTransButton" destination="lGS-4e-btD" id="aKj-An-jJW"/>
-                        <outlet property="presentRootNavigationVCButton" destination="eKg-U7-Pn0" id="a3C-eo-lfr"/>
-                        <outlet property="setLanguageBtn" destination="9rW-Az-yU9" id="ty3-no-PaX"/>
-                        <outlet property="showChatInNavigationButton" destination="Gnd-DA-n6K" id="3lW-TG-n5g"/>
-                        <outlet property="showChatInNavigationProgrammaticallyButton" destination="Z3a-nU-cMh" id="g0F-Uv-QcJ"/>
-                        <outlet property="showChatInTabBar" destination="yHQ-V6-aoc" id="2TG-6G-Kfh"/>
-                        <outlet property="showChatModallyButton" destination="wLg-pL-jri" id="i7C-QM-Qjb"/>
-                        <outlet property="showChatModallyProgrammaticallyButton" destination="TqP-fC-b1J" id="zz6-Sf-ZDC"/>
+                        <outlet property="buttonsStackView" destination="PsB-pf-9zh" id="YvV-0O-ntU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0dp-lf-ulk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

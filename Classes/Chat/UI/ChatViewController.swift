@@ -236,6 +236,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         self.view.addSubview(self.chatNotAvailableLabel)
     }
     
+    /// Method for sending metadata to conversations backend. It can be called any time, many times, but once the chat has started and is presented.
+    /// The format of the metadata must be that of Javascript objects and values (for guidance, it must be a string accepted by JSON.stringify()
+    /// The multiThreadStrategy is entirely optional and we recommented to leave as default ACTIVE.
+    @objc public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE,
+                                         completion: @escaping (_ error: NSError?) -> Void) {
+        webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
+    }
 }
 
 extension MMChatViewController: ChatAttachmentPickerDelegate {

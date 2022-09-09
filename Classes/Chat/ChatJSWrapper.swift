@@ -11,6 +11,24 @@ import WebKit
 protocol ChatJSWrapper {
     func sendMessage(_ message: String?, attachment: ChatMobileAttachment?)
     func sendDraft(_ message: String?)
+    func setLanguage(_ language: MMLanguage?)
+    func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy,
+                            completion: @escaping (_ error: NSError?) -> Void)
+}
+
+@objc public enum MMChatMultiThreadStrategy: Int
+{
+    case ACTIVE = 0,
+         ALL
+    
+    var stringValue: String {
+        switch self {
+        case .ACTIVE:
+            return "ACTIVE"
+        case .ALL:
+            return "ALL"
+        }
+    }
 }
 
 extension WKWebView: NamedLogger {}
@@ -44,10 +62,20 @@ extension WKWebView: ChatJSWrapper {
         MMLanguage.chatLanguage = mmLanguage
         guard let localeEscaped = mmLanguage.locale.javaScriptEscapedString() else {
             self.logDebug("setLanguage not called, unable to obtain escaped localed for \(mmLanguage.locale)")
-        return }
+            return
+        }
         self.evaluateJavaScript("setLanguage(\(localeEscaped))") {
             (response, error) in
             self.logDebug("setLanguage call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+        }
+    }
+    
+    func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE,
+                            completion: @escaping (_ error: NSError?) -> Void) {
+        self.evaluateJavaScript("sendContextualData(\(metadata), '\(multiThreadStrategy.stringValue)')") {
+            (response, error) in
+            self.logDebug("sendContextualData call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+            completion(error as? NSError)
         }
     }
 }

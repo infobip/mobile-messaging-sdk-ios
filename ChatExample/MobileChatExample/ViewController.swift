@@ -11,15 +11,8 @@ import UIKit
 import MobileMessaging
 
 class ViewController: UIViewController, MMInAppChatDelegate {
-	@IBOutlet weak var showChatInNavigationButton: UIButton!
-	@IBOutlet weak var showChatModallyButton: UIButton!
-	@IBOutlet weak var showChatInNavigationProgrammaticallyButton: UIButton!
-	@IBOutlet weak var showChatModallyProgrammaticallyButton: UIButton!
-	@IBOutlet weak var presentRootNavigationVCButton: UIButton!
-    @IBOutlet weak var presentNavigationRootVCCustomTransButton: UIButton!
-    @IBOutlet weak var showChatInTabBar: UIButton!
-    @IBOutlet weak var setLanguageBtn: UIButton!
-    
+    @IBOutlet weak var buttonsStackView: UIStackView!
+
     override func viewDidLoad() {
 		super.viewDidLoad()
 		MobileMessaging.inAppChat?.delegate = self
@@ -43,18 +36,28 @@ class ViewController: UIViewController, MMInAppChatDelegate {
         navigationController?.present(vc, animated: true, completion: nil)
     }
     
+    @IBAction func presentAndSendContextualData(_ sender: Any) {
+        // We first display the chat, and few seconds later (chat should be loaded and connected) we send
+        // some contextual data. More data can be sent asynchronously while the chat is active.
+        let vc = MMChatViewController.makeModalViewController()
+        navigationController?.present(vc, animated: true, completion: nil)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            vc.sendContextualData("{ demoKey: 'InAppChat Metadata Value' }") { error in
+                guard let error = error else {
+                    print("Medatata was sent")
+                    return
+                }
+                print("Error sending metadata: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     func inAppChatIsEnabled(_ enabled: Bool) {
 		enableButtons(enabled: enabled)
 	}
 	
 	func enableButtons(enabled: Bool) {
-		showChatInNavigationButton.isEnabled = enabled
-		showChatModallyButton.isEnabled = enabled
-		showChatInNavigationProgrammaticallyButton.isEnabled = enabled
-		showChatModallyProgrammaticallyButton.isEnabled = enabled
-		presentRootNavigationVCButton.isEnabled = enabled
-        presentNavigationRootVCCustomTransButton.isEnabled = enabled
-        showChatInTabBar.isEnabled = enabled
-        setLanguageBtn.isEnabled = enabled
+        buttonsStackView.isUserInteractionEnabled = enabled
+        buttonsStackView.alpha = enabled ? 1.0 : 0.3
 	}
 }
