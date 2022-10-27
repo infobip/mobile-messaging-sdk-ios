@@ -593,6 +593,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         InternalData.resetCurrent()
         MMUser.resetAll()
         MMInstallation.resetAll()
+        MobileMessaging.httpSessionManager.resetBaseUrl()
     }
     
     func stop(_ completion: @escaping () -> Void) {
