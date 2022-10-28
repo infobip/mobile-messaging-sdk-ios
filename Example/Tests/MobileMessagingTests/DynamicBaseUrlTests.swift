@@ -63,7 +63,7 @@ class DynamicBaseUrlTests: MMTestCase {
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
         weak var ex = expectation(description: "expectation")
-        let sessionManager = MobileMessaging.httpSessionManager!
+        let sessionManager = mobileMessagingInstance.httpSessionManager!
         sessionManager.resetBaseUrl()
         let remoteApi = RemoteAPIProviderStub()
         let newUrl = "https://new1.com"
@@ -92,7 +92,7 @@ class DynamicBaseUrlTests: MMTestCase {
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
         weak var ex = expectation(description: "expectation")
-        let sessionManager = MobileMessaging.httpSessionManager!
+        let sessionManager = mobileMessagingInstance.httpSessionManager!
         sessionManager.resetBaseUrl()
         let initialUrl = sessionManager.dynamicBaseUrl
         let newUrl = "https://new1.com"
@@ -122,7 +122,7 @@ class DynamicBaseUrlTests: MMTestCase {
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
         weak var ex = expectation(description: "expectation")
-        let sessionManager = MobileMessaging.httpSessionManager!
+        let sessionManager = mobileMessagingInstance.httpSessionManager!
         sessionManager.resetBaseUrl()
         let initialUrl = sessionManager.dynamicBaseUrl
         let remoteApi = RemoteAPIProviderStub()
@@ -145,7 +145,25 @@ class DynamicBaseUrlTests: MMTestCase {
             XCTAssertEqual(sessionManager.dynamicBaseUrl, initialUrl)
         }
     }
-
+    
+    func testBaseUrlResetDuringMMCleanup() {
+        weak var ex = expectation(description: "expectation")
+        MMTestCase.startWithCorrectApplicationCode()
+        let defaultBaseUrl = mobileMessagingInstance.httpSessionManager.originalBaseUrl
+        let otherBaseUrl = URL(string: "http://something.com")!
+        
+        mobileMessagingInstance.httpSessionManager.setNewBaseUrl(newBaseUrl: otherBaseUrl)
+        XCTAssertEqual(self.mobileMessagingInstance.httpSessionManager.dynamicBaseUrl, otherBaseUrl)
+        
+        mobileMessagingInstance.cleanUpAndStop(false) {
+            MMTestCase.startWithCorrectApplicationCode()
+            XCTAssertEqual(self.mobileMessagingInstance.httpSessionManager.dynamicBaseUrl, defaultBaseUrl)
+            ex?.fulfill()
+        }
+        
+        // then
+        self.waitForExpectations(timeout: 10) { _ in }
+    }
     
 	func testThatWeDoRetryAfterCannotFindHost() {        
 		weak var registrationFinishedExpectation = expectation(description: "registration finished")
@@ -160,23 +178,23 @@ class DynamicBaseUrlTests: MMTestCase {
 			if retriesStarted == false {
 				retriesStarted = true
 				// here we make sure the very first attempt to register has been sent to a given dynamic base url
-				XCTAssertEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, newDynamicURL)
+				XCTAssertEqual(mm.httpSessionManager.dynamicBaseUrl, newDynamicURL)
 				retriesStartedExpectation?.fulfill()
 			} else {
 				// here we make sure the dynamic base url was reset to original base url when retries started
-				XCTAssertEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, MobileMessaging.httpSessionManager.originalBaseUrl)
+				XCTAssertEqual(mm.httpSessionManager.dynamicBaseUrl, mm.httpSessionManager.originalBaseUrl)
 			}
 			return FetchInstanceDataResult.Failure(NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotFindHost, userInfo: nil))
 		}
 		mm.remoteApiProvider = remoteApi
 
-		MobileMessaging.httpSessionManager.originalBaseUrl = URL(string: "https://initial-stub.com")!
-		MobileMessaging.httpSessionManager.dynamicBaseUrl = newDynamicURL
+		mm.httpSessionManager.originalBaseUrl = URL(string: "https://initial-stub.com")!
+		mm.httpSessionManager.dynamicBaseUrl = newDynamicURL
 		
 		// make sure base urls prepared correctly
-		XCTAssertEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, newDynamicURL)
-		XCTAssertEqual(MobileMessaging.httpSessionManager.originalBaseUrl.absoluteString, "https://initial-stub.com")
-		XCTAssertNotEqual(MobileMessaging.httpSessionManager.dynamicBaseUrl, MobileMessaging.httpSessionManager.originalBaseUrl)
+		XCTAssertEqual(mm.httpSessionManager.dynamicBaseUrl, newDynamicURL)
+		XCTAssertEqual(mm.httpSessionManager.originalBaseUrl.absoluteString, "https://initial-stub.com")
+		XCTAssertNotEqual(mm.httpSessionManager.dynamicBaseUrl, mm.httpSessionManager.originalBaseUrl)
 		
         mm.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "someToken123123123".data(using: String.Encoding.utf16)!) {  error in
 			registrationFinishedExpectation?.fulfill()

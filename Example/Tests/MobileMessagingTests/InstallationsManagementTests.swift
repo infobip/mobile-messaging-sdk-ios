@@ -27,7 +27,7 @@ class InstallationsManagementTests: MMTestCase {
 		]
 		currentUser.archiveAll()
 
-		MobileMessaging.httpSessionManager = SessionManagerSuccessMock(responseJson: { req in
+        mobileMessagingInstance.httpSessionManager = SessionManagerSuccessMock(responseJson: { req in
 			if req is PatchInstance {
 				return JSON()
 			} else {
@@ -75,7 +75,7 @@ class InstallationsManagementTests: MMTestCase {
 		]
 		currentUser.archiveAll()
 
-		MobileMessaging.httpSessionManager = SessionManagerSuccessMock(responseJson: { req in
+        mobileMessagingInstance.httpSessionManager = SessionManagerSuccessMock(responseJson: { req in
 			if req is PostInstance {
 				return JSON()
 			} else {

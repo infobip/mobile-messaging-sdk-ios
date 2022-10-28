@@ -582,6 +582,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         self.logDebug("Cleaning up MobileMessaging service...")
         if let mm = MobileMessaging.sharedInstance {
             mm.sharedNotificationExtensionStorage?.cleanupMessages()
+            mm.httpSessionManager?.resetBaseUrl()
             
             MMCoreDataStorage.dropStorages(internalStorage: mm.internalStorage, messageStorages: mm.messageStorages)
             
@@ -590,6 +591,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
             }
             mm.apnsRegistrationManager.cleanup()
         }
+        
+
         InternalData.resetCurrent()
         MMUser.resetAll()
         MMInstallation.resetAll()
@@ -638,6 +641,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         eventsService = nil
         baseUrlManager = nil
         notificationsInteractionService = nil
+        httpSessionManager = nil
         InternalData.cached.reset()
         
         keychain = nil
@@ -719,9 +723,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         self.userNotificationType = notificationType
         self.remoteAPIBaseURL = backendBaseURL
         self.appGroupId = Bundle.mainAppBundle.appGroupId
-        
-        MobileMessaging.httpSessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
-        
+                
         super.init()
         MobileMessaging.sharedInstance = self
         logInfo("SDK successfully initialized!")
@@ -775,14 +777,15 @@ public final class MobileMessaging: NSObject, NamedLogger {
     var baseUrlManager: BaseUrlManager!
     var eventsService: EventsService!
     var notificationsInteractionService: NotificationsInteractionService?
+    
+    
     lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
     lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
-    lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)
+    lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(sessionManager: self.httpSessionManager)
     lazy var keychain: MMKeychain! = MMKeychain()
     lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
+    lazy var httpSessionManager: DynamicBaseUrlHTTPSessionManager! = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
     
-    //FIXME: explicit unwrapping is a subject for removing
-    static var httpSessionManager: DynamicBaseUrlHTTPSessionManager!
     static var application: MMApplication = MainThreadedUIApplication()
     static var date: MMDate = MMDate() // testability
     static var timeZone: TimeZone = TimeZone.current // for tests

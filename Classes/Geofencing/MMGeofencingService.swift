@@ -35,7 +35,7 @@ extension MobileMessaging {
 @objcMembers
 public class MMGeofencingService: MobileMessagingService {
 
-	lazy var remoteApiProvider: GeoRemoteAPIProvider! = GeoRemoteAPIProvider(sessionManager: MobileMessaging.httpSessionManager)
+    lazy var remoteApiProvider: GeoRemoteAPIProvider! = GeoRemoteAPIProvider(sessionManager: self.mmContext.httpSessionManager)
 
     /// Starts the Geofencing Service
     ///
@@ -341,7 +341,7 @@ public class MMGeofencingService: MobileMessagingService {
 		super.init(mmContext: mmContext, uniqueIdentifier: "GeofencingService")
 		
 		locationManagerQueue.sync {
-			self.sessionManager = MobileMessaging.httpSessionManager
+			self.sessionManager = mmContext.httpSessionManager
 			self.locationManager = CLLocationManager()
 			self.locationManager.delegate = self
 			self.locationManager.distanceFilter = GeoConstants.distanceFilter

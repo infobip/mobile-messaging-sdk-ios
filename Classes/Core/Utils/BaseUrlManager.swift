@@ -56,7 +56,7 @@ class BaseUrlManager: MobileMessagingService {
     private func handleResult(result: BaseUrlResult) {
         if let response = result.value {
             if let baseUrl = response.baseUrl, let newBaseUrl = URL(string: baseUrl) {
-                MobileMessaging.httpSessionManager.setNewBaseUrl(newBaseUrl: newBaseUrl)
+                mmContext.httpSessionManager.setNewBaseUrl(newBaseUrl: newBaseUrl)
                 self.lastCheckDate = MobileMessaging.date.now
             } else {
                 logDebug("No base url available")
