@@ -40,7 +40,15 @@
 					window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
 				 }
 		   });
-       
+
+           function onViewChanged() {
+               window.addEventListener('message', (event) => {
+                       if(event.data.destination === 'viewChange') {
+                           window.webkit.messageHandlers.onViewChanged.postMessage(event.data.view);
+                       }
+                   });
+           }
+           
            function sendMessage(message, attachmentBase64, fileName) {
                    liveChat('send', {
                        'message': message,
@@ -70,6 +78,10 @@
                    metadata: data,
                    multiThreadStrategy: mtStrategy
                });
+           }
+           
+           function showThreadList() {
+               liveChat('show_thread_list');
            }
 	   </script>
    </body>

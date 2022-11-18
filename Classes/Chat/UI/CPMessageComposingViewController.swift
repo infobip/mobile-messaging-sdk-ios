@@ -28,6 +28,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     var docImportMenu: UIDocumentPickerViewController!
     var documentAction = UIDocumentInteractionController()
     var chatMessageCountUpdatedBlock: ((_ count: Int, _ unread: Int) -> Void)?
+    var isComposeBarVisible: Bool = false
 
     fileprivate var isVeryFirstRefetch: Bool = true
     fileprivate var isScrollToBottomNeeded: Bool = false
@@ -83,7 +84,8 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         composeBarFrame.y = view.bounds.height - (composeBarFrame.height + safeAreaInsets.bottom)
         composeBarView.frame = composeBarFrame
         scrollViewContainer.frame = view.bounds.inset(
-            by: UIEdgeInsets(top: safeAreaInsets.top, left: 0, bottom: composeBarView.cp_h + safeAreaInsets.bottom, right: 0))
+            by: UIEdgeInsets(top: safeAreaInsets.top, left: 0,
+                             bottom: (isComposeBarVisible ? composeBarView.cp_h : 0) + safeAreaInsets.bottom, right: 0))
     }
 
     func didTapSendText(_ text: String) {

@@ -301,6 +301,7 @@ protocol ChatWebViewDelegate: AnyObject {
     func didShowComposeBar(_ visible: Bool)
     func didReceiveError(_ errors: ChatErrors)
     func didOpenPreview(forAttachment attachment: ChatWebAttachment)
+    func didChangeView(_ state: MMChatWebViewState)
 }
 
 @objc public protocol MMInAppChatDelegate {

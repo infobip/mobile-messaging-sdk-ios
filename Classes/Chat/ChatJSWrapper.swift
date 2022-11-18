@@ -14,6 +14,8 @@ protocol ChatJSWrapper {
     func setLanguage(_ language: MMLanguage?)
     func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy,
                             completion: @escaping (_ error: NSError?) -> Void)
+    func addViewChangedListener(completion: @escaping (_ error: NSError?) -> Void)
+    func showThreadList(completion: @escaping (_ error: NSError?) -> Void)
 }
 
 @objc public enum MMChatMultiThreadStrategy: Int
@@ -76,6 +78,23 @@ extension WKWebView: ChatJSWrapper {
             (response, error) in
             self.logDebug("sendContextualData call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
+        }
+    }
+    
+    // This function adds a listener to onViewChanged within the web content, informing of the status navigation if multithread is in use.
+    // When a change ocurrs, it will be handled by webViewDelegate's didChangeView
+    func addViewChangedListener(completion: @escaping (NSError?) -> Void) {
+        self.evaluateJavaScript("onViewChanged()") { [weak self] (response, error) in
+                self?.logDebug("addViewChangedListener got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+                completion(error as? NSError)
+        }
+    }
+    
+    // This functions request a navigation from a thread chat to the thread list (possible if multithead is enabled)
+    func showThreadList(completion: @escaping (NSError?) -> Void) {
+        self.evaluateJavaScript("showThreadList()") { [weak self] (response, error) in
+                self?.logDebug("showThreadList got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+                completion(error as? NSError)
         }
     }
 }

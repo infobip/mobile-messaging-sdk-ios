@@ -45,6 +45,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     var chatNotAvailableLabel: ChatNotAvailableLabel!
+    var isChattingInMultithread: Bool = false
+    var initialBackButtonVisibility: Bool = true
+    var initialLeftNavigationItem: UIBarButtonItem?
     
     open override func loadView() {
         super.loadView()
@@ -65,11 +68,17 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         super.viewDidAppear(animated)
         MobileMessaging.inAppChat?.isChatScreenVisible = true
         MobileMessaging.inAppChat?.resetMessageCounter()
+        if chatWidget?.isMultithread ?? false, !self.navigationItem.hidesBackButton {
+           handleMultithreadBackButton(appearing: true)
+        }
     }
     
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         MobileMessaging.inAppChat?.isChatScreenVisible = false
+        if chatWidget?.isMultithread ?? false, !initialBackButtonVisibility {
+           handleMultithreadBackButton(appearing: false)
+        }
     }
     
     override func didTapSendText(_ text: String) {
@@ -86,6 +95,23 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         chatAttachmentPicker.present(presentationController: self)
     }
     
+    private func handleMultithreadBackButton(appearing: Bool) {
+        if appearing {
+            initialLeftNavigationItem = self.navigationItem.leftBarButtonItem
+            initialBackButtonVisibility = self.navigationItem.hidesBackButton
+            self.navigationItem.hidesBackButton = true
+            let customButton = MobileMessaging.inAppChat?.settings.multithreadBackButton
+            let backButton = UIBarButtonItem(image: customButton?.image ?? UIImage(mm_chat_named: "backButton"),
+                                             style: customButton?.style ?? UIBarButtonItem.Style.plain,
+                                             target: customButton?.target ?? self,
+                                             action: customButton?.action ?? #selector(onInterceptedBackTap))
+            self.navigationItem.leftBarButtonItem = backButton
+        } else {
+            self.navigationItem.leftBarButtonItem = initialLeftNavigationItem
+            self.navigationItem.hidesBackButton = initialBackButtonVisibility
+        }
+    }
+    
     //ChatSettingsApplicable
     func applySettings() {
         guard let settings = MobileMessaging.inAppChat?.settings else {
@@ -99,7 +125,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             if let navBarColor = settings.navBarColor {
                 appearance.backgroundColor = navBarColor
             }
-                        
+            
             if let navBarTitleColor = settings.navBarTitleColor {
                 appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: navBarTitleColor]
             }
@@ -124,7 +150,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         if let navBarItemsTintColor = settings.navBarItemsTintColor {
             navigationController?.navigationBar.tintColor = navBarItemsTintColor
         }
-            
+        
         title = settings.title
         
         if let sendButtonTintColor = settings.sendButtonTintColor {
@@ -132,15 +158,40 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             composeBarView.utilityButtonTintColor = sendButtonTintColor
         }
     }
+              
+    @objc private func onInterceptedBackTap() {
+        // When multithread is in use, the user experience and the actual navigation follow different logic.
+        // When going from thread list to a thread, the navigation happens in the webView. In order to handle the expected
+        // action of going "back", we interpret the chat webview state and decide if we actuall pop from navigation
+        // or we invoke a method in the chat widget to go back to the thread list.
+        if isChattingInMultithread {
+            webView.showThreadList(completion: { [weak self] error in
+                if let error = error {
+                    self?.logError(error.description)
+                }
+            })
+        } else if presentingViewController != nil {
+            dismiss(animated: true) // viewController is a modal
+        } else {
+            navigationController?.popViewController(animated: true) // regular presentation
+        }
+    }
     
     // ChatWebViewDelegate
     func didLoadWidget(_ widget: ChatWidget) {
         chatWidget = widget
         webView.loadWidget(widget)
+        isComposeBarVisible = !(widget.isMultithread ?? false)
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        self.webView.setLanguage()
+        webView.setLanguage()
+        webView.addViewChangedListener(completion: { [weak self] error in
+            if let error = error {
+                self?.logError(error.description)
+            }
+            return
+        })
     }
     
     func didEnableControls(_ enabled: Bool) {
@@ -152,14 +203,21 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         }
     }
     
-    var isComposeBarVisible = true
+    override var isComposeBarVisible: Bool {
+        didSet {
+            if oldValue != isComposeBarVisible {
+                setComposeBarVisibility(isVisible: isComposeBarVisible)
+            } else if !isComposeBarVisible && !composeBarView.isHidden {
+                // In some cases (ie the first time a multithread widget is loaded), we want to hide the
+                // composer without animation.
+                composeBarView.isHidden = true
+            }
+        }
+    }
     
     func didShowComposeBar(_ visible: Bool) {
-        if isComposeBarVisible == visible {
-            return
-        }
+        guard !(chatWidget?.isMultithread ?? false) else { return }
         isComposeBarVisible = visible
-        setComposeBarVisibility(isVisible: visible)
     }
     
     func setComposeBarVisibility(isVisible: Bool) {
@@ -172,16 +230,16 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             options: UIView.AnimationOptions.curveEaseIn,
             animations: { [weak self] () -> Void in
                 if let composeBarView = self?.composeBarView, let webView = self?.webView {
-                    composeBarView.frame = CGRect(
-                        x: composeBarView.frame.x,
-                        y: composeBarView.frame.y + (isVisible ? -composeBarView.frame.height : composeBarView.frame.height),
-                        width: composeBarView.frame.width,
-                        height: composeBarView.frame.height)
                     webView.frame = CGRect(
                         x: webView.frame.x,
                         y: webView.frame.y,
                         width: webView.frame.width,
                         height: webView.frame.height + (isVisible ? -composeBarView.bounds.height : composeBarView.bounds.height))
+                    composeBarView.frame = CGRect(
+                        x: composeBarView.frame.x,
+                        y: webView.frame.y + webView.frame.height,
+                        width: composeBarView.frame.width,
+                        height: composeBarView.frame.height)
                 }
             },
             completion: { [weak self] (Bool) -> Void in
@@ -242,6 +300,16 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     @objc public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE,
                                          completion: @escaping (_ error: NSError?) -> Void) {
         webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
+    }
+    
+    func didChangeView(_ state: MMChatWebViewState) {
+        guard chatWidget?.isMultithread ?? false else {
+            isComposeBarVisible = true
+            isChattingInMultithread = false
+            return
+        }
+        isComposeBarVisible = state == .loadingThread || state == .thread || state == .singleThreadMode
+        isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
     }
 }
 

@@ -65,3 +65,25 @@ class ChatWebView: WKWebView {
 		return URLRequest(url: componentsUrl)
 	}
 }
+
+@objc public enum MMChatWebViewState: Int {
+    case loading = 0, threadList, loadingThread, thread, singleThreadMode, closedThread, unknown
+    static func parseFrom(_ value: String) -> MMChatWebViewState {
+        switch value {
+        case "LOADING": // Loading spinner while initial view is being requested or rendered
+            return .loading
+        case "THREAD_LIST": // In a multi-thread widget, this represents a list with opened threads to be selected
+            return .threadList
+        case "LOADING_THREAD": // Loading state when opening new thread or existing thread
+            return .loadingThread
+        case "THREAD": // View for currently opened thread in multi-thread widget
+            return .thread
+        case "SINGLE_MODE_THREAD": // Single-thread widget, indicating multithread is disabled
+            return .singleThreadMode
+        case "CLOSED_THREAD":
+            return .closedThread
+        default:
+            return .unknown // Something went wrong or your SDK is not up to date
+        }
+    }
+}

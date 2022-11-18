@@ -31,6 +31,8 @@ public class MMChatSettings: NSObject {
     public var attachmentPreviewItemsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     
     public var backgroungColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    
+    public var multithreadBackButton: UIBarButtonItem?
 	
     func update(withChatWidget widget: ChatWidget) {
         if let widgetTitle = widget.title, title == nil {
