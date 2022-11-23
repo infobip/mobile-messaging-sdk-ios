@@ -138,6 +138,10 @@ class DynamicBaseUrlHTTPSessionManager: NamedLogger {
             logDebug("Setting new base URL \(newBaseUrl)")
             storeDynamicBaseUrl(newBaseUrl)
             dynamicBaseUrl = newBaseUrl
+            if newBaseUrl != originalBaseUrl {
+                // We force server syncing in case a new base URL different than original one is set
+                MobileMessaging.sharedInstance?.baseUrlDidChange()
+            }
         } else {
             logDebug("Setting new base URL \(newBaseUrl)")
         }

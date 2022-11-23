@@ -126,13 +126,22 @@ class InstallationDataService: MobileMessagingService {
 
 		completion()
 	}
-
-	override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+    
+    private func syncWithServerAndDepersonalizeIfNeeded(_ completion: @escaping () -> Void) {
         assert(!Thread.isMainThread)
-		syncWithServer(userInitiated: false) {_ in
+        syncWithServer(userInitiated: false) {_ in
             self.performDepersonalizeIfNeeded(userInitiated: false, completion: completion)
         }
+    }
+    
+
+	override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+        syncWithServerAndDepersonalizeIfNeeded(completion)
 	}
+    
+    override func baseUrlDidChange(_ completion: @escaping () -> Void) {
+        syncWithServerAndDepersonalizeIfNeeded(completion)
+    }
 
 	override func geoServiceDidStart(_ completion: @escaping () -> Void) {
         assert(!Thread.isMainThread)

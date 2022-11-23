@@ -667,6 +667,10 @@ public final class MobileMessaging: NSObject, NamedLogger {
     func updateDepersonalizeStatusForSubservices() {
         NotificationCenter.default.post(name: Notification.Name.init("depersonalizationStatusDidChange"), object: self)
     }
+
+    func baseUrlDidChange() {
+        NotificationCenter.default.post(name: Notification.Name.init("baseUrlDidChange"), object: self)
+    }
     
     func setSeen(userInitiated: Bool, messageIds: [String], immediately: Bool, completion: @escaping () -> Void) {
         logDebug("Setting seen status: \(messageIds), immediately \(immediately)")

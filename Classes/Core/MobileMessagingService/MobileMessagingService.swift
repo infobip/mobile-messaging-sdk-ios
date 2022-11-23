@@ -72,6 +72,7 @@ public class MobileMessagingService: NSObject, NamedLogger {
     func appWillTerminate(_ completion: @escaping () -> Void) { completion() }
     func appDidEnterBackground(_ completion: @escaping () -> Void) { completion() }
     func geoServiceDidStart(_ completion: @escaping () -> Void) { completion() }
+    func baseUrlDidChange(_ completion: @escaping () -> Void) { completion() }
     
     func submitToDispatchGroup(block: @escaping (@escaping () -> Void) -> Void) {
         dispatchGroup.enter()
@@ -86,6 +87,7 @@ public class MobileMessagingService: NSObject, NamedLogger {
     @objc private func mobileMessagingDidStart(notification: Notification) { submitToDispatchGroup(block: mobileMessagingDidStart) }
     @objc private func mobileMessagingWillStop(notification: Notification) { submitToDispatchGroup(block: mobileMessagingWillStop) }
     @objc private func mobileMessagingDidStop(notification: Notification) { submitToDispatchGroup(block: mobileMessagingDidStop) }
+    @objc private func baseUrlDidChange(notification: Notification) { submitToDispatchGroup(block: baseUrlDidChange) }
     
     @objc private func appWillEnterForegroundMainThread(notification: Notification) {
         submitToDispatchGroup(block: { completion in
@@ -209,6 +211,11 @@ public class MobileMessagingService: NSObject, NamedLogger {
             self,
             selector: #selector(depersonalizationStatusDidChange(notification:)),
             name: NSNotification.Name(rawValue: "depersonalizationStatusDidChange"), object: nil)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(baseUrlDidChange(notification:)),
+            name: NSNotification.Name(rawValue: "baseUrlDidChange"), object: nil)
     }
     
     private func stopAppStateObserving() {

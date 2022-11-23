@@ -378,6 +378,10 @@ class MMMessageHandler: MobileMessagingService {
             completion()
 		}
 	}
+    
+    override func baseUrlDidChange(_ completion: @escaping () -> Void) {
+        syncWithServer(userInitiated: false) {_ in completion() }
+    }
 	
 	static func isNotificationTapped(_ notificationUserInfo: [String: Any]?, applicationState: UIApplication.State) -> Bool {
 		return applicationState == .inactive || (notificationUserInfo != nil ? notificationUserInfo![ApplicationLaunchedByNotification_Key] != nil : false)
