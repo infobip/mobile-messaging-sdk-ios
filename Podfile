@@ -3,7 +3,7 @@ use_frameworks!
 # ignore all warnings from all pods
 inhibit_all_warnings!
 def includePods
- pod 'InfobipRTC'
+ pod 'InfobipRTC', '1.5.9'
 end
 
 workspace 'MobileMessaging'
