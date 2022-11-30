@@ -13,18 +13,18 @@ public class MMChatSettings: NSObject {
     public static let sharedInstance = MMChatSettings()
     
     func postAppearanceChangedNotification() {
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: "com.mobile-messaging.chat.settings.updated"), object: self)
-	}
-	
-	public var title: String? { didSet { postAppearanceChangedNotification() } }
-	
-	public var sendButtonTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-	
-	public var navBarItemsTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-	
-	public var navBarColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-	
-	public var navBarTitleColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "com.mobile-messaging.chat.settings.updated"), object: self)
+    }
+    
+    public var title: String? { didSet { postAppearanceChangedNotification() } }
+    
+    public var sendButtonTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    
+    public var navBarItemsTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    
+    public var navBarColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    
+    public var navBarTitleColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     
     public var attachmentPreviewBarsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     

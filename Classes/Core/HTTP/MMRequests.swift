@@ -23,6 +23,8 @@ enum APIPath: String {
 	case CustomEvents = "/mobile/1/appinstance/{pushRegistrationId}/user/events/custom"
 	
 	case ChatWidget = "/mobile/1/chat/widget"
+    
+    case WebRTCToken = "/webrtc/1/token"
 }
 
 class SeenStatusSendingRequest: PostRequest {

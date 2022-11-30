@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -34,46 +34,46 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PsB-pf-9zh">
-                                <rect key="frame" x="53" y="77" width="288" height="310"/>
+                                <rect key="frame" x="53" y="44" width="288" height="485"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnd-DA-n6K">
                                         <rect key="frame" x="0.0" y="0.0" width="288" height="30"/>
-                                        <state key="normal" title="pushNavigationItem"/>
+                                        <state key="normal" title="chat - pushNavigationItem"/>
                                         <connections>
                                             <segue destination="tdS-Cj-hT3" kind="show" id="VRA-fe-yMa"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wLg-pL-jri">
                                         <rect key="frame" x="0.0" y="35" width="288" height="30"/>
-                                        <state key="normal" title="presentModal"/>
+                                        <state key="normal" title="chat - presentModal"/>
                                         <connections>
                                             <segue destination="tdS-Cj-hT3" kind="presentation" id="xZc-v0-WuA"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z3a-nU-cMh">
                                         <rect key="frame" x="0.0" y="70" width="288" height="30"/>
-                                        <state key="normal" title="pushNavigationItem  (programmatically)"/>
+                                        <state key="normal" title="chat - pushNavigationItem  (programmatically)"/>
                                         <connections>
                                             <action selector="showChatInNavigationP:" destination="nTL-13-0bE" eventType="touchUpInside" id="Mmz-sE-sgf"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TqP-fC-b1J">
                                         <rect key="frame" x="0.0" y="105" width="288" height="30"/>
-                                        <state key="normal" title="presentModal (programmatically)"/>
+                                        <state key="normal" title="chat - presentModal (programmatically)"/>
                                         <connections>
                                             <action selector="showChatModallyP:" destination="nTL-13-0bE" eventType="touchUpInside" id="j8D-Ra-54v"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eKg-U7-Pn0">
                                         <rect key="frame" x="0.0" y="140" width="288" height="30"/>
-                                        <state key="normal" title="presentRootNavigationVC"/>
+                                        <state key="normal" title="chat - presentRootNavigationVC"/>
                                         <connections>
                                             <action selector="presentRootNavigationVC:" destination="nTL-13-0bE" eventType="touchUpInside" id="JgS-L4-LbW"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lGS-4e-btD">
                                         <rect key="frame" x="0.0" y="175" width="288" height="30"/>
-                                        <state key="normal" title="presentRootNavigationVC+CustomTransition"/>
+                                        <state key="normal" title="chat - presentRootNavigationVC+CustomTransition"/>
                                         <connections>
                                             <action selector="presentNavigationVCCustomTrans:" destination="nTL-13-0bE" eventType="touchUpInside" id="1Rn-zC-scP"/>
                                             <action selector="presentRootNavigationVC:" destination="nTL-13-0bE" eventType="touchUpInside" id="ZWj-ug-rY1"/>
@@ -81,23 +81,58 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yHQ-V6-aoc">
                                         <rect key="frame" x="0.0" y="210" width="288" height="30"/>
-                                        <state key="normal" title="showInTabBar"/>
+                                        <state key="normal" title="chat - showInTabBar"/>
                                         <connections>
                                             <segue destination="XRw-Ph-JoT" kind="show" id="A5J-Od-7MI"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9rW-Az-yU9">
                                         <rect key="frame" x="0.0" y="245" width="288" height="30"/>
-                                        <state key="normal" title="setLanguage"/>
+                                        <state key="normal" title="chat - setLanguage"/>
                                         <connections>
                                             <segue destination="geX-2H-dmN" kind="show" id="FO4-lo-f39"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gf4-Wz-MN3">
                                         <rect key="frame" x="0.0" y="280" width="288" height="30"/>
-                                        <state key="normal" title="present + sendContextuaData"/>
+                                        <state key="normal" title="chat - present + sendContextuaData"/>
                                         <connections>
                                             <action selector="presentAndSendContextualData:" destination="nTL-13-0bE" eventType="touchUpInside" id="P6n-xi-qNW"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ome-ca-xWo">
+                                        <rect key="frame" x="0.0" y="315" width="288" height="30"/>
+                                        <state key="normal" title="chat - depersonalize"/>
+                                        <connections>
+                                            <action selector="onDePersonalize:" destination="nTL-13-0bE" eventType="touchUpInside" id="46y-jj-SXi"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M3D-5n-TSa">
+                                        <rect key="frame" x="0.0" y="350" width="288" height="30"/>
+                                        <state key="normal" title="chat - personalize"/>
+                                        <connections>
+                                            <segue destination="vaF-ck-g2P" kind="show" id="Tj3-9s-RaV"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BX6-T9-Gby">
+                                        <rect key="frame" x="0.0" y="385" width="288" height="30"/>
+                                        <state key="normal" title="webrtc - stopCalls"/>
+                                        <connections>
+                                            <action selector="onTapStopCalls:" destination="nTL-13-0bE" eventType="touchUpInside" id="hcq-XK-TrW"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T0U-ri-Ke9">
+                                        <rect key="frame" x="0.0" y="420" width="288" height="30"/>
+                                        <state key="normal" title="webrtc - restartCalls"/>
+                                        <connections>
+                                            <action selector="onRestartCalls:" destination="nTL-13-0bE" eventType="touchUpInside" id="iec-dJ-rLf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="31d-Zm-pXC">
+                                        <rect key="frame" x="0.0" y="455" width="288" height="30"/>
+                                        <state key="normal" title="copyPushRegIdToClipboard"/>
+                                        <connections>
+                                            <action selector="onCopyPushRegIdToClipbpard:" destination="nTL-13-0bE" eventType="touchUpInside" id="Vzo-nB-flV"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -106,7 +141,7 @@
                         <viewLayoutGuide key="safeArea" id="WCv-J8-KMI"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="PsB-pf-9zh" firstAttribute="top" secondItem="WCv-J8-KMI" secondAttribute="top" constant="33" id="UfJ-mx-pja"/>
+                            <constraint firstItem="PsB-pf-9zh" firstAttribute="top" secondItem="WCv-J8-KMI" secondAttribute="top" id="UfJ-mx-pja"/>
                             <constraint firstItem="PsB-pf-9zh" firstAttribute="leading" secondItem="WCv-J8-KMI" secondAttribute="leading" constant="53" id="fgF-uI-qCj"/>
                             <constraint firstItem="WCv-J8-KMI" firstAttribute="trailing" secondItem="PsB-pf-9zh" secondAttribute="trailing" constant="34" id="mbj-ed-QeO"/>
                         </constraints>
@@ -180,7 +215,7 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="LanguageCell" id="4UC-I0-sAC">
-                                <rect key="frame" x="0.0" y="44.5" width="375" height="43.5"/>
+                                <rect key="frame" x="0.0" y="50" width="375" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="4UC-I0-sAC" id="IEP-jc-1Os">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -198,6 +233,98 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="IrL-3i-nUk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1127" y="1079"/>
+        </scene>
+        <!--PersonalizationVC-->
+        <scene sceneID="h9A-jI-kaJ">
+            <objects>
+                <viewController id="vaF-ck-g2P" customClass="PersonalizationVC" customModule="MobileChatExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="U2T-f3-Ofg">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="VrP-KG-qBT">
+                                <rect key="frame" x="8" y="48" width="359" height="218"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Phone number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O2w-Vu-pj1">
+                                        <rect key="frame" x="0.0" y="0.0" width="359" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Type here" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="1ZD-Bp-2Do">
+                                        <rect key="frame" x="0.0" y="20.5" width="359" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Email" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FJf-aX-xXw">
+                                        <rect key="frame" x="0.0" y="54.5" width="359" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Type here" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xni-hH-M9v">
+                                        <rect key="frame" x="0.0" y="75" width="359" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="First name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cTD-7Q-hIg">
+                                        <rect key="frame" x="0.0" y="109" width="359" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Type here" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="KS3-0P-zAr">
+                                        <rect key="frame" x="0.0" y="129.5" width="359" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S2S-G1-Jul">
+                                        <rect key="frame" x="0.0" y="163.5" width="359" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Type here" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nD7-7m-ZSa">
+                                        <rect key="frame" x="0.0" y="184" width="359" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                </subviews>
+                            </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="muy-J9-mkQ">
+                                <rect key="frame" x="4" y="274" width="367" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="JaT-9W-L3Q"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Personalize"/>
+                                <connections>
+                                    <action selector="onDoPersonalization:" destination="vaF-ck-g2P" eventType="touchUpInside" id="avv-1m-kjl"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="5pz-hi-TMs"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="VrP-KG-qBT" firstAttribute="top" secondItem="5pz-hi-TMs" secondAttribute="top" constant="4" id="Bhd-Z7-YwG"/>
+                            <constraint firstItem="muy-J9-mkQ" firstAttribute="leading" secondItem="5pz-hi-TMs" secondAttribute="leading" constant="4" id="Cek-j2-ufW"/>
+                            <constraint firstItem="5pz-hi-TMs" firstAttribute="trailing" secondItem="VrP-KG-qBT" secondAttribute="trailing" constant="8" id="Omy-99-t0T"/>
+                            <constraint firstItem="5pz-hi-TMs" firstAttribute="trailing" secondItem="muy-J9-mkQ" secondAttribute="trailing" constant="4" id="UIL-za-i0W"/>
+                            <constraint firstItem="muy-J9-mkQ" firstAttribute="top" secondItem="VrP-KG-qBT" secondAttribute="bottom" constant="8" id="aM0-kK-0JK"/>
+                            <constraint firstItem="VrP-KG-qBT" firstAttribute="leading" secondItem="5pz-hi-TMs" secondAttribute="leading" constant="8" id="c8n-di-rqt"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="0hz-d4-thM"/>
+                    <connections>
+                        <outlet property="emailTextfield" destination="Xni-hH-M9v" id="CkE-i8-ydN"/>
+                        <outlet property="firstnameTextfield" destination="KS3-0P-zAr" id="CKH-eR-bdV"/>
+                        <outlet property="lastnameTextfield" destination="nD7-7m-ZSa" id="jr0-sb-91l"/>
+                        <outlet property="phoneTextfield" destination="1ZD-Bp-2Do" id="t7O-Pn-NL0"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="uXg-HS-xCc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1865" y="1078"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>

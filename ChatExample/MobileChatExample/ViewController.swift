@@ -10,14 +10,14 @@ import Foundation
 import UIKit
 import MobileMessaging
 
-class ViewController: UIViewController, MMInAppChatDelegate {
+class ViewController: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     @IBOutlet weak var buttonsStackView: UIStackView!
 
     override func viewDidLoad() {
 		super.viewDidLoad()
 		MobileMessaging.inAppChat?.delegate = self
 	}
-	
+
 	@IBAction func showChatInNavigationP(_ sender: Any) {
 		let vc = MMChatViewController.makeChildNavigationViewController()
 		navigationController?.pushViewController(vc, animated: true)
@@ -52,6 +52,43 @@ class ViewController: UIViewController, MMInAppChatDelegate {
         }
     }
     
+    @IBAction func onDePersonalize(_ sender: Any) {
+        MobileMessaging.depersonalize() { result, error in
+            print(">>>>Depersonalise result: " + "\(result.rawValue)" + "error: " + (error?.localizedDescription ?? "failed"))
+        }
+    }
+
+    
+    @IBAction func onTapStopCalls(_ sender: Any) {
+        MobileMessaging.webrtcService?.stopService({ result in
+            print("Calls were stopped successfully \(result)")
+        })
+    }
+    
+    @IBAction func onRestartCalls(_ sender: Any) {
+        MobileMessaging.webrtcService?.applicationId = webrtcApplicationId
+        MobileMessaging.webrtcService?.start({ result in
+            print("Calls process started successfully \(result)")
+        })
+    }
+    
+    @IBAction func onCopyPushRegIdToClipbpard(_ sender: Any) {
+        var text = "No push registration Id available yet"
+        if let pushReg = MobileMessaging.getInstallation()?.pushRegistrationId {
+            UIPasteboard.general.string = pushReg
+            text = "Push registration Id copied to clipboard"
+        }
+        MMPopOverBar.show(
+            backgroundColor: .lightGray,
+            textColor: .black,
+            message: text,
+            duration: 5,
+            options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
+                                      isStretchable: true),
+            completion: nil,
+            presenterVC: self)
+    }
+        
     func inAppChatIsEnabled(_ enabled: Bool) {
 		enableButtons(enabled: enabled)
 	}
@@ -60,4 +97,9 @@ class ViewController: UIViewController, MMInAppChatDelegate {
         buttonsStackView.isUserInteractionEnabled = enabled
         buttonsStackView.alpha = enabled ? 1.0 : 0.3
 	}
+    
+// Uncommnet if you want to handle call UI here.
+//    func showCallUI(in callController: MMCallController) {
+//        PIPKit.show(with: callController)
+//    }
 }

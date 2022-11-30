@@ -43,4 +43,11 @@ Pod::Spec.new do |s|
         chat.source_files = 'Classes/Chat/**/*.{h,m,swift}'
         chat.resource_bundles = {'MMInAppChat' => ['Classes/Chat/Resources/**/*.{xcassets,png,html}', 'Classes/Chat/Localization/**/*.strings']}
     end
+
+    s.subspec 'WebRTCUI' do |webrtcui|
+        webrtcui.dependency 'MobileMessaging/Core'
+        webrtcui.dependency 'InfobipRTC'
+        webrtcui.source_files = 'Classes/WebRTCUI/**/*.{h,m,swift,storyboard}'
+        webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/**/*.{xcassets,png,wav,html}']}
+    end
 end

@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "icon-user-s-grayscale.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

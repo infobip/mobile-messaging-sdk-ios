@@ -20,3 +20,4 @@ class MMLocalization {
 		return MMLocalization.sharedInstance.localizedString(forKey: key, defaultString: defaultString)
 	}
 }
+
