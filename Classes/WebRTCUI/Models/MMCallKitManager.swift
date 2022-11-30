@@ -21,7 +21,7 @@ class CallKitManager: NSObject {
     
     override init() {
         let providerConfiguration = CXProviderConfiguration(localizedName: "InfobipRTC")
-        providerConfiguration.ringtoneSound = "MMInboundCall.wav"
+        providerConfiguration.ringtoneSound = MobileMessaging.webrtcService?.settings.inboundCallSoundFileName
         providerConfiguration.supportsVideo = true
         providerConfiguration.maximumCallsPerCallGroup = 1
         providerConfiguration.supportedHandleTypes = [.phoneNumber]

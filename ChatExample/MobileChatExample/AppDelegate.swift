@@ -24,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		MobileMessaging.logger?.logLevel = .All
 		MobileMessaging.logger?.logOutput = .Console
         MobileMessaging.webrtcService?.callAppIcon = UIImage(named: "alphaLogo")
+        MobileMessaging.webrtcService?.settings.inboundCallSoundFileName = "MMInboundCall.wav" // filename for audio file in your project
         //MobileMessaging.webrtcService?.delegate = self // Set a delegate for webrtc if you want to handle calls yourself
         //customiseCallsUI() // Change the colors, icons and sounds of the call UI
 		return true

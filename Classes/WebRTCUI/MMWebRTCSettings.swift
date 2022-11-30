@@ -78,7 +78,6 @@ public class MMWebRTCSettings: NSObject {
     private var _iconDialpad: UIImage?
     private var _iconAlert: UIImage?
     private var _soundStartCall: NSDataAsset?
-    private var _soundInboundCall: NSDataAsset?
     private var _soundEndCall: NSDataAsset?
 
     public var iconMute: UIImage? {
@@ -167,6 +166,7 @@ public class MMWebRTCSettings: NSObject {
             return dataAsset
         }
     }
+    public var inboundCallSoundFileName: String?
 
     struct Keys {
         static let pulseStrokeColor = "rtc_ui_pulse_stroke"

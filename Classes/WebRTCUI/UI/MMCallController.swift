@@ -121,7 +121,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     }
 
     static var new: MMCallController {
-       let storyboard = UIStoryboard(name: "MMCalls", bundle: MobileMessaging.bundle)
+        let storyboard = UIStoryboard(name: "MMCalls", bundle: MMWebRTCService.resourceBundle)
        return storyboard.instantiateViewController(
        withIdentifier: "CallController") as! MMCallController
     }

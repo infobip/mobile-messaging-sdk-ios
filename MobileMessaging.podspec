@@ -48,6 +48,7 @@ Pod::Spec.new do |s|
         webrtcui.dependency 'MobileMessaging/Core'
         webrtcui.dependency 'InfobipRTC', '1.5.9'
         webrtcui.source_files = 'Classes/WebRTCUI/**/*.{h,m,swift,storyboard}'
-        webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/**/*.{xcassets,png,wav,html}']}
+        webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/UI/**/*.{xcassets,png,wav,svg,html}',
+            'Classes/WebRTCUI/UI/*.{storyboard}']}
     end
 end
