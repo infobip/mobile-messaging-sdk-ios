@@ -232,6 +232,15 @@ public class MM_MTMessage: MMBaseMessage, NamedLogger {
 		
 		super.init(messageId: messageId, direction: .MT, originalPayload: payload, deliveryMethod: deliveryMethod)
 	}
+    
+    public class func make(withPayload payload: MMAPNSPayload) -> MM_MTMessage? {
+        return MM_MTMessage(payload: payload,
+                         deliveryMethod: .undefined,
+                         seenDate: nil,
+                         deliveryReportDate: nil,
+                         seenStatus: .NotSeen,
+                         isDeliveryReportSent: false)
+    }
 }
 
 func isSilentInternalData(_ internalData: MMStringKeyPayload?) -> Bool {

@@ -45,10 +45,13 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 #pragma mark - Application Delegate Methods
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-	[MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-	if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
+    if ([MM_MTMessage makeWithPayload:userInfo] != nil) {
+        [MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+    } else if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
 		[_applicationDelegate application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-	}
+    } else {
+        completionHandler(UIBackgroundFetchResultNoData);
+    }
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
