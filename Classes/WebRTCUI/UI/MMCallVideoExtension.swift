@@ -23,22 +23,33 @@ extension MMCallController {
             self.embedView(localView, into: localVideoView)
         }
         self.localView = localView
-        self.localViewFrame = CGRect(
-            x: self.view.frame.origin.x + (self.localVideoView.frame.width / 2 + mmCCFrameGap),
-            y: self.view.frame.origin.y + (self.localVideoView.frame.height / 2 + mmCCFrameGap),
-            width: self.view.frame.width - self.localVideoView.frame.width - (mmCCFrameGap * 2),
-            height: self.view.frame.height - self.localVideoView.frame.height - (mmCCFrameGap * 2)
-        )
-        
+        setupLocalViewFrame()
         let videoDragger = UIPanGestureRecognizer(target: self, action: #selector(draggingView))
         self.localVideoView?.addGestureRecognizer(videoDragger)
-        
         self.localVideoView?.layer.zPosition = 1
-        
         DispatchQueue.main.async {
             UIApplication.shared.isIdleTimerDisabled = true
             UIDevice.current.isProximityMonitoringEnabled = false
         }
+    }
+    
+    func setupLocalViewFrame() {
+        if UIDevice.current.orientation.isLandscape {
+            self.localViewFrame = CGRect(
+                x: self.view.frame.origin.x + (self.localVideoView.frame.height / 2 + mmCCFrameGap),
+                y: self.view.frame.origin.y + (self.localVideoView.frame.width / 2 + mmCCFrameGap),
+                width: self.view.frame.height - self.localVideoView.frame.height - (mmCCFrameGap * 2),
+                height: self.view.frame.width - self.localVideoView.frame.width - (mmCCFrameGap * 2)
+            )
+        } else {
+            self.localViewFrame = CGRect(
+                x: self.view.frame.origin.x + (self.localVideoView.frame.width / 2 + mmCCFrameGap),
+                y: self.view.frame.origin.y + (self.localVideoView.frame.height / 2 + mmCCFrameGap),
+                width: self.view.frame.width - self.localVideoView.frame.width - (mmCCFrameGap * 2),
+                height: self.view.frame.height - self.localVideoView.frame.height - (mmCCFrameGap * 2)
+            )
+        }
+        localVideoView.center = UIApplication.center
     }
     
     func initRemoteVideoViewConference() {
@@ -77,9 +88,10 @@ extension MMCallController {
     }
     
     @objc func draggingView(_ sender: UIPanGestureRecognizer) {
-        if self.localViewFrame?.contains(sender.location(in: self.view)) ?? false {
+        // Not restricting location feels better on UX
+        // if self.localViewFrame?.contains(sender.location(in: self.view)) ?? false {
             self.localVideoView.center = sender.location(in: view)
-        }
+        // }
     }
     
     @objc private func handleTap(_ sender: UITapGestureRecognizer) {

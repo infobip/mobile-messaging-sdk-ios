@@ -92,7 +92,7 @@ class CallButtonStackView: UIView {
         screenShare.setImage(settings.iconScreenShareOff, for: .selected)
         dialpad.setTitle(MMLoc.dialpad.lowercased(), for: .normal)
         dialpad.setImage(settings.iconDialpad, for: .normal)
-        self.backgroundColor = settings.overlayBackgroundColor
+        self.backgroundColor = .clear
     }
 
     @IBOutlet weak var mute: CallButton!

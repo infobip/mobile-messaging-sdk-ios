@@ -83,10 +83,10 @@ extension MMCallController: ApplicationCallEventListener {
     }
     
     public func onParticipantCameraVideoAdded(participantCameraVideoAddedEvent: ParticipantCameraVideoAddedEvent) {
-        if remoteSharingVideoTrack != nil {
-            remoteView?.removeFromSuperview()
+        if remoteSharingVideoTrack == nil {
+            // Screen sharing has priority over camera streaming, and will never be replaced while ongoing.
+            participantVideoAdded(videoTrack: participantCameraVideoAddedEvent.videoTrack)
         }
-        participantVideoAdded(videoTrack: participantCameraVideoAddedEvent.videoTrack)
         remoteCameraVideoTrack = participantCameraVideoAddedEvent.videoTrack
     }
     

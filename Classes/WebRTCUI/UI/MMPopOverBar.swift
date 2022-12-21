@@ -13,7 +13,8 @@ public final class MMPopOverBar {
     private static let kWindowLevel: UIWindow.Level = UIWindow.Level(UIWindow.Level.statusBar.rawValue + 1)
     private var popoversViews: [PopoverView] = []
     private var options = Options(shouldConsiderSafeArea: true, isStretchable: false, textAlignment: .left)
-
+    private var baseView = UIView(frame: UIScreen.main.bounds)
+    
     public struct Options {
         let shouldConsiderSafeArea: Bool
         let isStretchable: Bool
@@ -33,6 +34,11 @@ public final class MMPopOverBar {
         }
     }
 
+    init() {
+        self.baseView.isUserInteractionEnabled = false
+        NotificationCenter.default.addObserver(self, selector: #selector(self.deviceRotated), name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+    
     public func setDefault(options: Options) {
         self.options = options
     }
@@ -48,29 +54,11 @@ public final class MMPopOverBar {
             // Hide all before new one is shown.
             self.popoversViews.forEach({ $0.hide() })
             let currentOptions = options ?? self.options
-            let width = UIScreen.main.bounds.width
-            let height = UIScreen.main.bounds.height
-            let baseView = UIView(frame: UIScreen.main.bounds)
-            let orientation = UIApplication.shared.statusBarOrientation
-            let userInterfaceIdiom = UIDevice.current.userInterfaceIdiom
-            if orientation.isLandscape {
-                if userInterfaceIdiom == .phone {
-                    let sign: CGFloat = orientation == .landscapeLeft ? -1 : 1
-                    let d = abs(width - height) / 2
-                    baseView.transform = CGAffineTransform(
-                        rotationAngle: sign * CGFloat.pi / 2).translatedBy(x: sign * d, y: sign * d)
-                }
-            } else {
-                if userInterfaceIdiom == .phone && orientation == .portraitUpsideDown {
-                    baseView.transform = CGAffineTransform(rotationAngle: .pi)
-                }
-            }
-            baseView.isUserInteractionEnabled = false
-            presenterVC.view.addSubview(baseView)
-
+            self.baseView.frame = UIScreen.main.bounds
+            presenterVC.view.addSubview(self.baseView)
             let window = UIApplication.shared.keyWindow
             let safeArea: UIEdgeInsets  = window?.safeAreaInsets ?? .zero
-            let popoverView = PopoverView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 0))
+            let popoverView = PopoverView(frame: CGRect(x: 0, y: 0, width: self.getFrameBasedOnOrientation().width, height: 0))
             popoverView.backgroundColor = backgroundColor
             popoverView.messageLabel.textColor = textColor
             popoverView.messageLabel.text = message
@@ -79,16 +67,44 @@ public final class MMPopOverBar {
             popoverView.messageLabel.font = currentOptions.font
             popoverView.fit(safeArea: currentOptions.shouldConsiderSafeArea ? safeArea : .zero)
             self.popoversViews.append(popoverView)
-            baseView.addSubview(popoverView)
-
+            self.baseView.addSubview(popoverView)
             let statusBarHeight: CGFloat = max(48.0, safeArea.top)
             let alertBarHeight: CGFloat = max(statusBarHeight, popoverView.frame.height)
             popoverView.show(duration: duration, translationY: -alertBarHeight) {
                 if let index = self.popoversViews.firstIndex(of: popoverView) {
                     self.popoversViews.remove(at: index)
+                    if self.popoversViews.isEmpty {
+                        self.baseView.removeFromSuperview()
+                    }
                 }
                 completion?()
             }
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+  
+    private func getFrameBasedOnOrientation() -> CGRect {
+        let window = UIApplication.shared.keyWindow
+        let safeArea: UIEdgeInsets = window?.safeAreaInsets ?? .zero
+        let isLandscape = UIApplication.shared.statusBarOrientation.isLandscape
+        let margin = MMWebRTCUIConstants.margin
+        return CGRect(x: margin, y: isLandscape ? margin : max(48.0, safeArea.top),
+                      width: UIScreen.main.bounds.width, height: 0)
+    }
+    
+    @objc public func deviceRotated() {
+        DispatchQueue.main.async {
+            let window = UIApplication.shared.keyWindow
+            let safeArea: UIEdgeInsets = window?.safeAreaInsets ?? .zero
+            self.baseView.frame = self.getFrameBasedOnOrientation()
+            for popoverView in self.popoversViews {
+                popoverView.frame.size.width = self.baseView.frame.size.width
+                popoverView.fit(safeArea: safeArea)
+            }
+
         }
     }
 }
@@ -159,11 +175,10 @@ internal class PopoverView: UIView {
     func fit(safeArea: UIEdgeInsets) {
         let margin = PopoverView.kMargin
         messageLabel.sizeToFit()
-        messageLabel.frame.origin.x = iconImageV.frame.size.width + 2*margin + safeArea.left
+        messageLabel.frame.origin.x = iconImageV.frame.size.width + 2 * margin + safeArea.left
         messageLabel.frame.origin.y = margin + safeArea.top
-        messageLabel.frame.size.width = frame.size.width - margin*2 - safeArea.left - 
-            safeArea.right - iconImageV.frame.size.width
-        frame.size.height = messageLabel.frame.origin.y + messageLabel.frame.height + margin*2
+        messageLabel.frame.size.width = frame.size.width - margin*2 - safeArea.left - safeArea.right - iconImageV.frame.size.width
+        frame.size.height = messageLabel.frame.origin.y + messageLabel.frame.height + margin * 2
         iconImageV.center.y = messageLabel.center.y
     }
 

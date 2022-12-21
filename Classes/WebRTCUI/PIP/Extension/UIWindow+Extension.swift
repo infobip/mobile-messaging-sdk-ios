@@ -42,4 +42,11 @@ extension UIApplication {
         return windows.first(where: \.isKeyWindow) ?? windows.first
     }
     
+    static internal var center: CGPoint {
+        let screenSize = UIScreen.main.bounds
+        let screenWidth = screenSize.width
+        let screenHeight = screenSize.height
+        return CGPoint(x: screenWidth / 2, y: screenHeight / 2)
+    }
+    
 }

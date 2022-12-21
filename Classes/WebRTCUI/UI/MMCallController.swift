@@ -22,7 +22,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         view.backgroundColor = settings.backgroundColor
         callStatusLabel.textColor = settings.foregroundColor
         counterpartLabel.textColor = settings.foregroundColor
-
+        videoStatusBottomView.backgroundColor = .clear
     }
 
     private let defaultValues = UserDefaults.standard
@@ -144,6 +144,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
             name: AVAudioSession.routeChangeNotification,
             object: nil)
         self.addTapGesture()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.deviceRotated), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
     
     deinit {
@@ -159,6 +160,16 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         super.viewWillAppear(animated)
         if let establishedEvent = callEstablishedEvent {
             onEstablished(establishedEvent)
+        }
+    }
+    
+    @objc private func deviceRotated() {
+        DispatchQueue.main.async {
+            self.setupLocalViewFrame()
+            if PIPKit.isPIP {
+                self.view.center = UIApplication.center
+                self.setNeedsUpdatePIPFrame()
+            }
         }
     }
     
