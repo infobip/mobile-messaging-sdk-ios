@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>10.6.1-rc2</string>
 	<key>CFBundleVersion</key>
-	<string>1460136653977</string>
+	<string>1460136653978</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
