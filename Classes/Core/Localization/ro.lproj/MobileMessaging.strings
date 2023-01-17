@@ -2,3 +2,5 @@
 "mm_button_decline" = "Refiză";
 "mm_button_cancel" = "Anulează";
 "mm_button_open" = "Deschide";
+"mm_no_internet_connection" = "Fără conexiune internet";
+"mm_something_went_wrong" = "Ceva n-a mers bine.";

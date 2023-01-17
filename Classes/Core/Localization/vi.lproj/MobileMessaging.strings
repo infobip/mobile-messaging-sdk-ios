@@ -2,3 +2,5 @@
 "mm_button_decline" = "Từ chối";
 "mm_button_cancel" = "Hủy bỏ";
 "mm_button_open" = "Mở";
+"mm_no_internet_connection" = "Không có kết nối Internet";
+"mm_something_went_wrong" = "Đã xảy ra lỗi.";

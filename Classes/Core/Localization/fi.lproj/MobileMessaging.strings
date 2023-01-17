@@ -2,3 +2,5 @@
 "mm_button_decline" = "Hylkää";
 "mm_button_cancel" = "Peruuta";
 "mm_button_open" = "Avaa";
+"mm_no_internet_connection" = "Ei Internet-yhteyttä";
+"mm_something_went_wrong" = "Jotain meni pieleen.";

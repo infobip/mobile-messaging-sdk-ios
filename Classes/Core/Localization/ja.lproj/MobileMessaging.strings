@@ -2,3 +2,5 @@
 "mm_button_decline" = "拒否";
 "mm_button_cancel" = "キャンセルする";
 "mm_button_open" = "開く";
+"mm_no_internet_connection" = "インターネット接続がありません";
+"mm_something_went_wrong" = "何かがうまくいかなかった。";

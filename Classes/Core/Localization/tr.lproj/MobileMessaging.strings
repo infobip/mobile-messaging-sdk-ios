@@ -2,3 +2,5 @@
 "mm_button_decline" = "Reddet";
 "mm_button_cancel" = "İptal";
 "mm_button_open" = "Aç";
+"mm_no_internet_connection" = "İnternet bağlantısı yok";
+"mm_something_went_wrong" = "Bir hata oluştu.";

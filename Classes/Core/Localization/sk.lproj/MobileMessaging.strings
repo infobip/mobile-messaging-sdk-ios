@@ -2,3 +2,5 @@
 "mm_button_decline" = "Odmietnuť";
 "mm_button_cancel" = "Zrušiť";
 "mm_button_open" = "Otvoriť";
+"mm_no_internet_connection" = "Žiadne internetové pripojenie";
+"mm_something_went_wrong" = "Niečo sa pokazilo.";

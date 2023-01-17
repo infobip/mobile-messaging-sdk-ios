@@ -19,7 +19,7 @@ class ChatLocalization {
     
     private class func languageBundle() -> Bundle {
         guard let langBundleURL = MMInAppChatService.resourceBundle.url(
-            forResource: MMLanguage.chatLanguage.stringValue,
+            forResource: MMLanguage.sessionLanguage.stringValue,
             withExtension: "lproj"),
             let langBundle = Bundle(url: langBundleURL) else {
             return MMInAppChatService.resourceBundle

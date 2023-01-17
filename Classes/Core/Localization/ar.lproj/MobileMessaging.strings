@@ -2,3 +2,5 @@
 "mm_button_decline" = "رفض";
 "mm_button_cancel" = "إلغاء";
 "mm_button_open" = "فتح";
+"mm_no_internet_connection" = "لا يوجد اتصال بالإنترنت";
+"mm_something_went_wrong" = "‫هناك خطأ ما.‬";

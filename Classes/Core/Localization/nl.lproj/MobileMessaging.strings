@@ -2,3 +2,6 @@
 "mm_button_decline" = "Wijs af";
 "mm_button_cancel" = "Annuleer";
 "mm_button_open" = "Openen";
+"mm_no_internet_connection" = "Geen internet verbinding";
+"mm_something_went_wrong" = "Er is iets fout gegaan.";
+

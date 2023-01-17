@@ -185,6 +185,7 @@ public class MMInAppChatService: MobileMessagingService {
     
     private func syncWithServerIfNeeded(_ completion: @escaping (NSError?) -> Void) {
         if !isConfigurationSynced {
+            chatErrors.rawDescription = nil
             chatErrors.remove(.configurationSyncError)
             chatErrors.remove(.jsError)
             getChatWidget(completion)
@@ -206,6 +207,7 @@ public class MMInAppChatService: MobileMessagingService {
             _self.isConfigurationSynced = (error == nil)
             _self.notifyForChatAvailabilityChange()
             if !_self.isConfigurationSynced {
+                _self.chatErrors.rawDescription = error?.localizedDescription
                 _self.chatErrors.insert(.configurationSyncError)
             }
             _self.update(withChatWidget: _self.chatWidget)
@@ -255,6 +257,7 @@ public class MMInAppChatService: MobileMessagingService {
     private let networkReachabilityManager = NetworkReachabilityManager();
     
    func handleJSError(_ error: String?) {
+        chatErrors.rawDescription = error
         chatErrors.insert(.jsError)
     }
     
@@ -290,7 +293,7 @@ public class MMInAppChatService: MobileMessagingService {
     @objc public func setLanguage(_ localeString: String) {
         let separator = localeString.contains("_") ? "_" : "-"
         let components = localeString.components(separatedBy: separator)
-        MMLanguage.chatLanguage = MMLanguage.mapLanguage(from: components.first ??
+        MMLanguage.sessionLanguage = MMLanguage.mapLanguage(from: components.first ??
                                                          String(localeString.prefix(2)))
     }
 }
@@ -330,4 +333,21 @@ struct ChatErrors: OptionSet {
     static let jsError = ChatErrors(rawValue: 1 << 0)
     static let configurationSyncError = ChatErrors(rawValue: 1 << 1)
     static let noInternetConnectionError = ChatErrors(rawValue: 1 << 2)
+    var rawDescription: String?
+    var localizedDescription: String {
+        let somethingWrong = MMLocalization.localizedString(forKey: "mm_something_went_wrong",
+                                                            defaultString: "Something went wrong.")
+        if self.contains(.noInternetConnectionError) {
+            return MMLocalization.localizedString(forKey: "mm_no_internet_connection",
+                                                               defaultString: "No Internet connection")
+        } else if self.contains(.configurationSyncError) || self.contains(.jsError) {
+            guard let remoteDescription = rawDescription else { return somethingWrong }
+            if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
+                return "\(remoteDescription) - " + somethingWrong
+            } else {
+                return somethingWrong + " - \(remoteDescription)"
+            }
+        }
+        return somethingWrong
+    }
 }

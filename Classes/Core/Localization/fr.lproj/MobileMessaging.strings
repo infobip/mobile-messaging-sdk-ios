@@ -2,3 +2,5 @@
 "mm_button_decline" = "Refuser";
 "mm_button_cancel" = "Annuler";
 "mm_button_open" = "Ouvrir";
+"mm_no_internet_connection" = "Pas de connexion Internet";
+"mm_something_went_wrong" = "Une erreur est survenue.";

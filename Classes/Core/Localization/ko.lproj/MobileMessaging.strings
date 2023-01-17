@@ -2,3 +2,5 @@
 "mm_button_decline" = "거절";
 "mm_button_cancel" = "취소";
 "mm_button_open" = "열기";
+"mm_no_internet_connection" = "인터넷에 연결되지 않음";
+"mm_something_went_wrong" = "문제가 발생했습니다.";

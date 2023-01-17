@@ -2,3 +2,5 @@
 "mm_button_decline" = "ปฏิเสธ";
 "mm_button_cancel" = "ยกเลิก";
 "mm_button_open" = "เปิด";
+"mm_no_internet_connection" = "ไม่มีการเชื่อมต่ออินเทอร์เน็ต";
+"mm_something_went_wrong" = "บางอย่างผิดพลาด.";

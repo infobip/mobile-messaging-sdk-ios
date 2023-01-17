@@ -2,3 +2,5 @@
 "mm_button_decline" = "Afvis";
 "mm_button_cancel" = "Annullér";
 "mm_button_open" = "Åbn";
+"mm_no_internet_connection" = "Ingen internetforbindelse";
+"mm_something_went_wrong" = "Noget gik galt.";

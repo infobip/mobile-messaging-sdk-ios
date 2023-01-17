@@ -2,3 +2,5 @@
 "mm_button_decline" = "Neka";
 "mm_button_cancel" = "Avbryt";
 "mm_button_open" = "Öppna";
+"mm_no_internet_connection" = "Ingen internetanslutning";
+"mm_something_went_wrong" = "Något gick fel.";

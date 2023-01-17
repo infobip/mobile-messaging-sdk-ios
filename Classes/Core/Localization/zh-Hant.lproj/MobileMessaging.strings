@@ -2,3 +2,5 @@
 "mm_button_decline" = "拒絕";
 "mm_button_cancel" = "取消";
 "mm_button_open" = "打開";
+"mm_no_internet_connection" = "沒有網際網路連線";
+"mm_something_went_wrong" = "請稍後再試。";

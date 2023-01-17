@@ -2,3 +2,5 @@
 "mm_button_decline" = "Utasítsd el";
 "mm_button_cancel" = "Mégse";
 "mm_button_open" = "Megnyitás";
+"mm_no_internet_connection" = "Nincs internetkapcsolat";
+"mm_something_went_wrong" = "Valami elromlott.";

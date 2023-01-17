@@ -2,3 +2,5 @@
 "mm_button_decline" = "Avslå";
 "mm_button_cancel" = "Avbryt";
 "mm_button_open" = "Åpne";
+"mm_no_internet_connection" = "Ingen Internett-tilkobling";
+"mm_something_went_wrong" = "Noe gikk galt.";

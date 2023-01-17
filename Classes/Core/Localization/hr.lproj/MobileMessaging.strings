@@ -2,3 +2,5 @@
 "mm_button_decline" = "Odbaci";
 "mm_button_cancel" = "Poništi";
 "mm_button_open" = "Otvori";
+"mm_no_internet_connection" = "Nema internetske veze";
+"mm_something_went_wrong" = "Nešto je pošlo po zlu.";

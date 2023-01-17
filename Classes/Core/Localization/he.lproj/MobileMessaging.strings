@@ -2,3 +2,5 @@
 "mm_button_decline" = "דחה";
 "mm_button_cancel" = "לְבַטֵל";
 "mm_button_open" = "פתח";
+"mm_no_internet_connection" = "אין חיבור אינטרנט";
+"mm_something_went_wrong" = "משהו השתבש.";

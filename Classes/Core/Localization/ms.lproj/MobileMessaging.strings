@@ -2,3 +2,5 @@
 "mm_button_decline" = "Tolak";
 "mm_button_cancel" = "Batal";
 "mm_button_open" = "Buka";
+"mm_no_internet_connection" = "Tiada sambungan internet";
+"mm_something_went_wrong" = "Sesuatu telah berlaku.";

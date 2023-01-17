@@ -267,12 +267,12 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     
     func didReceiveError(_ errors: ChatErrors) {
         if errors == .none {
-            chatNotAvailableLabel.hide()
+            chatNotAvailableLabel.setVisibility(false, text: nil)
             if !(webView.isLoaded) {
                 webView.reload()
             }
         } else {
-            chatNotAvailableLabel.show()
+            chatNotAvailableLabel.setVisibility(true, text: errors.localizedDescription)
         }
     }
     
@@ -290,7 +290,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     private func setupChatNotAvailableLabel() {
-        chatNotAvailableLabel = ChatNotAvailableLabel(frame: CGRect(x: 0, y: -ChatNotAvailableLabel.kHeight, width: self.view.bounds.width, height: ChatNotAvailableLabel.kHeight))
+        chatNotAvailableLabel = ChatNotAvailableLabel(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 0))
+        chatNotAvailableLabel.numberOfLines = ChatNotAvailableLabel.kMaxNumberOfLines
+        chatNotAvailableLabel.isHidden = true
         self.view.addSubview(self.chatNotAvailableLabel)
     }
     

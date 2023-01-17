@@ -2,3 +2,5 @@
 "mm_button_decline" = "अस्वीकारें";
 "mm_button_cancel" = "रद्द करें";
 "mm_button_open" = "खोलें";
+"mm_no_internet_connection" = "कोई इंटरनेट कनेक्शन नहीं";
+"mm_something_went_wrong" = "कुछ गलत हो गया।";

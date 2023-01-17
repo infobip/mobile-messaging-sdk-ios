@@ -8,9 +8,9 @@
 import Foundation
 
 class ChatNotAvailableLabel: UILabel {
-    static var kHeight: CGFloat = 40.0
+    static var kMinHeight: CGFloat = 40.0
     static var kAnimationDuration: TimeInterval = 0.5
-    var isShown = false
+    static var kMaxNumberOfLines: Int = 5
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,26 +30,37 @@ class ChatNotAvailableLabel: UILabel {
     func initializeLabel() {
         textAlignment = .center
         font = UIFont.systemFont(ofSize: 16)
-        text = ChatLocalization.localizedString(forKey: "mm_no_connection_label", defaultString: "No connection")
         backgroundColor = .lightGray
         autoresizingMask = [.flexibleWidth]
     }
     
-    func show() {
-        if !isShown {
-            UIView.animate(withDuration: ChatNotAvailableLabel.kAnimationDuration) {
-                self.frame.origin.y += self.frame.height
-            }
+    private func resizeAndReposition(_ changingToVisible: Bool) {
+        if changingToVisible {
+            let originalWidth = self.frame.size.width
+            self.sizeToFit()
+            self.frame.size.height = max(self.frame.size.height, ChatNotAvailableLabel.kMinHeight)
+            self.frame.size.width = originalWidth
+            self.frame.origin.y = -self.frame.height
+        } else {
+            self.frame.origin.y = 0
         }
-        isShown = true
     }
     
-    func hide() {
-        if isShown {
-            UIView.animate(withDuration: ChatNotAvailableLabel.kAnimationDuration) {
-                self.frame.origin.y -= self.frame.height
+    func setVisibility(_ changeToVisible: Bool, text: String?) {
+        DispatchQueue.main.async {
+            if self.isHidden == changeToVisible {
+                self.text = text
+                let originalClipToBounds = self.superview?.clipsToBounds ?? false
+                self.superview?.clipsToBounds = true
+                self.resizeAndReposition(changeToVisible)
+                UIView.animate(withDuration: ChatNotAvailableLabel.kAnimationDuration, animations: {
+                    let endingY = changeToVisible ? self.frame.height : (-1 * self.frame.height)
+                    self.isHidden = !changeToVisible
+                    self.frame.origin.y += endingY
+                }, completion: { _ in
+                    self.superview?.clipsToBounds = originalClipToBounds
+                })
             }
         }
-        isShown = false
     }
 }

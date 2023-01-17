@@ -2,3 +2,5 @@
 "mm_button_decline" = "Відхилити";
 "mm_button_cancel" = "Скасувати";
 "mm_button_open" = "Відкрити";
+"mm_no_internet_connection" = "Немає підключення до Інтернету";
+"mm_something_went_wrong" = "Щось пішло не так.";

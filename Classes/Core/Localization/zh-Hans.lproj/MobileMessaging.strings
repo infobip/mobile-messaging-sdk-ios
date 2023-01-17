@@ -2,3 +2,5 @@
 "mm_button_decline" = "拒绝";
 "mm_button_cancel" = "取消";
 "mm_button_open" = "打开";
+"mm_no_internet_connection" = "没有网络连接";
+"mm_something_went_wrong" = "出了点问题。";
