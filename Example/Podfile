@@ -5,11 +5,13 @@ platform :ios, '12.0'
 $podName = 'MobileMessaging'
 $geoPodName = 'MobileMessaging/Geofencing'
 $chatPodName = 'MobileMessaging/InAppChat'
+$inboxPodName = 'MobileMessaging/Inbox'
 
 def includeMobileMessagingPods
 	pod $podName, :path => '../'
 	pod $geoPodName, :path => '../'
 	pod $chatPodName, :path => '../'
+	pod $inboxPodName, :path => '../'
 end
 
 target 'MobileMessagingExample' do
@@ -35,5 +37,12 @@ post_install do |installer|
 				config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
 			end
 		end
+    # Fix Xcode 14 resource bundle signing issues
+    # https://github.com/CocoaPods/CocoaPods/issues/11402#issuecomment-1259231655
+    if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+      target.build_configurations.each do |config|
+        config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+      end
+    end
 	end
 end

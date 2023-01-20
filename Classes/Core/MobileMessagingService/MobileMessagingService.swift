@@ -64,7 +64,6 @@ public class MobileMessagingService: NSObject, NamedLogger {
     func mobileMessagingWillStart(_ completion: @escaping () -> Void) { completion() }
     func mobileMessagingDidStart(_ completion: @escaping () -> Void) { completion() }
     func mobileMessagingWillStop(_ completion: @escaping () -> Void) { completion() }
-    func mobileMessagingDidStop(_ completion: @escaping () -> Void) { completion() }
     func appWillEnterForeground(_ completion: @escaping () -> Void) { completion() }
     func appDidFinishLaunching(_ notification: Notification, completion: @escaping () -> Void) { completion() }
     func appDidBecomeActive(_ completion: @escaping () -> Void) { completion() }
@@ -86,7 +85,6 @@ public class MobileMessagingService: NSObject, NamedLogger {
     @objc private func mobileMessagingWillStart(notification: Notification) { submitToDispatchGroup(block: mobileMessagingWillStart) }
     @objc private func mobileMessagingDidStart(notification: Notification) { submitToDispatchGroup(block: mobileMessagingDidStart) }
     @objc private func mobileMessagingWillStop(notification: Notification) { submitToDispatchGroup(block: mobileMessagingWillStop) }
-    @objc private func mobileMessagingDidStop(notification: Notification) { submitToDispatchGroup(block: mobileMessagingDidStop) }
     @objc private func baseUrlDidChange(notification: Notification) { submitToDispatchGroup(block: baseUrlDidChange) }
     
     @objc private func appWillEnterForegroundMainThread(notification: Notification) {
@@ -186,11 +184,6 @@ public class MobileMessagingService: NSObject, NamedLogger {
             self,
             selector: #selector(mobileMessagingWillStop(notification:)),
             name: NSNotification.Name(rawValue: "mobileMessagingWillStop"), object: nil)
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(mobileMessagingDidStop(notification:)),
-            name: NSNotification.Name(rawValue: "mobileMessagingDidStop"), object: nil)
         
         NotificationCenter.default.addObserver(
             self,

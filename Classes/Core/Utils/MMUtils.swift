@@ -14,6 +14,16 @@ import UserNotifications
 
 public typealias DictionaryRepresentation = [String: Any]
 
+extension MMStringKeyPayload {
+    var mm_internalData: MMStringKeyPayload? {
+        return self[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload
+    }
+    var mm_inbox: MMStringKeyPayload? {
+        return self.mm_internalData?[Consts.InternalDataKeys.inbox] as? MMStringKeyPayload
+    }
+}
+
+
 func arrayToSet<T>(arr: [T]?) -> Set<T>? {
     return arr != nil ? Set<T>(arr!) : nil
 }
@@ -398,6 +408,9 @@ protocol DictionaryRepresentable {
 }
 
 extension Date {
+    func mm_epochUnixTimestamp() -> Int64 {
+        return Int64(floor(self.timeIntervalSince1970 * 1000))
+    }
     var timestampDelta: UInt {
         return UInt(max(0, MobileMessaging.date.now.timeIntervalSinceReferenceDate - self.timeIntervalSinceReferenceDate))
     }

@@ -469,7 +469,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
      */
     public static var urlSessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
     
-    /** The `MMPrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic. */
+    /** The `MMPrivacySettings` class encapsulates privacy settings that affect the SDK behaviour and business logic. */
     public internal(set) static var privacySettings = MMPrivacySettings()
     
     /** The number currently set as the badge of the app icon in Springboard.
@@ -622,8 +622,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
         
         messageStorages.values.forEach({$0.stop()})
         messageStorages.removeAll()
-        
-        NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingDidStop"), object: self)
         
         MobileMessaging.messageHandlingDelegate = nil
         

@@ -6,7 +6,7 @@
 //
 
 enum APIPath: String {
-	case SeenMessages = "/mobile/1/messages/seen"
+	case SeenMessages = "/mobile/2/messages/seen"
 	case SyncMessages = "/mobile/5/messages"
 	case MOMessage = "/mobile/1/messages/mo"
 	case LibraryVersion = "/mobile/3/version"
@@ -23,6 +23,8 @@ enum APIPath: String {
 	case CustomEvents = "/mobile/1/appinstance/{pushRegistrationId}/user/events/custom"
 	
 	case ChatWidget = "/mobile/1/chat/widget"
+    
+    case Inbox = "/mobile/1/user/{externalUserId}/inbox/apns/messages"
 }
 
 class SeenStatusSendingRequest: PostRequest {
@@ -177,7 +179,7 @@ typealias RequestBody = [String: Any]
 typealias RequestParameters = [String: Any]
 
 class RequestData {
-    init(applicationCode: String, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
+    init(applicationCode: String, accessToken: String?, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
 		self.applicationCode = applicationCode
 		self.method = method
 		self.path = path
@@ -186,7 +188,9 @@ class RequestData {
 		self.parameters = parameters
 		self.pathParameters = pathParameters
         self.baseUrl = baseUrl
+        self.accessToken = accessToken
 	}
+    let accessToken: String?
 	let applicationCode: String
 	let pushRegistrationId: String?
 	let method: HTTPMethod
@@ -195,7 +199,11 @@ class RequestData {
 
 	var headers: HTTPHeaders? {
 		var headers: HTTPHeaders = [:]
-		headers["Authorization"] = "App \(self.applicationCode)"
+        if let accessToken = accessToken {
+            headers["Authorization"] = "Bearer \(accessToken)"
+        } else {
+            headers["Authorization"] = "App \(self.applicationCode)"
+        }
 		headers["applicationcode"] = calculateAppCodeHash(self.applicationCode)
 		headers["User-Agent"] = MobileMessaging.userAgent.currentUserAgentString
 		headers["foreground"] = String(MobileMessaging.application.isInForegroundState)
@@ -220,31 +228,31 @@ class RequestData {
 }
 
 class GetRequest: RequestData {
-    init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
-		super.init(applicationCode: applicationCode, method: .get, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, baseUrl: baseUrl)
+    init(applicationCode: String, accessToken: String? = nil, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
+        super.init(applicationCode: applicationCode, accessToken: accessToken, method: .get, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, baseUrl: baseUrl)
 	}
 }
 
 class PostRequest: RequestData {
 	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, method: .post, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
+		super.init(applicationCode: applicationCode, accessToken: nil, method: .post, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
 	}
 }
 
 class DeleteRequest: RequestData {
 	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, method: .delete, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
+		super.init(applicationCode: applicationCode, accessToken: nil, method: .delete, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
 	}
 }
 
 class PutRequest: RequestData {
 	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, method: .put, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
+		super.init(applicationCode: applicationCode, accessToken: nil, method: .put, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
 	}
 }
 
 class PatchRequest: RequestData {
 	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, method: .patch, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
+		super.init(applicationCode: applicationCode, accessToken: nil, method: .patch, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
 	}
 }

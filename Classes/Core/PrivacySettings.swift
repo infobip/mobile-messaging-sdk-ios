@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// The `MMPrivacySettings` class incapsulates privacy settings that affect the SDK behaviour and business logic.
+/// The `MMPrivacySettings` class encapsulates privacy settings that affect the SDK behaviour and business logic.
 @objcMembers
 public class MMPrivacySettings: NSObject {
 	/// A boolean variable that indicates whether the MobileMessaging SDK will be sending the carrier information to the server.

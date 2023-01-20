@@ -67,6 +67,8 @@ struct Consts {
 		//MARK: seenMessages
 		static let seenMessages = "messages"
 		static let seenTimestampDelta = "timestampDelta"
+        static let seenMessageInbox = "inbox"
+        static let seenExternalUserId = "externalUserId"
 
 		//MARK: Sync API
 		static let archiveMsgIds = "mIDs"
@@ -130,6 +132,16 @@ struct Consts {
 		static let deviceTimeZone = "deviceTimezoneOffset"
 		static let pushServiceType = "pushServiceType"
 	}
+    
+    struct InboxKeys {
+        static let messageTopic = "messageTopic"
+        static let dateTimeFrom = "dateTimeFrom"
+        static let dateTimeTo = "dateTimeTo"
+        static let limit = "limit"
+        static let messages = "messages"
+        static let countTotal = "countTotal"
+        static let countUnread = "countUnread"
+    }
 
 	struct GeoReportingAPIKeys {
 		static let reports = "reports"
@@ -163,6 +175,9 @@ struct Consts {
         static let deeplink = "deeplink"
 		static let inAppDismissTitle = "inAppDismissTitle"
 		static let inAppOpenTitle = "inAppOpenTitle"
+        static let topic = "topic"
+        static let inbox = "inbox"
+        static let seen = "seen"
 	}
 
 	struct Attachments {

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="InboxExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter External User Id" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Td9-j0-0f4">
+                                <rect key="frame" x="20" y="108" width="374" height="34"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <action selector="externalUserIdChanged:" destination="BYZ-38-t0r" eventType="editingChanged" id="42b-oZ-BI4"/>
+                                </connections>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ggq-Bi-4DK">
+                                <rect key="frame" x="20" y="161" width="374" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="hM3-Hj-MD9"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Personalize"/>
+                                <connections>
+                                    <action selector="personalize:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wbM-pV-Gjv"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LBz-PE-bfd">
+                                <rect key="frame" x="20" y="213" width="374" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="rLd-gw-Dio"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Depersonalize"/>
+                                <connections>
+                                    <action selector="depersonalize:" destination="BYZ-38-t0r" eventType="touchUpInside" id="DGV-1u-aFK"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0cW-cr-cYt" customClass="BadgeButton" customModule="InboxExample" customModuleProvider="target">
+                                <rect key="frame" x="20" y="265" width="374" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="dqW-ai-7Fk"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Show Inbox"/>
+                                <connections>
+                                    <segue destination="BBX-qj-CIG" kind="presentation" id="rGE-LO-czZ"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="0cW-cr-cYt" firstAttribute="leading" secondItem="LBz-PE-bfd" secondAttribute="leading" id="1lw-Q7-9t7"/>
+                            <constraint firstItem="Td9-j0-0f4" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="64" id="26x-Zj-knH"/>
+                            <constraint firstItem="LBz-PE-bfd" firstAttribute="trailing" secondItem="ggq-Bi-4DK" secondAttribute="trailing" id="4nd-tE-RfV"/>
+                            <constraint firstItem="0cW-cr-cYt" firstAttribute="trailing" secondItem="LBz-PE-bfd" secondAttribute="trailing" id="7kb-ql-boP"/>
+                            <constraint firstItem="Td9-j0-0f4" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="La3-Xa-CVo"/>
+                            <constraint firstItem="LBz-PE-bfd" firstAttribute="leading" secondItem="ggq-Bi-4DK" secondAttribute="leading" id="UnM-7p-KUc"/>
+                            <constraint firstItem="Td9-j0-0f4" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="aMp-O0-oJ0"/>
+                            <constraint firstItem="LBz-PE-bfd" firstAttribute="top" secondItem="ggq-Bi-4DK" secondAttribute="bottom" constant="8" symbolic="YES" id="drA-Cf-bcy"/>
+                            <constraint firstItem="ggq-Bi-4DK" firstAttribute="top" secondItem="Td9-j0-0f4" secondAttribute="bottom" constant="19" id="gjc-Bw-nA4"/>
+                            <constraint firstItem="Td9-j0-0f4" firstAttribute="trailing" secondItem="ggq-Bi-4DK" secondAttribute="trailing" id="idd-Fb-FDG"/>
+                            <constraint firstItem="Td9-j0-0f4" firstAttribute="leading" secondItem="ggq-Bi-4DK" secondAttribute="leading" id="y4k-LH-hxr"/>
+                            <constraint firstItem="0cW-cr-cYt" firstAttribute="top" secondItem="LBz-PE-bfd" secondAttribute="bottom" constant="8" symbolic="YES" id="yuB-Sj-kqb"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="depersonalizeBtn" destination="LBz-PE-bfd" id="f9f-xf-ta5"/>
+                        <outlet property="externalUserIdTextField" destination="Td9-j0-0f4" id="ORb-Mc-ORV"/>
+                        <outlet property="inboxBtn" destination="0cW-cr-cYt" id="K3y-FG-ejp"/>
+                        <outlet property="personalizeBtn" destination="ggq-Bi-4DK" id="Yr0-CJ-6dC"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-449.27536231884062" y="78.348214285714278"/>
+        </scene>
+        <!--Inbox View Controller-->
+        <scene sceneID="YgB-TC-Wir">
+            <objects>
+                <tableViewController id="0Hz-TJ-Uwz" customClass="InboxViewController" customModule="InboxExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="oW2-KP-3ww">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="inboxMessageCell" textLabel="xaS-d0-3vI" detailTextLabel="KaP-aH-Kst" style="IBUITableViewCellStyleSubtitle" id="c8z-mk-4a8">
+                                <rect key="frame" x="0.0" y="44.5" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="c8z-mk-4a8" id="qmF-bY-Xxf">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="xaS-d0-3vI">
+                                            <rect key="frame" x="20" y="6" width="25" height="14.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="0.0"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="KaP-aH-Kst">
+                                            <rect key="frame" x="20" y="22.5" width="40.5" height="13.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="0Hz-TJ-Uwz" id="Qt7-db-QZk"/>
+                            <outlet property="delegate" destination="0Hz-TJ-Uwz" id="ST3-cg-ot7"/>
+                        </connections>
+                    </tableView>
+                    <toolbarItems>
+                        <barButtonItem enabled="NO" title="Messages counts" id="6TB-rm-6q2">
+                            <color key="tintColor" systemColor="labelColor"/>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="cqw-jY-4F2"/>
+                        <barButtonItem title="Load older" style="plain" id="0fM-xD-V3Z">
+                            <connections>
+                                <action selector="loadOlder:" destination="0Hz-TJ-Uwz" id="1Uj-UH-PPC"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
+                    <navigationItem key="navigationItem" id="AT1-hx-E0G">
+                        <nil key="title"/>
+                        <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="xpu-HG-FA0">
+                            <rect key="frame" x="20" y="12" width="374" height="32"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <segments>
+                                <segment title="First"/>
+                                <segment title="Second"/>
+                            </segments>
+                            <connections>
+                                <action selector="topicDidChange:" destination="0Hz-TJ-Uwz" eventType="valueChanged" id="NAB-tG-E6f"/>
+                            </connections>
+                        </segmentedControl>
+                    </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="messagesCountsInfo" destination="6TB-rm-6q2" id="3iN-FN-Cki"/>
+                        <outlet property="segmentedControl" destination="xpu-HG-FA0" id="4ck-0N-F1r"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="YfR-U1-grf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1176.8115942028987" y="77.678571428571431"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="h9B-qj-XRG">
+            <objects>
+                <navigationController toolbarHidden="NO" id="BBX-qj-CIG" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="ZND-p2-pVI">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="56"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Ewt-xF-VSZ">
+                        <rect key="frame" x="0.0" y="759" width="414" height="49"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
+                    <connections>
+                        <segue destination="0Hz-TJ-Uwz" kind="relationship" relationship="rootViewController" id="Cyi-f3-tNM"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="hhO-7b-JdG" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="338" y="78"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

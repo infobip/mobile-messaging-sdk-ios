@@ -139,11 +139,6 @@ public class MMGeofencingService: MobileMessagingService {
 		start({ _ in completion() })
 	}
 
-	override func mobileMessagingDidStop(_ completion: @escaping () -> Void) {
-		MMGeofencingService.sharedInstance = nil
-        completion()
-	}
-
 	override func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) {
 		if mmContext.currentInstallation().isPushRegistrationEnabled {
 			start({ _ in completion() })
