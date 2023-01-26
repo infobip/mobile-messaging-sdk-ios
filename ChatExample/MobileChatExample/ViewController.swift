@@ -46,10 +46,10 @@ class ViewController: UIViewController, MMInAppChatDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             vc.sendContextualData("{ demoKey: 'InAppChat Metadata Value' }") { error in
                 guard let error = error else {
-                    print("Medatata was sent")
+                    MMLogInfo("Medatata was sent")
                     return
                 }
-                print("Error sending metadata: \(error.localizedDescription)")
+                MMLogError(("Error sending metadata: \(error.localizedDescription)"))
             }
         }
     }

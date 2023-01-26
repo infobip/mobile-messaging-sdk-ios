@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 import MobileMessaging
-import SwiftJWT
 
 class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
     @IBOutlet weak var identityTextField: UITextField!
@@ -31,7 +30,7 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
     
     @IBAction func doAuthenticateAndPresentChat(_ sender: Any) {
         guard let identityString = identityTextField.text else {
-            print("Identity cannot be empty")
+            MMLogError("Identity cannot be empty")
             return
         }
         let emails = identitySegmentedC.selectedSegmentIndex == 0 ? [identityString] : nil
@@ -45,7 +44,7 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
         // presenting the chat
         MobileMessaging.personalize(forceDepersonalize: true, userIdentity: identity, userAttributes: atts) { [weak self] result in
             if result != nil {
-                print(">>>>Personalize result: " + (result?.mm_message ?? ""))
+                MMLogError(">>>>Personalize result: " + (result?.mm_message ?? ""))
             } else {
                 self?.handleJWT(identityMode: emails != nil ? "email" :
                                     phones != nil ? "msisdn" :
@@ -55,41 +54,12 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
     }
     
     func handleJWT(identityMode: String) {
-        guard let jwt = generateJWT(identityMode) else {
-            print("Could not generate JWT, aborting")
+        guard let identifier = identityTextField.text, let jwt = JWTClaims.generateJWT(identityMode, identifier: identifier) else {
+            MMLogError("Could not generate JWT, aborting")
             return
         }
         MobileMessaging.inAppChat?.jwt = jwt // We suggest you freshly generate a new token before presenting the chat (to avoid expirations)
         let vc = MMChatViewController.makeModalViewController()
         self.navigationController?.present(vc, animated: true, completion: nil)
-    }
-  
-    func generateJWT(_ identityMode: String) -> String? {
-        guard let identifier = identityTextField.text else { return nil }
-        let widgetId = "<# your widget ID #>" // All this values can be obtained in your widget's configuration
-        let widgetKeyId = "<# your widget key ID #>" // Always define key and secret as obfuscated strings, for safety!!
-        let widgetSecretKeyId = "<# your widget secret key ID #>"
-        let myHeader = Header()
-        let randomUniqueString = UUID().uuidString
-        let myClaims = JWTClaims(
-            jti: randomUniqueString,
-            sub: identifier,
-            stp: identityMode,
-            iss: widgetId,
-            iat: Date(),
-            exp: Date().addingTimeInterval(20), // 20 seconds after creation - recommended value
-            ski: widgetKeyId,
-            sid: randomUniqueString) // This is potentially not needed once we use Logout function
-        var myJWT = JWT(header: myHeader, claims: myClaims)
-        guard let secretKeyIdData = Data(base64Encoded: widgetSecretKeyId, options: .ignoreUnknownCharacters) else {
-            print("Unable to decode the base64 secret key Id")
-            return nil
-        }
-        let jwtSigner = JWTSigner.hs256(key: secretKeyIdData)
-        guard let signedJWT = try? myJWT.sign(using: jwtSigner) else {
-            print("Unable to prepare the signed JWT to authenticate into the chat")
-            return nil
-        }
-        return signedJWT
     }
 }
