@@ -19,6 +19,7 @@ struct ChatAPIKeys {
 	struct QueryParams {
 		static let pushRegId = "pushRegId"
 		static let widgetId = "widgetId"
+        static let jwt = "jwt"
 		static let io = "io"
 	}
 	

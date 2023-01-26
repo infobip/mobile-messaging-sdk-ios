@@ -56,6 +56,7 @@
 		A835D6AB298161A5002FAB5B /* Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = A835D680298161A5002FAB5B /* Status.swift */; };
 		A835D6AC298161A5002FAB5B /* KeyDerivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A835D681298161A5002FAB5B /* KeyDerivation.swift */; };
 		A835D6AE298161C9002FAB5B /* JWTClaims.swift in Sources */ = {isa = PBXBuildFile; fileRef = A835D6AD298161C9002FAB5B /* JWTClaims.swift */; };
+		A835D6B02982759E002FAB5B /* AuthenticatedChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */; };
 		A85288CD285094BC00F7017D /* LanguageTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85288CC285094BC00F7017D /* LanguageTableVC.swift */; };
 		E3B9709EB8F63580DA5EE7BA /* Pods_MobileChatExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5BC48E2C497C7650AF88168 /* Pods_MobileChatExample.framework */; };
 /* End PBXBuildFile section */
@@ -115,6 +116,7 @@
 		A835D680298161A5002FAB5B /* Status.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Status.swift; sourceTree = "<group>"; };
 		A835D681298161A5002FAB5B /* KeyDerivation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyDerivation.swift; sourceTree = "<group>"; };
 		A835D6AD298161C9002FAB5B /* JWTClaims.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JWTClaims.swift; sourceTree = "<group>"; };
+		A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedChatVC.swift; sourceTree = "<group>"; };
 		A85288CC285094BC00F7017D /* LanguageTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageTableVC.swift; sourceTree = "<group>"; };
 		B486BA7B428768CC999D9B6F /* Pods-MobileChatExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.release.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.release.xcconfig"; sourceTree = "<group>"; };
 		CEC857A6E609E0EE6E78E4D5 /* Pods-MobileChatExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.debug.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.debug.xcconfig"; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 				765259E91FB5A99100058788 /* AppDelegate.swift */,
 				A0AAC48724559976000C99E6 /* ViewController.swift */,
 				A85288CC285094BC00F7017D /* LanguageTableVC.swift */,
+				A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */,
 				765259ED1FB5A99100058788 /* Main.storyboard */,
 				765259F01FB5A99100058788 /* Assets.xcassets */,
 				765259F21FB5A99100058788 /* LaunchScreen.storyboard */,
@@ -466,6 +469,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A835D6B02982759E002FAB5B /* AuthenticatedChatVC.swift in Sources */,
 				A835D686298161A5002FAB5B /* JWTError.swift in Sources */,
 				A835D69B298161A5002FAB5B /* EllipticCurve.swift in Sources */,
 				A835D68F298161A5002FAB5B /* SignerAlgorithm.swift in Sources */,
@@ -659,7 +663,7 @@
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = T6U248P7YM;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = MobileChatExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.MobileChatExample;
@@ -678,7 +682,7 @@
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = T6U248P7YM;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = MobileChatExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.MobileChatExample;
