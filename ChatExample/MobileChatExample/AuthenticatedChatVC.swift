@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MobileMessaging
+import SwiftJWT
 
 class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
     @IBOutlet weak var identityTextField: UITextField!
@@ -62,13 +63,13 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
         let vc = MMChatViewController.makeModalViewController()
         self.navigationController?.present(vc, animated: true, completion: nil)
     }
-    
+  
     func generateJWT(_ identityMode: String) -> String? {
         guard let identifier = identityTextField.text else { return nil }
         let widgetId = "<# your widget ID #>" // All this values can be obtained in your widget's configuration
         let widgetKeyId = "<# your widget key ID #>" // Always define key and secret as obfuscated strings, for safety!!
         let widgetSecretKeyId = "<# your widget secret key ID #>"
-        let myHeader = Header(alg: "HS256")
+        let myHeader = Header()
         let randomUniqueString = UUID().uuidString
         let myClaims = JWTClaims(
             jti: randomUniqueString,

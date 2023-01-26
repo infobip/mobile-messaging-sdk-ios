@@ -6,6 +6,8 @@
 //  Copyright © 2023 Infobip d.o.o. All rights reserved.
 //
 
+import SwiftJWT
+
 import Foundation
 struct JWTClaims: Claims {
     let jti: String //random UNIQUE String
