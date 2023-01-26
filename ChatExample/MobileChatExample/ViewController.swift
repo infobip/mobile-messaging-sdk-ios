@@ -17,11 +17,6 @@ class ViewController: UIViewController, MMInAppChatDelegate {
 		super.viewDidLoad()
 		MobileMessaging.inAppChat?.delegate = self
 	}
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        MobileMessaging.inAppChat?.jwt = nil
-    }
 	
 	@IBAction func showChatInNavigationP(_ sender: Any) {
 		let vc = MMChatViewController.makeChildNavigationViewController()

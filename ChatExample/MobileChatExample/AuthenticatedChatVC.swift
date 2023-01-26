@@ -20,18 +20,15 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
         MobileMessaging.inAppChat?.delegate = self
     }
     
-    @IBAction func doAuthenticateAndPresentChat(_ sender: Any) {
-        doPersonalize()
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        MobileMessaging.inAppChat?.jwt = nil
         identityTextField.text = "dsa@asd.com"
         identitySegmentedC.selectedSegmentIndex = 0
         fullNameTextField.text = "John Smith"
     }
     
-    func doPersonalize() {
+    @IBAction func doAuthenticateAndPresentChat(_ sender: Any) {
         guard let identityString = identityTextField.text else {
             print("Identity cannot be empty")
             return
@@ -43,17 +40,15 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
         let nameComponents = fullNameTextField.text?.components(separatedBy: " ")
         let atts = nameComponents == nil ? nil : MMUserAttributes(firstName: nameComponents?.first, middleName: nil, lastName: nameComponents?.last, tags: nil, gender: nil, birthday: nil, customAttributes: nil)
         guard let identity = identity else { return }
+        // Note: you only need to call "personalize" once for your user. Only the refreshing of the token should be done before
+        // presenting the chat
         MobileMessaging.personalize(forceDepersonalize: true, userIdentity: identity, userAttributes: atts) { [weak self] result in
             if result != nil {
                 print(">>>>Personalize result: " + (result?.mm_message ?? ""))
             } else {
-                if emails != nil {
-                    self?.handleJWT(identityMode: "email")
-                } else if phones != nil {
-                    self?.handleJWT(identityMode: "msisdn")
-                } else {
-                    self?.handleJWT(identityMode: "externalPersonId")
-                }
+                self?.handleJWT(identityMode: emails != nil ? "email" :
+                                    phones != nil ? "msisdn" :
+                                    "externalPersonId")
             }
         }
     }
@@ -63,14 +58,14 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
             print("Could not generate JWT, aborting")
             return
         }
-        MobileMessaging.inAppChat?.jwt = jwt        
+        MobileMessaging.inAppChat?.jwt = jwt // We suggest you freshly generate a new token before presenting the chat (to avoid expirations)
         let vc = MMChatViewController.makeModalViewController()
         self.navigationController?.present(vc, animated: true, completion: nil)
     }
     
     func generateJWT(_ identityMode: String) -> String? {
         guard let identifier = identityTextField.text else { return nil }
-        let widgetId = "<# your widget ID #>"
+        let widgetId = "<# your widget ID #>" // All this values can be obtained in your widget's configuration
         let widgetKeyId = "<# your widget key ID #>" // Always define key and secret as obfuscated strings, for safety!!
         let widgetSecretKeyId = "<# your widget secret key ID #>"
         let myHeader = Header(alg: "HS256")
