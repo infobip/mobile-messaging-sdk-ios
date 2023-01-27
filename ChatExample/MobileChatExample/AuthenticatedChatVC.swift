@@ -44,7 +44,7 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
         // presenting the chat
         MobileMessaging.personalize(forceDepersonalize: true, userIdentity: identity, userAttributes: atts) { [weak self] result in
             if result != nil {
-                MMLogError(">>>>Personalize result: " + (result?.mm_message ?? ""))
+                MMLogError("Personalize result: " + (result?.mm_message ?? ""))
             } else {
                 self?.handleJWT(identityMode: emails != nil ? "email" :
                                     phones != nil ? "msisdn" :
