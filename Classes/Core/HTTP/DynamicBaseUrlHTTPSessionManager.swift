@@ -68,8 +68,12 @@ class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 	}
 
 	func resolveUrl(_ r: RequestData) -> String {
-        return (r.baseUrl ?? dynamicBaseUrl ?? originalBaseUrl).absoluteString + r.resolvedPath
+        return (r.baseUrl ?? actualBaseUrl()).absoluteString + r.resolvedPath
 	}
+    
+    func actualBaseUrl() -> URL {
+        return dynamicBaseUrl ?? originalBaseUrl
+    }
 
     func getDataResponse(_ r: RequestData, queue: DispatchQueue, completion: @escaping (JSON?, NSError?) -> Void) {
 		let request = alamofireSessionManager.request(resolveUrl(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
@@ -143,7 +147,7 @@ class DynamicBaseUrlHTTPSessionManager: NamedLogger {
                 MobileMessaging.sharedInstance?.baseUrlDidChange()
             }
         } else {
-            logDebug("Setting new base URL \(newBaseUrl)")
+            logDebug("Base URL remained the same \(newBaseUrl)")
         }
     }
 }
