@@ -57,6 +57,9 @@ class ChatWebView: WKWebView {
 			URLQueryItem(name: ChatAPIKeys.QueryParams.pushRegId, value: pushRegId),
 			URLQueryItem(name: ChatAPIKeys.QueryParams.widgetId, value: widgetId),
 		]
+        if let jwt = MobileMessaging.inAppChat?.jwt {
+            components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.jwt, value: jwt))
+        }
 		
 		guard let componentsUrl = components.url else {
 			logDebug("can't load ChatConnector.html, components.url = nil")

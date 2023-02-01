@@ -22,10 +22,12 @@ class ViewController: UIViewController, MMInAppChatDelegate {
 		let vc = MMChatViewController.makeChildNavigationViewController()
 		navigationController?.pushViewController(vc, animated: true)
 	}
-	@IBAction func showChatModallyP(_ sender: Any) {
+	
+    @IBAction func showChatModallyP(_ sender: Any) {
 		let vc = MMChatViewController.makeModalViewController()
 		navigationController?.present(vc, animated: true, completion: nil)
 	}
+    
 	@IBAction func presentRootNavigationVC(_ sender: Any) {
 		let vc = MMChatViewController.makeRootNavigationViewController()
 		navigationController?.present(vc, animated: true, completion: nil)
@@ -44,10 +46,10 @@ class ViewController: UIViewController, MMInAppChatDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             vc.sendContextualData("{ demoKey: 'InAppChat Metadata Value' }") { error in
                 guard let error = error else {
-                    print("Medatata was sent")
+                    MMLogInfo("Medatata was sent")
                     return
                 }
-                print("Error sending metadata: \(error.localizedDescription)")
+                MMLogError(("Error sending metadata: \(error.localizedDescription)"))
             }
         }
     }

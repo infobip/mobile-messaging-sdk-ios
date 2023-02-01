@@ -51,6 +51,7 @@ public class MMInAppChatService: MobileMessagingService {
     private let getWidgetQueue: MMOperationQueue
     private var chatWidget: ChatWidget?
     private var isConfigurationSynced: Bool = false
+    public var jwt: String?
     
     var isChatScreenVisible: Bool = false
     

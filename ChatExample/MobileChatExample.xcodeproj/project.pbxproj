@@ -12,6 +12,8 @@
 		765259F11FB5A99100058788 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 765259F01FB5A99100058788 /* Assets.xcassets */; };
 		765259F41FB5A99100058788 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259F21FB5A99100058788 /* LaunchScreen.storyboard */; };
 		A0AAC48824559976000C99E6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AAC48724559976000C99E6 /* ViewController.swift */; };
+		A835D6B02982759E002FAB5B /* AuthenticatedChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */; };
+		A84C76AC2982B46F0039F9CD /* JWTClaims.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84C76AB2982B46F0039F9CD /* JWTClaims.swift */; };
 		A85288CD285094BC00F7017D /* LanguageTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85288CC285094BC00F7017D /* LanguageTableVC.swift */; };
 		E3B9709EB8F63580DA5EE7BA /* Pods_MobileChatExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5BC48E2C497C7650AF88168 /* Pods_MobileChatExample.framework */; };
 /* End PBXBuildFile section */
@@ -27,6 +29,8 @@
 		A079185E28327CAC004309F5 /* MobileMessaging.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileMessaging.xcframework; path = Carthage/Build/MobileMessaging.xcframework; sourceTree = "<group>"; };
 		A0AAC48724559976000C99E6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		A5BC48E2C497C7650AF88168 /* Pods_MobileChatExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileChatExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedChatVC.swift; sourceTree = "<group>"; };
+		A84C76AB2982B46F0039F9CD /* JWTClaims.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JWTClaims.swift; sourceTree = "<group>"; };
 		A85288CC285094BC00F7017D /* LanguageTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageTableVC.swift; sourceTree = "<group>"; };
 		B486BA7B428768CC999D9B6F /* Pods-MobileChatExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.release.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.release.xcconfig"; sourceTree = "<group>"; };
 		CEC857A6E609E0EE6E78E4D5 /* Pods-MobileChatExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.debug.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.debug.xcconfig"; sourceTree = "<group>"; };
@@ -78,6 +82,8 @@
 				765259E91FB5A99100058788 /* AppDelegate.swift */,
 				A0AAC48724559976000C99E6 /* ViewController.swift */,
 				A85288CC285094BC00F7017D /* LanguageTableVC.swift */,
+				A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */,
+				A84C76AB2982B46F0039F9CD /* JWTClaims.swift */,
 				765259ED1FB5A99100058788 /* Main.storyboard */,
 				765259F01FB5A99100058788 /* Assets.xcassets */,
 				765259F21FB5A99100058788 /* LaunchScreen.storyboard */,
@@ -202,13 +208,27 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
+				"${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework",
+				"${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework",
+				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
 				"${BUILT_PRODUCTS_DIR}/MobileMessaging/MobileMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cryptor.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorECC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorRSA.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KituraContracts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LoggerAPI.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftJWT.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -222,7 +242,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A835D6B02982759E002FAB5B /* AuthenticatedChatVC.swift in Sources */,
 				A0AAC48824559976000C99E6 /* ViewController.swift in Sources */,
+				A84C76AC2982B46F0039F9CD /* JWTClaims.swift in Sources */,
 				765259EA1FB5A99100058788 /* AppDelegate.swift in Sources */,
 				A85288CD285094BC00F7017D /* LanguageTableVC.swift in Sources */,
 			);

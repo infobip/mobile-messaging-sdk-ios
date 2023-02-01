@@ -24,24 +24,31 @@
 	   <script>
 		   // Override widget config
 		   liveChat('config', {
-					widgetId: getQueryParameter('widgetId'),
-					container: document.getElementsByTagName('body')[0],
-					showHeader: false,
-					showFooter: false,
-					showFab: false
-					});
-	   
-		   // identify the user by pushRegistrationId
-		   liveChat('identify', {pushRegistrationId: getQueryParameter('pushRegId')}, function(error, result) {
-				 if (error) {
-					 window.webkit.messageHandlers.onError.postMessage({errorMessage: error});
-				 } else {
-					liveChat('init');
-					liveChat('show');
-					window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
-				 }
-		   });
-
+                widgetId: getQueryParameter('widgetId'),
+                container: document.getElementsByTagName('body')[0],
+                showHeader: false,
+                showFooter: false,
+                showFab: false
+                });
+       
+            const jwt = getQueryParameter('jwt');
+            let inputParams = {
+               'pushRegistrationId' : getQueryParameter('pushRegId'),
+            };
+            if(jwt != null) {
+               inputParams.jwt = jwt;
+            }
+            // identify the user by pushRegistrationId and, optionally, a JSON Web Token
+            liveChat('identify', inputParams, function(error, result) {
+                if (error) {
+                    window.webkit.messageHandlers.onError.postMessage({errorMessage: error});
+                } else {
+                   liveChat('init');
+                   liveChat('show');
+                   window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
+                }
+            });
+           
            function onViewChanged() {
                window.addEventListener('message', (event) => {
                        if(event.data.destination === 'viewChange') {
