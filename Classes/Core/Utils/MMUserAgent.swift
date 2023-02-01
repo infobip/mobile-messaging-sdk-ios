@@ -26,7 +26,7 @@ struct SystemData {
 			Consts.SystemDataKeys.osVer: OSVer,
 			Consts.SystemDataKeys.deviceManufacturer: deviceManufacturer
 		]
-        
+
         result[Consts.SystemDataKeys.notificationsEnabled] = notificationsEnabled
 
 		if (!MobileMessaging.privacySettings.systemInfoSendingDisabled) {
@@ -39,7 +39,7 @@ struct SystemData {
 		}
 		return (result as [String: AnyHashable]).mm_applySubservicesSystemData()
 	}
-	
+
 	var stableHashValue: Int {
 		//we care only about values!
 		return requestPayload.valuesStableHash
@@ -49,7 +49,7 @@ struct SystemData {
 @objcMembers
 public class MMUserAgent: NSObject {
 	public var pluginVersion: String?
-	
+
 	struct DataOptions : OptionSet {
 		let rawValue: Int
 		init(rawValue: Int = 0) { self.rawValue = rawValue }
@@ -57,7 +57,7 @@ public class MMUserAgent: NSObject {
 		static let System = DataOptions(rawValue: 1 << 0)
 		static let Carrier = DataOptions(rawValue: 1 << 1)
 	}
-	
+
 	var systemData: SystemData {
 		return SystemData(SDKVersion: libraryVersion.appending(pluginVersion == nil ? "" : " (\(pluginVersion!))"), OSVer: osVersion, deviceManufacturer: deviceManufacturer, deviceModel: deviceModelName, appVer: hostingAppVersion, language: language, deviceName: deviceName, os: osName, pushServiceType: pushServiceType, deviceTimeZone: deviceTimeZone, notificationsEnabled: notificationsEnabled, deviceSecure: deviceSecure)
 	}
@@ -69,7 +69,7 @@ public class MMUserAgent: NSObject {
 			return ""
 		}
 	}
-	
+
 	public var notificationsEnabled: Bool? {
 		if itsTimeToCheckNotificationsEnabledStatus() {
 			return MobileMessaging.application.notificationEnabled
@@ -85,11 +85,11 @@ public class MMUserAgent: NSObject {
 			return false
 		}
 	}
-	
+
 	public var osVersion: String {
 		return UIDevice.current.systemVersion
 	}
-	
+
 	public var osName: String {
 		return "iOS"
 	}
@@ -97,19 +97,19 @@ public class MMUserAgent: NSObject {
 	public var libraryVersion: String {
         return MMVersion.mobileMessagingVersion
 	}
-	
+
 	public var libraryName: String {
 		return "MobileMessaging"
 	}
-	
+
 	public var hostingAppVersion: String {
 		return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 	}
-	
+
 	public var hostingAppName: String {
 		return Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? ""
 	}
-	
+
 	public var deviceManufacturer: String {
 		return "Apple"
 	}
@@ -133,6 +133,7 @@ public class MMUserAgent: NSObject {
 		let machines = [
 			"i386":"iPhone Simulator",
 			"x86_64":"iPhone Simulator",
+			"arm64":"iPhone Simulator",
 			"iPhone1,1":"iPhone",
 			"iPhone1,2":"iPhone 3G",
 			"iPhone2,1":"iPhone 3GS",
@@ -168,15 +169,20 @@ public class MMUserAgent: NSObject {
 			"iPhone12,1":"iPhone 11",
 			"iPhone12,3":"iPhone 11 Pro",
 			"iPhone12,5":"iPhone 11 Pro Max",
-            "iPhone12,8":"iPhone SE 2nd Gen",
-            "iPhone13,1":"iPhone 12 Mini",
-            "iPhone13,2":"iPhone 12",
-            "iPhone13,3":"iPhone 12 Pro",
-            "iPhone13,4":"iPhone 12 Pro Max",
-            "iPhone14,2":"iPhone 13 Pro",
-            "iPhone14,3":"iPhone 13 Pro Max",
-            "iPhone14,4":"iPhone 13 Mini",
-            "iPhone14,5":"iPhone 13",
+			"iPhone12,8":"iPhone SE 2nd Gen",
+			"iPhone13,1":"iPhone 12 Mini",
+			"iPhone13,2":"iPhone 12",
+			"iPhone13,3":"iPhone 12 Pro",
+			"iPhone13,4":"iPhone 12 Pro Max",
+			"iPhone14,2":"iPhone 13 Pro",
+			"iPhone14,3":"iPhone 13 Pro Max",
+			"iPhone14,4":"iPhone 13 Mini",
+			"iPhone14,5":"iPhone 13",
+			"iPhone14,6":"iPhone SE 3rd Gen",
+			"iPhone14,7":"iPhone 14",
+			"iPhone14,8":"iPhone 14 Plus",
+			"iPhone15,2":"iPhone 14 Pro",
+			"iPhone15,3":"iPhone 14 Pro Max",
 			"iPod1,1":"1st Gen iPod",
 			"iPod2,1":"2nd Gen iPod",
 			"iPod3,1":"3rd Gen iPod",
@@ -220,40 +226,52 @@ public class MMUserAgent: NSObject {
 			"iPad6,12":"iPad (2017)",
 			"iPad7,1":"iPad Pro 2nd Gen (WiFi)",
 			"iPad7,2":"iPad Pro 2nd Gen (WiFi+Cellular)",
-			"iPad7,3":"iPad Pro 10.5-inch",
-			"iPad7,4":"iPad Pro 10.5-inch",
+			"iPad7,3":"iPad Pro 10.5-inch 2nd Gen",
+			"iPad7,4":"iPad Pro 10.5-inch 2nd Gen",
 			"iPad7,5":"iPad 6th Gen (WiFi)",
 			"iPad7,6":"iPad 6th Gen (WiFi+Cellular)",
 			"iPad7,11":"iPad 7th Gen 10.2-inch (WiFi)",
 			"iPad7,12":"iPad 7th Gen 10.2-inch (WiFi+Cellular)",
-			"iPad8,1":"iPad Pro 3rd Gen (11 inch, WiFi)",
-			"iPad8,2":"iPad Pro 3rd Gen (11 inch, 1TB, WiFi)",
-			"iPad8,3":"iPad Pro 3rd Gen (11 inch, WiFi+Cellular)",
-			"iPad8,4":"iPad Pro 3rd Gen (11 inch, 1TB, WiFi+Cellular)",
-			"iPad8,5":"iPad Pro 3rd Gen (12.9 inch, WiFi)",
-			"iPad8,6":"iPad Pro 3rd Gen (12.9 inch, 1TB, WiFi)",
-			"iPad8,7":"iPad Pro 3rd Gen (12.9 inch, WiFi+Cellular)",
-			"iPad8,8":"iPad Pro 3rd Gen (12.9 inch, 1TB, WiFi+Cellular)",
+			"iPad8,1":"iPad Pro 11 inch 3rd Gen (WiFi)",
+			"iPad8,2":"iPad Pro 11 inch 3rd Gen (1TB, WiFi)",
+			"iPad8,3":"iPad Pro 11 inch 3rd Gen (WiFi+Cellular)",
+			"iPad8,4":"iPad Pro 11 inch 3rd Gen (1TB, WiFi+Cellular)",
+			"iPad8,5":"iPad Pro 12.9 inch 3rd Gen (WiFi)",
+			"iPad8,6":"iPad Pro 12.9 inch 3rd Gen (1TB, WiFi)",
+			"iPad8,7":"iPad Pro 12.9 inch 3rd Gen (WiFi+Cellular)",
+			"iPad8,8":"iPad Pro 12.9 inch 3rd Gen (1TB, WiFi+Cellular)",
+			"iPad8,9":"iPad Pro 11 inch 4th Gen (WiFi)",
+			"iPad8,10":"iPad Pro 11 inch 4th Gen (WiFi+Cellular)",
+			"iPad8,11":"iPad Pro 12.9 inch 4th Gen (WiFi)",
+			"iPad8,12":"iPad Pro 12.9 inch 4th Gen (WiFi+Cellular)",
 			"iPad11,1":"iPad mini 5th Gen (WiFi)",
 			"iPad11,2":"iPad mini 5th Gen",
 			"iPad11,3":"iPad Air 3rd Gen (WiFi)",
 			"iPad11,4":"iPad Air 3rd Gen",
-            "iPad11,6":"iPad 8th Gen (WiFi)",
-            "iPad11,7":"iPad 8th Gen (WiFi+Cellular)",
-            "iPad12,1":"iPad 9th Gen (WiFi)",
-            "iPad12,2":"iPad 9th Gen (WiFi+Cellular)",
-            "iPad14,1":"iPad mini 6th Gen (WiFi)",
-            "iPad14,2":"iPad mini 6th Gen (WiFi+Cellular)",
-            "iPad13,1":"iPad Air 4th Gen (WiFi)",
-            "iPad13,2":"iPad Air 4th Gen (WiFi+Cellular)",
-            "iPad13,4":"iPad Pro 11 inch 5th Gen",
-            "iPad13,5":"iPad Pro 11 inch 5th Gen",
-            "iPad13,6":"iPad Pro 11 inch 5th Gen",
-            "iPad13,7":"iPad Pro 11 inch 5th Gen",
-            "iPad13,8":"iPad Pro 12.9 inch 5th Gen",
-            "iPad13,9":"iPad Pro 12.9 inch 5th Gen",
-            "iPad13,10":"iPad Pro 12.9 inch 5th Gen",
-            "iPad13,11":"iPad Pro 12.9 inch 5th Gen",
+			"iPad11,6":"iPad 8th Gen (WiFi)",
+			"iPad11,7":"iPad 8th Gen (WiFi+Cellular)",
+			"iPad12,1":"iPad 9th Gen (WiFi)",
+			"iPad12,2":"iPad 9th Gen (WiFi+Cellular)",
+			"iPad14,1":"iPad mini 6th Gen (WiFi)",
+			"iPad14,2":"iPad mini 6th Gen (WiFi+Cellular)",
+			"iPad13,1":"iPad Air 4th Gen (WiFi)",
+			"iPad13,2":"iPad Air 4th Gen (WiFi+Cellular)",
+			"iPad13,4":"iPad Pro 11 inch 5th Gen",
+			"iPad13,5":"iPad Pro 11 inch 5th Gen",
+			"iPad13,6":"iPad Pro 11 inch 5th Gen",
+			"iPad13,7":"iPad Pro 11 inch 5th Gen",
+			"iPad13,8":"iPad Pro 12.9 inch 5th Gen",
+			"iPad13,9":"iPad Pro 12.9 inch 5th Gen",
+			"iPad13,10":"iPad Pro 12.9 inch 5th Gen",
+			"iPad13,11":"iPad Pro 12.9 inch 5th Gen",
+			"iPad13,16":"iPad Air 5th Gen (WiFi)",
+			"iPad13,17":"iPad Air 5th Gen (WiFi+Cellular)",
+			"iPad13,18":"iPad 10th Gen",
+			"iPad13,19":"iPad 10th Gen",
+			"iPad14,3":"iPad Pro 11 inch 4th Gen",
+			"iPad14,4":"iPad Pro 11 inch 4th Gen",
+			"iPad14,5":"iPad Pro 12.9 inch 6th Gen",
+			"iPad14,6":"iPad Pro 12.9 inch 6th Gen",
 			"Watch1,1":"Apple Watch 38mm case",
 			"Watch1,2":"Apple Watch 42mm case",
 			"Watch2,6":"Apple Watch Series 1 38mm case",
@@ -271,7 +289,28 @@ public class MMUserAgent: NSObject {
 			"Watch5,1":"Apple Watch Series 5 40mm case (GPS)",
 			"Watch5,2":"Apple Watch Series 5 44mm case (GPS)",
 			"Watch5,3":"Apple Watch Series 5 40mm case (GPS+Cellular)",
-			"Watch5,4":"Apple Watch Series 5 44mm case (GPS+Cellular)"
+			"Watch5,4":"Apple Watch Series 5 44mm case (GPS+Cellular)",
+			"Watch5,9":"Apple Watch SE 40mm case (GPS)",
+			"Watch5,10":"Apple Watch SE 44mm case (GPS)",
+			"Watch5,11":"Apple Watch SE 40mm case (GPS+Cellular)",
+			"Watch5,12":"Apple Watch SE 44mm case (GPS+Cellular)",
+			"Watch6,1":"Apple Watch Series 6 40mm case (GPS)",
+			"Watch6,2":"Apple Watch Series 6 44mm case (GPS)",
+			"Watch6,3":"Apple Watch Series 6 40mm case (GPS+Cellular)",
+			"Watch6,4":"Apple Watch Series 6 44mm case (GPS+Cellular)",
+			"Watch6,6":"Apple Watch Series 7 41mm case (GPS)",
+			"Watch6,7":"Apple Watch Series 7 45mm case (GPS)",
+			"Watch6,8":"Apple Watch Series 7 41mm case (GPS+Cellular)",
+			"Watch6,9":"Apple Watch Series 7 45mm case (GPS+Cellular)",
+			"Watch6,10":"Apple Watch SE 40mm case (GPS)",
+			"Watch6,11":"Apple Watch SE 44mm case (GPS)",
+			"Watch6,12":"Apple Watch SE 40mm case (GPS+Cellular)",
+			"Watch6,13":"Apple Watch SE 44mm case (GPS+Cellular)",
+			"Watch6,14":"Apple Watch Series 8 41mm case (GPS)",
+			"Watch6,15":"Apple Watch Series 8 45mm case (GPS)",
+			"Watch6,16":"Apple Watch Series 8 41mm case (GPS+Cellular)",
+			"Watch6,17":"Apple Watch Series 8 45mm case (GPS+Cellular)",
+			"Watch6,18":"Apple Watch Ultra",
 		]
 		if let machine = machine {
 			return machines[machine] ?? UIDevice.current.localizedModel
@@ -315,20 +354,20 @@ public class MMUserAgent: NSObject {
 			let outputHostingAppVersion = allowed ? hostingAppVersion : ""
 
 			let result = "\(libraryName)/\(libraryVersion.appending(pluginVersion == nil ? "" : " \(pluginVersion!)"))(\(outputOSName);\(outputOSVersion);\(osArch);\(outputDeviceModel);\(deviceManufacturer);\(outputHostingAppName);\(outputHostingAppVersion);\(deviceNameS)"
-			
+
 			return result
 		}
-		
+
 		func carrierDataString(allowed: Bool) -> String {
 			let networkInfo = CTTelephonyNetworkInfo()
             let carrier = allowed ? networkInfo.serviceSubscriberCellularProviders?.first?.value : nil
 			let mobileCarrierName = carrier?.carrierName ?? ""
 			let mobileCountryCode = carrier?.mobileCountryCode ?? ""
 			let mobileNetworkCode = carrier?.mobileNetworkCode ?? ""
-			
+
 			return ";\(mobileCarrierName);\(mobileNetworkCode);\(mobileCountryCode)"
 		}
-		
+
 		return systemDataString(allowed: options.contains(MMUserAgent.DataOptions.System)) + carrierDataString(allowed: options.contains(MMUserAgent.DataOptions.Carrier)) + ")"
 	}
 }
