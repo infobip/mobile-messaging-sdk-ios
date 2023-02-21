@@ -132,7 +132,6 @@ public class MMInAppChatService: MobileMessagingService {
     }
     
     override func stopService(_ completion: @escaping (Bool) -> Void) {
-        print("mobileMessagingDidStop chat service")
         super.stopService(completion)
         MMInAppChatService.sharedInstance = nil
     }

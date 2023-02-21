@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "icon-collapse-m-grayscale.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

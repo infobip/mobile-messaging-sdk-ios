@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "icon-clock-s-grayscale.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

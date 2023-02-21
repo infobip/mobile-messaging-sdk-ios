@@ -27,6 +27,8 @@ Carthage
 # `pod install` in .travis.yml
 #
 # Pods/
+Pods/IBGoogleWebRTC/
+Pods/InfobipRTC/
 
 *.xcworkspace
 */Podfile.lock

@@ -1,0 +1,20 @@
+PODS:
+  - IBGoogleWebRTC (1.0.37785)
+  - InfobipRTC (1.7.0):
+    - IBGoogleWebRTC (~> 1.0.37785)
+
+DEPENDENCIES:
+  - InfobipRTC (= 1.7.0)
+
+SPEC REPOS:
+  trunk:
+    - IBGoogleWebRTC
+    - InfobipRTC
+
+SPEC CHECKSUMS:
+  IBGoogleWebRTC: 38846dd4c2ac0c14f9307252daab367e566b8632
+  InfobipRTC: 2b1b4b073d53283a1be606d56d07ffb631a76455
+
+PODFILE CHECKSUM: 220bb7bdfec4e3629e5c2b1170104b8d5ec7e122
+
+COCOAPODS: 1.11.3

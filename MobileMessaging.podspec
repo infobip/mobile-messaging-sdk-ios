@@ -48,4 +48,12 @@ Pod::Spec.new do |s|
         inbox.dependency 'MobileMessaging/Core'
         inbox.source_files = 'Classes/Inbox/**/*.{h,m,swift}'
     end
+
+    s.subspec 'WebRTCUI' do |webrtcui|
+        webrtcui.dependency 'MobileMessaging/Core'
+        webrtcui.dependency 'InfobipRTC', '1.7.0'
+        webrtcui.source_files = 'Classes/WebRTCUI/**/*.{h,m,swift,storyboard}'
+        webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/UI/**/*.{xcassets,png,wav,svg,html}',
+            'Classes/WebRTCUI/UI/*.{storyboard}']}
+    end
 end

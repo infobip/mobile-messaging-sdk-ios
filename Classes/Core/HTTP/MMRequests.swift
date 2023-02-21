@@ -25,6 +25,8 @@ enum APIPath: String {
 	case ChatWidget = "/mobile/1/chat/widget"
     
     case Inbox = "/mobile/1/user/{externalUserId}/inbox/apns/messages"
+    
+    case WebRTCToken = "/webrtc/1/token"
 }
 
 class SeenStatusSendingRequest: PostRequest {

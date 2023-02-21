@@ -11,8 +11,11 @@
 		170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */; };
 		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
 		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
+		3659D846292B5A4E00D6ECF8 /* MMWebRTCSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */; };
+		367B1A9A2918F3640081983C /* MMLoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367B1A992918F3640081983C /* MMLoc.swift */; };
 		3BB0594CCA9D40ADAC4C3716491BE06B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */; };
 		6C60A4A31FD6B169001744BC /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C60A4A11FD6B169001744BC /* State.swift */; };
+		741679B33E42C0725CFCAC1B /* Pods_MobileMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8500BEEB5F8505F53E9A1DD /* Pods_MobileMessaging.framework */; };
 		760085811F977CC100837D75 /* MTMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085801F977CC100837D75 /* MTMessage.swift */; };
 		760085831F977E3300837D75 /* MOMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085821F977E3300837D75 /* MOMessage.swift */; };
 		760085871F9790BE00837D75 /* BaseMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085861F9790BE00837D75 /* BaseMessage.swift */; };
@@ -239,6 +242,38 @@
 		A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E4439F24AF5C8300387CDD /* ChatAttachmentUtils.swift */; };
 		A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */; };
 		A80F241A285B3C1F00946DEF /* MMLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80F2419285B3C1F00946DEF /* MMLanguage.swift */; };
+		A838992128F6F10600322E68 /* MMOpenSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992028F6F10600322E68 /* MMOpenSettings.swift */; };
+		A838992328F6F14300322E68 /* MMPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992228F6F14300322E68 /* MMPopupView.swift */; };
+		A838992528F6F1AF00322E68 /* MMPopOverBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992428F6F1AF00322E68 /* MMPopOverBar.swift */; };
+		A838992728F7025E00322E68 /* UIAlertController+MMSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992628F7025E00322E68 /* UIAlertController+MMSetup.swift */; };
+		A838992B28F82B8600322E68 /* MMWebRTCToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992A28F82B8600322E68 /* MMWebRTCToken.swift */; };
+		A843A41B28F55E1B00D5196F /* MobileMessagingCallUIIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A843A41A28F55E1A00D5196F /* MobileMessagingCallUIIcons.xcassets */; };
+		A843A43128F5A6D700D5196F /* MMCallController+ApplicationCalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */; };
+		A843A43228F5A6D700D5196F /* MMCallVideoExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42228F5A6D600D5196F /* MMCallVideoExtension.swift */; };
+		A843A43328F5A6D700D5196F /* MMPulseAnimationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42328F5A6D600D5196F /* MMPulseAnimationExtension.swift */; };
+		A843A43528F5A6D700D5196F /* MMCalls.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A843A42528F5A6D600D5196F /* MMCalls.storyboard */; };
+		A843A43628F5A6D700D5196F /* MMCallController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42628F5A6D600D5196F /* MMCallController.swift */; };
+		A843A43828F5A6D700D5196F /* MMCallButtonStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42828F5A6D600D5196F /* MMCallButtonStackView.swift */; };
+		A843A43928F5A6D700D5196F /* MMCallPopoverExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42928F5A6D600D5196F /* MMCallPopoverExtension.swift */; };
+		A843A43A28F5A6D700D5196F /* MMWebRTCService+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42A28F5A6D600D5196F /* MMWebRTCService+UI.swift */; };
+		A843A43B28F5A6D700D5196F /* MMUserActivityExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42C28F5A6D600D5196F /* MMUserActivityExtension.swift */; };
+		A843A43C28F5A6D700D5196F /* MMCallNotificationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42D28F5A6D600D5196F /* MMCallNotificationData.swift */; };
+		A843A43D28F5A6D700D5196F /* MMCallKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42E28F5A6D600D5196F /* MMCallKitManager.swift */; };
+		A843A43F28F5A6D700D5196F /* MMCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A43028F5A6D600D5196F /* MMCallFactory.swift */; };
+		A843A44128F5A93600D5196F /* MMWebRTCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A44028F5A93600D5196F /* MMWebRTCService.swift */; };
+		A87017A829028E6F00B696CE /* MMWebRTCService+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */; };
+		A8CBD7D1292CCDA200322961 /* UIView+Associated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */; };
+		A8CBD7D2292CCDA200322961 /* UIWindow+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */; };
+		A8CBD7D3292CCDA200322961 /* UIViewController+Associated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C6292CCDA200322961 /* UIViewController+Associated.swift */; };
+		A8CBD7D4292CCDA200322961 /* AVPIPKitRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C8292CCDA200322961 /* AVPIPKitRenderer.swift */; };
+		A8CBD7D5292CCDA200322961 /* AVPIPKitVideoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C9292CCDA200322961 /* AVPIPKitVideoController.swift */; };
+		A8CBD7D6292CCDA200322961 /* AVPIPKitUsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CA292CCDA200322961 /* AVPIPKitUsable.swift */; };
+		A8CBD7D7292CCDA200322961 /* AVPIPKitUsable+UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CB292CCDA200322961 /* AVPIPKitUsable+UIKit.swift */; };
+		A8CBD7D8292CCDA200322961 /* AVPIPKitVideoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CC292CCDA200322961 /* AVPIPKitVideoProvider.swift */; };
+		A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CE292CCDA200322961 /* PIPKitEventDispatcher.swift */; };
+		A8CBD7DA292CCDA200322961 /* PIPKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CF292CCDA200322961 /* PIPKit.swift */; };
+		A8CBD7DB292CCDA200322961 /* PIPUsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7D0292CCDA200322961 /* PIPUsable.swift */; };
+		A8E68BE12934C44E0046E4BC /* MMCallController+Delegates.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E68BE02934C44D0046E4BC /* MMCallController+Delegates.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
 		ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203322086642B00E157D7 /* String+Extension.swift */; };
 		ADF203402086642C00E157D7 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203332086642B00E157D7 /* Utils.swift */; };
@@ -259,6 +294,8 @@
 
 /* Begin PBXFileReference section */
 		1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MobileMessaging.xcconfig; sourceTree = "<group>"; };
+		3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCSettings.swift; sourceTree = "<group>"; };
+		367B1A992918F3640081983C /* MMLoc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMLoc.swift; sourceTree = "<group>"; };
 		37333A54A8B807D53AD68E200638BAC7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MobileMessaging-dummy.m"; sourceTree = "<group>"; };
@@ -501,6 +538,7 @@
 		76FD98642819A1BB006625C0 /* InboxSeenRequestDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxSeenRequestDataMapper.swift; sourceTree = "<group>"; };
 		76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingOperation.swift; sourceTree = "<group>"; };
 		8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
+		87A0B61495B5274EB4CA297F /* Pods-MobileMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessaging.debug.xcconfig"; path = "Target Support Files/Pods-MobileMessaging/Pods-MobileMessaging.debug.xcconfig"; sourceTree = "<group>"; };
 		87D23AEB9B8E45723819ED8B7152EBC5 /* MobileMessaging-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MobileMessaging-prefix.pch"; sourceTree = "<group>"; };
 		90D97F4115E4ED0FAB0D933212A2ECFA /* MobileMessaging.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; name = MobileMessaging.modulemap; path = ../MobileMessaging.modulemap; sourceTree = "<group>"; };
 		A00D332E252B81480024BB12 /* ChatAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatAttachment.swift; sourceTree = "<group>"; };
@@ -561,8 +599,40 @@
 		A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		A80F2419285B3C1F00946DEF /* MMLanguage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMLanguage.swift; sourceTree = "<group>"; };
+		A838992028F6F10600322E68 /* MMOpenSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMOpenSettings.swift; sourceTree = "<group>"; };
+		A838992228F6F14300322E68 /* MMPopupView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMPopupView.swift; sourceTree = "<group>"; };
+		A838992428F6F1AF00322E68 /* MMPopOverBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMPopOverBar.swift; sourceTree = "<group>"; };
+		A838992628F7025E00322E68 /* UIAlertController+MMSetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIAlertController+MMSetup.swift"; sourceTree = "<group>"; };
+		A838992A28F82B8600322E68 /* MMWebRTCToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCToken.swift; sourceTree = "<group>"; };
+		A843A41A28F55E1A00D5196F /* MobileMessagingCallUIIcons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = MobileMessagingCallUIIcons.xcassets; sourceTree = "<group>"; };
+		A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+ApplicationCalls.swift"; sourceTree = "<group>"; };
+		A843A42228F5A6D600D5196F /* MMCallVideoExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallVideoExtension.swift; sourceTree = "<group>"; };
+		A843A42328F5A6D600D5196F /* MMPulseAnimationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMPulseAnimationExtension.swift; sourceTree = "<group>"; };
+		A843A42528F5A6D600D5196F /* MMCalls.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MMCalls.storyboard; sourceTree = "<group>"; };
+		A843A42628F5A6D600D5196F /* MMCallController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallController.swift; sourceTree = "<group>"; };
+		A843A42828F5A6D600D5196F /* MMCallButtonStackView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallButtonStackView.swift; sourceTree = "<group>"; };
+		A843A42928F5A6D600D5196F /* MMCallPopoverExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallPopoverExtension.swift; sourceTree = "<group>"; };
+		A843A42A28F5A6D600D5196F /* MMWebRTCService+UI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+UI.swift"; sourceTree = "<group>"; };
+		A843A42C28F5A6D600D5196F /* MMUserActivityExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMUserActivityExtension.swift; sourceTree = "<group>"; };
+		A843A42D28F5A6D600D5196F /* MMCallNotificationData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallNotificationData.swift; sourceTree = "<group>"; };
+		A843A42E28F5A6D600D5196F /* MMCallKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallKitManager.swift; sourceTree = "<group>"; };
+		A843A43028F5A6D600D5196F /* MMCallFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallFactory.swift; sourceTree = "<group>"; };
+		A843A44028F5A93600D5196F /* MMWebRTCService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCService.swift; sourceTree = "<group>"; };
 		A86ABE51285C646F00D5E00C /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InAppChat.strings; sourceTree = "<group>"; };
+		A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+Push.swift"; sourceTree = "<group>"; };
+		A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Associated.swift"; sourceTree = "<group>"; };
+		A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
+		A8CBD7C6292CCDA200322961 /* UIViewController+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+Associated.swift"; sourceTree = "<group>"; };
+		A8CBD7C8292CCDA200322961 /* AVPIPKitRenderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVPIPKitRenderer.swift; sourceTree = "<group>"; };
+		A8CBD7C9292CCDA200322961 /* AVPIPKitVideoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVPIPKitVideoController.swift; sourceTree = "<group>"; };
+		A8CBD7CA292CCDA200322961 /* AVPIPKitUsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVPIPKitUsable.swift; sourceTree = "<group>"; };
+		A8CBD7CB292CCDA200322961 /* AVPIPKitUsable+UIKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVPIPKitUsable+UIKit.swift"; sourceTree = "<group>"; };
+		A8CBD7CC292CCDA200322961 /* AVPIPKitVideoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVPIPKitVideoProvider.swift; sourceTree = "<group>"; };
+		A8CBD7CE292CCDA200322961 /* PIPKitEventDispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPKitEventDispatcher.swift; sourceTree = "<group>"; };
+		A8CBD7CF292CCDA200322961 /* PIPKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPKit.swift; sourceTree = "<group>"; };
+		A8CBD7D0292CCDA200322961 /* PIPUsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPUsable.swift; sourceTree = "<group>"; };
 		A8CE8ACD285C6E03000CC98F /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		A8E68BE02934C44D0046E4BC /* MMCallController+Delegates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+Delegates.swift"; sourceTree = "<group>"; };
 		ADF203322086642B00E157D7 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		ADF203332086642B00E157D7 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		ADF203342086642B00E157D7 /* Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
@@ -579,7 +649,9 @@
 		ADF2034C2086664000E157D7 /* GeoDatesUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoDatesUtils.swift; sourceTree = "<group>"; };
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		D3E47FB2ACBF18822CCAC819 /* Pods-MobileMessaging.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessaging.release.xcconfig"; path = "Target Support Files/Pods-MobileMessaging/Pods-MobileMessaging.release.xcconfig"; sourceTree = "<group>"; };
 		D7D8601249D4FAAD2A589A3D /* UserDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
+		F8500BEEB5F8505F53E9A1DD /* Pods_MobileMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -593,6 +665,7 @@
 				2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */,
 				170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */,
 				AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */,
+				741679B33E42C0725CFCAC1B /* Pods_MobileMessaging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -619,6 +692,7 @@
 			children = (
 				76092BA41FAB162C00128E48 /* AudioToolbox.framework */,
 				833AC1D7495E23FDE30ED37A0C13E6F4 /* iOS */,
+				F8500BEEB5F8505F53E9A1DD /* Pods_MobileMessaging.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -952,6 +1026,7 @@
 			children = (
 				764556321F78FF4F00B8F14B /* MMGCD.swift */,
 				764556331F78FF4F00B8F14B /* MMLocalization.swift */,
+				367B1A992918F3640081983C /* MMLoc.swift */,
 				764556341F78FF4F00B8F14B /* MMLocalNotifications.swift */,
 				764556351F78FF4F00B8F14B /* MMNSErrorExtension.swift */,
 				764556361F78FF4F00B8F14B /* MMPostponer.swift */,
@@ -1144,6 +1219,7 @@
 				764555D41F78FF4E00B8F14B /* Core */,
 				7600857D1F9759F200837D75 /* Chat */,
 				764556481F78FF4F00B8F14B /* Geofencing */,
+				A843A41928F55E1A00D5196F /* WebRTCUI */,
 				764555CF1F78FF4E00B8F14B /* InteractiveNotifications */,
 				764556451F78FF4F00B8F14B /* Logging */,
 				7645563E1F78FF4F00B8F14B /* MessageStorage */,
@@ -1153,7 +1229,17 @@
 				20B56609144CE204DFA8221F742B2D76 /* Frameworks */,
 				1EC852B12152CDB7042DD88F7126A70F /* Products */,
 				1EB0AEE32DF73E58AC174D599FA44DFB /* Targets Support Files */,
+				7E4635DCBD4DAA88C32900B3 /* Pods */,
 			);
+			sourceTree = "<group>";
+		};
+		7E4635DCBD4DAA88C32900B3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				87A0B61495B5274EB4CA297F /* Pods-MobileMessaging.debug.xcconfig */,
+				D3E47FB2ACBF18822CCAC819 /* Pods-MobileMessaging.release.xcconfig */,
+			);
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		833AC1D7495E23FDE30ED37A0C13E6F4 /* iOS */ = {
@@ -1202,6 +1288,95 @@
 			path = Vendor;
 			sourceTree = "<group>";
 		};
+		A843A41928F55E1A00D5196F /* WebRTCUI */ = {
+			isa = PBXGroup;
+			children = (
+				A8CBD7C2292CCDA200322961 /* PIP */,
+				A843A44028F5A93600D5196F /* MMWebRTCService.swift */,
+				A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */,
+				A843A42A28F5A6D600D5196F /* MMWebRTCService+UI.swift */,
+				3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */,
+				A843A42B28F5A6D600D5196F /* Models */,
+				A843A42028F5A6D600D5196F /* UI */,
+			);
+			name = WebRTCUI;
+			path = Classes/WebRTCUI;
+			sourceTree = "<group>";
+		};
+		A843A42028F5A6D600D5196F /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				A8E68BE02934C44D0046E4BC /* MMCallController+Delegates.swift */,
+				A843A42628F5A6D600D5196F /* MMCallController.swift */,
+				A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */,
+				A843A41A28F55E1A00D5196F /* MobileMessagingCallUIIcons.xcassets */,
+				A838992628F7025E00322E68 /* UIAlertController+MMSetup.swift */,
+				A838992428F6F1AF00322E68 /* MMPopOverBar.swift */,
+				A838992228F6F14300322E68 /* MMPopupView.swift */,
+				A843A42228F5A6D600D5196F /* MMCallVideoExtension.swift */,
+				A843A42328F5A6D600D5196F /* MMPulseAnimationExtension.swift */,
+				A843A42528F5A6D600D5196F /* MMCalls.storyboard */,
+				A843A42828F5A6D600D5196F /* MMCallButtonStackView.swift */,
+				A843A42928F5A6D600D5196F /* MMCallPopoverExtension.swift */,
+				A838992028F6F10600322E68 /* MMOpenSettings.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		A843A42B28F5A6D600D5196F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A838992A28F82B8600322E68 /* MMWebRTCToken.swift */,
+				A843A42C28F5A6D600D5196F /* MMUserActivityExtension.swift */,
+				A843A42D28F5A6D600D5196F /* MMCallNotificationData.swift */,
+				A843A42E28F5A6D600D5196F /* MMCallKitManager.swift */,
+				A843A43028F5A6D600D5196F /* MMCallFactory.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A8CBD7C2292CCDA200322961 /* PIP */ = {
+			isa = PBXGroup;
+			children = (
+				A8CBD7C3292CCDA200322961 /* Extension */,
+				A8CBD7C7292CCDA200322961 /* AVPIPKit */,
+				A8CBD7CD292CCDA200322961 /* PIPKit */,
+			);
+			path = PIP;
+			sourceTree = "<group>";
+		};
+		A8CBD7C3292CCDA200322961 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */,
+				A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */,
+				A8CBD7C6292CCDA200322961 /* UIViewController+Associated.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		A8CBD7C7292CCDA200322961 /* AVPIPKit */ = {
+			isa = PBXGroup;
+			children = (
+				A8CBD7C8292CCDA200322961 /* AVPIPKitRenderer.swift */,
+				A8CBD7C9292CCDA200322961 /* AVPIPKitVideoController.swift */,
+				A8CBD7CA292CCDA200322961 /* AVPIPKitUsable.swift */,
+				A8CBD7CB292CCDA200322961 /* AVPIPKitUsable+UIKit.swift */,
+				A8CBD7CC292CCDA200322961 /* AVPIPKitVideoProvider.swift */,
+			);
+			path = AVPIPKit;
+			sourceTree = "<group>";
+		};
+		A8CBD7CD292CCDA200322961 /* PIPKit */ = {
+			isa = PBXGroup;
+			children = (
+				A8CBD7CE292CCDA200322961 /* PIPKitEventDispatcher.swift */,
+				A8CBD7CF292CCDA200322961 /* PIPKit.swift */,
+				A8CBD7D0292CCDA200322961 /* PIPUsable.swift */,
+			);
+			path = PIPKit;
+			sourceTree = "<group>";
+		};
 		ADF20331208663FB00E157D7 /* CryptoSwift */ = {
 			isa = PBXGroup;
 			children = (
@@ -1245,6 +1420,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A7F83A827E1952844EA68119D288CDDF /* Build configuration list for PBXNativeTarget "MobileMessaging" */;
 			buildPhases = (
+				DA6A76FC553D493FC0E8A21B /* [CP] Check Pods Manifest.lock */,
 				F0FB3783C9DE8717FC987CFCD9463D9C /* Headers */,
 				0749E698D7B061A5301B9612FB001C7F /* Sources */,
 				0979C61CC24B570CCB03438437464D2A /* Frameworks */,
@@ -1327,14 +1503,41 @@
 				7601F1AF208E057F00738C1A /* AlertController.xib in Resources */,
 				A08E503B249650D000F026ED /* InAppChat.strings in Resources */,
 				A0E1D3CB24ED197400373B47 /* MobileMessagingChatImages.xcassets in Resources */,
+				A843A41B28F55E1B00D5196F /* MobileMessagingCallUIIcons.xcassets in Resources */,
 				A0E1D3C924ED196400373B47 /* ChatConnector.html in Resources */,
 				A0936165283661ED00C23C78 /* MobileMessaging.strings in Resources */,
 				76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */,
 				7601F1B3208E057F00738C1A /* LoadingImageView.xib in Resources */,
+				A843A43528F5A6D700D5196F /* MMCalls.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		DA6A76FC553D493FC0E8A21B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MobileMessaging-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0749E698D7B061A5301B9612FB001C7F /* Sources */ = {
@@ -1346,6 +1549,7 @@
 				7620450427C91E1D007970F8 /* MMInbox.swift in Sources */,
 				7617505623351827000438A8 /* Result.swift in Sources */,
 				764556CF1F78FFD900B8F14B /* TegKeychainConstants.swift in Sources */,
+				367B1A9A2918F3640081983C /* MMLoc.swift in Sources */,
 				764556781F78FF5800B8F14B /* MMVersion.swift in Sources */,
 				764556A81F78FF8F00B8F14B /* MMLocalization.swift in Sources */,
 				7601F1A3208E056500738C1A /* String+MD5.swift in Sources */,
@@ -1359,8 +1563,10 @@
 				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,
 				A070E19824F1579500583840 /* ChatCoverHorisontalTransition.swift in Sources */,
 				A036A5BD24AB35A200B426EF /* ChatAttachmentPicker.swift in Sources */,
+				A8CBD7DA292CCDA200322961 /* PIPKit.swift in Sources */,
 				7645569B1F78FF8500B8F14B /* MessageFetchingOperation.swift in Sources */,
 				76C3C9B523D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift in Sources */,
+				A843A43B28F5A6D700D5196F /* MMUserActivityExtension.swift in Sources */,
 				764556D41F78FFE000B8F14B /* GroupOperation.swift in Sources */,
 				764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */,
 				764556BB1F78FFB200B8F14B /* MMDefaultMessageStorage.swift in Sources */,
@@ -1373,7 +1579,9 @@
 				764556771F78FF5800B8F14B /* MMNotifications.m in Sources */,
 				7650DC37244EEB480016233D /* ChatNavigationVC.swift in Sources */,
 				76626D11218B097800E95E2C /* PrivacySettings.swift in Sources */,
+				A843A43F28F5A6D700D5196F /* MMCallFactory.swift in Sources */,
 				76B70DA721AD3A6E00E87BD5 /* DeleteInstanceOperation.swift in Sources */,
+				A838992328F6F14300322E68 /* MMPopupView.swift in Sources */,
 				ADF203422086642C00E157D7 /* DigestType.swift in Sources */,
 				764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */,
 				764556BE1F78FFCB00B8F14B /* RetryableDownloadTask.swift in Sources */,
@@ -1382,14 +1590,19 @@
 				A08E503F2496536700F026ED /* ChatLocalization.swift in Sources */,
 				765B9FBE2012126700B1E77A /* MessageHandlingDelegate.swift in Sources */,
 				A08CB26E2459B0C600ED91B6 /* ChatJSWrapper.swift in Sources */,
+				A8CBD7D8292CCDA200322961 /* AVPIPKitVideoProvider.swift in Sources */,
 				764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */,
 				763A1B0123E5D12100C997BC /* SeenReportMapper.swift in Sources */,
+				A838992128F6F10600322E68 /* MMOpenSettings.swift in Sources */,
 				7601F199208E056500738C1A /* UIButton+Kingfisher.swift in Sources */,
+				A8CBD7D4292CCDA200322961 /* AVPIPKitRenderer.swift in Sources */,
 				76A8A77B2195B97F004F6E39 /* UpdateUserOperation.swift in Sources */,
 				764556D51F78FFE700B8F14B /* NSLock+Operations.swift in Sources */,
 				76212E7421B04443002FB8D9 /* InstallationAttributeModels.swift in Sources */,
+				A843A43A28F5A6D700D5196F /* MMWebRTCService+UI.swift in Sources */,
 				76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */,
 				764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */,
+				A838992B28F82B8600322E68 /* MMWebRTCToken.swift in Sources */,
 				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
 				6C60A4A31FD6B169001744BC /* State.swift in Sources */,
 				76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */,
@@ -1400,9 +1613,11 @@
 				7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */,
 				764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */,
 				764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */,
+				A843A43828F5A6D700D5196F /* MMCallButtonStackView.swift in Sources */,
 				ADF203492086642C00E157D7 /* Generics.swift in Sources */,
 				76A8A77921959F84004F6E39 /* UpdateInstanceOperation.swift in Sources */,
 				7601F1A6208E056500738C1A /* Placeholder.swift in Sources */,
+				A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */,
 				764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */,
 				7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */,
 				764556B31F78FF9500B8F14B /* MMGeofencingService.swift in Sources */,
@@ -1415,6 +1630,7 @@
 				76626D15218B2CD200E95E2C /* CustomAttributeModels.swift in Sources */,
 				7617505B23351827000438A8 /* SessionManager.swift in Sources */,
 				7626040E24EC1AA40052A36C /* HealthyRegistrationCondition.swift in Sources */,
+				A838992528F6F1AF00322E68 /* MMPopOverBar.swift in Sources */,
 				764556B41F78FF9500B8F14B /* MMGeoMessage.swift in Sources */,
 				7601F193208E056400738C1A /* Kingfisher.swift in Sources */,
 				7617506723351827000438A8 /* MultipartFormData.swift in Sources */,
@@ -1424,6 +1640,7 @@
 				76F8A32D269F2F5700876E16 /* ChatMessageCounterService.swift in Sources */,
 				76263E8F24586F0300E5C97D /* WebViewToolbar.swift in Sources */,
 				7617506423351827000438A8 /* Alamofire.swift in Sources */,
+				A843A43628F5A6D700D5196F /* MMCallController.swift in Sources */,
 				A80F241A285B3C1F00946DEF /* MMLanguage.swift in Sources */,
 				A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */,
 				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
@@ -1433,14 +1650,17 @@
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
 				76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */,
 				76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */,
+				A8CBD7D5292CCDA200322961 /* AVPIPKitVideoController.swift in Sources */,
 				7601F1B2208E057F00738C1A /* LoadingImageView.swift in Sources */,
 				76978E2625C30C1200912DB4 /* BaseUrlManager.swift in Sources */,
+				3659D846292B5A4E00D6ECF8 /* MMWebRTCSettings.swift in Sources */,
 				7617505E23351827000438A8 /* TaskDelegate.swift in Sources */,
 				7650DC3C244EEB480016233D /* CPLabel.swift in Sources */,
 				7650DC3D244EEB480016233D /* CPKeyboardAwareScrollViewController.swift in Sources */,
 				7617506323351827000438A8 /* ServerTrustPolicy.swift in Sources */,
 				7601F1B1208E057F00738C1A /* InteractiveMessageAlertController.swift in Sources */,
 				76A26CB6230D59A200F00717 /* Migration_1_3.xcmappingmodel in Sources */,
+				A843A44128F5A93600D5196F /* MMWebRTCService.swift in Sources */,
 				764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */,
 				7645568A1F78FF6500B8F14B /* InstallationManagedObject.swift in Sources */,
 				76A26CB4230D593200F00717 /* Migration_0_3.xcmappingmodel in Sources */,
@@ -1455,12 +1675,16 @@
 				ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */,
 				A0B24DC025066782005C5403 /* ChatAttachmentImageView.swift in Sources */,
 				7601F1A4208E056500738C1A /* ImageProcessor.swift in Sources */,
+				A8CBD7DB292CCDA200322961 /* PIPUsable.swift in Sources */,
 				A08CB2672459B0BB00ED91B6 /* ChatService.swift in Sources */,
 				763A1AFA23E490A000C997BC /* CustomEventMapper.swift in Sources */,
+				A8CBD7D7292CCDA200322961 /* AVPIPKitUsable+UIKit.swift in Sources */,
 				764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */,
 				7620450627C91E47007970F8 /* MMInboxFilterOptions.swift in Sources */,
 				764E651623DA2BB6002F07D2 /* UserSessionMapper.swift in Sources */,
 				7601F19A208E056500738C1A /* Resource.swift in Sources */,
+				A8CBD7D6292CCDA200322961 /* AVPIPKitUsable.swift in Sources */,
+				A843A43D28F5A6D700D5196F /* MMCallKitManager.swift in Sources */,
 				76A26CB8230D59CC00F00717 /* Migration_2_3.xcmappingmodel in Sources */,
 				7617506123351827000438A8 /* ResponseSerialization.swift in Sources */,
 				29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */,
@@ -1488,13 +1712,17 @@
 				764556881F78FF6500B8F14B /* GeoEventReportObject.swift in Sources */,
 				7601F1A5208E056500738C1A /* Filter.swift in Sources */,
 				ADF203452086642C00E157D7 /* Bit.swift in Sources */,
+				A843A43C28F5A6D700D5196F /* MMCallNotificationData.swift in Sources */,
 				764556871F78FF6500B8F14B /* GeoEventReportObject+CoreDataProperties.swift in Sources */,
 				764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */,
 				764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */,
+				A8CBD7D3292CCDA200322961 /* UIViewController+Associated.swift in Sources */,
 				A08CB26D2459B0C600ED91B6 /* ChatRequests.swift in Sources */,
+				A838992728F7025E00322E68 /* UIAlertController+MMSetup.swift in Sources */,
 				ADF2034D2086664100E157D7 /* GeoDatesUtils.swift in Sources */,
 				7617505A23351827000438A8 /* SessionDelegate.swift in Sources */,
 				7638B26722089F2000A98144 /* Archivable.swift in Sources */,
+				A843A43328F5A6D700D5196F /* MMPulseAnimationExtension.swift in Sources */,
 				7645568C1F78FF6500B8F14B /* MessageManagedObject.swift in Sources */,
 				7642821E219305780053A063 /* FetchUserOperation.swift in Sources */,
 				7650DC2D244EEB480016233D /* ChatSettings.swift in Sources */,
@@ -1508,10 +1736,13 @@
 				764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */,
 				7617506623351827000438A8 /* Notifications.swift in Sources */,
 				7601F1B5208E0F5500738C1A /* InteractiveMessageAlert.swift in Sources */,
+				A843A43128F5A6D700D5196F /* MMCallController+ApplicationCalls.swift in Sources */,
 				ADF203402086642C00E157D7 /* Utils.swift in Sources */,
 				764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */,
 				7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */,
 				7601F1A2208E056500738C1A /* AnimatedImageView.swift in Sources */,
+				A87017A829028E6F00B696CE /* MMWebRTCService+Push.swift in Sources */,
+				A8CBD7D2292CCDA200322961 /* UIWindow+Extension.swift in Sources */,
 				ADF203482086642C00E157D7 /* Array+Extension.swift in Sources */,
 				7645568E1F78FF6500B8F14B /* MMCoreDataStorage.swift in Sources */,
 				764556A61F78FF8B00B8F14B /* UserNotificationCenterDelegate.swift in Sources */,
@@ -1529,12 +1760,15 @@
 				7617506523351827000438A8 /* NetworkReachabilityManager.swift in Sources */,
 				764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */,
 				7636909C21F07330000CF3F8 /* PersonalizeOperation.swift in Sources */,
+				A843A43228F5A6D700D5196F /* MMCallVideoExtension.swift in Sources */,
 				7601F191208E056400738C1A /* ImageCache.swift in Sources */,
 				7601F1A1208E056500738C1A /* ImageTransition.swift in Sources */,
 				A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */,
 				764556D61F78FFE700B8F14B /* NSOperation+Operations.swift in Sources */,
 				76C3C99A23D1F47900562C57 /* UserSessionPersistingOperation.swift in Sources */,
 				ADF2034A2086642C00E157D7 /* SHA1.swift in Sources */,
+				A843A43928F5A6D700D5196F /* MMCallPopoverExtension.swift in Sources */,
+				A8E68BE12934C44E0046E4BC /* MMCallController+Delegates.swift in Sources */,
 				7645569D1F78FF8500B8F14B /* MessagePostingOperation.swift in Sources */,
 				760085831F977E3300837D75 /* MOMessage.swift in Sources */,
 				7601F195208E056500738C1A /* ImageView+Kingfisher.swift in Sources */,
@@ -1546,6 +1780,7 @@
 				760085871F9790BE00837D75 /* BaseMessage.swift in Sources */,
 				ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
+				A8CBD7D1292CCDA200322961 /* UIView+Associated.swift in Sources */,
 				7645569C1F78FF8500B8F14B /* MessageHandlingOperation.swift in Sources */,
 				764556BD1F78FFB700B8F14B /* StorageProtocols.swift in Sources */,
 				76790D1F234E14CA000D6587 /* Transformer.swift in Sources */,
@@ -1781,7 +2016,7 @@
 		};
 		4F6B90CF449966875E453B5B95355DEC /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */;
+			baseConfigurationReference = D3E47FB2ACBF18822CCAC819 /* Pods-MobileMessaging.release.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
@@ -1801,7 +2036,7 @@
 		};
 		C62993E7A128E22D3E61EB805F993412 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */;
+			baseConfigurationReference = 87A0B61495B5274EB4CA297F /* Pods-MobileMessaging.debug.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
