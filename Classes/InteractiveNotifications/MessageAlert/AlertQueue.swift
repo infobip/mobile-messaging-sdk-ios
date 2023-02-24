@@ -101,51 +101,12 @@ class AlertOperation: Foundation.Operation, NamedLogger {
 	}
 	
 	private func makeAlert(with message: MM_MTMessage, image: Image?, text: String) -> InteractiveMessageAlertController {
-		let alert : InteractiveMessageAlertController
-		
-		if let categoryId = message.category, let category = MobileMessaging.category(withId: categoryId), category.actions.first(where: { return $0 is MMTextInputNotificationAction } ) == nil {
-			alert = InteractiveMessageAlertController(
-				titleText: message.title,
-				messageText: text,
-				imageURL: nil,
-				image: image,
-				category: category,
-				actionHandler: {
-					action in
-					MobileMessaging.handleAction(
-						identifier: action.identifier,
-						category: categoryId,
-						message: message,
-						notificationUserInfo: message.originalPayload,
-						userText: nil,
-						completionHandler: {}
-					)
-			})
-		} else {
-			alert = InteractiveMessageAlertController(
-				titleText: message.title,
-				messageText: text,
-				imageURL: nil,
-				image: image,
-				dismissTitle: message.inAppDismissTitle,
-				openTitle: message.inAppOpenTitle,
-				actionHandler: {
-					action in
-					MobileMessaging.handleAction(
-						identifier: action.identifier,
-						category: nil,
-						message: message,
-						notificationUserInfo: message.originalPayload,
-						userText: nil,
-						completionHandler: {}
-					)
-			})
-		}
-
+        let alert = createAlertController(forMessage: message, image: image, text: text);
 		alert.dismissHandler = {
+            [unowned self] in // Avoid strong reference cycle: dismissHandler -> self -> alert -> dismissHandler
 			self.cancelAlert()
 		}
-		return alert
+        return alert
 	}
 }
 
@@ -198,4 +159,60 @@ class AlertQueue {
 	func enqueueAlert(message: MM_MTMessage, text: String) {
 		oq.addOperation(AlertOperation(with: message, text: text))
 	}
+}
+
+// MARK: AlertController Utils
+fileprivate func createAlertController(forMessage message: MM_MTMessage, image: Image?, text: String) -> InteractiveMessageAlertController {
+    if let inAppMessage = MMWebInAppMessage(extractedFrom: message) {
+        return createWebAlertController(forMessage: inAppMessage)
+    } else {
+        return createNativeAlertController(forMessage: message, image: image, text: text)
+    }
+}
+
+fileprivate func createWebAlertController(forMessage message: MMWebInAppMessage) -> WebInteractiveMessageAlertController {
+    WebInteractiveMessageAlertController(message: message)
+}
+
+fileprivate func createNativeAlertController(forMessage message: MM_MTMessage, image: Image?, text: String) -> NativeInteractiveMessageAlertController {
+    if let categoryId = message.category,
+       let category = MobileMessaging.category(withId: categoryId),
+       category.actions.first(where: { return $0 is MMTextInputNotificationAction } ) == nil {
+        return NativeInteractiveMessageAlertController(
+            titleText: message.title,
+            messageText: text,
+            imageURL: nil,
+            image: image,
+            category: category,
+            actionHandler: {
+                action in
+                MobileMessaging.handleAction(
+                    identifier: action.identifier,
+                    category: categoryId,
+                    message: message,
+                    notificationUserInfo: message.originalPayload,
+                    userText: nil,
+                    completionHandler: {}
+                )
+        })
+    } else {
+        return NativeInteractiveMessageAlertController(
+            titleText: message.title,
+            messageText: text,
+            imageURL: nil,
+            image: image,
+            dismissTitle: message.inAppDismissTitle,
+            openTitle: message.inAppOpenTitle,
+            actionHandler: {
+                action in
+                MobileMessaging.handleAction(
+                    identifier: action.identifier,
+                    category: nil,
+                    message: message,
+                    notificationUserInfo: message.originalPayload,
+                    userText: nil,
+                    completionHandler: {}
+                )
+            })
+    }
 }

@@ -178,7 +178,14 @@ struct Consts {
         static let topic = "topic"
         static let inbox = "inbox"
         static let seen = "seen"
+        static let inAppDetails = "inAppDetails"
 	}
+    
+    struct InAppDetailsKeys {
+        static let url = "url"
+        static let position = "position"
+        static let type = "type"
+    }
 
 	struct Attachments {
 		struct Keys {
@@ -245,4 +252,12 @@ enum Attributes : String {
 	case tags = "tags"
 	case instances = "instances"
 	case applicationUserId = "applicationUserId"
+}
+
+enum InAppMessagePosition: Int {
+    case top = 1, bottom
+}
+
+enum InAppMessageType: Int {
+    case banner = 1, popup, fullscreen
 }

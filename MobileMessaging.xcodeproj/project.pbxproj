@@ -12,6 +12,10 @@
 		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
 		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
 		3BB0594CCA9D40ADAC4C3716491BE06B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */; };
+		4266599A298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42665999298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift */; };
+		4266599C298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4266599B298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib */; };
+		429CCD6A298C0B5300B4294A /* InteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */; };
+		42D92E2E299D1C4500B000D8 /* MMWebInAppMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D92E2D299D1C4500B000D8 /* MMWebInAppMessage.swift */; };
 		6C60A4A31FD6B169001744BC /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C60A4A11FD6B169001744BC /* State.swift */; };
 		760085811F977CC100837D75 /* MTMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085801F977CC100837D75 /* MTMessage.swift */; };
 		760085831F977E3300837D75 /* MOMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085821F977E3300837D75 /* MOMessage.swift */; };
@@ -40,9 +44,9 @@
 		7601F1A6208E056500738C1A /* Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F18D208E056400738C1A /* Placeholder.swift */; };
 		7601F1A7208E056500738C1A /* KingfisherOptionsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F18E208E056400738C1A /* KingfisherOptionsInfo.swift */; };
 		7601F1A9208E056500738C1A /* ImagePrefetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F190208E056400738C1A /* ImagePrefetcher.swift */; };
-		7601F1AF208E057F00738C1A /* AlertController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7601F1AA208E057E00738C1A /* AlertController.xib */; };
+		7601F1AF208E057F00738C1A /* NativeInteractiveMessageAlertController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7601F1AA208E057E00738C1A /* NativeInteractiveMessageAlertController.xib */; };
 		7601F1B0208E057F00738C1A /* InteractiveMessageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1AB208E057E00738C1A /* InteractiveMessageButton.swift */; };
-		7601F1B1208E057F00738C1A /* InteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1AC208E057E00738C1A /* InteractiveMessageAlertController.swift */; };
+		7601F1B1208E057F00738C1A /* NativeInteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1AC208E057E00738C1A /* NativeInteractiveMessageAlertController.swift */; };
 		7601F1B2208E057F00738C1A /* LoadingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1AD208E057E00738C1A /* LoadingImageView.swift */; };
 		7601F1B3208E057F00738C1A /* LoadingImageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7601F1AE208E057E00738C1A /* LoadingImageView.xib */; };
 		7601F1B5208E0F5500738C1A /* InteractiveMessageAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1B4208E0F5500738C1A /* InteractiveMessageAlert.swift */; };
@@ -260,6 +264,10 @@
 /* Begin PBXFileReference section */
 		1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MobileMessaging.xcconfig; sourceTree = "<group>"; };
 		37333A54A8B807D53AD68E200638BAC7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		42665999298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebInteractiveMessageAlertController.swift; sourceTree = "<group>"; };
+		4266599B298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WebInteractiveMessageAlertController.xib; sourceTree = "<group>"; };
+		429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageAlertController.swift; sourceTree = "<group>"; };
+		42D92E2D299D1C4500B000D8 /* MMWebInAppMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMWebInAppMessage.swift; sourceTree = "<group>"; };
 		5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MobileMessaging-dummy.m"; sourceTree = "<group>"; };
 		67D34D6EBA51E58A87E7A34D766E7A15 /* MobileMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MobileMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -291,9 +299,9 @@
 		7601F18D208E056400738C1A /* Placeholder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Placeholder.swift; sourceTree = "<group>"; };
 		7601F18E208E056400738C1A /* KingfisherOptionsInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KingfisherOptionsInfo.swift; sourceTree = "<group>"; };
 		7601F190208E056400738C1A /* ImagePrefetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePrefetcher.swift; sourceTree = "<group>"; };
-		7601F1AA208E057E00738C1A /* AlertController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AlertController.xib; sourceTree = "<group>"; };
+		7601F1AA208E057E00738C1A /* NativeInteractiveMessageAlertController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NativeInteractiveMessageAlertController.xib; sourceTree = "<group>"; };
 		7601F1AB208E057E00738C1A /* InteractiveMessageButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageButton.swift; sourceTree = "<group>"; };
-		7601F1AC208E057E00738C1A /* InteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageAlertController.swift; sourceTree = "<group>"; };
+		7601F1AC208E057E00738C1A /* NativeInteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeInteractiveMessageAlertController.swift; sourceTree = "<group>"; };
 		7601F1AD208E057E00738C1A /* LoadingImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingImageView.swift; sourceTree = "<group>"; };
 		7601F1AE208E057E00738C1A /* LoadingImageView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoadingImageView.xib; sourceTree = "<group>"; };
 		7601F1B4208E0F5500738C1A /* InteractiveMessageAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveMessageAlert.swift; sourceTree = "<group>"; };
@@ -636,6 +644,14 @@
 			path = Framework;
 			sourceTree = "<group>";
 		};
+		429CCD68298C0AAE00B4294A /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				A0E2E4E5264AB39400891124 /* MobileMessaging-umbrella.h */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		7600857D1F9759F200837D75 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
@@ -666,11 +682,14 @@
 			isa = PBXGroup;
 			children = (
 				7601F1AB208E057E00738C1A /* InteractiveMessageButton.swift */,
-				7601F1AC208E057E00738C1A /* InteractiveMessageAlertController.swift */,
-				7601F1AA208E057E00738C1A /* AlertController.xib */,
+				7601F1B4208E0F5500738C1A /* InteractiveMessageAlert.swift */,
+				429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */,
+				7601F1AC208E057E00738C1A /* NativeInteractiveMessageAlertController.swift */,
+				7601F1AA208E057E00738C1A /* NativeInteractiveMessageAlertController.xib */,
+				42665999298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift */,
+				4266599B298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib */,
 				7601F1AD208E057E00738C1A /* LoadingImageView.swift */,
 				7601F1AE208E057E00738C1A /* LoadingImageView.xib */,
-				7601F1B4208E0F5500738C1A /* InteractiveMessageAlert.swift */,
 				7632809A2092013B001B9E8F /* AlertQueue.swift */,
 			);
 			path = MessageAlert;
@@ -811,6 +830,7 @@
 				764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */,
 				764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */,
 				764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */,
+				42D92E2D299D1C4500B000D8 /* MMWebInAppMessage.swift */,
 			);
 			name = InteractiveNotifications;
 			path = Classes/InteractiveNotifications;
@@ -1140,7 +1160,6 @@
 			isa = PBXGroup;
 			children = (
 				7620450027C91A59007970F8 /* Inbox */,
-				764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */,
 				764555D41F78FF4E00B8F14B /* Core */,
 				7600857D1F9759F200837D75 /* Chat */,
 				764556481F78FF4F00B8F14B /* Geofencing */,
@@ -1153,6 +1172,7 @@
 				20B56609144CE204DFA8221F742B2D76 /* Frameworks */,
 				1EC852B12152CDB7042DD88F7126A70F /* Products */,
 				1EB0AEE32DF73E58AC174D599FA44DFB /* Targets Support Files */,
+				429CCD68298C0AAE00B4294A /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1324,8 +1344,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7601F1AF208E057F00738C1A /* AlertController.xib in Resources */,
+				7601F1AF208E057F00738C1A /* NativeInteractiveMessageAlertController.xib in Resources */,
 				A08E503B249650D000F026ED /* InAppChat.strings in Resources */,
+				4266599C298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib in Resources */,
 				A0E1D3CB24ED197400373B47 /* MobileMessagingChatImages.xcassets in Resources */,
 				A0E1D3C924ED196400373B47 /* ChatConnector.html in Resources */,
 				A0936165283661ED00C23C78 /* MobileMessaging.strings in Resources */,
@@ -1430,6 +1451,7 @@
 				7626041124EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift in Sources */,
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
 				76626D0F218AFCA600E95E2C /* InstallationDataService.swift in Sources */,
+				42D92E2E299D1C4500B000D8 /* MMWebInAppMessage.swift in Sources */,
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
 				76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */,
 				76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */,
@@ -1439,7 +1461,7 @@
 				7650DC3C244EEB480016233D /* CPLabel.swift in Sources */,
 				7650DC3D244EEB480016233D /* CPKeyboardAwareScrollViewController.swift in Sources */,
 				7617506323351827000438A8 /* ServerTrustPolicy.swift in Sources */,
-				7601F1B1208E057F00738C1A /* InteractiveMessageAlertController.swift in Sources */,
+				7601F1B1208E057F00738C1A /* NativeInteractiveMessageAlertController.swift in Sources */,
 				76A26CB6230D59A200F00717 /* Migration_1_3.xcmappingmodel in Sources */,
 				764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */,
 				7645568A1F78FF6500B8F14B /* InstallationManagedObject.swift in Sources */,
@@ -1453,6 +1475,7 @@
 				A0B24DBF25066782005C5403 /* AttachmentPreviewController.swift in Sources */,
 				76A8A77D2195BB80004F6E39 /* FetchInstanceOperation.swift in Sources */,
 				ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */,
+				4266599A298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift in Sources */,
 				A0B24DC025066782005C5403 /* ChatAttachmentImageView.swift in Sources */,
 				7601F1A4208E056500738C1A /* ImageProcessor.swift in Sources */,
 				A08CB2672459B0BB00ED91B6 /* ChatService.swift in Sources */,
@@ -1546,6 +1569,7 @@
 				760085871F9790BE00837D75 /* BaseMessage.swift in Sources */,
 				ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
+				429CCD6A298C0B5300B4294A /* InteractiveMessageAlertController.swift in Sources */,
 				7645569C1F78FF8500B8F14B /* MessageHandlingOperation.swift in Sources */,
 				764556BD1F78FFB700B8F14B /* StorageProtocols.swift in Sources */,
 				76790D1F234E14CA000D6587 /* Transformer.swift in Sources */,

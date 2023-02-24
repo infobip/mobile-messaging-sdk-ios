@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="WebInteractiveMessageAlertController" customModule="MMCore" customModuleProvider="target">
+            <connections>
+                <outlet property="view" destination="iN0-l3-epB" id="IhS-ba-faS"/>
+                <outlet property="webView" destination="zV2-qP-g2o" id="ZVQ-5A-A4T"/>
+                <outlet property="webViewBottomWithinSafeArea" destination="DK8-cj-rej" id="ILk-i1-mfJ"/>
+                <outlet property="webViewCenterXToSafeArea" destination="ceq-P9-5nG" id="hJe-IB-s7L"/>
+                <outlet property="webViewCenterXToSuper" destination="fR1-ts-HUm" id="Qd6-wS-j0m"/>
+                <outlet property="webViewCenterYToSafeArea" destination="07S-x1-qsA" id="cIS-4O-QAv"/>
+                <outlet property="webViewCenterYToSuper" destination="1oo-qz-dZk" id="Cml-S9-3e6"/>
+                <outlet property="webViewHeight" destination="YvZ-eY-yx5" id="kHj-My-6Ur"/>
+                <outlet property="webViewHeightToSafeArea" destination="sCo-ed-S5G" id="JBU-oS-CJ0"/>
+                <outlet property="webViewHeightToSuper" destination="Z4c-5x-xJh" id="AG0-Bm-Bav"/>
+                <outlet property="webViewToBottom" destination="Wau-N9-cKk" id="cMa-Kc-whV"/>
+                <outlet property="webViewToTop" destination="0cK-uD-Da0" id="Zox-Xh-gfR"/>
+                <outlet property="webViewTopWithinSafeArea" destination="d0o-BI-7Th" id="G5T-cT-7a2"/>
+                <outlet property="webViewWidthLandscape" destination="BI7-7R-SRo" id="TBb-iw-srn"/>
+                <outlet property="webViewWidthToSafeArea" destination="0lF-vp-Muc" id="d3u-6M-5Ns"/>
+                <outlet property="webViewWidthToSuper" destination="24a-Ls-wZE" id="N9u-EW-hhx"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <wkWebView clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zV2-qP-g2o">
+                    <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="width" priority="700" constant="428" id="BI7-7R-SRo" userLabel="webViewWidthLandscape"/>
+                        <constraint firstAttribute="height" priority="700" constant="100" id="YvZ-eY-yx5" userLabel="webViewHeight"/>
+                    </constraints>
+                    <wkWebViewConfiguration key="configuration">
+                        <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                        <wkPreferences key="preferences"/>
+                    </wkWebViewConfiguration>
+                </wkWebView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <color key="backgroundColor" red="0.33333333333333331" green="0.33333333333333331" blue="0.33333333333333331" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+            <gestureRecognizers/>
+            <constraints>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" priority="800" id="07S-x1-qsA" userLabel="webViewCenterYToSafeArea"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" priority="600" id="0cK-uD-Da0" userLabel="webViewToTop"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="width" secondItem="vUN-kp-3ea" secondAttribute="width" priority="800" constant="-32" id="0lF-vp-Muc" userLabel="webViewWidthToSafeArea"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" priority="900" id="1oo-qz-dZk" userLabel="webViewCenterYToSuper"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" priority="900" id="24a-Ls-wZE" userLabel="webViewWidthToSuper"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="bottom" relation="lessThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="bottom" priority="800" id="DK8-cj-rej" userLabel="webViewBottomWithinSafeArea"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" priority="500" id="Wau-N9-cKk" userLabel="webViewToBottom"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="height" secondItem="iN0-l3-epB" secondAttribute="height" priority="900" id="Z4c-5x-xJh" userLabel="webViewHeightToSuper"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" priority="800" id="ceq-P9-5nG" userLabel="webViewCenterXToSafeArea"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="top" relation="greaterThanOrEqual" secondItem="vUN-kp-3ea" secondAttribute="top" priority="800" id="d0o-BI-7Th" userLabel="webViewTopWithinSafeArea"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" priority="900" id="fR1-ts-HUm" userLabel="webViewCenterXToSuper"/>
+                <constraint firstItem="zV2-qP-g2o" firstAttribute="height" secondItem="vUN-kp-3ea" secondAttribute="height" priority="800" id="sCo-ed-S5G" userLabel="webViewHeightToSafeArea"/>
+            </constraints>
+            <connections>
+                <outletCollection property="gestureRecognizers" destination="9C4-Ez-OLQ" appends="YES" id="s1E-yH-hoC"/>
+            </connections>
+            <point key="canvasLocation" x="130.53435114503816" y="-11.267605633802818"/>
+        </view>
+        <tapGestureRecognizer id="9C4-Ez-OLQ">
+            <connections>
+                <action selector="onBackgrundTap:" destination="-1" id="eIu-QR-YEr"/>
+            </connections>
+        </tapGestureRecognizer>
+    </objects>
+</document>
