@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+#if WEBRTCUI_ENABLED
 extension MMCallController {
     func createPulse() {
         self.pulse.layer.cornerRadius = self.pulse.frame.height / 2
@@ -68,3 +68,4 @@ extension MMCallController {
         self.pulseLayers[index].add(groupAnimation, forKey: "groupanimation")
     }
 }
+#endif

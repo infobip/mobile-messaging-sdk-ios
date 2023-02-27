@@ -4,12 +4,12 @@
 //
 //  Created by Francisco Fortes on 14.10.2022.
 //
-
 import Foundation
 import WebKit
 import CallKit
 import PushKit
 import AVFoundation
+#if WEBRTCUI_ENABLED
 import InfobipRTC
 
 extension MMWebRTCService: PKPushRegistryDelegate {
@@ -230,3 +230,4 @@ extension MMWebRTCService: IncomingApplicationCallEventListener {
         notificationData?.inboundAppCall = incomingApplicationCall
     }
 }
+#endif

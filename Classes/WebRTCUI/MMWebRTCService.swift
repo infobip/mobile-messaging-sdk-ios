@@ -10,6 +10,7 @@ import WebKit
 import CallKit
 import PushKit
 import AVFoundation
+#if WEBRTCUI_ENABLED
 import InfobipRTC
 
 extension MobileMessaging {
@@ -141,3 +142,4 @@ public class MMWebRTCService: MobileMessagingService {
         return !(regionCode.contains("CN") || regionCode.contains("CHN"))
     }
 }
+#endif

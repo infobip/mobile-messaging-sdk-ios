@@ -5,9 +5,9 @@
 //  Created by Francisco Fortes on 19/08/2021.
 //  Copyright © 2021 Infobip Ltd. All rights reserved.
 //
-
 import Foundation
 import UIKit
+#if WEBRTCUI_ENABLED
 import InfobipRTC
 
 public extension MMWebRTCService {
@@ -72,3 +72,4 @@ extension NSDataAsset {
         self.init(name: mm_webrtcui_named, bundle: MMWebRTCService.resourceBundle)
     }
 }
+#endif

@@ -5,8 +5,8 @@
 //  Created by Francisco Fortes on 19/08/2021.
 //  Copyright © 2021 Infobip Ltd. All rights reserved.
 //
-
 import UIKit
+#if WEBRTCUI_ENABLED
 import InfobipRTC
 import AVFoundation
 import CallKit
@@ -185,3 +185,4 @@ extension MMCallController {
         return AVCaptureDevice.authorizationStatus(for: .video) == .authorized
     }
 }
+#endif

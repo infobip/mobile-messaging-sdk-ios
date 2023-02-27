@@ -7,7 +7,7 @@
 
 import Foundation
 import WebKit
-
+#if WEBRTCUI_ENABLED
 public class MMWebRTCSettings: NSObject {
     	
     public static let sharedInstance = MMWebRTCSettings()
@@ -206,4 +206,4 @@ public class MMWebRTCSettings: NSObject {
         }
     }
 }
-
+#endif

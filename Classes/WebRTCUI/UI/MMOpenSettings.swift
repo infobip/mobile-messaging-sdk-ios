@@ -7,6 +7,7 @@
 
 import Foundation
 import AVFoundation
+#if WEBRTCUI_ENABLED
 
 public protocol MMOpenSettings {
     func askForSystemSettings(
@@ -49,3 +50,4 @@ public extension MMOpenSettings {
         }
     }
 }
+#endif

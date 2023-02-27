@@ -15,7 +15,6 @@
 		367B1A9A2918F3640081983C /* MMLoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367B1A992918F3640081983C /* MMLoc.swift */; };
 		3BB0594CCA9D40ADAC4C3716491BE06B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */; };
 		6C60A4A31FD6B169001744BC /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C60A4A11FD6B169001744BC /* State.swift */; };
-		741679B33E42C0725CFCAC1B /* Pods_MobileMessaging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8500BEEB5F8505F53E9A1DD /* Pods_MobileMessaging.framework */; };
 		760085811F977CC100837D75 /* MTMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085801F977CC100837D75 /* MTMessage.swift */; };
 		760085831F977E3300837D75 /* MOMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085821F977E3300837D75 /* MOMessage.swift */; };
 		760085871F9790BE00837D75 /* BaseMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085861F9790BE00837D75 /* BaseMessage.swift */; };
@@ -538,7 +537,6 @@
 		76FD98642819A1BB006625C0 /* InboxSeenRequestDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxSeenRequestDataMapper.swift; sourceTree = "<group>"; };
 		76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingOperation.swift; sourceTree = "<group>"; };
 		8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = DEVELOPER_DIR; };
-		87A0B61495B5274EB4CA297F /* Pods-MobileMessaging.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessaging.debug.xcconfig"; path = "Target Support Files/Pods-MobileMessaging/Pods-MobileMessaging.debug.xcconfig"; sourceTree = "<group>"; };
 		87D23AEB9B8E45723819ED8B7152EBC5 /* MobileMessaging-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "MobileMessaging-prefix.pch"; sourceTree = "<group>"; };
 		90D97F4115E4ED0FAB0D933212A2ECFA /* MobileMessaging.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; name = MobileMessaging.modulemap; path = ../MobileMessaging.modulemap; sourceTree = "<group>"; };
 		A00D332E252B81480024BB12 /* ChatAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatAttachment.swift; sourceTree = "<group>"; };
@@ -593,7 +591,7 @@
 		A0B63166255C666800B692E4 /* WebViewSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewSettings.swift; sourceTree = "<group>"; };
 		A0E1D3C824ED196400373B47 /* ChatConnector.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ChatConnector.html; sourceTree = "<group>"; };
 		A0E1D3CA24ED197400373B47 /* MobileMessagingChatImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = MobileMessagingChatImages.xcassets; sourceTree = "<group>"; };
-		A0E2E4E5264AB39400891124 /* MobileMessaging-umbrella.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "MobileMessaging-umbrella.h"; path = "Framework/MobileMessaging-umbrella.h"; sourceTree = "<group>"; };
+		A0E2E4E5264AB39400891124 /* MobileMessaging-umbrella.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MobileMessaging-umbrella.h"; sourceTree = "<group>"; };
 		A0E4439D24AF59F300387CDD /* MimeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MimeType.swift; sourceTree = "<group>"; };
 		A0E4439F24AF5C8300387CDD /* ChatAttachmentUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAttachmentUtils.swift; sourceTree = "<group>"; };
 		A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
@@ -649,9 +647,7 @@
 		ADF2034C2086664000E157D7 /* GeoDatesUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoDatesUtils.swift; sourceTree = "<group>"; };
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		D3E47FB2ACBF18822CCAC819 /* Pods-MobileMessaging.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessaging.release.xcconfig"; path = "Target Support Files/Pods-MobileMessaging/Pods-MobileMessaging.release.xcconfig"; sourceTree = "<group>"; };
 		D7D8601249D4FAAD2A589A3D /* UserDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
-		F8500BEEB5F8505F53E9A1DD /* Pods_MobileMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -665,7 +661,6 @@
 				2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */,
 				170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */,
 				AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */,
-				741679B33E42C0725CFCAC1B /* Pods_MobileMessaging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -692,7 +687,6 @@
 			children = (
 				76092BA41FAB162C00128E48 /* AudioToolbox.framework */,
 				833AC1D7495E23FDE30ED37A0C13E6F4 /* iOS */,
-				F8500BEEB5F8505F53E9A1DD /* Pods_MobileMessaging.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1214,8 +1208,8 @@
 		7DB346D0F39D3F0E887471402A8071AB = {
 			isa = PBXGroup;
 			children = (
+				A0E2E4E5264AB39400891124 /* MobileMessaging-umbrella.h */,
 				7620450027C91A59007970F8 /* Inbox */,
-				764556101F78FF4F00B8F14B /* MobileMessaging-umbrella.h */,
 				764555D41F78FF4E00B8F14B /* Core */,
 				7600857D1F9759F200837D75 /* Chat */,
 				764556481F78FF4F00B8F14B /* Geofencing */,
@@ -1229,17 +1223,7 @@
 				20B56609144CE204DFA8221F742B2D76 /* Frameworks */,
 				1EC852B12152CDB7042DD88F7126A70F /* Products */,
 				1EB0AEE32DF73E58AC174D599FA44DFB /* Targets Support Files */,
-				7E4635DCBD4DAA88C32900B3 /* Pods */,
 			);
-			sourceTree = "<group>";
-		};
-		7E4635DCBD4DAA88C32900B3 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				87A0B61495B5274EB4CA297F /* Pods-MobileMessaging.debug.xcconfig */,
-				D3E47FB2ACBF18822CCAC819 /* Pods-MobileMessaging.release.xcconfig */,
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		833AC1D7495E23FDE30ED37A0C13E6F4 /* iOS */ = {
@@ -1420,7 +1404,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A7F83A827E1952844EA68119D288CDDF /* Build configuration list for PBXNativeTarget "MobileMessaging" */;
 			buildPhases = (
-				DA6A76FC553D493FC0E8A21B /* [CP] Check Pods Manifest.lock */,
 				F0FB3783C9DE8717FC987CFCD9463D9C /* Headers */,
 				0749E698D7B061A5301B9612FB001C7F /* Sources */,
 				0979C61CC24B570CCB03438437464D2A /* Frameworks */,
@@ -1513,31 +1496,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		DA6A76FC553D493FC0E8A21B /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-MobileMessaging-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0749E698D7B061A5301B9612FB001C7F /* Sources */ = {
@@ -2016,7 +1974,6 @@
 		};
 		4F6B90CF449966875E453B5B95355DEC /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D3E47FB2ACBF18822CCAC819 /* Pods-MobileMessaging.release.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
@@ -2036,7 +1993,6 @@
 		};
 		C62993E7A128E22D3E61EB805F993412 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 87A0B61495B5274EB4CA297F /* Pods-MobileMessaging.debug.xcconfig */;
 			buildSettings = {
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;

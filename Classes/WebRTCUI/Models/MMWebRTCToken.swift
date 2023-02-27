@@ -6,6 +6,7 @@
 //
 
 import Foundation
+#if WEBRTCUI_ENABLED
 
 public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
     public let token: String
@@ -74,3 +75,4 @@ class MMWebRTCTokenRequest: RequestData {
                    baseUrl: URL(string: Consts.APIValues.prodDynamicBaseURLString))
     }
 }
+#endif

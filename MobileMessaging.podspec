@@ -55,5 +55,10 @@ Pod::Spec.new do |s|
         webrtcui.source_files = 'Classes/WebRTCUI/**/*.{h,m,swift,storyboard}'
         webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/UI/**/*.{xcassets,png,wav,svg,html}',
             'Classes/WebRTCUI/UI/*.{storyboard}']}
+        s.xcconfig = {'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) COCOAPODS=1 WEBRTCUI_ENABLED=1' }
+        s.pod_target_xcconfig =  {
+            'SWIFT_VERSION' => '5',
+            'OTHER_SWIFT_FLAGS[config=Debug]' => '$(inherited) -DDEBUG -DWEBRTCUI_ENABLED'
+        }
     end
 end

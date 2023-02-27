@@ -9,6 +9,7 @@
 import UIKit
 import Foundation
 
+#if WEBRTCUI_ENABLED
 enum CallButtonType {
     case mute,
          speaker,
@@ -182,3 +183,4 @@ extension NSLayoutConstraint {
         return newConstraint
     }
 }
+#endif

@@ -6,8 +6,6 @@
 //  Copyright © 2021 Infobip Ltd. All rights reserved.
 //
 
-import InfobipRTC
-
 public struct MMWebRTCUIConstants {
     static let phoneNumber = "phoneNumber"
     static let autoAccept = "autoAccept"

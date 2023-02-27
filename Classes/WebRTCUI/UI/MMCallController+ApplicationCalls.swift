@@ -5,8 +5,8 @@
 //  Created by Francisco Fortes on 22/06/2022.
 //  Copyright © 2022 Infobip Ltd. All rights reserved.
 //
-
 import UIKit
+#if WEBRTCUI_ENABLED
 import InfobipRTC
 import AVFoundation
 import CallKit
@@ -208,3 +208,4 @@ extension MMCallController: ApplicationCallEventListener {
         }
     }
 }
+#endif

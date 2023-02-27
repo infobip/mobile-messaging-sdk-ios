@@ -5,11 +5,10 @@
 //  Created by Francisco Fortes on 02/09/2021.
 //  Copyright © 2021 Infobip Ltd. All rights reserved.
 //
-
 import UIKit
 import AVKit
+#if WEBRTCUI_ENABLED
 import InfobipRTC
-
 private let mmCCFrameGap: CGFloat = 15
 
 extension MMCallController {
@@ -202,3 +201,4 @@ extension MMCallController {
         }
     }
 }
+#endif

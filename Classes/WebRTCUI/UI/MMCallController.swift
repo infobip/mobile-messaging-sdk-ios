@@ -5,11 +5,11 @@
 //  Created by Francisco Fortes on 19/08/2021.
 //  Copyright © 2021 Infobip Ltd. All rights reserved.
 //
-
 import UIKit
-import InfobipRTC
 import AVFoundation
 import CallKit
+#if WEBRTCUI_ENABLED
+import InfobipRTC
 
 public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     func applySettings() {
@@ -540,3 +540,21 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         }
     }
 }
+
+#else
+public class MMCallController: UIViewController {
+    @IBOutlet weak var localVideoView: UIView!
+    @IBOutlet weak var remoteVideoViewConference: UIView!
+    @IBOutlet weak var counterpartLabel: UILabel!
+    @IBOutlet weak var pulse: UIImageView!
+    @IBOutlet weak var counterpartImage: UIImageView!
+    @IBOutlet weak var groupImage: UIImageView!
+    @IBOutlet weak var callStatusLabel: UILabel!
+    @IBOutlet weak var participantMutedImageV: UIImageView!
+    @IBOutlet weak var networkStatusLabel: UILabel!
+    @IBOutlet weak var videoStatusTopView: UIView!
+    @IBOutlet weak var videoStatusBottomView: UIView!
+    @IBOutlet weak var pipButton: UIButton!
+}
+#endif
+

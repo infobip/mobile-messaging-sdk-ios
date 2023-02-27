@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+#if WEBRTCUI_ENABLED
 public final class MMPopOverBar {
     public static let shared = MMPopOverBar()
     private static let kWindowLevel: UIWindow.Level = UIWindow.Level(UIWindow.Level.statusBar.rawValue + 1)
@@ -223,3 +223,4 @@ internal class PopoverView: UIView {
         })
     }
 }
+#endif

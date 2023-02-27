@@ -5,7 +5,7 @@
 //  Created by Francisco Fortes on 19/08/2021.
 //  Copyright © 2021 Infobip Ltd. All rights reserved.
 //
-
+#if WEBRTCUI_ENABLED
 extension MMCallController {
     func hideCallRelatedViewElements() {
         self.videoStatusBottomView.update(top: [], bottom: [])
@@ -41,3 +41,4 @@ extension MMCallController {
         self.counterpartLabel.isHidden = false
     }
 }
+#endif

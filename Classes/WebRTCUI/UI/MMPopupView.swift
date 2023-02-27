@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+#if WEBRTCUI_ENABLED
 
 @objc
 public class MMPopupView: UIAlertController {
@@ -48,3 +49,4 @@ public class MMPopupView: UIAlertController {
         }
     }
 }
+#endif
