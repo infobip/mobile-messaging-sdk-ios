@@ -40,3 +40,16 @@ Pods/InfobipRTC/
 */tmp
 macos/
 .application-code
+
+# swift package
+/.build
+/Packages
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.swiftpm/config/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+
+# testing local framework, remove may be?
+Sources/Framework
