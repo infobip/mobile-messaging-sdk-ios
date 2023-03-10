@@ -83,7 +83,7 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
 
     func present(presentationController: UIViewController) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        
+        alertController.view.tintColor = MMChatSettings.getMainTextColor()
         if let action = self.action(for: .camera,
                                     title: ChatLocalization.localizedString(forKey: "mm_action_sheet_take_photo_or_video", defaultString: "Take Photo or Video"),
                                     presentationController: presentationController) {

@@ -34,7 +34,8 @@ extension MobileMessaging {
 	}
 }
 
-/// This service manages the In-app Chat.
+// MARK: MMInAppChat Service
+
 public class MMInAppChatService: MobileMessagingService {
     private let q: DispatchQueue
     static var sharedInstance: MMInAppChatService?
@@ -63,9 +64,9 @@ public class MMInAppChatService: MobileMessagingService {
         self.chatMessageCounterService.chatService = self
 	}
     
-	///You can define your own custom appearance for chat view by accessing a chat settings object.
+    ///You can define your own custom appearance for chat view by accessing a chat settings object.
     public let settings: MMChatSettings = MMChatSettings.sharedInstance
-	
+    
 	///Method for clean up WKWebView's cache. Mobile Messaging SDK will call it in case of user depersonalization. You can call it additionaly in case your user logouts from In-app Chat.
 	///`completion` will be called when cache clean up is finished.
 	public func cleanCache(completion: (() -> Void)? = nil) {
@@ -228,9 +229,7 @@ public class MMInAppChatService: MobileMessagingService {
         self.settings.update(withChatWidget: chatWidget)
 	}
     
-    /*
-     Notifications handling
-     */
+    // MARK: Notifications handling
     
     @objc func notificationInstallationSyncedHandler() {
         guard let chatWidget = chatWidget else {
@@ -245,9 +244,7 @@ public class MMInAppChatService: MobileMessagingService {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: MMNotificationRegistrationUpdated), object: nil)
     }
     
-    /*
-     Errors handling
-     */
+    // MARK: Error handling
     
     private var chatErrors: ChatErrors = .none {
             didSet {

@@ -64,8 +64,18 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     func presentInTabBar() {
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         if let vc = storyboard.instantiateViewController(withIdentifier: "tabController") as? UITabBarController {
-            navigationController?.present(vc, animated: true, completion: nil)
+            vc.modalPresentationStyle = .fullScreen
+            //navigationController?.present(vc, animated: true, completion: nil)
+            navigationController?.pushViewController(vc, animated: true)
         }
+    }
+    
+    func showReplacedChatInNavigation() {
+        let customInputView = CustomInputView(frame: CGRect(x: 0, y: view.frame.height-50,
+                                                   width: view.frame.width, height: 50))
+        let vc = MMChatViewController.makeCustomViewController(with: customInputView)
+        customInputView.setupInputView()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     func presentAndSendContextualData() {
@@ -148,13 +158,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
         optionsTableV.isUserInteractionEnabled = enabled
         optionsTableV.alpha = enabled ? 1.0 : 0.3
     }
-    /*
-     showChatInNavigationP
-     showChatModallyP
-     presentRootNavigationVC
-     presentNavigationVCCustomTrans
-     */
-    
+
     private func handleShowChat(_ option: Int) {
         guard let suboption = ShowChatOptions(rawValue: option) else { return }
         switch suboption {
@@ -176,6 +180,11 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
         switch suboption {
         case .setLanguage:
             showLanguageVC()
+        case .customisedChatInput:
+            setCustomSettings()
+            showChatInNavigation()
+        case .replacedChatInput:
+            showReplacedChatInNavigation()
         case .presentSendingContextualData:
             presentAndSendContextualData()
         case .authenticatedChat:
@@ -197,6 +206,48 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
         case .copyPushRegIdToClipboard:
             onCopyPushRegIdToClipbpard()
         }
+    }
+    
+    private func setCustomSettings() {
+        let advSettings = MMAdvancedChatSettings()
+        advSettings.textContainerTopMargin                  = 8.0
+        advSettings.textContainerBottomMargin               = 1.0
+        advSettings.textContainerLeftPadding                = 10.0
+        advSettings.textContainerRightPadding               = 20.0
+        advSettings.textContainerTopPadding                 = 1.0
+        advSettings.textContainerCornerRadius               = 8.0
+        advSettings.textViewTopMargin                       = 2.0
+        advSettings.placeholderHeight                       = 30.0
+        advSettings.placeholderSideMargin                   = 42.0
+        advSettings.placeholderTopMargin                    = 2.0
+        advSettings.buttonHeight                            = 44.0
+        advSettings.buttonTouchableOverlap                  = 6.0
+        advSettings.buttonRightMargin                       = 1.0
+        advSettings.buttonBottomMargin                      = 1.0
+        advSettings.utilityButtonWidth                      = 40.0
+        advSettings.utilityButtonHeight                     = 40.0
+        advSettings.utilityButtonBottomMargin               = 2.0
+        advSettings.initialHeight                           = 50.0
+        advSettings.mainTextColor                           = .black
+        advSettings.mainPlaceholderTextColor                = .orange
+        advSettings.textInputBackgroundColor                = .white
+        advSettings.inputContainerBackgroundColor           = .orange
+        advSettings.sendButtonIcon                          = UIImage(named: "sendIcon")
+        advSettings.attachmentButtonIcon                    = UIImage(named: "attachIcon")
+        advSettings.isLineSeparatorHidden                   = true
+        advSettings.mainFont                                = UIFont(name: "HelveticaNeue-Thin", size: 18.0)
+        advSettings.charCountFont                           = UIFont(name: "HelveticaNeue-Bold", size: 18.0)
+        MobileMessaging.inAppChat?.settings.advancedSettings = advSettings
+        MobileMessaging.inAppChat?.settings.title = "Overwriting title"
+        MobileMessaging.inAppChat?.settings.sendButtonTintColor = .white
+        MobileMessaging.inAppChat?.settings.navBarItemsTintColor = .lightGray
+        MobileMessaging.inAppChat?.settings.navBarColor = .orange
+        MobileMessaging.inAppChat?.settings.navBarTitleColor = .white
+        MobileMessaging.inAppChat?.settings.attachmentPreviewBarsColor = .brown
+        MobileMessaging.inAppChat?.settings.attachmentPreviewItemsColor = .white
+        MobileMessaging.inAppChat?.settings.backgroungColor = .orange
+        MobileMessaging.inAppChat?.settings.errorLabelTextColor = .white
+        MobileMessaging.inAppChat?.settings.errorLabelBackgroundColor = .red
     }
     
 // Uncomment if you want to handle call UI here.
@@ -229,6 +280,81 @@ extension OptionListVC: UITableViewDelegate, UITableViewDataSource {
             handleAdvancedChat(indexPath.row)
         case .webRTCUI:
             handleWebRTCUI(indexPath.row)
+        }
+    }
+}
+
+class CustomInputView: UIView, MMChatComposer, UITextViewDelegate {
+    weak var delegate: MMComposeBarDelegate?
+    private static let elementSize = CGRect(x: 0, y: 0, width: 50, height: 50)
+    let textView = UITextView(frame: CustomInputView.elementSize)
+    public func setupInputView() {
+        let stackView = UIStackView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height))
+        stackView.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
+        stackView.axis = .horizontal
+        let sendPicBtn = UIButton(frame: CustomInputView.elementSize)
+        sendPicBtn.setTitle("Send Picture", for: .normal)
+        sendPicBtn.tintColor = .white
+        sendPicBtn.addTarget(self, action: #selector(onSendPic), for: .touchUpInside)
+        let sendTextBtn = UIButton(frame: CustomInputView.elementSize)
+        sendTextBtn.setTitle("Send Text", for: .normal)
+        sendTextBtn.tintColor = .white
+        sendTextBtn.addTarget(self, action: #selector(onSendText), for: .touchUpInside)
+        textView.delegate = self
+        textView.backgroundColor = .white
+        textView.text = "Hello world!"
+        stackView.addArrangedSubview(sendPicBtn)
+        stackView.addArrangedSubview(sendTextBtn)
+        stackView.addArrangedSubview(textView)
+        stackView.backgroundColor = .blue
+        stackView.distribution = .fillEqually
+        self.addSubview(stackView)
+    }
+    
+    @objc func onSendPic() {
+        guard let data = UIImage(named: "alphaLogo")?.pngData() else { return }
+        delegate?.sendAttachmentData(data, completion: { error in
+            if let error = error {
+                MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
+            } else {
+                MMLogDebug(">> Text message sent successfully")
+            }
+        })
+    }
+    
+    @objc func onSendText() {
+        delegate?.sendText(textView.text, completion: { error in
+            if let error = error {
+                MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
+            } else {
+                MMLogDebug(">> Text message sent successfully")
+            }
+        })
+    }
+        
+    func textViewDidChange(_ textView: UITextView) {
+        delegate?.textDidChange(textView.text, completion: { error in
+            if let error = error {
+                MMLogDebug(">> Text did change call failed with error \(error.localizedDescription)")
+            } else {
+                MMLogDebug(">> Text did change call sent successfully")
+            }
+        })
+    }
+    
+    override func becomeFirstResponder() -> Bool {
+        return textView.becomeFirstResponder()
+    }
+    
+    override var canBecomeFirstResponder: Bool {
+        get {
+            return textView.canBecomeFirstResponder
+        }
+    }
+    
+    override var isFirstResponder: Bool {
+        get {
+            return textView.isFirstResponder
         }
     }
 }

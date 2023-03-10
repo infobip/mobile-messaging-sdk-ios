@@ -33,6 +33,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         return MMChatViewController(type: .dismiss)
     }
     
+    //Will make ChatViewController with a custom composeBar view
+    public static func makeCustomViewController(with inputView: MMChatComposer) -> MMChatViewController {
+        let vc = MMChatViewController()
+        vc.composeBarView = inputView
+        return vc
+    }
+    
     var webView: ChatWebView!
     private var chatWidget: ChatWidget?
     
@@ -60,10 +67,21 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         MobileMessaging.inAppChat?.webViewDelegate = self
         didEnableControls(false)
         registerToChatSettingsChanges()
-        webView.backgroundColor = UIColor.white
-        view.backgroundColor = UIColor.white
+        let bckgColor = settings?.backgroungColor ?? .white
+        webView.backgroundColor = bckgColor
+        view.backgroundColor = bckgColor
     }
     
+    open override func viewWillDisappear(_ animated: Bool) {
+        draftPostponer.postponeBlock(delay: 0) { [weak self] in
+            if let composeBar = self?.composeBarView as? ComposeBar {
+                self?.webView.sendDraft(composeBar.text)
+            } else {
+                self?.webView.sendDraft("")
+            }
+        }
+        super.viewWillDisappear(animated)
+    }
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         MobileMessaging.inAppChat?.isChatScreenVisible = true
@@ -81,26 +99,14 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         }
     }
     
-    override func didTapSendText(_ text: String) {
-        webView.sendMessage(text)
-    }
-    
-    override func textViewDidChange(_ text: String) {
-        webView.sendDraft(text)
-    }
-    
     private lazy var chatAttachmentPicker: ChatAttachmentPicker = ChatAttachmentPicker(delegate: self)
-    
-    override func utilityButtonClicked() {
-        chatAttachmentPicker.present(presentationController: self)
-    }
     
     private func handleMultithreadBackButton(appearing: Bool) {
         if appearing {
             initialLeftNavigationItem = self.navigationItem.leftBarButtonItem
             initialBackButtonVisibility = self.navigationItem.hidesBackButton
             self.navigationItem.hidesBackButton = true
-            let customButton = MobileMessaging.inAppChat?.settings.multithreadBackButton
+            let customButton = settings?.multithreadBackButton
             let backButton = UIBarButtonItem(image: customButton?.image ?? UIImage(mm_chat_named: "backButton"),
                                              style: customButton?.style ?? UIBarButtonItem.Style.plain,
                                              target: customButton?.target ?? self,
@@ -114,7 +120,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     
     //ChatSettingsApplicable
     func applySettings() {
-        guard let settings = MobileMessaging.inAppChat?.settings else {
+        guard let settings = settings else {
             return
         }
         
@@ -153,9 +159,10 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         
         title = settings.title
         
-        if let sendButtonTintColor = settings.sendButtonTintColor {
-            composeBarView.buttonTintColor = sendButtonTintColor
-            composeBarView.utilityButtonTintColor = sendButtonTintColor
+        if let sendButtonTintColor = settings.sendButtonTintColor,
+        let composerBar = composeBarView as? ComposeBar {
+            composerBar.sendButtonTintColor = sendButtonTintColor
+            composerBar.utilityButtonTintColor = sendButtonTintColor
         }
     }
               
@@ -197,7 +204,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     func didEnableControls(_ enabled: Bool) {
         webView.isUserInteractionEnabled = enabled
         webView.isLoaded = enabled
-        composeBarView.isEnabled = enabled
+        if let composeBar = composeBarView as? ComposeBar {
+            composeBar.isEnabled = enabled
+        }
         if enabled {
             MobileMessaging.inAppChat?.resetMessageCounter()
         }
@@ -291,6 +300,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     
     private func setupChatNotAvailableLabel() {
         chatNotAvailableLabel = ChatNotAvailableLabel(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 0))
+        chatNotAvailableLabel.font = MMChatSettings.getMainFont()
+        chatNotAvailableLabel.backgroundColor = settings?.errorLabelBackgroundColor ?? .lightGray
+        chatNotAvailableLabel.textColor = settings?.errorLabelTextColor ?? .black
         chatNotAvailableLabel.numberOfLines = ChatNotAvailableLabel.kMaxNumberOfLines
         chatNotAvailableLabel.isHidden = true
         self.view.addSubview(self.chatNotAvailableLabel)
@@ -313,6 +325,33 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         isComposeBarVisible = state == .loadingThread || state == .thread || state == .singleThreadMode
         isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
     }
+    
+    // MARK: MMComposeBarDelegate delegate
+    public override func sendText(_ text: String, completion: @escaping (_ error: NSError?) -> Void) {
+        webView.sendMessage(text, attachment: nil, completion: completion)
+    }
+    
+    public override func sendAttachmentData(_ data: Data, completion: @escaping (_ error: NSError?) -> Void) {
+        webView.sendMessage(nil, attachment: ChatMobileAttachment(data: data), completion: completion)
+    }
+    
+    public override func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void) {
+        draftPostponer.postponeBlock(delay: userInputDebounceTimeMs) { [weak self] in
+            self?.webView.sendDraft(text, completion: completion)
+        }
+    }
+    
+    public override func attachmentButtonTapped() {
+        chatAttachmentPicker.present(presentationController: self)
+    }
+    
+    public override func composeBarWillChangeFrom(_ startFrame: CGRect, to endFrame: CGRect,
+                                         duration: TimeInterval, animationCurve: UIView.AnimationCurve) {
+        let heightDelta = startFrame.height - endFrame.height
+        scrollViewContainer?.frame.height += heightDelta;
+    }
+    
+    public override func composeBarDidChangeFrom(_ startFrame: CGRect, to endFrame: CGRect) {}
 }
 
 extension MMChatViewController: ChatAttachmentPickerDelegate {
@@ -333,6 +372,7 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
         let alert = UIAlertController(title: accessDescription ?? "Required permissions not granted",
                                       message: ChatLocalization.localizedString(forKey: "mm_permissions_alert_message", defaultString: "To give permissions go to Settings"),
                                       preferredStyle: .alert)
+        alert.view.tintColor = MMChatSettings.getMainTextColor()
         alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: nil))
         if let settingsUrl = NSURL(string: UIApplication.openSettingsURLString, relativeTo: nil) as URL?,
            UIApplication.shared.canOpenURL(settingsUrl) {

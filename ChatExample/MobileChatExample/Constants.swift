@@ -54,6 +54,8 @@ enum ShowChatOptions: Int, CaseIterable {
 }
 enum AdvancedChatOptions: Int, CaseIterable {
     case setLanguage = 0,
+    customisedChatInput,
+    replacedChatInput,
     presentSendingContextualData,
     authenticatedChat,
     personalize,
@@ -62,6 +64,10 @@ enum AdvancedChatOptions: Int, CaseIterable {
         switch self {
         case .setLanguage:
             return "setLanguage"
+        case .customisedChatInput:
+            return "customisedChatInput"
+        case .replacedChatInput:
+            return "replacedChatInput"
         case .presentSendingContextualData:
             return "presentChat-SendingContextualData"
         case .authenticatedChat:

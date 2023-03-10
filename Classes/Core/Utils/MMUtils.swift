@@ -732,6 +732,18 @@ extension UIColor {
         let blue  = CGFloat(b) / 255.0
         self.init(red:red, green:green, blue:blue, alpha:alpha)
     }
+    
+    func mmHexStringFromColor() -> String {
+        var components = self.cgColor.components
+        guard components?.count == 3 else {
+            return "#000000" // case for .black
+        }
+        let r: CGFloat = components?[0] ?? 0.0
+        let g: CGFloat = components?[1] ?? 0.0
+        let b: CGFloat = components?[2] ?? 0.0
+        let hexString = String.init(format: "#%02lX%02lX%02lX", lroundf(Float(r * 255)), lroundf(Float(g * 255)), lroundf(Float(b * 255)))
+        return hexString
+     }
 }
 
 extension Optional {

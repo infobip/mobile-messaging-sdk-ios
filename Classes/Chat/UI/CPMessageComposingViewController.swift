@@ -7,35 +7,35 @@
 
 import Foundation
 
-open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UINavigationControllerDelegate {
-
-    lazy var composeBarDelegate = MMComposeBarDelegate(
-        scrollViewContainer: self.scrollViewContainer,
-        sendTextBlock: { [weak self] text in
-            self?.didTapSendText(text)
-        },
-        utilityButtonClickedBlock: { [weak self] in
-            self?.utilityButtonClicked()
-        },
-        textViewDidChangedBlock: { [weak self] text in
-            self?.textViewDidChange(text)
-        }
-    )
-
+open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController, MMComposeBarDelegate, UIGestureRecognizerDelegate,
+                                                UIScrollViewDelegate, UINavigationControllerDelegate {
+    let userInputDebounceTimeMs = 250.0
+    lazy var draftPostponer = MMPostponer(executionQueue: DispatchQueue.main)
     var scrollingRecognizer: UIPanGestureRecognizer!
     var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
-    var composeBarView: ComposeBar!
+    var composeBarView: MMChatComposer! {
+        didSet {
+            composeBarView.delegate = self
+        }
+    }
     var docImportMenu: UIDocumentPickerViewController!
     var documentAction = UIDocumentInteractionController()
     var chatMessageCountUpdatedBlock: ((_ count: Int, _ unread: Int) -> Void)?
     var isComposeBarVisible: Bool = false
-
+    internal var settings: MMChatSettings? {
+        return MobileMessaging.inAppChat?.settings
+    }
+    internal var advSettings: MMAdvancedChatSettings {
+      return settings?.advancedSettings ?? MMAdvancedChatSettings()
+    }
     fileprivate var isVeryFirstRefetch: Bool = true
     fileprivate var isScrollToBottomNeeded: Bool = false
     fileprivate var isScrollToBottomEnabled: Bool = true
 
     deinit {
-        composeBarView?.delegate = nil
+        if let composeBar = composeBarView as? ComposeBar {
+            composeBar.delegate = nil
+        }
     }
 
     var lastIndexPath: IndexPath?
@@ -45,15 +45,11 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         scrollingRecognizer.delegate = self
         setupComposerBar()
         dismissKeyboardIfViewTapped(self.scrollView)
-
         super.viewDidLoad()
     }
 
     override open func viewWillDisappear(_ animated: Bool) {
         composeBarView.resignFirstResponder()
-        composeBarDelegate.draftPostponer.postponeBlock(delay: 0) { [weak self] in
-            self?.composeBarDelegate.textViewDidChangedBlock(self?.composeBarView.text ?? "")
-        }
         super.viewWillDisappear(animated)
     }
 
@@ -63,20 +59,48 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     }
 
     func setupComposerBar() {
-        let viewBounds = view.bounds
-        let frame = CGRect(x: 0,
-                           y: viewBounds.size.height - ComposeBarConsts.initialHeight - safeAreaInsets.bottom,
-                           width: viewBounds.size.width,
-                           height: ComposeBarConsts.initialHeight)
-        composeBarView = ComposeBar(frame: frame)
-        composeBarView.maxLinesCount = 5
-        composeBarView.placeholder = ChatLocalization.localizedString(forKey: "mm_send_message_placeholder", defaultString: "Send a message")
-        composeBarView.delegate = composeBarDelegate
-        composeBarView.alpha = 1
+        // composeBarView could come defined as custom view, in which case we skip the internal setup
+        if composeBarView == nil {
+            let viewBounds = view.bounds
+            let frame = CGRect(x: 0,
+                               y: viewBounds.size.height - advSettings.initialHeight - safeAreaInsets.bottom,
+                               width: viewBounds.size.width,
+                               height: advSettings.initialHeight)
+            let composeBar = ComposeBar(frame: frame, settings: advSettings)
+            composeBar.maxLinesCount = 5
+            composeBar.placeholder = ChatLocalization.localizedString(forKey: "mm_send_message_placeholder", defaultString: "Send a message")
+            composeBar.alpha = 1
+            composeBarView = composeBar
+            brandComposer()
+        }
+        scrollView.delegate = self
         view.addSubview(composeBarView)
         updateViewsFor(safeAreaInsets: safeAreaInsets, safeAreaLayoutGuide: view.safeAreaLayoutGuide)
-        scrollView.delegate = self
-        composeBarView.utilityButtonImage = UIImage(mm_chat_named: "attachmentButton")?.withRenderingMode(.alwaysTemplate)
+    }
+    
+    public func sendText(_ text: String, completion: @escaping (NSError?) -> Void) { /* override */ }
+    public func sendAttachmentData(_ data: Data, completion: @escaping (_ error: NSError?) -> Void) { /* override */ }
+    public func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void) { /* override */ }
+    public func attachmentButtonTapped() { /* override */ }
+    public func composeBarWillChangeFrom(_ startFrame: CGRect, to endFrame: CGRect,
+                                         duration: TimeInterval, animationCurve: UIView.AnimationCurve) { /* override */ }
+    public func composeBarDidChangeFrom(_ startFrame: CGRect, to endFrame: CGRect) { /* override */ }
+    
+    private func brandComposer() {
+        guard let composeBarView = composeBarView as? ComposeBar else { return }
+        composeBarView.textView.backgroundColor = advSettings.textInputBackgroundColor
+        composeBarView.textView.font = MMChatSettings.getMainFont()
+        composeBarView.textView.textColor = MMChatSettings.getMainTextColor()
+        composeBarView.charCountLabel.font = MMChatSettings.getCharCountFont()
+        composeBarView.backgroundView.barTintColor = settings?.backgroungColor ?? UIColor(white: 1, alpha: 1)
+        composeBarView.backgroundView.tintColor = settings?.backgroungColor ?? UIColor(white: 1, alpha: 1)
+        composeBarView.backgroundView.isHidden = advSettings.isLineSeparatorHidden
+        composeBarView.placeholderLabel.font = MMChatSettings.getMainFont()
+        composeBarView.placeholderLabel.textColor = MMChatSettings.getMainPlaceholderTextColor()
+        composeBarView.sendButton.setImage(MMChatSettings.getSendButtonIcon()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        composeBarView.sendButton.imageView?.contentMode = .scaleAspectFit
+        composeBarView.utilityButtonImage = MMChatSettings.getAttachmentButtonIcon()?.withRenderingMode(.alwaysTemplate)
+        composeBarView.textView.layer.cornerRadius = advSettings.textContainerCornerRadius
     }
         
     override func updateViewsFor(safeAreaInsets: UIEdgeInsets, safeAreaLayoutGuide: UILayoutGuide) {
@@ -86,14 +110,6 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         scrollViewContainer.frame = view.bounds.inset(
             by: UIEdgeInsets(top: safeAreaInsets.top, left: 0,
                              bottom: (isComposeBarVisible ? composeBarView.cp_h : 0) + safeAreaInsets.bottom, right: 0))
-    }
-
-    func didTapSendText(_ text: String) {
-        // override
-    }
-    
-    func textViewDidChange(_ text: String) {
-        // override
     }
 
     //MARK: keyboard
@@ -182,6 +198,4 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     }
 
     var timer = Timer()
-        
-    func utilityButtonClicked() {}
 }

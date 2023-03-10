@@ -17,21 +17,16 @@ public class MMChatSettings: NSObject {
     }
     
     public var title: String? { didSet { postAppearanceChangedNotification() } }
-    
     public var sendButtonTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    
     public var navBarItemsTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    
     public var navBarColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    
     public var navBarTitleColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    
     public var attachmentPreviewBarsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    
     public var attachmentPreviewItemsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    
     public var backgroungColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    
+    public var errorLabelTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var errorLabelBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var advancedSettings: MMAdvancedChatSettings = MMAdvancedChatSettings() { didSet { postAppearanceChangedNotification() } }
     public var multithreadBackButton: UIBarButtonItem?
 	
     func update(withChatWidget widget: ChatWidget) {
@@ -54,6 +49,59 @@ public class MMChatSettings: NSObject {
             }
         }
     }
+    
+    internal static var advSettings: MMAdvancedChatSettings? {
+        return MobileMessaging.inAppChat?.settings.advancedSettings
+    }
+    internal static func getMainFont() -> UIFont {
+        return advSettings?.mainFont ?? ComposeBarConsts.kMainFont
+    }
+    internal static func getCharCountFont() -> UIFont {
+        return advSettings?.charCountFont ?? ComposeBarConsts.kCharCountFont
+    }
+    internal static func getMainTextColor() -> UIColor {
+        return advSettings?.mainTextColor ?? ComposeBarConsts.kMainTextColor
+    }
+    internal static func getMainPlaceholderTextColor() -> UIColor {
+        return advSettings?.mainPlaceholderTextColor ?? ComposeBarConsts.kMainPlaceholderTextColor
+    }
+    internal static func getSendButtonIcon() -> UIImage? {
+        return advSettings?.sendButtonIcon ?? ComposeBarConsts.kSendButtonIcon
+    }    
+    internal static func getAttachmentButtonIcon() -> UIImage? {
+        return advSettings?.attachmentButtonIcon ?? ComposeBarConsts.kAttachmentButtonIcon
+    }
+
+}
+
+public class MMAdvancedChatSettings: NSObject {
+    public var textContainerTopMargin: CGFloat         = ComposeBarConsts.kTextContainerTopMargin
+    public var textContainerBottomMargin: CGFloat      = ComposeBarConsts.kTextContainerBottomMargin
+    public var textContainerLeftPadding: CGFloat       = ComposeBarConsts.kTextContainerLeftPadding
+    public var textContainerRightPadding: CGFloat      = ComposeBarConsts.kTextContainerRightPadding
+    public var textContainerTopPadding: CGFloat        = ComposeBarConsts.kTextContainerTopPadding
+    public var textContainerCornerRadius: CGFloat      = ComposeBarConsts.kTextContainerCornerRadius
+    public var textViewTopMargin: CGFloat              = ComposeBarConsts.kTextViewTopMargin
+    public var placeholderHeight: CGFloat              = ComposeBarConsts.kPlaceholderHeight
+    public var placeholderSideMargin: CGFloat          = ComposeBarConsts.kPlaceholderSideMargin
+    public var placeholderTopMargin: CGFloat           = ComposeBarConsts.kPlaceholderTopMargin
+    public var buttonHeight: CGFloat                   = ComposeBarConsts.kButtonHeight
+    public var buttonTouchableOverlap: CGFloat         = ComposeBarConsts.kButtonTouchableOverlap
+    public var buttonRightMargin: CGFloat              = ComposeBarConsts.kButtonRightMargin
+    public var buttonBottomMargin: CGFloat             = ComposeBarConsts.kButtonBottomMargin
+    public var utilityButtonWidth: CGFloat             = ComposeBarConsts.kUtilityButtonWidth
+    public var utilityButtonHeight: CGFloat            = ComposeBarConsts.kUtilityButtonHeight
+    public var utilityButtonBottomMargin: CGFloat      = ComposeBarConsts.kUtilityButtonBottomMargin
+    public var initialHeight: CGFloat                  = ComposeBarConsts.kInitialHeight
+    public var mainTextColor: UIColor                  = ComposeBarConsts.kMainTextColor
+    public var mainPlaceholderTextColor: UIColor       = ComposeBarConsts.kMainPlaceholderTextColor
+    public var textInputBackgroundColor: UIColor       = .clear
+    public var inputContainerBackgroundColor: UIColor  = .white
+    public var sendButtonIcon: UIImage?                = ComposeBarConsts.kSendButtonIcon
+    public var attachmentButtonIcon: UIImage?          = ComposeBarConsts.kAttachmentButtonIcon
+    public var isLineSeparatorHidden: Bool             = ComposeBarConsts.kIsLineSeparatorHidden
+    public var mainFont: UIFont?                       = ComposeBarConsts.kMainFont
+    public var charCountFont: UIFont?                  = ComposeBarConsts.kCharCountFont
 }
 
 class ChatSettingsManager {
@@ -85,7 +133,7 @@ class ChatSettingsManager {
 	}
 }
 
-//For Plugins
+// MARK: Plugins handling
 extension MMChatSettings {
     struct Keys {
         static let title = "title"
@@ -94,6 +142,12 @@ extension MMChatSettings {
         static let navigationBarColor = "navigationBarColor"
         static let navigationBarTitleColor = "navigationBarTitleColor"
         static let backgroundColor = "backgroundColor"
+        static let attachmentPreviewBarsColor = "attachmentPreviewBarsColor"
+        static let attachmentPreviewItemsColor = "attachmentPreviewItemsColor"
+        static let errorLabelTextColor = "errorLabelTextColor"
+        static let errorLabelBackgroundColor = "errorLabelBackgroundColor"
+        static let mainTextColor = "mainTextColor"
+        static let mainPlaceholderTextColor = "mainPlaceholderTextColor"
     }
 
     public func configureWith(rawConfig: [String: AnyObject]) {
@@ -114,6 +168,18 @@ extension MMChatSettings {
         }
         if let backgroundColor = rawConfig[MMChatSettings.Keys.backgroundColor] as? String {
             self.backgroungColor = UIColor(hexString: backgroundColor)
+        }
+        if let attachmentPreviewBarsColor = rawConfig[MMChatSettings.Keys.attachmentPreviewBarsColor] as? String {
+            self.attachmentPreviewBarsColor = UIColor(hexString: attachmentPreviewBarsColor)
+        }
+        if let attachmentPreviewItemsColor = rawConfig[MMChatSettings.Keys.attachmentPreviewItemsColor] as? String {
+            self.attachmentPreviewItemsColor = UIColor(hexString: attachmentPreviewItemsColor)
+        }
+        if let errorLabelTextColor = rawConfig[MMChatSettings.Keys.errorLabelTextColor] as? String {
+            self.errorLabelTextColor = UIColor(hexString: errorLabelTextColor)
+        }
+        if let errorLabelBackgroundColor = rawConfig[MMChatSettings.Keys.errorLabelBackgroundColor] as? String {
+            self.errorLabelBackgroundColor = UIColor(hexString: errorLabelBackgroundColor)
         }
     }
 }
