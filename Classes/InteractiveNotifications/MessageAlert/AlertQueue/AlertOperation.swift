@@ -5,7 +5,7 @@ class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDe
     let message: MM_MTMessage
     let text: String
     
-    private var presenter: InAppMessagePresenter?
+    private var presenter: (any InAppMessagePresenter)?
     
     init(withMessage message: MM_MTMessage, text: String) {
         self.message = message
@@ -77,7 +77,7 @@ class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDe
     private var isCancelledOrMessageExpired: Bool { !isCancelled && !message.isExpired }
 
     /// Creates the appropriate `InAppMessagePresenter` depending on the type of the message.
-    private func createPresenter() -> InAppMessagePresenter {
+    private func createPresenter() -> any InAppMessagePresenter {
         if let inAppMessage = message as? MMInAppMessage {
             return WebInAppMessagePresenter(forMessage: inAppMessage, withDelegate: self, withPreloadMode: .waitForDocumentLoaded)
         } else {

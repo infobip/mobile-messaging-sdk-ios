@@ -2,28 +2,17 @@ import Foundation
 
 @objcMembers
 public final class MMInAppMessage: MM_MTMessage {
-    private var _url: URL!
-    private var _type: MMInAppMessageType!
-    private var _position: MMInAppMessagePosition?
-    
-    public var url: URL { get { _url } }
-    public var type: MMInAppMessageType { get { _type } }
-    public var position: MMInAppMessagePosition? { get { _position } }
+    let url: URL
+    let type: MMInAppMessageType
+    let position: MMInAppMessagePosition?
     
     public override init?(payload: MMAPNSPayload,
                           deliveryMethod: MMMessageDeliveryMethod,
                           seenDate: Date?, deliveryReportDate: Date?,
                           seenStatus: MMSeenStatus,
                           isDeliveryReportSent: Bool) {
-        super.init(payload: payload,
-                   deliveryMethod: deliveryMethod,
-                   seenDate: seenDate,
-                   deliveryReportDate: deliveryReportDate,
-                   seenStatus: seenStatus,
-                   isDeliveryReportSent: isDeliveryReportSent)
-        
         guard
-            let internalData,
+            let internalData = payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload,
             let inAppDetails = internalData[Consts.InternalDataKeys.inAppDetails] as? MMStringKeyPayload,
             let urlRaw = inAppDetails[Consts.InAppDetailsKeys.url] as? String,
             let url = URL(string: urlRaw),
@@ -33,8 +22,8 @@ public final class MMInAppMessage: MM_MTMessage {
             return nil
         }
         
-        self._url = url
-        self._type = type
+        self.url = url
+        self.type = type
         
         if type == .banner {
             guard
@@ -44,9 +33,24 @@ public final class MMInAppMessage: MM_MTMessage {
                 return nil
             }
             
-            self._position = position
+            self.position = position
         } else {
-            self._position = nil
+            self.position = nil
         }
+        
+        super.init(payload: payload,
+                   deliveryMethod: deliveryMethod,
+                   seenDate: seenDate,
+                   deliveryReportDate: deliveryReportDate,
+                   seenStatus: seenStatus,
+                   isDeliveryReportSent: isDeliveryReportSent)
     }
+}
+
+public enum MMInAppMessagePosition: Int {
+    case top = 1, bottom
+}
+
+public enum MMInAppMessageType: Int {
+    case banner = 1, popup, fullscreen
 }

@@ -1,7 +1,9 @@
 import WebKit
 
 /// Implementation of `InAppMessagePresenter` which shows a new-style web in-app message inside a web view.
-class WebInAppMessagePresenter: AbstractInAppMessagePresenter<WKWebView> {
+class WebInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
+    typealias Resources = WKWebView
+
     /// How will the preload be handled before the presentation.
     enum PreloadMode {
         /// No prealoding. The `webView` is sent immediatelly to presentation as the page is being loaded inside it.
@@ -16,16 +18,18 @@ class WebInAppMessagePresenter: AbstractInAppMessagePresenter<WKWebView> {
     private var webView: WKWebView?
     private var webViewDelegate: WebViewPreloadingDelegate?
     private var preloadMode: PreloadMode
+    unowned var delegate: InAppMessagePresenterDelegate
+    var messageController: InteractiveMessageAlertController?
     
     init(forMessage message: MMInAppMessage,
          withDelegate delegate: InAppMessagePresenterDelegate,
          withPreloadMode preloadMode: PreloadMode = .waitForDocumentLoaded) {
         self.message = message
         self.preloadMode = preloadMode
-        super.init(withDelegate: delegate)
+        self.delegate = delegate
     }
     
-    override func loadResources(completion completionHandler: @escaping (WKWebView?) -> Void) {
+    func loadResources(completion completionHandler: @escaping (WKWebView?) -> Void) {
         DispatchQueue.main.async() { [self] in
             webView = WKWebView()
             guard let webView else { preconditionFailure("webView deallocated") }
@@ -44,7 +48,7 @@ class WebInAppMessagePresenter: AbstractInAppMessagePresenter<WKWebView> {
         }
     }
     
-    override func createMessageController(withResources webView: WKWebView?) -> InteractiveMessageAlertController? {
+    func createMessageController(withResources webView: WKWebView?) -> InteractiveMessageAlertController? {
         guard let webView else { return nil }
         return WebInteractiveMessageAlertController(message: message, webView: webView)
     }
