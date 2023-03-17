@@ -253,11 +253,3 @@ enum Attributes : String {
 	case instances = "instances"
 	case applicationUserId = "applicationUserId"
 }
-
-enum InAppMessagePosition: Int {
-    case top = 1, bottom
-}
-
-enum InAppMessageType: Int {
-    case banner = 1, popup, fullscreen
-}

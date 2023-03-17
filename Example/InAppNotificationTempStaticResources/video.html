@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>In-App Message Template</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Dancing+Script">
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Dancing+Script"
+    />
     <style>
       body {
         margin: 12px;
         background-color: #33387a;
         color: #a7d9b3;
-        font-family: 'Dancing Script';
+        font-family: "Dancing Script";
         font-size: 28px;
         text-align: center;
       }
@@ -53,7 +56,7 @@
         font-weight: bold;
         transition: background-color 0.5s ease;
       }
-      
+
       #dismiss-button:active {
         background: white;
         color: #a7d9b3;
@@ -65,28 +68,26 @@
     </style>
   </head>
   <body>
-      <video width=320 height=150 autoplay playsinline controls>
-        <source src="cat.mp4" type="video/mp4">
+    <video width="320" height="150" autoplay playsinline controls>
+      <source src="cat.mp4" type="video/mp4" />
       There was a problem loading the video.
-      </video>
-      <article>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt 
-        ut labore et dolore magna aliqua.
-      </article>
-      <button id="dismiss-button">Dismiss</button>
-      <button id="close-button"></button>
+    </video>
+    <article>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua.
+    </article>
+    <button id="dismiss-button">Dismiss</button>
+    <button id="close-button"></button>
+    <script src="infobip-mobile-messaging.js"></script>
     <script>
-      document
-        .querySelector("#close-button")
-        .addEventListener("click", function (e) {
-          window.webkit.messageHandlers.close.postMessage("Close tapped")
-        });
-      
-        document
-        .querySelector("#dismiss-button")
-        .addEventListener("click", function (e) {
-          window.webkit.messageHandlers.close.postMessage("Dismiss tapped")
-        });
+      InfobipMobileMessaging.webPageApi.registerCloseOnClick(
+        document.querySelector("#close-button"),
+        "Close tapped"
+      );
+      InfobipMobileMessaging.webPageApi.registerCloseOnClick(
+        document.querySelector("#dismiss-button"),
+        "Close tapped"
+      );
     </script>
   </body>
 </html>

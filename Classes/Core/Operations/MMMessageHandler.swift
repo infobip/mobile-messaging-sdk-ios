@@ -69,21 +69,27 @@ class MMMessageHandler: MobileMessagingService {
         })
 	}
 
-    //MARK: Intenal	
+    // MARK: - Intenal
     func handleAPNSMessage(userInitiated: Bool, userInfo: MMAPNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true else {
             logDebug("abort messages handling, service running \(isRunning)")
 			completion(.noData)
 			return
 		}
-
-		if let msg = MM_MTMessage(payload: userInfo,
-							   deliveryMethod: .push,
-							   seenDate: nil,
-							   deliveryReportDate: nil,
-							   seenStatus: .NotSeen,
-							   isDeliveryReportSent: false)
-		{
+        
+        if let msg = MMInAppMessage(payload: userInfo,
+                                    deliveryMethod: .push,
+                                    seenDate: nil,
+                                    deliveryReportDate: nil,
+                                    seenStatus: .NotSeen,
+                                    isDeliveryReportSent: false)
+            ?? MM_MTMessage(payload: userInfo,
+                         deliveryMethod: .push,
+                         seenDate: nil,
+                         deliveryReportDate: nil,
+                         seenStatus: .NotSeen,
+                         isDeliveryReportSent: false)
+        {
             handleMTMessages(userInitiated: userInitiated, messages: [msg], notificationTapped: MMMessageHandler.isNotificationTapped(userInfo as? [String : Any], applicationState: MobileMessaging.application.applicationState), completion: completion)
 		} else {
 			logError("Error while converting payload:\n\(userInfo)\nto MMMessage")

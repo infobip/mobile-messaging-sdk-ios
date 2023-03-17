@@ -3,16 +3,20 @@ import WebKit
 
 /// Shows a new-style in-app message using a webView.
 class WebInteractiveMessageAlertController: UIViewController, InteractiveMessageAlertController {
-    static let nibName = "WebInteractiveMessageAlertController"
+    struct Options {
+        static func makeDefault () -> Self {
+            Options(cornerRadius: MMInteractiveMessageAlertSettings.cornerRadius)
+        }
+        
+        let cornerRadius: Float
+    }
     
-    static let webViewWidthInLandscape = 300
+    private static let nibName = "WebInteractiveMessageAlertController"
+    private static let bannerHeight = 100.0
+    private static let webViewWidthInLandscape = 300.0
+    private static let horizontalMargin = 8.0
     
-    /// The action which happens when message is dismissed due to interaction with its html content.
-    static let closeAction = "close"
-    /// The action which happens when height of the message's html content changes.
-    static let heightChangedAction = "heightChanged"
-    
-    private let message: MMWebInAppMessage
+    private let message: MMInAppMessage
     
     /// The measure in points which tells how much of html content height will be cut off because `webView` ends up being too short for some reason.
     private var webViewHeightInset: Double {
@@ -25,42 +29,48 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     
     internal var dismissHandler: (() -> Void)?
     
-    @IBOutlet weak var webView: WKWebView!
+    private let webView: WKWebView
+    private let inAppMessageClient: InAppMessageScriptClient
     
     // MARK: - Exclusive fullscreen constraints
     // These constaints stretch the message to cover the whole screen beyond the safe area.
-    @IBOutlet var webViewCenterXToSuper: NSLayoutConstraint! // priority: 900
-    @IBOutlet var webViewCenterYToSuper: NSLayoutConstraint! // priority: 900
-    @IBOutlet var webViewHeightToSuper: NSLayoutConstraint! // priority: 900
-    @IBOutlet var webViewWidthToSuper: NSLayoutConstraint! // priority: 900
+    private var webViewCenterXToSuper: NSLayoutConstraint! // priority: 900
+    private var webViewCenterYToSuper: NSLayoutConstraint! // priority: 900
+    private var webViewHeightToSuper: NSLayoutConstraint! // priority: 900
+    private var webViewWidthToSuper: NSLayoutConstraint! // priority: 900
     
     // MARK: - Non-exclusive fullscreen constraints
     // These constaints stretch the message to cover the whole safe area. This effectively means they will leave some
     // margins at the edges depending on the device.
-    @IBOutlet var webViewCenterXToSafeArea: NSLayoutConstraint! // priority: 800
-    @IBOutlet var webViewCenterYToSafeArea: NSLayoutConstraint! // priority: 800
-    @IBOutlet var webViewWidthToSafeArea: NSLayoutConstraint! // priority: 800
-    @IBOutlet var webViewHeightToSafeArea: NSLayoutConstraint! // priority: 800
+    private var webViewCenterXToSafeArea: NSLayoutConstraint! // priority: 800
+    private var webViewCenterYToSafeArea: NSLayoutConstraint! // priority: 800
+    private var webViewWidthToSafeArea: NSLayoutConstraint! // priority: 800
+    private var webViewHeightToSafeArea: NSLayoutConstraint! // priority: 800
     
     /// The constraint which prevents `webView` from going above the safe area.
-    @IBOutlet var webViewTopWithinSafeArea: NSLayoutConstraint! // priority: 800
+    private var webViewTopWithinSafeArea: NSLayoutConstraint! // priority: 800
     /// The constraint which prevents `webView` from going below the safe area.
-    @IBOutlet var webViewBottomWithinSafeArea: NSLayoutConstraint! // priority: 800
-    
-    /// The constraint which defines specific height of `webView`.
-    @IBOutlet var webViewHeight: NSLayoutConstraint! // priority 700
-    /// The constraint which defines specific width of `webView` in landscape.
-    @IBOutlet var webViewWidthLandscape: NSLayoutConstraint! // priority 700
-    
-    /// The constraint which snaps the `webView` to the top edge of the safe area
-    @IBOutlet var webViewToTop: NSLayoutConstraint! // priority: 600
-    /// The constraint which snaps the `webView` to the bottom edge of the safe area.
-    @IBOutlet var webViewToBottom: NSLayoutConstraint! // priority: 500
+    private var webViewBottomWithinSafeArea: NSLayoutConstraint! // priority: 800
     
     // MARK: -
-    init(message: MMWebInAppMessage) {
+    /// The constraint which defines specific height of `webView`.
+    private var webViewHeight: NSLayoutConstraint! // priority 700
+    /// The constraint which defines specific width of `webView` in landscape.
+    private var webViewWidthLandscape: NSLayoutConstraint! // priority 700
+    
+    /// The constraint which snaps the `webView` to the top edge of the safe area
+    private var webViewToTop: NSLayoutConstraint! // priority: 600
+    /// The constraint which snaps the `webView` to the bottom edge of the safe area.
+    private var webViewToBottom: NSLayoutConstraint! // priority: 500
+    
+    // MARK: - Init
+    init(message: MMInAppMessage, webView: WKWebView, options: Options = Options.makeDefault()) {
         self.message = message
+        self.webView = webView
+        self.inAppMessageClient = InAppMessageScriptClient(webView: webView)
+        
         super.init(nibName: WebInteractiveMessageAlertController.nibName, bundle: MobileMessaging.resourceBundle)
+        
         self.modalPresentationStyle = UIModalPresentationStyle.overFullScreen
         self.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
     }
@@ -69,44 +79,60 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - View Controller Lifecycle
     override func viewDidLoad() {
-        initializeWebView()
-        configureConstraints()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        let request = URLRequest(url: message.url)
-        webView.load(request)
+        self.view.addSubview(webView)
+        initializeWebViewConstraints()
+        
+        webView.layer.cornerRadius = 16
+        webView.clipsToBounds = true
+        initializeWebViewMessageHandlers()
+        configureWebViewCorners()
+        configureWebViewConstraints()
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        configureConstraints()
-        setupWebViewCorners()
+        configureWebViewCorners()
+        configureWebViewConstraints()
     }
     
-    @IBAction func onBackgrundTap(_ sender: UITapGestureRecognizer) {
+    // MARK: - Actions
+    @IBAction func onBackgroundTap(_ sender: UITapGestureRecognizer) {
         close()
     }
     
-    /// Dismisses the controller and calls the dismiss handler if it exists.
-    public func close() {
-        dismiss(animated: true) { [weak self] in self?.dismissHandler?() }
+    // MARK: - Static Utils
+    
+    private static func setPriority(_ priority: Float, toConstraints constraints: NSLayoutConstraint...) {
+        for constraint in constraints {
+            constraint.priority = UILayoutPriority(priority)
+        }
     }
     
-    private func initializeWebView() {
-        webView.onMessage(WebInteractiveMessageAlertController.closeAction) { [weak self] _ in self?.close() }
-        webView.onMessage(WebInteractiveMessageAlertController.heightChangedAction) { [weak self] message in
-            if let height = (message.body as? NSNumber)?.doubleValue, let self {
-                let heightPts = height * self.view.contentScaleFactor
-                self.webViewHeight.constant = heightPts + self.webViewHeightInset
+    // MARK: - Private
+    
+    /// Sets active state for all constraints.
+    private static func setActiveState(_ active: Bool, toConstraints constraints: NSLayoutConstraint...) {
+        for constraint in constraints {
+            constraint.isActive = active
+        }
+    }
+    
+    private func initializeWebViewMessageHandlers() {
+        inAppMessageClient.onInAppMessageClosed() { [weak self] _ in self?.close() }
+        
+        if message.type == .popup {
+            inAppMessageClient.onHeightChanged() { [weak self] message in
+                if let height = (message.body as? NSNumber)?.doubleValue, let self {
+                    let heightPts = height * self.view.contentScaleFactor
+                    self.webViewHeight.constant = heightPts + self.webViewHeightInset
+                }
             }
         }
-        webView.layer.cornerRadius = 16
-        setupWebViewCorners()
     }
     
-    private func setupWebViewCorners() {
+    private func configureWebViewCorners() {
         if message.type == .popup && UIDevice.current.orientation.isLandscape {
             webView.layer.maskedCorners = [.bottomLeft, .bottomRight]
         } else {
@@ -114,8 +140,66 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         }
     }
     
-    // MARK: - Constraints configuration
-    private func configureConstraints() {
+    private func initializeWebViewConstraints() {
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        
+        webViewCenterXToSuper = webView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        webViewCenterYToSuper = webView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        webViewWidthToSuper = webView.widthAnchor.constraint(equalTo: view.widthAnchor)
+        webViewHeightToSuper = webView.heightAnchor.constraint(equalTo: view.heightAnchor)
+        WebInteractiveMessageAlertController.setPriority(900, toConstraints: webViewCenterXToSuper,
+                                                         webViewCenterYToSuper,
+                                                         webViewWidthToSuper,
+                                                         webViewHeightToSuper)
+        
+        webViewCenterXToSafeArea = webView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
+        webViewCenterYToSafeArea = webView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor)
+        webViewWidthToSafeArea = webView.widthAnchor.constraint(
+            equalTo: view.safeAreaLayoutGuide.widthAnchor,
+            constant: -WebInteractiveMessageAlertController.horizontalMargin * 2)
+        webViewHeightToSafeArea = webView.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.heightAnchor)
+        webViewTopWithinSafeArea = webView.topAnchor.constraint(
+            greaterThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor)
+        webViewBottomWithinSafeArea = webView.topAnchor.constraint(
+            lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor)
+        WebInteractiveMessageAlertController.setPriority(800, toConstraints: webViewCenterXToSafeArea,
+                                                         webViewCenterYToSafeArea,
+                                                         webViewWidthToSafeArea,
+                                                         webViewHeightToSafeArea,
+                                                         webViewTopWithinSafeArea,
+                                                         webViewBottomWithinSafeArea)
+        
+        webViewHeight = webView.heightAnchor.constraint(
+            equalToConstant: WebInteractiveMessageAlertController.bannerHeight)
+        webViewWidthLandscape = webView.widthAnchor.constraint(
+            equalToConstant: WebInteractiveMessageAlertController.webViewWidthInLandscape)
+        WebInteractiveMessageAlertController.setPriority(700, toConstraints: webViewHeight, webViewWidthLandscape)
+        
+        webViewToTop = webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
+        WebInteractiveMessageAlertController.setPriority(600, toConstraints: webViewToTop)
+        
+        webViewToBottom = webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        WebInteractiveMessageAlertController.setPriority(500, toConstraints: webViewToBottom)
+        
+        NSLayoutConstraint.activate([
+            webViewCenterXToSuper,
+            webViewCenterYToSuper,
+            webViewHeightToSuper,
+            webViewWidthToSuper,
+            webViewCenterXToSafeArea,
+            webViewCenterYToSafeArea,
+            webViewWidthToSafeArea,
+            webViewHeightToSafeArea,
+            webViewTopWithinSafeArea,
+            webViewBottomWithinSafeArea,
+            webViewHeight,
+            webViewWidthLandscape,
+            webViewToTop,
+            webViewToBottom
+        ])
+    }
+    
+    private func configureWebViewConstraints() {
         guard !exclusiveFullscreen else {
             /// In the case of exclusive screen we can just turn on all constraints to the super-view and ignore the rest because constraints governing exclusive
             /// fullscreen have the highest priority.
@@ -126,10 +210,10 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         setWebViewToSuperConstraintsActive(active: false)
         
         /// First stretch the `webView` to cover the whole safe area.
-        webViewCenterXToSafeArea.isActive = true
-        webViewCenterYToSafeArea.isActive = true
-        webViewHeightToSafeArea.isActive = true
-        webViewWidthToSafeArea.isActive = true
+        WebInteractiveMessageAlertController.setActiveState(true, toConstraints: webViewCenterXToSafeArea,
+                                                            webViewCenterYToSafeArea,
+                                                            webViewHeightToSafeArea,
+                                                            webViewWidthToSafeArea)
         
         let isLandscape = UIDevice.current.orientation.isLandscape
         
@@ -163,13 +247,19 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         case (.popup, _, false):
             webViewCenterYToSafeArea.isActive = true
         }
+        
+        /// Sets active state for all `webView` constraints to super-view.
+        func setWebViewToSuperConstraintsActive(active: Bool) {
+            WebInteractiveMessageAlertController.setActiveState(active, toConstraints: webViewCenterXToSuper,
+                                                                webViewCenterYToSuper,
+                                                                webViewHeightToSuper,
+                                                                webViewWidthToSuper)
+        }
     }
-   
-    private func setWebViewToSuperConstraintsActive(active: Bool) {
-        webViewCenterXToSuper.isActive = active
-        webViewCenterYToSuper.isActive = active
-        webViewHeightToSuper.isActive = active
-        webViewWidthToSuper.isActive = active
+    
+    /// Dismisses the controller and calls the dismiss handler if it exists.
+    private func close() {
+        dismiss(animated: true) { [weak self] in self?.dismissHandler?() }
     }
 }
 
@@ -177,26 +267,6 @@ private extension WKWebView {
     /// Reads the height of the html body asynchronously.
     func readBodyHeight(onFinish handler: @escaping (CGFloat?) -> Void) {
         evaluateJavaScript("document.body.scrollHeight") { height, _ in handler(height as? CGFloat) }
-    }
-    
-    /// Registers an action which will handle messages sent by javascript.
-    func onMessage(_ name: String, execute action: @escaping (WKScriptMessage) -> Void) {
-        let handler = MessageHandler(action: action)
-        self.configuration.userContentController.add(handler, name: name)
-    }
-    
-    /// A generic message handler which simplifies handling of javascript messages by using only closures.
-    private class MessageHandler: NSObject, WKScriptMessageHandler {
-        /// An action which will handle messages sent by javascript.
-        private var action: (WKScriptMessage) -> Void
-        
-        init(action: @escaping (WKScriptMessage) -> Void) {
-            self.action = action
-        }
-        
-        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            action(message)
-        }
     }
 }
 

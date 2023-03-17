@@ -80,34 +80,11 @@
     </article>
     <button id="dismiss-button">Dismiss</button>
     <button id="close-button"></button>
+
+    <script src="infobip-mobile-messaging.js"></script>
     <script>
-      document
-        .querySelector("#close-button")
-        .addEventListener("click", function (e) {
-          window.webkit.messageHandlers.close.postMessage("Close tapped");
-        });
-
-      document
-        .querySelector("#dismiss-button")
-        .addEventListener("click", function (e) {
-          window.webkit.messageHandlers.close.postMessage("Dismiss tapped");
-        });
-
-      let height = undefined;
-      new ResizeObserver(
-        ([
-          {
-            target: { clientHeight },
-          },
-        ]) => {
-          if (clientHeight !== height) {
-            height = clientHeight;
-            window.webkit.messageHandlers.heightChanged.postMessage(
-              clientHeight
-            );
-          }
-        }
-      ).observe(document.body);
+      InfobipMobileMessaging.webPageApi.registerCloseOnClick(document.querySelector("#close-button"), "Close tapped")
+      InfobipMobileMessaging.webPageApi.registerCloseOnClick(document.querySelector("#dismiss-button"), "Close tapped")
     </script>
   </body>
 </html>

@@ -1,10 +1,10 @@
 import Foundation
 
 /// Contains all information necessary for displaying a new-style web-based in-app notification.
-internal struct MMWebInAppMessage {
+public struct MMWebInAppMessage {
     let url: URL
-    let type: InAppMessageType
-    let position: InAppMessagePosition?
+    let type: MMInAppMessageType
+    let position: MMInAppMessagePosition?
     
     /// Extracts in-app message information from message if it's possible.
     init?(extractedFrom message: MM_MTMessage) {
@@ -14,7 +14,7 @@ internal struct MMWebInAppMessage {
             let urlRaw = inAppDetails[Consts.InAppDetailsKeys.url] as? String,
             let url = URL(string: urlRaw),
             let typeRaw = inAppDetails[Consts.InAppDetailsKeys.type] as? Int,
-            let type = InAppMessageType(rawValue: typeRaw)
+            let type = MMInAppMessageType(rawValue: typeRaw)
         else {
             return nil
         }
@@ -25,7 +25,7 @@ internal struct MMWebInAppMessage {
         if type == .banner {
             guard
                 let positionRaw = inAppDetails[Consts.InAppDetailsKeys.position] as? Int,
-                let position = InAppMessagePosition(rawValue: positionRaw)
+                let position = MMInAppMessagePosition(rawValue: positionRaw)
             else {
                 return nil
             }
@@ -35,4 +35,12 @@ internal struct MMWebInAppMessage {
             self.position = nil
         }
     }
+}
+
+public enum MMInAppMessagePosition: Int {
+    case top = 1, bottom
+}
+
+public enum MMInAppMessageType: Int {
+    case banner = 1, popup, fullscreen
 }
