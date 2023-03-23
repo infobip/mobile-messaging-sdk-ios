@@ -13,10 +13,20 @@ class InAppMessageScriptClient {
     // MARK: - Calling in-app message script's methods
     func registerMessageSendingOnDocumentLoad(_ completionHandler: ((DocumentReadyState?, (any Error)?) -> Void)?) {
         callInAppMessageScriptMethod(ScriptMethodNames.registerMessageSendingOnDocumentLoad.rawValue) {
-            readyStateRaw, error in 
+            readyStateRaw, error in
             if let readyStateRaw = readyStateRaw as? String,
                let readyState = DocumentReadyState(rawValue: readyStateRaw) {
                 completionHandler?(readyState, error)
+            } else {
+                completionHandler?(nil, error)
+            }
+        }
+    }
+    
+    func readBodyHeight(_ completionHandler: ((CGFloat?, (any Error)?) -> Void)?) {
+        callInAppMessageScriptMethod(ScriptMethodNames.readBodyHeight.rawValue) { heightRaw, error in
+            if let height = heightRaw as? CGFloat {
+                completionHandler?(height, error)
             } else {
                 completionHandler?(nil, error)
             }
@@ -31,6 +41,7 @@ class InAppMessageScriptClient {
     
     private enum ScriptMethodNames: String {
         case registerMessageSendingOnDocumentLoad
+        case readBodyHeight
     }
     
     // MARK: -

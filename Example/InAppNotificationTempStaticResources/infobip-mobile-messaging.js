@@ -6,12 +6,10 @@ window.InfobipMobileMessaging = (function () {
   }
 
   // API for the mobile SDK.
-  const mobileSdkApi = Object.freeze({ registerMessageSendingOnDocumentLoad })
+  const mobileSdkApi = Object.freeze({ registerMessageSendingOnDocumentLoad, readBodyHeight })
 
   // API to for the web page.
   const webPageApi = Object.freeze({ registerCloseOnClick })
-
-  registerMessageSendingOnHeightChange()
 
   return Object.freeze({ mobileSdkApi, webPageApi })
 
@@ -31,19 +29,8 @@ window.InfobipMobileMessaging = (function () {
     return document.readyState
   }
 
-  /**
-   * Ensures that once document height changes, appropriate message will be sent to the web view.
-   */
-  function registerMessageSendingOnHeightChange () {
-    let height = undefined
-    new ResizeObserver(
-      ([{ target: { clientHeight } }]) => {
-        if (clientHeight !== height) {
-          height = clientHeight
-          sendMessageToWebView(messages.HEIGHT_CHANGED, clientHeight)
-        }
-      }
-    ).observe(document.body)
+  function readBodyHeight() {
+      return document.body.scrollHeight
   }
 
   function registerCloseOnClick (element, payload) {

@@ -79,7 +79,7 @@ class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDe
     /// Creates the appropriate `InAppMessagePresenter` depending on the type of the message.
     private func createPresenter() -> any InAppMessagePresenter {
         if let inAppMessage = message as? MMInAppMessage {
-            return WebInAppMessagePresenter(forMessage: inAppMessage, withDelegate: self, withPreloadMode: .waitForDocumentLoaded)
+            return WebInAppMessagePresenter(forMessage: inAppMessage, withDelegate: self, shouldPreload: true)
         } else {
             return NativeInAppMessagePresenter(forMessage: message, text: message.text ?? "", withDelegate: self)
         }
