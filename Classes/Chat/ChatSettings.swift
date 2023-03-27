@@ -125,11 +125,13 @@ class ChatSettingsManager {
 	}
 	
 	@objc func appearanceUpdated() {
-		objects.forEach { obj in
-			if let appearanceObject = obj.value as? ChatSettingsApplicable {
-				appearanceObject.applySettings()
-			}
-		}
+        DispatchQueue.main.async {
+            self.objects.forEach { obj in
+                if let appearanceObject = obj.value as? ChatSettingsApplicable {
+                    appearanceObject.applySettings()
+                }
+            }
+        }
 	}
 }
 

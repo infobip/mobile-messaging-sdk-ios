@@ -43,7 +43,9 @@ class ChatAttachmentPreview: UIView {
         activityIndicatior.stopAnimating()
     }
     func showError(){
-        errorView.isHidden = false
+        DispatchQueue.main.async {
+            self.errorView.isHidden = false
+        }
     }
     
     func setupViews() {

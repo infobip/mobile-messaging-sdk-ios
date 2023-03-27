@@ -219,7 +219,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             } else if !isComposeBarVisible && !composeBarView.isHidden {
                 // In some cases (ie the first time a multithread widget is loaded), we want to hide the
                 // composer without animation.
-                composeBarView.isHidden = true
+                DispatchQueue.main.async {
+                    self.composeBarView.isHidden = true
+                }
             }
         }
     }
@@ -231,11 +233,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     
     func setComposeBarVisibility(isVisible: Bool) {
         if isVisible {
-            composeBarView.isHidden = false
+            DispatchQueue.main.async {
+                self.composeBarView.isHidden = false
+            }
         }
         UIView.animate(
             withDuration: 0.3,
-            delay: 0.0,
+            delay: .zero,
             options: UIView.AnimationOptions.curveEaseIn,
             animations: { [weak self] () -> Void in
                 if let composeBarView = self?.composeBarView, let webView = self?.webView {

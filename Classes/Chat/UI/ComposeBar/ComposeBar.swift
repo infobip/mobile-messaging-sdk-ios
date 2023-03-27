@@ -424,12 +424,14 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	private func updateCharCountLabel() {
-		let isHidden = maxCharCount == 0 || textHeight == ComposeBarConsts.kTextViewFirstLineHeight
-		charCountLabel.isHidden = isHidden
-		if !isHidden {
-			let count = textView.text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).count
-			charCountLabel.text = "\(count)/\(maxCharCount)"
-		}
+        DispatchQueue.main.async {
+            let isHidden = self.maxCharCount == 0 || self.textHeight == ComposeBarConsts.kTextViewFirstLineHeight
+            self.charCountLabel.isHidden = isHidden
+            if !isHidden {
+                let count = self.textView.text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).count
+                self.charCountLabel.text = "\(count)/\(self.maxCharCount)"
+            }
+        }
 	}
 	
 	private func handleTextViewChangeAnimated(_ animated: Bool) {
@@ -498,8 +500,10 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	private func updatePlaceholderVisibility() {
-		let shouldHide = !textView.text.isEmpty
-		placeholderLabel.isHidden = shouldHide
+        DispatchQueue.main.async{
+            let shouldHide = !self.textView.text.isEmpty
+            self.placeholderLabel.isHidden = shouldHide
+        }
 	}
 	
 	@objc func didPressSendButton() {
