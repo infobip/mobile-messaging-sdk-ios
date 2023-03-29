@@ -101,14 +101,14 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     }
 
     func onTapStopCalls() {
-        MobileMessaging.webrtcService?.stopService({ result in
+        MobileMessaging.webRTCService?.stopService({ result in
             print("Calls were stopped successfully \(result)")
         })
     }
     
     func onRestartCalls() {
-        MobileMessaging.webrtcService?.applicationId = webrtcApplicationId
-        MobileMessaging.webrtcService?.start({ result in
+        MobileMessaging.webRTCService?.applicationId = webrtcApplicationId
+        MobileMessaging.webRTCService?.start({ result in
             print("Calls process started successfully \(result)")
         })
     }

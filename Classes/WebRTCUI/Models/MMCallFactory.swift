@@ -11,7 +11,7 @@ public struct MMWebRTCUIConstants {
     static let autoAccept = "autoAccept"
     static let clientType = "clientType"
     static let pstn = "PSTN"
-    static let webrtc = "WEBRTC"
+    static let webRTC = "WEBRTC"
     static let source = "source"
     static let displayName = "displayName"
     static let isOutbound = "isOutbound"

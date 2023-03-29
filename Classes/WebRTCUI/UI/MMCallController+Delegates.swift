@@ -20,9 +20,21 @@ extension MMCallController {
     private func handleBasicsOfEstablishedVideo() {
         self.stopRingback()
         self.showActiveCallViewElements()
+        
+        let isMuted: Bool = {
+            guard let activeCall = activeCall else { return true }
+            
+            switch activeCall {
+            case .applicationCall(let applicationCall):
+                return applicationCall.muted()
+            case .webRTCCall(let webRTCCall):
+                return webRTCCall.muted()
+            }
+        }()
+        
         if UserDefaults.standard.bool(forKey: MMWebRTCUIConstants.autoAccept) ||
-            (!(activeApplicationCall?.muted() ?? true)
-             && !MMCallController.isMicAvailable) {
+            !(isMuted &&
+              !MMCallController.isMicAvailable) {
             // we don't have mic permissions - need to disable muted value
             self.isMuted = true
             doApplyMuteValue()
@@ -37,12 +49,18 @@ extension MMCallController {
             self.showActiveCallViewElements()
         }
     }
-    
-    internal func established(callEstablishedEvent: CallEstablishedEvent) {
-        established(remoteVideoTrack: callEstablishedEvent.remoteVideoTrack)
-        established(localVideoTrack: callEstablishedEvent.localVideoTrack)
+
+    internal func established(call: ActiveCall) {
+        switch call {
+        case .applicationCall(let applicationCall):
+            established(remoteVideoTrack: applicationCall.remoteVideos().values.first?.camera)
+            established(localVideoTrack: applicationCall.localCameraTrack())
+        case .webRTCCall(let call):
+            established(remoteVideoTrack: call.remoteCameraTrack())
+            established(localVideoTrack: call.localCameraTrack())
+        }
     }
-    
+
     internal func established(remoteVideoTrack: VideoTrack? = nil) {
         handleBasicsOfEstablishedVideo()
         if remoteVideoTrack != nil {
@@ -112,18 +130,18 @@ extension MMCallController {
     }
 }
 
-extension MMCallController: NetworkQualityDelegate {
+extension MMCallController: NetworkQualityEventListener {
     private func setNetworkStatusLabel() {
-        if self.localNetworkQuality.getScore() <= NetworkQuality.POOR.getScore() {
+        if self.localNetworkQuality.getScore() <= NetworkQuality.poor.getScore() {
             self.networkStatusLabel.textColor = .red
-        } else if self.localNetworkQuality == NetworkQuality.FAIR {
+        } else if self.localNetworkQuality == NetworkQuality.fair {
             self.networkStatusLabel.textColor = .yellow
         }
 
-        if self.localNetworkQuality.getScore() <= NetworkQuality.FAIR.getScore() {
+        if self.localNetworkQuality.getScore() <= NetworkQuality.fair.getScore() {
             self.networkStatusLabel.isHidden = false
             self.networkStatusLabel.text = "Your network is causing poor call quality"
-        } else if self.remoteNetworkQuality.getScore() <= NetworkQuality.POOR.getScore() {
+        } else if self.remoteNetworkQuality.getScore() <= NetworkQuality.poor.getScore() {
             self.networkStatusLabel.isHidden = false
             self.networkStatusLabel.textColor = .cyan
             self.networkStatusLabel.text = "Remote user\'s network is causing poor call quality"

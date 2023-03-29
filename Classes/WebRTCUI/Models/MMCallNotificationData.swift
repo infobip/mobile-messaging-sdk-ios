@@ -11,7 +11,7 @@ import PushKit
 import InfobipRTC
 
 public struct MMWebRTCNotificationData {
-    internal var inboundAppCall: IncomingApplicationCall?
+    internal var activeCall: ActiveCall?
     internal var customData: [AnyHashable: Any]?
     internal var pushPKCredentials: PKPushCredentials?
 }

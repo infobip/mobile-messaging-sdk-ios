@@ -55,9 +55,9 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
     static func obtain(queue: DispatchQueue, completion: @escaping (MMResult<MMWebRTCToken>) -> Void) {
         guard let pushRegId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
         let appCode = MobileMessaging.sharedInstance?.applicationCode,
-        let webrtcAppId = MMWebRTCService.sharedInstance?.applicationId else { return }
+        let webRTCAppId = MMWebRTCService.sharedInstance?.applicationId else { return }
         let body: [String: Any] = ["identity": pushRegId,
-                                   "applicationId": webrtcAppId]
+                                   "applicationId": webRTCAppId]
         let request = MMWebRTCTokenRequest(
             applicationCode: appCode,
             pushRegistrationId: pushRegId,

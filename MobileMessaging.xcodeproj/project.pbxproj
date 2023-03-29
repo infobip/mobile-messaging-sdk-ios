@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0ECABD2F10663827D649C473E329D109 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */; };
 		170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */; };
+		252AF73129D3120700E66BB7 /* MMCallController+BaseCalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AF73029D3120700E66BB7 /* MMCallController+BaseCalls.swift */; };
+		252AF73329D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AF73229D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift */; };
 		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
 		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
 		3659D846292B5A4E00D6ECF8 /* MMWebRTCSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */; };
@@ -293,6 +295,8 @@
 
 /* Begin PBXFileReference section */
 		1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MobileMessaging.xcconfig; sourceTree = "<group>"; };
+		252AF73029D3120700E66BB7 /* MMCallController+BaseCalls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+BaseCalls.swift"; sourceTree = "<group>"; };
+		252AF73229D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+WebrtcCalls.swift"; sourceTree = "<group>"; };
 		3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCSettings.swift; sourceTree = "<group>"; };
 		367B1A992918F3640081983C /* MMLoc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMLoc.swift; sourceTree = "<group>"; };
 		37333A54A8B807D53AD68E200638BAC7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1290,6 +1294,8 @@
 		A843A42028F5A6D600D5196F /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				252AF73229D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift */,
+				252AF73029D3120700E66BB7 /* MMCallController+BaseCalls.swift */,
 				A8E68BE02934C44D0046E4BC /* MMCallController+Delegates.swift */,
 				A843A42628F5A6D600D5196F /* MMCallController.swift */,
 				A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */,
@@ -1578,6 +1584,7 @@
 				A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */,
 				764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */,
 				7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */,
+				252AF73129D3120700E66BB7 /* MMCallController+BaseCalls.swift in Sources */,
 				764556B31F78FF9500B8F14B /* MMGeofencingService.swift in Sources */,
 				7601F19D208E056500738C1A /* Box.swift in Sources */,
 				764556D21F78FFE000B8F14B /* Dictionary+Operations.swift in Sources */,
@@ -1735,6 +1742,7 @@
 				7601F192208E056400738C1A /* ThreadHelper.swift in Sources */,
 				764556CD1F78FFD900B8F14B /* KeychainSwift.swift in Sources */,
 				764556BA1F78FFB200B8F14B /* Message.swift in Sources */,
+				252AF73329D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift in Sources */,
 				760085871F9790BE00837D75 /* BaseMessage.swift in Sources */,
 				ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,

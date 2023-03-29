@@ -18,18 +18,19 @@ public extension MMWebRTCService {
     }
     
     private func getCallType(call: Call? = nil, applicationCall: ApplicationCall? = nil) -> MMCallType {
-        if let call = call {
+        if let call = call as? WebrtcCall {
             let customData = call.options.customData
+            if let type = customData[MMWebRTCUIConstants.clientType],
+               type.uppercased() == MMWebRTCUIConstants.pstn {
+                return .pstn
+            }
+            return call.hasCameraVideo() || call.hasRemoteCameraVideo() ? .video : .audio
+        } else if applicationCall != nil, let customData = MobileMessaging.webRTCService?.notificationData?.customData {
             if let type = customData[MMWebRTCUIConstants.clientType] as? String,
                type.uppercased() == MMWebRTCUIConstants.pstn {
                 return .pstn
             }
-            return call.hasLocalVideo() || call.hasRemoteVideo() ? .video : .audio
-        } else if applicationCall != nil, let customData = MobileMessaging.webrtcService?.notificationData?.customData {
-            if let type = customData[MMWebRTCUIConstants.clientType] as? String,
-               type.uppercased() == MMWebRTCUIConstants.pstn {
-                return .pstn
-            }
+            
             let isVideo = (customData[MMWebRTCUIConstants.isVideo] as? String) == "true"
             return isVideo ? .application_video : .application_audio
         }
@@ -39,13 +40,26 @@ public extension MMWebRTCService {
     func getInboundCallController(incoming applicationCall: ApplicationCall, establishedEvent: CallEstablishedEvent) -> MMCallController {
         let callController = getNewCallController()
         applicationCall.applicationCallEventListener = callController
-        callController.activeApplicationCall = applicationCall
+        callController.activeCall = .applicationCall(applicationCall)
         callController.callEstablishedEvent = establishedEvent
         if let incomingCall = applicationCall as? IncomingApplicationCall {
             callController.counterpart = incomingCall.from
             callController.destinationName = incomingCall.fromDisplayName
         }
         callController.callType = getCallType(applicationCall: applicationCall)
+        return callController
+    }
+
+    func getInboundCallController(incoming webRTCCall: WebrtcCall, establishedEvent: CallEstablishedEvent) -> MMCallController {
+        let callController = getNewCallController()
+        webRTCCall.webrtcCallEventListener = callController
+        callController.activeCall = .webRTCCall(webRTCCall)
+        callController.callEstablishedEvent = establishedEvent
+        if let webRTCCall = webRTCCall as? IncomingWebrtcCall {
+            callController.counterpart = webRTCCall.destination().identifier()
+            callController.destinationName = webRTCCall.destination().displayIdentifier() ?? webRTCCall.destination().identifier()
+        }
+        callController.callType = getCallType(call: webRTCCall)
         return callController
     }
     

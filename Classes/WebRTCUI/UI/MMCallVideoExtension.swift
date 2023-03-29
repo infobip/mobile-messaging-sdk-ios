@@ -14,7 +14,7 @@ private let mmCCFrameGap: CGFloat = 15
 extension MMCallController {
     func initLocalVideoView() {
         let localView = InfobipRTCFactory.videoView(
-            frame: self.localVideoView?.frame ?? CGRect.zero, 
+            frame: self.localVideoView?.frame ?? CGRect.zero,
             contentMode: .scaleAspectFill)
         localView.layer.cornerRadius = 10.0
         localView.clipsToBounds = true
@@ -53,7 +53,7 @@ extension MMCallController {
     
     func initRemoteVideoViewConference() {
         let remoteViewConference = InfobipRTCFactory.videoView(
-            frame: self.remoteVideoViewConference?.frame ?? CGRect.zero, 
+            frame: self.remoteVideoViewConference?.frame ?? CGRect.zero,
             contentMode: .scaleAspectFill)
         remoteViewConference.clipsToBounds = true
         if let remoteVideoView = self.remoteVideoViewConference {
@@ -89,7 +89,7 @@ extension MMCallController {
     @objc func draggingView(_ sender: UIPanGestureRecognizer) {
         // Not restricting location feels better on UX
         // if self.localViewFrame?.contains(sender.location(in: self.view)) ?? false {
-            self.localVideoView.center = sender.location(in: view)
+        self.localVideoView.center = sender.location(in: view)
         // }
     }
     
@@ -98,7 +98,7 @@ extension MMCallController {
             onPipTap(self)
             return
         }
-        if callStatus == .ESTABLISHED, isVideoStreaming {
+        if callStatus == .established, isVideoStreaming {
             if !videoStatusBottomView.isHidden {
                 statusLabelTimer.invalidate()
             } else {
@@ -157,8 +157,13 @@ extension MMCallController {
     func onVideoCallEstablished() {
         DispatchQueue.main.async {
             self.speakerphoneOn = true
-            if let applicationCall = self.activeApplicationCall {
-                applicationCall.speakerphone(true) { _ in  }
+            if let activeCall = self.activeCall {
+                switch activeCall {
+                case .applicationCall(let applicationCall):
+                    applicationCall.speakerphone(true) { _ in }
+                case .webRTCCall(let webRTCCall):
+                    webRTCCall.speakerphone(true) { _ in }
+                }
             }
             self.showActiveCallViewElements()
             self.videoStatusBottomView.cameraFlipper.isHidden = !self.hasLocalVideo
@@ -173,7 +178,7 @@ extension MMCallController {
         self.initRemoteVideoViewConference()
         if let remoteView = self.remoteViewconference {
             videoTrack!.addRenderer(remoteView)
-        }    
+        }
     }
     
     func embedView(_ view: UIView, into containerView: UIView) {

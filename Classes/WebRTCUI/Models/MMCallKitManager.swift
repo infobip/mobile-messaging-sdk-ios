@@ -21,11 +21,11 @@ class CallKitManager: NSObject {
     
     override init() {
         let providerConfiguration = CXProviderConfiguration(localizedName: "InfobipRTC")
-        providerConfiguration.ringtoneSound = MobileMessaging.webrtcService?.settings.inboundCallSoundFileName
+        providerConfiguration.ringtoneSound = MobileMessaging.webRTCService?.settings.inboundCallSoundFileName
         providerConfiguration.supportsVideo = true
         providerConfiguration.maximumCallsPerCallGroup = 1
         providerConfiguration.supportedHandleTypes = [.phoneNumber]
-        if let appIcon = MobileMessaging.webrtcService?.callAppIcon ??
+        if let appIcon = MobileMessaging.webRTCService?.callAppIcon ??
             UIImage.init(mm_webrtcui_named: "defaultCallAppIcon") {
             providerConfiguration.iconTemplateImageData = appIcon.pngData()
         }
@@ -34,6 +34,54 @@ class CallKitManager: NSObject {
         callKitProvider.setDelegate(self, queue: nil)
     }
     
+    // MARK: - WebRTC Call
+
+    func startIncomingWebrtcCall(_ call: IncomingWebrtcCall) {
+        guard let uuid = UUID(uuidString: call.id()) else { return }
+        addWebRTCCall(uuid, call)
+        let callUpdate = CXCallUpdate()
+        callUpdate.remoteHandle = CXHandle(type: .phoneNumber, value: call.source().displayIdentifier() ?? call.source().identifier())
+        callUpdate.hasVideo = call.hasCameraVideo()
+        setCallFeatures(callUpdate)
+        self.callKitProvider.reportNewIncomingCall(with: uuid, update: callUpdate) { (error) in
+            if let err = error {
+                MMLogError(String(format: "Failed to report incoming application call: %@", err.localizedDescription))
+            } else {
+                MMLogDebug("Successfully reported incoming application call.")
+            }
+        }
+        if UserDefaults.standard.bool(forKey: MMWebRTCUIConstants.autoAccept) {
+            let callAnswer = CXAnswerCallAction(call: uuid)
+            self.provider(callKitProvider, perform: callAnswer)
+        }
+    }
+
+    func connectWebRTCCall(_ uuidString: String) {
+        guard let uuid = calls[uuidString]?.uuid else { return }
+        self.callKitProvider.reportOutgoingCall(with: uuid, connectedAt: nil)
+
+        let callUpdate = CXCallUpdate()
+        setCallFeatures(callUpdate)
+
+        self.callKitProvider.reportCall(with: uuid, updated: callUpdate)
+    }
+    
+    private func addWebRTCCall(_ callUUID: UUID, _ call: WebrtcCall) {
+        queue.sync {
+            MMLogDebug("Adding call to managed calls.")
+            calls[call.id()] = CallRecord(callUUID, call)
+        }
+    }
+    
+    func endWebRTCCall(_ call: WebrtcCall) {
+        if let uuid = calls[call.id()]?.uuid {
+            MMLogDebug("Ending call with new reportCall")
+            self.callKitProvider.reportCall(with: uuid, endedAt: nil, reason: .remoteEnded)
+            removeApplicationCall(call.id())
+        }
+    }
+    
+    // MARK: - Application Call
     func startApplicationCall(_ call: ApplicationCall) {
         guard let callUUID = UUID(uuidString: call.id()) else { return }
         addApplicationCall(callUUID, call)
@@ -144,8 +192,8 @@ class CallKitManager: NSObject {
 
 extension CallKitManager: CXProviderDelegate {
     func providerDidReset(_ provider: CXProvider) {
-        InfobipRTC.getActiveCall()?.hangup()
-        InfobipRTC.getActiveApplicationCall()?.hangup()
+        getInfobipRTCInstance().getActiveCall()?.hangup()
+        getInfobipRTCInstance().getActiveApplicationCall()?.hangup()
     }
     
     func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
@@ -167,24 +215,24 @@ extension CallKitManager: CXProviderDelegate {
     }
     
     func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
-        if InfobipRTC.getActiveCall() != nil {
+        if getInfobipRTCInstance().getActiveCall() != nil {
             guard let call = calls[action.callUUID.uuidString.lowercased()]?.call else { return }
-            guard call.status != .FINISHING && call.status != .FINISHED else {
+            guard call.status != .finishing && call.status != .finished else {
                 MMLogDebug("Call already ended.")
                 return
             }
-            if let incoming = call as? IncomingCall, incoming.status != .ESTABLISHED {
+            if let incoming = call as? IncomingCall, incoming.status != .established {
                 incoming.decline()
             } else {
                 call.hangup()
             }
-        } else if InfobipRTC.getActiveApplicationCall() != nil {
+        } else if getInfobipRTCInstance().getActiveApplicationCall() != nil {
             guard let call = applicationCalls[action.callUUID.uuidString.lowercased()]?.call else { return }
-            guard call.status != .FINISHING && call.status != .FINISHED else {
+            guard call.status != .finishing && call.status != .finished else {
                 MMLogDebug("Call already ended.")
                 return
             }
-            if let incoming = call as? IncomingApplicationCall, incoming.status != .ESTABLISHED {
+            if let incoming = call as? IncomingApplicationCall, incoming.status != .established {
                 incoming.decline()
             } else {
                 call.hangup()
@@ -198,10 +246,15 @@ extension CallKitManager: CXProviderDelegate {
     func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {}
     
     func provider(_ provider: CXProvider, perform action: CXSetMutedCallAction) {
-        if let activeCall = InfobipRTC.getActiveCall() {
-            activeCall.mute(action.isMuted)
-            action.fulfill()
-        } else if let activeApplicationCall = InfobipRTC.getActiveApplicationCall() {
+        if let activeCall = getInfobipRTCInstance().getActiveCall() {
+            do {
+                try activeCall.mute(action.isMuted)
+                action.fulfill()
+            } catch {
+                MMLogError("Failed to mute.")
+                action.fail()
+            }
+        } else if let activeApplicationCall = getInfobipRTCInstance().getActiveApplicationCall() {
             do {
                 try activeApplicationCall.mute(action.isMuted)
                 action.fulfill()
@@ -215,7 +268,7 @@ extension CallKitManager: CXProviderDelegate {
     
     func provider(_ provider: CXProvider, perform action: CXPlayDTMFCallAction) {
         do {
-            try InfobipRTC.getActiveCall()?.sendDTMF(action.digits)
+            try getInfobipRTCInstance().getActiveCall()?.sendDTMF(action.digits)
             action.fulfill()
         } catch {
             MMLogError("Failed to send DTMF.")

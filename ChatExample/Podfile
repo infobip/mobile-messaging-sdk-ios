@@ -5,7 +5,7 @@ platform :ios, '12.0'
 target 'MobileChatExample' do
 	pod 'MobileMessaging', :path => '../'
 	pod 'MobileMessaging/InAppChat', :path => '../'
-  pod 'MobileMessaging/WebRTCUI', :path => '../'
+  	pod 'MobileMessaging/WebRTCUI', :path => '../'
 	pod 'SwiftJWT', '~> 3.6.1' 
 end
 

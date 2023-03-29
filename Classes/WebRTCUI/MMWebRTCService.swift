@@ -15,7 +15,7 @@ import InfobipRTC
 
 extension MobileMessaging {
 	/// You access the WebRTCUI service APIs through this property.
-	public class var webrtcService: MMWebRTCService? {
+	public class var webRTCService: MMWebRTCService? {
 		if MMWebRTCService.sharedInstance == nil {
 			guard let defaultContext = MobileMessaging.sharedInstance else {
 				return nil
@@ -48,6 +48,7 @@ extension MobileMessaging {
 @objc public protocol MMWebRTCDelegate {
     ///Called when the call has been accepted (from the OS popup/view) and we are ready to handle the control of the call to ourselves
     func inboundCallEstablished(_ call: ApplicationCall, event: CallEstablishedEvent)
+    func inboundWebRTCCallEstablished(_ call: WebrtcCall, event: CallEstablishedEvent)
     func callRegistrationEnded(with statusCode: MMWebRTCRegistrationCode, and error: Error?)
     func callUnregistrationEnded(with statusCode: MMWebRTCRegistrationCode, and error: Error?)
 }
