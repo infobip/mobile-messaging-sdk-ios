@@ -30,6 +30,11 @@ class InAppMessageHandlingDelegateShouldNotShow : MMMessageHandlingDelegate {
 }
 
 class InAppAlertTests: MMTestCase {
+    override func tearDown() {
+        super.tearDown()
+        AlertQueue.sharedInstace.cancelAllAlerts()
+    }
+    
 	func testThatInAppAlertShownIfNoExpirationSpecified() {
         MMTestCase.startWithCorrectApplicationCode()
         
