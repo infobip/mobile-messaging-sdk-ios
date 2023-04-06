@@ -110,6 +110,11 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
             msgView.webView.load(URLRequest(url: message.url))
         }
         
+        if (message.type != .banner) {
+            msgView.webView.scrollView.alwaysBounceVertical = false
+            msgView.webView.scrollView.alwaysBounceHorizontal = false            
+        }
+       
         if message.type == .banner {
             msgView.webView.scrollView.isScrollEnabled = false
             msgView.webView.scrollView.bounces = false
@@ -235,12 +240,14 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         msgViewToBottom = msgView.bottomAnchor.constraint(
             equalTo: view.safeAreaLayoutGuide.bottomAnchor,
             constant: CGFloat(WebInteractiveMessageAlertController.bannerAnimationOffset))
-        WebInteractiveMessageAlertController.setPriority(800, toConstraints: [msgViewHeightToSafeArea,
-                                                                              msgViewCenterYToSafeArea,
-                                                                              msgViewTopWithinSafeArea,
-                                                                              msgViewBottomWithinSafeArea,
-                                                                              msgViewToTop,
-                                                                              msgViewToBottom])
+        WebInteractiveMessageAlertController.setPriority(800, toConstraints:
+                                                            [msgViewHeightToSafeArea,
+                                                             msgViewCenterYToSafeArea,
+                                                             msgViewTopWithinSafeArea,
+                                                             msgViewBottomWithinSafeArea,
+                                                             msgViewToTop,
+                                                             msgViewToBottom]
+        )
         
         msgViewHeight = msgView.heightAnchor.constraint(
             equalToConstant: WebInteractiveMessageAlertController.initialBannerHeight)
@@ -283,8 +290,9 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
             }
         case .fullscreen:
             msgViewHeightToSafeArea.isActive = true
-            fallthrough
+            msgViewCenterYToSafeArea.isActive = true
         case .popup:
+            msgViewHeight.isActive = true
             msgViewCenterYToSafeArea.isActive = true
             msgViewTopWithinSafeArea.isActive = true
             msgViewBottomWithinSafeArea.isActive = true

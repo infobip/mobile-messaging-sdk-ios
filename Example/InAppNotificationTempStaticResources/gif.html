@@ -11,6 +11,8 @@
     />
     <style>
       body {
+        -webkit-user-select: none;
+        user-select: none;
         margin: 12px;
         background-color: #33387a;
         color: #a7d9b3;
@@ -24,7 +26,7 @@
       }
 
       #close-button {
-        position: absolute;
+        position: fixed;
         top: 16px;
         right: 16px;
         border-radius: 50%;
@@ -55,6 +57,7 @@
         width: 200px;
         font-weight: bold;
         transition: background-color 0.5s ease;
+        margin-bottom: 10px;
       }
 
       #dismiss-button:active {
