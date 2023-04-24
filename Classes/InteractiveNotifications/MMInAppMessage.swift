@@ -48,9 +48,9 @@ public final class MMInAppMessage: MM_MTMessage {
 }
 
 public enum MMInAppMessagePosition: Int {
-    case top = 1, bottom
+    case top = 0, bottom
 }
 
 public enum MMInAppMessageType: Int {
-    case banner = 1, popup, fullscreen
+    case banner = 0, popup, fullscreen
 }
