@@ -8,6 +8,8 @@
 import Foundation
 import WebKit
 
+private typealias CBC = ComposeBarConsts
+
 public class MMChatSettings: NSObject {
 	
     public static let sharedInstance = MMChatSettings()
@@ -54,54 +56,55 @@ public class MMChatSettings: NSObject {
         return MobileMessaging.inAppChat?.settings.advancedSettings
     }
     internal static func getMainFont() -> UIFont {
-        return advSettings?.mainFont ?? ComposeBarConsts.kMainFont
+        return advSettings?.mainFont ?? CBC.kMainFont
     }
     internal static func getCharCountFont() -> UIFont {
-        return advSettings?.charCountFont ?? ComposeBarConsts.kCharCountFont
+        return advSettings?.charCountFont ?? CBC.kCharCountFont
     }
     internal static func getMainTextColor() -> UIColor {
-        return advSettings?.mainTextColor ?? ComposeBarConsts.kMainTextColor
+        return advSettings?.mainTextColor ?? CBC.kMainTextColor
     }
     internal static func getMainPlaceholderTextColor() -> UIColor {
-        return advSettings?.mainPlaceholderTextColor ?? ComposeBarConsts.kMainPlaceholderTextColor
+        return advSettings?.mainPlaceholderTextColor ?? CBC.kMainPlaceholderTextColor
     }
     internal static func getSendButtonIcon() -> UIImage? {
-        return advSettings?.sendButtonIcon ?? ComposeBarConsts.kSendButtonIcon
+        return advSettings?.sendButtonIcon ?? CBC.kSendButtonIcon
     }    
     internal static func getAttachmentButtonIcon() -> UIImage? {
-        return advSettings?.attachmentButtonIcon ?? ComposeBarConsts.kAttachmentButtonIcon
+        return advSettings?.attachmentButtonIcon ?? CBC.kAttachmentButtonIcon
     }
 
 }
 
 public class MMAdvancedChatSettings: NSObject {
-    public var textContainerTopMargin: CGFloat         = ComposeBarConsts.kTextContainerTopMargin
-    public var textContainerBottomMargin: CGFloat      = ComposeBarConsts.kTextContainerBottomMargin
-    public var textContainerLeftPadding: CGFloat       = ComposeBarConsts.kTextContainerLeftPadding
-    public var textContainerRightPadding: CGFloat      = ComposeBarConsts.kTextContainerRightPadding
-    public var textContainerTopPadding: CGFloat        = ComposeBarConsts.kTextContainerTopPadding
-    public var textContainerCornerRadius: CGFloat      = ComposeBarConsts.kTextContainerCornerRadius
-    public var textViewTopMargin: CGFloat              = ComposeBarConsts.kTextViewTopMargin
-    public var placeholderHeight: CGFloat              = ComposeBarConsts.kPlaceholderHeight
-    public var placeholderSideMargin: CGFloat          = ComposeBarConsts.kPlaceholderSideMargin
-    public var placeholderTopMargin: CGFloat           = ComposeBarConsts.kPlaceholderTopMargin
-    public var buttonHeight: CGFloat                   = ComposeBarConsts.kButtonHeight
-    public var buttonTouchableOverlap: CGFloat         = ComposeBarConsts.kButtonTouchableOverlap
-    public var buttonRightMargin: CGFloat              = ComposeBarConsts.kButtonRightMargin
-    public var buttonBottomMargin: CGFloat             = ComposeBarConsts.kButtonBottomMargin
-    public var utilityButtonWidth: CGFloat             = ComposeBarConsts.kUtilityButtonWidth
-    public var utilityButtonHeight: CGFloat            = ComposeBarConsts.kUtilityButtonHeight
-    public var utilityButtonBottomMargin: CGFloat      = ComposeBarConsts.kUtilityButtonBottomMargin
-    public var initialHeight: CGFloat                  = ComposeBarConsts.kInitialHeight
-    public var mainTextColor: UIColor                  = ComposeBarConsts.kMainTextColor
-    public var mainPlaceholderTextColor: UIColor       = ComposeBarConsts.kMainPlaceholderTextColor
-    public var textInputBackgroundColor: UIColor       = .clear
-    public var inputContainerBackgroundColor: UIColor  = .white
-    public var sendButtonIcon: UIImage?                = ComposeBarConsts.kSendButtonIcon
-    public var attachmentButtonIcon: UIImage?          = ComposeBarConsts.kAttachmentButtonIcon
-    public var isLineSeparatorHidden: Bool             = ComposeBarConsts.kIsLineSeparatorHidden
-    public var mainFont: UIFont?                       = ComposeBarConsts.kMainFont
-    public var charCountFont: UIFont?                  = ComposeBarConsts.kCharCountFont
+    public var textContainerTopMargin: CGFloat         = CBC.kTextContainerTopMargin
+    public var textContainerBottomMargin: CGFloat      = CBC.kTextContainerBottomMargin
+    public var textContainerLeftPadding: CGFloat       = CBC.kTextContainerLeftPadding
+    public var textContainerRightPadding: CGFloat      = CBC.kTextContainerRightPadding
+    public var textContainerTopPadding: CGFloat        = CBC.kTextContainerTopPadding
+    public var textContainerCornerRadius: CGFloat      = CBC.kTextContainerCornerRadius
+    public var textViewTopMargin: CGFloat              = CBC.kTextViewTopMargin
+    public var placeholderHeight: CGFloat              = CBC.kPlaceholderHeight
+    public var placeholderSideMargin: CGFloat          = CBC.kPlaceholderSideMargin
+    public var placeholderTopMargin: CGFloat           = CBC.kPlaceholderTopMargin
+    public var buttonHeight: CGFloat                   = CBC.kButtonHeight
+    public var buttonTouchableOverlap: CGFloat         = CBC.kButtonTouchableOverlap
+    public var buttonRightMargin: CGFloat              = CBC.kButtonRightMargin
+    public var buttonBottomMargin: CGFloat             = CBC.kButtonBottomMargin
+    public var utilityButtonWidth: CGFloat             = CBC.kUtilityButtonWidth
+    public var utilityButtonHeight: CGFloat            = CBC.kUtilityButtonHeight
+    public var utilityButtonBottomMargin: CGFloat      = CBC.kUtilityButtonBottomMargin
+    public var initialHeight: CGFloat                  = CBC.kInitialHeight
+    public var mainTextColor: UIColor                  = CBC.kMainTextColor
+    public var mainPlaceholderTextColor: UIColor       = CBC.kMainPlaceholderTextColor
+    public var textInputBackgroundColor: UIColor       = CBC.kTextInputBackgroundColor
+    public var typingIndicatorColor: UIColor           = CBC.kTypingIndicatorColor
+    public var inputContainerBackgroundColor: UIColor  = CBC.kInputContainerBackgroundColor
+    public var sendButtonIcon: UIImage?                = CBC.kSendButtonIcon
+    public var attachmentButtonIcon: UIImage?          = CBC.kAttachmentButtonIcon
+    public var isLineSeparatorHidden: Bool             = CBC.kIsLineSeparatorHidden
+    public var mainFont: UIFont?                       = CBC.kMainFont
+    public var charCountFont: UIFont?                  = CBC.kCharCountFont
 }
 
 class ChatSettingsManager {

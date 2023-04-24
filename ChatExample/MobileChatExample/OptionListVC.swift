@@ -44,6 +44,9 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     func showChatInNavigation() {
         let vc = MMChatViewController.makeChildNavigationViewController()
         navigationController?.pushViewController(vc, animated: true)
+        // customisation out of the SDK, applied to navigation items
+        let demoBtn = UIBarButtonItem(title: "demoBtn", style: .plain, target: self, action: #selector(showDemoAlert))
+        vc.navigationItem.rightBarButtonItems = [demoBtn]
     }
     
     func showChatModally() {
@@ -93,7 +96,16 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
             }
         }
     }
-    
+
+    @objc private func showDemoAlert() {
+        let alert = UIAlertController(title: "Hey hi!", message: "Demo text", preferredStyle: .alert)
+        self.present(alert, animated: true, completion: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                alert.dismiss(animated: true)
+            }
+        })
+    }
+
     func onDePersonalize() {
         MobileMessaging.depersonalize() { result, error in
             print(">>>>Depersonalise result: " + "\(result.rawValue)" + "error: " + (error?.localizedDescription ?? "failed"))
@@ -232,6 +244,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
         advSettings.mainPlaceholderTextColor                = .orange
         advSettings.textInputBackgroundColor                = .white
         advSettings.inputContainerBackgroundColor           = .orange
+        advSettings.typingIndicatorColor                    = .darkGray
         advSettings.sendButtonIcon                          = UIImage(named: "sendIcon")
         advSettings.attachmentButtonIcon                    = UIImage(named: "attachIcon")
         advSettings.isLineSeparatorHidden                   = true
@@ -240,7 +253,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
         MobileMessaging.inAppChat?.settings.advancedSettings = advSettings
         MobileMessaging.inAppChat?.settings.title = "Overwriting title"
         MobileMessaging.inAppChat?.settings.sendButtonTintColor = .white
-        MobileMessaging.inAppChat?.settings.navBarItemsTintColor = .lightGray
+        MobileMessaging.inAppChat?.settings.navBarItemsTintColor = .white
         MobileMessaging.inAppChat?.settings.navBarColor = .orange
         MobileMessaging.inAppChat?.settings.navBarTitleColor = .white
         MobileMessaging.inAppChat?.settings.attachmentPreviewBarsColor = .brown
@@ -249,7 +262,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
         MobileMessaging.inAppChat?.settings.errorLabelTextColor = .white
         MobileMessaging.inAppChat?.settings.errorLabelBackgroundColor = .red
     }
-    
+
 // Uncomment if you want to handle call UI here.
 //    func showCallUI(in callController: MMCallController) {
 //        PIPKit.show(with: callController)

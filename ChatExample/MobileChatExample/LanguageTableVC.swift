@@ -28,6 +28,6 @@ class LanguageTableVC: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         MobileMessaging.inAppChat?.setLanguage(MMLanguage.allCases[indexPath.row].locale)
-        navigationController?.popViewController(animated: true)
+        dismiss(animated: true)
     }
 }

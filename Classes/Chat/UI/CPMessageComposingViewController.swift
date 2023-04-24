@@ -91,6 +91,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         composeBarView.textView.backgroundColor = advSettings.textInputBackgroundColor
         composeBarView.textView.font = MMChatSettings.getMainFont()
         composeBarView.textView.textColor = MMChatSettings.getMainTextColor()
+        composeBarView.textView.tintColor = advSettings.typingIndicatorColor
         composeBarView.charCountLabel.font = MMChatSettings.getCharCountFont()
         composeBarView.backgroundView.barTintColor = settings?.backgroungColor ?? UIColor(white: 1, alpha: 1)
         composeBarView.backgroundView.tintColor = settings?.backgroungColor ?? UIColor(white: 1, alpha: 1)
