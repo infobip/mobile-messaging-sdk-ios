@@ -63,12 +63,16 @@ public class MMWebRTCService: MobileMessagingService {
     public var applicationId: String? // webrtc application id to use for calls
 
     static let resourceBundle: Bundle = {
+    #if SWIFT_PACKAGE
+        return Bundle.module
+    #else
         guard let resourceBundleURL = MobileMessaging.bundle.url(forResource: "MMWebRTCUI", withExtension: "bundle"),
               let bundle = Bundle(url: resourceBundleURL) else {
             // in case of Carthage usage, MobileMessaging bundle will be used
             return MobileMessaging.bundle
         }
         return bundle
+    #endif
     }()
         
 	init(mmContext: MobileMessaging) {
