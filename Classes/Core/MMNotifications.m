@@ -54,4 +54,4 @@ NSString* MMNotificationKeyGranted = @"com.mobile-messaging.notification.key.gra
 NSString* MMNotificationKeyError = @"com.mobile-messaging.notification.key.error";
 NSString* MMNotificationKeyInAppChatEnabled = @"com.mobile-messaging.notification.inappchat-enabled";
 NSString* MMNotificationKeyInAppChatUnreadMessagesCounter = @"com.mobile-messaging.notification.key.inappchat-unread-messages-counter";
-NSString* MMNotificationKeyInAppChatViewState = @"com.mobile-messaging.notification.key.inappchat-view-state-changed";
+NSString* MMNotificationKeyInAppChatViewChanged = @"com.mobile-messaging.notification.key.inappchat-view-state-changed";

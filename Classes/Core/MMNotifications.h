@@ -103,7 +103,7 @@ FOUNDATION_EXPORT NSString* MMNotificationInAppChatAvailabilityUpdated;
 FOUNDATION_EXPORT NSString* MMNotificationInAppChatUnreadMessagesCounterUpdated;
 
 /**
- Posted after the in-app chat view changes. The `userInfo` dictionary contains the following key: `MMNotificationKeyInAppChatViewState` - with `String` readable value from MMChatWebViewState.
+ Posted after the in-app chat view changes. The `userInfo` dictionary contains the following key: `MMNotificationKeyInAppChatViewChanged` - with `String` readable value from MMChatWebViewState.
  */
 FOUNDATION_EXPORT NSString* MMNotificationInAppChatViewChanged;
 
@@ -207,5 +207,5 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyInAppChatUnreadMessagesCounter;
  Key for entry in userInfo dictionary of `MMNotificationInAppChatViewChanged` notification.
  Contatins an Int value.
  */
-FOUNDATION_EXPORT NSString* MMNotificationKeyInAppChatState;
+FOUNDATION_EXPORT NSString* MMNotificationKeyInAppChatViewChanged;
 

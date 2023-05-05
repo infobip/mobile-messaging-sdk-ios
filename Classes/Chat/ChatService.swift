@@ -322,8 +322,8 @@ extension UserEventsManager {
         post(MMNotificationInAppChatUnreadMessagesCounterUpdated, [MMNotificationKeyInAppChatUnreadMessagesCounter: counter])
     }
 
-    class func postInAppChatViewStateChangedEvent(_ viewState: String) {
-        post(MMNotificationInAppChatViewChanged, [MMNotificationKeyInAppChatViewState: viewState])
+    class func postInAppChatViewChangedEvent(_ viewState: String) {
+        post(MMNotificationInAppChatViewChanged, [MMNotificationKeyInAppChatViewChanged: viewState])
     }
 }
 
