@@ -165,6 +165,14 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             composerBar.utilityButtonTintColor = sendButtonTintColor
         }
     }
+
+    public func showThreadsList() {
+        webView.showThreadsList(completion: { [weak self] error in
+            if let error = error {
+                self?.logError(error.description)
+            }
+        })
+    }
               
     @objc private func onInterceptedBackTap() {
         // When multithread is in use, the user experience and the actual navigation follow different logic.
@@ -172,11 +180,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         // action of going "back", we interpret the chat webview state and decide if we actuall pop from navigation
         // or we invoke a method in the chat widget to go back to the thread list.
         if isChattingInMultithread {
-            webView.showThreadList(completion: { [weak self] error in
-                if let error = error {
-                    self?.logError(error.description)
-                }
-            })
+            showThreadsList()
         } else if presentingViewController != nil {
             dismiss(animated: true) // viewController is a modal
         } else {
@@ -319,7 +323,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
                                          completion: @escaping (_ error: NSError?) -> Void) {
         webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
     }
-    
+
     func didChangeView(_ state: MMChatWebViewState) {
         guard chatWidget?.isMultithread ?? false else {
             isComposeBarVisible = true

@@ -91,6 +91,7 @@ class OnViewChangedHandler: ScriptMessageHandler, NamedLogger {
         let viewState = (message.body as? String) ?? "Unknown view state"
         logDebug("OnViewChangedHandler handleMessage \(viewState)")
         MobileMessaging.inAppChat?.webViewDelegate?.didChangeView(MMChatWebViewState.parseFrom(viewState))
+        UserEventsManager.postInAppChatViewStateChangedEvent(viewState)
     }
 }
 
