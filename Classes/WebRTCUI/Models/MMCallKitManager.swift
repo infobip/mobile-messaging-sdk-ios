@@ -18,6 +18,9 @@ class CallKitManager: NSObject {
     private let queue = DispatchQueue(label: "Call-Queue", attributes: .concurrent)
     private var calls: [String: CallRecord] = [:]
     private var applicationCalls: [String: ApplicationCallRecord] = [:]
+    private var isVideoInPayload: Bool? {
+        return MobileMessaging.webRTCService?.notificationData?.hasVideo
+    }
     
     override init() {
         let providerConfiguration = CXProviderConfiguration(localizedName: "InfobipRTC")
@@ -41,7 +44,7 @@ class CallKitManager: NSObject {
         addWebRTCCall(uuid, call)
         let callUpdate = CXCallUpdate()
         callUpdate.remoteHandle = CXHandle(type: .phoneNumber, value: call.source().displayIdentifier() ?? call.source().identifier())
-        callUpdate.hasVideo = call.hasCameraVideo()
+        callUpdate.hasVideo = isVideoInPayload ?? call.hasCameraVideo()
         setCallFeatures(callUpdate)
         self.callKitProvider.reportNewIncomingCall(with: uuid, update: callUpdate) { (error) in
             if let err = error {
@@ -61,6 +64,7 @@ class CallKitManager: NSObject {
         self.callKitProvider.reportOutgoingCall(with: uuid, connectedAt: nil)
 
         let callUpdate = CXCallUpdate()
+        callUpdate.hasVideo = isVideoInPayload ?? false
         setCallFeatures(callUpdate)
 
         self.callKitProvider.reportCall(with: uuid, updated: callUpdate)
@@ -99,6 +103,7 @@ class CallKitManager: NSObject {
         self.callKitProvider.reportOutgoingCall(with: uuid, connectedAt: nil)
         
         let callUpdate = CXCallUpdate()
+        callUpdate.hasVideo = isVideoInPayload ?? false
         setCallFeatures(callUpdate)
         
         self.callKitProvider.reportCall(with: uuid, updated: callUpdate)
@@ -109,7 +114,7 @@ class CallKitManager: NSObject {
         addApplicationCall(uuid, call)
         let callUpdate = CXCallUpdate()
         callUpdate.remoteHandle = CXHandle(type: .phoneNumber, value: call.from)
-        callUpdate.hasVideo = call.hasCameraVideo()
+        callUpdate.hasVideo = isVideoInPayload ?? call.hasCameraVideo()
         setCallFeatures(callUpdate)
         self.callKitProvider.reportNewIncomingCall(with: uuid, update: callUpdate) { (error) in
             if let err = error {

@@ -114,12 +114,13 @@ extension MMWebRTCService: PKPushRegistryDelegate {
         } else if type == .voIP {
             if notificationData == nil { notificationData = MMWebRTCNotificationData() }
             MMLogSecureDebug(String(format: "Received VoIP Push Notification %@", payload.dictionaryPayload))
+            saveCallNotificationData(payload)
            if getInfobipRTCInstance().isIncomingApplicationCall(payload) {
                getInfobipRTCInstance().handleIncomingApplicationCall(payload, self)
-               saveCallNotificationData(payload)
             } else if getInfobipRTCInstance().isIncomingCall(payload) {
                 getInfobipRTCInstance().handleIncomingCall(payload, self)
-                saveCallNotificationData(payload)
+            } else {
+                notificationData = nil
             }
             // Other types of calls are not yet supported
         }
