@@ -19,7 +19,7 @@ class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDe
     }
     
     override func main() {
-        guard isCancelledOrMessageExpired else {
+        guard notCancelledNorMessageExpired else {
             cancelPresenter()
             return
         }
@@ -54,11 +54,11 @@ class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDe
     
     // MARK: - InAppMessagePresenterDelegate
     func shouldLoadResources() -> Bool {
-        isCancelledOrMessageExpired
+        notCancelledNorMessageExpired
     }
         
     func getPresenterViewController() -> UIViewController? {
-        guard isCancelledOrMessageExpired else { return nil }
+        guard notCancelledNorMessageExpired else { return nil }
         
         return MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: message)
         ?? MobileMessaging.application.visibleViewController
@@ -74,7 +74,7 @@ class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDe
     }
     
     // MARK: -
-    private var isCancelledOrMessageExpired: Bool { !isCancelled && !message.isExpired }
+    private var notCancelledNorMessageExpired: Bool { !isCancelled && !message.isExpired }
 
     /// Creates the appropriate `InAppMessagePresenter` depending on the type of the message.
     private func createPresenter() -> any InAppMessagePresenter {
