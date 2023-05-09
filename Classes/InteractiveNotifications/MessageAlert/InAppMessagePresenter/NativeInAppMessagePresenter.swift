@@ -5,15 +5,18 @@ class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
     private let text: String
     unowned var delegate: InAppMessagePresenterDelegate
     var messageController: InteractiveMessageAlertController?
-    
+
     init(forMessage message: MM_MTMessage, text: String, withDelegate delegate: InAppMessagePresenterDelegate) {
         self.message = message
         self.text = text
         self.delegate = delegate
     }
-    
+
     func loadResources(completion completionHandler: @escaping (Resources?) -> Void) {
-        guard let safeUrl = message.contentUrl?.safeUrl else { return }
+        guard let safeUrl = message.contentUrl?.safeUrl else {
+            completionHandler(nil)
+            return
+        }
 
         logDebug("downloading image attachment \(String(describing: safeUrl))...")
 
