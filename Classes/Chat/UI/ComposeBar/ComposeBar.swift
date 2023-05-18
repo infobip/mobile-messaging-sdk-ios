@@ -231,7 +231,6 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		let ret = UIButton(type: .custom)
 		ret.frame = textContainerFrame
 		ret.clipsToBounds = true
-        ret.backgroundColor = composeBarSettings.inputContainerBackgroundColor
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		let txtH = self.textHeight
 		self.previousTextHeight = txtH

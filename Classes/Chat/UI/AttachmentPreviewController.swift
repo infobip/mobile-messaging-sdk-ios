@@ -104,9 +104,9 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
     }
     
     func applySettings() {
-        let settings = MobileMessaging.inAppChat?.settings
-        let backgroundTint = settings?.attachmentPreviewBarsColor ?? UIColor.black
-        let itemsTint = settings?.attachmentPreviewItemsColor ?? UIColor.white
+        let settings = MMChatSettings.sharedInstance
+        let backgroundTint = settings.attachmentPreviewBarsColor ?? UIColor.black
+        let itemsTint = settings.attachmentPreviewItemsColor ?? UIColor.white
         navigationController?.toolbar.barTintColor = backgroundTint
         navigationController?.toolbar.tintColor = itemsTint
         navigationController?.navigationBar.tintColor = itemsTint

@@ -59,7 +59,9 @@ enum AdvancedChatOptions: Int, CaseIterable {
     presentSendingContextualData,
     authenticatedChat,
     personalize,
-    depersonalize
+    depersonalize,
+    changeColorTheme
+    
     var title: String {
         switch self {
         case .setLanguage:
@@ -76,6 +78,8 @@ enum AdvancedChatOptions: Int, CaseIterable {
             return "personalize"
         case .depersonalize:
             return "depersonalize"
+        case .changeColorTheme:
+            return "changeColorTheme"
         }
     }
 }

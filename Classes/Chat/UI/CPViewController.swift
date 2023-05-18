@@ -53,7 +53,7 @@ open class MMModalDismissableViewController: UIViewController {
 	public override func viewDidLoad() {
 		super.viewDidLoad()
 		self.edgesForExtendedLayout = UIRectEdge()
-        self.view.backgroundColor = MobileMessaging.inAppChat?.settings.backgroungColor ?? .white
+        self.view.backgroundColor = MMChatSettings.sharedInstance.backgroungColor ?? .white
 		self.navigationItem.backBarButtonItem = UIBarButtonItem(title:"", style:UIBarButtonItem.Style.plain, target:nil, action:nil)
 		self.navigationItem.backBarButtonItem?.title = ""
 	}

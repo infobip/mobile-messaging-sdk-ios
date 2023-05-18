@@ -10,8 +10,8 @@ import WebKit
 
 class ChatAttachmentPreview: UIView {
     var contentView: UIView?
-    let bckgrColor = MobileMessaging.inAppChat?.settings.attachmentPreviewBarsColor ?? .black
-    let vTintColor = MobileMessaging.inAppChat?.settings.attachmentPreviewItemsColor ?? .white
+    let bckgrColor = MMChatSettings.sharedInstance.attachmentPreviewBarsColor ?? .black
+    let vTintColor = MMChatSettings.sharedInstance.attachmentPreviewItemsColor ?? .white
     
     lazy var activityIndicatior: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(frame: bounds)

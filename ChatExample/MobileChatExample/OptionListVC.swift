@@ -141,6 +141,13 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
             presenterVC: self.navigationController ?? self.parent ?? self)
     }
     
+    func onChangeColorTheme() {
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "setColorTheme") as? ColorThemeTableVC {
+            navigationController?.present(vc, animated: true, completion: nil)
+        }
+    }
+    
     func showLanguageVC() {
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         if let vc = storyboard.instantiateViewController(withIdentifier: "setLanguage") as? LanguageTableVC {
@@ -205,6 +212,8 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
             showPersonalizationVC()
         case .depersonalize:
             onDePersonalize()
+        case .changeColorTheme:
+            onChangeColorTheme()
         }
     }
     
@@ -250,17 +259,25 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
         advSettings.isLineSeparatorHidden                   = true
         advSettings.mainFont                                = UIFont(name: "HelveticaNeue-Thin", size: 18.0)
         advSettings.charCountFont                           = UIFont(name: "HelveticaNeue-Bold", size: 18.0)
-        MobileMessaging.inAppChat?.settings.advancedSettings = advSettings
-        MobileMessaging.inAppChat?.settings.title = "Overwriting title"
-        MobileMessaging.inAppChat?.settings.sendButtonTintColor = .white
-        MobileMessaging.inAppChat?.settings.navBarItemsTintColor = .white
-        MobileMessaging.inAppChat?.settings.navBarColor = .orange
-        MobileMessaging.inAppChat?.settings.navBarTitleColor = .white
-        MobileMessaging.inAppChat?.settings.attachmentPreviewBarsColor = .brown
-        MobileMessaging.inAppChat?.settings.attachmentPreviewItemsColor = .white
-        MobileMessaging.inAppChat?.settings.backgroungColor = .orange
-        MobileMessaging.inAppChat?.settings.errorLabelTextColor = .white
-        MobileMessaging.inAppChat?.settings.errorLabelBackgroundColor = .red
+        MMChatSettings.settings.advancedSettings = advSettings
+        MMChatSettings.settings.title = "Overwriting title"
+        MMChatSettings.settings.sendButtonTintColor = .white
+        MMChatSettings.settings.navBarItemsTintColor = .white
+        MMChatSettings.settings.navBarColor = .orange
+        MMChatSettings.settings.navBarTitleColor = .white
+        MMChatSettings.settings.attachmentPreviewBarsColor = .brown
+        MMChatSettings.settings.attachmentPreviewItemsColor = .white
+        MMChatSettings.settings.backgroungColor = .orange
+        MMChatSettings.settings.errorLabelTextColor = .white
+        MMChatSettings.settings.errorLabelBackgroundColor = .red
+        MMChatSettings.darkSettings = MMChatSettings()
+        MMChatSettings().reversedColors()
+        MMChatSettings.darkSettings?.backgroungColor = .black
+        MMChatSettings.darkSettings?.advancedSettings.mainTextColor                 = .white
+        MMChatSettings.darkSettings?.advancedSettings.mainPlaceholderTextColor      = .lightGray
+        MMChatSettings.darkSettings?.advancedSettings.textInputBackgroundColor      = .black
+        MMChatSettings.darkSettings?.advancedSettings.inputContainerBackgroundColor = .black
+        MMChatSettings.darkSettings?.advancedSettings.typingIndicatorColor          = .darkGray
     }
 
 // Uncomment if you want to handle call UI here.

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		25F4F90E2A0E6CE70080E933 /* ColorThemeTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F4F90D2A0E6CE70080E933 /* ColorThemeTableVC.swift */; };
 		765259EA1FB5A99100058788 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765259E91FB5A99100058788 /* AppDelegate.swift */; };
 		765259EF1FB5A99100058788 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259ED1FB5A99100058788 /* Main.storyboard */; };
 		765259F11FB5A99100058788 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 765259F01FB5A99100058788 /* Assets.xcassets */; };
@@ -25,6 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		25F4F90D2A0E6CE70080E933 /* ColorThemeTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorThemeTableVC.swift; sourceTree = "<group>"; };
 		765259E61FB5A99100058788 /* MobileChatExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobileChatExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		765259E91FB5A99100058788 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		765259EE1FB5A99100058788 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 				765259FB1FB5AC3A00058788 /* MobileChatExample.entitlements */,
 				A8E5609F29962C5200011F0C /* OptionListVC.swift */,
 				A8A47CEF292F6A5000CE630F /* PersonalizationVC.swift */,
+				25F4F90D2A0E6CE70080E933 /* ColorThemeTableVC.swift */,
 				A85288CC285094BC00F7017D /* LanguageTableVC.swift */,
 				A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */,
 				A84C76AB2982B46F0039F9CD /* JWTClaims.swift */,
@@ -284,6 +287,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25F4F90E2A0E6CE70080E933 /* ColorThemeTableVC.swift in Sources */,
 				A8E560A029962C5200011F0C /* OptionListVC.swift in Sources */,
 				A835D6B02982759E002FAB5B /* AuthenticatedChatVC.swift in Sources */,
 				A84C76AC2982B46F0039F9CD /* JWTClaims.swift in Sources */,

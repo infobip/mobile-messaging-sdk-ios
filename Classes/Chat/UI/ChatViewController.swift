@@ -60,6 +60,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         super.loadView()
         setupWebView()
         setupChatNotAvailableLabel()
+        handleColorTheme()
     }
     
     open override func viewDidLoad() {
@@ -69,6 +70,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         registerToChatSettingsChanges()
         let bckgColor = settings?.backgroungColor ?? .white
         webView.backgroundColor = bckgColor
+        webView.isOpaque = false
         view.backgroundColor = bckgColor
     }
     
@@ -164,6 +166,12 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             composerBar.sendButtonTintColor = sendButtonTintColor
             composerBar.utilityButtonTintColor = sendButtonTintColor
         }
+        
+        brandComposer()
+        
+        let bckgColor = settings.backgroungColor ?? .white
+        webView.backgroundColor = bckgColor
+        view.backgroundColor = bckgColor
     }
 
     public func showThreadsList() {
@@ -203,6 +211,21 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             }
             return
         })
+    }
+    
+    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        let css: String? = {
+            switch MMChatSettings.colorTheme {
+            case .dark: return "img {-webkit-filter: invert(100%);} html {-webkit-filter: invert(100%);}"
+            case .auto: return "@media (prefers-color-scheme: dark) { img {-webkit-filter: invert(100%);} html {-webkit-filter: invert(100%);}}"
+            case .light: return nil /// In case of light theme we dont need to inject css
+            }
+        }()
+        
+        guard let css = css else { return }
+        let script = "var style = document.createElement('style'); style.innerHTML = '\(css)'; document.head.appendChild(style);"
+        let cssScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        webView.configuration.userContentController.addUserScript(cssScript)
     }
     
     func didEnableControls(_ enabled: Bool) {
@@ -415,5 +438,23 @@ extension MMChatViewController: WKNavigationDelegate {
         logDebug("will open URL: \(url)")
         UIApplication.shared.open(url)
         decisionHandler(.cancel)
+    }
+}
+
+extension MMChatViewController {
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+            handleColorTheme()
+        }
+    }
+    
+    func handleColorTheme() {
+        MMChatSettings.isDarkMode = {
+            switch MMChatSettings.colorTheme {
+            case .auto: return traitCollection.userInterfaceStyle == .dark
+            case .dark: return true
+            case .light: return false
+            }
+        }()
     }
 }
