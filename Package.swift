@@ -15,7 +15,7 @@ let package = Package(
         .library(name: "WebRTCUI", targets: ["WebRTCUI"])
     ],
     dependencies: [
-        .package(url: "https://github.com/infobip/infobip-rtc-ios.git", "2.0.8"..<"2.0.21")
+        .package(url: "https://github.com/infobip/infobip-rtc-ios.git", "2.0.19"..<"2.0.21")
     ],
     targets: [
         .target(name: "MobileMessaging", dependencies: ["MobileMessagingObjC"], path: "Classes/MobileMessaging", resources: [
@@ -27,8 +27,7 @@ let package = Package(
                 "MobileMessaging",
             ],
             path: "Classes/Chat",
-            resources: [.copy("Resources/ChatConnector.html")],
-            cSettings: [.define("WEBRTCUI_ENABLED")]
+            resources: [.copy("Resources/ChatConnector.html")]
         ),
         .target(
             name: "WebRTCUI",
