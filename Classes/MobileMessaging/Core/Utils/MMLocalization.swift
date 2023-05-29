@@ -7,15 +7,15 @@
 
 import Foundation
 
-class MMLocalization {
+public class MMLocalization {
 	static let sharedInstance = MMLocalization()
-	func localizedString(forKey key: String?, defaultString: String) -> String {
+	public func localizedString(forKey key: String?, defaultString: String) -> String {
 		guard let key = key else {
 			return defaultString
 		}
         return MMLocalization.languageBundle().localizedString(forKey: key, value: defaultString, table: "MobileMessaging")
 	}
-	class func localizedString(forKey key: String?, defaultString: String) -> String {
+	public class func localizedString(forKey key: String?, defaultString: String) -> String {
 		guard let key = key else {
 			return defaultString
 		}

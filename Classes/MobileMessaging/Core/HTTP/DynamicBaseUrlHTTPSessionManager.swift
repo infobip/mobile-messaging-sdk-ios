@@ -29,7 +29,7 @@ struct JSONRequestEncoding: ParameterEncoding {
 	}
 }
 
-class DynamicBaseUrlHTTPSessionManager: NamedLogger {
+public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 	var dynamicBaseUrl: URL?
 	var originalBaseUrl: URL
 	let configuration: URLSessionConfiguration

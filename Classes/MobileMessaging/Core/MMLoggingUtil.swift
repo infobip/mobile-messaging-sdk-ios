@@ -5,7 +5,7 @@ import UIKit
 	@objc optional func createLogger() -> MMLogging
 }
 
-@objc class MMLoggerFactory: NSObject, MMLoggerFactoryProtocol {}
+@objc public class MMLoggerFactory: NSObject, MMLoggerFactoryProtocol {}
 
 // uncomment this if you need logs but don't like CocoaLumberjack. Simple MMDefaultLogger without filtering will be printing to the console for you.
 //extension MMLoggerFactory {
@@ -54,7 +54,7 @@ public final class MMDefaultLogger: NSObject, MMLogging {
     }
 }
 
-enum LogIcons: String {
+public enum LogIcons: String {
 	case info = "ℹ️"
 	case verbose = "💬"
 	case debug = "🛠"
@@ -64,7 +64,7 @@ enum LogIcons: String {
 	case off = "OFF"
 }
 
-func formattedLogEntry(date: Date, icon: LogIcons, message: String) -> String {
+public func formattedLogEntry(date: Date, icon: LogIcons, message: String) -> String {
 	return "\(DateStaticFormatters.LoggerDateFormatter.string(from: date)) [MobileMessaging] \(icon.rawValue) \(message)"
 }
 
@@ -80,10 +80,9 @@ func formattedLogEntry(date: Date, icon: LogIcons, message: String) -> String {
 	func logVerbose(message: String)
 }
 
-protocol NamedLogger {
-}
+public protocol NamedLogger { }
 
-extension NamedLogger {
+public extension NamedLogger {
 	static func logDebug(_ message: String) {
 		MMLogDebug("[\(String(describing: self))] \(message)")
 	}

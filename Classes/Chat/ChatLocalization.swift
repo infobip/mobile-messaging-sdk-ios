@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 class ChatLocalization {
     class func localizedString(forKey key: String?, defaultString: String) -> String {
         guard let key = key else {

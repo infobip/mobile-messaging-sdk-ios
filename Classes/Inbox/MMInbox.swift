@@ -42,7 +42,7 @@ class GetInbox: GetRequest {
      Array of inbox messages ordered by message send date-time.
      */
     public var messages: [MM_MTMessage]
-    init?(json value: JSON) {
+    public init?(json value: JSON) {
         self.messages = value[Consts.InboxKeys.messages].arrayValue.compactMap { MM_MTMessage(messageSyncResponseJson: $0) }
         self.countTotal = value[Consts.InboxKeys.countTotal].intValue
         self.countUnread = value[Consts.InboxKeys.countUnread].intValue

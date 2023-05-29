@@ -16,25 +16,25 @@ struct DepersonalizationConsts {
 	case undefined = 0, pending, success
 }
 
-final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, NamedLogger {
-	static var currentPath = getDocumentsDirectory(filename: "internal-data")
-	static var cached = ThreadSafeDict<InternalData>()
-	static var empty: InternalData {
+public final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, NamedLogger {
+    public static var currentPath = getDocumentsDirectory(filename: "internal-data")
+    public static var cached = ThreadSafeDict<InternalData>()
+    public static var empty: InternalData {
         return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, applicationCodeHash: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined, registrationDate: nil, chatMessageCounter: 0)
 	}
-	func removeSensitiveData() {
+    public func removeSensitiveData() {
 		if MobileMessaging.privacySettings.applicationCodePersistingDisabled  {
 			self.applicationCode = nil
 		}
 	}
-	func handleCurrentChanges(old: InternalData, new: InternalData) {
+    public func handleCurrentChanges(old: InternalData, new: InternalData) {
 		if old.currentDepersonalizationStatus != new.currentDepersonalizationStatus {
             logDebug("setting new depersonalize status: \(self.currentDepersonalizationStatus.rawValue)")
 			MobileMessaging.sharedInstance?.updateDepersonalizeStatusForSubservices()
 		}
 	}
 	///
-    var chatMessageCounter: Int
+    public var chatMessageCounter: Int
 	var registrationDate: Date?
 	var systemDataHash: Int64
 	var location: CLLocation?
@@ -45,7 +45,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 	var currentDepersonalizationStatus: MMSuccessPending
     ///
 
-	func copy(with zone: NSZone? = nil) -> Any {
+    public func copy(with zone: NSZone? = nil) -> Any {
         let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, applicationCodeHash: applicationCodeHash, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus, registrationDate: registrationDate, chatMessageCounter: chatMessageCounter)
 		return copy
 	}
@@ -74,7 +74,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
         chatMessageCounter = aDecoder.decodeInteger(forKey: "chatMessageCounter")
 	}
 
-	func encode(with aCoder: NSCoder) {
+    public func encode(with aCoder: NSCoder) {
 		aCoder.encode(systemDataHash, forKey: "systemDataHash")
 		aCoder.encode(location, forKey: "location")
 		aCoder.encode(badgeNumber, forKey: "badgeNumber")
@@ -88,18 +88,18 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 }
 
 @objcMembers public final class MMInstallation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable, Archivable {
-	var version: Int = 0
-	static var currentPath = getDocumentsDirectory(filename: "installation")
-	static var dirtyPath = getDocumentsDirectory(filename: "dirty-installation")
-	static var cached = ThreadSafeDict<MMInstallation>()
-	static var empty: MMInstallation {
+    public var version: Int = 0
+    public static var currentPath = getDocumentsDirectory(filename: "installation")
+    public static var dirtyPath = getDocumentsDirectory(filename: "dirty-installation")
+    public static var cached = ThreadSafeDict<MMInstallation>()
+    public static var empty: MMInstallation {
 		let systemData = MMUserAgent().systemData
 		return MMInstallation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled ?? true, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
 	}
-	func removeSensitiveData() {
+    public func removeSensitiveData() {
 		//nothing is sensitive in installation
 	}
-	func handleCurrentChanges(old: MMInstallation, new: MMInstallation) {
+    public func handleCurrentChanges(old: MMInstallation, new: MMInstallation) {
 		if old.pushRegistrationId != new.pushRegistrationId {
 			UserEventsManager.postRegUpdatedEvent(pushRegistrationId)
 		}
@@ -107,7 +107,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
 		}
 	}
-	func handleDirtyChanges(old: MMInstallation, new: MMInstallation) {
+    public func handleDirtyChanges(old: MMInstallation, new: MMInstallation) {
 		if old.isPushRegistrationEnabled != new.isPushRegistrationEnabled {
 			MobileMessaging.sharedInstance?.updateRegistrationEnabledSubservicesStatus()
 		}
@@ -204,7 +204,7 @@ final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, Nam
 		aCoder.encode(sdkVersion, forKey: "sdkVersion")
 	}
 
-	convenience init?(json: JSON) {
+    convenience public init?(json: JSON) {
 		guard let pushRegId = json[Attributes.pushRegistrationId.rawValue].string else // a valid server response must contain pushregid
 		{
 			return nil

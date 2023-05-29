@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController, MMComposeBarDelegate, UIGestureRecognizerDelegate,
                                                 UIScrollViewDelegate, UINavigationControllerDelegate {
@@ -23,7 +24,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     var chatMessageCountUpdatedBlock: ((_ count: Int, _ unread: Int) -> Void)?
     var isComposeBarVisible: Bool = false
     internal var settings: MMChatSettings? {
-        return MobileMessaging.inAppChat?.settings
+        return MMChatSettings.sharedInstance
     }
     internal var advSettings: MMAdvancedChatSettings {
       return settings?.advancedSettings ?? MMAdvancedChatSettings()
@@ -86,7 +87,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
                                          duration: TimeInterval, animationCurve: UIView.AnimationCurve) { /* override */ }
     public func composeBarDidChangeFrom(_ startFrame: CGRect, to endFrame: CGRect) { /* override */ }
     
-    private func brandComposer() {
+    internal func brandComposer() {
         guard let composeBarView = composeBarView as? ComposeBar else { return }
         composeBarView.textView.backgroundColor = advSettings.textInputBackgroundColor
         composeBarView.textView.font = MMChatSettings.getMainFont()

@@ -11,7 +11,7 @@
 import Foundation
 import CoreData
 
-extension Message {
+public extension Message {
 
     @NSManaged var messageId: String
 	@NSManaged var payload: DictionaryRepresentation

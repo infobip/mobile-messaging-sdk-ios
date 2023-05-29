@@ -7,11 +7,12 @@
 
 import Foundation
 import WebKit
+import UIKit
 
-extension MobileMessaging {
+public extension MobileMessaging {
 
 	/// You access the In-app Chat service APIs through this property.
-	public class var inAppChat: MMInAppChatService? {
+    class var inAppChat: MMInAppChatService? {
 		if MMInAppChatService.sharedInstance == nil {
 			guard let defaultContext = MobileMessaging.sharedInstance else {
 				return nil
@@ -23,7 +24,7 @@ extension MobileMessaging {
 
 	/// Fabric method for Mobile Messaging session.
 	/// Use this method to enable the In-app Chat service.
-	public func withInAppChat() -> MobileMessaging {
+    func withInAppChat() -> MobileMessaging {
 		if MMInAppChatService.sharedInstance == nil {
 			if let defaultContext = MobileMessaging.sharedInstance
 			{
@@ -67,9 +68,6 @@ public class MMInAppChatService: MobileMessagingService {
 		super.init(mmContext: mmContext, uniqueIdentifier: "InAppChatService")
         self.chatMessageCounterService.chatService = self
 	}
-    
-    ///You can define your own custom appearance for chat view by accessing a chat settings object.
-    public let settings: MMChatSettings = MMChatSettings.sharedInstance
     
 	///Method for clean up WKWebView's cache. Mobile Messaging SDK will call it in case of user depersonalization. You can call it additionaly in case your user logouts from In-app Chat.
 	///`completion` will be called when cache clean up is finished.
@@ -115,7 +113,7 @@ public class MMInAppChatService: MobileMessagingService {
         return chatMessageCounterService.getCounter()
     }
 	
-	override var systemData: [String: AnyHashable]? {
+    public override var systemData: [String: AnyHashable]? {
 		return ["inappchat": true]
 	}
 	weak var webViewDelegate: ChatWebViewDelegate? {
@@ -125,7 +123,7 @@ public class MMInAppChatService: MobileMessagingService {
 		}
 	}
 
-    override func suspend() {
+    public override func suspend() {
         NotificationCenter.default.removeObserver(self)
         getWidgetQueue.cancelAllOperations()
         isConfigurationSynced = false
@@ -136,16 +134,16 @@ public class MMInAppChatService: MobileMessagingService {
         super.suspend()
     }
     
-    override func stopService(_ completion: @escaping (Bool) -> Void) {
+    public override func stopService(_ completion: @escaping (Bool) -> Void) {
         super.stopService(completion)
         MMInAppChatService.sharedInstance = nil
     }
 	
-	override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+    public override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
 		start { _ in completion() }
 	}
     
-    override func start(_ completion: @escaping (Bool) -> Void) {
+    public override func start(_ completion: @escaping (Bool) -> Void) {
         guard isRunning == false else {
             completion(isRunning)
             return
@@ -155,17 +153,17 @@ public class MMInAppChatService: MobileMessagingService {
         syncWithServer { _ in}
     }
 	
-	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    public override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
         getWidgetQueue.cancelAllOperations()
 		cleanCache(completion: completion)
 	}
 	
-	override func handlesInAppNotification(forMessage message: MM_MTMessage?) -> Bool {
+    public override func handlesInAppNotification(forMessage message: MM_MTMessage?) -> Bool {
 		logDebug("handlesInAppNotification: \(message?.isChatMessage ?? false)")
 		return message?.isChatMessage ?? false
 	}
 	
-	override func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
+    public override func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
 		logDebug("showBannerNotificationIfNeeded isChatMessage: \(message?.isChatMessage ?? false), isExpired: \(message?.isExpired ?? false),  isChatScreenVisible: \(isChatScreenVisible), enabled: \(MMInteractiveMessageAlertSettings.enabled)")
 		guard let message = message, !message.isExpired, MMInteractiveMessageAlertSettings.enabled, !isChatScreenVisible else {
 				showBannerWithOptions([])
@@ -175,7 +173,7 @@ public class MMInAppChatService: MobileMessagingService {
 		showBannerWithOptions(UNNotificationPresentationOptions.make(with:  MobileMessaging.sharedInstance?.userNotificationType ?? []))
 	}
     
-    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+    public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
         syncWithServer({_ in completion() })
     }
 
@@ -230,7 +228,7 @@ public class MMInAppChatService: MobileMessagingService {
 		} else {
             NotificationCenter.default.addObserver(self, selector: #selector(notificationInstallationSyncedHandler), name: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil)
 		}
-        self.settings.update(withChatWidget: chatWidget)
+        MMChatSettings.sharedInstance.update(withChatWidget: chatWidget)
 	}
     
     // MARK: Notifications handling
@@ -324,6 +322,10 @@ extension UserEventsManager {
     
     class func postInAppChatUnreadMessagesCounterUpdatedEvent(_ counter: Int) {
         post(MMNotificationInAppChatUnreadMessagesCounterUpdated, [MMNotificationKeyInAppChatUnreadMessagesCounter: counter])
+    }
+
+    class func postInAppChatViewChangedEvent(_ viewState: String) {
+        post(MMNotificationInAppChatViewChanged, [MMNotificationKeyInAppChatViewChanged: viewState])
     }
 }
 

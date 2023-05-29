@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 import UIKit
 
-enum MessageHandlingResult {
+public enum MessageHandlingResult {
 	case newData
 	case noData
 	case failed(NSError?)

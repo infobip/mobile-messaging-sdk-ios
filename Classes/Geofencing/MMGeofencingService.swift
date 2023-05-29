@@ -99,7 +99,7 @@ public class MMGeofencingService: MobileMessagingService {
         }
     }
     
-    override func stopService(_ completion: @escaping (Bool) -> Void) {
+    public override func stopService(_ completion: @escaping (Bool) -> Void) {
         self.locationManager.delegate = nil
         super.stopService(completion)
         cancelOperations()
@@ -116,7 +116,7 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
 
-	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    public override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		logDebug("depersonalizing")
         cancelOperations()
 		self.stopMonitoringMonitoredRegions() {
@@ -130,7 +130,7 @@ public class MMGeofencingService: MobileMessagingService {
 		})
 	}
 	
-	override func mobileMessagingDidStart(_ completion: @escaping () -> Void) {
+    public override func mobileMessagingDidStart(_ completion: @escaping () -> Void) {
 		guard MMGeofencingService.isGeoServiceNeedsToStart && mmContext.currentInstallation().isPushRegistrationEnabled && mmContext.internalData().currentDepersonalizationStatus == .undefined else {
             completion()
 			return
@@ -172,7 +172,7 @@ public class MMGeofencingService: MobileMessagingService {
 		return true
 	}
 	
-	override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
+    public override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard let geoSignalingMessage = MMGeoMessage(payload: message.originalPayload,
 													 deliveryMethod: message.deliveryMethod,
 													 seenDate: message.seenDate,
@@ -199,7 +199,7 @@ public class MMGeofencingService: MobileMessagingService {
         }
     }
 
-    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+    public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
         syncWithServer({_ in completion() })
     }
 
@@ -227,7 +227,7 @@ public class MMGeofencingService: MobileMessagingService {
     }
 	
 	private var _isRunning: Bool = false
-	override var isRunning: Bool  {
+    public override var isRunning: Bool  {
 		get {
 			var ret: Bool = false
 			locationManagerQueue.sync() {
@@ -242,7 +242,7 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
     
-	override var systemData: [String: AnyHashable]? {
+    public override var systemData: [String: AnyHashable]? {
 		return [Consts.SystemDataKeys.geofencingServiceEnabled: type(of: self).isSystemDataGeofencingServiceEnabled]
 	}
     

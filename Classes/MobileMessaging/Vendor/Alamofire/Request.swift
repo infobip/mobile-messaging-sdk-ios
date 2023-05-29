@@ -70,7 +70,7 @@ typealias HTTPHeaders = [String: String]
 
 /// Responsible for sending a request and receiving the response and associated data from the server, as well as
 /// managing its underlying `URLSessionTask`.
-class Request {
+public class Request {
 
     // MARK: Helper Types
 
@@ -241,7 +241,7 @@ class Request {
 extension Request: CustomStringConvertible {
     /// The textual representation used when written to an output stream, which includes the HTTP method and URL, as
     /// well as the response status code if a response has been received.
-    var description: String {
+    public var description: String {
         var components: [String] = []
 
         if let HTTPMethod = request?.httpMethod {
@@ -264,7 +264,7 @@ extension Request: CustomStringConvertible {
 
 extension Request: CustomDebugStringConvertible {
     /// The textual representation used when written to an output stream, in the form of a cURL command.
-    var debugDescription: String {
+    public var debugDescription: String {
         return cURLRepresentation()
     }
 
@@ -415,28 +415,28 @@ class DataRequest: Request {
 // MARK: -
 
 /// Specific type of `Request` that manages an underlying `URLSessionDownloadTask`.
-class DownloadRequest: Request {
+public class DownloadRequest: Request {
 
     // MARK: Helper Types
 
     /// A collection of options to be executed prior to moving a downloaded file from the temporary URL to the
     /// destination URL.
-    struct DownloadOptions: OptionSet {
+    public struct DownloadOptions: OptionSet {
         /// Returns the raw bitmask value of the option and satisfies the `RawRepresentable` protocol.
-         let rawValue: UInt
+        public let rawValue: UInt
 
         /// A `DownloadOptions` flag that creates intermediate directories for the destination URL if specified.
-         static let createIntermediateDirectories = DownloadOptions(rawValue: 1 << 0)
-
+        public static let createIntermediateDirectories = DownloadOptions(rawValue: 1 << 0)
+        
         /// A `DownloadOptions` flag that removes a previous file from the destination URL if specified.
-         static let removePreviousFile = DownloadOptions(rawValue: 1 << 1)
+        public static let removePreviousFile = DownloadOptions(rawValue: 1 << 1)
 
         /// Creates a `DownloadFileDestinationOptions` instance with the specified raw value.
         ///
         /// - parameter rawValue: The raw bitmask value for the option.
         ///
         /// - returns: A new log level instance.
-         init(rawValue: UInt) {
+        public init(rawValue: UInt) {
             self.rawValue = rawValue
         }
     }
@@ -445,7 +445,7 @@ class DownloadRequest: Request {
     /// temporary file written to during the download process. The closure takes two arguments: the temporary file URL
     /// and the URL response, and returns a two arguments: the file URL where the temporary file should be moved and
     /// the options defining how the file should be moved.
-    typealias DownloadFileDestination = (
+    public typealias DownloadFileDestination = (
         _ temporaryURL: URL,
         _ response: HTTPURLResponse)
         -> (destinationURL: URL, options: DownloadOptions)

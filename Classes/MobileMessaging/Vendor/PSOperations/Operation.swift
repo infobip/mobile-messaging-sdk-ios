@@ -53,7 +53,7 @@ open class Operation: Foundation.Operation {
         self.addObserver(self, forKeyPath: "isReady", options: [], context: &instanceContext)
     }
     
-    init(isUserInitiated: Bool) {
+    public init(isUserInitiated: Bool) {
         super.init()
         self.userInitiated = isUserInitiated
         self.addObserver(self, forKeyPath: "isReady", options: [], context: &instanceContext)

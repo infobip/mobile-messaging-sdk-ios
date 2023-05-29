@@ -1187,7 +1187,8 @@
 				76B0A7C024EFB43F0006A815 /* SwiftTryCatch.h */,
 				76B0A7C124EFB43F0006A815 /* SwiftTryCatch.m */,
 			);
-			path = SwiftTryCatch;
+			name = SwiftTryCatch;
+			path = ../../MobileMessagingObjC/Vendor/SwiftTryCatch;
 			sourceTree = "<group>";
 		};
 		76C3C9B623D60E9800562C57 /* UserSession */ = {
@@ -1248,7 +1249,8 @@
 				764556151F78FF4F00B8F14B /* MobileMessagingPluginApplicationDelegate.h */,
 				764556161F78FF4F00B8F14B /* MobileMessagingPluginApplicationDelegate.m */,
 			);
-			path = Plugins;
+			name = Plugins;
+			path = ../../MobileMessagingObjC/Core/Plugins;
 			sourceTree = "<group>";
 		};
 		A08E5019249650D000F026ED /* Localization */ = {
@@ -1892,7 +1894,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1460136653996;
+				CURRENT_PROJECT_VERSION = 1460136653998;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1955,7 +1957,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 1460136653996;
+				CURRENT_PROJECT_VERSION = 1460136653998;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;

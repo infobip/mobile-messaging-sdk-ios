@@ -332,7 +332,7 @@ public class MMUserAgent: NSObject {
 		return Consts.APIValues.platformType
 	}
 
-	var currentUserAgentString: String {
+    public var currentUserAgentString: String {
 		var options = [MMUserAgent.DataOptions.None]
 		if !(MobileMessaging.privacySettings.systemInfoSendingDisabled) {
 			options.append(MMUserAgent.DataOptions.System)

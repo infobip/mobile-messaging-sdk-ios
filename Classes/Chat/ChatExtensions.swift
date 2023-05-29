@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension UIImage {
     convenience init?(mm_chat_named: String) {

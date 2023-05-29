@@ -91,7 +91,7 @@ struct DataResponse<Value> {
     var value: Value? { return result.value }
 
     /// Returns the associated error value if the result if it is a failure, `nil` otherwise.
-    var error: Error? { return result.error }
+    public var error: Error? { return result.error }
 
     var _metrics: AnyObject?
 
@@ -311,7 +311,7 @@ struct DefaultDownloadResponse {
 // MARK: -
 
 /// Used to store all data associated with a serialized response of a download request.
-struct DownloadResponse<Value> {
+public struct DownloadResponse<Value> {
     /// The URL request sent to the server.
     let request: URLRequest?
 
@@ -322,7 +322,7 @@ struct DownloadResponse<Value> {
     let temporaryURL: URL?
 
     /// The final destination URL of the data returned from the server if it was moved.
-    let destinationURL: URL?
+    public let destinationURL: URL?
 
     /// The resume data generated if the request was cancelled.
     let resumeData: Data?
@@ -334,10 +334,10 @@ struct DownloadResponse<Value> {
     let timeline: Timeline
 
     /// Returns the associated value of the result if it is a success, `nil` otherwise.
-    var value: Value? { return result.value }
+    public var value: Value? { return result.value }
 
     /// Returns the associated error value if the result if it is a failure, `nil` otherwise.
-    var error: Error? { return result.error }
+    public var error: Error? { return result.error }
 
     var _metrics: AnyObject?
 
@@ -376,14 +376,14 @@ struct DownloadResponse<Value> {
 extension DownloadResponse: CustomStringConvertible, CustomDebugStringConvertible {
     /// The textual representation used when written to an output stream, which includes whether the result was a
     /// success or failure.
-    var description: String {
+    public var description: String {
         return result.debugDescription
     }
 
     /// The debug textual representation used when written to an output stream, which includes the URL request, the URL
     /// response, the temporary and destination URLs, the resume data, the response serialization result and the
     /// timeline.
-    var debugDescription: String {
+    public var debugDescription: String {
         var output: [String] = []
 
         output.append(request != nil ? "[Request]: \(request!.httpMethod ?? "GET") \(request!)" : "[Request]: nil")

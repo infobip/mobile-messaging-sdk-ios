@@ -265,7 +265,7 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
     
     // Session language starts being the installation language (or english as default), but can be modified in runtime,
     // for example through chat methods. It will be used for accessing language bundle.
-    internal static var sessionLanguage: MMLanguage {
+    public static var sessionLanguage: MMLanguage {
         get {
             let liveChatLanguage = UserDefaults.standard.object(forKey: MMUserDefaultChatLanguageKey) as? String
             let installationLanguage = MobileMessaging.currentInstallation?.language ?? "en"

@@ -8,12 +8,12 @@
 import Foundation
 import UIKit
 
-public class MobileMessagingService: NSObject, NamedLogger {
-    let mmContext: MobileMessaging
+open class MobileMessagingService: NSObject, NamedLogger {
+    public let mmContext: MobileMessaging
     let uniqueIdentifier: String
-    var isRunning: Bool
+    public var isRunning: Bool
     
-    init(mmContext: MobileMessaging, uniqueIdentifier: String) {
+    public init(mmContext: MobileMessaging, uniqueIdentifier: String) {
         self.isRunning = false
         self.mmContext = mmContext
         self.uniqueIdentifier = uniqueIdentifier
@@ -26,7 +26,7 @@ public class MobileMessagingService: NSObject, NamedLogger {
         stopObserving()
     }
     
-    func start(_ completion: @escaping (Bool) -> Void) {
+    open func start(_ completion: @escaping (Bool) -> Void) {
         guard isRunning == false else {
             completion(isRunning)
             return
@@ -37,13 +37,13 @@ public class MobileMessagingService: NSObject, NamedLogger {
         completion(isRunning)
     }
     
-    func suspend() {
+    open func suspend() {
         logDebug("stopping")
         stopAppStateObserving()
         isRunning = false
     }
     
-    func stopService(_ completion: @escaping (Bool) -> Void) {
+    open func stopService(_ completion: @escaping (Bool) -> Void) {
         suspend()
         NotificationCenter.default.removeObserver(self)
         dispatchGroup.wait()
@@ -51,21 +51,21 @@ public class MobileMessagingService: NSObject, NamedLogger {
     }
     
     /// A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
-    var systemData: [String: AnyHashable]? { return nil }
+    open var systemData: [String: AnyHashable]? { return nil }
     
     /// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
     func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool { return false }
-    func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
-    func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
+    open func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
+    open func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
     
     var dispatchGroup = DispatchGroup()
     
     func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) { completion() }
     func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) { completion() }
-    func mobileMessagingWillStart(_ completion: @escaping () -> Void) { completion() }
-    func mobileMessagingDidStart(_ completion: @escaping () -> Void) { completion() }
+    open func mobileMessagingWillStart(_ completion: @escaping () -> Void) { completion() }
+    open func mobileMessagingDidStart(_ completion: @escaping () -> Void) { completion() }
     func mobileMessagingWillStop(_ completion: @escaping () -> Void) { completion() }
-    func appWillEnterForeground(_ completion: @escaping () -> Void) { completion() }
+    open func appWillEnterForeground(_ completion: @escaping () -> Void) { completion() }
     func appDidFinishLaunching(_ notification: Notification, completion: @escaping () -> Void) { completion() }
     func appDidBecomeActive(_ completion: @escaping () -> Void) { completion() }
     func appWillResignActive(_ completion: @escaping () -> Void) { completion() }
@@ -128,12 +128,12 @@ public class MobileMessagingService: NSObject, NamedLogger {
         })
     }
     
-    func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    open func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
         completion()
     }
     
-    func handlesInAppNotification(forMessage message: MM_MTMessage?) -> Bool { return false }
-    func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
+    open func handlesInAppNotification(forMessage message: MM_MTMessage?) -> Bool { return false }
+    open func showBannerNotificationIfNeeded(forMessage message: MM_MTMessage?, showBannerWithOptions: @escaping (UNNotificationPresentationOptions) -> Void) {
         showBannerWithOptions([])
     }
     

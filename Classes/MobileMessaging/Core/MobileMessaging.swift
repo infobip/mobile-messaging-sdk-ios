@@ -531,9 +531,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
     }
     
     //MARK: Internal
-    static var sharedInstance: MobileMessaging?
-    let userNotificationType: MMUserNotificationType
-    let applicationCode: String
+    public static var sharedInstance: MobileMessaging?
+    public let userNotificationType: MMUserNotificationType
+    public let applicationCode: String
     var registeringForRemoteNotificationsDisabled: Bool = false
     var overridingNotificationCenterDeleageDisabled: Bool = false
     var unregisteringForRemoteNotificationsDisabled: Bool = false
@@ -765,14 +765,14 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     var internalStorage: MMCoreDataStorage
     
-    func internalData() -> InternalData { return InternalData.unarchiveCurrent() }
-    func currentInstallation() -> MMInstallation { return MMInstallation.unarchiveCurrent() }
+    public func internalData() -> InternalData { return InternalData.unarchiveCurrent() }
+    public func currentInstallation() -> MMInstallation { return MMInstallation.unarchiveCurrent() }
     func currentUser() -> MMUser { return MMUser.unarchiveCurrent() }
     
     func dirtyInstallation() -> MMInstallation { return MMInstallation.unarchiveDirty() }
     func dirtyUser() -> MMUser { return MMUser.unarchiveDirty().copy() as! MMUser }
     
-    func resolveInstallation() -> MMInstallation { return dirtyInstallation() }
+    public func resolveInstallation() -> MMInstallation { return dirtyInstallation() }
     func resolveUser() -> MMUser { return dirtyUser() }
     var userService: UserDataService!
     var installationService: InstallationDataService!
@@ -784,13 +784,15 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
     lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
-    lazy var remoteApiProvider: RemoteAPIProvider! = RemoteAPIProvider(sessionManager: self.httpSessionManager)
+    public lazy var remoteApiProvider: RemoteAPIProvider! = {
+        return RemoteAPIProvider(sessionManager: self.httpSessionManager)
+    }()
     lazy var keychain: MMKeychain! = MMKeychain()
     lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
     lazy var httpSessionManager: DynamicBaseUrlHTTPSessionManager! = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
     
     static var application: MMApplication = MainThreadedUIApplication()
-    static var date: MMDate = MMDate() // testability
+    public static var date: MMDate = MMDate() // testability
     static var timeZone: TimeZone = TimeZone.current // for tests
     static var calendar: Calendar = Calendar.current // for tests
     var appGroupId: String?

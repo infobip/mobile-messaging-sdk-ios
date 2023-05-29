@@ -4,6 +4,7 @@
 //  Created by Andrey Kadochnikov on 10.09.15.
 //
 import Foundation
+import UIKit
 
 //MARK: Compose bar
 public protocol MMComposeBarDelegate: UITextViewDelegate {

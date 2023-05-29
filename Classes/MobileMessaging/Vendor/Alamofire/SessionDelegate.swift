@@ -25,7 +25,7 @@
 import Foundation
 
 /// Responsible for handling all delegate callbacks for the underlying session.
-class SessionDelegate: NSObject {
+public class SessionDelegate: NSObject {
 
     // MARK: URLSessionDelegate Overrides
 
@@ -183,7 +183,7 @@ class SessionDelegate: NSObject {
     /// Initializes the `SessionDelegate` instance.
     ///
     /// - returns: The new `SessionDelegate` instance.
-    override init() {
+    public override init() {
         super.init()
     }
 
@@ -195,7 +195,7 @@ class SessionDelegate: NSObject {
     /// - parameter selector: A selector that identifies a message.
     ///
     /// - returns: `true` if the receiver implements or inherits a method that can respond to selector, otherwise `false`.
-    override func responds(to selector: Selector) -> Bool {
+    public override func responds(to selector: Selector) -> Bool {
         #if !os(macOS)
             if selector == #selector(URLSessionDelegate.urlSessionDidFinishEvents(forBackgroundURLSession:)) {
                 return sessionDidFinishEventsForBackgroundURLSession != nil
@@ -241,7 +241,7 @@ extension SessionDelegate: URLSessionDelegate {
     ///
     /// - parameter session: The session object that was invalidated.
     /// - parameter error:   The error that caused invalidation, or nil if the invalidation was explicit.
-    func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+    public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
         sessionDidBecomeInvalidWithError?(session, error)
     }
 
@@ -252,7 +252,7 @@ extension SessionDelegate: URLSessionDelegate {
     /// - parameter challenge:         An object that contains the request for authentication.
     /// - parameter completionHandler: A handler that your delegate method must call providing the disposition
     ///                                and credential.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
         completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
@@ -291,7 +291,7 @@ extension SessionDelegate: URLSessionDelegate {
     /// Tells the delegate that all messages enqueued for a session have been delivered.
     ///
     /// - parameter session: The session that no longer has any outstanding requests.
-    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+    public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
         sessionDidFinishEventsForBackgroundURLSession?(session)
     }
 
@@ -310,7 +310,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
     /// - parameter completionHandler: A closure that your handler should call with either the value of the request
     ///                                parameter, a modified URL request object, or NULL to refuse the redirect and
     ///                                return the body of the redirect response.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         willPerformHTTPRedirection response: HTTPURLResponse,
@@ -338,7 +338,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
     /// - parameter challenge:         An object that contains the request for authentication.
     /// - parameter completionHandler: A handler that your delegate method must call providing the disposition
     ///                                and credential.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         didReceive challenge: URLAuthenticationChallenge,
@@ -369,7 +369,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
     /// - parameter session:           The session containing the task that needs a new body stream.
     /// - parameter task:              The task that needs a new body stream.
     /// - parameter completionHandler: A completion handler that your delegate method should call with the new body stream.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         needNewBodyStream completionHandler: @escaping (InputStream?) -> Void)
@@ -393,7 +393,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
     /// - parameter bytesSent:                The number of bytes sent since the last time this delegate method was called.
     /// - parameter totalBytesSent:           The total number of bytes sent so far.
     /// - parameter totalBytesExpectedToSend: The expected length of the body data.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         didSendBodyData bytesSent: Int64,
@@ -422,7 +422,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
     /// - parameter metrics: The collected metrics.
     @available(iOS 10.0, macOS 10.12, tvOS 10.0, *)
     @objc(URLSession:task:didFinishCollectingMetrics:)
-    func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
         self[task]?.delegate.metrics = metrics
     }
 
@@ -433,7 +433,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
     /// - parameter session: The session containing the task whose request finished transferring data.
     /// - parameter task:    The task whose request finished transferring data.
     /// - parameter error:   If an error occurred, an error object indicating how the transfer failed, otherwise nil.
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         /// Executed after it is determined that the request is not going to be retried
         let completeTask: (URLSession, URLSessionTask, Error?) -> Void = { [weak self] session, task, error in
             guard let strongSelf = self else { return }
@@ -508,7 +508,7 @@ extension SessionDelegate: URLSessionDataDelegate {
     /// - parameter completionHandler: A completion handler that your code calls to continue the transfer, passing a
     ///                                constant to indicate whether the transfer should continue as a data task or
     ///                                should become a download task.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         dataTask: URLSessionDataTask,
         didReceive response: URLResponse,
@@ -533,7 +533,7 @@ extension SessionDelegate: URLSessionDataDelegate {
     /// - parameter session:      The session containing the task that was replaced by a download task.
     /// - parameter dataTask:     The data task that was replaced by a download task.
     /// - parameter downloadTask: The new download task that replaced the data task.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         dataTask: URLSessionDataTask,
         didBecome downloadTask: URLSessionDownloadTask)
@@ -550,7 +550,7 @@ extension SessionDelegate: URLSessionDataDelegate {
     /// - parameter session:  The session containing the data task that provided data.
     /// - parameter dataTask: The data task that provided data.
     /// - parameter data:     A data object containing the transferred data.
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         if let dataTaskDidReceiveData = dataTaskDidReceiveData {
             dataTaskDidReceiveData(session, dataTask, data)
         } else if let delegate = self[dataTask]?.delegate as? DataTaskDelegate {
@@ -569,7 +569,7 @@ extension SessionDelegate: URLSessionDataDelegate {
     ///                                response, a modified version of that response, or NULL to prevent caching the
     ///                                response. If your delegate implements this method, it must call this completion
     ///                                handler; otherwise, your app leaks memory.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         dataTask: URLSessionDataTask,
         willCacheResponse proposedResponse: CachedURLResponse,
@@ -605,7 +605,7 @@ extension SessionDelegate: URLSessionDownloadDelegate {
     /// - parameter location:     A file URL for the temporary file. Because the file is temporary, you must either
     ///                           open the file for reading or move it to a permanent location in your app’s sandbox
     ///                           container directory before returning from this delegate method.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL)
@@ -627,7 +627,7 @@ extension SessionDelegate: URLSessionDownloadDelegate {
     /// - parameter totalBytesExpectedToWrite: The expected length of the file, as provided by the Content-Length
     ///                                        header. If this header was not provided, the value is
     ///                                        `NSURLSessionTransferSizeUnknown`.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didWriteData bytesWritten: Int64,
@@ -657,7 +657,7 @@ extension SessionDelegate: URLSessionDownloadDelegate {
     ///                                 retrieved again.
     /// - parameter expectedTotalBytes: The expected length of the file, as provided by the Content-Length header.
     ///                                 If this header was not provided, the value is NSURLSessionTransferSizeUnknown.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didResumeAtOffset fileOffset: Int64,
@@ -686,7 +686,7 @@ extension SessionDelegate: URLSessionStreamDelegate {
     ///
     /// - parameter session:    The session.
     /// - parameter streamTask: The stream task.
-    func urlSession(_ session: URLSession, readClosedFor streamTask: URLSessionStreamTask) {
+    public func urlSession(_ session: URLSession, readClosedFor streamTask: URLSessionStreamTask) {
         streamTaskReadClosed?(session, streamTask)
     }
 
@@ -694,7 +694,7 @@ extension SessionDelegate: URLSessionStreamDelegate {
     ///
     /// - parameter session:    The session.
     /// - parameter streamTask: The stream task.
-    func urlSession(_ session: URLSession, writeClosedFor streamTask: URLSessionStreamTask) {
+    public func urlSession(_ session: URLSession, writeClosedFor streamTask: URLSessionStreamTask) {
         streamTaskWriteClosed?(session, streamTask)
     }
 
@@ -702,7 +702,7 @@ extension SessionDelegate: URLSessionStreamDelegate {
     ///
     /// - parameter session:    The session.
     /// - parameter streamTask: The stream task.
-    func urlSession(_ session: URLSession, betterRouteDiscoveredFor streamTask: URLSessionStreamTask) {
+    public func urlSession(_ session: URLSession, betterRouteDiscoveredFor streamTask: URLSessionStreamTask) {
         streamTaskBetterRouteDiscovered?(session, streamTask)
     }
 
@@ -712,7 +712,7 @@ extension SessionDelegate: URLSessionStreamDelegate {
     /// - parameter streamTask:   The stream task.
     /// - parameter inputStream:  The new input stream.
     /// - parameter outputStream: The new output stream.
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         streamTask: URLSessionStreamTask,
         didBecome inputStream: InputStream,

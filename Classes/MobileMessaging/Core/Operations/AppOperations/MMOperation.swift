@@ -8,4 +8,4 @@
 import Foundation
 
 extension Operation : NamedLogger {}
-class MMOperation : Operation {}
+open class MMOperation : Operation {}

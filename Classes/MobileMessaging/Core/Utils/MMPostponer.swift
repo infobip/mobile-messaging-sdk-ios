@@ -5,17 +5,17 @@
 //
 
 import Foundation
-class MMPostponer: NSObject {
+public class MMPostponer: NSObject {
 	private var block: (() -> Void)?
 	private var schedulerQueue = MMQueue.Serial.New.PostponerQueue.queue
 	private var timer: DispatchSourceTimer?
 	private var executionQueue: DispatchQueue
 	
-	init(executionQueue: DispatchQueue) {
+	public init(executionQueue: DispatchQueue) {
 		self.executionQueue = executionQueue
 	}
 	
-	func postponeBlock(delay: Double = 2000, block: @escaping () -> Void) {
+	public func postponeBlock(delay: Double = 2000, block: @escaping () -> Void) {
 		schedulerQueue.async {
 			self.invalidateTimer()
 			self.block = block

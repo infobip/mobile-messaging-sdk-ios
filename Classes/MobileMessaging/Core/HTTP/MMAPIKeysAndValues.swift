@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct Consts {
+internal typealias Consts = MMConsts
+public struct MMConsts {
 
 	struct UserSessions {
 		static let sessionTimeoutSec = 30.0
@@ -208,8 +209,8 @@ struct Consts {
 		static let messageId = "messageId"
 	}
 
-	struct APIValues {
-		static let prodDynamicBaseURLString = "https://mobile.infobip.com"
+	public struct APIValues {
+		public static let prodDynamicBaseURLString = "https://mobile.infobip.com"
         static let amgDynamicBaseURLString = "https://api.infobip.com"
 		static let platformType = "APNS"
 		

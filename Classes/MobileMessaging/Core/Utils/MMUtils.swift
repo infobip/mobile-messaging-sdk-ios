@@ -103,7 +103,7 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
     }
 }
 
-extension MobileMessaging {
+public extension MobileMessaging {
     class var currentInstallation: MMInstallation? {
         return MobileMessaging.getInstallation()
     }
@@ -191,7 +191,7 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: Hashable {
     }
 }
 
-extension String {
+public extension String {
     var stableHash: Int {
         let unicodeScalars = self.unicodeScalars.map { $0.value }
         return unicodeScalars.reduce(5381) {
@@ -403,7 +403,7 @@ func !=(lhs : [AnyHashable : MMAttributeType], rhs: [AnyHashable : MMAttributeTy
     return !NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
-protocol DictionaryRepresentable {
+public protocol DictionaryRepresentable {
     init?(dictRepresentation dict: DictionaryRepresentation)
     var dictionaryRepresentation: DictionaryRepresentation {get}
 }
@@ -438,24 +438,24 @@ public extension UIDevice {
     }
 }
 
-class MMDate {
-    var now: Date {
+public class MMDate {
+    public var now: Date {
         return Date()
     }
     
-    func timeInterval(sinceNow timeInterval: TimeInterval) -> Date {
+    public func timeInterval(sinceNow timeInterval: TimeInterval) -> Date {
         return Date(timeIntervalSinceNow: timeInterval)
     }
     
-    func timeInterval(since1970 timeInterval: TimeInterval) -> Date {
+    public func timeInterval(since1970 timeInterval: TimeInterval) -> Date {
         return Date(timeIntervalSince1970: timeInterval)
     }
     
-    func timeInterval(sinceReferenceDate timeInterval: TimeInterval) -> Date {
+    public func timeInterval(sinceReferenceDate timeInterval: TimeInterval) -> Date {
         return Date(timeIntervalSinceReferenceDate: timeInterval)
     }
     
-    func timeInterval(_ timeInterval: TimeInterval, since date: Date) -> Date {
+    public func timeInterval(_ timeInterval: TimeInterval, since date: Date) -> Date {
         return Date(timeInterval: timeInterval, since: date)
     }
 }
@@ -716,7 +716,7 @@ extension UIColor {
         return UIColor.colorMod255(243, 27, 0)
     }
     
-    convenience init(hexString: String, alpha: CGFloat = 1.0) {
+    public convenience init(hexString: String, alpha: CGFloat = 1.0) {
         let hexString: String = hexString.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         let scanner = Scanner(string: hexString)
         if (hexString.hasPrefix("#")) {
@@ -734,7 +734,7 @@ extension UIColor {
         self.init(red:red, green:green, blue:blue, alpha:alpha)
     }
     
-    func mmHexStringFromColor() -> String {
+    public func mmHexStringFromColor() -> String {
         var components = self.cgColor.components
         guard components?.count == 3 else {
             return "#000000" // case for .black
@@ -816,7 +816,7 @@ extension Set {
     }
 }
 
-class ThreadSafeDict<T> {
+public class ThreadSafeDict<T> {
     private var dict: [String: T] = [:]
     private var queue: DispatchQueue = DispatchQueue.init(label: "", qos: .default, attributes: [.concurrent])
     func set(value: T?, forKey key: String) {

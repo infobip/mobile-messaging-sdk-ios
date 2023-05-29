@@ -53,7 +53,7 @@ internal enum Type :Int{
 }
 
 // MARK: - JSON Base
-internal struct JSON {
+public struct JSON {
 
     /**
      Creates a JSON using the data.
@@ -233,13 +233,13 @@ internal enum JSONIndex:Comparable
 
 }
 
-internal enum JSONRawIndex: Comparable
+public enum JSONRawIndex: Comparable
 {
     case array(Int)
     case dictionary(DictionaryIndex<String, Any>)
     case null
 
-    static internal func ==(lhs: JSONRawIndex, rhs: JSONRawIndex) -> Bool
+    static public func ==(lhs: JSONRawIndex, rhs: JSONRawIndex) -> Bool
     {
         switch (lhs, rhs)
         {
@@ -253,7 +253,7 @@ internal enum JSONRawIndex: Comparable
         }
     }
 
-    static internal func <(lhs: JSONRawIndex, rhs: JSONRawIndex) -> Bool
+    static public func <(lhs: JSONRawIndex, rhs: JSONRawIndex) -> Bool
     {
         switch (lhs, rhs)
         {
@@ -272,9 +272,9 @@ internal enum JSONRawIndex: Comparable
 extension JSON: Collection
 {
 
-    internal typealias Index = JSONRawIndex
+    public typealias Index = JSONRawIndex
 
-    internal var startIndex: Index
+    public var startIndex: Index
     {
         switch type
         {
@@ -287,7 +287,7 @@ extension JSON: Collection
         }
     }
 
-    internal var endIndex: Index
+    public var endIndex: Index
     {
         switch type
         {
@@ -300,7 +300,7 @@ extension JSON: Collection
         }
     }
 
-    internal func index(after i: Index) -> Index
+    public func index(after i: Index) -> Index
     {
         switch i
         {
@@ -314,7 +314,7 @@ extension JSON: Collection
 
     }
 
-    internal subscript (position: Index) -> (String, JSON)
+    public subscript (position: Index) -> (String, JSON)
     {
         switch position
         {
@@ -336,24 +336,24 @@ extension JSON: Collection
 /**
  *  To mark both String and Int can be used in subscript.
  */
-internal enum JSONKey
+public enum JSONKey
 {
     case index(Int)
     case key(String)
 }
 
-internal protocol JSONSubscriptType {
+public protocol JSONSubscriptType {
     var jsonKey:JSONKey { get }
 }
 
 extension Int: JSONSubscriptType {
-    internal var jsonKey:JSONKey {
+    public var jsonKey:JSONKey {
         return JSONKey.index(self)
     }
 }
 
 extension String: JSONSubscriptType {
-    internal var jsonKey:JSONKey {
+    public var jsonKey:JSONKey {
         return JSONKey.key(self)
     }
 }
@@ -435,7 +435,7 @@ extension JSON {
 
      - returns: Return a json found by the path or a null json with error
      */
-    internal subscript(path: [JSONSubscriptType]) -> JSON {
+    public subscript(path: [JSONSubscriptType]) -> JSON {
         get {
             return path.reduce(self) { $0[sub: $1] }
         }
@@ -465,7 +465,7 @@ extension JSON {
 
      - returns: Return a json found by the path or a null json with error
      */
-    internal subscript(path: JSONSubscriptType...) -> JSON {
+    public subscript(path: JSONSubscriptType...) -> JSON {
         get {
             return self[path]
         }
@@ -479,47 +479,47 @@ extension JSON {
 
 extension JSON: Swift.ExpressibleByStringLiteral {
 
-    internal init(stringLiteral value: StringLiteralType) {
+    public init(stringLiteral value: StringLiteralType) {
         self.init(value as Any)
     }
 
-    internal init(extendedGraphemeClusterLiteral value: StringLiteralType) {
+    public init(extendedGraphemeClusterLiteral value: StringLiteralType) {
         self.init(value as Any)
     }
 
-    internal init(unicodeScalarLiteral value: StringLiteralType) {
+    public init(unicodeScalarLiteral value: StringLiteralType) {
         self.init(value as Any)
     }
 }
 
 extension JSON: Swift.ExpressibleByIntegerLiteral {
 
-    internal init(integerLiteral value: IntegerLiteralType) {
+    public init(integerLiteral value: IntegerLiteralType) {
         self.init(value as Any)
     }
 }
 
 extension JSON: Swift.ExpressibleByBooleanLiteral {
 
-    internal init(booleanLiteral value: BooleanLiteralType) {
+    public init(booleanLiteral value: BooleanLiteralType) {
         self.init(value as Any)
     }
 }
 
 extension JSON: Swift.ExpressibleByFloatLiteral {
 
-    internal init(floatLiteral value: FloatLiteralType) {
+    public init(floatLiteral value: FloatLiteralType) {
         self.init(value as Any)
     }
 }
 
 extension JSON: Swift.ExpressibleByDictionaryLiteral {
-    internal init(dictionaryLiteral elements: (String, Any)...) {
+    public init(dictionaryLiteral elements: (String, Any)...) {
         let array = elements
         self.init(dictionaryLiteral: array)
     }
 
-    internal init(dictionaryLiteral elements: [(String, Any)]) {
+    public init(dictionaryLiteral elements: [(String, Any)]) {
         let jsonFromDictionaryLiteral: ([String : Any]) -> JSON = { dictionary in
             let initializeElement = Array(dictionary.keys).compactMap { key -> (String, Any)? in
                 if let value = dictionary[key] {
@@ -555,7 +555,7 @@ extension JSON: Swift.ExpressibleByDictionaryLiteral {
 
 extension JSON: Swift.ExpressibleByArrayLiteral {
 
-    internal init(arrayLiteral elements: Any...) {
+    public init(arrayLiteral elements: Any...) {
         self.init(elements as Any)
     }
 }
@@ -563,7 +563,7 @@ extension JSON: Swift.ExpressibleByArrayLiteral {
 extension JSON: Swift.ExpressibleByNilLiteral {
 
     @available(*, deprecated, message: "use JSON.null instead. Will be removed in future versions")
-    internal init(nilLiteral: ()) {
+    public init(nilLiteral: ()) {
         self.init(NSNull() as Any)
     }
 }
@@ -572,7 +572,7 @@ extension JSON: Swift.ExpressibleByNilLiteral {
 
 extension JSON: Swift.RawRepresentable {
 
-    internal init?(rawValue: Any) {
+    public init?(rawValue: Any) {
         if JSON(rawValue).type == .unknown {
             return nil
         } else {
@@ -580,11 +580,11 @@ extension JSON: Swift.RawRepresentable {
         }
     }
 
-    internal var rawValue: Any {
+    public var rawValue: Any {
         return self.object
     }
 
-    internal func rawData(options opt: JSONSerialization.WritingOptions = JSONSerialization.WritingOptions(rawValue: 0)) throws -> Data {
+    public func rawData(options opt: JSONSerialization.WritingOptions = JSONSerialization.WritingOptions(rawValue: 0)) throws -> Data {
         guard JSONSerialization.isValidJSONObject(self.object) else {
             throw NSError(domain: ErrorDomain, code: ErrorInvalidJSON, userInfo: [NSLocalizedDescriptionKey: "JSON is invalid"])
         }
@@ -592,7 +592,7 @@ extension JSON: Swift.RawRepresentable {
         return try JSONSerialization.data(withJSONObject: self.object, options: opt)
     }
 
-    internal func rawString(_ encoding: String.Encoding = String.Encoding.utf8, options opt: JSONSerialization.WritingOptions = .prettyPrinted) -> String? {
+    public func rawString(_ encoding: String.Encoding = String.Encoding.utf8, options opt: JSONSerialization.WritingOptions = .prettyPrinted) -> String? {
         switch self.type {
         case .array, .dictionary:
             do {
@@ -619,7 +619,7 @@ extension JSON: Swift.RawRepresentable {
 
 extension JSON: Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible {
 
-    internal var description: String {
+    public var description: String {
         if let string = self.rawString(options:.prettyPrinted) {
             return string
         } else {
@@ -627,7 +627,7 @@ extension JSON: Swift.CustomStringConvertible, Swift.CustomDebugStringConvertibl
         }
     }
 
-    internal var debugDescription: String {
+    public var debugDescription: String {
         return description
     }
 }
@@ -679,7 +679,7 @@ extension JSON {
 extension JSON {
 
     //Optional [String : JSON]
-    internal var dictionary: [String : JSON]? {
+    public var dictionary: [String : JSON]? {
         if self.type == .dictionary {
             var d = [String : JSON](minimumCapacity: rawDictionary.count)
             for (key, value) in rawDictionary {
@@ -692,13 +692,13 @@ extension JSON {
     }
 
     //Non-optional [String : JSON]
-    internal var dictionaryValue: [String : JSON] {
+    public var dictionaryValue: [String : JSON] {
         return self.dictionary ?? [:]
     }
 
     //Optional [String : Any]
 
-    internal var dictionaryObject: [String : Any]? {
+    public var dictionaryObject: [String : Any]? {
         get {
             switch self.type {
             case .dictionary:
@@ -722,7 +722,7 @@ extension JSON {
 extension JSON { // : Swift.Bool
 
     //Optional bool
-    internal var bool: Bool? {
+    public var bool: Bool? {
         get {
             switch self.type {
             case .bool:
@@ -741,7 +741,7 @@ extension JSON { // : Swift.Bool
     }
 
     //Non-optional bool
-    internal var boolValue: Bool {
+    public var boolValue: Bool {
         get {
             switch self.type {
             case .bool:
@@ -767,7 +767,7 @@ extension JSON { // : Swift.Bool
 extension JSON {
 
     //Optional string
-    internal var string: String? {
+    public var string: String? {
         get {
             switch self.type {
             case .string:
@@ -786,7 +786,7 @@ extension JSON {
     }
 
     //Non-optional string
-    internal var stringValue: String {
+    public var stringValue: String {
         get {
             switch self.type {
             case .string:
@@ -974,7 +974,7 @@ extension JSON {
         }
     }
 
-    internal var uInt: UInt? {
+    public var uInt: UInt? {
         get {
             return self.number?.uintValue
         }
@@ -1176,7 +1176,7 @@ extension JSON {
 //MARK: - Comparable
 extension JSON : Swift.Comparable {}
 
-internal func ==(lhs: JSON, rhs: JSON) -> Bool {
+public func ==(lhs: JSON, rhs: JSON) -> Bool {
 
     switch (lhs.type, rhs.type) {
     case (.number, .number):
@@ -1196,7 +1196,7 @@ internal func ==(lhs: JSON, rhs: JSON) -> Bool {
     }
 }
 
-internal func <=(lhs: JSON, rhs: JSON) -> Bool {
+public func <=(lhs: JSON, rhs: JSON) -> Bool {
 
     switch (lhs.type, rhs.type) {
     case (.number, .number):
@@ -1216,7 +1216,7 @@ internal func <=(lhs: JSON, rhs: JSON) -> Bool {
     }
 }
 
-internal func >=(lhs: JSON, rhs: JSON) -> Bool {
+public func >=(lhs: JSON, rhs: JSON) -> Bool {
 
     switch (lhs.type, rhs.type) {
     case (.number, .number):
@@ -1236,7 +1236,7 @@ internal func >=(lhs: JSON, rhs: JSON) -> Bool {
     }
 }
 
-internal func >(lhs: JSON, rhs: JSON) -> Bool {
+public func >(lhs: JSON, rhs: JSON) -> Bool {
 
     switch (lhs.type, rhs.type) {
     case (.number, .number):
@@ -1248,7 +1248,7 @@ internal func >(lhs: JSON, rhs: JSON) -> Bool {
     }
 }
 
-internal func <(lhs: JSON, rhs: JSON) -> Bool {
+public func <(lhs: JSON, rhs: JSON) -> Bool {
 
     switch (lhs.type, rhs.type) {
     case (.number, .number):

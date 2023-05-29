@@ -8,12 +8,62 @@
 import Foundation
 import WebKit
 
+public protocol MMPropertyLoopable: NSObject
+{
+    func allProperties() throws -> [String: Any]
+    func reversedColors()
+}
+
+public extension MMPropertyLoopable
+{
+    func allProperties() throws -> [String: Any] {
+        var result: [String: Any] = [:]
+        let mirror = Mirror(reflecting: self)
+        guard let style = mirror.displayStyle, style == .struct || style == .class else {
+            throw NSError(domain: "com.infobip", code: -1, userInfo: nil)
+        }
+        for (labelMaybe, valueMaybe) in mirror.children {
+            guard let label = labelMaybe else { continue }
+            result[label] = valueMaybe
+        }
+        return result
+    }
+
+    func reversedColors() {
+        let properties = try? self.allProperties()
+        for property in properties ?? [:] {
+            if let color = property.value as? UIColor {
+                self.setValue(color.inverted, forKey: property.key)
+            }
+        }
+    }
+}
+
 private typealias CBC = ComposeBarConsts
 
-public class MMChatSettings: NSObject {
-	
-    public static let sharedInstance = MMChatSettings()
-    
+@objcMembers
+public class MMChatSettings: NSObject, MMPropertyLoopable {
+    public static var settings: MMChatSettings = MMChatSettings()
+    public static var darkSettings: MMChatSettings?
+    // You can define your own custom appearance for chat view by accessing a chat settings object.
+    public private(set) static var sharedInstance: MMChatSettings {
+        get {
+            if MMChatSettings.isDarkMode {
+                if (darkSettings == nil) {
+                    darkSettings = MMChatSettings()
+                    darkSettings?.reversedColors()
+                    darkSettings?.advancedSettings.reversedColors()
+                }
+                return darkSettings ?? settings
+            } else {
+                return settings
+            }
+        }
+        set {
+            settings = newValue
+        }
+    }
+
     func postAppearanceChangedNotification() {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "com.mobile-messaging.chat.settings.updated"), object: self)
     }
@@ -28,9 +78,24 @@ public class MMChatSettings: NSObject {
     public var backgroungColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    
     public var advancedSettings: MMAdvancedChatSettings = MMAdvancedChatSettings() { didSet { postAppearanceChangedNotification() } }
+
     public var multithreadBackButton: UIBarButtonItem?
-	
+    
+    public static var colorTheme: ColorTheme = .light {
+        didSet {
+            switch colorTheme {
+            case .light: MMChatSettings.isDarkMode = false
+            case .dark: MMChatSettings.isDarkMode = true
+            default: return
+            }
+        }
+    }
+    internal static var isDarkMode: Bool = false { didSet {
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "com.mobile-messaging.chat.settings.updated"), object: MMChatSettings.sharedInstance)
+    } }
+        
     func update(withChatWidget widget: ChatWidget) {
         if let widgetTitle = widget.title, title == nil {
             title = widgetTitle
@@ -53,7 +118,7 @@ public class MMChatSettings: NSObject {
     }
     
     internal static var advSettings: MMAdvancedChatSettings? {
-        return MobileMessaging.inAppChat?.settings.advancedSettings
+        return MMChatSettings.sharedInstance.advancedSettings
     }
     internal static func getMainFont() -> UIFont {
         return advSettings?.mainFont ?? CBC.kMainFont
@@ -69,14 +134,18 @@ public class MMChatSettings: NSObject {
     }
     internal static func getSendButtonIcon() -> UIImage? {
         return advSettings?.sendButtonIcon ?? CBC.kSendButtonIcon
-    }    
+    }
     internal static func getAttachmentButtonIcon() -> UIImage? {
         return advSettings?.attachmentButtonIcon ?? CBC.kAttachmentButtonIcon
     }
-
+    
+    public enum ColorTheme {
+        case light, dark, auto
+    }
 }
 
-public class MMAdvancedChatSettings: NSObject {
+@objcMembers
+public class MMAdvancedChatSettings: NSObject, MMPropertyLoopable {
     public var textContainerTopMargin: CGFloat         = CBC.kTextContainerTopMargin
     public var textContainerBottomMargin: CGFloat      = CBC.kTextContainerBottomMargin
     public var textContainerLeftPadding: CGFloat       = CBC.kTextContainerLeftPadding
@@ -186,6 +255,15 @@ extension MMChatSettings {
         if let errorLabelBackgroundColor = rawConfig[MMChatSettings.Keys.errorLabelBackgroundColor] as? String {
             self.errorLabelBackgroundColor = UIColor(hexString: errorLabelBackgroundColor)
         }
+    }
+}
+
+extension UIColor {
+    var inverted: UIColor? {
+        // Invert the color by subtracting each RGB component from 1.0
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        guard getRed(&red, green: &green, blue: &blue, alpha: &alpha) else { return nil }
+        return UIColor(red: 1.0 - red, green: 1.0 - green, blue: 1.0 - blue, alpha: alpha)
     }
 }
 

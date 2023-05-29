@@ -7,22 +7,22 @@
 
 import Foundation
 
-class HealthyRegistrationCondition : OperationCondition {
-	static var name: String { get { return String(describing: self) } }
+public class HealthyRegistrationCondition : OperationCondition {
+    public static var name: String { get { return String(describing: self) } }
 	
 	let mmContext: MobileMessaging
 
-	init(mmContext: MobileMessaging) {
+    public init(mmContext: MobileMessaging) {
 		self.mmContext = mmContext
 	}
 
-	static var isMutuallyExclusive: Bool = false
+    public static var isMutuallyExclusive: Bool = false
 
-	func dependencyForOperation(_ operation: Operation) -> Foundation.Operation? {
+    public func dependencyForOperation(_ operation: Operation) -> Foundation.Operation? {
 		return nil
 	}
 
-	func evaluateForOperation(_ operation: Operation, completion: @escaping (OperationConditionResult) -> Void) {
+    public func evaluateForOperation(_ operation: Operation, completion: @escaping (OperationConditionResult) -> Void) {
 		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			operation.logWarn("Registration is not healthy. Finishing...")
 			completion(OperationConditionResult.failed(NSError(type: MMInternalErrorType.InvalidRegistration)))

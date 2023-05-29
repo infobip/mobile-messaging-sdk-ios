@@ -19,8 +19,8 @@ extension MM_MTMessage {
 	}
 }
 
-extension UNNotificationPresentationOptions {
-	static func make(with userNotificationType: MMUserNotificationType) -> UNNotificationPresentationOptions {
+public extension UNNotificationPresentationOptions {
+    static func make(with userNotificationType: MMUserNotificationType) -> UNNotificationPresentationOptions {
 		var ret: UNNotificationPresentationOptions = []
 		if userNotificationType.contains(options: .alert) {
 			ret.insert(.alert)

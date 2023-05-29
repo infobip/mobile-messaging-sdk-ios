@@ -61,11 +61,11 @@ public enum MMGender: Int {
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
 
-	required init?(dictRepresentation dict: DictionaryRepresentation) {
+    required public init?(dictRepresentation dict: DictionaryRepresentation) {
 		fatalError("init(dictRepresentation:) has not been implemented")
 	}
 
-	var dictionaryRepresentation: DictionaryRepresentation {
+    public var dictionaryRepresentation: DictionaryRepresentation {
 		return ["number": number]
 	}
 
@@ -80,7 +80,7 @@ public enum MMGender: Int {
 		return self.number == object.number // preferred is not supported yet on mobile api
 	}
 
-	convenience init?(json: JSON) {
+    convenience public init?(json: JSON) {
 		let preferred = false
 		guard let number = json["number"].string else { // preferred is not supported yet on mobile api
 			return nil
@@ -109,11 +109,11 @@ public enum MMGender: Int {
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
 
-	required init?(dictRepresentation dict: DictionaryRepresentation) {
+    required public init?(dictRepresentation dict: DictionaryRepresentation) {
 		fatalError("init(dictRepresentation:) has not been implemented")
 	}
 
-	var dictionaryRepresentation: DictionaryRepresentation {
+    public var dictionaryRepresentation: DictionaryRepresentation {
 		return ["address": address]
 	}
 
@@ -128,7 +128,7 @@ public enum MMGender: Int {
 		return self.address == object.address
 	}
 
-	convenience init?(json: JSON) {
+    convenience public init?(json: JSON) {
 		let preferred = false
 		guard let address = json["address"].string else { // preferred is not supported yet on mobile api
 			return nil
@@ -252,14 +252,14 @@ public enum MMGender: Int {
 }
 
 @objcMembers public final class MMUser: MMUserAttributes, JSONDecodable, NSCoding, NSCopying, Archivable {
-	var version: Int = 0
-	static var currentPath = getDocumentsDirectory(filename: "user")
-	static var dirtyPath = getDocumentsDirectory(filename: "dirty-user")
-	static var cached = ThreadSafeDict<MMUser>()
-	static var empty: MMUser {
+    public var version: Int = 0
+    public static var currentPath = getDocumentsDirectory(filename: "user")
+    public static var dirtyPath = getDocumentsDirectory(filename: "dirty-user")
+    public static var cached = ThreadSafeDict<MMUser>()
+    public static var empty: MMUser {
 		return MMUser(externalUserId: nil, firstName: nil, middleName: nil, lastName: nil, phones: nil, emails: nil, tags: nil, gender: nil, birthday: nil, customAttributes: nil, installations: nil)
 	}
-	func removeSensitiveData() {
+    public func removeSensitiveData() {
 		if MobileMessaging.privacySettings.userDataPersistingDisabled == true {
 			self.firstName = nil
 			self.middleName = nil
@@ -272,10 +272,10 @@ public enum MMGender: Int {
 			self.externalUserId = nil
 		}
 	}
-	func handleCurrentChanges(old: MMUser, new: MMUser) {
+    public func handleCurrentChanges(old: MMUser, new: MMUser) {
 		// nothing to do
 	}
-	func handleDirtyChanges(old: MMUser, new: MMUser) {
+    public func handleDirtyChanges(old: MMUser, new: MMUser) {
 		// nothing to do
 	}
 
@@ -338,7 +338,7 @@ public enum MMGender: Int {
 		self.emails = emails
 	}
 
-	convenience init?(json value: JSON) {
+    convenience public init?(json value: JSON) {
 		self.init(externalUserId: value[Attributes.externalUserId.rawValue].string,
 				  firstName: value[Attributes.firstName.rawValue].string,
 				  middleName: value[Attributes.middleName.rawValue].string,

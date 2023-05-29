@@ -26,7 +26,7 @@ NSString* MMNotificationInstallationSynced = @"com.mobile-messaging.notification
 NSString* MMNotificationCenterAuthRequestFinished = @"com.mobile-messaging.notification.nc-auth-request-finished";
 NSString* MMNotificationInAppChatAvailabilityUpdated = @"com.mobile-messaging.notification.inappchat-availability-updated";
 NSString* MMNotificationInAppChatUnreadMessagesCounterUpdated = @"com.mobile-messaging.notification.inappchat-unread-messages-counter-updated";
-
+NSString* MMNotificationInAppChatViewChanged = @"com.mobile-messaging.notification.inappchat-view-changed";
 
 
 //MARK: Notification keys
@@ -56,3 +56,4 @@ NSString* MMNotificationKeyGranted = @"com.mobile-messaging.notification.key.gra
 NSString* MMNotificationKeyError = @"com.mobile-messaging.notification.key.error";
 NSString* MMNotificationKeyInAppChatEnabled = @"com.mobile-messaging.notification.inappchat-enabled";
 NSString* MMNotificationKeyInAppChatUnreadMessagesCounter = @"com.mobile-messaging.notification.key.inappchat-unread-messages-counter";
+NSString* MMNotificationKeyInAppChatViewChanged = @"com.mobile-messaging.notification.key.inappchat-view-state-changed";

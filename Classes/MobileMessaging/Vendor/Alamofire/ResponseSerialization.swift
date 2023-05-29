@@ -286,7 +286,7 @@ extension DataRequest {
     ///
     /// - returns: The request.
     @discardableResult
-    func responseData(
+    public func responseData(
         queue: DispatchQueue? = nil,
         completionHandler: @escaping (DataResponse<Data>) -> Void)
         -> Self
@@ -326,7 +326,7 @@ extension DownloadRequest {
     ///
     /// - returns: The request.
     @discardableResult
-    func responseData(
+    public func responseData(
         queue: DispatchQueue? = nil,
         completionHandler: @escaping (DownloadResponse<Data>) -> Void)
         -> Self

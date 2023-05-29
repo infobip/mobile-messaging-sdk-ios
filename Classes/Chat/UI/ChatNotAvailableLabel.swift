@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class ChatNotAvailableLabel: UILabel {
     static var kMinHeight: CGFloat = 40.0

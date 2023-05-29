@@ -7,8 +7,8 @@
 
 import Foundation
 
-class RemoteAPIProvider: SessionManagement {
-	var sessionManager: DynamicBaseUrlHTTPSessionManager
+public class RemoteAPIProvider: SessionManagement {
+    public var sessionManager: DynamicBaseUrlHTTPSessionManager
 
 	init(sessionManager: DynamicBaseUrlHTTPSessionManager) {
 		self.sessionManager = sessionManager
@@ -108,14 +108,14 @@ class RemoteAPIProvider: SessionManagement {
 	}
 }
 
-protocol SessionManagement {
+public protocol SessionManagement {
 	var sessionManager: DynamicBaseUrlHTTPSessionManager { get }
 	func convertJSONToResult<Response: JSONDecodable>(request: RequestData, json: JSON?, error: NSError?) -> MMResult<Response>
 	func performRequest<Response: JSONDecodable>(request: RequestData, queue: DispatchQueue, completion: @escaping (MMResult<Response>) -> Void)
 }
 
 extension SessionManagement {
-	func convertJSONToResult<Response: JSONDecodable>(request: RequestData, json: JSON?, error: NSError?) -> MMResult<Response> {
+    public func convertJSONToResult<Response: JSONDecodable>(request: RequestData, json: JSON?, error: NSError?) -> MMResult<Response> {
 		if let error = error {
 			return MMResult.Failure(error)
 		} else {
@@ -126,7 +126,7 @@ extension SessionManagement {
 			}
 		}
 	}
-    func performRequest<Response: JSONDecodable>(request: RequestData, queue: DispatchQueue, completion: @escaping (MMResult<Response>) -> Void) {
+    public func performRequest<Response: JSONDecodable>(request: RequestData, queue: DispatchQueue, completion: @escaping (MMResult<Response>) -> Void) {
         sessionManager.getDataResponse(request, queue: queue, completion: {
             UserEventsManager.postApiErrorEvent($1)
 			completion(self.convertJSONToResult(request: request, json: $0, error: $1))

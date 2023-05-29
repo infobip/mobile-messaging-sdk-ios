@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class ComposeBar_Button: UIButton {
     var enabledTintColor: UIColor! = UIColor.black {

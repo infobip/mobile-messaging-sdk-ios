@@ -8,12 +8,12 @@
 
 import Foundation
 
-enum MMResult<ValueType> {
+public enum MMResult<ValueType> {
 	case Success(ValueType)
 	case Failure(NSError?)
 	case Cancel
 
-	var value: ValueType? {
+	public var value: ValueType? {
 		switch self {
 		case .Success(let value):
 			return value
@@ -22,7 +22,7 @@ enum MMResult<ValueType> {
 		}
 	}
 
-	var error: NSError? {
+    public var error: NSError? {
 		switch self {
 		case .Success, .Cancel:
 			return nil
@@ -91,11 +91,11 @@ public struct MMRequestError {
 }
 
 //MARK: - JSON encoding/decoding
-protocol JSONDecodable {
+public protocol JSONDecodable {
 	init?(json: JSON)
 }
 
-protocol JSONEncodable {
+public protocol JSONEncodable {
 	func toJSON() -> JSON
 }
 
@@ -105,7 +105,7 @@ extension EmptyResponse: JSONDecodable {
 }
 
 extension MMRequestError: JSONDecodable {
-	init?(json value: JSON) {
+    public init?(json value: JSON) {
 		let serviceException = value[Consts.APIKeys.requestError][Consts.APIKeys.serviceException]
 		guard
 			let text = serviceException[Consts.APIKeys.errorText].string,

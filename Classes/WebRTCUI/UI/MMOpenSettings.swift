@@ -7,6 +7,7 @@
 
 import Foundation
 import AVFoundation
+import UIKit
 #if WEBRTCUI_ENABLED
 
 public protocol MMOpenSettings {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum APIPath: String {
+public enum APIPath: String {
 	case SeenMessages = "/mobile/2/messages/seen"
 	case SyncMessages = "/mobile/5/messages"
 	case MOMessage = "/mobile/1/messages/mo"
@@ -179,11 +179,11 @@ class PostPersonalize: PostRequest {
 
 //MARK: - Base
 
-typealias RequestBody = [String: Any]
-typealias RequestParameters = [String: Any]
+public typealias RequestBody = [String: Any]
+public typealias RequestParameters = [String: Any]
 
-class RequestData {
-    init(applicationCode: String, accessToken: String?, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
+open class RequestData {
+    public init(applicationCode: String, accessToken: String?, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
 		self.applicationCode = applicationCode
 		self.method = method
 		self.path = path
@@ -231,8 +231,8 @@ class RequestData {
 	}
 }
 
-class GetRequest: RequestData {
-    init(applicationCode: String, accessToken: String? = nil, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
+open class GetRequest: RequestData {
+    public init(applicationCode: String, accessToken: String? = nil, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
         super.init(applicationCode: applicationCode, accessToken: accessToken, method: .get, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, baseUrl: baseUrl)
 	}
 }

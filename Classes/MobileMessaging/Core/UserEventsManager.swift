@@ -8,7 +8,7 @@
 
 import Foundation
 
-class UserEventsManager {
+public class UserEventsManager {
 
 	class func postApiErrorEvent(_ error: NSError?) {
 		if let error = error {
@@ -88,7 +88,7 @@ class UserEventsManager {
 		post(MMNotificationCenterAuthRequestFinished, userInfo)
 	}
 
-	class func post(_ name: String, _ userInfo: [String: Any]? = nil) {
+    public class func post(_ name: String, _ userInfo: [String: Any]? = nil) {
         DispatchQueue.main.async {
 			NotificationCenter.default.post(name: NSNotification.Name(rawValue: name), object: self, userInfo: userInfo)
 		}

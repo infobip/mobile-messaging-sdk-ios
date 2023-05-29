@@ -86,11 +86,11 @@ public class MMWebRTCService: MobileMessagingService {
 	///In-app Chat delegate, can be set to receive additional chat info.
 	public var delegate: MMWebRTCDelegate?
     
-	override var systemData: [String: AnyHashable]? {
+    public override var systemData: [String: AnyHashable]? {
 		return ["webrtcui": true]
 	}
 
-    override func suspend() {
+    public override func suspend() {
         MMLogDebug("webrtcui service suspended")
         NotificationCenter.default.removeObserver(self)
         disableCallPushCredentials()
@@ -106,7 +106,7 @@ public class MMWebRTCService: MobileMessagingService {
         super.stopService(completion)
     }
 
-	override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+    public override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
         start { _ in completion() }
 	}
     
@@ -120,7 +120,7 @@ public class MMWebRTCService: MobileMessagingService {
         super.start(completion)
     }
 
-    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+    public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
         syncWithServer({_ in completion() })
     }
 

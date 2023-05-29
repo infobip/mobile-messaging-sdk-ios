@@ -25,7 +25,7 @@
 import Foundation
 
 /// Responsible for creating and managing `Request` objects, as well as their underlying `NSURLSession`.
-class SessionManager {
+public class SessionManager {
 
     // MARK: - Helper Types
 
@@ -121,7 +121,7 @@ class SessionManager {
     static let multipartFormDataEncodingMemoryThreshold: UInt64 = 10_000_000
 
     /// The underlying session.
-    let session: URLSession
+    public let session: URLSession
 
     /// The session delegate handling all the task and session delegate callbacks.
     let delegate: SessionDelegate
@@ -163,7 +163,7 @@ class SessionManager {
     ///                                       challenges. `nil` by default.
     ///
     /// - returns: The new `SessionManager` instance.
-    init(
+    public init(
         configuration: URLSessionConfiguration = URLSessionConfiguration.default,
         delegate: SessionDelegate = SessionDelegate(),
         serverTrustPolicyManager: ServerTrustPolicyManager? = nil)
@@ -182,7 +182,7 @@ class SessionManager {
     ///                                       challenges. `nil` by default.
     ///
     /// - returns: The new `SessionManager` instance if the URL session's delegate matches; `nil` otherwise.
-    init?(
+    public init?(
         session: URLSession,
         delegate: SessionDelegate,
         serverTrustPolicyManager: ServerTrustPolicyManager? = nil)
@@ -344,7 +344,7 @@ class SessionManager {
     ///
     /// - returns: The created `DownloadRequest`.
     @discardableResult
-    func download(
+    public func download(
         _ urlRequest: URLRequestConvertible,
         to destination: DownloadRequest.DownloadFileDestination? = nil)
         -> DownloadRequest
@@ -381,7 +381,7 @@ class SessionManager {
     ///
     /// - returns: The created `DownloadRequest`.
     @discardableResult
-    func download(
+    public func download(
         resumingWith resumeData: Data,
         to destination: DownloadRequest.DownloadFileDestination? = nil)
         -> DownloadRequest

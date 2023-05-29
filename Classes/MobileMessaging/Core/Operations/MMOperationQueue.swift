@@ -7,8 +7,8 @@
 
 import UIKit
 
-class MMOperationQueue: OperationQueue, NamedLogger {
-	func addOperationExclusively(_ operation: Foundation.Operation) -> Bool {
+public class MMOperationQueue: OperationQueue, NamedLogger {
+	public func addOperationExclusively(_ operation: Foundation.Operation) -> Bool {
         guard operations.contains(where: { type(of: $0) == type(of: operation) && ($0.isFinished || $0.isCancelled) }) == false else
 		{
 			logDebug("\(type(of: operation)) was not queued because a queue is already taken with the same kind of operation.")
@@ -18,7 +18,7 @@ class MMOperationQueue: OperationQueue, NamedLogger {
 		return true
 	}
 	
-	override init() {
+	public override init() {
 		super.init()
 		self.name = self.queueName
 	}
@@ -32,7 +32,7 @@ class MMOperationQueue: OperationQueue, NamedLogger {
 		return "com.mobile-messaging.default-queue"
 	}
 
-    static func newSerialQueue(underlyingQueue: DispatchQueue?) -> MMOperationQueue {
+    public static func newSerialQueue(underlyingQueue: DispatchQueue?) -> MMOperationQueue {
 		let newQ = MMOperationQueue()
 		newQ.maxConcurrentOperationCount = 1
         newQ.underlyingQueue = underlyingQueue

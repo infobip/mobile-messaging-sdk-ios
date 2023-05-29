@@ -27,7 +27,11 @@ extension UIViewController {
 }
 
 extension MMCallController: ApplicationCallEventListener {
+    public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) {
+        
+    }
 
+    
     var activeApplicationCall: ApplicationCall? {
         switch activeCall {
         case .applicationCall(let applicationCall):

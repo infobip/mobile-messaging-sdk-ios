@@ -6,7 +6,7 @@
 //
 
 import WebKit
-
+import UIKit
 ///Key component to use for displaying In-app chat view.
 ///We support two ways to quickly embed it into your own application:
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
@@ -60,6 +60,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         super.loadView()
         setupWebView()
         setupChatNotAvailableLabel()
+        handleColorTheme()
     }
     
     open override func viewDidLoad() {
@@ -69,6 +70,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         registerToChatSettingsChanges()
         let bckgColor = settings?.backgroungColor ?? .white
         webView.backgroundColor = bckgColor
+        webView.isOpaque = false
         view.backgroundColor = bckgColor
     }
     
@@ -164,6 +166,20 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             composerBar.sendButtonTintColor = sendButtonTintColor
             composerBar.utilityButtonTintColor = sendButtonTintColor
         }
+        
+        brandComposer()
+        
+        let bckgColor = settings.backgroungColor ?? .white
+        webView.backgroundColor = bckgColor
+        view.backgroundColor = bckgColor
+    }
+
+    public func showThreadsList() {
+        webView.showThreadsList(completion: { [weak self] error in
+            if let error = error {
+                self?.logError(error.description)
+            }
+        })
     }
               
     @objc private func onInterceptedBackTap() {
@@ -172,11 +188,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         // action of going "back", we interpret the chat webview state and decide if we actuall pop from navigation
         // or we invoke a method in the chat widget to go back to the thread list.
         if isChattingInMultithread {
-            webView.showThreadList(completion: { [weak self] error in
-                if let error = error {
-                    self?.logError(error.description)
-                }
-            })
+            showThreadsList()
         } else if presentingViewController != nil {
             dismiss(animated: true) // viewController is a modal
         } else {
@@ -201,6 +213,21 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         })
     }
     
+    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        let css: String? = {
+            switch MMChatSettings.colorTheme {
+            case .dark: return "img {-webkit-filter: invert(100%);} html {-webkit-filter: invert(100%);}"
+            case .auto: return "@media (prefers-color-scheme: dark) { img {-webkit-filter: invert(100%);} html {-webkit-filter: invert(100%);}}"
+            case .light: return nil /// In case of light theme we dont need to inject css
+            }
+        }()
+        
+        guard let css = css else { return }
+        let script = "var style = document.createElement('style'); style.innerHTML = '\(css)'; document.head.appendChild(style);"
+        let cssScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        webView.configuration.userContentController.addUserScript(cssScript)
+    }
+    
     func didEnableControls(_ enabled: Bool) {
         webView.isUserInteractionEnabled = enabled
         webView.isLoaded = enabled
@@ -215,7 +242,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     override var isComposeBarVisible: Bool {
         didSet {
             if oldValue != isComposeBarVisible {
-                setComposeBarVisibility(isVisible: isComposeBarVisible)
+                self.setComposeBarVisibility(isVisible: self.isComposeBarVisible)
             } else if !isComposeBarVisible && !composeBarView.isHidden {
                 // In some cases (ie the first time a multithread widget is loaded), we want to hide the
                 // composer without animation.
@@ -319,7 +346,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
                                          completion: @escaping (_ error: NSError?) -> Void) {
         webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
     }
-    
+
     func didChangeView(_ state: MMChatWebViewState) {
         guard chatWidget?.isMultithread ?? false else {
             isComposeBarVisible = true
@@ -411,5 +438,23 @@ extension MMChatViewController: WKNavigationDelegate {
         logDebug("will open URL: \(url)")
         UIApplication.shared.open(url)
         decisionHandler(.cancel)
+    }
+}
+
+extension MMChatViewController {
+    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+            handleColorTheme()
+        }
+    }
+    
+    func handleColorTheme() {
+        MMChatSettings.isDarkMode = {
+            switch MMChatSettings.colorTheme {
+            case .auto: return traitCollection.userInterfaceStyle == .dark
+            case .dark: return true
+            case .light: return false
+            }
+        }()
     }
 }

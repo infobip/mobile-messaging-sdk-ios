@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class ComposeBar_TextView: UITextView {
 	var primitiveContentOffset: CGPoint {

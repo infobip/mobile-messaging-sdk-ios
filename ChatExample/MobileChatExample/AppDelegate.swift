@@ -17,26 +17,26 @@ let webrtcApplicationId = "<# your webrtc app id #>"
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-	var window: UIWindow?
-	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    var window: UIWindow?
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         MobileMessaging.withApplicationCode(
             mmApplicationCode, notificationType: .alert)?.withInAppChat().withCalls(webrtcApplicationId).start()
-		MobileMessaging.logger?.logLevel = .All
-		MobileMessaging.logger?.logOutput = .Console
+        MobileMessaging.logger?.logLevel = .All
+        MobileMessaging.logger?.logOutput = .Console
         MobileMessaging.webRTCService?.callAppIcon = UIImage(named: "alphaLogo")
         MobileMessaging.webRTCService?.settings.inboundCallSoundFileName = "MMInboundCall.wav" // filename for audio file in your project
         //MobileMessaging.webRTCService?.delegate = self // Set a delegate for webrtc if you want to handle calls yourself
         //customiseCallsUI() // Change the colors, icons and sounds of the call UI
-		return true
-	}
+        return true
+    }
 
-	func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-		MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
-	}
-	
-	func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
-	}
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+    }
 }
 
 //Uncomment if you wish to customise the provided calls UI

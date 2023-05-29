@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol Archivable: ArchivableCurrent {
+public protocol Archivable: ArchivableCurrent {
 	var version: Int {get set}
 	static var dirtyPath: String {get}
 	func archiveAll()
@@ -20,7 +20,7 @@ protocol Archivable: ArchivableCurrent {
 	static func modifyDirty(with block: (Self) -> Void)
 }
 
-protocol ArchivableCurrent {
+public protocol ArchivableCurrent {
 	static var empty: Self {get}
 	static var cached: ThreadSafeDict<Self> {get}
 	static var currentPath: String {get}
@@ -36,14 +36,14 @@ protocol ArchivableCurrent {
 }
 
 extension ArchivableCurrent where Self: NSCopying {
-	func archiveCurrent() {
+    public func archiveCurrent() {
 		let old = Self.unarchiveCurrent()
         MMLogVerbose("Setting cached value \(Thread.current.description) \(Self.currentPath)")
 		Self.cached.set(value: self.copy() as? Self, forKey: Self.currentPath)
 		archive(at: Self.currentPath)
 		handleCurrentChanges(old: old, new: self)
 	}
-	func archive(at path: String) {
+    public func archive(at path: String) {
         MMLogVerbose("Archiving \(Thread.current.description) at \(path)")
 		let save = self.copy() as! Self
 		save.removeSensitiveData()
@@ -54,12 +54,12 @@ extension ArchivableCurrent where Self: NSCopying {
             MMLogError("Unexpected error while archiving at \(path): \(error)")
         }
 	}
-	static func resetCurrent() {
+    public static func resetCurrent() {
         MMLogVerbose("Resetting cached value \(Thread.current.description) \(Self.currentPath)")
 		Self.cached.set(value: nil, forKey: Self.currentPath)
 		Self.removeArchive(at: Self.currentPath)
 	}
-	static func unarchiveCurrent() -> Self {
+    public static func unarchiveCurrent() -> Self {
 		if let cached = Self.cached.getValue(forKey: Self.currentPath), let ret = cached.copy() as? Self {
             MMLogVerbose("Using cached value \(Thread.current.description) \(Self.currentPath)")
 			return ret
@@ -70,7 +70,7 @@ extension ArchivableCurrent where Self: NSCopying {
 			return current
 		}
 	}
-    static func unarchive(from path: String) -> Self? {
+    public static func unarchive(from path: String) -> Self? {
         let url = URL(fileURLWithPath: path)
         if let data = try? Data(contentsOf: url) {
             let unarchived = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? Self
@@ -80,7 +80,7 @@ extension ArchivableCurrent where Self: NSCopying {
             return nil
         }
     }
-	static func removeArchive(at path: String) {
+    public static func removeArchive(at path: String) {
 		MMLogVerbose("Removing archive \(Thread.current.description) at \(path)")
 		do {
 			try FileManager.default.removeItem(atPath: path)
@@ -88,7 +88,7 @@ extension ArchivableCurrent where Self: NSCopying {
 			MMLogError("Unexpected error while removing archive at \(path): \(error)")
 		}
 	}
-	static func modifyCurrent(with block: (Self) -> Void) {
+    public static func modifyCurrent(with block: (Self) -> Void) {
 		let o = Self.unarchiveCurrent()
 		block(o)
 		o.archiveCurrent()
@@ -96,11 +96,11 @@ extension ArchivableCurrent where Self: NSCopying {
 }
 
 extension Archivable where Self: NSCopying {
-	func archiveAll() {
+    public func archiveAll() {
 		archiveDirty()
 		archiveCurrent()
 	}
-	func archiveDirty() {
+    public func archiveDirty() {
 		if var copy = self.copy() as? Self {
 			copy.version = version + 1
 			let old = Self.unarchiveDirty()
@@ -110,16 +110,16 @@ extension Archivable where Self: NSCopying {
 			handleDirtyChanges(old: old, new: self)
 		}
 	}
-	static func resetAll() {
+    public static func resetAll() {
 		Self.resetDirty()
 		Self.resetCurrent()
 	}
-	static func resetDirty() {
+    public static func resetDirty() {
         MMLogVerbose("Resetting dirty \(Thread.current.description) \(Self.dirtyPath)")
 		Self.cached.set(value: nil, forKey: Self.dirtyPath)
 		Self.removeArchive(at: Self.dirtyPath)
 	}
-	static func unarchiveDirty() -> Self {
+    public static func unarchiveDirty() -> Self {
 		if let cached = Self.cached.getValue(forKey: Self.dirtyPath), let ret = cached.copy() as? Self {
             MMLogVerbose("Using cached value \(Thread.current.description) \(Self.dirtyPath)")
 			return ret
@@ -130,11 +130,11 @@ extension Archivable where Self: NSCopying {
 			return dirty
 		}
 	}
-	static func modifyAll(with block: (Self) -> Void) {
+    public static func modifyAll(with block: (Self) -> Void) {
 		Self.modifyDirty(with: block)
 		Self.modifyCurrent(with: block)
 	}
-	static func modifyDirty(with block: (Self) -> Void) {
+    public static func modifyDirty(with block: (Self) -> Void) {
 		let du = Self.unarchiveDirty()
 		block(du)
 		du.archiveDirty()

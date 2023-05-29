@@ -14,5 +14,12 @@ public struct MMWebRTCNotificationData {
     internal var activeCall: ActiveCall?
     internal var customData: [AnyHashable: Any]?
     internal var pushPKCredentials: PKPushCredentials?
+    internal var hasVideo: Bool {
+        if let customData = customData,
+           let isVideoString = customData["isVideo"] as? String {
+            return isVideoString == "true" ? true : false
+        }
+        return false
+    }
 }
 #endif
