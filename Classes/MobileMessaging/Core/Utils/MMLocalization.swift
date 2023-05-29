@@ -19,7 +19,11 @@ class MMLocalization {
 		guard let key = key else {
 			return defaultString
 		}
+        #if SWIFT_PACKAGE
+        return NSLocalizedString(key, tableName: "MobileMessaging", bundle: Bundle.module, value: defaultString, comment: "")
+        #else
 		return MMLocalization.sharedInstance.localizedString(forKey: key, defaultString: defaultString)
+        #endif
 	}
     
     private class func languageBundle() -> Bundle {

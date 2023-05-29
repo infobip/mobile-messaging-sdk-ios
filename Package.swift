@@ -13,7 +13,8 @@ let package = Package(
             targets: ["MobileMessaging", "MobileMessagingObjC"]),
     ],
     targets: [
-        .target(name: "MobileMessaging", dependencies: ["MobileMessagingObjC"], path: "Classes/MobileMessaging"),
+        .target(name: "MobileMessaging", dependencies: ["MobileMessagingObjC"], path: "Classes/MobileMessaging", resources: [
+            .process("Resources/InteractiveNotifications/PredefinedNotificationCategories.plist")]),
         .target(name: "MobileMessagingObjC", path: "Classes/MobileMessagingObjC", exclude: ["Core/Plugins/MobileMessagingPluginApplicationDelegate.m", "Headers/MobileMessagingPluginApplicationDelegate.h"], publicHeadersPath: "Headers"),
     ]
 )
