@@ -7,15 +7,18 @@
 
 import Foundation
 import WebKit
+import UIKit
 
 class ChatAttachmentPreview: UIView {
     var contentView: UIView?
+    let bckgrColor = MMChatSettings.sharedInstance.attachmentPreviewBarsColor ?? .black
+    let vTintColor = MMChatSettings.sharedInstance.attachmentPreviewItemsColor ?? .white
     
     lazy var activityIndicatior: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(frame: bounds)
         activityIndicator.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
         if #available(iOS 13, *) {
-            activityIndicator.color = UIColor.white
+            activityIndicator.color = vTintColor
             activityIndicator.style = .large
         } else {
             activityIndicator.style = .whiteLarge
@@ -29,7 +32,7 @@ class ChatAttachmentPreview: UIView {
         view.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
         view.contentMode = .center
         view.isHidden = true
-        view.tintColor = .white
+        view.tintColor = vTintColor
         view.backgroundColor = .clear
         return view
     }()
@@ -41,11 +44,13 @@ class ChatAttachmentPreview: UIView {
         activityIndicatior.stopAnimating()
     }
     func showError(){
-        errorView.isHidden = false
+        DispatchQueue.main.async {
+            self.errorView.isHidden = false
+        }
     }
     
     func setupViews() {
-        backgroundColor = .black
+        backgroundColor = bckgrColor
         if let contentView = contentView {
             addSubview(contentView)
         }
@@ -95,8 +100,8 @@ class ChatAttachmentVideoPreview: ChatAttachmentWebViewPreview {
             showError()
             return
         }
-        
-        webView.loadHTMLString("<video style=\"background-color: #000000; height: 100%; width: 100%;\" src=\(destinationURL.lastPathComponent) controls playsinline></video>", baseURL: destinationURL.deletingLastPathComponent())
+        let hexBckgroundColor = bckgrColor.mmHexStringFromColor()
+        webView.loadHTMLString("<video style=\"background-color: \(hexBckgroundColor); height: 100%; width: 100%;\" src=\(destinationURL.lastPathComponent) controls playsinline></video>", baseURL: destinationURL.deletingLastPathComponent())
     }
 }
 
@@ -121,8 +126,8 @@ class ChatAttachmentWebViewPreview: ChatAttachmentPreview {
         webView.contentMode = .scaleAspectFit
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         webView.isOpaque = false
-        webView.scrollView.backgroundColor = .black
-        webView.backgroundColor = .black
+        webView.scrollView.backgroundColor = bckgrColor
+        webView.backgroundColor = bckgrColor
         return webView
     }()
     

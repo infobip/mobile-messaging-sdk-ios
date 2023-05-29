@@ -36,9 +36,13 @@ extension MMWebRTCService: PKPushRegistryDelegate {
         #if DEBUG
             isDebugging = true
         #endif
-        InfobipRTC.enablePushNotification(token, pushCredentials: pushCreds, debug: isDebugging, { [weak self] result in
+    
+        
+        
+        
+        getInfobipRTCInstance().enablePushNotification(token, pushCredentials: pushCreds, debug: isDebugging, { [weak self] result in
             switch result.status {
-            case .FAILURE:
+            case .failure:
                 MMLogDebug("Failure: can't obtain WebRTC regitration Token")
                 self?.isRegistered = false
                 if isRetry {
@@ -71,7 +75,7 @@ extension MMWebRTCService: PKPushRegistryDelegate {
                 if enabling {
                     self?.requestCallPushEnabling(with: response.token)
                 } else { // otherwise we want to stop calls
-                    InfobipRTC.disablePushNotification(response.token)
+                    getInfobipRTCInstance().disablePushNotification(response.token)
                     MMLogDebug("disableCallPushCredentials successfully called")
                     statusCode = .success
                     self?.isRegistered = false
@@ -104,16 +108,21 @@ extension MMWebRTCService: PKPushRegistryDelegate {
     public func pushRegistry(_ registry: PKPushRegistry,
                       didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType) {
         // WARNING: Do not modify the following code unless you know what you are doing. Unhandled push payloads
-        // for calls have negative effects for the app execution and installations. 
+        // for calls have negative effects for the app execution and installations.
         if TARGET_OS_SIMULATOR != 0 {
            // Do nothing if running simulator, ignore call
         } else if type == .voIP {
             if notificationData == nil { notificationData = MMWebRTCNotificationData() }
             MMLogSecureDebug(String(format: "Received VoIP Push Notification %@", payload.dictionaryPayload))
-           if InfobipRTC.isIncomingApplicationCall(payload) {
-               InfobipRTC.handleIncomingApplicationCall(payload, self)
-               saveCallNotificationData(payload)
-            } // Other types of calls are not yet supported
+            saveCallNotificationData(payload)
+           if getInfobipRTCInstance().isIncomingApplicationCall(payload) {
+               getInfobipRTCInstance().handleIncomingApplicationCall(payload, self)
+            } else if getInfobipRTCInstance().isIncomingCall(payload) {
+                getInfobipRTCInstance().handleIncomingCall(payload, self)
+            } else {
+                notificationData = nil
+            }
+            // Other types of calls are not yet supported
         }
     }
     
@@ -136,7 +145,7 @@ extension MMWebRTCService: PKPushRegistryDelegate {
             case .Failure(let error):
                 MMLogError(error?.localizedDescription ?? "Unknown error in  MMWebRTCToken.obtain")
             case .Success(let response):
-               InfobipRTC.disablePushNotification(response.token)
+                getInfobipRTCInstance().disablePushNotification(response.token)
             case .Cancel:
                 MMLogWarn(" MMWebRTCToken.obtain request cancelled.")
             }
@@ -166,34 +175,53 @@ extension MMWebRTCService: PKPushRegistryDelegate {
 }
 
 extension MMWebRTCService: ApplicationCallEventListener {
+    public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) {
+        
+    }
+
     public func onEstablished(_ callEstablishedEvent: CallEstablishedEvent) {
-        if let applicationCall = notificationData?.inboundAppCall {
+
+        switch notificationData?.activeCall {
+        case .applicationCall(let applicationCall):
             if let delegate = delegate {
                 delegate.inboundCallEstablished(applicationCall, event: callEstablishedEvent)
-            } else if let callController = MobileMessaging.webrtcService?.getInboundCallController(
+            } else if let callController = MobileMessaging.webRTCService?.getInboundCallController(
                 incoming: applicationCall, establishedEvent: callEstablishedEvent) {
                 PIPKit.show(with: callController)
             }
+        case .webRTCCall(let webRTCCall):
+            if let delegate = delegate {
+                delegate.inboundWebRTCCallEstablished(webRTCCall, event: callEstablishedEvent)
+            } else if let callController = MobileMessaging.webRTCService?.getInboundCallController(
+                incoming: webRTCCall, establishedEvent: callEstablishedEvent) {
+                PIPKit.show(with: callController)
+            }
+        default: return
         }
-        notificationData?.inboundAppCall = nil
+        notificationData?.activeCall = nil
     }
     
     public func onHangup(_ : CallHangupEvent) {
-        finishApplicationCall()
+        finishCall()
     }
     
-    public func onCallError(_ callErrorEvent: CallErrorEvent) {
+    public func onCallError(_ callErrorEvent: ErrorEvent) {
         // Any error before establishing will end the call. Other non call errors handles by the listener
         // ase handles in onError
-        finishApplicationCall()
+        finishCall()
     }
     
-    private func finishApplicationCall() {
-        if let appCall = notificationData?.inboundAppCall {
-            CallKitManager.shared.endApplicationCall(appCall)
-            notificationData?.inboundAppCall?.applicationCallEventListener = nil
-            notificationData?.inboundAppCall = nil
+    private func finishCall() {
+        switch notificationData?.activeCall {
+        case .applicationCall(let applicationCall):
+            CallKitManager.shared.endApplicationCall(applicationCall)
+            applicationCall.applicationCallEventListener = nil
+        case .webRTCCall(let webRTCCall):
+            CallKitManager.shared.endWebRTCCall(webRTCCall)
+            webRTCCall.webrtcCallEventListener = nil
+        default: return
         }
+        notificationData?.activeCall = nil
     }
     
     // The folling functions are to be handled, after call is established, by the UI component of your choice
@@ -222,12 +250,35 @@ extension MMWebRTCService: ApplicationCallEventListener {
     public func onParticipantLeft(_ participantLeftEvent: ParticipantLeftEvent) { }
 }
 
+extension MMWebRTCService: WebrtcCallEventListener {
+    public func onRemoteCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) { }
+    
+    public func onRemoteCameraVideoRemoved() { }
+    
+    public func onRemoteScreenShareAdded(_ screenShareAddedEvent: ScreenShareAddedEvent) { }
+    
+    public func onRemoteScreenShareRemoved() { }
+    
+    public func onRemoteMuted() { }
+    
+    public func onRemoteUnmuted() { }
+}
+
+extension MMWebRTCService: IncomingCallEventListener {
+    public func onIncomingWebrtcCall(_ incomingWebrtcCallEvent: IncomingWebrtcCallEvent) {
+        let incomingWebRTCCall = incomingWebrtcCallEvent.incomingWebrtcCall
+        incomingWebRTCCall.webrtcCallEventListener = self
+        CallKitManager.shared.startIncomingWebrtcCall(incomingWebRTCCall)
+        notificationData?.activeCall = .webRTCCall(incomingWebRTCCall)
+    }
+}
+
 extension MMWebRTCService: IncomingApplicationCallEventListener {
     public func onIncomingApplicationCall(_ incomingApplicationCallEvent: IncomingApplicationCallEvent) {
         let incomingApplicationCall = incomingApplicationCallEvent.incomingApplicationCall
         incomingApplicationCall.applicationCallEventListener = self
         CallKitManager.shared.startIncomingApplicationCall(incomingApplicationCall)
-        notificationData?.inboundAppCall = incomingApplicationCall
+        notificationData?.activeCall = .applicationCall(incomingApplicationCall)
     }
 }
 #endif

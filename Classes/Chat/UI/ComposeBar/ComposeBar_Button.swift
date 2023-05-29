@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import UIKit
 
 class ComposeBar_Button: UIButton {
-    var enabledTintColor: UIColor! = UIColor.systemBlue {
+    var enabledTintColor: UIColor! = UIColor.black {
         didSet {
             if (isEnabled) {
                 tintColor = enabledTintColor
@@ -39,7 +40,6 @@ class ComposeBar_Button: UIButton {
 class ComposeBar_Send_Button: ComposeBar_Button {
 	init() {
 		super.init(frame: CGRect.zero)
-		setImage(UIImage(mm_chat_named: "sendButton")?.withRenderingMode(.alwaysTemplate), for: .normal)
 		titleEdgeInsets = UIEdgeInsets(top: 0.5, left: 0, bottom: 0, right: 0)
 		tintColor = enabledTintColor
 	}

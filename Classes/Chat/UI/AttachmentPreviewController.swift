@@ -62,23 +62,7 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
         registerToChatSettingsChanges()
         loadAttachment(forURL: attachment.url)
     }
-    
-    func applySettings() {
-        guard let settings = MobileMessaging.inAppChat?.settings else {
-            return
-        }
-        if let attachmentPreviewBarsColor = settings.attachmentPreviewBarsColor {
-            navigationController?.toolbar.barTintColor = attachmentPreviewBarsColor
-            navigationController?.navigationBar.barTintColor = attachmentPreviewBarsColor
-        }
         
-        if let attachmentPreviewItemsColor = settings.attachmentPreviewItemsColor {
-            navigationController?.toolbar.tintColor = attachmentPreviewItemsColor
-            navigationController?.navigationBar.tintColor = attachmentPreviewItemsColor
-            navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : attachmentPreviewItemsColor]
-        }
-    }
-    
     static func makeRootInNavigationController(forAttachment attachment: ChatWebAttachment) -> UINavigationController {
         let nvc = UINavigationController(rootViewController: AttachmentPreviewController(type: .dismiss, attachment: attachment))
         nvc.modalPresentationStyle = .fullScreen
@@ -115,24 +99,28 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
         //toolbar
         setToolbarItems([UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil), shareButtonItem], animated: true)
         navigationController?.isToolbarHidden = false
-        navigationController?.toolbar.barTintColor = .black
-        navigationController?.toolbar.tintColor = .white
         navigationController?.toolbar.isTranslucent = false
-        
-        //navbar
-        navigationController?.navigationBar.tintColor = .white
+        applySettings()
+    }
     
+    func applySettings() {
+        let settings = MMChatSettings.sharedInstance
+        let backgroundTint = settings.attachmentPreviewBarsColor ?? UIColor.black
+        let itemsTint = settings.attachmentPreviewItemsColor ?? UIColor.white
+        navigationController?.toolbar.barTintColor = backgroundTint
+        navigationController?.toolbar.tintColor = itemsTint
+        navigationController?.navigationBar.tintColor = itemsTint
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : itemsTint]
+        navigationController?.navigationBar.barTintColor = backgroundTint
         if #available(iOS 15.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .black
-            appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+            appearance.backgroundColor = backgroundTint
+            appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: itemsTint]
             navigationController?.navigationBar.standardAppearance = appearance
             navigationController?.navigationBar.scrollEdgeAppearance = appearance
         } else {
-            navigationController?.navigationBar.barTintColor = .black
             navigationController?.navigationBar.isTranslucent = false
-            navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]
         }
     }
     

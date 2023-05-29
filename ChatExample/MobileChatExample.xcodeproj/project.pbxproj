@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		25F4F90E2A0E6CE70080E933 /* ColorThemeTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F4F90D2A0E6CE70080E933 /* ColorThemeTableVC.swift */; };
 		765259EA1FB5A99100058788 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765259E91FB5A99100058788 /* AppDelegate.swift */; };
 		765259EF1FB5A99100058788 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259ED1FB5A99100058788 /* Main.storyboard */; };
 		765259F11FB5A99100058788 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 765259F01FB5A99100058788 /* Assets.xcassets */; };
@@ -16,16 +17,15 @@
 		A85288CD285094BC00F7017D /* LanguageTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85288CC285094BC00F7017D /* LanguageTableVC.swift */; };
 		A87017A3290285FC00B696CE /* MMInboundCall.wav in Resources */ = {isa = PBXBuildFile; fileRef = A87017A0290285FC00B696CE /* MMInboundCall.wav */; };
 		A87017A62902887400B696CE /* alphaLogo.png in Resources */ = {isa = PBXBuildFile; fileRef = A87017A52902887400B696CE /* alphaLogo.png */; };
+		A88078AD29A8F38E0098074D /* sendIcon.svg in Resources */ = {isa = PBXBuildFile; fileRef = A88078AB29A8F38E0098074D /* sendIcon.svg */; };
+		A88078AE29A8F38E0098074D /* attachIcon.svg in Resources */ = {isa = PBXBuildFile; fileRef = A88078AC29A8F38E0098074D /* attachIcon.svg */; };
 		A8A47CF0292F6A5000CE630F /* PersonalizationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A47CEF292F6A5000CE630F /* PersonalizationVC.swift */; };
 		A8E560A029962C5200011F0C /* OptionListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E5609F29962C5200011F0C /* OptionListVC.swift */; };
 		A8E560A2299632D900011F0C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E560A1299632D900011F0C /* Constants.swift */; };
-		FAA291A396BF0A533DBB3B4F /* Pods_MobileChatExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 694B154DCBA19AEC2AE1F128 /* Pods_MobileChatExample.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		10E299AFC2C9A8CCA77105A4 /* Pods-MobileChatExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.release.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.release.xcconfig"; sourceTree = "<group>"; };
-		420929B6C6EDA76300A5E702 /* Pods-MobileChatExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.debug.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.debug.xcconfig"; sourceTree = "<group>"; };
-		694B154DCBA19AEC2AE1F128 /* Pods_MobileChatExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileChatExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		25F4F90D2A0E6CE70080E933 /* ColorThemeTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorThemeTableVC.swift; sourceTree = "<group>"; };
 		765259E61FB5A99100058788 /* MobileChatExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobileChatExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		765259E91FB5A99100058788 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		765259EE1FB5A99100058788 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -39,6 +39,8 @@
 		A85288CC285094BC00F7017D /* LanguageTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageTableVC.swift; sourceTree = "<group>"; };
 		A87017A0290285FC00B696CE /* MMInboundCall.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = MMInboundCall.wav; sourceTree = "<group>"; };
 		A87017A52902887400B696CE /* alphaLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = alphaLogo.png; sourceTree = "<group>"; };
+		A88078AB29A8F38E0098074D /* sendIcon.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sendIcon.svg; sourceTree = "<group>"; };
+		A88078AC29A8F38E0098074D /* attachIcon.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = attachIcon.svg; sourceTree = "<group>"; };
 		A8A47CEF292F6A5000CE630F /* PersonalizationVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersonalizationVC.swift; sourceTree = "<group>"; };
 		A8E5609F29962C5200011F0C /* OptionListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionListVC.swift; sourceTree = "<group>"; };
 		A8E560A1299632D900011F0C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -49,7 +51,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FAA291A396BF0A533DBB3B4F /* Pods_MobileChatExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,7 +61,6 @@
 			isa = PBXGroup;
 			children = (
 				A079185E28327CAC004309F5 /* MobileMessaging.xcframework */,
-				694B154DCBA19AEC2AE1F128 /* Pods_MobileChatExample.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -86,12 +86,13 @@
 		765259E81FB5A99100058788 /* MobileChatExample */ = {
 			isa = PBXGroup;
 			children = (
-				A87017A52902887400B696CE /* alphaLogo.png */,
+				A88078A829A8E0020098074D /* Resources */,
 				A870179E290285FC00B696CE /* Sounds */,
 				765259E91FB5A99100058788 /* AppDelegate.swift */,
 				765259FB1FB5AC3A00058788 /* MobileChatExample.entitlements */,
 				A8E5609F29962C5200011F0C /* OptionListVC.swift */,
 				A8A47CEF292F6A5000CE630F /* PersonalizationVC.swift */,
+				25F4F90D2A0E6CE70080E933 /* ColorThemeTableVC.swift */,
 				A85288CC285094BC00F7017D /* LanguageTableVC.swift */,
 				A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */,
 				A84C76AB2982B46F0039F9CD /* JWTClaims.swift */,
@@ -112,11 +113,19 @@
 			path = Sounds;
 			sourceTree = "<group>";
 		};
+		A88078A829A8E0020098074D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A88078AC29A8F38E0098074D /* attachIcon.svg */,
+				A88078AB29A8F38E0098074D /* sendIcon.svg */,
+				A87017A52902887400B696CE /* alphaLogo.png */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		FD2361AB9353549CAFF2B3EF /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				420929B6C6EDA76300A5E702 /* Pods-MobileChatExample.debug.xcconfig */,
-				10E299AFC2C9A8CCA77105A4 /* Pods-MobileChatExample.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -128,11 +137,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 765259F81FB5A99100058788 /* Build configuration list for PBXNativeTarget "MobileChatExample" */;
 			buildPhases = (
-				F0116B8C30E2328F2B413D47 /* [CP] Check Pods Manifest.lock */,
 				765259E21FB5A99100058788 /* Sources */,
 				765259E31FB5A99100058788 /* Frameworks */,
 				765259E41FB5A99100058788 /* Resources */,
-				925B38DAED4036114FF6B229 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -155,7 +162,7 @@
 				TargetAttributes = {
 					765259E51FB5A99100058788 = {
 						CreatedOnToolsVersion = 9.1;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -193,81 +200,21 @@
 				A87017A3290285FC00B696CE /* MMInboundCall.wav in Resources */,
 				765259F41FB5A99100058788 /* LaunchScreen.storyboard in Resources */,
 				765259F11FB5A99100058788 /* Assets.xcassets in Resources */,
+				A88078AD29A8F38E0098074D /* sendIcon.svg in Resources */,
 				765259EF1FB5A99100058788 /* Main.storyboard in Resources */,
+				A88078AE29A8F38E0098074D /* attachIcon.svg in Resources */,
 				A87017A62902887400B696CE /* alphaLogo.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		925B38DAED4036114FF6B229 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework",
-				"${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework",
-				"${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework",
-				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
-				"${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework",
-				"${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework",
-				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
-				"${BUILT_PRODUCTS_DIR}/MobileMessaging/MobileMessaging.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IBGoogleWebRTC/WebRTC.framework/WebRTC",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/InfobipRTC/InfobipRTC.framework/InfobipRTC",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cryptor.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorECC.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorRSA.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KituraContracts.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LoggerAPI.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessaging.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftJWT.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/InfobipRTC.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F0116B8C30E2328F2B413D47 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-MobileChatExample-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		765259E21FB5A99100058788 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25F4F90E2A0E6CE70080E933 /* ColorThemeTableVC.swift in Sources */,
 				A8E560A029962C5200011F0C /* OptionListVC.swift in Sources */,
 				A835D6B02982759E002FAB5B /* AuthenticatedChatVC.swift in Sources */,
 				A84C76AC2982B46F0039F9CD /* JWTClaims.swift in Sources */,
@@ -415,12 +362,11 @@
 		};
 		765259F91FB5A99100058788 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 420929B6C6EDA76300A5E702 /* Pods-MobileChatExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = MobileChatExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -434,12 +380,11 @@
 		};
 		765259FA1FB5A99100058788 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 10E299AFC2C9A8CCA77105A4 /* Pods-MobileChatExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = MobileChatExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

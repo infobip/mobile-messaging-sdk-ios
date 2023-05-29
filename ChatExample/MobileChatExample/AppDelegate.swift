@@ -17,26 +17,26 @@ let webrtcApplicationId = "<# your webrtc app id #>"
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-	var window: UIWindow?
-	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    var window: UIWindow?
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         MobileMessaging.withApplicationCode(
             mmApplicationCode, notificationType: .alert)?.withInAppChat().withCalls(webrtcApplicationId).start()
-		MobileMessaging.logger?.logLevel = .All
-		MobileMessaging.logger?.logOutput = .Console
-        MobileMessaging.webrtcService?.callAppIcon = UIImage(named: "alphaLogo")
-        MobileMessaging.webrtcService?.settings.inboundCallSoundFileName = "MMInboundCall.wav" // filename for audio file in your project
-        //MobileMessaging.webrtcService?.delegate = self // Set a delegate for webrtc if you want to handle calls yourself
+        MobileMessaging.logger?.logLevel = .All
+        MobileMessaging.logger?.logOutput = .Console
+        MobileMessaging.webRTCService?.callAppIcon = UIImage(named: "alphaLogo")
+        MobileMessaging.webRTCService?.settings.inboundCallSoundFileName = "MMInboundCall.wav" // filename for audio file in your project
+        //MobileMessaging.webRTCService?.delegate = self // Set a delegate for webrtc if you want to handle calls yourself
         //customiseCallsUI() // Change the colors, icons and sounds of the call UI
-		return true
-	}
+        return true
+    }
 
-	func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-		MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
-	}
-	
-	func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
-	}
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+    }
 }
 
 //Uncomment if you wish to customise the provided calls UI
@@ -52,13 +52,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             "rtc_ui_color_background": "#123456",
             "rtc_ui_color_overlay_background": "#234567",
             "rtc_ui_color_alert_background": "#987654"]
-        MobileMessaging.webrtcService?.settings.configureWith(rawConfig: colorConfig)
+        MobileMessaging.webRTCService?.settings.configureWith(rawConfig: colorConfig)
         // example on overwritting a color directly
-        MobileMessaging.webrtcService?.settings.backgroundColor = .darkGray
+        MobileMessaging.webRTCService?.settings.backgroundColor = .darkGray
         // example on overwritting a sound (wav or mp3 must be in your main bundle)
-        MobileMessaging.webrtcService?.settings.soundEndCall = NSDataAsset(name: "phone-ringing-sound")
+        MobileMessaging.webRTCService?.settings.soundEndCall = NSDataAsset(name: "phone-ringing-sound")
         // example on overwritting an icon (file must be in your main bundle)
-        MobileMessaging.webrtcService?.settings.iconAvatar = UIImage(named: "icon-user-border")
+        MobileMessaging.webRTCService?.settings.iconAvatar = UIImage(named: "icon-user-border")
     }
 }*/
 
@@ -66,10 +66,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 /*extension AppDelegate: MMWebRTCDelegate {
     func inboundCallEstablished(_ call: ApplicationCall, event: CallEstablishedEvent) {
         if let rootVC = window?.rootViewController?.children.first as? ViewController,
-        let callController = MobileMessaging.webrtcService?.getInboundCallController(incoming: call, establishedEvent: event) {
+        let callController = MobileMessaging.webRTCService?.getInboundCallController(incoming: call, establishedEvent: event) {
             /* Note: this is just an example. You are free to display and handle the call as you please:
-             1 - You can leave MobileMessaging.webrtcService.delegate empty. WebRTCUI will display the built-in UI for you.
-             2 - You can define a MobileMessaging.webrtcService.delegate, and handle the call by:
+             1 - You can leave MobileMessaging.webRTCService.delegate empty. WebRTCUI will display the built-in UI for you.
+             2 - You can define a MobileMessaging.webRTCService.delegate, and handle the call by:
                 a) Displaying/reusing our WebRTUI as you please
                 b) Using any custom UI of your own to handle the call
              */

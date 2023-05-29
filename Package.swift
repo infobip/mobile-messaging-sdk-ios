@@ -3,19 +3,42 @@ import PackageDescription
 
 let package = Package(
     name: "InfobipMobileMessaging",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v12)
     ],
     products: [
         .library(
-            name: "InfobipMobileMessaging",
-            targets: ["MobileMessagingWrapper"]),
+            name: "MobileMessaging",
+            targets: ["MobileMessaging", "MobileMessagingObjC"]),
+        .library(name: "InAppChat", targets: ["InAppChat"]),
+        .library(name: "WebRTCUI", targets: ["WebRTCUI"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/infobip/infobip-rtc-ios.git", "2.0.19"..<"2.0.21")
     ],
     targets: [
-        .target(name: "MobileMessagingWrapper", dependencies: ["MobileMessaging"]),
-        .binaryTarget(
-          name: "MobileMessaging",
-          url: "https://github.com/infobip/mobile-messaging-sdk-ios/releases/download/10.9.0/MobileMessaging.xcframework.zip",
-          checksum: "0184cc0617a92d4258529609247c432d507c36b650b367dd2d883e74c029010d"),
+        .target(name: "MobileMessaging", dependencies: ["MobileMessagingObjC"], path: "Classes/MobileMessaging", resources: [
+            .process("Resources/InteractiveNotifications/PredefinedNotificationCategories.plist")]),
+        .target(name: "MobileMessagingObjC", path: "Classes/MobileMessagingObjC", exclude: ["Core/Plugins/MobileMessagingPluginApplicationDelegate.m", "Headers/MobileMessagingPluginApplicationDelegate.h"], publicHeadersPath: "Headers"),
+        .target(
+            name: "InAppChat",
+            dependencies: [
+                "MobileMessaging",
+            ],
+            path: "Classes/Chat",
+            resources: [.copy("Resources/ChatConnector.html")]
+        ),
+        .target(
+            name: "WebRTCUI",
+            dependencies: [
+                "MobileMessaging",
+                .product(name: "InfobipRTC", package: "infobip-rtc-ios"),
+                .product(name: "WebRTC", package: "infobip-rtc-ios")
+            ],
+            path: "Classes/WebRTCUI",
+            cSettings: [.define("WEBRTCUI_ENABLED")],
+            swiftSettings: [.define("WEBRTCUI_ENABLED")]
+        )
     ]
 )

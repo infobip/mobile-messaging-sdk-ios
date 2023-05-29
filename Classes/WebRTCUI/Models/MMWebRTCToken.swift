@@ -12,11 +12,11 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
     public let token: String
     public let expirationTime: Date?
     
-    required init?(dictRepresentation dict: DictionaryRepresentation) {
+    required public init?(dictRepresentation dict: DictionaryRepresentation) {
         fatalError("init(dictRepresentation:) has not been implemented")
     }
 
-    var dictionaryRepresentation: DictionaryRepresentation {
+    public var dictionaryRepresentation: DictionaryRepresentation {
         return ["token": token]
     }
 
@@ -31,7 +31,7 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
         return self.token == object.token
     }
 
-    convenience init?(json: JSON) {
+    convenience public init?(json: JSON) {
         guard let code = json["token"].string else {
             return nil
         }
@@ -55,9 +55,9 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
     static func obtain(queue: DispatchQueue, completion: @escaping (MMResult<MMWebRTCToken>) -> Void) {
         guard let pushRegId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
         let appCode = MobileMessaging.sharedInstance?.applicationCode,
-        let webrtcAppId = MMWebRTCService.sharedInstance?.applicationId else { return }
+        let webRTCAppId = MMWebRTCService.sharedInstance?.applicationId else { return }
         let body: [String: Any] = ["identity": pushRegId,
-                                   "applicationId": webrtcAppId]
+                                   "applicationId": webRTCAppId]
         let request = MMWebRTCTokenRequest(
             applicationCode: appCode,
             pushRegistrationId: pushRegId,
@@ -72,7 +72,7 @@ class MMWebRTCTokenRequest: RequestData {
     init(applicationCode: String, pushRegistrationId: String?, body: RequestBody) {
         super.init(applicationCode: applicationCode, accessToken: nil, method: .post, path: .WebRTCToken,
                    pushRegistrationId: pushRegistrationId, body: body,
-                   baseUrl: URL(string: Consts.APIValues.prodDynamicBaseURLString))
+                   baseUrl: URL(string: MMConsts.APIValues.prodDynamicBaseURLString))
     }
 }
 #endif

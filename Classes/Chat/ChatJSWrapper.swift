@@ -21,7 +21,7 @@ protocol ChatJSWrapper {
     func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy,
                             completion: @escaping (_ error: NSError?) -> Void)
     func addViewChangedListener(completion: @escaping (_ error: NSError?) -> Void)
-    func showThreadList(completion: @escaping (_ error: NSError?) -> Void)
+    func showThreadsList(completion: @escaping (_ error: NSError?) -> Void)
 }
 
 @objc public enum MMChatMultiThreadStrategy: Int
@@ -118,9 +118,9 @@ extension WKWebView: ChatJSWrapper {
     }
     
     // This functions request a navigation from a thread chat to the thread list (possible if multithead is enabled)
-    func showThreadList(completion: @escaping (NSError?) -> Void) {
-        self.evaluateJavaScript("showThreadList()") { [weak self] (response, error) in
-            self?.logDebug("showThreadList got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+    func showThreadsList(completion: @escaping (NSError?) -> Void) {
+        self.evaluateJavaScript("showThreadsList()") { [weak self] (response, error) in
+            self?.logDebug("showThreadsList got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
         }
     }

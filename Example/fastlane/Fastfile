@@ -49,7 +49,9 @@ platform :ios do
 					clean: true,
 					skip_build: false,
 					scheme: "MobileMessagingExample",
-					devices: ["iPhone 11"]
+					devices: ["iPhone 11"],
+					code_coverage: true,
+					result_bundle: true
 					)
 			end
 		end
@@ -92,6 +94,7 @@ platform :ios do
 		cocoapods(repo_update: true)
 		test_on_simulator(options[:no_tests])
 		test_on_device(options[:no_device_tests])
+
 	end
 
 	desc "Build a release candidate and publish to Cocoapods"

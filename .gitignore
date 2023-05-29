@@ -27,8 +27,9 @@ Carthage
 # `pod install` in .travis.yml
 #
 # Pods/
-Pods/IBGoogleWebRTC/
-Pods/InfobipRTC/
+
+ChatExample/Pods/
+Pods/
 
 *.xcworkspace
 */Podfile.lock
@@ -41,15 +42,20 @@ Pods/InfobipRTC/
 macos/
 .application-code
 
-# swift package
-/.build
-/Packages
-/*.xcodeproj
-xcuserdata/
-DerivedData/
-.swiftpm/config/registries.json
-.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
-.netrc
+### Sonar ###
+#Sonar generated dir
+/.sonar/
 
-# testing local framework, remove may be?
-Sources/Framework
+### SonarQube ###
+# SonarQube ignore files.
+#
+# https://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner
+# Sonar Scanner working directories
+.sonar/
+.sonarqube/
+.scannerwork/
+
+# http://www.sonarlint.org/commandline/
+# SonarLint working directories, configuration files (including credentials)
+.sonarlint/
+sonarqube-generic-coverage.xml

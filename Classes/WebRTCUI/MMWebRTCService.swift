@@ -15,7 +15,7 @@ import InfobipRTC
 
 extension MobileMessaging {
 	/// You access the WebRTCUI service APIs through this property.
-	public class var webrtcService: MMWebRTCService? {
+	public class var webRTCService: MMWebRTCService? {
 		if MMWebRTCService.sharedInstance == nil {
 			guard let defaultContext = MobileMessaging.sharedInstance else {
 				return nil
@@ -48,6 +48,7 @@ extension MobileMessaging {
 @objc public protocol MMWebRTCDelegate {
     ///Called when the call has been accepted (from the OS popup/view) and we are ready to handle the control of the call to ourselves
     func inboundCallEstablished(_ call: ApplicationCall, event: CallEstablishedEvent)
+    func inboundWebRTCCallEstablished(_ call: WebrtcCall, event: CallEstablishedEvent)
     func callRegistrationEnded(with statusCode: MMWebRTCRegistrationCode, and error: Error?)
     func callUnregistrationEnded(with statusCode: MMWebRTCRegistrationCode, and error: Error?)
 }
@@ -62,12 +63,16 @@ public class MMWebRTCService: MobileMessagingService {
     public var applicationId: String? // webrtc application id to use for calls
 
     static let resourceBundle: Bundle = {
+    #if SWIFT_PACKAGE
+        return Bundle.module
+    #else
         guard let resourceBundleURL = MobileMessaging.bundle.url(forResource: "MMWebRTCUI", withExtension: "bundle"),
               let bundle = Bundle(url: resourceBundleURL) else {
             // in case of Carthage usage, MobileMessaging bundle will be used
             return MobileMessaging.bundle
         }
         return bundle
+    #endif
     }()
         
 	init(mmContext: MobileMessaging) {
@@ -81,11 +86,11 @@ public class MMWebRTCService: MobileMessagingService {
 	///In-app Chat delegate, can be set to receive additional chat info.
 	public var delegate: MMWebRTCDelegate?
     
-	override var systemData: [String: AnyHashable]? {
+    public override var systemData: [String: AnyHashable]? {
 		return ["webrtcui": true]
 	}
 
-    override func suspend() {
+    public override func suspend() {
         MMLogDebug("webrtcui service suspended")
         NotificationCenter.default.removeObserver(self)
         disableCallPushCredentials()
@@ -101,7 +106,7 @@ public class MMWebRTCService: MobileMessagingService {
         super.stopService(completion)
     }
 
-	override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+    public override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
         start { _ in completion() }
 	}
     
@@ -115,7 +120,7 @@ public class MMWebRTCService: MobileMessagingService {
         super.start(completion)
     }
 
-    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+    public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
         syncWithServer({_ in completion() })
     }
 

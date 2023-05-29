@@ -72,7 +72,7 @@ public class MMInboxService: MobileMessagingService {
         }
     }
     
-    override var systemData: [String: AnyHashable]? {
+    public override var systemData: [String: AnyHashable]? {
         return ["inbox": true]
     }
     
@@ -92,7 +92,7 @@ public class MMInboxService: MobileMessagingService {
         }
     }
     
-    override func stopService(_ completion: @escaping (Bool) -> Void) {
+    public override func stopService(_ completion: @escaping (Bool) -> Void) {
         super.stopService(completion)
         MMInboxService.sharedInstance = nil
     }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class ChatNotAvailableLabel: UILabel {
     static var kMinHeight: CGFloat = 40.0
@@ -29,8 +30,6 @@ class ChatNotAvailableLabel: UILabel {
     
     func initializeLabel() {
         textAlignment = .center
-        font = UIFont.systemFont(ofSize: 16)
-        backgroundColor = .lightGray
         autoresizingMask = [.flexibleWidth]
     }
     

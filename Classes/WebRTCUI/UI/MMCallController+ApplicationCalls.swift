@@ -27,31 +27,17 @@ extension UIViewController {
 }
 
 extension MMCallController: ApplicationCallEventListener {
-    public func onRinging(_ callRingingEvent: CallRingingEvent) {
-        ringing(callType: self.callType)
+    public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) {
+        
     }
 
-    public func onEarlyMedia(_ callEarlyMediaEvent: CallEarlyMediaEvent) {
-        self.stopRingback()
-        self.callStatusLabel.text = MMLoc.notificationRinging
-    }
     
-    public func onEstablished(_ callEstablishedEvent: CallEstablishedEvent) {
-        self.callEstablishedEvent = callEstablishedEvent
-        established(callEstablishedEvent: callEstablishedEvent)
-        self.startCallDuration()
-        if let appCall = self.activeApplicationCall {
-            CallKitManager.shared.connectApplicationCall(appCall.id())
-            if callType == .application_video {
-                // If call is (inbound) application video, we need to manually start local video
-                toggleVideo(videoStatusBottomView.localVideo)
-            }
+    var activeApplicationCall: ApplicationCall? {
+        switch activeCall {
+        case .applicationCall(let applicationCall):
+            return applicationCall
+        default: return nil
         }
-    }
-
-    public func onHangup(_ callHangupEvent: CallHangupEvent) {
-        let errorCode = callHangupEvent.errorCode
-        hangup(errorCodeName: errorCode.name)
     }
 
     public func onParticipantMuted(_ participantMutedEvent: ParticipantMutedEvent) {
@@ -82,68 +68,27 @@ extension MMCallController: ApplicationCallEventListener {
         // Not supported yet
     }
 
-    public func onError(_ errorEvent: ErrorEvent) {
-        if activeApplicationCall != nil {
-            onApplicationError(errorEvent.errorCode.description)
-        }
-    }
-
-    public func onCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) {
-        established(localVideoTrack: cameraVideoAddedEvent.track)
-    }
-
-    public func onCameraVideoUpdated(_ cameraVideoUpdatedEvent: CameraVideoUpdatedEvent) {
-        updated(localVideoTrack: cameraVideoUpdatedEvent.track)
-    }
-
-    public func onCameraVideoRemoved() {
-        localVideoView.isHidden = true
-        showActiveCallViewElements()
-    }
-
-    public func onScreenShareAdded(_ screenShareAddedEvent: ScreenShareAddedEvent) {
-        // Not supported, test from portal/webrtc demo
-    }
-
-    public func onScreenShareRemoved() {
-        // Not supported
-    }
-
     public func onParticipantCameraVideoAdded(_ participantCameraVideoAddedEvent: ParticipantCameraVideoAddedEvent) {
-        handleRemoteTrackAdded(participantCameraVideoAddedEvent.track)
+        handleRemoteTrackAdded(participantCameraVideoAddedEvent.track, isScreensharing: false)
     }
 
     public func onParticipantCameraVideoRemoved(_ participantCameraVideoRemovedEvent: ParticipantCameraVideoRemovedEvent) {
-        handleRemoteTrackRemoved()
+        conferenceParticipants = activeApplicationCall?.participants() ?? []
+        handleRemoteTrackRemoved(isScreensharing: false)
     }
 
     public func onParticipantScreenShareAdded(_ participantScreenShareAddedEvent: ParticipantScreenShareAddedEvent) {
-        handleRemoteTrackAdded(participantScreenShareAddedEvent.track)
+        handleRemoteTrackAdded(participantScreenShareAddedEvent.track, isScreensharing: true)
     }
 
     public func onParticipantScreenShareRemoved(_ participantScreenShareRemovedEvent: ParticipantScreenShareRemovedEvent) {
-        handleRemoteTrackRemoved()
-    }
-
-    private func handleRemoteTrackAdded( _ track: VideoTrack) {
-        if remoteCameraVideoTrack != nil {
-            remoteView?.removeFromSuperview()
-        }
-        participantVideoAdded(videoTrack: track)
-        remoteSharingVideoTrack = track
-    }
-
-    private func handleRemoteTrackRemoved() {
-        remoteSharingVideoTrack = nil
-        participantVideoRemoved()
+        handleRemoteTrackRemoved(isScreensharing: true)
     }
 
     public func onConferenceJoined(_ conferenceJoinedEvent: ConferenceJoinedEvent) {
         joined = true
         conferenceParticipants = conferenceJoinedEvent.participants
-        if let participant = conferenceParticipants.filter({ $0.state == .JOINING }).last {
-            participantMutedImageV.isHidden = !(participant.media?.audio.muted ?? false)
-        }
+        setMutedParticipant()
     }
 
     public func onConferenceLeft(_ conferenceLeftEvent: ConferenceLeftEvent) {
@@ -155,17 +100,24 @@ extension MMCallController: ApplicationCallEventListener {
         }
         counterpartLabel.text = counterpart
         conferenceParticipants = []
-        participantVideoRemoved()
+        remoteView?.removeFromSuperview()
     }
 
     public func onParticipantJoining(_ participantJoiningEvent: ParticipantJoiningEvent) {
         conferenceParticipants.append(participantJoiningEvent.participant)
-        // Not supported yet
+        setMutedParticipant()
     }
 
     public func onParticipantJoined(_ participantJoinedEvent: ParticipantJoinedEvent) {
         conferenceParticipants = activeApplicationCall?.participants() ?? []
-        // Not supported yet
+        setMutedParticipant()
+    }
+
+    private func setMutedParticipant() {
+        participantMutedImageV.isHidden = conferenceParticipants.filter({
+            return $0.endpoint.identifier() != MobileMessaging.currentInstallation?.pushRegistrationId &&
+            $0.media.audio.muted}
+        ).isEmpty
     }
 
     public func onParticipantLeft(_ participantLeftEvent: ParticipantLeftEvent) {
@@ -184,25 +136,7 @@ extension MMCallController: ApplicationCallEventListener {
         return !activeApplicationCall!.remoteVideos().isEmpty
     }
 
-    private func participantVideoAdded(videoTrack: VideoTrack) {
-        conferenceParticipants = activeApplicationCall?.participants() ?? []
-        established(remoteVideoTrack: videoTrack)
-    }
-
-    private func participantVideoRemoved() {
-        conferenceParticipants = activeApplicationCall?.participants() ?? []
-        remoteView?.removeFromSuperview()
-        counterpartImage.isHidden = false
-        remoteView?.isHidden = true
-        if let secondaryVideoTrack = remoteCameraVideoTrack ?? remoteSharingVideoTrack {
-            // We recover a video track that may have been waiting to be presented.
-            participantVideoAdded(videoTrack: secondaryVideoTrack)
-        } else {
-            self.counterpartImage.isHidden = false
-        }
-    }
-
-    private func onApplicationError(_ error: String) {
+    func onApplicationError(_ error: String) {
         if activeApplicationCall != nil {
             showErrorAlert(message: error)
         }

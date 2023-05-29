@@ -1,5 +1,6 @@
 
 import CocoaLumberjack
+import MobileMessaging
 
 extension MMLoggerFactory {
 	public func createLogger() -> MMLogging {

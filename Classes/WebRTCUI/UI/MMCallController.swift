@@ -11,6 +11,59 @@ import CallKit
 #if WEBRTCUI_ENABLED
 import InfobipRTC
 
+
+enum ActiveCall {
+    case applicationCall(ApplicationCall)
+    case webRTCCall(WebrtcCall)
+}
+
+extension ActiveCall {
+    var duration: Int {
+        switch self {
+        case .applicationCall(let applicationCall):
+            return applicationCall.duration()
+        case .webRTCCall(let webRTCCall):
+            return webRTCCall.duration()
+        }
+    }
+}
+
+class ActiveCallTracks {
+    private var remoteCameraVideoTrack: VideoTrack?
+    private var remoteSharingVideoTrack: VideoTrack?
+    var activeVideoTrack: VideoTrack?
+
+    var isAnyVideoTrack: Bool {
+        return remoteCameraVideoTrack != nil || remoteSharingVideoTrack != nil
+    }
+
+    func add(track: VideoTrack, isScreensharing: Bool) {
+        if isScreensharing {
+            self.remoteSharingVideoTrack = track
+        } else {
+            self.remoteCameraVideoTrack = track
+        }
+        self.activeVideoTrack = track
+    }
+    /// Return new active video track, If it exist
+    func remove(isScreensharing: Bool) -> VideoTrack? {
+        if isScreensharing {
+            self.remoteSharingVideoTrack = nil
+        } else {
+            self.remoteCameraVideoTrack = nil
+        }
+
+        let notNilVideoTrack = remoteCameraVideoTrack ?? remoteSharingVideoTrack
+
+        if let notNilVideoTrack = notNilVideoTrack, activeVideoTrack != notNilVideoTrack {
+            activeVideoTrack = notNilVideoTrack
+            return activeVideoTrack
+        }
+
+        return nil
+    }
+}
+
 public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     func applySettings() {
         let settings = MMWebRTCSettings.sharedInstance
@@ -26,15 +79,14 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     }
 
     private let defaultValues = UserDefaults.standard
-    var activeApplicationCall: ApplicationCall?
+    var activeCall: ActiveCall?
     var joined: Bool = false
     public var initialState: PIPState = .full
     public var pipSize: CGSize { return CGSize(width: 200, height: 300)}
     var conferenceParticipants: [Participant] = []
     var outboundConversationId: String?
     private var transferIsOngoing = false
-    internal var remoteCameraVideoTrack: VideoTrack?
-    internal var remoteSharingVideoTrack: VideoTrack?
+    var activeCallTracks: ActiveCallTracks = ActiveCallTracks()
     var callType: MMCallType = .audio
     var canScreenShare: Bool {
         return true
@@ -52,6 +104,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
             if newValue { // user click on mute
                 videoStatusBottomView.mute.isSelected = true
             } else { // user click on unmute
+                videoStatusBottomView.mute.isSelected = false
                 let semaphore = DispatchSemaphore(value: 0)
                 MMCallController.checkMicPermission { [weak self] grant in
                     if grant {
@@ -107,8 +160,8 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     var remoteViewFrameConference: CGRect?
     var ringbackPlayer: AVAudioPlayer?
     var player: AVAudioPlayer?
-    var localNetworkQuality: NetworkQuality = NetworkQuality.EXCELLENT
-    var remoteNetworkQuality: NetworkQuality = NetworkQuality.EXCELLENT
+    var localNetworkQuality: NetworkQuality = NetworkQuality.excellent
+    var remoteNetworkQuality: NetworkQuality = NetworkQuality.excellent
     var callEstablishedEvent: CallEstablishedEvent?
     private var isEstablishedMock: Bool = false
     private var isEstablished: Bool {
@@ -120,8 +173,8 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         }
     }
 
-    static var new: MMCallController {
-        let storyboard = UIStoryboard(name: "MMCalls", bundle: MMWebRTCService.resourceBundle)
+    public static var new: MMCallController {
+        let storyboard = UIStoryboard(name: "MMCalls", bundle: .module)
         return storyboard.instantiateViewController(withIdentifier: "CallController") as! MMCallController
     }
     
@@ -132,8 +185,8 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         hideCallRelatedViewElements()
         counterpartLabel.text = self.destinationName ?? self.counterpart
         callStatusLabel.text = String(format: MMLoc.calling, self.counterpart ?? "...")
-        if activeApplicationCall != nil {
-            handleIncomingApplicationCall()
+        if activeCall != nil {
+            handleIncomingCall()
         } else {
             performCall()
         }
@@ -203,11 +256,17 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         return hasRemoteVideo || hasLocalVideo
     }
     
-    internal func mustFinalizeApplicationCall() -> Bool {
-        guard let activeApplicationCall = activeApplicationCall else {
+    internal func mustFinalizeCall() -> Bool {
+        guard let activeCall = activeCall else {
             return true
         }
-        return activeApplicationCall.status == .FINISHED || activeApplicationCall.status == .FINISHING
+        
+        switch activeCall {
+        case .applicationCall(let applicationCall):
+            return applicationCall.status == .finished || applicationCall.status == .finishing
+        case .webRTCCall(let webRTCCall):
+            return webRTCCall.status == .finished || webRTCCall.status == .finishing
+        }
     }
     
     internal func handleApplicationCallError(_ error: CallError?) {
@@ -225,7 +284,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         default:
             MMLogError("UI unfriendly Call Error, not displayed")
         }
-        if mustFinalizeApplicationCall() {
+        if mustFinalizeCall() {
             finalizeCallPreview(error?.localizedDescription ?? MMLoc.somethingWentWrong)
         }
     }
@@ -238,13 +297,16 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         // Not supported yet
     }
 
-    internal func handleIncomingCall() {
-        self.showActiveCallViewElements()
-    }
     
-    internal func handleIncomingApplicationCall() {
-        self.activeApplicationCall?.applicationCallEventListener = self
-        self.showActiveCallViewElements()
+    func handleIncomingCall() {
+        guard let activeCall = activeCall else { return }
+        switch activeCall {
+        case .applicationCall(let applicationCall):
+            applicationCall.applicationCallEventListener = self
+        case .webRTCCall(let webRTCCall):
+            webRTCCall.webrtcCallEventListener = self
+        }
+        showActiveCallViewElements()
     }
 
     @IBAction func onPipTap(_ sender: Any) {
@@ -269,23 +331,37 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     
     @IBAction func hangupCall(_ sender: Any) {
         self.stopPulse()
-        if let activeApplicationCall = self.activeApplicationCall {
-            activeApplicationCall.hangup()
-            CallKitManager.shared.localHangup(activeApplicationCall.id())
+        
+        guard let activeCall = activeCall else { return }
+        
+        switch activeCall {
+        case .applicationCall(let applicationCall):
+            applicationCall.hangup()
+            CallKitManager.shared.localApplicationHangup(applicationCall.id())
+        case .webRTCCall(let webRTCCall):
+            webRTCCall.hangup()
+            CallKitManager.shared.localHangup(webRTCCall.id())
         }
     }
     
     @IBAction func onScreenSharing(_ sender: Any) {
-        if let activeApplicationCall = self.activeApplicationCall {
-            let isSharing = activeApplicationCall.hasScreenShare()
-            do {
-                try activeApplicationCall.screenShare(screenShare: !isSharing)
-                videoStatusBottomView.screenShare.isSelected = !isSharing
-            } catch let error as CallError {
-                showErrorAlert(message: error.localizedDescription)
-            } catch {
-                showErrorAlert(message: "Something unexpected happened")
+        guard let activeCall = activeCall else { return }
+
+        do {
+            let isSharing: Bool
+            switch activeCall {
+            case .applicationCall(let applicationCall):
+                isSharing = applicationCall.hasScreenShare()
+                try applicationCall.screenShare(screenShare: !isSharing)
+            case .webRTCCall(let webRTCCall):
+                isSharing = webRTCCall.hasScreenShare()
+                try webRTCCall.screenShare(screenShare: !isSharing)
             }
+            videoStatusBottomView.screenShare.isSelected = !isSharing
+        } catch let error as CallError {
+            showErrorAlert(message: error.localizedDescription)
+        } catch {
+            showErrorAlert(message: MMLoc.somethingWentWrong)
         }
     }
     
@@ -298,7 +374,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
                 message: MMLoc.microphoneMuted,
                 duration: 9999, // Don't use double(Int.max) because it overflows TimeInterval
                 options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
-                                          isStretchable: true),
+                                              isStretchable: true),
                 completion: nil,
                 presenterVC: self)
         } else {
@@ -307,22 +383,28 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     }
 
     internal func doApplyMuteValue() {
-        if let activeApplicationCall = self.activeApplicationCall {
-            let shouldMute = !activeApplicationCall.muted()
-            do {
-                try activeApplicationCall.mute(shouldMute)
-                handleMutePopover()
-                self.conferenceParticipants = activeApplicationCall.participants()
-            } catch let error as ApplicationCallError {
-                self.showErrorAlert(message: error.description)
-            } catch {
-                self.showErrorAlert(message: error.localizedDescription)
+        guard let activeCall = activeCall else { return }
+        do {
+            switch activeCall {
+            case .applicationCall(let applicationCall):
+                let shouldMute = !applicationCall.muted()
+                try applicationCall.mute(shouldMute)
+                self.conferenceParticipants = applicationCall.participants()
+                self.isMuted = applicationCall.muted()
+            case .webRTCCall(let webRTCCall):
+                let shouldMute = !webRTCCall.muted()
+                try webRTCCall.mute(shouldMute)
+                self.isMuted = webRTCCall.muted()
             }
+            handleMutePopover()
+        } catch let error as ApplicationCallError {
+            self.showErrorAlert(message: error.description)
+        } catch {
+            self.showErrorAlert(message: error.localizedDescription)
         }
     }
     
     @IBAction func muteAudio(_ sender: Any) {
-        self.isMuted = !self.isMuted
         doApplyMuteValue()
         if isVideoCall {
             self.hideVideoElements(delayed: true)
@@ -338,16 +420,23 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
             message: message,
             duration: 3,
             options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
-                                      isStretchable: true),
+                                          isStretchable: true),
             completion: nil,
             presenterVC: self)
     }
 
     @IBAction func flipCamera(_ sender: UIButton) {
         self.isCameraFlipped = !isCameraFlipped
-        if let activeApplicationCall = self.activeApplicationCall { // ??
-            activeApplicationCall.cameraOrientation(
-                activeApplicationCall.cameraOrientation() == .front ? .back : .front)
+        
+        if let activeCall = activeCall {
+            switch activeCall {
+            case .applicationCall(let applicationCall):
+                applicationCall.cameraOrientation(
+                    applicationCall.cameraOrientation() == .front ? .back : .front)
+            case .webRTCCall(let webRTCCall):
+                webRTCCall.cameraOrientation(
+                    webRTCCall.cameraOrientation() == .front ? .back : .front)
+            }
         }
         
         if isVideoCall {
@@ -357,15 +446,25 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
 
     @IBAction func toggleSpeakerphone(_ sender: UIButton) {
         self.speakerphoneOn = !self.speakerphoneOn
-        if let activeApplicationCall = self.activeApplicationCall {
-            activeApplicationCall.speakerphone(speakerphoneOn) { error in
+        
+        if let activeCall = activeCall {
+
+            let onErrorCompletion: (Error?) -> Void = { error in
                 DispatchQueue.main.async {
-                    if let error = error {
-                        self.showErrorAlert(message: error.localizedDescription)
-                    }
+                    guard let error = error else { return }
+                    self.showErrorAlert(message: error.localizedDescription)
                 }
             }
+
+            switch activeCall {
+            case .applicationCall(let applicationCall):
+                applicationCall.speakerphone(speakerphoneOn, onErrorCompletion)
+            case .webRTCCall(let webRTCCall):
+                webRTCCall.speakerphone(speakerphoneOn, onErrorCompletion)
+            }
         }
+
+
         if isVideoCall {
             self.hideVideoElements(delayed: true)
         }
@@ -383,17 +482,23 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     @IBAction func toggleVideo(_ sender: UIButton) {
         MMCallController.checkCamPermission() { [weak self] granted in
             if granted {
-                var hasLocalVideo = false
-                if let activeApplicationCall = self?.activeApplicationCall {
-                    hasLocalVideo = activeApplicationCall.hasCameraVideo()
-                    do {
-                        try activeApplicationCall.cameraVideo(cameraVideo: !hasLocalVideo)
+                let hasLocalVideo: Bool
+                do {
+                    if let activeCall = self?.activeCall {
+                        switch activeCall {
+                        case .applicationCall(let applicationCall):
+                            hasLocalVideo = applicationCall.hasCameraVideo()
+                            try applicationCall.cameraVideo(cameraVideo: !hasLocalVideo)
+                        case .webRTCCall(let webRTCCall):
+                            hasLocalVideo = webRTCCall.hasCameraVideo()
+                            try webRTCCall.cameraVideo(cameraVideo: !hasLocalVideo)
+                        }
                         self?.handleVideoElementsVisibility(!hasLocalVideo)
-                    } catch let error as CallError {
-                        self?.showErrorAlert(message: error.localizedDescription)
-                    } catch {
-                        self?.showErrorAlert(message: "Something unexpected happened")
                     }
+                } catch let error as CallError {
+                    self?.showErrorAlert(message: error.localizedDescription)
+                } catch {
+                    self?.showErrorAlert(message: MMLoc.somethingWentWrong)
                 }
             } else {
                 self?.askForSystemSettings(
@@ -409,8 +514,8 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     internal func startCallDuration() {
         guard statusLabelTimer.isValid == false else { return }
         statusLabelTimer = Timer.scheduledTimer(
-            timeInterval: 1, 
-            target: self, 
+            timeInterval: 1,
+            target: self,
             selector: (#selector(self.updateCallStatusLabel)), userInfo: nil, repeats: true)
         statusLabelTimer.fire()
     }
@@ -420,19 +525,21 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         let minutes = (interval / 60) % 60
         let hours = (interval / (60*60)) % 60
         return hours > 0 ? String(format: "%02i:%02i:%02i", hours, minutes, seconds) :
-            String(format: "%02i:%02i", minutes, seconds)
+        String(format: "%02i:%02i", minutes, seconds)
     }
     
     @objc private func updateCallStatusLabel() {
         var formattedTime = "0:00"
-        if let activeApplicationCall = self.activeApplicationCall {
-            formattedTime = formatTimeString(from: activeApplicationCall.duration())
+
+        if let activeCall = activeCall {
+            formattedTime = formatTimeString(from: activeCall.duration)
         }
+        
         self.callStatusLabel.text = formattedTime
     }
 
     private var conversationId: String? {
-        let callCustomData = MobileMessaging.webrtcService?.notificationData?.customData
+        let callCustomData = MobileMessaging.webRTCService?.notificationData?.customData
         // Incoming calls has customData, outbound ones has conversationId injected
         return outboundConversationId ?? (callCustomData?["conversationId"] as? String)
     }
@@ -442,34 +549,43 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
     }
     
     internal var hasRemoteVideo: Bool {
-        if activeApplicationCall != nil {
+        if activeCall != nil {
             return remoteView != nil
         }
         return false
     }
     
     internal var hasLocalVideo: Bool {
-        if let applicationCall = activeApplicationCall {
-            return applicationCall.hasCameraVideo()
+        if let activeCall = activeCall {
+            switch activeCall {
+            case .applicationCall(let applicationCall):
+                return applicationCall.hasCameraVideo()
+            case .webRTCCall(let webRTCCall):
+                return webRTCCall.hasCameraVideo()
+            }
         }
         return false
     }
 
     internal var callStatus: CallStatus {
-        if let applicationCall = activeApplicationCall {
-            return applicationCall.status
+        if let activeCall = activeCall {
+            switch activeCall {
+            case .applicationCall(let applicationCall):
+                return applicationCall.status
+            case .webRTCCall(let webRTCCall):
+                return webRTCCall.status
+            }
         }
-        return .FINISHED
+        return .finished
     }
     
     private func nullifyComponents() {
-        activeApplicationCall = nil
-        remoteCameraVideoTrack = nil
-        remoteSharingVideoTrack = nil
+        activeCall = nil
+        activeCallTracks.activeVideoTrack = nil
         callEstablishedEvent = nil
         statusLabelTimer.invalidate()
         buttonsHidingTimer.invalidate()
-        MobileMessaging.webrtcService?.notificationData = nil
+        MobileMessaging.webRTCService?.notificationData = nil
     }
     
     internal func finalizeCallPreview(_ message: String) {
@@ -480,9 +596,16 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         if isVideoStreaming {
             self.finalizeVideoCallPreview()
         }
-        if let applicationCall = self.activeApplicationCall {
-            CallKitManager.shared.endApplicationCall(applicationCall)
-            self.activeApplicationCall?.applicationCallEventListener = nil
+        
+        if let activeCall = activeCall {
+            switch activeCall {
+            case .applicationCall(let applicationCall):
+                CallKitManager.shared.endApplicationCall(applicationCall)
+                applicationCall.applicationCallEventListener = nil
+            case .webRTCCall(let webRTCCall):
+                CallKitManager.shared.endWebRTCCall(webRTCCall)
+                webRTCCall.webrtcCallEventListener = nil
+            }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             PIPKit.dismiss(animated: true)
@@ -494,7 +617,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         if ringbackPlayer != nil {
             stopRingback()
         }
-        if let assetdata = MobileMessaging.webrtcService?.settings.soundStartCall.data {
+        if let assetdata = MobileMessaging.webRTCService?.settings.soundStartCall.data {
             do {
                 // Use NSDataAsset's data property to access the audio file stored in Sound.
                 ringbackPlayer = try AVAudioPlayer(data: assetdata)
@@ -525,7 +648,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         if player != nil {
             stopPlayer()
         }
-        if let assetdata = MobileMessaging.webrtcService?.settings.soundEndCall.data {
+        if let assetdata = MobileMessaging.webRTCService?.settings.soundEndCall.data {
             do {
                 player = try AVAudioPlayer(data: assetdata)
                 player?.currentTime = 0
