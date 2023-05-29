@@ -21,6 +21,9 @@
 		A85288CD285094BC00F7017D /* LanguageTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85288CC285094BC00F7017D /* LanguageTableVC.swift */; };
 		A87017A3290285FC00B696CE /* MMInboundCall.wav in Resources */ = {isa = PBXBuildFile; fileRef = A87017A0290285FC00B696CE /* MMInboundCall.wav */; };
 		A87017A62902887400B696CE /* alphaLogo.png in Resources */ = {isa = PBXBuildFile; fileRef = A87017A52902887400B696CE /* alphaLogo.png */; };
+		A876873A2A24D74A00DCFF32 /* InAppChat in Frameworks */ = {isa = PBXBuildFile; productRef = A87687392A24D74A00DCFF32 /* InAppChat */; };
+		A876873C2A24D74A00DCFF32 /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A876873B2A24D74A00DCFF32 /* MobileMessaging */; };
+		A876873E2A24D74A00DCFF32 /* WebRTCUI in Frameworks */ = {isa = PBXBuildFile; productRef = A876873D2A24D74A00DCFF32 /* WebRTCUI */; };
 		A88078AD29A8F38E0098074D /* sendIcon.svg in Resources */ = {isa = PBXBuildFile; fileRef = A88078AB29A8F38E0098074D /* sendIcon.svg */; };
 		A88078AE29A8F38E0098074D /* attachIcon.svg in Resources */ = {isa = PBXBuildFile; fileRef = A88078AC29A8F38E0098074D /* attachIcon.svg */; };
 		A8A47CF0292F6A5000CE630F /* PersonalizationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A47CEF292F6A5000CE630F /* PersonalizationVC.swift */; };
@@ -29,7 +32,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		25A61B882A249FDE00E0F9E1 /* infobip-mobile-messaging-ios */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "infobip-mobile-messaging-ios"; path = ..; sourceTree = "<group>"; };
 		765259E61FB5A99100058788 /* MobileChatExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobileChatExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		765259E91FB5A99100058788 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		765259EE1FB5A99100058788 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -57,7 +59,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				25A61B8A2A24A0FD00E0F9E1 /* WebRTCUI in Frameworks */,
+				A876873E2A24D74A00DCFF32 /* WebRTCUI in Frameworks */,
+				A876873A2A24D74A00DCFF32 /* InAppChat in Frameworks */,
 				25A61B8C2A24A10100E0F9E1 /* InAppChat in Frameworks */,
+				A876873C2A24D74A00DCFF32 /* MobileMessaging in Frameworks */,
 				25A61B8F2A24A17300E0F9E1 /* SwiftJWT in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -75,7 +80,6 @@
 		25A61B872A249FDE00E0F9E1 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				25A61B882A249FDE00E0F9E1 /* infobip-mobile-messaging-ios */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -159,6 +163,9 @@
 				25A61B892A24A0FD00E0F9E1 /* WebRTCUI */,
 				25A61B8B2A24A10100E0F9E1 /* InAppChat */,
 				25A61B8E2A24A17300E0F9E1 /* SwiftJWT */,
+				A87687392A24D74A00DCFF32 /* InAppChat */,
+				A876873B2A24D74A00DCFF32 /* MobileMessaging */,
+				A876873D2A24D74A00DCFF32 /* WebRTCUI */,
 			);
 			productName = MobileChatExample;
 			productReference = 765259E61FB5A99100058788 /* MobileChatExample.app */;
@@ -198,6 +205,7 @@
 			mainGroup = 765259DD1FB5A99100058788;
 			packageReferences = (
 				25A61B8D2A24A17300E0F9E1 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
+				A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */,
 			);
 			productRefGroup = 765259E71FB5A99100058788 /* Products */;
 			projectDirPath = "";
@@ -384,8 +392,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = T6U248P7YM;
 				INFOPLIST_FILE = MobileChatExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -394,6 +404,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.inappchat.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "InAppChat dev";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -405,8 +416,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = T6U248P7YM;
 				INFOPLIST_FILE = MobileChatExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -415,6 +428,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.inappchat.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "InAppChat dev";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -452,6 +466,14 @@
 				minimumVersion = 4.0.0;
 			};
 		};
+		A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/infobip/mobile-messaging-sdk-ios/";
+			requirement = {
+				branch = "swift-package";
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -467,6 +489,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 25A61B8D2A24A17300E0F9E1 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
 			productName = SwiftJWT;
+		};
+		A87687392A24D74A00DCFF32 /* InAppChat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */;
+			productName = InAppChat;
+		};
+		A876873B2A24D74A00DCFF32 /* MobileMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */;
+			productName = MobileMessaging;
+		};
+		A876873D2A24D74A00DCFF32 /* WebRTCUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */;
+			productName = WebRTCUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
