@@ -27,6 +27,9 @@ extension UIViewController {
 }
 
 extension MMCallController: ApplicationCallEventListener {
+    public func onDialogJoined(_ dialogJoinedEvent: DialogJoinedEvent) { }
+    public func onDialogLeft(_ dialogLeftEvent: DialogLeftEvent) { }
+
 
     var activeApplicationCall: ApplicationCall? {
         switch activeCall {

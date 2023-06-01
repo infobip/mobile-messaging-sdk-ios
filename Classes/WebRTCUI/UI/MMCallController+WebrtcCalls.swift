@@ -13,6 +13,8 @@ import CallKit
 import os.log
 
 extension MMCallController: WebrtcCallEventListener {
+    public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) { }
+
     public func onRemoteCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) {
         handleRemoteTrackAdded(cameraVideoAddedEvent.track, isScreensharing: false)
     }

@@ -227,7 +227,17 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         let cssScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         webView.configuration.userContentController.addUserScript(cssScript)
     }
-    
+
+    public func setLanguage(_ language: MMLanguage, completion: @escaping (_ error: NSError?) -> Void) {
+        weak var wWebView = webView
+        guard let wWebView = wWebView else {
+            MMLanguage.sessionLanguage = language
+            completion(nil)
+            return
+        }
+        wWebView.setLanguage(language, completion: completion)
+    }
+
     func didEnableControls(_ enabled: Bool) {
         webView.isUserInteractionEnabled = enabled
         webView.isLoaded = enabled

@@ -244,6 +244,9 @@ extension MMWebRTCService: ApplicationCallEventListener {
     public func onParticipantDeaf(_ participantDeafEvent: ParticipantDeafEvent) { }
     public func onParticipantUndeaf(_ participantUndeafEvent: ParticipantUndeafEvent) { }
     public func onParticipantLeft(_ participantLeftEvent: ParticipantLeftEvent) { }
+    public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) { }
+    public func onDialogJoined(_ dialogJoinedEvent: DialogJoinedEvent) { }
+    public func onDialogLeft(_ dialogLeftEvent: DialogLeftEvent) { }
 }
 
 extension MMWebRTCService: WebrtcCallEventListener {
