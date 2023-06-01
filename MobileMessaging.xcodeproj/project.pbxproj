@@ -11,10 +11,11 @@
 		170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */; };
 		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
 		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
+		318D1B8D2A1B934F000F58CC /* WebInAppMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318D1B8C2A1B934F000F58CC /* WebInAppMessageView.swift */; };
+		31F0403629F7D63400E3928E /* WebInAppBannerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F0403529F7D63400E3928E /* WebInAppBannerManager.swift */; };
 		3BB0594CCA9D40ADAC4C3716491BE06B /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */; };
 		4266599A298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42665999298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift */; };
 		4266599C298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4266599B298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib */; };
-		427990E029A8F2F70079620C /* AlertOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 427990DF29A8F2F70079620C /* AlertOperation.swift */; };
 		427990E029A8F2F70079620C /* AlertOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 427990DF29A8F2F70079620C /* AlertOperation.swift */; };
 		429CCD6A298C0B5300B4294A /* InteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */; };
 		42A31C7929A904870091796A /* InAppMessagePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A31C7829A904870091796A /* InAppMessagePresenter.swift */; };
@@ -22,7 +23,6 @@
 		42A31C7E29A9161C0091796A /* WebInAppMessagePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A31C7D29A9161C0091796A /* WebInAppMessagePresenter.swift */; };
 		42C2FDC829B5FF12002B4CD8 /* MMInAppMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C2FDC729B5FF12002B4CD8 /* MMInAppMessage.swift */; };
 		42D65D0529AF642600692299 /* InAppMessageScriptClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D65D0429AF642600692299 /* InAppMessageScriptClient.swift */; };
-		42D92E2E299D1C4500B000D8 /* MMWebInAppMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D92E2D299D1C4500B000D8 /* MMWebInAppMessage.swift */; };
 		6C60A4A31FD6B169001744BC /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C60A4A11FD6B169001744BC /* State.swift */; };
 		760085811F977CC100837D75 /* MTMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085801F977CC100837D75 /* MTMessage.swift */; };
 		760085831F977E3300837D75 /* MOMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085821F977E3300837D75 /* MOMessage.swift */; };
@@ -56,7 +56,6 @@
 		7601F1B1208E057F00738C1A /* NativeInteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1AC208E057E00738C1A /* NativeInteractiveMessageAlertController.swift */; };
 		7601F1B2208E057F00738C1A /* LoadingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1AD208E057E00738C1A /* LoadingImageView.swift */; };
 		7601F1B3208E057F00738C1A /* LoadingImageView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7601F1AE208E057E00738C1A /* LoadingImageView.xib */; };
-		7601F1B5208E0F5500738C1A /* InteractiveMessageAlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1B4208E0F5500738C1A /* InteractiveMessageAlertManager.swift */; };
 		7601F1B5208E0F5500738C1A /* InteractiveMessageAlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F1B4208E0F5500738C1A /* InteractiveMessageAlertManager.swift */; };
 		7608E307219A095500EC7289 /* CreateInstanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7608E306219A095500EC7289 /* CreateInstanceOperation.swift */; };
 		76092BA51FAB163900128E48 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 76092BA41FAB162C00128E48 /* AudioToolbox.framework */; };
@@ -271,10 +270,11 @@
 
 /* Begin PBXFileReference section */
 		1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MobileMessaging.xcconfig; sourceTree = "<group>"; };
+		318D1B8C2A1B934F000F58CC /* WebInAppMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppMessageView.swift; sourceTree = "<group>"; };
+		31F0403529F7D63400E3928E /* WebInAppBannerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppBannerManager.swift; sourceTree = "<group>"; };
 		37333A54A8B807D53AD68E200638BAC7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		42665999298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebInteractiveMessageAlertController.swift; sourceTree = "<group>"; };
 		4266599B298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WebInteractiveMessageAlertController.xib; sourceTree = "<group>"; };
-		427990DF29A8F2F70079620C /* AlertOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertOperation.swift; sourceTree = "<group>"; };
 		427990DF29A8F2F70079620C /* AlertOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertOperation.swift; sourceTree = "<group>"; };
 		429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageAlertController.swift; sourceTree = "<group>"; };
 		42A31C7829A904870091796A /* InAppMessagePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagePresenter.swift; sourceTree = "<group>"; };
@@ -282,7 +282,6 @@
 		42A31C7D29A9161C0091796A /* WebInAppMessagePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppMessagePresenter.swift; sourceTree = "<group>"; };
 		42C2FDC729B5FF12002B4CD8 /* MMInAppMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMInAppMessage.swift; sourceTree = "<group>"; };
 		42D65D0429AF642600692299 /* InAppMessageScriptClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessageScriptClient.swift; sourceTree = "<group>"; };
-		42D92E2D299D1C4500B000D8 /* MMWebInAppMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMWebInAppMessage.swift; sourceTree = "<group>"; };
 		5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MobileMessaging-dummy.m"; sourceTree = "<group>"; };
 		67D34D6EBA51E58A87E7A34D766E7A15 /* MobileMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MobileMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -319,7 +318,6 @@
 		7601F1AC208E057E00738C1A /* NativeInteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeInteractiveMessageAlertController.swift; sourceTree = "<group>"; };
 		7601F1AD208E057E00738C1A /* LoadingImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingImageView.swift; sourceTree = "<group>"; };
 		7601F1AE208E057E00738C1A /* LoadingImageView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoadingImageView.xib; sourceTree = "<group>"; };
-		7601F1B4208E0F5500738C1A /* InteractiveMessageAlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveMessageAlertManager.swift; sourceTree = "<group>"; };
 		7601F1B4208E0F5500738C1A /* InteractiveMessageAlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveMessageAlertManager.swift; sourceTree = "<group>"; };
 		7608E306219A095500EC7289 /* CreateInstanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateInstanceOperation.swift; sourceTree = "<group>"; };
 		76092BA41FAB162C00128E48 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.1.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
@@ -669,15 +667,6 @@
 			path = AlertQueue;
 			sourceTree = "<group>";
 		};
-		427990DC29A8F07E0079620C /* AlertQueue */ = {
-			isa = PBXGroup;
-			children = (
-				7632809A2092013B001B9E8F /* AlertQueue.swift */,
-				427990DF29A8F2F70079620C /* AlertOperation.swift */,
-			);
-			path = AlertQueue;
-			sourceTree = "<group>";
-		};
 		429CCD68298C0AAE00B4294A /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -728,10 +717,7 @@
 			children = (
 				42A31C7A29A915FB0091796A /* InAppMessagePresenter */,
 				427990DC29A8F07E0079620C /* AlertQueue */,
-				42A31C7A29A915FB0091796A /* InAppMessagePresenter */,
-				427990DC29A8F07E0079620C /* AlertQueue */,
 				7601F1AB208E057E00738C1A /* InteractiveMessageButton.swift */,
-				7601F1B4208E0F5500738C1A /* InteractiveMessageAlertManager.swift */,
 				7601F1B4208E0F5500738C1A /* InteractiveMessageAlertManager.swift */,
 				429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */,
 				7601F1AC208E057E00738C1A /* NativeInteractiveMessageAlertController.swift */,
@@ -740,6 +726,8 @@
 				4266599B298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib */,
 				7601F1AD208E057E00738C1A /* LoadingImageView.swift */,
 				7601F1AE208E057E00738C1A /* LoadingImageView.xib */,
+				31F0403529F7D63400E3928E /* WebInAppBannerManager.swift */,
+				318D1B8C2A1B934F000F58CC /* WebInAppMessageView.swift */,
 			);
 			path = MessageAlert;
 			sourceTree = "<group>";
@@ -879,8 +867,6 @@
 				764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */,
 				764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */,
 				764555D31F78FF4E00B8F14B /* PredefinedNotificationCategories.plist */,
-				42D92E2D299D1C4500B000D8 /* MMWebInAppMessage.swift */,
-				42C2FDC729B5FF12002B4CD8 /* MMInAppMessage.swift */,
 				42C2FDC729B5FF12002B4CD8 /* MMInAppMessage.swift */,
 			);
 			name = InteractiveNotifications;
@@ -1415,6 +1401,7 @@
 			files = (
 				763A1AFC23E4989700C997BC /* EventsService.swift in Sources */,
 				763A1AEB23E4633E00C997BC /* CustomEventReportingOperation.swift in Sources */,
+				31F0403629F7D63400E3928E /* WebInAppBannerManager.swift in Sources */,
 				7620450427C91E1D007970F8 /* MMInbox.swift in Sources */,
 				7617505623351827000438A8 /* Result.swift in Sources */,
 				42A31C7E29A9161C0091796A /* WebInAppMessagePresenter.swift in Sources */,
@@ -1468,7 +1455,6 @@
 				6C60A4A31FD6B169001744BC /* State.swift in Sources */,
 				76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */,
 				A08E503D249652FD00F026ED /* ChatNotAvailableLabel.swift in Sources */,
-				42A31C8029A929A30091796A /* AbstractInAppMessagePresenter.swift in Sources */,
 				A08CB26C2459B0C600ED91B6 /* ChatWidget.swift in Sources */,
 				763A1B0523E5D4F300C997BC /* MOSendingMapper.swift in Sources */,
 				7617505523351827000438A8 /* DispatchQueue+Alamofire.swift in Sources */,
@@ -1507,7 +1493,6 @@
 				42A31C7929A904870091796A /* InAppMessagePresenter.swift in Sources */,
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
 				76626D0F218AFCA600E95E2C /* InstallationDataService.swift in Sources */,
-				42D92E2E299D1C4500B000D8 /* MMWebInAppMessage.swift in Sources */,
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
 				76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */,
 				76A26CB2230D58AA00F00717 /* MMInternalStorageModel.xcdatamodeld in Sources */,
@@ -1630,6 +1615,7 @@
 				760085871F9790BE00837D75 /* BaseMessage.swift in Sources */,
 				ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
+				318D1B8D2A1B934F000F58CC /* WebInAppMessageView.swift in Sources */,
 				42D65D0529AF642600692299 /* InAppMessageScriptClient.swift in Sources */,
 				42D65D0529AF642600692299 /* InAppMessageScriptClient.swift in Sources */,
 				429CCD6A298C0B5300B4294A /* InteractiveMessageAlertController.swift in Sources */,

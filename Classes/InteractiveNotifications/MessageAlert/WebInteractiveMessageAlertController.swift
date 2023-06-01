@@ -17,22 +17,14 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     }
     
     private static let nibName = "WebInteractiveMessageAlertController"
-    private static let initialBannerHeight = 100.0
+    private static let initialHeight = 100.0
     private static let margin = 8.0
-    
-    private static let bannerAutoDismissDuration : TimeInterval = 5.0
-    private static let bannerAnimationDuration : TimeInterval = 0.5
-    private static let bannerAnimationDelayDuration : TimeInterval = 0.0
-    private static let bannerAnimationUsingSpringWithDamping : CGFloat = 0.7
-    private static let bannerAnimationInitialSpringVelocity : CGFloat = 1.0
-    private static let bannerAnimationOffset : CGFloat = 200
-    private static let bannerAnimationEndPoint : CGFloat = 0
     
     private let message: MMInAppMessage
     private let mode: Mode
     
     internal var dismissHandler: (() -> Void)?
-    private let msgView: InAppMessageView
+    private let msgView: WebInAppMessageView
     private let inAppMessageClient: InAppMessageScriptClient
     
     /// Timer which schedules automatic dismiss of `msgView` if there is no user interaction
@@ -48,18 +40,9 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     /// The constraint which prevents `msgView` from going below the safe area.
     private var msgViewBottomWithinSafeArea: NSLayoutConstraint! // priority: 800
     
-    // MARK: - Banner Constraints
-    /// The constraint which snaps the `msgView` to the top edge of the safe area
-    private var msgViewToTop: NSLayoutConstraint! // priority: 800
-    /// The constraint which snaps the `msgView` to the bottom edge of the safe area.
-    private var msgViewToBottom: NSLayoutConstraint! // priority: 800
-    
     // MARK: -
     /// The constraint which defines specific height of `msgView`.
     private var msgViewHeight: NSLayoutConstraint! // priority 700
-    
-    /// Constraints which need to be deactivated in order to position the banner properly before the animation, and then activated to animate the banner towards
-    /// its destination.
     private var msgViewTopMargin: NSLayoutConstraint! // priority 1000
     private var msgViewBottomMargin: NSLayoutConstraint! // priority 1000
     
@@ -68,15 +51,12 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         self.message = message
         
         if let webViewWithHeight {
-            msgView = InAppMessageView(webView: webViewWithHeight.webView)
+            msgView = WebInAppMessageView(webView: webViewWithHeight.webView)
             mode = .preloadedWebViewWithHeightProvided(webViewWithHeight.height)
         } else {
-            msgView = InAppMessageView(webView: WKWebView())
+            msgView = WebInAppMessageView(webView: WKWebView())
             mode = .fromScratch
         }
-        
-        // stops StatusBar from pushing webView's content down
-        msgView.webView.scrollView.contentInsetAdjustmentBehavior = .never
         
         msgView.cornerRadius = CGFloat(options.cornerRadius)
         inAppMessageClient = InAppMessageScriptClient(webView: msgView.webView)
@@ -110,46 +90,8 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
             msgView.webView.load(URLRequest(url: message.url))
         }
         
-        if (message.type != .banner) {
-            msgView.webView.scrollView.alwaysBounceVertical = false
-            msgView.webView.scrollView.alwaysBounceHorizontal = false            
-        }
-       
-        if message.type == .banner {
-            msgView.webView.scrollView.isScrollEnabled = false
-            msgView.webView.scrollView.bounces = false
-            mgsViewAutoDismissTimer = Timer.scheduledTimer(
-                timeInterval: WebInteractiveMessageAlertController.bannerAutoDismissDuration,
-                target: self,
-                selector: #selector(close),
-                userInfo: nil,
-                repeats: false)
-        }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        if message.type == .banner {
-            self.view.layoutIfNeeded()
-            
-            if message.position == .top {
-                msgViewToTop.constant = WebInteractiveMessageAlertController.bannerAnimationEndPoint
-            } else {
-                msgViewToBottom.constant = WebInteractiveMessageAlertController.bannerAnimationEndPoint
-            }
-            
-            msgViewTopMargin.isActive = true
-            msgViewBottomMargin.isActive = true
-            
-            UIView.animate(
-                withDuration: WebInteractiveMessageAlertController.bannerAnimationDuration,
-                delay: WebInteractiveMessageAlertController.bannerAnimationDelayDuration,
-                usingSpringWithDamping: WebInteractiveMessageAlertController.bannerAnimationUsingSpringWithDamping,
-                initialSpringVelocity: WebInteractiveMessageAlertController.bannerAnimationInitialSpringVelocity,
-                options: [.curveLinear, .allowUserInteraction],
-                animations: {
-                    self.view.layoutIfNeeded()
-                })
-        }
+        msgView.webView.scrollView.alwaysBounceVertical = false
+        msgView.webView.scrollView.alwaysBounceHorizontal = false
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -163,7 +105,6 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     }
     
     // MARK: - Static Utils
-    
     private static func setPriority(_ priority: Float, toConstraints constraints: [NSLayoutConstraint]) {
         for constraint in constraints {
             constraint.priority = UILayoutPriority(priority)
@@ -233,24 +174,16 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         msgViewBottomWithinSafeArea = msgView.topAnchor.constraint(
             lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor)
         
-        /// Set to 200 so it covers animation for banner (banner itself will never have height more than 100)  when it slides from top/bottom
-        msgViewToTop = msgView.topAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.topAnchor,
-            constant: CGFloat(-1 * WebInteractiveMessageAlertController.bannerAnimationOffset))
-        msgViewToBottom = msgView.bottomAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-            constant: CGFloat(WebInteractiveMessageAlertController.bannerAnimationOffset))
         WebInteractiveMessageAlertController.setPriority(800, toConstraints:
                                                             [msgViewHeightToSafeArea,
                                                              msgViewCenterYToSafeArea,
                                                              msgViewTopWithinSafeArea,
-                                                             msgViewBottomWithinSafeArea,
-                                                             msgViewToTop,
-                                                             msgViewToBottom]
+                                                             msgViewBottomWithinSafeArea
+                                                            ]
         )
         
         msgViewHeight = msgView.heightAnchor.constraint(
-            equalToConstant: WebInteractiveMessageAlertController.initialBannerHeight)
+            equalToConstant: WebInteractiveMessageAlertController.initialHeight)
         WebInteractiveMessageAlertController.setPriority(700, toConstraints: [msgViewHeight])
         
         msgViewTopMargin = msgView.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor,
@@ -258,11 +191,8 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         msgViewBottomMargin = msgView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor,
                                                               constant: -WebInteractiveMessageAlertController.margin)
         
-        if message.type != .banner {
-            msgViewTopMargin.isActive = true
-            msgViewBottomMargin.isActive = true
-            // Otherwise banner will activate them through the animation.
-        }
+        msgViewTopMargin.isActive = true
+        msgViewBottomMargin.isActive = true
     }
     
     private func configureMsgViewConstraints() {
@@ -272,26 +202,11 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
             msgViewTopWithinSafeArea,
             msgViewBottomWithinSafeArea,
             msgViewHeight,
-            msgViewToTop,
-            msgViewToBottom
         ])
-        
-        switch (message.type) {
-        case .banner:
-            msgViewHeight.isActive = true
-            
-            switch message.position {
-            case .top:
-                msgViewToTop.isActive = true
-            case .bottom:
-                msgViewToBottom.isActive = true
-            case .none:
-                break
-            }
-        case .fullscreen:
+        if (message.type == .fullscreen) {
             msgViewHeightToSafeArea.isActive = true
             msgViewCenterYToSafeArea.isActive = true
-        case .popup:
+        } else {
             msgViewHeight.isActive = true
             msgViewCenterYToSafeArea.isActive = true
             msgViewTopWithinSafeArea.isActive = true
@@ -302,71 +217,6 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     /// Dismisses the controller and calls the dismiss handler if it exists.
     @objc
     private func close() {
-        if message.type == .banner {
-            mgsViewAutoDismissTimer?.invalidate()
-            let direction = message.position == .top ? -1 : 1
-            let transformDirection = CGAffineTransformMakeTranslation(0, WebInteractiveMessageAlertController.bannerAnimationOffset * CGFloat(direction))
-            
-            UIView.animate(
-                withDuration: WebInteractiveMessageAlertController.bannerAnimationDuration,
-                delay: WebInteractiveMessageAlertController.bannerAnimationDelayDuration,
-                usingSpringWithDamping: WebInteractiveMessageAlertController.bannerAnimationUsingSpringWithDamping,
-                initialSpringVelocity: WebInteractiveMessageAlertController.bannerAnimationInitialSpringVelocity,
-                options: [.curveLinear, .allowUserInteraction],
-                animations: {
-                    self.msgView.transform = transformDirection
-                }) { [weak self] _ in
-                    self?.dismiss(animated: true) { [weak self] in self?.dismissHandler?() }
-                }
-        } else {
-            dismiss(animated: true) { [weak self] in self?.dismissHandler?() }
-        }
-    }
-}
-
-fileprivate class InAppMessageView: UIView {
-    private static let shadowOpacity: Float = 0.7
-    private static let shadowRadius: CGFloat = 4.0
-    private static let shadowOffset = CGSize(width: 3, height: 3)
-    
-    let webView: WKWebView
-    
-    var cornerRadius: CGFloat {
-        get {
-            layer.cornerRadius
-        }
-        set {
-            layer.cornerRadius = newValue
-            webView.layer.cornerRadius = newValue
-        }
-    }
-    
-    fileprivate init(webView: WKWebView) {
-        self.webView = webView
-        super.init(frame: webView.frame)
-        addSubview(webView)
-        
-        // Important for constraints
-        webView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            webView.heightAnchor.constraint(equalTo: heightAnchor),
-            webView.widthAnchor.constraint(equalTo: widthAnchor),
-            webView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            webView.centerYAnchor.constraint(equalTo: centerYAnchor)
-        ])
-        
-        // Important for corner radius
-        webView.clipsToBounds = true
-        
-        // Shadow definition
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOffset = InAppMessageView.shadowOffset
-        layer.shadowOpacity = InAppMessageView.shadowOpacity
-        layer.shadowRadius = InAppMessageView.shadowRadius
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        dismiss(animated: true) { [weak self] in self?.dismissHandler?() }
     }
 }

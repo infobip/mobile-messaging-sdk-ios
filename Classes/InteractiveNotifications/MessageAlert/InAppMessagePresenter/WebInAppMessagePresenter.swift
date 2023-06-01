@@ -15,16 +15,15 @@ class WebInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
             
             return UIApplication.shared.delegate?.window ?? nil
         }
-    }
-    
-    typealias Resources = WebViewWithHeight
+    }    
     
     private let message: MMInAppMessage
     private var webView: WKWebView?
     private var webViewDelegate: WebViewPreloadingDelegate?
     private var shouldPreload: Bool
-    unowned var delegate: InAppMessagePresenterDelegate
-    var messageController: InteractiveMessageAlertController?
+    private unowned var delegate: InAppMessagePresenterDelegate
+    private var messageController: InteractiveMessageAlertController?
+    private var bannerManager: WebInAppBannerManager?
     
     init(forMessage message: MMInAppMessage,
          withDelegate delegate: InAppMessagePresenterDelegate,
@@ -34,7 +33,26 @@ class WebInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
         self.delegate = delegate
     }
     
-    func loadResources(completion completionHandler: @escaping (WebViewWithHeight?) -> Void) {
+    // MARK: - InAppMessagePresenter
+    func presentMessage() {
+        guard delegate.shouldLoadResources() else { return }
+        
+        prepareWebView() { [weak self] webViewWithHeight in
+            guard let self else { return }
+            
+            DispatchQueue.main.async() {
+                self.present(webViewWithHeight: webViewWithHeight)
+            }
+        }
+    }
+    
+    func dismissPresentedMessage() {
+        // We don't know weather we have `controller` or `bannerManager` so we dismiss both
+        self.messageController?.dismiss(animated: false)
+        self.bannerManager?.dismiss()
+    }
+    
+    private func prepareWebView(completion completionHandler: @escaping (WebViewWithHeight?) -> Void) {
         DispatchQueue.main.async() { [self] in
             if shouldPreload {
                 guard let appWindow else { return completionHandler(nil) }
@@ -50,14 +68,47 @@ class WebInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
         }
     }
     
-    func createMessageController(withResources webViewWithHeight: WebViewWithHeight?) -> InteractiveMessageAlertController? {
+    private func present(webViewWithHeight: WebViewWithHeight?) -> Void {
+        if message.type != .banner {
+            guard let newMessageController = createMessageController(webViewWithHeight: webViewWithHeight) else {
+                logError("couldn't create the view controller for the message")
+                delegate.didFailToPresent()
+                return
+            }
+
+            guard let presenterController = delegate.getPresenterViewController() else {
+                logError("couldn't find the presenter view controller to present the message")
+                delegate.didFailToPresent()
+                return
+            }
+
+            self.messageController = newMessageController
+
+            newMessageController.dismissHandler = { [unowned self] in
+                self.delegate.didDismissMessage()
+                self.messageController = nil
+            }
+            presenterController.present(newMessageController, animated: true, completion: nil)
+        } else {
+            let newBannerManager = WebInAppBannerManager(message: message, webViewWithHeight: webViewWithHeight)
+            self.bannerManager = newBannerManager
+            newBannerManager.dismissHandler = {
+                [unowned self] in
+                self.delegate.didDismissMessage()
+                self.bannerManager = nil
+            }
+            newBannerManager.startPresenting()
+        }
+    }
+
+    private func createMessageController(webViewWithHeight: WebViewWithHeight?) -> InteractiveMessageAlertController? {
         return WebInteractiveMessageAlertController(message: message, webViewWithHeight: webViewWithHeight)
     }
 }
 
 /// Delegate for web view which makes sure web view is ready for presentation, then it calls the provided callback with `webView`. If something fails it calls the
 /// callback with `nil`.
-class WebViewPreloadingDelegate: NSObject, WKNavigationDelegate, NamedLogger {
+private class WebViewPreloadingDelegate: NSObject, WKNavigationDelegate, NamedLogger {
     private let completionHandler: (WebViewWithHeight?) -> Void
     
     init(withCompletion completionHandler: @escaping (WebViewWithHeight?) -> Void) {
@@ -100,6 +151,6 @@ class WebViewPreloadingDelegate: NSObject, WKNavigationDelegate, NamedLogger {
     }
 }
 
-func calculateInAppMessageWidth(superFrame: CGRect, margin: CGFloat) -> CGFloat {
+internal func calculateInAppMessageWidth(superFrame: CGRect, margin: CGFloat) -> CGFloat {
     superFrame.width - margin * 2
 }

@@ -28,7 +28,7 @@ class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDe
         guard let presenter else { preconditionFailure("presenter got deallocated") }
     
         MobileMessaging.sharedInstance?.interactiveAlertManager?.delegate?.willDisplay(self.message)
-        presenter.loadResourcesAndPresentMessage()
+        presenter.presentMessage()
         waitUntilAlertDismissed()
     }
 

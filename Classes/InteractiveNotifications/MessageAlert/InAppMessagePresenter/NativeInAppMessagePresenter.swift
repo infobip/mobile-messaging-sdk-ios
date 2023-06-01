@@ -1,18 +1,35 @@
 /// Implementation of `InAppMessagePresenter` which shows an old-style in-app message as a native popup. Preloaded resource is an image.
 class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
-    typealias Resources = Image
     private let message: MM_MTMessage
     private let text: String
-    unowned var delegate: InAppMessagePresenterDelegate
-    var messageController: InteractiveMessageAlertController?
-
+    private unowned var delegate: InAppMessagePresenterDelegate
+    private var messageController: InteractiveMessageAlertController?
+    
     init(forMessage message: MM_MTMessage, text: String, withDelegate delegate: InAppMessagePresenterDelegate) {
         self.message = message
         self.text = text
         self.delegate = delegate
     }
+    
+    // MARK: - InAppMessagePresenter
+    func presentMessage() {
+        guard delegate.shouldLoadResources() else { return }
 
-    func loadResources(completion completionHandler: @escaping (Resources?) -> Void) {
+        loadImage() { [weak self] image in
+            guard let self else { return }
+
+            DispatchQueue.main.async() {
+                self.present(image: image)
+            }
+        }
+    }
+    
+    func dismissPresentedMessage() {
+        self.messageController?.dismiss(animated: false)
+    }
+    
+    // MARK: -
+    private func loadImage(completion completionHandler: @escaping (Image?) -> Void) {
         guard let safeUrl = message.contentUrl?.safeUrl else {
             completionHandler(nil)
             return
@@ -31,8 +48,30 @@ class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
             }
         }
     }
+    
+    private func present(image: Image?) -> Void {
+        guard let newMessageController = createMessageController(image: image) else {
+            logError("couldn't create the view controller for the message")
+            delegate.didFailToPresent()
+            return
+        }
 
-    func createMessageController(withResources image: Resources?) -> InteractiveMessageAlertController? {
+        guard let presenterController = delegate.getPresenterViewController() else {
+            logError("couldn't find the presenter view controller to present the message")
+            delegate.didFailToPresent()
+            return
+        }
+
+        self.messageController = newMessageController
+
+        newMessageController.dismissHandler = { [unowned self] in
+            self.delegate.didDismissMessage()
+            self.messageController = nil
+        }
+        presenterController.present(newMessageController, animated: true, completion: nil)
+    }
+    
+    private func createMessageController(image: Image?) -> InteractiveMessageAlertController? {
         if let categoryId = message.category,
            let category = MobileMessaging.category(withId: categoryId),
            category.actions.first(where: { return $0 is MMTextInputNotificationAction } ) == nil {
