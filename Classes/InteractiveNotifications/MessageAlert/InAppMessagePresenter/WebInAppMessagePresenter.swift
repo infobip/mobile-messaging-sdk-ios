@@ -58,7 +58,10 @@ class WebInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
                 guard let appWindow else { return completionHandler(nil) }
                 let webView = WKWebView()
                 self.webView = webView
-                webViewDelegate = WebViewPreloadingDelegate(withCompletion: completionHandler)
+                webViewDelegate = WebViewPreloadingDelegate(withCompletion: {[weak self] webViewWithHeight in
+                    completionHandler(webViewWithHeight)
+                    self?.delegate.didPresent()
+                })
                 webView.navigationDelegate = webViewDelegate
                 webView.frame.width = calculateInAppMessageWidth(superFrame: appWindow.frame, margin: 8)
                 webView.load(URLRequest(url: message.url))

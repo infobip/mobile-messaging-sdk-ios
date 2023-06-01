@@ -73,6 +73,10 @@ class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDe
         notifyAlertDismissed()
     }
     
+    func didPresent() {
+        MobileMessaging.sharedInstance?.setSeen(userInitiated: false, messageIds: [message.messageId], immediately: true, completion: {})
+    }
+    
     // MARK: -
     private var notCancelledNorMessageExpired: Bool { !isCancelled && !message.isExpired }
 

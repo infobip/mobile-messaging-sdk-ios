@@ -24,4 +24,7 @@ protocol InAppMessagePresenterDelegate: AnyObject {
     
     /// Called when it becomes evidend that the message cannot be presented.
     func didFailToPresent()
+    
+    /// Called when presented the message successfully.
+    func didPresent()
 }
