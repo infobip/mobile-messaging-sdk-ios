@@ -8,14 +8,14 @@ let package = Package(
         .iOS(.v12)
     ],
     products: [
-        .library(
-            name: "MobileMessaging",
-            targets: ["MobileMessaging", "MobileMessagingObjC"]),
+        .library(name: "MobileMessaging", targets: ["MobileMessaging", "MobileMessagingObjC"]),
+        .library(name: "MobileMessagingLogging", targets: ["MobileMessagingLogging"]),
         .library(name: "InAppChat", targets: ["InAppChat"]),
         .library(name: "WebRTCUI", targets: ["WebRTCUI"])
     ],
     dependencies: [
-        .package(url: "https://github.com/infobip/infobip-rtc-ios.git", "2.0.19"..<"2.0.21")
+        .package(url: "https://github.com/infobip/infobip-rtc-ios.git", "2.0.19"..<"2.0.21"),
+        .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.8.0")
     ],
     targets: [
         .target(name: "MobileMessaging", dependencies: ["MobileMessagingObjC"], path: "Classes/MobileMessaging", resources: [
@@ -39,6 +39,13 @@ let package = Package(
             path: "Classes/WebRTCUI",
             cSettings: [.define("WEBRTCUI_ENABLED")],
             swiftSettings: [.define("WEBRTCUI_ENABLED")]
-        )
+        ),
+        .target(
+            name: "MobileMessagingLogging",
+            dependencies: [
+                "CocoaLumberjack", "MobileMessaging"
+            ],
+            path: "Classes/Logging"
+        ),
     ]
 )

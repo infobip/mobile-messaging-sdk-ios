@@ -14,6 +14,8 @@
 		765259EF1FB5A99100058788 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259ED1FB5A99100058788 /* Main.storyboard */; };
 		765259F11FB5A99100058788 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 765259F01FB5A99100058788 /* Assets.xcassets */; };
 		765259F41FB5A99100058788 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259F21FB5A99100058788 /* LaunchScreen.storyboard */; };
+		A01BC55F2A273B2E0029F965 /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A01BC55E2A273B2E0029F965 /* MobileMessaging */; };
+		A01BC5612A273B320029F965 /* MobileMessagingLogging in Frameworks */ = {isa = PBXBuildFile; productRef = A01BC5602A273B320029F965 /* MobileMessagingLogging */; };
 		A835D6B02982759E002FAB5B /* AuthenticatedChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */; };
 		A848973F2A1DF28900410509 /* ColorThemeTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A848973D2A1DF28900410509 /* ColorThemeTableVC.swift */; };
 		A84897402A1DF28900410509 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A848973E2A1DF28900410509 /* ViewController.swift */; };
@@ -21,9 +23,6 @@
 		A85288CD285094BC00F7017D /* LanguageTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A85288CC285094BC00F7017D /* LanguageTableVC.swift */; };
 		A87017A3290285FC00B696CE /* MMInboundCall.wav in Resources */ = {isa = PBXBuildFile; fileRef = A87017A0290285FC00B696CE /* MMInboundCall.wav */; };
 		A87017A62902887400B696CE /* alphaLogo.png in Resources */ = {isa = PBXBuildFile; fileRef = A87017A52902887400B696CE /* alphaLogo.png */; };
-		A876873A2A24D74A00DCFF32 /* InAppChat in Frameworks */ = {isa = PBXBuildFile; productRef = A87687392A24D74A00DCFF32 /* InAppChat */; };
-		A876873C2A24D74A00DCFF32 /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A876873B2A24D74A00DCFF32 /* MobileMessaging */; };
-		A876873E2A24D74A00DCFF32 /* WebRTCUI in Frameworks */ = {isa = PBXBuildFile; productRef = A876873D2A24D74A00DCFF32 /* WebRTCUI */; };
 		A88078AD29A8F38E0098074D /* sendIcon.svg in Resources */ = {isa = PBXBuildFile; fileRef = A88078AB29A8F38E0098074D /* sendIcon.svg */; };
 		A88078AE29A8F38E0098074D /* attachIcon.svg in Resources */ = {isa = PBXBuildFile; fileRef = A88078AC29A8F38E0098074D /* attachIcon.svg */; };
 		A8A47CF0292F6A5000CE630F /* PersonalizationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A47CEF292F6A5000CE630F /* PersonalizationVC.swift */; };
@@ -39,6 +38,7 @@
 		765259F31FB5A99100058788 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		765259F51FB5A99100058788 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		765259FB1FB5AC3A00058788 /* MobileChatExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobileChatExample.entitlements; sourceTree = "<group>"; };
+		A01BC55D2A2738CD0029F965 /* infobip-mobile-messaging-ios */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "infobip-mobile-messaging-ios"; path = ..; sourceTree = "<group>"; };
 		A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedChatVC.swift; sourceTree = "<group>"; };
 		A848973D2A1DF28900410509 /* ColorThemeTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorThemeTableVC.swift; sourceTree = "<group>"; };
 		A848973E2A1DF28900410509 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -59,10 +59,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				25A61B8A2A24A0FD00E0F9E1 /* WebRTCUI in Frameworks */,
-				A876873E2A24D74A00DCFF32 /* WebRTCUI in Frameworks */,
-				A876873A2A24D74A00DCFF32 /* InAppChat in Frameworks */,
+				A01BC5612A273B320029F965 /* MobileMessagingLogging in Frameworks */,
+				A01BC55F2A273B2E0029F965 /* MobileMessaging in Frameworks */,
 				25A61B8C2A24A10100E0F9E1 /* InAppChat in Frameworks */,
-				A876873C2A24D74A00DCFF32 /* MobileMessaging in Frameworks */,
 				25A61B8F2A24A17300E0F9E1 /* SwiftJWT in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -80,6 +79,7 @@
 		25A61B872A249FDE00E0F9E1 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				A01BC55D2A2738CD0029F965 /* infobip-mobile-messaging-ios */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -163,9 +163,8 @@
 				25A61B892A24A0FD00E0F9E1 /* WebRTCUI */,
 				25A61B8B2A24A10100E0F9E1 /* InAppChat */,
 				25A61B8E2A24A17300E0F9E1 /* SwiftJWT */,
-				A87687392A24D74A00DCFF32 /* InAppChat */,
-				A876873B2A24D74A00DCFF32 /* MobileMessaging */,
-				A876873D2A24D74A00DCFF32 /* WebRTCUI */,
+				A01BC55E2A273B2E0029F965 /* MobileMessaging */,
+				A01BC5602A273B320029F965 /* MobileMessagingLogging */,
 			);
 			productName = MobileChatExample;
 			productReference = 765259E61FB5A99100058788 /* MobileChatExample.app */;
@@ -205,7 +204,6 @@
 			mainGroup = 765259DD1FB5A99100058788;
 			packageReferences = (
 				25A61B8D2A24A17300E0F9E1 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
-				A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */,
 			);
 			productRefGroup = 765259E71FB5A99100058788 /* Products */;
 			projectDirPath = "";
@@ -466,14 +464,6 @@
 				minimumVersion = 4.0.0;
 			};
 		};
-		A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/infobip/mobile-messaging-sdk-ios/";
-			requirement = {
-				branch = "swift-package";
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -490,20 +480,13 @@
 			package = 25A61B8D2A24A17300E0F9E1 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
 			productName = SwiftJWT;
 		};
-		A87687392A24D74A00DCFF32 /* InAppChat */ = {
+		A01BC55E2A273B2E0029F965 /* MobileMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */;
-			productName = InAppChat;
-		};
-		A876873B2A24D74A00DCFF32 /* MobileMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */;
 			productName = MobileMessaging;
 		};
-		A876873D2A24D74A00DCFF32 /* WebRTCUI */ = {
+		A01BC5602A273B320029F965 /* MobileMessagingLogging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A87687382A24D74A00DCFF32 /* XCRemoteSwiftPackageReference "mobile-messaging-sdk-ios" */;
-			productName = WebRTCUI;
+			productName = MobileMessagingLogging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
