@@ -13,7 +13,7 @@
 "mm_flip_camera" = "překlápěcí kamera";
 "mm_speaker" = "reproduktor";
 "mm_calling" = "volání (%1$@)";
-"mm_microphone_muted" = "Mikrofon je ztlumený. Zapněte ztlumení mikrofonu, aby vás zákazník slyšel.";
+"mm_microphone_muted" = "Mikrofon je ztlumený.";
 "mm_notification_ringing" = "Zvoní ...";
 "mm_audio_permission_not_granted" = "Audio oprávnění nebylo uděleno";
 "mm_calls_usage_error" = "Došlo k chybě bránící správnému využití hovorů, kontaktujte prosím podporu";

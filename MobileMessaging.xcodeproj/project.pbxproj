@@ -622,6 +622,8 @@
 		A843A44028F5A93600D5196F /* MMWebRTCService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCService.swift; sourceTree = "<group>"; };
 		A86ABE51285C646F00D5E00C /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+Push.swift"; sourceTree = "<group>"; };
+		A89725422A2CF020001C719B /* sq */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sq; path = sq.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		A89725432A2CF020001C719B /* sq */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sq; path = sq.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Associated.swift"; sourceTree = "<group>"; };
 		A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
 		A8CBD7C6292CCDA200322961 /* UIViewController+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+Associated.swift"; sourceTree = "<group>"; };
@@ -1473,6 +1475,7 @@
 				Base,
 				"hr-HR",
 				uk,
+				sq,
 			);
 			mainGroup = 7DB346D0F39D3F0E887471402A8071AB;
 			productRefGroup = 1EC852B12152CDB7042DD88F7126A70F /* Products */;
@@ -1813,6 +1816,7 @@
 				764556081F78FF4F00B8F14B /* zh-Hans */,
 				764556091F78FF4F00B8F14B /* zh-Hant */,
 				A8CE8ACD285C6E03000CC98F /* uk */,
+				A89725422A2CF020001C719B /* sq */,
 			);
 			name = MobileMessaging.strings;
 			sourceTree = "<group>";
@@ -1853,6 +1857,7 @@
 				A08E5039249650D000F026ED /* hr */,
 				A08E503A249650D000F026ED /* hi */,
 				A86ABE51285C646F00D5E00C /* uk */,
+				A89725432A2CF020001C719B /* sq */,
 			);
 			name = InAppChat.strings;
 			sourceTree = "<group>";

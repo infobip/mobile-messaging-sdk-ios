@@ -13,7 +13,7 @@
 "mm_flip_camera" = "capovolgi la fotocamera";
 "mm_speaker" = "altoparlante";
 "mm_calling" = "chiamata in corso (%1$@)";
-"mm_microphone_muted" = "Il microfono è disattivato. Attivare il microfono per farsi sentire dal cliente.";
+"mm_microphone_muted" = "Il microfono è disattivato.";
 "mm_notification_ringing" = "Squillo in corso ...";
 "mm_audio_permission_not_granted" = "Autorizzazione audio non concessa";
 "mm_calls_usage_error" = "Si è verificato un errore che impedisce l’uso corretto delle chiamate, contatta l’assistenza";

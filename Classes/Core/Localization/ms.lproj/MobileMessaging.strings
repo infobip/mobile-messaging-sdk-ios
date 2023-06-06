@@ -13,7 +13,7 @@
 "mm_flip_camera" = "kamera flip";
 "mm_speaker" = "speaker";
 "mm_calling" = "memanggil (%1$@)";
-"mm_microphone_muted" = "Mikrofon anda diredamkan. Nyahredam mikrofon anda supaya pelanggan boleh mendengar anda.";
+"mm_microphone_muted" = "Mikrofon anda diredamkan.";
 "mm_notification_ringing" = "Deringan ...";
 "mm_audio_permission_not_granted" = "Kebenaran audio tidak diberikan";
 "mm_calls_usage_error" = "Terdapat ralat yang menghalang penggunaan panggilan yang betul, sila hubungi sokongan";

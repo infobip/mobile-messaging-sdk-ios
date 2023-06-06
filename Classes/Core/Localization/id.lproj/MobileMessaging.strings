@@ -13,7 +13,7 @@
 "mm_flip_camera" = "kamera terbalik";
 "mm_speaker" = "pembicara";
 "mm_calling" = "panggilan (%1$@)";
-"mm_microphone_muted" = "Mikrofon Anda dibisukan. Suarakan mikrofon Anda sehingga pelanggan dapat mendengar Anda.";
+"mm_microphone_muted" = "Mikrofon Anda dibisukan.";
 "mm_notification_ringing" = "Berdering ...";
 "mm_audio_permission_not_granted" = "Izin audio tidak diberikan";
 "mm_calls_usage_error" = "Terjadi kesalahan yang mencegah penggunaan panggilan yang benar, harap hubungi dukungan";

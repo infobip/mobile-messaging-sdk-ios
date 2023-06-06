@@ -29,7 +29,7 @@ public enum MMLoc {
     public static var `flipCamera`: String { return  MMLocalization.localizedString(forKey: "mm_flip_camera", defaultString: "flip camera") }
     public static var `speaker`: String { return  MMLocalization.localizedString(forKey: "mm_speaker", defaultString: "speaker") }
     public static var `calling`: String { return  MMLocalization.localizedString(forKey: "mm_calling", defaultString: "calling (%1$@)") }
-    public static var `microphoneMuted`: String { return  MMLocalization.localizedString(forKey: "mm_microphone_muted", defaultString: "Your microphone is muted. Unmute your microphone so the customer can hear you.") }
+    public static var `microphoneMuted`: String { return  MMLocalization.localizedString(forKey: "mm_microphone_muted", defaultString: "Your microphone is muted.") }
     public static var `notificationRinging`: String { return  MMLocalization.localizedString(forKey: "mm_notification_ringing", defaultString: "Ringing ...") }
     public static var `audioPermissionNotGranted`: String { return  MMLocalization.localizedString(forKey: "mm_audio_permission_not_granted", defaultString: "Audio permission not granted") }
     public static var `callsUsageError`: String { return  MMLocalization.localizedString(forKey: "mm_calls_usage_error", defaultString: "There was an error preventing proper usage of calls, please contact support") }

@@ -13,7 +13,7 @@
 "mm_flip_camera" = "flip camera";
 "mm_speaker" = "speaker";
 "mm_calling" = "calling (%1$@)";
-"mm_microphone_muted" = "Your microphone is muted. Unmute your microphone so the customer can hear you.";
+"mm_microphone_muted" = "Your microphone is muted.";
 "mm_notification_ringing" = "Ringing ...";
 "mm_audio_permission_not_granted" = "Audio permission not granted";
 "mm_calls_usage_error" = "There was an error preventing proper usage of calls, please contact support";
