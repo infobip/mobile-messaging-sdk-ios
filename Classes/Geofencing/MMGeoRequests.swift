@@ -5,7 +5,9 @@
 //
 //
 
-struct GeoEventReportData: DictionaryRepresentable {
+import Foundation
+
+public struct GeoEventReportData: DictionaryRepresentable {
 	let campaignId: String
 	let eventDate: Date
 	let geoAreaId: String
@@ -22,17 +24,17 @@ struct GeoEventReportData: DictionaryRepresentable {
 		self.sdkMessageId = sdkMessageId
 	}
 	
-	init?(dictRepresentation dict: DictionaryRepresentation) {
+    public init?(dictRepresentation dict: DictionaryRepresentation) {
 		return nil // unused
 	}
 	
-	var dictionaryRepresentation: DictionaryRepresentation {
-		return [Consts.GeoReportingAPIKeys.campaignId: campaignId,
-		        Consts.GeoReportingAPIKeys.timestampDelta: eventDate.timestampDelta,
-		        Consts.GeoReportingAPIKeys.geoAreaId: geoAreaId,
-		        Consts.GeoReportingAPIKeys.event: eventType.rawValue,
-		        Consts.GeoReportingAPIKeys.messageId: messageId,
-		        Consts.GeoReportingAPIKeys.sdkMessageId: sdkMessageId
+    public var dictionaryRepresentation: DictionaryRepresentation {
+		return [MMConsts.GeoReportingAPIKeys.campaignId: campaignId,
+                MMConsts.GeoReportingAPIKeys.timestampDelta: eventDate.timestampDelta,
+                MMConsts.GeoReportingAPIKeys.geoAreaId: geoAreaId,
+                MMConsts.GeoReportingAPIKeys.event: eventType.rawValue,
+                MMConsts.GeoReportingAPIKeys.messageId: messageId,
+                MMConsts.GeoReportingAPIKeys.sdkMessageId: sdkMessageId
 		]
 	}
 }
@@ -40,13 +42,13 @@ struct GeoEventReportData: DictionaryRepresentable {
 class GeoEventReportingRequest: PostRequest {
 	typealias ResponseType = GeoEventReportingResponse
 
-	init(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage]) {
-		super.init(applicationCode: applicationCode, path: .GeoEventsReports, pushRegistrationId: pushRegistrationId, body: [
-			Consts.PushRegistration.platform: Consts.APIValues.platformType,
-			Consts.PushRegistration.internalId: pushRegistrationId,
-			Consts.GeoReportingAPIKeys.reports: eventsDataList.map { $0.dictionaryRepresentation },
-			Consts.GeoReportingAPIKeys.messages: geoMessages.map { $0.geoEventReportFormat }
-		])
+    init(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage]) {
+        super.init(applicationCode: applicationCode, path: .GeoEventsReports, pushRegistrationId: pushRegistrationId, body: [
+            MMConsts.PushRegistration.platform: MMConsts.APIValues.platformType,
+            MMConsts.PushRegistration.internalId: pushRegistrationId,
+            MMConsts.GeoReportingAPIKeys.reports: eventsDataList.map { $0.dictionaryRepresentation },
+            MMConsts.GeoReportingAPIKeys.messages: geoMessages.map { $0.geoEventReportFormat }
+        ])
 	}
 }
 

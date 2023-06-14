@@ -37,12 +37,12 @@ public final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurre
     public var chatMessageCounter: Int
 	var registrationDate: Date?
 	var systemDataHash: Int64
-	var location: CLLocation?
+	public var location: CLLocation?
 	var badgeNumber: Int
 	var applicationCode: String?
     var applicationCodeHash: String?
 	var depersonalizeFailCounter: Int
-	var currentDepersonalizationStatus: MMSuccessPending
+	public var currentDepersonalizationStatus: MMSuccessPending
     ///
 
     public func copy(with zone: NSZone? = nil) -> Any {

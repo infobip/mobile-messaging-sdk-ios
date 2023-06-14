@@ -8,7 +8,7 @@
 
 import Foundation
 
-final class MMQueueObject: CustomStringConvertible {
+final public class MMQueueObject: CustomStringConvertible {
     
     private(set) var queue: DispatchQueue
 
@@ -40,7 +40,7 @@ final class MMQueueObject: CustomStringConvertible {
 	
 	var queueLabel: String?
 	
-	func async(closure: @escaping () -> Void) {
+	public func async(closure: @escaping () -> Void) {
         if isCurrentQueue {
             closure()
         } else {
@@ -58,7 +58,7 @@ final class MMQueueObject: CustomStringConvertible {
         }
     }
 
-    func sync(closure: () -> Void) {
+    public func sync(closure: () -> Void) {
         if isCurrentQueue {
             closure()
         } else {
@@ -78,7 +78,7 @@ final class MMQueueObject: CustomStringConvertible {
 		}
 	}
 	
-	var description: String { return queue.label }
+    public var description: String { return queue.label }
 }
 
 protocol MMQueueEnum {
@@ -86,10 +86,10 @@ protocol MMQueueEnum {
 	var queueName: String {get}
 }
 
-enum MMQueue {
+public enum MMQueue {
 	case Main
 	case Global
-	var queue: MMQueueObject {
+	public var queue: MMQueueObject {
 		switch self {
 		case .Global:
 			return MMQueueObject(queue: DispatchQueue.global(qos: .default))

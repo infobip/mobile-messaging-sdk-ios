@@ -33,16 +33,16 @@ public enum MMResult<ValueType> {
 }
 
 
-struct EmptyResponse { }
+public struct EmptyResponse { }
 
 struct BaseUrlResponse {
     let baseUrl: String?
 }
 
-struct GeoEventReportingResponse {
-	let finishedCampaignIds: [String]?
-	let suspendedCampaignIds: [String]?
-	let tempMessageIdRealMessageId: [String: String]
+public struct GeoEventReportingResponse {
+	public let finishedCampaignIds: [String]?
+	public let suspendedCampaignIds: [String]?
+	public let tempMessageIdRealMessageId: [String: String]
 }
 
 struct LibraryVersionResponse {
@@ -61,14 +61,14 @@ struct MOMessageSendingResponse {
 
 //MARK: - Request results
 typealias MessagesSyncResult = MMResult<MessagesSyncResponse>
-typealias SeenStatusSendingResult = MMResult<EmptyResponse>
+public typealias SeenStatusSendingResult = MMResult<EmptyResponse>
 typealias UserSessionSendingResult = MMResult<EmptyResponse>
 typealias CustomEventResult = MMResult<EmptyResponse>
 typealias DepersonalizeResult = MMResult<EmptyResponse>
 typealias MOMessageSendingResult = MMResult<MOMessageSendingResponse>
 typealias LibraryVersionResult = MMResult<LibraryVersionResponse>
 typealias BaseUrlResult = MMResult<BaseUrlResponse>
-typealias GeoEventReportingResult = MMResult<GeoEventReportingResponse>
+public typealias GeoEventReportingResult = MMResult<GeoEventReportingResponse>
 typealias FetchUserDataResult = MMResult<MMUser>
 typealias UpdateUserDataResult = MMResult<EmptyResponse>
 typealias FetchInstanceDataResult = MMResult<MMInstallation>
@@ -100,7 +100,7 @@ public protocol JSONEncodable {
 }
 
 extension EmptyResponse: JSONDecodable {
-	init?(json value: JSON) {
+    public init?(json value: JSON) {
 	}
 }
 
@@ -120,7 +120,7 @@ extension MMRequestError: JSONDecodable {
 }
 
 extension GeoEventReportingResponse: JSONDecodable {
-	init?(json value: JSON) {
+	public init?(json value: JSON) {
 		guard let tempMessageIdRealMessageId = value[Consts.GeoReportingAPIKeys.messageIdsMap].dictionaryObject as? [String: String] else {
 			return nil
 		}

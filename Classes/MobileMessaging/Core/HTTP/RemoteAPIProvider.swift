@@ -24,7 +24,7 @@ public class RemoteAPIProvider: SessionManagement {
 		performRequest(request: request, queue: queue, completion: completion)
 	}
 
-	func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, queue: DispatchQueue, completion: @escaping (SeenStatusSendingResult) -> Void) {
+	public func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, queue: DispatchQueue, completion: @escaping (SeenStatusSendingResult) -> Void) {
 		let request = SeenStatusSendingRequest(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body)
 		performRequest(request: request, queue: queue, completion: completion)
 	}

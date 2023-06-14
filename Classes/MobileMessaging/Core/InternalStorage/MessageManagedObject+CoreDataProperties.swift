@@ -11,7 +11,7 @@
 import Foundation
 import CoreData
 
-extension MessageManagedObject {
+public extension MessageManagedObject {
     @NSManaged var creationDate: Date
     @NSManaged var messageId: String
     @NSManaged var reportSent: Bool

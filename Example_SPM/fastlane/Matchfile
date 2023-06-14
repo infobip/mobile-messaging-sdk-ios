@@ -1,0 +1,9 @@
+git_url "ssh://git@git.ib-ci.com:7999/mml/ios-certificates.git"
+
+type "development"
+
+readonly true
+
+app_identifier ["com.infobip.mobilemessaging.example", "com.infobip.mobilemessaging.example.NotificationServiceExtension"]
+
+username "andrey.kadochnikov@infobip.com"

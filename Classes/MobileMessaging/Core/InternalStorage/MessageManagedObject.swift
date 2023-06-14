@@ -20,7 +20,7 @@ import CoreData
     case SeenSent
 }
 
-enum MMMessageType : Int16 {
+public enum MMMessageType : Int16 {
 	case Default = 0
 	case Geo
 	case MO
@@ -33,17 +33,17 @@ enum MMMessageType : Int16 {
 }
 
 @objc(MessageManagedObject)
-final class MessageManagedObject: NSManagedObject, FetchableResult, UpdatableResult {
-    var seenStatus: MMSeenStatus {
+final public class MessageManagedObject: NSManagedObject, FetchableResult, UpdatableResult {
+    public var seenStatus: MMSeenStatus {
 		get { return MMSeenStatus(rawValue: seenStatusValue) ?? .NotSeen }
 		set { seenStatusValue = newValue.rawValue }
     }
-	var messageType: MMMessageType {
+	public var messageType: MMMessageType {
 		get { return MMMessageType(rawValue: messageTypeValue) ?? .Default }
 		set { messageTypeValue = newValue.rawValue }
 	}
 	
-	var campaignState: MMCampaignState {
+	public var campaignState: MMCampaignState {
 		get { return MMCampaignState(rawValue: campaignStateValue) ?? .Active }
 		set { campaignStateValue = newValue.rawValue }
 	}

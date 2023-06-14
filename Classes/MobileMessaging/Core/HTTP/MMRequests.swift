@@ -196,7 +196,7 @@ open class RequestData {
 	}
     let accessToken: String?
 	let applicationCode: String
-	let pushRegistrationId: String?
+	public let pushRegistrationId: String?
 	let method: HTTPMethod
 	let path: APIPath
     let baseUrl: URL?
@@ -237,8 +237,8 @@ open class GetRequest: RequestData {
 	}
 }
 
-class PostRequest: RequestData {
-	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
+open class PostRequest: RequestData {
+	public init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
 		super.init(applicationCode: applicationCode, accessToken: nil, method: .post, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
 	}
 }

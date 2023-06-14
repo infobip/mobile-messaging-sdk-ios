@@ -10,6 +10,8 @@ let package = Package(
     products: [
         .library(name: "MobileMessaging", targets: ["MobileMessaging", "MobileMessagingObjC"]),
         .library(name: "MobileMessagingLogging", targets: ["MobileMessagingLogging"]),
+        .library(name: "MobileMessagingGeofencing", targets: ["MobileMessagingGeofencing"]),
+        .library(name: "MobileMessagingInbox", targets: ["MobileMessagingInbox"]),
         .library(name: "InAppChat", targets: ["InAppChat"]),
         .library(name: "WebRTCUI", targets: ["WebRTCUI"])
     ],
@@ -21,6 +23,8 @@ let package = Package(
         .target(name: "MobileMessaging", dependencies: ["MobileMessagingObjC"], path: "Classes/MobileMessaging", resources: [
             .process("Resources/InteractiveNotifications/PredefinedNotificationCategories.plist")]),
         .target(name: "MobileMessagingObjC", path: "Classes/MobileMessagingObjC", exclude: ["Core/Plugins/MobileMessagingPluginApplicationDelegate.m", "Headers/MobileMessagingPluginApplicationDelegate.h"], publicHeadersPath: "Headers"),
+        .target(name: "MobileMessagingGeofencing", dependencies: ["MobileMessaging"], path: "Classes/Geofencing"),
+        .target(name: "MobileMessagingInbox", dependencies: ["MobileMessaging"], path: "Classes/Inbox"),
         .target(
             name: "InAppChat",
             dependencies: [

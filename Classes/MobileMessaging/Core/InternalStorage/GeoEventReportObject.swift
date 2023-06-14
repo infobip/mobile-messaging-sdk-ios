@@ -10,11 +10,11 @@ import Foundation
 import CoreData
 
 @objc(GeoEventReportObject)
-final class GeoEventReportObject: NSManagedObject, FetchableResult {
+final public class GeoEventReportObject: NSManagedObject, FetchableResult {
 
 // Insert code here to add functionality to your managed object subclass
 	@discardableResult
-	class func createEntity(withCampaignId campaignId: String, eventType: String, regionId: String, messageId: String, in context: NSManagedObjectContext) -> GeoEventReportObject {
+	public class func createEntity(withCampaignId campaignId: String, eventType: String, regionId: String, messageId: String, in context: NSManagedObjectContext) -> GeoEventReportObject {
 		let newEvent = GeoEventReportObject.MM_createEntityInContext(context: context)
 		newEvent.campaignId = campaignId
 		newEvent.eventType = eventType

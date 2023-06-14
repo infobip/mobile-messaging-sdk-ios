@@ -111,7 +111,7 @@ class GeoEventReportingOperation: MMOperation {
 		context.performAndWait {
 			mtMessagesDatasource = GeoEventReportObject.MM_findAllWithPredicate(NSPredicate(format: "SELF IN %@", self.happenedEventObjectIds), context: self.context)?.reduce(MTMessagesDatasource(), { (datasourceResult, event) -> MTMessagesDatasource in
 				guard let geoCampaign = self.signalingGeoMessages[event.campaignId] else {
-					return datasourceResult
+                    return datasourceResult
 				}
 				
 				let ret: MTMessagesDatasource

@@ -25,7 +25,7 @@ struct MMContextSaveOptions: OptionSet {
 	static let SaveParent		= MMContextSaveOptions(rawValue: 1 << 1)
 }
 
-protocol FetchableResult: NSFetchRequestResult {
+public protocol FetchableResult: NSFetchRequestResult {
 	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<NSFetchRequestResult>
 	static func MM_executeRequest(_ request: NSFetchRequest<NSFetchRequestResult>, inContext ctx: NSManagedObjectContext) -> [Any]?
 	static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext)
@@ -74,7 +74,7 @@ extension UpdatableResult where Self: NSManagedObject {
 	}
 }
 
-extension FetchableResult where Self: NSManagedObject {
+public extension FetchableResult where Self: NSManagedObject {
 	static func MM_requestAll(_ predicate: NSPredicate?) -> NSFetchRequest<NSFetchRequestResult> {
 		let r = NSFetchRequest<NSFetchRequestResult>(entityName: self.MM_entityName)
 		r.predicate = predicate
@@ -103,7 +103,7 @@ extension FetchableResult where Self: NSManagedObject {
 		return self.MM_executeRequest(r, inContext: context) as? [Self]
 	}
 	
-	static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) {
+    static func MM_deleteAllMatchingPredicate(_ predicate: NSPredicate?, inContext context: NSManagedObjectContext) {
 		let request : NSFetchRequest<NSFetchRequestResult> = self.MM_requestAll(predicate)
 		request.returnsObjectsAsFaults = true
 		request.includesPropertyValues = false
@@ -319,7 +319,7 @@ extension NSManagedObjectContext {
 		return "\(name ?? "UNNAMED") on \(thread)"
 	}
 	
-	func MM_saveToPersistentStoreAndWait() {
+	public func MM_saveToPersistentStoreAndWait() {
 		MM_saveWithOptions([.SaveParent, .SaveSynchronously], completion: nil)
 	}
 	

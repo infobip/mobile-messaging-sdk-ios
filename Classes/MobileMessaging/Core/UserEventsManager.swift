@@ -76,7 +76,7 @@ public class UserEventsManager {
 		post(MMNotificationActionTapped, userInfo)
 	}
 
-	class func postGeoServiceStartedEvent() {
+	public class func postGeoServiceStartedEvent() {
 		post(MMNotificationGeoServiceDidStart)
 	}
 

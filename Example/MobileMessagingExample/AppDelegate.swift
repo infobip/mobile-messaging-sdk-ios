@@ -6,6 +6,10 @@
 
 import UIKit
 import MobileMessaging
+#if USING_SPM
+import MobileMessagingGeofencing
+import MobileMessagingInbox
+#endif
 import UserNotifications
 
 @UIApplicationMain
