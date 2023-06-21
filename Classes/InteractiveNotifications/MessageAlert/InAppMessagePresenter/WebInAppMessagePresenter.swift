@@ -52,6 +52,18 @@ class WebInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
         self.bannerManager?.dismiss()
     }
     
+    private func prepareWebViewURLRequest(url: URL) -> URLRequest {
+        var request = URLRequest(url: message.url)
+        guard let applicationCode = MobileMessaging.sharedInstance?.applicationCode else {
+            return request
+        }
+        request.setValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
+        request.setValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: "User-Agent")
+        request.setValue(MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId, forHTTPHeaderField: "pushregistrationid")
+
+        return request
+    }
+    
     private func prepareWebView(completion completionHandler: @escaping (WebViewWithHeight?) -> Void) {
         DispatchQueue.main.async() { [self] in
             if shouldPreload {
@@ -64,7 +76,8 @@ class WebInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
                 })
                 webView.navigationDelegate = webViewDelegate
                 webView.frame.width = calculateInAppMessageWidth(superFrame: appWindow.frame, margin: 8)
-                webView.load(URLRequest(url: message.url))
+                let request = prepareWebViewURLRequest(url: message.url)
+                webView.load(request)
             } else {
                 completionHandler(nil)
             }
