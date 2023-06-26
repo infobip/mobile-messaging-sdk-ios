@@ -12,6 +12,7 @@ import UserNotifications
 class AppDelegate: UIResponder, UIApplicationDelegate {
 	
 	var window: UIWindow?
+    let messagesManager = MessagesManager.sharedInstance
 	
 	func applicationDidFinishLaunching(_ application: UIApplication) {
 		if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {
