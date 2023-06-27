@@ -375,7 +375,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
                 options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
                                               isStretchable: true),
                 completion: nil,
-                presenterVC: self)
+                presenterVC: self.parent ?? self)
         } else {
             MMPopOverBar.hide()
         }
@@ -421,7 +421,7 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
             options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
                                           isStretchable: true),
             completion: nil,
-            presenterVC: self)
+            presenterVC: self.parent ?? self)
     }
 
     @IBAction func flipCamera(_ sender: UIButton) {

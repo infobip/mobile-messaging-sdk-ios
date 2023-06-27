@@ -36,10 +36,7 @@ extension MMWebRTCService: PKPushRegistryDelegate {
         #if DEBUG
             isDebugging = true
         #endif
-    
-        
-        
-        
+
         getInfobipRTCInstance().enablePushNotification(token, pushCredentials: pushCreds, debug: isDebugging, { [weak self] result in
             switch result.status {
             case .failure:
