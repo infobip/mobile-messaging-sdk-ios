@@ -13,7 +13,7 @@
 "mm_flip_camera" = "מצלמה להעיף";
 "mm_speaker" = "רַמקוֹל";
 "mm_calling" = "מתקשר (%1$@)";
-"mm_microphone_muted" = "המיקרופון שלך מושתק. בטל את השתקת המיקרופון שלך כדי שהלקוח ישמע אותך.";
+"mm_microphone_muted" = "שפה אלבנית";
 "mm_notification_ringing" = "מצלצל...";
 "mm_audio_permission_not_granted" = "הרשאת שמע לא ניתנה";
 "mm_calls_usage_error" = "אירעה שגיאה במניעת שימוש נכון בשיחות, אנא צור קשר עם התמיכה";

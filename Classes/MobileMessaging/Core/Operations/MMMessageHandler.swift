@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreData
-import UIKit
 
 public enum MessageHandlingResult {
 	case newData

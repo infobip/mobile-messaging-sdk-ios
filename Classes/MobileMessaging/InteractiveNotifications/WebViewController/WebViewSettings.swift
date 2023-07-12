@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import UIKit
-
 
 public class MMWebViewSettings: NSObject {
     

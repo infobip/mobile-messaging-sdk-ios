@@ -7,7 +7,6 @@
 
 import Foundation
 import UserNotifications
-import UIKit
 
 @objc public protocol MMMessageHandlingDelegate {
 	/// Called when a new message is received.

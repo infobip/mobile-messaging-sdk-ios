@@ -13,7 +13,7 @@
 "mm_flip_camera" = "preklopna kamera";
 "mm_speaker" = "zvučnik";
 "mm_calling" = "poziva (%1$@)";
-"mm_microphone_muted" = "Vaš mikrofon je isključen. Uključite mikrofon kako bi vas klijent mogao čuti.";
+"mm_microphone_muted" = "Vaš mikrofon je isključen.";
 "mm_notification_ringing" = "Zvonjenje ...";
 "mm_audio_permission_not_granted" = "Audiodopuštenje nije odobreno";
 "mm_calls_usage_error" = "Došlo je do pogreške koja sprječava ispravnu upotrebu poziva, kontaktirajte podršku";

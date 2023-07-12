@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 class AlertOperation: Foundation.Operation, NamedLogger {
 	var semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)

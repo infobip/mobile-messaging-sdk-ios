@@ -13,7 +13,7 @@
 "mm_flip_camera" = "flip kamera";
 "mm_speaker" = "hangszóró";
 "mm_calling" = "hívás (%1$@)";
-"mm_microphone_muted" = "A mikrofon el van némítva. Kapcsolja ki a mikrofon némítását, hogy az ügyfél hallja Önt.";
+"mm_microphone_muted" = "A mikrofon el van némítva.";
 "mm_notification_ringing" = "Csengetés...";
 "mm_audio_permission_not_granted" = "Az audioengedély nem biztosított";
 "mm_calls_usage_error" = "Hiba történt, amely megakadályozta a hívások megfelelő használatát. Kérjük, forduljon az ügyfélszolgálathoz";

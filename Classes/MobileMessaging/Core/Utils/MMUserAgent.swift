@@ -7,7 +7,6 @@
 import Foundation
 import CoreTelephony
 import LocalAuthentication
-import UIKit
 
 func ==(lhs: SystemData, rhs: SystemData) -> Bool {
 	return lhs.stableHashValue == rhs.stableHashValue

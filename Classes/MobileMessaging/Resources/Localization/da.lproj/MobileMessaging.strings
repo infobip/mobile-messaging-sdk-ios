@@ -13,7 +13,7 @@
 "mm_flip_camera" = "vend kamera";
 "mm_speaker" = "højttaler";
 "mm_calling" = "kalder (%1$@)";
-"mm_microphone_muted" = "Din mikrofon er slået fra. Slå din mikrofon til, så kunden kan høre dig.";
+"mm_microphone_muted" = "Din mikrofon er slået fra.";
 "mm_notification_ringing" = "Ringer ...";
 "mm_audio_permission_not_granted" = "Lydtilladelse ikke givet";
 "mm_calls_usage_error" = "Der opstod en fejl, der forhindrede korrekt brug af opkald, kontakt venligst support";

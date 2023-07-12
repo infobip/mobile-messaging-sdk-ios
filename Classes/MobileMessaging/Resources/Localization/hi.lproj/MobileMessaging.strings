@@ -13,7 +13,7 @@
 "mm_flip_camera" = "फ्लिप कैमरा";
 "mm_speaker" = "वक्ता";
 "mm_calling" = "कॉलिंग (%1$@)";
-"mm_microphone_muted" = "आपका माइक्रोफ़ोन म्यूट है. अपने माइक्रोफ़ोन को अनम्यूट करें ताकि ग्राहक आपको सुन सके.";
+"mm_microphone_muted" = "आपका माइक्रोफ़ोन म्यूट है.";
 "mm_notification_ringing" = "बज रहा है...";
 "mm_audio_permission_not_granted" = "ऑडियो अनुमति नहीं दी गई";
 "mm_calls_usage_error" = "कॉल के उचित उपयोग को रोकने में एक त्रुटि हुई, कृपया सहायता से संपर्क करें";

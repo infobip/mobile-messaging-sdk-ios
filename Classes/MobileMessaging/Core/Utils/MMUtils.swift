@@ -11,7 +11,6 @@ import CoreData
 import CoreLocation
 import SystemConfiguration
 import UserNotifications
-import UIKit
 
 public typealias DictionaryRepresentation = [String: Any]
 

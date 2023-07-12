@@ -7,7 +7,6 @@
 
 import Foundation
 import UserNotifications
-import UIKit
 
 @objc protocol InAppAlertDelegate {
 	func willDisplay(_ message: MM_MTMessage)

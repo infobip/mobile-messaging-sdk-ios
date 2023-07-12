@@ -13,7 +13,7 @@
 "mm_flip_camera" = "odwróć aparat";
 "mm_speaker" = "głośnik";
 "mm_calling" = "dzwonienie (%1$@)";
-"mm_microphone_muted" = "Mikrofon jest wyciszony. Wyłącz wyciszenie mikrofonu, aby klient Cię usłyszał.";
+"mm_microphone_muted" = "Mikrofon jest wyciszony.";
 "mm_notification_ringing" = "Dzwoni ...";
 "mm_audio_permission_not_granted" = "Nie udzielono pozwolenia na dźwięk";
 "mm_calls_usage_error" = "Wystąpił błąd uniemożliwiający prawidłowe korzystanie z połączeń, skontaktuj się z pomocą techniczną";

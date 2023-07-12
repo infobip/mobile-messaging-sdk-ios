@@ -13,7 +13,7 @@
 "mm_flip_camera" = "kamerayı çevir";
 "mm_speaker" = "hoparlör";
 "mm_calling" = "aranıyor (%1$@)";
-"mm_microphone_muted" = "Mikrofonunuzun sesi kapatıldı. Müşterinin sizi duyabilmesi için mikrofonunuzun sesini açın.";
+"mm_microphone_muted" = "Mikrofonunuzun sesi kapatıldı.";
 "mm_notification_ringing" = "Çalıyor ...";
 "mm_audio_permission_not_granted" = "Ses izni verilmedi";
 "mm_calls_usage_error" = "Çağrıların doğru kullanımını engelleyen bir hata oluştu, lütfen destek ile iletişime geçin";

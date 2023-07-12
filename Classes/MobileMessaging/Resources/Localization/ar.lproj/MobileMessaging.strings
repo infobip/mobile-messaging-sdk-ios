@@ -13,7 +13,7 @@
 "mm_flip_camera" = "قلب الكاميرا";
 "mm_speaker" = "مكبر الصوت";
 "mm_calling" = "يتصل (%1$@)";
-"mm_microphone_muted" = "تم كتم صوت الميكروفون. قم بإلغاء كتم صوت الميكروفون حتى يتمكن العميل من سماعك.";
+"mm_microphone_muted" = "تم كتم صوت الميكروفون.";
 "mm_notification_ringing" = "رنين ...";
 "mm_audio_permission_not_granted" = "لم يتم منح إذن الصوت";
 "mm_calls_usage_error" = "حدث خطأ يمنع الاستخدام السليم للمكالمات، يُرجى التواصل مع فريق الدعم";

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 open class MobileMessagingService: NSObject, NamedLogger {
     public let mmContext: MobileMessaging

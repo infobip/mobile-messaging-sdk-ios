@@ -8,7 +8,6 @@
 
 import Foundation
 import UserNotifications
-import UIKit
 
 @objcMembers
 public final class MobileMessaging: NSObject, NamedLogger {

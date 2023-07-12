@@ -65,4 +65,16 @@ public final class MMUserNotificationType: NSObject, ExpressibleByArrayLiteral {
 		}
 		return options
 	}
+    
+    public override var hash : Int {
+        return rawValue
+    }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        if let other = object as? MMUserNotificationType {
+            return self.rawValue == other.rawValue
+        } else {
+            return false
+        }
+    }
 }

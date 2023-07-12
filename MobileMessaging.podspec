@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name          = 'MobileMessaging'
-    s.version       = '10.17.0'
+    s.version       = '10.19.1'
     s.summary       = 'Mobile Messaging SDK for iOS'
     s.description   = 'Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in you application and access to the features of Infobip IP Messaging Platform.'
     s.homepage      = 'https://github.com/infobip/mobile-messaging-sdk-ios'
@@ -19,10 +19,35 @@ Pod::Spec.new do |s|
 
     s.subspec 'Core' do |core|
         core.frameworks = 'CoreData', 'CoreTelephony', 'SystemConfiguration'
-        core.resource_bundles = {'MMCore' => ['Classes/InteractiveNotifications/MessageAlert/*.xib', 'Classes/InteractiveNotifications/*.plist', 'Classes/Core/Localization/**/*.strings', 'Classes/MessageStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcdatamodeld', 'Classes/Core/InternalStorage/*.xcmappingmodel']}
-        core.public_header_files = 'Classes/Core/**/*.h', 'Classes/Vendor/SwiftTryCatch/*.h'
-        core.private_header_files = 'Classes/Vendor/Alamofire/*.h', 'Classes/Vendor/CryptoSwift/*.h', 'Classes/Vendor/Keychain/*.h', 'Classes/Vendor/Kingsfisher/*.h', 'Classes/Vendor/PSOperations/*.h', 'Classes/Vendor/SwiftyJSON/*.h'
-        core.source_files = 'Classes/Core/**/*.{h,m,swift}', 'Classes/Vendor/**/*.{h,m,swift}', 'Classes/MessageStorage/**/*.{h,m,swift}', 'Classes/RichNotifications/**', 'Classes/UserSession/**', 'Classes/InteractiveNotifications/**/*.{h,m,swift}', 'Headers/Public/MobileMessaging/MobileMessaging-umbrella.h'
+        core.resource_bundles =
+        {
+            'MMCore' => [
+                            'Classes/MobileMessaging/Resources/InteractiveNotifications/*.xib',
+                            'Classes/MobileMessaging/Resources/InteractiveNotifications/*.plist',
+                            'Classes/MobileMessaging/Resources/Localization/**/*.strings',
+                            'Classes/MobileMessaging/Resources/MessageStorage/*.xcdatamodeld',
+                            'Classes/MobileMessaging/Resources/InternalStorage/*.xcdatamodeld',
+                            'Classes/MobileMessaging/Resources/InternalStorage/*.xcmappingmodel'
+                        ]
+        }
+        core.public_header_files =
+            'Classes/MobileMessagingObjC/Headers/MobileMessagingPluginApplicationDelegate.h',
+            'Classes/MobileMessagingObjC/Headers/MMNotifications.h',
+            'Classes/MobileMessagingObjC/Headers/SwiftTryCatch.h'
+        core.private_header_files =
+            'Classes/MobileMessagingObjC/Headers/Alamofire.h',
+            'Classes/MobileMessagingObjC/Headers/Kingsfisher.h'
+        core.source_files =
+            'Classes/MobileMessaging/Core/**/*.{h,m,swift}',
+            'Classes/MobileMessaging/InteractiveNotifications/**/*.{h,m,swift}',
+            'Classes/MobileMessaging/MessageStorage/**/*.{h,m,swift}',
+            'Classes/MobileMessaging/RichNotifications/**/*.{h,m,swift}',
+            'Classes/MobileMessaging/UserSession/**/*.{h,m,swift}',
+            'Classes/MobileMessaging/Vendor/**/*.{h,m,swift}',
+            'Classes/MobileMessagingObjC/Core/**/*.{h,m,swift}',
+            'Classes/MobileMessagingObjC/Vendor/**/*.{h,m,swift}',
+            'Classes/MobileMessagingObjC/Headers/**/*.{h,m,swift}',
+            'Headers/Public/MobileMessaging/MobileMessaging-umbrella.h'
     end
 
     s.subspec 'CocoaLumberjack' do |cl|
@@ -51,7 +76,7 @@ Pod::Spec.new do |s|
 
     s.subspec 'WebRTCUI' do |webrtcui|
         webrtcui.dependency 'MobileMessaging/Core'
-        webrtcui.dependency 'InfobipRTC', '2.0.8'
+        webrtcui.dependency 'InfobipRTC', '2.0.23'
         webrtcui.source_files = 'Classes/WebRTCUI/**/*.{h,m,swift,storyboard}'
         webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/UI/**/*.{xcassets,png,wav,svg,html}',
             'Classes/WebRTCUI/UI/*.{storyboard}']}

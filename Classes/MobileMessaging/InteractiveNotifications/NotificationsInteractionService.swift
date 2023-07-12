@@ -7,7 +7,6 @@
 
 import Foundation
 import UserNotifications
-import UIKit
 
 extension MobileMessaging {
 	/// Fabric method for Mobile Messaging session.

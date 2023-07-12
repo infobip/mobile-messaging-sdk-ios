@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 protocol WebViewToolbarDelegate {
 	func webViewToolbarDidPressDismiss()
