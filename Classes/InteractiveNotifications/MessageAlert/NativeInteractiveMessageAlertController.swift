@@ -1,7 +1,11 @@
 import UIKit
 
+protocol NativeInteractiveMessageAlertControllerDelegate: AnyObject {
+    func nativeInteractiveMessageAlertControllerDidDismissWithAction(_ action: MMNotificationAction, categoryId: String?);
+}
+
 /// Shows an old-style in-app message using an interface composed of native views.
-class NativeInteractiveMessageAlertController: UIViewController, InteractiveMessageAlertController {
+class NativeInteractiveMessageAlertController: UIViewController {
 	private static let buttonHeight : CGFloat = 50
 	private static let alertWidth : CGFloat = 270
 	private static let maxImageHeight : CGFloat = 180
@@ -23,17 +27,21 @@ class NativeInteractiveMessageAlertController: UIViewController, InteractiveMess
 	private let messageText: String
 	private let imageURL: URL?
 	private let image: Image?
+    private let categoryId: String?
 	private var buttons: [InteractiveMessageButton]!
+    unowned var delegate: NativeInteractiveMessageAlertControllerDelegate?
 	
-	var actionHandler: ((MMNotificationAction) -> Void)?
-	var dismissHandler: (() -> Void)?
-	
-	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, dismissTitle: String?, openTitle: String?, actionHandler: ((MMNotificationAction) -> Void)? = nil) {
+	init(titleText: String?,
+         messageText: String,
+         imageURL: URL?,
+         image: Image?,
+         dismissTitle: String?,
+         openTitle: String?) {
 		self.titleText = titleText
 		self.messageText = messageText
 		self.imageURL = imageURL
 		self.image = image
-		self.actionHandler = actionHandler
+        self.categoryId = nil
 		
         super.init(nibName: "NativeInteractiveMessageAlertController", bundle: MobileMessaging.resourceBundle)
 		
@@ -45,9 +53,7 @@ class NativeInteractiveMessageAlertController: UIViewController, InteractiveMess
 				return InteractiveMessageButton(title: action.title,
 												style: action.options.contains(.destructive) ? .destructive : .default,
 												isBold: action.identifier == MMNotificationAction.DefaultActionId,
-												handler: {
-													self.dismissAndPerformAction(action)
-				})
+                                                handler: { self.dismissAndNotifyDelegate(action) })
 			}
 			return ret
 		}()
@@ -56,27 +62,26 @@ class NativeInteractiveMessageAlertController: UIViewController, InteractiveMess
 		self.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
 	}
 	
-	init(titleText: String?, messageText: String, imageURL: URL?, image: Image?, category: MMNotificationCategory, actionHandler: ((MMNotificationAction) -> Void)? = nil) {
+	init(titleText: String?,
+         messageText: String,
+         imageURL: URL?,
+         image: Image?,
+         category: MMNotificationCategory) {
 		self.titleText = titleText
 		self.messageText = messageText
 		self.imageURL = imageURL
 		self.image = image
-		self.actionHandler = actionHandler
+        self.categoryId = category.identifier
 		
         super.init(nibName: "NativeInteractiveMessageAlertController", bundle: MobileMessaging.resourceBundle)
 		
-		self.buttons = {
-			let ret = category.actions.map { action in
-				return InteractiveMessageButton(
-					title: action.title,
-					style: action.options.contains(.destructive) ? .destructive : .default,
-					isBold: action.identifier == "mm_accept",
-					handler: {
-						self.dismissAndPerformAction(action)
-				})
-			}
-			return ret
-		}()
+		self.buttons = category.actions.map { action in
+            InteractiveMessageButton(
+                title: action.title,
+                style: action.options.contains(.destructive) ? .destructive : .default,
+                isBold: action.identifier == "mm_accept",
+                handler: { self.dismissAndNotifyDelegate(action) })
+        }
 		
 		self.modalPresentationStyle = UIModalPresentationStyle.overFullScreen
 		self.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
@@ -116,16 +121,15 @@ class NativeInteractiveMessageAlertController: UIViewController, InteractiveMess
 		}
 	}
 	
-	private func dismissAndPerformAction(_ action: MMNotificationAction) {
-		dismiss(animated: true, completion: {
-			self.dismissHandler?()
-			self.actionHandler?(action)
-		})
+	private func dismissAndNotifyDelegate(_ action: MMNotificationAction) {
+        dismiss(animated: true) {
+            self.delegate?.nativeInteractiveMessageAlertControllerDidDismissWithAction(action, categoryId: self.categoryId)
+        }
 	}
 
 	@objc private func dismissAction(_ sender: InteractiveMessageButton){
-		dismissAndPerformAction(MMNotificationAction.dismissAction())
-	}
+        dismissAndNotifyDelegate(MMNotificationAction.dismissAction())
+    }
 	
 	private func setShadowAlertView(){
 		shadowView.layer.cornerRadius = 12

@@ -1,9 +1,9 @@
 /// Implementation of `InAppMessagePresenter` which shows an old-style in-app message as a native popup. Preloaded resource is an image.
-class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
+class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter, NativeInteractiveMessageAlertControllerDelegate {
     private let message: MM_MTMessage
     private let text: String
-    private unowned var delegate: InAppMessagePresenterDelegate
-    private var messageController: InteractiveMessageAlertController?
+    private unowned let delegate: InAppMessagePresenterDelegate
+    private var messageController: NativeInteractiveMessageAlertController?
     
     init(forMessage message: MM_MTMessage, text: String, withDelegate delegate: InAppMessagePresenterDelegate) {
         self.message = message
@@ -50,12 +50,9 @@ class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
     }
     
     private func present(image: Image?) -> Void {
-        guard let newMessageController = createMessageController(image: image) else {
-            logError("couldn't create the view controller for the message")
-            delegate.didFailToPresent()
-            return
-        }
-
+        let category = message.getCategoryForInteractiveMessageAlertController()
+        let newMessageController = createMessageControllerWithCategory(category, image: image)
+        
         guard let presenterController = delegate.getPresenterViewController() else {
             logError("couldn't find the presenter view controller to present the message")
             delegate.didFailToPresent()
@@ -63,35 +60,34 @@ class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
         }
 
         self.messageController = newMessageController
-
-        newMessageController.dismissHandler = { [unowned self] in
-            self.delegate.didDismissMessage()
-            self.messageController = nil
-        }
+        newMessageController.delegate = self
         presenterController.present(newMessageController, animated: true, completion: nil)
     }
     
-    private func createMessageController(image: Image?) -> InteractiveMessageAlertController? {
-        if let categoryId = message.category,
-           let category = MobileMessaging.category(withId: categoryId),
-           category.actions.first(where: { return $0 is MMTextInputNotificationAction } ) == nil {
+    // MARK: - NativeInteractiveMessageAlertControllerDelegate
+    func nativeInteractiveMessageAlertControllerDidDismissWithAction(_ action: MMNotificationAction, categoryId: String?) {
+        self.delegate.didDismissMessage()
+        self.messageController = nil
+        
+        MobileMessaging.handleAction(
+            identifier: action.identifier,
+            category: categoryId,
+            message: self.message,
+            notificationUserInfo: self.message.originalPayload,
+            userText: nil,
+            completionHandler: {}
+        )
+    }
+    
+    // MARK: -
+    private func createMessageControllerWithCategory(_ category: MMNotificationCategory?, image: Image?) -> NativeInteractiveMessageAlertController {
+        if let category {
             return NativeInteractiveMessageAlertController(
                 titleText: message.title,
                 messageText: text,
                 imageURL: nil,
                 image: image,
-                category: category,
-                actionHandler: {
-                    action in
-                    MobileMessaging.handleAction(
-                        identifier: action.identifier,
-                        category: categoryId,
-                        message: self.message,
-                        notificationUserInfo: self.message.originalPayload,
-                        userText: nil,
-                        completionHandler: {}
-                    )
-            })
+                category: category)
         } else {
             return NativeInteractiveMessageAlertController(
                 titleText: message.title,
@@ -99,18 +95,18 @@ class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter {
                 imageURL: nil,
                 image: image,
                 dismissTitle: message.inAppDismissTitle,
-                openTitle: message.inAppOpenTitle,
-                actionHandler: {
-                    action in
-                    MobileMessaging.handleAction(
-                        identifier: action.identifier,
-                        category: nil,
-                        message: self.message,
-                        notificationUserInfo: self.message.originalPayload,
-                        userText: nil,
-                        completionHandler: {}
-                    )
-                })
+                openTitle: message.inAppOpenTitle)
         }
+    }
+}
+
+fileprivate extension MM_MTMessage {
+    func getCategoryForInteractiveMessageAlertController() -> MMNotificationCategory? {
+        if let categoryId = self.category,
+           let category = MobileMessaging.category(withId: categoryId),
+           category.actions.first(where: { return $0 is MMTextInputNotificationAction } ) == nil {
+            return category
+        }
+        return nil
     }
 }

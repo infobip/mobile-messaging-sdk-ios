@@ -2,12 +2,10 @@ import Foundation
 import WebKit
 
 /// Shows a new-style in-app message using a webView.
-class WebInteractiveMessageAlertController: UIViewController, InteractiveMessageAlertController, WKNavigationDelegate {
-    private enum Mode {
-        case preloadedWebViewWithHeightProvided(CGFloat)
-        case fromScratch
-    }
-    
+class WebInteractiveMessageAlertController: UIViewController,
+                                            WKNavigationDelegate,
+                                            MiscEventListener,
+                                            UserInteractionEventListener {
     struct Options {
         static func makeDefault () -> Self {
             Options(cornerRadius: MMInteractiveMessageAlertSettings.cornerRadius)
@@ -23,12 +21,15 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     private let message: MMInAppMessage
     private let mode: Mode
     
-    internal var dismissHandler: (() -> Void)?
+    unowned var delegate: InAppMessageDelegate?
     private let msgView: WebInAppMessageView
-    private let inAppMessageClient: InAppMessageScriptClient
     
     /// Timer which schedules automatic dismiss of `msgView` if there is no user interaction
     private var mgsViewAutoDismissTimer: Timer?
+    
+    // MARK: - Script Interaction
+    private let scriptEventRecipient: ScriptEventRecipient
+    private let scriptMethodInvoker: ScriptMethodInvoker
     
     // MARK: - Fullscreen Constraints
     private var msgViewHeightToSafeArea: NSLayoutConstraint! // priority: 800
@@ -47,7 +48,10 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     private var msgViewBottomMargin: NSLayoutConstraint! // priority 1000
     
     // MARK: - Init
-    init(message: MMInAppMessage, webViewWithHeight: WebViewWithHeight?, options: Options = Options.makeDefault()) {
+    init(
+        message: MMInAppMessage,
+        webViewWithHeight: WebViewWithHeight?,
+        options: Options = Options.makeDefault()) {
         self.message = message
         
         if let webViewWithHeight {
@@ -59,12 +63,16 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         }
         
         msgView.cornerRadius = CGFloat(options.cornerRadius)
-        inAppMessageClient = InAppMessageScriptClient(webView: msgView.webView)
+                    
+        scriptEventRecipient = ScriptEventRecipient(webView: msgView.webView)
+        scriptMethodInvoker = ScriptMethodInvoker(webView: msgView.webView)
         
         super.init(nibName: WebInteractiveMessageAlertController.nibName, bundle: MobileMessaging.resourceBundle)
         
         modalPresentationStyle = UIModalPresentationStyle.overFullScreen
         modalTransitionStyle = UIModalTransitionStyle.crossDissolve
+        
+        scriptEventRecipient.listener = self
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -79,7 +87,6 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         initializeStaticConstraints()
         initializeDynamicConstraints()
         
-        initializeWebViewMessageHandlers()
         configureMsgViewConstraints()
         
         switch mode {
@@ -101,7 +108,7 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     
     // MARK: - Actions
     @IBAction func onBackgroundTap(_ sender: UITapGestureRecognizer) {
-        close()
+        dismissAndNotifyDelegate()
     }
     
     // MARK: - Static Utils
@@ -113,10 +120,51 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     
     // MARK: - WKNavigationDelegate
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        inAppMessageClient.readBodyHeight { [self] height, error in
+        scriptMethodInvoker.readBodyHeight { [self] height, error in
             guard let height else { return }
             msgViewHeight.constant = height
         }
+    }
+    
+    // MARK: - UserInteractionEventListener
+    func scriptEventRecipientDidDetectOpenBrowser(withUrl url: String) {
+        dismiss(animated: true) {
+            self.delegate?.inAppMessageDidReceiveAction(MMNotificationAction.PrimaryActionId,
+                                                               internalDataKey: Consts.InternalDataKeys.browserUrl,
+                                                               url: url)
+        }
+    }
+    
+    func scriptEventRecipientDidDetectOpenWebView(withUrl url: String) {
+        dismiss(animated: true) {
+            self.delegate?.inAppMessageDidReceiveAction(MMNotificationAction.PrimaryActionId,
+                                                               internalDataKey: Consts.InternalDataKeys.webViewUrl,
+                                                               url: url)
+        }
+    }
+    
+    func scriptEventRecipientDidDetectOpenAppPage(withDeeplink deeplink: String) {
+        dismiss(animated: true) {
+            self.delegate?.inAppMessageDidReceiveAction(MMNotificationAction.PrimaryActionId,
+                                                               internalDataKey: Consts.InternalDataKeys.deeplink,
+                                                               url: deeplink)
+        }
+    }
+    
+    func scriptEventRecipientDidDetectClose() {
+        dismiss(animated: true) {
+            self.delegate?.inAppMessageDidClose()
+        }
+    }
+    
+    // MARK: - MiscEventListener
+    func scriptEventRecipientDidDetectChangeOfHeight(_ height: Double) {
+        let heightPts = height * self.view.contentScaleFactor
+        self.msgViewHeight.constant = heightPts
+    }
+    
+    func scriptEventRecipientDidDetectDocumentState(_ state: DocumentReadyState) {
+        // pass
     }
     
     // MARK: - Private
@@ -124,19 +172,6 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
     private static func setActiveState(_ active: Bool, toConstraints constraints: [NSLayoutConstraint]) {
         for constraint in constraints {
             constraint.isActive = active
-        }
-    }
-    
-    private func initializeWebViewMessageHandlers() {
-        inAppMessageClient.onInAppMessageClosed() { [weak self] _ in self?.close() }
-        
-        if message.type == .popup {
-            inAppMessageClient.onHeightChanged() { [weak self] message in
-                if let height = (message.body as? NSNumber)?.doubleValue, let self {
-                    let heightPts = height * self.view.contentScaleFactor
-                    self.msgViewHeight.constant = heightPts
-                }
-            }
         }
     }
     
@@ -214,9 +249,13 @@ class WebInteractiveMessageAlertController: UIViewController, InteractiveMessage
         }
     }
     
-    /// Dismisses the controller and calls the dismiss handler if it exists.
     @objc
-    private func close() {
-        dismiss(animated: true) { [weak self] in self?.dismissHandler?() }
+    private func dismissAndNotifyDelegate() {
+        dismiss(animated: true) { self.delegate?.inAppMessageDidDismiss() }
     }
+}
+
+private enum Mode {
+    case preloadedWebViewWithHeightProvided(CGFloat)
+    case fromScratch
 }

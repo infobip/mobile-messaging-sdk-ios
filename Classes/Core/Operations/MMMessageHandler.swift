@@ -77,13 +77,7 @@ class MMMessageHandler: MobileMessagingService {
 			return
 		}
         
-        if let msg = MMInAppMessage(payload: userInfo,
-                                    deliveryMethod: .push,
-                                    seenDate: nil,
-                                    deliveryReportDate: nil,
-                                    seenStatus: .NotSeen,
-                                    isDeliveryReportSent: false)
-            ?? MM_MTMessage(payload: userInfo,
+        if let msg = MM_MTMessage(payload: userInfo,
                          deliveryMethod: .push,
                          seenDate: nil,
                          deliveryReportDate: nil,
@@ -107,8 +101,17 @@ class MMMessageHandler: MobileMessagingService {
 			completion(.noData)
 			return
 		}
-		
-        messageHandlingQueue.addOperation(MessageHandlingOperation(userInitiated: userInitiated, messagesToHandle: messages, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
+		 
+        let messagesToHandle = messages.map { message in
+            return MMInAppMessage(payload: message.originalPayload,
+                                  deliveryMethod: .push,
+                                  seenDate: nil,
+                                  deliveryReportDate: nil,
+                                  seenStatus: .NotSeen,
+                                  isDeliveryReportSent: false)
+          ?? message
+        }
+        messageHandlingQueue.addOperation(MessageHandlingOperation(userInitiated: userInitiated, messagesToHandle: messagesToHandle, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
 			{ [weak self] error, newMessages in
             
                 guard let _self = self else {

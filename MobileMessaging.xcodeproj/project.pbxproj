@@ -17,12 +17,14 @@
 		4266599A298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42665999298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift */; };
 		4266599C298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4266599B298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib */; };
 		427990E029A8F2F70079620C /* AlertOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 427990DF29A8F2F70079620C /* AlertOperation.swift */; };
-		429CCD6A298C0B5300B4294A /* InteractiveMessageAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */; };
 		42A31C7929A904870091796A /* InAppMessagePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A31C7829A904870091796A /* InAppMessagePresenter.swift */; };
 		42A31C7C29A9160D0091796A /* NativeInAppMessagePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A31C7B29A9160D0091796A /* NativeInAppMessagePresenter.swift */; };
 		42A31C7E29A9161C0091796A /* WebInAppMessagePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A31C7D29A9161C0091796A /* WebInAppMessagePresenter.swift */; };
+		42AC4BD82A5314AD00357F9A /* NotificationsInteractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */; };
+		42B01E132A5468BA0073EB22 /* ScriptMethodInvoker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B01E122A5468BA0073EB22 /* ScriptMethodInvoker.swift */; };
+		42B01E152A5469090073EB22 /* DocumentReadyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B01E142A5469090073EB22 /* DocumentReadyState.swift */; };
 		42C2FDC829B5FF12002B4CD8 /* MMInAppMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C2FDC729B5FF12002B4CD8 /* MMInAppMessage.swift */; };
-		42D65D0529AF642600692299 /* InAppMessageScriptClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D65D0429AF642600692299 /* InAppMessageScriptClient.swift */; };
+		42D65D0529AF642600692299 /* ScriptEventRecipient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D65D0429AF642600692299 /* ScriptEventRecipient.swift */; };
 		6C60A4A31FD6B169001744BC /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C60A4A11FD6B169001744BC /* State.swift */; };
 		760085811F977CC100837D75 /* MTMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085801F977CC100837D75 /* MTMessage.swift */; };
 		760085831F977E3300837D75 /* MOMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760085821F977E3300837D75 /* MOMessage.swift */; };
@@ -149,7 +151,6 @@
 		764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564E1F78FF4F00B8F14B /* MMGeoRequests.swift */; };
 		764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */; };
 		764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */; };
-		764556B81F78FF9D00B8F14B /* NotificationsInteractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */; };
 		764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645563F1F78FF4F00B8F14B /* Message+CoreDataProperties.swift */; };
 		764556BA1F78FFB200B8F14B /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556401F78FF4F00B8F14B /* Message.swift */; };
 		764556BB1F78FFB200B8F14B /* MMDefaultMessageStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556411F78FF4F00B8F14B /* MMDefaultMessageStorage.swift */; };
@@ -276,12 +277,13 @@
 		42665999298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebInteractiveMessageAlertController.swift; sourceTree = "<group>"; };
 		4266599B298BF66D00E3D3FE /* WebInteractiveMessageAlertController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WebInteractiveMessageAlertController.xib; sourceTree = "<group>"; };
 		427990DF29A8F2F70079620C /* AlertOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertOperation.swift; sourceTree = "<group>"; };
-		429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveMessageAlertController.swift; sourceTree = "<group>"; };
 		42A31C7829A904870091796A /* InAppMessagePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagePresenter.swift; sourceTree = "<group>"; };
 		42A31C7B29A9160D0091796A /* NativeInAppMessagePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeInAppMessagePresenter.swift; sourceTree = "<group>"; };
 		42A31C7D29A9161C0091796A /* WebInAppMessagePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppMessagePresenter.swift; sourceTree = "<group>"; };
+		42B01E122A5468BA0073EB22 /* ScriptMethodInvoker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptMethodInvoker.swift; sourceTree = "<group>"; };
+		42B01E142A5469090073EB22 /* DocumentReadyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentReadyState.swift; sourceTree = "<group>"; };
 		42C2FDC729B5FF12002B4CD8 /* MMInAppMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMInAppMessage.swift; sourceTree = "<group>"; };
-		42D65D0429AF642600692299 /* InAppMessageScriptClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessageScriptClient.swift; sourceTree = "<group>"; };
+		42D65D0429AF642600692299 /* ScriptEventRecipient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptEventRecipient.swift; sourceTree = "<group>"; };
 		5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "MobileMessaging-dummy.m"; sourceTree = "<group>"; };
 		67D34D6EBA51E58A87E7A34D766E7A15 /* MobileMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MobileMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -681,7 +683,9 @@
 				42A31C7829A904870091796A /* InAppMessagePresenter.swift */,
 				42A31C7B29A9160D0091796A /* NativeInAppMessagePresenter.swift */,
 				42A31C7D29A9161C0091796A /* WebInAppMessagePresenter.swift */,
-				42D65D0429AF642600692299 /* InAppMessageScriptClient.swift */,
+				42D65D0429AF642600692299 /* ScriptEventRecipient.swift */,
+				42B01E122A5468BA0073EB22 /* ScriptMethodInvoker.swift */,
+				42B01E142A5469090073EB22 /* DocumentReadyState.swift */,
 			);
 			path = InAppMessagePresenter;
 			sourceTree = "<group>";
@@ -719,7 +723,6 @@
 				427990DC29A8F07E0079620C /* AlertQueue */,
 				7601F1AB208E057E00738C1A /* InteractiveMessageButton.swift */,
 				7601F1B4208E0F5500738C1A /* InteractiveMessageAlertManager.swift */,
-				429CCD69298C0B5300B4294A /* InteractiveMessageAlertController.swift */,
 				7601F1AC208E057E00738C1A /* NativeInteractiveMessageAlertController.swift */,
 				7601F1AA208E057E00738C1A /* NativeInteractiveMessageAlertController.xib */,
 				42665999298BF64900E3D3FE /* WebInteractiveMessageAlertController.swift */,
@@ -1400,11 +1403,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				763A1AFC23E4989700C997BC /* EventsService.swift in Sources */,
+				42B01E132A5468BA0073EB22 /* ScriptMethodInvoker.swift in Sources */,
 				763A1AEB23E4633E00C997BC /* CustomEventReportingOperation.swift in Sources */,
 				31F0403629F7D63400E3928E /* WebInAppBannerManager.swift in Sources */,
 				7620450427C91E1D007970F8 /* MMInbox.swift in Sources */,
 				7617505623351827000438A8 /* Result.swift in Sources */,
-				42A31C7E29A9161C0091796A /* WebInAppMessagePresenter.swift in Sources */,
 				42A31C7E29A9161C0091796A /* WebInAppMessagePresenter.swift in Sources */,
 				764556CF1F78FFD900B8F14B /* TegKeychainConstants.swift in Sources */,
 				764556781F78FF5800B8F14B /* MMVersion.swift in Sources */,
@@ -1462,6 +1465,7 @@
 				764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */,
 				764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */,
 				ADF203492086642C00E157D7 /* Generics.swift in Sources */,
+				42AC4BD82A5314AD00357F9A /* NotificationsInteractionService.swift in Sources */,
 				76A8A77921959F84004F6E39 /* UpdateInstanceOperation.swift in Sources */,
 				7601F1A6208E056500738C1A /* Placeholder.swift in Sources */,
 				764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */,
@@ -1490,7 +1494,6 @@
 				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
 				7626041124EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift in Sources */,
 				42A31C7929A904870091796A /* InAppMessagePresenter.swift in Sources */,
-				42A31C7929A904870091796A /* InAppMessagePresenter.swift in Sources */,
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
 				76626D0F218AFCA600E95E2C /* InstallationDataService.swift in Sources */,
 				764556D71F78FFE700B8F14B /* Operation.swift in Sources */,
@@ -1502,7 +1505,6 @@
 				7650DC3C244EEB480016233D /* CPLabel.swift in Sources */,
 				7650DC3D244EEB480016233D /* CPKeyboardAwareScrollViewController.swift in Sources */,
 				7617506323351827000438A8 /* ServerTrustPolicy.swift in Sources */,
-				42C2FDC829B5FF12002B4CD8 /* MMInAppMessage.swift in Sources */,
 				42C2FDC829B5FF12002B4CD8 /* MMInAppMessage.swift in Sources */,
 				7601F1B1208E057F00738C1A /* NativeInteractiveMessageAlertController.swift in Sources */,
 				76A26CB6230D59A200F00717 /* Migration_1_3.xcmappingmodel in Sources */,
@@ -1527,7 +1529,6 @@
 				7620450627C91E47007970F8 /* MMInboxFilterOptions.swift in Sources */,
 				764E651623DA2BB6002F07D2 /* UserSessionMapper.swift in Sources */,
 				7601F19A208E056500738C1A /* Resource.swift in Sources */,
-				42A31C7C29A9160D0091796A /* NativeInAppMessagePresenter.swift in Sources */,
 				42A31C7C29A9160D0091796A /* NativeInAppMessagePresenter.swift in Sources */,
 				76A26CB8230D59CC00F00717 /* Migration_2_3.xcmappingmodel in Sources */,
 				7617506123351827000438A8 /* ResponseSerialization.swift in Sources */,
@@ -1576,7 +1577,6 @@
 				764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */,
 				7617506623351827000438A8 /* Notifications.swift in Sources */,
 				7601F1B5208E0F5500738C1A /* InteractiveMessageAlertManager.swift in Sources */,
-				7601F1B5208E0F5500738C1A /* InteractiveMessageAlertManager.swift in Sources */,
 				ADF203402086642C00E157D7 /* Utils.swift in Sources */,
 				764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */,
 				7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */,
@@ -1586,10 +1586,10 @@
 				764556A61F78FF8B00B8F14B /* UserNotificationCenterDelegate.swift in Sources */,
 				7601F198208E056500738C1A /* CacheSerializer.swift in Sources */,
 				7617506223351827000438A8 /* Response.swift in Sources */,
-				764556B81F78FF9D00B8F14B /* NotificationsInteractionService.swift in Sources */,
 				7617505F23351827000438A8 /* ParameterEncoding.swift in Sources */,
 				7663A2721FC8262600903C12 /* DynamicBaseUrlHTTPSessionManager.swift in Sources */,
 				763A1AF723E4873000C997BC /* CustomEventObject+CoreDataProperties.swift in Sources */,
+				42B01E152A5469090073EB22 /* DocumentReadyState.swift in Sources */,
 				7642820D21920F5F0053A063 /* InstallationMigrationPolicy.swift in Sources */,
 				764556891F78FF6500B8F14B /* InstallationManagedObject+CoreDataProperties.swift in Sources */,
 				7601F194208E056400738C1A /* RequestModifier.swift in Sources */,
@@ -1616,9 +1616,7 @@
 				ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
 				318D1B8D2A1B934F000F58CC /* WebInAppMessageView.swift in Sources */,
-				42D65D0529AF642600692299 /* InAppMessageScriptClient.swift in Sources */,
-				42D65D0529AF642600692299 /* InAppMessageScriptClient.swift in Sources */,
-				429CCD6A298C0B5300B4294A /* InteractiveMessageAlertController.swift in Sources */,
+				42D65D0529AF642600692299 /* ScriptEventRecipient.swift in Sources */,
 				7645569C1F78FF8500B8F14B /* MessageHandlingOperation.swift in Sources */,
 				764556BD1F78FFB700B8F14B /* StorageProtocols.swift in Sources */,
 				76790D1F234E14CA000D6587 /* Transformer.swift in Sources */,
@@ -1640,7 +1638,6 @@
 				764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */,
 				7689347724ED700600411B1D /* GeoEventPersistingOperation.swift in Sources */,
 				764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */,
-				427990E029A8F2F70079620C /* AlertOperation.swift in Sources */,
 				427990E029A8F2F70079620C /* AlertOperation.swift in Sources */,
 				7635ABBD2431404E0069AE1D /* WebViewController.swift in Sources */,
 				D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */,

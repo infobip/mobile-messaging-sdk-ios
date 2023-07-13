@@ -2,8 +2,7 @@ import Foundation
 import UIKit
 import WebKit
 
-
-class WebInAppBannerManager: NSObject, WKNavigationDelegate {
+class WebInAppBannerManager: NSObject, NamedLogger, WKNavigationDelegate, UserInteractionEventListener {
     private enum Mode {
         case preloadedWebViewWithHeightProvided(CGFloat)
         case fromScratch
@@ -30,10 +29,9 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
     
     private let message: MMInAppMessage
     private let mode: Mode
+    weak var delegate: InAppMessageDelegate?
     
-    internal var dismissHandler: (() -> Void)?
     private let msgView: WebInAppMessageView
-    private let inAppMessageClient: InAppMessageScriptClient
     
     /// Timer which schedules automatic dismiss of `msgView` if there is no user interaction
     private var mgsViewAutoDismissTimer: Timer?
@@ -54,8 +52,16 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
     /// Our main "view" which will hold the banner and show our msgView
     private var keyWindow: UIWindow!
     
+    // MARK: - Script Interaction
+    private let scriptEventRecipient: ScriptEventRecipient
+    private let scriptMethodInvoker: ScriptMethodInvoker
+    
     // MARK: - Init
-    init(message: MMInAppMessage, webViewWithHeight: WebViewWithHeight?, options: Options = Options.makeDefault()) {
+    init(
+        message: MMInAppMessage,
+        webViewWithHeight: WebViewWithHeight?,
+        options: Options = Options.makeDefault()
+    ) {
         self.message = message
         
         if let webViewWithHeight {
@@ -69,8 +75,13 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
         // stops StatusBar from pushing webView's content down
         msgView.webView.scrollView.contentInsetAdjustmentBehavior = .never
         msgView.cornerRadius = CGFloat(options.cornerRadius)
-        inAppMessageClient = InAppMessageScriptClient(webView: msgView.webView)
         
+        scriptEventRecipient = ScriptEventRecipient(webView: msgView.webView)
+        scriptMethodInvoker = ScriptMethodInvoker(webView: msgView.webView)
+        
+        super.init()
+        
+        scriptEventRecipient.listener = self
     }
     
     func startPresenting() {
@@ -90,7 +101,6 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
         msgView.translatesAutoresizingMaskIntoConstraints = false
         initializeStaticConstraints()
         initializeDynamicConstraints()
-        initializeWebViewMessageHandlers()
         configureMsgViewConstraints()
         
         switch mode {
@@ -106,7 +116,7 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
         mgsViewAutoDismissTimer = Timer.scheduledTimer(
             timeInterval: WebInAppBannerManager.bannerAutoDismissDuration,
             target: self,
-            selector: #selector(dismiss),
+            selector: #selector(dismissAndNotifyDelegate),
             userInfo: nil,
             repeats: false)
     }
@@ -149,10 +159,39 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
     
     // MARK: - WKNavigationDelegate
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        inAppMessageClient.readBodyHeight { [self] height, error in
+        scriptMethodInvoker.readBodyHeight { [self] height, error in
             guard let height else { return }
             msgViewHeight.constant = height
         }
+    }
+    
+    // MARK: - UserInteractionEventListener
+    func scriptEventRecipientDidDetectOpenBrowser(withUrl url: String) {
+        dismiss {
+            self.delegate?.inAppMessageDidReceiveAction(MMNotificationAction.DefaultActionId,
+                                                        internalDataKey: Consts.InternalDataKeys.browserUrl,
+                                                        url: url)
+        }
+    }
+    
+    func scriptEventRecipientDidDetectOpenWebView(withUrl url: String) {
+        dismiss {
+            self.delegate?.inAppMessageDidReceiveAction(MMNotificationAction.DefaultActionId,
+                                                        internalDataKey: Consts.InternalDataKeys.webViewUrl,
+                                                        url: url)
+        }
+    }
+    
+    func scriptEventRecipientDidDetectOpenAppPage(withDeeplink deeplink: String) {
+        dismiss {
+            self.delegate?.inAppMessageDidReceiveAction(MMNotificationAction.DefaultActionId,
+                                                        internalDataKey: Consts.InternalDataKeys.deeplink,
+                                                        url: deeplink)
+        }
+    }
+    
+    func scriptEventRecipientDidDetectClose() {
+        dismiss { self.delegate?.inAppMessageDidClose() }
     }
     
     // MARK: - Private
@@ -161,10 +200,6 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
         for constraint in constraints {
             constraint.isActive = active
         }
-    }
-    
-    private func initializeWebViewMessageHandlers() {
-        inAppMessageClient.onInAppMessageClosed() { [weak self] _ in self?.dismiss() }
     }
     
     /// Initializes constraints which are static in a sense that they hold forever and never need to be adjusted again.
@@ -234,12 +269,19 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
         }
     }
     
-    /// Dismisses the banner and calls the dismiss handler if it exists.
     @objc
-    func dismiss() {
+    func dismissAndNotifyDelegate() {
+        dismiss { self.delegate?.inAppMessageDidDismiss() }
+    }
+    
+    func dismiss(_ action: ( () -> Void)? = nil) {
         mgsViewAutoDismissTimer?.invalidate()
         let direction = message.position == .top ? -1 : 1
         let transformDirection = CGAffineTransformMakeTranslation(0, WebInAppBannerManager.bannerAnimationOffset * CGFloat(direction))
+        let animations = {
+            self.keyWindow.layoutIfNeeded()
+            self.msgView.transform = transformDirection
+        }
         
         UIView.animate(
             withDuration: WebInAppBannerManager.bannerAnimationDuration,
@@ -247,12 +289,9 @@ class WebInAppBannerManager: NSObject, WKNavigationDelegate {
             usingSpringWithDamping: WebInAppBannerManager.bannerAnimationUsingSpringWithDamping,
             initialSpringVelocity: WebInAppBannerManager.bannerAnimationInitialSpringVelocity,
             options: [.curveLinear, .allowUserInteraction],
-            animations: {
-                self.keyWindow.layoutIfNeeded()
-                self.msgView.transform = transformDirection
-            }) { _ in
+            animations: animations) { _ in
                 self.msgView.removeFromSuperview()
-                self.dismissHandler?()
+                action?()
             }
     }
 }
