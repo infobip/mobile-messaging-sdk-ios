@@ -1,5 +1,8 @@
 import WebKit
 
+/// The minimal distance between in-app message and the edge of the screen.
+let inAppHorizontalMargin: CGFloat = 8
+
 typealias WebViewWithHeight = (webView: WKWebView, height: CGFloat)
 
 /// Protocol through which popup and banner notifiy about actions and dismissal.
@@ -103,7 +106,7 @@ class WebInAppMessagePresenter: NamedLogger,
                     self?.delegate.didPresent()
                 })
                 webView.navigationDelegate = webViewDelegate
-                webView.frame.width = calculateInAppMessageWidth(superFrame: appWindow.frame, margin: 8)
+                webView.frame.width = appWindow.frame.smallerDimension - 2 * inAppHorizontalMargin
                 let request = prepareWebViewURLRequest(url: message.url)
                 webView.load(request)
             } else {
@@ -204,7 +207,7 @@ private class WebViewPreloadingDelegate: NSObject, WKNavigationDelegate, NamedLo
 }
 
 internal func calculateInAppMessageWidth(superFrame: CGRect, margin: CGFloat) -> CGFloat {
-    superFrame.width - margin * 2
+    return superFrame.width - margin * 2
 }
 
 fileprivate extension MM_MTMessage {
@@ -224,5 +227,13 @@ fileprivate extension MM_MTMessage {
             deliveryReportDate: deliveryReportedDate,
             seenStatus: seenStatus,
             isDeliveryReportSent: isDeliveryReportSent)
+    }
+}
+
+extension CGRect {
+    var smallerDimension: CGFloat {
+        get {
+            return min(height, width)
+        }
     }
 }

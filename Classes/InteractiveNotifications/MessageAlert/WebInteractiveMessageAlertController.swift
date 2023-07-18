@@ -16,7 +16,6 @@ class WebInteractiveMessageAlertController: UIViewController,
     
     private static let nibName = "WebInteractiveMessageAlertController"
     private static let initialHeight = 100.0
-    private static let margin = 8.0
     
     private let message: MMInAppMessage
     private let mode: Mode
@@ -182,18 +181,14 @@ class WebInteractiveMessageAlertController: UIViewController,
             msgView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
             // Constraint which defines specific width of `msgView`.
-            msgView.widthAnchor.constraint(equalToConstant: calculateInAppMessageWidth(
-                superFrame: view.frame,
-                margin: WebInteractiveMessageAlertController.margin))
+            msgView.widthAnchor.constraint(equalToConstant: view.frame.smallerDimension - 2 * inAppHorizontalMargin)
         ]
         WebInteractiveMessageAlertController.setPriority(800, toConstraints: constraints)
         NSLayoutConstraint.activate(constraints)
         
         let horizontalMarginConstraints = [
-            msgView.leftAnchor.constraint(greaterThanOrEqualTo: view.leftAnchor,
-                                          constant: WebInteractiveMessageAlertController.margin),
-            msgView.rightAnchor.constraint(lessThanOrEqualTo: view.rightAnchor,
-                                           constant: -WebInteractiveMessageAlertController.margin),
+            msgView.leftAnchor.constraint(greaterThanOrEqualTo: view.leftAnchor, constant: inAppHorizontalMargin),
+            msgView.rightAnchor.constraint(lessThanOrEqualTo: view.rightAnchor, constant: -inAppHorizontalMargin),
         ]
         
         WebInteractiveMessageAlertController.setPriority(1000, toConstraints: horizontalMarginConstraints)
@@ -221,10 +216,8 @@ class WebInteractiveMessageAlertController: UIViewController,
             equalToConstant: WebInteractiveMessageAlertController.initialHeight)
         WebInteractiveMessageAlertController.setPriority(700, toConstraints: [msgViewHeight])
         
-        msgViewTopMargin = msgView.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor,
-                                                        constant: WebInteractiveMessageAlertController.margin)
-        msgViewBottomMargin = msgView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor,
-                                                              constant: -WebInteractiveMessageAlertController.margin)
+        msgViewTopMargin = msgView.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor, constant: inAppHorizontalMargin)
+        msgViewBottomMargin = msgView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -inAppHorizontalMargin)
         
         msgViewTopMargin.isActive = true
         msgViewBottomMargin.isActive = true
