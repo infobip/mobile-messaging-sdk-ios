@@ -72,8 +72,12 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         webView.backgroundColor = bckgColor
         webView.isOpaque = false
         view.backgroundColor = bckgColor
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(appBecomeActive), name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appBecomeInactive), name: UIApplication.didEnterBackgroundNotification, object: nil)
+
     }
-    
+
     open override func viewWillDisappear(_ animated: Bool) {
         draftPostponer.postponeBlock(delay: 0) { [weak self] in
             if let composeBar = self?.composeBarView as? ComposeBar {
@@ -193,6 +197,17 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             dismiss(animated: true) // viewController is a modal
         } else {
             navigationController?.popViewController(animated: true) // regular presentation
+        }
+    }
+    
+    public func stopConnection() {
+        webView.load(URLRequest(url: URL(string: "about:blank")!))
+    }
+    
+    public func restartConnection() {
+        if let chatWidget = chatWidget {
+            stopConnection()
+            didLoadWidget(chatWidget)
         }
     }
     
@@ -349,6 +364,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         self.view.addSubview(self.chatNotAvailableLabel)
     }
     
+    @objc private func appBecomeActive() {
+        restartConnection()
+    }
+    
+    @objc private func appBecomeInactive() {
+        stopConnection()
+    }
     /// Method for sending metadata to conversations backend. It can be called any time, many times, but once the chat has started and is presented.
     /// The format of the metadata must be that of Javascript objects and values (for guidance, it must be a string accepted by JSON.stringify()
     /// The multiThreadStrategy is entirely optional and we recommented to leave as default ACTIVE.

@@ -289,7 +289,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
 extension OptionListVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let option = MainOptions(rawValue: optionsSegmentedC.selectedSegmentIndex) else { return 0 }
-        return option.caseCount        
+        return option.caseCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
