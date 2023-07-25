@@ -7,7 +7,6 @@
 import UIKit
 import CoreData
 
-
 public enum MMMessageDeliveryStatus: Int32 {
 	case pendingSending = 0, pendingFileUploading, sent, delivered, failed
 	
@@ -40,7 +39,7 @@ extension MM_MOMessageSentStatus {
 	}
 }
 
-
+// MARK: UIView and UIViewController extensions
 extension UIViewController {
 	func dismissKeyboardIfViewTapped(_ tappedView: UIView) {
 		let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
@@ -51,6 +50,47 @@ extension UIViewController {
     @objc func dismissKeyboard() {
 		view.endEditing(true)
 	}
+    
+    var isVisible: Bool {
+        return self.isViewLoaded && self.view.window != nil
+    }
+    func showAlert(_ title: String, message: String, dismissActionHandler: ((UIAlertAction) -> Swift.Void)? = nil) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            alert.view.tintColor = MMChatSettings.getMainTextColor()
+            alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: dismissActionHandler))
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    func showAlert(_ error: Error?) {
+        guard let error = error else {
+            return
+        }
+        self.showAlert("Error", message: error.localizedDescription)
+    }
+}
+
+extension UIView {
+    var cp_h: CGFloat {
+        return self.bounds.size.height
+    }
+    var cp_w: CGFloat {
+        return self.bounds.size.width
+    }
+    var cp_x: CGFloat {
+        return self.frame.origin.x
+    }
+    var cp_y: CGFloat {
+        return self.frame.origin.y
+    }
+}
+
+func showAlertInRootVC(_ error: NSError) {
+    UIApplication.shared.keyWindow!.rootViewController?.showAlert(error)
+}
+
+func showAlertInRootVC(_ title: String, message: String) {
+    UIApplication.shared.keyWindow!.rootViewController?.showAlert(title, message: message)
 }
 
 protocol ChatSettingsApplicable: NSObjectProtocol {
@@ -65,6 +105,7 @@ extension ChatSettingsApplicable where Self: NSObject {
 	}
 }
 
+// MARK: Frame and size related extensions
 extension CGSize {
 	mutating func fitSize(_ maxSize: CGSize) -> CGSize {
 		if (self.width < 1){
@@ -123,6 +164,7 @@ extension CGRect {
 	}
 }
 
+// MARK: Date extensions
 struct NSDateStaticFormatters {
 	static var ISO8601SecondsFormatter: DateFormatter = {
 		let result = DateFormatter()
@@ -219,47 +261,7 @@ extension Date {
 	}
 }
 
-extension UIView {
-	var cp_h: CGFloat {
-		return self.bounds.size.height
-	}
-	var cp_w: CGFloat {
-		return self.bounds.size.width
-	}
-	var cp_x: CGFloat {
-		return self.frame.origin.x
-	}
-	var cp_y: CGFloat {
-		return self.frame.origin.y
-	}
-}
-
-func showAlertInRootVC(_ error: NSError) {
-	UIApplication.shared.keyWindow!.rootViewController?.showAlert(error)
-}
-
-func showAlertInRootVC(_ title: String, message: String) {
-	UIApplication.shared.keyWindow!.rootViewController?.showAlert(title, message: message)
-}
-
-extension UIViewController {
-	var isVisible: Bool {
-		return self.isViewLoaded && self.view.window != nil
-	}
-	func showAlert(_ title: String, message: String, dismissActionHandler: ((UIAlertAction) -> Swift.Void)? = nil) {
-		DispatchQueue.main.async {
-			let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-			alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: dismissActionHandler))
-			self.present(alert, animated: true, completion: nil)
-		}
-	}
-	func showAlert(_ error: Error?) {
-		guard let error = error else {
-			return
-		}
-		self.showAlert("Error", message: error.localizedDescription)
-	}
-}
+// MARK: Others
 
 extension Message {
 	var seenStatus: MMSeenStatus {

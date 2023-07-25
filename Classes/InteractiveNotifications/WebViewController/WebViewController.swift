@@ -201,13 +201,15 @@ public class MMWebViewControllerBase: UIViewController, WebViewToolbarDelegate, 
 	}
 
 	private func displayActivityIndicator(_ isVisible: Bool) {
-		webView.isHidden = isVisible
-		activityIndicator?.isHidden = !isVisible
-		if isVisible {
-			activityIndicator?.startAnimating()
-		} else {
-			activityIndicator?.stopAnimating()
-		}
+        DispatchQueue.main.async {
+            self.webView.isHidden = isVisible
+            self.activityIndicator?.isHidden = !isVisible
+            if isVisible {
+                self.activityIndicator?.startAnimating()
+            } else {
+                self.activityIndicator?.stopAnimating()
+            }
+        }
 	}
 
 	@objc func reload() {

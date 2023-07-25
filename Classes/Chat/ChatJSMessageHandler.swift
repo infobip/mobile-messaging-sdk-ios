@@ -8,7 +8,7 @@
 import Foundation
 import WebKit
 
-//supported js message types
+// MARK: Supported JS message types
 enum JSMessageType: String, CaseIterable {
 	case enableControls
 	case onError
@@ -31,6 +31,7 @@ enum JSMessageType: String, CaseIterable {
 	}
 }
 
+// MARK: Script handlers
 class ChatScriptMessageHandler: NSObject, WKScriptMessageHandler {
 	public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
 		guard let jsMessage = JSMessageType(rawValue: message.name) else {
@@ -85,15 +86,16 @@ class ControlsVisibilityHandler: ScriptMessageHandler {
     }
 }
 
-
 class OnViewChangedHandler: ScriptMessageHandler, NamedLogger {
     class func handleMessage(message: WKScriptMessage) {
         let viewState = (message.body as? String) ?? "Unknown view state"
         logDebug("OnViewChangedHandler handleMessage \(viewState)")
         MobileMessaging.inAppChat?.webViewDelegate?.didChangeView(MMChatWebViewState.parseFrom(viewState))
+        UserEventsManager.postInAppChatViewChangedEvent(viewState)
     }
 }
 
+// MARK: JS handlers
 protocol JSMessage {
 	init?(message: WKScriptMessage)
 }

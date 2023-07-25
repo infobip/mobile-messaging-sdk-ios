@@ -29,10 +29,15 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
     
     init(delegate: ChatAttachmentPickerDelegate) {
         self.imagePickerController = UIImagePickerController()
-        self.documentPickerController = UIDocumentPickerViewController(documentTypes: [kUTTypeContent as String], in: .open)
+        if #available(iOS 14.0, *) {
+            self.documentPickerController = UIDocumentPickerViewController(forOpeningContentTypes: [.directory, .item ])
+        } else {
+            self.documentPickerController = UIDocumentPickerViewController(documentTypes: [kUTTypeContent as String], in: .open)
+        }
         super.init()
         self.imagePickerController.delegate = self
         self.documentPickerController.delegate = self
+        self.documentPickerController.allowsMultipleSelection = false
         self.delegate = delegate
     }
     
@@ -64,22 +69,21 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
     }
     
     private func browseAction(title: String, presentationController: UIViewController) -> UIAlertAction? {
-        guard isDocumentsAvailable() else {
-            logDebug("[InAppChat] documents unavailable")
+        if #available(iOS 14.0, *) {
+            // On iOS 14 and above, local and iCloud documents are accessed through Files app without restrictions
+        } else if FileManager.default.ubiquityIdentityToken == nil {
+            // On older versions, iCloud capabilities need to be checked to avoid problems with the documents picker
+            logDebug("[InAppChat] iCloud documents unavailable, unable to attach documents")
             return nil
         }
         return UIAlertAction(title: title, style: .default) { [unowned self, unowned presentationController] _ in
             presentationController.present(self.documentPickerController, animated: true)
         }
     }
-    
-    private func isDocumentsAvailable() -> Bool {
-        return FileManager.default.ubiquityIdentityToken != nil
-    }
-    
+
     func present(presentationController: UIViewController) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        
+        alertController.view.tintColor = MMChatSettings.getMainTextColor()
         if let action = self.action(for: .camera,
                                     title: ChatLocalization.localizedString(forKey: "mm_action_sheet_take_photo_or_video", defaultString: "Take Photo or Video"),
                                     presentationController: presentationController) {

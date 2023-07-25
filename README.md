@@ -149,9 +149,9 @@ In case of a clean project, your AppDelegate.swift code should look like followi
 
 If all the steps implemented correctly, run your application on a real device, you should see the logs in Xcode console confirming that the MobileMessaging SDK has been initialized succesfully and the device has been registered on APNS to receive Push messages:
 ```
-2019-01-28 18:24:16:003 [MobileMessaging] ℹ️ SDK successfully initialized!
+2023-01-28 18:24:16:003 [MobileMessaging] ℹ️ SDK successfully initialized!
 ...
-2019-01-28 18:25:44:144 [MobileMessaging] ℹ️ [APNS reg manager] Application did register with device token <...>
+2023-01-28 18:25:44:144 [MobileMessaging] ℹ️ [APNS reg manager] Application did register with device token <...>
 ```
 If you don't see any logs, set up the default logger before starting the SDK: `MobileMessaging.logger = MMDefaultLogger()`. Please note that the logs are only collected while your project is in "debug" configuration.
 

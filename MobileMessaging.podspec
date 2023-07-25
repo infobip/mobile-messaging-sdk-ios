@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name          = 'MobileMessaging'
-    s.version       = '10.8.3'
+    s.version       = '10.20.0'
     s.summary       = 'Mobile Messaging SDK for iOS'
     s.description   = 'Mobile Messaging SDK is designed and developed to easily enable push notification channel in your mobile application. In almost no time of implementation you get push notification in you application and access to the features of Infobip IP Messaging Platform.'
     s.homepage      = 'https://github.com/infobip/mobile-messaging-sdk-ios'
@@ -47,5 +47,19 @@ Pod::Spec.new do |s|
     s.subspec 'Inbox' do |inbox|
         inbox.dependency 'MobileMessaging/Core'
         inbox.source_files = 'Classes/Inbox/**/*.{h,m,swift}'
+    end
+
+    s.subspec 'WebRTCUI' do |webrtcui|
+        webrtcui.dependency 'MobileMessaging/Core'
+        webrtcui.dependency 'InfobipRTC', '2.0.23'
+        webrtcui.source_files = 'Classes/WebRTCUI/**/*.{h,m,swift,storyboard}'
+        webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/UI/**/*.{xcassets,png,wav,svg,html}',
+            'Classes/WebRTCUI/UI/*.{storyboard}']}
+
+        s.pod_target_xcconfig = {
+            'SWIFT_VERSION' => '5',
+            'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) COCOAPODS=1 WEBRTCUI_ENABLED=1',
+            'OTHER_SWIFT_FLAGS' => '$(inherited) -D WEBRTCUI_ENABLED'
+        }        
     end
 end

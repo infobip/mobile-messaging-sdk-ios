@@ -30,3 +30,4 @@ class MMLocalization {
         return langBundle
     }
 }
+

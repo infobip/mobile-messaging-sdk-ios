@@ -568,6 +568,17 @@ final class RegistrationTests: MMTestCase {
 
 		waitForExpectations(timeout: 10, handler: nil)
 	}
+    
+    func testThatMMNotificationTypeComparedProperly() {
+        let unt1 = MMUserNotificationType(options: [.alert, .sound])
+        let unt2 = MMUserNotificationType(options: [.alert, .sound])
+        let unt3 = MMUserNotificationType(options: [.sound, .alert])
+        let unt4 = MMUserNotificationType(options: [.sound, .alert, .badge])
+        
+        XCTAssertEqual(unt1, unt2)
+        XCTAssertEqual(unt1, unt3)
+        XCTAssertNotEqual(unt1, unt4)
+    }
 }
 
 class NotificationsEnabledMock: MMApplication {

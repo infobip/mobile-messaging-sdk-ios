@@ -29,8 +29,6 @@ class ChatNotAvailableLabel: UILabel {
     
     func initializeLabel() {
         textAlignment = .center
-        font = UIFont.systemFont(ofSize: 16)
-        backgroundColor = .lightGray
         autoresizingMask = [.flexibleWidth]
     }
     
