@@ -106,7 +106,7 @@ class WebInAppMessagePresenter: NamedLogger,
                     self?.delegate.didPresent()
                 })
                 webView.navigationDelegate = webViewDelegate
-                webView.frame.width = appWindow.frame.smallerDimension - 2 * inAppHorizontalMargin
+                webView.frame.size.width = appWindow.frame.smallerDimension - 2 * inAppHorizontalMargin
                 let request = prepareWebViewURLRequest(url: message.url)
                 webView.load(request)
             } else {
