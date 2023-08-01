@@ -6,12 +6,11 @@
 //
 
 import Foundation
-import UIKit
 
 open class MobileMessagingService: NSObject, NamedLogger {
     public let mmContext: MobileMessaging
     let uniqueIdentifier: String
-    public var isRunning: Bool
+    open var isRunning: Bool
     
     public init(mmContext: MobileMessaging, uniqueIdentifier: String) {
         self.isRunning = false
@@ -54,23 +53,23 @@ open class MobileMessagingService: NSObject, NamedLogger {
     open var systemData: [String: AnyHashable]? { return nil }
     
     /// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
-    func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool { return false }
+    open func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool { return false }
     open func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
     open func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) { completion(.noData) }
     
     var dispatchGroup = DispatchGroup()
     
-    func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) { completion() }
-    func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) { completion() }
+    open func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) { completion() }
+    open func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) { completion() }
     open func mobileMessagingWillStart(_ completion: @escaping () -> Void) { completion() }
     open func mobileMessagingDidStart(_ completion: @escaping () -> Void) { completion() }
     func mobileMessagingWillStop(_ completion: @escaping () -> Void) { completion() }
     open func appWillEnterForeground(_ completion: @escaping () -> Void) { completion() }
-    func appDidFinishLaunching(_ notification: Notification, completion: @escaping () -> Void) { completion() }
-    func appDidBecomeActive(_ completion: @escaping () -> Void) { completion() }
+    open func appDidFinishLaunching(_ notification: Notification, completion: @escaping () -> Void) { completion() }
+    open func appDidBecomeActive(_ completion: @escaping () -> Void) { completion() }
     func appWillResignActive(_ completion: @escaping () -> Void) { completion() }
     func appWillTerminate(_ completion: @escaping () -> Void) { completion() }
-    func appDidEnterBackground(_ completion: @escaping () -> Void) { completion() }
+    open func appDidEnterBackground(_ completion: @escaping () -> Void) { completion() }
     func geoServiceDidStart(_ completion: @escaping () -> Void) { completion() }
     func baseUrlDidChange(_ completion: @escaping () -> Void) { completion() }
     

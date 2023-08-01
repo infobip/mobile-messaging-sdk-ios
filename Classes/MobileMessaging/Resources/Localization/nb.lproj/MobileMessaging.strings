@@ -13,7 +13,7 @@
 "mm_flip_camera" = "flip kamera";
 "mm_speaker" = "høyttaler";
 "mm_calling" = "ringer (%1$@)";
-"mm_microphone_muted" = "Mikrofonen din er dempet. Slå på mikrofonen din slik at kunden kan høre deg.";
+"mm_microphone_muted" = "Mikrofonen din er dempet.";
 "mm_notification_ringing" = "Ringer ...";
 "mm_audio_permission_not_granted" = "Lydtillatelse ikke gitt";
 "mm_calls_usage_error" = "Det oppsto en feil som forhindret riktig bruk av samtaler. Ta kontakt med brukerstøtten";

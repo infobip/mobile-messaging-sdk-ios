@@ -12,6 +12,7 @@ import MobileMessaging
 import InfobipRTC
 import WebRTCUI
 import InAppChat
+import MobileMessagingLogging
 
 let mmApplicationCode = "<# your mobile application code #>"
 let webrtcApplicationId = "<# your webrtc app id #>"
@@ -23,8 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         MobileMessaging.withApplicationCode(
             mmApplicationCode, notificationType: .alert)?.withInAppChat().withCalls(webrtcApplicationId).start()
-        MobileMessaging.logger?.logLevel = .All
-        MobileMessaging.logger?.logOutput = .Console
+        MobileMessaging.logger = MMLumberjackLogger(logOutput: .Console, logLevel: .All)
         MobileMessaging.webRTCService?.callAppIcon = UIImage(named: "alphaLogo")
         MobileMessaging.webRTCService?.settings.inboundCallSoundFileName = "MMInboundCall.wav" // filename for audio file in your project
         //MobileMessaging.webRTCService?.delegate = self // Set a delegate for webrtc if you want to handle calls yourself

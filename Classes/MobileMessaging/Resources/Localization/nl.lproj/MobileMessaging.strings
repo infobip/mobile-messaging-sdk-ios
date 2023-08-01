@@ -13,7 +13,7 @@
 "mm_flip_camera" = "camera draaien";
 "mm_speaker" = "spreker";
 "mm_calling" = "bellen (%1$@)";
-"mm_microphone_muted" = "Je microfoon is gedempt. Schakel het dempen van je microfoon in zodat de klant je kan horen.";
+"mm_microphone_muted" = "Je microfoon is gedempt.";
 "mm_notification_ringing" = "Rinkelen ...";
 "mm_audio_permission_not_granted" = "Audiotoestemming niet verleend";
 "mm_calls_usage_error" = "Er is een fout opgetreden die het juiste gebruik van oproepen verhindert. Neem contact op met de ondersteuning";

@@ -13,7 +13,7 @@
 "mm_flip_camera" = "카메라로 전환";
 "mm_speaker" = "스피커";
 "mm_calling" = "통화 중 (%1$@)";
-"mm_microphone_muted" = "마이크가 음소거 상태입니다. 고객이 들을 수 있도록 마이크 음소거를 해제하십시오.";
+"mm_microphone_muted" = "마이크가 음소거 상태입니다.";
 "mm_notification_ringing" = "벨소리 울림 ...";
 "mm_audio_permission_not_granted" = "오디오 권한이 부여되지 않음";
 "mm_calls_usage_error" = "적절한 통화 사용을 방해하는 에러가 발생했습니다. 지원팀에 문의하십시오.";

@@ -13,7 +13,7 @@
 "mm_flip_camera" = "フリップカメラ";
 "mm_speaker" = "スピーカー";
 "mm_calling" = "通話中（%1$@）";
-"mm_microphone_muted" = "マイクがミュートになっています。顧客に音声が届くようにマイクのミュートを解除してください。";
+"mm_microphone_muted" = "マイクがミュートになっています。";
 "mm_notification_ringing" = "呼び出し中...";
 "mm_audio_permission_not_granted" = "音声が許可されていません";
 "mm_calls_usage_error" = "適切な通話の使用を妨げるエラーが発生しました。サポートにお問い合わせください";

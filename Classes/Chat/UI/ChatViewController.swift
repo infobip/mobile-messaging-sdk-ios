@@ -6,7 +6,7 @@
 //
 
 import WebKit
-import UIKit
+
 ///Key component to use for displaying In-app chat view.
 ///We support two ways to quickly embed it into your own application:
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
@@ -227,7 +227,17 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         let cssScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         webView.configuration.userContentController.addUserScript(cssScript)
     }
-    
+
+    public func setLanguage(_ language: MMLanguage, completion: @escaping (_ error: NSError?) -> Void) {
+        weak var wWebView = webView
+        guard let wWebView = wWebView else {
+            MMLanguage.sessionLanguage = language
+            completion(nil)
+            return
+        }
+        wWebView.setLanguage(language, completion: completion)
+    }
+
     func didEnableControls(_ enabled: Bool) {
         webView.isUserInteractionEnabled = enabled
         webView.isLoaded = enabled
@@ -242,7 +252,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     override var isComposeBarVisible: Bool {
         didSet {
             if oldValue != isComposeBarVisible {
-                self.setComposeBarVisibility(isVisible: self.isComposeBarVisible)
+                setComposeBarVisibility(isVisible: isComposeBarVisible)
             } else if !isComposeBarVisible && !composeBarView.isHidden {
                 // In some cases (ie the first time a multithread widget is loaded), we want to hide the
                 // composer without animation.

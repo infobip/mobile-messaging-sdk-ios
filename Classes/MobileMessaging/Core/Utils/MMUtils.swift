@@ -11,7 +11,6 @@ import CoreData
 import CoreLocation
 import SystemConfiguration
 import UserNotifications
-import UIKit
 
 public typealias DictionaryRepresentation = [String: Any]
 
@@ -125,7 +124,7 @@ func contactsServiceDateEqual(_ l: Date?, _ r: Date?) -> Bool {
     }
 }
 
-struct DateStaticFormatters {
+public struct DateStaticFormatters {
     /**
      Desired format is GMT+03:00 and a special case for Greenwich Mean Time: GMT+00:00
      */
@@ -158,7 +157,7 @@ struct DateStaticFormatters {
         result.timeZone = TimeZone(secondsFromGMT: 0)
         return result
     }()
-    static var ISO8601SecondsFormatter: DateFormatter = {
+    public static var ISO8601SecondsFormatter: DateFormatter = {
         let result = DateFormatter()
         result.locale = Locale(identifier: "en_US_POSIX")
         result.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
@@ -307,7 +306,7 @@ extension String {
     }
 }
 
-func += <Key, Value> (left: inout Dictionary<Key, Value>, right: Dictionary<Key, Value>?) {
+public func += <Key, Value> (left: inout Dictionary<Key, Value>, right: Dictionary<Key, Value>?) {
     guard let right = right else {
         return
     }
@@ -316,7 +315,7 @@ func += <Key, Value> (left: inout Dictionary<Key, Value>, right: Dictionary<Key,
     }
 }
 
-func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>?) -> Dictionary<Key, Value>? {
+public func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>?) -> Dictionary<Key, Value>? {
     
     switch (l, r) {
     case (.none, .none):
@@ -334,7 +333,7 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>?) -> 
     }
 }
 
-func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> Dictionary<Key, Value> {
+public func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> Dictionary<Key, Value> {
     switch (l, r) {
     case (.none, _):
         return r
@@ -347,7 +346,7 @@ func + <Key, Value> (l: Dictionary<Key, Value>?, r: Dictionary<Key, Value>) -> D
     }
 }
 
-func + <Key, Value> (l: Dictionary<Key, Value>, r: Dictionary<Key, Value>) -> Dictionary<Key, Value> {
+public func + <Key, Value> (l: Dictionary<Key, Value>, r: Dictionary<Key, Value>) -> Dictionary<Key, Value> {
     var lMutable = l
     for (k, v) in r {
         lMutable[k] = v
@@ -356,7 +355,7 @@ func + <Key, Value> (l: Dictionary<Key, Value>, r: Dictionary<Key, Value>) -> Di
 }
 
 
-func + <Element: Any>(l: Set<Element>?, r: Set<Element>?) -> Set<Element>? {
+public func + <Element: Any>(l: Set<Element>?, r: Set<Element>?) -> Set<Element>? {
     switch (l, r) {
     case (.none, .none):
         return nil
@@ -369,7 +368,7 @@ func + <Element: Any>(l: Set<Element>?, r: Set<Element>?) -> Set<Element>? {
     }
 }
 
-func + <Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
+public func + <Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
     switch (l, r) {
     case (.none, .none):
         return [Element]()
@@ -382,11 +381,11 @@ func + <Element: Any>(l: [Element]?, r: [Element]?) -> [Element] {
     }
 }
 
-func ==(lhs : [AnyHashable : MMAttributeType], rhs: [AnyHashable : MMAttributeType]) -> Bool {
+public func ==(lhs : [AnyHashable : MMAttributeType], rhs: [AnyHashable : MMAttributeType]) -> Bool {
     return NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
-func ==(l : [String : MMAttributeType]?, r: [String : MMAttributeType]?) -> Bool {
+public func ==(l : [String : MMAttributeType]?, r: [String : MMAttributeType]?) -> Bool {
     switch (l, r) {
     case (.none, .none):
         return true
@@ -399,7 +398,7 @@ func ==(l : [String : MMAttributeType]?, r: [String : MMAttributeType]?) -> Bool
     }
 }
 
-func !=(lhs : [AnyHashable : MMAttributeType], rhs: [AnyHashable : MMAttributeType]) -> Bool {
+public func !=(lhs : [AnyHashable : MMAttributeType], rhs: [AnyHashable : MMAttributeType]) -> Bool {
     return !NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
 
@@ -408,7 +407,7 @@ public protocol DictionaryRepresentable {
     var dictionaryRepresentation: DictionaryRepresentation {get}
 }
 
-extension Date {
+public extension Date {
     func mm_epochUnixTimestamp() -> Int64 {
         return Int64(floor(self.timeIntervalSince1970 * 1000))
     }
@@ -438,7 +437,7 @@ public extension UIDevice {
     }
 }
 
-public class MMDate {
+open class MMDate {
     public var now: Date {
         return Date()
     }
@@ -481,7 +480,7 @@ class DefaultUserNotificationCenterStorage : UserNotificationCenterStorage {
     }
 }
 
-protocol MMApplication {
+public protocol MMApplication {
     var applicationIconBadgeNumber: Int { get set }
     var applicationState: UIApplication.State { get }
     var isRegisteredForRemoteNotifications: Bool { get }
@@ -492,7 +491,7 @@ protocol MMApplication {
 }
 
 extension UIApplication: MMApplication {
-    var visibleViewController: UIViewController? {
+    public var visibleViewController: UIViewController? {
         return self.keyWindow?.visibleViewController
     }
 }
@@ -502,7 +501,7 @@ extension MMApplication {
         return applicationState == .active
     }
     
-    var notificationEnabled: Bool? {
+    public var notificationEnabled: Bool? {
         var notificationSettings: UNNotificationSettings?
         let semaphore = DispatchSemaphore(value: 0)
         
@@ -747,7 +746,7 @@ extension UIColor {
      }
 }
 
-extension Optional {
+public extension Optional {
     var orNil : String {
         if self == nil {
             return "nil"

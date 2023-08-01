@@ -13,7 +13,7 @@
 "mm_flip_camera" = "máy ảnh lật";
 "mm_speaker" = "loa";
 "mm_calling" = "đang gọi (%1$@)";
-"mm_microphone_muted" = "Micrô của bạn bị tắt tiếng. Bật tiếng micrô của bạn để khách hàng có thể nghe thấy bạn.";
+"mm_microphone_muted" = "Micrô của bạn bị tắt tiếng.";
 "mm_notification_ringing" = "Đổ chuông ...";
 "mm_audio_permission_not_granted" = "Quyền âm thanh không được cấp";
 "mm_calls_usage_error" = "Đã xảy ra lỗi ngăn cách sử dụng cuộc gọi thích hợp, vui lòng liên hệ với bộ phận hỗ trợ";

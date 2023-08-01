@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 
-
 public class MMWebViewSettings: NSObject {
     
     public static let sharedInstance = MMWebViewSettings()

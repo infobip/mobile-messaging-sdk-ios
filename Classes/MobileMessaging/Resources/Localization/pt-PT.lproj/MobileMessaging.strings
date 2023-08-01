@@ -13,7 +13,7 @@
 "mm_flip_camera" = "girar câmera";
 "mm_speaker" = "alto-falante";
 "mm_calling" = "chamando (%1$@)";
-"mm_microphone_muted" = "Seu microfone está mudo. Ative o som do seu microfone para que o cliente possa ouvi-lo.";
+"mm_microphone_muted" = "Seu microfone está mudo.";
 "mm_notification_ringing" = "Tocando...";
 "mm_audio_permission_not_granted" = "Permissão de áudio não concedida";
 "mm_calls_usage_error" = "Um erro impediu o uso correto das chamadas. Entre em contato com o suporte";

@@ -55,13 +55,21 @@ class LinksHandler {
 		let viewController = viewControllerType.init()
 		
 		//present viewController modally
-		UIApplication.shared.keyWindow?.visibleViewController?.present(viewController, animated: true, completion: {
-			if let viewController = viewController as? DeeplinkLandingViewController,
-				let message = message {
-				viewController.handle(message: message)
-			}
-			openNext(pathComponents)
-		})
+        if let visibleVC = UIApplication.shared.keyWindow?.visibleViewController {
+            visibleVC.present(viewController, animated: true, completion: {
+                if let viewController = viewController as? DeeplinkLandingViewController,
+                   let message = message {
+                    viewController.handle(message: message)
+                }
+                openNext(pathComponents)
+            })
+        } else {
+            // If visibleViewController isn't yet ready, for example if application was killed when user tapped on notification with deeplink as primary action,
+            // 0.5s delay is added to have visibleViewController and open viewControllers by the deeplink
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                openViewControllers(fromPathComponents: pathComponents, message: message)
+            }
+        }
 	}
 }
 

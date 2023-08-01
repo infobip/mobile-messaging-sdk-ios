@@ -52,8 +52,8 @@ public struct MMConsts {
 		static let storedDynamicBaseUrlKey = "com.mobile-messaging.dynamic-base-url"
 	}
 
-	struct APIKeys {
-		static let messageId = "messageId"
+	public struct APIKeys {
+		public static let messageId = "messageId"
 
 		//MARK: delivery
 		static let messageIDs = "messageIDs"
@@ -66,10 +66,10 @@ public struct MMConsts {
 		static let errorMessageId = "messageId"
 
 		//MARK: seenMessages
-		static let seenMessages = "messages"
-		static let seenTimestampDelta = "timestampDelta"
-        static let seenMessageInbox = "inbox"
-        static let seenExternalUserId = "externalUserId"
+		public static let seenMessages = "messages"
+		public static let seenTimestampDelta = "timestampDelta"
+        public static let seenMessageInbox = "inbox"
+        public static let seenExternalUserId = "externalUserId"
 
 		//MARK: Sync API
 		static let archiveMsgIds = "mIDs"
@@ -108,23 +108,23 @@ public struct MMConsts {
 		static let libraryVersion = "libraryVersion"
 		static let libraryVersionUpdateUrl = "updateUrl"
 	}
-	struct PushRegistration {
+	public struct PushRegistration {
 		//MARK: Registration API
-		static let isEnabled = "pushRegistrationEnabled"
-		static let platform = "platformType"
-		static let deviceToken = "registrationId"
-		static let internalId = "deviceApplicationInstanceId"
-		static let expiredInternalId = "expiredDeviceApplicationInstanceId"
+        public static let isEnabled = "pushRegistrationEnabled"
+		public static let platform = "platformType"
+        public static let deviceToken = "registrationId"
+		public static let internalId = "deviceApplicationInstanceId"
+        public static let expiredInternalId = "expiredDeviceApplicationInstanceId"
 	}
 
-	struct SystemDataKeys {
+	public struct SystemDataKeys {
 		//MARK: SystemData API
 		static let sdkVersion = "sdkVersion"
 		static let osVer = "osVersion"
 		static let deviceManufacturer = "deviceManufacturer"
 		static let deviceModel = "deviceModel"
 		static let appVer = "appVersion"
-		static let geofencingServiceEnabled = "geoEnabled"
+		public static let geofencingServiceEnabled = "geoEnabled"
 		static let notificationsEnabled = "notificationsEnabled"
 		static let deviceSecure = "deviceSecure"
 		static let language = "language"
@@ -134,51 +134,51 @@ public struct MMConsts {
 		static let pushServiceType = "pushServiceType"
 	}
     
-    struct InboxKeys {
-        static let messageTopic = "messageTopic"
-        static let dateTimeFrom = "dateTimeFrom"
-        static let dateTimeTo = "dateTimeTo"
-        static let limit = "limit"
-        static let messages = "messages"
-        static let countTotal = "countTotal"
-        static let countUnread = "countUnread"
+    public struct InboxKeys {
+        public static let messageTopic = "messageTopic"
+        public static let dateTimeFrom = "dateTimeFrom"
+        public static let dateTimeTo = "dateTimeTo"
+        public static let limit = "limit"
+        public static let messages = "messages"
+        public static let countTotal = "countTotal"
+        public static let countUnread = "countUnread"
     }
 
-	struct GeoReportingAPIKeys {
-		static let reports = "reports"
-		static let event = "event"
-		static let geoAreaId = "geoAreaId"
-		static let campaignId = "campaignId"
-		static let messageId = "messageId"
-		static let timestampDelta = "timestampDelta"
-		static let finishedCampaignIds = "finishedCampaignIds"
-		static let suspendedCampaignIds = "suspendedCampaignIds"
-		static let messageIdsMap = "messageIds"
-		static let sdkMessageId = "sdkMessageId"
-		static let messages = "messages"
+	public struct GeoReportingAPIKeys {
+        public static let reports = "reports"
+        public static let event = "event"
+        public static let geoAreaId = "geoAreaId"
+        public static let campaignId = "campaignId"
+        public static let messageId = "messageId"
+        public static let timestampDelta = "timestampDelta"
+        public static let finishedCampaignIds = "finishedCampaignIds"
+        public static let suspendedCampaignIds = "suspendedCampaignIds"
+        public static let messageIdsMap = "messageIds"
+        public static let sdkMessageId = "sdkMessageId"
+        public static let messages = "messages"
 	}
 
-	struct InternalDataKeys {
-		static let event = "event"
-		static let deliveryTime = "deliveryTime"
-		static let silent = "silent"
-		static let geo = "geo"
-		static let messageTypeGeo = "geo"
-		static let messageType = "messageType"
-		static let attachments = "atts"
-		static let sendDateTime = "sendDateTime"
-		static let bulkId = "bulkId"
-		static let showInApp = "inApp"
-		static let inAppStyle = "inAppStyle"
-		static let inAppExpiryDateTime = "inAppExpiryDateTime"
-		static let webViewUrl = "webViewUrl"
-        static let browserUrl = "browserUrl"
-        static let deeplink = "deeplink"
-		static let inAppDismissTitle = "inAppDismissTitle"
-		static let inAppOpenTitle = "inAppOpenTitle"
-        static let topic = "topic"
-        static let inbox = "inbox"
-        static let seen = "seen"
+	public struct InternalDataKeys {
+        public static let event = "event"
+        public static let deliveryTime = "deliveryTime"
+        public static let silent = "silent"
+        public static let geo = "geo"
+        public static let messageTypeGeo = "geo"
+        public static let messageType = "messageType"
+        public static let attachments = "atts"
+        public static let sendDateTime = "sendDateTime"
+        public static let bulkId = "bulkId"
+        public static let showInApp = "inApp"
+        public static let inAppStyle = "inAppStyle"
+        public static let inAppExpiryDateTime = "inAppExpiryDateTime"
+        public static let webViewUrl = "webViewUrl"
+        public static let browserUrl = "browserUrl"
+        public static let deeplink = "deeplink"
+        public static let inAppDismissTitle = "inAppDismissTitle"
+        public static let inAppOpenTitle = "inAppOpenTitle"
+        public static let topic = "topic"
+        public static let inbox = "inbox"
+        public static let seen = "seen"
 	}
 
 	struct Attachments {
@@ -192,27 +192,27 @@ public struct MMConsts {
 		static let dlrMessageIds = "dlrIds"
 	}
 
-	struct APNSPayloadKeys {
+	public struct APNSPayloadKeys {
 		//MARK: APNs
 		static let payloads = "payloads"
-		static let aps = "aps"
+		public static let aps = "aps"
 		static let alert = "alert"
 		static let title = "title"
 		static let body = "body"
 		static let badge = "badge"
 		static let sound = "sound"
 		static let customPayload = "customPayload"
-		static let internalData = "internalData"
+		public static let internalData = "internalData"
 		static let contentAvailable = "content-available"
 
 		//MARK: Common fields
-		static let messageId = "messageId"
+		public static let messageId = "messageId"
 	}
 
 	public struct APIValues {
 		public static let prodDynamicBaseURLString = "https://mobile.infobip.com"
         static let amgDynamicBaseURLString = "https://api.infobip.com"
-		static let platformType = "APNS"
+		public static let platformType = "APNS"
 		
 		struct MessageTypeValues {
 			static let chat = "chat"

@@ -13,7 +13,7 @@
 "mm_flip_camera" = "Kamera umdrehen";
 "mm_speaker" = "Lautsprecher";
 "mm_calling" = "ruft an (%1$@)";
-"mm_microphone_muted" = "Ihr Mikrofon ist stummgeschaltet. Heben Sie die Stummschaltung Ihres Mikrofons auf, damit der Kunde Sie hören kann.";
+"mm_microphone_muted" = "Ihr Mikrofon ist stummgeschaltet.";
 "mm_notification_ringing" = "Es klingelt...";
 "mm_audio_permission_not_granted" = "Audioberechtigung nicht gewährt";
 "mm_calls_usage_error" = "Fehler, der ordnungsgemäße Anrufe verhindert, bitte Support kontaktieren";

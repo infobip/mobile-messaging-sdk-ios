@@ -8,7 +8,7 @@
 import Foundation
 
 @objcMembers
-public class MMBaseMessage: NSObject {
+open class MMBaseMessage: NSObject {
 
 	/// Custom data
 	public var customPayload: MMStringKeyPayload?

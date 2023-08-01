@@ -13,7 +13,7 @@
 "mm_flip_camera" = "vänd kamera";
 "mm_speaker" = "högtalare";
 "mm_calling" = "ringer upp (%1$@)";
-"mm_microphone_muted" = "Din mikrofon är avstängd. Slå på din mikrofon så att kunden kan höra dig.";
+"mm_microphone_muted" = "Din mikrofon är avstängd.";
 "mm_notification_ringing" = "Ringer ...";
 "mm_audio_permission_not_granted" = "Ljudbehörighet ej beviljad";
 "mm_calls_usage_error" = "Det uppstod ett fel som hindrade korrekt samtalsanvändning. Vänligen kontakta supporten";

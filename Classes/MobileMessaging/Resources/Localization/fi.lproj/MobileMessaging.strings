@@ -13,7 +13,7 @@
 "mm_flip_camera" = "käännä kamera";
 "mm_speaker" = "puhuja";
 "mm_calling" = "soitetaan (%1$@)";
-"mm_microphone_muted" = "Mikrofonisi on mykistetty. Poista mikrofonin mykistys, jotta asiakas kuulee sinut.";
+"mm_microphone_muted" = "Mikrofonisi on mykistetty.";
 "mm_notification_ringing" = "Soi ...";
 "mm_audio_permission_not_granted" = "Äänilupaa ei myönnetty";
 "mm_calls_usage_error" = "Virhe esti puheluiden oikean käytön, ota yhteyttä tukeen";

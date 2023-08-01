@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 
 @objc protocol MMLoggerFactoryProtocol {
 	@objc optional func createLogger() -> MMLogging

@@ -16,7 +16,7 @@ let webrtcApplicationId = "<# your webrtc app id #>"
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
     var window: UIWindow?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         MobileMessaging.withApplicationCode(
@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //customiseCallsUI() // Change the colors, icons and sounds of the call UI
         return true
     }
-
+    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
     }

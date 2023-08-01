@@ -8,7 +8,6 @@
 
 import Foundation
 import UserNotifications
-import UIKit
 
 @objcMembers
 public final class MobileMessaging: NSObject, NamedLogger {
@@ -763,7 +762,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     var messageStorages: [String: MessageStorageQueuedAdapter] = [:]
     var messageStorageAdapter: MessageStorageQueuedAdapter?
     
-    var internalStorage: MMCoreDataStorage
+    public var internalStorage: MMCoreDataStorage
     
     public func internalData() -> InternalData { return InternalData.unarchiveCurrent() }
     public func currentInstallation() -> MMInstallation { return MMInstallation.unarchiveCurrent() }
@@ -782,19 +781,19 @@ public final class MobileMessaging: NSObject, NamedLogger {
     var notificationsInteractionService: NotificationsInteractionService?
     
     
-    lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
+    public lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
     lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)
     public lazy var remoteApiProvider: RemoteAPIProvider! = {
         return RemoteAPIProvider(sessionManager: self.httpSessionManager)
     }()
     lazy var keychain: MMKeychain! = MMKeychain()
     lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
-    lazy var httpSessionManager: DynamicBaseUrlHTTPSessionManager! = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
+    public lazy var httpSessionManager: DynamicBaseUrlHTTPSessionManager! = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
     
-    static var application: MMApplication = MainThreadedUIApplication()
+    public static var application: MMApplication = MainThreadedUIApplication()
     public static var date: MMDate = MMDate() // testability
-    static var timeZone: TimeZone = TimeZone.current // for tests
-    static var calendar: Calendar = Calendar.current // for tests
+    public static var timeZone: TimeZone = TimeZone.current // for tests
+    public static var calendar: Calendar = Calendar.current // for tests
     var appGroupId: String?
     var sharedNotificationExtensionStorage: AppGroupMessageStorage?
     lazy var userNotificationCenterStorage: UserNotificationCenterStorage = DefaultUserNotificationCenterStorage()

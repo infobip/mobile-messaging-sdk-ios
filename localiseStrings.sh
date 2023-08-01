@@ -1,6 +1,6 @@
 #!/bin/bash
-input="Classes/Core/Localization/en.lproj/MobileMessaging.strings"
-output="Classes/Core/Utils/MMLoc.swift"
+input="Classes/MobileMessaging/Resources/Localization/en.lproj/MobileMessaging.strings"
+output="Classes/MobileMessaging/Core/Utils/MMLoc.swift"
 
 
 generate () {

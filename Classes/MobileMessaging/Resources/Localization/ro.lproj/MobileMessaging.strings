@@ -13,7 +13,7 @@
 "mm_flip_camera" = "flip camera";
 "mm_speaker" = "difuzor";
 "mm_calling" = "apel (%1$@)";
-"mm_microphone_muted" = "Microfonul dvs. este dezactivat. Activați microfonul, astfel încât clientul să vă poată auzi.";
+"mm_microphone_muted" = "Microfonul dvs. este dezactivat.";
 "mm_notification_ringing" = "Sună ...";
 "mm_audio_permission_not_granted" = "Permisiune audio nu a fost acordată";
 "mm_calls_usage_error" = "A apărut o eroare care a împiedicat utilizarea corectă a apelurilor, vă rugăm să contactați asistența";

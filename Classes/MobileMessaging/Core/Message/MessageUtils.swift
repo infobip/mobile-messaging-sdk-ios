@@ -187,7 +187,7 @@ struct MOAttributes: MOMessageAttributes {
 	}
 }
 
-func apsByMerging(nativeAPS: MMStringKeyPayload?, withSilentAPS silentAPS: MMStringKeyPayload) -> MMStringKeyPayload {
+public func apsByMerging(nativeAPS: MMStringKeyPayload?, withSilentAPS silentAPS: MMStringKeyPayload) -> MMStringKeyPayload {
 	var resultAps = nativeAPS ?? MMStringKeyPayload()
 	var alert = MMStringKeyPayload()
 	

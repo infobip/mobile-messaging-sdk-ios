@@ -8,7 +8,7 @@
 import Foundation
 
 @objcMembers
-public class MM_MTMessage: MMBaseMessage, NamedLogger {
+open class MM_MTMessage: MMBaseMessage, NamedLogger {
 
 	/// Contains info about the action was applied to the message
 	public var appliedAction: MMNotificationAction?
@@ -165,7 +165,7 @@ public class MM_MTMessage: MMBaseMessage, NamedLogger {
 		return messageTypeValue == Consts.APIValues.MessageTypeValues.chat
 	}
     	
-	convenience init?(messageSyncResponseJson json: JSON) {
+	public convenience init?(messageSyncResponseJson json: JSON) {
 		if let payload = json.dictionaryObject {
 			self.init(payload: payload,
 					  deliveryMethod: .pull,

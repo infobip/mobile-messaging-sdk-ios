@@ -13,7 +13,7 @@
 "mm_flip_camera" = "retourner la caméra";
 "mm_speaker" = "haut-parleur";
 "mm_calling" = "appel en cours (%1$@)";
-"mm_microphone_muted" = "Votre micro est désactivé. Activez votre micro pour que le client puisse vous entendre.";
+"mm_microphone_muted" = "Votre micro est désactivé.";
 "mm_notification_ringing" = "Sonnerie...";
 "mm_audio_permission_not_granted" = "Autorisation audio non accordée";
 "mm_calls_usage_error" = "Une erreur sest produite, empêchant lutilisation correcte des appels, veuillez contacter le support technique.";

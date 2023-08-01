@@ -94,7 +94,7 @@ public struct JSON {
 
      - returns: The created JSON
      */
-    internal init(_ object: Any) {
+    public init(_ object: Any) {
         self.object = object
     }
 
@@ -105,7 +105,7 @@ public struct JSON {
 
      - returns: The created JSON
      */
-    internal init(_ jsonArray:[JSON]) {
+    public init(_ jsonArray:[JSON]) {
         self.init(jsonArray.map { $0.object })
     }
 
@@ -116,7 +116,7 @@ public struct JSON {
 
      - returns: The created JSON
      */
-    internal init(_ jsonDictionary:[String: JSON]) {
+    public init(_ jsonDictionary:[String: JSON]) {
         var dictionary = [String: Any](minimumCapacity: jsonDictionary.count)
         for (key, json) in jsonDictionary {
             dictionary[key] = json.object
@@ -648,7 +648,7 @@ extension JSON {
     }
 
     //Non-optional [JSON]
-    internal var arrayValue: [JSON] {
+    public var arrayValue: [JSON] {
         get {
             return self.array ?? []
         }
@@ -965,7 +965,7 @@ extension JSON {
         }
     }
 
-    internal var intValue: Int {
+    public var intValue: Int {
         get {
             return self.numberValue.intValue
         }

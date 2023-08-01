@@ -6,12 +6,17 @@
 
 import UIKit
 import MobileMessaging
+#if USING_SPM
+import MobileMessagingGeofencing
+import MobileMessagingInbox
+#endif
 import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 	
 	var window: UIWindow?
+    let messagesManager = MessagesManager.sharedInstance
 	
 	func applicationDidFinishLaunching(_ application: UIApplication) {
 		if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {

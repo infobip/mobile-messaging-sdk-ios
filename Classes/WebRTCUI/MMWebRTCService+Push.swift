@@ -36,10 +36,7 @@ extension MMWebRTCService: PKPushRegistryDelegate {
         #if DEBUG
             isDebugging = true
         #endif
-    
-        
-        
-        
+
         getInfobipRTCInstance().enablePushNotification(token, pushCredentials: pushCreds, debug: isDebugging, { [weak self] result in
             switch result.status {
             case .failure:
@@ -175,10 +172,6 @@ extension MMWebRTCService: PKPushRegistryDelegate {
 }
 
 extension MMWebRTCService: ApplicationCallEventListener {
-    public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) {
-        
-    }
-
     public func onEstablished(_ callEstablishedEvent: CallEstablishedEvent) {
 
         switch notificationData?.activeCall {
@@ -248,6 +241,9 @@ extension MMWebRTCService: ApplicationCallEventListener {
     public func onParticipantDeaf(_ participantDeafEvent: ParticipantDeafEvent) { }
     public func onParticipantUndeaf(_ participantUndeafEvent: ParticipantUndeafEvent) { }
     public func onParticipantLeft(_ participantLeftEvent: ParticipantLeftEvent) { }
+    public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) { }
+    public func onDialogJoined(_ dialogJoinedEvent: DialogJoinedEvent) { }
+    public func onDialogLeft(_ dialogLeftEvent: DialogLeftEvent) { }
 }
 
 extension MMWebRTCService: WebrtcCallEventListener {

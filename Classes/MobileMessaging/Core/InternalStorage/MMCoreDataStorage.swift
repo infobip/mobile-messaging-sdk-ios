@@ -34,7 +34,7 @@ struct MMStorageSettings {
 	}
 }
 
-final class MMCoreDataStorage: NamedLogger {
+final public class MMCoreDataStorage: NamedLogger {
 
 	init(settings: MMStorageSettings) throws {
 		self.databaseFileName = settings.databaseFileName
@@ -88,7 +88,7 @@ final class MMCoreDataStorage: NamedLogger {
 		return _mainThreadManagedObjectContext
 	}
 
-	func newPrivateContext() -> NSManagedObjectContext {
+	public func newPrivateContext() -> NSManagedObjectContext {
 		let newContext = NSManagedObjectContext.init(concurrencyType: .privateQueueConcurrencyType)
 		newContext.persistentStoreCoordinator = persistentStoreCoordinator
 		newContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy

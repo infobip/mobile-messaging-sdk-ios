@@ -13,7 +13,7 @@
 "mm_flip_camera" = "翻转摄像头";
 "mm_speaker" = "扬声器";
 "mm_calling" = "正在呼叫 (%1$@)";
-"mm_microphone_muted" = "你的麦克风静音了。请取消静音，以便客户能听到您的声音。";
+"mm_microphone_muted" = "您的麦克风已静音。";
 "mm_notification_ringing" = "正在响铃……";
 "mm_audio_permission_not_granted" = "未授予音频权限";
 "mm_calls_usage_error" = "阻止合理使用呼叫时出错，请联系支持部门";

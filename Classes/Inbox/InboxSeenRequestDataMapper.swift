@@ -10,13 +10,13 @@ import Foundation
 class InboxSeenRequestDataMapper {
     static func requestBody(messageIds: [String], externalUserId: String, seenDate: Date) -> RequestBody {
         return [
-            Consts.APIKeys.seenExternalUserId: externalUserId,
-            Consts.APIKeys.seenMessages: messageIds.compactMap({ (id) -> DictionaryRepresentation?  in
+            MMConsts.APIKeys.seenExternalUserId: externalUserId,
+            MMConsts.APIKeys.seenMessages: messageIds.compactMap({ (id) -> DictionaryRepresentation?  in
             
             return [
-                Consts.APIKeys.messageId: id,
-                Consts.APIKeys.seenTimestampDelta: seenDate.timestampDelta,
-                Consts.APIKeys.seenMessageInbox: true
+                MMConsts.APIKeys.messageId: id,
+                MMConsts.APIKeys.seenTimestampDelta: seenDate.timestampDelta,
+                MMConsts.APIKeys.seenMessageInbox: true
             ]
         })]
     }

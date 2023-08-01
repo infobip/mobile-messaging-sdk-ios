@@ -93,7 +93,9 @@ public class MMWebRTCService: MobileMessagingService {
     public override func suspend() {
         MMLogDebug("webrtcui service suspended")
         NotificationCenter.default.removeObserver(self)
-        disableCallPushCredentials()
+        if isRegistered {
+            disableCallPushCredentials()
+        } // else is the flow stopService -> suspended, and we can skip disabling push
         super.suspend()
     }
 
