@@ -78,7 +78,9 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     public var backgroungColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    
+    public var shouldSetNavBarAppearance: Bool = true
+    public var shouldHandleKeyboardAppearance: Bool = true
+
     public var advancedSettings: MMAdvancedChatSettings = MMAdvancedChatSettings() { didSet { postAppearanceChangedNotification() } }
 
     public var multithreadBackButton: UIBarButtonItem?

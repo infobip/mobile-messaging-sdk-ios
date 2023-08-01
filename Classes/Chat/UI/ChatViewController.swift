@@ -42,6 +42,26 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     
     var webView: ChatWebView!
     private var chatWidget: ChatWidget?
+
+    public var messagesViewFrame: CGRect {
+        set {
+            webView.frame = newValue
+        }
+
+        get {
+            return webView.frame
+        }
+    }
+
+    public var chatInputViewFrame: CGRect {
+        set {
+            composeBarView.frame = newValue
+        }
+
+        get {
+            return composeBarView.frame
+        }
+    }
     
     override var scrollView: UIScrollView! {
         return webView.scrollView
@@ -129,40 +149,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         guard let settings = settings else {
             return
         }
-        
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            
-            if let navBarColor = settings.navBarColor {
-                appearance.backgroundColor = navBarColor
-            }
-            
-            if let navBarTitleColor = settings.navBarTitleColor {
-                appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: navBarTitleColor]
-            }
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        } else {
-            navigationController?.navigationBar.isTranslucent = false
-            
-            if let navBarColor = settings.navBarColor {
-                navigationController?.navigationBar.backgroundColor = navBarColor
-            }
-            
-            if let navBarTitleColor = settings.navBarTitleColor {
-                navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : navBarTitleColor]
-            }
-        }
-        
-        if let navBarColor = settings.navBarColor {
-            navigationController?.navigationBar.barTintColor = navBarColor
-        }
-        
-        if let navBarItemsTintColor = settings.navBarItemsTintColor {
-            navigationController?.navigationBar.tintColor = navBarItemsTintColor
-        }
-        
+
+        setNavBarBranding(settings)
+
         title = settings.title
         
         if let sendButtonTintColor = settings.sendButtonTintColor,
@@ -176,6 +165,42 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         let bckgColor = settings.backgroungColor ?? .white
         webView.backgroundColor = bckgColor
         view.backgroundColor = bckgColor
+    }
+
+    private func setNavBarBranding(_ settings: MMChatSettings) {
+        guard MMChatSettings.sharedInstance.shouldSetNavBarAppearance else { return }
+        if #available(iOS 13.0, *) {
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithOpaqueBackground()
+
+            if let navBarColor = settings.navBarColor {
+                appearance.backgroundColor = navBarColor
+            }
+
+            if let navBarTitleColor = settings.navBarTitleColor {
+                appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: navBarTitleColor]
+            }
+            navigationController?.navigationBar.standardAppearance = appearance
+            navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        } else {
+            navigationController?.navigationBar.isTranslucent = false
+
+            if let navBarColor = settings.navBarColor {
+                navigationController?.navigationBar.backgroundColor = navBarColor
+            }
+
+            if let navBarTitleColor = settings.navBarTitleColor {
+                navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : navBarTitleColor]
+            }
+        }
+
+        if let navBarColor = settings.navBarColor {
+            navigationController?.navigationBar.barTintColor = navBarColor
+        }
+
+        if let navBarItemsTintColor = settings.navBarItemsTintColor {
+            navigationController?.navigationBar.tintColor = navBarItemsTintColor
+        }
     }
 
     public func showThreadsList() {
@@ -317,6 +342,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
+        guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance else { return }
         if composeBarView.isFirstResponder {
             super.keyboardWillShow(duration, curve: curve, options: options,
                                    height: height + (isComposeBarVisible ? composeBarView.bounds.height : 0)
@@ -325,6 +351,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
+        guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance else { return }
         super.keyboardWillHide(duration, curve: curve, options: options,
                                height: (isComposeBarVisible ? composeBarView.bounds.height : 0) + self.safeAreaInsets.bottom
         )

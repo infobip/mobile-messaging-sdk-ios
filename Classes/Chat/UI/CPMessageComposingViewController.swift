@@ -115,11 +115,13 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
 
     //MARK: keyboard
     override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
+        guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance else { return }
         super.keyboardWillShow(duration, curve: curve, options: options, height: height)
         updateComposeBarYAnimated(duration, options, height)
     }
 
     override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
+        guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance else { return }
         super.keyboardWillHide(duration, curve: curve, options: options, height: height)
         updateComposeBarYAnimated(duration, options, height)
     }

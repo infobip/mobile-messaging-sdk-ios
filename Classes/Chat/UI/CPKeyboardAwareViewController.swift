@@ -48,6 +48,7 @@ open class MMKeyboardAwareViewController: MMModalDismissableViewController {
 			let animationCurve = (userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.intValue,
 			let keyboardHeight = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height
 		{
+            guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance else { return }
 			let options = UIView.AnimationOptions(rawValue: UInt(animationCurve << 16))
 			self.keyboardWillHide(animationDuration, curve: UIView.AnimationCurve(rawValue: Int(animationCurve)) ?? .linear, options: options, height: keyboardHeight)
             keyboardShown = false
