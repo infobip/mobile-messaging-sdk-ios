@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="Roboto-Medium.ttf">
+            <string>Roboto-Medium</string>
+        </array>
+        <array key="Roboto-Regular.ttf">
+            <string>Roboto-Regular</string>
+        </array>
+    </customFonts>
+    <scenes>
+        <!--Call Controller-->
+        <scene sceneID="tGy-OG-oqa">
+            <objects>
+                <viewController storyboardIdentifier="CallController" id="pv2-IC-OyN" customClass="MMCallController" customModule="WebRTCUI" sceneMemberID="viewController">
+                    <view key="view" autoresizesSubviews="NO" contentMode="scaleAspectFit" id="hHa-jf-qzh">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yZO-W4-sDt" userLabel="Counterpart">
+                                <rect key="frame" x="183.66666666666666" y="70" width="8" height="33"/>
+                                <fontDescription key="fontDescription" name="Roboto-Medium" family="Roboto" pointSize="28"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p9C-ey-qt1" userLabel="CallStatus">
+                                <rect key="frame" x="187.66666666666666" y="118" width="0.0" height="0.0"/>
+                                <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="20"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="uNe-7a-2Gk">
+                                <rect key="frame" x="67.666666666666686" y="294" width="240" height="240"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="240" id="E2G-iK-PGF"/>
+                                    <constraint firstAttribute="height" constant="240" id="Nwg-4a-Pva"/>
+                                </constraints>
+                            </imageView>
+                            <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VEa-d5-hHt">
+                                <rect key="frame" x="67.666666666666686" y="294" width="240" height="240"/>
+                            </imageView>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jyF-fb-uZI" userLabel="Video Top View">
+                                <rect key="frame" x="0.0" y="50" width="375" height="170"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="170" id="9K0-5f-oZx"/>
+                                </constraints>
+                            </view>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="txi-qE-oSd" userLabel="Video Bottom View" customClass="CallButtonStackView" customModule="WebRTCUI">
+                                <rect key="frame" x="0.0" y="538" width="375" height="240"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eIb-UA-x1u" userLabel="Hangup" customClass="CallButton" customModule="WebRTCUI">
+                                        <rect key="frame" x="100.66666666666669" y="143" width="80" height="74"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="callHangUpButton"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="74" id="EYs-jr-mor"/>
+                                            <constraint firstAttribute="width" constant="80" id="Gpw-bH-H7m"/>
+                                        </constraints>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <action selector="hangupCall:" destination="pv2-IC-OyN" eventType="touchUpInside" id="fI2-gj-jgf"/>
+                                            <outlet property="xConstraint" destination="3LZ-em-cS9" id="yEU-SW-jAB"/>
+                                            <outlet property="yConstraint" destination="xPr-X1-H3h" id="Ldg-1P-5X0"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vkm-Wp-Fmy" userLabel="Mute" customClass="CallButton" customModule="WebRTCUI">
+                                        <rect key="frame" x="100.66666666666669" y="23" width="80" height="74"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="callMuteButton"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="74" id="g4z-cC-71k"/>
+                                            <constraint firstAttribute="width" constant="80" id="oKX-W0-XjH"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="14"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <action selector="muteAudio:" destination="pv2-IC-OyN" eventType="touchUpInside" id="rlq-LU-dRv"/>
+                                            <outlet property="xConstraint" destination="dhh-ap-hs7" id="6Ku-dR-yWe"/>
+                                            <outlet property="yConstraint" destination="QSF-pZ-5ch" id="4jN-Zz-b8e"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="u3y-vb-IBU" userLabel="Speaker" customClass="CallButton" customModule="WebRTCUI">
+                                        <rect key="frame" x="22" y="23" width="80" height="74"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="callSpeakerButton"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="80" id="BRp-h3-R24"/>
+                                            <constraint firstAttribute="height" constant="74" id="SfW-7n-y7v"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="14"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="speaker"/>
+                                        <connections>
+                                            <action selector="toggleSpeakerphone:" destination="pv2-IC-OyN" eventType="touchUpInside" id="xRR-xx-yQ1"/>
+                                            <outlet property="xConstraint" destination="nnN-Ox-X7j" id="UUk-4K-wOK"/>
+                                            <outlet property="yConstraint" destination="WPU-lF-gkt" id="nbY-Pr-lSh"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oaq-L3-42h" userLabel="Video" customClass="CallButton" customModule="WebRTCUI">
+                                        <rect key="frame" x="271.33333333333331" y="143" width="80" height="74"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="74" id="Vfj-Gc-ji4"/>
+                                            <constraint firstAttribute="width" constant="80" id="iRb-io-VgT"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="14"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <action selector="toggleVideo:" destination="pv2-IC-OyN" eventType="touchUpInside" id="4Ix-1o-dw1"/>
+                                            <outlet property="xConstraint" destination="88b-iH-dqR" id="f1O-yl-RY3"/>
+                                            <outlet property="yConstraint" destination="CyQ-zS-AMm" id="uE2-sZ-7TB"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="t4l-3l-YWV" userLabel="ScreenShare" customClass="CallButton" customModule="WebRTCUI">
+                                        <rect key="frame" x="22" y="143" width="80" height="74"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="screenShareButton"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="80" id="Svp-Ae-5Y6"/>
+                                            <constraint firstAttribute="height" constant="74" id="dYA-m7-Idt"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="14"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <action selector="onScreenSharing:" destination="pv2-IC-OyN" eventType="touchUpInside" id="4Ba-Ca-ehy"/>
+                                            <outlet property="xConstraint" destination="hhk-tM-cPW" id="3d3-lj-eWK"/>
+                                            <outlet property="yConstraint" destination="rIk-id-0LK" id="yUk-Dp-WGa"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Df2-d0-aQ9" userLabel="FlipCamera" customClass="CallButton" customModule="WebRTCUI">
+                                        <rect key="frame" x="271.33333333333331" y="23" width="80" height="74"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="80" id="711-Ij-WQG"/>
+                                            <constraint firstAttribute="height" constant="74" id="q7v-Mt-Ur7"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="14"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <action selector="flipCamera:" destination="pv2-IC-OyN" eventType="touchUpInside" id="9y5-xq-kbe"/>
+                                            <outlet property="xConstraint" destination="OzP-Vt-o3g" id="0J1-qu-Uq7"/>
+                                            <outlet property="yConstraint" destination="GrO-gK-lfV" id="T4C-eA-8z8"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UmJ-JA-jnx" userLabel="Placeholder" customClass="CallButton" customModule="WebRTCUI">
+                                        <rect key="frame" x="194.33333333333334" y="143" width="80.000000000000028" height="74"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="74" id="LAZ-UL-rkt"/>
+                                            <constraint firstAttribute="width" constant="80" id="Maz-9a-1GN"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="14"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <outlet property="xConstraint" destination="btC-Qz-v7I" id="vYn-fi-b9j"/>
+                                            <outlet property="yConstraint" destination="Orj-8G-2ac" id="tre-OL-m9z"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eCY-KN-neT" userLabel="Transfer" customClass="CallButton" customModule="WebRTCUI">
+                                        <rect key="frame" x="194.33333333333334" y="23" width="80.000000000000028" height="74"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="callDialpadButton"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="80" id="4hS-Y2-N7u"/>
+                                            <constraint firstAttribute="height" constant="74" id="7dK-D2-iYj"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="14"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <outlet property="xConstraint" destination="eDk-Su-3Sr" id="pmU-IH-Wkn"/>
+                                            <outlet property="yConstraint" destination="wS1-LI-yG9" id="bSd-gC-Bzt"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="eIb-UA-x1u" firstAttribute="centerX" secondItem="txi-qE-oSd" secondAttribute="centerX" multiplier="0.75" id="3LZ-em-cS9"/>
+                                    <constraint firstItem="oaq-L3-42h" firstAttribute="centerX" secondItem="txi-qE-oSd" secondAttribute="centerX" multiplier="1.66" id="88b-iH-dqR"/>
+                                    <constraint firstItem="oaq-L3-42h" firstAttribute="centerY" secondItem="txi-qE-oSd" secondAttribute="centerY" multiplier="1.5" id="CyQ-zS-AMm"/>
+                                    <constraint firstItem="Df2-d0-aQ9" firstAttribute="centerY" secondItem="txi-qE-oSd" secondAttribute="centerY" multiplier="0.5" id="GrO-gK-lfV"/>
+                                    <constraint firstAttribute="height" constant="240" id="HeB-xo-K1Q"/>
+                                    <constraint firstItem="UmJ-JA-jnx" firstAttribute="centerY" secondItem="txi-qE-oSd" secondAttribute="centerY" multiplier="1.5" id="Orj-8G-2ac"/>
+                                    <constraint firstItem="Df2-d0-aQ9" firstAttribute="centerX" secondItem="txi-qE-oSd" secondAttribute="centerX" multiplier="1.66" id="OzP-Vt-o3g"/>
+                                    <constraint firstItem="vkm-Wp-Fmy" firstAttribute="centerY" secondItem="txi-qE-oSd" secondAttribute="centerY" multiplier="0.5" id="QSF-pZ-5ch"/>
+                                    <constraint firstItem="u3y-vb-IBU" firstAttribute="centerY" secondItem="txi-qE-oSd" secondAttribute="centerY" multiplier="0.5" id="WPU-lF-gkt"/>
+                                    <constraint firstItem="UmJ-JA-jnx" firstAttribute="centerX" secondItem="txi-qE-oSd" secondAttribute="centerX" multiplier="1.25" id="btC-Qz-v7I"/>
+                                    <constraint firstItem="vkm-Wp-Fmy" firstAttribute="centerX" secondItem="txi-qE-oSd" secondAttribute="centerX" multiplier="0.75" id="dhh-ap-hs7"/>
+                                    <constraint firstItem="eCY-KN-neT" firstAttribute="centerX" secondItem="txi-qE-oSd" secondAttribute="centerX" multiplier="1.25" id="eDk-Su-3Sr"/>
+                                    <constraint firstItem="t4l-3l-YWV" firstAttribute="centerX" secondItem="txi-qE-oSd" secondAttribute="centerX" multiplier="0.33" id="hhk-tM-cPW"/>
+                                    <constraint firstItem="u3y-vb-IBU" firstAttribute="centerX" secondItem="txi-qE-oSd" secondAttribute="centerX" multiplier="0.33" id="nnN-Ox-X7j"/>
+                                    <constraint firstItem="t4l-3l-YWV" firstAttribute="centerY" secondItem="txi-qE-oSd" secondAttribute="centerY" multiplier="1.5" id="rIk-id-0LK"/>
+                                    <constraint firstItem="eCY-KN-neT" firstAttribute="centerY" secondItem="txi-qE-oSd" secondAttribute="centerY" multiplier="0.5" id="wS1-LI-yG9"/>
+                                    <constraint firstItem="eIb-UA-x1u" firstAttribute="centerY" secondItem="txi-qE-oSd" secondAttribute="centerY" multiplier="1.5" id="xPr-X1-H3h"/>
+                                </constraints>
+                                <connections>
+                                    <outlet property="cameraFlipper" destination="Df2-d0-aQ9" id="uYL-fK-k7H"/>
+                                    <outlet property="dialpad" destination="eCY-KN-neT" id="c2M-IE-5k6"/>
+                                    <outlet property="hangup" destination="eIb-UA-x1u" id="S0y-sj-mDr"/>
+                                    <outlet property="localVideo" destination="oaq-L3-42h" id="Cgo-QR-2sd"/>
+                                    <outlet property="mute" destination="vkm-Wp-Fmy" id="ou4-Jp-UJq"/>
+                                    <outlet property="placeholder" destination="UmJ-JA-jnx" id="oeQ-We-Z8W"/>
+                                    <outlet property="screenShare" destination="t4l-3l-YWV" id="fuy-SW-vbf"/>
+                                    <outlet property="speaker" destination="u3y-vb-IBU" id="JSM-Go-iYs"/>
+                                </connections>
+                            </view>
+                            <view hidden="YES" contentMode="scaleAspectFit" id="Lyn-yc-U60">
+                                <rect key="frame" x="223" y="59" width="137" height="167"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <gestureRecognizers/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="lessThanOrEqual" priority="999" constant="150" id="dNx-BH-5rW"/>
+                                </constraints>
+                            </view>
+                            <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WXj-dD-DeI" userLabel="Group Image">
+                                <rect key="frame" x="145" y="329" width="85" height="85"/>
+                                <color key="tintColor" red="0.51764705882352935" green="0.85490196078431369" blue="0.89411764705882346" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AY2-Bf-Z1A" userLabel="NetworkQualityStatus">
+                                <rect key="frame" x="187.66666666666666" y="508.66666666666674" width="0.0" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="25" id="ih1-8W-hUa"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="15"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="qUQ-7q-iCd" userLabel="Remote Video View">
+                                <rect key="frame" x="10" y="214" width="355" height="200"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="200" id="85v-0Z-1pD"/>
+                                </constraints>
+                            </view>
+                            <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="buy-sX-Prs">
+                                <rect key="frame" x="175.66666666666666" y="170" width="24" height="24"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="24" id="WHY-bN-B43"/>
+                                    <constraint firstAttribute="width" constant="24" id="fDk-gz-fKt"/>
+                                </constraints>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bz4-0u-5e0">
+                                <rect key="frame" x="315" y="62" width="44" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="44" id="Xyw-Su-s8W"/>
+                                    <constraint firstAttribute="height" constant="44" id="ZSa-Wn-W8W"/>
+                                </constraints>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <connections>
+                                    <action selector="onPipTap:" destination="pv2-IC-OyN" eventType="touchUpInside" id="tjW-CS-NOc"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Pp2-yC-fvh"/>
+                        <color key="backgroundColor" red="0.14117647059999999" green="0.14117647059999999" blue="0.14117647059999999" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                        <gestureRecognizers/>
+                        <constraints>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="trailing" secondItem="Bz4-0u-5e0" secondAttribute="trailing" constant="16" id="0DU-pj-pw2"/>
+                            <constraint firstItem="uNe-7a-2Gk" firstAttribute="centerY" secondItem="Pp2-yC-fvh" secondAttribute="centerY" id="2AV-ey-GIz"/>
+                            <constraint firstItem="p9C-ey-qt1" firstAttribute="top" secondItem="yZO-W4-sDt" secondAttribute="bottom" constant="15" id="2ej-SE-7Ty"/>
+                            <constraint firstItem="buy-sX-Prs" firstAttribute="centerX" secondItem="hHa-jf-qzh" secondAttribute="centerX" id="4Pm-Fu-IRS"/>
+                            <constraint firstItem="txi-qE-oSd" firstAttribute="top" secondItem="AY2-Bf-Z1A" secondAttribute="bottom" constant="4.5" id="55F-ub-BV7"/>
+                            <constraint firstItem="buy-sX-Prs" firstAttribute="top" secondItem="Pp2-yC-fvh" secondAttribute="top" constant="120" id="7N4-xQ-S1X"/>
+                            <constraint firstItem="jyF-fb-uZI" firstAttribute="centerX" secondItem="Pp2-yC-fvh" secondAttribute="centerX" id="9yd-Uv-rXX"/>
+                            <constraint firstItem="jyF-fb-uZI" firstAttribute="top" secondItem="Pp2-yC-fvh" secondAttribute="top" id="D9T-Ro-M9P"/>
+                            <constraint firstItem="yZO-W4-sDt" firstAttribute="top" secondItem="hHa-jf-qzh" secondAttribute="top" constant="70" id="F1h-MK-Ohm"/>
+                            <constraint firstItem="VEa-d5-hHt" firstAttribute="height" secondItem="uNe-7a-2Gk" secondAttribute="height" id="FTE-QX-CLZ"/>
+                            <constraint firstItem="WXj-dD-DeI" firstAttribute="height" secondItem="uNe-7a-2Gk" secondAttribute="height" multiplier="0.354167" id="Fio-wU-8LV"/>
+                            <constraint firstItem="VEa-d5-hHt" firstAttribute="centerX" secondItem="Pp2-yC-fvh" secondAttribute="centerX" id="JXv-9Z-iAV"/>
+                            <constraint firstItem="txi-qE-oSd" firstAttribute="centerX" secondItem="Pp2-yC-fvh" secondAttribute="centerX" id="MqL-VV-fUS"/>
+                            <constraint firstItem="VEa-d5-hHt" firstAttribute="width" secondItem="uNe-7a-2Gk" secondAttribute="width" id="OF2-Bg-6PI"/>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="leading" secondItem="jyF-fb-uZI" secondAttribute="leading" id="R2U-wt-Qlh"/>
+                            <constraint firstItem="qUQ-7q-iCd" firstAttribute="centerY" secondItem="Pp2-yC-fvh" secondAttribute="centerY" constant="-100" id="RnT-eF-GQG"/>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="trailing" secondItem="jyF-fb-uZI" secondAttribute="trailing" id="Y3W-t3-E7y"/>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="top" secondItem="Lyn-yc-U60" secondAttribute="top" priority="999" id="YiG-Dg-tEJ"/>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="trailing" secondItem="qUQ-7q-iCd" secondAttribute="trailing" constant="10" id="aJ8-wO-IJR"/>
+                            <constraint firstItem="WXj-dD-DeI" firstAttribute="width" secondItem="uNe-7a-2Gk" secondAttribute="width" multiplier="0.354167" id="aoa-b8-6as"/>
+                            <constraint firstItem="yZO-W4-sDt" firstAttribute="centerX" secondItem="Pp2-yC-fvh" secondAttribute="centerX" id="bAd-sx-iuT"/>
+                            <constraint firstItem="qUQ-7q-iCd" firstAttribute="leading" secondItem="Pp2-yC-fvh" secondAttribute="leading" constant="10" id="dDt-0X-IfG"/>
+                            <constraint firstItem="txi-qE-oSd" firstAttribute="leading" secondItem="Pp2-yC-fvh" secondAttribute="leading" id="eaP-4A-4mD"/>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="centerX" secondItem="AY2-Bf-Z1A" secondAttribute="centerX" id="ftq-km-JnF"/>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="trailing" secondItem="txi-qE-oSd" secondAttribute="trailing" id="fxc-hM-TJB"/>
+                            <constraint firstItem="uNe-7a-2Gk" firstAttribute="centerX" secondItem="Pp2-yC-fvh" secondAttribute="centerX" id="gpr-Ze-vET"/>
+                            <constraint firstItem="WXj-dD-DeI" firstAttribute="centerX" secondItem="Pp2-yC-fvh" secondAttribute="centerX" id="hWV-1V-heU"/>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="bottom" secondItem="txi-qE-oSd" secondAttribute="bottom" id="hto-Jq-Vmd"/>
+                            <constraint firstItem="Bz4-0u-5e0" firstAttribute="top" secondItem="Pp2-yC-fvh" secondAttribute="top" constant="12" id="jPb-6A-KcI"/>
+                            <constraint firstItem="VEa-d5-hHt" firstAttribute="centerY" secondItem="Pp2-yC-fvh" secondAttribute="centerY" id="kcW-13-Yxb"/>
+                            <constraint firstItem="Pp2-yC-fvh" firstAttribute="centerX" secondItem="qUQ-7q-iCd" secondAttribute="centerX" id="mLX-1Q-eic"/>
+                            <constraint firstItem="WXj-dD-DeI" firstAttribute="bottom" secondItem="qUQ-7q-iCd" secondAttribute="bottom" id="o2B-lg-ciQ"/>
+                            <constraint firstItem="p9C-ey-qt1" firstAttribute="centerX" secondItem="Pp2-yC-fvh" secondAttribute="centerX" id="zzL-r7-os0"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="callStatusLabel" destination="p9C-ey-qt1" id="6jO-8g-qO5"/>
+                        <outlet property="counterpartImage" destination="VEa-d5-hHt" id="HBD-C2-OzL"/>
+                        <outlet property="counterpartLabel" destination="yZO-W4-sDt" id="9xw-nr-0lg"/>
+                        <outlet property="groupImage" destination="WXj-dD-DeI" id="n66-hp-60m"/>
+                        <outlet property="localVideoView" destination="Lyn-yc-U60" id="mk2-S7-2oR"/>
+                        <outlet property="networkStatusLabel" destination="AY2-Bf-Z1A" id="o3i-0J-R3e"/>
+                        <outlet property="participantMutedImageV" destination="buy-sX-Prs" id="N9X-og-NhO"/>
+                        <outlet property="pipButton" destination="Bz4-0u-5e0" id="aHB-rE-U21"/>
+                        <outlet property="pulse" destination="uNe-7a-2Gk" id="zHR-B4-D01"/>
+                        <outlet property="remoteVideoViewConference" destination="qUQ-7q-iCd" id="cMY-kg-llz"/>
+                        <outlet property="videoStatusBottomView" destination="txi-qE-oSd" id="HZ3-68-RIL"/>
+                        <outlet property="videoStatusTopView" destination="jyF-fb-uZI" id="MFv-xX-6g2"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="RcW-oq-Du4" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-511" y="808"/>
+        </scene>
+    </scenes>
+</document>

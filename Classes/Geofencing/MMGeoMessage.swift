@@ -45,17 +45,17 @@ final public class MMGeoMessage: MM_MTMessage {
 	
 	func onEventOccur(ofType eventType: RegionEventType) {
 		events.filter { $0.type == eventType }.first?.occur()
-		if var internalData = originalPayload[Consts.APNSPayloadKeys.internalData] as? DictionaryRepresentation {
-			internalData += [Consts.InternalDataKeys.event: events.map { $0.dictionaryRepresentation }]
-			originalPayload.updateValue(internalData, forKey: Consts.APNSPayloadKeys.internalData)
+		if var internalData = originalPayload[MMConsts.APNSPayloadKeys.internalData] as? DictionaryRepresentation {
+			internalData += [MMConsts.InternalDataKeys.event: events.map { $0.dictionaryRepresentation }]
+			originalPayload.updateValue(internalData, forKey: MMConsts.APNSPayloadKeys.internalData)
 		}
 	}
 	
 	override public init?(payload: MMAPNSPayload, deliveryMethod: MMMessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool)
 	{
 		guard
-			let internalData = payload[Consts.APNSPayloadKeys.internalData] as? MMStringKeyPayload,
-			let geoRegionsData = internalData[Consts.InternalDataKeys.geo] as? [MMStringKeyPayload],
+			let internalData = payload[MMConsts.APNSPayloadKeys.internalData] as? MMStringKeyPayload,
+			let geoRegionsData = internalData[MMConsts.InternalDataKeys.geo] as? [MMStringKeyPayload],
 			let expiryTimeString = internalData[GeoConstants.CampaignKeys.expiryDate] as? String,
 			let startTimeString = internalData[GeoConstants.CampaignKeys.startDate] as? String ?? DateStaticFormatters.ISO8601SecondsFormatter.string(from: MobileMessaging.date.timeInterval(sinceReferenceDate: 0)) as String?,
 			let expiryTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: expiryTimeString),
@@ -70,14 +70,14 @@ final public class MMGeoMessage: MM_MTMessage {
 		self.startTime = startTime
 		
 		let deliveryTime: MMDeliveryTime?
-		if let deliveryTimeDict = internalData[Consts.InternalDataKeys.deliveryTime] as? DictionaryRepresentation {
+		if let deliveryTimeDict = internalData[MMConsts.InternalDataKeys.deliveryTime] as? DictionaryRepresentation {
 			deliveryTime = MMDeliveryTime(dictRepresentation: deliveryTimeDict)
 		} else {
 			deliveryTime = nil
 		}
 		
 		let evs: [RegionEvent]
-		if let eventDicts = internalData[Consts.InternalDataKeys.event] as? [DictionaryRepresentation] {
+		if let eventDicts = internalData[MMConsts.InternalDataKeys.event] as? [DictionaryRepresentation] {
 			evs = eventDicts.compactMap { return RegionEvent(dictRepresentation: $0) }
 		} else {
 			evs = [RegionEvent.defaultEvent]
@@ -182,7 +182,7 @@ public class MMDeliveryTime: NSObject, DictionaryRepresentable {
 		self.init(timeInterval: interval, days: days)
 	}
 	
-	var dictionaryRepresentation: DictionaryRepresentation {
+    public var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
 		result += timeInterval?.dictionaryRepresentation
 		if let days = days , !days.isEmpty {
@@ -258,7 +258,7 @@ public class MMDeliveryTimeInterval: NSObject, DictionaryRepresentable {
 		}
 	}
 	
-	var dictionaryRepresentation: DictionaryRepresentation {
+    public var dictionaryRepresentation: DictionaryRepresentation {
 		var result = DictionaryRepresentation()
 		result[GeoConstants.RegionDeliveryTimeKeys.timeInterval] = "\(fromTime)\(MMDeliveryTimeInterval.timeIntervalSeparator)\(toTime)"
 		assert(MMDeliveryTimeInterval(dictRepresentation: result) != nil, "The dictionary representation is invalid")
@@ -399,31 +399,31 @@ final class RegionEvent: DictionaryRepresentable, CustomStringConvertible {
 
 extension MM_MTMessage {
 	static func make(fromGeoMessage geoMessage: MMGeoMessage, messageId: String, region: MMRegion) -> MM_MTMessage? {
-		guard let aps = geoMessage.originalPayload[Consts.APNSPayloadKeys.aps] as? [String: Any],
-			let internalData = geoMessage.originalPayload[Consts.APNSPayloadKeys.internalData] as? [String: Any],
-			let silentAps = internalData[Consts.InternalDataKeys.silent] as? [String: Any] else
+		guard let aps = geoMessage.originalPayload[MMConsts.APNSPayloadKeys.aps] as? [String: Any],
+			let internalData = geoMessage.originalPayload[MMConsts.APNSPayloadKeys.internalData] as? [String: Any],
+			let silentAps = internalData[MMConsts.InternalDataKeys.silent] as? [String: Any] else
 		{
 			return nil
 		}
         
-		var newInternalData: [String: Any] = [Consts.InternalDataKeys.geo: [region.dictionaryRepresentation]]
-		newInternalData[Consts.InternalDataKeys.attachments] = geoMessage.internalData?[Consts.InternalDataKeys.attachments]
-		newInternalData[Consts.InternalDataKeys.showInApp] = geoMessage.internalData?[Consts.InternalDataKeys.showInApp]
-		newInternalData[Consts.InternalDataKeys.inAppStyle] = geoMessage.internalData?[Consts.InternalDataKeys.inAppStyle]
-        newInternalData[Consts.InternalDataKeys.inAppDismissTitle] = geoMessage.internalData?[Consts.InternalDataKeys.inAppDismissTitle]
-        newInternalData[Consts.InternalDataKeys.inAppOpenTitle] = geoMessage.internalData?[Consts.InternalDataKeys.inAppOpenTitle]
-        newInternalData[Consts.InternalDataKeys.inAppExpiryDateTime] = geoMessage.internalData?[Consts.InternalDataKeys.inAppExpiryDateTime]
-        newInternalData[Consts.InternalDataKeys.webViewUrl] = geoMessage.internalData?[Consts.InternalDataKeys.webViewUrl]
-        newInternalData[Consts.InternalDataKeys.browserUrl] = geoMessage.internalData?[Consts.InternalDataKeys.browserUrl]
-        newInternalData[Consts.InternalDataKeys.deeplink] = geoMessage.internalData?[Consts.InternalDataKeys.deeplink]
+		var newInternalData: [String: Any] = [MMConsts.InternalDataKeys.geo: [region.dictionaryRepresentation]]
+		newInternalData[MMConsts.InternalDataKeys.attachments] = geoMessage.internalData?[MMConsts.InternalDataKeys.attachments]
+		newInternalData[MMConsts.InternalDataKeys.showInApp] = geoMessage.internalData?[MMConsts.InternalDataKeys.showInApp]
+		newInternalData[MMConsts.InternalDataKeys.inAppStyle] = geoMessage.internalData?[MMConsts.InternalDataKeys.inAppStyle]
+        newInternalData[MMConsts.InternalDataKeys.inAppDismissTitle] = geoMessage.internalData?[MMConsts.InternalDataKeys.inAppDismissTitle]
+        newInternalData[MMConsts.InternalDataKeys.inAppOpenTitle] = geoMessage.internalData?[MMConsts.InternalDataKeys.inAppOpenTitle]
+        newInternalData[MMConsts.InternalDataKeys.inAppExpiryDateTime] = geoMessage.internalData?[MMConsts.InternalDataKeys.inAppExpiryDateTime]
+        newInternalData[MMConsts.InternalDataKeys.webViewUrl] = geoMessage.internalData?[MMConsts.InternalDataKeys.webViewUrl]
+        newInternalData[MMConsts.InternalDataKeys.browserUrl] = geoMessage.internalData?[MMConsts.InternalDataKeys.browserUrl]
+        newInternalData[MMConsts.InternalDataKeys.deeplink] = geoMessage.internalData?[MMConsts.InternalDataKeys.deeplink]
 		
 		var newpayload = geoMessage.originalPayload
-		newpayload[Consts.APNSPayloadKeys.aps] = apsByMerging(nativeAPS: aps, withSilentAPS: silentAps)
-		newpayload[Consts.APNSPayloadKeys.internalData] = newInternalData
-		newpayload[Consts.APNSPayloadKeys.messageId] = messageId
+		newpayload[MMConsts.APNSPayloadKeys.aps] = apsByMerging(nativeAPS: aps, withSilentAPS: silentAps)
+		newpayload[MMConsts.APNSPayloadKeys.internalData] = newInternalData
+		newpayload[MMConsts.APNSPayloadKeys.messageId] = messageId
 		
 		//cut silent:true in case of fetched message
-		newpayload.removeValue(forKey: Consts.InternalDataKeys.silent)
+		newpayload.removeValue(forKey: MMConsts.InternalDataKeys.silent)
 		
 		let result = MM_MTMessage(payload: newpayload,
 							   deliveryMethod: .generatedLocally,

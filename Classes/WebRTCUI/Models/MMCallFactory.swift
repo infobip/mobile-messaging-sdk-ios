@@ -5,7 +5,6 @@
 //  Created by Francisco Fortes on 19/08/2021.
 //  Copyright © 2021 Infobip Ltd. All rights reserved.
 //
-
 public struct MMWebRTCUIConstants {
     static let phoneNumber = "phoneNumber"
     static let autoAccept = "autoAccept"

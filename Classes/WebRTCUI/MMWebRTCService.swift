@@ -63,12 +63,16 @@ public class MMWebRTCService: MobileMessagingService {
     public var applicationId: String? // webrtc application id to use for calls
 
     static let resourceBundle: Bundle = {
+    #if SWIFT_PACKAGE
+        return Bundle.module
+    #else
         guard let resourceBundleURL = MobileMessaging.bundle.url(forResource: "MMWebRTCUI", withExtension: "bundle"),
               let bundle = Bundle(url: resourceBundleURL) else {
             // in case of Carthage usage, MobileMessaging bundle will be used
             return MobileMessaging.bundle
         }
         return bundle
+    #endif
     }()
         
 	init(mmContext: MobileMessaging) {
@@ -82,11 +86,11 @@ public class MMWebRTCService: MobileMessagingService {
 	///In-app Chat delegate, can be set to receive additional chat info.
 	public var delegate: MMWebRTCDelegate?
     
-	override var systemData: [String: AnyHashable]? {
+    public override var systemData: [String: AnyHashable]? {
 		return ["webrtcui": true]
 	}
 
-    override func suspend() {
+    public override func suspend() {
         MMLogDebug("webrtcui service suspended")
         NotificationCenter.default.removeObserver(self)
         if isRegistered {
@@ -104,7 +108,7 @@ public class MMWebRTCService: MobileMessagingService {
         super.stopService(completion)
     }
 
-	override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+    public override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
         start { _ in completion() }
 	}
     
@@ -118,7 +122,7 @@ public class MMWebRTCService: MobileMessagingService {
         super.start(completion)
     }
 
-    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+    public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
         syncWithServer({_ in completion() })
     }
 

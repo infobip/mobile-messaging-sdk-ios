@@ -7,13 +7,13 @@
 
 import Foundation
 
-class ChatWidget {
-	let widgetId: String
-	let title: String?
-	let primaryColor: String?
-	let backgroundColor: String?
-    let maxUploadContentSize: UInt
-    let isMultithread: Bool?
+public class ChatWidget {
+	public let widgetId: String
+	public let title: String?
+	public let primaryColor: String?
+	public let backgroundColor: String?
+    public let maxUploadContentSize: UInt
+    public let isMultithread: Bool?
     
 	init?(responseJson json: JSON) {
 		guard let widgetId = json[ChatAPIKeys.Widget.widgetId].string,

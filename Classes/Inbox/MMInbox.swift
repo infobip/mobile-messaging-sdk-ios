@@ -15,10 +15,10 @@ class GetInbox: GetRequest {
     init(applicationCode: String, accessToken: String?, externalUserId: String, from: Date?, to: Date?, limit: Int?, topic: String?) {
         var parameters: [String: String] = [:]
         
-        parameters[Consts.InboxKeys.messageTopic] = topic
-        parameters[Consts.InboxKeys.dateTimeFrom] = (from?.mm_epochUnixTimestamp() as Int64?).flatMap { String($0) }
-        parameters[Consts.InboxKeys.dateTimeTo] = (to?.mm_epochUnixTimestamp() as Int64?).flatMap { String($0) }
-        parameters[Consts.InboxKeys.limit] = limit.flatMap{ String($0) }
+        parameters[MMConsts.InboxKeys.messageTopic] = topic
+        parameters[MMConsts.InboxKeys.dateTimeFrom] = (from?.mm_epochUnixTimestamp() as Int64?).flatMap { String($0) }
+        parameters[MMConsts.InboxKeys.dateTimeTo] = (to?.mm_epochUnixTimestamp() as Int64?).flatMap { String($0) }
+        parameters[MMConsts.InboxKeys.limit] = limit.flatMap{ String($0) }
         
         super.init(applicationCode: applicationCode, accessToken: accessToken, path: .Inbox, pushRegistrationId: nil, body: nil, parameters: parameters as RequestParameters, pathParameters: ["{externalUserId}": externalUserId])
     }
@@ -42,9 +42,9 @@ class GetInbox: GetRequest {
      Array of inbox messages ordered by message send date-time.
      */
     public var messages: [MM_MTMessage]
-    init?(json value: JSON) {
-        self.messages = value[Consts.InboxKeys.messages].arrayValue.compactMap { MM_MTMessage(messageSyncResponseJson: $0) }
-        self.countTotal = value[Consts.InboxKeys.countTotal].intValue
-        self.countUnread = value[Consts.InboxKeys.countUnread].intValue
+    public init?(json value: JSON) {
+        self.messages = value[MMConsts.InboxKeys.messages].arrayValue.compactMap { MM_MTMessage(messageSyncResponseJson: $0) }
+        self.countTotal = value[MMConsts.InboxKeys.countTotal].intValue
+        self.countUnread = value[MMConsts.InboxKeys.countUnread].intValue
     }
 }

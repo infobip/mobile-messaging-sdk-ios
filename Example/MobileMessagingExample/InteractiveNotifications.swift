@@ -7,11 +7,13 @@
 
 import Foundation
 import MobileMessaging
+#if USING_SPM
+import MobileMessagingLogging
+#endif
 
 extension AppDelegate {
 	func setupLogging() {
-		MobileMessaging.logger?.logOutput = MMLogOutput.Console
-		MobileMessaging.logger?.logLevel = .Debug
+        MobileMessaging.logger = MMLumberjackLogger(logOutput: .Console, logLevel: .Debug)
 	}
 	
 	var customCategories: Set<MMNotificationCategory> {

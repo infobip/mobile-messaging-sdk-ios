@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController, MMComposeBarDelegate, UIGestureRecognizerDelegate,
                                                 UIScrollViewDelegate, UINavigationControllerDelegate {

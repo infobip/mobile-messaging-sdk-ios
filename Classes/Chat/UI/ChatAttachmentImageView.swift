@@ -7,6 +7,7 @@
 
 import Foundation
 import WebKit
+import UIKit
 
 class ChatAttachmentPreview: UIView {
     var contentView: UIView?

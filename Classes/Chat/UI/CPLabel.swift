@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class MMLabel: UILabel {
 	var maxLineHeight: CGFloat? = nil

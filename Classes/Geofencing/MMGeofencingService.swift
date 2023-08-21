@@ -99,14 +99,14 @@ public class MMGeofencingService: MobileMessagingService {
         }
     }
     
-    override func stopService(_ completion: @escaping (Bool) -> Void) {
+    public override func stopService(_ completion: @escaping (Bool) -> Void) {
         self.locationManager.delegate = nil
         super.stopService(completion)
         cancelOperations()
         MMGeofencingService.sharedInstance = nil
     }
     
-    override func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) {
+    public override func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) {
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
             suspend()
@@ -116,7 +116,7 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
 
-	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    public override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
 		logDebug("depersonalizing")
         cancelOperations()
 		self.stopMonitoringMonitoredRegions() {
@@ -130,7 +130,7 @@ public class MMGeofencingService: MobileMessagingService {
 		})
 	}
 	
-	override func mobileMessagingDidStart(_ completion: @escaping () -> Void) {
+    public override func mobileMessagingDidStart(_ completion: @escaping () -> Void) {
 		guard MMGeofencingService.isGeoServiceNeedsToStart && mmContext.currentInstallation().isPushRegistrationEnabled && mmContext.internalData().currentDepersonalizationStatus == .undefined else {
             completion()
 			return
@@ -139,7 +139,7 @@ public class MMGeofencingService: MobileMessagingService {
 		start({ _ in completion() })
 	}
 
-	override func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) {
+    public override func pushRegistrationStatusDidChange(_ completion: @escaping () -> Void) {
 		if mmContext.currentInstallation().isPushRegistrationEnabled {
 			start({ _ in completion() })
 		} else {
@@ -148,7 +148,7 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
 	
-	override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool {
+    public override func populateNewPersistedMessage(_ message: inout MessageManagedObject, originalMessage: MM_MTMessage) -> Bool {
 		guard let geoSignalingMessage = MMGeoMessage(payload: originalMessage.originalPayload,
 													 deliveryMethod: MMMessageDeliveryMethod(rawValue: message.deliveryMethod) ?? .undefined,
 													 seenDate: message.seenDate,
@@ -172,7 +172,7 @@ public class MMGeofencingService: MobileMessagingService {
 		return true
 	}
 	
-	override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
+    public override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard let geoSignalingMessage = MMGeoMessage(payload: message.originalPayload,
 													 deliveryMethod: message.deliveryMethod,
 													 seenDate: message.seenDate,
@@ -188,7 +188,7 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
     
-    override func appDidFinishLaunching(_ notification: Notification, completion: @escaping () -> Void) {
+    public override func appDidFinishLaunching(_ notification: Notification, completion: @escaping () -> Void) {
         assert(!Thread.isMainThread)
         locationManagerQueue.async {
             if notification.userInfo?[UIApplication.LaunchOptionsKey.location] != nil {
@@ -199,11 +199,11 @@ public class MMGeofencingService: MobileMessagingService {
         }
     }
 
-    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+    public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
         syncWithServer({_ in completion() })
     }
 
-    override func appDidEnterBackground(_ completion: @escaping () -> Void) {
+    public override func appDidEnterBackground(_ completion: @escaping () -> Void) {
         logDebug("App did enter background.")
         assert(!Thread.isMainThread)
         locationManagerQueue.async {
@@ -217,7 +217,7 @@ public class MMGeofencingService: MobileMessagingService {
         }
     }
     
-    override func appDidBecomeActive(_ completion: @escaping () -> Void) {
+    public override func appDidBecomeActive(_ completion: @escaping () -> Void) {
         logDebug("App did become active.")
         assert(!Thread.isMainThread)
         locationManagerQueue.async {
@@ -227,7 +227,7 @@ public class MMGeofencingService: MobileMessagingService {
     }
 	
 	private var _isRunning: Bool = false
-	override var isRunning: Bool  {
+    public override var isRunning: Bool  {
 		get {
 			var ret: Bool = false
 			locationManagerQueue.sync() {
@@ -242,8 +242,8 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
     
-	override var systemData: [String: AnyHashable]? {
-		return [Consts.SystemDataKeys.geofencingServiceEnabled: type(of: self).isSystemDataGeofencingServiceEnabled]
+    public override var systemData: [String: AnyHashable]? {
+		return [MMConsts.SystemDataKeys.geofencingServiceEnabled: type(of: self).isSystemDataGeofencingServiceEnabled]
 	}
     
     // MARK: -

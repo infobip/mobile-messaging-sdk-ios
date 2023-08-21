@@ -60,7 +60,7 @@ public class MMInboxService: MobileMessagingService {
      - parameter error: Optional error.
      */
     public func setSeen(externalUserId: String, messageIds: [String], completion: @escaping (_ error: NSError?) -> Void) {
-        let body = InboxSeenRequestDataMapper.requestBody(messageIds: messageIds, externalUserId: externalUserId, seenDate: MMDate().now)
+        let body = InboxSeenRequestDataMapper.requestBody(messageIds: messageIds, externalUserId: externalUserId, seenDate: MobileMessaging.date.now)
         q.async {
             self.mmContext.remoteApiProvider.sendSeenStatus(
                 applicationCode: self.mmContext.applicationCode,
@@ -72,7 +72,7 @@ public class MMInboxService: MobileMessagingService {
         }
     }
     
-    override var systemData: [String: AnyHashable]? {
+    public override var systemData: [String: AnyHashable]? {
         return ["inbox": true]
     }
     
@@ -92,7 +92,7 @@ public class MMInboxService: MobileMessagingService {
         }
     }
     
-    override func stopService(_ completion: @escaping (Bool) -> Void) {
+    public override func stopService(_ completion: @escaping (Bool) -> Void) {
         super.stopService(completion)
         MMInboxService.sharedInstance = nil
     }

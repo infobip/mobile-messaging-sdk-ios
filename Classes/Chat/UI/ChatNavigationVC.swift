@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// Chat view implementation, extends UINavigationController with a ChatViewController put as a root view controller.
 open class MMChatNavigationVC: UINavigationController {

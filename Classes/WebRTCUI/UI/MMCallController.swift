@@ -11,6 +11,7 @@ import CallKit
 #if WEBRTCUI_ENABLED
 import InfobipRTC
 
+
 enum ActiveCall {
     case applicationCall(ApplicationCall)
     case webRTCCall(WebrtcCall)
@@ -172,8 +173,12 @@ public class MMCallController: UIViewController, MMOpenSettings, MMPIPUsable {
         }
     }
 
-    static var new: MMCallController {
-        let storyboard = UIStoryboard(name: "MMCalls", bundle: MMWebRTCService.resourceBundle)
+    public static var new: MMCallController {
+        #if SWIFT_PACKAGE
+            let storyboard = UIStoryboard(name: "MMCalls_SPM", bundle: .module)
+        #else
+            let storyboard = UIStoryboard(name: "MMCalls", bundle: MMWebRTCService.resourceBundle)
+        #endif
         return storyboard.instantiateViewController(withIdentifier: "CallController") as! MMCallController
     }
     

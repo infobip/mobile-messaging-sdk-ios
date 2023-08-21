@@ -5,6 +5,7 @@
 //  Created by Andrey Kadochnikov on 08/12/2017.
 //
 import Foundation
+import UIKit
 
 struct ComposeBarConsts {
 	// runtime consts
