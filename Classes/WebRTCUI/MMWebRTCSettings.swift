@@ -79,7 +79,7 @@ public class MMWebRTCSettings: NSObject {
     private var _iconAlert: UIImage?
     private var _soundStartCall: NSDataAsset?
     private var _soundEndCall: NSDataAsset?
-
+    
     public var iconMute: UIImage? {
         set { _iconMute = newValue }
         get { return _iconMute ?? UIImage.init(mm_webrtcui_named: "mic") }
@@ -167,7 +167,8 @@ public class MMWebRTCSettings: NSObject {
         }
     }
     public var inboundCallSoundFileName: String?
-
+    public var customCallerValue: String?
+    
     struct Keys {
         static let pulseStrokeColor = "rtc_ui_pulse_stroke"
         static let errorColor = "rtc_ui_error"

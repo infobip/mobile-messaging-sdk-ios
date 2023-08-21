@@ -43,7 +43,8 @@ class CallKitManager: NSObject {
         guard let uuid = UUID(uuidString: call.id()) else { return }
         addWebRTCCall(uuid, call)
         let callUpdate = CXCallUpdate()
-        callUpdate.remoteHandle = CXHandle(type: .phoneNumber, value: call.source().displayIdentifier() ?? call.source().identifier())
+        let fromValue = call.source().displayIdentifier() ?? call.source().identifier()
+        callUpdate.remoteHandle = getRemoteCXHandle(with: fromValue)
         callUpdate.hasVideo = isVideoInPayload ?? call.hasCameraVideo()
         setCallFeatures(callUpdate)
         self.callKitProvider.reportNewIncomingCall(with: uuid, update: callUpdate) { (error) in
@@ -89,7 +90,7 @@ class CallKitManager: NSObject {
     func startApplicationCall(_ call: ApplicationCall) {
         guard let callUUID = UUID(uuidString: call.id()) else { return }
         addApplicationCall(callUUID, call)
-        let handle = CXHandle(type: .phoneNumber, value: call.applicationId())
+        let handle = CXHandle(type: .generic, value: call.applicationId())
         let startCallAction = CXStartCallAction(call: callUUID, handle: handle)
         startCallAction.isVideo = call.hasCameraVideo()
         let transaction = CXTransaction()
@@ -113,7 +114,7 @@ class CallKitManager: NSObject {
         guard let uuid = UUID(uuidString: call.id()) else { return }
         addApplicationCall(uuid, call)
         let callUpdate = CXCallUpdate()
-        callUpdate.remoteHandle = CXHandle(type: .phoneNumber, value: call.from)
+        callUpdate.remoteHandle = getRemoteCXHandle(with: call.from)
         callUpdate.hasVideo = isVideoInPayload ?? call.hasCameraVideo()
         setCallFeatures(callUpdate)
         self.callKitProvider.reportNewIncomingCall(with: uuid, update: callUpdate) { (error) in
@@ -192,6 +193,13 @@ class CallKitManager: NSObject {
                 MMLogDebug("Requested transaction successfully")
             }
         }
+    }
+    
+    private func getRemoteCXHandle(with from: String) -> CXHandle {
+        if let customCallerValue = MMWebRTCSettings.sharedInstance.customCallerValue {
+            return CXHandle(type: .generic, value: customCallerValue)
+        }
+        return CXHandle(type: .phoneNumber, value: from)
     }
 }
 
