@@ -118,7 +118,7 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
             logError("can't get data from contentsOf url: \(url)")
             return
         }
-        didSelect(data: data)
+        didSelect(url.lastPathComponent, data: data)
     }
     
     private func pickerController(_ controller: UIViewController, didSelectImage image: UIImage?) {
@@ -131,12 +131,12 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
         didSelect(data: data)
     }
     
-    private func didSelect(data: Data) {
+    private func didSelect(_ fileName: String? = nil, data: Data) {
         guard let sizeIsValid = delegate?.validateAttachmentSize(size: data.count), sizeIsValid else {
             delegate?.attachmentSizeExceeded()
             return
         }
-        delegate?.didSelect(attachment: ChatMobileAttachment(data: data))
+        delegate?.didSelect(attachment: ChatMobileAttachment(fileName, data: data))
     }
     
     /*Permissions*/

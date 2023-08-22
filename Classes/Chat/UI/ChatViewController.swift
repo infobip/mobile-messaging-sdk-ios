@@ -421,10 +421,10 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         webView.sendMessage(text, attachment: nil, completion: completion)
     }
     
-    public override func sendAttachmentData(_ data: Data, completion: @escaping (_ error: NSError?) -> Void) {
-        webView.sendMessage(nil, attachment: ChatMobileAttachment(data: data), completion: completion)
+    public override func sendAttachment(_ fileName: String? = nil, data: Data, completion: @escaping (_ error: NSError?) -> Void) {
+        webView.sendMessage(nil, attachment: ChatMobileAttachment(fileName, data: data), completion: completion)
     }
-    
+
     public override func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void) {
         draftPostponer.postponeBlock(delay: userInputDebounceTimeMs) { [weak self] in
             self?.webView.sendDraft(text, completion: completion)

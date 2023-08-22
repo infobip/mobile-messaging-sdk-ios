@@ -80,7 +80,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     }
     
     public func sendText(_ text: String, completion: @escaping (NSError?) -> Void) { /* override */ }
-    public func sendAttachmentData(_ data: Data, completion: @escaping (_ error: NSError?) -> Void) { /* override */ }
+    public func sendAttachment(_ fileName: String? = nil, data: Data, completion: @escaping (_ error: NSError?) -> Void) { /* override */ }
     public func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void) { /* override */ }
     public func attachmentButtonTapped() { /* override */ }
     public func composeBarWillChangeFrom(_ startFrame: CGRect, to endFrame: CGRect,

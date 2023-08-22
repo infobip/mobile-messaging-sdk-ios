@@ -11,15 +11,16 @@ class ChatMobileAttachment: ChatBaseAttachment {
     let base64: String
     let mimeType: String
     
-    init(data: Data) {
+    init(_ name: String? = nil, data: Data) {
         self.base64 = data.base64EncodedString(options: NSData.Base64EncodingOptions.init(rawValue: 0))
         self.mimeType = ChatAttachmentUtils.mimeType(forData: data)
+        let fileName = name ?? UUID().uuidString
         
-        if let fileExtension = ChatAttachmentUtils.fileExtension(forData: data) {
-            super.init(fileName: UUID().uuidString + "." + fileExtension)
-        } else {
-            super.init(fileName: UUID().uuidString)
+        guard let fileExtension = ChatAttachmentUtils.fileExtension(forData: data) else {
+            super.init(fileName: fileName)
+            return
         }
+        super.init(fileName: name ?? (fileName  + "." + fileExtension))
     }
     
     func base64UrlString() -> String {
