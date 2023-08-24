@@ -17,19 +17,6 @@ import Foundation
 open class Operation: Foundation.Operation {
     unowned(unsafe) open var underlyingQueue: DispatchQueue!
     
-    /* The completionBlock property has unexpected behaviors such as executing twice and executing on unexpected threads. BlockObserver
-     * executes in an expected manner.
-     */
-    @available(*, deprecated, message: "use BlockObserver completions instead")
-    override open var completionBlock: (() -> Void)? {
-        set {
-            fatalError("The completionBlock property on NSOperation has unexpected behavior and is not supported in PSOperations.Operation 😈")
-        }
-        get {
-            return nil
-        }
-    }
-    
     // use the KVO mechanism to indicate that changes to "state" affect other properties as well
     @objc class func keyPathsForValuesAffectingIsReady() -> Set<NSObject> {
         return ["state" as NSObject]
