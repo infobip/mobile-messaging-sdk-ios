@@ -674,4 +674,34 @@ class MessageReceivingTests: MMTestCase {
 
 		self.waitForExpectations(timeout: 60, handler: { error in })
 	}
+    
+    func testThatMessageIsMM_MTMessage () {
+        let testMM_MTMessage = """
+            {
+                "messageId": "messageId",
+                "aps": {
+                    "badge": 6,
+                    "sound": "default",
+                    "alert": {
+                        "body":"text"
+                    }
+                }
+            }
+            """
+        
+        let testNotMM_MTMessage = """
+            {
+                "aps": {
+                    "badge": 6,
+                    "sound": "default",
+                    "alert": {
+                        "body":"text"
+                    }
+                }
+            }
+            """
+        
+        XCTAssertTrue(MM_MTMessage.isCorrectPayload(JSON.parse(testMM_MTMessage).dictionaryObject!))
+        XCTAssertFalse(MM_MTMessage.isCorrectPayload(JSON.parse(testNotMM_MTMessage).dictionaryObject!))
+    }
 }

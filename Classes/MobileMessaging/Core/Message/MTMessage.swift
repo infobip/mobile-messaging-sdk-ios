@@ -245,6 +245,15 @@ open class MM_MTMessage: MMBaseMessage, NamedLogger {
                          seenStatus: .NotSeen,
                          isDeliveryReportSent: false)
     }
+    
+    public class func isMM_MTMessagePayload(_ payload: MMAPNSPayload) -> Bool {
+        return MM_MTMessage(payload: payload,
+                            deliveryMethod: .push,
+                            seenDate: nil,
+                            deliveryReportDate: nil,
+                            seenStatus: .NotSeen,
+                            isDeliveryReportSent: false) != nil
+    }
 }
 
 func isSilentInternalData(_ internalData: MMStringKeyPayload?) -> Bool {

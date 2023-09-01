@@ -16,32 +16,39 @@ import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-	
-	var window: UIWindow?
+    
+    var window: UIWindow?
     let messagesManager = MessagesManager.sharedInstance
-	
-	func applicationDidFinishLaunching(_ application: UIApplication) {
-		if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {
-			setupLogging()
-			MobileMessaging
-            .withApplicationCode(
-                "<# your application code #>",
-				notificationType: MMUserNotificationType(options: [.alert, .sound]))?
-			.withInteractiveNotificationCategories(customCategories)
-			.start()
-		}
-		UIToolbar.setupAppearance()
-	}
-	
-	func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-		MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
-	}
-	
-	func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-		MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
-	}
-
-	func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-		return LinksHandler.openDeeplink(url: url, withMessage: nil)
-	}
+    
+    func applicationDidFinishLaunching(_ application: UIApplication) {
+        if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {
+            setupLogging()
+            MobileMessaging
+                .withApplicationCode(
+                    "<# your application code #>",
+                    notificationType: MMUserNotificationType(options: [.alert, .sound]))?
+                .withInteractiveNotificationCategories(customCategories)
+                .start()
+        }
+        UIToolbar.setupAppearance()
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        MobileMessaging.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken)
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        
+        if MM_MTMessage.isCorrectPayload(userInfo) {
+            MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+        } else {
+            // Other push vendors might have their code here and handle a remote notification as well.
+            // completionHandler needs to be called only once.
+            completionHandler(.noData)
+        }
+    }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        return LinksHandler.openDeeplink(url: url, withMessage: nil)
+    }
 }
