@@ -246,7 +246,7 @@ open class MM_MTMessage: MMBaseMessage, NamedLogger {
                          isDeliveryReportSent: false)
     }
     
-    public class func isMM_MTMessagePayload(_ payload: MMAPNSPayload) -> Bool {
+    public class func isCorrectPayload(_ payload: MMAPNSPayload) -> Bool {
         return MM_MTMessage(payload: payload,
                             deliveryMethod: .push,
                             seenDate: nil,
