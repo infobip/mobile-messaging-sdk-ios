@@ -264,6 +264,7 @@
 		A843A43F28F5A6D700D5196F /* MMCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A43028F5A6D600D5196F /* MMCallFactory.swift */; };
 		A843A44128F5A93600D5196F /* MMWebRTCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A44028F5A93600D5196F /* MMWebRTCService.swift */; };
 		A87017A829028E6F00B696CE /* MMWebRTCService+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */; };
+		A8C5555F2AAF727100C52893 /* MMChatError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C5555E2AAF727100C52893 /* MMChatError.swift */; };
 		A8CBD7D1292CCDA200322961 /* UIView+Associated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */; };
 		A8CBD7D2292CCDA200322961 /* UIWindow+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */; };
 		A8CBD7D3292CCDA200322961 /* UIViewController+Associated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C6292CCDA200322961 /* UIViewController+Associated.swift */; };
@@ -626,6 +627,7 @@
 		A843A44028F5A93600D5196F /* MMWebRTCService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCService.swift; sourceTree = "<group>"; };
 		A86ABE51285C646F00D5E00C /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+Push.swift"; sourceTree = "<group>"; };
+		A8C5555E2AAF727100C52893 /* MMChatError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatError.swift; sourceTree = "<group>"; };
 		A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Associated.swift"; sourceTree = "<group>"; };
 		A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
 		A8CBD7C6292CCDA200322961 /* UIViewController+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+Associated.swift"; sourceTree = "<group>"; };
@@ -682,7 +684,6 @@
 				534E916FB427AA23C68F1AEE /* Pods-MobileMessaging.debug.xcconfig */,
 				9DFF3A05182FE0D52567D210 /* Pods-MobileMessaging.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -745,6 +746,7 @@
 				7650DC19244EEB480016233D /* UI */,
 				76F8A32C269F2F5700876E16 /* ChatMessageCounterService.swift */,
 				A0791855283258E9004309F5 /* ChatExtensions.swift */,
+				A8C5555E2AAF727100C52893 /* MMChatError.swift */,
 			);
 			name = Chat;
 			path = Classes/Chat;
@@ -1585,6 +1587,7 @@
 				367B1A9A2918F3640081983C /* MMLoc.swift in Sources */,
 				764556781F78FF5800B8F14B /* MMVersion.swift in Sources */,
 				764556A81F78FF8F00B8F14B /* MMLocalization.swift in Sources */,
+				A8C5555F2AAF727100C52893 /* MMChatError.swift in Sources */,
 				7601F1A3208E056500738C1A /* String+MD5.swift in Sources */,
 				7650DC38244EEB480016233D /* ComposeBar.swift in Sources */,
 				764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */,

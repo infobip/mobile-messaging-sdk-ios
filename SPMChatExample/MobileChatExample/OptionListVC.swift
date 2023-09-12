@@ -345,7 +345,7 @@ class CustomInputView: UIView, MMChatComposer, UITextViewDelegate {
     
     @objc func onSendPic() {
         guard let data = UIImage(named: "alphaLogo")?.pngData() else { return }
-        delegate?.sendAttachmentData(data, completion: { error in
+        delegate?.sendAttachment("alphaLogo", data: data, completion: { error in
             if let error = error {
                 MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
             } else {

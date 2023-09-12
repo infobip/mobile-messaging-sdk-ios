@@ -422,6 +422,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     public override func sendAttachment(_ fileName: String? = nil, data: Data, completion: @escaping (_ error: NSError?) -> Void) {
+        guard validateAttachmentSize(size: data.count) else {
+            attachmentSizeExceeded()
+            completion(NSError(chatError: MMChatError.attachmentSizeExceeded(maxUploadAttachmentSize)))
+            return
+        }
         webView.sendMessage(nil, attachment: ChatMobileAttachment(fileName, data: data), completion: completion)
     }
 
@@ -477,8 +482,9 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
     func validateAttachmentSize(size: Int) -> Bool {
         return size <= maxUploadAttachmentSize
     }
-    
-    func attachmentSizeExceeded() {
+
+    @objc
+    open func attachmentSizeExceeded() {
         let title = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_title", defaultString: "Attachment upload failed")
         let message = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_message", defaultString: "Maximum allowed size exceeded")
         logError("\(title). \(message) (\(maxUploadAttachmentSize.mbSize))")

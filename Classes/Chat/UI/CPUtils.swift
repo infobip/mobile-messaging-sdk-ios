@@ -58,7 +58,7 @@ extension UIViewController {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             alert.view.tintColor = MMChatSettings.getMainTextColor()
-            alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: dismissActionHandler))
+            alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_ok", defaultString: "Cancel"), style: .cancel, handler: dismissActionHandler))
             self.present(alert, animated: true, completion: nil)
         }
     }
