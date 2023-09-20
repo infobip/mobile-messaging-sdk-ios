@@ -484,11 +484,15 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
     }
 
     @objc
-    open func attachmentSizeExceeded() {
-        let title = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_title", defaultString: "Attachment upload failed")
-        let message = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_message", defaultString: "Maximum allowed size exceeded")
-        logError("\(title). \(message) (\(maxUploadAttachmentSize.mbSize))")
-        showAlert(title, message: message)
+    internal func attachmentSizeExceeded() {
+        guard let externalSizeExceededHandling = MMInAppChatService.sharedInstance?.delegate?.attachmentSizeExceeded else {
+            let title = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_title", defaultString: "Attachment upload failed")
+            let message = ChatLocalization.localizedString(forKey: "mm_attachment_upload_failed_alert_message", defaultString: "Maximum allowed size exceeded")
+            logError("\(title). \(message) (\(maxUploadAttachmentSize.mbSize))")
+            showAlert(title, message: message)
+            return
+        }
+        externalSizeExceededHandling(maxUploadAttachmentSize)
     }
     
     private var maxUploadAttachmentSize: UInt { return chatWidget?.maxUploadContentSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize}

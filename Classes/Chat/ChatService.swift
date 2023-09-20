@@ -313,6 +313,9 @@ protocol ChatWebViewDelegate: AnyObject {
     
     ///Called whenever a new chat push message arrives, contains current unread message counter value
     @objc optional func didUpdateUnreadMessagesCounter(_ count: Int)
+
+    ///Called whenever an attachment exceeds the max allowed size and cannot be uploaded. If undefined, a localised alert will be displayed instead
+    @objc optional func attachmentSizeExceeded(_ maxSize: UInt)
 }
 
 extension UserEventsManager {
