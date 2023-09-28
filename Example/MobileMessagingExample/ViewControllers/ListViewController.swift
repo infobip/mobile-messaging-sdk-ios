@@ -21,7 +21,7 @@ class ListViewController: UIViewController, UITableViewDelegate {
 		MessagesManager.sharedInstance.cleanMessages()
 		updateUI()
 	}
-		
+
     override func viewDidLoad() {
         super.viewDidLoad()
 

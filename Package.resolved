@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/infobip/infobip-rtc-ios.git",
       "state" : {
-        "revision" : "d4bb575535a4e677f1c6b4f1a0f1e3926ce1eb8f",
-        "version" : "2.0.23"
+        "revision" : "faa84961a011600e4fbdae9c6517bb0cb323a952",
+        "version" : "2.1.1"
       }
     },
     {

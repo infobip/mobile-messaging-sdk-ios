@@ -179,7 +179,14 @@ public struct MMConsts {
         public static let topic = "topic"
         public static let inbox = "inbox"
         public static let seen = "seen"
+        public static let inAppDetails = "inAppDetails"
 	}
+    
+    struct InAppDetailsKeys {
+        static let url = "url"
+        static let position = "position"
+        static let type = "type"
+    }
 
 	struct Attachments {
 		struct Keys {

@@ -8,14 +8,17 @@ import UserNotifications
 
 @objcMembers
 public class MMNotificationAction: NSObject {
-	
-	public static var DismissActionId: String {
-		return UNNotificationDismissActionIdentifier
-	}
+    public static var DismissActionId: String {
+        return UNNotificationDismissActionIdentifier
+    }
 	
 	public static var DefaultActionId: String {
 		return UNNotificationDefaultActionIdentifier
 	}
+    
+    public static var PrimaryActionId: String {
+        return "mm_primary_action_id"
+    }
 	
 	public let identifier: String
 	public let title: String
@@ -59,6 +62,10 @@ public class MMNotificationAction: NSObject {
     
     class var defaultAction: MMNotificationAction {
         return MMNotificationAction(actionIdentifier: DefaultActionId, title: "", options: nil)
+    }
+    
+    class var primaryAction: MMNotificationAction {
+        return MMNotificationAction(actionIdentifier: PrimaryActionId, title: "", options: nil)
     }
 	
 	var unUserNotificationAction: UNNotificationAction {

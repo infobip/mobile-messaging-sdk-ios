@@ -75,6 +75,16 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     /**
      Fabric method for Mobile Messaging session.
+     Use this method to enable Full-featured In-App notifications (more about this feature - https://github.com/infobip/mobile-messaging-sdk-ios/wiki/In-app-notifications#full-featured-in-app-notifications)
+     - remark: Without enabling Full-featured In-app notifications `MMNotificationMessageReceived` event is triggered, but In-App not processed and not displayed within WebView.
+     */
+    public func withFullFeaturedInApps() -> MobileMessaging {
+        fullFeaturedInAppsEnabled = true
+        return self
+    }
+    
+    /**
+     Fabric method for Mobile Messaging session.
      MobileMessaging SDK by default contains logic to unregister from Remote Notifications in certain cases: when depersonalization transitions to the pending state; when you explicitly stop MobileMessaging. It is possible to disable this default behavior. This might be needed in case your app should support other push notifications vendors in addition to (or instead of) Infobip's one.
      - remark: We don't recommend having multiple push notifications vendors functioning within the same application because they might collide and interfere with each other.
      */
@@ -534,6 +544,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public let userNotificationType: MMUserNotificationType
     public let applicationCode: String
     var registeringForRemoteNotificationsDisabled: Bool = false
+    var fullFeaturedInAppsEnabled: Bool = false
     var overridingNotificationCenterDeleageDisabled: Bool = false
     var unregisteringForRemoteNotificationsDisabled: Bool = false
     var storageType: MMStorageType = .SQLite
@@ -592,7 +603,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
             mm.apnsRegistrationManager.cleanup()
         }
         
-
+        
         InternalData.resetCurrent()
         MMUser.resetAll()
         MMInstallation.resetAll()
@@ -665,7 +676,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     func updateDepersonalizeStatusForSubservices() {
         NotificationCenter.default.post(name: Notification.Name.init("depersonalizationStatusDidChange"), object: self)
     }
-
+    
     func baseUrlDidChange() {
         NotificationCenter.default.post(name: Notification.Name.init("baseUrlDidChange"), object: self)
     }
@@ -725,7 +736,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         self.userNotificationType = notificationType
         self.remoteAPIBaseURL = backendBaseURL
         self.appGroupId = Bundle.mainAppBundle.appGroupId
-                
+        
         super.init()
         MobileMessaging.sharedInstance = self
         logInfo("SDK successfully initialized!")

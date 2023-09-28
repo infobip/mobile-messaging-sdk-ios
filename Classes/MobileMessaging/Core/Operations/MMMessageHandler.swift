@@ -69,21 +69,21 @@ public class MMMessageHandler: MobileMessagingService {
         })
 	}
 
-    //MARK: Intenal	
+    // MARK: - Internal
     func handleAPNSMessage(userInitiated: Bool, userInfo: MMAPNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
 		guard isRunning == true else {
             logDebug("abort messages handling, service running \(isRunning)")
 			completion(.noData)
 			return
 		}
-
-		if let msg = MM_MTMessage(payload: userInfo,
-							   deliveryMethod: .push,
-							   seenDate: nil,
-							   deliveryReportDate: nil,
-							   seenStatus: .NotSeen,
-							   isDeliveryReportSent: false)
-		{
+        
+        if let msg = MM_MTMessage(payload: userInfo,
+                         deliveryMethod: .push,
+                         seenDate: nil,
+                         deliveryReportDate: nil,
+                         seenStatus: .NotSeen,
+                         isDeliveryReportSent: false)
+        {
             handleMTMessages(userInitiated: userInitiated, messages: [msg], notificationTapped: MMMessageHandler.isNotificationTapped(userInfo as? [String : Any], applicationState: MobileMessaging.application.applicationState), completion: completion)
 		} else {
 			logError("Error while converting payload:\n\(userInfo)\nto MMMessage")
@@ -101,8 +101,17 @@ public class MMMessageHandler: MobileMessagingService {
 			completion(.noData)
 			return
 		}
-		
-        messageHandlingQueue.addOperation(MessageHandlingOperation(userInitiated: userInitiated, messagesToHandle: messages, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
+		 
+        let messagesToHandle = messages.map { message in
+            return MMInAppMessage(payload: message.originalPayload,
+                                  deliveryMethod: .push,
+                                  seenDate: nil,
+                                  deliveryReportDate: nil,
+                                  seenStatus: .NotSeen,
+                                  isDeliveryReportSent: false)
+          ?? message
+        }
+        messageHandlingQueue.addOperation(MessageHandlingOperation(userInitiated: userInitiated, messagesToHandle: messagesToHandle, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:
 			{ [weak self] error, newMessages in
             
                 guard let _self = self else {
