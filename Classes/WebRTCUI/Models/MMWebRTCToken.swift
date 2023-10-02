@@ -54,25 +54,32 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
     
     static func obtain(queue: DispatchQueue, completion: @escaping (MMResult<MMWebRTCToken>) -> Void) {
         guard let pushRegId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
-        let appCode = MobileMessaging.sharedInstance?.applicationCode,
-        let webRTCAppId = MMWebRTCService.sharedInstance?.applicationId else { return }
-        let body: [String: Any] = ["identity": pushRegId,
-                                   "applicationId": webRTCAppId]
+              let identity = MobileMessaging.webRTCService?.identity,
+        let appCode = MobileMessaging.sharedInstance?.applicationCode else { return }
+        let body: [String: Any] = ["identity": identity]
         let request = MMWebRTCTokenRequest(
             applicationCode: appCode,
             pushRegistrationId: pushRegId,
             body: body)
         queue.async {
-            MobileMessaging.sharedInstance?.remoteApiProvider.performRequest(request: request, queue: queue, completion: completion)
+            MobileMessaging.sharedInstance?.remoteApiProvider.performRequest(
+                request: request, 
+                queue: queue,
+                completion: completion)
         }
     }
 }
 
 class MMWebRTCTokenRequest: RequestData {
     init(applicationCode: String, pushRegistrationId: String?, body: RequestBody) {
-        super.init(applicationCode: applicationCode, accessToken: nil, method: .post, path: .WebRTCToken,
-                   pushRegistrationId: pushRegistrationId, body: body,
-                   baseUrl: URL(string: MMConsts.APIValues.prodDynamicBaseURLString))
+        super.init(
+            applicationCode: applicationCode,
+            accessToken: nil,
+            method: .post,
+            path: .WebRTCToken,
+            pushRegistrationId: pushRegistrationId,
+            body: body,
+            baseUrl: URL(string: MMConsts.APIValues.prodDynamicBaseURLString))
     }
 }
 #endif

@@ -9,6 +9,12 @@
 import Foundation
 import UIKit
 import MobileMessaging
+import SwiftUI
+#if USING_SPM
+import InAppChat
+import MobileMessagingLogging
+import WebRTCUI
+#endif
 
 class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     @IBOutlet weak var optionsTableV: UITableView!
@@ -73,12 +79,34 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
         }
     }
     
+    func onShowSwiftUIChat() {
+        let vc = UIHostingController(rootView: ExternalInputChatView())
+        navigationController?.present(vc, animated: true)
+    }
+    
+    func onShowSwiftUIDefaultChat() {
+        let vc = UIHostingController(rootView: DefaultChatView())
+        navigationController?.present(vc, animated: true)
+    }
+    
+    func onExternalUIKitChat() {
+        let vc = ExternalChatInputViewController()
+        MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance = false
+        MMChatSettings.sharedInstance.shouldUseExternalChatInput = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     func showReplacedChatInNavigation() {
         let customInputView = CustomInputView(frame: CGRect(x: 0, y: view.frame.height-50,
                                                    width: view.frame.width, height: 50))
         let vc = MMChatViewController.makeCustomViewController(with: customInputView)
         customInputView.setupInputView()
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func onSwiftUIChatWithCstuomNavigation() {
+        let vc = UIHostingController(rootView: ExternalInputChatViewWithCustomNavigation())
+        navigationController?.present(vc, animated: true)
     }
     
     func presentAndSendContextualData() {
@@ -119,17 +147,18 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     }
     
     func onRestartCalls() {
-        MobileMessaging.webRTCService?.applicationId = webrtcApplicationId
+        MobileMessaging.webRTCService?.configurationId = webrtcConfigurationId
         MobileMessaging.webRTCService?.start({ result in
             print("Calls process started successfully \(result)")
         })
     }
     
-    func onCopyPushRegIdToClipbpard() {
-        var text = "No push registration Id available yet"
-        if let pushReg = MobileMessaging.getInstallation()?.pushRegistrationId {
-            UIPasteboard.general.string = pushReg
-            text = "Push registration Id copied to clipboard"
+    func onCopyIdentityToClipboard() {
+        var text = "No WebRTC identity available yet"
+        UIPasteboard.general.string = ""
+        if let identity = MobileMessaging.webRTCService?.identity {
+            UIPasteboard.general.string = identity
+            text = "Identity copied to clipboard"
         }
         MMPopOverBar.show(
             backgroundColor: .black,
@@ -172,13 +201,19 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     func inAppChatIsEnabled(_ enabled: Bool) {
         enableButtons(enabled: enabled)
     }
+
+    func attachmentSizeExceeded(_ maxSize: UInt) {
+        print("Could not upload attachment as it exceeded the max size allowed \(maxSize)")
+    }
     
     func enableButtons(enabled: Bool) {
         optionsTableV.isUserInteractionEnabled = enabled
         optionsTableV.alpha = enabled ? 1.0 : 0.3
     }
 
-    private func handleShowChat(_ option: Int) {
+    private func handleUIKitChat(_ option: Int) {
+        MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance = true
+        MMChatSettings.sharedInstance.shouldUseExternalChatInput = false
         guard let suboption = ShowChatOptions(rawValue: option) else { return }
         switch suboption {
         case .pushNavigationItem:
@@ -195,6 +230,8 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     }
 
     private func handleAdvancedChat(_ option: Int) {
+        MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance = true
+        MMChatSettings.sharedInstance.shouldUseExternalChatInput = false
         guard let suboption = AdvancedChatOptions(rawValue: option) else { return }
         switch suboption {
         case .setLanguage:
@@ -214,8 +251,23 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
             onDePersonalize()
         case .changeColorTheme:
             onChangeColorTheme()
+        case .externalChatInputVC:
+            onExternalUIKitChat()
         }
     }
+    
+    private func handleSwiftUIOptions(_ option: Int) {
+        guard let suboption = SwiftUIChatOptions(rawValue: option) else { return }
+        switch suboption {
+        case .defaultSwiftUIChat:
+            onShowSwiftUIDefaultChat()
+        case .swiftUIChatWithExternalInput:
+            onShowSwiftUIChat()
+        case .swiftUIChatWithCustomNavigation:
+            onSwiftUIChatWithCstuomNavigation()
+        }
+    }
+    
     
     private func handleWebRTCUI(_ option: Int) {
         guard let suboption = WebRTCUIOptions(rawValue: option) else { return }
@@ -224,8 +276,8 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
             onRestartCalls()
         case .stopCall:
             onTapStopCalls()
-        case .copyPushRegIdToClipboard:
-            onCopyPushRegIdToClipbpard()
+        case .copyIdentityToClipboard:
+            onCopyIdentityToClipboard()
         }
     }
     
@@ -304,12 +356,14 @@ extension OptionListVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let option = MainOptions(rawValue: optionsSegmentedC.selectedSegmentIndex) else { return }
         switch option {
-        case .showChat:
-            handleShowChat(indexPath.row)
+        case .uiKitChat:
+            handleUIKitChat(indexPath.row)
         case .advancedChat:
             handleAdvancedChat(indexPath.row)
         case .webRTCUI:
             handleWebRTCUI(indexPath.row)
+        case .swiftUIChat:
+            handleSwiftUIOptions(indexPath.row)
         }
     }
 }

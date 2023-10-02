@@ -9,6 +9,11 @@
 import Foundation
 import UIKit
 import MobileMessaging
+#if USING_SPM
+import WebRTCUI
+import InAppChat
+import MobileMessagingLogging
+#endif
 
 class PersonalizationVC: UIViewController {
     @IBOutlet weak var phoneTextfield: UITextField!

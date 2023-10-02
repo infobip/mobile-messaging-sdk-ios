@@ -197,6 +197,14 @@ public extension String {
             ($0 << 5) &+ $0 &+ Int($1)
         }
     }
+
+    func mm_components(withMaxLength length: Int) -> [String] {
+         return stride(from: 0, to: self.count, by: length).map {
+             let start = self.index(self.startIndex, offsetBy: $0)
+             let end = self.index(start, offsetBy: length, limitedBy: self.endIndex) ?? self.endIndex
+             return String(self[start..<end])
+         }
+     }
 }
 
 extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
@@ -238,12 +246,12 @@ extension String {
         return mm_matches(toRegexPattern: Consts.UUIDRegexPattern, options: .caseInsensitive)
     }
     
-    func mm_breakWithMaxLength(maxLenght: Int) -> String {
+    func mm_breakWithMaxLength(maxLength: Int) -> String {
         var result: String = self
         let currentLen = self.count
-        let doPutDots = maxLenght > 3
-        if currentLen > maxLenght {
-            if let index = self.index(self.startIndex, offsetBy: maxLenght - (doPutDots ? 3 : 0), limitedBy: self.endIndex) {
+        let doPutDots = maxLength > 3
+        if currentLen > maxLength {
+            if let index = self.index(self.startIndex, offsetBy: maxLength - (doPutDots ? 3 : 0), limitedBy: self.endIndex) {
                 result = self[..<index] + (doPutDots ? "..." : "")
             }
         }
@@ -734,13 +742,13 @@ extension UIColor {
     }
     
     public func mmHexStringFromColor() -> String {
-        var components = self.cgColor.components
-        guard components?.count == 3 else {
+        guard let components = self.cgColor.components,
+              components.count == 3 else {
             return "#000000" // case for .black
         }
-        let r: CGFloat = components?[0] ?? 0.0
-        let g: CGFloat = components?[1] ?? 0.0
-        let b: CGFloat = components?[2] ?? 0.0
+        let r: CGFloat = components[0]
+        let g: CGFloat = components[1]
+        let b: CGFloat = components[2]
         let hexString = String.init(format: "#%02lX%02lX%02lX", lroundf(Float(r * 255)), lroundf(Float(g * 255)), lroundf(Float(b * 255)))
         return hexString
      }

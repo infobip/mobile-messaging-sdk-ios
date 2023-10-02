@@ -9,14 +9,14 @@ import Foundation
 import UIKit
 
 open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController, MMComposeBarDelegate, UIGestureRecognizerDelegate,
-                                                UIScrollViewDelegate, UINavigationControllerDelegate {
+                                             UIScrollViewDelegate, UINavigationControllerDelegate {
     let userInputDebounceTimeMs = 250.0
     lazy var draftPostponer = MMPostponer(executionQueue: DispatchQueue.main)
     var scrollingRecognizer: UIPanGestureRecognizer!
     var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
-    var composeBarView: MMChatComposer! {
+    var composeBarView: MMChatComposer? {
         didSet {
-            composeBarView.delegate = self
+            composeBarView?.delegate = self
         }
     }
     var docImportMenu: UIDocumentPickerViewController!
@@ -50,7 +50,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     }
 
     override open func viewWillDisappear(_ animated: Bool) {
-        composeBarView.resignFirstResponder()
+        composeBarView?.resignFirstResponder()
         super.viewWillDisappear(animated)
     }
 
@@ -75,7 +75,9 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
             brandComposer()
         }
         scrollView.delegate = self
-        view.addSubview(composeBarView)
+        if let composeBarView = composeBarView {
+            view.addSubview(composeBarView)
+        }
         updateViewsFor(safeAreaInsets: safeAreaInsets, safeAreaLayoutGuide: view.safeAreaLayoutGuide)
     }
     
@@ -86,7 +88,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     public func composeBarWillChangeFrom(_ startFrame: CGRect, to endFrame: CGRect,
                                          duration: TimeInterval, animationCurve: UIView.AnimationCurve) { /* override */ }
     public func composeBarDidChangeFrom(_ startFrame: CGRect, to endFrame: CGRect) { /* override */ }
-    
+
     internal func brandComposer() {
         guard let composeBarView = composeBarView as? ComposeBar else { return }
         composeBarView.textView.backgroundColor = advSettings.textInputBackgroundColor
@@ -106,6 +108,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     }
         
     override func updateViewsFor(safeAreaInsets: UIEdgeInsets, safeAreaLayoutGuide: UILayoutGuide) {
+        guard let composeBarView = composeBarView else { return }
         var composeBarFrame = composeBarView.frame
         composeBarFrame.y = view.bounds.height - (composeBarFrame.height + safeAreaInsets.bottom)
         composeBarView.frame = composeBarFrame
@@ -129,13 +132,13 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     
     private func updateComposeBarYAnimated(_ duration: TimeInterval, _ options: UIView.AnimationOptions, _ bottomOffset: CGFloat) {
         UIView.animate(withDuration: duration, delay: 0, options: options, animations: {
-            self.composeBarView.frame.y = self.view.frame.height - bottomOffset
+            self.composeBarView?.frame.y = self.view.frame.height - bottomOffset
         }, completion: nil)
     }
 
     //MARK: gestures
     @objc func handlePanning() {
-        composeBarView.resignFirstResponder()
+        composeBarView?.resignFirstResponder()
     }
 
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {

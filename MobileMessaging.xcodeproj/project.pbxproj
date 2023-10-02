@@ -261,6 +261,7 @@
 		A838992528F6F1AF00322E68 /* MMPopOverBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992428F6F1AF00322E68 /* MMPopOverBar.swift */; };
 		A838992728F7025E00322E68 /* UIAlertController+MMSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992628F7025E00322E68 /* UIAlertController+MMSetup.swift */; };
 		A838992B28F82B8600322E68 /* MMWebRTCToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992A28F82B8600322E68 /* MMWebRTCToken.swift */; };
+		A83E2C4D2AB2FB05002A1237 /* GetChatRegistrationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83E2C4C2AB2FB05002A1237 /* GetChatRegistrationOperation.swift */; };
 		A843A43128F5A6D700D5196F /* MMCallController+ApplicationCalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */; };
 		A843A43228F5A6D700D5196F /* MMCallVideoExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42228F5A6D600D5196F /* MMCallVideoExtension.swift */; };
 		A843A43328F5A6D700D5196F /* MMPulseAnimationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42328F5A6D600D5196F /* MMPulseAnimationExtension.swift */; };
@@ -632,6 +633,7 @@
 		A838992428F6F1AF00322E68 /* MMPopOverBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMPopOverBar.swift; sourceTree = "<group>"; };
 		A838992628F7025E00322E68 /* UIAlertController+MMSetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIAlertController+MMSetup.swift"; sourceTree = "<group>"; };
 		A838992A28F82B8600322E68 /* MMWebRTCToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCToken.swift; sourceTree = "<group>"; };
+		A83E2C4C2AB2FB05002A1237 /* GetChatRegistrationOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetChatRegistrationOperation.swift; sourceTree = "<group>"; };
 		A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+ApplicationCalls.swift"; sourceTree = "<group>"; };
 		A843A42228F5A6D600D5196F /* MMCallVideoExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallVideoExtension.swift; sourceTree = "<group>"; };
 		A843A42328F5A6D600D5196F /* MMPulseAnimationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMPulseAnimationExtension.swift; sourceTree = "<group>"; };
@@ -645,6 +647,8 @@
 		A843A42E28F5A6D600D5196F /* MMCallKitManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallKitManager.swift; sourceTree = "<group>"; };
 		A843A43028F5A6D600D5196F /* MMCallFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallFactory.swift; sourceTree = "<group>"; };
 		A843A44028F5A93600D5196F /* MMWebRTCService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCService.swift; sourceTree = "<group>"; };
+		A84781C02AC18440009FA3F7 /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = sr.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		A84781C12AC18440009FA3F7 /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = sr.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A86ABE51285C646F00D5E00C /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+Push.swift"; sourceTree = "<group>"; };
 		A8C5555E2AAF727100C52893 /* MMChatError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatError.swift; sourceTree = "<group>"; };
@@ -744,6 +748,7 @@
 		7600857D1F9759F200837D75 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				A83E2C4C2AB2FB05002A1237 /* GetChatRegistrationOperation.swift */,
 				A00D332E252B81480024BB12 /* ChatAttachment.swift */,
 				A0E1D3C724ED196400373B47 /* Resources */,
 				A0E4439C24AF59D700387CDD /* Vendor */,
@@ -1540,6 +1545,7 @@
 				"hr-HR",
 				uk,
 				sq,
+				sr,
 			);
 			mainGroup = 7DB346D0F39D3F0E887471402A8071AB;
 			productRefGroup = 1EC852B12152CDB7042DD88F7126A70F /* Products */;
@@ -1704,6 +1710,7 @@
 				7617506423351827000438A8 /* Alamofire.swift in Sources */,
 				A843A43628F5A6D700D5196F /* MMCallController.swift in Sources */,
 				A80F241A285B3C1F00946DEF /* MMLanguage.swift in Sources */,
+				A83E2C4D2AB2FB05002A1237 /* GetChatRegistrationOperation.swift in Sources */,
 				A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */,
 				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
 				7626041124EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift in Sources */,
@@ -1915,6 +1922,7 @@
 				764556081F78FF4F00B8F14B /* zh-Hans */,
 				764556091F78FF4F00B8F14B /* zh-Hant */,
 				A8CE8ACD285C6E03000CC98F /* uk */,
+				A84781C02AC18440009FA3F7 /* sr */,
 			);
 			name = MobileMessaging.strings;
 			path = ../../Resources/Localization;
@@ -1956,6 +1964,7 @@
 				A08E5039249650D000F026ED /* hr */,
 				A08E503A249650D000F026ED /* hi */,
 				A86ABE51285C646F00D5E00C /* uk */,
+				A84781C12AC18440009FA3F7 /* sr */,
 			);
 			name = InAppChat.strings;
 			sourceTree = "<group>";

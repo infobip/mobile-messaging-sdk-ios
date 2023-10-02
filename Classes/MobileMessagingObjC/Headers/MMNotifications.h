@@ -107,6 +107,11 @@ FOUNDATION_EXPORT NSString* MMNotificationInAppChatUnreadMessagesCounterUpdated;
  */
 FOUNDATION_EXPORT NSString* MMNotificationInAppChatViewChanged;
 
+/**
+ Posted after the LiveChat registration has been received. The `userInfo` dictionary contains the following key: `MMNotificationKeyChatRegistrationReceived` - with `String` readable value for the registrationId.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationChatRegistrationReceived;
+
 //MARK: Notification keys
 
 /**
@@ -209,3 +214,8 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyInAppChatUnreadMessagesCounter;
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyInAppChatViewChanged;
 
+/**
+ Key for entry in userInfo dictionary of `MMNotificationKeyChatRegistrationReceived` notification.
+ Contatins a String value.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationKeyChatRegistrationReceived;

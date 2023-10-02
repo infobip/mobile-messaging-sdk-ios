@@ -39,7 +39,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         vc.composeBarView = inputView
         return vc
     }
-    
+
     var webView: ChatWebView!
     private var chatWidget: ChatWidget?
 
@@ -53,13 +53,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         }
     }
 
-    public var chatInputViewFrame: CGRect {
+    public var chatInputViewFrame: CGRect? {
         set {
-            composeBarView.frame = newValue
+            composeBarView?.frame = newValue ?? .zero
         }
 
         get {
-            return composeBarView.frame
+            return composeBarView?.frame
         }
     }
     
@@ -281,6 +281,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     func didEnableControls(_ enabled: Bool) {
         webView.isUserInteractionEnabled = enabled
         webView.isLoaded = enabled
+        if enabled {
+            MMInAppChatService.sharedInstance?.obtainChatRegistrations()
+        }
         if let composeBar = composeBarView as? ComposeBar {
             composeBar.isEnabled = enabled
         }
@@ -293,11 +296,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         didSet {
             if oldValue != isComposeBarVisible {
                 setComposeBarVisibility(isVisible: isComposeBarVisible)
-            } else if !isComposeBarVisible && !composeBarView.isHidden {
+            } else if !isComposeBarVisible && !(composeBarView?.isHidden ?? true) {
                 // In some cases (ie the first time a multithread widget is loaded), we want to hide the
                 // composer without animation.
                 DispatchQueue.main.async {
-                    self.composeBarView.isHidden = true
+                    self.composeBarView?.isHidden = true
                 }
             }
         }
@@ -309,9 +312,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     func setComposeBarVisibility(isVisible: Bool) {
+        guard !MMChatSettings.sharedInstance.shouldUseExternalChatInput else {
+            composeBarView?.isHidden = !isVisible
+            return
+        }
         if isVisible {
             DispatchQueue.main.async {
-                self.composeBarView.isHidden = false
+                self.composeBarView?.isHidden = false
             }
         }
         UIView.animate(
@@ -340,9 +347,19 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             }
         )
     }
-    
+
+    override func updateViewsFor(safeAreaInsets: UIEdgeInsets, safeAreaLayoutGuide: UILayoutGuide) {
+        guard MMChatSettings.sharedInstance.shouldSetNavBarAppearance else { return }
+        super.updateViewsFor(safeAreaInsets: safeAreaInsets, safeAreaLayoutGuide: safeAreaLayoutGuide)
+    }
+
+    override func setupComposerBar() {
+        guard !MMChatSettings.sharedInstance.shouldUseExternalChatInput else { return }
+        super.setupComposerBar()
+    }
+
     override func keyboardWillShow(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
-        guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance else { return }
+        guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance, let composeBarView = composeBarView else { return }
         if composeBarView.isFirstResponder {
             super.keyboardWillShow(duration, curve: curve, options: options,
                                    height: height + (isComposeBarVisible ? composeBarView.bounds.height : 0)
@@ -351,7 +368,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     override func keyboardWillHide(_ duration: TimeInterval, curve: UIView.AnimationCurve, options: UIView.AnimationOptions, height: CGFloat) {
-        guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance else { return }
+        guard MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance, let composeBarView = composeBarView  else { return }
         super.keyboardWillHide(duration, curve: curve, options: options,
                                height: (isComposeBarVisible ? composeBarView.bounds.height : 0) + self.safeAreaInsets.bottom
         )
@@ -406,18 +423,24 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
     }
 
-    func didChangeView(_ state: MMChatWebViewState) {
-        guard chatWidget?.isMultithread ?? false else {
+    public func didChangeView(_ state: MMChatWebViewState) {
+        if !(chatWidget?.isMultithread ?? false) {
             isComposeBarVisible = true
             isChattingInMultithread = false
-            return
+        } else {
+            isComposeBarVisible = state == .loadingThread || state == .thread || state == .singleThreadMode
+            isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
         }
-        isComposeBarVisible = state == .loadingThread || state == .thread || state == .singleThreadMode
-        isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
+        MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)
     }
     
     // MARK: MMComposeBarDelegate delegate
     public override func sendText(_ text: String, completion: @escaping (_ error: NSError?) -> Void) {
+        guard validateTextLength(size: text.count) else {
+            MMInAppChatService.sharedInstance?.delegate?.textLengthExceeded?(ChatAttachmentUtils.DefaultMaxTextLength)
+            completion(NSError(chatError: MMChatError.messageLengthExceeded(ChatAttachmentUtils.DefaultMaxTextLength)))
+            return
+        }
         webView.sendMessage(text, attachment: nil, completion: completion)
     }
     
@@ -447,6 +470,17 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     public override func composeBarDidChangeFrom(_ startFrame: CGRect, to endFrame: CGRect) {}
+
+    ///If your chat widget allows a list of multiple threads, this method will return whether the back action must pop your view or be ignored (so only
+    ///the internal chat navigation handles the "back" action)
+    public func onCustomBackPressed() -> Bool {
+        if isChattingInMultithread {
+            showThreadsList()
+            return false
+        } else {
+            return true
+        }
+    }
 }
 
 extension MMChatViewController: ChatAttachmentPickerDelegate {
@@ -483,6 +517,10 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
         return size <= maxUploadAttachmentSize
     }
 
+    func validateTextLength(size: Int) -> Bool {
+        return size <= ChatAttachmentUtils.DefaultMaxTextLength
+    }
+
     @objc
     internal func attachmentSizeExceeded() {
         guard let externalSizeExceededHandling = MMInAppChatService.sharedInstance?.delegate?.attachmentSizeExceeded else {
@@ -494,8 +532,10 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
         }
         externalSizeExceededHandling(maxUploadAttachmentSize)
     }
-    
-    private var maxUploadAttachmentSize: UInt { return chatWidget?.maxUploadContentSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize}
+
+    private var maxUploadAttachmentSize: UInt {
+        return chatWidget?.maxUploadContentSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize
+    }
 }
 
 extension MMChatViewController: WKNavigationDelegate {

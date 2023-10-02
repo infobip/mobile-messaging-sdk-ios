@@ -65,7 +65,8 @@ struct ComposeBarConsts {
 
 class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
     public var composeBarSettings: MMAdvancedChatSettings = MMAdvancedChatSettings()
-    
+    private var textBuffer : [String] = []
+
 	public var autoAdjustTopOffset: Bool = true {
 		didSet {
 			autoresizingMask = {
@@ -508,14 +509,34 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
             self.placeholderLabel.isHidden = shouldHide
         }
 	}
-	
+
+    private func handleTextBuffer() {
+        precondition(Thread.isMainThread, "Not on main thread")
+        guard let text = textBuffer.first else { return }
+        textBuffer.removeFirst()
+        delegate?.sendText(text, completion: { error in
+            guard error == nil else { return }
+            DispatchQueue.main.async { [weak self] in
+                self?.handleTextBuffer()
+            }
+        })
+    }
+
 	@objc func didPressSendButton() {
-        delegate?.sendText(self.text, completion: { _ in })
-        self.text = ""
+        // When a string longer than the max length is sent, we'll cut it into fragments of max length (or less) and send
+        // them as individual messages, in order. This only applies to the default ComposerBar. Custom composers will
+        // just trigger the chat's delegate method "textLengthExceeded" and not send.
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let max = Int(ChatAttachmentUtils.DefaultMaxTextLength)
+            self.textBuffer.append(contentsOf: self.text.mm_components(withMaxLength: max))
+            self.handleTextBuffer()
+            self.text = ""
+        }
 	}
 	
 	@objc func didPressUtilityButton() {
-        resignFirstResponder()
+        resignFirstResponder() 
         delegate?.attachmentButtonTapped()
 	}
 	

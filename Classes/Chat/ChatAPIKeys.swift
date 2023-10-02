@@ -15,7 +15,9 @@ struct ChatAPIKeys {
 		static let backgroundColor = "backgroundColor"
         static let maxUploadContentSize = "maxUploadContentSize"
         static let multiThread = "multiThread"
+        static let callsEnabled = "callsEnabled"
 	}
+
 	struct QueryParams {
 		static let pushRegId = "pushRegId"
 		static let widgetId = "widgetId"
@@ -32,4 +34,10 @@ struct ChatAPIKeys {
         static let attachmentType = "type"
         static let attachmentCaption = "caption"
 	}
+
+    struct DestinationKeys {
+        static let liveChat = "liveChatDestinations"
+        static let userId = "userId"
+        static let applicationId = "applicationId"
+    }
 }

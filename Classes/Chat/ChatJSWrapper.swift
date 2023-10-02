@@ -53,12 +53,14 @@ extension WKWebView: ChatJSWrapper {
             completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
 			return
 		}
-        self.evaluateJavaScript("sendMessage(\(escapedMessage ?? "''"), '\(attachment?.base64UrlString() ?? "")', '\(attachment?.fileName ?? "")')") { (response, error) in
-			self.logDebug("sendMessage call got a response: \(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+        self.evaluateJavaScript(
+            "sendMessage(\(escapedMessage ?? "''"), '\(attachment?.base64UrlString() ?? "")', '\(attachment?.fileName ?? "")')")
+        { [weak self] (response, error) in
+			self?.logDebug("sendMessage call got a response: \(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
 		}
 	}
-    
+
     func sendDraft(_ message: String?) {
         sendDraft(message, completion: { _ in })
     }

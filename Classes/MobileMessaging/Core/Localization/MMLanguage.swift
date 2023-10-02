@@ -36,8 +36,9 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
          fr,
          sl,
          uk,
-         sq
-    
+         sq,
+         sr
+
     /// stringValue is used for mapping a locale to a ISO language. For example, "" "es_ES" and "es_AR" will both be considered "es". We support also the separator "-", so possible formats are "es", "es_ES" and "es-ES", in order to use the system Locale.current easily.
     public var stringValue: String {
         switch self {
@@ -93,6 +94,8 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
             return "uk"
         case .sq:
             return "sq"
+        case .sr:
+            return "sr"
         }
     }
     
@@ -151,6 +154,8 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
             return .uk
         case "sq":
             return .sq
+        case "sr":
+            return .sr
         default:
             return .en
         }
@@ -211,6 +216,8 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
             return "uk-UA"
         case .sq:
             return "sq-AL"
+        case .sr:
+            return "sr-Latn"
         }
     }
 
@@ -269,6 +276,8 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
             return "украї́нська"
         case .sq:
             return "Shqip"
+        case .sr:
+            return "Srpski"
         }
     }
     

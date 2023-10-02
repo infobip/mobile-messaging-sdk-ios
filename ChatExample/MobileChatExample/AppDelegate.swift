@@ -10,9 +10,14 @@
 import UIKit
 import MobileMessaging
 import InfobipRTC
+#if USING_SPM
+import WebRTCUI
+import InAppChat
+import MobileMessagingLogging
+#endif
 
 let mmApplicationCode = "<# your mobile application code #>"
-let webrtcApplicationId = "<# your webrtc app id #>"
+let webrtcConfigurationId = "<# your webrtc config id #>"
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -20,7 +25,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         MobileMessaging.withApplicationCode(
-            mmApplicationCode, notificationType: [.alert, .sound])?.withInAppChat().withCalls(webrtcApplicationId).start()
+            mmApplicationCode, notificationType: [.alert, .sound])?.withInAppChat()
+            .withInAppChatCalls(configurationId: webrtcConfigurationId).start()
         MobileMessaging.logger?.logLevel = .All
         MobileMessaging.logger?.logOutput = .Console
         MobileMessaging.webRTCService?.callAppIcon = UIImage(named: "alphaLogo")

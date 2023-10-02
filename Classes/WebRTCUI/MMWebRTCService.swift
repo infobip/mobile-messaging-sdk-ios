@@ -13,6 +13,12 @@ import AVFoundation
 #if WEBRTCUI_ENABLED
 import InfobipRTC
 
+public enum MMWebRTCIdentityMode {
+    case `default`,
+        custom(String),
+        inAppChat
+}
+
 extension MobileMessaging {
 	/// You access the WebRTCUI service APIs through this property.
 	public class var webRTCService: MMWebRTCService? {
@@ -25,17 +31,32 @@ extension MobileMessaging {
 		return MMWebRTCService.sharedInstance
 	}
 
-	/// Use this method to enable the WebRTCUIservice.
-    public func withCalls(_ applicationId: String) -> MobileMessaging {
-		if MMWebRTCService.sharedInstance == nil {
-			if let defaultContext = MobileMessaging.sharedInstance
-			{
+    /// Use this method to enable and combine WebRTCUI with InAppChat. As result, your chat user will be able to receive calls from Infobip Conversations.
+    /// This method will not allow other use cases - use the method withCalls below for a more custom setup. Keep in mind that you need to set InAppChat in
+    /// order to have InAppChatCalls. Guide here: https://github.com/infobip/mobile-messaging-sdk-ios/wiki/In%E2%80%90app-chat
+    /// - parameter configurationId: value of the mobile RTC configuration you can create and manage with this API: https://www.infobip.com/docs/api/channels/webrtc-calls/webrtc/save-push-configuration
+    public func withInAppChatCalls(configurationId: String) -> MobileMessaging {
+        return withCalls(configurationId: configurationId, mode: .inAppChat)
+    }
+
+    /// Use this method to enable WebRTCUI and define your use case, depending on the identity you define for the user.
+    /// - parameter configurationId: value of the mobile RTC configuration you can create and manage with this API: https://www.infobip.com/docs/api/channels/webrtc-calls/webrtc/save-push-configuration
+    /// - parameter mode: Value to define how the user identity will be handled when registering your device for calls:
+    /// The "default" mode will handle identity for you, using the push registration Id of your device.
+    /// The "custom" mode allows you to define the WebRTC identity. This is only recommended if you understand how Infobip RTC works.
+    /// "inAppChat" mode is to be used when you want receive agents calls from Infobip Conversations. This mode is equivalent to the method: withInAppChatCalls above
+    public func withCalls(configurationId: String, mode: MMWebRTCIdentityMode = .default) -> MobileMessaging {
+        if MMWebRTCService.sharedInstance == nil {
+            if let defaultContext = MobileMessaging.sharedInstance
+            {
                 MMWebRTCService.sharedInstance = MMWebRTCService(mmContext: defaultContext)
-			}
-		}
-        MMWebRTCService.sharedInstance?.applicationId = applicationId
-		return self
-	}
+            }
+        }
+        MMWebRTCService.sharedInstance?.configurationId = configurationId
+        MMWebRTCService.sharedInstance?.identityMode = mode
+        return self
+    }
+
 }
 
 @objc public enum MMWebRTCRegistrationCode: Int {
@@ -60,7 +81,19 @@ public class MMWebRTCService: MobileMessagingService {
     public var notificationData: MMWebRTCNotificationData?
     internal var isRegistered = false
     public var callAppIcon: UIImage?
-    public var applicationId: String? // webrtc application id to use for calls
+    public var configurationId: String?
+    internal var inAppChatRegistrationId: String?
+    public var identityMode: MMWebRTCIdentityMode = .default
+    public var identity: String? {
+        switch identityMode {
+        case .default:
+            return MobileMessaging.currentInstallation?.pushRegistrationId
+        case .custom(let string):
+            return string
+        case .inAppChat:
+            return inAppChatRegistrationId
+        }
+    }
 
     static let resourceBundle: Bundle = {
     #if SWIFT_PACKAGE
@@ -102,10 +135,20 @@ public class MMWebRTCService: MobileMessagingService {
     public override func stopService(_ completion: @escaping (Bool) -> Void) {
         MMLogDebug("mobileMessagingDidStop webrtcui service")
         // stopping the service with a call ongoing can freeze Apple's coretelephony framework
-        guard !isPhoneOnCall else { return }
-        NotificationCenter.default.removeObserver(self)
-        disableCallPushCredentials()
-        super.stopService(completion)
+        guard !isPhoneOnCall else {
+            completion(false)
+            return
+        }
+        disableCallPushCredentials() { [weak self] result in
+            guard let self else { return }
+            self.suspend()
+            self.isRunning = false // isRunning indicates if the service is operational
+            completion(self.isRegistered) // isRegistered refers to RTC side, if calls can be received
+            // The service may successfully stop running locally, but completion could return failure. Reason is, we want
+            // to stop functioning as much as we can, while letting know there was something online unexpected
+            NotificationCenter.default.removeObserver(self)
+            // Do not call super.stopService due to the completion handling explained above
+        }
     }
 
     public override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
@@ -117,9 +160,25 @@ public class MMWebRTCService: MobileMessagingService {
             completion(isRunning)
             return
         }
+        handleIdentityMode()
         syncWithServer { _ in}
         createCallsPushRegistry()
         super.start(completion)
+    }
+
+    private func handleIdentityMode() {
+        if case .inAppChat = identityMode {
+           NotificationCenter.default.addObserver(
+               self,
+               selector: #selector(handleInAppChatRegistration(_ :)),
+               name: NSNotification.Name(rawValue: MMNotificationChatRegistrationReceived),
+               object: nil)
+        } else {
+           NotificationCenter.default.removeObserver(
+               self,
+               name: NSNotification.Name(rawValue: MMNotificationChatRegistrationReceived),
+               object: nil)
+        }
     }
 
     public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
@@ -134,7 +193,20 @@ public class MMWebRTCService: MobileMessagingService {
     /*
      Notifications handling
      */
-    
+
+    @objc
+    func handleInAppChatRegistration(_ notification: Notification) {
+        guard case .inAppChat = identityMode,
+              let registrationId = notification.userInfo?[MMNotificationKeyChatRegistrationReceived] as? String,
+              inAppChatRegistrationId != registrationId else { return }
+        inAppChatRegistrationId = registrationId
+        stopService({ [weak self] _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // We let RTC to refresh the device token
+                self?.start({ _ in })
+            }
+        })
+    }
+
     @objc func notificationRegistrationUpdatedHandler() {
         if let pushCredentials = notificationData?.pushPKCredentials {
             useCallPushCredentials(pushCredentials)

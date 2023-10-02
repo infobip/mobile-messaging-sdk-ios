@@ -54,16 +54,24 @@ public class MMInAppChatService: MobileMessagingService {
     }()
     
     private let chatMessageCounterService: ChatMessageCounterService
-    private let getWidgetQueue: MMOperationQueue
+    private let getWidgetQueue, getChatRegistrationQueue: MMOperationQueue
     private var chatWidget: ChatWidget?
     private var isConfigurationSynced: Bool = false
+    private var callsEnabled: Bool?
     public var jwt: String?
-    
+    internal var ChatRegistrationId: String? {
+        didSet {
+            if let newRegId = ChatRegistrationId {
+                UserEventsManager.postChatRegistrationReceived(newRegId)
+            }
+        }
+    }
     var isChatScreenVisible: Bool = false
     
 	init(mmContext: MobileMessaging) {
         self.q = DispatchQueue(label: "chat-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
         self.getWidgetQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.getChatRegistrationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
         self.chatMessageCounterService = ChatMessageCounterService(mmContext: mmContext)
 		super.init(mmContext: mmContext, uniqueIdentifier: "InAppChatService")
         self.chatMessageCounterService.chatService = self
@@ -126,6 +134,7 @@ public class MMInAppChatService: MobileMessagingService {
     public override func suspend() {
         NotificationCenter.default.removeObserver(self)
         getWidgetQueue.cancelAllOperations()
+        getChatRegistrationQueue.cancelAllOperations()
         isConfigurationSynced = false
         notifyForChatAvailabilityChange()
         chatWidget = nil
@@ -151,10 +160,13 @@ public class MMInAppChatService: MobileMessagingService {
         super.start(completion)
         startReachabilityListener()
         syncWithServer { _ in}
+        // Personalisation changes LiveChat registration - we listen to it locally
+        NotificationCenter.default.addObserver(self, selector: #selector(personalizedEventReceived), name: NSNotification.Name(rawValue: MMNotificationPersonalized), object: nil)
     }
 	
     public override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
         getWidgetQueue.cancelAllOperations()
+        getChatRegistrationQueue.cancelAllOperations()
 		cleanCache(completion: completion)
 	}
 	
@@ -192,6 +204,7 @@ public class MMInAppChatService: MobileMessagingService {
             chatErrors.remove(.configurationSyncError)
             chatErrors.remove(.jsError)
             getChatWidget(completion)
+            obtainChatRegistrations()
         }
     }
 	
@@ -225,12 +238,37 @@ public class MMInAppChatService: MobileMessagingService {
 		
         if MobileMessaging.currentInstallation?.pushRegistrationId != nil {
             webViewDelegate?.didLoadWidget(chatWidget)
+            obtainChatRegistrations()
 		} else {
             NotificationCenter.default.addObserver(self, selector: #selector(notificationInstallationSyncedHandler), name: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil)
 		}
         MMChatSettings.sharedInstance.update(withChatWidget: chatWidget)
 	}
-    
+
+
+    @objc
+    private func personalizedEventReceived() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            // We give time to People to reflect the change
+            self?.obtainChatRegistrations()
+        }
+    }
+
+    internal func obtainChatRegistrations() {
+        // Chat registrarions are only needed for "calls enabled" widgest. Skip otherwise.
+        guard let widgetId = chatWidget?.widgetId, (chatWidget?.callsEnabled ?? true) else { return }
+        getChatRegistrationQueue.addOperation(
+            GetChatRegistrationsOperation(mmContext: mmContext) { [weak self] (error, ChatRegistrations) in
+                if let error = error {
+                    self?.logError("Error while requesting Chat registrations: \(error)")
+                } else if let newRegistrationId = ChatRegistrations?[widgetId] {
+                    DispatchQueue.main.async {
+                        self?.ChatRegistrationId = newRegistrationId
+                    }
+                }
+        })
+    }
+
     // MARK: Notifications handling
     
     @objc func notificationInstallationSyncedHandler() {
@@ -316,6 +354,13 @@ protocol ChatWebViewDelegate: AnyObject {
 
     ///Called whenever an attachment exceeds the max allowed size and cannot be uploaded. If undefined, a localised alert will be displayed instead
     @objc optional func attachmentSizeExceeded(_ maxSize: UInt)
+
+    ///Called whenever a text exceeds the max allowed lenght and cannot be sent.
+    @objc optional func textLengthExceeded(_ maxLength: UInt)
+
+    ///Called for informing about what view the chat is presenting. This is useful if your widget supports multiple
+    ///threads, in which case you may want to hide the keyboard if something else than the chat view is presented
+    @objc optional func chatDidChange(to state: MMChatWebViewState)
 }
 
 extension UserEventsManager {
@@ -329,6 +374,11 @@ extension UserEventsManager {
 
     class func postInAppChatViewChangedEvent(_ viewState: String) {
         post(MMNotificationInAppChatViewChanged, [MMNotificationKeyInAppChatViewChanged: viewState])
+    }
+
+    class func postChatRegistrationReceived(_ registrationId: String) {
+        post(MMNotificationChatRegistrationReceived,
+             [MMNotificationKeyChatRegistrationReceived: registrationId])
     }
 }
 

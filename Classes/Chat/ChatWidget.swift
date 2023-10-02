@@ -14,6 +14,7 @@ public class ChatWidget {
 	public let backgroundColor: String?
     public let maxUploadContentSize: UInt
     public let isMultithread: Bool?
+    public let callsEnabled: Bool?
     
 	init?(responseJson json: JSON) {
 		guard let widgetId = json[ChatAPIKeys.Widget.widgetId].string,
@@ -26,5 +27,6 @@ public class ChatWidget {
 		self.backgroundColor = json[ChatAPIKeys.Widget.backgroundColor].string
         self.maxUploadContentSize = maxUploadContentSize
         self.isMultithread = json[ChatAPIKeys.Widget.multiThread].bool
+        self.callsEnabled = json[ChatAPIKeys.Widget.callsEnabled].bool
 	}
 }

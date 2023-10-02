@@ -30,14 +30,19 @@ extension MMWebRTCService: PKPushRegistryDelegate {
     }
     
     private func requestCallPushEnabling(with token: String, isRetry: Bool = false) {
-        guard let pushCreds = notificationData?.pushPKCredentials else { return }
+        guard let pushCreds = notificationData?.pushPKCredentials,
+              let webRTCConfigId = MMWebRTCService.sharedInstance?.configurationId else { return }
         var isDebugging = false
         // isDebugging flag will determine if the WebRTC calls use Production of Sandboxing modes/certificates
         #if DEBUG
             isDebugging = true
         #endif
 
-        getInfobipRTCInstance().enablePushNotification(token, pushCredentials: pushCreds, debug: isDebugging, { [weak self] result in
+        getInfobipRTCInstance().enablePushNotification(
+            token,
+            pushCredentials: pushCreds,
+            debug: isDebugging,
+            pushConfigId: webRTCConfigId) { [weak self] result in
             switch result.status {
             case .failure:
                 MMLogDebug("Failure: can't obtain WebRTC regitration Token")
@@ -56,10 +61,10 @@ extension MMWebRTCService: PKPushRegistryDelegate {
                 self.delegate?.callRegistrationEnded(with: .success, and: nil)
                 NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: MMNotificationRegistrationUpdated), object: nil)
             }
-        })
+        }
     }
     
-    private func handleRemoteCallPushRequest(enabling: Bool = false) {
+    private func handleRemoteCallPushRequest(enabling: Bool = false, completion: ((Bool) -> Void)? = nil) {
         MMWebRTCToken.obtain(queue: q, completion: { [weak self] result in
             var statusCode: MMWebRTCRegistrationCode?
             var statusError: Error?
@@ -81,6 +86,7 @@ extension MMWebRTCService: PKPushRegistryDelegate {
                 MMLogWarn(" MMWebRTCToken.obtain request cancelled.")
                 statusCode = .gettingTokenError
             }
+            completion?(statusCode == .success)
             guard let statusCode = statusCode else { return }
             if enabling {
                 self?.delegate?.callRegistrationEnded(with: statusCode, and: statusError)
@@ -94,12 +100,13 @@ extension MMWebRTCService: PKPushRegistryDelegate {
         if notificationData == nil { notificationData = MMWebRTCNotificationData() }
         notificationData?.pushPKCredentials = pushCredentials
         guard MobileMessaging.currentInstallation?.pushRegistrationId != nil,
+              identity != nil,
               !isRegistered else { return }
         handleRemoteCallPushRequest(enabling: true)
     }
     
-    public func disableCallPushCredentials() {
-        handleRemoteCallPushRequest(enabling: false)
+    public func disableCallPushCredentials(_ completion: ((Bool) -> Void)? = nil) {
+        handleRemoteCallPushRequest(enabling: false, completion: completion)
     }
         
     public func pushRegistry(_ registry: PKPushRegistry,

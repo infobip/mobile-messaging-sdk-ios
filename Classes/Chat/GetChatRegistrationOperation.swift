@@ -1,18 +1,18 @@
 //
-//  GetChatWidgetOperation.swift
+//  GetChatRegistrationOperation.swift
 //  MobileMessaging
 //
-//  Created by okoroleva on 24.04.2020.
+//  Created by okoroleva on 14.09.2023.
 //
 
 import Foundation
 
-class GetChatWidgetOperation: MMOperation {
+class GetChatRegistrationsOperation: MMOperation {
 	let mmContext: MobileMessaging
-	let finishBlock: ((NSError?, ChatWidget?) -> Void)
-	var operationResult = GetChatWidgetResult.Cancel
+	let finishBlock: ((NSError?, [String: String]?) -> Void)
+	var operationResult = MMGetChatRegistrationsResult.Cancel
 
-	init(mmContext: MobileMessaging, finishBlock: @escaping ((NSError?, ChatWidget?) -> Void)) {
+    init(mmContext: MobileMessaging, finishBlock: @escaping ((NSError?, [String: String]?) -> Void)) {
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		super.init(isUserInitiated: false)
@@ -31,7 +31,7 @@ class GetChatWidgetOperation: MMOperation {
 	}
 
 	private func performRequest() {
-        mmContext.remoteApiProvider.getChatWidget(
+        mmContext.remoteApiProvider.getChatRegistrations(
             applicationCode: mmContext.applicationCode,
             pushRegistrationId: mmContext.currentInstallation().pushRegistrationId,
             queue: underlyingQueue) { (result) in
@@ -43,6 +43,6 @@ class GetChatWidgetOperation: MMOperation {
 	override func finished(_ errors: [NSError]) {
         assert(userInitiated == Thread.isMainThread)
 		logDebug("finished with errors: \(errors)")
-		finishBlock(errors.first, operationResult.value?.widget)
+		finishBlock(errors.first, operationResult.value?.chatRegistrations)
 	}
 }

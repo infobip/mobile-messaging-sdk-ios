@@ -80,6 +80,7 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     public var errorLabelBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var shouldSetNavBarAppearance: Bool = true
     public var shouldHandleKeyboardAppearance: Bool = true
+    public var shouldUseExternalChatInput: Bool = false
 
     public var advancedSettings: MMAdvancedChatSettings = MMAdvancedChatSettings() { didSet { postAppearanceChangedNotification() } }
 

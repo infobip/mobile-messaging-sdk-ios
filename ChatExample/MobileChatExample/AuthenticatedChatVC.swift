@@ -9,6 +9,10 @@
 import Foundation
 import UIKit
 import MobileMessaging
+#if USING_SPM
+import InAppChat
+import MobileMessagingLogging
+#endif
 
 class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
     @IBOutlet weak var identityTextField: UITextField!

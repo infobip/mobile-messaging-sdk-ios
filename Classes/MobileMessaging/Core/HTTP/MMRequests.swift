@@ -23,12 +23,12 @@ public enum APIPath: String {
 	case AppInstance_Cxxx = "/mobile/1/appinstance"
 	case UserSession = "/mobile/1/appinstance/{pushRegistrationId}/user/events/session"
 	case CustomEvents = "/mobile/1/appinstance/{pushRegistrationId}/user/events/custom"
-	
-	case ChatWidget = "/mobile/1/chat/widget"
-    
+
     case Inbox = "/mobile/1/user/{externalUserId}/inbox/apns/messages"
-    
+
+    case ChatWidget = "/mobile/1/chat/widget"
     case WebRTCToken = "/webrtc/1/token"
+    case LiveChatInfo = "/mobile/1/appinstance/{pushRegistrationId}/user/livechatinfo"
 }
 
 class SeenStatusSendingRequest: PostRequest {
