@@ -1,7 +1,7 @@
 //
 //  CryptoSwift
 //
-//  Copyright (C) 2014-2017 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
+//  Copyright (C) 2014-2022 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
 //  This software is provided 'as-is', without any express or implied warranty.
 //
 //  In no event will the authors be held liable for any damages arising from the use of this software.
@@ -13,52 +13,69 @@
 //  - This notice may not be removed or altered from any source or binary distribution.
 //
 
+@usableFromInline
 struct BatchedCollectionIndex<Base: Collection> {
-	let range: Range<Base.Index>
+  let range: Range<Base.Index>
 }
 
 extension BatchedCollectionIndex: Comparable {
-	static func == <Base>(lhs: BatchedCollectionIndex<Base>, rhs: BatchedCollectionIndex<Base>) -> Bool {
-		return lhs.range.lowerBound == rhs.range.lowerBound
-	}
-	
-	static func < <Base>(lhs: BatchedCollectionIndex<Base>, rhs: BatchedCollectionIndex<Base>) -> Bool {
-		return lhs.range.lowerBound < rhs.range.lowerBound
-	}
+  @usableFromInline
+  static func == <BaseCollection>(lhs: BatchedCollectionIndex<BaseCollection>, rhs: BatchedCollectionIndex<BaseCollection>) -> Bool {
+    lhs.range.lowerBound == rhs.range.lowerBound
+  }
+
+  @usableFromInline
+  static func < <BaseCollection>(lhs: BatchedCollectionIndex<BaseCollection>, rhs: BatchedCollectionIndex<BaseCollection>) -> Bool {
+    lhs.range.lowerBound < rhs.range.lowerBound
+  }
 }
 
 protocol BatchedCollectionType: Collection {
-	associatedtype Base: Collection
+  associatedtype Base: Collection
 }
 
+@usableFromInline
 struct BatchedCollection<Base: Collection>: Collection {
-	let base: Base
-	let size: Int
-	typealias Index = BatchedCollectionIndex<Base>
-	private func nextBreak(after idx: Base.Index) -> Base.Index {
-		return base.index(idx, offsetBy: size, limitedBy: base.endIndex)
-			?? base.endIndex
-	}
-	
-	var startIndex: Index {
-		return Index(range: base.startIndex..<nextBreak(after: base.startIndex))
-	}
-	
-	var endIndex: Index {
-		return Index(range: base.endIndex..<base.endIndex)
-	}
-	
-	func index(after idx: Index) -> Index {
-		return Index(range: idx.range.upperBound..<nextBreak(after: idx.range.upperBound))
-	}
-	
-	subscript(idx: Index) -> Base.SubSequence {
-		return base[idx.range]
-	}
+  let base: Base
+  let size: Int
+
+  @usableFromInline
+  init(base: Base, size: Int) {
+    self.base = base
+    self.size = size
+  }
+
+  @usableFromInline
+  typealias Index = BatchedCollectionIndex<Base>
+
+  private func nextBreak(after idx: Base.Index) -> Base.Index {
+    self.base.index(idx, offsetBy: self.size, limitedBy: self.base.endIndex) ?? self.base.endIndex
+  }
+
+  @usableFromInline
+  var startIndex: Index {
+    Index(range: self.base.startIndex..<self.nextBreak(after: self.base.startIndex))
+  }
+
+  @usableFromInline
+  var endIndex: Index {
+    Index(range: self.base.endIndex..<self.base.endIndex)
+  }
+
+  @usableFromInline
+  func index(after idx: Index) -> Index {
+    Index(range: idx.range.upperBound..<self.nextBreak(after: idx.range.upperBound))
+  }
+
+  @usableFromInline
+  subscript(idx: Index) -> Base.SubSequence {
+    self.base[idx.range]
+  }
 }
 
 extension Collection {
-	func batched(by size: Int) -> BatchedCollection<Self> {
-		return BatchedCollection(base: self, size: size)
-	}
+  @inlinable
+  func batched(by size: Int) -> BatchedCollection<Self> {
+    BatchedCollection(base: self, size: size)
+  }
 }
