@@ -160,7 +160,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
 		currentTask = message.downloadImageAttachment(appGroupId: appGroupId) { (downloadedFileUrl, error) in
 			guard let downloadedFileUrl = downloadedFileUrl,
 				let mContent = (originalContent.mutableCopy() as? UNMutableNotificationContent),
-				let attachment = try? UNNotificationAttachment(identifier: downloadedFileUrl.absoluteString.sha1(), url: downloadedFileUrl, options: nil)
+				let attachment = try? UNNotificationAttachment(identifier: downloadedFileUrl.absoluteString.sha256(), url: downloadedFileUrl, options: nil)
 				else
 			{
 				self.logDebug("rich content downloading completed, could not init content attachment")

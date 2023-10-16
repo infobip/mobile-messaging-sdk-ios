@@ -1,7 +1,7 @@
 //
 //  CryptoSwift
 //
-//  Copyright (C) 2014-2017 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
+//  Copyright (C) 2014-2022 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
 //  This software is provided 'as-is', without any express or implied warranty.
 //
 //  In no event will the authors be held liable for any damages arising from the use of this software.
@@ -14,11 +14,13 @@
 //
 
 extension Array {
-    public init(reserveCapacity: Int) {
+    @inlinable
+    init(reserveCapacity: Int) {
         self = Array<Element>()
         self.reserveCapacity(reserveCapacity)
     }
-
+    
+    @inlinable
     var slice: ArraySlice<Element> {
         return self[self.startIndex..<self.endIndex]
     }
@@ -62,20 +64,20 @@ extension Array where Element == UInt8 {
             append(b)
         }
     }
-
+    
     public func toHexString() -> String {
-        return `lazy`.reduce("") {
+        `lazy`.reduce(into: "") {
             var s = String($1, radix: 16)
             if s.count == 1 {
                 s = "0" + s
             }
-            return $0 + s
+            $0 += s
         }
     }
 }
 
 extension Array where Element == UInt8 {
-    public func sha1() -> [Element] {
-        return Digest.sha1(self)
+    public func sha256() -> [Element] {
+        return Digest.sha256(self)
     }
 }

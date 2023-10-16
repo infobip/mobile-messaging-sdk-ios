@@ -212,6 +212,6 @@ extension URL {
     }
         
     static func chatAttachmentDestinationUrl(sourceUrl: URL, suggestedFileName: String?) -> URL {
-        return URL.chatAttachmentDestinationFolderUrl().appendingPathComponent(suggestedFileName ?? (sourceUrl.absoluteString.sha1() + "." + sourceUrl.pathExtension))
+        return URL.chatAttachmentDestinationFolderUrl().appendingPathComponent(suggestedFileName ?? (sourceUrl.absoluteString.sha256() + "." + sourceUrl.pathExtension))
     }
 }

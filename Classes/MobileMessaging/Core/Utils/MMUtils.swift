@@ -623,7 +623,7 @@ let isDebug: Bool = {
     return isDebug
 }()
 
-func calculateAppCodeHash(_ appCode: String) -> String { return String(appCode.sha1().prefix(10)) }
+func calculateAppCodeHash(_ appCode: String) -> String { return String(appCode.sha256().prefix(10)) }
 
 extension Sequence {
     func forEachAsync(_ work: @escaping (Self.Iterator.Element, @escaping () -> Void) -> Void, completion: @escaping () -> Void) {
@@ -790,7 +790,7 @@ extension URL {
     }
     
     static func attachmentDownloadDestinatioUrl(sourceUrl: URL, appGroupId: String?) -> URL {
-        return URL.attachmentDownloadDestinationFolderUrl(appGroupId:appGroupId).appendingPathComponent(sourceUrl.absoluteString.sha1() + "." + sourceUrl.pathExtension)
+        return URL.attachmentDownloadDestinationFolderUrl(appGroupId:appGroupId).appendingPathComponent(sourceUrl.absoluteString.sha256() + "." + sourceUrl.pathExtension)
     }
 }
 

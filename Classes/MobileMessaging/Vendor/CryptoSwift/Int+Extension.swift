@@ -2,7 +2,7 @@
 //  CryptoSwift
 //
 //  Created by Marcin Krzyzanowski on 12/08/14.
-//  Copyright (C) 2014-2017 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
+//  Copyright (C) 2014-2022 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
 //  This software is provided 'as-is', without any express or implied warranty.
 //
 //  In no event will the authors be held liable for any damages arising from the use of this software.
@@ -16,23 +16,18 @@
 
 #if canImport(Darwin)
 import Darwin
-#else
+#elseif canImport(Glibc)
 import Glibc
+#elseif canImport(ucrt)
+import ucrt
 #endif
 
-/* array of bits */
-extension Int {
-	init(bits: [Bit]) {
-		self.init(bitPattern: integerFrom(bits) as UInt)
-	}
-}
-
 extension FixedWidthInteger {
-	@_transparent
-	func bytes(totalBytes: Int = MemoryLayout<Self>.size) -> Array<UInt8> {
-		return arrayOfBytes(value: self.littleEndian, length: totalBytes)
-		// FIXME: adjust bytes order
-		// var value = self.littleEndian
-		// return withUnsafeBytes(of: &value, Array.init).reversed()
-	}
+    @inlinable
+    func bytes(totalBytes: Int = MemoryLayout<Self>.size) -> Array<UInt8> {
+        arrayOfBytes(value: self.littleEndian, length: totalBytes)
+        // TODO: adjust bytes order
+        // var value = self.littleEndian
+        // return withUnsafeBytes(of: &value, Array.init).reversed()
+    }
 }

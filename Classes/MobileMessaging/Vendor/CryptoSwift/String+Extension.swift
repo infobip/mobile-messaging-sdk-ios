@@ -1,7 +1,7 @@
 //
 //  CryptoSwift
 //
-//  Copyright (C) 2014-2017 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
+//  Copyright (C) 2014-2022 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
 //  This software is provided 'as-is', without any express or implied warranty.
 //
 //  In no event will the authors be held liable for any damages arising from the use of this software.
@@ -18,8 +18,9 @@ extension String {
     public var bytes: Array<UInt8> {
         return data(using: String.Encoding.utf8, allowLossyConversion: true)?.bytes ?? Array(utf8)
     }
-
-    public func sha1() -> String {
-        return bytes.sha1().toHexString()
+    
+    @inlinable
+    public func sha256() -> String {
+        self.bytes.sha256().toHexString()
     }
 }

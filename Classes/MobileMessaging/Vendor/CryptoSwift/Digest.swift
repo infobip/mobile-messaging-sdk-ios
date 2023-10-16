@@ -1,7 +1,7 @@
 //
 //  CryptoSwift
 //
-//  Copyright (C) 2014-2017 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
+//  Copyright (C) 2014-2022 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
 //  This software is provided 'as-is', without any express or implied warranty.
 //
 //  In no event will the authors be held liable for any damages arising from the use of this software.
@@ -15,10 +15,10 @@
 
 /// Hash functions to calculate Digest.
 public struct Digest {
-    /// Calculate SHA1 Digest
+    /// Calculate SHA2-256 Digest
     /// - parameter bytes: input message
     /// - returns: Digest bytes
-    public static func sha1(_ bytes: Array<UInt8>) -> Array<UInt8> {
-        return SHA1().calculate(for: bytes)
+    public static func sha256(_ bytes: Array<UInt8>) -> Array<UInt8> {
+        SHA2(variant: .sha256).calculate(for: bytes)
     }
 }

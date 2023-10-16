@@ -1,7 +1,7 @@
 //
 //  CryptoSwift
 //
-//  Copyright (C) 2014-2017 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
+//  Copyright (C) 2014-2022 Marcin Krzyżanowski <marcin@krzyzanowskim.com>
 //  This software is provided 'as-is', without any express or implied warranty.
 //
 //  In no event will the authors be held liable for any damages arising from the use of this software.
@@ -12,19 +12,6 @@
 //  - Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 //  - This notice may not be removed or altered from any source or binary distribution.
 //
-
-/** build bit pattern from array of bits */
-@_specialize(where T == UInt8)
-func integerFrom<T: FixedWidthInteger>(_ bits: Array<Bit>) -> T {
-	var bitPattern: T = 0
-	for idx in bits.indices {
-		if bits[idx] == Bit.one {
-			let bit = T(UInt64(1) << UInt64(idx))
-			bitPattern = bitPattern | bit
-		}
-	}
-	return bitPattern
-}
 
 /// Array of bytes. Caution: don't use directly because generic is slow.
 ///
@@ -38,18 +25,19 @@ func integerFrom<T: FixedWidthInteger>(_ bits: Array<Bit>) -> T {
 @_specialize(where T == UInt16)
 @_specialize(where T == UInt32)
 @_specialize(where T == UInt64)
+@inlinable
 func arrayOfBytes<T: FixedWidthInteger>(value: T, length totalBytes: Int = MemoryLayout<T>.size) -> Array<UInt8> {
-	let valuePointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
-	valuePointer.pointee = value
-	
-	let bytesPointer = UnsafeMutablePointer<UInt8>(OpaquePointer(valuePointer))
-	var bytes = Array<UInt8>(repeating: 0, count: totalBytes)
-	for j in 0..<min(MemoryLayout<T>.size, totalBytes) {
-		bytes[totalBytes - 1 - j] = (bytesPointer + j).pointee
-	}
-	
-	valuePointer.deinitialize(count: 1)
-	valuePointer.deallocate()
-	
-	return bytes
+    let valuePointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    valuePointer.pointee = value
+    
+    let bytesPointer = UnsafeMutablePointer<UInt8>(OpaquePointer(valuePointer))
+    var bytes = Array<UInt8>(repeating: 0, count: totalBytes)
+    for j in 0..<min(MemoryLayout<T>.size, totalBytes) {
+        bytes[totalBytes - 1 - j] = (bytesPointer + j).pointee
+    }
+    
+    valuePointer.deinitialize(count: 1)
+    valuePointer.deallocate()
+    
+    return bytes
 }
