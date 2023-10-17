@@ -102,7 +102,7 @@ public final class MMPopOverBar {
 
     private func getFrameBasedOnOrientation() -> CGRect {
         let isLandscape = UIApplication.shared.statusBarOrientation.isLandscape
-        return CGRect(x: kGap, y: isLandscape ? kGap : max(48.0, safeArea.top),
+        return CGRect(x: kGap, y: 0,
                       width: UIScreen.main.bounds.width, height: 0)
     }
 
@@ -131,9 +131,9 @@ public extension MMPopOverBar {
                     options: options, completion: completion, presenterVC: presenterVC)
     }
 
-    static func hide() {
+    static func hide(with animation: Bool = false) {
         DispatchQueue.main.async {
-            shared.popoversViews.forEach({ $0.hide() })
+            shared.popoversViews.forEach({ $0.hide(with: animation) })
         }
     }
 }
@@ -200,21 +200,21 @@ internal class MMPopoverView: UIView {
             withDuration: MMPopoverView.kAnimationDuration,
             animations: { () -> Void in
                 self.transform = .identity
-        }, completion: { _ in
+        }, completion: { [weak self] _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Int(duration))) {
-                self.hide()
+                self?.hide()
             }
         })
     }
 
-    @objc func hide() {
+    @objc func hide(with animation: Bool = true) {
         guard state == .showing else {
             return
         }
         self.state = .hiding
         // Hide animation
         UIView.animate(
-            withDuration: MMPopoverView.kAnimationDuration,
+            withDuration: animation ? MMPopoverView.kAnimationDuration : 0,
             animations: { () -> Void in
                 self.transform = CGAffineTransform(translationX: 0, y: self.translationY)
         },

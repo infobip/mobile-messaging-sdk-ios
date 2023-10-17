@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Korisnik nije pronađen na destinaciji";
 "mm_user_declined_call" = "Poziv je odbijen od korisnika";
 "mm_screen_share" = "Podela ekrana";
+"mm_user_sharing_screen" = "Delite ekran.";
+"mm_stop_sharing" = "Zaustavi deljenje ekrana";

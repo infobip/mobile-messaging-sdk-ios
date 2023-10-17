@@ -3,14 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0ECABD2F10663827D649C473E329D109 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */; };
 		170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */; };
-		252AF73129D3120700E66BB7 /* MMCallController+BaseCalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AF73029D3120700E66BB7 /* MMCallController+BaseCalls.swift */; };
-		252AF73329D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 252AF73229D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift */; };
 		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
 		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
 		3659D846292B5A4E00D6ECF8 /* MMWebRTCSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */; };
@@ -256,19 +254,24 @@
 		A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E4439F24AF5C8300387CDD /* ChatAttachmentUtils.swift */; };
 		A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */; };
 		A80F241A285B3C1F00946DEF /* MMLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80F2419285B3C1F00946DEF /* MMLanguage.swift */; };
+		A8171FC92ADE5D3500AC6FC4 /* RootSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FBD2ADE5D3400AC6FC4 /* RootSheetView.swift */; };
+		A8171FCA2ADE5D3500AC6FC4 /* MMCallController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FBE2ADE5D3400AC6FC4 /* MMCallController.swift */; };
+		A8171FCB2ADE5D3500AC6FC4 /* MediaCallViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FBF2ADE5D3400AC6FC4 /* MediaCallViewHeader.swift */; };
+		A8171FCC2ADE5D3500AC6FC4 /* CallControlButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC02ADE5D3400AC6FC4 /* CallControlButtonsView.swift */; };
+		A8171FCD2ADE5D3500AC6FC4 /* MMCallEventListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC12ADE5D3400AC6FC4 /* MMCallEventListener.swift */; };
+		A8171FCE2ADE5D3500AC6FC4 /* VoiceCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC22ADE5D3400AC6FC4 /* VoiceCallView.swift */; };
+		A8171FCF2ADE5D3500AC6FC4 /* FloatWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC32ADE5D3400AC6FC4 /* FloatWindowView.swift */; };
+		A8171FD02ADE5D3500AC6FC4 /* CallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC42ADE5D3400AC6FC4 /* CallView.swift */; };
+		A8171FD12ADE5D3500AC6FC4 /* CallInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC52ADE5D3400AC6FC4 /* CallInteractor.swift */; };
+		A8171FD22ADE5D3500AC6FC4 /* LocalScreenshareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC62ADE5D3500AC6FC4 /* LocalScreenshareView.swift */; };
+		A8171FD32ADE5D3500AC6FC4 /* MediaCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC72ADE5D3500AC6FC4 /* MediaCallView.swift */; };
+		A8171FD42ADE5D3500AC6FC4 /* CallTableOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8171FC82ADE5D3500AC6FC4 /* CallTableOptionsView.swift */; };
 		A838992128F6F10600322E68 /* MMOpenSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992028F6F10600322E68 /* MMOpenSettings.swift */; };
 		A838992328F6F14300322E68 /* MMPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992228F6F14300322E68 /* MMPopupView.swift */; };
 		A838992528F6F1AF00322E68 /* MMPopOverBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992428F6F1AF00322E68 /* MMPopOverBar.swift */; };
 		A838992728F7025E00322E68 /* UIAlertController+MMSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992628F7025E00322E68 /* UIAlertController+MMSetup.swift */; };
 		A838992B28F82B8600322E68 /* MMWebRTCToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = A838992A28F82B8600322E68 /* MMWebRTCToken.swift */; };
 		A83E2C4D2AB2FB05002A1237 /* GetChatRegistrationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83E2C4C2AB2FB05002A1237 /* GetChatRegistrationOperation.swift */; };
-		A843A43128F5A6D700D5196F /* MMCallController+ApplicationCalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */; };
-		A843A43228F5A6D700D5196F /* MMCallVideoExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42228F5A6D600D5196F /* MMCallVideoExtension.swift */; };
-		A843A43328F5A6D700D5196F /* MMPulseAnimationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42328F5A6D600D5196F /* MMPulseAnimationExtension.swift */; };
-		A843A43528F5A6D700D5196F /* MMCalls.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A843A42528F5A6D600D5196F /* MMCalls.storyboard */; };
-		A843A43628F5A6D700D5196F /* MMCallController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42628F5A6D600D5196F /* MMCallController.swift */; };
-		A843A43828F5A6D700D5196F /* MMCallButtonStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42828F5A6D600D5196F /* MMCallButtonStackView.swift */; };
-		A843A43928F5A6D700D5196F /* MMCallPopoverExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42928F5A6D600D5196F /* MMCallPopoverExtension.swift */; };
 		A843A43A28F5A6D700D5196F /* MMWebRTCService+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42A28F5A6D600D5196F /* MMWebRTCService+UI.swift */; };
 		A843A43B28F5A6D700D5196F /* MMUserActivityExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42C28F5A6D600D5196F /* MMUserActivityExtension.swift */; };
 		A843A43C28F5A6D700D5196F /* MMCallNotificationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A42D28F5A6D600D5196F /* MMCallNotificationData.swift */; };
@@ -288,7 +291,6 @@
 		A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CE292CCDA200322961 /* PIPKitEventDispatcher.swift */; };
 		A8CBD7DA292CCDA200322961 /* PIPKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CF292CCDA200322961 /* PIPKit.swift */; };
 		A8CBD7DB292CCDA200322961 /* PIPUsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7D0292CCDA200322961 /* PIPUsable.swift */; };
-		A8E68BE12934C44E0046E4BC /* MMCallController+Delegates.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E68BE02934C44D0046E4BC /* MMCallController+Delegates.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
 		ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203322086642B00E157D7 /* String+Extension.swift */; };
 		ADF203402086642C00E157D7 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203332086642B00E157D7 /* Utils.swift */; };
@@ -309,8 +311,6 @@
 
 /* Begin PBXFileReference section */
 		1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MobileMessaging.xcconfig; sourceTree = "<group>"; };
-		252AF73029D3120700E66BB7 /* MMCallController+BaseCalls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+BaseCalls.swift"; sourceTree = "<group>"; };
-		252AF73229D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+WebrtcCalls.swift"; sourceTree = "<group>"; };
 		3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCSettings.swift; sourceTree = "<group>"; };
 		367B1A992918F3640081983C /* MMLoc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMLoc.swift; sourceTree = "<group>"; };
 		37333A54A8B807D53AD68E200638BAC7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -628,19 +628,24 @@
 		A0E49BBC2455A4A500BABC7E /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		A6AA76E4F387BA9691EB1B7858162678 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
 		A80F2419285B3C1F00946DEF /* MMLanguage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMLanguage.swift; sourceTree = "<group>"; };
+		A8171FBD2ADE5D3400AC6FC4 /* RootSheetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RootSheetView.swift; path = CallUI/RootSheetView.swift; sourceTree = "<group>"; };
+		A8171FBE2ADE5D3400AC6FC4 /* MMCallController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MMCallController.swift; path = CallUI/MMCallController.swift; sourceTree = "<group>"; };
+		A8171FBF2ADE5D3400AC6FC4 /* MediaCallViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MediaCallViewHeader.swift; path = CallUI/MediaCallViewHeader.swift; sourceTree = "<group>"; };
+		A8171FC02ADE5D3400AC6FC4 /* CallControlButtonsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CallControlButtonsView.swift; path = CallUI/CallControlButtonsView.swift; sourceTree = "<group>"; };
+		A8171FC12ADE5D3400AC6FC4 /* MMCallEventListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MMCallEventListener.swift; path = CallUI/MMCallEventListener.swift; sourceTree = "<group>"; };
+		A8171FC22ADE5D3400AC6FC4 /* VoiceCallView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VoiceCallView.swift; path = CallUI/VoiceCallView.swift; sourceTree = "<group>"; };
+		A8171FC32ADE5D3400AC6FC4 /* FloatWindowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FloatWindowView.swift; path = CallUI/FloatWindowView.swift; sourceTree = "<group>"; };
+		A8171FC42ADE5D3400AC6FC4 /* CallView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CallView.swift; path = CallUI/CallView.swift; sourceTree = "<group>"; };
+		A8171FC52ADE5D3400AC6FC4 /* CallInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CallInteractor.swift; path = CallUI/CallInteractor.swift; sourceTree = "<group>"; };
+		A8171FC62ADE5D3500AC6FC4 /* LocalScreenshareView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocalScreenshareView.swift; path = CallUI/LocalScreenshareView.swift; sourceTree = "<group>"; };
+		A8171FC72ADE5D3500AC6FC4 /* MediaCallView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MediaCallView.swift; path = CallUI/MediaCallView.swift; sourceTree = "<group>"; };
+		A8171FC82ADE5D3500AC6FC4 /* CallTableOptionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CallTableOptionsView.swift; path = CallUI/CallTableOptionsView.swift; sourceTree = "<group>"; };
 		A838992028F6F10600322E68 /* MMOpenSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMOpenSettings.swift; sourceTree = "<group>"; };
 		A838992228F6F14300322E68 /* MMPopupView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMPopupView.swift; sourceTree = "<group>"; };
 		A838992428F6F1AF00322E68 /* MMPopOverBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMPopOverBar.swift; sourceTree = "<group>"; };
 		A838992628F7025E00322E68 /* UIAlertController+MMSetup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIAlertController+MMSetup.swift"; sourceTree = "<group>"; };
 		A838992A28F82B8600322E68 /* MMWebRTCToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCToken.swift; sourceTree = "<group>"; };
 		A83E2C4C2AB2FB05002A1237 /* GetChatRegistrationOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetChatRegistrationOperation.swift; sourceTree = "<group>"; };
-		A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+ApplicationCalls.swift"; sourceTree = "<group>"; };
-		A843A42228F5A6D600D5196F /* MMCallVideoExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallVideoExtension.swift; sourceTree = "<group>"; };
-		A843A42328F5A6D600D5196F /* MMPulseAnimationExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMPulseAnimationExtension.swift; sourceTree = "<group>"; };
-		A843A42528F5A6D600D5196F /* MMCalls.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MMCalls.storyboard; path = ../Resources/MMCalls.storyboard; sourceTree = "<group>"; };
-		A843A42628F5A6D600D5196F /* MMCallController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallController.swift; sourceTree = "<group>"; };
-		A843A42828F5A6D600D5196F /* MMCallButtonStackView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallButtonStackView.swift; sourceTree = "<group>"; };
-		A843A42928F5A6D600D5196F /* MMCallPopoverExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallPopoverExtension.swift; sourceTree = "<group>"; };
 		A843A42A28F5A6D600D5196F /* MMWebRTCService+UI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+UI.swift"; sourceTree = "<group>"; };
 		A843A42C28F5A6D600D5196F /* MMUserActivityExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMUserActivityExtension.swift; sourceTree = "<group>"; };
 		A843A42D28F5A6D600D5196F /* MMCallNotificationData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMCallNotificationData.swift; sourceTree = "<group>"; };
@@ -664,7 +669,6 @@
 		A8CBD7CF292CCDA200322961 /* PIPKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPKit.swift; sourceTree = "<group>"; };
 		A8CBD7D0292CCDA200322961 /* PIPUsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPUsable.swift; sourceTree = "<group>"; };
 		A8CE8ACD285C6E03000CC98F /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
-		A8E68BE02934C44D0046E4BC /* MMCallController+Delegates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMCallController+Delegates.swift"; sourceTree = "<group>"; };
 		ADF203322086642B00E157D7 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		ADF203332086642B00E157D7 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		ADF203342086642B00E157D7 /* Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
@@ -1364,20 +1368,22 @@
 		A843A42028F5A6D600D5196F /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A8171FC02ADE5D3400AC6FC4 /* CallControlButtonsView.swift */,
+				A8171FC52ADE5D3400AC6FC4 /* CallInteractor.swift */,
+				A8171FC82ADE5D3500AC6FC4 /* CallTableOptionsView.swift */,
+				A8171FC42ADE5D3400AC6FC4 /* CallView.swift */,
+				A8171FC32ADE5D3400AC6FC4 /* FloatWindowView.swift */,
+				A8171FC62ADE5D3500AC6FC4 /* LocalScreenshareView.swift */,
+				A8171FC72ADE5D3500AC6FC4 /* MediaCallView.swift */,
+				A8171FBF2ADE5D3400AC6FC4 /* MediaCallViewHeader.swift */,
+				A8171FBE2ADE5D3400AC6FC4 /* MMCallController.swift */,
+				A8171FC12ADE5D3400AC6FC4 /* MMCallEventListener.swift */,
+				A8171FBD2ADE5D3400AC6FC4 /* RootSheetView.swift */,
+				A8171FC22ADE5D3400AC6FC4 /* VoiceCallView.swift */,
 				A08E522F2A8D244700EDAA35 /* MobileMessagingCallUIIcons.xcassets */,
-				252AF73229D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift */,
-				252AF73029D3120700E66BB7 /* MMCallController+BaseCalls.swift */,
-				A8E68BE02934C44D0046E4BC /* MMCallController+Delegates.swift */,
-				A843A42628F5A6D600D5196F /* MMCallController.swift */,
-				A843A42128F5A6D600D5196F /* MMCallController+ApplicationCalls.swift */,
 				A838992628F7025E00322E68 /* UIAlertController+MMSetup.swift */,
 				A838992428F6F1AF00322E68 /* MMPopOverBar.swift */,
 				A838992228F6F14300322E68 /* MMPopupView.swift */,
-				A843A42228F5A6D600D5196F /* MMCallVideoExtension.swift */,
-				A843A42328F5A6D600D5196F /* MMPulseAnimationExtension.swift */,
-				A843A42528F5A6D600D5196F /* MMCalls.storyboard */,
-				A843A42828F5A6D600D5196F /* MMCallButtonStackView.swift */,
-				A843A42928F5A6D600D5196F /* MMCallPopoverExtension.swift */,
 				A838992028F6F10600322E68 /* MMOpenSettings.swift */,
 			);
 			path = UI;
@@ -1480,7 +1486,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A7F83A827E1952844EA68119D288CDDF /* Build configuration list for PBXNativeTarget "MobileMessaging" */;
 			buildPhases = (
-				A80C78C42A8D1883009EC2AB /* Prepare WebRTCUI storyboards */,
 				F0FB3783C9DE8717FC987CFCD9463D9C /* Headers */,
 				0749E698D7B061A5301B9612FB001C7F /* Sources */,
 				0979C61CC24B570CCB03438437464D2A /* Frameworks */,
@@ -1570,34 +1575,11 @@
 				76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */,
 				A0672C012AC1BFB0005EDCD9 /* WebInteractiveMessageAlertController.xib in Resources */,
 				A0672C022AC1BFB0005EDCD9 /* NativeInteractiveMessageAlertController.xib in Resources */,
-				A843A43528F5A6D700D5196F /* MMCalls.storyboard in Resources */,
 				A0672C032AC1BFB0005EDCD9 /* LoadingImageView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		A80C78C42A8D1883009EC2AB /* Prepare WebRTCUI storyboards */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Prepare WebRTCUI storyboards";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "echo 'Duplicating WebRTUI storyboards for cocoapods and SPM (due to Module limitations)'\nsh rtcuiresources.sh\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0749E698D7B061A5301B9612FB001C7F /* Sources */ = {
@@ -1617,10 +1599,12 @@
 				A0672BF22AC1A4C0005EDCD9 /* DocumentReadyState.swift in Sources */,
 				7650DC38244EEB480016233D /* ComposeBar.swift in Sources */,
 				764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */,
+				A8171FCC2ADE5D3500AC6FC4 /* CallControlButtonsView.swift in Sources */,
 				7617505923351827000438A8 /* Request.swift in Sources */,
 				76EA825C2727DE4300D16E66 /* MobileMessagingService.swift in Sources */,
 				7617505C23351827000438A8 /* AFError.swift in Sources */,
 				ADF203472086642C00E157D7 /* BatchedCollection.swift in Sources */,
+				A8171FD02ADE5D3500AC6FC4 /* CallView.swift in Sources */,
 				A0791856283258E9004309F5 /* ChatExtensions.swift in Sources */,
 				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,
 				A070E19824F1579500583840 /* ChatCoverHorisontalTransition.swift in Sources */,
@@ -1638,7 +1622,9 @@
 				A0672BF32AC1A4C0005EDCD9 /* ScriptEventRecipient.swift in Sources */,
 				7601F197208E056500738C1A /* Indicator.swift in Sources */,
 				7601F1A9208E056500738C1A /* ImagePrefetcher.swift in Sources */,
+				A8171FC92ADE5D3500AC6FC4 /* RootSheetView.swift in Sources */,
 				7636909A21F06E25000CF3F8 /* UserEventsManager.swift in Sources */,
+				A8171FD22ADE5D3500AC6FC4 /* LocalScreenshareView.swift in Sources */,
 				764556951F78FF7F00B8F14B /* MMOperationQueue.swift in Sources */,
 				7650DC37244EEB480016233D /* ChatNavigationVC.swift in Sources */,
 				76626D11218B097800E95E2C /* PrivacySettings.swift in Sources */,
@@ -1660,6 +1646,7 @@
 				7601F199208E056500738C1A /* UIButton+Kingfisher.swift in Sources */,
 				A8CBD7D4292CCDA200322961 /* AVPIPKitRenderer.swift in Sources */,
 				76A8A77B2195B97F004F6E39 /* UpdateUserOperation.swift in Sources */,
+				A8171FD42ADE5D3500AC6FC4 /* CallTableOptionsView.swift in Sources */,
 				764556D51F78FFE700B8F14B /* NSLock+Operations.swift in Sources */,
 				76212E7421B04443002FB8D9 /* InstallationAttributeModels.swift in Sources */,
 				A0672BF62AC1A4C0005EDCD9 /* WebInAppMessagePresenter.swift in Sources */,
@@ -1668,25 +1655,26 @@
 				764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */,
 				A838992B28F82B8600322E68 /* MMWebRTCToken.swift in Sources */,
 				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
+				A8171FCD2ADE5D3500AC6FC4 /* MMCallEventListener.swift in Sources */,
 				6C60A4A31FD6B169001744BC /* State.swift in Sources */,
 				76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */,
 				A08E503D249652FD00F026ED /* ChatNotAvailableLabel.swift in Sources */,
 				A08CB26C2459B0C600ED91B6 /* ChatWidget.swift in Sources */,
+				A8171FCF2ADE5D3500AC6FC4 /* FloatWindowView.swift in Sources */,
 				763A1B0523E5D4F300C997BC /* MOSendingMapper.swift in Sources */,
 				7617505523351827000438A8 /* DispatchQueue+Alamofire.swift in Sources */,
 				A0672BF72AC1A4C0005EDCD9 /* InAppMessagePresenter.swift in Sources */,
 				7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */,
 				764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */,
 				764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */,
-				A843A43828F5A6D700D5196F /* MMCallButtonStackView.swift in Sources */,
 				ADF203492086642C00E157D7 /* Generics.swift in Sources */,
 				76A8A77921959F84004F6E39 /* UpdateInstanceOperation.swift in Sources */,
 				7601F1A6208E056500738C1A /* Placeholder.swift in Sources */,
 				A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */,
 				764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */,
 				7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */,
-				252AF73129D3120700E66BB7 /* MMCallController+BaseCalls.swift in Sources */,
 				764556B31F78FF9500B8F14B /* MMGeofencingService.swift in Sources */,
+				A8171FCA2ADE5D3500AC6FC4 /* MMCallController.swift in Sources */,
 				A0672BEF2AC1A4C0005EDCD9 /* WebInAppBannerManager.swift in Sources */,
 				7601F19D208E056500738C1A /* Box.swift in Sources */,
 				764556D21F78FFE000B8F14B /* Dictionary+Operations.swift in Sources */,
@@ -1706,9 +1694,9 @@
 				76A957A421ECAA82000AFD9C /* InstallationDataMapper.swift in Sources */,
 				7617506023351827000438A8 /* Timeline.swift in Sources */,
 				76F8A32D269F2F5700876E16 /* ChatMessageCounterService.swift in Sources */,
+				A8171FD12ADE5D3500AC6FC4 /* CallInteractor.swift in Sources */,
 				76263E8F24586F0300E5C97D /* WebViewToolbar.swift in Sources */,
 				7617506423351827000438A8 /* Alamofire.swift in Sources */,
-				A843A43628F5A6D700D5196F /* MMCallController.swift in Sources */,
 				A80F241A285B3C1F00946DEF /* MMLanguage.swift in Sources */,
 				A83E2C4D2AB2FB05002A1237 /* GetChatRegistrationOperation.swift in Sources */,
 				A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */,
@@ -1781,6 +1769,8 @@
 				764556881F78FF6500B8F14B /* GeoEventReportObject.swift in Sources */,
 				7601F1A5208E056500738C1A /* Filter.swift in Sources */,
 				ADF203452086642C00E157D7 /* Bit.swift in Sources */,
+				A8171FCE2ADE5D3500AC6FC4 /* VoiceCallView.swift in Sources */,
+				A8171FCB2ADE5D3500AC6FC4 /* MediaCallViewHeader.swift in Sources */,
 				A843A43C28F5A6D700D5196F /* MMCallNotificationData.swift in Sources */,
 				764556871F78FF6500B8F14B /* GeoEventReportObject+CoreDataProperties.swift in Sources */,
 				764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */,
@@ -1792,7 +1782,6 @@
 				ADF2034D2086664100E157D7 /* GeoDatesUtils.swift in Sources */,
 				7617505A23351827000438A8 /* SessionDelegate.swift in Sources */,
 				7638B26722089F2000A98144 /* Archivable.swift in Sources */,
-				A843A43328F5A6D700D5196F /* MMPulseAnimationExtension.swift in Sources */,
 				7645568C1F78FF6500B8F14B /* MessageManagedObject.swift in Sources */,
 				7642821E219305780053A063 /* FetchUserOperation.swift in Sources */,
 				7650DC2D244EEB480016233D /* ChatSettings.swift in Sources */,
@@ -1806,7 +1795,6 @@
 				ADF203462086642C00E157D7 /* Updatable.swift in Sources */,
 				764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */,
 				7617506623351827000438A8 /* Notifications.swift in Sources */,
-				A843A43128F5A6D700D5196F /* MMCallController+ApplicationCalls.swift in Sources */,
 				ADF203402086642C00E157D7 /* Utils.swift in Sources */,
 				764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */,
 				7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */,
@@ -1833,15 +1821,12 @@
 				7617506523351827000438A8 /* NetworkReachabilityManager.swift in Sources */,
 				764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */,
 				7636909C21F07330000CF3F8 /* PersonalizeOperation.swift in Sources */,
-				A843A43228F5A6D700D5196F /* MMCallVideoExtension.swift in Sources */,
 				7601F191208E056400738C1A /* ImageCache.swift in Sources */,
 				7601F1A1208E056500738C1A /* ImageTransition.swift in Sources */,
 				A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */,
 				764556D61F78FFE700B8F14B /* NSOperation+Operations.swift in Sources */,
 				76C3C99A23D1F47900562C57 /* UserSessionPersistingOperation.swift in Sources */,
 				ADF2034A2086642C00E157D7 /* SHA1.swift in Sources */,
-				A843A43928F5A6D700D5196F /* MMCallPopoverExtension.swift in Sources */,
-				A8E68BE12934C44E0046E4BC /* MMCallController+Delegates.swift in Sources */,
 				7645569D1F78FF8500B8F14B /* MessagePostingOperation.swift in Sources */,
 				A0672BF42AC1A4C0005EDCD9 /* NativeInAppMessagePresenter.swift in Sources */,
 				760085831F977E3300837D75 /* MOMessage.swift in Sources */,
@@ -1851,7 +1836,6 @@
 				7601F192208E056400738C1A /* ThreadHelper.swift in Sources */,
 				764556CD1F78FFD900B8F14B /* KeychainSwift.swift in Sources */,
 				764556BA1F78FFB200B8F14B /* Message.swift in Sources */,
-				252AF73329D3168B00E66BB7 /* MMCallController+WebrtcCalls.swift in Sources */,
 				760085871F9790BE00837D75 /* BaseMessage.swift in Sources */,
 				ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
@@ -1878,6 +1862,7 @@
 				7689347724ED700600411B1D /* GeoEventPersistingOperation.swift in Sources */,
 				764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */,
 				7635ABBD2431404E0069AE1D /* WebViewController.swift in Sources */,
+				A8171FD32ADE5D3500AC6FC4 /* MediaCallView.swift in Sources */,
 				D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */,
 				7620450227C91AB0007970F8 /* MMInboxService.swift in Sources */,
 			);
@@ -2102,11 +2087,7 @@
 				GCC_PREFIX_HEADER = "Framework/MobileMessaging-prefix.pch";
 				INFOPLIST_FILE = Framework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MODULEMAP_FILE = MobileMessaging.modulemap;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = org.infobip.MobileMessaging;
@@ -2125,11 +2106,7 @@
 				GCC_PREFIX_HEADER = "Framework/MobileMessaging-prefix.pch";
 				INFOPLIST_FILE = Framework/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MODULEMAP_FILE = MobileMessaging.modulemap;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.infobip.MobileMessaging;

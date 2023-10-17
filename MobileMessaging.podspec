@@ -78,7 +78,7 @@ Pod::Spec.new do |s|
         webrtcui.dependency 'MobileMessaging/Core'
         webrtcui.dependency 'InfobipRTC', '2.2.1'
         webrtcui.source_files = 'Classes/WebRTCUI/**/*.{h,m,swift}'
-        webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/Resources/**/*.{xcassets,png,wav,svg,html}', 'Classes/WebRTCUI/Resources/MMCalls.storyboard']}
+        webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/Resources/**/*.{xcassets,png,wav,svg,html}']}
         s.pod_target_xcconfig = {
             'SWIFT_VERSION' => '5',
             'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) COCOAPODS=1 WEBRTCUI_ENABLED=1',

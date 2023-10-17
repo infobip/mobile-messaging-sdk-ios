@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Pengguna akhir tidak ditemukan di tujuan";
 "mm_user_declined_call" = "Panggilan ditolak oleh pengguna akhir";
 "mm_screen_share" = "Bagikan layar";
+"mm_user_sharing_screen" = "Anda berbagi layar.";
+"mm_stop_sharing" = "Berhenti berbagi layar";

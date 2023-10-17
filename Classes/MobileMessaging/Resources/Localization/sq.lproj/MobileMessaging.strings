@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Përdoruesi përfundimtar nuk u gjet në destinacion";
 "mm_user_declined_call" = "Telefonata u refuzua nga përdoruesi fundor";
 "mm_screen_share" = "Ndarjen e ekranit";
+"mm_user_sharing_screen" = "Po ndani një ekran.";
+"mm_stop_sharing" = "Ndalo ndarjen e ekranit";

@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "ไม่พบผู้ใช้ปลายทางที่ปลายทาง";
 "mm_user_declined_call" = "ผู้ใช้ปฏิเสธการโทร";
 "mm_screen_share" = "แชร์หน้าจอ";
+"mm_user_sharing_screen" = "คุณกำลังแชร์หน้าจอ";
+"mm_stop_sharing" = "หยุดการแชร์หน้าจอ";

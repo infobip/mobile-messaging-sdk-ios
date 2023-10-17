@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Người dùng cuối không được tìm thấy ở điểm đến";
 "mm_user_declined_call" = "Cuộc gọi bị từ chối bởi người dùng cuối";
 "mm_screen_share" = "Chia sẻ màn hình";
+"mm_user_sharing_screen" = "Bạn đang chia sẻ một màn hình.";
+"mm_stop_sharing" = "Dừng chia sẻ màn hình";

@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Endbenutzer am Ziel nicht gefunden";
 "mm_user_declined_call" = "Anruf vom Endbenutzer abgelehnt";
 "mm_screen_share" = "Bildschirmfreigabe";
+"mm_user_sharing_screen" = "Sie teilen einen Bildschirm.";
+"mm_stop_sharing" = "Beenden Sie die Bildschirmfreigabe";

@@ -27,4 +27,5 @@
 "mm_user_not_found_destination" = "Nie znaleziono użytkownika końcowego w miejscu docelowym";
 "mm_user_declined_call" = "Połączenie odrzucone przez użytkownika końcowego";
 "mm_screen_share" = "Udostępnianie ekranu";
-
+"mm_user_sharing_screen" = "Udostępniasz ekran.";
+"mm_stop_sharing" = "Zatrzymaj udostępnianie ekranu";

@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "משתמש קצה לא נמצא ביעד";
 "mm_user_declined_call" = "השיחה נדחתה על ידי משתמש הקצה";
 "mm_screen_share" = "שיתוף מסך";
+"mm_user_sharing_screen" = "אתה משתף מסךאתה משתף את המסך";
+"mm_stop_sharing" = "הפסק לשתף מסך";

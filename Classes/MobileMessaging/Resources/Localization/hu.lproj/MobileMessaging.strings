@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "A végfelhasználó nem található a célhelyen";
 "mm_user_declined_call" = "A végfelhasználó elutasította a hívást";
 "mm_screen_share" = "Képernyőmegosztás";
+"mm_user_sharing_screen" = "Megoszt egy képernyőt.";
+"mm_stop_sharing" = "Állítsa le a képernyő megosztását";

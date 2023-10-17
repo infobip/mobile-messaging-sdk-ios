@@ -2,11 +2,11 @@
 //  MMLoc.swift
 //  ConversationsMobile
 //
-//  Created by localiseStrings.sh on 08/11/2022.
-//  Copyright © 2022 Infobip Ltd. All rights reserved.
+//  Created by localiseStrings.sh on 04/10/2023.
+//  Copyright © 2023 Infobip Ltd. All rights reserved.
 //
 
-// This file was generated automatically.
+// This file was generated automatically by localiseString.sh script. You can update the variables in MMLoc by cleaning and building the MobileMessaging SDK project.
 
 // swiftlint:disable identifier_name
 // swiftlint:disable line_length
@@ -43,4 +43,6 @@ public enum MMLoc {
     public static var `userNotFoundDestination`: String { return  MMLocalization.localizedString(forKey: "mm_user_not_found_destination", defaultString: "End user not found at destination") }
     public static var `userDeclinedCall`: String { return  MMLocalization.localizedString(forKey: "mm_user_declined_call", defaultString: "Call declined by end user") }
     public static var `screenShare`: String { return  MMLocalization.localizedString(forKey: "mm_screen_share", defaultString: "Screen share") }
+    public static var `userSharingScreen`: String { return  MMLocalization.localizedString(forKey: "mm_user_sharing_screen", defaultString: "You are sharing a screen.") }
+    public static var `stopSharing`: String { return  MMLocalization.localizedString(forKey: "mm_stop_sharing", defaultString: "Stop sharing screen") }
 }

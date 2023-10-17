@@ -11,11 +11,6 @@ import UIKit
 import InfobipRTC
 
 public extension MMWebRTCService {
-    private func getNewCallController() -> MMCallController {
-        let callController = MMCallController.new
-        callController.modalPresentationStyle = .fullScreen
-        return callController
-    }
     
     private func getCallType(call: Call? = nil, applicationCall: ApplicationCall? = nil) -> MMCallType {
         if let call = call as? WebrtcCall {
@@ -38,41 +33,37 @@ public extension MMWebRTCService {
     }
     
     func getInboundCallController(incoming applicationCall: ApplicationCall, establishedEvent: CallEstablishedEvent) -> MMCallController {
-        let callController = getNewCallController()
-        applicationCall.applicationCallEventListener = callController
-        callController.activeCall = .applicationCall(applicationCall)
-        callController.callEstablishedEvent = establishedEvent
+        let callController = MMCallController()
+        applicationCall.applicationCallEventListener = callController.callEventListener
+        callController.interactor.currentCall = .applicationCall(applicationCall)
+        callController.callEventListener.onEstablished(establishedEvent)
         if let incomingCall = applicationCall as? IncomingApplicationCall {
-            callController.counterpart = incomingCall.from
-            callController.destinationName = incomingCall.fromDisplayName
+            callController.callView.updateState(remoteMuted: false,title: incomingCall.fromDisplayName ?? "")
         }
-        callController.callType = getCallType(applicationCall: applicationCall)
         return callController
     }
 
     func getInboundCallController(incoming webRTCCall: WebrtcCall, establishedEvent: CallEstablishedEvent) -> MMCallController {
-        let callController = getNewCallController()
-        webRTCCall.webrtcCallEventListener = callController
-        callController.activeCall = .webRTCCall(webRTCCall)
-        callController.callEstablishedEvent = establishedEvent
+        let callController = MMCallController()
+        webRTCCall.webrtcCallEventListener = callController.callEventListener
+        callController.callEventListener.onEstablished(establishedEvent)
+        callController.interactor.currentCall = .webRTCCall(webRTCCall)
         if let webRTCCall = webRTCCall as? IncomingWebrtcCall {
-            callController.counterpart = webRTCCall.destination().identifier()
-            callController.destinationName = webRTCCall.destination().displayIdentifier() ?? webRTCCall.destination().identifier()
+            callController.callView.updateState(remoteMuted: false, title: webRTCCall.destination().displayIdentifier() ?? webRTCCall.destination().identifier())
         }
-        callController.callType = getCallType(call: webRTCCall)
         return callController
     }
     
-    func getOutboundCallController(ongoing destination: String, from: String, destinationName: String?,
-                    conversationId: String?, callType: MMCallType = .pstn) -> MMCallController {
-        let callController = getNewCallController()
-        callController.counterpart = destination
-        callController.outboundFrom = from
-        callController.destinationName = destinationName
-        callController.outboundConversationId = conversationId
-        callController.callType = callType
-        return callController
-    }
+//    func getOutboundCallController(ongoing destination: String, from: String, destinationName: String?,
+//                    conversationId: String?, callType: MMCallType = .pstn) -> MMCallController {
+//        let callController = getNewCallController()
+//        callController.counterpart = destination
+//        callController.outboundFrom = from
+//        callController.destinationName = destinationName
+//        callController.outboundConversationId = conversationId
+//        callController.callType = callType
+//        return callController
+//    }
 }
 
 extension UIImage {

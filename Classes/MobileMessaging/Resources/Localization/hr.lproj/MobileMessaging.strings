@@ -27,4 +27,5 @@
 "mm_user_not_found_destination" = "Krajnji korisnik nije pronađen na odredištu";
 "mm_user_declined_call" = "Poziv je odbio krajnji korisnik";
 "mm_screen_share" = "Dijeljenje zaslona";
-
+"mm_user_sharing_screen" = "Dijelite zaslon.";
+"mm_stop_sharing" = "Zaustavi dijeljenje zaslona";

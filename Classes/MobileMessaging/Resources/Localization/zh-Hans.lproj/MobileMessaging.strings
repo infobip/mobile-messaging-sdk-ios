@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "在呼叫号码中未找到最终用户";
 "mm_user_declined_call" = "最终用户拒绝了呼叫";
 "mm_screen_share" = "屏幕共享";
+"mm_user_sharing_screen" = "您正在共享屏幕。";
+"mm_stop_sharing" = "停止共享屏幕";

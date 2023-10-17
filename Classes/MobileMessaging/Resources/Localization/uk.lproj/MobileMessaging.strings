@@ -27,4 +27,5 @@
 "mm_user_not_found_destination" = "Кінцевого користувача не знайдено в пункті призначення";
 "mm_user_declined_call" = "Виклик відхилено кінцевим користувачем";
 "mm_screen_share" = "Показ екрана";
-
+"mm_user_sharing_screen" = "Ви ділитесь екраном.";
+"mm_stop_sharing" = "Зупинити спільний доступ до екрану";

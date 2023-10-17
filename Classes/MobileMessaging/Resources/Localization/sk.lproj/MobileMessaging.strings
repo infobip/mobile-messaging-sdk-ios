@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Koncový používateľ nebol nájdený v cieli";
 "mm_user_declined_call" = "Hovor bol odmietnutý koncovým používateľom";
 "mm_screen_share" = "Zdieľanie obrazovky";
+"mm_user_sharing_screen" = "Zdieľate obrazovku.";
+"mm_stop_sharing" = "Zastaviť zdieľanie obrazovky";

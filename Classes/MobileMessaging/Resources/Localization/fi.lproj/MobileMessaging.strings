@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Loppukäyttäjää ei löydy määräpaikasta";
 "mm_user_declined_call" = "Loppukäyttäjä hylkäsi puhelun";
 "mm_screen_share" = "Näytön jako";
+"mm_user_sharing_screen" = "Jaat näytön";
+"mm_stop_sharing" = "Lopeta näytön jakaminen";

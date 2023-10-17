@@ -27,4 +27,5 @@
 "mm_user_not_found_destination" = "Eindgebruiker niet gevonden op bestemming";
 "mm_user_declined_call" = "Oproep geweigerd door eindgebruiker";
 "mm_screen_share" = "Scherm delen";
-
+"mm_user_sharing_screen" = "Je deelt een scherm.";
+"mm_stop_sharing" = "Scherm delen stoppen";

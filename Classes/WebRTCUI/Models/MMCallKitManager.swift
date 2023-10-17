@@ -11,6 +11,31 @@ import AVKit
 #if WEBRTCUI_ENABLED
 import InfobipRTC
 
+enum ActiveCall {
+    case applicationCall(ApplicationCall)
+    case webRTCCall(WebrtcCall)
+}
+
+extension ActiveCall {
+    var duration: Int {
+        switch self {
+        case .applicationCall(let applicationCall):
+            return applicationCall.duration()
+        case .webRTCCall(let webRTCCall):
+            return webRTCCall.duration()
+        }
+    }
+    
+    var isMuted: Bool {
+        switch self {
+        case .applicationCall(let applicationCall):
+            return applicationCall.muted()
+        case .webRTCCall(let webrtcCall):
+            return webrtcCall.muted()
+        }
+    }
+}
+
 class CallKitManager: NSObject {
     static let shared = CallKitManager()
     private var callKitProvider: CXProvider
@@ -82,7 +107,8 @@ class CallKitManager: NSObject {
         if let uuid = calls[call.id()]?.uuid {
             MMLogDebug("Ending call with new reportCall")
             self.callKitProvider.reportCall(with: uuid, endedAt: nil, reason: .remoteEnded)
-            removeApplicationCall(call.id())
+            call.networkQualityEventListener = nil
+            removeWebRTCCall(call.id())
         }
     }
     
@@ -177,7 +203,17 @@ class CallKitManager: NSObject {
             }
         }
     }
-
+    
+    private func removeWebRTCCall(_ callId: String?) {
+        guard let uuidString = callId else { return }
+        if let callIndex = calls.index(forKey: uuidString) {
+            queue.sync {
+                MMLogDebug("Removing call from managed calls.")
+                calls.remove(at: callIndex)
+            }
+        }
+    }
+    
     private func addApplicationCall(_ callUUID: UUID, _ call: ApplicationCall) {
         queue.sync {
             MMLogDebug("Adding call to managed calls.")

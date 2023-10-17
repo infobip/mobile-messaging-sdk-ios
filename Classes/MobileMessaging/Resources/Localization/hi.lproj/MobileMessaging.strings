@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "अंतिम उपयोगकर्ता गंतव्य पर नहीं मिला";
 "mm_user_declined_call" = "अंतिम उपयोगकर्ता द्वारा कॉल अस्वीकृत";
 "mm_screen_share" = "स्क्रीन शेयर";
+"mm_user_sharing_screen" = "आप एक स्क्रीन साझा कर रहे हैं.";
+"mm_stop_sharing" = "स्क्रीन साझा करना बंद करें";

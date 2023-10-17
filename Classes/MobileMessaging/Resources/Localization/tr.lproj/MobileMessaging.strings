@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Son kullanıcı hedefte bulunamadı";
 "mm_user_declined_call" = "Çağrı, son kullanıcı tarafından reddedildi";
 "mm_screen_share" = "Ekran paylaşımı";
+"mm_user_sharing_screen" = "Bir ekranı paylaşıyorsunuz.";
+"mm_stop_sharing" = "Ekranı paylaşmayı durdur";

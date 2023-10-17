@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "المستخدم النهائي غير موجود في الوجهة";
 "mm_user_declined_call" = "رفض المستخدم النهائي المكالمة";
 "mm_screen_share" = "حصة الشاشة";
+"mm_user_sharing_screen" = "أنت تشارك شاشة";
+"mm_stop_sharing" = "إيقاف مشاركة الشاشة";

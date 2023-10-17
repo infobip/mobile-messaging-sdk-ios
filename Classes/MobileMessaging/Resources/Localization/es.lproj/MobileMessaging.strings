@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "No se encontró al usuario final en el destino";
 "mm_user_declined_call" = "Llamada rechazada por el usuario final";
 "mm_screen_share" = "Pantalla compartida";
+"mm_user_sharing_screen" = "Estás compartiendo la pantalla.";
+"mm_stop_sharing" = "Dejar de compartir la pantalla";

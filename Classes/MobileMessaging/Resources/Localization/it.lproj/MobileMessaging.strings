@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Utente finale non trovato alla destinazione";
 "mm_user_declined_call" = "Chiamata rifiutata dall'utente finale";
 "mm_screen_share" = "Condivisione schermo";
+"mm_user_sharing_screen" = "Stai condividendo lo schermo.";
+"mm_stop_sharing" = "Interrompi la condivisione dello schermo";

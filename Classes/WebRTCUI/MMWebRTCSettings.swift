@@ -12,21 +12,23 @@ public class MMWebRTCSettings: NSObject {
     	
     public static let sharedInstance = MMWebRTCSettings()
     
-    private var _pulseStrokeColor: UIColor!
     private var _errorColor: UIColor!
     private var _primaryColor: UIColor!
     private var _foregroundColor: UIColor!
     private var _notificationColor: UIColor!
     private var _textSecondaryColor: UIColor!
     private var _backgroundColor: UIColor!
-    private var _overlayBackgroundColor: UIColor!
     private var _alertBackgroundColor: UIColor!
-
-    // Color of the pulsating icon border when the ringing call UI is animating
-    public var pulseStrokeColor: UIColor! {
-        set { _pulseStrokeColor = newValue }
-        get { return _pulseStrokeColor ?? UIColor(hexString: "#ffffff") }
-    }
+    private var _tintColor: UIColor!
+    private var _buttonColor: UIColor!
+    private var _buttonColorSelected: UIColor!
+    private var _hangUpButtonColor: UIColor!
+    private var _sheetBackgroundColor: UIColor!
+    private var _sheetDividerColor: UIColor!
+    private var _sheetDragIndicatorColor: UIColor!
+    private var _localScreenshareBackgroundColor: UIColor!
+    private var _rowActionLabelColor: UIColor!
+    
     public var errorColor: UIColor! {
         set { _errorColor = newValue }
         get { return _errorColor ?? UIColor(hexString: "#e6ff3b30") }
@@ -38,28 +40,55 @@ public class MMWebRTCSettings: NSObject {
     /// Color of text and elements on foreground
     public var foregroundColor: UIColor! {
         set { _foregroundColor = newValue }
-        get { return _foregroundColor ?? pulseStrokeColor }
+        get { return _foregroundColor ?? UIColor(hexString: "#ffffff") }
     }
     /// Color of less prominent texts
     public var textSecondaryColor: UIColor! {
         set { _textSecondaryColor = newValue }
-        get { return _textSecondaryColor ?? UIColor(hexString: "#7AFFFFFF") }
+        get { return _textSecondaryColor ?? UIColor(hexString: "#5D5F61") }
     }
     /// Background color of calls
     public var backgroundColor: UIColor! {
         set { _backgroundColor = newValue }
         get { return _backgroundColor ?? UIColor(hexString: "#242424") }
     }
-    /// Background color of toolbar in video call
-    public var overlayBackgroundColor: UIColor! {
-        set { _overlayBackgroundColor = newValue }
-        get { return _overlayBackgroundColor ?? UIColor(hexString: "#80242424") }
-    }
     public var alertBackgroundColor: UIColor! {
         set { _alertBackgroundColor = newValue }
         get { return _alertBackgroundColor ?? UIColor(hexString: "#99050708") }
     }
-
+    public var buttonColor: UIColor! {
+        set { _tintColor = newValue }
+        get { return _tintColor ?? UIColor(hexString: "#5D5F61") }
+    }
+    public var buttonColorSelected: UIColor! {
+        set { _tintColor = newValue }
+        get { return _tintColor ?? UIColor(hexString: "#ffffff") }
+    }
+    public var hangUpButtonColor: UIColor! {
+        set { _tintColor = newValue }
+        get { return _tintColor ?? UIColor(hexString: "#C84714") }
+    }
+    public var sheetBackgroundColor: UIColor! {
+        set { _sheetBackgroundColor = newValue }
+        get { return _sheetBackgroundColor ?? UIColor(hexString: "#242424") }
+    }
+    public var sheetDividerColor: UIColor! {
+        set { _sheetDividerColor = newValue }
+        get { return _sheetDividerColor ?? UIColor(hexString: "#3B3B39") }
+    }
+    public var sheetDragIndicatorColor: UIColor! {
+        set { _sheetDragIndicatorColor = newValue }
+        get { return _sheetDragIndicatorColor ?? UIColor(hexString: "#5D5F61") }
+    }
+    public var localScreenshareBackgroundColor: UIColor! {
+        set { _localScreenshareBackgroundColor = newValue }
+        get { return _localScreenshareBackgroundColor ?? UIColor(hexString: "#5D5F61") }
+    }
+    public var rowActionLabelColor: UIColor! {
+        set { _rowActionLabelColor = newValue }
+        get { return _rowActionLabelColor ?? UIColor.white }
+    }
+    public var customButtons: [MMCallButtonsAction] = []
     private var _iconMute: UIImage?
     private var _iconUnMute: UIImage?
     private var _iconMutedParticipant: UIImage?
@@ -74,19 +103,19 @@ public class MMWebRTCSettings: NSObject {
     private var _iconEndCall: UIImage?
     private var _iconExpand: UIImage?
     private var _iconCollapse: UIImage?
-    private var _iconCounterpart: UIImage?
-    private var _iconDialpad: UIImage?
     private var _iconAlert: UIImage?
     private var _soundStartCall: NSDataAsset?
     private var _soundEndCall: NSDataAsset?
-    
+    private var _landscapeOffIcon: UIImage?
+    private var _landscapeOnIcon: UIImage?
+
     public var iconMute: UIImage? {
         set { _iconMute = newValue }
-        get { return _iconMute ?? UIImage.init(mm_webrtcui_named: "mic") }
+        get { return _iconMute ?? UIImage.init(mm_webrtcui_named: "microphone") }
     }
     public var iconUnMute: UIImage? {
         set { _iconUnMute = newValue }
-        get { return _iconUnMute ?? UIImage.init(mm_webrtcui_named: "micoff") }
+        get { return _iconUnMute ?? UIImage.init(mm_webrtcui_named: "microphone.off") }
     }
     public var iconMutedParticipant: UIImage? {
         set { _iconMutedParticipant = newValue }
@@ -94,39 +123,39 @@ public class MMWebRTCSettings: NSObject {
     }
     public var iconScreenShareOn: UIImage? {
         set { _iconScreenShareOn = newValue }
-        get { return _iconScreenShareOn ?? UIImage.init(mm_webrtcui_named: "shareScreenOn") }
+        get { return _iconScreenShareOn ?? UIImage.init(mm_webrtcui_named: "screenshareOn") }
     }
     public var iconScreenShareOff: UIImage? {
         set { _iconScreenShareOff = newValue }
-        get { return _iconScreenShareOff ?? UIImage.init(mm_webrtcui_named: "shareScreenOff") }
+        get { return _iconScreenShareOff ?? UIImage.init(mm_webrtcui_named: "screenshareOff") }
     }
     public var iconAvatar: UIImage? {
         set { _iconAvatar = newValue }
-        get { return _iconAvatar ?? UIImage.init(mm_webrtcui_named: "icon-user-s-grayscale") }
+        get { return _iconAvatar ?? UIImage.init(mm_webrtcui_named: "placeholder") }
     }
     public var iconVideo: UIImage? {
         set { _iconVideo = newValue }
-        get { return _iconVideo ?? UIImage.init(mm_webrtcui_named: "video") }
+        get { return _iconVideo ?? UIImage.init(mm_webrtcui_named: "video.on") }
     }
     public var iconVideoOff: UIImage? {
         set { _iconVideoOff = newValue }
-        get { return _iconVideoOff ?? UIImage.init(mm_webrtcui_named: "videooff") }
+        get { return _iconVideoOff ?? UIImage.init(mm_webrtcui_named: "video.off") }
     }
     public var iconSpeaker: UIImage? {
         set { _iconSpeaker = newValue }
-        get { return _iconSpeaker ?? UIImage.init(mm_webrtcui_named: "speaker") }
+        get { return _iconSpeaker ?? UIImage.init(mm_webrtcui_named: "speakerphone.on") }
     }
     public var iconSpeakerOff: UIImage? {
         set { _iconSpeakerOff = newValue }
-        get { return _iconSpeakerOff ?? UIImage.init(mm_webrtcui_named: "speakeroff") }
+        get { return _iconSpeakerOff ?? UIImage.init(mm_webrtcui_named: "speakerphone.off") }
     }
     public var iconFlipCamera: UIImage? {
         set { _iconFlipCamera = newValue }
-        get { return _iconFlipCamera ?? UIImage.init(mm_webrtcui_named: "flipCamera") }
+        get { return _iconFlipCamera ?? UIImage.init(mm_webrtcui_named: "camera.switch") }
     }
     public var iconEndCall: UIImage? {
         set { _iconEndCall = newValue }
-        get { return _iconEndCall ?? UIImage.init(mm_webrtcui_named: "hangup") }
+        get { return _iconEndCall ?? UIImage.init(mm_webrtcui_named: "endcallIcon") }
     }
     public var iconExpand: UIImage? {
         set { _iconExpand = newValue }
@@ -136,18 +165,19 @@ public class MMWebRTCSettings: NSObject {
         set { _iconCollapse = newValue }
         get { return _iconCollapse ?? UIImage.init(mm_webrtcui_named: "collapseIcon") }
     }
-    public var iconCounterpart: UIImage? {
-        set { _iconCounterpart = newValue }
-        get { return _iconCounterpart ?? UIImage.init(mm_webrtcui_named: "counterpart") }
-    }
-    public var iconDialpad: UIImage? {
-        set { _iconDialpad = newValue }
-        get { return _iconDialpad ?? UIImage.init(mm_webrtcui_named: "dialpad") }
-    }
     public var iconAlert: UIImage? {
         set { _iconAlert = newValue }
         get { return _iconAlert ?? UIImage.init(mm_webrtcui_named: "alertBarIcon") }
     }
+    public var landscapeOffIcon: UIImage? {
+        set { _landscapeOffIcon = newValue }
+        get { return _landscapeOffIcon ?? UIImage.init(mm_webrtcui_named: "landscape.off") }
+    }
+    public var landscapeOnIcon: UIImage? {
+        set { _landscapeOnIcon = newValue }
+        get { return _landscapeOnIcon ?? UIImage.init(mm_webrtcui_named: "landscape.on") }
+    }
+
     public var soundStartCall: NSDataAsset! {
         set { _soundStartCall = newValue }
         get {
@@ -181,9 +211,6 @@ public class MMWebRTCSettings: NSObject {
     }
 
     public func configureWith(rawConfig: [String: String]) {
-        if let pulseStrokeColor = rawConfig[MMWebRTCSettings.Keys.pulseStrokeColor] {
-            self.pulseStrokeColor = UIColor(hexString: pulseStrokeColor)
-        }
         if let errorColor = rawConfig[MMWebRTCSettings.Keys.errorColor] {
             self.errorColor = UIColor(hexString: errorColor)
         }
@@ -198,9 +225,6 @@ public class MMWebRTCSettings: NSObject {
         }
         if let backgroundColor = rawConfig[MMWebRTCSettings.Keys.backgroundColor] {
             self.backgroundColor = UIColor(hexString: backgroundColor)
-        }
-        if let overlayBackgroundColor = rawConfig[MMWebRTCSettings.Keys.overlayBackgroundColor] {
-            self.overlayBackgroundColor = UIColor(hexString: overlayBackgroundColor)
         }
         if let alertBackgroundColor = rawConfig[MMWebRTCSettings.Keys.alertBackgroundColor] {
             self.alertBackgroundColor = UIColor(hexString: alertBackgroundColor)

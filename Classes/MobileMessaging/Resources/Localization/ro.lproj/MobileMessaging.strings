@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Utilizatorul final nu a fost găsit la destinație";
 "mm_user_declined_call" = "Apel refuzat de utilizatorul final";
 "mm_screen_share" = "Partajarea ecranului";
+"mm_user_sharing_screen" = "Partajați un ecran.";
+"mm_stop_sharing" = "Opriți partajarea ecranului";

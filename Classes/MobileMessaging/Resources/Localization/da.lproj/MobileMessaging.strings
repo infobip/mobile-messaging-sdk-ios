@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "Slutbruger blev ikke fundet på destinationen";
 "mm_user_declined_call" = "Opkald afvist af slutbruger";
 "mm_screen_share" = "Skærmdeling";
+"mm_user_sharing_screen" = "Du deler skærmen.";
+"mm_stop_sharing" = "Stop med at dele skærmen";

@@ -27,3 +27,5 @@
 "mm_user_not_found_destination" = "End user not found at destination";
 "mm_user_declined_call" = "Call declined by end user";
 "mm_screen_share" = "Screen share";
+"mm_user_sharing_screen" = "You are sharing the screen.";
+"mm_stop_sharing" = "Stop sharing screen";
