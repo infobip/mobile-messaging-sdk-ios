@@ -46,7 +46,7 @@ NSString *ApplicationLaunchedByNotification_Key = @"com.mobile-messaging.applica
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     if ([MM_MTMessage makeWithPayload:userInfo] != nil) {
-        [MobileMessaging didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+        [MobileMessaging didReceiveRemoteNotification:[self extendUserInfoIfNeeded: userInfo] fetchCompletionHandler:completionHandler];
     } else if (_applicationDelegate && [_applicationDelegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
 		[_applicationDelegate application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
     } else {
