@@ -276,7 +276,7 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
     
     private func unarchiveMessageDictionaries(fromeData data: Data) -> [MMStringKeyPayload]? {
         do {
-            return try NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, NSDictionary.self], from: data) as? [MMStringKeyPayload] //saved as Data for supporting NSNull in payload
+            return try NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, NSDictionary.self, NSNull.self, NSString.self, NSNumber.self], from: data) as? [MMStringKeyPayload] //saved as Data for supporting NSNull in payload
         } catch {
             MMLogError("[AppGroupMessageStorage] couldn't unarchive message objects with error: \(error)")
         }

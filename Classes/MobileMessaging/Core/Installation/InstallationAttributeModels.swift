@@ -162,7 +162,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 
 	required public init?(coder aDecoder: NSCoder) {
         applicationUserId = aDecoder.decodeObject(of: NSString.self, forKey: "applicationUserId") as? String
-        customAttributes = (aDecoder.decodeObject(of: [NSDictionary.self, NSArray.self, NSDate.self, MMDateTime.self], forKey: "customAttributes") as? [String: MMAttributeType]) ?? [:]
+        customAttributes = (aDecoder.decodeObject(of: [NSDictionary.self, NSArray.self, NSDate.self, MMDateTime.self, NSNull.self, NSString.self, NSNumber.self], forKey: "customAttributes") as? [String: MMAttributeType]) ?? [:]
 		isPrimaryDevice = aDecoder.decodeBool(forKey: "isPrimary")
 		isPushRegistrationEnabled = aDecoder.decodeBool(forKey: "regEnabled")
         pushRegistrationId = aDecoder.decodeObject(of: NSString.self, forKey: "pushRegId") as? String

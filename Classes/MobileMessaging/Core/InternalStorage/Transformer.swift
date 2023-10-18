@@ -8,7 +8,6 @@
 import Foundation
 import CoreLocation
 
-//Classes list taken from DB model parameters which are using this transformer (InternalStorage and MessageStorage)
 @objc(DefaultTransformer)
 class DefaultTransformer: ValueTransformer {
 	override class func transformedValueClass() -> AnyClass {
@@ -21,7 +20,7 @@ class DefaultTransformer: ValueTransformer {
 		}
         
         do {
-            return try NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSDictionary.self, NSArray.self, NSDate.self, CLLocation.self, MMDateTime.self], from: value) //The following classes are used to archive data that is currently stored in database, including possible value types of the Dictionary<String, Any>.
+            return try NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSDictionary.self, NSArray.self, NSDate.self, CLLocation.self, MMDateTime.self, NSNull.self, NSString.self, NSNumber.self], from: value) //The following classes are used to archive data that is currently stored in database, including possible value types of the Dictionary<String, Any>.
         } catch {
             MMLogError("Unable to unarchive object with error: \(error)")
         }

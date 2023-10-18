@@ -27,7 +27,12 @@ class CodingDecodingTests: MMTestCase {
             "height": 189.5 as NSNumber,
             "nativePlace": "Tatooine" as NSString,
             "dateOfDeath": darthVaderDateOfDeath as NSDate,
-            "dateTime": MMDateTime(date: Date(timeIntervalSince1970: 0))
+            "dateTime": MMDateTime(date: Date(timeIntervalSince1970: 0)),
+            "nullAttribute": NSNull(),
+            "favsList": [
+                        ["id": "1", "price": 99.99, "sale": true],
+                        ["id": "2", "price": 149.99, "sale": false],
+                    ] as NSArray
         ],
         installations: [
             MMInstallation(
@@ -37,7 +42,12 @@ class CodingDecodingTests: MMTestCase {
                     "home": "Death Star" as NSString,
                     "height": 189.5 as NSNumber,
                     "dateOfDeath": darthVaderDateOfDeath as NSDate,
-                    "dateTime": MMDateTime(date: Date(timeIntervalSince1970: 0))
+                    "dateTime": MMDateTime(date: Date(timeIntervalSince1970: 0)),
+                    "nullAttribute": NSNull(),
+                    "favsList" : [
+                                ["id": "1", "price": 99.99, "sale": true],
+                                ["id": "2", "price": 149.99, "sale": false],
+                            ] as NSArray
                 ],
                 deviceManufacturer: nil,
                 deviceModel: nil,
@@ -69,6 +79,20 @@ class CodingDecodingTests: MMTestCase {
         registrationDate: Date(),
         chatMessageCounter: 3
     )
+    
+    let userInfo: MMAPNSPayload = [
+        AnyHashable("messageId"): "random-message-id-123456",
+        AnyHashable("aps"): ["alert": ["body": "msg_body"]],
+        AnyHashable("customPayload"):
+            [
+                "key": "value",
+                "nestedObject": [
+                    "key" : "value"
+                ],
+                "nullAttribute" : NSNull(),
+                "numberAttribute" : 123 as NSNumber
+            ],
+    ]
     
     func testMMPhoneDecodedCorrectly() {
         let phone = MMPhone(number: "79214444444", preferred: false)
@@ -105,6 +129,10 @@ class CodingDecodingTests: MMTestCase {
         //checking customAttributes
         XCTAssertNotNil(userUnarchieved!.customAttributes)
         XCTAssertEqual(testUser.customAttributes!["dateTime"] as! MMDateTime, userUnarchieved!.customAttributes!["dateTime"] as! MMDateTime)
+        XCTAssertEqual(testUser.customAttributes!["nativePlace"] as! NSString, userUnarchieved!.customAttributes!["nativePlace"] as! NSString)
+        XCTAssertEqual(testUser.customAttributes!["height"] as! NSNumber, userUnarchieved!.customAttributes!["height"] as! NSNumber)
+        XCTAssertEqual(testUser.customAttributes!["dateOfDeath"] as! NSDate, userUnarchieved!.customAttributes!["dateOfDeath"] as! NSDate)
+        XCTAssertEqual(testUser.customAttributes!["nullAttribute"] as! NSNull, userUnarchieved!.customAttributes!["nullAttribute"] as! NSNull)
         
         //checking MMInstallations attributes
         XCTAssertNotNil(userUnarchieved!.installations)
@@ -159,29 +187,43 @@ class CodingDecodingTests: MMTestCase {
     }
     
     func testSharedDataStorageSuccessfullyUnarchivedMTMessage() {
-        let jsonStr  = """
-                        {
-                            "messageId": "messageId",
-                            "aps": {
-                                "badge": 6,
-                                "sound": "default",
-                                "alert": {
-                                    "body":"text"
-                                }
-                            },
-                            "customPayload": {
-                                "key": "value",
-                                "nestedObject": {
-                                    "key": "value"
-                                }
-                            }
-                        }
-                        """
-        let message = MM_MTMessage(messageSyncResponseJson: JSON.parse(jsonStr))!
+        let message = MM_MTMessage(payload: userInfo,
+                                    deliveryMethod: .push,
+                                    seenDate: nil,
+                                    deliveryReportDate: nil,
+                                    seenStatus: .NotSeen,
+                                    isDeliveryReportSent: false)!
         let storage =  DefaultSharedDataStorage(applicationCode: "applicationCode", appGroupId: "appGroupId")
         storage?.save(message: message)
         let messages = storage?.retrieveMessages()
         XCTAssertNotNil(messages)
-        XCTAssertEqual(messages!.first!.customPayload! as NSDictionary, ["key": "value", "nestedObject": ["key": "value"]] as NSDictionary)
+        XCTAssertEqual(messages!.first!.customPayload! as NSDictionary, userInfo["customPayload"] as! NSDictionary)
+    }
+    
+    func testThatMTMessagePayloadCorrectlyTransformed() {
+        MMTestCase.startWithCorrectApplicationCode()
+        
+        weak var expectation = self.expectation(description: "expectation")
+        let messageReceivingGroup = DispatchGroup()
+        
+        messageReceivingGroup.enter()
+        mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: userInfo, completion: { _ in
+            messageReceivingGroup.leave()
+        })
+        
+        messageReceivingGroup.notify(queue: DispatchQueue.main) {
+            let ctx = self.storage.mainThreadManagedObjectContext!
+            ctx.reset()
+            ctx.performAndWait {
+                if let messages = MessageManagedObject.MM_findAllWithPredicate(NSPredicate(format: "messageId IN %@", ["random-message-id-123456"]), context: ctx), messages.count > 0 {
+                    XCTAssertEqual(messages.first?.payload!["customPayload"] as! NSDictionary, self.userInfo["customPayload"] as! NSDictionary)
+                    expectation?.fulfill()
+                } else {
+                    XCTFail("There should be some messages in database")
+                }
+            }
+        }
+        
+        self.waitForExpectations(timeout: 60, handler: nil)
     }
 }

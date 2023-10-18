@@ -23,7 +23,8 @@ class EventsTests: MMTestCase {
 			"string": "x" as NSString,
 			"bool": true as NSNumber,
 			"num": 9.5 as NSNumber,
-            "date": date as NSDate
+            "date": date as NSDate,
+            "nullKey" : NSNull()
 		])
 
 		let apiStub =  RemoteAPIProviderStub()
@@ -40,7 +41,8 @@ class EventsTests: MMTestCase {
 										"string": "x",
 										"bool": true,
                                         "num": 9.5,
-                                        "date": DateStaticFormatters.ISO8601SecondsFormatter.string(from: date as Date) as NSString
+                                        "date": DateStaticFormatters.ISO8601SecondsFormatter.string(from: date as Date) as NSString,
+                                        "nullKey": NSNull()
 									]
 								]
 							]

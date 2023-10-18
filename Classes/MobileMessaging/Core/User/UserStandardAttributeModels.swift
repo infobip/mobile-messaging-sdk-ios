@@ -405,7 +405,7 @@ public enum MMGender: Int {
                    tags: arrayToSet(arr: aDecoder.decodeObject(of: [NSArray.self, NSSet.self], forKey: "tags") as? [String]),
 				   gender: MMGender(rawValue: (aDecoder.decodeObject(forKey: "gender") as? Int) ?? 999) ,
                    birthday: aDecoder.decodeObject(of: NSDate.self, forKey: "birthday") as? Date,
-                   customAttributes: aDecoder.decodeObject(of: [NSDictionary.self, NSArray.self, NSDate.self, MMDateTime.self], forKey: "customAttributes") as? [String: MMAttributeType])
+                   customAttributes: aDecoder.decodeObject(of: [NSDictionary.self, NSArray.self, NSDate.self, MMDateTime.self, NSNull.self, NSString.self, NSNumber.self], forKey: "customAttributes") as? [String: MMAttributeType])
 		externalUserId = aDecoder.decodeObject(of: NSString.self,  forKey: "externalUserId") as? String
         phonesObjects = aDecoder.decodeObject(of: [NSArray.self, MMPhone.self], forKey: "phones") as? Array<MMPhone>
         emailsObjects = aDecoder.decodeObject(of: [NSArray.self, MMEmail.self], forKey: "emails") as? Array<MMEmail>
