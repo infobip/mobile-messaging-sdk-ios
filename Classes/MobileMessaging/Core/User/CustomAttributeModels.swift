@@ -16,13 +16,14 @@ extension NSNull: MMAttributeType {}
 extension MMDateTime: MMAttributeType{}
 extension NSArray: MMAttributeType {}
 
-@objcMembers public final class MMDateTime: NSObject, NSCoding {
+@objcMembers public final class MMDateTime: NSObject, NSSecureCoding {
+    public static var supportsSecureCoding = true
 	public let date: NSDate
 	public init(date: Date) {
 		self.date = date as NSDate
 	}
 	public required init(coder aDecoder: NSCoder) {
-		date = aDecoder.decodeObject(forKey: "date") as! NSDate
+        date = aDecoder.decodeObject(of: NSDate.self, forKey: "date")!
 	}
 	public func encode(with aCoder: NSCoder) {
 		aCoder.encode(date, forKey: "date")

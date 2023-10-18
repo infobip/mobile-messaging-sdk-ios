@@ -231,7 +231,7 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
 //		msgDict["downloadedPicUrl"] = message.downloadedPictureUrl?.absoluteString
 		msgDict["dlrd"] = message.deliveryReportedDate
 		savedMessageDicts.append(msgDict)
-        if let data = try? NSKeyedArchiver.archivedData(withRootObject: savedMessageDicts, requiringSecureCoding: false) {
+        if let data = try? NSKeyedArchiver.archivedData(withRootObject: savedMessageDicts, requiringSecureCoding: true) {
             storage.set(data, forKey: applicationCode)
             storage.synchronize()
         }
@@ -266,11 +266,20 @@ class DefaultSharedDataStorage: AppGroupMessageStorage {
     private func retrieveSavedPayloadDictionaries() -> [MMStringKeyPayload] {
         var payloadDictionaries = [MMStringKeyPayload]();
         if let data = storage.object(forKey: applicationCode) as? Data,
-           let dictionaries = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? [MMStringKeyPayload] { //saved as Data for supporting NSNull in payload
+           let dictionaries = unarchiveMessageDictionaries(fromeData: data) {
             payloadDictionaries = dictionaries
         } else if let dictionaries = storage.object(forKey: applicationCode) as? [MMStringKeyPayload] { //migration from saving as Dictionaries
             payloadDictionaries = dictionaries
         }
         return payloadDictionaries
+    }
+    
+    private func unarchiveMessageDictionaries(fromeData data: Data) -> [MMStringKeyPayload]? {
+        do {
+            return try NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, NSDictionary.self], from: data) as? [MMStringKeyPayload] //saved as Data for supporting NSNull in payload
+        } catch {
+            MMLogError("[AppGroupMessageStorage] couldn't unarchive message objects with error: \(error)")
+        }
+        return nil
     }
 }

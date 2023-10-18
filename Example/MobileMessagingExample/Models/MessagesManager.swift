@@ -12,7 +12,9 @@ let kMessageSeenAttribute = "seen"
 let kMessageDeliveryReportSentAttribute = "deliveryReportSent"
 let kMessagesKey = "kMessagesKey"
 
-class Message: NSObject, NSCoding {
+class Message: NSObject, NSSecureCoding {
+    static var supportsSecureCoding = true
+    
 	typealias APNSPayload = [String: Any]
 	var text: String
 	var messageId: String
@@ -27,8 +29,8 @@ class Message: NSObject, NSCoding {
 	
 	//MARK: NSCoding
 	required init(coder aDecoder: NSCoder) {
-		text = aDecoder.decodeObject(forKey: "text") as! String
-		messageId = aDecoder.decodeObject(forKey: "messageId") as! String
+        text = aDecoder.decodeObject(of: NSString.self, forKey: "text")! as String
+        messageId = aDecoder.decodeObject(of: NSString.self, forKey: "messageId")! as String
 		deliveryReportSent = aDecoder.decodeBool(forKey: kMessageDeliveryReportSentAttribute)
 		seen = aDecoder.decodeBool(forKey: kMessageSeenAttribute)
 	}
@@ -102,23 +104,31 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 	
 	fileprivate func archiveMessages() {
 		synced(self) {
-			let data: Data = NSKeyedArchiver.archivedData(withRootObject: self.messages)
-			UserDefaults.standard.set(data, forKey: kMessagesKey)
+            if let data = try? NSKeyedArchiver.archivedData(withRootObject: self.messages, requiringSecureCoding: true) {
+                UserDefaults.standard.set(data, forKey: kMessagesKey)
+                UserDefaults.standard.synchronize()
+            }
 		}
-	}
-	
-	fileprivate func unarchiveMessages() {
-		synced(self) {
-			if let messagesData = UserDefaults.standard.object(forKey: kMessagesKey) as? Data,
-				let messages = NSKeyedUnarchiver.unarchiveObject(with: messagesData) as? [Message] {
-				self.messages.append(contentsOf: messages)
-			}
-		}
-	}
-	
-	//MARK: Handle notifications
+    }
+    
+    fileprivate func unarchiveMessages() {
+        synced(self) {
+            if let messagesData = UserDefaults.standard.object(forKey: kMessagesKey) as? Data {
+                do {
+                    let messages = try NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSArray.self, Message.self], from: messagesData)
+                    if let m = messages as? [Message] {
+                        self.messages.append(contentsOf: m)
+                    }
+                } catch {
+                    MMLogError("Unable to unarchive messagesData")
+                }
+            }
+        }
+    }
+    
+    //MARK: Handle notifications
     @objc func appWillTerminate() {
-		archiveMessages()
+        archiveMessages()
 	}
 	
     @objc func handleNewMessageReceivedNotification(_ notification: Notification) {
@@ -132,7 +142,7 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		synced(self) {
 			self.messages.insert(message, at: 0)
 		}
-		
+        		
 		newMessageBlock?(message)
 	}
 	

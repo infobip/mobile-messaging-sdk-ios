@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 public protocol Archivable: ArchivableCurrent {
 	var version: Int {get set}
@@ -20,7 +21,7 @@ public protocol Archivable: ArchivableCurrent {
 	static func modifyDirty(with block: (Self) -> Void)
 }
 
-public protocol ArchivableCurrent {
+public protocol ArchivableCurrent: NSObject {
 	static var empty: Self {get}
 	static var cached: ThreadSafeDict<Self> {get}
 	static var currentPath: String {get}
@@ -35,7 +36,7 @@ public protocol ArchivableCurrent {
 	static func modifyCurrent(with block: (Self) -> Void)
 }
 
-extension ArchivableCurrent where Self: NSCopying {
+extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
     public func archiveCurrent() {
 		let old = Self.unarchiveCurrent()
         MMLogVerbose("Setting cached value \(Thread.current.description) \(Self.currentPath)")
@@ -48,7 +49,7 @@ extension ArchivableCurrent where Self: NSCopying {
 		let save = self.copy() as! Self
 		save.removeSensitiveData()
         do {
-            let dataToBeArchived = try NSKeyedArchiver.archivedData(withRootObject: save, requiringSecureCoding: false)
+            let dataToBeArchived = try NSKeyedArchiver.archivedData(withRootObject: save, requiringSecureCoding: true)
             try dataToBeArchived.write(to: URL(fileURLWithPath: path))
         } catch {
             MMLogError("Unexpected error while archiving at \(path): \(error)")
@@ -72,13 +73,17 @@ extension ArchivableCurrent where Self: NSCopying {
 	}
     public static func unarchive(from path: String) -> Self? {
         let url = URL(fileURLWithPath: path)
-        if let data = try? Data(contentsOf: url) {
-            let unarchived = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? Self
-            MMLogVerbose("Unarchived \(String(describing: unarchived)) from \(path)")
-            return unarchived
-        } else {
+        guard let data = try? Data(contentsOf: url) else {
             return nil
         }
+        do {
+            let unarchived = try NSKeyedUnarchiver.unarchivedObject(ofClass: Self.self, from: data)
+            MMLogVerbose("Unarchived \(String(describing: unarchived)) from \(path)")
+            return unarchived
+        } catch {
+            MMLogError("Unable to unarchive object with error: \(error)")
+        }
+        return nil
     }
     public static func removeArchive(at path: String) {
 		MMLogVerbose("Removing archive \(Thread.current.description) at \(path)")
@@ -101,7 +106,7 @@ extension Archivable where Self: NSCopying {
 		archiveCurrent()
 	}
     public func archiveDirty() {
-		if var copy = self.copy() as? Self {
+        if var copy = self.copy() as? Self {
 			copy.version = version + 1
 			let old = Self.unarchiveDirty()
             MMLogVerbose("Setting cached value \(Thread.current.description) \(self) \(Self.dirtyPath)")

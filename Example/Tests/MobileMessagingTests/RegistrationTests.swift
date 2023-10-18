@@ -464,18 +464,20 @@ final class RegistrationTests: MMTestCase {
 
         weak var finished = self.expectation(description: "finished")
         mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "someToken".data(using: String.Encoding.utf16)!) {  error in
-            let internalDataPersisted = NSKeyedUnarchiver.unarchiveObject(withFile: InternalData.currentPath) as! InternalData
-            XCTAssertNil(internalDataPersisted.applicationCode, "application code must not be persisted")
-            XCTAssertNotNil(internalDataPersisted.applicationCodeHash, "application code has must be persisted")
+            let url = URL(fileURLWithPath: InternalData.currentPath)
+            let data = try! Data(contentsOf: url)
+            let internalDataPersisted = try! NSKeyedUnarchiver.unarchivedObject(ofClass: InternalData.self, from: data)
+            XCTAssertNil(internalDataPersisted!.applicationCode, "application code must not be persisted")
+            XCTAssertNotNil(internalDataPersisted!.applicationCodeHash, "application code has must be persisted")
             XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, token)
             XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId, pushRegId)
             MobileMessaging.sharedInstance?.doStop()
 
             DispatchQueue.main.async {
                 MMTestCase.startWithApplicationCode("newApplicationCode")
-                let internalDataPersisted2 = NSKeyedUnarchiver.unarchiveObject(withFile: InternalData.currentPath) as! InternalData
-                XCTAssertNil(internalDataPersisted2.applicationCode, "application code must not be persisted")
-                XCTAssertNotNil(internalDataPersisted2.applicationCodeHash, "application code has must be persisted")
+                let internalDataPersisted2 = try! NSKeyedUnarchiver.unarchivedObject(ofClass: InternalData.self, from: data)
+                XCTAssertNil(internalDataPersisted2!.applicationCode, "application code must not be persisted")
+                XCTAssertNotNil(internalDataPersisted2!.applicationCodeHash, "application code has must be persisted")
                 XCTAssertNil(MobileMessaging.getInstallation()!.pushServiceToken, "registration must be reset after app code changes")
                 XCTAssertNil(MobileMessaging.getInstallation()!.pushRegistrationId, "registration must be reset after app code changes")
                 finished?.fulfill()

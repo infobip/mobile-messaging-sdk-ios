@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import CoreLocation
 
+//Classes list taken from DB model parameters which are using this transformer (InternalStorage and MessageStorage)
 @objc(DefaultTransformer)
 class DefaultTransformer: ValueTransformer {
 	override class func transformedValueClass() -> AnyClass {
@@ -17,7 +19,13 @@ class DefaultTransformer: ValueTransformer {
 		guard let value = value as? Data else {
 			return nil
 		}
-		return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(value)
+        
+        do {
+            return try NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSDictionary.self, NSArray.self, NSDate.self, CLLocation.self, MMDateTime.self], from: value) //The following classes are used to archive data that is currently stored in database, including possible value types of the Dictionary<String, Any>.
+        } catch {
+            MMLogError("Unable to unarchive object with error: \(error)")
+        }
+        return nil
 	}
 
 	override class func allowsReverseTransformation() -> Bool {
@@ -28,10 +36,11 @@ class DefaultTransformer: ValueTransformer {
 		guard let value = value else {
 			return nil
 		}
-		return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: false)
+		return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: true)
 	}
 }
 
+//Not used in latest storage models
 @objc(EmailTransformer)
 class EmailTransformer: ValueTransformer {
 	override class func transformedValueClass() -> AnyClass {
@@ -42,7 +51,7 @@ class EmailTransformer: ValueTransformer {
 		guard let value = value as? Data else {
 			return nil
 		}
-        return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(value)
+        return try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [MMEmail.self, NSArray.self], from: value)
 	}
 
 	override class func allowsReverseTransformation() -> Bool {
@@ -53,10 +62,11 @@ class EmailTransformer: ValueTransformer {
 		guard let value = value as? [MMEmail] else {
 			return nil
 		}
-        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: false)
+        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: true)
 	}
 }
 
+//Not used in latest storage models
 @objc(InstallationTransformer)
 class InstallationTransformer: ValueTransformer {
 	override class func transformedValueClass() -> AnyClass {
@@ -67,7 +77,7 @@ class InstallationTransformer: ValueTransformer {
 		guard let value = value as? Data else {
 			return nil
 		}
-        return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(value)
+        return try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [MMInstallation.self, NSArray.self], from: value)
 	}
 
 	override class func allowsReverseTransformation() -> Bool {
@@ -78,10 +88,11 @@ class InstallationTransformer: ValueTransformer {
 		guard let value = value as? [MMInstallation] else {
 			return nil
 		}
-        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: false)
+        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: true)
 	}
 }
 
+//Not used in latest storage models
 @objc(PhoneTransformer)
 class PhoneTransformer: ValueTransformer {
 	override class func transformedValueClass() -> AnyClass {
@@ -92,7 +103,7 @@ class PhoneTransformer: ValueTransformer {
 		guard let value = value as? Data else {
 			return nil
 		}
-        return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(value)
+        return try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [MMPhone.self, NSArray.self], from: value)
 	}
 
 	override class func allowsReverseTransformation() -> Bool {
@@ -103,6 +114,6 @@ class PhoneTransformer: ValueTransformer {
 		guard let value = value as? [MMPhone] else {
 			return nil
 		}
-        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: false)
+        return try? NSKeyedArchiver.archivedData(withRootObject: value, requiringSecureCoding: true)
 	}
 }

@@ -56,7 +56,8 @@ public enum MMGender: Int {
 }
 
 
-@objcMembers public final class MMPhone: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
+@objcMembers public final class MMPhone: NSObject, NSSecureCoding, JSONDecodable, DictionaryRepresentable {
+    public static var supportsSecureCoding = true
 	public let number: String
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
@@ -94,7 +95,7 @@ public enum MMGender: Int {
 	}
 
 	required public init?(coder aDecoder: NSCoder) {
-		number = aDecoder.decodeObject(forKey: "number") as! String
+        number = aDecoder.decodeObject(of: NSString.self, forKey: "number")! as String
 		preferred = aDecoder.decodeBool(forKey: "preferred")
 	}
 
@@ -104,7 +105,8 @@ public enum MMGender: Int {
 	}
 }
 
-@objcMembers public final class MMEmail: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
+@objcMembers public final class MMEmail: NSObject, NSSecureCoding, JSONDecodable, DictionaryRepresentable {
+    public static var supportsSecureCoding = true
 	public let address: String
 	public var preferred: Bool
 	// more properties needed? ok but look at the code below first.
@@ -142,7 +144,7 @@ public enum MMGender: Int {
 	}
 
 	required public init?(coder aDecoder: NSCoder) {
-		address = aDecoder.decodeObject(forKey: "address") as! String
+        address = aDecoder.decodeObject(of: NSString.self, forKey: "address")! as String
 		preferred = aDecoder.decodeBool(forKey: "preferred")
 	}
 
@@ -251,7 +253,8 @@ public enum MMGender: Int {
 	}
 }
 
-@objcMembers public final class MMUser: MMUserAttributes, JSONDecodable, NSCoding, NSCopying, Archivable {
+@objcMembers public final class MMUser: MMUserAttributes, JSONDecodable, NSSecureCoding, NSCopying, Archivable {
+    public static var supportsSecureCoding = true
     public var version: Int = 0
     public static var currentPath = getDocumentsDirectory(filename: "user")
     public static var dirtyPath = getDocumentsDirectory(filename: "dirty-user")
@@ -396,17 +399,17 @@ public enum MMGender: Int {
 	}
 
 	required public init?(coder aDecoder: NSCoder) {
-		super.init(firstName: aDecoder.decodeObject(forKey: "firstName") as? String,
-				   middleName: aDecoder.decodeObject(forKey: "middleName") as? String,
-				   lastName: aDecoder.decodeObject(forKey: "lastName") as? String,
-				   tags: arrayToSet(arr: aDecoder.decodeObject(forKey: "tags") as? [String]),
+		super.init(firstName: aDecoder.decodeObject(of: NSString.self, forKey: "firstName") as? String,
+				   middleName: aDecoder.decodeObject(of: NSString.self, forKey: "middleName") as? String,
+				   lastName: aDecoder.decodeObject(of: NSString.self, forKey: "lastName") as? String,
+                   tags: arrayToSet(arr: aDecoder.decodeObject(of: [NSArray.self, NSSet.self], forKey: "tags") as? [String]),
 				   gender: MMGender(rawValue: (aDecoder.decodeObject(forKey: "gender") as? Int) ?? 999) ,
-				   birthday: aDecoder.decodeObject(forKey: "birthday") as? Date,
-				   customAttributes: aDecoder.decodeObject(forKey: "customAttributes") as? [String: MMAttributeType])
-		externalUserId = aDecoder.decodeObject(forKey: "externalUserId") as? String
-		phonesObjects = aDecoder.decodeObject(forKey: "phones") as? Array<MMPhone>
-		emailsObjects = aDecoder.decodeObject(forKey: "emails") as? Array<MMEmail>
-		installations = aDecoder.decodeObject(forKey: "installations") as? Array<MMInstallation>
+                   birthday: aDecoder.decodeObject(of: NSDate.self, forKey: "birthday") as? Date,
+                   customAttributes: aDecoder.decodeObject(of: [NSDictionary.self, NSArray.self, NSDate.self, MMDateTime.self], forKey: "customAttributes") as? [String: MMAttributeType])
+		externalUserId = aDecoder.decodeObject(of: NSString.self,  forKey: "externalUserId") as? String
+        phonesObjects = aDecoder.decodeObject(of: [NSArray.self, MMPhone.self], forKey: "phones") as? Array<MMPhone>
+        emailsObjects = aDecoder.decodeObject(of: [NSArray.self, MMEmail.self], forKey: "emails") as? Array<MMEmail>
+        installations = aDecoder.decodeObject(of: [NSArray.self, MMInstallation.self], forKey: "installations") as? Array<MMInstallation>
 	}
 
 	public func encode(with aCoder: NSCoder) {

@@ -16,7 +16,8 @@ struct DepersonalizationConsts {
 	case undefined = 0, pending, success
 }
 
-public final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurrent, NamedLogger {
+public final class InternalData : NSObject, NSSecureCoding, NSCopying, ArchivableCurrent, NamedLogger {
+    public static var supportsSecureCoding = true
     public static var currentPath = getDocumentsDirectory(filename: "internal-data")
     public static var cached = ThreadSafeDict<InternalData>()
     public static var empty: InternalData {
@@ -64,13 +65,13 @@ public final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurre
 
 	required public init?(coder aDecoder: NSCoder) {
 		systemDataHash = aDecoder.decodeInt64(forKey: "systemDataHash")
-		location = aDecoder.decodeObject(forKey: "location") as? CLLocation
+        location = aDecoder.decodeObject(of: CLLocation.self, forKey: "location")
 		badgeNumber = aDecoder.decodeInteger(forKey: "badgeNumber")
-		applicationCode = aDecoder.decodeObject(forKey: "applicationCode") as? String
-        applicationCodeHash = aDecoder.decodeObject(forKey: "applicationCodeHash") as? String
+        applicationCode = aDecoder.decodeObject(of: NSString.self, forKey: "applicationCode") as? String
+        applicationCodeHash = aDecoder.decodeObject(of: NSString.self, forKey: "applicationCodeHash") as? String
 		depersonalizeFailCounter = aDecoder.decodeInteger(forKey: "depersonalizeFailCounter")
 		currentDepersonalizationStatus = MMSuccessPending(rawValue: aDecoder.decodeInteger(forKey: "currentDepersonalizationStatus")) ?? .undefined
-		registrationDate = aDecoder.decodeObject(forKey: "registrationDate") as? Date
+        registrationDate = aDecoder.decodeObject(of: NSDate.self, forKey: "registrationDate") as? Date
         chatMessageCounter = aDecoder.decodeInteger(forKey: "chatMessageCounter")
 	}
 
@@ -87,7 +88,8 @@ public final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurre
 	}
 }
 
-@objcMembers public final class MMInstallation: NSObject, NSCoding, NSCopying, JSONDecodable, DictionaryRepresentable, Archivable {
+@objcMembers public final class MMInstallation: NSObject, NSSecureCoding, NSCopying, JSONDecodable, DictionaryRepresentable, Archivable {
+    public static var supportsSecureCoding = true
     public var version: Int = 0
     public static var currentPath = getDocumentsDirectory(filename: "installation")
     public static var dirtyPath = getDocumentsDirectory(filename: "dirty-installation")
@@ -159,26 +161,26 @@ public final class InternalData : NSObject, NSCoding, NSCopying, ArchivableCurre
 	// more properties needed? ok but look at the code below first.
 
 	required public init?(coder aDecoder: NSCoder) {
-		applicationUserId = aDecoder.decodeObject(forKey: "applicationUserId") as? String
-		customAttributes = (aDecoder.decodeObject(forKey: "customAttributes") as? [String: MMAttributeType]) ?? [:]
+        applicationUserId = aDecoder.decodeObject(of: NSString.self, forKey: "applicationUserId") as? String
+        customAttributes = (aDecoder.decodeObject(of: [NSDictionary.self, NSArray.self, NSDate.self, MMDateTime.self], forKey: "customAttributes") as? [String: MMAttributeType]) ?? [:]
 		isPrimaryDevice = aDecoder.decodeBool(forKey: "isPrimary")
 		isPushRegistrationEnabled = aDecoder.decodeBool(forKey: "regEnabled")
-		pushRegistrationId = aDecoder.decodeObject(forKey: "pushRegId") as? String
+        pushRegistrationId = aDecoder.decodeObject(of: NSString.self, forKey: "pushRegId") as? String
 
-		appVersion = aDecoder.decodeObject(forKey: "appVersion") as? String
-		deviceManufacturer = aDecoder.decodeObject(forKey: "deviceManufacturer") as? String
-		deviceModel = aDecoder.decodeObject(forKey: "deviceModel") as? String
-		deviceName = aDecoder.decodeObject(forKey: "deviceName") as? String
+		appVersion = aDecoder.decodeObject(of: NSString.self, forKey: "appVersion") as? String
+		deviceManufacturer = aDecoder.decodeObject(of: NSString.self, forKey: "deviceManufacturer") as? String
+		deviceModel = aDecoder.decodeObject(of: NSString.self, forKey: "deviceModel") as? String
+		deviceName = aDecoder.decodeObject(of: NSString.self, forKey: "deviceName") as? String
         deviceSecure = aDecoder.decodeBool(forKey: "deviceSecure")
-		deviceTimeZone = aDecoder.decodeObject(forKey: "deviceTimeZone") as? String
+		deviceTimeZone = aDecoder.decodeObject(of: NSString.self, forKey: "deviceTimeZone") as? String
         geoEnabled = aDecoder.decodeBool(forKey: "geoEnabled")
-		language = aDecoder.decodeObject(forKey: "language") as? String
+		language = aDecoder.decodeObject(of: NSString.self, forKey: "language") as? String
 		notificationsEnabled = aDecoder.decodeObject(forKey: "notificationsEnabled") as? Bool
-		os = aDecoder.decodeObject(forKey: "os") as? String
-		osVersion = aDecoder.decodeObject(forKey: "osVersion") as? String
-		pushServiceToken = aDecoder.decodeObject(forKey: "pushServiceToken") as? String
-		pushServiceType = aDecoder.decodeObject(forKey: "pushServiceType") as? String
-		sdkVersion = aDecoder.decodeObject(forKey: "sdkVersion") as? String
+		os = aDecoder.decodeObject(of: NSString.self, forKey: "os") as? String
+		osVersion = aDecoder.decodeObject(of: NSString.self, forKey: "osVersion") as? String
+		pushServiceToken = aDecoder.decodeObject(of: NSString.self, forKey: "pushServiceToken") as? String
+		pushServiceType = aDecoder.decodeObject(of: NSString.self, forKey: "pushServiceType") as? String
+		sdkVersion = aDecoder.decodeObject(of: NSString.self, forKey: "sdkVersion") as? String
 	}
 
 	public func encode(with aCoder: NSCoder) {

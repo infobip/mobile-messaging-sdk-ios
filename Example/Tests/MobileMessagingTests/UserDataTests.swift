@@ -241,6 +241,11 @@ class UserDataTests: MMTestCase {
         }
 		
 	}
+    
+    private func retrieveDataFromPath(_ path: String) -> Data? {
+        let url = URL(fileURLWithPath: MMUser.dirtyPath)
+        return try? Data(contentsOf: url)
+    }
 	
 	func testThatUserDataIsNotPersistedIfPrivacySettingsSpecified() {
         MMTestCase.startWithCorrectApplicationCode()
@@ -258,23 +263,25 @@ class UserDataTests: MMTestCase {
 		currentUser.archiveAll()
 		
 		do {
-			let dirtyUser = NSKeyedUnarchiver.unarchiveObject(withFile: MMUser.dirtyPath) as! MMUser
+            let dirtyUserData = retrieveDataFromPath(MMUser.dirtyPath)!
+            let dirtyUser = try! NSKeyedUnarchiver.unarchivedObject(ofClass: MMUser.self, from: dirtyUserData)
 			// we havent stored on disk
-			XCTAssertNil(dirtyUser.phones, "userdata must not be persisted")
-			XCTAssertNil(dirtyUser.lastName, "userdata must not be persisted")
-			XCTAssertNil(dirtyUser.gender, "userdata must not be persisted")
-			XCTAssertNil(dirtyUser.emails, "userdata must not be persisted")
-			XCTAssertNil(dirtyUser.customAttributes, "userdata must not be persisted")
-			XCTAssertNil(dirtyUser.externalUserId, "userdata must not be persisted")
+			XCTAssertNil(dirtyUser!.phones, "userdata must not be persisted")
+			XCTAssertNil(dirtyUser!.lastName, "userdata must not be persisted")
+			XCTAssertNil(dirtyUser!.gender, "userdata must not be persisted")
+			XCTAssertNil(dirtyUser!.emails, "userdata must not be persisted")
+			XCTAssertNil(dirtyUser!.customAttributes, "userdata must not be persisted")
+			XCTAssertNil(dirtyUser!.externalUserId, "userdata must not be persisted")
 			
-			let currentUser = NSKeyedUnarchiver.unarchiveObject(withFile: MMUser.currentPath) as! MMUser
+            let currentUserData = retrieveDataFromPath(MMUser.currentPath)!
+            let currentUser = try! NSKeyedUnarchiver.unarchivedObject(ofClass: MMUser.self, from: currentUserData)
 			// we havent stored on disk
-			XCTAssertNil(currentUser.phones, "userdata must not be persisted")
-			XCTAssertNil(currentUser.lastName, "userdata must not be persisted")
-			XCTAssertNil(currentUser.gender, "userdata must not be persisted")
-			XCTAssertNil(currentUser.emails, "userdata must not be persisted")
-			XCTAssertNil(currentUser.customAttributes, "userdata must not be persisted")
-			XCTAssertNil(currentUser.externalUserId, "userdata must not be persisted")
+			XCTAssertNil(currentUser!.phones, "userdata must not be persisted")
+			XCTAssertNil(currentUser!.lastName, "userdata must not be persisted")
+			XCTAssertNil(currentUser!.gender, "userdata must not be persisted")
+			XCTAssertNil(currentUser!.emails, "userdata must not be persisted")
+			XCTAssertNil(currentUser!.customAttributes, "userdata must not be persisted")
+			XCTAssertNil(currentUser!.externalUserId, "userdata must not be persisted")
 		}
 		
 		// but we still able to get data from memory

@@ -17,10 +17,13 @@ class EventsTests: MMTestCase {
 		weak var expectation2 = self.expectation(description: "expectation2")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
+        let date = NSDate()
+        //MMDateTime is not supported in events
 		let event = MMCustomEvent(definitionId: "event1", properties: [
 			"string": "x" as NSString,
 			"bool": true as NSNumber,
-			"num": 9.5 as NSNumber
+			"num": 9.5 as NSNumber,
+            "date": date as NSDate
 		])
 
 		let apiStub =  RemoteAPIProviderStub()
@@ -36,7 +39,8 @@ class EventsTests: MMTestCase {
 									"properties": [
 										"string": "x",
 										"bool": true,
-										"num": 9.5
+                                        "num": 9.5,
+                                        "date": DateStaticFormatters.ISO8601SecondsFormatter.string(from: date as Date) as NSString
 									]
 								]
 							]
@@ -67,7 +71,8 @@ class EventsTests: MMTestCase {
 		let event = MMCustomEvent(definitionId: "event1", properties: [
 			"string": "x" as NSString,
 			"bool": true as NSNumber,
-			"num": 9.5 as NSNumber
+            "num": 9.5 as NSNumber,
+            "date": Date() as NSDate
 		])
 
 		let apiStub =  RemoteAPIProviderStub()

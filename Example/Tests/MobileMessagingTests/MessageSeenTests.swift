@@ -70,7 +70,7 @@ class MessageSeenTests: MMTestCase {
 		
 		for mId in ["m1", "m2", "m3"] {
 			messageReceivingGroup.enter()
-			mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": mId],  completion: { _ in
+            mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": mId, "customPayload": ["tag1", "tag2"]],  completion: { _ in
 				messageReceivingGroup.leave()
 			})
 		}
