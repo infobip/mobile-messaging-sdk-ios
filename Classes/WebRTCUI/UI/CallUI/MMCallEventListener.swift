@@ -91,6 +91,10 @@ class CallControllerEventListenerImpl: AggregatedCallEventListener {
 }
 
 class MMCallEventListener: CallEventListener, ApplicationCallEventListener, WebrtcCallEventListener {
+    func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent) { }
+
+    func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) { }
+
     
     let output: AggregatedCallEventListener
     

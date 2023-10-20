@@ -179,6 +179,10 @@ extension MMWebRTCService: PKPushRegistryDelegate {
 }
 
 extension MMWebRTCService: ApplicationCallEventListener {
+    public func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent) { }
+
+    public func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) { }
+
     public func onEstablished(_ callEstablishedEvent: CallEstablishedEvent) {
 
         switch notificationData?.activeCall {
