@@ -303,10 +303,11 @@
 		ADF203472086642C00E157D7 /* BatchedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033A2086642C00E157D7 /* BatchedCollection.swift */; };
 		ADF203482086642C00E157D7 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033B2086642C00E157D7 /* Array+Extension.swift */; };
 		ADF203492086642C00E157D7 /* Generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033C2086642C00E157D7 /* Generics.swift */; };
-		ADF2034A2086642C00E157D7 /* SHA1.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033D2086642C00E157D7 /* SHA1.swift */; };
 		ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */; };
 		ADF2034D2086664100E157D7 /* GeoDatesUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2034C2086664000E157D7 /* GeoDatesUtils.swift */; };
 		D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D8601249D4FAAD2A589A3D /* UserDataService.swift */; };
+		EC9E8A9A2AFBE6A100150530 /* SHA2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9E8A992AFBE6A100150530 /* SHA2.swift */; };
+		EC9E8A9C2AFBE70000150530 /* UInt64+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -680,12 +681,13 @@
 		ADF2033A2086642C00E157D7 /* BatchedCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatchedCollection.swift; sourceTree = "<group>"; };
 		ADF2033B2086642C00E157D7 /* Array+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
 		ADF2033C2086642C00E157D7 /* Generics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generics.swift; sourceTree = "<group>"; };
-		ADF2033D2086642C00E157D7 /* SHA1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SHA1.swift; sourceTree = "<group>"; };
 		ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UInt32+Extension.swift"; sourceTree = "<group>"; };
 		ADF2034C2086664000E157D7 /* GeoDatesUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoDatesUtils.swift; sourceTree = "<group>"; };
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		D7D8601249D4FAAD2A589A3D /* UserDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
+		EC9E8A992AFBE6A100150530 /* SHA2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SHA2.swift; sourceTree = "<group>"; };
+		EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UInt64+Extension.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1446,6 +1448,8 @@
 		ADF20331208663FB00E157D7 /* CryptoSwift */ = {
 			isa = PBXGroup;
 			children = (
+				EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */,
+				EC9E8A992AFBE6A100150530 /* SHA2.swift */,
 				ADF2033B2086642C00E157D7 /* Array+Extension.swift */,
 				ADF2033A2086642C00E157D7 /* BatchedCollection.swift */,
 				ADF203382086642C00E157D7 /* Bit.swift */,
@@ -1454,7 +1458,6 @@
 				ADF203352086642B00E157D7 /* DigestType.swift */,
 				ADF2033C2086642C00E157D7 /* Generics.swift */,
 				ADF203372086642C00E157D7 /* Int+Extension.swift */,
-				ADF2033D2086642C00E157D7 /* SHA1.swift */,
 				ADF203322086642B00E157D7 /* String+Extension.swift */,
 				ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */,
 				ADF203392086642C00E157D7 /* Updatable.swift */,
@@ -1653,6 +1656,7 @@
 				A843A43A28F5A6D700D5196F /* MMWebRTCService+UI.swift in Sources */,
 				76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */,
 				764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */,
+				EC9E8A9C2AFBE70000150530 /* UInt64+Extension.swift in Sources */,
 				A838992B28F82B8600322E68 /* MMWebRTCToken.swift in Sources */,
 				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
 				A8171FCD2ADE5D3500AC6FC4 /* MMCallEventListener.swift in Sources */,
@@ -1726,6 +1730,7 @@
 				764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */,
 				A0B24DBF25066782005C5403 /* AttachmentPreviewController.swift in Sources */,
 				76A8A77D2195BB80004F6E39 /* FetchInstanceOperation.swift in Sources */,
+				EC9E8A9A2AFBE6A100150530 /* SHA2.swift in Sources */,
 				ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */,
 				A0B24DC025066782005C5403 /* ChatAttachmentImageView.swift in Sources */,
 				7601F1A4208E056500738C1A /* ImageProcessor.swift in Sources */,
@@ -1826,7 +1831,6 @@
 				A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */,
 				764556D61F78FFE700B8F14B /* NSOperation+Operations.swift in Sources */,
 				76C3C99A23D1F47900562C57 /* UserSessionPersistingOperation.swift in Sources */,
-				ADF2034A2086642C00E157D7 /* SHA1.swift in Sources */,
 				7645569D1F78FF8500B8F14B /* MessagePostingOperation.swift in Sources */,
 				A0672BF42AC1A4C0005EDCD9 /* NativeInAppMessagePresenter.swift in Sources */,
 				760085831F977E3300837D75 /* MOMessage.swift in Sources */,
