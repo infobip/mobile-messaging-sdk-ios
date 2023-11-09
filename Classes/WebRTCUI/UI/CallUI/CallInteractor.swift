@@ -10,12 +10,57 @@ import Foundation
 import InfobipRTC
 import AVFoundation
 
+class ReconnectingPlayer: NSObject, AVAudioPlayerDelegate {
+    
+    private var player: AVAudioPlayer?
+    private var timer: Timer?
+    
+    private var isLoopingWithDelay: Bool = false
+    
+    func startReconnecting() {
+        self.cleanPlayer()
+
+        guard let url = getData(false) else { return }
+        
+        guard let player = try? AVAudioPlayer(data: url) else { return }
+        
+        self.player = player
+        
+        self.timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.player?.play()
+        }
+    }
+    
+    func reconnected() {
+        self.cleanPlayer()
+        
+        guard let data = getData(true) else { return }
+        
+        guard let player = try? AVAudioPlayer(data: data) else { return }
+        self.player = player
+        self.player?.play()
+    }
+    
+    func cleanPlayer() {
+        self.timer?.invalidate()
+        self.player?.stop()
+        self.player = nil
+    }
+    
+    private func getData(_ forReconnectedAudio: Bool) -> Data? {
+        let name = forReconnectedAudio ? "reconnected" : "reconnecting"
+        let media = NSDataAsset(mm_webrtcui_named: name)
+        return media?.data
+    }
+}
+
 class CallInteractor {
     
     var currentCall: ActiveCall?
     var showErrorAlert: ((String) -> Void)?
     // MARK: - Audio Player
     var player: AVAudioPlayer?
+    lazy var reconnectingPlayer: ReconnectingPlayer = ReconnectingPlayer()
 
     func playDisconnectCall() {
         if player != nil {

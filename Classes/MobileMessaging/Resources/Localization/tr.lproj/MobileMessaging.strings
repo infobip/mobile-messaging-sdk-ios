@@ -29,3 +29,4 @@
 "mm_screen_share" = "Ekran paylaşımı";
 "mm_user_sharing_screen" = "Bir ekranı paylaşıyorsunuz.";
 "mm_stop_sharing" = "Ekranı paylaşmayı durdur";
+"mm_connection_problems" = "Arama bağlantısı kesildi. Yeniden bağlanmaya çalışılıyor…";

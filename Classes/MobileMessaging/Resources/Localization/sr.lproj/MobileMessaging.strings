@@ -29,3 +29,4 @@
 "mm_screen_share" = "Podela ekrana";
 "mm_user_sharing_screen" = "Delite ekran.";
 "mm_stop_sharing" = "Zaustavi deljenje ekrana";
+"mm_connection_problems" = "Poziv je prekinut. Pokušavam da se ponovo povežem…";

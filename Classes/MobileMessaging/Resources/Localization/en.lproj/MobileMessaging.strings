@@ -29,3 +29,4 @@
 "mm_screen_share" = "Screen share";
 "mm_user_sharing_screen" = "You are sharing the screen.";
 "mm_stop_sharing" = "Stop sharing screen";
+"mm_connection_problems" = "Call was disconnected. Trying to reconnect…";

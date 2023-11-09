@@ -29,3 +29,4 @@
 "mm_screen_share" = "Partajarea ecranului";
 "mm_user_sharing_screen" = "Partajați un ecran.";
 "mm_stop_sharing" = "Opriți partajarea ecranului";
+"mm_connection_problems" = "Apelul a fost deconectat. Se încearcă reconectarea…";

@@ -29,3 +29,4 @@
 "mm_screen_share" = "화면 공유";
 "mm_user_sharing_screen" = "화면을 공유하고 있습니다.";
 "mm_stop_sharing" = "화면 공유 중지";
+"mm_connection_problems" = "통화가 끊어졌습니다. 다시 연결하는 중…";

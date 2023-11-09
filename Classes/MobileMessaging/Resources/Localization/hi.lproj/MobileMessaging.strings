@@ -29,3 +29,4 @@
 "mm_screen_share" = "स्क्रीन शेयर";
 "mm_user_sharing_screen" = "आप एक स्क्रीन साझा कर रहे हैं.";
 "mm_stop_sharing" = "स्क्रीन साझा करना बंद करें";
+"mm_connection_problems" = "कॉल कट गया. पुनः कनेक्ट करने का प्रयास किया जा रहा है…";

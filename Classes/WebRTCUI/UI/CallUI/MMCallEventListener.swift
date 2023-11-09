@@ -88,14 +88,17 @@ class CallControllerEventListenerImpl: AggregatedCallEventListener {
     func onRemoteScreenShareRemoved(participant: Participant?) {
         controller.callView.updateState(updateMedia: .remoteScreenshare(nil))
     }
-}
-
-class MMCallEventListener: CallEventListener, ApplicationCallEventListener, WebrtcCallEventListener {
-    func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent) { }
-
-    func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) { }
-
     
+    func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent) {
+        controller.didStartReconnecting(true)
+    }
+    
+    func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) {
+        controller.didStartReconnecting(false)
+    }
+}
+ 
+class MMCallEventListener: CallEventListener, ApplicationCallEventListener, WebrtcCallEventListener {
     let output: AggregatedCallEventListener
     
     init(controller: AggregatedCallEventListener) {
@@ -140,6 +143,14 @@ class MMCallEventListener: CallEventListener, ApplicationCallEventListener, Webr
     
     func onError(_ errorEvent: ErrorEvent) { 
         output.onError(errorEvent)
+    }
+    
+    func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent) {
+        output.onReconnecting(callReconnectingEvent)
+    }
+
+    func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) {
+        output.onReconnected(callReconnectedEvent)
     }
     // MARK: - WebrtcCallEventListener
     func onRemoteCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) {
@@ -225,6 +236,8 @@ protocol AggregatedCallEventListener {
     func onHangup(_ callHangupEvent: CallHangupEvent)
     
     func onError(_ errorEvent: ErrorEvent)
+    
+    
     // MARK: - Common naming
     func onCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent)
     
@@ -248,5 +261,9 @@ protocol AggregatedCallEventListener {
     func onRemoteScreenShareAdded(_ videoTrack: VideoTrack, participant: Participant?)
     
     func onRemoteScreenShareRemoved(participant: Participant?)
+    
+    func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent)
+    
+    func onReconnected(_ callReconnectedEvent: CallReconnectedEvent)
 }
 #endif

@@ -29,3 +29,4 @@
 "mm_screen_share" = "Compartilhamento de tela";
 "mm_user_sharing_screen" = "Você está compartilhando uma tela.";
 "mm_stop_sharing" = "Pare de compartilhar tela";
+"mm_connection_problems" = "A chamada foi desconectada. Tentando reconectar…";

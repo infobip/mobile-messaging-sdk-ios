@@ -29,3 +29,4 @@
 "mm_screen_share" = "แชร์หน้าจอ";
 "mm_user_sharing_screen" = "คุณกำลังแชร์หน้าจอ";
 "mm_stop_sharing" = "หยุดการแชร์หน้าจอ";
+"mm_connection_problems" = "การโทรถูกตัด กำลังพยายามเชื่อมต่อใหม่…";

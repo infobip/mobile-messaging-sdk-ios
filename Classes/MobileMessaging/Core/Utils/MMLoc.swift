@@ -2,7 +2,7 @@
 //  MMLoc.swift
 //  ConversationsMobile
 //
-//  Created by localiseStrings.sh on 04/10/2023.
+//  Created by localiseStrings.sh on 24/10/2023.
 //  Copyright © 2023 Infobip Ltd. All rights reserved.
 //
 
@@ -43,6 +43,7 @@ public enum MMLoc {
     public static var `userNotFoundDestination`: String { return  MMLocalization.localizedString(forKey: "mm_user_not_found_destination", defaultString: "End user not found at destination") }
     public static var `userDeclinedCall`: String { return  MMLocalization.localizedString(forKey: "mm_user_declined_call", defaultString: "Call declined by end user") }
     public static var `screenShare`: String { return  MMLocalization.localizedString(forKey: "mm_screen_share", defaultString: "Screen share") }
-    public static var `userSharingScreen`: String { return  MMLocalization.localizedString(forKey: "mm_user_sharing_screen", defaultString: "You are sharing a screen.") }
+    public static var `userSharingScreen`: String { return  MMLocalization.localizedString(forKey: "mm_user_sharing_screen", defaultString: "You are sharing the screen.") }
     public static var `stopSharing`: String { return  MMLocalization.localizedString(forKey: "mm_stop_sharing", defaultString: "Stop sharing screen") }
+    public static var `connectionProblems`: String { return  MMLocalization.localizedString(forKey: "mm_connection_problems", defaultString: "Call was disconnected. Trying to reconnect…") }
 }

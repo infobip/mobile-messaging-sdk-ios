@@ -29,3 +29,4 @@
 "mm_user_declined_call" = "Samtalet avvisat av slutanvändaren";
 "mm_user_sharing_screen" = "Du delar en skärm.";
 "mm_stop_sharing" = "Sluta dela skärm";
+"mm_connection_problems" = "Samtalet avbröts. Försöker ansluta igen…";

@@ -29,3 +29,4 @@
 "mm_screen_share" = "画面共有";
 "mm_user_sharing_screen" = "画面を共有しています。";
 "mm_stop_sharing" = "画面共有を停止する";
+"mm_connection_problems" = "通話が切断されました。再接続しようとしています";

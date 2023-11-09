@@ -29,3 +29,4 @@
 "mm_screen_share" = "Képernyőmegosztás";
 "mm_user_sharing_screen" = "Megoszt egy képernyőt.";
 "mm_stop_sharing" = "Állítsa le a képernyő megosztását";
+"mm_connection_problems" = "A hívás megszakadt. Újracsatlakozási kísérlet…";

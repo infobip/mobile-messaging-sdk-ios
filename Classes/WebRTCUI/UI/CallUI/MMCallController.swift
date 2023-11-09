@@ -223,6 +223,7 @@ public class MMCallController: UIViewController, MMPIPUsable {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { 
             PIPKit.dismiss(animated: true)
         }
+        interactor.reconnectingPlayer.cleanPlayer()
     }
     
     func onPIPTap() {
@@ -260,6 +261,36 @@ public class MMCallController: UIViewController, MMPIPUsable {
                 self?.view.layoutIfNeeded()
             })
             MMPopOverBar.hide(with: animation)
+        }
+    }
+    
+    func didStartReconnecting(_ value: Bool) {
+        MMPopOverBar.hide()
+        if value {
+            UIView.animate(withDuration: 0.2, animations: { [weak self] in
+                self?.topConstraint.constant = 48
+                self?.view.layoutIfNeeded()
+            })
+
+            let settings = MMWebRTCSettings.sharedInstance
+            MMPopOverBar.show(
+                backgroundColor: settings.backgroundColor,
+                textColor: settings.foregroundColor,
+                message: MMLoc.connectionProblems,
+                duration: 9999, // Don't use double(Int.max) because it overflows TimeInterval
+                options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
+                                              isStretchable: true),
+                completion: nil,
+                presenterVC: self.parent ?? self)
+            interactor.reconnectingPlayer.startReconnecting()
+        } else {
+            UIView.animate(withDuration: 0.2, animations: { [weak self] in
+                self?.topConstraint.constant = 0
+                self?.view.layoutIfNeeded()
+            })
+            interactor.reconnectingPlayer.reconnected()
+            MMPopOverBar.hide(with: true)
+            handleMutePopover()
         }
     }
     

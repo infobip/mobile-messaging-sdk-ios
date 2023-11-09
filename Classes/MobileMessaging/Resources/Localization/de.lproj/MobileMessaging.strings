@@ -29,3 +29,4 @@
 "mm_screen_share" = "Bildschirmfreigabe";
 "mm_user_sharing_screen" = "Sie teilen einen Bildschirm.";
 "mm_stop_sharing" = "Beenden Sie die Bildschirmfreigabe";
+"mm_connection_problems" = "Anruf wurde getrennt. Versuche, die Verbindung wiederherzustellen…";

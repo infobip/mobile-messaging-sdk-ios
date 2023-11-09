@@ -29,3 +29,4 @@
 "mm_screen_share" = "حصة الشاشة";
 "mm_user_sharing_screen" = "أنت تشارك شاشة";
 "mm_stop_sharing" = "إيقاف مشاركة الشاشة";
+"mm_connection_problems" = "تم قطع المكالمة. جارٍ محاولة إعادة الاتصال…";

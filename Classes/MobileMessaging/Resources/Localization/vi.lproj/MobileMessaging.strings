@@ -29,3 +29,4 @@
 "mm_screen_share" = "Chia sẻ màn hình";
 "mm_user_sharing_screen" = "Bạn đang chia sẻ một màn hình.";
 "mm_stop_sharing" = "Dừng chia sẻ màn hình";
+"mm_connection_problems" = "Cuộc gọi đã bị ngắt kết nối. Đang cố gắng kết nối lại…";

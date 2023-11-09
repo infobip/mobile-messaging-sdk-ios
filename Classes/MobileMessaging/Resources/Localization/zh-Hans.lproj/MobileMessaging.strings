@@ -29,3 +29,4 @@
 "mm_screen_share" = "屏幕共享";
 "mm_user_sharing_screen" = "您正在共享屏幕。";
 "mm_stop_sharing" = "停止共享屏幕";
+"mm_connection_problems" = "通话被挂断。 尝试重新连接…";

@@ -29,3 +29,4 @@
 "mm_screen_share" = "Scherm delen";
 "mm_user_sharing_screen" = "Je deelt een scherm.";
 "mm_stop_sharing" = "Scherm delen stoppen";
+"mm_connection_problems" = "De verbinding werd verbroken. Proberen opnieuw verbinding te maken…";

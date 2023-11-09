@@ -29,3 +29,4 @@
 "mm_screen_share" = "Zdieľanie obrazovky";
 "mm_user_sharing_screen" = "Zdieľate obrazovku.";
 "mm_stop_sharing" = "Zastaviť zdieľanie obrazovky";
+"mm_connection_problems" = "Hovor bol prerušený. Prebieha pokus o opätovné pripojenie…";

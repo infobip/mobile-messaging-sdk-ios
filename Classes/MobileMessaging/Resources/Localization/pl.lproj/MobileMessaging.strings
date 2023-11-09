@@ -29,3 +29,4 @@
 "mm_screen_share" = "Udostępnianie ekranu";
 "mm_user_sharing_screen" = "Udostępniasz ekran.";
 "mm_stop_sharing" = "Zatrzymaj udostępnianie ekranu";
+"mm_connection_problems" = "Połączenie zostało rozłączone. Próbuję ponownie połączyć…";

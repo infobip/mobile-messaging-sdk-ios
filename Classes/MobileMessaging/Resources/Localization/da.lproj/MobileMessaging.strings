@@ -29,3 +29,4 @@
 "mm_screen_share" = "Skærmdeling";
 "mm_user_sharing_screen" = "Du deler skærmen.";
 "mm_stop_sharing" = "Stop med at dele skærmen";
+"mm_connection_problems" = "Opkaldet blev afbrudt. Forsøger at oprette forbindelse igen…";
