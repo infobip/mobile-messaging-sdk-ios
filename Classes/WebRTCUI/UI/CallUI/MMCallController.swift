@@ -9,6 +9,9 @@ import UIKit
 import AVFoundation
 
 #if WEBRTCUI_ENABLED
+
+private let topConstraintConstant: CGFloat = 48
+
 public enum MMCallButtonsAction: Equatable {
     
     public static func == (lhs: MMCallButtonsAction, rhs: MMCallButtonsAction) -> Bool {
@@ -241,7 +244,7 @@ public class MMCallController: UIViewController, MMPIPUsable {
         if currentCall.isMuted && !PIPKit.isPIP {
             
             UIView.animate(withDuration: animation ? 0.2 : 0, animations: { [weak self] in
-                self?.topConstraint.constant = 48
+                self?.topConstraint.constant = topConstraintConstant
                 self?.view.layoutIfNeeded()
             })
             
@@ -268,7 +271,7 @@ public class MMCallController: UIViewController, MMPIPUsable {
         MMPopOverBar.hide()
         if value {
             UIView.animate(withDuration: 0.2, animations: { [weak self] in
-                self?.topConstraint.constant = 48
+                self?.topConstraint.constant = topConstraintConstant
                 self?.view.layoutIfNeeded()
             })
 

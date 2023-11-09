@@ -126,6 +126,24 @@ extension WKWebView: ChatJSWrapper {
             completion(error as? NSError)
         }
     }
+
+    // This functions pauses the chat, effectively closing its socket. As result, the connection will be considered as ended, and
+    // remote push notifications will start coming to the device. This is useful for example when app is going to background/becoming inactive
+    func pauseChat(completion: @escaping (NSError?) -> Void) {
+        self.evaluateJavaScript("pauseChat()") { [weak self] (response, error) in
+            self?.logDebug("pauseChat got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+            completion(error as? NSError)
+        }
+    }
+
+    // This functions resumes the chat, effectively reopening its socket. As result, the connection will be reestablished, and
+    // remote push notifications will stop coming to the device. This is useful for example when app is going to foreground/becoming active
+    func resumeChat(completion: @escaping (NSError?) -> Void) {
+        self.evaluateJavaScript("resumeChat()") { [weak self] (response, error) in
+            self?.logDebug("resumeChat got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+            completion(error as? NSError)
+        }
+    }
 }
 
 extension String

@@ -226,13 +226,18 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     public func stopConnection() {
-        webView.load(URLRequest(url: URL(string: "about:blank")!))
+        webView.pauseChat() { [weak self] error in
+            if let error = error {
+                self?.logError(error.description)
+            }
+        }
     }
     
     public func restartConnection() {
-        if let chatWidget = chatWidget {
-            stopConnection()
-            didLoadWidget(chatWidget)
+        webView.resumeChat() { [weak self] error in
+            if let error = error {
+                self?.logError(error.description)
+            }
         }
     }
     
