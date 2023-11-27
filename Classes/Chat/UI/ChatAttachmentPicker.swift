@@ -97,6 +97,12 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
             alertController.addAction(action)
         }
         alertController.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: nil))
+
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = presentationController.view // to set the source of your alert
+            popoverController.sourceRect = CGRect(x: presentationController.view.bounds.midX, y: presentationController.view.bounds.midY, width: 0, height: 0) // for the arrow of your popover to point towards your button
+            popoverController.permittedArrowDirections = [] // to hide the arrow of any particular direction
+        }
         
         presentationController.present(alertController, animated: true)
     }
