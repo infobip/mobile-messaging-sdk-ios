@@ -126,7 +126,11 @@ class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
     }
 
     @objc private func showDemoAlert() {
-        let alert = UIAlertController(title: "Hey hi!", message: "Demo text", preferredStyle: .alert)
+        let alert = UIAlertController.mmInit(
+            title: "Hey hi!",
+            message: "Demo text",
+            preferredStyle: .alert,
+            sourceView: self.view)
         self.present(alert, animated: true, completion: {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 alert.dismiss(animated: true)

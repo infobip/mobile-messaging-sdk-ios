@@ -28,6 +28,12 @@ public class MMPopupView: UIAlertController {
             let settings = MMWebRTCSettings.sharedInstance
             let popup = MMPopupView(title: title, message: message,
                                     preferredStyle: .alert)
+            if UIDevice.current.userInterfaceIdiom == .pad,
+                let popoverController = popup.popoverPresentationController {
+                popoverController.sourceView = viewController.view
+                popoverController.sourceRect = viewController.view.frame
+                popoverController.permittedArrowDirections = []
+            }
             popup.mmSetup(backgroundColor: style == .error ? settings.errorColor : settings.backgroundColor,
                           titleColor: settings.foregroundColor,
                           messageColor: settings.foregroundColor,

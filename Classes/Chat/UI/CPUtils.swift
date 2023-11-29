@@ -56,7 +56,7 @@ extension UIViewController {
     }
     func showAlert(_ title: String, message: String, dismissActionHandler: ((UIAlertAction) -> Swift.Void)? = nil) {
         DispatchQueue.main.async {
-            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            let alert = UIAlertController.mmInit(title: title, message: message, preferredStyle: .alert, sourceView: self.view)
             alert.view.tintColor = MMChatSettings.getMainTextColor()
             alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_ok", defaultString: "Cancel"), style: .cancel, handler: dismissActionHandler))
             self.present(alert, animated: true, completion: nil)

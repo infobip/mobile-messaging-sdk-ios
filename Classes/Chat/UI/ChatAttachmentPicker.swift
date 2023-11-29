@@ -80,8 +80,12 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
         }
     }
 
-    func present(presentationController: UIViewController) {
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    func present(presentationController: UIViewController, sourceView: UIView? = nil) {
+        let alertController = UIAlertController.mmInit(
+            title: nil, 
+            message: nil,
+            preferredStyle: .actionSheet,
+            sourceView: sourceView ?? presentationController.view)
         alertController.view.tintColor = MMChatSettings.getMainTextColor()
         if let action = self.action(for: .camera,
                                     title: ChatLocalization.localizedString(forKey: "mm_action_sheet_take_photo_or_video", defaultString: "Take Photo or Video"),
@@ -187,5 +191,23 @@ extension ChatAttachmentPicker: UIDocumentPickerDelegate {
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         pickerController(controller, didSelectURL: url)
+    }
+}
+
+public extension UIAlertController {
+    static func mmInit(
+        title: String?,
+        message: String?,
+        preferredStyle: UIAlertController.Style,
+        sourceView: UIView) -> UIAlertController {
+        let alertController = UIAlertController.init(title: title, message: message, preferredStyle: preferredStyle)
+        if UIDevice.current.userInterfaceIdiom == .pad,
+            let popoverController = alertController.popoverPresentationController {
+            popoverController.backgroundColor = MMChatSettings.sharedInstance.backgroungColor
+            popoverController.sourceView = sourceView
+            popoverController.sourceRect = sourceView.frame
+            popoverController.permittedArrowDirections = []
+        }
+        return alertController
     }
 }

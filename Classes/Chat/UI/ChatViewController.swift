@@ -465,7 +465,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     public override func attachmentButtonTapped() {
-        chatAttachmentPicker.present(presentationController: self)
+        chatAttachmentPicker.present(
+            presentationController: self,
+            sourceView: (composeBarView as? ComposeBar)?.utilityButton)
     }
     
     public override func composeBarWillChangeFrom(_ startFrame: CGRect, to endFrame: CGRect,
@@ -503,9 +505,11 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
                 accessDescription = accessDescription != nil ? "\(accessDescription!)\n\(permissionDescription)" : permissionDescription
             }
         }
-        let alert = UIAlertController(title: accessDescription ?? "Required permissions not granted",
-                                      message: ChatLocalization.localizedString(forKey: "mm_permissions_alert_message", defaultString: "To give permissions go to Settings"),
-                                      preferredStyle: .alert)
+        let alert = UIAlertController.mmInit(
+            title: accessDescription ?? "Required permissions not granted",
+            message: ChatLocalization.localizedString(forKey: "mm_permissions_alert_message", defaultString: "To give permissions go to Settings"),
+            preferredStyle: .alert,
+            sourceView: self.view)
         alert.view.tintColor = MMChatSettings.getMainTextColor()
         alert.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: nil))
         if let settingsUrl = NSURL(string: UIApplication.openSettingsURLString, relativeTo: nil) as URL?,
