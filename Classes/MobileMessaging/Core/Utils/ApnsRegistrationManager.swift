@@ -64,7 +64,8 @@ class ApnsRegistrationManager: NamedLogger {
 	
     func didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: Bool, token: Data, completion: @escaping (NSError?) -> Void) {
         
-        guard readyToRegisterForNotifications else {
+        // In case if registeringForRemoteNotificationsDisabled = true (e. g. withoutRegisteringForRemoteNotification is used), device token needs to be handled despite of readyToRegisterForNotifications = false
+        guard readyToRegisterForNotifications || mmContext.registeringForRemoteNotificationsDisabled == true else {
             logDebug("MobileMessaging is not ready to register for notifications")
             completion(nil)
             return
