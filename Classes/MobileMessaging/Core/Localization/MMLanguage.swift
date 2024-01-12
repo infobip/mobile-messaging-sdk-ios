@@ -17,7 +17,8 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
          ko,
          ru,
          ja,
-         zh,
+         zhHans,
+         zhHant,
          es,
          pt,
          pl,
@@ -54,8 +55,10 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
             return "ru"
         case .ja:
             return "ja"
-        case .zh:
-            return "zh"
+        case .zhHans:
+            return "zh-Hans"
+        case .zhHant:
+            return "zh-Hant"
         case .es:
             return "es"
         case .pt:
@@ -114,8 +117,10 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
             return .ru
         case "ja":
             return .ja
-        case "zh":
-            return .zh
+        case "zh-Hans":
+            return .zhHans
+        case "zh-Hant":
+            return .zhHant
         case "es":
             return .es
         case "pt":
@@ -176,8 +181,10 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
             return "ru-RU"
         case .ja:
             return "ja-JP"
-        case .zh:
-            return "zh-TW"
+        case .zhHans:
+            return "zh-Hans"
+        case .zhHant:
+            return "zh-Hant"
         case .es:
             return "es-LA"
         case .pt:
@@ -236,7 +243,9 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
             return "Русский"
         case .ja:
             return "日本語"
-        case .zh:
+        case .zhHans:
+            return "简体中文"
+        case .zhHant:
             return "繁體中文"
         case .es:
             return "Español"
@@ -285,9 +294,14 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
     // for example through chat methods. It will be used for accessing language bundle.
     public static var sessionLanguage: MMLanguage {
         get {
-            let liveChatLanguage = UserDefaults.standard.object(forKey: MMUserDefaultChatLanguageKey) as? String
-            let installationLanguage = MobileMessaging.currentInstallation?.language ?? "en"
-            return MMLanguage.mapLanguage(from: liveChatLanguage ?? installationLanguage)
+            let inAppChatLanguage = UserDefaults.standard.object(forKey: MMUserDefaultChatLanguageKey) as? String
+            let mmInstallationLanguage = MobileMessaging.currentInstallation?.language ?? "en"
+            var chosenLanguage = inAppChatLanguage ?? mmInstallationLanguage
+            if chosenLanguage == "zh" {
+                // MM installations use short iso code for lang, so chinese traditional/simplified is detected from the OS settings
+                chosenLanguage = (NSLocale.preferredLanguages.first?.contains("zh-Hant") ?? false) ? "zh-Hant" : "zh-Hans"
+            }
+            return MMLanguage.mapLanguage(from: chosenLanguage)
         }
         set {
             UserDefaults.standard.set(newValue.stringValue, forKey: MMUserDefaultChatLanguageKey)
