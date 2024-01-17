@@ -9,8 +9,8 @@ import Foundation
 import MobileCoreServices
 
 class ChatAttachmentUtils: NamedLogger {
-    static let DefaultMaxAttachmentSize: UInt = 10*1024*1024
-    static let DefaultMaxTextLength: UInt = 1024
+    static let DefaultMaxAttachmentSize: UInt = 10*1024*1024 // 10Mb
+    static let DefaultMaxTextLength: UInt = 1024*4 // 4096 chars
     static func mimeType(forData data: Data) -> String {
         var result = "application/octet-stream"
         if let mimeType = Swime.mimeType(data: data)?.mime {
