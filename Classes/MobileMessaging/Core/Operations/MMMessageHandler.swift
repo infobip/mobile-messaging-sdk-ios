@@ -355,18 +355,21 @@ public class MMMessageHandler: MobileMessagingService {
         super.suspend()
 	}
 
-    public override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    public override func depersonalizeService(_ mmContext: MobileMessaging, userInitiated: Bool, completion: @escaping () -> Void) {
 		logDebug("depersonalizing...")
         cancelOperations()
-		messageSyncQueue.addOperation {
-			if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {
-				defaultMessageStorage.removeAllMessages() { _ in
-					completion()
-				}
-			} else {
-				completion()
-			}
-		}
+        let removeMessagesOperation = BlockOperation { _ in
+            if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {
+                defaultMessageStorage.removeAllMessages() { _ in
+                    completion()
+                }
+            } else {
+                completion()
+            }
+        }
+        removeMessagesOperation.qualityOfService = userInitiated ? .userInitiated : .default
+        
+        messageSyncQueue.addOperation(removeMessagesOperation)
 	}
 	
     public override func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) {

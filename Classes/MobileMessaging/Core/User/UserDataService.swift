@@ -149,7 +149,7 @@ class UserDataService: MobileMessagingService {
 	}
 
 	// MARK: - MobileMessagingService protocol {
-	override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+	override func depersonalizeService(_ mmContext: MobileMessaging, userInitiated: Bool, completion: @escaping () -> Void) {
         assert(!Thread.isMainThread)
 		logDebug("depersonalizing...")
 		MMUser.empty.archiveAll()

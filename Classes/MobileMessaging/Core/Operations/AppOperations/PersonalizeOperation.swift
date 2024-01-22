@@ -34,7 +34,7 @@ class PersonalizeOperation: MMOperation {
 		}
 		logDebug("started...")
 		if forceDepersonalize {
-			DepersonalizeOperation.depersonalizeSubservices(mmContext: mmContext)
+			DepersonalizeOperation.depersonalizeSubservices(userInitiated: userInitiated, mmContext: mmContext)
 		}
 
 		sendServerRequestIfNeeded()

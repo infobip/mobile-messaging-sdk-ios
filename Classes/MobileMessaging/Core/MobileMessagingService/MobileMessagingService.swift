@@ -127,7 +127,7 @@ open class MobileMessagingService: NSObject, NamedLogger {
         })
     }
     
-    open func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    open func depersonalizeService(_ mmContext: MobileMessaging, userInitiated: Bool, completion: @escaping () -> Void) {
         completion()
     }
     

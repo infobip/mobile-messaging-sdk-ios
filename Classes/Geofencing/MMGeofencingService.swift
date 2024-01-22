@@ -116,11 +116,11 @@ public class MMGeofencingService: MobileMessagingService {
 		}
 	}
 
-    public override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    public override func depersonalizeService(_ mmContext: MobileMessaging, userInitiated: Bool, completion: @escaping () -> Void) {
 		logDebug("depersonalizing")
         cancelOperations()
 		self.stopMonitoringMonitoredRegions() {
-			self.cleanup(completion)
+			self.cleanup(userInitiated: userInitiated, completion: completion)
 		}
 	}
 
@@ -489,8 +489,8 @@ public class MMGeofencingService: MobileMessagingService {
 		eventsHandlingQueue.cancelAllOperations()
 	}
 
-	private func cleanup(_ completion: @escaping () -> Void) {
-		eventsHandlingQueue.addOperation(GeoCleanupOperation(datasource: datasource, finishBlock: { _ in
+	private func cleanup(userInitiated: Bool, completion: @escaping () -> Void) {
+		eventsHandlingQueue.addOperation(GeoCleanupOperation(userInitiated: userInitiated, datasource: datasource, finishBlock: { _ in
 			completion()
 		}))
 	}

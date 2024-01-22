@@ -164,7 +164,7 @@ public class MMInAppChatService: MobileMessagingService {
         NotificationCenter.default.addObserver(self, selector: #selector(personalizedEventReceived), name: NSNotification.Name(rawValue: MMNotificationPersonalized), object: nil)
     }
 	
-    public override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    public override func depersonalizeService(_ mmContext: MobileMessaging, userInitiated: Bool, completion: @escaping () -> Void) {
         getWidgetQueue.cancelAllOperations()
         getChatRegistrationQueue.cancelAllOperations()
 		cleanCache(completion: completion)

@@ -827,7 +827,7 @@ public class ThreadSafeDict<T> {
     private var dict: [String: T] = [:]
     private var queue: DispatchQueue = DispatchQueue.init(label: "", qos: .default, attributes: [.concurrent])
     func set(value: T?, forKey key: String) {
-        queue.async(group: nil, qos: .default, flags: .barrier) {
+        queue.async(flags: .barrier) {
             self.dict[key] = value
         }
     }
@@ -841,7 +841,7 @@ public class ThreadSafeDict<T> {
     }
     
     func reset() {
-        queue.async(group: nil, qos: .default, flags: .barrier) {
+        queue.async(flags: .barrier) {
             self.dict.removeAll()
         }
     }

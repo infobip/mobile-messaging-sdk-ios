@@ -28,7 +28,7 @@ class DepersonalizeOperation: MMOperation {
             return
         }
 		logDebug("starting...")
-		DepersonalizeOperation.depersonalizeSubservices(mmContext: mmContext)
+		DepersonalizeOperation.depersonalizeSubservices(userInitiated: userInitiated, mmContext: mmContext)
 		self.sendRequest()
 	}
 	
@@ -106,7 +106,7 @@ class DepersonalizeOperation: MMOperation {
 		}
 	}
 
-	class func depersonalizeSubservices(mmContext: MobileMessaging) {
+    class func depersonalizeSubservices(userInitiated: Bool, mmContext: MobileMessaging) {
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending: break
 		case .success, .undefined:
@@ -114,7 +114,7 @@ class DepersonalizeOperation: MMOperation {
 			logDebug("depersonalizing subservices...")
 			mmContext.subservices.values.forEach { subservice in
 				loopGroup.enter()
-				subservice.depersonalizeService(mmContext, completion: {
+                subservice.depersonalizeService(mmContext, userInitiated: userInitiated, completion: {
 					loopGroup.leave()
 				})
 			}

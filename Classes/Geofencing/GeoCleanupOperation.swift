@@ -13,12 +13,12 @@ class GeoCleanupOperation : MMOperation {
 	let finishBlock: (Error?) -> Void
 	let datasource: GeofencingInMemoryDatasource
 
-	init(datasource: GeofencingInMemoryDatasource, finishBlock: @escaping ((Error?) -> Void)) {
+	init(userInitiated: Bool = false, datasource: GeofencingInMemoryDatasource, finishBlock: @escaping ((Error?) -> Void)) {
 		self.datasource = datasource
 		self.finishBlock = finishBlock
 		self.context = datasource.context
 
-		super.init(isUserInitiated: false)
+		super.init(isUserInitiated: userInitiated)
 	}
 
 	override func execute() {

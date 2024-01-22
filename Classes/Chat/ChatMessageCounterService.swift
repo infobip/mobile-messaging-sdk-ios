@@ -35,7 +35,7 @@ class ChatMessageCounterService: MobileMessagingService {
         }
     }
     
-    override func depersonalizeService(_ mmContext: MobileMessaging, completion: @escaping () -> Void) {
+    override func depersonalizeService(_ mmContext: MobileMessaging, userInitiated: Bool, completion: @escaping () -> Void) {
         resetCounter()
         completion()
     }
