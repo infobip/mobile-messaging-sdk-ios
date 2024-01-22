@@ -13,15 +13,11 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
     let userInputDebounceTimeMs = 250.0
     lazy var draftPostponer = MMPostponer(executionQueue: DispatchQueue.main)
     var scrollingRecognizer: UIPanGestureRecognizer!
-    var lastComposingStateSentDateTime: TimeInterval = MobileMessaging.date.now.timeIntervalSinceReferenceDate
     var composeBarView: MMChatComposer? {
         didSet {
             composeBarView?.delegate = self
         }
     }
-    var docImportMenu: UIDocumentPickerViewController!
-    var documentAction = UIDocumentInteractionController()
-    var chatMessageCountUpdatedBlock: ((_ count: Int, _ unread: Int) -> Void)?
     var isComposeBarVisible: Bool = false
     internal var settings: MMChatSettings? {
         return MMChatSettings.sharedInstance

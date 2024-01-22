@@ -126,31 +126,13 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
     }
     
     @objc func didPressShareButton() {
-        guard let responseData = responseData else {
+        guard let responseData = responseData, let url = responseData.destinationURL else {
             return
         }
-        
-        var items: [Any]?
-        
-        switch attachment.type {
-        case .image:
-            guard let data = responseData.value,
-                let image = UIImage(data: data) else {
-                    return
-            }
-            items = [image]
-        case .video, .document:
-            guard let url = responseData.destinationURL else {
-                return
-            }
-            items = [url]
-        }
-        
-        guard let activityItems = items else {
-             logError("no items available to share")
-            return
-        }
-        let activity = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        /* We do not distinguish by type: all attachments actions are handled by URL, and UIActivityViewController will decide
+         based on content what options to display. This is important for saving into Files, where only by having the URL the original
+         name can be retrieved, and renaming field is offered */
+        let activity = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         activity.completionWithItemsHandler = { [weak self] (type, completed, items, error) in
             self?.logInfo("attachment sharing completed: \(completed) error: \(String(describing: error))")
         }
