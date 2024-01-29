@@ -187,13 +187,11 @@ public class MMCallController: UIViewController, MMPIPUsable {
         callView.rootSheetView.setState(.mediumContent)
         
         callView.onPipTap = { [weak self] in
-            guard let self else { return }
-            onPIPTap()
+            self?.onPIPTap()
         }
         
         callView.onTimerRefresh = { [weak self] in
-            guard let self = self else { return "00:00" }
-            return interactor.getFormattedCallDuration()
+            return self?.interactor.getFormattedCallDuration() ?? "00:00"
         }
         
         callView.mediaView.onStopScreenshareTap = { [weak self] in

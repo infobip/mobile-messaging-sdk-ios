@@ -185,11 +185,11 @@ class CallView: UIView {
         
         rootSheetView.stateDidChange = { [weak self] in
             guard let self = self else { return }
-            movingContainerOverlay.bottomOffset = rootSheetView.contentView.frame.height
-            - rootSheetView.contentViewBottomAnchor.constant
-            - safeAreaInsets.bottom
-            
-            movingContainerOverlay.refreshWithCurrentPositionToBounds()
+            self.movingContainerOverlay.bottomOffset = self.rootSheetView.contentView.frame.height
+            - self.rootSheetView.contentViewBottomAnchor.constant
+            - self.safeAreaInsets.bottom
+
+            self.movingContainerOverlay.refreshWithCurrentPositionToBounds()
         }
     }
     
