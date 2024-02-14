@@ -87,7 +87,16 @@ public final class PIPKit {
     static internal var state: _PIPState = .none
     static private var rootViewController: PIPKitViewController?
     static private var pipWindow: UIWindow?
-    
+
+    @available(iOS 13.0, *)
+    static var keyWindow: UIWindowScene? {
+        let windowScenes = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+        return windowScenes
+            .filter { $0.activationState != .unattached }.sorted(by: { one, two in
+                one.activationState.rawValue < two.activationState.rawValue }).first
+    }
+
     public class func show(with viewController: PIPKitViewController, completion: (() -> Void)? = nil) {
         guard !isActive else {
             dismiss(animated: false) {
@@ -98,9 +107,14 @@ public final class PIPKit {
         
         let newWindow: PIPKitWindow
         
-        if #available(iOS 13.0, *),
-           let currentWindowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            newWindow = PIPKitWindow(windowScene: currentWindowScene)
+        if #available(iOS 13.0, *) {
+            if let keyWindow = keyWindow {
+                newWindow = PIPKitWindow(windowScene: keyWindow)
+            } else {
+                // We are unable to present our UI, system call will remain
+                completion?()
+                return
+            }
         } else {
             newWindow = PIPKitWindow()
         }
