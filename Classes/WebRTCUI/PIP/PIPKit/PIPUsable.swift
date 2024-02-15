@@ -35,6 +35,7 @@ public protocol MMPIPUsable {
     var pipSize: CGSize { get }
     var pipShadow: PIPShadow? { get }
     var pipCorner: PIPCorner? { get }
+    var isInitiatedWithPIP: Bool { get set }
     func didChangedState(_ state: PIPState)
     func didChangePosition(_ position: PIPPosition)
 }

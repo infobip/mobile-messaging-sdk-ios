@@ -11,7 +11,7 @@ import InfobipRTC
 
 class CallControllerEventListenerImpl: AggregatedCallEventListener {
     
-    weak var controller: MMCallController!
+    weak var controller: MMCallController?
     
     init(controller: MMCallController) {
         self.controller = controller
@@ -23,9 +23,9 @@ class CallControllerEventListenerImpl: AggregatedCallEventListener {
     
     func onEstablished(_ callEstablishedEvent: CallEstablishedEvent) {
         
-        guard let currentCall = controller.interactor.currentCall else { return }
+        guard let currentCall = controller?.interactor.currentCall else { return }
         
-        controller.callView.updateState(with: .audioCall) /// TODO: connect video
+        controller?.callView.updateState(with: .audioCall) /// TODO: connect video
         
         switch currentCall {
         case .applicationCall(let applicationCall):
@@ -37,7 +37,7 @@ class CallControllerEventListenerImpl: AggregatedCallEventListener {
     
     func onHangup(_ callHangupEvent: CallHangupEvent) {
         MMLogDebug("finalizeCallPreview with message: Status: \(callHangupEvent.errorCode.name)")
-        controller.hangup()
+        controller?.hangup()
     }
     
     func onError(_ errorEvent: ErrorEvent) {
@@ -45,56 +45,56 @@ class CallControllerEventListenerImpl: AggregatedCallEventListener {
     }
     
     func onCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) {
-        controller.callView.updateState(updateMedia: .localVideo(cameraVideoAddedEvent.track))
+        controller?.callView.updateState(updateMedia: .localVideo(cameraVideoAddedEvent.track))
     }
     
     func onCameraVideoUpdated(_ cameraVideoUpdatedEvent: CameraVideoUpdatedEvent) {
-        controller.callView.updateState(updateMedia: .localVideo(cameraVideoUpdatedEvent.track))
+        controller?.callView.updateState(updateMedia: .localVideo(cameraVideoUpdatedEvent.track))
     }
     
     func onCameraVideoRemoved() {
-        controller.callView.updateState(updateMedia: .localVideo(nil))
+        controller?.callView.updateState(updateMedia: .localVideo(nil))
     }
     
     func onScreenShareAdded(_ screenShareAddedEvent: ScreenShareAddedEvent) {
-        controller.callView.updateState(updateMedia: .localScreenshare(screenShareAddedEvent.track))
+        controller?.callView.updateState(updateMedia: .localScreenshare(screenShareAddedEvent.track))
     }
     
     func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) {
-        controller.callView.updateState(updateMedia: .localScreenshare(nil))
-        controller.screenshareButtonContent?.button?.isSelected = false
+        controller?.callView.updateState(updateMedia: .localScreenshare(nil))
+        controller?.screenshareButtonContent?.button?.isSelected = false
     }
     
     func onRemoteMuted(_ event: ParticipantMutedEvent?) {
-        controller.callView.updateState(remoteMuted: true)
+        controller?.callView.updateState(remoteMuted: true)
     }
     
     func onRemoteUnmuted(_ event: ParticipantUnmutedEvent?) {
-        controller.callView.updateState(remoteMuted: false)
+        controller?.callView.updateState(remoteMuted: false)
     }
     
     func onRemoteCameraVideoAdded(_ videoTrack: VideoTrack, participant: Participant?) {
-        controller.callView.updateState(updateMedia: .remoteVideo(videoTrack))
+        controller?.callView.updateState(updateMedia: .remoteVideo(videoTrack))
     }
     
     func onRemoteCameraVideoRemoved(participant: Participant?) {
-        controller.callView.updateState(updateMedia: .remoteVideo(nil))
+        controller?.callView.updateState(updateMedia: .remoteVideo(nil))
     }
     
     func onRemoteScreenShareAdded(_ videoTrack: VideoTrack, participant: Participant?) {
-        controller.callView.updateState(updateMedia: .remoteScreenshare(videoTrack))
+        controller?.callView.updateState(updateMedia: .remoteScreenshare(videoTrack))
     }
     
     func onRemoteScreenShareRemoved(participant: Participant?) {
-        controller.callView.updateState(updateMedia: .remoteScreenshare(nil))
+        controller?.callView.updateState(updateMedia: .remoteScreenshare(nil))
     }
     
     func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent) {
-        controller.didStartReconnecting(true)
+        controller?.didStartReconnecting(true)
     }
     
     func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) {
-        controller.didStartReconnecting(false)
+        controller?.didStartReconnecting(false)
     }
 }
  

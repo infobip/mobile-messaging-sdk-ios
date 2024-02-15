@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>MobileChatExample wants to use microphone to record audio</string>
+	<key>NSCameraUsageDescription</key>
+	<string>MobileChatExample wants to use camera to take photos and videos</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MobileChatExample wants to use photo library to send attachments</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>MobileChatExample wants to save attachments to photo library</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+		<string>voip</string>
+	</array>
+</dict>
+</plist>

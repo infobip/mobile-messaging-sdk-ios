@@ -140,9 +140,11 @@ class FloatingWindowView: UIView {
     }
     
     func setFloatingWindowPosition(x: CGFloat, y: CGFloat) {
-        movingContainerXAnchor.constant = x
-        movingContainerYAnchor.constant = y
-        currentOrigin = (movingContainerXAnchor.constant, movingContainerYAnchor.constant)
+        if PIPKit.isPIP {
+            movingContainerXAnchor.constant = x
+            movingContainerYAnchor.constant = y
+            currentOrigin = (movingContainerXAnchor.constant, movingContainerYAnchor.constant)
+        }
     }
     
     func refreshWithCurrentPositionToBounds() {

@@ -16,7 +16,8 @@ import MobileMessagingLogging
 import WebRTCUI
 #endif
 
-class OptionListVC: UIViewController, MMInAppChatDelegate, MMPIPUsable {
+class OptionListVC: UIViewController, MMInAppChatDelegate {
+    
     @IBOutlet weak var optionsTableV: UITableView!
     @IBOutlet weak var optionsSegmentedC: UISegmentedControl!
 

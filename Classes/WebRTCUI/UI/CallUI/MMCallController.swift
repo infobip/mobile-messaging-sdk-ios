@@ -84,6 +84,8 @@ public class MMCallController: UIViewController, MMPIPUsable {
     
     let callView = CallView()
     let interactor = CallInteractor()
+    
+    public var isInitiatedWithPIP: Bool = false
 
     lazy var eventListener = CallControllerEventListenerImpl(controller: self)
     lazy var callEventListener = MMCallEventListener(controller: eventListener)
@@ -124,7 +126,14 @@ public class MMCallController: UIViewController, MMPIPUsable {
             self?.showErrorAlert(message: message)
         }
     }
+    
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        callView.voiceCallView.collapseButton.isHidden = PIPKit.state == .none
+        callView.mediaView.header.collapseButton.isHidden = PIPKit.state == .none
 
+    }
+    
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if #available(iOS 16.0, *) {
@@ -221,8 +230,13 @@ public class MMCallController: UIViewController, MMPIPUsable {
         interactor.playDisconnectCall()
         callView.callDurationTimer = nil
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { 
-            PIPKit.dismiss(animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard let self else { return }
+            if self.isInitiatedWithPIP {
+                PIPKit.dismiss(animated: true)
+            } else {
+                dismiss(animated: true)
+            }
         }
         interactor.reconnectingPlayer.cleanPlayer()
     }

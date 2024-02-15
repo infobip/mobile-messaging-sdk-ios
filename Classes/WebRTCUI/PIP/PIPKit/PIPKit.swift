@@ -126,6 +126,7 @@ public final class PIPKit {
         
         pipWindow = newWindow
         rootViewController = viewController
+        rootViewController?.isInitiatedWithPIP = true
         state = (viewController.initialState == .pip) ? .pip : .full
         
         viewController.view.alpha = 0.0

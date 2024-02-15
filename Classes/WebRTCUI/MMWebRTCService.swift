@@ -117,7 +117,7 @@ public class MMWebRTCService: MobileMessagingService {
     public let settings: MMWebRTCSettings = MMWebRTCSettings.sharedInstance
 	
 	///In-app Chat delegate, can be set to receive additional chat info.
-	public var delegate: MMWebRTCDelegate?
+	public weak var delegate: MMWebRTCDelegate?
     
     public override var systemData: [String: AnyHashable]? {
 		return ["webrtcui": true]
