@@ -235,7 +235,7 @@ public class MMCallController: UIViewController, MMPIPUsable {
             if self.isInitiatedWithPIP {
                 PIPKit.dismiss(animated: true)
             } else {
-                dismiss(animated: true)
+                self.dismiss(animated: true)
             }
         }
         interactor.reconnectingPlayer.cleanPlayer()
