@@ -56,14 +56,15 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
         
         self.imagePickerController.mediaTypes = mediaTypes
         
-        return UIAlertAction(title: title, style: .default) { [unowned self, unowned presentationController] _ in
+        return UIAlertAction(title: title, style: .default) { [weak self, weak presentationController] _ in
+            guard let self = self else { return }
             guard self.checkPermissionsGranted(forSourceType: type) ||
                 !self.checkPermissionsDetermined(forSourceType: type) else {
                     self.delegate?.permissionNotGranted(permissionKeys: self.infoPlistKeys[type])
                     return
             }
             self.imagePickerController.sourceType = type
-            presentationController.present(self.imagePickerController, animated: true)
+            presentationController?.present(self.imagePickerController, animated: true)
         }
     }
     
@@ -75,8 +76,9 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
             logDebug("[InAppChat] iCloud documents unavailable, unable to attach documents")
             return nil
         }
-        return UIAlertAction(title: title, style: .default) { [unowned self, unowned presentationController] _ in
-            presentationController.present(self.documentPickerController, animated: true)
+        return UIAlertAction(title: title, style: .default) { [weak self, weak presentationController] _ in
+            guard let self = self else { return }
+            presentationController?.present(self.documentPickerController, animated: true)
         }
     }
 

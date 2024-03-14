@@ -82,7 +82,8 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
         view.addSubview(contentView)
         contentView.startLoading()
         
-        sessionManager.download(URLRequest(url: attachment.url), to: destination).responseData { [unowned self] (downloadResponse) in
+        sessionManager.download(URLRequest(url: attachment.url), to: destination).responseData { [weak self] (downloadResponse) in
+            guard let self = self else { return }
             self.contentView.stopLoading()
             if downloadResponse.error != nil {
                 self.shareButtonItem.isEnabled = false
