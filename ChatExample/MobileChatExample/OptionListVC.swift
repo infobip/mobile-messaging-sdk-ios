@@ -20,6 +20,8 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     
     @IBOutlet weak var optionsTableV: UITableView!
     @IBOutlet weak var optionsSegmentedC: UISegmentedControl!
+    private var chatVC: MMChatViewController?
+    private var isLightModeOn = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,28 +49,29 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     @IBAction func onSegmentedChanged(_ sender: Any) {
         optionsTableV.reloadData()
     }
-    
+
     func showChatInNavigation() {
-        let vc = MMChatViewController.makeChildNavigationViewController()
+        chatVC = MMChatViewController.makeChildNavigationViewController()
+        let demoBtn = UIBarButtonItem(title: "Change Theme", style: .plain, target: self, action: #selector(onChangeTheme))
+        chatVC?.navigationItem.rightBarButtonItems = [demoBtn]
+        guard let vc = chatVC else { return }
         navigationController?.pushViewController(vc, animated: true)
-        // customisation out of the SDK, applied to navigation items
-        let demoBtn = UIBarButtonItem(title: "demoBtn", style: .plain, target: self, action: #selector(showDemoAlert))
-        vc.navigationItem.rightBarButtonItems = [demoBtn]
     }
     
     func showChatModally() {
         let vc = MMChatViewController.makeModalViewController()
-        navigationController?.present(vc, animated: true, completion: nil)
+        navigationController?.present(vc, animated: true)
+
     }
     
     func presentRootNavigationVC() {
         let vc = MMChatViewController.makeRootNavigationViewController()
-        navigationController?.present(vc, animated: true, completion: nil)
+        navigationController?.present(vc, animated: true)
     }
 
     func presentNavigationVCCustomTrans() {
         let vc = MMChatViewController.makeRootNavigationViewControllerWithCustomTransition()
-        navigationController?.present(vc, animated: true, completion: nil)
+        navigationController?.present(vc, animated: true)
     }
     
     func presentInTabBar() {
@@ -126,17 +129,28 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         }
     }
 
-    @objc private func showDemoAlert() {
-        let alert = UIAlertController.mmInit(
-            title: "Hey hi!",
-            message: "Demo text",
-            preferredStyle: .alert,
-            sourceView: self.view)
-        self.present(alert, animated: true, completion: {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                alert.dismiss(animated: true)
-            }
-        })
+    @objc private func onChangeTheme() {
+        /*
+        Themes are defined in web side, under your widget's setup => Themes => Advanced customisation.
+        Please check widget documentation for more details: https://www.infobip.com/docs/live-chat/widget-customization
+        In this example, we show how to change, in runtime, between two custom modes: dark and light.
+         {
+           "themes": {
+             "default": {
+               "lc-chat-message-agent-bubble-background-color": "#f7f7f7",
+               "lc-chat-message-agent-bubble-text-color": "#000"
+             },
+             "dark": {
+               "lc-chat-message-agent-bubble-background-color": "#000",
+               "lc-chat-message-agent-bubble-text-color": "#f7f7f7"
+             }
+           }
+         }
+         */
+        isLightModeOn = !isLightModeOn
+        chatVC?.setWidgetTheme( isLightModeOn ? "default" : "dark") { error in
+            print(">>>>Theme changed with: " + (error?.localizedDescription ?? "Success"))
+        }
     }
 
     func onDePersonalize() {
@@ -327,6 +341,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.settings.backgroungColor = .orange
         MMChatSettings.settings.errorLabelTextColor = .white
         MMChatSettings.settings.errorLabelBackgroundColor = .red
+        MMChatSettings.settings.widgetTheme = "dark" // You need to have this theme defined in your widget's setup. See method 'onChangeTheme' for more info.
         MMChatSettings.darkSettings = MMChatSettings()
         MMChatSettings().reversedColors()
         MMChatSettings.darkSettings?.backgroungColor = .black

@@ -16,12 +16,14 @@ struct ChatAPIKeys {
         static let maxUploadContentSize = "maxUploadContentSize"
         static let multiThread = "multiThread"
         static let callsEnabled = "callsEnabled"
+        static let themeNames = "themeNames"
 	}
 
 	struct QueryParams {
 		static let pushRegId = "pushRegId"
 		static let widgetId = "widgetId"
         static let jwt = "jwt"
+        static let theme = "theme"
 		static let io = "io"
 	}
 	

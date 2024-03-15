@@ -22,6 +22,8 @@ protocol ChatJSWrapper {
                             completion: @escaping (_ error: NSError?) -> Void)
     func addViewChangedListener(completion: @escaping (_ error: NSError?) -> Void)
     func showThreadsList(completion: @escaping (_ error: NSError?) -> Void)
+    func setTheme(_ themeName: String,
+                 completion: @escaping (_ error: NSError?) -> Void)
 }
 
 @objc public enum MMChatMultiThreadStrategy: Int
@@ -41,6 +43,7 @@ protocol ChatJSWrapper {
 
 extension WKWebView: NamedLogger {}
 extension WKWebView: ChatJSWrapper {
+
     func sendMessage(_ message: String? = nil, attachment: ChatMobileAttachment? = nil) {
         sendMessage(message, attachment: attachment, completion: { _ in })
     }
@@ -141,6 +144,20 @@ extension WKWebView: ChatJSWrapper {
     func resumeChat(completion: @escaping (NSError?) -> Void) {
         self.evaluateJavaScript("resumeChat()") { [weak self] (response, error) in
             self?.logDebug("resumeChat got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+            completion(error as? NSError)
+        }
+    }
+
+    func setTheme(_ themeName: String, completion: @escaping (_ error: NSError?) -> Void) {
+        guard let themeJS = themeName.javaScriptEscapedString() else {
+            let reasonString = "setTheme not called, unable to obtain escaped localed for \(themeName)"
+            logDebug(reasonString)
+            completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
+            return
+        }
+        self.evaluateJavaScript("setTheme(\(themeJS))") {
+            (response, error) in
+            self.logDebug("setTheme call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
         }
     }

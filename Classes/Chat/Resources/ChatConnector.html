@@ -32,19 +32,29 @@
                 });
        
             const jwt = getQueryParameter('jwt');
+            const theme = getQueryParameter('theme');
+
             let inputParams = {
                'pushRegistrationId' : getQueryParameter('pushRegId'),
             };
+
             if(jwt != null) {
                inputParams.jwt = jwt;
             }
+
+            const onShowCallback = function (error, result) {
+               if (error == null && theme != null ) {
+                   liveChat('set_theme', theme);
+               }
+            }
+
             // identify the user by pushRegistrationId and, optionally, a JSON Web Token
             liveChat('identify', inputParams, function(error, result) {
                 if (error) {
                     window.webkit.messageHandlers.onError.postMessage({errorMessage: error});
                 } else {
                    liveChat('init');
-                   liveChat('show');
+                   liveChat('show', null, onShowCallback);
                    window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
                 }
             });
@@ -98,6 +108,10 @@
 
            function resumeChat() {
                liveChat('mobile_chat_resume');
+           }
+
+           function setTheme(themeName) {
+               liveChat('set_theme', themeName);
            }
 
 	   </script>

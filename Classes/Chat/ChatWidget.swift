@@ -15,7 +15,8 @@ public class ChatWidget {
     public let maxUploadContentSize: UInt
     public let isMultithread: Bool?
     public let callsEnabled: Bool?
-    
+    public let themeNames: [String]
+
 	init?(responseJson json: JSON) {
 		guard let widgetId = json[ChatAPIKeys.Widget.widgetId].string,
              let maxUploadContentSize = json[ChatAPIKeys.Widget.maxUploadContentSize].uInt else {
@@ -28,5 +29,13 @@ public class ChatWidget {
         self.maxUploadContentSize = maxUploadContentSize
         self.isMultithread = json[ChatAPIKeys.Widget.multiThread].bool
         self.callsEnabled = json[ChatAPIKeys.Widget.callsEnabled].bool
+        let jsonThemes = json[ChatAPIKeys.Widget.themeNames].arrayValue
+        var stringThemes: [String] = []
+        for jsonTheme in jsonThemes {
+            if let theme = jsonTheme.string {
+                stringThemes.append(theme)
+            }
+        }
+        self.themeNames = stringThemes
 	}
 }

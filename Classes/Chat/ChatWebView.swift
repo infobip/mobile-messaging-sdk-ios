@@ -62,7 +62,10 @@ class ChatWebView: WKWebView {
         if let jwt = MobileMessaging.inAppChat?.jwt {
             components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.jwt, value: jwt))
         }
-		
+        if let theme = MMChatSettings.settings.widgetTheme {
+            components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.theme, value: theme))
+        }
+
 		guard let componentsUrl = components.url else {
 			logDebug("can't load ChatConnector.html, components.url = nil")
 			return nil

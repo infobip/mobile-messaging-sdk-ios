@@ -44,16 +44,12 @@ private typealias CBC = ComposeBarConsts
 @objcMembers
 public class MMChatSettings: NSObject, MMPropertyLoopable {
     public static var settings: MMChatSettings = MMChatSettings()
+    @available(*, deprecated, message: "The variable `widgetTheme` and `settings` should now be used instead for altering the chat colours. This variable will be removed in a future release")
     public static var darkSettings: MMChatSettings?
     // You can define your own custom appearance for chat view by accessing a chat settings object.
     public private(set) static var sharedInstance: MMChatSettings {
         get {
             if MMChatSettings.isDarkMode {
-                if (darkSettings == nil) {
-                    darkSettings = MMChatSettings()
-                    darkSettings?.reversedColors()
-                    darkSettings?.advancedSettings.reversedColors()
-                }
                 return darkSettings ?? settings
             } else {
                 return settings
@@ -81,11 +77,13 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     public var shouldSetNavBarAppearance: Bool = true
     public var shouldHandleKeyboardAppearance: Bool = true
     public var shouldUseExternalChatInput: Bool = false
+    public var widgetTheme: String?
 
     public var advancedSettings: MMAdvancedChatSettings = MMAdvancedChatSettings() { didSet { postAppearanceChangedNotification() } }
 
     public var multithreadBackButton: UIBarButtonItem?
     
+    @available(*, deprecated, message: "The variable `widgetTheme` and `settings` should now be used instead for altering the chat colours. This variable will be removed in a future release")
     public static var colorTheme: ColorTheme = .light {
         didSet {
             switch colorTheme {

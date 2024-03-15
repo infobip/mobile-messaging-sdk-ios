@@ -82,7 +82,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         setupChatNotAvailableLabel()
         handleColorTheme()
     }
-    
+
     open override func viewDidLoad() {
         super.viewDidLoad()
         MobileMessaging.inAppChat?.webViewDelegate = self
@@ -92,7 +92,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         webView.backgroundColor = bckgColor
         webView.isOpaque = false
         view.backgroundColor = bckgColor
-        
         NotificationCenter.default.addObserver(self, selector: #selector(appBecomeActive), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appBecomeInactive), name: UIApplication.didEnterBackgroundNotification, object: nil)
 
@@ -281,6 +280,16 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             return
         }
         wWebView.setLanguage(language, completion: completion)
+    }
+
+    public func setWidgetTheme(_ themeName: String, completion: @escaping (_ error: NSError?) -> Void) {
+        weak var wWebView = webView
+        guard let wWebView = wWebView else {
+            completion(nil)
+            return
+        }
+        settings?.widgetTheme = themeName
+        wWebView.setTheme(themeName, completion: completion)
     }
 
     func didEnableControls(_ enabled: Bool) {
