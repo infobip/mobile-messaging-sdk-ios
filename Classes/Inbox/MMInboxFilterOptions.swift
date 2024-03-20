@@ -18,6 +18,7 @@ import Foundation
     public let topic: String?
     public let limit: Int?
     
+    
     /**
      - parameter fromDateTime: defines that messages with send datetime greater than or equal `fromDateTime` should be fetched. Default is undefined.
      - parameter toDateTime: defines that messages with send datetime less than `toDateTime` should be fetched. Default is undefined.
@@ -29,5 +30,24 @@ import Foundation
         self.toDateTime = toDateTime
         self.topic = topic
         self.limit = limit
+    }
+    
+    public required convenience init(dictRepresentation dict: DictionaryRepresentation) {
+        var fromDateTime: Date?
+        if let fromDateTimeValue = dict["fromDateTime"] as? String {
+            fromDateTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: fromDateTimeValue)
+        }
+    
+        var toDateTime: Date?
+        if let toDateTimeValue = dict["toDateTime"] as? String {
+            toDateTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: toDateTimeValue)
+        }
+        
+        self.init(
+            fromDateTime: fromDateTime,
+            toDateTime: toDateTime,
+            topic: dict["topic"] as? String,
+            limit: dict["limit"] as? Int
+        )
     }
 }
