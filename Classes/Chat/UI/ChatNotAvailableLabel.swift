@@ -46,7 +46,7 @@ class ChatNotAvailableLabel: UILabel {
     }
     
     func setVisibility(_ changeToVisible: Bool, text: String?) {
-        DispatchQueue.main.async {
+        DispatchQueue.mmEnsureMain {
             if self.isHidden == changeToVisible {
                 self.text = text
                 let originalClipToBounds = self.superview?.clipsToBounds ?? false

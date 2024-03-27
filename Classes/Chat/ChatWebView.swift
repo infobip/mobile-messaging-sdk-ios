@@ -38,7 +38,7 @@ class ChatWebView: WKWebView {
 				return
 		}
 		if let backgroundColor = widget.backgroundColor {
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.mmEnsureMain { [weak self] in
                 self?.isOpaque = true
                 self?.scrollView.backgroundColor = UIColor(hexString: backgroundColor)
             }

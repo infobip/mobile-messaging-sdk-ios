@@ -24,7 +24,7 @@ public class MMPopupView: UIAlertController {
         style: MMPopupView.BrandStyle,
         actions: [UIAlertAction] = [UIAlertAction(title: MMLoc.ok, style: .cancel, handler: nil)],
         in viewController: UIViewController) {
-        DispatchQueue.main.async {
+        DispatchQueue.mmEnsureMain {
             let settings = MMWebRTCSettings.sharedInstance
             let popup = MMPopupView(title: title, message: message,
                                     preferredStyle: .alert)

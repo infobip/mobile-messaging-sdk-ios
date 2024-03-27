@@ -279,6 +279,7 @@
 		A843A43F28F5A6D700D5196F /* MMCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A43028F5A6D600D5196F /* MMCallFactory.swift */; };
 		A843A44128F5A93600D5196F /* MMWebRTCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A44028F5A93600D5196F /* MMWebRTCService.swift */; };
 		A87017A829028E6F00B696CE /* MMWebRTCService+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */; };
+		A88E21562BADA839000C10A8 /* MMDispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88E21552BADA839000C10A8 /* MMDispatchQueue.swift */; };
 		A88E21582BADABD6000C10A8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A88E21572BADABD6000C10A8 /* PrivacyInfo.xcprivacy */; };
 		A8C5555F2AAF727100C52893 /* MMChatError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C5555E2AAF727100C52893 /* MMChatError.swift */; };
 		A8CBD7D1292CCDA200322961 /* UIView+Associated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */; };
@@ -658,6 +659,7 @@
 		A84781C12AC18440009FA3F7 /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = sr.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A86ABE51285C646F00D5E00C /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+Push.swift"; sourceTree = "<group>"; };
+		A88E21552BADA839000C10A8 /* MMDispatchQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMDispatchQueue.swift; sourceTree = "<group>"; };
 		A88E21572BADABD6000C10A8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A8C5555E2AAF727100C52893 /* MMChatError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatError.swift; sourceTree = "<group>"; };
 		A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Associated.swift"; sourceTree = "<group>"; };
@@ -1076,6 +1078,7 @@
 		764556311F78FF4F00B8F14B /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				A88E21552BADA839000C10A8 /* MMDispatchQueue.swift */,
 				764556321F78FF4F00B8F14B /* MMGCD.swift */,
 				764556331F78FF4F00B8F14B /* MMLocalization.swift */,
 				367B1A992918F3640081983C /* MMLoc.swift */,
@@ -1786,6 +1789,7 @@
 				764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */,
 				A8CBD7D3292CCDA200322961 /* UIViewController+Associated.swift in Sources */,
 				A08CB26D2459B0C600ED91B6 /* ChatRequests.swift in Sources */,
+				A88E21562BADA839000C10A8 /* MMDispatchQueue.swift in Sources */,
 				A0672BC92AC1A3CC005EDCD9 /* MMInAppMessage.swift in Sources */,
 				A838992728F7025E00322E68 /* UIAlertController+MMSetup.swift in Sources */,
 				ADF2034D2086664100E157D7 /* GeoDatesUtils.swift in Sources */,

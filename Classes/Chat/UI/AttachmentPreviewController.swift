@@ -73,7 +73,7 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
     private func loadAttachment(forURL url: URL) {
         
         let destination: DownloadRequest.DownloadFileDestination = { url, urlResponse in
-            DispatchQueue.main.async {
+            DispatchQueue.mmEnsureMain {
                 self.title = urlResponse.suggestedFilename
             }
             return (URL.chatAttachmentDestinationUrl(sourceUrl: url, suggestedFileName: urlResponse.suggestedFilename), DownloadRequest.DownloadOptions.removePreviousFile)

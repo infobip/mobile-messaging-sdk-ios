@@ -35,6 +35,7 @@ class MediaCallView: UIView {
     private var screenshareVideoView: UIView?
         
     var onStopScreenshareTap: (() -> Void)?
+    var onRemoteScreenshareTap: (() -> Void)?
     
     lazy var headerHeightConstraint: NSLayoutConstraint = header.heightAnchor.constraint(equalToConstant: 45)
     
@@ -88,7 +89,7 @@ class MediaCallView: UIView {
         return view
     }()
     // result -> completion handler, which indicates should view move to media view or not
-    func updateMedia(with state: MediaCallState, floatingWindow: FloatingWindowView, result: (Bool) -> Void) {
+    func updateMedia(with state: MediaCallState, floatingWindow: FloatingWindowView, isPIP: Bool, result: (Bool) -> Void) {
         remoteVideoView?.removeFromSuperview()
         remoteVideoView = nil
 
@@ -138,7 +139,7 @@ class MediaCallView: UIView {
             localFloatingWindowView = videoView
         }
         
-        floatingWindow.setup(with: localFloatingWindowView, secondView: remoteFloatingWindowView)
+        floatingWindow.setup(with: localFloatingWindowView, secondView: remoteFloatingWindowView, isPIP: isPIP)
         
         func createVideoView(with mode: UIView.ContentMode) -> UIView {
             let view = InfobipRTCFactory.videoView(frame: .zero, contentMode: mode)
@@ -159,8 +160,10 @@ class MediaCallView: UIView {
 
     var screenshareOverlay: UIView?
     @objc private func onRemoteScreenshareDidTap() {
-        if PIPKit.isPIP { return }
-        
+        onRemoteScreenshareTap?()
+    }
+    
+    func addScreenshareOverlay() {
         if let screenshareVideoView = screenshareVideoView, screenshareOverlay == nil {
             let button = MMCallButton()
             button.set(
@@ -236,7 +239,6 @@ class MediaCallView: UIView {
         header.dividerView.isHidden = isPIP
         header.headerStack.spacing = isPIP ? 0 : 8
         headerHeightConstraint.constant = isPIP ? 90 : 45
-        
     }
 }
 #endif

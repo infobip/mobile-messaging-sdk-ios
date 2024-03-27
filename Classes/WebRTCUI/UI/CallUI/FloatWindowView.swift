@@ -49,7 +49,7 @@ class FloatingWindowView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setup(with view: UIView?, secondView: UIView?) {
+    func setup(with view: UIView?, secondView: UIView?, isPIP: Bool) {
         if movingContainer.subviews.isEmpty {
             moveFloatingWindow(
                 x: frame.width - movingContainer.frame.width/2,
@@ -88,24 +88,24 @@ class FloatingWindowView: UIView {
                 secondView.widthAnchor.constraint(equalTo: movingContainer.widthAnchor, multiplier: 0.49)
             ])
             
-            setFloatingWindowPosition(x: 0, y: frame.height / 2 - movingContainer.frame.height / 2 - bottomOffset)
-            self.movingContainer.isHidden = false && PIPKit.isPIP
+            setFloatingWindowPosition(x: 0, y: frame.height / 2 - movingContainer.frame.height / 2 - bottomOffset, isPIP: isPIP)
+            self.movingContainer.isHidden = false && isPIP
 
             return
         }
         
         if let firstView = view {
-            setup(view: firstView)
+            setup(view: firstView, isPIP: isPIP)
             return
         }
         
         if let secondView = secondView {
-            setup(view: secondView)
+            setup(view: secondView, isPIP: isPIP)
             return
         }
     }
     
-    private func setup(view: UIView) {
+    private func setup(view: UIView, isPIP: Bool) {
         movingContainerWidth.constant = layoutConstants.floatingWindowWidth
         movingContainer.addSubview(view)
         view.layer.masksToBounds = true
@@ -116,7 +116,7 @@ class FloatingWindowView: UIView {
             view.topAnchor.constraint(equalTo: movingContainer.topAnchor),
             view.bottomAnchor.constraint(equalTo: movingContainer.bottomAnchor)
         ])
-        self.movingContainer.isHidden = false && PIPKit.isPIP
+        self.movingContainer.isHidden = false && isPIP
     }
     
     lazy var currentOrigin = (x: movingContainerXAnchor.constant, y: movingContainerYAnchor.constant)
@@ -139,8 +139,8 @@ class FloatingWindowView: UIView {
         currentOrigin = (movingContainerXAnchor.constant, movingContainerYAnchor.constant)
     }
     
-    func setFloatingWindowPosition(x: CGFloat, y: CGFloat) {
-        if PIPKit.isPIP {
+    func setFloatingWindowPosition(x: CGFloat, y: CGFloat, isPIP: Bool) {
+        if isPIP {
             movingContainerXAnchor.constant = x
             movingContainerYAnchor.constant = y
             currentOrigin = (movingContainerXAnchor.constant, movingContainerYAnchor.constant)
@@ -149,6 +149,16 @@ class FloatingWindowView: UIView {
     
     func refreshWithCurrentPositionToBounds() {
         moveFloatingWindow(x: movingContainerXAnchor.constant, y: movingContainerYAnchor.constant)
+    }
+    
+    func recalculatePosition(isPIP: Bool) {
+        let widthRatioPosition = currentOrigin.x / frame.width
+        let heightRatioPosition = currentOrigin.y / frame.height
+        
+        let newX = widthRatioPosition * frame.height
+        let newY = heightRatioPosition * frame.width
+        
+        setFloatingWindowPosition(x: newX, y: newY, isPIP: isPIP)
     }
     
     private func moveContainer(
@@ -185,18 +195,6 @@ class FloatingWindowView: UIView {
             return nil
         }
         return superHitTest
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        
-        let widthRatioPosition = currentOrigin.x / frame.width
-        let heightRatioPosition = currentOrigin.y / frame.height
-        
-        let newX = widthRatioPosition * frame.height
-        let newY = heightRatioPosition * frame.width
-        
-        setFloatingWindowPosition(x: newX, y: newY)
     }
 }
 #endif

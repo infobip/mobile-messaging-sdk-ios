@@ -10,6 +10,10 @@ import UIKit
 #if WEBRTCUI_ENABLED
 private let kGap: CGFloat = 8.0
 
+fileprivate class PopOverBaseView: UIView {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? { return nil }
+}
+
 public final class MMPopOverBar {
     public static let shared = MMPopOverBar()
     private static let kWindowLevel: UIWindow.Level = UIWindow.Level(UIWindow.Level.statusBar.rawValue + 1)
@@ -21,7 +25,7 @@ public final class MMPopOverBar {
         }
     }
     private var options = Options(shouldConsiderSafeArea: true, isStretchable: true, textAlignment: .left)
-    private var baseView = UIView(frame: UIScreen.main.bounds)
+    private var baseView = PopOverBaseView()
     private var safeArea: UIEdgeInsets {
         let window = UIApplication.shared.keyWindow
         return window?.safeAreaInsets ?? .zero
@@ -58,15 +62,16 @@ public final class MMPopOverBar {
                      textColor: UIColor,
                      message: String,
                      duration: TimeInterval = 3,
+                     hideOnTap: Bool = true,
                      style: MMPopupView.BrandStyle = .error,
                      options: Options? = nil,
                      completion: (() -> Void)? = nil,
                      presenterVC: UIViewController) {
-        DispatchQueue.main.async {
+        DispatchQueue.mmEnsureMain {
             let currentOptions = options ?? self.options
             self.baseView.frame = UIScreen.main.bounds
             presenterVC.view.addSubview(self.baseView)
-            let popoverView = MMPopoverView(frame: .zero, style: style)
+            let popoverView = MMPopoverView(frame: .zero, style: style, hideOnTap: hideOnTap)
             popoverView.backgroundColor = backgroundColor
             popoverView.messageLabel.textColor = textColor
             popoverView.messageLabel.text = message
@@ -83,7 +88,7 @@ public final class MMPopOverBar {
         let statusBarHeight: CGFloat = max(48.0, safeArea.top)
         let alertBarHeight: CGFloat = max(statusBarHeight, popoverView.frame.height)
         self.baseView.addSubview(popoverView)
-        popoverView.frame.size.width = self.getFrameBasedOnOrientation().width
+        popoverView.frame.size.width = UIScreen.main.bounds.width
         popoverView.fit(safeArea: popoverView.shouldConsiderSafeArea ? self.safeArea : .zero)
         baseView.frame = popoverView.frame
         popoverView.show(duration: popoverView.duration, translationY: -alertBarHeight) {
@@ -100,15 +105,9 @@ public final class MMPopOverBar {
         NotificationCenter.default.removeObserver(self)
     }
 
-    private func getFrameBasedOnOrientation() -> CGRect {
-        let isLandscape = UIApplication.shared.statusBarOrientation.isLandscape
-        return CGRect(x: kGap, y: 0,
-                      width: UIScreen.main.bounds.width, height: 0)
-    }
-
     @objc public func deviceRotated() {
-        DispatchQueue.main.async {
-            self.baseView.frame = self.getFrameBasedOnOrientation()
+        DispatchQueue.mmEnsureMain {
+            self.baseView.frame = CGRect(x: kGap, y: 0, width: UIScreen.main.bounds.width, height: 0)
             if let popoverView = self.popoversViews.first, popoverView.state == .showing {
                 popoverView.frame.size.width = self.baseView.frame.size.width
                 popoverView.fit(safeArea: popoverView.shouldConsiderSafeArea ? self.safeArea : .zero)
@@ -124,15 +123,15 @@ public extension MMPopOverBar {
         shared.options = options
     }
 
-    static func show(backgroundColor: UIColor, textColor: UIColor, message: String, duration: TimeInterval = 3,
+    static func show(backgroundColor: UIColor, textColor: UIColor, message: String, duration: TimeInterval = 3, hideOnTap: Bool = true,
                      options: Options? = nil, completion: (() -> Void)? = nil, presenterVC: UIViewController) {
         shared.show(backgroundColor: backgroundColor,
-                    textColor: textColor, message: message, duration: duration,
+                    textColor: textColor, message: message, duration: duration, hideOnTap: hideOnTap,
                     options: options, completion: completion, presenterVC: presenterVC)
     }
 
     static func hide(with animation: Bool = false) {
-        DispatchQueue.main.async {
+        DispatchQueue.mmEnsureMain {
             shared.popoversViews.forEach({ $0.hide(with: animation) })
         }
     }
@@ -161,7 +160,7 @@ internal class MMPopoverView: UIView {
         fatalError("NSCoding not supported")
     }
 
-    public init(frame: CGRect, style: MMPopupView.BrandStyle = .error) {
+    public init(frame: CGRect, style: MMPopupView.BrandStyle = .error, hideOnTap: Bool = true) {
         super.init(frame: frame)
         iconImageV.image = MMWebRTCSettings.sharedInstance.iconAlert
         iconImageV.frame = CGRect(x: kGap,
@@ -171,8 +170,10 @@ internal class MMPopoverView: UIView {
         messageLabel.frame = .zero
         addSubview(messageLabel)
         addSubview(iconImageV)
-        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(hide))
-        addGestureRecognizer(gestureRecognizer)
+        if hideOnTap {
+            let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(hide))
+            addGestureRecognizer(gestureRecognizer)
+        }
     }
 
     func fit(safeArea: UIEdgeInsets) {
@@ -184,10 +185,6 @@ internal class MMPopoverView: UIView {
         messageLabel.frame.size.height = adjustedSize.height
         frame.size.height = messageLabel.frame.origin.y + messageLabel.frame.height + kGap * 2
         iconImageV.center.y = messageLabel.center.y
-    }
-
-    deinit {
-        print("popoverView deinit")
     }
 
     func show(duration: TimeInterval, translationY: CGFloat, completion: (() -> Void)?) {

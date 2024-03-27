@@ -209,6 +209,11 @@ public class MMCallController: UIViewController, MMPIPUsable {
                 button.isSelected = !result
             }
         }
+        
+        callView.mediaView.onRemoteScreenshareTap = { [weak self] in
+            if PIPKit.isPIP { return }
+            self?.callView.mediaView.addScreenshareOverlay()
+        }
     }
     
     func showErrorAlert(message: String?) {
@@ -265,7 +270,8 @@ public class MMCallController: UIViewController, MMPIPUsable {
                 backgroundColor: settings.backgroundColor,
                 textColor: settings.foregroundColor,
                 message: MMLoc.microphoneMuted,
-                duration: 9999, // Don't use double(Int.max) because it overflows TimeInterval
+                duration: 9999,
+                hideOnTap: false, // Don't use double(Int.max) because it overflows TimeInterval
                 options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
                                               isStretchable: true),
                 completion: nil,

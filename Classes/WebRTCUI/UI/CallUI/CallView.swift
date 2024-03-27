@@ -297,14 +297,14 @@ class CallView: UIView {
             switch self.state.callState {
             case .mediaCall(let mediaCallState):
                 mediaCallState.updateTracks(with: updateMedia)
-                mediaView.updateMedia(with: mediaCallState, floatingWindow: movingContainerOverlay, result: { result in
+                mediaView.updateMedia(with: mediaCallState, floatingWindow: movingContainerOverlay, isPIP: PIPKit.isPIP, result: { result in
                     if !result {
                         self.updateState(with: .audioCall)
                     }
                 })
             default:
                 mediaState.updateTracks(with: updateMedia)
-                self.mediaView.updateMedia(with: mediaState, floatingWindow: movingContainerOverlay, result: { result in
+                self.mediaView.updateMedia(with: mediaState, floatingWindow: movingContainerOverlay, isPIP: PIPKit.isPIP, result: { result in
                     if result {
                         self.updateState(with: .mediaCall(mediaState))
                     } else {
@@ -335,7 +335,7 @@ class CallView: UIView {
                     voiceCallView.removeFromSuperview()
                     setupMediaView()
                 }
-                mediaView.updateMedia(with: model, floatingWindow: movingContainerOverlay, result: { result in
+                mediaView.updateMedia(with: model, floatingWindow: movingContainerOverlay, isPIP: PIPKit.isPIP, result: { result in
                     if !result {
                         updateState(with: .audioCall)
                     }
@@ -397,7 +397,10 @@ class CallView: UIView {
         
         movingContainerOverlay.setFloatingWindowPosition(
             x: 0,
-            y: movingContainerOverlay.frame.height/2 - movingContainerOverlay.movingContainer.frame.height/2 - movingContainerOverlay.bottomOffset
+            y: movingContainerOverlay.frame.height/2 
+            - movingContainerOverlay.movingContainer.frame.height/2
+            - movingContainerOverlay.bottomOffset,
+            isPIP: PIPKit.isPIP
         )
     }
     // MARK: - Hit test
@@ -410,6 +413,11 @@ class CallView: UIView {
             return view
         }
         return superhitTest
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        movingContainerOverlay.recalculatePosition(isPIP: PIPKit.isPIP)
     }
 }
 #endif

@@ -186,7 +186,7 @@ class CallInteractor {
         if let activeCall = currentCall {
             
             let onErrorCompletion: (Error?) -> Void = { error in
-                DispatchQueue.main.async {
+                DispatchQueue.mmEnsureMain {
                     guard let error = error else { return }
                     self.showErrorAlert?(error.localizedDescription)
                 }

@@ -309,11 +309,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     override var isComposeBarVisible: Bool {
         didSet {
             if oldValue != isComposeBarVisible {
-                setComposeBarVisibility(isVisible: isComposeBarVisible)
+                DispatchQueue.mmEnsureMain {
+                    self.setComposeBarVisibility(isVisible: self.isComposeBarVisible)
+                }
             } else if !isComposeBarVisible && !(composeBarView?.isHidden ?? true) {
                 // In some cases (ie the first time a multithread widget is loaded), we want to hide the
                 // composer without animation.
-                DispatchQueue.main.async {
+                DispatchQueue.mmEnsureMain {
                     self.composeBarView?.isHidden = true
                 }
             }
@@ -331,7 +333,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             return
         }
         if isVisible {
-            DispatchQueue.main.async {
+            DispatchQueue.mmEnsureMain {
                 self.composeBarView?.isHidden = false
             }
         }

@@ -428,7 +428,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	private func updateCharCountLabel() {
-        DispatchQueue.main.async {
+        DispatchQueue.mmEnsureMain {
             let isHidden = self.maxCharCount == 0 || self.textHeight == ComposeBarConsts.kTextViewFirstLineHeight
             self.charCountLabel.isHidden = isHidden
             if !isHidden {
@@ -504,7 +504,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	private func updatePlaceholderVisibility() {
-        DispatchQueue.main.async{
+        DispatchQueue.mmEnsureMain {
             let shouldHide = !self.textView.text.isEmpty
             self.placeholderLabel.isHidden = shouldHide
         }
@@ -526,7 +526,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
         // When a string longer than the max length is sent, we'll cut it into fragments of max length (or less) and send
         // them as individual messages, in order. This only applies to the default ComposerBar. Custom composers will
         // just trigger the chat's delegate method "textLengthExceeded" and not send.
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.mmEnsureMain { [weak self] in
             guard let self else { return }
             let max = Int(ChatAttachmentUtils.DefaultMaxTextLength)
             self.textBuffer.append(contentsOf: self.text.mm_components(withMaxLength: max))
