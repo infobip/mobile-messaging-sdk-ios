@@ -41,7 +41,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
 
     var webView: ChatWebView!
-    private var chatWidget: ChatWidget?
+    public private(set) var chatWidget: ChatWidget?
 
     public var messagesViewFrame: CGRect {
         set {

@@ -279,6 +279,7 @@
 		A843A43F28F5A6D700D5196F /* MMCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A43028F5A6D600D5196F /* MMCallFactory.swift */; };
 		A843A44128F5A93600D5196F /* MMWebRTCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A44028F5A93600D5196F /* MMWebRTCService.swift */; };
 		A87017A829028E6F00B696CE /* MMWebRTCService+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */; };
+		A88E21582BADABD6000C10A8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A88E21572BADABD6000C10A8 /* PrivacyInfo.xcprivacy */; };
 		A8C5555F2AAF727100C52893 /* MMChatError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C5555E2AAF727100C52893 /* MMChatError.swift */; };
 		A8CBD7D1292CCDA200322961 /* UIView+Associated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */; };
 		A8CBD7D2292CCDA200322961 /* UIWindow+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */; };
@@ -657,6 +658,7 @@
 		A84781C12AC18440009FA3F7 /* sr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sr; path = sr.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A86ABE51285C646F00D5E00C /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+Push.swift"; sourceTree = "<group>"; };
+		A88E21572BADABD6000C10A8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A8C5555E2AAF727100C52893 /* MMChatError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatError.swift; sourceTree = "<group>"; };
 		A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Associated.swift"; sourceTree = "<group>"; };
 		A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
@@ -942,6 +944,7 @@
 		764555D41F78FF4E00B8F14B /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				A88E21572BADABD6000C10A8 /* PrivacyInfo.xcprivacy */,
 				A0D477D729FBBDEF000B6C45 /* MMNotifications.h */,
 				A0D477D529FBBDD9000B6C45 /* MMNotifications.m */,
 				76EA825A2727DE2500D16E66 /* MobileMessagingService */,
@@ -1578,6 +1581,7 @@
 				76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */,
 				A0672C012AC1BFB0005EDCD9 /* WebInteractiveMessageAlertController.xib in Resources */,
 				A0672C022AC1BFB0005EDCD9 /* NativeInteractiveMessageAlertController.xib in Resources */,
+				A88E21582BADABD6000C10A8 /* PrivacyInfo.xcprivacy in Resources */,
 				A0672C032AC1BFB0005EDCD9 /* LoadingImageView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
