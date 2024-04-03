@@ -132,7 +132,7 @@ class VisibleCallButtonContent: CallViewButtonContent {
     var backgroundColor: UIColor
     var selectedBackgroundColor: UIColor?
     var action: (UIButton) -> Void
-    
+
     weak var button: UIButton?
     
     internal init(
@@ -418,6 +418,14 @@ class CallView: UIView {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         movingContainerOverlay.recalculatePosition(isPIP: PIPKit.isPIP)
+    }
+
+    public func resetMovingContainerCoord() {
+        // When coming back to fullscreen, we move the container, if present, to the original position
+        movingContainerOverlay.moveFloatingWindow(
+            x: movingContainerOverlay.frame.width - movingContainerOverlay.movingContainer.frame.width/2,
+            y: movingContainerOverlay.frame.height - movingContainerOverlay.movingContainer.frame.height/2 - safeAreaInsets.bottom/2
+        )
     }
 }
 #endif

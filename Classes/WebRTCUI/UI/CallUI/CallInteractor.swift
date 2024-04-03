@@ -123,28 +123,32 @@ class CallInteractor {
         return nil
     }
     
-    func micToggle() -> Bool? {
-        guard let currentCall = currentCall else { return nil }
-        do {
-            let shouldMute: Bool
-            switch currentCall {
-            case .applicationCall(let applicationCall):
-                shouldMute = !applicationCall.muted()
-                try applicationCall.mute(shouldMute)
-            case .webRTCCall(let webrtcCall):
-                shouldMute = !webrtcCall.muted()
-                try webrtcCall.mute(shouldMute)
-            }
-            return shouldMute
-        } catch let error as ApplicationCallError {
-            showErrorAlert?(error.description)
-        } catch {
-            showErrorAlert?(error.localizedDescription)
+    func micToggle(completion: ((Bool, Bool) -> Void)?) {
+        guard let currentCall = currentCall else {
+            completion?(false, false)
+            return
         }
-        return nil
+        CallInteractor.checkMicPermission(completion: { [weak self] granted in
+            do {
+                let shouldMute: Bool
+                switch currentCall {
+                case .applicationCall(let applicationCall):
+                    shouldMute = !applicationCall.muted()
+                    try applicationCall.mute(shouldMute)
+                case .webRTCCall(let webrtcCall):
+                    shouldMute = !webrtcCall.muted()
+                    try webrtcCall.mute(shouldMute)
+                }
+                completion?(shouldMute, granted)
+            } catch let error as ApplicationCallError {
+                self?.showErrorAlert?(error.description)
+            } catch {
+                self?.showErrorAlert?(error.localizedDescription)
+            }
+        })
     }
     
-    func videoToggle(completion: ((Bool) -> Void)?) {
+    func videoToggle(completion: ((Bool, Bool) -> Void)?) {
         CallInteractor.checkCamPermission(completion: { [weak self] granted in
             if granted {
                 do {
@@ -152,10 +156,10 @@ class CallInteractor {
                         switch activeCall {
                         case .applicationCall(let applicationCall):
                             try applicationCall.cameraVideo(cameraVideo: !applicationCall.hasCameraVideo())
-                            completion?(applicationCall.hasCameraVideo())
+                            completion?(applicationCall.hasCameraVideo(), granted)
                         case .webRTCCall(let webRTCCall):
                             try webRTCCall.cameraVideo(cameraVideo: !webRTCCall.hasCameraVideo())
-                            completion?(webRTCCall.hasCameraVideo())
+                            completion?(webRTCCall.hasCameraVideo(), granted)
                         }
                     }
                 } catch let error as CallError {
@@ -164,7 +168,7 @@ class CallInteractor {
                     self?.showErrorAlert?(MMLoc.somethingWentWrong)
                 }
             } else {
-                completion?(false)
+                completion?(false, granted)
             }
         })
     }

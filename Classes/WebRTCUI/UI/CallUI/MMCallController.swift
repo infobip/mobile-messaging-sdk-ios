@@ -103,6 +103,17 @@ public class MMCallController: UIViewController, MMPIPUsable {
     }
     
     var screenshareButtonContent: CallViewButtonContent?
+    var micButtonContent: CallViewButtonContent? {
+        didSet {
+            DispatchQueue.global().async { // bckgr thread as we don't want to bloc UI presentation
+                CallInteractor.checkMicPermission(completion: { [weak self] granted in
+                    DispatchQueue.mmEnsureMain {
+                        self?.micButtonContent?.button?.isEnabled = granted
+                    }
+                })
+            }
+        }
+    }
 
     lazy var topConstraint: NSLayoutConstraint = callView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
     
@@ -163,13 +174,18 @@ public class MMCallController: UIViewController, MMPIPUsable {
             }
             actions.insert(.hangup, at: 0)
         }
-        
+
         let visibleButtons: [VisibleCallButtonContent] = actions.enumerated().compactMap { (index, action) in
             if index < Constants.visibleButtonsMaxCount {
                 let button = self.buildButton(for: action)
                 let model = button.makeVisibleButtonModel()
-                if case .screenshare = action {
+                switch action {
+                case .microphone(_):
+                    self.micButtonContent = model
+                case .screenshare:
                     self.screenshareButtonContent = model
+                default:
+                    break
                 }
                 return model
             }
@@ -321,6 +337,12 @@ public class MMCallController: UIViewController, MMPIPUsable {
             self.setNeedsUpdatePIPFrame()
         }
     }
+
+    public func didChangedState(_ state: PIPState) {
+        if state == .full {
+            callView.resetMovingContainerCoord()
+        }
+    }
 }
 
 extension MMCallController {
@@ -356,11 +378,12 @@ extension MMCallController {
                 color: MMWebRTCSettings.sharedInstance.buttonColorSelected,
                 selectedColor: MMWebRTCSettings.sharedInstance.buttonColor,
                 text: "Microphone",
-                action: { [weak self] in
-                    if let result = self?.interactor.micToggle() {
-                        $0.isSelected = result
+                action: { [weak self] button in
+                    self?.interactor.micToggle(completion: { toggleResult, permitted in
+                        button.isSelected = toggleResult
+                        button.isEnabled = permitted
                         self?.handleMutePopover()
-                    }
+                    })
                     completion?()
                 }
             )
@@ -372,18 +395,16 @@ extension MMCallController {
                 selectedColor: MMWebRTCSettings.sharedInstance.buttonColorSelected,
                 text: "Video",
                 action: { [weak self] button in
-                    
-                    self?.interactor.videoToggle(completion: { toggleResult in
+                    self?.interactor.videoToggle(completion: { toggleResult, permitted in
                         DispatchQueue.main.async {
                             button.isSelected = toggleResult
-                            
+                            button.isEnabled = permitted
                             let cell = HiddenCallButtonContent(
                                 icon: MMWebRTCSettings.sharedInstance.iconFlipCamera,
                                 text: MMLoc.flipCamera,
                                 action: { [weak self] _ in
                                     self?.interactor.flipCamera()
                                 })
-                            
                             if toggleResult {
                                 self?.callView.hiddenButtonsView.addCell(with: cell)
                             } else {
