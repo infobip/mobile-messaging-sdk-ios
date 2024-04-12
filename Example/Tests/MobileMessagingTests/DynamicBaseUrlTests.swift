@@ -57,9 +57,20 @@ class DynamicBaseUrlTests: MMTestCase {
 		XCTAssertEqual(newSessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
 	}
 	
-    func testThatNewBaseUrlIsAppliedWhenReceivedFromBaseUrlEndpint() {
-        MMTestCase.startWithCorrectApplicationCode()
-        
+    func testThatNewBaseUrlIsAppliedWhenReceivedFromBaseUrlEndpoint() {
+        newBaseUrlTestingFlow(overwritingDefaultURL: true)
+    }
+
+    func testThatNewBaseUrlIsAppliedWhenReceivedFromFromDefaultBaseURL() {
+        newBaseUrlTestingFlow(overwritingDefaultURL: false)
+    }
+
+    func newBaseUrlTestingFlow(overwritingDefaultURL: Bool) {
+        if overwritingDefaultURL {
+            MMTestCase.startWithCorrectApplicationCode()
+        } else {
+            MMTestCase.startWithCorrectApplicationCodeDefaultBaseURL()
+        }
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
         weak var ex = expectation(description: "expectation")
@@ -82,7 +93,13 @@ class DynamicBaseUrlTests: MMTestCase {
         
         // then
         self.waitForExpectations(timeout: 10) { _ in
-            XCTAssertEqual(sessionManager.dynamicBaseUrl, URL(string: newUrl))
+            if overwritingDefaultURL {
+                // When there default URL was overwriting on initialisation, it is respected
+                XCTAssertEqual(sessionManager.dynamicBaseUrl, URL(string: MMTestCase.baseURL))
+            } else {
+                // Otherwise, the new URL should be set in dynamicBaseUrl
+                XCTAssertEqual(sessionManager.dynamicBaseUrl, URL(string: newUrl))
+            }
         }
     }
     

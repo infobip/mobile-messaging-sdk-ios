@@ -34,6 +34,7 @@ class GetChatRegistrationsOperation: MMOperation {
         mmContext.remoteApiProvider.getChatRegistrations(
             applicationCode: mmContext.applicationCode,
             pushRegistrationId: mmContext.currentInstallation().pushRegistrationId,
+            baseURL: mmContext.remoteAPIBaseURL,
             queue: underlyingQueue) { (result) in
                 self.operationResult = result
                 self.finishWithError(result.error)

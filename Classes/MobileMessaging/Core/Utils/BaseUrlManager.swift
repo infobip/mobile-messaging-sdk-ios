@@ -28,7 +28,9 @@ class BaseUrlManager: MobileMessagingService {
     }
         
     func checkBaseUrl(_ completion: @escaping (() -> Void)) {
-        guard itsTimeToCheckBaseUrl() else {
+        guard mmContext.remoteAPIBaseURL == Consts.APIValues.prodDynamicBaseURLString,
+        itsTimeToCheckBaseUrl() else {
+            // injected base URLs need to be respected. Otherwise, check for dynamic URL if needed
             completion()
             return
         }
@@ -39,6 +41,14 @@ class BaseUrlManager: MobileMessagingService {
         }
     }
     
+    public override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+        start({ _ in completion() })
+    }
+
+    public override func mobileMessagingDidStart(_ completion: @escaping () -> Void) {
+        checkBaseUrl({ completion() })
+    }
+
     func resetLastCheckDate(_ date: Date? = nil) {
         self.lastCheckDate = date
     }

@@ -218,7 +218,6 @@ public struct MMConsts {
 
 	public struct APIValues {
 		public static let prodDynamicBaseURLString = "https://mobile.infobip.com"
-        static let amgDynamicBaseURLString = "https://api.infobip.com"
 		public static let platformType = "APNS"
 		
 		struct MessageTypeValues {

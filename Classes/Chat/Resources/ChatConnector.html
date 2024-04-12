@@ -11,39 +11,51 @@
 			   margin: 0;
 		   }
 	   </style>
-        <script>
-			const prodURL = 'https://livechat.infobip.com/widget.js';
-			(function(I,n,f,o,b,i,p){
-			I[b]=I[b]||function(){(I[b].q=I[b].q||[]).push(arguments)};
-			I[b].t=1*new Date();i=n.createElement(f);i.async=1;i.src=o;
-			p=n.getElementsByTagName(f)[0];p.parentNode.insertBefore(i,p)})
-			(window,document,'script',prodURL,'liveChat');
-        </script>
+       <script>
+       </script>
    </head>
    <body>
 	   <script>
+
+           const jwt = getQueryParameter('jwt');
+           const theme = getQueryParameter('theme');
+           const widgetId = getQueryParameter('widgetId');
+           const domain = getQueryParameter('domain');
+           let prodURL = 'https://livechat.infobip.com/widget.js';
+
+           function isNullOrBlank(value) {
+               return !value?.toString().trim()
+           }
+
+           if (!isNullOrBlank(domain)) {
+               prodURL = 'https://livechat-' + domain.toLowerCase() + '.infobip.com/widget.js';
+           }
+
+           (function(I,n,f,o,b,i,p){
+           I[b]=I[b]||function(){(I[b].q=I[b].q||[]).push(arguments)};
+           I[b].t=1*new Date();i=n.createElement(f);i.async=1;i.src=o;
+           p=n.getElementsByTagName(f)[0];p.parentNode.insertBefore(i,p)})
+           (window,document,'script',prodURL,'liveChat');
+
 		   // Override widget config
 		   liveChat('config', {
-                widgetId: getQueryParameter('widgetId'),
+                widgetId: widgetId,
                 container: document.getElementsByTagName('body')[0],
                 showHeader: false,
                 showFooter: false,
                 showFab: false
                 });
-       
-            const jwt = getQueryParameter('jwt');
-            const theme = getQueryParameter('theme');
 
             let inputParams = {
                'pushRegistrationId' : getQueryParameter('pushRegId'),
             };
 
-            if(jwt != null) {
+            if(!isNullOrBlank(jwt)) {
                inputParams.jwt = jwt;
             }
 
             const onShowCallback = function (error, result) {
-               if (error == null && theme != null ) {
+               if (error == null && !isNullOrBlank(theme) ) {
                    liveChat('set_theme', theme);
                }
             }
@@ -53,7 +65,11 @@
                 if (error) {
                     window.webkit.messageHandlers.onError.postMessage({errorMessage: error});
                 } else {
-                   liveChat('init');
+                   if(!isNullOrBlank(domain)) {
+                       liveChat('init', { widgetId: widgetId, domain: domain });
+                   } else {
+                       liveChat('init');
+                   }
                    liveChat('show', null, onShowCallback);
                    window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
                 }

@@ -33,11 +33,11 @@ extension GetChatWidgetResponse: JSONDecodable {
 class MMGetChatRegistrationsRequest: GetRequest {
     typealias ResponseType = MMGetChatRegistrationsResult
 
-    init(applicationCode: String, pushRegistrationId: String) {
+    init(applicationCode: String, pushRegistrationId: String, baseURL: String) {
         super.init(applicationCode: applicationCode, accessToken: nil, path: .LiveChatInfo,
                    pushRegistrationId: pushRegistrationId,
                    pathParameters: ["{pushRegistrationId}": pushRegistrationId],
-                   baseUrl: URL(string: MMConsts.APIValues.prodDynamicBaseURLString))
+                   baseUrl: URL(string: baseURL))
     }
 }
 
@@ -76,6 +76,7 @@ extension RemoteAPIProvider {
     public func getChatRegistrations(
         applicationCode: String,
         pushRegistrationId: String?,
+        baseURL: String,
         queue: DispatchQueue,
         completion: @escaping (MMGetChatRegistrationsResult) -> Void)
     {
@@ -85,7 +86,8 @@ extension RemoteAPIProvider {
         }
         let request = MMGetChatRegistrationsRequest(
             applicationCode: applicationCode,
-            pushRegistrationId: pushRegId)
+            pushRegistrationId: pushRegId,
+            baseURL: baseURL)
         queue.async {
             MobileMessaging.sharedInstance?.remoteApiProvider.performRequest(
                 request: request, 

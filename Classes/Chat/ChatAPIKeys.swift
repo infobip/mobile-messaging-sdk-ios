@@ -25,6 +25,7 @@ struct ChatAPIKeys {
         static let jwt = "jwt"
         static let theme = "theme"
 		static let io = "io"
+        static let domain = "domain"
 	}
 	
 	struct JSMessageKeys {

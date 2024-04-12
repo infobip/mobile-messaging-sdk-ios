@@ -59,6 +59,7 @@ public class MMInAppChatService: MobileMessagingService {
     private var isConfigurationSynced: Bool = false
     private var callsEnabled: Bool?
     public var jwt: String?
+    public var domain: String? // Do not edit unless you have an agreement with Infobip to define the auth domain. 
     internal var ChatRegistrationId: String? {
         didSet {
             if let newRegId = ChatRegistrationId {

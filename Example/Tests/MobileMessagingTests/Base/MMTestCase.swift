@@ -160,6 +160,8 @@ class UserAgentStub: MMUserAgent {
 
 
 class MMTestCase: XCTestCase {
+    static let baseURL = "http://url.com"
+
     var mobileMessagingInstance: MobileMessaging {
         return MobileMessaging.sharedInstance!
     }
@@ -243,12 +245,24 @@ class MMTestCase: XCTestCase {
         mm?.doStart()
     }
     
-    class func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
-        let mm = MobileMessaging.withApplicationCode(code, notificationType: MMUserNotificationType(options: []) , backendBaseURL: "http://url.com")!
+    class func stubbedMMInstanceWithApplicationCode(_ code: String, backendBaseURL: String?) -> MobileMessaging? {
+        let mm: MobileMessaging?
+        if let backendBaseURL = backendBaseURL {
+            mm = MobileMessaging.withApplicationCode(
+                code, notificationType: MMUserNotificationType(options: []), backendBaseURL: backendBaseURL)
+        } else {
+            mm = MobileMessaging.withApplicationCode(
+                code, notificationType: MMUserNotificationType(options: []))
+        }
+        guard let mm = mm else { return nil }
         mm.setupApiSessionManagerStubbed()
         MobileMessaging.application = ActiveApplicationStub()
         mm.apnsRegistrationManager = ApnsRegistrationManagerStub(mmContext: mm)
         return mm
+    }
+
+    class func stubbedMMInstanceWithApplicationCode(_ code: String) -> MobileMessaging? {
+        return stubbedMMInstanceWithApplicationCode(code, backendBaseURL: MMTestCase.baseURL)
     }
     
     class func startWithCorrectApplicationCode() {
@@ -256,7 +270,13 @@ class MMTestCase: XCTestCase {
         mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
         mm.doStart()
     }
-    
+
+    class func startWithCorrectApplicationCodeDefaultBaseURL() {
+        let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode, backendBaseURL: nil)!
+        mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
+        mm.doStart()
+    }
+
     class func startWithWrongApplicationCode() {
         let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestWrongApplicationCode)!
         mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)
