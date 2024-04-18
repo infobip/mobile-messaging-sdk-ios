@@ -254,6 +254,30 @@ open class MM_MTMessage: MMBaseMessage, NamedLogger {
                             seenStatus: .NotSeen,
                             isDeliveryReportSent: false) != nil
     }
+    
+    public var dictionaryRepresentation: DictionaryRepresentation {
+        var dict = DictionaryRepresentation()
+        dict["messageId"] = messageId
+        dict["title"] = title
+        dict["body"] = text
+        dict["sound"] = sound
+        dict["silent"] = isSilent
+        dict["sentTimestamp"] = UInt64(sendDateTime * 1000)
+        dict["receivedTimestamp"] = UInt64(sendDateTime * 1000)
+        dict["customPayload"] = customPayload
+        dict["originalPayload"] = originalPayload
+        dict["contentUrl"] = contentUrl
+        dict["seen"] = seenStatus != .NotSeen
+        dict["seenDate"] = seenDate?.timeIntervalSince1970
+        dict["chat"] = isChatMessage
+        dict["browserUrl"] = browserUrl?.absoluteString
+        dict["deeplink"] = deeplink?.absoluteString
+        dict["webViewUrl"] = webViewUrl?.absoluteString
+        dict["inAppOpenTitle"] = inAppOpenTitle
+        dict["inAppDismissTitle"] = inAppDismissTitle
+        dict["topic"] = topic
+        return dict
+    }
 }
 
 func isSilentInternalData(_ internalData: MMStringKeyPayload?) -> Bool {
