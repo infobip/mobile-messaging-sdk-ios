@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
                             'Classes/MobileMessaging/Resources/MessageStorage/*.xcdatamodeld',
                             'Classes/MobileMessaging/Resources/InternalStorage/*.xcdatamodeld',
                             'Classes/MobileMessaging/Resources/InternalStorage/*.xcmappingmodel',
-                            'Classes/MobileMessaging/Core/*.{xcprivacy}'
+                            'Classes/MobileMessaging/Resources/*.{xcprivacy}'
                         ]
         }
         core.public_header_files =

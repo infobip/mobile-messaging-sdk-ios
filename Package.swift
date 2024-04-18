@@ -42,7 +42,8 @@ let package = Package(
             name: "MobileMessaging",
             dependencies: ["MobileMessagingObjC"],
             path: "Classes/MobileMessaging",
-            resources: [.process("Resources/InteractiveNotifications/PredefinedNotificationCategories.plist")]
+            resources: [.process("Resources/InteractiveNotifications/PredefinedNotificationCategories.plist"),
+                        .copy("Resources/PrivacyInfo.xcprivacy")]
         ),
         .target(
             name: "MobileMessagingObjC",

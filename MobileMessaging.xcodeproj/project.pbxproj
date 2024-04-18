@@ -280,7 +280,6 @@
 		A843A44128F5A93600D5196F /* MMWebRTCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A44028F5A93600D5196F /* MMWebRTCService.swift */; };
 		A87017A829028E6F00B696CE /* MMWebRTCService+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */; };
 		A88E21562BADA839000C10A8 /* MMDispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88E21552BADA839000C10A8 /* MMDispatchQueue.swift */; };
-		A88E21582BADABD6000C10A8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A88E21572BADABD6000C10A8 /* PrivacyInfo.xcprivacy */; };
 		A8C5555F2AAF727100C52893 /* MMChatError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C5555E2AAF727100C52893 /* MMChatError.swift */; };
 		A8CBD7D1292CCDA200322961 /* UIView+Associated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */; };
 		A8CBD7D2292CCDA200322961 /* UIWindow+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */; };
@@ -293,6 +292,7 @@
 		A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CE292CCDA200322961 /* PIPKitEventDispatcher.swift */; };
 		A8CBD7DA292CCDA200322961 /* PIPKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CF292CCDA200322961 /* PIPKit.swift */; };
 		A8CBD7DB292CCDA200322961 /* PIPUsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7D0292CCDA200322961 /* PIPUsable.swift */; };
+		A8F1EAB62BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
 		ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203322086642B00E157D7 /* String+Extension.swift */; };
 		ADF203402086642C00E157D7 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203332086642B00E157D7 /* Utils.swift */; };
@@ -660,7 +660,6 @@
 		A86ABE51285C646F00D5E00C /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+Push.swift"; sourceTree = "<group>"; };
 		A88E21552BADA839000C10A8 /* MMDispatchQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMDispatchQueue.swift; sourceTree = "<group>"; };
-		A88E21572BADABD6000C10A8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A8C5555E2AAF727100C52893 /* MMChatError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatError.swift; sourceTree = "<group>"; };
 		A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Associated.swift"; sourceTree = "<group>"; };
 		A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
@@ -674,6 +673,7 @@
 		A8CBD7CF292CCDA200322961 /* PIPKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPKit.swift; sourceTree = "<group>"; };
 		A8CBD7D0292CCDA200322961 /* PIPUsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPUsable.swift; sourceTree = "<group>"; };
 		A8CE8ACD285C6E03000CC98F /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = file; name = PrivacyInfo.xcprivacy; path = Classes/MobileMessaging/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
 		ADF203322086642B00E157D7 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		ADF203332086642B00E157D7 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		ADF203342086642B00E157D7 /* Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
@@ -946,7 +946,7 @@
 		764555D41F78FF4E00B8F14B /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				A88E21572BADABD6000C10A8 /* PrivacyInfo.xcprivacy */,
+				A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */,
 				A0D477D729FBBDEF000B6C45 /* MMNotifications.h */,
 				A0D477D529FBBDD9000B6C45 /* MMNotifications.m */,
 				76EA825A2727DE2500D16E66 /* MobileMessagingService */,
@@ -1584,7 +1584,7 @@
 				76DF5BC61FE808C800BAFD36 /* PredefinedNotificationCategories.plist in Resources */,
 				A0672C012AC1BFB0005EDCD9 /* WebInteractiveMessageAlertController.xib in Resources */,
 				A0672C022AC1BFB0005EDCD9 /* NativeInteractiveMessageAlertController.xib in Resources */,
-				A88E21582BADABD6000C10A8 /* PrivacyInfo.xcprivacy in Resources */,
+				A8F1EAB62BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy in Resources */,
 				A0672C032AC1BFB0005EDCD9 /* LoadingImageView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
