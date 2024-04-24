@@ -109,6 +109,8 @@
 		A026DDC02AC3215C00A7318C /* InboxServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026DDB92AC3215C00A7318C /* InboxServiceTests.swift */; };
 		A026DDC52AC3215C00A7318C /* MMInAppMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026DDBC2AC3215C00A7318C /* MMInAppMessageTests.swift */; };
 		A026DDC62AC3215C00A7318C /* MMInAppMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026DDBC2AC3215C00A7318C /* MMInAppMessageTests.swift */; };
+		A026E0272BD7E6FC007D042A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A026E0262BD7E6FC007D042A /* PrivacyInfo.xcprivacy */; };
+		A026E0282BD7E6FC007D042A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A026E0262BD7E6FC007D042A /* PrivacyInfo.xcprivacy */; };
 		A047BFD81CB4EB5C00A6859F /* CopyableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A047BFD71CB4EB5C00A6859F /* CopyableCell.swift */; };
 		A04F34BB1F594E8B00B9CC6E /* DeeplinkViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04F34BA1F594E8B00B9CC6E /* DeeplinkViewControllers.swift */; };
 		A04F34BD1F594EA600B9CC6E /* LinksHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04F34BC1F594EA600B9CC6E /* LinksHandler.swift */; };
@@ -228,6 +230,7 @@
 		A026DDB82AC3215C00A7318C /* InboxDataModelsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InboxDataModelsTests.swift; sourceTree = "<group>"; };
 		A026DDB92AC3215C00A7318C /* InboxServiceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InboxServiceTests.swift; sourceTree = "<group>"; };
 		A026DDBC2AC3215C00A7318C /* MMInAppMessageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMInAppMessageTests.swift; sourceTree = "<group>"; };
+		A026E0262BD7E6FC007D042A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A03999F11DE5A4E6001CCA3B /* MobileMessagingExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = MobileMessagingExample.entitlements; path = MobileMessagingExample/MobileMessagingExample.entitlements; sourceTree = "<group>"; };
 		A047BFD71CB4EB5C00A6859F /* CopyableCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CopyableCell.swift; sourceTree = "<group>"; };
 		A04CCEBB1DE7005C00D9E416 /* BaseSettingsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseSettingsTests.swift; sourceTree = "<group>"; };
@@ -363,6 +366,7 @@
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
+				A026E0262BD7E6FC007D042A /* PrivacyInfo.xcprivacy */,
 				76A1FD871F7D32E000924B51 /* Localizable.strings */,
 				A03999F11DE5A4E6001CCA3B /* MobileMessagingExample.entitlements */,
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
@@ -678,6 +682,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0DB0FBD1E2F8FC0005F5979 /* mocks in Resources */,
+				A026E0272BD7E6FC007D042A /* PrivacyInfo.xcprivacy in Resources */,
 				500003111CCB7B3C00C91479 /* (null) in Resources */,
 				50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */,
 				500003101CCB7B3C00C91479 /* (null) in Resources */,
@@ -711,6 +716,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A026E0282BD7E6FC007D042A /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1231,6 +1237,7 @@
 				CURRENT_PROJECT_VERSION = 1460136654033;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1246,6 +1253,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample;
 				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example 1647509060";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.infobip.mobilemessaging.example";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 			};
 			name = Debug;
@@ -1260,6 +1268,7 @@
 				CURRENT_PROJECT_VERSION = 1460136654033;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1275,6 +1284,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample;
 				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc com.infobip.mobilemessaging.example";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AdHoc com.infobip.mobilemessaging.example 1713876401";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 			};
 			name = Release;
@@ -1390,12 +1400,14 @@
 				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = T6U248P7YM;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example.NotificationServiceExtension 1647509068";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.infobip.mobilemessaging.example.NotificationServiceExtension";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 			};
@@ -1412,12 +1424,14 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
 				DEVELOPMENT_TEAM = T6U248P7YM;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc com.infobip.mobilemessaging.example.NotificationServiceExtension";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AdHoc com.infobip.mobilemessaging.example.NotificationServiceExtension 1713876406";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
