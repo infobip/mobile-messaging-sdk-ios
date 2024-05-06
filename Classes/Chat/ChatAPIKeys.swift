@@ -36,6 +36,7 @@ struct ChatAPIKeys {
         static let attachmentUrl = "url"
         static let attachmentType = "type"
         static let attachmentCaption = "caption"
+        static let additionalInfo = "additionalInfo"
 	}
 
     struct DestinationKeys {

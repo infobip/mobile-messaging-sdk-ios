@@ -37,6 +37,12 @@
            p=n.getElementsByTagName(f)[0];p.parentNode.insertBefore(i,p)})
            (window,document,'script',prodURL,'liveChat');
 
+           function propageError(error, text) {
+               if (error) {
+                   window.webkit.messageHandlers.onError.postMessage({errorMessage: error, additionalInfo: text});
+               }
+           }
+
 		   // Override widget config
 		   liveChat('config', {
                 widgetId: widgetId,
@@ -44,7 +50,10 @@
                 showHeader: false,
                 showFooter: false,
                 showFab: false
-                });
+               },
+               function(error, result) {
+                propageError(error, 'config('+widgetId+')')
+               });
 
             let inputParams = {
                'pushRegistrationId' : getQueryParameter('pushRegId'),
@@ -56,21 +65,33 @@
 
             const onShowCallback = function (error, result) {
                if (error == null && !isNullOrBlank(theme) ) {
-                   liveChat('set_theme', theme);
+                   liveChat('set_theme', theme,
+                    function(error, result) {
+                       propageError(error, 'set_theme('+theme+')')
+                    });
                }
             }
 
             // identify the user by pushRegistrationId and, optionally, a JSON Web Token
             liveChat('identify', inputParams, function(error, result) {
                 if (error) {
-                    window.webkit.messageHandlers.onError.postMessage({errorMessage: error});
+                    propageError(error, 'identify()')
                 } else {
                    if(!isNullOrBlank(domain)) {
-                       liveChat('init', { widgetId: widgetId, domain: domain });
+                       liveChat('init', { widgetId: widgetId, domain: domain },
+                            function(error, result) {
+                                propageError(error, 'init()')
+                            });
                    } else {
-                       liveChat('init');
+                       liveChat('init',
+                            function(error, result) {
+                                propageError(error, 'init()')
+                            });
                    }
-                   liveChat('show', null, onShowCallback);
+                   liveChat('show', null, onShowCallback,
+                        function(error, result) {
+                            propageError(error, 'show()')
+                        });
                    window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
                 }
             });

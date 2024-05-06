@@ -102,14 +102,20 @@ protocol JSMessage {
 
 class ErrorJSMessage : JSMessage, NamedLogger {
 	let message: String
-	
+
 	required init?(message: WKScriptMessage) {
-		guard let bodyDict = message.body as? [String: AnyObject],
-			let errorMessage = bodyDict[ChatAPIKeys.JSMessageKeys.errorMessage] as? String else {
+		guard let bodyDict = message.body as? [String: AnyObject] else {
 				ErrorJSMessage.logError("Error while handling js error message, data wasn't provided")
 				return nil
 		}
-		self.message = errorMessage
+
+        let errorMessage = (bodyDict[ChatAPIKeys.JSMessageKeys.errorMessage] as? String) ?? "Wrong InAppchat setup or method invokation"
+
+        if let additionalInfo = bodyDict[ChatAPIKeys.JSMessageKeys.additionalInfo] as? String {
+            self.message = errorMessage + " - " + additionalInfo
+        } else {
+            self.message = errorMessage
+        }
 	}
 }
 

@@ -82,7 +82,9 @@ class ExternalChatInputViewController: UIViewController, UINavigationControllerD
         if let image = info[.originalImage] as? UIImage {
             guard let imageData = image.jpegData(compressionQuality: 0.5) else { return }
             self.chatView.sendAttachment(data: imageData, completion: { error in
-                print(error)
+                if let error = error {
+                    print(error)
+                }
             })
             picker.dismiss(animated: true)
         }
