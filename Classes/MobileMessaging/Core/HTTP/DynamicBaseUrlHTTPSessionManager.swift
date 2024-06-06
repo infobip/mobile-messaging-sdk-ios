@@ -71,7 +71,7 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
         return (r.baseUrl ?? actualBaseUrl()).absoluteString + r.resolvedPath
 	}
     
-    func actualBaseUrl() -> URL {
+    public func actualBaseUrl() -> URL {
         return dynamicBaseUrl ?? originalBaseUrl
     }
 

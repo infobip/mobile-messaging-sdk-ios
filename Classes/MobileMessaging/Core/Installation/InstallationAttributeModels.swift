@@ -39,7 +39,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 	var registrationDate: Date?
 	var systemDataHash: Int64
 	public var location: CLLocation?
-	var badgeNumber: Int
+	public var badgeNumber: Int
 	var applicationCode: String?
     var applicationCodeHash: String?
 	var depersonalizeFailCounter: Int

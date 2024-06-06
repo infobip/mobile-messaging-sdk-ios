@@ -45,7 +45,7 @@ extension MobileMessaging {
     }
 }
 
-class NotificationsInteractionService: MobileMessagingService {
+public class NotificationsInteractionService: MobileMessagingService {
     let customNotificationCategories: Set<MMNotificationCategory>?
     
     var allNotificationCategories: Set<MMNotificationCategory>? {
@@ -89,7 +89,7 @@ class NotificationsInteractionService: MobileMessagingService {
         }
     }
     
-    static func presentInAppWebview(_ urlString: String, _ presentingVc: UIViewController, _ message: MM_MTMessage?) {
+    public static func presentInAppWebview(_ urlString: String, _ presentingVc: UIViewController, _ message: MM_MTMessage?) {
         let webViewController = MMWebViewController(url: urlString)
         webViewController.modalPresentationStyle = .fullScreen
         webViewController.applySettings(MobileMessaging.sharedInstance?.webViewSettings)
@@ -188,7 +188,7 @@ class NotificationsInteractionService: MobileMessagingService {
         ?? completion()
     }
     
-    override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
+    public override func mobileMessagingWillStart(_ completion: @escaping () -> Void) {
         guard let cs = allNotificationCategories, !cs.isEmpty else {
             completion()
             return
@@ -196,18 +196,18 @@ class NotificationsInteractionService: MobileMessagingService {
         start({_ in completion() })
     }
     
-    override func start(_ completion: @escaping (Bool) -> Void) {
+    public override func start(_ completion: @escaping (Bool) -> Void) {
         assert(!Thread.isMainThread)
         super.start(completion)
         syncWithServer({_ in})
     }
     
-    override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
+    public override func handleNewMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
         mmContext.interactiveAlertManager.showModalNotificationAutomatically(forMessage: message)
         completion(.noData)
     }
     
-    override func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
+    public override func handleAnyMessage(_ message: MM_MTMessage, completion: @escaping (MessageHandlingResult) -> Void) {
         guard isRunning, let appliedAction = message.appliedAction else {
             completion(.noData)
             return
@@ -252,7 +252,7 @@ class NotificationsInteractionService: MobileMessagingService {
         }
     }
     
-    override func appWillEnterForeground(_ completion: @escaping () -> Void) {
+    public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
         assert(!Thread.isMainThread)
         syncWithServer({_ in completion() })
     }
