@@ -88,13 +88,18 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         MobileMessaging.inAppChat?.webViewDelegate = self
         didEnableControls(false)
         registerToChatSettingsChanges()
-        let bckgColor = settings?.backgroungColor ?? .white
-        webView.backgroundColor = bckgColor
-        webView.isOpaque = false
-        view.backgroundColor = bckgColor
+        setBackgroundSettings()
         NotificationCenter.default.addObserver(self, selector: #selector(appBecomeActive), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appBecomeInactive), name: UIApplication.didEnterBackgroundNotification, object: nil)
 
+    }
+
+    private func setBackgroundSettings() {
+        let bckgColor = settings?.backgroundColor ?? .white
+        webView.backgroundColor = bckgColor
+        webView.isOpaque = false
+        webView.scrollView.backgroundColor = bckgColor
+        view.backgroundColor = bckgColor
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
@@ -150,7 +155,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         }
 
         setNavBarBranding(settings)
-
         title = settings.title
         
         if let sendButtonTintColor = settings.sendButtonTintColor,
@@ -160,10 +164,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         }
         
         brandComposer()
-        
-        let bckgColor = settings.backgroungColor ?? .white
-        webView.backgroundColor = bckgColor
-        view.backgroundColor = bckgColor
+        setBackgroundSettings()
     }
 
     private func setNavBarBranding(_ settings: MMChatSettings) {

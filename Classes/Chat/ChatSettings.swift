@@ -71,7 +71,7 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     public var navBarTitleColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var attachmentPreviewBarsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var attachmentPreviewItemsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
-    public var backgroungColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var backgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var shouldSetNavBarAppearance: Bool = true
@@ -112,8 +112,8 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
         }
         if let background = widget.backgroundColor {
             let color = UIColor(hexString: background)
-            if backgroungColor == nil {
-                backgroungColor = color
+            if backgroundColor == nil {
+                backgroundColor = color
             }
         }
     }
@@ -242,7 +242,7 @@ extension MMChatSettings {
             self.navBarTitleColor = UIColor(hexString: navigationBarTitleColor)
         }
         if let backgroundColor = rawConfig[MMChatSettings.Keys.backgroundColor] as? String {
-            self.backgroungColor = UIColor(hexString: backgroundColor)
+            self.backgroundColor = UIColor(hexString: backgroundColor)
         }
         if let attachmentPreviewBarsColor = rawConfig[MMChatSettings.Keys.attachmentPreviewBarsColor] as? String {
             self.attachmentPreviewBarsColor = UIColor(hexString: attachmentPreviewBarsColor)

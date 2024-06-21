@@ -205,7 +205,7 @@ public extension UIAlertController {
         let alertController = UIAlertController.init(title: title, message: message, preferredStyle: preferredStyle)
         if UIDevice.current.userInterfaceIdiom == .pad,
             let popoverController = alertController.popoverPresentationController {
-            popoverController.backgroundColor = MMChatSettings.sharedInstance.backgroungColor
+            popoverController.backgroundColor = MMChatSettings.sharedInstance.backgroundColor
             popoverController.sourceView = sourceView
             popoverController.sourceRect = sourceView.frame
             popoverController.permittedArrowDirections = []

@@ -37,12 +37,6 @@ class ChatWebView: WKWebView {
 				logDebug("no push registration id, can't start chat")
 				return
 		}
-		if let backgroundColor = widget.backgroundColor {
-            DispatchQueue.mmEnsureMain { [weak self] in
-                self?.isOpaque = true
-                self?.scrollView.backgroundColor = UIColor(hexString: backgroundColor)
-            }
-		}
 		load(request)
 	}
 	

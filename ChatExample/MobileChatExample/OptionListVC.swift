@@ -338,13 +338,13 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.settings.navBarTitleColor = .white
         MMChatSettings.settings.attachmentPreviewBarsColor = .brown
         MMChatSettings.settings.attachmentPreviewItemsColor = .white
-        MMChatSettings.settings.backgroungColor = .orange
+        MMChatSettings.settings.backgroundColor = .orange
         MMChatSettings.settings.errorLabelTextColor = .white
         MMChatSettings.settings.errorLabelBackgroundColor = .red
         MMChatSettings.settings.widgetTheme = "dark" // You need to have this theme defined in your widget's setup. See method 'onChangeTheme' for more info.
         MMChatSettings.darkSettings = MMChatSettings()
         MMChatSettings().reversedColors()
-        MMChatSettings.darkSettings?.backgroungColor = .black
+        MMChatSettings.darkSettings?.backgroundColor = .black
         MMChatSettings.darkSettings?.advancedSettings.mainTextColor                 = .white
         MMChatSettings.darkSettings?.advancedSettings.mainPlaceholderTextColor      = .lightGray
         MMChatSettings.darkSettings?.advancedSettings.textInputBackgroundColor      = .black
