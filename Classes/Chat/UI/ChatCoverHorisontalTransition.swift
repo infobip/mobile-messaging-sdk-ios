@@ -33,7 +33,7 @@ class ChatCoverHorisontalTransition: NSObject, UIViewControllerAnimatedTransitio
         
         if dismiss {
             containerView.bringSubviewToFront(fromVC.view)
-            View.animate(withDuration: duration, animations: {
+            UIView.animate(withDuration: duration, animations: {
                 fromVC.view.frame = frame
             }) { (finished) in
                 containerView.superview?.addSubview(toVC.view)
@@ -42,7 +42,7 @@ class ChatCoverHorisontalTransition: NSObject, UIViewControllerAnimatedTransitio
             }
         } else {
             toVC.view.frame = frame
-            View.animate(withDuration: duration, animations: {
+            UIView.animate(withDuration: duration, animations: {
                 toVC.view.center = containerView.center
             }) { (finished) in
                 transitionContext.completeTransition(true)

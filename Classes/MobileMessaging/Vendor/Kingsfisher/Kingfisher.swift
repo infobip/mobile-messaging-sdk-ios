@@ -29,19 +29,19 @@ import ImageIO
 
 #if os(macOS)
     import AppKit
-    public typealias Image = NSImage
-    public typealias View = NSView
-    public typealias Color = NSColor
-    public typealias ImageView = NSImageView
-    public typealias Button = NSButton
+    internal typealias Image = NSImage
+    internal typealias View = NSView
+    internal typealias Color = NSColor
+    internal typealias ImageView = NSImageView
+    internal typealias Button = NSButton
 #else
     import UIKit
-    public typealias Image = UIImage
-    public typealias Color = UIColor
+    internal typealias Image = UIImage
+    internal typealias Color = UIColor
     #if !os(watchOS)
-    public typealias ImageView = UIImageView
-    public typealias View = UIView
-    public typealias Button = UIButton
+    internal typealias ImageView = UIImageView
+    internal typealias View = UIView
+    internal typealias Button = UIButton
     #endif
 #endif
 

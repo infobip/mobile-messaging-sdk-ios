@@ -149,7 +149,7 @@ open class AnimatedImageView: UIImageView {
     }()
     
     // MARK: - Override
-	override open var image: Image? {
+	override open var image: UIImage? {
         didSet {
             if image != oldValue {
                 reset()
