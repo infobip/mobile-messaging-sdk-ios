@@ -236,7 +236,7 @@ public class NotificationsInteractionService: MobileMessagingService {
             let mo = MM_MOMessage(
                 destination: nil,
                 text: "\(message.category ?? "n/a") \(appliedAction.identifier)",
-                customPayload: nil,
+                customPayload: message.customPayload,
                 composedDate: MobileMessaging.date.now,
                 bulkId: message.internalData?[Consts.InternalDataKeys.bulkId] as? String,
                 initialMessageId: message.messageId

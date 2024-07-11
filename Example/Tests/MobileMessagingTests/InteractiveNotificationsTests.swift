@@ -12,6 +12,21 @@ import UserNotifications
 class InteractiveNotificationsTests: MMTestCase {
 	let actionId = "actionId"
 	let categoryId = "categoryId"
+    lazy var userInfo: MMAPNSPayload = {
+            return [
+                AnyHashable("messageId"): "random-message-id-123456",
+                AnyHashable("aps"): ["alert": ["body": "text"], "category": categoryId],
+                AnyHashable("customPayload"):
+                    [
+                        "key": "value",
+                        "nestedObject": [
+                            "key": "value"
+                        ],
+                        "nullAttribute": NSNull(),
+                        "numberAttribute": 123 as NSNumber
+                    ],
+            ]
+        }()
 	
 	func testThatNotificationTapTriggersSeen() {
         MMTestCase.startWithCorrectApplicationCode()
@@ -75,8 +90,12 @@ class InteractiveNotificationsTests: MMTestCase {
 		weak var seenCalled = expectation(description: "seenCalled")
 		weak var actionHandled = expectation(description: "actionHandled")
 		weak var sendMessageCalled = expectation(description: "sendMessageCalled")
+        
+        let msg = MM_MTMessage(payload: userInfo, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
+        
 		msgHandlerMock.sendMessageWasCalled = { messages in
 			XCTAssertEqual(messages.first!.text, "\(self.categoryId) \(action.identifier)")
+            XCTAssertEqual(messages.first!.customPayload! as NSDictionary, msg!.customPayload! as NSDictionary)
 			sendMessageCalled?.fulfill()
 		}
 		msgHandlerMock.setSeenWasCalled = {
@@ -92,10 +111,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		}
 		MobileMessaging.messageHandlingDelegate = messageHandlingDelegateMock
 
-		let info = ["messageId": UUID.init().uuidString, "aps": ["alert": ["body": "text"], "category": category.identifier]] as [String : Any]
-		let msg = MM_MTMessage(payload: info, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
-
-		MobileMessaging.handleAction(identifier: action.identifier, category: category.identifier, message: msg, notificationUserInfo: info, userText: userText, completionHandler: {})
+        MobileMessaging.handleAction(identifier: action.identifier, category: category.identifier, message: msg, notificationUserInfo: userInfo as? [String: Any], userText: userText, completionHandler: {})
 	}
 	
 	func testActionOptions() {

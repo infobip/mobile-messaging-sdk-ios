@@ -28,7 +28,7 @@ public class MM_MOMessage: MMBaseMessage {
 		return MOAttributes(destination: destination, text: text ?? "", customPayload: customPayload, messageId: messageId, sentStatus: sentStatus, bulkId: bulkId, initialMessageId: initialMessageId).dictRepresentation
 	}
 	
-	convenience public init(destination: String?, text: String, customPayload: [String: MMCustomPayloadSupportedTypes]?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil) {
+	convenience public init(destination: String?, text: String, customPayload: MMStringKeyPayload?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil) {
 		let mId = NSUUID().uuidString
 		self.init(messageId: mId, destination: destination, text: text, customPayload: customPayload, composedDate: composedDate, bulkId: bulkId, initialMessageId: initialMessageId, deliveryMethod: .generatedLocally)
 	}
@@ -63,14 +63,14 @@ public class MM_MOMessage: MMBaseMessage {
 		}
 		let sentStatus = MM_MOMessageSentStatus(rawValue: Int16(status)) ?? MM_MOMessageSentStatus.Undefined
 		let destination = payload[Consts.APIKeys.MO.destination] as? String
-		let customPayload = payload[Consts.APIKeys.MO.customPayload] as? [String: MMCustomPayloadSupportedTypes]
+		let customPayload = payload[Consts.APIKeys.MO.customPayload] as? MMStringKeyPayload
 		let bulkId = payload[Consts.APIKeys.MO.bulkId] as? String
 		let initialMessageId = payload[Consts.APIKeys.MO.initialMessageId] as? String
 		
 		self.init(messageId: messageId, destination: destination, text: text, customPayload: customPayload, composedDate: composedDate, bulkId: bulkId, initialMessageId: initialMessageId, sentStatus: sentStatus, deliveryMethod: .pull)
 	}
 	
-	init(messageId: String, destination: String?, text: String, customPayload: [String: MMCustomPayloadSupportedTypes]?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil, sentStatus: MM_MOMessageSentStatus = .Undefined, deliveryMethod: MMMessageDeliveryMethod) {
+	init(messageId: String, destination: String?, text: String, customPayload: MMStringKeyPayload?, composedDate: Date, bulkId: String? = nil, initialMessageId: String? = nil, sentStatus: MM_MOMessageSentStatus = .Undefined, deliveryMethod: MMMessageDeliveryMethod) {
 		let payload = MOAttributes(	destination: destination,
 									   text: text,
 									   customPayload: customPayload,

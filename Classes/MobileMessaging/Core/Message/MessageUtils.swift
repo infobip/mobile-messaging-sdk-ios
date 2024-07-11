@@ -150,11 +150,6 @@ func ==(lhs: MM_MTMessage, rhs: MM_MTMessage) -> Bool {
 	case SentWithFailure = 1
 }
 
-@objc public protocol MMCustomPayloadSupportedTypes {}
-extension NSString: MMCustomPayloadSupportedTypes {}
-extension NSNull: MMCustomPayloadSupportedTypes {}
-extension NSNumber: MMCustomPayloadSupportedTypes {}
-
 protocol MOMessageAttributes {
 	var destination: String? {get}
 	var text: String {get}

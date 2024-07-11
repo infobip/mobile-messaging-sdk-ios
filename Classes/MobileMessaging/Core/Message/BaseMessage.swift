@@ -53,7 +53,7 @@ open class MMBaseMessage: NSObject {
 		self.originalPayload = originalPayload
 		self.direction = direction
 		self.deliveryMethod = deliveryMethod
-		self.customPayload = originalPayload[Consts.APNSPayloadKeys.customPayload] as? [String: MMCustomPayloadSupportedTypes]
+		self.customPayload = originalPayload[Consts.APNSPayloadKeys.customPayload] as? MMStringKeyPayload
 	}
 	
 	public func isEqual(object: Any?) -> Bool {
