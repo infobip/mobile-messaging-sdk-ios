@@ -34,15 +34,25 @@ open class MMChatNavigationVC: UINavigationController {
 		}
 	}
     
-    static func makeChatNavigationViewController(transitioningDelegate: UIViewControllerTransitioningDelegate? = nil) -> MMChatNavigationVC {
+    static func makeChatNavigationViewController(transitioningDelegate: UIViewControllerTransitioningDelegate? = nil, inputView: MMChatComposer? = nil) -> MMChatNavigationVC {
         if let transitioningDelegate = transitioningDelegate {
-            let nc = MMChatNavigationVC.init(rootViewController : MMChatViewController(type: .custom, image: UIImage(mm_chat_named: "backButton")))
+            let nc = makeMMChatNavigationVC(with: inputView)
             nc.customTransitioningDelegate = transitioningDelegate
             nc.transitioningDelegate = transitioningDelegate
             nc.modalPresentationStyle = .custom
             return nc
         } else {
-            let nc = MMChatNavigationVC.init(rootViewController : MMChatViewController(type: .dismiss))
+            let nc = makeMMChatNavigationVC(with: inputView)
+            return nc
+        }
+        
+        
+        func makeMMChatNavigationVC(with inputView: MMChatComposer?) -> MMChatNavigationVC {
+            let chatViewController = MMChatViewController(type: .custom, image: UIImage(mm_chat_named: "backButton"))
+            if let inputView = inputView {
+                chatViewController.composeBarView = inputView
+            }
+            let nc = MMChatNavigationVC.init(rootViewController: chatViewController)
             return nc
         }
     }

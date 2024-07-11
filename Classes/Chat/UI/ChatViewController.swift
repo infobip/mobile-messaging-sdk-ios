@@ -28,6 +28,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         return MMChatNavigationVC.makeChatNavigationViewController(transitioningDelegate: ChatCustomTransitionDelegate())
     }
     
+    ///Will make UINavigationController with ChatViewController as root with custom MMChatComposer
+    public static func makeRootNavigationViewController(with inputView: MMChatComposer, customTransitionDelegate: Bool = false) -> MMChatNavigationVC {
+        return MMChatNavigationVC.makeChatNavigationViewController(transitioningDelegate: customTransitionDelegate ? ChatCustomTransitionDelegate() : nil, inputView: inputView)
+    }
+    
     //Will make ChatViewController, for presenting modally
     public static func makeModalViewController() -> MMChatViewController {
         return MMChatViewController(type: .dismiss)
@@ -459,6 +464,10 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             return
         }
         webView.sendMessage(text, attachment: nil, completion: completion)
+    }
+    // Sends a draft message to be shown in a chat-to-peer chat.
+    public override func sendDraft(_ message: String?, completion: @escaping (NSError?) -> Void) {
+        webView.sendDraft(message, completion: completion)
     }
     
     public override func sendAttachment(_ fileName: String? = nil, data: Data, completion: @escaping (_ error: NSError?) -> Void) {

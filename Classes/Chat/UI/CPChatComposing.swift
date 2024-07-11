@@ -10,6 +10,7 @@ import UIKit
 public protocol MMComposeBarDelegate: UITextViewDelegate {
     func sendText(_ text: String, completion: @escaping (_ error: NSError?) -> Void)
     func sendAttachment(_ fileName: String?, data: Data, completion: @escaping (_ error: NSError?) -> Void)
+    func sendDraft(_ message: String?, completion: @escaping (_ error: NSError?) -> Void)
     func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void)
     func attachmentButtonTapped()
     func composeBarWillChangeFrom(_ startFrame: CGRect, to endFrame: CGRect,
