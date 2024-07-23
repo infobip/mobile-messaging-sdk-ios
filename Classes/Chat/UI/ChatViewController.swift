@@ -77,7 +77,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     var chatNotAvailableLabel: ChatNotAvailableLabel!
-    var isChattingInMultithread: Bool = false
+    public private (set) var isChattingInMultithread: Bool = false
     var initialBackButtonVisibility: Bool = true
     var initialLeftNavigationItem: UIBarButtonItem?
     
