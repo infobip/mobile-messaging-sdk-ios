@@ -63,6 +63,7 @@ enum AdvancedChatOptions: Int, CaseIterable {
     replacedChatInput,
     externalChatInputVC,
     presentSendingContextualData,
+    sendContextualData,
     authenticatedChat,
     personalize,
     depersonalize,
@@ -78,6 +79,8 @@ enum AdvancedChatOptions: Int, CaseIterable {
             return "replacedChatInput"
         case .presentSendingContextualData:
             return "presentChat-SendingContextualData"
+        case .sendContextualData:
+            return "Send contextual data"
         case .authenticatedChat:
             return "authenticatedChat"
         case .personalize:

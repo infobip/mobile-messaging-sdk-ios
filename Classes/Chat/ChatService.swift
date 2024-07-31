@@ -100,6 +100,7 @@ public class MMInAppChatService: MobileMessagingService {
                 _self.update(withChatWidget: _self.chatWidget)
                 completion?()
             }
+            self.contextualData = nil
         }
     }
 	
@@ -334,6 +335,30 @@ public class MMInAppChatService: MobileMessagingService {
         MMLanguage.sessionLanguage = MMLanguage.mapLanguage(from: components.first ??
                                                          String(localeString.prefix(2)))
     }
+    
+    internal var contextualData: ContextualData?
+    
+    
+    ///  Send contextual metadata of conversation and a InAppChatMultiThreadFlag flag
+    ///
+    /// - Parameter metadata: Contextual data in JSON format.
+    /// - Parameter multiThreadStrategy: `ALL` metadata sent to all non-closed conversations for a widget. `ACTIVE` metadata sent to active only conversation for a widget.
+    public func sendContextualData(
+        _ metadata: String,
+        multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE
+    ) {
+        guard let webViewDelegate = webViewDelegate else {
+            self.contextualData = ContextualData(metadata: metadata, multiThreadStrategy: multiThreadStrategy)
+            return
+        }
+        
+        webViewDelegate.sendContextualData(ContextualData(metadata: metadata, multiThreadStrategy: multiThreadStrategy))
+    }
+}
+
+struct ContextualData {
+    var metadata: String
+    var multiThreadStrategy: MMChatMultiThreadStrategy
 }
 
 protocol ChatWebViewDelegate: AnyObject {
@@ -343,6 +368,7 @@ protocol ChatWebViewDelegate: AnyObject {
     func didReceiveError(_ errors: ChatErrors)
     func didOpenPreview(forAttachment attachment: ChatWebAttachment)
     func didChangeView(_ state: MMChatWebViewState)
+    func sendContextualData(_ contextualData: ContextualData)
 }
 
 @objc public protocol MMInAppChatDelegate {

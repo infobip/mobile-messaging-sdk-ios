@@ -263,6 +263,15 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         })
     }
     
+    func sendCachedContextData() {
+        guard let contextualData = MMInAppChatService.sharedInstance?.contextualData else {
+            return
+        }
+        
+        MMInAppChatService.sharedInstance?.contextualData = nil
+        sendContextualData(contextualData)
+    }
+    
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         let css: String? = {
             switch MMChatSettings.colorTheme {
@@ -453,6 +462,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             isComposeBarVisible = state == .loadingThread || state == .thread || state == .singleThreadMode
             isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
         }
+        
+        if state != .loading && state != .loadingThread && state != .unknown {
+            sendCachedContextData()
+        }
+        
         MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)
     }
     
@@ -509,6 +523,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             return true
         }
     }
+    
+    func sendContextualData(_ contextualData: ContextualData) {
+        self.sendContextualData(contextualData.metadata, multiThreadStrategy: contextualData.multiThreadStrategy) { _ in }
+    }
+
 }
 
 extension MMChatViewController: ChatAttachmentPickerDelegate {

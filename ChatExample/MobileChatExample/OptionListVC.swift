@@ -222,12 +222,31 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     }
 
     func attachmentSizeExceeded(_ maxSize: UInt) {
-        print("Could not upload attachment as it exceeded the max size allowed \(maxSize)")
+        MMLogDebug("Could not upload attachment as it exceeded the max size allowed \(maxSize)")
     }
     
     func enableButtons(enabled: Bool) {
         optionsTableV.isUserInteractionEnabled = enabled
         optionsTableV.alpha = enabled ? 1.0 : 0.3
+    }
+    
+    func onSendContextualDataDidTap() {
+        let alertController = UIAlertController(title: "Send contextual data", message: "", preferredStyle: UIAlertController.Style.alert)
+        alertController.addTextField { (textField : UITextField!) -> Void in
+            textField.placeholder = "Message"
+        }
+        let saveAction = UIAlertAction(title: "Send", style: UIAlertAction.Style.default, handler: { alert -> Void in
+            guard let textField = alertController.textFields?.first else { return }
+            guard let text = textField.text else { return }
+            MobileMessaging.inAppChat?.sendContextualData("{ demoKey: \(text)}")
+        })
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.default, handler: {
+            (action : UIAlertAction!) -> Void in })
+        
+        alertController.addAction(saveAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true)
     }
 
     private func handleUIKitChat(_ option: Int) {
@@ -262,6 +281,8 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
             showReplacedChatInNavigation()
         case .presentSendingContextualData:
             presentAndSendContextualData()
+        case .sendContextualData:
+            onSendContextualDataDidTap()
         case .authenticatedChat:
             showAuthenticationVC()
         case .personalize:
