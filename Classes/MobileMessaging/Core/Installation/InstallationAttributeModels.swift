@@ -152,7 +152,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 	public internal(set) var deviceTimeZone: String?
 	public internal(set) var geoEnabled: Bool
 	public internal(set) var language: String?
-	public internal(set) var notificationsEnabled: Bool?
+    public internal(set) var notificationsEnabled: Bool
 	public internal(set) var os: String?
 	public internal(set) var osVersion: String?
 	public internal(set) var pushServiceToken: String?
@@ -175,7 +175,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		deviceTimeZone = aDecoder.decodeObject(of: NSString.self, forKey: "deviceTimeZone") as? String
         geoEnabled = aDecoder.decodeBool(forKey: "geoEnabled")
 		language = aDecoder.decodeObject(of: NSString.self, forKey: "language") as? String
-		notificationsEnabled = aDecoder.decodeObject(forKey: "notificationsEnabled") as? Bool
+		notificationsEnabled = (aDecoder.decodeObject(forKey: "notificationsEnabled") as? Bool) ?? true
 		os = aDecoder.decodeObject(of: NSString.self, forKey: "os") as? String
 		osVersion = aDecoder.decodeObject(of: NSString.self, forKey: "osVersion") as? String
 		pushServiceToken = aDecoder.decodeObject(of: NSString.self, forKey: "pushServiceToken") as? String
@@ -267,7 +267,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		self.isPrimaryDevice = isPrimaryDevice
 		self.isPushRegistrationEnabled = isPushRegistrationEnabled
 		self.language = language
-		self.notificationsEnabled = notificationsEnabled
+		self.notificationsEnabled = notificationsEnabled ?? true
 		self.os = os
 		self.osVersion = osVersion
 		self.pushRegistrationId = pushRegistrationId
@@ -317,7 +317,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 			isPrimaryDevice: dict["isPrimaryDevice"] as? Bool ?? false,
 			isPushRegistrationEnabled: dict["isPushRegistrationEnabled"] as? Bool ?? true,
 			language: dict["language"] as? String,
-			notificationsEnabled: dict["notificationsEnabled"] as? Bool,
+			notificationsEnabled: dict["notificationsEnabled"] as? Bool ?? true,
 			os: dict["os"] as? String,
 			osVersion: dict["osVersion"] as? String,
 			pushRegistrationId: dict["pushRegistrationId"] as? String,
