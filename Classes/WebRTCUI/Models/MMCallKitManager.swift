@@ -140,7 +140,7 @@ class CallKitManager: NSObject {
         guard let uuid = UUID(uuidString: call.id()) else { return }
         addApplicationCall(uuid, call)
         let callUpdate = CXCallUpdate()
-        callUpdate.remoteHandle = getRemoteCXHandle(with: call.from)
+        callUpdate.remoteHandle = getRemoteCXHandle(with: call.fromDisplayName ?? call.from)
         callUpdate.hasVideo = isVideoInPayload ?? call.hasCameraVideo()
         setCallFeatures(callUpdate)
         self.callKitProvider.reportNewIncomingCall(with: uuid, update: callUpdate) { (error) in
