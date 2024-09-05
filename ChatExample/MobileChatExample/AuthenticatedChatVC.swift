@@ -64,6 +64,6 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
         }
         MobileMessaging.inAppChat?.jwt = jwt // We suggest you freshly generate a new token before presenting the chat (to avoid expirations)
         let vc = MMChatViewController.makeModalViewController()
-        self.navigationController?.present(vc, animated: true, completion: nil)
+        self.present(vc, animated: true)
     }
 }

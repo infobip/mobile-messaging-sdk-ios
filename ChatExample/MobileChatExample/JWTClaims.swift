@@ -21,9 +21,10 @@ struct JWTClaims: Claims {
     let sid: String //'Session Identifier'
     
     static func generateJWT(_ identityMode: String, identifier: String) -> String? {
+        // Always define key and secret as obfuscated strings, for safety!!
         let widgetId = "<# your widget ID #>" // All this values can be obtained in your widget's configuration
-        let widgetKeyId = "<# your widget key ID #>" // Always define key and secret as obfuscated strings, for safety!!
-        let widgetSecretKeyId = "<# your widget secret key ID #>"
+        let widgetKeyId = "<# your widget key ID #>" // If you copy your token values by tapping in Infobip's web portal, this is the "id" parameter
+        let widgetSecretKeyId = "<# your widget secret key ID #>" // and this is the "key" parameter
         let myHeader = Header()
         let randomUniqueString = UUID().uuidString
         let myClaims = JWTClaims(

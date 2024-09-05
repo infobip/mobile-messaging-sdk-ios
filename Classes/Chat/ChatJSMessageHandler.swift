@@ -109,7 +109,7 @@ class ErrorJSMessage : JSMessage, NamedLogger {
 				return nil
 		}
 
-        let errorMessage = (bodyDict[ChatAPIKeys.JSMessageKeys.errorMessage] as? String) ?? "Wrong InAppchat setup or method invokation"
+        let errorMessage = (bodyDict[ChatAPIKeys.JSMessageKeys.errorMessage] as? String) ?? "Wrong InAppchat setup or method invocation"
 
         if let additionalInfo = bodyDict[ChatAPIKeys.JSMessageKeys.additionalInfo] as? String {
             self.message = errorMessage + " - " + additionalInfo
