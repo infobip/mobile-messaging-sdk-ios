@@ -44,6 +44,7 @@ public struct PIPShadow {
     }
 }
 
+@available(iOS 13.0, *)
 public struct PIPCorner {
     public let radius: CGFloat
     public let curve: CALayerCornerCurve?
@@ -90,7 +91,8 @@ public final class PIPKit {
 
     @available(iOS 13.0, *)
     static var keyWindow: UIWindowScene? {
-        let windowScenes = UIApplication.shared.connectedScenes
+        let windowScenes = UIApplication.shared
+            .connectedScenes
             .compactMap { $0 as? UIWindowScene }
         return windowScenes
             .filter { $0.activationState != .unattached }.sorted(by: { one, two in

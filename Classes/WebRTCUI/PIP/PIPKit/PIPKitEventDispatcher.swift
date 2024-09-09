@@ -112,21 +112,22 @@ final class PIPKitEventDispatcher {
             rootViewController?.view.layer.shadowRadius = pipShadow.radius
         }
         
-        if let pipCorner = rootViewController?.pipCorner {
-            rootViewController?.view.layer.cornerRadius = pipCorner.radius
-            if let curve = pipCorner.curve {
-                if #available(iOS 13.0, *) {
+        if #available(iOS 13.0, *) {
+            if let pipCorner = rootViewController?.pipCorner {
+                rootViewController?.view.layer.cornerRadius = pipCorner.radius
+                if let curve = pipCorner.curve {
                     rootViewController?.view.layer.cornerCurve = curve
                 }
             }
         }
         
-        deviceNotificationObserver = NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification,
-                                                                            object: nil,
-                                                                            queue: nil) { [weak self] (noti) in
-                                                                                UIView.animate(withDuration: 0.15, animations: {
-                                                                                    self?.updateFrame()
-                                                                                }, completion:nil)
+        deviceNotificationObserver = NotificationCenter.default.addObserver(
+            forName: UIDevice.orientationDidChangeNotification,
+            object: nil,
+            queue: nil) { [weak self] (noti) in
+                UIView.animate(withDuration: 0.15, animations: {
+                    self?.updateFrame()
+                }, completion:nil)
         }
         
         windowSubviewsObservation = window?.observe(\.subviews,
