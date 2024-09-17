@@ -103,7 +103,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         let bckgColor = settings?.backgroundColor ?? .white
         webView.backgroundColor = bckgColor
         webView.isOpaque = false
-        webView.scrollView.backgroundColor = bckgColor
+        webView.scrollView.backgroundColor = MMChatSettings.sharedInstance.chatInputSeparatorLineColor ?? bckgColor
         view.backgroundColor = bckgColor
     }
 

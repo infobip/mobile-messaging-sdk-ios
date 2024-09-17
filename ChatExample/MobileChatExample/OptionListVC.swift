@@ -344,7 +344,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         advSettings.mainTextColor                           = .black
         advSettings.mainPlaceholderTextColor                = .orange
         advSettings.textInputBackgroundColor                = .white
-        advSettings.inputContainerBackgroundColor           = .orange
         advSettings.typingIndicatorColor                    = .darkGray
         advSettings.sendButtonIcon                          = UIImage(named: "sendIcon")
         advSettings.attachmentButtonIcon                    = UIImage(named: "attachIcon")
@@ -354,6 +353,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.settings.advancedSettings = advSettings
         MMChatSettings.settings.title = "Overwriting title"
         MMChatSettings.settings.sendButtonTintColor = .white
+        MMChatSettings.settings.chatInputSeparatorLineColor = .white
         MMChatSettings.settings.navBarItemsTintColor = .white
         MMChatSettings.settings.navBarColor = .orange
         MMChatSettings.settings.navBarTitleColor = .white
@@ -369,7 +369,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.darkSettings?.advancedSettings.mainTextColor                 = .white
         MMChatSettings.darkSettings?.advancedSettings.mainPlaceholderTextColor      = .lightGray
         MMChatSettings.darkSettings?.advancedSettings.textInputBackgroundColor      = .black
-        MMChatSettings.darkSettings?.advancedSettings.inputContainerBackgroundColor = .black
         MMChatSettings.darkSettings?.advancedSettings.typingIndicatorColor          = .darkGray
     }
 

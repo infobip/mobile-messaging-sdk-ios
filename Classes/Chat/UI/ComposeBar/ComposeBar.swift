@@ -43,7 +43,6 @@ struct ComposeBarConsts {
     static let kMainPlaceholderTextColor: UIColor       = UIColor(hue: 240/360, saturation: 0.02, brightness: 0.8, alpha: 1.0)
     static let kTextInputBackgroundColor: UIColor       = .clear
     static let kTypingIndicatorColor: UIColor           = .black
-    static let kInputContainerBackgroundColor: UIColor  = .white
     static let kSendButtonIcon: UIImage?                = UIImage(mm_chat_named: "sendButton")
     static let kAttachmentButtonIcon: UIImage?          = UIImage(mm_chat_named: "attachmentButton")
     static let kIsLineSeparatorHidden: Bool             = false

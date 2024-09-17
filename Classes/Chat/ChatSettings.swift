@@ -74,6 +74,7 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     public var backgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var chatInputSeparatorLineColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var shouldSetNavBarAppearance: Bool = true
     public var shouldHandleKeyboardAppearance: Bool = true
     public var shouldUseExternalChatInput: Bool = false
@@ -169,7 +170,6 @@ public class MMAdvancedChatSettings: NSObject, MMPropertyLoopable {
     public var mainPlaceholderTextColor: UIColor       = CBC.kMainPlaceholderTextColor
     public var textInputBackgroundColor: UIColor       = CBC.kTextInputBackgroundColor
     public var typingIndicatorColor: UIColor           = CBC.kTypingIndicatorColor
-    public var inputContainerBackgroundColor: UIColor  = CBC.kInputContainerBackgroundColor
     public var sendButtonIcon: UIImage?                = CBC.kSendButtonIcon
     public var attachmentButtonIcon: UIImage?          = CBC.kAttachmentButtonIcon
     public var isLineSeparatorHidden: Bool             = CBC.kIsLineSeparatorHidden
@@ -213,6 +213,7 @@ extension MMChatSettings {
     struct Keys {
         static let title = "title"
         static let sendButtonColor = "sendButtonColor"
+        static let chatInputSeparatorLineColor = "chatInputSeparatorLineColor"
         static let navigationBarItemsColor = "navigationBarItemsColor"
         static let navigationBarColor = "navigationBarColor"
         static let navigationBarTitleColor = "navigationBarTitleColor"
@@ -231,6 +232,9 @@ extension MMChatSettings {
         }
         if let sendButtonColor = rawConfig[MMChatSettings.Keys.sendButtonColor] as? String {
             self.sendButtonTintColor = UIColor(hexString: sendButtonColor)
+        }
+        if let chatInputSeparatorLineColor = rawConfig[MMChatSettings.Keys.chatInputSeparatorLineColor] as? String {
+            self.chatInputSeparatorLineColor = UIColor(hexString: chatInputSeparatorLineColor)
         }
         if let navigationBarItemsColor = rawConfig[MMChatSettings.Keys.navigationBarItemsColor] as? String {
             self.navBarItemsTintColor = UIColor(hexString: navigationBarItemsColor)
