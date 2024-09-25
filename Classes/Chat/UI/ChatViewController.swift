@@ -261,6 +261,15 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             }
             return
         })
+        
+        if MobileMessaging.inAppChat?.onRawMessageReceived != nil {
+            webView.addMessageReceivedListener(completion: { [weak self] error in
+                if let error = error {
+                    self?.logError(error.description)
+                }
+                return
+            })
+        }
     }
     
     func sendCachedContextData() {

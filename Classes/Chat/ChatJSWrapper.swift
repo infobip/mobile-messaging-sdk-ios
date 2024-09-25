@@ -122,6 +122,13 @@ extension WKWebView: ChatJSWrapper {
         }
     }
     
+    func addMessageReceivedListener(completion: @escaping (NSError?) -> Void) {
+        self.evaluateJavaScript("onMessageReceived()") { [weak self] (response, error) in
+            self?.logDebug("addMessageReceivedListener got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+            completion(error as? NSError)
+        }
+    }
+    
     // This functions request a navigation from a thread chat to the thread list (possible if multithead is enabled)
     func showThreadsList(completion: @escaping (NSError?) -> Void) {
         self.evaluateJavaScript("showThreadsList()") { [weak self] (response, error) in

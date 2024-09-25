@@ -104,6 +104,14 @@
                    });
            }
            
+           function onMessageReceived() {
+               const liveChatSDK = new LiveChatSDK();
+               liveChatSDK.on('messageReceived', (payload) => {
+                   console.log(payload)
+                   window.webkit.messageHandlers.onMessageEvent.postMessage(payload);
+               });
+           }
+           
            function sendMessage(message, attachmentBase64, fileName) {
                    liveChat('send', {
                        'message': message,

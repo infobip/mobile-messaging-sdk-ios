@@ -15,6 +15,8 @@ enum JSMessageType: String, CaseIterable {
     case openAttachmentPreview
     case setControlsVisibility
     case onViewChanged
+    case onMessageEvent
+    
 	var handler: ScriptMessageHandler.Type? {
 		switch self {
 		case .enableControls:
@@ -27,6 +29,8 @@ enum JSMessageType: String, CaseIterable {
             return ControlsVisibilityHandler.self
         case .onViewChanged:
             return OnViewChangedHandler.self
+        case .onMessageEvent:
+            return OnMessageEventHandler.self
 		}
 	}
 }
@@ -92,6 +96,14 @@ class OnViewChangedHandler: ScriptMessageHandler, NamedLogger {
         logDebug("OnViewChangedHandler handleMessage \(viewState)")
         MobileMessaging.inAppChat?.webViewDelegate?.didChangeView(MMChatWebViewState.parseFrom(viewState))
         UserEventsManager.postInAppChatViewChangedEvent(viewState)
+    }
+}
+
+
+class OnMessageEventHandler: ScriptMessageHandler, NamedLogger {
+    class func handleMessage(message: WKScriptMessage) {
+        logDebug("OnMessageReceivedHandler handleMessage \(message)")
+        MobileMessaging.inAppChat?.onRawMessageReceived?(message.body)
     }
 }
 
