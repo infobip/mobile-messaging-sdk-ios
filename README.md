@@ -12,9 +12,9 @@ Mobile Messaging SDK is designed and developed to easily enable push notificatio
 - iOS 12.0+
 
 ## Quick start guide
-This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application.
+This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application. 
 
-1. Make sure to <a href="https://www.infobip.com/docs/mobile-app-messaging/create-mobile-application-profile" target="_blank">setup application at Infobip portal</a>, if you haven't already.
+1. Make sure to <a href="https://www.infobip.com/docs/mobile-app-messaging/getting-started#create-and-enable-a-mobile-application-profile" target="_blank">setup application at Infobip portal</a>, if you haven't already.
 
 2. Configure your project to support Push Notifications:
     1. Click on "Capabilities", then turn on Push Notifications. Entitlements file should be automatically created by Xcode with set `aps-environment` value.
