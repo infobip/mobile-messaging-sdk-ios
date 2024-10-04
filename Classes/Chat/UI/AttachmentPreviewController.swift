@@ -65,7 +65,7 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
         
     static func makeRootInNavigationController(forAttachment attachment: ChatWebAttachment) -> UINavigationController {
         let nvc = UINavigationController(rootViewController: AttachmentPreviewController(type: .dismiss, attachment: attachment))
-        nvc.modalPresentationStyle = .fullScreen
+        nvc.modalPresentationStyle = .overFullScreen
         nvc.view.backgroundColor = .black
         return nvc
     }
