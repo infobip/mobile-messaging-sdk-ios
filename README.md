@@ -147,7 +147,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
 In case of a clean project, your AppDelegate.swift code should look like following:
 <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/app_delegate.png?raw=true" alt="AppDelegate source code example"/>
 
-If all the steps implemented correctly, run your application on a real device, you should see the logs in Xcode console confirming that the MobileMessaging SDK has been initialized succesfully and the device has been registered on APNS to receive Push messages:
+If all the steps implemented correctly, run your application on a real device, you should see the logs in Xcode console confirming that the MobileMessaging SDK has been initialized successfully and the device has been registered on APNS to receive Push messages:
 ```
 2023-01-28 18:24:16:003 [MobileMessaging] ℹ️ SDK successfully initialized!
 ...
@@ -161,7 +161,7 @@ If you don't see any logs, set up the default logger before starting the SDK: `M
 > Push notifications (if they are not [in-app](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/In-app-notifications)) are not displayed automatically when the app is on the foreground. For further information check [FAQ - How to display messages when app is running in the foreground?](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/How-to-display-messages-when-app-is-running-in-the-foreground%3F).
 
 <br>
-<p align="center"><b>NEXT STEPS: <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile">User profile</a></b></p>
+<p align="center"><b>NEXT STEPS: <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations">Users and installations</a></b></p>
 <br>
 <br>
 

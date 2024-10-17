@@ -149,7 +149,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         }
     }
     
-    /** Call this method to initiate the registration process with Apple Push Notification service. User will be promt to allow receiving Push Notifications. */
+    /** Call this method to initiate the registration process with Apple Push Notification service. User will be prompt to allow receiving Push Notifications. */
     public class func registerForRemoteNotifications() {
         MobileMessaging.sharedInstance?.apnsRegistrationManager.registerForRemoteNotifications(userInitiated: true)
     }
@@ -216,7 +216,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     /**
      Asynchronously fetches the user data from the server.
      
-     For more information and examples see: [User profile](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile)
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter completion: The block to execute after the server responded.
      - parameter user: Fetched user. Contains actual data if not error happened.
      - parameter error: Optional error.
@@ -256,7 +256,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     /**
      Asynchronously saves changed user data on the server.
      
-     For more information and examples see: [User profile](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/User-profile)
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter user: User data to save on server.
      - parameter completion: The block to execute after the server responded.
      - parameter error: Optional error.
@@ -290,7 +290,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     }
     
     /**
-     Synchronously persists user data to the disk. Pivacy settings are applied according to `MobileMessaging.privacySettings` settings.
+     Synchronously persists user data to the disk. Privacy settings are applied according to `MobileMessaging.privacySettings` settings.
      
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter user: User data to persist.
@@ -300,7 +300,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     }
     
     /**
-     Synchronously persists installation data to the disk. Pivacy settings are applied according to `MobileMessaging.privacySettings` settings.
+     Synchronously persists installation data to the disk. Privacy settings are applied according to `MobileMessaging.privacySettings` settings.
      
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      */
@@ -311,7 +311,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     // MARK: - Personalize/Depersonalize
     
     /**
-     Asynchronously ereases currently persisted user data associated with push registration along with messages in SDK storage.
+     Asynchronously erases currently persisted user data associated with push registration along with messages in SDK storage.
      User's data synced over MobileMessaging is by default associated with created push registration. Depersonalizing an installation means that a push registration and device specific data will remain, but user's data (such as first name, custom data, ...) will be wiped out.
      If you depersonalize an installation from person, there is a way to personalize it again by providing new user data (either by UserDataService data setters or `InstallationDataService.personalize()` method) in order to target this user specifically.
      - Remark: There is another version of depersonalize method that doesn't require a `completion` parameter which means the SDK will handle any unsuccessful depersonalize request by itself. See the method documentation for more details. Use this method in following cases:
@@ -465,7 +465,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         }
     }
     
-    /** An auxillary component provides the convinient access to the user agent data. */
+    /** An auxiliary component provides the convenient access to the user agent data. */
     public internal(set) static var userAgent = MMUserAgent()
     
     /**
@@ -501,7 +501,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     }
     
     /**
-     Asynchronously submits a custom event and immediately sends it to the server. If any connection error occured or the server responded with "Bad request" error, you have to handle the error yourself, perform retries if needed.
+     Asynchronously submits a custom event and immediately sends it to the server. If any connection error occurred or the server responded with "Bad request" error, you have to handle the error yourself, perform retries if needed.
      - parameter customEvent: Custom event to be sent to the server.
      - parameter completion: The block to execute after the server responded.
      - parameter error: Optional error.
@@ -517,7 +517,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     }
     
     /**
-     Asynchronously submits the custom event and sends it to the server eventually. If something went wrong during the communication with the server, the request will be retied until the event succesfully accepted.
+     Asynchronously submits the custom event and sends it to the server eventually. If something went wrong during the communication with the server, the request will be retied until the event successfully accepted.
      - parameter customEvent: Custom event to be sent to the server.
      */
     public class func submitEvent(_ customEvent: MMCustomEvent) {
@@ -811,16 +811,16 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     static let bundle = Bundle(for: MobileMessaging.self)
     static let resourceBundle: Bundle = {
-        #if SWIFT_PACKAGE
-            return Bundle.module
-        #else
-            guard let resourceBundleURL = MobileMessaging.bundle.url(forResource: "MMCore", withExtension: "bundle"),
-                  let result = Bundle(url: resourceBundleURL) else {
-                //in case of Carthage usage, MobileMessaging bundle will be used for getting resources
-                return MobileMessaging.bundle
-            }
-            return result
-        #endif
+#if SWIFT_PACKAGE
+        return Bundle.module
+#else
+        guard let resourceBundleURL = MobileMessaging.bundle.url(forResource: "MMCore", withExtension: "bundle"),
+              let result = Bundle(url: resourceBundleURL) else {
+            //in case of Carthage usage, MobileMessaging bundle will be used for getting resources
+            return MobileMessaging.bundle
+        }
+        return result
+#endif
     }()
     
     let queue = DispatchQueue(label: "com.mobile-messaging.queue.concurrent.main")
