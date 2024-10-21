@@ -7,6 +7,29 @@
 
 import Foundation
 
+public enum MMUserType: Int {
+    case Lead
+    case Customer
+
+    public var name: String {
+        switch self {
+        case .Lead : return "LEAD"
+        case .Customer : return "CUSTOMER"
+        }
+    }
+
+    static func make(with name: String) -> MMUserType? {
+        switch name {
+        case "LEAD":
+            return .Lead
+        case "CUSTOMER":
+            return .Customer
+        default:
+            return nil
+        }
+    }
+}
+
 @objc public enum MMGenderNonnull: Int {
 	case Female
 	case Male
@@ -260,7 +283,7 @@ public enum MMGender: Int {
     public static var dirtyPath = getDocumentsDirectory(filename: "dirty-user")
     public static var cached = ThreadSafeDict<MMUser>()
     public static var empty: MMUser {
-		return MMUser(externalUserId: nil, firstName: nil, middleName: nil, lastName: nil, phones: nil, emails: nil, tags: nil, gender: nil, birthday: nil, customAttributes: nil, installations: nil)
+        return MMUser(externalUserId: nil, type: nil, firstName: nil, middleName: nil, lastName: nil, phones: nil, emails: nil, tags: nil, gender: nil, birthday: nil, customAttributes: nil, installations: nil)
 	}
     public func removeSensitiveData() {
 		if MobileMessaging.privacySettings.userDataPersistingDisabled == true {
@@ -293,6 +316,8 @@ public enum MMGender: Int {
 	/// The user's id you can provide in order to link your own unique user identifier with Mobile Messaging user id, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var externalUserId: String?
 
+    public private(set) var type: MMUserType?
+    
 	/// User's phone numbers. You can provide additional users information to the server, so that you will be able to send personalised targeted messages to exact user and other nice features.
 	public var phones: Array<String>? {
 		set {
@@ -319,30 +344,34 @@ public enum MMGender: Int {
 	public internal(set) var installations: Array<MMInstallation>?
 
 	convenience init(userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?) {
-		self.init(externalUserId: userIdentity.externalUserId, firstName: userAttributes?.firstName, middleName: userAttributes?.middleName, lastName: userAttributes?.lastName, phones: userIdentity.phones, emails: userIdentity.emails, tags: userAttributes?.tags, gender: userAttributes?.gender, birthday: userAttributes?.birthday, customAttributes: userAttributes?.customAttributes, installations: nil)
+        self.init(externalUserId: userIdentity.externalUserId, type: nil, firstName: userAttributes?.firstName, middleName: userAttributes?.middleName, lastName: userAttributes?.lastName, phones: userIdentity.phones, emails: userIdentity.emails, tags: userAttributes?.tags, gender: userAttributes?.gender, birthday: userAttributes?.birthday, customAttributes: userAttributes?.customAttributes, installations: nil)
 	}
-
-	init(externalUserId: String?
-		,firstName: String?
-		,middleName: String?
-		,lastName: String?
-		,phones: Array<String>?
-		,emails: Array<String>?
-		,tags: Set<String>?
-		,gender: MMGender?
-		,birthday: Date?
-		,customAttributes: [String: MMAttributeType]?
-		,installations: Array<MMInstallation>?) {
-
-		super.init(firstName: firstName, middleName: middleName, lastName: lastName, tags: tags, gender: gender, birthday: birthday, customAttributes: customAttributes)
-		self.installations = installations
+    
+    init(
+        externalUserId: String?,
+        type: MMUserType?,
+        firstName: String?,
+        middleName: String?,
+        lastName: String?,
+        phones: Array<String>?,
+        emails: Array<String>?,
+        tags: Set<String>?,
+        gender: MMGender?,
+        birthday: Date?,
+        customAttributes: [String: MMAttributeType]?,
+        installations: Array<MMInstallation>?
+    ) {
+        super.init(firstName: firstName, middleName: middleName, lastName: lastName, tags: tags, gender: gender, birthday: birthday, customAttributes: customAttributes)
+        self.installations = installations
+        self.type = type
 		self.externalUserId = externalUserId
 		self.phones = phones
 		self.emails = emails
 	}
 
     convenience public init?(json value: JSON) {
-		self.init(externalUserId: value[Attributes.externalUserId.rawValue].string,
+        self.init(externalUserId: value[Attributes.externalUserId.rawValue].string,
+                  type: value[Attributes.type.rawValue].string.ifSome({ MMUserType.make(with: $0) }),
 				  firstName: value[Attributes.firstName.rawValue].string,
 				  middleName: value[Attributes.middleName.rawValue].string,
 				  lastName: value[Attributes.lastName.rawValue].string,
@@ -359,6 +388,7 @@ public enum MMGender: Int {
 	public required convenience init?(dictRepresentation dict: DictionaryRepresentation) {
 		let value = JSON.init(dict)
 		self.init(externalUserId: value["externalUserId"].string,
+                  type: value["type"].string.ifSome({ MMUserType.make(with: $0) }),
 				  firstName: value["firstName"].string,
 				  middleName: value["middleName"].string,
 				  lastName: value["lastName"].string,
@@ -374,6 +404,7 @@ public enum MMGender: Int {
 	public override var dictionaryRepresentation: DictionaryRepresentation {
 		var ret = super.dictionaryRepresentation
 		ret["externalUserId"] = externalUserId as Any
+        ret["type"] = type?.name as Any
 		ret["phones"] = phones as Any
 		ret["emails"] = emails as Any
 		ret["installations"] = installations?.map({ return $0.dictionaryRepresentation }) as Any
@@ -427,6 +458,6 @@ public enum MMGender: Int {
 	}
 
 	public func copy(with zone: NSZone? = nil) -> Any {
-		return MMUser(externalUserId: externalUserId, firstName: firstName, middleName: middleName, lastName: lastName, phones: phones, emails: emails, tags: tags, gender: gender, birthday: birthday, customAttributes: customAttributes, installations: installations)
+        return MMUser(externalUserId: externalUserId, type: type, firstName: firstName, middleName: middleName, lastName: lastName, phones: phones, emails: emails, tags: tags, gender: gender, birthday: birthday, customAttributes: customAttributes, installations: installations)
 	}
 }

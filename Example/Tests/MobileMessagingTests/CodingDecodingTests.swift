@@ -14,7 +14,8 @@ import CoreLocation
 
 class CodingDecodingTests: MMTestCase {
     let testUser = MMUser(
-        externalUserId: "externalUserId",
+        externalUserId: "externalUserId", 
+        type: .Lead,
         firstName: "Darth",
         middleName: "midname",
         lastName: "Vader",

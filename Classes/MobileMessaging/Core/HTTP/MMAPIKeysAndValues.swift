@@ -244,6 +244,7 @@ enum Attributes : String {
 	case logoutStatusValue = "logoutStatusValue"
 	case logoutFailCounter = "logoutFailCounter"
 	case phones = "phones"
+    case type = "type"
 	case firstName = "firstName"
 	case lastName = "lastName"
 	case middleName = "middleName"

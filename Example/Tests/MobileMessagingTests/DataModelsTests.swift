@@ -460,7 +460,8 @@ class DataModelsTests: MMTestCase {
 	}
 	
 	func testUserObjectsConstructor() {
-		let u1 = MMUser(externalUserId: "externalUserId",
+		let u1 = MMUser(externalUserId: "externalUserId", 
+						type: .Lead,
 					  firstName: "firstName",
 					  middleName: "middleName",
 					  lastName: "lastName",
