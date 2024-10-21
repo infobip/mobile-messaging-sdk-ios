@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22154" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3sj-pJ-ba1">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22130"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -231,7 +231,7 @@
                                 </segments>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qTD-rW-t67">
-                                <rect key="frame" x="10" y="286" width="355" height="50"/>
+                                <rect key="frame" x="10" y="277" width="355" height="50"/>
                                 <color key="backgroundColor" red="0.92133218049999999" green="0.61909726750000005" blue="0.25162144240000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="50" id="Qbm-yZ-QaT"/>
@@ -243,17 +243,29 @@
                                     <action selector="doAuthenticateAndPresentChat:" destination="UNI-N6-gDy" eventType="touchUpInside" id="x62-7b-y7M"/>
                                 </connections>
                             </button>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Nyb-Ru-okp">
+                                <rect key="frame" x="310" y="226" width="51" height="31"/>
+                            </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Keep as lead" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j8n-A3-BUT">
+                                <rect key="frame" x="16" y="226" width="97" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="QRW-6f-vLt"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="j8n-A3-BUT" firstAttribute="top" secondItem="h3s-O1-oR7" secondAttribute="bottom" constant="10" id="5AL-Qt-Hyi"/>
                             <constraint firstItem="QRW-6f-vLt" firstAttribute="trailing" secondItem="qTD-rW-t67" secondAttribute="trailing" constant="10" id="5Do-U9-RPy"/>
                             <constraint firstItem="QRW-6f-vLt" firstAttribute="trailing" secondItem="tOJ-I5-eaW" secondAttribute="trailing" constant="10" id="6fc-7g-ar8"/>
                             <constraint firstItem="h3s-O1-oR7" firstAttribute="top" secondItem="tOJ-I5-eaW" secondAttribute="bottom" constant="10" id="6x2-6m-zwD"/>
                             <constraint firstItem="h3s-O1-oR7" firstAttribute="top" secondItem="tOJ-I5-eaW" secondAttribute="bottom" constant="10" id="8RY-q7-5p8"/>
                             <constraint firstItem="QRW-6f-vLt" firstAttribute="trailing" secondItem="rAW-0b-uXF" secondAttribute="trailing" constant="10" id="8kn-PE-in0"/>
+                            <constraint firstItem="Nyb-Ru-okp" firstAttribute="top" secondItem="h3s-O1-oR7" secondAttribute="bottom" constant="10" id="9o8-WL-qva"/>
                             <constraint firstItem="rAW-0b-uXF" firstAttribute="leading" secondItem="QRW-6f-vLt" secondAttribute="leading" constant="10" id="H2S-zB-Oku"/>
                             <constraint firstItem="tOJ-I5-eaW" firstAttribute="leading" secondItem="QRW-6f-vLt" secondAttribute="leading" constant="10" id="Is4-hZ-kYq"/>
+                            <constraint firstItem="qTD-rW-t67" firstAttribute="top" secondItem="Nyb-Ru-okp" secondAttribute="bottom" constant="20" id="MMs-Hi-4df"/>
                             <constraint firstItem="tOJ-I5-eaW" firstAttribute="top" secondItem="SsV-cu-fL3" secondAttribute="bottom" constant="10" id="Qgu-gb-xjr"/>
                             <constraint firstItem="QRW-6f-vLt" firstAttribute="trailing" secondItem="h3s-O1-oR7" secondAttribute="trailing" constant="10" id="U01-rd-Ir2"/>
                             <constraint firstItem="h3s-O1-oR7" firstAttribute="leading" secondItem="QRW-6f-vLt" secondAttribute="leading" constant="10" id="XaP-ey-HfQ"/>
@@ -263,8 +275,9 @@
                             <constraint firstItem="qTD-rW-t67" firstAttribute="leading" secondItem="QRW-6f-vLt" secondAttribute="leading" constant="10" id="h81-Fv-3OV"/>
                             <constraint firstItem="QRW-6f-vLt" firstAttribute="trailing" secondItem="YCo-6A-GpR" secondAttribute="trailing" constant="10" id="jpM-bI-mp2"/>
                             <constraint firstItem="SsV-cu-fL3" firstAttribute="leading" secondItem="QRW-6f-vLt" secondAttribute="leading" constant="10" id="luZ-F1-E8c"/>
+                            <constraint firstItem="QRW-6f-vLt" firstAttribute="trailing" secondItem="Nyb-Ru-okp" secondAttribute="trailing" constant="16" id="o4R-I0-6AQ"/>
                             <constraint firstItem="SsV-cu-fL3" firstAttribute="top" secondItem="YCo-6A-GpR" secondAttribute="bottom" constant="10" id="ozD-wq-JVX"/>
-                            <constraint firstItem="qTD-rW-t67" firstAttribute="top" secondItem="h3s-O1-oR7" secondAttribute="bottom" constant="70" id="pvG-uI-3Bn"/>
+                            <constraint firstItem="j8n-A3-BUT" firstAttribute="leading" secondItem="QRW-6f-vLt" secondAttribute="leading" constant="16" id="qQd-iF-7Ao"/>
                             <constraint firstItem="YCo-6A-GpR" firstAttribute="leading" secondItem="QRW-6f-vLt" secondAttribute="leading" constant="10" id="s2g-MA-04c"/>
                             <constraint firstItem="YCo-6A-GpR" firstAttribute="top" secondItem="rAW-0b-uXF" secondAttribute="bottom" constant="10" id="vRK-Ch-Cpi"/>
                         </constraints>
@@ -274,6 +287,7 @@
                         <outlet property="fullNameTextField" destination="h3s-O1-oR7" id="qIK-rg-7wD"/>
                         <outlet property="identitySegmentedC" destination="SsV-cu-fL3" id="f0K-j2-cp8"/>
                         <outlet property="identityTextField" destination="YCo-6A-GpR" id="lxU-6b-2Q7"/>
+                        <outlet property="keepAsLeadSwitch" destination="Nyb-Ru-okp" id="wEG-ee-9RR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UGF-6u-dV0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -289,7 +303,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="VrP-KG-qBT">
-                                <rect key="frame" x="8" y="24" width="359" height="218"/>
+                                <rect key="frame" x="8" y="24" width="359" height="269.5"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Phone number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O2w-Vu-pj1">
                                         <rect key="frame" x="0.0" y="0.0" width="359" height="20.5"/>
@@ -335,10 +349,19 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Keep as lead" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s9E-uF-kHk">
+                                        <rect key="frame" x="0.0" y="218" width="359" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="RsJ-WI-fBa">
+                                        <rect key="frame" x="0.0" y="238.5" width="361" height="31"/>
+                                    </switch>
                                 </subviews>
                             </stackView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="muy-J9-mkQ">
-                                <rect key="frame" x="4" y="250" width="367" height="40"/>
+                                <rect key="frame" x="4" y="301.5" width="367" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="JaT-9W-L3Q"/>
                                 </constraints>
@@ -364,6 +387,7 @@
                     <connections>
                         <outlet property="emailTextfield" destination="Xni-hH-M9v" id="CkE-i8-ydN"/>
                         <outlet property="firstnameTextfield" destination="KS3-0P-zAr" id="CKH-eR-bdV"/>
+                        <outlet property="keepAsLeadToggle" destination="RsJ-WI-fBa" id="Kf9-AV-kkC"/>
                         <outlet property="lastnameTextfield" destination="nD7-7m-ZSa" id="jr0-sb-91l"/>
                         <outlet property="phoneTextfield" destination="1ZD-Bp-2Do" id="t7O-Pn-NL0"/>
                     </connections>

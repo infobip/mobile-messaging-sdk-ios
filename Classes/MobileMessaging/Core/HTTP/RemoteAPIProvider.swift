@@ -55,8 +55,8 @@ public class RemoteAPIProvider: SessionManagement {
         performRequest(request: request, queue: queue, completion: completion)
 	}
 
-	func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, queue: DispatchQueue, completion: @escaping (PersonalizeResult) -> Void) {
-		let request = PostPersonalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize)
+    func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, keepAsLead: Bool, queue: DispatchQueue, completion: @escaping (PersonalizeResult) -> Void) {
+        let request = PostPersonalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead)
         performRequest(request: request, queue: queue, completion: completion)
 	}
 

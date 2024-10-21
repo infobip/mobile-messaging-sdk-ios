@@ -20,12 +20,14 @@ class PersonalizationVC: UIViewController {
     @IBOutlet weak var emailTextfield: UITextField!
     @IBOutlet weak var firstnameTextfield: UITextField!
     @IBOutlet weak var lastnameTextfield: UITextField!
+    @IBOutlet weak var keepAsLeadToggle: UISwitch!
     
     @IBAction func onDoPersonalization(_ sender: Any) {
         let identity = MMUserIdentity(phones: [phoneTextfield.text ?? "123000000000"], emails: [emailTextfield.text ?? "name@domain.com"], externalUserId: nil)
         let atts = MMUserAttributes(firstName: firstnameTextfield.text ?? "FirstName", middleName: nil, lastName: lastnameTextfield.text ?? "Lastname", tags: nil, gender: .Male, birthday: nil, customAttributes: nil)
+        let keepAsLead = keepAsLeadToggle.isOn
         guard let identity = identity else { return }
-        MobileMessaging.personalize(forceDepersonalize: true, userIdentity: identity, userAttributes: atts) { [weak self] result in
+        MobileMessaging.personalize(forceDepersonalize: true, keepAsLead: keepAsLead, userIdentity: identity, userAttributes: atts) { [weak self] result in
             print(">>>>personalize result " + (result?.mm_message ?? ""))
             self?.view.endEditing(true)
             MMPopOverBar.show(

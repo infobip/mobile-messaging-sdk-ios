@@ -18,7 +18,8 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
     @IBOutlet weak var identityTextField: UITextField!
     @IBOutlet weak var identitySegmentedC: UISegmentedControl!
     @IBOutlet weak var fullNameTextField: UITextField!
-    
+    @IBOutlet weak var keepAsLeadSwitch: UISwitch!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         MobileMessaging.inAppChat?.delegate = self
@@ -46,7 +47,7 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
         guard let identity = identity else { return }
         // Note: you only need to call "personalize" once for your user. Only the refreshing of the token should be done before
         // presenting the chat
-        MobileMessaging.personalize(forceDepersonalize: true, userIdentity: identity, userAttributes: atts) { [weak self] result in
+        MobileMessaging.personalize(forceDepersonalize: true, keepAsLead: keepAsLeadSwitch.isOn, userIdentity: identity, userAttributes: atts) { [weak self] result in
             if result != nil {
                 MMLogError(">>>>Personalize result: " + (result?.mm_message ?? ""))
             } else {

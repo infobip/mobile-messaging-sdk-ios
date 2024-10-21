@@ -349,8 +349,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
      - parameter userAttributes: Optional user data to be saved for the person.
      - parameter completion: The block to execute after the server responded.
      - parameter error: Optional error. */
-    public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
-        personalize(forceDepersonalize: false, userIdentity: identity, userAttributes: userAttributes, completion: completion)
+    public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, keepAsLead: Bool = false, completion: @escaping (_ error: NSError?) -> Void) {
+        personalize(forceDepersonalize: false, keepAsLead: keepAsLead, userIdentity: identity, userAttributes: userAttributes, completion: completion)
     }
     
     /**
@@ -363,10 +363,10 @@ public final class MobileMessaging: NSObject, NamedLogger {
      - parameter userAttributes: Optional user data to be saved for the person.
      - parameter completion: The block to execute after the server responded.
      - parameter error : Optional error. */
-    public class func personalize(forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
+    public class func personalize(forceDepersonalize: Bool, keepAsLead: Bool = false, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.userService.personalize(userInitiated: true, forceDepersonalize: forceDepersonalize, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
+                mm.userService.personalize(userInitiated: true, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
             }
         } else {
             completion(NSError(type: .MobileMessagingInstanceNotInitialized))

@@ -113,7 +113,7 @@ class UserDataService: MobileMessagingService {
 		return ret
 	}
 
-    func personalize(userInitiated: Bool, forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (NSError?) -> Void) {
+    func personalize(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (NSError?) -> Void) {
         assert(!Thread.isMainThread)
 		let du = mmContext.dirtyUser()
 		UserDataMapper.apply(userIdentity: userIdentity, to: du)
@@ -124,7 +124,8 @@ class UserDataService: MobileMessagingService {
 
 		let op = PersonalizeOperation(
             userInitiated: userInitiated,
-			forceDepersonalize: forceDepersonalize,
+            forceDepersonalize: forceDepersonalize, 
+            keepAsLead: keepAsLead,
 			userIdentity: userIdentity,
 			userAttributes: userAttributes,
 			mmContext: mmContext,

@@ -201,14 +201,15 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 			super.depersonalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, pushRegistrationIdToDepersonalize: pushRegistrationIdToDepersonalize, queue: queue, completion: completion)
 		}
 	}
-
-	override func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, queue: DispatchQueue, completion: @escaping (PersonalizeResult) -> Void) {
-		if let personalizeClosure = personalizeClosure {
-			completion(personalizeClosure(applicationCode, pushRegistrationId,body,forceDepersonalize))
-		} else {
-			super.personalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, queue: queue, completion: completion)
-		}
-	}
+    
+    override func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool,
+                              keepAsLead: Bool = false, queue: DispatchQueue, completion: @escaping (PersonalizeResult) -> Void) {
+        if let personalizeClosure = personalizeClosure {
+            completion(personalizeClosure(applicationCode, pushRegistrationId,body,forceDepersonalize))
+        } else {
+            super.personalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, queue: queue, completion: completion)
+        }
+    }
 
 	override func patchInstance(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (UpdateInstanceDataResult) -> Void) {
 		if let patchInstanceClosure = patchInstanceClosure {

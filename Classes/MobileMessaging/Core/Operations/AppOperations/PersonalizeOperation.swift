@@ -15,9 +15,11 @@ class PersonalizeOperation: MMOperation {
 	let finishBlock: ((NSError?) -> Void)?
 	let requireResponse: Bool
 	let forceDepersonalize: Bool
+    let keepAsLead: Bool
 
-    init(userInitiated: Bool, forceDepersonalize: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
+    init(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
 		self.forceDepersonalize = forceDepersonalize
+        self.keepAsLead = keepAsLead
 		self.userIdentity = userIdentity
 		self.userAttributes = userAttributes
 		self.mmContext = mmContext
@@ -53,7 +55,8 @@ class PersonalizeOperation: MMOperation {
 		mmContext.remoteApiProvider.personalize(applicationCode: mmContext.applicationCode,
 												pushRegistrationId: pushRegistrationId,
 												body: body,
-												forceDepersonalize: forceDepersonalize,
+                                                forceDepersonalize: forceDepersonalize, 
+                                                keepAsLead: keepAsLead,
                                                 queue: underlyingQueue)
 		{ (result) in
 			self.handlePersonalizeResult(result)
