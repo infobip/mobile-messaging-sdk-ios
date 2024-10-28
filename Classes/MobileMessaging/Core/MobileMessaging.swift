@@ -477,8 +477,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
      Default value is `URLSessionConfiguration.default`.
      You can provide your own configuration to define a custom NSURLProtocol, policies etc.
      */
-    public static var urlSessionConfiguration: URLSessionConfiguration = URLSessionConfiguration.default
-    
+    public static var urlSessionConfiguration: URLSessionConfiguration {
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil
+        return config
+    }
+
     /** The `MMPrivacySettings` class encapsulates privacy settings that affect the SDK behaviour and business logic. */
     public internal(set) static var privacySettings = MMPrivacySettings()
     

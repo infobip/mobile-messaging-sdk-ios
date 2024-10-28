@@ -116,7 +116,7 @@ class CallKitManager: NSObject {
     func startApplicationCall(_ call: ApplicationCall) {
         guard let callUUID = UUID(uuidString: call.id()) else { return }
         addApplicationCall(callUUID, call)
-        let handle = CXHandle(type: .generic, value: call.applicationId())
+        let handle = CXHandle(type: .generic, value: call.id())
         let startCallAction = CXStartCallAction(call: callUUID, handle: handle)
         startCallAction.isVideo = call.hasCameraVideo()
         let transaction = CXTransaction()

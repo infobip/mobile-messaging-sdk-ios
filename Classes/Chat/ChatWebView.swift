@@ -21,6 +21,7 @@ class ChatWebView: WKWebView {
 	
 	init(frame: CGRect) {
 		let configuration = WKWebViewConfiguration()
+        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
 		for value in JSMessageType.allCases {
 			configuration.userContentController.add(scriptHandler, name: value.rawValue)
 		}
@@ -67,7 +68,7 @@ class ChatWebView: WKWebView {
 			logDebug("can't load ChatConnector.html, components.url = nil")
 			return nil
 		}
-		return URLRequest(url: componentsUrl)
+        return URLRequest(url: componentsUrl, cachePolicy: .reloadIgnoringLocalCacheData)
 	}
 }
 

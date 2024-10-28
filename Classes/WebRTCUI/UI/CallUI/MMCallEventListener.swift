@@ -223,6 +223,21 @@ class MMCallEventListener: CallEventListener, ApplicationCallEventListener, Webr
     func onDialogJoined(_ dialogJoinedEvent: DialogJoinedEvent) { }
     
     func onDialogLeft(_ dialogLeftEvent: DialogLeftEvent) { }
+
+    @objc func onCallRecordingStarted(_ callRecordingStartedEvent: CallRecordingStartedEvent) { }
+
+    @objc func onCallRecordingStopped(_ callRecordingStoppedEvent: CallRecordingStoppedEvent) { }
+
+
+    @objc func onDialogRecordingStarted(_ dialogRecordingStartedEvent: DialogRecordingStartedEvent) { }
+
+
+    @objc func onDialogRecordingStopped(_ dialogRecordingStoppedEvent: DialogRecordingStoppedEvent) { }
+
+
+    @objc func onConferenceRecordingStarted(_ conferenceRecordingStartedEvent: ConferenceRecordingStartedEvent) { }
+
+    @objc func onConferenceRecordingStopped(_ conferenceRecordingStoppedEvent: ConferenceRecordingStoppedEvent) { }
 }
 
 protocol AggregatedCallEventListener {

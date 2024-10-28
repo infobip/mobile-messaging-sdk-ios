@@ -178,12 +178,48 @@ extension MMWebRTCService: PKPushRegistryDelegate {
     }
 }
 
-extension MMWebRTCService: ApplicationCallEventListener {
-    public func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent) { }
+extension MMWebRTCService: ApplicationCallEventListener, WebrtcCallEventListener {
+    public func onCallRecordingStarted(_ callRecordingStartedEvent: CallRecordingStartedEvent) {
 
-    public func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) { }
+    }
+    
+    public func onCallRecordingStopped(_ callRecordingStoppedEvent: CallRecordingStoppedEvent) {
 
-    public func onEstablished(_ callEstablishedEvent: CallEstablishedEvent) {
+    }
+    
+    public func onDialogRecordingStarted(_ dialogRecordingStartedEvent: DialogRecordingStartedEvent) {
+
+    }
+    
+    public func onDialogRecordingStopped(_ dialogRecordingStoppedEvent: DialogRecordingStoppedEvent) {
+
+    }
+    
+    public func onConferenceRecordingStarted(_ conferenceRecordingStartedEvent: ConferenceRecordingStartedEvent) {
+
+    }
+    
+    public func onConferenceRecordingStopped(_ conferenceRecordingStoppedEvent: ConferenceRecordingStoppedEvent) {
+
+    }
+    
+    @objc public func onRemoteCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) { }
+
+    @objc public func onRemoteCameraVideoRemoved() { }
+
+    @objc public func onRemoteScreenShareAdded(_ screenShareAddedEvent: ScreenShareAddedEvent) { }
+
+    @objc public func onRemoteScreenShareRemoved() { }
+
+    @objc public func onRemoteMuted() { }
+
+    @objc public func onRemoteUnmuted() { }
+
+    @objc public func onReconnecting(_ callReconnectingEvent: CallReconnectingEvent) { }
+
+    @objc public func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) { }
+
+    @objc public func onEstablished(_ callEstablishedEvent: CallEstablishedEvent) {
 
         switch notificationData?.activeCall {
         case .applicationCall(let applicationCall):
@@ -205,17 +241,17 @@ extension MMWebRTCService: ApplicationCallEventListener {
         notificationData?.activeCall = nil
     }
     
-    public func onHangup(_ : CallHangupEvent) {
+    @objc public func onHangup(_ : CallHangupEvent) {
         finishCall()
     }
     
-    public func onCallError(_ callErrorEvent: ErrorEvent) {
+    @objc  public func onCallError(_ callErrorEvent: ErrorEvent) {
         // Any error before establishing will end the call. Other non call errors handles by the listener
         // ase handles in onError
         finishCall()
     }
     
-    private func finishCall() {
+    @objc private func finishCall() {
         switch notificationData?.activeCall {
         case .applicationCall(let applicationCall):
             CallKitManager.shared.endApplicationCall(applicationCall)
@@ -229,47 +265,35 @@ extension MMWebRTCService: ApplicationCallEventListener {
     }
     
     // The folling functions are to be handled, after call is established, by the UI component of your choice
-    public func onRinging(_ : CallRingingEvent) { }
-    public func onEarlyMedia(_ : CallEarlyMediaEvent) { }
-    public func onError(_ error: ErrorEvent) { }
-    public func onParticipantStartedTalking(_ participantStartedTalkingEvent: ParticipantStartedTalkingEvent) { }
-    public func onParticipantStoppedTalking(_ participantStoppedTalkingEvent: ParticipantStoppedTalkingEvent) { }
-    public func onCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) { }
-    public func onCameraVideoUpdated(_ cameraVideoUpdatedEvent: CameraVideoUpdatedEvent) { }
-    public func onCameraVideoRemoved() { }
-    public func onScreenShareAdded(_ screenShareAddedEvent: ScreenShareAddedEvent) { }
-    public func onScreenShareRemoved() {  }
-    public func onParticipantCameraVideoAdded(_ participantCameraVideoAddedEvent: ParticipantCameraVideoAddedEvent) { }
-    public func onParticipantCameraVideoRemoved(_ participantCameraVideoRemovedEvent: ParticipantCameraVideoRemovedEvent) { }
-    public func onParticipantScreenShareAdded(_ participantScreenShareAddedEvent: ParticipantScreenShareAddedEvent) { }
-    public func onParticipantScreenShareRemoved(_ participantScreenShareRemovedEvent: ParticipantScreenShareRemovedEvent) { }
-    public func onConferenceJoined(_ conferenceJoinedEvent: ConferenceJoinedEvent) { }
-    public func onConferenceLeft(_ conferenceLeftEvent: ConferenceLeftEvent) { }
-    public func onParticipantJoining(_ participantJoiningEvent: ParticipantJoiningEvent) { }
-    public func onParticipantJoined(_ participantJoinedEvent: ParticipantJoinedEvent) { }
-    public func onParticipantMuted(_ participantMutedEvent: ParticipantMutedEvent) { }
-    public func onParticipantUnmuted(_ participantUnmutedEvent: ParticipantUnmutedEvent) { }
-    public func onParticipantDeaf(_ participantDeafEvent: ParticipantDeafEvent) { }
-    public func onParticipantUndeaf(_ participantUndeafEvent: ParticipantUndeafEvent) { }
-    public func onParticipantLeft(_ participantLeftEvent: ParticipantLeftEvent) { }
-    public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) { }
-    public func onDialogJoined(_ dialogJoinedEvent: DialogJoinedEvent) { }
-    public func onDialogLeft(_ dialogLeftEvent: DialogLeftEvent) { }
+    @objc public func onRinging(_ : CallRingingEvent) { }
+    @objc public func onEarlyMedia(_ : CallEarlyMediaEvent) { }
+    @objc public func onError(_ error: ErrorEvent) { }
+    @objc public func onParticipantStartedTalking(_ participantStartedTalkingEvent: ParticipantStartedTalkingEvent) { }
+    @objc public func onParticipantStoppedTalking(_ participantStoppedTalkingEvent: ParticipantStoppedTalkingEvent) { }
+    @objc public func onCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) { }
+    @objc public func onCameraVideoUpdated(_ cameraVideoUpdatedEvent: CameraVideoUpdatedEvent) { }
+    @objc public func onCameraVideoRemoved() { }
+    @objc public func onScreenShareAdded(_ screenShareAddedEvent: ScreenShareAddedEvent) { }
+    @objc public func onScreenShareRemoved() {  }
+    @objc public func onParticipantCameraVideoAdded(_ participantCameraVideoAddedEvent: ParticipantCameraVideoAddedEvent) { }
+    @objc public func onParticipantCameraVideoRemoved(_ participantCameraVideoRemovedEvent: ParticipantCameraVideoRemovedEvent) { }
+    @objc public func onParticipantScreenShareAdded(_ participantScreenShareAddedEvent: ParticipantScreenShareAddedEvent) { }
+    @objc public func onParticipantScreenShareRemoved(_ participantScreenShareRemovedEvent: ParticipantScreenShareRemovedEvent) { }
+    @objc public func onConferenceJoined(_ conferenceJoinedEvent: ConferenceJoinedEvent) { }
+    @objc public func onConferenceLeft(_ conferenceLeftEvent: ConferenceLeftEvent) { }
+    @objc public func onParticipantJoining(_ participantJoiningEvent: ParticipantJoiningEvent) { }
+    @objc public func onParticipantJoined(_ participantJoinedEvent: ParticipantJoinedEvent) { }
+    @objc public func onParticipantMuted(_ participantMutedEvent: ParticipantMutedEvent) { }
+    @objc public func onParticipantUnmuted(_ participantUnmutedEvent: ParticipantUnmutedEvent) { }
+    @objc public func onParticipantDeaf(_ participantDeafEvent: ParticipantDeafEvent) { }
+    @objc public func onParticipantUndeaf(_ participantUndeafEvent: ParticipantUndeafEvent) { }
+    @objc public func onParticipantLeft(_ participantLeftEvent: ParticipantLeftEvent) { }
+    @objc public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) { }
+    @objc public func onDialogJoined(_ dialogJoinedEvent: DialogJoinedEvent) { }
+    @objc public func onDialogLeft(_ dialogLeftEvent: DialogLeftEvent) { }
+
 }
 
-extension MMWebRTCService: WebrtcCallEventListener {
-    public func onRemoteCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) { }
-    
-    public func onRemoteCameraVideoRemoved() { }
-    
-    public func onRemoteScreenShareAdded(_ screenShareAddedEvent: ScreenShareAddedEvent) { }
-    
-    public func onRemoteScreenShareRemoved() { }
-    
-    public func onRemoteMuted() { }
-    
-    public func onRemoteUnmuted() { }
-}
 
 extension MMWebRTCService: IncomingCallEventListener {
     public func onIncomingWebrtcCall(_ incomingWebrtcCallEvent: IncomingWebrtcCallEvent) {

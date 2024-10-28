@@ -139,7 +139,7 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     </p>
     </details>
 
-8. [Integrate Notification Service Extension](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Notification-Service-Extension-for-Rich-Notifications-and-better-delivery-reporting-on-iOS-10) into your app in order to obtain:
+8. [Integrate Notification Service Extension](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Notification-Service-Extension-for-Rich-Notifications-and-better-delivery-reporting-on-iOS) into your app in order to obtain:
     - more accurate processing of messages and delivery stats
     - support of rich notifications on the lock screen
 

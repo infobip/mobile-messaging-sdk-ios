@@ -39,9 +39,11 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 	var storage: UserDefaults
 
 	init(baseURL url: URL, sessionConfiguration configuration: URLSessionConfiguration?, appGroupId: String?) {
-		self.configuration = configuration ?? URLSessionConfiguration.default
+        self.configuration = configuration ?? MobileMessaging.urlSessionConfiguration
 		self.configuration.timeoutIntervalForResource = 20
 		self.configuration.timeoutIntervalForRequest = 20
+        self.configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        self.configuration.urlCache = nil
 		self.alamofireSessionManager = SessionManager(configuration: self.configuration)
 		self.originalBaseUrl = url
 		self.appGroupId = appGroupId
