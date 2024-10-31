@@ -7,6 +7,10 @@ target 'MobileChatExample' do
 	pod 'MobileMessaging/InAppChat', :path => '../'
   	pod 'MobileMessaging/WebRTCUI', :path => '../'
 	pod 'SwiftJWT', '~> 3.6.1' 
+
+    target 'MobileMessagingNotificationExtension' do
+        inherit! :search_paths
+    end
 end
 
 # Fix Xcode 14 resource bundle signing issues
