@@ -75,6 +75,7 @@ typealias FetchInstanceDataResult = MMResult<MMInstallation>
 typealias UpdateInstanceDataResult = MMResult<EmptyResponse>
 typealias PersonalizeResult = MMResult<MMUser>
 typealias DeliveryReportResult = MMResult<EmptyResponse>
+typealias WebInAppClickReportResult = MMResult<EmptyResponse>
 
 public struct MMRequestError {
 	public let messageId: String

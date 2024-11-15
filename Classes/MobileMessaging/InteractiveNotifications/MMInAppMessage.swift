@@ -2,6 +2,7 @@ import Foundation
 
 @objcMembers
 public final class MMInAppMessage: MM_MTMessage {
+    let clickUrl: URL?
     let url: URL
     let type: MMInAppMessageType
     let position: MMInAppMessagePosition?
@@ -22,8 +23,12 @@ public final class MMInAppMessage: MM_MTMessage {
             return nil
         }
         
+        let clickUrlRaw = inAppDetails[Consts.InAppDetailsKeys.clickUrl] as? String
+        let clickUrl = clickUrlRaw.flatMap { URL(string: $0) }
+        
         self.url = url
         self.type = type
+        self.clickUrl = clickUrl
         
         if type == .banner {
             guard
@@ -45,6 +50,17 @@ public final class MMInAppMessage: MM_MTMessage {
                    seenStatus: seenStatus,
                    isDeliveryReportSent: isDeliveryReportSent)
     }
+    
+    convenience init?(from message: MM_MTMessage) {
+            self.init(
+                payload: message.originalPayload,
+                deliveryMethod: message.deliveryMethod,
+                seenDate: message.seenDate,
+                deliveryReportDate: message.deliveryReportedDate,
+                seenStatus: message.seenStatus,
+                isDeliveryReportSent: message.isDeliveryReportSent
+            )
+        }
 }
 
 public enum MMInAppMessagePosition: Int {
@@ -53,4 +69,16 @@ public enum MMInAppMessagePosition: Int {
 
 public enum MMInAppMessageType: Int {
     case banner = 0, popup, fullscreen
+    
+    static let bannerButtonIdx = "banner"
+    static let primaryButtonIdx = "primary_button"
+
+    var buttonIdx: String {
+        switch self {
+        case .banner:
+            return MMInAppMessageType.bannerButtonIdx
+        default:
+            return MMInAppMessageType.primaryButtonIdx
+        }
+    }
 }

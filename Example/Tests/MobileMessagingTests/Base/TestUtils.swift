@@ -80,6 +80,8 @@ struct MMTestConstants {
 	static let kTestWrongApplicationCode = "someWrongApplicationID"
 	static let kTestCurrentRegistrationId = "fffe73006f006d00650054006f006b0065006e003200"
 	static let kTestOldRegistrationId = "fffe73006f006d00650054006f006b0065006e00"
+	static let kTestWebInAppClickUrl = "https://test-click-url.com"
+	static let kTestWebInAppButtonIdx = "btnIdx"
 }
 
 extension MobileMessaging {
@@ -137,7 +139,8 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 	var getUserClosure: ((String, String) -> FetchUserDataResult)? = nil
 	var sendUserSessionClosure: ((String, String, RequestBody) -> UserSessionSendingResult)? = nil
 	var sendCustomEventClosure: ((String, String, Bool, RequestBody) -> CustomEventResult)? = nil
-
+    var sendWebInAppClickReportClosure: ((URL, String, String, String) -> WebInAppClickReportResult)? = nil
+    
     override func getBaseUrl(applicationCode: String, queue: DispatchQueue, completion: @escaping (BaseUrlResult) -> Void) {
         if let getBaseUrlClosure = getBaseUrlClosure {
             completion(getBaseUrlClosure(applicationCode))
@@ -265,8 +268,15 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 		} else {
 			super.getUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, queue: queue, completion: completion)
 		}
-
 	}
+    
+    override func sendWebInAppClickReport(url: URL, applicationCode: String, pushRegistrationId: String, buttonIdx: String, queue: DispatchQueue, completion: @escaping (WebInAppClickReportResult) -> Void) {
+            if let sendWebInAppClickReportClosure = sendWebInAppClickReportClosure {
+                completion(sendWebInAppClickReportClosure(url, applicationCode, pushRegistrationId, buttonIdx))
+            } else {
+                super.sendWebInAppClickReport(url: url, applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, buttonIdx: buttonIdx, queue: queue, completion: completion)
+            }
+        }
 }
 
 class SessionManagerOfflineStubBase : DynamicBaseUrlHTTPSessionManager {

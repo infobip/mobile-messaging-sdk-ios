@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02CB0C382CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */; };
+		02CB0C392CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */; };
 		0A039E0C3CF3CF466CC55982 /* Pods_NotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B410BE750E515903CA231FB /* Pods_NotificationServiceExtension.framework */; };
 		134C342A92279E53C1BF109C /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD1485854998371F9BBFFB5E /* Pods_MobileMessagingExample_Tests.framework */; };
 		38B486C60252627FBF502BB4 /* Pods_MobileMessagingExample_Tests_Device.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38FADE096200DB479B61B280 /* Pods_MobileMessagingExample_Tests_Device.framework */; };
@@ -166,6 +168,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickTests.swift; sourceTree = "<group>"; };
 		2B410BE750E515903CA231FB /* Pods_NotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C96DCBEC5480BFC6B07215B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		3890C74456021AEE4B50BF57 /* Pods-MobileMessagingExample_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests.release.xcconfig"; path = "Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -471,6 +474,7 @@
 		A09103D91CABA839001873B4 /* MobileMessagingTests */ = {
 			isa = PBXGroup;
 			children = (
+				02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */,
 				A0218EE82ADFD2B900219258 /* CodingDecodingTests.swift */,
 				A026DDB82AC3215C00A7318C /* InboxDataModelsTests.swift */,
 				A026DDB92AC3215C00A7318C /* InboxServiceTests.swift */,
@@ -977,6 +981,7 @@
 				76E49FEB22118CD0002B810D /* TimezoneFormatterTests.swift in Sources */,
 				76934B3D232C474800882DAA /* GeofencingServiceTestUtils.swift in Sources */,
 				7640DC3522036EC000F50470 /* DeliveryReportingTests.swift in Sources */,
+				02CB0C392CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */,
 				762F9D3922064B4000A35F1E /* InstallationMigrationTests.swift in Sources */,
 				76174FD62334EC42000438A8 /* DepersonalizeTests.swift in Sources */,
 				767B848C1EA8AD1100CCD81F /* CoreDataHelpersTests.swift in Sources */,
@@ -1016,6 +1021,7 @@
 				76934B32232BD12300882DAA /* MessageStorageTests.swift in Sources */,
 				76ECA83D23327CD200561D13 /* GeofencingServiceTests.swift in Sources */,
 				76174FD52334D8DE000438A8 /* SystemDataTests.swift in Sources */,
+				02CB0C382CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */,
 				762F9D4B220724A400A35F1E /* DataModelsTests.swift in Sources */,
 				76934B38232C32D200882DAA /* UserDataTests.swift in Sources */,
 				A026DDBE2AC3215C00A7318C /* InboxDataModelsTests.swift in Sources */,

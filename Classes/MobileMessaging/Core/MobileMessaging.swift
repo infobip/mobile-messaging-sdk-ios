@@ -654,6 +654,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         userService = nil
         eventsService = nil
         baseUrlManager = nil
+        webInAppClickService = nil
         notificationsInteractionService = nil
         httpSessionManager = nil
         InternalData.cached.reset()
@@ -751,6 +752,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
         if let appGroupId = appGroupId, sharedNotificationExtensionStorage == nil {
             sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
         }
+        if webInAppClickService == nil && fullFeaturedInAppsEnabled {
+            webInAppClickService = WebInAppClickService(mmContext: self)
+        }
         if notificationsInteractionService == nil {
             notificationsInteractionService = NotificationsInteractionService(mmContext: self, categories: nil)
         }
@@ -794,6 +798,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     var userSessionService: UserSessionService!
     var baseUrlManager: BaseUrlManager!
     var eventsService: EventsService!
+    var webInAppClickService: WebInAppClickService?
     var notificationsInteractionService: NotificationsInteractionService?
     
     

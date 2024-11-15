@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		022BFEB42CC1449F00BB30B5 /* WebInAppClickObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022BFEB22CC1449F00BB30B5 /* WebInAppClickObject.swift */; };
+		022BFEB52CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022BFEB32CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift */; };
+		02421C642CBFA95B00F159C8 /* WebInAppClickService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02421C632CBFA95200F159C8 /* WebInAppClickService.swift */; };
+		02A31D1C2C9C1AF200051D30 /* WebInAppClickPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A31D1B2C9C1AE000051D30 /* WebInAppClickPersistingOperation.swift */; };
+		02A31D1E2C9C1B0A00051D30 /* WebInAppClickReportingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A31D1D2C9C1AF800051D30 /* WebInAppClickReportingOperation.swift */; };
 		0ECABD2F10663827D649C473E329D109 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */; };
 		170FF8C3FBE3A5E694424BFA5DEED454 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */; };
 		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
@@ -313,6 +318,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		022BFEB12CC1419800BB30B5 /* MMStorageModel_5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MMStorageModel_5.xcdatamodel; sourceTree = "<group>"; };
+		022BFEB22CC1449F00BB30B5 /* WebInAppClickObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickObject.swift; sourceTree = "<group>"; };
+		022BFEB32CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WebInAppClickObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		02421C632CBFA95200F159C8 /* WebInAppClickService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickService.swift; sourceTree = "<group>"; };
+		02A31D1B2C9C1AE000051D30 /* WebInAppClickPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickPersistingOperation.swift; sourceTree = "<group>"; };
+		02A31D1D2C9C1AF800051D30 /* WebInAppClickReportingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickReportingOperation.swift; sourceTree = "<group>"; };
 		1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MobileMessaging.xcconfig; sourceTree = "<group>"; };
 		3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCSettings.swift; sourceTree = "<group>"; };
 		367B1A992918F3640081983C /* MMLoc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMLoc.swift; sourceTree = "<group>"; };
@@ -673,7 +684,7 @@
 		A8CBD7CF292CCDA200322961 /* PIPKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPKit.swift; sourceTree = "<group>"; };
 		A8CBD7D0292CCDA200322961 /* PIPUsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPUsable.swift; sourceTree = "<group>"; };
 		A8CE8ACD285C6E03000CC98F /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
-		A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = file; name = PrivacyInfo.xcprivacy; path = Classes/MobileMessaging/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
+		A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Classes/MobileMessaging/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
 		ADF203322086642B00E157D7 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
 		ADF203332086642B00E157D7 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		ADF203342086642B00E157D7 /* Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
@@ -928,6 +939,7 @@
 		764555CF1F78FF4E00B8F14B /* InteractiveNotifications */ = {
 			isa = PBXGroup;
 			children = (
+				02421C632CBFA95200F159C8 /* WebInAppClickService.swift */,
 				A0672C002AC1BFB0005EDCD9 /* LoadingImageView.xib */,
 				A0672BFF2AC1BFB0005EDCD9 /* NativeInteractiveMessageAlertController.xib */,
 				A0672BFE2AC1BFB0005EDCD9 /* WebInteractiveMessageAlertController.xib */,
@@ -990,6 +1002,8 @@
 		764555DD1F78FF4E00B8F14B /* InternalStorage */ = {
 			isa = PBXGroup;
 			children = (
+				022BFEB22CC1449F00BB30B5 /* WebInAppClickObject.swift */,
+				022BFEB32CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift */,
 				A0D477CB29FABDEB000B6C45 /* MMInternalStorageModel.xcdatamodeld */,
 				A0D477C529FAAC60000B6C45 /* Migration_1_3.xcmappingmodel */,
 				A0D477C429FAAC60000B6C45 /* Migration_2_3.xcmappingmodel */,
@@ -1049,6 +1063,8 @@
 		7645561A1F78FF4F00B8F14B /* AppOperations */ = {
 			isa = PBXGroup;
 			children = (
+				02A31D1D2C9C1AF800051D30 /* WebInAppClickReportingOperation.swift */,
+				02A31D1B2C9C1AE000051D30 /* WebInAppClickPersistingOperation.swift */,
 				76A957A121ECAA00000AFD9C /* DepersonalizeOperation.swift */,
 				76A8A77A2195B97F004F6E39 /* UpdateUserOperation.swift */,
 				76FFC27B1F7A64D1009C6A2A /* LocalMessageFetchingOperation.swift */,
@@ -1666,6 +1682,7 @@
 				EC9E8A9C2AFBE70000150530 /* UInt64+Extension.swift in Sources */,
 				A838992B28F82B8600322E68 /* MMWebRTCToken.swift in Sources */,
 				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
+				02A31D1C2C9C1AF200051D30 /* WebInAppClickPersistingOperation.swift in Sources */,
 				A8171FCD2ADE5D3500AC6FC4 /* MMCallEventListener.swift in Sources */,
 				6C60A4A31FD6B169001744BC /* State.swift in Sources */,
 				76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */,
@@ -1676,6 +1693,7 @@
 				7617505523351827000438A8 /* DispatchQueue+Alamofire.swift in Sources */,
 				A0672BF72AC1A4C0005EDCD9 /* InAppMessagePresenter.swift in Sources */,
 				7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */,
+				02421C642CBFA95B00F159C8 /* WebInAppClickService.swift in Sources */,
 				764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */,
 				764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */,
 				ADF203492086642C00E157D7 /* Generics.swift in Sources */,
@@ -1745,6 +1763,7 @@
 				A08CB2672459B0BB00ED91B6 /* ChatService.swift in Sources */,
 				A0672BF52AC1A4C0005EDCD9 /* ScriptMethodInvoker.swift in Sources */,
 				763A1AFA23E490A000C997BC /* CustomEventMapper.swift in Sources */,
+				02A31D1E2C9C1B0A00051D30 /* WebInAppClickReportingOperation.swift in Sources */,
 				A8CBD7D7292CCDA200322961 /* AVPIPKitUsable+UIKit.swift in Sources */,
 				764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */,
 				A0672BFD2AC1A4C0005EDCD9 /* AlertOperation.swift in Sources */,
@@ -1787,6 +1806,8 @@
 				764556871F78FF6500B8F14B /* GeoEventReportObject+CoreDataProperties.swift in Sources */,
 				764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */,
 				764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */,
+				022BFEB42CC1449F00BB30B5 /* WebInAppClickObject.swift in Sources */,
+				022BFEB52CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift in Sources */,
 				A8CBD7D3292CCDA200322961 /* UIViewController+Associated.swift in Sources */,
 				A08CB26D2459B0C600ED91B6 /* ChatRequests.swift in Sources */,
 				A88E21562BADA839000C10A8 /* MMDispatchQueue.swift in Sources */,
@@ -2155,13 +2176,14 @@
 		A0D477CB29FABDEB000B6C45 /* MMInternalStorageModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				022BFEB12CC1419800BB30B5 /* MMStorageModel_5.xcdatamodel */,
 				A0D477CC29FABDEB000B6C45 /* MMStorageModel_3.xcdatamodel */,
 				A0D477CD29FABDEB000B6C45 /* MMStorageModel_0.xcdatamodel */,
 				A0D477CE29FABDEB000B6C45 /* MMStorageModel_2.xcdatamodel */,
 				A0D477CF29FABDEB000B6C45 /* MMStorageModel_1.xcdatamodel */,
 				A0D477D029FABDEB000B6C45 /* MMStorageModel_4.xcdatamodel */,
 			);
-			currentVersion = A0D477D029FABDEB000B6C45 /* MMStorageModel_4.xcdatamodel */;
+			currentVersion = 022BFEB12CC1419800BB30B5 /* MMStorageModel_5.xcdatamodel */;
 			name = MMInternalStorageModel.xcdatamodeld;
 			path = ../../Resources/InternalStorage/MMInternalStorageModel.xcdatamodeld;
 			sourceTree = "<group>";

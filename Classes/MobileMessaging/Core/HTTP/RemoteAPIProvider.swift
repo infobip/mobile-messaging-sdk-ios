@@ -106,6 +106,16 @@ public class RemoteAPIProvider: SessionManagement {
 		let request = DeleteInstance(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, expiredPushRegistrationId: expiredPushRegistrationId)
         performRequest(request: request, queue: queue, completion: completion)
 	}
+
+    func sendWebInAppClickReport(url: URL, applicationCode: String, pushRegistrationId: String, buttonIdx: String, queue: DispatchQueue, completion: @escaping (WebInAppClickReportResult) -> Void) {
+        let request = WebInAppClickReportRequest(
+            url: url,
+            applicationCode: applicationCode,
+            pushRegistrationId: pushRegistrationId,
+            buttonIdx: buttonIdx
+        )
+        performRequest(request: request, queue: queue, completion: completion)
+    }
 }
 
 public protocol SessionManagement {

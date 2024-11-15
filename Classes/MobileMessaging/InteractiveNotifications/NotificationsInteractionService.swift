@@ -58,13 +58,16 @@ public class NotificationsInteractionService: MobileMessagingService {
     }
     
     func handleAction(userInitiated: Bool, identifier: String, categoryId: String?, message: MM_MTMessage?, notificationUserInfo: [String: Any]?, userText: String?, completionHandler: @escaping () -> Void) {
-        
-        logDebug("handling action \(identifier) for message \(message?.messageId ?? "n/a"), user text empty \(userText?.isEmpty ?? true)")
-        
+        logDebug("Handling action - User Initiated: \(userInitiated), Identifier: \(identifier), Category ID: \(categoryId ?? "n/a"), User Text: \(userText ?? "n/a"), Message ID: \(message?.messageId ?? "n/a")")
+
         guard isRunning else {
             logWarn("cancelled handling, service stopped")
             completionHandler()
             return
+        }
+        
+        if let message = message {
+            reportClickIfInAppMessage(message: message, identifier: identifier)
         }
         
         if (categoryId?.isEmpty ?? true) {
@@ -97,6 +100,18 @@ public class NotificationsInteractionService: MobileMessagingService {
             MobileMessaging.messageHandlingDelegate?.inAppWebViewWillShowUp?(webViewController, for: message)
         }
         presentingVc.present(webViewController, animated: true, completion: nil)
+    }
+    
+    private func reportClickIfInAppMessage(message: MM_MTMessage, identifier: String) {
+        if let inAppMessage = MMInAppMessage(from: message) {
+            logDebug("action is being handled for an inapp, inAppDetails - url: \(inAppMessage.url), clickUrl: \(inAppMessage.clickUrl?.absoluteString ?? "clickurl empty"), type: \(inAppMessage.type), position: \(inAppMessage.position.map { "\($0.rawValue)" } ?? "position empty")")
+            
+            if identifier == MMNotificationAction.PrimaryActionId || identifier == MMNotificationAction.DefaultActionId {
+                if let clickUrl = inAppMessage.clickUrl?.absoluteString {
+                    self.mmContext.webInAppClickService?.submitWebInAppClick(clickUrl: clickUrl, buttonIdx: inAppMessage.type.buttonIdx, completion: {_ in})
+                }
+            }
+        }
     }
     
     fileprivate func handleNotificationTap(message: MM_MTMessage, attempt: Int = 0, completion: @escaping () -> Void) {

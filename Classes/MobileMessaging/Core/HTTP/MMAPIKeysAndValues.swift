@@ -94,6 +94,13 @@ public struct MMConsts {
 		static let foreground = "foreground"
 		static let pushRegistrationId = "pushregistrationid"
 		static let applicationcode = "applicationcode"
+        static let buttonidx = "buttonidx"
+        static let authorization = "Authorization"
+        static let userAgent = "User-Agent"
+        static let sessionId = "sessionId"
+        static let accept = "Accept"
+        static let contentType = "Content-Type"
+        static let installationId = "installationid"
 	}
     
     struct BaseUrlRecovery {
@@ -186,6 +193,7 @@ public struct MMConsts {
         static let url = "url"
         static let position = "position"
         static let type = "type"
+        static let clickUrl = "clickUrl"
     }
 
 	struct Attachments {

@@ -78,9 +78,9 @@ class WebInAppMessagePresenter: NamedLogger,
         guard let applicationCode = MobileMessaging.sharedInstance?.applicationCode else {
             return request
         }
-        request.setValue("App \(applicationCode)", forHTTPHeaderField: "Authorization")
-        request.setValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: "User-Agent")
-        request.setValue(MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId, forHTTPHeaderField: Consts.APIHeaders.pushRegistrationId)
+        request.setValue("App \(applicationCode)", forHTTPHeaderField: MMConsts.APIHeaders.authorization)
+        request.setValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: MMConsts.APIHeaders.userAgent)
+        request.setValue(MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId, forHTTPHeaderField: MMConsts.APIHeaders.pushRegistrationId)
         
         return request
     }

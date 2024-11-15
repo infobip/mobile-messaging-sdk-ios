@@ -29,6 +29,8 @@ public enum APIPath: String {
     case ChatWidget = "/mobile/1/chat/widget"
     case WebRTCToken = "/webrtc/1/token"
     case LiveChatInfo = "/mobile/1/appinstance/{pushRegistrationId}/user/livechatinfo"
+
+	case empty = ""
 }
 
 class SeenStatusSendingRequest: PostRequest {
@@ -176,6 +178,28 @@ class PostPersonalize: PostRequest {
 	}
 }
 
+class WebInAppClickReportRequest: GetRequest {
+    typealias ResponseType = EmptyResponse
+    
+    private let buttonIdx: String
+    
+    init(url: URL, applicationCode: String, pushRegistrationId: String, buttonIdx: String) {
+        self.buttonIdx = buttonIdx
+        super.init(
+            applicationCode: applicationCode,
+            path: .empty,
+            pushRegistrationId: pushRegistrationId,
+            baseUrl: url
+        )
+    }
+    
+    override var headers: HTTPHeaders? {
+        var headers = super.headers ?? [:]
+        headers[MMConsts.APIHeaders.buttonidx] = buttonIdx
+        return headers
+    }
+}
+
 
 //MARK: - Base
 
@@ -204,18 +228,18 @@ open class RequestData {
 	var headers: HTTPHeaders? {
 		var headers: HTTPHeaders = [:]
         if let accessToken = accessToken {
-            headers["Authorization"] = "Bearer \(accessToken)"
+            headers[MMConsts.APIHeaders.authorization] = "Bearer \(accessToken)"
         } else {
-            headers["Authorization"] = "App \(self.applicationCode)"
+            headers[MMConsts.APIHeaders.authorization] = "App \(self.applicationCode)"
         }
-		headers["applicationcode"] = calculateAppCodeHash(self.applicationCode)
-		headers["User-Agent"] = MobileMessaging.userAgent.currentUserAgentString
-		headers["foreground"] = String(MobileMessaging.application.isInForegroundState)
-		headers["pushregistrationid"] = self.pushRegistrationId
-		headers["sessionId"] = MobileMessaging.sharedInstance?.userSessionService.currentSessionId
-		headers["Accept"] = "application/json"
-		headers["Content-Type"] = "application/json"
-		headers["installationid"] = MobileMessaging.sharedInstance?.installationService?.getUniversalInstallationId()
+        headers[MMConsts.APIHeaders.applicationcode] = calculateAppCodeHash(self.applicationCode)
+        headers[MMConsts.APIHeaders.userAgent] = MobileMessaging.userAgent.currentUserAgentString
+        headers[MMConsts.APIHeaders.foreground] = String(MobileMessaging.application.isInForegroundState)
+        headers[MMConsts.APIHeaders.pushRegistrationId] = self.pushRegistrationId
+        headers[MMConsts.APIHeaders.sessionId] = MobileMessaging.sharedInstance?.userSessionService.currentSessionId
+        headers[MMConsts.APIHeaders.accept] = "application/json"
+        headers[MMConsts.APIHeaders.contentType] = "application/json"
+        headers[MMConsts.APIHeaders.installationId] = MobileMessaging.sharedInstance?.installationService?.getUniversalInstallationId()
 		return headers
 	}
 	let body: RequestBody?
