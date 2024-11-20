@@ -108,7 +108,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    func onSwiftUIChatWithCstuomNavigation() {
+    func onSwiftUIChatWithCustomNavigation() {
         let vc = UIHostingController(rootView: ExternalInputChatViewWithCustomNavigation())
         navigationController?.present(vc, animated: true)
     }
@@ -304,7 +304,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         case .swiftUIChatWithExternalInput:
             onShowSwiftUIChat()
         case .swiftUIChatWithCustomNavigation:
-            onSwiftUIChatWithCstuomNavigation()
+            onSwiftUIChatWithCustomNavigation()
         }
     }
     

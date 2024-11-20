@@ -5,7 +5,7 @@
 //  Created by Andrey Kadochnikov on 14.04.2020.
 //
 
-import WebKit
+@preconcurrency import WebKit
 
 ///Key component to use for displaying In-app chat view.
 ///We support two ways to quickly embed it into your own application:
@@ -77,10 +77,12 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     var chatNotAvailableLabel: ChatNotAvailableLabel!
-    public private (set) var isChattingInMultithread: Bool = false
-    var initialBackButtonVisibility: Bool = true
+    public private(set) var isChattingInMultithread: Bool = false
+    var initialBackButtonIsHidden: Bool = true
     var initialLeftNavigationItem: UIBarButtonItem?
-    
+    var initialLargeDisplayMode: UINavigationItem.LargeTitleDisplayMode = .automatic
+    private var firstTimeHandlingMultithread = true
+
     open override func loadView() {
         super.loadView()
         setupWebView()
@@ -121,7 +123,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         super.viewDidAppear(animated)
         MobileMessaging.inAppChat?.isChatScreenVisible = true
         MobileMessaging.inAppChat?.resetMessageCounter()
-        if chatWidget?.isMultithread ?? false, !self.navigationItem.hidesBackButton {
+        if chatWidget?.isMultithread ?? false {
            handleMultithreadBackButton(appearing: true)
         }
     }
@@ -129,17 +131,18 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         MobileMessaging.inAppChat?.isChatScreenVisible = false
-        if chatWidget?.isMultithread ?? false, !initialBackButtonVisibility {
-           handleMultithreadBackButton(appearing: false)
-        }
     }
     
     private lazy var chatAttachmentPicker: ChatAttachmentPicker = ChatAttachmentPicker(delegate: self)
     
     private func handleMultithreadBackButton(appearing: Bool) {
         if appearing {
-            initialLeftNavigationItem = self.navigationItem.leftBarButtonItem
-            initialBackButtonVisibility = self.navigationItem.hidesBackButton
+            if firstTimeHandlingMultithread {
+                initialLeftNavigationItem = self.navigationItem.leftBarButtonItem
+                initialBackButtonIsHidden = self.navigationItem.hidesBackButton
+                initialLargeDisplayMode = self.navigationItem.largeTitleDisplayMode
+                firstTimeHandlingMultithread = false
+            }
             self.navigationItem.hidesBackButton = true
             let customButton = settings?.multithreadBackButton
             let backButton = UIBarButtonItem(image: customButton?.image ?? UIImage(mm_chat_named: "backButton"),
@@ -147,12 +150,32 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
                                              target: customButton?.target ?? self,
                                              action: customButton?.action ?? #selector(onInterceptedBackTap))
             self.navigationItem.leftBarButtonItem = backButton
+            hideLeftButton(!isChattingInMultithread && (self.navigationItem.backBarButtonItem == nil || initialBackButtonIsHidden))
         } else {
+            hideLeftButton(true) // this works as a reset for the custom left button we did create
             self.navigationItem.leftBarButtonItem = initialLeftNavigationItem
-            self.navigationItem.hidesBackButton = initialBackButtonVisibility
+            self.navigationItem.hidesBackButton = initialBackButtonIsHidden
+         }
+    }
+
+    private func hideLeftButton(_ hidden: Bool) {
+        if #available(iOS 16.0, *) {
+            navigationItem.leftBarButtonItem?.isHidden = hidden
+            if navigationController?.navigationBar.prefersLargeTitles ?? false {
+                navigationItem.largeTitleDisplayMode = hidden ? initialLargeDisplayMode : .never
+                navigationController?.navigationBar.sizeToFit()
+            }
+        } // else not possible on older version - nothing changed
+    }
+
+    private var isLeftButtonHidden: Bool {
+        if #available(iOS 16.0, *) {
+            return navigationItem.leftBarButtonItem?.isHidden ?? false
+        } else {
+            return false // on prior OS we cannot hide left button on multithread (ie when chat is its own rootVC). Important to note that we are not replacing the navigationItem.backButtonItem here, but the leftBarButtonItem, to have full control over it
         }
     }
-    
+
     //ChatSettingsApplicable
     func applySettings() {
         guard let settings = settings else {
@@ -221,9 +244,16 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         // When going from thread list to a thread, the navigation happens in the webView. In order to handle the expected
         // action of going "back", we interpret the chat webview state and decide if we actuall pop from navigation
         // or we invoke a method in the chat widget to go back to the thread list.
-        if isChattingInMultithread {
+        guard !isChattingInMultithread else {
             showThreadsList()
-        } else if presentingViewController != nil {
+            return
+        }
+
+        if chatWidget?.isMultithread ?? false {
+           handleMultithreadBackButton(appearing: false) // actual back action. We do not trigger this in viewDidDisappear because we could recognise wrong a pushing of new VC instead of a popping of current (remember, we are intercepting the back action with a left button replacement)
+        }
+
+        if presentingViewController != nil {
             dismiss(animated: true) // viewController is a modal
         } else {
             navigationController?.popViewController(animated: true) // regular presentation
@@ -471,11 +501,15 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             isComposeBarVisible = state == .loadingThread || state == .thread || state == .singleThreadMode
             isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
         }
-        
+
+        if chatWidget?.isMultithread ?? false {
+            hideLeftButton(!isChattingInMultithread && (self.navigationItem.backBarButtonItem == nil || initialBackButtonIsHidden))
+        }
+
         if state != .loading && state != .loadingThread && state != .unknown {
             sendCachedContextData()
         }
-        
+
         MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)
     }
     

@@ -60,8 +60,7 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
         let request = MMWebRTCTokenRequest(
             applicationCode: appCode,
             pushRegistrationId: pushRegId,
-            body: body,
-            baseURL: MobileMessaging.sharedInstance?.remoteAPIBaseURL ?? MMConsts.APIValues.prodDynamicBaseURLString)
+            body: body)
         queue.async {
             MobileMessaging.sharedInstance?.remoteApiProvider.performRequest(
                 request: request, 
@@ -72,7 +71,11 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
 }
 
 class MMWebRTCTokenRequest: RequestData {
-    init(applicationCode: String, pushRegistrationId: String?, body: RequestBody, baseURL: String) {
+    init(applicationCode: String, pushRegistrationId: String?, body: RequestBody, baseURLString: String? = nil) {
+        var baseURL: URL?
+        if let baseURLString = baseURLString {
+            baseURL = URL(string: baseURLString)
+        }
         super.init(
             applicationCode: applicationCode,
             accessToken: nil,
@@ -80,7 +83,7 @@ class MMWebRTCTokenRequest: RequestData {
             path: .WebRTCToken,
             pushRegistrationId: pushRegistrationId,
             body: body,
-            baseUrl: URL(string: baseURL))
+            baseUrl: baseURL)
     }
 }
 #endif

@@ -181,7 +181,6 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
 	
 	let appGroupId: String
 	let applicationCode: String
-	let remoteAPIBaseURL = Consts.APIValues.prodDynamicBaseURLString
 	var currentTask: RetryableDownloadTask?
 	var sharedNotificationExtensionStorage: AppGroupMessageStorage?
 	lazy var deliveryReporter: DeliveryReporting! = DeliveryReporter()
