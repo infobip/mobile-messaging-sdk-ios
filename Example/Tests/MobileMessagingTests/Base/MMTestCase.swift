@@ -47,7 +47,7 @@ class ApnsRegistrationManagerStub: ApnsRegistrationManager {
 
 class MessageHandlingDelegateMock : MMMessageHandlingDelegate {
     var didReceiveNewMessageHandler: ((MM_MTMessage) -> Void)?
-    var willPresentInForegroundHandler: ((MM_MTMessage?) -> MMUserNotificationType)?
+    var willPresentInForegroundHandler: ((MM_MTMessage?) -> UNNotificationPresentationOptions)?
     var canPresentInForeground: ((MM_MTMessage) -> Void)?
     var didPerformActionHandler: ((MMNotificationAction, MM_MTMessage?, () -> Void) -> Void)?
     var didReceiveNewMessageInForegroundHandler: ((MM_MTMessage) -> Void)?
@@ -62,8 +62,8 @@ class MessageHandlingDelegateMock : MMMessageHandlingDelegate {
         didReceiveNewMessageHandler?(message)
     }
     
-    func willPresentInForeground(message: MM_MTMessage?, withCompletionHandler completionHandler: @escaping (MMUserNotificationType) -> Void) {
-        completionHandler(willPresentInForegroundHandler?(message) ?? MMUserNotificationType.none)
+    func willPresentInForeground(message: MM_MTMessage?, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler(willPresentInForegroundHandler?(message) ?? UNNotificationPresentationOptions.alert)
     }
     
     func canPresentInForeground(message: MM_MTMessage) {

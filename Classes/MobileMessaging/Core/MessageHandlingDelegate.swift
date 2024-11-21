@@ -15,7 +15,7 @@ import UserNotifications
     
     /// Called when a notification is delivered to a foreground app.
     /// If your app is in the foreground when a notification arrives, the MobileMessaging SDK calls this method to deliver the notification directly to your app. If you implement this method, you can take whatever actions are necessary to process the notification and update your app. When you finish, execute the completionHandler block and specify how you want the system to alert the user, if at all.
-    @objc optional func willPresentInForeground(message: MM_MTMessage?, notification: UNNotification, withCompletionHandler completionHandler: @escaping (MMUserNotificationType) -> Void)
+    @objc optional func willPresentInForeground(message: MM_MTMessage?, notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
     
     /// Called when a local notification scheduled for a message. Apart from push messages that are pushed to the device by APNs and displayed by iOS automatically, MobileMessaging SDK delivers messages by pulling them from the server and generating them locally. These messages are displayed via Local Notifications.
     @objc optional func willScheduleLocalNotification(for message: MM_MTMessage)

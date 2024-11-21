@@ -21,18 +21,22 @@ extension MM_MTMessage {
 
 public extension UNNotificationPresentationOptions {
     static func make(with userNotificationType: MMUserNotificationType) -> UNNotificationPresentationOptions {
-		var ret: UNNotificationPresentationOptions = []
-		if userNotificationType.contains(options: .alert) {
-			ret.insert(.alert)
-		}
-		if userNotificationType.contains(options: .badge) {
-			ret.insert(.badge)
-		}
-		if userNotificationType.contains(options: .sound) {
-			ret.insert(.sound)
-		}
-		return ret
-	}
+        var ret: UNNotificationPresentationOptions = []
+        if userNotificationType.contains(options: .alert) {
+            if #available(iOS 14.0, *) {
+                ret.insert([.banner, .list])
+            } else {
+                ret.insert(.alert)
+            }
+        }
+        if userNotificationType.contains(options: .badge) {
+            ret.insert(.badge)
+        }
+        if userNotificationType.contains(options: .sound) {
+            ret.insert(.sound)
+        }
+        return ret
+    }
 }
 
 class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate, NamedLogger {
@@ -44,7 +48,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 
 		MobileMessaging.messageHandlingDelegate?.willPresentInForeground?(message: mtMessage, notification: notification, withCompletionHandler: { notificationType in
             DispatchQueue.main.async {
-                completionHandler(UNNotificationPresentationOptions.make(with: notificationType))
+                completionHandler(notificationType)
             }
 		})
         ??
