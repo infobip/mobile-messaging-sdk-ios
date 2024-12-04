@@ -29,7 +29,8 @@ protocol ChatJSWrapper {
 @objc public enum MMChatMultiThreadStrategy: Int
 {
     case ACTIVE = 0,
-         ALL
+         ALL,
+         ALL_PLUS_NEW
     
     var stringValue: String {
         switch self {
@@ -37,6 +38,8 @@ protocol ChatJSWrapper {
             return "ACTIVE"
         case .ALL:
             return "ALL"
+        case .ALL_PLUS_NEW:
+            return "ALL_PLUS_NEW"
         }
     }
 }
