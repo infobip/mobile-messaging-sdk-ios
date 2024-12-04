@@ -55,7 +55,11 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
     static func obtain(queue: DispatchQueue, completion: @escaping (MMResult<MMWebRTCToken>) -> Void) {
         guard let pushRegId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
               let identity = MobileMessaging.webRTCService?.identity,
-        let appCode = MobileMessaging.sharedInstance?.applicationCode else { return }
+        let appCode = MobileMessaging.sharedInstance?.applicationCode else {
+            MMLogError("WebRTCUI unable to obtain token: missing appCode")
+            completion(.Failure(nil))
+            return
+        }
         let body: [String: Any] = ["identity": identity]
         let request = MMWebRTCTokenRequest(
             applicationCode: appCode,

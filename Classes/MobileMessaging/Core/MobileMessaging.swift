@@ -553,8 +553,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
     var overridingNotificationCenterDeleageDisabled: Bool = false
     var unregisteringForRemoteNotificationsDisabled: Bool = false
     var storageType: MMStorageType = .SQLite
-    public let remoteAPIBaseURL: String
-    
+    public var remoteAPIBaseURL: String
+
     func doStart() {
         if appCodeChanged {
             Self.logDebug("Data will be cleaned up due to the application code change.")
