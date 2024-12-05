@@ -184,7 +184,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 
         setNavBarBranding(settings)
         title = settings.title
-        
+
         if let sendButtonTintColor = settings.sendButtonTintColor,
         let composerBar = composeBarView as? ComposeBar {
             composerBar.sendButtonTintColor = sendButtonTintColor

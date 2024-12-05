@@ -102,6 +102,7 @@ open class MMMessageComposingViewController: MMKeyboardAwareScrollViewController
         composeBarView.sendButton.imageView?.contentMode = .scaleAspectFit
         composeBarView.utilityButtonImage = MMChatSettings.getAttachmentButtonIcon()?.withRenderingMode(.alwaysTemplate)
         composeBarView.textView.layer.cornerRadius = advSettings.textContainerCornerRadius
+        composeBarView.placeholder = ChatLocalization.localizedString(forKey: "mm_send_message_placeholder", defaultString: "Send a message") // for dynamic localisation
     }
         
     override func updateViewsFor(safeAreaInsets: UIEdgeInsets, safeAreaLayoutGuide: UILayoutGuide) {

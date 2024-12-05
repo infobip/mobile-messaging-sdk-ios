@@ -336,6 +336,7 @@ public class MMInAppChatService: MobileMessagingService {
         let components = localeString.components(separatedBy: separator)
         MMLanguage.sessionLanguage = MMLanguage.mapLanguage(from: components.first ??
                                                          String(localeString.prefix(2)))
+        MMChatSettings.sharedInstance.postAppearanceChangedNotification()
     }
     
     internal var contextualData: ContextualData?
