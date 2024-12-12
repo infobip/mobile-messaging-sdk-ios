@@ -451,7 +451,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
                 webView.reload()
             }
         } else {
-            chatNotAvailableLabel.setVisibility(true, text: errors.localizedDescription)
+            let exception = MMChatException(code: errors.rawValue, name: errors.rawDescription, message: errors.localizedDescription, retryable: true)
+            switch MMInAppChatService.sharedInstance?.delegate?.didReceiveException?(exception) ?? .displayDefaultAlert {
+            case .displayDefaultAlert:
+                chatNotAvailableLabel.setVisibility(true, text: errors.localizedDescription)
+            default:
+                break
+            }
         }
     }
     

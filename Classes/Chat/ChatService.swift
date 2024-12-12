@@ -391,6 +391,10 @@ protocol ChatWebViewDelegate: AnyObject {
     ///Called for informing about what view the chat is presenting. This is useful if your widget supports multiple
     ///threads, in which case you may want to hide the keyboard if something else than the chat view is presented
     @objc optional func chatDidChange(to state: MMChatWebViewState)
+
+    ///Called for informing about an exception received from the widget, either upon loading or after a request from client side.
+    /// You can decide (by returning a MMChatExceptionDisplayMode value) if the default error banner is presented for the exception, or you prefer to display an error UI of your own
+    @objc optional func didReceiveException(_ exception: MMChatException) -> MMChatExceptionDisplayMode
 }
 
 extension UserEventsManager {
@@ -435,5 +439,26 @@ struct ChatErrors: OptionSet {
             }
         }
         return somethingWrong
+    }
+}
+
+@objc
+public enum MMChatExceptionDisplayMode: Int {
+    case displayDefaultAlert,
+         noDisplay
+}
+
+@objc
+public class MMChatException: NSObject {
+    public var code: Int
+    public var name: String?
+    public var message: String?
+    public var retryable: Bool
+
+    init(code: Int, name: String?, message: String?, retryable: Bool) {
+        self.code = code
+        self.name = name
+        self.message = message
+        self.retryable = retryable
     }
 }

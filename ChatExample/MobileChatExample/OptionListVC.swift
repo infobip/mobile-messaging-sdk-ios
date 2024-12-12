@@ -221,6 +221,12 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         enableButtons(enabled: enabled)
     }
 
+    // To control the UI presentation of errors, this delegate method needs to be declared. Otherwise, a banner will be presented by default
+//    func didReceiveException(_ exception: MMChatException) -> MMChatExceptionDisplayMode  {
+//        print(exception.message ?? "Exception code \(exception.code)")
+//        return .noDisplay // you can alternatively allow displaying the default banner with .displayDefaultAlert
+//    }
+
     func attachmentSizeExceeded(_ maxSize: UInt) {
         MMLogDebug("Could not upload attachment as it exceeded the max size allowed \(maxSize)")
     }
