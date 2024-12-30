@@ -54,7 +54,7 @@ Pod::Spec.new do |s|
     s.subspec 'CocoaLumberjack' do |cl|
         cl.dependency 'MobileMessaging/Core'
         cl.source_files = 'Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
-        cl.dependency 'CocoaLumberjack/Swift', '3.7.4'
+        cl.dependency 'CocoaLumberjack/Swift', '3.8.5'
     end
 
     s.subspec 'Geofencing' do |geo|

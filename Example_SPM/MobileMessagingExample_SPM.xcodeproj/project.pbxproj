@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -20,7 +20,6 @@
 		50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
-		6E3B11C11F3472EF00C48B92 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3B11C01F3472EF00C48B92 /* WebViewController.swift */; };
 		6E3B11C31F34D4C800C48B92 /* WindowExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */; };
 		76A1FD841F7D32E000924B51 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 76A1FD871F7D32E000924B51 /* Localizable.strings */; };
 		A013D4521ED8355F00B371C0 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A013D4511ED8355F00B371C0 /* NotificationService.swift */; };
@@ -78,7 +77,6 @@
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../Example/MobileMessagingExample/AppDelegate.swift; sourceTree = "<group>"; };
 		607FACDC1AFB9204008FA782 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../../Example/MobileMessagingExample/Images.xcassets; sourceTree = "<group>"; };
-		6E3B11C01F3472EF00C48B92 /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowExtension.swift; sourceTree = "<group>"; };
 		76A1FD861F7D32E000924B51 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		76A1FD881F7D32E900924B51 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -136,7 +134,6 @@
 				5087EDAD1CEF067100B85546 /* ListViewController.swift */,
 				5087EDAE1CEF067100B85546 /* MessageDetailsViewController.swift */,
 				5087EDAF1CEF067100B85546 /* SettingsViewController.swift */,
-				6E3B11C01F3472EF00C48B92 /* WebViewController.swift */,
 				A04F34BE1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift */,
 			);
 			name = ViewControllers;
@@ -481,7 +478,6 @@
 				A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */,
 				A04F34BB1F594E8B00B9CC6E /* DeeplinkViewControllers.swift in Sources */,
 				502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */,
-				6E3B11C11F3472EF00C48B92 /* WebViewController.swift in Sources */,
 				5087EDB21CEF067100B85546 /* MessageDetailsViewController.swift in Sources */,
 				5087EDB01CEF067100B85546 /* InfoTableViewController.swift in Sources */,
 				A04F34BF1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift in Sources */,
@@ -599,7 +595,7 @@
 				OTHER_SWIFT_FLAGS = "";
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -652,7 +648,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
