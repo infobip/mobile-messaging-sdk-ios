@@ -64,6 +64,10 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
                     return
             }
             self.imagePickerController.sourceType = type
+            if type == .camera {
+                self.imagePickerController.modalPresentationStyle = .overFullScreen
+            }
+            
             presentationController?.present(self.imagePickerController, animated: true)
         }
     }
