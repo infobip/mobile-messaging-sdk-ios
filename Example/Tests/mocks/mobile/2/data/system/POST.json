@@ -13,7 +13,6 @@
         "deviceManufacturer": "GoogleApple",
         "deviceModel": "iPhone Galaxy",
         "applicationVersion": "1.0",
-        "geofencing": false,
         "notificationsEnabled": false,
         "deviceSecure": false
       },
@@ -32,7 +31,6 @@
         "deviceManufacturer": "GoogleApple",
         "deviceModel": "iPhone Galaxy",
         "applicationVersion": "1.0",
-        "geofencing": true,
         "notificationsEnabled": false,
         "deviceSecure": true
       },

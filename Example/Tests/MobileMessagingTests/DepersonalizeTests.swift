@@ -43,44 +43,6 @@ let failedDepersonalizeApiMock = { () -> RemoteAPIProviderStub in
 
 class DepersonalizeTests: MMTestCase {
 	
-	func testThatGeoCleanedUpAfterDepersonalize() {
-        MMTestCase.startWithCorrectApplicationCode()
-        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
-        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		weak var depersonalizeFinished = expectation(description: "DepersonalizeFinished")
-		let events = [makeEventDict(ofType: .entry, limit: 1)]
-		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
-			XCTFail()
-			return
-		}
-		
-		let geServiceStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance, locationManagerStub: LocationManagerStub())
-		MMGeofencingService.sharedInstance = geServiceStub
-		MMGeofencingService.sharedInstance!.start({ _ in })
-		
-		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload) { _ in
-			let validEntryRegions = MMGeofencingService.sharedInstance?.datasource.validRegionsForEntryEventNow(with: pulaId)
-			XCTAssertEqual(validEntryRegions?.count, 1)
-			XCTAssertEqual(validEntryRegions?.first?.dataSourceIdentifier, message.regions.first?.dataSourceIdentifier)
-		
-			MobileMessaging.depersonalize() { status, _ in
-				XCTAssertTrue(status == MMSuccessPending.undefined)
-				depersonalizeFinished?.fulfill()
-			}
-		}
-		
-		waitForExpectations(timeout: 20) { _ in
-			// assert there is no events
-			if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
-				XCTAssertEqual(events.count, 0)
-			}
-			
-			// assert there is no more monitored regions
-			XCTAssertTrue(MMGeofencingService.sharedInstance?.locationManager.monitoredRegions.isEmpty ?? false)
-		}
-	}
-	
 	func testThatUserDataCleanedUpAfterDepersonalize() {
         MMTestCase.startWithCorrectApplicationCode()
         MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock

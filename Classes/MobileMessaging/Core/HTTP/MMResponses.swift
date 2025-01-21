@@ -39,12 +39,6 @@ struct BaseUrlResponse {
     let baseUrl: String?
 }
 
-public struct GeoEventReportingResponse {
-	public let finishedCampaignIds: [String]?
-	public let suspendedCampaignIds: [String]?
-	public let tempMessageIdRealMessageId: [String: String]
-}
-
 struct LibraryVersionResponse {
 	let platformType : String
 	let libraryVersion : String
@@ -68,7 +62,6 @@ typealias DepersonalizeResult = MMResult<EmptyResponse>
 typealias MOMessageSendingResult = MMResult<MOMessageSendingResponse>
 typealias LibraryVersionResult = MMResult<LibraryVersionResponse>
 typealias BaseUrlResult = MMResult<BaseUrlResponse>
-public typealias GeoEventReportingResult = MMResult<GeoEventReportingResponse>
 typealias FetchUserDataResult = MMResult<MMUser>
 typealias UpdateUserDataResult = MMResult<EmptyResponse>
 typealias FetchInstanceDataResult = MMResult<MMInstallation>
@@ -117,17 +110,6 @@ extension MMRequestError: JSONDecodable {
 		
 		self.messageId = messageId
 		self.text = text
-	}
-}
-
-extension GeoEventReportingResponse: JSONDecodable {
-	public init?(json value: JSON) {
-		guard let tempMessageIdRealMessageId = value[Consts.GeoReportingAPIKeys.messageIdsMap].dictionaryObject as? [String: String] else {
-			return nil
-		}
-		self.tempMessageIdRealMessageId = tempMessageIdRealMessageId
-		self.finishedCampaignIds = value[Consts.GeoReportingAPIKeys.finishedCampaignIds].arrayObject as? [String]
-		self.suspendedCampaignIds = value[Consts.GeoReportingAPIKeys.suspendedCampaignIds].arrayObject as? [String]
 	}
 }
 

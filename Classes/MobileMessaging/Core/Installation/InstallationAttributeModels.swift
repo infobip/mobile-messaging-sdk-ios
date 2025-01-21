@@ -96,7 +96,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
     public static var cached = ThreadSafeDict<MMInstallation>()
     public static var empty: MMInstallation {
 		let systemData = MMUserAgent().systemData
-		return MMInstallation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, geoEnabled: false, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled ?? true, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
+		return MMInstallation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled ?? true, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
 	}
     public func removeSensitiveData() {
 		//nothing is sensitive in installation
@@ -137,7 +137,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 	public var isPrimaryDevice: Bool
 
 	/// Current push registration status.
-	/// The status defines whether the device is allowed to be receiving push notifications (regular push messages/geofencing campaign messages/messages fetched from the server).
+	/// The status defines whether the device is allowed to be receiving push notifications (regular push messages/messages fetched from the server).
 	/// MobileMessaging SDK has the push registration enabled by default.
 	public var isPushRegistrationEnabled: Bool
 
@@ -150,7 +150,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 	public internal(set) var deviceName: String?
 	public internal(set) var deviceSecure: Bool
 	public internal(set) var deviceTimeZone: String?
-	public internal(set) var geoEnabled: Bool
 	public internal(set) var language: String?
     public internal(set) var notificationsEnabled: Bool
 	public internal(set) var os: String?
@@ -173,7 +172,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		deviceName = aDecoder.decodeObject(of: NSString.self, forKey: "deviceName") as? String
         deviceSecure = aDecoder.decodeBool(forKey: "deviceSecure")
 		deviceTimeZone = aDecoder.decodeObject(of: NSString.self, forKey: "deviceTimeZone") as? String
-        geoEnabled = aDecoder.decodeBool(forKey: "geoEnabled")
 		language = aDecoder.decodeObject(of: NSString.self, forKey: "language") as? String
 		notificationsEnabled = (aDecoder.decodeObject(forKey: "notificationsEnabled") as? Bool) ?? true
 		os = aDecoder.decodeObject(of: NSString.self, forKey: "os") as? String
@@ -196,7 +194,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		aCoder.encode(deviceName, forKey: "deviceName")
 		aCoder.encode(deviceSecure, forKey: "deviceSecure")
 		aCoder.encode(deviceTimeZone, forKey: "deviceTimeZone")
-		aCoder.encode(geoEnabled, forKey: "geoEnabled")
 		aCoder.encode(language, forKey: "language")
 		aCoder.encode(nil, forKey: "notificationsEnabled")
 		aCoder.encode(os, forKey: "os")
@@ -221,7 +218,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 			deviceName: json[Consts.SystemDataKeys.deviceName].string,
 			deviceSecure: json[Consts.SystemDataKeys.deviceSecure].bool ?? false,
 			deviceTimeZone: json[Consts.SystemDataKeys.deviceTimeZone].string,
-			geoEnabled: json[Consts.SystemDataKeys.geofencingServiceEnabled].bool ?? false,
 			isPrimaryDevice: json[Attributes.isPrimaryDevice.rawValue].bool ?? false,
 			isPushRegistrationEnabled: json[Attributes.registrationEnabled.rawValue].bool ?? true,
 			language: json[Consts.SystemDataKeys.language].string,
@@ -243,7 +239,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		 deviceName: String?,
 		 deviceSecure: Bool,
 		 deviceTimeZone: String?,
-		 geoEnabled: Bool,
 		 isPrimaryDevice: Bool,
 		 isPushRegistrationEnabled: Bool,
 		 language: String?,
@@ -263,7 +258,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		self.deviceName = deviceName
 		self.deviceSecure = deviceSecure
 		self.deviceTimeZone = deviceTimeZone
-		self.geoEnabled = geoEnabled
 		self.isPrimaryDevice = isPrimaryDevice
 		self.isPushRegistrationEnabled = isPushRegistrationEnabled
 		self.language = language
@@ -289,7 +283,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 			self.deviceName == object.deviceName &&
 			self.deviceSecure == object.deviceSecure &&
 			self.deviceTimeZone == object.deviceTimeZone &&
-			self.geoEnabled == object.geoEnabled &&
 			self.isPrimaryDevice == object.isPrimaryDevice &&
 			self.isPushRegistrationEnabled == object.isPushRegistrationEnabled &&
 			self.language == object.language &&
@@ -313,7 +306,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 			deviceName: dict["deviceName"] as? String,
 			deviceSecure: dict["deviceSecure"] as? Bool ?? false,
 			deviceTimeZone: dict["deviceTimezoneOffset"] as? String,
-			geoEnabled: dict["geoEnabled"] as? Bool ?? false,
 			isPrimaryDevice: dict["isPrimaryDevice"] as? Bool ?? false,
 			isPushRegistrationEnabled: dict["isPushRegistrationEnabled"] as? Bool ?? true,
 			language: dict["language"] as? String,
@@ -337,8 +329,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		dict["deviceName"] = deviceName
 		dict["deviceSecure"] = deviceSecure
 		dict["deviceTimezoneOffset"] = deviceTimeZone
-		dict["geoEnabled"] = geoEnabled
-		dict["isPrimaryDevice"] = isPrimaryDevice
+        dict["isPrimaryDevice"] = isPrimaryDevice
 		dict["isPushRegistrationEnabled"] = isPushRegistrationEnabled
 		dict["language"] = language
 		dict["notificationsEnabled"] = notificationsEnabled
@@ -352,7 +343,7 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 	}
 
 	public func copy(with zone: NSZone? = nil) -> Any {
-		let copy = MMInstallation(applicationUserId: applicationUserId, appVersion: appVersion, customAttributes: customAttributes, deviceManufacturer: deviceManufacturer, deviceModel: deviceModel, deviceName: deviceName, deviceSecure: deviceSecure, deviceTimeZone: deviceTimeZone, geoEnabled: geoEnabled, isPrimaryDevice: isPrimaryDevice, isPushRegistrationEnabled: isPushRegistrationEnabled, language: language, notificationsEnabled: notificationsEnabled, os: os, osVersion: osVersion, pushRegistrationId: pushRegistrationId, pushServiceToken: pushServiceToken, pushServiceType: pushServiceType, sdkVersion: sdkVersion)
+		let copy = MMInstallation(applicationUserId: applicationUserId, appVersion: appVersion, customAttributes: customAttributes, deviceManufacturer: deviceManufacturer, deviceModel: deviceModel, deviceName: deviceName, deviceSecure: deviceSecure, deviceTimeZone: deviceTimeZone, isPrimaryDevice: isPrimaryDevice, isPushRegistrationEnabled: isPushRegistrationEnabled, language: language, notificationsEnabled: notificationsEnabled, os: os, osVersion: osVersion, pushRegistrationId: pushRegistrationId, pushServiceToken: pushServiceToken, pushServiceType: pushServiceType, sdkVersion: sdkVersion)
 		return copy
 	}
 }

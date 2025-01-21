@@ -76,10 +76,6 @@ public class UserEventsManager {
 		post(MMNotificationActionTapped, userInfo)
 	}
 
-	public class func postGeoServiceStartedEvent() {
-		post(MMNotificationGeoServiceDidStart)
-	}
-
 	class func postNotificationCenterAuthRequestFinished(granted: Bool, error: Error?) {
 		var userInfo: [String: Any] = [MMNotificationKeyGranted: granted]
 		if let error = error {

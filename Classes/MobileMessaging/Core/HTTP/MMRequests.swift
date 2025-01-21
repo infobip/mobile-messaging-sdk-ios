@@ -13,7 +13,6 @@ public enum APIPath: String {
 	case MOMessage = "/mobile/1/messages/mo"
 	case LibraryVersion = "/mobile/3/version"
     case BaseURL = "/mobile/1/baseurl"
-	case GeoEventsReports = "/mobile/4/geo/event"
 	case DeliveryReport = "/mobile/1/messages/deliveryreport"
 
 	case AppInstancePersonalize = "/mobile/1/appinstance/{pushRegistrationId}/personalize"

@@ -131,7 +131,6 @@ public struct MMConsts {
 		static let deviceManufacturer = "deviceManufacturer"
 		static let deviceModel = "deviceModel"
 		static let appVer = "appVersion"
-		public static let geofencingServiceEnabled = "geoEnabled"
 		static let notificationsEnabled = "notificationsEnabled"
 		static let deviceSecure = "deviceSecure"
 		static let language = "language"
@@ -151,26 +150,10 @@ public struct MMConsts {
         public static let countUnread = "countUnread"
     }
 
-	public struct GeoReportingAPIKeys {
-        public static let reports = "reports"
-        public static let event = "event"
-        public static let geoAreaId = "geoAreaId"
-        public static let campaignId = "campaignId"
-        public static let messageId = "messageId"
-        public static let timestampDelta = "timestampDelta"
-        public static let finishedCampaignIds = "finishedCampaignIds"
-        public static let suspendedCampaignIds = "suspendedCampaignIds"
-        public static let messageIdsMap = "messageIds"
-        public static let sdkMessageId = "sdkMessageId"
-        public static let messages = "messages"
-	}
-
 	public struct InternalDataKeys {
         public static let event = "event"
         public static let deliveryTime = "deliveryTime"
         public static let silent = "silent"
-        public static let geo = "geo"
-        public static let messageTypeGeo = "geo"
         public static let messageType = "messageType"
         public static let attachments = "atts"
         public static let sendDateTime = "sendDateTime"

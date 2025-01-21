@@ -18,44 +18,6 @@ class PersonalizeTests: MMTestCase {
 		MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
 	}
 
-	func testThatGeoCleanedUpAfterPersonalize() {
-        MMTestCase.startWithCorrectApplicationCode()
-        
-		weak var personalizeFinished = expectation(description: "personalizeFinished")
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		let events = [makeEventDict(ofType: .entry, limit: 1)]
-		let payload = makeApnsPayload(withEvents: events, deliveryTime: nil, regions: [modernPulaDict])
-		guard let message = MMGeoMessage(payload: payload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false) else {
-			XCTFail()
-			return
-		}
-
-		let geServiceStub = GeofencingServiceAlwaysRunningStub(mmContext: self.mobileMessagingInstance, locationManagerStub: LocationManagerStub())
-		MMGeofencingService.sharedInstance = geServiceStub
-		MMGeofencingService.sharedInstance!.start({ _ in })
-
-		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload) { _ in
-			let validEntryRegions = MMGeofencingService.sharedInstance?.datasource.validRegionsForEntryEventNow(with: pulaId)
-			XCTAssertEqual(validEntryRegions?.count, 1)
-			XCTAssertEqual(validEntryRegions?.first?.dataSourceIdentifier, message.regions.first?.dataSourceIdentifier)
-
-			MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
-                XCTAssertEqual(MMSuccessPending.undefined.rawValue, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus.rawValue)
-				personalizeFinished?.fulfill()
-			})
-		}
-
-		waitForExpectations(timeout: 20) { _ in
-			// assert there is no events
-			if let events = GeoEventReportObject.MM_findAllInContext(self.storage.mainThreadManagedObjectContext!) {
-				XCTAssertEqual(events.count, 0)
-			}
-
-			// assert there is no more monitored regions
-			XCTAssertTrue(MMGeofencingService.sharedInstance?.locationManager.monitoredRegions.isEmpty ?? false)
-		}
-	}
-
 	func testThatDefaultMessageStorageCleanedUpAfterDepersonalize() {
         MMTestCase.startWithCorrectApplicationCode()
         

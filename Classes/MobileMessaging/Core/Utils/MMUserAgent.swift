@@ -19,7 +19,6 @@ struct SystemData {
 	var requestPayload: [String: AnyHashable] {
 
 		var result : [String: AnyHashable] = [
-			Consts.SystemDataKeys.geofencingServiceEnabled: false,
 			Consts.SystemDataKeys.sdkVersion: SDKVersion,
 			Consts.SystemDataKeys.pushServiceType: pushServiceType,
 			Consts.SystemDataKeys.OS: os,

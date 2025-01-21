@@ -36,13 +36,6 @@ class MessageHandlerMock: MMMessageHandler {
     }
 }
 
-class GeofencingServiceMock: MMGeofencingService {
-    var syncCompletion: (() -> Void)?
-    override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
-        syncCompletion?()
-    }
-}
-
 class ChatServiceMock: MMInAppChatService {
     var syncCompletion: (() -> Void)?
     override func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
@@ -59,7 +52,6 @@ final class ServicesSynchronizationTests: MMTestCase {
         weak var installationDataSynced = self.expectation(description: "installation data synced with server")
         weak var notificationInteractionSynced = self.expectation(description: "notificationInteraction synced with server")
         weak var messagesSynced = self.expectation(description: "messages synced with server")
-        weak var geoSynced = self.expectation(description: "geo synced with server")
         weak var chatSynced = self.expectation(description: "chat synced with server")
         
         var mm = ServicesSynchronizationTests.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
@@ -84,11 +76,6 @@ final class ServicesSynchronizationTests: MMTestCase {
             messagesSynced?.fulfill()
         }
         
-        let geoServiceMock = GeofencingServiceMock(mmContext: mm)
-        geoServiceMock.syncCompletion = {
-            geoSynced?.fulfill()
-        }
-        
         let chatServiceMock = ChatServiceMock(mmContext: mm)
         chatServiceMock.syncCompletion = {
             chatSynced?.fulfill()
@@ -98,8 +85,6 @@ final class ServicesSynchronizationTests: MMTestCase {
         mm.installationService = installationServiceMock
         mm.notificationsInteractionService = notificationInteractionServiceMock
         MMInAppChatService.sharedInstance = chatServiceMock
-        mm = mm.withGeofencingService()
-        MMGeofencingService.sharedInstance = geoServiceMock
         mm.messageHandler = messageHandlerServiceMock
         mm.doStart()
         

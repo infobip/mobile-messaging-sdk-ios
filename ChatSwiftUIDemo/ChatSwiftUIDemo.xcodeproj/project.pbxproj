@@ -13,12 +13,10 @@
 		257DAFA82B7CB23A00E4418D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 257DAFA72B7CB23A00E4418D /* Preview Assets.xcassets */; };
 		257DAFB02B7CB33900E4418D /* InAppChat in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFAF2B7CB33900E4418D /* InAppChat */; };
 		257DAFB22B7CB33900E4418D /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFB12B7CB33900E4418D /* MobileMessaging */; };
-		257DAFB42B7CB33900E4418D /* MobileMessagingGeofencing in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFB32B7CB33900E4418D /* MobileMessagingGeofencing */; };
 		257DAFB62B7CB33900E4418D /* MobileMessagingInbox in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFB52B7CB33900E4418D /* MobileMessagingInbox */; };
 		257DAFB82B7CB33900E4418D /* MobileMessagingLogging in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFB72B7CB33900E4418D /* MobileMessagingLogging */; };
 		257DAFBB2B7CB47A00E4418D /* InAppChat in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFBA2B7CB47A00E4418D /* InAppChat */; };
 		257DAFBD2B7CB47A00E4418D /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFBC2B7CB47A00E4418D /* MobileMessaging */; };
-		257DAFBF2B7CB47A00E4418D /* MobileMessagingGeofencing in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFBE2B7CB47A00E4418D /* MobileMessagingGeofencing */; };
 		257DAFC12B7CB47A00E4418D /* MobileMessagingInbox in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFC02B7CB47A00E4418D /* MobileMessagingInbox */; };
 		257DAFC32B7CB47A00E4418D /* MobileMessagingLogging in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFC22B7CB47A00E4418D /* MobileMessagingLogging */; };
 		257DAFC52B7CB47A00E4418D /* WebRTCUI in Frameworks */ = {isa = PBXBuildFile; productRef = 257DAFC42B7CB47A00E4418D /* WebRTCUI */; };
@@ -42,10 +40,8 @@
 				257DAFC12B7CB47A00E4418D /* MobileMessagingInbox in Frameworks */,
 				257DAFC32B7CB47A00E4418D /* MobileMessagingLogging in Frameworks */,
 				257DAFBD2B7CB47A00E4418D /* MobileMessaging in Frameworks */,
-				257DAFB42B7CB33900E4418D /* MobileMessagingGeofencing in Frameworks */,
 				257DAFB82B7CB33900E4418D /* MobileMessagingLogging in Frameworks */,
 				257DAFB02B7CB33900E4418D /* InAppChat in Frameworks */,
-				257DAFBF2B7CB47A00E4418D /* MobileMessagingGeofencing in Frameworks */,
 				257DAFC52B7CB47A00E4418D /* WebRTCUI in Frameworks */,
 				257DAFBB2B7CB47A00E4418D /* InAppChat in Frameworks */,
 				257DAFB62B7CB33900E4418D /* MobileMessagingInbox in Frameworks */,
@@ -112,12 +108,10 @@
 			packageProductDependencies = (
 				257DAFAF2B7CB33900E4418D /* InAppChat */,
 				257DAFB12B7CB33900E4418D /* MobileMessaging */,
-				257DAFB32B7CB33900E4418D /* MobileMessagingGeofencing */,
 				257DAFB52B7CB33900E4418D /* MobileMessagingInbox */,
 				257DAFB72B7CB33900E4418D /* MobileMessagingLogging */,
 				257DAFBA2B7CB47A00E4418D /* InAppChat */,
 				257DAFBC2B7CB47A00E4418D /* MobileMessaging */,
-				257DAFBE2B7CB47A00E4418D /* MobileMessagingGeofencing */,
 				257DAFC02B7CB47A00E4418D /* MobileMessagingInbox */,
 				257DAFC22B7CB47A00E4418D /* MobileMessagingLogging */,
 				257DAFC42B7CB47A00E4418D /* WebRTCUI */,
@@ -417,10 +411,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = MobileMessaging;
 		};
-		257DAFB32B7CB33900E4418D /* MobileMessagingGeofencing */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MobileMessagingGeofencing;
-		};
 		257DAFB52B7CB33900E4418D /* MobileMessagingInbox */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MobileMessagingInbox;
@@ -436,10 +426,6 @@
 		257DAFBC2B7CB47A00E4418D /* MobileMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MobileMessaging;
-		};
-		257DAFBE2B7CB47A00E4418D /* MobileMessagingGeofencing */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MobileMessagingGeofencing;
 		};
 		257DAFC02B7CB47A00E4418D /* MobileMessagingInbox */ = {
 			isa = XCSwiftPackageProductDependency;

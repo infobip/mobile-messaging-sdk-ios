@@ -32,7 +32,6 @@
 		A08599452A2F65FC005AED85 /* MobileMessagingLogging in Frameworks */ = {isa = PBXBuildFile; productRef = A08599442A2F65FC005AED85 /* MobileMessagingLogging */; };
 		A08599472A2F6602005AED85 /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A08599462A2F6602005AED85 /* MobileMessaging */; };
 		A08599492A2F6606005AED85 /* MobileMessagingLogging in Frameworks */ = {isa = PBXBuildFile; productRef = A08599482A2F6606005AED85 /* MobileMessagingLogging */; };
-		A085994B2A2F68AE005AED85 /* MobileMessagingGeofencing in Frameworks */ = {isa = PBXBuildFile; productRef = A085994A2A2F68AE005AED85 /* MobileMessagingGeofencing */; };
 		A085994D2A2F76C3005AED85 /* MobileMessagingInbox in Frameworks */ = {isa = PBXBuildFile; productRef = A085994C2A2F76C3005AED85 /* MobileMessagingInbox */; };
 		A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */; };
 		A0953C291CAD1C660076488D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0953C271CAD1C660076488D /* Main.storyboard */; };
@@ -105,7 +104,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A085994B2A2F68AE005AED85 /* MobileMessagingGeofencing in Frameworks */,
 				A09C675B2A7BE28000559A5F /* WebRTCUI in Frameworks */,
 				A08599472A2F6602005AED85 /* MobileMessaging in Frameworks */,
 				A085994D2A2F76C3005AED85 /* MobileMessagingInbox in Frameworks */,
@@ -279,7 +277,6 @@
 			packageProductDependencies = (
 				A08599462A2F6602005AED85 /* MobileMessaging */,
 				A08599482A2F6606005AED85 /* MobileMessagingLogging */,
-				A085994A2A2F68AE005AED85 /* MobileMessagingGeofencing */,
 				A085994C2A2F76C3005AED85 /* MobileMessagingInbox */,
 				A09C67582A7BE27C00559A5F /* InAppChat */,
 				A09C675A2A7BE28000559A5F /* WebRTCUI */,
@@ -815,10 +812,6 @@
 		A08599482A2F6606005AED85 /* MobileMessagingLogging */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MobileMessagingLogging;
-		};
-		A085994A2A2F68AE005AED85 /* MobileMessagingGeofencing */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MobileMessagingGeofencing;
 		};
 		A085994C2A2F76C3005AED85 /* MobileMessagingInbox */ = {
 			isa = XCSwiftPackageProductDependency;

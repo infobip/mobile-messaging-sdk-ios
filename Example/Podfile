@@ -3,13 +3,11 @@ use_frameworks!
 platform :ios, '12.0'
 
 $podName = 'MobileMessaging'
-$geoPodName = 'MobileMessaging/Geofencing'
 $chatPodName = 'MobileMessaging/InAppChat'
 $inboxPodName = 'MobileMessaging/Inbox'
 
 def includeMobileMessagingPods
 	pod $podName, :path => '../'
-	pod $geoPodName, :path => '../'
 	pod $chatPodName, :path => '../'
 	pod $inboxPodName, :path => '../'
 end

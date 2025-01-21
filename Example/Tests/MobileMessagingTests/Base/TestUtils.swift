@@ -90,33 +90,6 @@ extension MobileMessaging {
 	}
 }
 
-class RemoteGeoAPIProviderStub : GeoRemoteAPIProvider {
-	var isOffline: Bool = false
-	init() {
-		super.init(sessionManager: SessionManagerStubBase())
-	}
-
-	var reportGeoEventClosure: ((String, String, [GeoEventReportData], [MMGeoMessage]) -> GeoEventReportingResult)? = nil
-
-    override func reportGeoEvent(applicationCode: String, pushRegistrationId: String, eventsDataList: [GeoEventReportData], geoMessages: [MMGeoMessage], queue: DispatchQueue, completion: @escaping (GeoEventReportingResult) -> Void) {
-
-		if let reportGeoEventClosure = reportGeoEventClosure {
-			if isOffline {
-				_ = reportGeoEventClosure(applicationCode, pushRegistrationId, eventsDataList, geoMessages)
-				completion(GeoEventReportingResult.Failure(MMInternalErrorType.UnknownError.foundationError))
-			} else {
-				completion(reportGeoEventClosure(applicationCode, pushRegistrationId, eventsDataList, geoMessages))
-			}
-		} else {
-			if isOffline {
-				completion(GeoEventReportingResult.Failure(MMInternalErrorType.UnknownError.foundationError))
-			} else {
-                super.reportGeoEvent(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, eventsDataList: eventsDataList, geoMessages: geoMessages, queue: queue, completion: completion)
-			}
-		}
-	}
-}
-
 class RemoteAPIProviderStub : RemoteAPIProvider {
 
 	init() {

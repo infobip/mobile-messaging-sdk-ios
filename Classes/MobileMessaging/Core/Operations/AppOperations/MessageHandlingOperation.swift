@@ -80,8 +80,8 @@ final class MessageHandlingOperation: MMOperation {
 			self.context.MM_saveToPersistentStoreAndWait()
 		}
 		
-		let regularMessages: [MM_MTMessage] = newMessages.filter { !$0.isGeoSignalingMessage } //workaround. The message handling must not know about geo messages. Redesign needed.
-		populateMessageStorageWithNewMessages(regularMessages) {
+        let regularMessages: [MM_MTMessage] = Array(newMessages)
+        populateMessageStorageWithNewMessages(regularMessages) {
 			self.notifyAboutNewMessages(regularMessages) {
 				self.handleNotificationTappedIfNeeded(regularMessages)
 				self.finish()
@@ -128,7 +128,7 @@ final class MessageHandlingOperation: MMOperation {
 	
 //MARK: - Notification tap handling
     private func presentLocalNotificationIfNeeded(with message: MM_MTMessage) {
-        guard (!message.isSilent || message.isGeoSignalingMessage) && (message.deliveryMethod == .pull || message.deliveryMethod == .generatedLocally) else { return }
+        guard (!message.isSilent) && (message.deliveryMethod == .pull || message.deliveryMethod == .generatedLocally) else { return }
         LocalNotifications.presentLocalNotification(with: message)
     }
     

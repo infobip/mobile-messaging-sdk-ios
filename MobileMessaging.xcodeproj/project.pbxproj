@@ -100,8 +100,6 @@
 		764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D61F78FF4E00B8F14B /* MMAPIKeysAndValues.swift */; };
 		764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D91F78FF4E00B8F14B /* MMRequests.swift */; };
 		764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DA1F78FF4E00B8F14B /* MMResponses.swift */; };
-		764556871F78FF6500B8F14B /* GeoEventReportObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DE1F78FF4E00B8F14B /* GeoEventReportObject+CoreDataProperties.swift */; };
-		764556881F78FF6500B8F14B /* GeoEventReportObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555DF1F78FF4E00B8F14B /* GeoEventReportObject.swift */; };
 		764556891F78FF6500B8F14B /* InstallationManagedObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E01F78FF4E00B8F14B /* InstallationManagedObject+CoreDataProperties.swift */; };
 		7645568A1F78FF6500B8F14B /* InstallationManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E11F78FF4E00B8F14B /* InstallationManagedObject.swift */; };
 		7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555E21F78FF4E00B8F14B /* MessageManagedObject+CoreDataProperties.swift */; };
@@ -128,12 +126,6 @@
 		764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556381F78FF4F00B8F14B /* MMUtils.swift */; };
 		764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556391F78FF4F00B8F14B /* MMVersionManager.swift */; };
 		764556AF1F78FF8F00B8F14B /* UserNotificationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645563A1F78FF4F00B8F14B /* UserNotificationType.swift */; };
-		764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556491F78FF4F00B8F14B /* GeoEventReportingOperation.swift */; };
-		764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564A1F78FF4F00B8F14B /* MMGeofencingDatasource.swift */; };
-		764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564B1F78FF4F00B8F14B /* MMGeofencingDeclarations.swift */; };
-		764556B31F78FF9500B8F14B /* MMGeofencingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564C1F78FF4F00B8F14B /* MMGeofencingService.swift */; };
-		764556B41F78FF9500B8F14B /* MMGeoMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564D1F78FF4F00B8F14B /* MMGeoMessage.swift */; };
-		764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645564E1F78FF4F00B8F14B /* MMGeoRequests.swift */; };
 		764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */; };
 		764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D11F78FF4E00B8F14B /* MMNotificationCategory.swift */; };
 		764556B81F78FF9D00B8F14B /* NotificationsInteractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764555D21F78FF4E00B8F14B /* NotificationsInteractionService.swift */; };
@@ -182,8 +174,6 @@
 		76790D1F234E14CA000D6587 /* Transformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76790D1E234E14CA000D6587 /* Transformer.swift */; };
 		76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */; };
 		7689347524ED6BD200411B1D /* EventPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347424ED6BD200411B1D /* EventPersistingOperation.swift */; };
-		7689347724ED700600411B1D /* GeoEventPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347624ED700600411B1D /* GeoEventPersistingOperation.swift */; };
-		7689347924ED71FF00411B1D /* GeoCleanupOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347824ED71FF00411B1D /* GeoCleanupOperation.swift */; };
 		7692B56124EC4783000DA5A2 /* MMOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7692B56024EC4783000DA5A2 /* MMOperation.swift */; };
 		76978E2625C30C1200912DB4 /* BaseUrlManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76978E2525C30C1200912DB4 /* BaseUrlManager.swift */; };
 		76A8A77921959F84004F6E39 /* UpdateInstanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A8A77821959F84004F6E39 /* UpdateInstanceOperation.swift */; };
@@ -311,7 +301,6 @@
 		ADF203482086642C00E157D7 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033B2086642C00E157D7 /* Array+Extension.swift */; };
 		ADF203492086642C00E157D7 /* Generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033C2086642C00E157D7 /* Generics.swift */; };
 		ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */; };
-		ADF2034D2086664100E157D7 /* GeoDatesUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2034C2086664000E157D7 /* GeoDatesUtils.swift */; };
 		D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D8601249D4FAAD2A589A3D /* UserDataService.swift */; };
 		EC9E8A9A2AFBE6A100150530 /* SHA2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9E8A992AFBE6A100150530 /* SHA2.swift */; };
 		EC9E8A9C2AFBE70000150530 /* UInt64+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */; };
@@ -410,8 +399,6 @@
 		764555D61F78FF4E00B8F14B /* MMAPIKeysAndValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMAPIKeysAndValues.swift; sourceTree = "<group>"; };
 		764555D91F78FF4E00B8F14B /* MMRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMRequests.swift; sourceTree = "<group>"; };
 		764555DA1F78FF4E00B8F14B /* MMResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMResponses.swift; sourceTree = "<group>"; };
-		764555DE1F78FF4E00B8F14B /* GeoEventReportObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeoEventReportObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		764555DF1F78FF4E00B8F14B /* GeoEventReportObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoEventReportObject.swift; sourceTree = "<group>"; };
 		764555E01F78FF4E00B8F14B /* InstallationManagedObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InstallationManagedObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		764555E11F78FF4E00B8F14B /* InstallationManagedObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationManagedObject.swift; sourceTree = "<group>"; };
 		764555E21F78FF4E00B8F14B /* MessageManagedObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MessageManagedObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -483,12 +470,6 @@
 		764556411F78FF4F00B8F14B /* MMDefaultMessageStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMDefaultMessageStorage.swift; sourceTree = "<group>"; };
 		764556441F78FF4F00B8F14B /* StorageProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageProtocols.swift; sourceTree = "<group>"; };
 		764556471F78FF4F00B8F14B /* MMLumberjackLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLumberjackLogger.swift; sourceTree = "<group>"; };
-		764556491F78FF4F00B8F14B /* GeoEventReportingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoEventReportingOperation.swift; sourceTree = "<group>"; };
-		7645564A1F78FF4F00B8F14B /* MMGeofencingDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeofencingDatasource.swift; sourceTree = "<group>"; };
-		7645564B1F78FF4F00B8F14B /* MMGeofencingDeclarations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeofencingDeclarations.swift; sourceTree = "<group>"; };
-		7645564C1F78FF4F00B8F14B /* MMGeofencingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeofencingService.swift; sourceTree = "<group>"; };
-		7645564D1F78FF4F00B8F14B /* MMGeoMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeoMessage.swift; sourceTree = "<group>"; };
-		7645564E1F78FF4F00B8F14B /* MMGeoRequests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMGeoRequests.swift; sourceTree = "<group>"; };
 		7645565F1F78FF4F00B8F14B /* KeychainSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwift.swift; sourceTree = "<group>"; };
 		764556601F78FF4F00B8F14B /* KeychainSwiftAccessOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSwiftAccessOptions.swift; sourceTree = "<group>"; };
 		764556611F78FF4F00B8F14B /* TegKeychainConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TegKeychainConstants.swift; sourceTree = "<group>"; };
@@ -528,8 +509,6 @@
 		76790D1E234E14CA000D6587 /* Transformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transformer.swift; sourceTree = "<group>"; };
 		76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManager.swift; sourceTree = "<group>"; };
 		7689347424ED6BD200411B1D /* EventPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPersistingOperation.swift; sourceTree = "<group>"; };
-		7689347624ED700600411B1D /* GeoEventPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoEventPersistingOperation.swift; sourceTree = "<group>"; };
-		7689347824ED71FF00411B1D /* GeoCleanupOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoCleanupOperation.swift; sourceTree = "<group>"; };
 		7692B56024EC4783000DA5A2 /* MMOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMOperation.swift; sourceTree = "<group>"; };
 		76978E2525C30C1200912DB4 /* BaseUrlManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseUrlManager.swift; sourceTree = "<group>"; };
 		76A8A77821959F84004F6E39 /* UpdateInstanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateInstanceOperation.swift; sourceTree = "<group>"; };
@@ -697,7 +676,6 @@
 		ADF2033B2086642C00E157D7 /* Array+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
 		ADF2033C2086642C00E157D7 /* Generics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generics.swift; sourceTree = "<group>"; };
 		ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UInt32+Extension.swift"; sourceTree = "<group>"; };
-		ADF2034C2086664000E157D7 /* GeoDatesUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoDatesUtils.swift; sourceTree = "<group>"; };
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		D7D8601249D4FAAD2A589A3D /* UserDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
@@ -1012,8 +990,6 @@
 				763A1AF523E4873000C997BC /* CustomEventObject+CoreDataProperties.swift */,
 				76C3C9B223D5B2E200562C57 /* UserSessionReportObject.swift */,
 				76C3C9B323D5B2E200562C57 /* UserSessionReportObject+CoreDataProperties.swift */,
-				764555DE1F78FF4E00B8F14B /* GeoEventReportObject+CoreDataProperties.swift */,
-				764555DF1F78FF4E00B8F14B /* GeoEventReportObject.swift */,
 				764555E01F78FF4E00B8F14B /* InstallationManagedObject+CoreDataProperties.swift */,
 				764555E11F78FF4E00B8F14B /* InstallationManagedObject.swift */,
 				764555E21F78FF4E00B8F14B /* MessageManagedObject+CoreDataProperties.swift */,
@@ -1152,23 +1128,6 @@
 			path = CocoaLumberjack;
 			sourceTree = "<group>";
 		};
-		764556481F78FF4F00B8F14B /* Geofencing */ = {
-			isa = PBXGroup;
-			children = (
-				ADF2034C2086664000E157D7 /* GeoDatesUtils.swift */,
-				764556491F78FF4F00B8F14B /* GeoEventReportingOperation.swift */,
-				7645564A1F78FF4F00B8F14B /* MMGeofencingDatasource.swift */,
-				7645564B1F78FF4F00B8F14B /* MMGeofencingDeclarations.swift */,
-				7645564C1F78FF4F00B8F14B /* MMGeofencingService.swift */,
-				7645564D1F78FF4F00B8F14B /* MMGeoMessage.swift */,
-				7645564E1F78FF4F00B8F14B /* MMGeoRequests.swift */,
-				7689347624ED700600411B1D /* GeoEventPersistingOperation.swift */,
-				7689347824ED71FF00411B1D /* GeoCleanupOperation.swift */,
-			);
-			name = Geofencing;
-			path = Classes/Geofencing;
-			sourceTree = "<group>";
-		};
 		7645564F1F78FF4F00B8F14B /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
@@ -1290,7 +1249,6 @@
 				7620450027C91A59007970F8 /* Inbox */,
 				764555D41F78FF4E00B8F14B /* Core */,
 				7600857D1F9759F200837D75 /* Chat */,
-				764556481F78FF4F00B8F14B /* Geofencing */,
 				A843A41928F55E1A00D5196F /* WebRTCUI */,
 				764555CF1F78FF4E00B8F14B /* InteractiveNotifications */,
 				764556451F78FF4F00B8F14B /* Logging */,
@@ -1666,7 +1624,6 @@
 				765B9FBE2012126700B1E77A /* MessageHandlingDelegate.swift in Sources */,
 				A08CB26E2459B0C600ED91B6 /* ChatJSWrapper.swift in Sources */,
 				A8CBD7D8292CCDA200322961 /* AVPIPKitVideoProvider.swift in Sources */,
-				764556B11F78FF9500B8F14B /* MMGeofencingDatasource.swift in Sources */,
 				763A1B0123E5D12100C997BC /* SeenReportMapper.swift in Sources */,
 				A838992128F6F10600322E68 /* MMOpenSettings.swift in Sources */,
 				7601F199208E056500738C1A /* UIButton+Kingfisher.swift in Sources */,
@@ -1700,9 +1657,7 @@
 				76A8A77921959F84004F6E39 /* UpdateInstanceOperation.swift in Sources */,
 				7601F1A6208E056500738C1A /* Placeholder.swift in Sources */,
 				A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */,
-				764556B01F78FF9500B8F14B /* GeoEventReportingOperation.swift in Sources */,
 				7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */,
-				764556B31F78FF9500B8F14B /* MMGeofencingService.swift in Sources */,
 				A8171FCA2ADE5D3500AC6FC4 /* MMCallController.swift in Sources */,
 				A0672BEF2AC1A4C0005EDCD9 /* WebInAppBannerManager.swift in Sources */,
 				7601F19D208E056500738C1A /* Box.swift in Sources */,
@@ -1716,7 +1671,6 @@
 				7617505B23351827000438A8 /* SessionManager.swift in Sources */,
 				7626040E24EC1AA40052A36C /* HealthyRegistrationCondition.swift in Sources */,
 				A838992528F6F1AF00322E68 /* MMPopOverBar.swift in Sources */,
-				764556B41F78FF9500B8F14B /* MMGeoMessage.swift in Sources */,
 				7601F193208E056400738C1A /* Kingfisher.swift in Sources */,
 				7617506723351827000438A8 /* MultipartFormData.swift in Sources */,
 				764556D01F78FFE000B8F14B /* BlockObserver.swift in Sources */,
@@ -1729,7 +1683,6 @@
 				A80F241A285B3C1F00946DEF /* MMLanguage.swift in Sources */,
 				A83E2C4D2AB2FB05002A1237 /* GetChatRegistrationOperation.swift in Sources */,
 				A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */,
-				764556B21F78FF9500B8F14B /* MMGeofencingDeclarations.swift in Sources */,
 				7626041124EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift in Sources */,
 				760085811F977CC100837D75 /* MTMessage.swift in Sources */,
 				76626D0F218AFCA600E95E2C /* InstallationDataService.swift in Sources */,
@@ -1779,7 +1732,6 @@
 				7650DC3E244EEB480016233D /* CPChatComposing.swift in Sources */,
 				76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */,
 				76C3C9B423D5B2E200562C57 /* UserSessionReportObject.swift in Sources */,
-				7689347924ED71FF00411B1D /* GeoCleanupOperation.swift in Sources */,
 				ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */,
 				764556901F78FF7300B8F14B /* MessageUtils.swift in Sources */,
 				764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */,
@@ -1797,13 +1749,11 @@
 				7601F19E208E056500738C1A /* ImageModifier.swift in Sources */,
 				764556AF1F78FF8F00B8F14B /* UserNotificationType.swift in Sources */,
 				7692B56124EC4783000DA5A2 /* MMOperation.swift in Sources */,
-				764556881F78FF6500B8F14B /* GeoEventReportObject.swift in Sources */,
 				7601F1A5208E056500738C1A /* Filter.swift in Sources */,
 				ADF203452086642C00E157D7 /* Bit.swift in Sources */,
 				A8171FCE2ADE5D3500AC6FC4 /* VoiceCallView.swift in Sources */,
 				A8171FCB2ADE5D3500AC6FC4 /* MediaCallViewHeader.swift in Sources */,
 				A843A43C28F5A6D700D5196F /* MMCallNotificationData.swift in Sources */,
-				764556871F78FF6500B8F14B /* GeoEventReportObject+CoreDataProperties.swift in Sources */,
 				764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */,
 				764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */,
 				022BFEB42CC1449F00BB30B5 /* WebInAppClickObject.swift in Sources */,
@@ -1813,7 +1763,6 @@
 				A88E21562BADA839000C10A8 /* MMDispatchQueue.swift in Sources */,
 				A0672BC92AC1A3CC005EDCD9 /* MMInAppMessage.swift in Sources */,
 				A838992728F7025E00322E68 /* UIAlertController+MMSetup.swift in Sources */,
-				ADF2034D2086664100E157D7 /* GeoDatesUtils.swift in Sources */,
 				7617505A23351827000438A8 /* SessionDelegate.swift in Sources */,
 				7638B26722089F2000A98144 /* Archivable.swift in Sources */,
 				7645568C1F78FF6500B8F14B /* MessageManagedObject.swift in Sources */,
@@ -1891,8 +1840,6 @@
 				A08CB2722459C3BE00ED91B6 /* ChatWebView.swift in Sources */,
 				A0672BF82AC1A4C0005EDCD9 /* InteractiveMessageButton.swift in Sources */,
 				7650DC39244EEB480016233D /* ComposeBar_Button.swift in Sources */,
-				764556B51F78FF9500B8F14B /* MMGeoRequests.swift in Sources */,
-				7689347724ED700600411B1D /* GeoEventPersistingOperation.swift in Sources */,
 				764556D81F78FFE700B8F14B /* OperationCondition.swift in Sources */,
 				7635ABBD2431404E0069AE1D /* WebViewController.swift in Sources */,
 				A8171FD32ADE5D3500AC6FC4 /* MediaCallView.swift in Sources */,

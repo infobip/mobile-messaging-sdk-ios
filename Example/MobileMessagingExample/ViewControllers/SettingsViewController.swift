@@ -10,17 +10,17 @@ import MobileMessaging
 
 class SettingsViewController : UIViewController, UITextFieldDelegate {
 	static let kMSISDNValidationRegExp = "^[0-9]{4,17}$"
-	
+
 	@IBOutlet weak var msisdsTextField: UITextField!
 	@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
 	@IBOutlet weak var sendMSISDNButton: UIButton!
-	
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		msisdsTextField.delegate = self
 		msisdsTextField.text = MobileMessaging.getUser()?.phones?.first
 	}
-	
+
 	//MARK: UITextFieldDelegate
 	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
 		let cs = CharacterSet.decimalDigits
@@ -28,7 +28,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		var string = nsString.replacingCharacters(in: range, with: string)
 		string = string.components(separatedBy: cs.inverted).joined(separator: "")
 		msisdsTextField.text = string
-		
+
 		return false
 	}
 
@@ -37,9 +37,9 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		guard let msisdn = msisdsTextField.text else {
 			return
 		}
-		
+
 		showActivityIndicator()
-		
+
 		do {
 			try validateFormat(msisdn)
 			if let user = MobileMessaging.getUser() {
@@ -58,7 +58,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 			}
 		}
 	}
-	
+
 	//MARK: Private
 	fileprivate func validateFormat(_ msisdn : String) throws {
 		let predicate = NSPredicate(format: "SELF MATCHES[cd] %@", SettingsViewController.kMSISDNValidationRegExp)
@@ -67,7 +67,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 			throw NSError(type: CustomErrorType.invalidMSISDNFormat)
 		}
 	}
-	
+
 	fileprivate func showActivityIndicator() {
 		enableControls(false)
 		activityIndicator.startAnimating()
@@ -78,7 +78,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 				self.setControlsAlpha(0.2)
 		}
 	}
-	
+
 	fileprivate func hideActivityIndicator(_ completion: @escaping () -> Void) {
 		activityIndicator.stopAnimating()
 		UIView.animate(withDuration: 0.3, delay: 0.2, options: .beginFromCurrentState,
@@ -92,18 +92,18 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 				}
 		}
 	}
-	
+
 	fileprivate func enableControls(_ enabled: Bool) {
 		msisdsTextField.isEnabled = enabled
 		sendMSISDNButton.isEnabled = enabled
 		tabBarController?.tabBar.isUserInteractionEnabled = enabled
 	}
-	
+
 	fileprivate func setControlsAlpha(_ alpha: CGFloat) {
 		msisdsTextField.alpha = alpha
 		sendMSISDNButton.alpha = alpha
 	}
-	
+
 	fileprivate func showResultAlert(_ error: NSError?) {
 		let cancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
 		let alert = UIAlertController(title: error == nil ? "Success" : "Error",

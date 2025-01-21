@@ -55,7 +55,6 @@ class CodingDecodingTests: MMTestCase {
                 deviceName: nil,
                 deviceSecure: true,
                 deviceTimeZone: nil,
-                geoEnabled: true,
                 isPrimaryDevice: true,
                 isPushRegistrationEnabled: true,
                 language: nil,

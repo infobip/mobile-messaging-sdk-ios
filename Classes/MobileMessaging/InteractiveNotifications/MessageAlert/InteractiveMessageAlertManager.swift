@@ -30,10 +30,6 @@ class InteractiveMessageAlertManager: NamedLogger {
 	}
 
     func showModalNotificationManually(forMessage message: MM_MTMessage) {
-        guard !message.isGeoSignalingMessage else {
-            logDebug("Geo signaling message cannot be displayed with in-app")
-            return
-        }
         logDebug("Displaying modal in-app manually")
         showModalNotification(forMessage: message, exclusively: false)
     }
@@ -87,7 +83,7 @@ class InteractiveMessageAlertManager: NamedLogger {
         let noActionPerformed = (message.category != nil && message.appliedAction?.identifier == MMNotificationAction.DefaultActionId) || message.appliedAction == nil
         guard noActionPerformed else { return false }
         
-        return !message.isGeoSignalingMessage
+        return true
     }
 
 	private func showModalNotification(forMessage message: MM_MTMessage, exclusively: Bool) {

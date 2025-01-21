@@ -40,7 +40,7 @@ final class MessageFetchingOperation: MMOperation {
 		performRequest(pushRegistrationId: pushRegistrationId)
 	}
 	
-	let messageTypesFilter = [MMMessageType.Default.rawValue, MMMessageType.Geo.rawValue]
+	let messageTypesFilter = [MMMessageType.Default.rawValue]
 	
 	fileprivate func getArchiveMessageIds() -> [String]? {
 		let date = MobileMessaging.date.timeInterval(sinceNow: -60 * 60 * 24 * Consts.MessageFetchingSettings.messageArchiveLengthDays)
@@ -74,7 +74,7 @@ final class MessageFetchingOperation: MMOperation {
         assert(!Thread.isMainThread)
 		switch result {
 		case .Success(let fetchResponse):
-			logDebug("succeded: received \(String(describing: fetchResponse.messages?.count))")
+			logDebug("succeeded: received \(String(describing: fetchResponse.messages?.count))")
 
 			if let nonReportedMessageIds = nonReportedMessageIds {
 				self.dequeueDeliveryReports(messageIDs: nonReportedMessageIds, completion: completion)

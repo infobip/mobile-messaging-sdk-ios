@@ -81,7 +81,7 @@ public class MMQuery: NSObject {
 	/// This method is called whenever a new mobile originated message is about to be sent to the server.
 	func insert(outgoing messages: [MMBaseMessage], completion: @escaping () -> Void)
 	
-	/// This method is called whenever a new mobile terminated message (either push(remote) notifictaion or fetched message) is received by the Mobile Messaging SDK.
+	/// This method is called whenever a new mobile terminated message (either push (remote) notification or fetched message) is received by the Mobile Messaging SDK.
 	func insert(incoming messages: [MMBaseMessage], completion: @escaping () -> Void)
 	
 	/// This method is used by the Mobile Messaging SDK in order to detect duplicated messages persisted in the Message Storage. It is strongly recommended to implement this method in your custom Message Storage.

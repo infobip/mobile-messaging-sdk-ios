@@ -9,47 +9,6 @@ import XCTest
 @testable import MobileMessaging
 
 class SystemDataTests: MMTestCase {
-
-	func testSystemDataUpdates() {
-        MMTestCase.startWithCorrectApplicationCode()
-        
-		weak var requestsCompleted = expectation(description: "requestsCompleted")
-
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		let remoteProviderMock = RemoteAPIProviderStub()
-		remoteProviderMock.patchInstanceClosure = { _, _, _, _ in
-			return UpdateInstanceDataResult.Success(EmptyResponse())
-		}
-		mobileMessagingInstance.remoteApiProvider = remoteProviderMock
-		MMGeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
-		MMGeofencingService.sharedInstance!.start({ _ in })
-		
-		let geoDisabledSystemDataHash = mobileMessagingInstance.internalData().systemDataHash
-		var geoEnabledSystemDataHash: Int64!
-		
-		MMGeofencingService.sharedInstance = GeofencingServiceAlwaysRunningStub(mmContext: mobileMessagingInstance)
-		MMGeofencingService.sharedInstance!.start({ _ in })
-		
-        self.mobileMessagingInstance.installationService.syncSystemDataWithServer(userInitiated: true, completion: { (error) in
-			DispatchQueue.main.async {
-				geoEnabledSystemDataHash = self.mobileMessagingInstance.internalData().systemDataHash
-				
-				MMGeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: self.mobileMessagingInstance)
-				MMGeofencingService.sharedInstance!.start({ _ in })
-				
-				self.mobileMessagingInstance.installationService.syncSystemDataWithServer(userInitiated: true, completion: { (error) in
-					requestsCompleted?.fulfill()
-				})
-			}
-		})
-		
-		self.waitForExpectations(timeout: 60) { _ in
-			XCTAssertEqual(geoDisabledSystemDataHash, 0)
-			XCTAssertNotEqual(geoDisabledSystemDataHash, geoEnabledSystemDataHash)
-			XCTAssertNotEqual(self.mobileMessagingInstance.internalData().systemDataHash, geoDisabledSystemDataHash)
-			XCTAssertNotEqual(self.mobileMessagingInstance.internalData().systemDataHash, geoEnabledSystemDataHash)
-		}
-	}
 	
 	func testThatNotificationsSettingsIsBeingSyncedAfterChanged() {
         MMTestCase.startWithCorrectApplicationCode()
@@ -68,7 +27,6 @@ class SystemDataTests: MMTestCase {
 		mobileMessagingInstance.pushRegistrationId = "stub"
 		mobileMessagingInstance.systemDataHash = 0
 		
-		MMGeofencingService.sharedInstance = GeofencingServiceDisabledStub(mmContext: mobileMessagingInstance)
 		MobileMessaging.application = NotificationsEnabledMock() //<<<
 
 		// system data sends notificationsEnabled: true (initial sync because systemDataHash == 0) + 1
@@ -103,7 +61,6 @@ class SystemDataTests: MMTestCase {
 			XCTAssertNil(body[Consts.SystemDataKeys.deviceModel])
 			XCTAssertNil(body[Consts.SystemDataKeys.language])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.sdkVersion])
-			XCTAssertNotNil(body[Consts.SystemDataKeys.geofencingServiceEnabled])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.notificationsEnabled])
 			XCTAssertNil(body[Consts.SystemDataKeys.deviceSecure])
 		}
@@ -119,7 +76,6 @@ class SystemDataTests: MMTestCase {
 			XCTAssertNotNil(body[Consts.SystemDataKeys.osVer])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.language])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.sdkVersion])
-			XCTAssertNotNil(body[Consts.SystemDataKeys.geofencingServiceEnabled])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.notificationsEnabled])
 			XCTAssertNotNil(body[Consts.SystemDataKeys.deviceSecure])
 		}

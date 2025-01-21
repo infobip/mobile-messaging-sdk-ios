@@ -48,21 +48,6 @@ FOUNDATION_EXPORT NSString* MMNotificationMessagesDidSend;
 FOUNDATION_EXPORT NSString* MMNotificationMessagesWillSend;
 
 /**
- Posted after the user enters monitored region. The `userInfo` dictionary contains the following key: `MMNotificationKeyGeographicalRegion` - contains `MMRegion` object in which user entered.
- */
-FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidEnter;
-
-/**
- Posted after the user exits monitored region. The `userInfo` dictionary contains the following key: `MMNotificationKeyGeographicalRegion` - contains `MMRegion` object from which user exited.
- */
-FOUNDATION_EXPORT NSString* MMNotificationGeographicalRegionDidExit;
-
-/**
- Posted after the Geofencing Service started.
- */
-FOUNDATION_EXPORT NSString* MMNotificationGeoServiceDidStart;
-
-/**
  Posted after the User tapped notification.
  */
 FOUNDATION_EXPORT NSString* MMNotificationMessageTapped;
@@ -167,12 +152,6 @@ FOUNDATION_EXPORT NSString* MMNotificationKeyActionTextInput;
  Contains an array of `MM_MOMessage` messages with `status` of sending.
  */
 FOUNDATION_EXPORT NSString* MMNotificationKeyMessageSendingMOMessages;
-
-/**
- Key for entry in userInfo dictionary of `MMNotificationGeographicalRegionDidEnter` and `MMNotificationGeographicalRegionDidExit` notification.
- Contains object holding info about region to which user entered or exited.
- */
-FOUNDATION_EXPORT NSString* MMNotificationKeyGeographicalRegion;
 
 /**
  Key for entry in userInfo dictionary of `MMNotificationUserSynced` notification.

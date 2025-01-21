@@ -17,10 +17,6 @@ let package = Package(
             targets: ["MobileMessagingLogging"]
         ),
         .library(
-            name: "MobileMessagingGeofencing",
-            targets: ["MobileMessagingGeofencing"]
-        ),
-        .library(
             name: "MobileMessagingInbox",
             targets: ["MobileMessagingInbox"]
         ),
@@ -50,11 +46,6 @@ let package = Package(
             path: "Classes/MobileMessagingObjC",
             exclude: ["Core/Plugins/MobileMessagingPluginApplicationDelegate.m", "Headers/MobileMessagingPluginApplicationDelegate.h"],
             publicHeadersPath: "Headers"
-        ),
-        .target(
-            name: "MobileMessagingGeofencing",
-            dependencies: ["MobileMessaging"],
-            path: "Classes/Geofencing"
         ),
         .target(
             name: "MobileMessagingInbox",

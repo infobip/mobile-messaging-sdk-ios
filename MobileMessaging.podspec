@@ -56,12 +56,6 @@ Pod::Spec.new do |s|
         cl.source_files = 'Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
         cl.dependency 'CocoaLumberjack/Swift', '3.8.5'
     end
-
-    s.subspec 'Geofencing' do |geo|
-        geo.dependency 'MobileMessaging/Core'
-        geo.frameworks = 'CoreLocation'
-        geo.source_files = 'Classes/Geofencing/**/*.{h,m,swift}'
-    end
     
     s.subspec 'InAppChat' do |chat|
         chat.frameworks = 'AudioToolbox'

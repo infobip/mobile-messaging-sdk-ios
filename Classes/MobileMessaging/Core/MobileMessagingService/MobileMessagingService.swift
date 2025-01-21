@@ -49,7 +49,7 @@ open class MobileMessagingService: NSObject, NamedLogger {
         completion(isRunning)
     }
     
-    /// A system data that is related to a particular subservice. For example for Geofencing service it is a key-value pair "geofencing: <bool>" that indicates whether the service is enabled or not
+    /// A system data that is related to a particular subservice. For example for Inbox service it is a key-value pair "inbox: <bool>" that indicates whether the service is enabled or not
     open var systemData: [String: AnyHashable]? { return nil }
     
     /// Called by message handling operation in order to fill the MessageManagedObject data by MobileMessaging subservices. Subservice must be in charge of fulfilling the message data to be stored on disk. You return `true` if message was changed by the method.
@@ -70,7 +70,6 @@ open class MobileMessagingService: NSObject, NamedLogger {
     func appWillResignActive(_ completion: @escaping () -> Void) { completion() }
     func appWillTerminate(_ completion: @escaping () -> Void) { completion() }
     open func appDidEnterBackground(_ completion: @escaping () -> Void) { completion() }
-    func geoServiceDidStart(_ completion: @escaping () -> Void) { completion() }
     func baseUrlDidChange(_ completion: @escaping () -> Void) { completion() }
     
     func submitToDispatchGroup(block: @escaping (@escaping () -> Void) -> Void) {
@@ -110,11 +109,6 @@ open class MobileMessagingService: NSObject, NamedLogger {
     @objc private func appDidEnterBackgroundMainThread(notification: Notification) {
         submitToDispatchGroup(block: { completion in
             self.mmContext.queue.async {self.appDidEnterBackground(completion)}
-        })
-    }
-    @objc private func geoServiceDidStartMainThread(notification: Notification) {
-        submitToDispatchGroup(block: { completion in
-            self.mmContext.queue.async {self.geoServiceDidStart(completion)}
         })
     }
     @objc private func handleAppDidFinishLaunchingNotification(notification: Notification) {
@@ -175,10 +169,6 @@ open class MobileMessagingService: NSObject, NamedLogger {
     }
     
     private func setupSDKObserving() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(geoServiceDidStartMainThread(notification:)),
-            name: NSNotification.Name(rawValue: MMNotificationGeoServiceDidStart), object: nil)
         
         NotificationCenter.default.addObserver(
             self,

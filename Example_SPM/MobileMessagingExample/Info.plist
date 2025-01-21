@@ -57,11 +57,5 @@
 	<false/>
 	<key>com.mobilemessaging.app_group</key>
 	<string>group.com.mobile-messaging.notification-service-extension</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location permission is required for Geofencing feature to work</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Location permission is required for Geofencing feature to work</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Location permission is required for Geofencing feature to work</string>
 </dict>
 </plist>

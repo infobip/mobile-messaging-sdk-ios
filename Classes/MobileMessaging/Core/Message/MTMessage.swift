@@ -129,11 +129,6 @@ open class MM_MTMessage: MMBaseMessage, NamedLogger {
         return originalPayload.mm_inbox?[Consts.InternalDataKeys.topic] as? String
     }
 
-	/// Indicates whether the message represents a geo campaign subscription
-	public var isGeoSignalingMessage: Bool {
-		return internalData?[Consts.InternalDataKeys.geo] != nil && isSilent
-	}
-
 	/// APNS payload (`aps` object) sent with the silent push notifications
 	public var silentData: MMStringKeyPayload? {
 		return internalData?[Consts.InternalDataKeys.silent] as? MMStringKeyPayload

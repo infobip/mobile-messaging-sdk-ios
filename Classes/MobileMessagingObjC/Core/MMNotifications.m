@@ -15,9 +15,6 @@ NSString* MMNotificationMessageReceived = @"com.mobile-messaging.notification.me
 NSString* MMNotificationUserSynced = @"com.mobile-messaging.notification.userdata-synced";
 NSString* MMNotificationMessagesDidSend = @"com.mobile-messaging.notification.messages-did-send";
 NSString* MMNotificationMessagesWillSend = @"com.mobile-messaging.notification.messages-will-send";
-NSString* MMNotificationGeographicalRegionDidEnter = @"com.mobile-messaging.notification.geographical-region-did-enter";
-NSString* MMNotificationGeographicalRegionDidExit = @"com.mobile-messaging.notification.geographical-region-did-exit";
-NSString* MMNotificationGeoServiceDidStart = @"com.mobile-messaging.notification.geo-service-did-start";
 NSString* MMNotificationMessageTapped = @"com.mobile-messaging.notification.message-tapped";
 NSString* MMNotificationActionTapped = @"com.mobile-messaging.notification.action-tapped";
 NSString* MMNotificationDepersonalized = @"com.mobile-messaging.notification.depersonalization-completed";
@@ -48,7 +45,6 @@ NSString* MMNotificationKeyMessageIsPush = @"com.mobile-messaging.notification.k
 NSString* MMNotificationKeyMessageIsSilent = @"com.mobile-messaging.notification.key.message-is-silent";
 
 NSString* MMNotificationKeyMessageSendingMOMessages = @"com.mobile-messaging.notification.key.message-sending-messages";
-NSString* MMNotificationKeyGeographicalRegion = @"com.mobile-messaging.notification.key.geographical-region";
 NSString* MMNotificationKeyMobileMessagingContext = @"com.mobile-messaging.notification.key.mobile-messaging-context";
 NSString* MMNotificationKeyIsPrimaryDevice = @"com.mobile-messaging.notification.key.is_primary_device";
 NSString* MMNotificationKeyUser = @"com.mobile-messaging.notification.key.user";
