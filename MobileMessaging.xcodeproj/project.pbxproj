@@ -302,6 +302,7 @@
 		ADF203492086642C00E157D7 /* Generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033C2086642C00E157D7 /* Generics.swift */; };
 		ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */; };
 		D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D8601249D4FAAD2A589A3D /* UserDataService.swift */; };
+		E82568AF2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */; };
 		EC9E8A9A2AFBE6A100150530 /* SHA2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9E8A992AFBE6A100150530 /* SHA2.swift */; };
 		EC9E8A9C2AFBE70000150530 /* UInt64+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */; };
 /* End PBXBuildFile section */
@@ -679,6 +680,7 @@
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		D7D8601249D4FAAD2A589A3D /* UserDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
+		E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileMessaging+PluginsMethods.swift"; sourceTree = "<group>"; };
 		EC9E8A992AFBE6A100150530 /* SHA2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SHA2.swift; sourceTree = "<group>"; };
 		EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UInt64+Extension.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -936,6 +938,7 @@
 		764555D41F78FF4E00B8F14B /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */,
 				A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */,
 				A0D477D729FBBDEF000B6C45 /* MMNotifications.h */,
 				A0D477D529FBBDD9000B6C45 /* MMNotifications.m */,
@@ -1800,6 +1803,7 @@
 				764556891F78FF6500B8F14B /* InstallationManagedObject+CoreDataProperties.swift in Sources */,
 				7601F194208E056400738C1A /* RequestModifier.swift in Sources */,
 				764556751F78FF5800B8F14B /* MMLoggingUtil.swift in Sources */,
+				E82568AF2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift in Sources */,
 				766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */,
 				7617506523351827000438A8 /* NetworkReachabilityManager.swift in Sources */,
 				764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */,

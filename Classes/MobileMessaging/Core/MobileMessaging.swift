@@ -212,7 +212,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public class func getUser() -> MMUser? {
         return MobileMessaging.sharedInstance?.dirtyUser()
     }
-    
+
     /**
      Asynchronously fetches the user data from the server.
      
