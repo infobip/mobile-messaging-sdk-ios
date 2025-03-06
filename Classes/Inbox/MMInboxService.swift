@@ -10,9 +10,13 @@ import Foundation
 public class MMInboxService: MobileMessagingService {
     private let q: DispatchQueue
     static var sharedInstance: MMInboxService?
+    private var seenMessageIds: Set<String>
+    private var seenQueue: DispatchQueue
     
     init(mmContext: MobileMessaging) {
         self.q = DispatchQueue(label: "inbox-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
+        self.seenMessageIds = Set()
+        self.seenQueue = DispatchQueue(label: "inbox-service-seen-messages-queue")
         super.init(mmContext: mmContext, uniqueIdentifier: "MMInboxService")
     }
     
@@ -60,13 +64,31 @@ public class MMInboxService: MobileMessagingService {
      - parameter error: Optional error.
      */
     public func setSeen(externalUserId: String, messageIds: [String], completion: @escaping (_ error: NSError?) -> Void) {
-        let body = InboxSeenRequestDataMapper.requestBody(messageIds: messageIds, externalUserId: externalUserId, seenDate: MobileMessaging.date.now)
+        var unseenMessagesIds: [String] = []
+        seenQueue.sync{
+            unseenMessagesIds = messageIds.filter { !self.seenMessageIds.contains($0) }
+            if unseenMessagesIds.count > 0 {
+                self.seenMessageIds.formUnion(unseenMessagesIds)
+            }
+        }
+        
+        guard unseenMessagesIds.count > 0 else {
+            completion(nil)
+            return
+        }
+        
+        let body = InboxSeenRequestDataMapper.requestBody(messageIds: unseenMessagesIds, externalUserId: externalUserId, seenDate: MobileMessaging.date.now)
         q.async {
             self.mmContext.remoteApiProvider.sendSeenStatus(
                 applicationCode: self.mmContext.applicationCode,
                 pushRegistrationId: self.mmContext.currentInstallation().pushRegistrationId,
                 body: body,
                 queue: DispatchQueue.main) { result in
+                    if result.error != nil {
+                        self.seenQueue.async {
+                            self.seenMessageIds.subtract(unseenMessagesIds)
+                        }
+                    }
                     completion(result.error)
                 }
         }
@@ -94,6 +116,7 @@ public class MMInboxService: MobileMessagingService {
     
     public override func stopService(_ completion: @escaping (Bool) -> Void) {
         super.stopService(completion)
+        self.seenMessageIds.removeAll()
         MMInboxService.sharedInstance = nil
     }
 }
