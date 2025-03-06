@@ -11,6 +11,7 @@ import CoreData
 import CoreLocation
 import SystemConfiguration
 import UserNotifications
+import CommonCrypto
 
 public typealias DictionaryRepresentation = [String: Any]
 
@@ -205,6 +206,17 @@ public extension String {
              return String(self[start..<end])
          }
      }
+    
+    func sha256() -> String {
+            guard let data = self.data(using: .utf8, allowLossyConversion: true) else { return "" }
+            
+            var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+            data.withUnsafeBytes { bufferPtr in
+                _ = CC_SHA256(bufferPtr.baseAddress, CC_LONG(data.count), &hash)
+            }
+            
+            return hash.map { String(format: "%02x", $0) }.joined()
+        }
 }
 
 extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {

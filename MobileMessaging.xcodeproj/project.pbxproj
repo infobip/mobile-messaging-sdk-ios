@@ -289,22 +289,8 @@
 		A8CBD7DB292CCDA200322961 /* PIPUsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7D0292CCDA200322961 /* PIPUsable.swift */; };
 		A8F1EAB62BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
-		ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203322086642B00E157D7 /* String+Extension.swift */; };
-		ADF203402086642C00E157D7 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203332086642B00E157D7 /* Utils.swift */; };
-		ADF203412086642C00E157D7 /* Digest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203342086642B00E157D7 /* Digest.swift */; };
-		ADF203422086642C00E157D7 /* DigestType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203352086642B00E157D7 /* DigestType.swift */; };
-		ADF203432086642C00E157D7 /* Data+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203362086642C00E157D7 /* Data+Extension.swift */; };
-		ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203372086642C00E157D7 /* Int+Extension.swift */; };
-		ADF203452086642C00E157D7 /* Bit.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203382086642C00E157D7 /* Bit.swift */; };
-		ADF203462086642C00E157D7 /* Updatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF203392086642C00E157D7 /* Updatable.swift */; };
-		ADF203472086642C00E157D7 /* BatchedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033A2086642C00E157D7 /* BatchedCollection.swift */; };
-		ADF203482086642C00E157D7 /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033B2086642C00E157D7 /* Array+Extension.swift */; };
-		ADF203492086642C00E157D7 /* Generics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033C2086642C00E157D7 /* Generics.swift */; };
-		ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */; };
 		D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D8601249D4FAAD2A589A3D /* UserDataService.swift */; };
 		E82568AF2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */; };
-		EC9E8A9A2AFBE6A100150530 /* SHA2.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9E8A992AFBE6A100150530 /* SHA2.swift */; };
-		EC9E8A9C2AFBE70000150530 /* UInt64+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -665,24 +651,10 @@
 		A8CBD7D0292CCDA200322961 /* PIPUsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPUsable.swift; sourceTree = "<group>"; };
 		A8CE8ACD285C6E03000CC98F /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
 		A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Classes/MobileMessaging/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
-		ADF203322086642B00E157D7 /* String+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+Extension.swift"; sourceTree = "<group>"; };
-		ADF203332086642B00E157D7 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
-		ADF203342086642B00E157D7 /* Digest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Digest.swift; sourceTree = "<group>"; };
-		ADF203352086642B00E157D7 /* DigestType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DigestType.swift; sourceTree = "<group>"; };
-		ADF203362086642C00E157D7 /* Data+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Data+Extension.swift"; sourceTree = "<group>"; };
-		ADF203372086642C00E157D7 /* Int+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Int+Extension.swift"; sourceTree = "<group>"; };
-		ADF203382086642C00E157D7 /* Bit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bit.swift; sourceTree = "<group>"; };
-		ADF203392086642C00E157D7 /* Updatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Updatable.swift; sourceTree = "<group>"; };
-		ADF2033A2086642C00E157D7 /* BatchedCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BatchedCollection.swift; sourceTree = "<group>"; };
-		ADF2033B2086642C00E157D7 /* Array+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
-		ADF2033C2086642C00E157D7 /* Generics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generics.swift; sourceTree = "<group>"; };
-		ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UInt32+Extension.swift"; sourceTree = "<group>"; };
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		D7D8601249D4FAAD2A589A3D /* UserDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
 		E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileMessaging+PluginsMethods.swift"; sourceTree = "<group>"; };
-		EC9E8A992AFBE6A100150530 /* SHA2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SHA2.swift; sourceTree = "<group>"; };
-		EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UInt64+Extension.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1137,7 +1109,6 @@
 				76B0A7BF24EFB43F0006A815 /* SwiftTryCatch */,
 				7617503F23351817000438A8 /* Alamofire */,
 				7601F177208E056400738C1A /* Kingsfisher */,
-				ADF20331208663FB00E157D7 /* CryptoSwift */,
 				7645565E1F78FF4F00B8F14B /* Keychain */,
 				764556621F78FF4F00B8F14B /* PSOperations */,
 				764556701F78FF4F00B8F14B /* SwiftyJSON */,
@@ -1428,27 +1399,6 @@
 			path = PIPKit;
 			sourceTree = "<group>";
 		};
-		ADF20331208663FB00E157D7 /* CryptoSwift */ = {
-			isa = PBXGroup;
-			children = (
-				EC9E8A9B2AFBE70000150530 /* UInt64+Extension.swift */,
-				EC9E8A992AFBE6A100150530 /* SHA2.swift */,
-				ADF2033B2086642C00E157D7 /* Array+Extension.swift */,
-				ADF2033A2086642C00E157D7 /* BatchedCollection.swift */,
-				ADF203382086642C00E157D7 /* Bit.swift */,
-				ADF203362086642C00E157D7 /* Data+Extension.swift */,
-				ADF203342086642B00E157D7 /* Digest.swift */,
-				ADF203352086642B00E157D7 /* DigestType.swift */,
-				ADF2033C2086642C00E157D7 /* Generics.swift */,
-				ADF203372086642C00E157D7 /* Int+Extension.swift */,
-				ADF203322086642B00E157D7 /* String+Extension.swift */,
-				ADF2033E2086642C00E157D7 /* UInt32+Extension.swift */,
-				ADF203392086642C00E157D7 /* Updatable.swift */,
-				ADF203332086642B00E157D7 /* Utils.swift */,
-			);
-			path = CryptoSwift;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1590,7 +1540,6 @@
 				7617505923351827000438A8 /* Request.swift in Sources */,
 				76EA825C2727DE4300D16E66 /* MobileMessagingService.swift in Sources */,
 				7617505C23351827000438A8 /* AFError.swift in Sources */,
-				ADF203472086642C00E157D7 /* BatchedCollection.swift in Sources */,
 				A8171FD02ADE5D3500AC6FC4 /* CallView.swift in Sources */,
 				A0791856283258E9004309F5 /* ChatExtensions.swift in Sources */,
 				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,
@@ -1605,7 +1554,6 @@
 				764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */,
 				764556BB1F78FFB200B8F14B /* MMDefaultMessageStorage.swift in Sources */,
 				764556AC1F78FF8F00B8F14B /* MMUserAgent.swift in Sources */,
-				ADF203412086642C00E157D7 /* Digest.swift in Sources */,
 				A0672BF32AC1A4C0005EDCD9 /* ScriptEventRecipient.swift in Sources */,
 				7601F197208E056500738C1A /* Indicator.swift in Sources */,
 				7601F1A9208E056500738C1A /* ImagePrefetcher.swift in Sources */,
@@ -1618,7 +1566,6 @@
 				A843A43F28F5A6D700D5196F /* MMCallFactory.swift in Sources */,
 				76B70DA721AD3A6E00E87BD5 /* DeleteInstanceOperation.swift in Sources */,
 				A838992328F6F14300322E68 /* MMPopupView.swift in Sources */,
-				ADF203422086642C00E157D7 /* DigestType.swift in Sources */,
 				764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */,
 				764556BE1F78FFCB00B8F14B /* RetryableDownloadTask.swift in Sources */,
 				7617505723351827000438A8 /* Validation.swift in Sources */,
@@ -1639,7 +1586,6 @@
 				A843A43A28F5A6D700D5196F /* MMWebRTCService+UI.swift in Sources */,
 				76531B3D2031F0150019A246 /* RegistrationResetOperation.swift in Sources */,
 				764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */,
-				EC9E8A9C2AFBE70000150530 /* UInt64+Extension.swift in Sources */,
 				A838992B28F82B8600322E68 /* MMWebRTCToken.swift in Sources */,
 				764556D11F78FFE000B8F14B /* BlockOperation.swift in Sources */,
 				02A31D1C2C9C1AF200051D30 /* WebInAppClickPersistingOperation.swift in Sources */,
@@ -1656,7 +1602,6 @@
 				02421C642CBFA95B00F159C8 /* WebInAppClickService.swift in Sources */,
 				764556DA1F78FFE700B8F14B /* OperationObserver.swift in Sources */,
 				764556A71F78FF8F00B8F14B /* MMGCD.swift in Sources */,
-				ADF203492086642C00E157D7 /* Generics.swift in Sources */,
 				76A8A77921959F84004F6E39 /* UpdateInstanceOperation.swift in Sources */,
 				7601F1A6208E056500738C1A /* Placeholder.swift in Sources */,
 				A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */,
@@ -1711,8 +1656,6 @@
 				764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */,
 				A0B24DBF25066782005C5403 /* AttachmentPreviewController.swift in Sources */,
 				76A8A77D2195BB80004F6E39 /* FetchInstanceOperation.swift in Sources */,
-				EC9E8A9A2AFBE6A100150530 /* SHA2.swift in Sources */,
-				ADF2033F2086642C00E157D7 /* String+Extension.swift in Sources */,
 				A0B24DC025066782005C5403 /* ChatAttachmentImageView.swift in Sources */,
 				7601F1A4208E056500738C1A /* ImageProcessor.swift in Sources */,
 				A8CBD7DB292CCDA200322961 /* PIPUsable.swift in Sources */,
@@ -1735,10 +1678,8 @@
 				7650DC3E244EEB480016233D /* CPChatComposing.swift in Sources */,
 				76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */,
 				76C3C9B423D5B2E200562C57 /* UserSessionReportObject.swift in Sources */,
-				ADF2034B2086642C00E157D7 /* UInt32+Extension.swift in Sources */,
 				764556901F78FF7300B8F14B /* MessageUtils.swift in Sources */,
 				764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */,
-				ADF203432086642C00E157D7 /* Data+Extension.swift in Sources */,
 				7601F1A0208E056500738C1A /* FormatIndicatedCacheSerializer.swift in Sources */,
 				A08CB2702459BEBF00ED91B6 /* ChatAPIKeys.swift in Sources */,
 				7620450D27CFCF2A007970F8 /* extensions.swift in Sources */,
@@ -1753,7 +1694,6 @@
 				764556AF1F78FF8F00B8F14B /* UserNotificationType.swift in Sources */,
 				7692B56124EC4783000DA5A2 /* MMOperation.swift in Sources */,
 				7601F1A5208E056500738C1A /* Filter.swift in Sources */,
-				ADF203452086642C00E157D7 /* Bit.swift in Sources */,
 				A8171FCE2ADE5D3500AC6FC4 /* VoiceCallView.swift in Sources */,
 				A8171FCB2ADE5D3500AC6FC4 /* MediaCallViewHeader.swift in Sources */,
 				A843A43C28F5A6D700D5196F /* MMCallNotificationData.swift in Sources */,
@@ -1778,16 +1718,13 @@
 				76B0A7C424EFB43F0006A815 /* SwiftTryCatch.m in Sources */,
 				A0D477D629FBBDD9000B6C45 /* MMNotifications.m in Sources */,
 				763A1AF623E4873000C997BC /* CustomEventObject+CoreDataClass.swift in Sources */,
-				ADF203462086642C00E157D7 /* Updatable.swift in Sources */,
 				764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */,
 				7617506623351827000438A8 /* Notifications.swift in Sources */,
-				ADF203402086642C00E157D7 /* Utils.swift in Sources */,
 				764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */,
 				7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */,
 				7601F1A2208E056500738C1A /* AnimatedImageView.swift in Sources */,
 				A87017A829028E6F00B696CE /* MMWebRTCService+Push.swift in Sources */,
 				A8CBD7D2292CCDA200322961 /* UIWindow+Extension.swift in Sources */,
-				ADF203482086642C00E157D7 /* Array+Extension.swift in Sources */,
 				7645568E1F78FF6500B8F14B /* MMCoreDataStorage.swift in Sources */,
 				A0672BFB2AC1A4C0005EDCD9 /* InteractiveMessageAlertManager.swift in Sources */,
 				A0D477C629FAAC60000B6C45 /* Migration_2_3.xcmappingmodel in Sources */,
@@ -1823,7 +1760,6 @@
 				764556CD1F78FFD900B8F14B /* KeychainSwift.swift in Sources */,
 				764556BA1F78FFB200B8F14B /* Message.swift in Sources */,
 				760085871F9790BE00837D75 /* BaseMessage.swift in Sources */,
-				ADF203442086642C00E157D7 /* Int+Extension.swift in Sources */,
 				764556BF1F78FFCB00B8F14B /* RichNotificationsExtensions.swift in Sources */,
 				A0D477C329FAAC3F000B6C45 /* Migration_0_3.xcmappingmodel in Sources */,
 				A8CBD7D1292CCDA200322961 /* UIView+Associated.swift in Sources */,
