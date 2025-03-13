@@ -25,6 +25,7 @@ class ChatWebView: WKWebView {
 		for value in JSMessageType.allCases {
 			configuration.userContentController.add(scriptHandler, name: value.rawValue)
 		}
+        
 		super.init(frame: frame, configuration: configuration)
 	}
 	

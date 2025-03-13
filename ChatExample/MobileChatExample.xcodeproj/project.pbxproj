@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2524F0A52D8041D700164574 /* LiveChatAPIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2524F0A42D8041CE00164574 /* LiveChatAPIView.swift */; };
 		2594A97E2AC6F82C00A5F1C0 /* SwiftUIChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2594A97D2AC6F82C00A5F1C0 /* SwiftUIChatView.swift */; };
 		2594A9802AC6F85900A5F1C0 /* ExternalChatInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2594A97F2AC6F85900A5F1C0 /* ExternalChatInputViewController.swift */; };
 		25F4F90E2A0E6CE70080E933 /* ColorThemeTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F4F90D2A0E6CE70080E933 /* ColorThemeTableVC.swift */; };
@@ -57,6 +58,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2524F0A42D8041CE00164574 /* LiveChatAPIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveChatAPIView.swift; sourceTree = "<group>"; };
 		2594A97D2AC6F82C00A5F1C0 /* SwiftUIChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIChatView.swift; sourceTree = "<group>"; };
 		2594A97F2AC6F85900A5F1C0 /* ExternalChatInputViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExternalChatInputViewController.swift; sourceTree = "<group>"; };
 		25F4F90D2A0E6CE70080E933 /* ColorThemeTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorThemeTableVC.swift; sourceTree = "<group>"; };
@@ -157,6 +159,7 @@
 		765259E81FB5A99100058788 /* MobileChatExample */ = {
 			isa = PBXGroup;
 			children = (
+				2524F0A42D8041CE00164574 /* LiveChatAPIView.swift */,
 				A88078A829A8E0020098074D /* Resources */,
 				A870179E290285FC00B696CE /* Sounds */,
 				765259E91FB5A99100058788 /* AppDelegate.swift */,
@@ -444,6 +447,7 @@
 				A8A47CF0292F6A5000CE630F /* PersonalizationVC.swift in Sources */,
 				765259EA1FB5A99100058788 /* AppDelegate.swift in Sources */,
 				A85288CD285094BC00F7017D /* LanguageTableVC.swift in Sources */,
+				2524F0A52D8041D700164574 /* LiveChatAPIView.swift in Sources */,
 				A8E560A2299632D900011F0C /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

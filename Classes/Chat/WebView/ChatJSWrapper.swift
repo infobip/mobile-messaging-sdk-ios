@@ -45,6 +45,7 @@ protocol ChatJSWrapper {
 }
 
 extension WKWebView: NamedLogger {}
+
 extension WKWebView: ChatJSWrapper {
 
     func sendMessage(_ message: String? = nil, attachment: ChatMobileAttachment? = nil) {

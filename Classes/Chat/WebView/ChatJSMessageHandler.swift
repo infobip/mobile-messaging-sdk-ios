@@ -37,73 +37,83 @@ enum JSMessageType: String, CaseIterable {
 
 // MARK: Script handlers
 class ChatScriptMessageHandler: NSObject, WKScriptMessageHandler {
+    
+    var onChatEvent: ((JSMessageType, JSMessage) -> Void)?
+        
 	public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
 		guard let jsMessage = JSMessageType(rawValue: message.name) else {
 			return
 		}
-		jsMessage.handler?.handleMessage(message: message)
+        jsMessage.handler?.handleMessage(message: message, completion: { [weak self] type, message in
+            self?.onChatEvent?(type, message)
+        })
 	}
 }
 
 protocol ScriptMessageHandler {
-	static func handleMessage(message: WKScriptMessage)
+    static func handleMessage(message: WKScriptMessage, completion: @escaping ((JSMessageType, JSMessage) -> Void))
 }
 
 class EnableControlsMessageHandler: ScriptMessageHandler {
-	class func handleMessage(message: WKScriptMessage) {
+
+    class func handleMessage(message: WKScriptMessage, completion: @escaping ((JSMessageType, any JSMessage) -> Void)) {
 		guard let jsMessage = EnableControlsJSMessage(message: message) else {
 				return
 		}
-		MobileMessaging.inAppChat?.webViewDelegate?.didEnableControls(jsMessage.enabled)
+        
+        completion(.enableControls, jsMessage)
 	}
 }
 
 class ErrorMessageHandler: ScriptMessageHandler, NamedLogger {
-	class func handleMessage(message: WKScriptMessage) {
+	class func handleMessage(message: WKScriptMessage, completion: @escaping ((JSMessageType, any JSMessage) -> Void)) {
 		guard let jsMessage = ErrorJSMessage(message: message) else {
 				return
 		}
+        
 		logError("JSError received: \(jsMessage.message)")
-        MobileMessaging.inAppChat?.handleJSError(jsMessage.message)
+        completion(.onError, jsMessage)
 	}
 }
 
 class AttachmentPreviewMessageHandler: ScriptMessageHandler {
-    class func handleMessage(message: WKScriptMessage) {
+    class func handleMessage(message: WKScriptMessage, completion: @escaping ((JSMessageType, any JSMessage) -> Void)) {
         guard let jsMessage = AttachmentPreviewJSMessage(message: message) else {
             return
         }
-        guard let attachment = ChatWebAttachment(url: jsMessage.url, typeString: jsMessage.type, fileName: jsMessage.caption) else {
-            return
-        }
-        
-        MobileMessaging.inAppChat?.webViewDelegate?.didOpenPreview(forAttachment: attachment)
+
+        completion(.openAttachmentPreview, jsMessage)
     }
 }
 
 class ControlsVisibilityHandler: ScriptMessageHandler {
-    class func handleMessage(message: WKScriptMessage) {
+    class func handleMessage(message: WKScriptMessage, completion: @escaping ((JSMessageType, JSMessage) -> Void)) {
         guard let jsMessage = VisibilityControlsJSMessage(message: message) else {
                 return
         }
-        MobileMessaging.inAppChat?.webViewDelegate?.didShowComposeBar(jsMessage.isVisible)
+        
+        completion(.setControlsVisibility, jsMessage)
     }
 }
 
 class OnViewChangedHandler: ScriptMessageHandler, NamedLogger {
-    class func handleMessage(message: WKScriptMessage) {
-        let viewState = (message.body as? String) ?? "Unknown view state"
-        logDebug("OnViewChangedHandler handleMessage \(viewState)")
-        MobileMessaging.inAppChat?.webViewDelegate?.didChangeView(MMChatWebViewState.parseFrom(viewState))
-        UserEventsManager.postInAppChatViewChangedEvent(viewState)
+    class func handleMessage(message: WKScriptMessage, completion: @escaping ((JSMessageType, JSMessage) -> Void)) {
+        guard let jsMessage = ViewStateJSMessage(message: message) else {
+            return
+        }
+        
+        completion(.onViewChanged, jsMessage)
     }
 }
 
 
 class OnMessageEventHandler: ScriptMessageHandler, NamedLogger {
-    class func handleMessage(message: WKScriptMessage) {
-        logDebug("OnMessageReceivedHandler handleMessage \(message)")
-        MobileMessaging.inAppChat?.onRawMessageReceived?(message.body)
+    class func handleMessage(message: WKScriptMessage, completion: @escaping ((JSMessageType, JSMessage) -> Void)) {
+        guard let jsMessage = OnMessageReceivedJSMessage(message: message) else {
+            return
+        }
+
+        completion(.onMessageEvent, jsMessage)
     }
 }
 
@@ -112,7 +122,7 @@ protocol JSMessage {
 	init?(message: WKScriptMessage)
 }
 
-class ErrorJSMessage : JSMessage, NamedLogger {
+class ErrorJSMessage: JSMessage, NamedLogger {
 	let message: String
 
 	required init?(message: WKScriptMessage) {
@@ -131,7 +141,7 @@ class ErrorJSMessage : JSMessage, NamedLogger {
 	}
 }
 
-class EnableControlsJSMessage : JSMessage, NamedLogger {
+class EnableControlsJSMessage: JSMessage, NamedLogger {
 	let enabled: Bool
 	
 	required init?(message: WKScriptMessage) {
@@ -163,7 +173,7 @@ class AttachmentPreviewJSMessage: JSMessage, NamedLogger {
     }
 }
 
-class VisibilityControlsJSMessage : JSMessage, NamedLogger {
+class VisibilityControlsJSMessage: JSMessage, NamedLogger {
     let isVisible: Bool
     
     required init?(message: WKScriptMessage) {
@@ -173,5 +183,23 @@ class VisibilityControlsJSMessage : JSMessage, NamedLogger {
                 return nil
         }
         self.isVisible = isVisible
+    }
+}
+
+class ViewStateJSMessage: JSMessage, NamedLogger {
+    let state: MMChatWebViewState
+    
+    required init?(message: WKScriptMessage) {
+        let viewState = (message.body as? String) ?? "Unknown view state"
+        self.state = MMChatWebViewState.parseFrom(viewState)
+        logDebug("OnViewChangedHandler handleMessage \(viewState)")
+    }
+}
+
+class OnMessageReceivedJSMessage: JSMessage, NamedLogger {
+    var message: Any
+    
+    required init?(message: WKScriptMessage) {
+        self.message = message.body
     }
 }

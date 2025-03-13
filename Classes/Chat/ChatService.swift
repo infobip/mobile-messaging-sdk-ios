@@ -69,6 +69,8 @@ public class MMInAppChatService: MobileMessagingService {
     }
     var isChatScreenVisible: Bool = false
     
+    public lazy var api: MMInAppChatWidgetAPIProtocol = MMInAppChatWidgetAPI()
+    
 	init(mmContext: MobileMessaging) {
         self.q = DispatchQueue(label: "chat-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
         self.getWidgetQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
@@ -126,14 +128,14 @@ public class MMInAppChatService: MobileMessagingService {
     public override var systemData: [String: AnyHashable]? {
 		return ["inappchat": true]
 	}
-	weak var webViewDelegate: ChatWebViewDelegate? {
+
+    weak var webViewDelegate: ChatWebViewDelegate? {
 		didSet {
-            webViewDelegate?.didReceiveError(chatErrors)
-			update(withChatWidget: chatWidget)
-		}
+            update(for: webViewDelegate)
+        }
 	}
     
-    public var onRawMessageReceived: ((Any) -> Void)?
+        public var onRawMessageReceived: ((Any) -> Void)?
 
     public override func suspend() {
         NotificationCenter.default.removeObserver(self)
@@ -192,6 +194,11 @@ public class MMInAppChatService: MobileMessagingService {
     public override func appWillEnterForeground(_ completion: @escaping () -> Void) {
         syncWithServer({_ in completion() })
     }
+    
+    func update(for subscriber: WidgetSubscriber?) {
+        subscriber?.didReceiveError(chatErrors)
+        update(withChatWidget: chatWidget, for: subscriber)
+    }
 
     func syncWithServer(_ completion: @escaping (NSError?) -> Void) {
         if MobileMessaging.currentInstallation?.pushRegistrationId != nil {
@@ -235,15 +242,19 @@ public class MMInAppChatService: MobileMessagingService {
 		})
 	}
 	
-	private func update(withChatWidget: ChatWidget?) {
+    private var installationReceivers: [WidgetSubscriber] = []
+    private func update(withChatWidget: ChatWidget?, for subscriber: WidgetSubscriber? = nil) {
 		guard let chatWidget = chatWidget else {
 			return
 		}
 		
         if MobileMessaging.currentInstallation?.pushRegistrationId != nil {
-            webViewDelegate?.didLoadWidget(chatWidget)
+            subscriber?.didLoadWidget(chatWidget)
             obtainChatRegistrations()
 		} else {
+            if let loader = subscriber {
+                installationReceivers.append(loader)
+            }
             NotificationCenter.default.addObserver(self, selector: #selector(notificationInstallationSyncedHandler), name: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil)
 		}
         MMChatSettings.sharedInstance.update(withChatWidget: chatWidget)
@@ -279,7 +290,10 @@ public class MMInAppChatService: MobileMessagingService {
         guard let chatWidget = chatWidget else {
             return
         }
-        self.webViewDelegate?.didLoadWidget(chatWidget)
+        installationReceivers.forEach {
+            $0.didLoadWidget(chatWidget)
+        }
+        installationReceivers.removeAll()
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: MMNotificationInstallationSynced), object: nil)
     }
     
@@ -289,12 +303,11 @@ public class MMInAppChatService: MobileMessagingService {
     }
     
     // MARK: Error handling
-    
     private var chatErrors: ChatErrors = .none {
-            didSet {
-                webViewDelegate?.didReceiveError(chatErrors)
-            }
+        didSet {
+            webViewDelegate?.didReceiveError(chatErrors)
         }
+    }
     private let networkReachabilityManager = NetworkReachabilityManager();
     
    func handleJSError(_ error: String?) {
@@ -364,11 +377,14 @@ struct ContextualData {
     var multiThreadStrategy: MMChatMultiThreadStrategy
 }
 
-protocol ChatWebViewDelegate: AnyObject {
+protocol WidgetSubscriber {
     func didLoadWidget(_ widget: ChatWidget)
+    func didReceiveError(_ errors: ChatErrors)
+}
+
+protocol ChatWebViewDelegate: AnyObject, WidgetSubscriber {
     func didEnableControls(_ enabled: Bool)
     func didShowComposeBar(_ visible: Bool)
-    func didReceiveError(_ errors: ChatErrors)
     func didOpenPreview(forAttachment attachment: ChatWebAttachment)
     func didChangeView(_ state: MMChatWebViewState)
     func sendContextualData(_ contextualData: ContextualData)
@@ -449,7 +465,7 @@ public enum MMChatExceptionDisplayMode: Int {
 }
 
 @objc
-public class MMChatException: NSObject {
+public class MMChatException: NSObject, Error {
     public var code: Int
     public var name: String?
     public var message: String?

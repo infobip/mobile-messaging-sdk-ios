@@ -11,7 +11,7 @@ import MobileCoreServices
 import Photos
 
 protocol ChatAttachmentPickerDelegate: AnyObject {
-    func didSelect(attachment: ChatMobileAttachment)
+    func didSelect(filename: String?, data: Data)
     func permissionNotGranted(permissionKeys: [String]?)
     func validateAttachmentSize(size: Int) -> Bool
     func attachmentSizeExceeded()
@@ -146,7 +146,7 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
             delegate?.attachmentSizeExceeded()
             return
         }
-        delegate?.didSelect(attachment: ChatMobileAttachment(fileName, data: data))
+        delegate?.didSelect(filename: fileName, data: data)
     }
     
     /*Permissions*/

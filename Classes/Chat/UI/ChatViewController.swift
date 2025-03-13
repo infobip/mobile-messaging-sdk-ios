@@ -45,14 +45,21 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         return vc
     }
 
-    var webView: ChatWebView!
-    public private(set) var chatWidget: ChatWidget?
+    private var webViewHandler: ChatWebViewHandler?
+    
+    var webView: ChatWebView! {
+        return webViewHandler?.webView
+    }
+    
+    var chatWidget: ChatWidget? {
+        get { return webViewHandler?.chatWidget }
+        set { webViewHandler?.chatWidget = newValue }
+    }
 
     public var messagesViewFrame: CGRect {
         set {
             webView.frame = newValue
         }
-
         get {
             return webView.frame
         }
@@ -232,9 +239,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
 
     public func showThreadsList() {
-        webView.showThreadsList(completion: { [weak self] error in
+        webViewHandler?.showThreadsList(completion: { [weak self] error in
             if let error = error {
-                self?.logError(error.description)
+                self?.logError(error.localizedDescription)
             }
         })
     }
@@ -261,19 +268,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     public func stopConnection() {
-        webView.pauseChat() { [weak self] error in
-            if let error = error {
-                self?.logError(error.description)
-            }
-        }
+        webViewHandler?.stopConnection()
     }
     
     public func restartConnection() {
-        webView.resumeChat() { [weak self] error in
-            if let error = error {
-                self?.logError(error.description)
-            }
-        }
+        webViewHandler?.restartConnection()
     }
     
     // ChatWebViewDelegate
@@ -327,23 +326,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
 
     public func setLanguage(_ language: MMLanguage, completion: @escaping (_ error: NSError?) -> Void) {
-        weak var wWebView = webView
-        guard let wWebView = wWebView else {
-            MMLanguage.sessionLanguage = language
-            completion(nil)
-            return
-        }
-        wWebView.setLanguage(language, completion: completion)
+        webViewHandler?.setLanguage(language, completion: { error in completion(error as? NSError) })
     }
 
     public func setWidgetTheme(_ themeName: String, completion: @escaping (_ error: NSError?) -> Void) {
-        weak var wWebView = webView
-        guard let wWebView = wWebView else {
-            completion(nil)
-            return
-        }
-        settings?.widgetTheme = themeName
-        wWebView.setTheme(themeName, completion: completion)
+        webViewHandler?.setWidgetTheme(themeName, completion: { error in completion(error as? NSError) })
     }
 
     func didEnableControls(_ enabled: Bool) {
@@ -468,10 +455,12 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     
     // Private
     private func setupWebView() {
-        webView = ChatWebView(frame: view.bounds)
+        let webView = ChatWebView(frame: view.bounds)
         webView.navigationDelegate = self
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(webView)
+        
+        self.webViewHandler = ChatWebViewHandler(webView: webView)
     }
     
     private func setupChatNotAvailableLabel() {
@@ -496,7 +485,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     /// The multiThreadStrategy is entirely optional and we recommented to leave as default ACTIVE.
     @objc public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE,
                                          completion: @escaping (_ error: NSError?) -> Void) {
-        webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
+        webViewHandler?.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: { error in completion(error as? NSError) })
     }
 
     public func didChangeView(_ state: MMChatWebViewState) {
@@ -521,30 +510,20 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     
     // MARK: MMComposeBarDelegate delegate
     public override func sendText(_ text: String, completion: @escaping (_ error: NSError?) -> Void) {
-        guard validateTextLength(size: text.count) else {
-            MMInAppChatService.sharedInstance?.delegate?.textLengthExceeded?(ChatAttachmentUtils.DefaultMaxTextLength)
-            completion(NSError(chatError: MMChatError.messageLengthExceeded(ChatAttachmentUtils.DefaultMaxTextLength)))
-            return
-        }
-        webView.sendMessage(text, attachment: nil, completion: completion)
+        webViewHandler?.sendText(text, completion: { error in completion(error as? NSError) })
     }
     // Sends a draft message to be shown in a chat-to-peer chat.
     public override func sendDraft(_ message: String?, completion: @escaping (NSError?) -> Void) {
-        webView.sendDraft(message, completion: completion)
+        webViewHandler?.sendDraft(message, completion: { error in completion(error as? NSError) })
     }
     
     public override func sendAttachment(_ fileName: String? = nil, data: Data, completion: @escaping (_ error: NSError?) -> Void) {
-        guard validateAttachmentSize(size: data.count) else {
-            attachmentSizeExceeded()
-            completion(NSError(chatError: MMChatError.attachmentSizeExceeded(maxUploadAttachmentSize)))
-            return
-        }
-        webView.sendMessage(nil, attachment: ChatMobileAttachment(fileName, data: data), completion: completion)
+        webViewHandler?.sendAttachment(fileName, data: data, completion: { error in completion(error as? NSError) })
     }
 
     public override func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void) {
         draftPostponer.postponeBlock(delay: userInputDebounceTimeMs) { [weak self] in
-            self?.webView.sendDraft(text, completion: completion)
+            self?.sendDraft(text, completion: completion)
         }
     }
     
@@ -580,8 +559,8 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 }
 
 extension MMChatViewController: ChatAttachmentPickerDelegate {
-    func didSelect(attachment: ChatMobileAttachment) {
-        webView.sendMessage(attachment: attachment)
+    func didSelect(filename: String?, data: Data) {
+        self.sendAttachment(filename, data: data, completion: { _ in })
     }
     
     func permissionNotGranted(permissionKeys: [String]?) {

@@ -113,6 +113,11 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         navigationController?.present(vc, animated: true)
     }
     
+    func onLivechatWidgetAPI()  {
+        let vc = UIHostingController(rootView: LiveChatAPIView())
+        navigationController?.present(vc, animated: true)
+    }
+    
     func presentAndSendContextualData() {
         // We first display the chat, and few seconds later (chat should be loaded and connected) we send
         // some contextual data. More data can be sent asynchronously while the chat is active.
@@ -299,6 +304,8 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
             onChangeColorTheme()
         case .externalChatInputVC:
             onExternalUIKitChat()
+        case .widgetAPI:
+            onLivechatWidgetAPI()
         }
     }
     

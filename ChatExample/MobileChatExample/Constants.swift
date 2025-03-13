@@ -67,7 +67,8 @@ enum AdvancedChatOptions: Int, CaseIterable {
     authenticatedChat,
     personalize,
     depersonalize,
-    changeColorTheme
+    changeColorTheme,
+    widgetAPI
     
     var title: String {
         switch self {
@@ -91,6 +92,8 @@ enum AdvancedChatOptions: Int, CaseIterable {
             return "changeColorTheme"
         case .externalChatInputVC:
             return "externalChatInputVC"
+        case .widgetAPI:
+            return "widgetAPIChat"
         }
     }
 }
