@@ -172,12 +172,104 @@ extension WKWebView: ChatJSWrapper {
             completion(error as? NSError)
         }
     }
+    
+    func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], Error>) -> Void) {
+
+        struct Response: Codable {
+            let data: [MMLiveChatThread]
+        }
+
+        self.evaluateAsyncJavaScript(
+        """
+        const res = await getLivechatSdk().getThreads();
+        return res
+        """, /// We should `return` at least something, native callAsyncJavaScript accept same format
+        completion: {  [weak self] result in
+            switch result {
+            case .success(let value):
+                guard let data = try? JSONSerialization.data(withJSONObject: value),
+                      let result = try? JSONDecoder().decode(Response.self, from: data) else {
+                    
+                    let reasonString = "getThreads failed, unable to parse value: \(value)"
+                    self?.logDebug(reasonString)
+                    completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
+                    
+                    return
+                }
+                completion(.success(result.data))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        })
+    }
+    
+    func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, any Error>) -> Void) {
+
+        struct Response: Codable {
+            let data: MMLiveChatThread
+        }
+
+        self.evaluateAsyncJavaScript(
+        """
+        const res = await getLivechatSdk().getActiveThread();
+        return res
+        """, /// We should `return` at least something, native callAsyncJavaScript accept same format
+        completion: { result in
+            switch result {
+            case .success(let value):
+                guard let data = try? JSONSerialization.data(withJSONObject: value),
+                      let result = try? JSONDecoder().decode(Response.self, from: data) else {
+                    return completion(.success(nil))
+                }
+                completion(.success(result.data))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        })
+    }
+
+    func openThread(threadId: String, completion: @escaping (Swift.Result<MMLiveChatThread, any Error>) -> Void) {
+        
+        struct Response: Codable {
+            let data: MMLiveChatThread
+        }
+
+        guard let id = threadId.javaScriptEscapedString() else {
+            
+            let reasonString = "getThreads failed, invalid threadId: \(threadId)"
+            self.logDebug(reasonString)
+            completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
+            
+            return
+        }
+        
+        self.evaluateAsyncJavaScript(
+        """
+        const res = await getLivechatSdk().getWidget().showThread(\(id));
+        return res
+        """, /// We should `return` at least something, native callAsyncJavaScript accept same format
+        completion: { [weak self] result in
+            switch result {
+            case .success(let value):
+                guard let data = try? JSONSerialization.data(withJSONObject: value),
+                      let result = try? JSONDecoder().decode(Response.self, from: data) else {
+                    
+                    let reasonString = "getThreads failed, unable to parse value: \(value)"
+                    self?.logDebug(reasonString)
+                    completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
+                    
+                    return
+                }
+                completion(.success(result.data))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        })
+    }
 }
 
-extension String
-{
-    func javaScriptEscapedString() -> String?
-    {
+extension String {
+    func javaScriptEscapedString() -> String? {
         let data = try! JSONSerialization.data(withJSONObject:[self], options: [])
 		if let encodedString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
 			return encodedString.substring(with: NSMakeRange(1, encodedString.length - 2))
@@ -185,3 +277,4 @@ extension String
         return nil
     }
 }
+

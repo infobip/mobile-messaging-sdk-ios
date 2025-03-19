@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol ChatWebViewHandlerProtocol: WebViewActions { }
+protocol ChatWebViewHandlerProtocol: MMChatWebViewActions { }
 
 class ChatWebViewHandler: NamedLogger {
     let webView: ChatWebView
@@ -49,6 +49,18 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     
     public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy, completion: @escaping ((any Error)?) -> Void) {
         webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
+    }
+    
+    public func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], Error>) -> Void) {
+        webView.getThreads(completion: completion)
+    }
+    
+    public func openThread(with id: String, completion: @escaping (Swift.Result<MMLiveChatThread, any Error>) -> Void) {
+        webView.openThread(threadId: id, completion: completion)
+    }
+    
+    func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, any Error>) -> Void) {
+        webView.getActiveThread(completion: completion)
     }
     // MARK: - Chat setup
     public func setLanguage(_ language: MMLanguage, completion: @escaping ((any Error)?) -> Void) {

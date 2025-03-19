@@ -1,6 +1,6 @@
 //
 //  MMLoc.swift
-//  ConversationsMobile
+//  MobileMessaging
 //
 //  Created by localiseStrings.sh on 24/10/2023.
 //  Copyright © 2023 Infobip Ltd. All rights reserved.

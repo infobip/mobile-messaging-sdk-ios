@@ -7,8 +7,8 @@
 
 import Foundation
 
-public protocol WebViewActions {
-    
+public protocol MMChatWebViewActions: MMLiveChatThreadsActions {
+
     /// Pauses the chat by closing its socket. As a result, the connection is considered terminated,
     /// and remote push notifications will be delivered to the device.
     /// This is useful when the app moves to the background or becomes inactive.
@@ -40,13 +40,7 @@ public protocol WebViewActions {
     /// - Parameter data: Attachment data
     /// - Parameter completion: A closure called when the operation completes, with an optional error if it fails.
     func sendAttachment(_ fileName: String?, data: Data, completion: @escaping (Error?) -> Void)
-    
-    /// Navigates to the thread list if the widget supports multiple threads.
-    /// Otherwise, this function has no effect.
-    ///
-    /// - Parameter completion: A closure called when the operation completes, with an optional error if it fails.
-    func showThreadsList(completion: @escaping (Error?) -> Void)
-    
+        
     /// Set contextual data of the Livechat Widget.
     ///
     /// - Parameter metadata: The mandatory data, sent as string, in the format of Javascript objects and values (for guidance, it must be accepted by JSON.stringify())
@@ -70,4 +64,31 @@ public protocol WebViewActions {
         _ themeName: String,
         completion: @escaping (Error?) -> Void
     )
+}
+
+public protocol MMLiveChatThreadsActions {
+    /// Returns all currently available threads.
+    ///
+    /// - Parameter completion: A closure called when the operation completes, with a `Result<[MMLiveChatThread], Error>`.
+    ///   On success, it contains an array of threads; otherwise, it contains an error.
+    func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], Error>) -> Void)
+
+    /// Opens the thread with the specified id.
+    ///
+    /// - Parameter id: The thread id.
+    /// - Parameter completion: A closure called when the operation completes, with a `Result<MMLiveChatThread, Error>`.
+    ///   If successful, it returns the opened thread; otherwise, it returns an error.
+    func openThread(with id: String, completion: @escaping (Swift.Result<MMLiveChatThread, Error>) -> Void)
+
+    /// Returns the currently selected thread.
+    ///
+    /// - Parameter completion: A closure called when the operation completes, with a `Result<MMLiveChatThread?, Error>`.
+    ///   It returns the current thread. If no thread is opened, it returns `nil`; otherwise, it contains an error.
+    func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, Error>) -> Void)
+
+    /// Navigates to the thread list if the widget supports multiple threads.
+    /// Otherwise, this function has no effect.
+    ///
+    /// - Parameter completion: A closure called when the operation completes, with an optional error if it fails.
+    func showThreadsList(completion: @escaping (Error?) -> Void)
 }

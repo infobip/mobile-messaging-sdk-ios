@@ -51,7 +51,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         return webViewHandler?.webView
     }
     
-    var chatWidget: ChatWidget? {
+    public private(set) var chatWidget: ChatWidget? {
         get { return webViewHandler?.chatWidget }
         set { webViewHandler?.chatWidget = newValue }
     }
@@ -236,14 +236,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         if let navBarItemsTintColor = settings.navBarItemsTintColor {
             navigationController?.navigationBar.tintColor = navBarItemsTintColor
         }
-    }
-
-    public func showThreadsList() {
-        webViewHandler?.showThreadsList(completion: { [weak self] error in
-            if let error = error {
-                self?.logError(error.localizedDescription)
-            }
-        })
     }
               
     @objc private func onInterceptedBackTap() {
@@ -642,5 +634,31 @@ extension MMChatViewController {
             case .light: return false
             }
         }()
+    }
+}
+
+extension MMChatViewController: MMLiveChatThreadsActions {
+    public func showThreadsList(completion: @escaping ((any Error)?) -> Void) {
+        webViewHandler?.showThreadsList(completion: completion)
+    }
+    
+    public func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], any Error>) -> Void) {
+        webViewHandler?.getThreads(completion: completion)
+    }
+    
+    public func openThread(with id: String, completion: @escaping (Swift.Result<MMLiveChatThread, any Error>) -> Void) {
+        webViewHandler?.openThread(with: id, completion: completion)
+    }
+    
+    public func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, any Error>) -> Void) {
+        webView.getActiveThread(completion: completion)
+    }
+    
+    public func showThreadsList() {
+        webViewHandler?.showThreadsList(completion: { [weak self] error in
+            if let error = error {
+                self?.logError(error.localizedDescription)
+            }
+        })
     }
 }

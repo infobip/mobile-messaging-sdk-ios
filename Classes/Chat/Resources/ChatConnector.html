@@ -22,7 +22,8 @@
            const widgetId = getQueryParameter('widgetId');
            const domain = getQueryParameter('domain');
            let prodURL = 'https://livechat.infobip.com/widget.js';
-
+           let livechatSdk = null;
+           
            function isNullOrBlank(value) {
                return !value?.toString().trim()
            }
@@ -72,6 +73,17 @@
                }
             }
 
+           function initPropagationAndShowingChat(error, result) {
+                   propageError(error, 'init()')
+                   if(!error) {
+                       liveChat('show', null, onShowCallback,
+                            function(error, result) {
+                                propageError(error, 'show()')
+                            });
+                       window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
+                   }
+           }
+
             // identify the user by pushRegistrationId and, optionally, a JSON Web Token
             liveChat('identify', inputParams, function(error, result) {
                 if (error) {
@@ -79,20 +91,11 @@
                 } else {
                    if(!isNullOrBlank(domain)) {
                        liveChat('init', { widgetId: widgetId, domain: domain },
-                            function(error, result) {
-                                propageError(error, 'init()')
-                            });
+                                initPropagationAndShowingChat(error, result));
                    } else {
-                       liveChat('init',
-                            function(error, result) {
-                                propageError(error, 'init()')
-                            });
+                       liveChat('init', widgetId,
+                                initPropagationAndShowingChat(error, result));
                    }
-                   liveChat('show', null, onShowCallback,
-                        function(error, result) {
-                            propageError(error, 'show()')
-                        });
-                   window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
                 }
             });
            
@@ -105,7 +108,7 @@
            }
            
            function onMessageReceived() {
-               const liveChatSDK = new LiveChatSDK();
+               const liveChatSDK = getLivechatSdk();
                liveChatSDK.on('messageReceived', (payload) => {
                    console.log(payload)
                    window.webkit.messageHandlers.onMessageEvent.postMessage(payload);
@@ -159,6 +162,16 @@
                liveChat('set_theme', themeName);
            }
 
+           function getLivechatSdk() {
+               if (!livechatSdk) {
+                   try {
+                       livechatSdk = new LiveChatSDK();
+                   } catch (e) {
+                       throw e;
+                   }
+               }
+               return livechatSdk;
+           }
 	   </script>
    </body>
 </html>

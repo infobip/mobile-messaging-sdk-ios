@@ -21,9 +21,9 @@
 		25C335DC2D81CDED00624BAC /* ChatWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C335DA2D81CDED00624BAC /* ChatWebView.swift */; };
 		25C335DD2D81CDED00624BAC /* ChatJSWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C335D92D81CDED00624BAC /* ChatJSWrapper.swift */; };
 		25C335DE2D81CDED00624BAC /* ChatJSMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C335D82D81CDED00624BAC /* ChatJSMessageHandler.swift */; };
-		25C335E32D81CE0400624BAC /* InAppChatAPi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C335E12D81CE0400624BAC /* InAppChatAPi.swift */; };
 		25C335E42D81CE0400624BAC /* ChatWebViewHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C335DF2D81CE0400624BAC /* ChatWebViewHandler.swift */; };
 		25C335E52D81CE0400624BAC /* ChatWebViewHandlerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C335E02D81CE0400624BAC /* ChatWebViewHandlerProtocol.swift */; };
+		25FBD4422D834F4200A2AD9E /* AsyncJSExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25FBD4412D834F4200A2AD9E /* AsyncJSExecutor.swift */; };
 		29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 678B9956A3F9356BB03269CCEE1C7E97 /* MobileMessaging-dummy.m */; };
 		2DB0698D631E361433379DEF06D8206A /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */; };
 		3659D846292B5A4E00D6ECF8 /* MMWebRTCSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */; };
@@ -291,6 +291,7 @@
 		A8CBD7DA292CCDA200322961 /* PIPKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CF292CCDA200322961 /* PIPKit.swift */; };
 		A8CBD7DB292CCDA200322961 /* PIPUsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7D0292CCDA200322961 /* PIPUsable.swift */; };
 		A8F1EAB62BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */; };
+		A8FF1E122D842113003D66C8 /* LiveChatAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FF1E112D842112003D66C8 /* LiveChatAPI.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
 		D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D8601249D4FAAD2A589A3D /* UserDataService.swift */; };
 		E82568AF2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */; };
@@ -313,7 +314,7 @@
 		25C335DA2D81CDED00624BAC /* ChatWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWebView.swift; sourceTree = "<group>"; };
 		25C335DF2D81CE0400624BAC /* ChatWebViewHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWebViewHandler.swift; sourceTree = "<group>"; };
 		25C335E02D81CE0400624BAC /* ChatWebViewHandlerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWebViewHandlerProtocol.swift; sourceTree = "<group>"; };
-		25C335E12D81CE0400624BAC /* InAppChatAPi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppChatAPi.swift; sourceTree = "<group>"; };
+		25FBD4412D834F4200A2AD9E /* AsyncJSExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncJSExecutor.swift; sourceTree = "<group>"; };
 		3659D845292B5A4E00D6ECF8 /* MMWebRTCSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMWebRTCSettings.swift; sourceTree = "<group>"; };
 		367B1A992918F3640081983C /* MMLoc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMLoc.swift; sourceTree = "<group>"; };
 		37333A54A8B807D53AD68E200638BAC7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -657,6 +658,7 @@
 		A8CBD7D0292CCDA200322961 /* PIPUsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPUsable.swift; sourceTree = "<group>"; };
 		A8CE8ACD285C6E03000CC98F /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
 		A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Classes/MobileMessaging/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
+		A8FF1E112D842112003D66C8 /* LiveChatAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveChatAPI.swift; sourceTree = "<group>"; };
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		D7D8601249D4FAAD2A589A3D /* UserDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
@@ -728,6 +730,7 @@
 				25C335D82D81CDED00624BAC /* ChatJSMessageHandler.swift */,
 				25C335D92D81CDED00624BAC /* ChatJSWrapper.swift */,
 				25C335DA2D81CDED00624BAC /* ChatWebView.swift */,
+				25FBD4412D834F4200A2AD9E /* AsyncJSExecutor.swift */,
 			);
 			path = WebView;
 			sourceTree = "<group>";
@@ -735,9 +738,9 @@
 		25C335E22D81CE0400624BAC /* ChatCore */ = {
 			isa = PBXGroup;
 			children = (
+				A8FF1E112D842112003D66C8 /* LiveChatAPI.swift */,
 				25C335DF2D81CE0400624BAC /* ChatWebViewHandler.swift */,
 				25C335E02D81CE0400624BAC /* ChatWebViewHandlerProtocol.swift */,
-				25C335E12D81CE0400624BAC /* InAppChatAPi.swift */,
 			);
 			path = ChatCore;
 			sourceTree = "<group>";
@@ -1643,7 +1646,6 @@
 				A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */,
 				7645568B1F78FF6500B8F14B /* MessageManagedObject+CoreDataProperties.swift in Sources */,
 				A8171FCA2ADE5D3500AC6FC4 /* MMCallController.swift in Sources */,
-				25C335E32D81CE0400624BAC /* InAppChatAPi.swift in Sources */,
 				25C335E42D81CE0400624BAC /* ChatWebViewHandler.swift in Sources */,
 				25C335E52D81CE0400624BAC /* ChatWebViewHandlerProtocol.swift in Sources */,
 				A0672BEF2AC1A4C0005EDCD9 /* WebInAppBannerManager.swift in Sources */,
@@ -1678,6 +1680,7 @@
 				76C3C99C23D1F4A300562C57 /* UserSessionsReportingOperation.swift in Sources */,
 				A8CBD7D5292CCDA200322961 /* AVPIPKitVideoController.swift in Sources */,
 				76978E2625C30C1200912DB4 /* BaseUrlManager.swift in Sources */,
+				25FBD4422D834F4200A2AD9E /* AsyncJSExecutor.swift in Sources */,
 				3659D846292B5A4E00D6ECF8 /* MMWebRTCSettings.swift in Sources */,
 				7617505E23351827000438A8 /* TaskDelegate.swift in Sources */,
 				7650DC3C244EEB480016233D /* CPLabel.swift in Sources */,
@@ -1736,6 +1739,7 @@
 				A8171FCB2ADE5D3500AC6FC4 /* MediaCallViewHeader.swift in Sources */,
 				A843A43C28F5A6D700D5196F /* MMCallNotificationData.swift in Sources */,
 				764556B61F78FF9D00B8F14B /* MMNotificationAction.swift in Sources */,
+				A8FF1E122D842113003D66C8 /* LiveChatAPI.swift in Sources */,
 				764556841F78FF5D00B8F14B /* MMResponses.swift in Sources */,
 				022BFEB42CC1449F00BB30B5 /* WebInAppClickObject.swift in Sources */,
 				022BFEB52CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift in Sources */,

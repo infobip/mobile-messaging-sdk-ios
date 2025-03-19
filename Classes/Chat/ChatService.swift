@@ -355,7 +355,7 @@ public class MMInAppChatService: MobileMessagingService {
     internal var contextualData: ContextualData?
     
     
-    ///  Send contextual metadata of conversation and a InAppChatMultiThreadFlag flag
+    ///  Send contextual metadata and an InAppChatMultiThreadFlag flag
     ///
     /// - Parameter metadata: Contextual data in JSON format.
     /// - Parameter multiThreadStrategy: `ALL` metadata sent to all non-closed conversations for a widget. `ACTIVE` metadata sent to active only conversation for a widget.

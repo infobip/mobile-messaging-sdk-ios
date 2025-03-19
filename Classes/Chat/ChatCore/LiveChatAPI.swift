@@ -1,5 +1,5 @@
 //
-//  LiveChatAPi.swift
+//  LiveChatAPI.swift
 //  InfobipMobileMessaging
 //
 //  Created by Maksym Svitlovskyi on 20/02/2025.
@@ -8,7 +8,36 @@
 import Foundation
 import WebKit
 
-public protocol MMInAppChatWidgetAPIProtocol: WebViewActions {
+public struct MMLiveChatThread: Codable {
+    public let id: String
+    public let conversationId: String
+    public let status: Status
+
+    public enum Status: String, Codable {
+        case open = "OPEN"
+        case solved = "SOLVED"
+        case closed = "CLOSED"
+        case unknown = "UNKNOWN"
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let statusString = try container.decode(String.self)
+
+            switch statusString.uppercased() {
+            case "OPEN":
+                self = .open
+            case "SOLVED":
+                self = .solved
+            case "CLOSED":
+                self = .closed
+            default:
+                self = .unknown
+            }
+        }
+    }
+}
+
+public protocol MMInAppChatWidgetAPIProtocol: MMChatWebViewActions {
 
     var delegate: MMInAppChatWidgetAPIDelegate? { get set }
     
@@ -40,11 +69,11 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
     private var pendingActions: [(Error?) -> Void] = []
     
     weak var delegate: MMInAppChatWidgetAPIDelegate?
-    
+    var currentViewState = MMChatWebViewState.unknown
+
     func loadWidget() {
         chatHandler.webView.navigationDelegate = self
         MMInAppChatService.sharedInstance?.update(for: self)
-        pendingActions.append({ _ in })
     }
 
     func stopConnection() {
@@ -155,6 +184,42 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
         }
     }
     
+    func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], Error>) -> Void) {
+        ensureWidgetLoaded { [weak self] error in
+            guard let self else { return }
+            guard let error = error else {
+                chatHandler.getThreads(completion: completion)
+                return
+            }
+            
+            self.logError(error.localizedDescription)
+        }
+    }
+    
+    func openThread(with id: String, completion: @escaping (Swift.Result<MMLiveChatThread, any Error>) -> Void) {
+        ensureWidgetLoaded { [weak self] error in
+            guard let self else { return }
+            guard let error = error else {
+                chatHandler.openThread(with: id, completion: completion)
+                return
+            }
+            
+            self.logError(error.localizedDescription)
+        }
+    }
+    
+    func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, any Error>) -> Void) {
+        ensureWidgetLoaded { [weak self] error in
+            guard let self else { return }
+            guard let error = error else {
+                chatHandler.getActiveThread(completion: completion)
+                return
+            }
+            
+            self.logError(error.localizedDescription)
+        }
+    }
+    
     func reset() {
         pendingActions.removeAll()
         chatHandler.stopConnection()
@@ -163,29 +228,40 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
     }
     // MARK: - Utility methods
     private func ensureWidgetLoaded(completion: @escaping (Error?) -> Void) {
-        lock.lock()
+        Thread { [weak self] in
+            self?.lock.lock()
 
-        if chatHandler.webView.isLoaded {
-            completion(nil)
-            lock.unlock()
-            return
-        }
+            if self?.currentViewState != .unknown {
+                completion(nil)
+                self?.lock.unlock()
+                return
+            }
 
-        let isFirstAction = pendingActions.isEmpty
-        pendingActions.append(completion)
-        
-        if isFirstAction {
-            self.loadWidget()
-        }
+            let isFirstAction = self?.pendingActions.isEmpty ?? false
+            self?.pendingActions.append(completion)
 
-        lock.unlock()
+            if isFirstAction {
+                DispatchQueue.mmEnsureMain {
+                    self?.loadWidget()
+                }
+            }
+
+            self?.lock.unlock()
+        }.start()
     }
     
     private func didLoadWidget(with error: Error?) {
-        self.pendingActions.forEach { $0(error) }
-        self.pendingActions.removeAll()
+        guard let error = error else { return } // we want to propagate errors only. Successful widget loads require the proper view state update
+        triggerPendingActions(with: error)
     }
-    
+
+    func triggerPendingActions(with error: Error?) {
+        DispatchQueue.main.async {
+            self.pendingActions.forEach { $0(error) }
+            self.pendingActions.removeAll()
+        }
+    }
+
     internal func sendCachedContextData() {
         guard let contextualData = MMInAppChatService.sharedInstance?.contextualData else {
             return
@@ -246,10 +322,17 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
             }
 
             let state = jsMessage.state
-            
+            if currentViewState == .unknown, state != .unknown {
+                // In case actions are pending, we finally trigger them successfully if the view state just became valid.
+                triggerPendingActions(with: nil)
+            }
+            currentViewState = state
+
             if state != .loading && state != .loadingThread && state != .unknown {
                 sendCachedContextData()
-                didLoadWidget(with: nil)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: { [weak self] in /// Thread methods require some delay, even If it's loaded
+                    self?.didLoadWidget(with: nil)
+                })
             }
             
             delegate?.didChangeState(to: state)
