@@ -179,29 +179,26 @@ extension MMWebRTCService: PKPushRegistryDelegate {
 }
 
 extension MMWebRTCService: ApplicationCallEventListener, WebrtcCallEventListener {
-    public func onCallRecordingStarted(_ callRecordingStartedEvent: CallRecordingStartedEvent) {
-
-    }
     
-    public func onCallRecordingStopped(_ callRecordingStoppedEvent: CallRecordingStoppedEvent) {
-
-    }
+    public func onParticipantDisconnected(_ participantDisconnectedEvent: ParticipantDisconnectedEvent) { }
     
-    public func onDialogRecordingStarted(_ dialogRecordingStartedEvent: DialogRecordingStartedEvent) {
-
-    }
+    public func onParticipantReconnected(_ participantReconnectedEvent: ParticipantReconnectedEvent) { }
     
-    public func onDialogRecordingStopped(_ dialogRecordingStoppedEvent: DialogRecordingStoppedEvent) {
-
-    }
+    public func onRemoteDisconnected(_ remoteDisconnectedEvent: RemoteDisconnectedEvent) { }
     
-    public func onConferenceRecordingStarted(_ conferenceRecordingStartedEvent: ConferenceRecordingStartedEvent) {
-
-    }
+    public func onRemoteReconnected(_ remoteReconnectedEvent: RemoteReconnectedEvent) { }
     
-    public func onConferenceRecordingStopped(_ conferenceRecordingStoppedEvent: ConferenceRecordingStoppedEvent) {
-
-    }
+    public func onCallRecordingStarted(_ callRecordingStartedEvent: CallRecordingStartedEvent) { }
+    
+    public func onCallRecordingStopped(_ callRecordingStoppedEvent: CallRecordingStoppedEvent) { }
+    
+    public func onDialogRecordingStarted(_ dialogRecordingStartedEvent: DialogRecordingStartedEvent) { }
+    
+    public func onDialogRecordingStopped(_ dialogRecordingStoppedEvent: DialogRecordingStoppedEvent) { }
+    
+    public func onConferenceRecordingStarted(_ conferenceRecordingStartedEvent: ConferenceRecordingStartedEvent) { }
+    
+    public func onConferenceRecordingStopped(_ conferenceRecordingStoppedEvent: ConferenceRecordingStoppedEvent) { }
     
     @objc public func onRemoteCameraVideoAdded(_ cameraVideoAddedEvent: CameraVideoAddedEvent) { }
 

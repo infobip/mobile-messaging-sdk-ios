@@ -238,6 +238,14 @@ class MMCallEventListener: CallEventListener, ApplicationCallEventListener, Webr
     @objc func onConferenceRecordingStarted(_ conferenceRecordingStartedEvent: ConferenceRecordingStartedEvent) { }
 
     @objc func onConferenceRecordingStopped(_ conferenceRecordingStoppedEvent: ConferenceRecordingStoppedEvent) { }
+    
+    func onParticipantDisconnected(_ participantDisconnectedEvent:  ParticipantDisconnectedEvent) { }
+    
+    func onParticipantReconnected(_ participantReconnectedEvent: ParticipantReconnectedEvent) { }
+    
+    func onRemoteDisconnected(_ remoteDisconnectedEvent: RemoteDisconnectedEvent) { }
+    
+    func onRemoteReconnected(_ remoteReconnectedEvent: RemoteReconnectedEvent) { }
 }
 
 protocol AggregatedCallEventListener {
