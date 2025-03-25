@@ -31,8 +31,7 @@ class CopyableCell: UITableViewCell {
 		becomeFirstResponder()
 		let menu = UIMenuController.shared
 		if !menu.isMenuVisible {
-			menu.setTargetRect(self.bounds, in: self)
-			menu.setMenuVisible(true, animated: true)
+            menu.showMenu(from: self, rect: bounds)
 		}
     }
 	
@@ -41,7 +40,7 @@ class CopyableCell: UITableViewCell {
 			return
 		}
 		UIPasteboard.general.string = text
-		UIMenuController.shared.setMenuVisible(false, animated: true)
+        UIMenuController.shared.hideMenu()
 	}
 	
 	override var canBecomeFirstResponder: Bool {

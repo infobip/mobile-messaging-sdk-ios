@@ -97,4 +97,3 @@ struct LiveChatViewControllerRepresentable: UIViewControllerRepresentable {
         }
     }
 }
-

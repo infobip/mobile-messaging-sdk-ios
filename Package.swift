@@ -5,7 +5,7 @@ let package = Package(
     name: "InfobipMobileMessaging",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v12)
+        .iOS(.v13)
     ],
     products: [
         .library(

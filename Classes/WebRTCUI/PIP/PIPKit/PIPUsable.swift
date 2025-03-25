@@ -34,7 +34,6 @@ public protocol MMPIPUsable {
     var pipEdgeInsets: UIEdgeInsets { get }
     var pipSize: CGSize { get }
     var pipShadow: PIPShadow? { get }
-    @available(iOS 13.0, *)
     var pipCorner: PIPCorner? { get }
     var isInitiatedWithPIP: Bool { get set }
     func didChangedState(_ state: PIPState)
@@ -48,13 +47,8 @@ public extension MMPIPUsable {
     var pipEdgeInsets: UIEdgeInsets { return UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15) }
     var pipSize: CGSize { return CGSize(width: 200.0, height: (200.0 * 9.0) / 16.0) }
     var pipShadow: PIPShadow? { return PIPShadow(color: .black, opacity: 0.3, offset: CGSize(width: 0, height: 8), radius: 10) }
-    @available(iOS 13.0, *)
     var pipCorner: PIPCorner? {
-        if #available(iOS 13.0, *) {
-            return PIPCorner(radius: 6, curve: .continuous)
-        } else {
-            return PIPCorner(radius: 6, curve: nil)
-        }
+        return PIPCorner(radius: 6, curve: .continuous)
     }
     func didChangedState(_ state: PIPState) {}
     func didChangePosition(_ position: PIPPosition) {}

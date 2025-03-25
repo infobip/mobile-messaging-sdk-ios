@@ -112,15 +112,13 @@ final class PIPKitEventDispatcher {
             rootViewController?.view.layer.shadowRadius = pipShadow.radius
         }
         
-        if #available(iOS 13.0, *) {
-            if let pipCorner = rootViewController?.pipCorner {
-                rootViewController?.view.layer.cornerRadius = pipCorner.radius
-                if let curve = pipCorner.curve {
-                    rootViewController?.view.layer.cornerCurve = curve
-                }
+        if let pipCorner = rootViewController?.pipCorner {
+            rootViewController?.view.layer.cornerRadius = pipCorner.radius
+            if let curve = pipCorner.curve {
+                rootViewController?.view.layer.cornerCurve = curve
             }
         }
-        
+
         deviceNotificationObserver = NotificationCenter.default.addObserver(
             forName: UIDevice.orientationDidChangeNotification,
             object: nil,
@@ -162,12 +160,10 @@ final class PIPKitEventDispatcher {
         let pipEdgeInsets = rootViewController.pipEdgeInsets
         var edgeInsets = UIEdgeInsets.zero
         
-        if #available(iOS 11.0, *) {
-            if rootViewController.insetsPIPFromSafeArea {
-                edgeInsets = window.safeAreaInsets
-            }
+        if rootViewController.insetsPIPFromSafeArea {
+            edgeInsets = window.safeAreaInsets
         }
-        
+
         switch pipPosition {
         case .topLeft:
             origin.x = edgeInsets.left + pipEdgeInsets.left
@@ -201,12 +197,8 @@ final class PIPKitEventDispatcher {
         }
         
         let center = rootViewController.view.center
-        var safeAreaInsets = UIEdgeInsets.zero
-        
-        if #available(iOS 11.0, *) {
-            safeAreaInsets = window.safeAreaInsets
-        }
-        
+        var safeAreaInsets =  window.safeAreaInsets
+
         let vh = (window.frame.height - (safeAreaInsets.top + safeAreaInsets.bottom)) / 3.0
         
         switch center.y {
@@ -241,10 +233,8 @@ final class PIPKitEventDispatcher {
             let pipEdgeInsets = rootViewController.pipEdgeInsets
             var edgeInsets = UIEdgeInsets.zero
             
-            if #available(iOS 11.0, *) {
-                if rootViewController.insetsPIPFromSafeArea {
-                    edgeInsets = window.safeAreaInsets
-                }
+            if rootViewController.insetsPIPFromSafeArea {
+                edgeInsets = window.safeAreaInsets
             }
             
             var offset = startOffset

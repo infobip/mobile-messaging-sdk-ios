@@ -86,11 +86,11 @@ extension UIView {
 }
 
 func showAlertInRootVC(_ error: NSError) {
-    UIApplication.shared.keyWindow!.rootViewController?.showAlert(error)
+    UIApplication.shared.firstKeyWindow!.rootViewController?.showAlert(error)
 }
 
 func showAlertInRootVC(_ title: String, message: String) {
-    UIApplication.shared.keyWindow!.rootViewController?.showAlert(title, message: message)
+    UIApplication.shared.firstKeyWindow!.rootViewController?.showAlert(title, message: message)
 }
 
 protocol ChatSettingsApplicable: NSObjectProtocol {

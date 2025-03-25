@@ -106,7 +106,7 @@ extension Archivable where Self: NSCopying {
 		archiveCurrent()
 	}
     public func archiveDirty() {
-        if var copy = self.copy() as? Self {
+        if let copy = self.copy() as? Self {
 			copy.version = version + 1
 			let old = Self.unarchiveDirty()
             MMLogVerbose("Setting cached value \(Thread.current.description) \(self) \(Self.dirtyPath)")

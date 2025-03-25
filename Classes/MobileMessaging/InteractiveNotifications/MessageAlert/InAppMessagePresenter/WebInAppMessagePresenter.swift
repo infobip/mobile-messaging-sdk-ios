@@ -18,14 +18,14 @@ class WebInAppMessagePresenter: NamedLogger,
                                 InAppMessageDelegate {
     private var appWindow: UIWindow? {
         get {
-            if #available(iOS 13.0, *) {
-                return UIApplication.shared.connectedScenes
-                    .first { $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive }
-                    .map { $0 as? UIWindowScene }
-                    .flatMap { $0?.windows.first } ?? UIApplication.shared.delegate?.window ?? UIApplication.shared.keyWindow
+            let activeScene = UIApplication.shared.connectedScenes.first {
+                $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive
             }
             
-            return UIApplication.shared.delegate?.window ?? nil
+            if let windowScene = activeScene as? UIWindowScene {
+                return windowScene.windows.first
+            }
+            return nil
         }
     }
     

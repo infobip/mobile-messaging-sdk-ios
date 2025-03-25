@@ -54,7 +54,7 @@ final class ServicesSynchronizationTests: MMTestCase {
         weak var messagesSynced = self.expectation(description: "messages synced with server")
         weak var chatSynced = self.expectation(description: "chat synced with server")
         
-        var mm = ServicesSynchronizationTests.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+        let mm = ServicesSynchronizationTests.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 
         let userServiceMock = UserDataServiceMock(mmContext: mm)
         userServiceMock.syncCompletion = {

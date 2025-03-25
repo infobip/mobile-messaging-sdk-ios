@@ -347,7 +347,7 @@ class MessageStorageStub: NSObject, MMMessageStorage, MMMessageStorageFinders, M
         completion()
     }
     func findMessage(withId messageId: MessageId) -> MMBaseMessage? {
-        if let idx = moMessages.index(where: { $0.messageId == messageId }) {
+        if let idx = moMessages.firstIndex(where: { $0.messageId == messageId }) {
             return MMBaseMessage(messageId: moMessages[idx].messageId, direction: .MO, originalPayload: ["messageId": moMessages[idx].messageId], deliveryMethod: .undefined)
         } else {
             return nil

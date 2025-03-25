@@ -60,15 +60,18 @@ public class ServerTrustPolicyManager {
 
 extension URLSession {
     private struct AssociatedKeys {
-        static var managerKey = "URLSession.ServerTrustPolicyManager"
+        static let managerKey = "URLSession.ServerTrustPolicyManager"
     }
 
     var serverTrustPolicyManager: ServerTrustPolicyManager? {
         get {
-            return objc_getAssociatedObject(self, &AssociatedKeys.managerKey) as? ServerTrustPolicyManager
+            return objc_getAssociatedObject(self, UnsafeRawPointer(bitPattern: AssociatedKeys.managerKey.hashValue)!) as? ServerTrustPolicyManager
         }
-        set (manager) {
-            objc_setAssociatedObject(self, &AssociatedKeys.managerKey, manager, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        set {
+            objc_setAssociatedObject(self,
+                                   UnsafeRawPointer(bitPattern: AssociatedKeys.managerKey.hashValue)!,
+                                   newValue,
+                                   .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 }
@@ -240,20 +243,8 @@ enum ServerTrustPolicy {
     // MARK: - Private - Trust Validation
 
     private func trustIsValid(_ trust: SecTrust) -> Bool {
-        var isValid = false
-
-        var result = SecTrustResultType.invalid
-        let status = SecTrustEvaluate(trust, &result)
-
-        if status == errSecSuccess {
-            let unspecified = SecTrustResultType.unspecified
-            let proceed = SecTrustResultType.proceed
-
-
-            isValid = result == unspecified || result == proceed
-        }
-
-        return isValid
+        var error: CFError?
+        return SecTrustEvaluateWithError(trust, &error)
     }
 
     // MARK: - Private - Certificate Data

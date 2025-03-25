@@ -9,7 +9,7 @@ Mobile Messaging SDK is designed and developed to easily enable push notificatio
 ## Requirements
 - Xcode 16+
 - Swift 5.0
-- iOS 12.0+
+- iOS 13.0+
 
 ## Quick start guide
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application. 

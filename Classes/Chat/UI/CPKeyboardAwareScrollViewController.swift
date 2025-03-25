@@ -40,11 +40,9 @@ open class MMKeyboardAwareScrollViewController : MMKeyboardAwareViewController {
     
     open override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        if #available(iOS 11.0, *) {
-            if safeAreaInsets != view.safeAreaInsets {
-                safeAreaInsets = view.safeAreaInsets
-                updateViewsFor(safeAreaInsets: safeAreaInsets, safeAreaLayoutGuide: view.safeAreaLayoutGuide)
-            }
+        if safeAreaInsets != view.safeAreaInsets {
+            safeAreaInsets = view.safeAreaInsets
+            updateViewsFor(safeAreaInsets: safeAreaInsets, safeAreaLayoutGuide: view.safeAreaLayoutGuide)
         }
     }
     

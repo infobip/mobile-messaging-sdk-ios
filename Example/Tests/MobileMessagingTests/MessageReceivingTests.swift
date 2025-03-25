@@ -81,7 +81,13 @@ func apnsSilentMessagePayload(_ messageId: String) -> [AnyHashable: Any] {
 }
 
 class MessageReceivingTests: MMTestCase {
-	
+    private class func findTestWindow() -> UIWindow {
+        let windowScene = UIApplication.shared.connectedScenes.first {
+            $0.activationState == .foregroundActive
+        } as! UIWindowScene
+        return windowScene.windows.first!
+    }
+    
 	func testLocalizedUserNotificationStringOrFallback() {
 		XCTAssertEqual(String.localizedUserNotificationStringOrFallback(key: "LOCALIZABLE_MESSAGE_KEY", args: ["args"], fallback: "fallback"), "A localizable message with a placeholder args")
 		XCTAssertEqual(String.localizedUserNotificationStringOrFallback(key: "LOCALIZABLE_MESSAGE_KEY", args: nil, 		fallback: "fallback"), "A localizable message with a placeholder %@")
@@ -563,7 +569,7 @@ class MessageReceivingTests: MMTestCase {
 			}
 			func inAppPresentingViewController(for message: MM_MTMessage) -> UIViewController? {
 				XCTAssertEqual("http://www.hello.com", message.webViewUrl?.absoluteString)
-				return UIApplication.shared.keyWindow?.rootViewController
+                return MessageReceivingTests.findTestWindow().rootViewController
 			}
 		}
 
@@ -605,7 +611,7 @@ class MessageReceivingTests: MMTestCase {
 			}
             func inAppPresentingViewController(for message: MM_MTMessage) -> UIViewController? {
 				XCTFail()
-				return UIApplication.shared.keyWindow?.rootViewController
+                return MessageReceivingTests.findTestWindow().rootViewController
 			}
 		}
 
@@ -644,7 +650,7 @@ class MessageReceivingTests: MMTestCase {
 			}
             func inAppPresentingViewController(for message: MM_MTMessage) -> UIViewController? {
 				XCTFail()
-				return UIApplication.shared.keyWindow?.rootViewController
+                return MessageReceivingTests.findTestWindow().rootViewController
 			}
 		}
 

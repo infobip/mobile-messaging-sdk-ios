@@ -11,6 +11,15 @@ import MobileMessaging
 var supportedViewControllers: [DeeplinkLandingViewController.Type] = [RedViewController.self, GreenViewController.self, BlueViewController.self]
 
 class LinksHandler {
+    private class func findActiveWindow() -> UIWindow? {
+        guard let scene = UIApplication.shared.connectedScenes
+            .first(where: { ($0 as? UIWindowScene)?.activationState == .foregroundActive }) as? UIWindowScene
+        else {
+            return nil
+        }
+        return scene.windows.first
+    }
+	
 	class func handleLinks(fromMessage message: MM_MTMessage) {
 		
 		//checking do we have "deeplink" in message object
@@ -55,7 +64,7 @@ class LinksHandler {
 		let viewController = viewControllerType.init()
 		
 		//present viewController modally
-        if let visibleVC = UIApplication.shared.keyWindow?.visibleViewController {
+        if let visibleVC = findActiveWindow()?.visibleViewController {
             visibleVC.present(viewController, animated: true, completion: {
                 if let viewController = viewController as? DeeplinkLandingViewController,
                    let message = message {

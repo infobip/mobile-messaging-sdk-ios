@@ -1,6 +1,6 @@
 source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
-platform :ios, '12.0'
+platform :ios, '13.0'
 
 $podName = 'MobileMessaging'
 $chatPodName = 'MobileMessaging/InAppChat'
@@ -29,8 +29,9 @@ end
 
 post_install do |installer|
 	installer.pods_project.targets.each do |target|
-		if target.name == 'MobileMessaging'
-			target.build_configurations.each do |config|
+		target.build_configurations.each do |config|
+		        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+			if target.name == 'MobileMessaging'
 				config.build_settings['ENABLE_TESTABILITY'] = 'YES' # for this particular project we want the SDK to be testable
 				config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
 			end
@@ -40,8 +41,7 @@ post_install do |installer|
     if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
       target.build_configurations.each do |config|
         config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
-
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       end
     end
 	end

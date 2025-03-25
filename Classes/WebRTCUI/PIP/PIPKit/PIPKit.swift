@@ -44,7 +44,6 @@ public struct PIPShadow {
     }
 }
 
-@available(iOS 13.0, *)
 public struct PIPCorner {
     public let radius: CGFloat
     public let curve: CALayerCornerCurve?
@@ -89,7 +88,6 @@ public final class PIPKit {
     static private var rootViewController: PIPKitViewController?
     static private var pipWindow: UIWindow?
 
-    @available(iOS 13.0, *)
     static var keyWindow: UIWindowScene? {
         let windowScenes = UIApplication.shared
             .connectedScenes
@@ -107,20 +105,15 @@ public final class PIPKit {
             return
         }
         
-        let newWindow: PIPKitWindow
-        
-        if #available(iOS 13.0, *) {
-            if let keyWindow = keyWindow {
-                newWindow = PIPKitWindow(windowScene: keyWindow)
-            } else {
-                // We are unable to present our UI, system call will remain
-                completion?()
-                return
-            }
+        let newWindow: PIPKitWindow        
+        if let keyWindow = keyWindow {
+            newWindow = PIPKitWindow(windowScene: keyWindow)
         } else {
-            newWindow = PIPKitWindow()
+            // We are unable to present our UI, system call will remain
+            completion?()
+            return
         }
-        
+
         newWindow.backgroundColor = .clear
         newWindow.rootViewController = viewController
         newWindow.windowLevel = .alert

@@ -27,6 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     "<# your application code #>",
                     notificationType: MMUserNotificationType(options: [.alert, .sound]))?
                 .withInteractiveNotificationCategories(customCategories)
+                .withFullFeaturedInApps()
                 .start()
         }
         UIToolbar.setupAppearance()

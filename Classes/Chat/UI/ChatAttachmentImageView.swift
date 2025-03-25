@@ -17,12 +17,8 @@ class ChatAttachmentPreview: UIView {
     lazy var activityIndicatior: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(frame: bounds)
         activityIndicator.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
-        if #available(iOS 13, *) {
-            activityIndicator.color = vTintColor
-            activityIndicator.style = .large
-        } else {
-            activityIndicator.style = .whiteLarge
-        }
+        activityIndicator.color = vTintColor
+        activityIndicator.style = .large
         return activityIndicator
     }()
     

@@ -37,13 +37,11 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.barTintColor = .white
         navigationController?.navigationBar.backgroundColor = .white
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .white
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .white
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
     
     @IBAction func onSegmentedChanged(_ sender: Any) {

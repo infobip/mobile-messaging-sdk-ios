@@ -9,7 +9,6 @@ import UIKit
 import CoreData
 
 final class MessagesSyncOperation: GroupOperation {
-	static var loggerName: String = String(describing: self)
 	let context: NSManagedObjectContext
 	let finishBlock: ((NSError?) -> Void)?
 	let mmContext: MobileMessaging

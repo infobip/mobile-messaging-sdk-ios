@@ -11,11 +11,7 @@ import Intents
 
 extension NSUserActivity {
     var startCallHandle: String? {
-        if #available(iOS 13.0, *) {
-            return (interaction?.intent as? INStartCallIntent)?.contacts?.first?.personHandle?.value
-        } else {
-            return (interaction?.intent as? SupportedStartCallIntent)?.contacts?.first?.personHandle?.value
-        }
+        return (interaction?.intent as? INStartCallIntent)?.contacts?.first?.personHandle?.value
     }
     
     var video: Bool? {
@@ -26,7 +22,7 @@ extension NSUserActivity {
                 return nil
         }
         
-        return startCallIntent is INStartVideoCallIntent
+        return startCallIntent is INStartCallIntent
     }
     
 }
@@ -35,5 +31,4 @@ protocol SupportedStartCallIntent {
     var contacts: [INPerson]? { get }
 }
 
-extension INStartAudioCallIntent: SupportedStartCallIntent {}
-extension INStartVideoCallIntent: SupportedStartCallIntent {}
+extension INStartCallIntent: SupportedStartCallIntent {}

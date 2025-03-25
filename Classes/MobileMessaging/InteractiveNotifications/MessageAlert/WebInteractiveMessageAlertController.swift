@@ -214,12 +214,6 @@ class WebInteractiveMessageAlertController: UIViewController,
 
 extension UIApplication {
     var interfaceOrientation: UIInterfaceOrientation {
-        get {
-            if #available(iOS 13.0, *) {
-                return windows.first?.windowScene?.interfaceOrientation ?? .unknown
-            } else {
-                return statusBarOrientation
-            }
-        }
+        return windows.first?.windowScene?.interfaceOrientation ?? .unknown
     }
 }

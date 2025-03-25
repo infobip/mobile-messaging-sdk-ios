@@ -10,7 +10,7 @@ import Foundation
 extension DispatchQueue {
     // This method makes sure the completion is triggered in main thread. If it is already, it will be called synchronously.
     // Otherwise, the completion will be called in main asynchronously
-    @preconcurrency public static func mmEnsureMain(completion: @escaping @Sendable @convention(block) () -> Void) {
+    public static func mmEnsureMain(completion: @escaping @convention(block) () -> Void) {
         if Thread.isMainThread {
             completion()
         } else {

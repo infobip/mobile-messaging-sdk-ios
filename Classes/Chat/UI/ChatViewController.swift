@@ -5,7 +5,7 @@
 //  Created by Andrey Kadochnikov on 14.04.2020.
 //
 
-@preconcurrency import WebKit
+import WebKit
 
 ///Key component to use for displaying In-app chat view.
 ///We support two ways to quickly embed it into your own application:
@@ -204,30 +204,18 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 
     private func setNavBarBranding(_ settings: MMChatSettings) {
         guard MMChatSettings.sharedInstance.shouldSetNavBarAppearance else { return }
-        if #available(iOS 13.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
 
-            if let navBarColor = settings.navBarColor {
-                appearance.backgroundColor = navBarColor
-            }
-
-            if let navBarTitleColor = settings.navBarTitleColor {
-                appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: navBarTitleColor]
-            }
-            navigationController?.navigationBar.standardAppearance = appearance
-            navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        } else {
-            navigationController?.navigationBar.isTranslucent = false
-
-            if let navBarColor = settings.navBarColor {
-                navigationController?.navigationBar.backgroundColor = navBarColor
-            }
-
-            if let navBarTitleColor = settings.navBarTitleColor {
-                navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : navBarTitleColor]
-            }
+        if let navBarColor = settings.navBarColor {
+            appearance.backgroundColor = navBarColor
         }
+
+        if let navBarTitleColor = settings.navBarTitleColor {
+            appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: navBarTitleColor]
+        }
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
 
         if let navBarColor = settings.navBarColor {
             navigationController?.navigationBar.barTintColor = navBarColor
