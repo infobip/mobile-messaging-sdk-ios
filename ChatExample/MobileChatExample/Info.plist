@@ -56,5 +56,7 @@
 	</array>
 	<key>com.mobilemessaging.app_group</key>
 	<string>group.com.infobip.inappchat.demo</string>
+    <key>UIUserInterfaceStyle</key>
+    <string>Light</string>
 </dict>
 </plist>

@@ -32,7 +32,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         super.viewWillAppear(animated)
         resetNavBarAppearance() // chat view controller may modify navigation appearance - we reset it to default
     }
-    
+
     private func resetNavBarAppearance() {
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.barTintColor = .white
@@ -261,6 +261,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     private func handleUIKitChat(_ option: Int) {
         MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance = true
         MMChatSettings.sharedInstance.shouldUseExternalChatInput = false
+        BadgeCounterHandler.clearBadge()
         guard let suboption = ShowChatOptions(rawValue: option) else { return }
         switch suboption {
         case .pushNavigationItem:
@@ -287,8 +288,10 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
             setCustomSettings()
             showChatInNavigation()
         case .replacedChatInput:
+            BadgeCounterHandler.clearBadge()
             showReplacedChatInNavigation()
         case .presentSendingContextualData:
+            BadgeCounterHandler.clearBadge()
             presentAndSendContextualData()
         case .sendContextualData:
             onSendContextualDataDidTap()
@@ -301,6 +304,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         case .changeColorTheme:
             onChangeColorTheme()
         case .externalChatInputVC:
+            BadgeCounterHandler.clearBadge()
             onExternalUIKitChat()
         case .widgetAPI:
             onLivechatWidgetAPI()
@@ -308,6 +312,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     }
     
     private func handleSwiftUIOptions(_ option: Int) {
+        BadgeCounterHandler.clearBadge()
         guard let suboption = SwiftUIChatOptions(rawValue: option) else { return }
         switch suboption {
         case .defaultSwiftUIChat:

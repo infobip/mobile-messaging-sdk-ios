@@ -16,5 +16,7 @@
 		<string>remote-notification</string>
 		<string>voip</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 </dict>
 </plist>

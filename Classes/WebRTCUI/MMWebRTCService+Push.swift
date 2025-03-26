@@ -113,9 +113,10 @@ extension MMWebRTCService: PKPushRegistryDelegate {
                       didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType) {
         // WARNING: Do not modify the following code unless you know what you are doing. Unhandled push payloads
         // for calls have negative effects for the app execution and installations.
-        if TARGET_OS_SIMULATOR != 0 {
+#if targetEnvironment(simulator)
            // Do nothing if running simulator, ignore call
-        } else if type == .voIP {
+#else
+        if type == .voIP {
             if notificationData == nil { notificationData = MMWebRTCNotificationData() }
             MMLogSecureDebug(String(format: "Received VoIP Push Notification %@", payload.dictionaryPayload))
             saveCallNotificationData(payload)
@@ -128,6 +129,7 @@ extension MMWebRTCService: PKPushRegistryDelegate {
             }
             // Other types of calls are not yet supported
         }
+#endif
     }
     
     private func saveCallNotificationData(_ payload: PKPushPayload) {

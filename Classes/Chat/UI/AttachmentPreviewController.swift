@@ -91,7 +91,7 @@ class AttachmentPreviewController: MMModalDismissableViewController, ChatSetting
                 return
             }
             self.responseData = downloadResponse
-            self.shareButtonItem.isEnabled = ChatAttachmentUtils.isInfoPlistKeyDefined("NSPhotoLibraryAddUsageDescription")
+            self.shareButtonItem.isEnabled = true // note that system sharing UI works separately from the app's permissions
             self.contentView.showContentFrom(responseData: downloadResponse)
         }
     }

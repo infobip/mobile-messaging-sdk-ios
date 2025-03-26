@@ -189,7 +189,7 @@ open class MM_MTMessage: MMBaseMessage, NamedLogger {
 	
 	/// Designated init
 	public init?(payload: MMAPNSPayload, deliveryMethod: MMMessageDeliveryMethod, seenDate: Date?, deliveryReportDate: Date?, seenStatus: MMSeenStatus, isDeliveryReportSent: Bool) {
-		guard 	let payload = payload as? MMStringKeyPayload,
+		guard let payload = payload as? MMStringKeyPayload,
 			let messageId = payload[Consts.APNSPayloadKeys.messageId] as? String else
 		{
 			return nil
