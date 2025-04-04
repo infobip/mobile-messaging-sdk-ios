@@ -122,7 +122,19 @@ class CallInteractor {
         }
         return nil
     }
-    
+
+    func muteOnSystem() {
+        // This avoids laggy/buggy system buttons
+        switch currentCall {
+        case .applicationCall(let applicationCall):
+            CallKitManager.shared.muteOnSystem(applicationCall.muted(), applicationCall.id())
+        case .webRTCCall(let webrtcCall):
+            CallKitManager.shared.muteOnSystem(webrtcCall.muted(), webrtcCall.id())
+        case .none:
+            return
+        }
+    }
+
     func micToggle(completion: ((Bool, Bool) -> Void)?) {
         guard let currentCall = currentCall else {
             completion?(false, false)
@@ -135,9 +147,11 @@ class CallInteractor {
                 case .applicationCall(let applicationCall):
                     shouldMute = !applicationCall.muted()
                     try applicationCall.mute(shouldMute)
+                    CallKitManager.shared.muteOnSystem(shouldMute, applicationCall.id())
                 case .webRTCCall(let webrtcCall):
                     shouldMute = !webrtcCall.muted()
                     try webrtcCall.mute(shouldMute)
+                    CallKitManager.shared.muteOnSystem(shouldMute, webrtcCall.id())
                 }
                 completion?(shouldMute, granted)
             } catch let error as ApplicationCallError {

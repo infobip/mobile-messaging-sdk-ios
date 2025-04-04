@@ -136,8 +136,21 @@ public class MMCallController: UIViewController, MMPIPUsable {
         interactor.showErrorAlert = { [weak self] message in
             self?.showErrorAlert(message: message)
         }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.appMovedToForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil)
     }
-    
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc func appMovedToForeground() {
+        interactor.muteOnSystem()
+    }
+
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         callView.voiceCallView.collapseButton.isHidden = PIPKit.state == .none
@@ -367,6 +380,9 @@ extension MMCallController {
                     let toggleResult = self?.interactor.screenShareToggle()
                     if let toggleResult = toggleResult {
                         button.isSelected = !toggleResult
+                        if !toggleResult {
+                            self?.hideKeyboardIfPresented()
+                        }
                     }
                     completion?()
                 }
@@ -445,6 +461,10 @@ extension MMCallController {
         case .custom(let callButtonModel):
             return callButtonModel
         }
+    }
+
+    private func hideKeyboardIfPresented() {
+        MobileMessaging.application.visibleViewController?.view.endEditing(true)
     }
 }
 #endif

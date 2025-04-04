@@ -237,6 +237,15 @@ class CallKitManager: NSObject {
         }
         return CXHandle(type: .phoneNumber, value: from)
     }
+
+    func muteOnSystem(_ shouldMute: Bool, _ callId: String) {
+        // iOS Call System UI can be laggy/buggy if we don't replicate the muted action, separately from doing it in the webrtc SDK
+        guard let uuid = UUID(uuidString: callId) else { return }
+        let muteCallAction = CXSetMutedCallAction(call: uuid, muted: shouldMute)
+        let transaction = CXTransaction()
+        transaction.addAction(muteCallAction)
+        requestTransaction(transaction)
+    }
 }
 
 extension CallKitManager: CXProviderDelegate {
