@@ -89,6 +89,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     var initialLeftNavigationItem: UIBarButtonItem?
     var initialLargeDisplayMode: UINavigationItem.LargeTitleDisplayMode = .automatic
     private var firstTimeHandlingMultithread = true
+    private var didSetOnMessageReceivedListener = false
 
     open override func loadView() {
         super.loadView()
@@ -270,15 +271,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             }
             return
         })
-        
-        if MobileMessaging.inAppChat?.onRawMessageReceived != nil {
-            webView.addMessageReceivedListener(completion: { [weak self] error in
-                if let error = error {
-                    self?.logError(error.description)
-                }
-                return
-            })
-        }
     }
     
     func sendCachedContextData() {
@@ -289,7 +281,19 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         MMInAppChatService.sharedInstance?.contextualData = nil
         sendContextualData(contextualData)
     }
-    
+
+    func addOnMessageReceivedListener() {
+        if MobileMessaging.inAppChat?.onRawMessageReceived != nil, !didSetOnMessageReceivedListener {
+            webView.addMessageReceivedListener(completion: { [weak self] error in
+                if let error = error {
+                    self?.logError(error.description)
+                }
+                self?.didSetOnMessageReceivedListener = true
+                return
+            })
+        }
+    }
+
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         let css: String? = {
             switch MMChatSettings.colorTheme {
@@ -483,6 +487,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 
         if state != .loading && state != .loadingThread && state != .unknown {
             sendCachedContextData()
+            addOnMessageReceivedListener()
         }
 
         MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)

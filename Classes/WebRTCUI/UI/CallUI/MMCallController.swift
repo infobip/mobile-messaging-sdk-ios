@@ -148,14 +148,17 @@ public class MMCallController: UIViewController, MMPIPUsable {
     }
 
     @objc func appMovedToForeground() {
+        // Update system based on custom UI
         interactor.muteOnSystem()
+        // Update custom UI based on system, as call modifications work both ways
+        handleMutePopover(with: false)
+        micButtonContent?.button?.isSelected = interactor.currentCall?.isMuted ?? false
     }
 
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         callView.voiceCallView.collapseButton.isHidden = PIPKit.state == .none
         callView.mediaView.header.collapseButton.isHidden = PIPKit.state == .none
-
     }
     
     public override func viewWillDisappear(_ animated: Bool) {
@@ -352,6 +355,7 @@ public class MMCallController: UIViewController, MMPIPUsable {
     }
 
     public func didChangedState(_ state: PIPState) {
+        hideKeyboardIfPresented() // for a better UX
         if state == .full {
             callView.resetMovingContainerCoord()
         }
