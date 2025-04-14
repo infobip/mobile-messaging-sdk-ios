@@ -44,8 +44,8 @@
                }
            }
 
-		   // Override widget config
-		   liveChat('config', {
+           // Override widget config
+           liveChat('config', {
                 widgetId: widgetId,
                 container: document.getElementsByTagName('body')[0],
                 showHeader: false,
@@ -54,7 +54,8 @@
                },
                function(error, result) {
                 propageError(error, 'config('+widgetId+')')
-               });
+               }
+            );
 
             let inputParams = {
                'pushRegistrationId' : getQueryParameter('pushRegId'),
@@ -74,14 +75,14 @@
             }
 
            function initPropagationAndShowingChat(error, result) {
-                   propageError(error, 'init()')
-                   if(!error) {
-                       liveChat('show', null, onShowCallback,
-                            function(error, result) {
-                                propageError(error, 'show()')
-                            });
-                       window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
-                   }
+                propageError(error, 'init()')
+                if(!error) {
+                    liveChat('show', null, onShowCallback,
+                        function(error, result) {
+                            propageError(error, 'show()')
+                        });
+                    window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
+                }
            }
 
             // identify the user by pushRegistrationId and, optionally, a JSON Web Token

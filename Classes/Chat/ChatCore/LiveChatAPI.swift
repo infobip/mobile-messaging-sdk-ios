@@ -231,7 +231,7 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
         Thread { [weak self] in
             self?.lock.lock()
 
-            if self?.currentViewState != .unknown {
+            if self?.currentViewState != .unknown, self?.currentViewState != .loading {
                 completion(nil)
                 self?.lock.unlock()
                 return
@@ -322,7 +322,7 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
             }
 
             let state = jsMessage.state
-            if currentViewState == .unknown, state != .unknown {
+            if currentViewState != state, state != .loading {
                 // In case actions are pending, we finally trigger them successfully if the view state just became valid.
                 triggerPendingActions(with: nil)
             }

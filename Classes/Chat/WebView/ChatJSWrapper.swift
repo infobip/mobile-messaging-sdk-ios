@@ -236,7 +236,7 @@ extension WKWebView: ChatJSWrapper {
 
         guard let id = threadId.javaScriptEscapedString() else {
             
-            let reasonString = "getThreads failed, invalid threadId: \(threadId)"
+            let reasonString = "openThread failed, invalid threadId: \(threadId)"
             self.logDebug(reasonString)
             completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
             
@@ -253,8 +253,7 @@ extension WKWebView: ChatJSWrapper {
             case .success(let value):
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
                       let result = try? JSONDecoder().decode(Response.self, from: data) else {
-                    
-                    let reasonString = "getThreads failed, unable to parse value: \(value)"
+                    let reasonString = "openThread failed, unable to parse value: \(value)"
                     self?.logDebug(reasonString)
                     completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
                     
