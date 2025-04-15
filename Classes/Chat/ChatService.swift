@@ -370,6 +370,67 @@ public class MMInAppChatService: MobileMessagingService {
         
         webViewDelegate.sendContextualData(ContextualData(metadata: metadata, multiThreadStrategy: multiThreadStrategy))
     }
+
+    public override func handleAnyMessage(
+        _ message: MM_MTMessage,
+        completion: @escaping (MessageHandlingResult) -> Void
+    ) {
+        guard message.appliedAction?.isTapOnNotificationAlert ?? false,
+              let keyword = message.openLiveChatKeyword else { // FIXME: how is the keyword received actually?
+            completion(.noData)
+            return
+        }
+
+        guard let widgetId = chatWidget?.widgetId else {
+            logError("WidgetId not found. In-App action could not open LiveChat")
+            completion(.noData)
+            return
+        }
+
+        api.sendText(keyword) { [weak self] error in
+            if let error = error {
+                self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(widgetId): error \(error.localizedDescription)")
+            }
+            self?.displayLiveChat(for: message, completion: completion)
+        }
+    }
+
+    private func displayLiveChat(
+        for message: MM_MTMessage,
+        attempt: Int = 0,
+        completion: @escaping (MessageHandlingResult
+    ) -> Void) {
+        // If the 'openingLivechat' delegate method below is implemented, the chat won't be presented, as the event will be delegated to the parent app. This allows choosing where the chat is presented, how is presented (in a root navigation bar, as modal, SUI HostingVC, etc.), and what input composer will be used (allowing a total replacement). Otherwise, default chat view controller (as full size navigation child VC) will be pushed in the navigation of the top view controller, if found.
+        guard MobileMessaging.messageHandlingDelegate?.inAppOpenLivechatNotificationTapped == nil else {
+            MobileMessaging.messageHandlingDelegate?.inAppOpenLivechatNotificationTapped?(for: message)
+            logDebug("In-App action to open LiveChat was delegated to app side.")
+            completion(MessageHandlingResult.noData)
+            return
+        }
+
+        guard let presenterVC = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: message)
+                ?? MobileMessaging.application.visibleViewController,
+                let navBarC = presenterVC.navigationController else {
+            // We allow a few retries, in 1 second intervals, in case MobileMessaging.application.visibleViewController was not initialized on time
+            guard attempt < 3 else {
+                logError("Unable to present chat view controller after receiving action to open LiveChat: no navigation controller available")
+                completion(.noData)
+                return
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+               self.displayLiveChat(for: message, attempt: attempt + 1, completion: completion)
+            }
+            return
+        }
+
+        DispatchQueue.mmEnsureMain {
+            let chatVC = MMChatViewController.makeChildNavigationViewController()
+            navBarC.pushViewController(chatVC, animated: true)
+            self.logDebug("Chat view controller was presented after open LiveChat action.")
+            completion(.newData)
+        }
+    }
 }
 
 struct ContextualData {

@@ -105,7 +105,11 @@ open class MM_MTMessage: MMBaseMessage, NamedLogger {
 	public var showInApp: Bool {
 		return internalData?[Consts.InternalDataKeys.showInApp] as? Bool ?? false
 	}
-	
+
+    public var openLiveChatKeyword: String? {
+        return internalData?[Consts.InternalDataKeys.openLiveChat] as? String
+    }
+
 	public var inAppStyle: MMInAppNotificationStyle? {
 		let defaultStyle = showInApp ? MMInAppNotificationStyle.Modal : nil
 		let resolvedStyle: MMInAppNotificationStyle?
