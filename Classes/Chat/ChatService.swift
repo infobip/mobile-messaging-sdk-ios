@@ -375,8 +375,10 @@ public class MMInAppChatService: MobileMessagingService {
         _ message: MM_MTMessage,
         completion: @escaping (MessageHandlingResult) -> Void
     ) {
+        // TODO: only for regular push this will proceed. For InApp, it shall be ignored (handled by button tap actios)
+        // TODO: What about old In-App though?
         guard message.appliedAction?.isTapOnNotificationAlert ?? false,
-              let keyword = message.openLiveChatKeyword else { // FIXME: how is the keyword received actually?
+              let keyword = message.openLiveChatKeyword else {
             completion(.noData)
             return
         }
@@ -387,6 +389,7 @@ public class MMInAppChatService: MobileMessagingService {
             return
         }
 
+        // FIXME: it should be api.createThread(keyword) once LC BE is ready, see https://jira.infobip.com/browse/CHAT-3336
         api.sendText(keyword) { [weak self] error in
             if let error = error {
                 self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(widgetId): error \(error.localizedDescription)")
@@ -401,8 +404,8 @@ public class MMInAppChatService: MobileMessagingService {
         completion: @escaping (MessageHandlingResult
     ) -> Void) {
         // If the 'openingLivechat' delegate method below is implemented, the chat won't be presented, as the event will be delegated to the parent app. This allows choosing where the chat is presented, how is presented (in a root navigation bar, as modal, SUI HostingVC, etc.), and what input composer will be used (allowing a total replacement). Otherwise, default chat view controller (as full size navigation child VC) will be pushed in the navigation of the top view controller, if found.
-        guard MobileMessaging.messageHandlingDelegate?.inAppOpenLivechatNotificationTapped == nil else {
-            MobileMessaging.messageHandlingDelegate?.inAppOpenLivechatNotificationTapped?(for: message)
+        guard MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped == nil else {
+            MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped?(for: message)
             logDebug("In-App action to open LiveChat was delegated to app side.")
             completion(MessageHandlingResult.noData)
             return

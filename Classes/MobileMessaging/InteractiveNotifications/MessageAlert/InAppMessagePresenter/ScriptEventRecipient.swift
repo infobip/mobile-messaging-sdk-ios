@@ -12,6 +12,7 @@ protocol UserInteractionEventListener: InAppMessageScriptEventListener {
     func scriptEventRecipientDidDetectOpenAppPage(withDeeplink deeplink: String)
     func scriptEventRecipientDidDetectOpenBrowser(withUrl url: String)
     func scriptEventRecipientDidDetectOpenWebView(withUrl url: String)
+    func scriptEventRecipientDidDetectOpenLiveChat(withKeyword keyword: String)
     func scriptEventRecipientDidDetectClose() -> Void
 }
 
@@ -47,17 +48,19 @@ class ScriptEventRecipient: NSObject, WKScriptMessageHandler, NamedLogger {
     // MARK: -
     private func handleUserInteractionEvent(_ eventName: UserInteractionEvent, message: WKScriptMessage) -> Void {
         guard let listener = listener as? UserInteractionEventListener,
-                let url = message.body as? String else {
+                let value = message.body as? String else {
             return
         }
         
         switch eventName {
         case .openAppPage:
-            listener.scriptEventRecipientDidDetectOpenAppPage(withDeeplink: url)
+            listener.scriptEventRecipientDidDetectOpenAppPage(withDeeplink: value)
         case .openBrowser:
-            listener.scriptEventRecipientDidDetectOpenBrowser(withUrl: url)
+            listener.scriptEventRecipientDidDetectOpenBrowser(withUrl: value)
         case .openWebView:
-            listener.scriptEventRecipientDidDetectOpenWebView(withUrl: url)
+            listener.scriptEventRecipientDidDetectOpenWebView(withUrl: value)
+        case .openLiveChat:
+            listener.scriptEventRecipientDidDetectOpenLiveChat(withKeyword: value)
         case .close:
             listener.scriptEventRecipientDidDetectClose()
         }
@@ -99,13 +102,15 @@ class ScriptEventRecipient: NSObject, WKScriptMessageHandler, NamedLogger {
 
 private enum UserInteractionEvent: String, CaseIterable {
     /// Sent when primary button is pressed and it sends a deepling to be opened as a new application page.
-    case openAppPage
+    case openAppPage,
     /// Sent when primary button is pressed and it sends an url to be opened inside a browser window.
-    case openBrowser
+        openBrowser,
     /// Sent when primary button is pressed and it sends an url to be opened inside a web view.
-    case openWebView
+        openWebView,
+    /// Sent when primary button is pressed and it sends a request to open LiveChat view controller.
+        openLiveChat,
     /// Sent when in-app message is dismissed due to interaction with its html content.
-    case close
+        close
 }
 
 private enum MiscEvent: String, CaseIterable {

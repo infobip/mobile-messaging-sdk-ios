@@ -505,7 +505,7 @@ class OptionCell: UITableViewCell {
 }
 
 extension OptionListVC: MMMessageHandlingDelegate {
-    func inAppOpenLivechatNotificationTapped(for message: MM_MTMessage) {
+    func inAppOpenLiveChatActionTapped(for message: MM_MTMessage) {
         // By implementing this delegate method, you can choose (in your app) where, how and with what input the chat view controller will be presented.
         // If you don't implement it, the SDK will try to present the chat with default input composer, in the top view controller of your app.
         showReplacedChatInNavigation()
