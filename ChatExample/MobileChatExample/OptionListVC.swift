@@ -20,7 +20,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     
     @IBOutlet weak var optionsTableV: UITableView!
     @IBOutlet weak var optionsSegmentedC: UISegmentedControl!
-    private var chatVC: MMChatViewController?
+    private weak var chatVC: MMChatViewController?
     private var isLightModeOn = true
 
     override func viewDidLoad() {
