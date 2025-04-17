@@ -135,7 +135,7 @@ public class MMInAppChatService: MobileMessagingService {
         }
 	}
     
-        public var onRawMessageReceived: ((Any) -> Void)?
+    public var onRawMessageReceived: ((Any) -> Void)?
 
     public override func suspend() {
         NotificationCenter.default.removeObserver(self)
@@ -375,9 +375,8 @@ public class MMInAppChatService: MobileMessagingService {
         _ message: MM_MTMessage,
         completion: @escaping (MessageHandlingResult) -> Void
     ) {
-        // TODO: only for regular push this will proceed. For InApp, it shall be ignored (handled by button tap actios)
-        // TODO: What about old In-App though?
-        guard message.appliedAction?.isTapOnNotificationAlert ?? false,
+        guard let tapIdentifier = message.appliedAction?.identifier,
+              (tapIdentifier == MMNotificationAction.DefaultActionId || tapIdentifier == MMNotificationAction.PrimaryActionId),
               let keyword = message.openLiveChatKeyword else {
             completion(.noData)
             return
@@ -411,9 +410,14 @@ public class MMInAppChatService: MobileMessagingService {
             return
         }
 
+        guard MobileMessaging.inAppChat?.webViewDelegate == nil else {
+            logDebug("In-App action to open LiveChat not applied: ChatViewController already loaded by parent app.")
+            completion(MessageHandlingResult.noData)
+            return
+        }
+
         guard let presenterVC = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: message)
-                ?? MobileMessaging.application.visibleViewController,
-                let navBarC = presenterVC.navigationController else {
+                ?? MobileMessaging.application.visibleViewController else {
             // We allow a few retries, in 1 second intervals, in case MobileMessaging.application.visibleViewController was not initialized on time
             guard attempt < 3 else {
                 logError("Unable to present chat view controller after receiving action to open LiveChat: no navigation controller available")
@@ -428,8 +432,9 @@ public class MMInAppChatService: MobileMessagingService {
         }
 
         DispatchQueue.mmEnsureMain {
-            let chatVC = MMChatViewController.makeChildNavigationViewController()
-            navBarC.pushViewController(chatVC, animated: true)
+            let chatVC = MMChatViewController.makeRootNavigationViewController()
+            chatVC.modalPresentationStyle = .fullScreen
+            presenterVC.present(chatVC, animated: true)
             self.logDebug("Chat view controller was presented after open LiveChat action.")
             completion(.newData)
         }
