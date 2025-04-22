@@ -99,7 +99,19 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		return MMInstallation(applicationUserId: nil, appVersion: systemData.appVer, customAttributes: [:], deviceManufacturer: systemData.deviceManufacturer, deviceModel: systemData.deviceModel, deviceName: systemData.deviceName, deviceSecure: systemData.deviceSecure, deviceTimeZone: systemData.deviceTimeZone, isPrimaryDevice: false, isPushRegistrationEnabled: true, language: systemData.language, notificationsEnabled: systemData.notificationsEnabled ?? true, os: systemData.os, osVersion: systemData.OSVer, pushRegistrationId: nil, pushServiceToken: nil, pushServiceType: systemData.pushServiceType, sdkVersion: systemData.SDKVersion)
 	}
     public func removeSensitiveData() {
-		//nothing is sensitive in installation
+        if MobileMessaging.privacySettings.installationDataPersistingDisabled  {
+            self.applicationUserId = nil
+            self.appVersion = nil
+            self.customAttributes = [:]
+            self.deviceManufacturer = nil
+            self.deviceModel = nil
+            self.deviceName = nil
+            self.deviceTimeZone = nil
+            self.language = nil
+            self.os = nil
+            self.osVersion = nil
+            self.sdkVersion = nil
+        }
 	}
     public func handleCurrentChanges(old: MMInstallation, new: MMInstallation) {
 		if old.pushRegistrationId != new.pushRegistrationId {

@@ -183,6 +183,7 @@
 		766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 766863A71FC824140047DA47 /* RemoteAPIProvider.swift */; };
 		76790D1F234E14CA000D6587 /* Transformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76790D1E234E14CA000D6587 /* Transformer.swift */; };
 		76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */; };
+		767D8E462DB17E000058BE13 /* PrivacySettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 767D8E452DB17E000058BE13 /* PrivacySettingsService.swift */; };
 		7689347524ED6BD200411B1D /* EventPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7689347424ED6BD200411B1D /* EventPersistingOperation.swift */; };
 		7692B56124EC4783000DA5A2 /* MMOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7692B56024EC4783000DA5A2 /* MMOperation.swift */; };
 		76978E2625C30C1200912DB4 /* BaseUrlManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76978E2525C30C1200912DB4 /* BaseUrlManager.swift */; };
@@ -509,6 +510,7 @@
 		766863A91FC8241E0047DA47 /* DynamicBaseUrlHTTPSessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicBaseUrlHTTPSessionManager.swift; sourceTree = "<group>"; };
 		76790D1E234E14CA000D6587 /* Transformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transformer.swift; sourceTree = "<group>"; };
 		76798CAF20318C800005B0A7 /* ApnsRegistrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManager.swift; sourceTree = "<group>"; };
+		767D8E452DB17E000058BE13 /* PrivacySettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacySettingsService.swift; sourceTree = "<group>"; };
 		7689347424ED6BD200411B1D /* EventPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventPersistingOperation.swift; sourceTree = "<group>"; };
 		7692B56024EC4783000DA5A2 /* MMOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMOperation.swift; sourceTree = "<group>"; };
 		76978E2525C30C1200912DB4 /* BaseUrlManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseUrlManager.swift; sourceTree = "<group>"; };
@@ -947,6 +949,7 @@
 		764555D41F78FF4E00B8F14B /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				767D8E442DB17DBE0058BE13 /* PrivacySettings */,
 				E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */,
 				A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */,
 				A0D477D729FBBDEF000B6C45 /* MMNotifications.h */,
@@ -970,7 +973,6 @@
 				764556191F78FF4F00B8F14B /* Operations */,
 				764556301F78FF4F00B8F14B /* UserNotificationCenterDelegate.swift */,
 				764556311F78FF4F00B8F14B /* Utils */,
-				76626D10218B097800E95E2C /* PrivacySettings.swift */,
 				7636909921F06E25000CF3F8 /* UserEventsManager.swift */,
 			);
 			name = Core;
@@ -1221,6 +1223,15 @@
 				7650DC27244EEB480016233D /* ComposeBar_TextView.swift */,
 			);
 			path = ComposeBar;
+			sourceTree = "<group>";
+		};
+		767D8E442DB17DBE0058BE13 /* PrivacySettings */ = {
+			isa = PBXGroup;
+			children = (
+				76626D10218B097800E95E2C /* PrivacySettings.swift */,
+				767D8E452DB17E000058BE13 /* PrivacySettingsService.swift */,
+			);
+			path = PrivacySettings;
 			sourceTree = "<group>";
 		};
 		76B0A7BF24EFB43F0006A815 /* SwiftTryCatch */ = {
@@ -1761,6 +1772,7 @@
 				763A1AF623E4873000C997BC /* CustomEventObject+CoreDataClass.swift in Sources */,
 				764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */,
 				7617506623351827000438A8 /* Notifications.swift in Sources */,
+				767D8E462DB17E000058BE13 /* PrivacySettingsService.swift in Sources */,
 				764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */,
 				7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */,
 				7601F1A2208E056500738C1A /* AnimatedImageView.swift in Sources */,
