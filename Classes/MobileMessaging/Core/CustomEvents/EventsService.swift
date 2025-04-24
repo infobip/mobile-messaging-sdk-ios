@@ -58,8 +58,8 @@ class EventsService: MobileMessagingService {
 	init(mmContext: MobileMessaging) {
         self.q = DispatchQueue(label: "events-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
 		self.context = mmContext.internalStorage.newPrivateContext()
-        self.eventReportingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
-        self.eventPersistingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.eventReportingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "eventReportingQueue")
+        self.eventPersistingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "eventPersistingQueue")
 		super.init(mmContext: mmContext, uniqueIdentifier: "EventsService")
 	}
 

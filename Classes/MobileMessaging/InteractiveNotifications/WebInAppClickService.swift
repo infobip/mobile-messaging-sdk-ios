@@ -26,8 +26,8 @@ class WebInAppClickService: MobileMessagingService {
     
     init(mmContext: MobileMessaging) {
         self.q = DispatchQueue(label: "web-inapp-click-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
-        self.webInAppClickReportingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
-        self.webInAppClickPersistingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.webInAppClickReportingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "webInAppClickReportingQueue")
+        self.webInAppClickPersistingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "webInAppClickPersistingQueue")
         self.context = mmContext.internalStorage.newPrivateContext()
         super.init(mmContext: mmContext, uniqueIdentifier: "WebInAppClickService")
     }

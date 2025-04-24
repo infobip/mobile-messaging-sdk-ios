@@ -113,12 +113,13 @@ class FetchMessagesCompletionTests: MMTestCase {
 			}
 		}
 		self.mobileMessagingInstance.remoteApiProvider = apiProvider
-
-		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
-			XCTAssertEqual(result.backgroundFetchResult, .newData)
-			exp?.fulfill()
-		})
-		
+        mobileMessagingInstance.messageHandler.syncWithServer(userInitiated: true) { _ in // this sync is here only to avoid race condition between two MessageFetchingOperations. by calling syncWithServer we are able to wait until one of the MessageFetchingOperations finishes, then we trigger next one by didReceiveRemoteNotification
+            self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
+                XCTAssertEqual(result.backgroundFetchResult, .newData)
+                exp?.fulfill()
+            })
+        }
+        
 		waitForExpectations(timeout: 10) {_ in }
 	}
     
@@ -145,10 +146,12 @@ class FetchMessagesCompletionTests: MMTestCase {
 		}
         self.mobileMessagingInstance.remoteApiProvider = apiProvider
 
-        mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
-            XCTAssertEqual(result.backgroundFetchResult, .newData)
-            messageHandled?.fulfill()
-        })
+        mobileMessagingInstance.messageHandler.syncWithServer(userInitiated: true) { _ in // this sync is here only to avoid race condition between two MessageFetchingOperations. by calling syncWithServer we are able to wait until one of the MessageFetchingOperations finishes, then we trigger next one by didReceiveRemoteNotification/
+            self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "newData"],  completion: { result in
+                XCTAssertEqual(result.backgroundFetchResult, .newData)
+                messageHandled?.fulfill()
+            })
+        }
         
         waitForExpectations(timeout: 10) {_ in }
     }
@@ -165,10 +168,12 @@ class FetchMessagesCompletionTests: MMTestCase {
 		}
 		self.mobileMessagingInstance.remoteApiProvider = apiProvider
 
-		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "noData"],  completion: { result in
-			XCTAssertEqual(result.backgroundFetchResult, .noData)
-			exp?.fulfill()
-		})
+        mobileMessagingInstance.messageHandler.syncWithServer(userInitiated: true) { _ in // this sync is here only to avoid race condition between two MessageFetchingOperations. by calling syncWithServer we are able to wait until one of the MessageFetchingOperations finishes, then we trigger next one by didReceiveRemoteNotification/
+            self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "noData"],  completion: { result in
+                XCTAssertEqual(result.backgroundFetchResult, .noData)
+                exp?.fulfill()
+            })
+        }
 		
 		waitForExpectations(timeout: 10) {_ in }
 	}

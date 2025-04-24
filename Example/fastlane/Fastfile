@@ -51,8 +51,10 @@ platform :ios do
 					scheme: "MobileMessagingExample",
 					devices: ["iPhone 11"],
 					code_coverage: true,
-					result_bundle: true
-					)
+					result_bundle: true,
+					output_style: "raw",
+					xcpretty_args: "--test --no-color" 
+				)
 			end
 		end
 	end
@@ -65,7 +67,7 @@ platform :ios do
 					clean: true,
 					skip_build: false,
 					scheme: "MobileMessagingExample_Tests_Device",
-				destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
+					destination: "id=f0092e6e876ebb2388e0b7001b2d7d9ffa47e6e1" #iPhone 5
 				)
 			end
 		end

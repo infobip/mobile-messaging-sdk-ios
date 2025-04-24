@@ -32,8 +32,8 @@ class UserSessionService : MobileMessagingService {
 
 	init(mmContext: MobileMessaging) {
         self.q = DispatchQueue(label: "user-sessions-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
-        self.userSessionPersistingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
-        self.userSessionReportingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.userSessionPersistingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "userSessionPersistingQueue")
+        self.userSessionReportingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "userSessionReportingQueue")
 		self.context = mmContext.internalStorage.newPrivateContext()
 		super.init(mmContext: mmContext, uniqueIdentifier: "UserSessionService")
 	}
@@ -42,7 +42,6 @@ class UserSessionService : MobileMessagingService {
 
 	override func suspend() {
 		serviceQueue.async {
-			self.logDebug("stops")
 			self.timer = nil
 			self.cancelOperations()
 			super.suspend()
@@ -52,7 +51,6 @@ class UserSessionService : MobileMessagingService {
 	override func start(_ completion: @escaping (Bool) -> Void) {
         super.start(completion)
 		serviceQueue.async {
-			self.logDebug("starts")
 			self.setupTimer()
 		}
 	}

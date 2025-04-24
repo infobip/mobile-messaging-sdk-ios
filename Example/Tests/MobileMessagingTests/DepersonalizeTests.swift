@@ -266,15 +266,15 @@ class DepersonalizeTests: MMTestCase {
 			return FetchUserDataResult.Failure(nil)
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiMock
-		mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (user, e) in
+        MobileMessaging.fetchUser() { (user, e) in
 			requestCompletionCounter += 1
             fetchFinished1?.fulfill()
 		}
-		mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (user, e) in
+        MobileMessaging.fetchUser() { (user, e) in
 			requestCompletionCounter += 1
             fetchFinished2?.fulfill()
 		}
-		mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (user, e) in
+        MobileMessaging.fetchUser() { (user, e) in
 			requestCompletionCounter += 1
             fetchFinished3?.fulfill()
 		}

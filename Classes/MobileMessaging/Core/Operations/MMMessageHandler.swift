@@ -9,6 +9,31 @@
 import Foundation
 import CoreData
 
+class RemoveMessagesOperation: BlockOperation, @unchecked Sendable {
+    let completion: () -> Void
+    init(completion: @escaping () -> Void) {
+        self.completion = completion
+        super.init(block: { finishBlock in
+            if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {
+                defaultMessageStorage.removeAllMessages() { _ in
+                    
+                    finishBlock()
+                }
+            } else {
+                
+                finishBlock()
+            }
+        })
+    
+    }
+    override func finished(_ errors: [NSError]) {
+        completion()
+    }
+    override var description: String {
+        return "NamedBlockOperation: RemoveMessagesOperation"
+    }
+}
+
 public enum MessageHandlingResult {
     case newData
     case noData
@@ -56,9 +81,9 @@ public class MMMessageHandler: MobileMessagingService {
     init(storage: MMCoreDataStorage, mmContext: MobileMessaging) {
         self.storage = storage
         self.q = DispatchQueue(label: "message-handler", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
-        self.messageHandlingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
-        self.messageSendingQueue = MMOperationQueue.userInitiatedQueue(underlyingQueue: q)
-        self.messageSyncQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.messageHandlingQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "messageHandlingQueue")
+        self.messageSendingQueue = MMOperationQueue.userInitiatedQueue(underlyingQueue: q, name: "messageSendingQueue" )
+        self.messageSyncQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "messageSyncQueue")
         super.init(mmContext: mmContext, uniqueIdentifier: "MMMessageHandler")
     }
 
@@ -71,6 +96,7 @@ public class MMMessageHandler: MobileMessagingService {
 
     // MARK: - Internal
     func handleAPNSMessage(userInitiated: Bool, userInfo: MMAPNSPayload, completion: @escaping (MessageHandlingResult) -> Void) {
+        logDebug("handleAPNSMessage...")
         guard isRunning == true else {
             logDebug("abort messages handling, service running \(isRunning)")
             completion(.noData)
@@ -96,6 +122,7 @@ public class MMMessageHandler: MobileMessagingService {
     }
 
     public func handleMTMessages(userInitiated: Bool, messages: [MM_MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
+        logDebug("handleMTMessages...")
         guard isRunning == true, !messages.isEmpty else {
             logDebug("abort messages handling \(messages), service running \(isRunning)")
             completion(.noData)
@@ -156,15 +183,18 @@ public class MMMessageHandler: MobileMessagingService {
     }
 
     func syncMessages(userInitiated: Bool, handlingIteration: Int, finishBlock: @escaping (MessagesSyncResult) -> Void) {
+        logDebug("syncMessages...")
         guard isRunning else {
             logDebug("abort message fetching, service running \(isRunning)")
             finishBlock(MessagesSyncResult.Cancel)
             return
         }
+        logDebug("Adding MessageFetchingOperation...")
         self.messageSyncQueue.addOperation(MessageFetchingOperation(userInitiated: userInitiated, context: self.storage.newPrivateContext(), mmContext: self.mmContext, handlingIteration: handlingIteration, finishBlock: finishBlock))
     }
 
     func syncMessagesWithOuterLocalSources(userInitiated: Bool, completion: @escaping () -> Void) {
+        logDebug("syncMessagesWithOuterLocalSources...")
         guard isRunning else {
             logDebug("abort syncing with outer local storage, service running \(isRunning)")
             completion()
@@ -352,17 +382,9 @@ public class MMMessageHandler: MobileMessagingService {
     public override func depersonalizeService(_ mmContext: MobileMessaging, userInitiated: Bool, completion: @escaping () -> Void) {
         logDebug("depersonalizing...")
         cancelOperations()
-        let removeMessagesOperation = BlockOperation { _ in
-            if let defaultMessageStorage = MobileMessaging.defaultMessageStorage {
-                defaultMessageStorage.removeAllMessages() { _ in
-                    completion()
-                }
-            } else {
-                completion()
-            }
-        }
+        let removeMessagesOperation = RemoveMessagesOperation(completion: completion)
         removeMessagesOperation.qualityOfService = userInitiated ? .userInitiated : .default
-
+        
         messageSyncQueue.addOperation(removeMessagesOperation)
     }
 

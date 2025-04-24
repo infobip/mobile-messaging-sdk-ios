@@ -18,51 +18,7 @@
     "responseBody": {
       "payloads": []
     }
-  },
-      {
-    "responseStatus": 200,
-    "headers": {
-      "authorization": "App someCorrectApplicationID",
-      "pushregistrationid": "someExistingInternalID"
-    },
-    "parameters": {
-      "platformType": "APNS"
-    },
-    "responseBody": {
-      "payloads": [{
-        "aps": {
-          "alert": {
-            "body": "test text"
-          },
-          "sound": "default",
-          "badge": 0
-        },
-        "messageId": "m1",
-        "customPayload": ""
-      }, {
-        "aps": {
-          "alert": {
-            "body": "test text"
-          },
-          "sound": "default",
-          "badge": 0
-        },
-        "messageId": "m2",
-        "customPayload": ""
-      }, {
-        "aps": {
-          "alert": {
-            "body": "test text"
-          },
-          "sound": "default",
-          "badge": 0
-        },
-        "messageId": "m3",
-        "customPayload": ""
-      }]
-    }
-  },
-  {
+  }, {
     "responseStatus": 200,
     "headers": {
       "authorization": "App CorrectIdMergeSynchronization",

@@ -37,15 +37,17 @@ open class MobileMessagingService: NSObject, NamedLogger {
     }
     
     open func suspend() {
-        logDebug("stopping")
+        logDebug("suspending...")
         stopAppStateObserving()
         isRunning = false
     }
     
     open func stopService(_ completion: @escaping (Bool) -> Void) {
+        logDebug("stopping...")
         suspend()
         NotificationCenter.default.removeObserver(self)
         dispatchGroup.wait()
+        logDebug("stopped.")
         completion(isRunning)
     }
     

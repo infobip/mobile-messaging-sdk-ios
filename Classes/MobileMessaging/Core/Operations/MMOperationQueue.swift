@@ -32,18 +32,20 @@ public class MMOperationQueue: OperationQueue, NamedLogger {
 		return "com.mobile-messaging.default-queue"
 	}
 
-    public static func newSerialQueue(underlyingQueue: DispatchQueue?) -> MMOperationQueue {
+    public static func newSerialQueue(underlyingQueue: DispatchQueue?, name: String) -> MMOperationQueue {
 		let newQ = MMOperationQueue()
 		newQ.maxConcurrentOperationCount = 1
         newQ.underlyingQueue = underlyingQueue
+        newQ.name = name
 		return newQ
 	}
 	
-    static func userInitiatedQueue(underlyingQueue: DispatchQueue?) -> MMOperationQueue {
+    static func userInitiatedQueue(underlyingQueue: DispatchQueue?, name: String) -> MMOperationQueue {
 		let newQ = MMOperationQueue()
 		newQ.qualityOfService = .userInitiated
 		newQ.maxConcurrentOperationCount = 1
         newQ.underlyingQueue = underlyingQueue
+        newQ.name = name
 		return newQ
 	}
 }

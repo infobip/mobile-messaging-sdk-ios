@@ -225,7 +225,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
                 mm.userService.fetchFromServer(userInitiated: true) { (fetched, error) in
-                    completion(fetched, error)
+                    DispatchQueue.main.async(execute: { completion(fetched, error) })
                 }
             }
         } else {
@@ -245,7 +245,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
                 mm.installationService.fetchFromServer(userInitiated: true) { (fetched, error) in
-                    completion(fetched, error)
+                    DispatchQueue.main.async(execute: { completion(fetched, error) })
                 }
             }
         } else {
@@ -264,7 +264,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public class func saveUser(_ user: MMUser, completion: @escaping (_ error: NSError?) -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.userService.save(userInitiated: true, userData: user, completion: completion)
+                mm.userService.save(userInitiated: true, userData: user, completion: { error in
+                    DispatchQueue.main.async(execute: { completion(error) })
+                })
             }
         } else {
             completion(NSError(type: .MobileMessagingInstanceNotInitialized))
@@ -282,7 +284,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public class func saveInstallation(_ installation: MMInstallation, completion: @escaping (_ error: NSError?) -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.installationService.save(userInitiated: true, installationData: installation, completion: completion)
+                mm.installationService.save(userInitiated: true, installationData: installation, completion: { error in
+                    DispatchQueue.main.async(execute: { completion(error) })
+                })
             }
         } else {
             completion(NSError(type: .MobileMessagingInstanceNotInitialized))
@@ -329,7 +333,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public class func depersonalize(completion: @escaping (_ status: MMSuccessPending, _ error: NSError?) -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.installationService.depersonalize(userInitiated: true, completion: completion)
+                mm.installationService.depersonalize(userInitiated: true, completion: { (status, error) in
+                    DispatchQueue.main.async(execute: { completion(status, error) })
+                })
             }
         } else {
             completion(MMSuccessPending.undefined, NSError(type: .MobileMessagingInstanceNotInitialized))
@@ -366,7 +372,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public class func personalize(forceDepersonalize: Bool, keepAsLead: Bool = false, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.userService.personalize(userInitiated: true, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, userIdentity: userIdentity, userAttributes: userAttributes, completion: completion)
+                mm.userService.personalize(userInitiated: true, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, userIdentity: userIdentity, userAttributes: userAttributes, completion: { error in
+                    DispatchQueue.main.async(execute: { completion(error) })
+                })
             }
         } else {
             completion(NSError(type: .MobileMessagingInstanceNotInitialized))
@@ -405,7 +413,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public class func depersonalizeInstallation(withPushRegistrationId pushRegId: String, completion: @escaping (_ installations: [MMInstallation]?, _ error: NSError?) -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.userService.depersonalizeInstallation(userInitiated: true, withPushRegistrationId: pushRegId, completion: completion)
+                mm.userService.depersonalizeInstallation(userInitiated: true, withPushRegistrationId: pushRegId, completion: { (installations, error) in
+                    DispatchQueue.main.async(execute: { completion(installations, error) })
+                })
             }
         } else {
             completion(nil, NSError(type: .MobileMessagingInstanceNotInitialized))
@@ -424,7 +434,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
                 mm.userService.fetchFromServer(userInitiated: true) { (user, error) in
-                    completion(user.installations, error)
+                    DispatchQueue.main.async(execute: { completion(user.installations, error) })
                 }
             }
         } else {
@@ -440,7 +450,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public class func setSeen(messageIds: [String], completion: @escaping () -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.setSeen(userInitiated: true, messageIds: messageIds, immediately: false, completion: completion)
+                mm.setSeen(userInitiated: true, messageIds: messageIds, immediately: false, completion: {
+                    DispatchQueue.main.async(execute: { completion() })
+                })
             }
         } else {
             completion()

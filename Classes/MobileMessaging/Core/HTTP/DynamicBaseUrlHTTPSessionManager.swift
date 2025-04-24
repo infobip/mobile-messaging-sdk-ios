@@ -126,6 +126,7 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 
     func handleDynamicBaseUrl(response: URLResponse?, error: NSError?) {
 		if let error = error, error.mm_isCannotFindHost {
+            logDebug("Cannot find host, resetting dynamic base URL")
 			resetBaseUrl()
 		} else {
 			if let httpResponse = response as? HTTPURLResponse, let newBaseUrlString = httpResponse.allHeaderFields[Consts.DynamicBaseUrlConsts.newBaseUrlHeader] as? String, let newDynamicBaseUrl = URL(string: newBaseUrlString) {

@@ -73,8 +73,8 @@ public class MMInAppChatService: MobileMessagingService {
     
 	init(mmContext: MobileMessaging) {
         self.q = DispatchQueue(label: "chat-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
-        self.getWidgetQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
-        self.getChatRegistrationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.getWidgetQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "getWidgetQueue")
+        self.getChatRegistrationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "getChatRegistrationQueue")
         self.chatMessageCounterService = ChatMessageCounterService(mmContext: mmContext)
 		super.init(mmContext: mmContext, uniqueIdentifier: "InAppChatService")
         self.chatMessageCounterService.chatService = self

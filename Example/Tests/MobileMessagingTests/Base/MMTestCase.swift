@@ -169,25 +169,26 @@ class MMTestCase: XCTestCase {
     var storage: MMCoreDataStorage {
         return self.mobileMessagingInstance.internalStorage
     }
+
     
     override func waitForExpectations(timeout: TimeInterval, handler: XCWaitCompletionHandler? = nil) {
         weak var e = expectation(description: "Queues finished")
         
-        DispatchQueue.global().async { // we don't want to block main thread because queues might dispatch to it the finish blocks
+        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 1, execute: { // we don't want to block main thread because queues might dispatch to it the finish blocks
             //todo: rework subservices to have single queue each one, then just waitUntilAllOperationsAreFinished for every subservice registered
             self.waitAllQueues(cancel: false)
             
             e?.fulfill()
-        }
+        })
         
         super.waitForExpectations(timeout: timeout, handler: handler)
     }
     
     override func setUp() {
         super.setUp()
-        //        MobileMessaging.logger = MMDefaultLogger()
-        //        MobileMessaging.logger?.logOutput = .Console
-        //        MobileMessaging.logger?.logLevel = .Debug
+//                MobileMessaging.logger = MMDefaultLogger()
+//                MobileMessaging.logger?.logOutput = .Console
+//                MobileMessaging.logger?.logLevel = .Debug
         MobileMessaging.date = DateStub(nowStub: Date(timeIntervalSince1970: testEnvironmentTimestampMillisSince1970/1000))
         MobileMessaging.doCleanUp()
     }
@@ -215,8 +216,16 @@ class MMTestCase: XCTestCase {
             }
         }
         
+//        queues.filter({$0!.operationCount > 0}).forEach { q in
+//            print("Queue  \(q?.name ?? "") has operations:")
+//            print("    \(q!.operations)")
+//            
+//        }
+        
         queues.forEach { q in
+//            print("Waiting queue  \(q!.name) to finish operations \(q!.operationCount)")
             q?.waitUntilAllOperationsAreFinished()
+//            print("Finished")
         }
     }
     

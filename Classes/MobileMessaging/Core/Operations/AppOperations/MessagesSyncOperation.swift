@@ -21,9 +21,11 @@ final class MessagesSyncOperation: GroupOperation {
         let seenStatusSending = SeenStatusSendingOperation(userInitiated: false, context: context, mmContext: mmContext)
 		
 		super.init(operations: [seenStatusSending])
-		
+        logDebug("Adding SeenStatusSendingOperation...")
+        
         let messageFetching = MessageFetchingOperation(userInitiated: userInitiated, context: context, mmContext: mmContext, finishBlock: { _ in })
 		messageFetching.addDependency(seenStatusSending)
+        logDebug("Adding MessageFetchingOperation...")
 		self.addOperation(messageFetching)
 	}
 	
