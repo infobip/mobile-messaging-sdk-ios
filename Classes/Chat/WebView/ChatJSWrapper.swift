@@ -48,6 +48,14 @@ extension WKWebView: NamedLogger {}
 
 extension WKWebView: ChatJSWrapper {
 
+    func evaluateInMainThread(_ javaScriptString: String, completionHandler: (@MainActor @Sendable (Any?, (any Error)?) -> Void)? = nil) {
+        DispatchQueue.mmEnsureMain() {
+            self.evaluateJavaScript(javaScriptString) { (response, error) in
+                completionHandler?(response, error)
+            }
+        }
+    }
+
     func sendMessage(_ message: String? = nil, attachment: ChatMobileAttachment? = nil) {
         sendMessage(message, attachment: attachment, completion: { _ in })
     }
@@ -60,7 +68,7 @@ extension WKWebView: ChatJSWrapper {
             completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
 			return
 		}
-        self.evaluateJavaScript(
+        self.evaluateInMainThread(
             "sendMessage(\(escapedMessage ?? "''"), '\(attachment?.base64UrlString() ?? "")', '\(attachment?.fileName ?? "")')")
         { [weak self] (response, error) in
 			self?.logDebug("sendMessage call got a response: \(response.debugDescription), error: \(error?.localizedDescription ?? "")")
@@ -81,7 +89,7 @@ extension WKWebView: ChatJSWrapper {
             return
         }
         
-        self.evaluateJavaScript("sendDraft(\(escapedMessage ?? ""))"){
+        self.evaluateInMainThread("sendDraft(\(escapedMessage ?? ""))"){
             (response, error) in
             self.logDebug("sendDraft call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
@@ -101,7 +109,7 @@ extension WKWebView: ChatJSWrapper {
             completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
             return
         }
-        self.evaluateJavaScript("setLanguage(\(localeEscaped))") {
+        self.evaluateInMainThread("setLanguage(\(localeEscaped))") {
             (response, error) in
             self.logDebug("setLanguage call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
@@ -110,7 +118,7 @@ extension WKWebView: ChatJSWrapper {
     
     func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE,
                             completion: @escaping (_ error: NSError?) -> Void) {
-        self.evaluateJavaScript("sendContextualData(\(metadata), '\(multiThreadStrategy.stringValue)')") {
+        self.evaluateInMainThread("sendContextualData(\(metadata), '\(multiThreadStrategy.stringValue)')") {
             (response, error) in
             self.logDebug("sendContextualData call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
@@ -120,14 +128,14 @@ extension WKWebView: ChatJSWrapper {
     // This function adds a listener to onViewChanged within the web content, informing of the status navigation if multithread is in use.
     // When a change ocurrs, it will be handled by webViewDelegate's didChangeView
     func addViewChangedListener(completion: @escaping (NSError?) -> Void) {
-        self.evaluateJavaScript("onViewChanged()") { [weak self] (response, error) in
+        self.evaluateInMainThread("onViewChanged()") { [weak self] (response, error) in
                 self?.logDebug("addViewChangedListener got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
                 completion(error as? NSError)
         }
     }
     
     func addMessageReceivedListener(completion: @escaping (NSError?) -> Void) {
-        self.evaluateJavaScript("onMessageReceived()") { [weak self] (response, error) in
+        self.evaluateInMainThread("onMessageReceived()") { [weak self] (response, error) in
             self?.logDebug("addMessageReceivedListener got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
         }
@@ -135,7 +143,7 @@ extension WKWebView: ChatJSWrapper {
     
     // This functions request a navigation from a thread chat to the thread list (possible if multithead is enabled)
     func showThreadsList(completion: @escaping (NSError?) -> Void) {
-        self.evaluateJavaScript("showThreadsList()") { [weak self] (response, error) in
+        self.evaluateInMainThread("showThreadsList()") { [weak self] (response, error) in
             self?.logDebug("showThreadsList got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
         }
@@ -144,7 +152,7 @@ extension WKWebView: ChatJSWrapper {
     // This functions pauses the chat, effectively closing its socket. As result, the connection will be considered as ended, and
     // remote push notifications will start coming to the device. This is useful for example when app is going to background/becoming inactive
     func pauseChat(completion: @escaping (NSError?) -> Void) {
-        self.evaluateJavaScript("pauseChat()") { [weak self] (response, error) in
+        self.evaluateInMainThread("pauseChat()") { [weak self] (response, error) in
             self?.logDebug("pauseChat got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
         }
@@ -153,7 +161,7 @@ extension WKWebView: ChatJSWrapper {
     // This functions resumes the chat, effectively reopening its socket. As result, the connection will be reestablished, and
     // remote push notifications will stop coming to the device. This is useful for example when app is going to foreground/becoming active
     func resumeChat(completion: @escaping (NSError?) -> Void) {
-        self.evaluateJavaScript("resumeChat()") { [weak self] (response, error) in
+        self.evaluateInMainThread("resumeChat()") { [weak self] (response, error) in
             self?.logDebug("resumeChat got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
         }
@@ -166,7 +174,7 @@ extension WKWebView: ChatJSWrapper {
             completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
             return
         }
-        self.evaluateJavaScript("setTheme(\(themeJS))") {
+        self.evaluateInMainThread("setTheme(\(themeJS))") {
             (response, error) in
             self.logDebug("setTheme call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
             completion(error as? NSError)
@@ -179,7 +187,7 @@ extension WKWebView: ChatJSWrapper {
             let data: [MMLiveChatThread]
         }
 
-        self.evaluateAsyncJavaScript(
+        self.evaluateAsyncInMainThread(
         """
         const res = await getLivechatSdk().getThreads();
         return res
@@ -209,7 +217,7 @@ extension WKWebView: ChatJSWrapper {
             let data: MMLiveChatThread
         }
 
-        self.evaluateAsyncJavaScript(
+        self.evaluateAsyncInMainThread(
         """
         const res = await getLivechatSdk().getActiveThread();
         return res
@@ -242,8 +250,8 @@ extension WKWebView: ChatJSWrapper {
             
             return
         }
-        
-        self.evaluateAsyncJavaScript(
+
+        self.evaluateAsyncInMainThread(
         """
         const res = await getLivechatSdk().getWidget().showThread(\(id));
         return res
@@ -256,7 +264,7 @@ extension WKWebView: ChatJSWrapper {
                     let reasonString = "openThread failed, unable to parse value: \(value)"
                     self?.logDebug(reasonString)
                     completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
-                    
+
                     return
                 }
                 completion(.success(result.data))

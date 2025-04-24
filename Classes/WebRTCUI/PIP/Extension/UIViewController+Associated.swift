@@ -36,20 +36,44 @@ extension UIViewController {
     }
     
     internal  var pipEventDispatcher: PIPKitEventDispatcher? {
-        get { return objc_getAssociatedObject(self, &MMAssociatedKeys.pipEventDispatcher) as? PIPKitEventDispatcher }
-        set { objc_setAssociatedObject(self, &MMAssociatedKeys.pipEventDispatcher, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get {
+            return withUnsafePointer(to: &MMAssociatedKeys.pipEventDispatcher) {
+                  return objc_getAssociatedObject(self, $0) as? PIPKitEventDispatcher
+                }
+        }
+        set {
+            withUnsafePointer(to: &MMAssociatedKeys.pipEventDispatcher) {
+                objc_setAssociatedObject(self, $0, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            }
+        }
     }
     
     @available(iOS 15.0, *)
     internal  var avUIKitRenderer: AVPIPUIKitRenderer? {
-        get { return objc_getAssociatedObject(self, &MMAssociatedKeys.avUIKitRenderer) as? AVPIPUIKitRenderer }
-        set { objc_setAssociatedObject(self, &MMAssociatedKeys.avUIKitRenderer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get {
+            return withUnsafePointer(to: &MMAssociatedKeys.avUIKitRenderer) {
+                  return objc_getAssociatedObject(self, $0) as? AVPIPUIKitRenderer
+                }
+        }
+        set {
+            withUnsafePointer(to: &MMAssociatedKeys.avUIKitRenderer) {
+                objc_setAssociatedObject(self, $0, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            }
+        }
     }
     
     @available(iOS 15.0, *)
     internal  var videoController: AVPIPKitVideoController? {
-        get { objc_getAssociatedObject(self, &MMAssociatedKeys.pipVideoController) as? AVPIPKitVideoController }
-        set { objc_setAssociatedObject(self, &MMAssociatedKeys.pipVideoController, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get {
+            return withUnsafePointer(to: &MMAssociatedKeys.pipVideoController) {
+                  return objc_getAssociatedObject(self, $0) as? AVPIPKitVideoController
+                }
+        }
+        set {
+            withUnsafePointer(to: &MMAssociatedKeys.pipVideoController) {
+                objc_setAssociatedObject(self, $0, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            }
+        }
     }
     
 }
