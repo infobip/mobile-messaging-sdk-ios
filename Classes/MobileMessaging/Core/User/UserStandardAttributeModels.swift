@@ -287,17 +287,15 @@ public enum MMGender: Int {
 	}
     public func removeSensitiveData() {
 		if MobileMessaging.privacySettings.userDataPersistingDisabled == true {
-            self.externalUserId = nil
 			self.firstName = nil
 			self.middleName = nil
 			self.lastName = nil
-            self.phones = nil
+			self.gender = nil
 			self.emails = nil
-            self.tags = nil
-            self.gender = nil
-            self.birthday = nil
+			self.phones = nil
 			self.customAttributes = nil
-            self.installations = nil
+			self.birthday = nil
+			self.externalUserId = nil
 		}
 	}
     public func handleCurrentChanges(old: MMUser, new: MMUser) {

@@ -10,14 +10,6 @@ import Foundation
 internal typealias Consts = MMConsts
 public struct MMConsts {
 
-    struct Notifications {
-        struct PrivacySettings {
-            static let appCodePersistingUpdated = "com.mobile-messaging.privacy-settings.applicationCodePersisting.updated"
-            static let userDataPersistingUpdated = "com.mobile-messaging.privacy-settings.userDataPersisting.updated"
-            static let installationPersistingUpdated = "com.mobile-messaging.privacy-settings.installationDataPersisting.updated"
-        }
-    }
-    
 	struct UserSessions {
 		static let sessionTimeoutSec = 30.0
 		static let sessionSaveInterval = 5.0

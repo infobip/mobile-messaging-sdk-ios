@@ -5,6 +5,8 @@
 //  Created by Andrey Kadochnikov on 10.03.2020.
 //
 
+import Foundation
+
 import XCTest
 import Foundation
 @testable import MobileMessaging

@@ -8,18 +8,14 @@
 import Foundation
 import CoreLocation
 
-/// Dirty - probably not the best naming. Dirty version of an object (User/Installation) is the one that contains changes made locally and not yet sent to the Infobip backend
-/// Current - is also not the best naming. Current version is a representation of what we have in Infobip database.
-/// We persist dirty in order to have eventual consistency between mobile and backend, to make retryable syncs possible.
-/// If there is no difference between dirty and current - there is no reason to send anything to the backend.
 public protocol Archivable: ArchivableCurrent {
 	var version: Int {get set}
 	static var dirtyPath: String {get}
 	func archiveAll()
 	func archiveDirty()
 	static func resetAll()
-	static func resetDirty() /// if we reset dirty then it essentially means we would deal with current data next time we retrieve dirty
-	static func unarchiveDirty() -> Self /// important note: whenever there is no dirty data it fallbacks to current
+	static func resetDirty()
+	static func unarchiveDirty() -> Self
 	func handleDirtyChanges(old: Self, new: Self)
 	static func modifyAll(with block: (Self) -> Void)
 	static func modifyDirty(with block: (Self) -> Void)

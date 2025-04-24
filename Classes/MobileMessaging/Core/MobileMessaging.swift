@@ -654,7 +654,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
         userService = nil
         eventsService = nil
         baseUrlManager = nil
-        privacySettingsService = nil
         webInAppClickService = nil
         notificationsInteractionService = nil
         httpSessionManager = nil
@@ -764,7 +763,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
         userService = UserDataService(mmContext: self)
         eventsService = EventsService(mmContext: self)
         installationService = InstallationDataService(mmContext: self)
-        privacySettingsService = PrivacySettingsService(mmContext: self)
         messageStorages.values.forEach({ $0.start() })
         
         let currentInstall = currentInstallation()
@@ -802,7 +800,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
     var eventsService: EventsService!
     var webInAppClickService: WebInAppClickService?
     var notificationsInteractionService: NotificationsInteractionService?
-    var privacySettingsService: PrivacySettingsService!
     
     
     public lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
