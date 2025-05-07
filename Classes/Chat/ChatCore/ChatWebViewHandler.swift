@@ -26,27 +26,73 @@ class ChatWebViewHandler: NamedLogger {
 extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     // MARK: - Actions
     public func sendText(_ text: String, completion: @escaping ((any Error)?) -> Void) {
-        guard validateTextLength(size: text.count) else {
-            MMInAppChatService.sharedInstance?.delegate?.textLengthExceeded?(ChatAttachmentUtils.DefaultMaxTextLength)
-            completion(NSError(chatError: MMChatError.messageLengthExceeded(ChatAttachmentUtils.DefaultMaxTextLength)))
-            return
-        }
-        webView.sendMessage(text, completion: completion)
+        send(isCreating: false, text.livechatBasicPayload, completion: completion)
     }
-    
+
     public func sendAttachment(_ fileName: String?, data: Data, completion: @escaping ((any Error)?) -> Void) {
-        guard validateAttachmentSize(size: data.count) else {
-            completion(NSError(chatError: MMChatError.attachmentSizeExceeded(maxUploadAttachmentSize)))
-            return
-        }
-        let attachment = ChatMobileAttachment(fileName, data: data)
-        webView.sendMessage(attachment: attachment, completion: completion)
+        let payload = MMLivechatBasicPayload(fileName: fileName, data: data)
+        send(isCreating: false, payload, completion: completion)
     }
-    
+
     public func sendDraft(_ message: String?, completion: @escaping ((any Error)?) -> Void) {
-        webView.sendDraft(message, completion: completion)
+        send(isCreating: false, (message ?? "").livechatDraftPayload, completion: completion)
     }
-    
+
+    public func send(_ payload: MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
+        send(isCreating: false, payload, completion: completion)
+    }
+
+    public func createThread(_ payload: MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
+        send(isCreating: true, payload, completion: completion)
+    }
+
+    private func send(isCreating: Bool, _ payload: MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
+        if let basicPayload = payload as? MMLivechatBasicPayload {
+            guard validateTextLength(size: (basicPayload.text ?? "").count) else {
+                MMInAppChatService.sharedInstance?.delegate?.textLengthExceeded?(ChatAttachmentUtils.DefaultMaxTextLength)
+                let chatError = MMChatError.messageLengthExceeded(ChatAttachmentUtils.DefaultMaxTextLength)
+                completion(NSError(chatError: chatError, chatPayload: payload))
+                return
+            }
+            guard validateAttachmentSize(size: basicPayload.byteCount) else {
+                let chatError = MMChatError.attachmentSizeExceeded(maxUploadAttachmentSize)
+                completion(NSError(chatError: chatError, chatPayload: payload))
+                return
+            }
+            if basicPayload.text?.isEmpty ?? true && basicPayload.attachment?.isEmpty ?? true {
+                completion(NSError(chatError: MMChatError.wrongPayload)) // cannot send empty payload
+                return
+            }
+        } else if let draftPayload = payload as? MMLivechatDraftPayload {
+            guard validateTextLength(size: draftPayload.text.count) else {
+                MMInAppChatService.sharedInstance?.delegate?.textLengthExceeded?(ChatAttachmentUtils.DefaultMaxTextLength)
+                let chatError = MMChatError.messageLengthExceeded(ChatAttachmentUtils.DefaultMaxTextLength)
+                completion(NSError(chatError: chatError, chatPayload: payload))
+                return
+            }
+            guard !isCreating else {
+                // Threads cannot be created with a draft - they will not produce a conversation as result
+                completion(NSError(chatError: MMChatError.wrongPayload, chatPayload: payload))
+                return
+            }
+        } else if let customPayload = payload as? MMLivechatCustomPayload {
+            guard validateTextLength(size: customPayload.customData.count),
+                  validateTextLength(size: (customPayload.agentMessage ?? "").count),
+                  validateTextLength(size: (customPayload.userMessage ?? "").count)  else {
+                MMInAppChatService.sharedInstance?.delegate?.textLengthExceeded?(ChatAttachmentUtils.DefaultMaxTextLength)
+                let chatError = MMChatError.messageLengthExceeded(ChatAttachmentUtils.DefaultMaxTextLength)
+                completion(NSError(chatError: chatError, chatPayload: payload))
+                return
+            }
+        }
+
+        if isCreating {
+            webView.createThread(payload, completion)
+        } else {
+            webView.send(payload, completion)
+        }
+    }
+
     public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy, completion: @escaping ((any Error)?) -> Void) {
         webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
     }

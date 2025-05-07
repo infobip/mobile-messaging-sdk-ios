@@ -7,10 +7,10 @@
 
 import Foundation
 
-class ChatMobileAttachment: ChatBaseAttachment {
+class ChatMobileAttachment: ChatBaseAttachment, Encodable {
     let base64: String
     let mimeType: String
-    
+
     init(_ name: String? = nil, data: Data) {
         self.base64 = data.base64EncodedString(options: NSData.Base64EncodingOptions.init(rawValue: 0))
         self.mimeType = ChatAttachmentUtils.mimeType(forData: data)

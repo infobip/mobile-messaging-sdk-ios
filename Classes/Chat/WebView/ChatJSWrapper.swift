@@ -9,21 +9,15 @@ import Foundation
 import WebKit
 
 protocol ChatJSWrapper {
-    func sendMessage(_ message: String?, attachment: ChatMobileAttachment?)
-    func sendDraft(_ message: String?)
+    func send(_ payload: MMLivechatPayload, _ completion: @escaping (_ error: NSError?) -> Void)
     func setLanguage(_ language: MMLanguage?)
-    func sendMessage(_ message: String?, attachment: ChatMobileAttachment?,
-                     completion: @escaping (_ error: NSError?) -> Void)
-    func sendDraft(_ message: String?,
-                   completion: @escaping (_ error: NSError?) -> Void)
     func setLanguage(_ language: MMLanguage?,
                      completion: @escaping (_ error: NSError?) -> Void)
     func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy,
                             completion: @escaping (_ error: NSError?) -> Void)
     func addViewChangedListener(completion: @escaping (_ error: NSError?) -> Void)
     func showThreadsList(completion: @escaping (_ error: NSError?) -> Void)
-    func setTheme(_ themeName: String,
-                 completion: @escaping (_ error: NSError?) -> Void)
+    func setTheme(_ themeName: String, completion: @escaping (_ error: NSError?) -> Void)
 }
 
 @objc public enum MMChatMultiThreadStrategy: Int
@@ -47,7 +41,6 @@ protocol ChatJSWrapper {
 extension WKWebView: NamedLogger {}
 
 extension WKWebView: ChatJSWrapper {
-
     func evaluateInMainThread(_ javaScriptString: String, completionHandler: (@MainActor @Sendable (Any?, (any Error)?) -> Void)? = nil) {
         DispatchQueue.mmEnsureMain() {
             self.evaluateJavaScript(javaScriptString) { (response, error) in
@@ -56,46 +49,87 @@ extension WKWebView: ChatJSWrapper {
         }
     }
 
-    func sendMessage(_ message: String? = nil, attachment: ChatMobileAttachment? = nil) {
-        sendMessage(message, attachment: attachment, completion: { _ in })
-    }
-    
-    func sendMessage(_ message: String? = nil, attachment: ChatMobileAttachment? = nil, completion: @escaping (NSError?) -> Void) {
-        let escapedMessage = message?.javaScriptEscapedString()
-        guard escapedMessage != nil || attachment != nil else {
-            let reasonString = "sendMessage failed, neither message nor the attachment provided"
-			logDebug(reasonString)
-            completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
-			return
-		}
-        self.evaluateInMainThread(
-            "sendMessage(\(escapedMessage ?? "''"), '\(attachment?.base64UrlString() ?? "")', '\(attachment?.fileName ?? "")')")
-        { [weak self] (response, error) in
-			self?.logDebug("sendMessage call got a response: \(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+    private func handleCompletion(
+        payload: MMLivechatPayload,
+        response: MMLivechatMessageResponse? = nil,
+        error: (any Error)? = nil,
+        completion: @escaping (_ error: NSError?) -> Void) {
+        self.logDebug(String(
+            format: payload.type.errorString,
+            response.debugDescription,
+            error?.localizedDescription ?? ""))
+        guard let response = response else {
             completion(error as? NSError)
-		}
-	}
-
-    func sendDraft(_ message: String?) {
-        sendDraft(message, completion: { _ in })
-    }
-    
-    func sendDraft(_ message: String?, completion: @escaping (_ error: NSError?) -> Void) {
-        let escapedMessage = message?.javaScriptEscapedString()
-        guard escapedMessage != nil else {
-            let reasonString = "sendDraft failed, message not provided"
-            logDebug(reasonString)
-            completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
             return
         }
-        
-        self.evaluateInMainThread("sendDraft(\(escapedMessage ?? ""))"){
-            (response, error) in
-            self.logDebug("sendDraft call got a response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
-            completion(error as? NSError)
+
+        guard let lcError = response.error, !response.success else {
+            completion(nil)
+            return
         }
+
+        let error = NSError(code: .conditionFailed,
+                            userInfo: ["reason" : lcError.description,
+                                       "payload": payload.interfaceValue])
+        completion(error)
     }
-   
+
+    func send(
+        _ payload: MMLivechatPayload,
+        _ completion: @escaping (_ error: NSError?) -> Void) {
+        let contentString = payload.interfaceValue
+        let javascriptCode =  """
+        const res = await getLivechatSdk().sendMessage(\(contentString));
+        return res;
+        """ // We should `return` at least something, native callAsyncJavaScript accept same format
+        self.evaluateAsyncInMainThread(
+        javascriptCode,
+        completion: {  [weak self] result in
+            switch result {
+            case .success(let value):
+                guard let data = try? JSONSerialization.data(withJSONObject: value),
+                      let response = try? JSONDecoder().decode(MMLivechatMessageResponse.self, from: data) else {
+                    let reasonString = "sendMessage failed, unable to parse value: \(value)"
+                    let error = NSError(code: .conditionFailed,
+                                        userInfo: ["reason" : reasonString,
+                                                   "payload": payload.interfaceValue])
+                    self?.handleCompletion(payload: payload, error: error, completion: completion)
+                    return
+                }
+                self?.handleCompletion(payload: payload, response: response, completion: completion)
+            case .failure(let error):
+                self?.handleCompletion(payload: payload, error: error, completion: completion)
+            }
+        })
+    }
+
+    func createThread(
+        _ payload: MMLivechatPayload,
+        _ completion: @escaping (_ error: NSError?) -> Void) {
+        let contentString = payload.interfaceValue
+        let javascriptCode =  """
+        const res = await getLivechatSdk().createThread(\(contentString));
+        return res;
+        """ // We should `return` at least something, native callAsyncJavaScript accept same format
+        self.evaluateAsyncInMainThread(
+        javascriptCode,
+        completion: {  [weak self] result in
+            switch result {
+            case .success(let value):
+                guard let data = try? JSONSerialization.data(withJSONObject: value),
+                      let response = try? JSONDecoder().decode(MMLivechatMessageResponse.self, from: data) else {
+                    let reasonString = "createThread failed, unable to parse value: \(value)"
+                    let error = NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])
+                    self?.handleCompletion(payload: payload, error: error, completion: completion)
+                    return
+                }
+                self?.handleCompletion(payload: payload, response: response, completion: completion)
+            case .failure(let error):
+                self?.handleCompletion(payload: payload, error: error, completion: completion)
+            }
+        })
+    }
+
     func setLanguage(_ language: MMLanguage? = nil) {
         setLanguage(language, completion: { _ in })
     }

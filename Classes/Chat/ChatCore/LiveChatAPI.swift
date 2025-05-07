@@ -8,35 +8,6 @@
 import Foundation
 import WebKit
 
-public struct MMLiveChatThread: Codable {
-    public let id: String
-    public let conversationId: String
-    public let status: Status
-
-    public enum Status: String, Codable {
-        case open = "OPEN"
-        case solved = "SOLVED"
-        case closed = "CLOSED"
-        case unknown = "UNKNOWN"
-
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.singleValueContainer()
-            let statusString = try container.decode(String.self)
-
-            switch statusString.uppercased() {
-            case "OPEN":
-                self = .open
-            case "SOLVED":
-                self = .solved
-            case "CLOSED":
-                self = .closed
-            default:
-                self = .unknown
-            }
-        }
-    }
-}
-
 public protocol MMInAppChatWidgetAPIProtocol: MMChatWebViewActions {
 
     var delegate: MMInAppChatWidgetAPIDelegate? { get set }
@@ -62,7 +33,6 @@ public protocol MMInAppChatWidgetAPIDelegate: AnyObject {
 }
 
 class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger {
-    
     private lazy var chatHandler: ChatWebViewHandler = ChatWebViewHandler(eventHandler: self)
 
     private let lock = NSLock()
@@ -113,41 +83,42 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
     }
     
     func sendDraft(_ message: String?, completion: @escaping ((any Error)?) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.sendDraft(message, completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        send((message ?? "").livechatDraftPayload, completion: completion)
     }
     
     func sendText(_ text: String, completion: @escaping ((any Error)?) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.sendText(text, completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        send(text.livechatBasicPayload, completion: completion)
     }
     
     func sendAttachment(_ fileName: String?, data: Data, completion: @escaping ((any Error)?) -> Void) {
+        let payload = MMLivechatBasicPayload(fileName: fileName, data: data)
+        send(payload, completion: completion)
+    }
+
+    func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
             guard let self else { return }
             guard let error = error else {
-                chatHandler.sendAttachment(fileName, data: data, completion: completion)
+                chatHandler.send(payload, completion: completion)
                 return
             }
-            
+
             self.logError(error.localizedDescription)
         }
     }
-    
+
+    func createThread(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
+        ensureWidgetLoaded { [weak self] error in
+            guard let self else { return }
+            guard let error = error else {
+                chatHandler.createThread(payload, completion: completion)
+                return
+            }
+
+            self.logError(error.localizedDescription)
+        }
+    }
+
     func showThreadsList(completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
             guard let self else { return }

@@ -119,11 +119,8 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 
     open override func viewWillDisappear(_ animated: Bool) {
         draftPostponer.postponeBlock(delay: 0) { [weak self] in
-            if let composeBar = self?.composeBarView as? ComposeBar {
-                self?.webView.sendDraft(composeBar.text)
-            } else {
-                self?.webView.sendDraft("")
-            }
+            let text = (self?.composeBarView as? ComposeBar)?.text
+            self?.send((text ?? "").livechatDraftPayload, completion: { _ in })
         }
         super.viewWillDisappear(animated)
     }
@@ -494,21 +491,29 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     // MARK: MMComposeBarDelegate delegate
+    @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendText(_ text: String, completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.sendText(text, completion: { error in completion(error as? NSError) })
+        webViewHandler?.send(text.livechatBasicPayload, completion: { error in completion(error as? NSError) })
     }
     // Sends a draft message to be shown in a chat-to-peer chat.
+    @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendDraft(_ message: String?, completion: @escaping (NSError?) -> Void) {
-        webViewHandler?.sendDraft(message, completion: { error in completion(error as? NSError) })
+        webViewHandler?.send((message ?? "").livechatDraftPayload, completion: { error in completion(error as? NSError) })
     }
-    
+
+    @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendAttachment(_ fileName: String? = nil, data: Data, completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.sendAttachment(fileName, data: data, completion: { error in completion(error as? NSError) })
+        let payload = MMLivechatBasicPayload(fileName: fileName, data: data)
+        webViewHandler?.send(payload, completion: { error in completion(error as? NSError) })
+    }
+
+    public override func send(_ payload: MMLivechatPayload, completion: @escaping (_ error: NSError?) -> Void) {
+        webViewHandler?.send(payload, completion: { error in completion(error as? NSError) })
     }
 
     public override func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void) {
         draftPostponer.postponeBlock(delay: userInputDebounceTimeMs) { [weak self] in
-            self?.sendDraft(text, completion: completion)
+            self?.send((text ?? "").livechatDraftPayload, completion: { _ in })
         }
     }
     
@@ -545,7 +550,8 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 
 extension MMChatViewController: ChatAttachmentPickerDelegate {
     func didSelect(filename: String?, data: Data) {
-        self.sendAttachment(filename, data: data, completion: { _ in })
+        let payload = MMLivechatBasicPayload(fileName: filename, data: data)
+        self.send(payload, completion: { _ in })
     }
     
     func permissionNotGranted(permissionKeys: [String]?) {

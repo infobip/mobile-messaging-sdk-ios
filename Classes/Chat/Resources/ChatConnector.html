@@ -29,7 +29,11 @@
            }
 
            if (!isNullOrBlank(domain)) {
-               prodURL = 'https://livechat-' + domain.toLowerCase() + '.infobip.com/widget.js';
+               if (domain === 'io') {
+                   prodURL = 'https://livechat.ioinfobip.com/widget.js';
+               } else {
+                   prodURL = 'https://livechat-' + domain.toLowerCase() + '.infobip.com/widget.js';
+               }
            }
 
            (function(I,n,f,o,b,i,p){
@@ -97,6 +101,11 @@
                        liveChat('init', widgetId,
                                 initPropagationAndShowingChat(error, result));
                    }
+                   if (domain === 'io') {
+                       setTimeout(function () {
+                           liveChat('init', '');
+                       }, 1000);
+                   }
                 }
             });
            
@@ -115,23 +124,7 @@
                    window.webkit.messageHandlers.onMessageEvent.postMessage(payload);
                });
            }
-           
-           function sendMessage(message, attachmentBase64, fileName) {
-                   liveChat('send', {
-                       'message': message,
-                       'attachment': attachmentBase64,
-                       'fileName': fileName,
-                       'type': 'BASIC'
-                   });
-           }
-       
-           function sendDraft(draft) {
-                   liveChat('send', {
-                       'message': draft,
-                       'type': 'DRAFT'
-                   });
-           }
-           
+
            function setLanguage(language) {
                liveChat('set_language', language);
            }

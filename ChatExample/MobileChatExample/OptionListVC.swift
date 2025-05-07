@@ -453,7 +453,8 @@ class CustomInputView: UIView, MMChatComposer, UITextViewDelegate {
     
     @objc func onSendPic() {
         guard let data = UIImage(named: "alphaLogo")?.pngData() else { return }
-        delegate?.sendAttachment("alphaLogo", data: data, completion: { error in
+        let payload = MMLivechatBasicPayload(fileName: "alphaLogo", data: data)
+        delegate?.send(payload, completion: { error in
             if let error = error {
                 MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
             } else {
@@ -463,7 +464,7 @@ class CustomInputView: UIView, MMChatComposer, UITextViewDelegate {
     }
     
     @objc func onSendText() {
-        delegate?.sendText(textView.text, completion: { error in
+        delegate?.send(textView.text.livechatBasicPayload, completion: { error in
             if let error = error {
                 MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
             } else {

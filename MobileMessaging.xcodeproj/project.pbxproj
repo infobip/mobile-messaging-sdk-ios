@@ -278,6 +278,7 @@
 		A843A44128F5A93600D5196F /* MMWebRTCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A843A44028F5A93600D5196F /* MMWebRTCService.swift */; };
 		A87017A829028E6F00B696CE /* MMWebRTCService+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */; };
 		A88E21562BADA839000C10A8 /* MMDispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88E21552BADA839000C10A8 /* MMDispatchQueue.swift */; };
+		A8947B282DC9E97900A3ACBF /* LiveChatAPI+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8947B272DC9E97800A3ACBF /* LiveChatAPI+Models.swift */; };
 		A8C5555F2AAF727100C52893 /* MMChatError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C5555E2AAF727100C52893 /* MMChatError.swift */; };
 		A8CBD7D1292CCDA200322961 /* UIView+Associated.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */; };
 		A8CBD7D2292CCDA200322961 /* UIWindow+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */; };
@@ -644,6 +645,7 @@
 		A86ABE51285C646F00D5E00C /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A87017A729028E6F00B696CE /* MMWebRTCService+Push.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MMWebRTCService+Push.swift"; sourceTree = "<group>"; };
 		A88E21552BADA839000C10A8 /* MMDispatchQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMDispatchQueue.swift; sourceTree = "<group>"; };
+		A8947B272DC9E97800A3ACBF /* LiveChatAPI+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveChatAPI+Models.swift"; sourceTree = "<group>"; };
 		A8C5555E2AAF727100C52893 /* MMChatError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatError.swift; sourceTree = "<group>"; };
 		A8CBD7C4292CCDA200322961 /* UIView+Associated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Associated.swift"; sourceTree = "<group>"; };
 		A8CBD7C5292CCDA200322961 /* UIWindow+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
@@ -738,6 +740,7 @@
 		25C335E22D81CE0400624BAC /* ChatCore */ = {
 			isa = PBXGroup;
 			children = (
+				A8947B272DC9E97800A3ACBF /* LiveChatAPI+Models.swift */,
 				A8FF1E112D842112003D66C8 /* LiveChatAPI.swift */,
 				25C335DF2D81CE0400624BAC /* ChatWebViewHandler.swift */,
 				25C335E02D81CE0400624BAC /* ChatWebViewHandlerProtocol.swift */,
@@ -1631,6 +1634,7 @@
 				A8171FCD2ADE5D3500AC6FC4 /* MMCallEventListener.swift in Sources */,
 				6C60A4A31FD6B169001744BC /* State.swift in Sources */,
 				76798CB020318C800005B0A7 /* ApnsRegistrationManager.swift in Sources */,
+				A8947B282DC9E97900A3ACBF /* LiveChatAPI+Models.swift in Sources */,
 				A08E503D249652FD00F026ED /* ChatNotAvailableLabel.swift in Sources */,
 				A08CB26C2459B0C600ED91B6 /* ChatWidget.swift in Sources */,
 				A8171FCF2ADE5D3500AC6FC4 /* FloatWindowView.swift in Sources */,
