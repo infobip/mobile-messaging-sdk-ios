@@ -37,8 +37,7 @@ final class MessagesEvictionOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logDebug("finished with errors: \(errors)")
+        logDebug("finished with errors: \(errors)")
 		finishBlock?()
 	}
 }

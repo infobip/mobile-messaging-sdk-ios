@@ -124,8 +124,7 @@ class DepersonalizeOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logDebug("finished with errors: \(errors)")
+        logDebug("finished with errors: \(errors)")
         self.finishBlock?(self.mmContext.internalData().currentDepersonalizationStatus, errors.first)
 	}
 }

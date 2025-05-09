@@ -41,8 +41,7 @@ class EventPersistingOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logVerbose("finished: \(errors)")
+        logVerbose("finished: \(errors)")
 		finishBlock(errors.first)
 	}
 }

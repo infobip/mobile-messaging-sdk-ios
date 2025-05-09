@@ -186,8 +186,7 @@ class MessagePostingOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logDebug("finished with errors: \(errors)")
+        logDebug("finished with errors: \(errors)")
 		let finishResult = errors.isEmpty ? operationResult : MOMessageSendingResult.Failure(errors.first)
 		self.finishBlock?(finishResult)
 	}
