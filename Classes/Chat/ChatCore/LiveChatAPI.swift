@@ -107,7 +107,7 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
         }
     }
 
-    func createThread(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
+    func createThread(_ payload: any MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
             guard let self else { return }
             guard let error = error else {

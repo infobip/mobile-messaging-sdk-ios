@@ -54,8 +54,8 @@ public protocol MMChatWebViewActions: MMLiveChatThreadsActions {
     /// Create thread with a message paload
     ///
     /// - Parameter payload: message payload to be sent to the newly created thread. Max texts length allowed is 4096 characters. Max attachment size is defined on web account level.
-    /// - Parameter completion: A closure called when the operation completes, with an optional error if it fails (including within a description of the original payload sent).
-    func createThread(_ payload: MMLivechatPayload, completion: @escaping ((Error)?) -> Void)
+    /// - Parameter completion: A closure called when the operation completes, with the thread already created in case of success, and an optional error if it fails (including within a description of the original payload sent).
+    func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (Error)?) -> Void)
 
     /// Set contextual data of the Livechat Widget.
     ///

@@ -159,14 +159,10 @@ struct ThreadAPIView: View {
 
             Button("Create thread") {
                 let text = "Some text \(Int.random(in: 0..<1000))"
-                api?.createThread(text.livechatBasicPayload, completion: { result in
-                    api?.getActiveThread(completion: { result in
-                        switch result {
-                        case .success(let thread):
-                            self.active = thread?.id ?? "There is no active conv"
-                        case .failure(_): return
-                        }
-                    })
+                api?.createThread(text.livechatBasicPayload, completion: { (thread, error) in
+                    DispatchQueue.mmEnsureMain {
+                        self.active = thread?.id ?? "There is no active conv"
+                    }
                 })
             }.frame(height: 40)
 

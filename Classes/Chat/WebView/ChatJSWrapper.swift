@@ -49,29 +49,39 @@ extension WKWebView: ChatJSWrapper {
         }
     }
 
-    private func handleCompletion(
-        payload: MMLivechatPayload,
-        response: MMLivechatMessageResponse? = nil,
-        error: (any Error)? = nil,
-        completion: @escaping (_ error: NSError?) -> Void) {
+    private func validate(_ response: MMLivechatMessageResponse?, payload: MMLivechatPayload, error: (any Error)? = nil) -> NSError? {
         self.logDebug(String(
             format: payload.type.errorString,
             response.debugDescription,
             error?.localizedDescription ?? ""))
         guard let response = response else {
-            completion(error as? NSError)
-            return
+            return error as? NSError
         }
-
         guard let lcError = response.error, !response.success else {
-            completion(nil)
-            return
+            return nil
         }
 
-        let error = NSError(code: .conditionFailed,
-                            userInfo: ["reason" : lcError.description,
-                                       "payload": payload.interfaceValue])
-        completion(error)
+        return NSError(
+            code: .conditionFailed,
+             userInfo: ["reason" : lcError.description, "payload": payload.interfaceValue])
+    }
+
+    private func handleCompletion(
+        payload: MMLivechatPayload,
+        response: MMLivechatMessageResponse? = nil,
+        error: (any Error)? = nil,
+        completion: @escaping (_ error: NSError?) -> Void) {
+        let validationError = validate(response, payload: payload, error: error)
+        completion(validationError)
+    }
+
+    private func handleCompletion(
+        payload: MMLivechatPayload,
+        response: MMLivechatMessageResponse? = nil,
+        error: (any Error)? = nil,
+        completion: (_ thread: MMLiveChatThread?, _ error: NSError?) -> Void) {
+        let validationError = validate(response, payload: payload, error: error)
+        completion(nil, validationError)
     }
 
     func send(
@@ -84,7 +94,7 @@ extension WKWebView: ChatJSWrapper {
         """ // We should `return` at least something, native callAsyncJavaScript accept same format
         self.evaluateAsyncInMainThread(
         javascriptCode,
-        completion: {  [weak self] result in
+        completion: { [weak self] result in
             switch result {
             case .success(let value):
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
@@ -105,7 +115,7 @@ extension WKWebView: ChatJSWrapper {
 
     func createThread(
         _ payload: MMLivechatPayload,
-        _ completion: @escaping (_ error: NSError?) -> Void) {
+        _ completion: @escaping (_ thread: MMLiveChatThread?, _ error: NSError?) -> Void) {
         let contentString = payload.interfaceValue
         let javascriptCode =  """
         const res = await getLivechatSdk().createThread(\(contentString));
@@ -123,7 +133,21 @@ extension WKWebView: ChatJSWrapper {
                     self?.handleCompletion(payload: payload, error: error, completion: completion)
                     return
                 }
-                self?.handleCompletion(payload: payload, response: response, completion: completion)
+                guard response.success else {
+                    self?.handleCompletion(payload: payload, response: response, completion: completion)
+                    return
+                }
+                // If the thread was successfully created, we retrieve its value
+                DispatchQueue.main.asyncAfter(deadline: .now()+0.5) { // Delay to avoid a known latency issue in BE
+                    self?.getActiveThread() { activeResponse in
+                        switch activeResponse {
+                        case .success(let thread):
+                            completion(thread, nil)
+                        case .failure(let error):
+                            self?.handleCompletion(payload: payload, error: error, completion: completion)
+                        }
+                    }
+                }
             case .failure(let error):
                 self?.handleCompletion(payload: payload, error: error, completion: completion)
             }
@@ -261,7 +285,8 @@ extension WKWebView: ChatJSWrapper {
             case .success(let value):
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
                       let result = try? JSONDecoder().decode(Response.self, from: data) else {
-                    return completion(.success(nil))
+                    completion(.success(nil))
+                    return
                 }
                 completion(.success(result.data))
             case .failure(let error):
