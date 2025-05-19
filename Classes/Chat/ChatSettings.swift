@@ -44,16 +44,10 @@ private typealias CBC = ComposeBarConsts
 @objcMembers
 public class MMChatSettings: NSObject, MMPropertyLoopable {
     public static var settings: MMChatSettings = MMChatSettings()
-    @available(*, deprecated, message: "The variable `widgetTheme` and `settings` should now be used instead for altering the chat colours. This variable will be removed in a future release")
-    public static var darkSettings: MMChatSettings?
     // You can define your own custom appearance for chat view by accessing a chat settings object.
     public private(set) static var sharedInstance: MMChatSettings {
         get {
-            if MMChatSettings.isDarkMode {
-                return darkSettings ?? settings
-            } else {
-                return settings
-            }
+            return settings
         }
         set {
             settings = newValue
@@ -84,16 +78,6 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
 
     public var multithreadBackButton: UIBarButtonItem?
     
-    @available(*, deprecated, message: "The variable `widgetTheme` and `settings` should now be used instead for altering the chat colours. This variable will be removed in a future release")
-    public static var colorTheme: ColorTheme = .light {
-        didSet {
-            switch colorTheme {
-            case .light: MMChatSettings.isDarkMode = false
-            case .dark: MMChatSettings.isDarkMode = true
-            default: return
-            }
-        }
-    }
     internal static var isDarkMode: Bool = false { didSet {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "com.mobile-messaging.chat.settings.updated"), object: MMChatSettings.sharedInstance)
     } }
@@ -110,6 +94,9 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
             if navBarColor == nil {
                 navBarColor = color
             }
+        }
+        if let primaryTextColor = widget.primaryTextColor, navBarTitleColor == nil {
+            navBarTitleColor = UIColor(hexString: primaryTextColor)
         }
         if let background = widget.backgroundColor {
             let color = UIColor(hexString: background)

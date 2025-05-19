@@ -9,16 +9,13 @@ import Foundation
 import WebKit
 
 public protocol MMInAppChatWidgetAPIProtocol: MMChatWebViewActions {
-
     var delegate: MMInAppChatWidgetAPIDelegate? { get set }
-    
-    /// Manually preloads the widget.
-    ///
-    /// Calling any action within `MMInAppChatWidgetAPI` will automatically load the widget if it hasn't been loaded already.
-    func loadWidget()
 
     /// Reset the widget, stop connection and load blank page
     func reset()
+
+    /// Manually preloads the widget. Note: widget state is checked by all other API methods, so this method is not necessary in conjunction with them. You may only need loadWidget() after using reset() above, and in case you just want to listen to incoming widget events.
+    func loadWidget()
 }
  
 public protocol MMInAppChatWidgetAPIDelegate: AnyObject {
@@ -197,6 +194,7 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
         chatHandler.webView.load(URLRequest(url: URL(string: "about:blank")!))
         chatHandler.webView.isLoaded = false
     }
+     
     // MARK: - Utility methods
     private func ensureWidgetLoaded(completion: @escaping (Error?) -> Void) {
         Thread { [weak self] in

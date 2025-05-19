@@ -27,7 +27,7 @@ public final class MMPopOverBar {
     private var options = Options(shouldConsiderSafeArea: true, isStretchable: true, textAlignment: .left)
     private var baseView = PopOverBaseView()
     private var safeArea: UIEdgeInsets {
-        let window = UIApplication.shared.keyWindow
+        let window = UIApplication.shared._keyWindow
         return window?.safeAreaInsets ?? .zero
     }
 

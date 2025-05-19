@@ -54,16 +54,35 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
         completion(nil, NSError(chatError: chatError, chatPayload: payload))
     }
 
+    private func validateAttachment(_ basicPayload: MMLivechatBasicPayload) -> MMChatError? {
+        /*
+         Rules:
+         - Max attachment sized checked with remote widget configuration value
+         - The case of both empty (text and attachment) is invalid: we cannot create a message without payload data
+         - Attachments are only allowed if their upload is enabled in the remote widget configuration
+         - Attachments of extensions not in the allowed types list are to be excluded
+         */
+        if !validateAttachmentSize(size: basicPayload.byteCount) {
+            return MMChatError.attachmentSizeExceeded(maxUploadAttachmentSize)
+        } else if basicPayload.text?.isEmpty ?? true, basicPayload.attachment?.isEmpty ?? true {
+            return .wrongPayload
+        } else if !(basicPayload.attachment?.isEmpty ?? true), !(chatWidget?.attachments.isEnabled ?? false) {
+            return .attachmentNotAllowed
+        } else if let attachmentExtension = basicPayload.attachmentInfo?.fileExtension,
+                  !(chatWidget?.attachments.allowedExtensions.contains(attachmentExtension) ?? false) {
+            return .attachmentNotAllowed
+        }
+        return nil
+    }
+
     private func validatePayload(_ payload: MMLivechatPayload, isCreating: Bool) -> MMChatError? {
         var chatError: MMChatError?
         if let basicPayload = payload as? MMLivechatBasicPayload {
             if !validateTextLength(size: (basicPayload.text ?? "").count) {
                 MMInAppChatService.sharedInstance?.delegate?.textLengthExceeded?(ChatAttachmentUtils.DefaultMaxTextLength)
                 chatError = .messageLengthExceeded(ChatAttachmentUtils.DefaultMaxTextLength)
-            } else if !validateAttachmentSize(size: basicPayload.byteCount) {
-                chatError = MMChatError.attachmentSizeExceeded(maxUploadAttachmentSize)
-            } else if basicPayload.text?.isEmpty ?? true && basicPayload.attachment?.isEmpty ?? true {
-                chatError = .wrongPayload
+            } else {
+                chatError = validateAttachment(basicPayload)
             }
         } else if let draftPayload = payload as? MMLivechatDraftPayload {
             if !validateTextLength(size: draftPayload.text.count) {
@@ -148,7 +167,7 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     }
     
     private var maxUploadAttachmentSize: UInt {
-        return chatWidget?.maxUploadContentSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize
+        return chatWidget?.attachments.maxSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize
     }
 }
 

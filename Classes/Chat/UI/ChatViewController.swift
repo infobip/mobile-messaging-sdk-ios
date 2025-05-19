@@ -46,11 +46,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
 
     private var webViewHandler: ChatWebViewHandler?
-    
+
     var webView: ChatWebView! {
         return webViewHandler?.webView
     }
-    
+
     public private(set) var chatWidget: ChatWidget? {
         get { return webViewHandler?.chatWidget }
         set { webViewHandler?.chatWidget = newValue }
@@ -95,7 +95,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         super.loadView()
         setupWebView()
         setupChatNotAvailableLabel()
-        handleColorTheme()
     }
 
     open override func viewDidLoad() {
@@ -138,8 +137,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         MobileMessaging.inAppChat?.isChatScreenVisible = false
     }
     
-    private lazy var chatAttachmentPicker: ChatAttachmentPicker = ChatAttachmentPicker(delegate: self)
-    
+    private lazy var chatAttachmentPicker: ChatAttachmentPicker = ChatAttachmentPicker(
+        delegate: self, allowedContentTypes: self.chatWidget?.attachments.allowedExtensions ?? [])
+
     private func handleMultithreadBackButton(appearing: Bool) {
         if appearing {
             if firstTimeHandlingMultithread {
@@ -257,7 +257,8 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     func didLoadWidget(_ widget: ChatWidget) {
         chatWidget = widget
         webView.loadWidget(widget)
-        isComposeBarVisible = !(widget.isMultithread ?? false)
+        isComposeBarVisible = !(widget.isMultithread ?? false) // multithread displays first a list of threads, without input.
+        (composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -289,21 +290,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
                 return
             })
         }
-    }
-
-    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        let css: String? = {
-            switch MMChatSettings.colorTheme {
-            case .dark: return "img {-webkit-filter: invert(100%);} html {-webkit-filter: invert(100%);}"
-            case .auto: return "@media (prefers-color-scheme: dark) { img {-webkit-filter: invert(100%);} html {-webkit-filter: invert(100%);}}"
-            case .light: return nil /// In case of light theme we dont need to inject css
-            }
-        }()
-        
-        guard let css = css else { return }
-        let script = "var style = document.createElement('style'); style.innerHTML = '\(css)'; document.head.appendChild(style);"
-        let cssScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-        webView.configuration.userContentController.addUserScript(cssScript)
     }
 
     public func setLanguage(_ language: MMLanguage, completion: @escaping (_ error: NSError?) -> Void) {
@@ -602,7 +588,7 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
     }
 
     private var maxUploadAttachmentSize: UInt {
-        return chatWidget?.maxUploadContentSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize
+        return chatWidget?.attachments.maxSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize
     }
 }
 
@@ -615,24 +601,6 @@ extension MMChatViewController: WKNavigationDelegate {
         logDebug("will open URL: \(url)")
         UIApplication.shared.open(url)
         decisionHandler(.cancel)
-    }
-}
-
-extension MMChatViewController {
-    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
-            handleColorTheme()
-        }
-    }
-    
-    func handleColorTheme() {
-        MMChatSettings.isDarkMode = {
-            switch MMChatSettings.colorTheme {
-            case .auto: return traitCollection.userInterfaceStyle == .dark
-            case .dark: return true
-            case .light: return false
-            }
-        }()
     }
 }
 

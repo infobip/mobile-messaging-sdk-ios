@@ -192,13 +192,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
             presenterVC: self.navigationController ?? self.parent ?? self)
     }
     
-    func onChangeColorTheme() {
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-        if let vc = storyboard.instantiateViewController(withIdentifier: "setColorTheme") as? ColorThemeTableVC {
-            navigationController?.present(vc, animated: true, completion: nil)
-        }
-    }
-    
     func showLanguageVC() {
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         if let vc = storyboard.instantiateViewController(withIdentifier: "setLanguage") as? LanguageTableVC {
@@ -301,8 +294,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
             showPersonalizationVC()
         case .depersonalize:
             onDePersonalize()
-        case .changeColorTheme:
-            onChangeColorTheme()
         case .externalChatInputVC:
             BadgeCounterHandler.clearBadge()
             onExternalUIKitChat()
@@ -379,13 +370,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.settings.errorLabelTextColor = .white
         MMChatSettings.settings.errorLabelBackgroundColor = .red
         MMChatSettings.settings.widgetTheme = "dark" // You need to have this theme defined in your widget's setup. See method 'onChangeTheme' for more info.
-        MMChatSettings.darkSettings = MMChatSettings()
-        MMChatSettings().reversedColors()
-        MMChatSettings.darkSettings?.backgroundColor = .black
-        MMChatSettings.darkSettings?.advancedSettings.mainTextColor                 = .white
-        MMChatSettings.darkSettings?.advancedSettings.mainPlaceholderTextColor      = .lightGray
-        MMChatSettings.darkSettings?.advancedSettings.textInputBackgroundColor      = .black
-        MMChatSettings.darkSettings?.advancedSettings.typingIndicatorColor          = .darkGray
     }
 
 // Uncomment if you want to handle call UI here.

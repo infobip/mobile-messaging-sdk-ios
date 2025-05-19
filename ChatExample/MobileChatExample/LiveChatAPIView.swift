@@ -99,11 +99,11 @@ struct LiveChatAPIView: View {
                 }.frame(height: 40)
 
                 Button("Reset") {
-                    api?.reset()
+                   api?.reset()
                 }.frame(height: 40)
 
                 Button("Load") {
-                    api?.loadWidget()
+                   api?.loadWidget()
                 }.frame(height: 40)
             }
         }

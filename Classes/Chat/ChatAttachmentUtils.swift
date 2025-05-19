@@ -7,6 +7,7 @@
 
 import Foundation
 import MobileCoreServices
+import Photos
 
 class ChatAttachmentUtils: NamedLogger {
     static let DefaultMaxAttachmentSize: UInt = 10*1024*1024 // 10Mb
@@ -18,7 +19,7 @@ class ChatAttachmentUtils: NamedLogger {
         }
         return result
     }
-    
+
     static func fileExtension(forData data: Data) -> String? {
         return Swime.mimeType(data: data)?.ext
     }
@@ -38,5 +39,27 @@ class ChatAttachmentUtils: NamedLogger {
             logWarn("\(key) isn't defined in info.plist")
         }
         return result
+    }
+
+
+    @available(iOS 14.0, *)
+    static func convertToUTType(_ allowedContentTypes: [String]) -> [UTType] {
+        var contentTypes: [UTType] = []
+        for typeExtension in allowedContentTypes {
+            if let uType = UTType(filenameExtension: typeExtension) {
+                contentTypes.append(uType)
+            }
+        }
+        return contentTypes
+    }
+
+    static func isCameraNeeded(for allowedContentTypes: [String]) -> Bool {
+        let videoExtensions: Set<String> = ["mp4", "mkv", "avi", "mov", "wmv", "flv", "webm", "mpeg", "mpg", "m4v", "3gp", "ogv", "ts", "vob", "rm", "rmvb", "divx", "asf", "m2ts", "srt"]
+
+        let imageExtensions: Set<String> = ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif", "webp", "svg", "ico", "heic", "heif", "raw", "cr2", "nef", "arw", "dng", "psd"]
+
+        let allowedVideoTypes = Set(allowedContentTypes).intersection(videoExtensions)
+        let alloweImagesTypes =  Set(allowedContentTypes).intersection(imageExtensions)
+        return !(allowedVideoTypes.isEmpty && alloweImagesTypes.isEmpty)
     }
 }

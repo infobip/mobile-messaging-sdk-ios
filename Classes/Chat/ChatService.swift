@@ -271,7 +271,7 @@ public class MMInAppChatService: MobileMessagingService {
 
     internal func obtainChatRegistrations() {
         // Chat registrarions are only needed for "calls enabled" widgest. Skip otherwise.
-        guard let widgetId = chatWidget?.widgetId, (chatWidget?.callsEnabled ?? true) else { return }
+        guard let widgetId = chatWidget?.id, (chatWidget?.callsEnabled ?? true) else { return }
         getChatRegistrationQueue.addOperation(
             GetChatRegistrationsOperation(mmContext: mmContext) { [weak self] (error, ChatRegistrations) in
                 if let error = error {
