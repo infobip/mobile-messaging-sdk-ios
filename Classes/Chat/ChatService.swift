@@ -135,7 +135,7 @@ public class MMInAppChatService: MobileMessagingService {
         }
 	}
     
-        public var onRawMessageReceived: ((Any) -> Void)?
+    public var onRawMessageReceived: ((Any) -> Void)?
 
     public override func suspend() {
         NotificationCenter.default.removeObserver(self)

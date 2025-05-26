@@ -19,7 +19,7 @@ public struct ChatWidget: Decodable {
 	public let primaryColor: String?
     public let primaryTextColor: String?
 	public let backgroundColor: String?
-    public let isMultithread: Bool?
+    public let multiThread: Bool?
     public let callsEnabled: Bool?
     public let themeNames: [String]?
     public let attachments: ChatWidgetAttachmentSettings

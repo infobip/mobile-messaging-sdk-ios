@@ -65,7 +65,6 @@ extension WKWebView {
     
     /// Evaluates asynchronous JavaScript and returns the result via completion handler
     public func evaluateAsyncInMainThread(_ javaScript: String, completion: @escaping (Swift.Result<Any, Error>) -> Void) {
-
         if #available(iOS 14.0, *) {
             DispatchQueue.mmEnsureMain {
                 self.callAsyncJavaScript(

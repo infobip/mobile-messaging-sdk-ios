@@ -127,7 +127,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         super.viewDidAppear(animated)
         MobileMessaging.inAppChat?.isChatScreenVisible = true
         MobileMessaging.inAppChat?.resetMessageCounter()
-        if chatWidget?.isMultithread ?? false {
+        if chatWidget?.multiThread ?? false {
            handleMultithreadBackButton(appearing: true)
         }
     }
@@ -234,7 +234,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             return
         }
 
-        if chatWidget?.isMultithread ?? false {
+        if chatWidget?.multiThread ?? false {
            handleMultithreadBackButton(appearing: false) // actual back action. We do not trigger this in viewDidDisappear because we could recognise wrong a pushing of new VC instead of a popping of current (remember, we are intercepting the back action with a left button replacement)
         }
 
@@ -257,7 +257,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     func didLoadWidget(_ widget: ChatWidget) {
         chatWidget = widget
         webView.loadWidget(widget)
-        isComposeBarVisible = !(widget.isMultithread ?? false) // multithread displays first a list of threads, without input.
+        isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
         (composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
     }
     
@@ -331,7 +331,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     func didShowComposeBar(_ visible: Bool) {
-        guard !(chatWidget?.isMultithread ?? false) else { return }
+        guard !(chatWidget?.multiThread ?? false) else { return }
         isComposeBarVisible = visible
     }
     
@@ -456,7 +456,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
 
     public func didChangeView(_ state: MMChatWebViewState) {
-        if !(chatWidget?.isMultithread ?? false) {
+        if !(chatWidget?.multiThread ?? false) {
             isComposeBarVisible = true
             isChattingInMultithread = false
         } else {
@@ -464,7 +464,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
         }
 
-        if chatWidget?.isMultithread ?? false {
+        if chatWidget?.multiThread ?? false {
             hideLeftButton(!isChattingInMultithread && (self.navigationItem.backBarButtonItem == nil || initialBackButtonIsHidden))
         }
 

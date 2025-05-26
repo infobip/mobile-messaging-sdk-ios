@@ -137,17 +137,7 @@ extension WKWebView: ChatJSWrapper {
                     self?.handleCompletion(payload: payload, response: response, completion: completion)
                     return
                 }
-                // If the thread was successfully created, we retrieve its value
-                DispatchQueue.main.asyncAfter(deadline: .now()+0.5) { // Delay to avoid a known latency issue in BE
-                    self?.getActiveThread() { activeResponse in
-                        switch activeResponse {
-                        case .success(let thread):
-                            completion(thread, nil)
-                        case .failure(let error):
-                            self?.handleCompletion(payload: payload, error: error, completion: completion)
-                        }
-                    }
-                }
+                completion(response.data?.thread, nil)
             case .failure(let error):
                 self?.handleCompletion(payload: payload, error: error, completion: completion)
             }
@@ -198,7 +188,7 @@ extension WKWebView: ChatJSWrapper {
             completion(error as? NSError)
         }
     }
-    
+
     // This functions request a navigation from a thread chat to the thread list (possible if multithead is enabled)
     func showThreadsList(completion: @escaping (NSError?) -> Void) {
         self.evaluateInMainThread("showThreadsList()") { [weak self] (response, error) in

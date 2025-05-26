@@ -31,7 +31,7 @@ public protocol MMInAppChatWidgetAPIDelegate: AnyObject {
 
 class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger {
     private lazy var chatHandler: ChatWebViewHandler = ChatWebViewHandler(eventHandler: self)
-
+    private var didSetOnMessageReceivedListener = false
     private let lock = NSLock()
     private var pendingActions: [(Error?) -> Void] = []
     
@@ -294,6 +294,7 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
             if currentViewState != state, state != .loading {
                 // In case actions are pending, we finally trigger them successfully if the view state just became valid.
                 triggerPendingActions(with: nil)
+                addMessageEventListener()
             }
             currentViewState = state
 
@@ -313,6 +314,18 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
             }
             delegate?.onRawMessageReceived(jsMessage.message)
         default: return
+        }
+    }
+
+    private func addMessageEventListener() {
+        if !didSetOnMessageReceivedListener { // we cannot add listeners before widget achieves a post-loading state
+            chatHandler.webView.addMessageReceivedListener(completion: { [weak self] error in
+                if let error = error {
+                    self?.logError(error.description)
+                }
+                self?.didSetOnMessageReceivedListener = true
+                return
+            })
         }
     }
 }

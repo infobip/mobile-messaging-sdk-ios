@@ -167,6 +167,11 @@ public struct MMLivechatAPIError: Codable {
 struct MMLivechatMessageResponse: Codable {
     let success: Bool
     let error: MMLivechatAPIError?
+    let data: MMLivechatMessageData?
+}
+
+struct MMLivechatMessageData: Codable {
+    let thread: MMLiveChatThread?
 }
 
 public extension String {
