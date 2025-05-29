@@ -73,8 +73,8 @@ public class MMInAppChatService: MobileMessagingService {
     
 	init(mmContext: MobileMessaging) {
         self.q = DispatchQueue(label: "chat-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
-        self.getWidgetQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
-        self.getChatRegistrationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q)
+        self.getWidgetQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "getWidgetQueue")
+        self.getChatRegistrationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: q, name: "getChatRegistrationQueue")
         self.chatMessageCounterService = ChatMessageCounterService(mmContext: mmContext)
 		super.init(mmContext: mmContext, uniqueIdentifier: "InAppChatService")
         self.chatMessageCounterService.chatService = self
@@ -271,7 +271,7 @@ public class MMInAppChatService: MobileMessagingService {
 
     internal func obtainChatRegistrations() {
         // Chat registrarions are only needed for "calls enabled" widgest. Skip otherwise.
-        guard let widgetId = chatWidget?.widgetId, (chatWidget?.callsEnabled ?? true) else { return }
+        guard let widgetId = chatWidget?.id, (chatWidget?.callsEnabled ?? true) else { return }
         getChatRegistrationQueue.addOperation(
             GetChatRegistrationsOperation(mmContext: mmContext) { [weak self] (error, ChatRegistrations) in
                 if let error = error {
@@ -375,25 +375,40 @@ public class MMInAppChatService: MobileMessagingService {
         _ message: MM_MTMessage,
         completion: @escaping (MessageHandlingResult) -> Void
     ) {
+        // 1. Only livechat related actions should proceed opening livechat
         guard let tapIdentifier = message.appliedAction?.identifier,
-              (tapIdentifier == MMNotificationAction.DefaultActionId || tapIdentifier == MMNotificationAction.PrimaryActionId),
-              let keyword = message.openLiveChatKeyword else {
+              (tapIdentifier == MMNotificationAction.DefaultActionId || tapIdentifier == MMNotificationAction.PrimaryActionId) else {
             completion(.noData)
             return
         }
-
-        guard let widgetId = chatWidget?.widgetId else {
-            logError("WidgetId not found. In-App action could not open LiveChat")
+        // 2. If there is no widget available, nothing can be done.
+        guard let chatWidget = chatWidget else {
+            logError("Widget not found. In-App action could not open LiveChat")
             completion(.noData)
             return
         }
-
-        // FIXME: it should be api.createThread(keyword) once LC BE is ready, see https://jira.infobip.com/browse/CHAT-3336
-        api.sendText(keyword) { [weak self] error in
-            if let error = error {
-                self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(widgetId): error \(error.localizedDescription)")
+        // 3. We present the widget first, in current thread.
+        self.displayLiveChat(for: message, completion: completion)
+        // 4. If there is no keyword, the flow ends as there is nothing to send
+        guard let keyword = message.openLiveChatKeyword else {
+            return
+        }
+        // 4. Any further API action is triggered in background (note they take several seconds the first time API is used). The widget would be presented sooner, in loading UI state
+        DispatchQueue.main.async { [weak self] in
+            guard chatWidget.multiThread ?? false else {
+                // 4.1 No new thread needed, we just send payload
+                self?.api.send(keyword.livechatBasicPayload) { error in
+                    if let error = error {
+                        self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+                    }
+                }
+                return
+            } // 4.1 Otherwise we create thread with payload
+            self?.api.createThread(keyword.livechatBasicPayload) { thread, error in
+                if let error = error {
+                    self?.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+                }
             }
-            self?.displayLiveChat(for: message, completion: completion)
         }
     }
 

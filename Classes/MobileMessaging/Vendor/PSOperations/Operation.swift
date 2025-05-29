@@ -319,6 +319,8 @@ open class Operation: Foundation.Operation {
         operation has finished.
     */
     fileprivate var hasFinishedAlready = false
+    
+    
     public final func finish(_ errors: [NSError] = []) {
         stateAccess.lock()
         defer { stateAccess.unlock() }
@@ -329,12 +331,7 @@ open class Operation: Foundation.Operation {
         
         _internalErrors += errors
         
-        let finishedBlock = { self.finished(self._internalErrors) }
-        if userInitiated {
-            DispatchQueue.main.async(execute: finishedBlock)
-        } else {
-            finishedBlock()
-        }
+        self.finished(self._internalErrors)
         
         for observer in observers {
             observer.operationDidFinish(self, errors: _internalErrors)

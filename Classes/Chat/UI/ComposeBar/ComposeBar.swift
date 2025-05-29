@@ -197,6 +197,11 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 			updateUtilityButtonVisibility()
 		}
 	}
+    public var isAttachmentUploadEnabled: Bool = false {
+        didSet {
+            updateUtilityButtonVisibility()
+        }
+    }
 
 	//MARK: - Public methods
 	
@@ -493,13 +498,12 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	private func updateUtilityButtonVisibility() {
-		if utilityButtonImage != nil && utilityButton.superview == nil {
-			shifTextFieldInDirection(+1)
-			insertUtilityButton()
-		} else if utilityButtonImage == nil && utilityButton.superview != nil  {
-			shifTextFieldInDirection(-1)
-			removeUtilityButton()
-		}
+        guard isAttachmentUploadEnabled, utilityButtonImage != nil else {
+            removeUtilityButton()
+            return
+        }
+
+        insertUtilityButton()
 	}
 	
 	private func updatePlaceholderVisibility() {
@@ -513,7 +517,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
         precondition(Thread.isMainThread, "Not on main thread")
         guard let text = textBuffer.first else { return }
         textBuffer.removeFirst()
-        delegate?.sendText(text, completion: { error in
+        delegate?.send(text.livechatBasicPayload, completion: { error in
             guard error == nil else { return }
             DispatchQueue.main.async { [weak self] in
                 self?.handleTextBuffer()
@@ -555,6 +559,8 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	private func insertUtilityButton() {
+        guard utilityButton.superview == nil else { return }
+        shifTextFieldInDirection(+1)
 		let ub: UIButton = self.utilityButton
 		var utilityButtonFrame = ub.frame
 		utilityButtonFrame.origin.x = ComposeBarConsts.kHorizontalSpacing
@@ -564,6 +570,8 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	private func removeUtilityButton() {
+        guard utilityButton.superview != nil else { return }
+        shifTextFieldInDirection(-1)
 		utilityButton.removeFromSuperview()
 	}
 	

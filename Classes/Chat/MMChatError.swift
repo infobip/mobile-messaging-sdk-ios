@@ -11,14 +11,20 @@ public let MMChatErrorDomain = "com.inappchat"
 
 public enum MMChatError: Error {
     case messageLengthExceeded(UInt),
-         attachmentSizeExceeded(UInt)
+         attachmentSizeExceeded(UInt),
+         wrongPayload,
+         attachmentNotAllowed
 
     fileprivate var errorCode: Int {
         switch self {
         case .messageLengthExceeded:
-            return 0
+            return -1
         case .attachmentSizeExceeded:
-            return 1
+            return -2
+        case .wrongPayload:
+            return -3
+        case .attachmentNotAllowed:
+            return -4
         }
     }
 
@@ -30,6 +36,10 @@ public enum MMChatError: Error {
             errorDescription = "MMChatError: Message length exceeded: \(limit) characters"
         case .attachmentSizeExceeded(let limit):
             errorDescription = "MMChatError: Attachment size exceeded: \(limit) bytes"
+        case .wrongPayload:
+            errorDescription = "MMChatError: Incorrect payload values"
+        case .attachmentNotAllowed:
+            errorDescription = "MMChatError: Attachment uploading or file extension not allowed"
         }
 
         return [NSLocalizedDescriptionKey: errorDescription]
@@ -41,7 +51,10 @@ public enum MMChatError: Error {
 }
 
 extension NSError {
-    public convenience init(chatError: MMChatError) {
-        self.init(domain: MMChatErrorDomain, code: chatError.errorCode, userInfo: chatError.userInfo)
+    public convenience init(chatError: MMChatError, chatPayload: MMLivechatPayload? = nil) {
+        self.init(
+            domain: MMChatErrorDomain,
+            code: chatError.errorCode,
+            userInfo: chatError.userInfo +  ["payload": chatPayload?.interfaceValue ?? ""])
     }
 }

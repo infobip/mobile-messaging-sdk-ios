@@ -9,6 +9,20 @@ import UIKit
 #if WEBRTCUI_ENABLED
 import InfobipRTC
 
+extension UIWindow {
+    static var mmIsLandscape: Bool {
+        if #available(iOS 13.0, *) {
+            return UIApplication.shared.windows
+                .first?
+                .windowScene?
+                .interfaceOrientation
+                .isLandscape ?? false
+        } else {
+            return UIApplication.shared.statusBarOrientation.isLandscape
+        }
+    }
+}
+
 class MediaCallView: UIView {
     /// Views
     lazy var backgroundStreamView: UIView = {
@@ -217,7 +231,7 @@ class MediaCallView: UIView {
     // MARK: Orientaiton
     private func changeOrientation()  {
         if #available(iOS 16.0, *) {
-            if UIApplication.shared.statusBarOrientation.isLandscape {
+            if UIWindow.mmIsLandscape {
                 let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
                 windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
             } else {
@@ -225,7 +239,7 @@ class MediaCallView: UIView {
                 windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
             }
         } else {
-            if UIDevice.current.orientation.isLandscape {
+            if UIWindow.mmIsLandscape {
                 UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
             } else {
                 UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation")

@@ -104,8 +104,7 @@ class UserSessionsReportingOperation : MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logDebug("finished: \(errors)")
+        logDebug("finished: \(errors)")
 		finishBlock(errors.first)
 	}
 }

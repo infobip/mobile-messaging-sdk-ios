@@ -46,11 +46,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
 
     private var webViewHandler: ChatWebViewHandler?
-    
+
     var webView: ChatWebView! {
         return webViewHandler?.webView
     }
-    
+
     public private(set) var chatWidget: ChatWidget? {
         get { return webViewHandler?.chatWidget }
         set { webViewHandler?.chatWidget = newValue }
@@ -95,7 +95,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         super.loadView()
         setupWebView()
         setupChatNotAvailableLabel()
-        handleColorTheme()
     }
 
     open override func viewDidLoad() {
@@ -119,11 +118,8 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 
     open override func viewWillDisappear(_ animated: Bool) {
         draftPostponer.postponeBlock(delay: 0) { [weak self] in
-            if let composeBar = self?.composeBarView as? ComposeBar {
-                self?.webView.sendDraft(composeBar.text)
-            } else {
-                self?.webView.sendDraft("")
-            }
+            let text = (self?.composeBarView as? ComposeBar)?.text
+            self?.send((text ?? "").livechatDraftPayload, completion: { _ in })
         }
         super.viewWillDisappear(animated)
     }
@@ -131,7 +127,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         super.viewDidAppear(animated)
         MobileMessaging.inAppChat?.isChatScreenVisible = true
         MobileMessaging.inAppChat?.resetMessageCounter()
-        if chatWidget?.isMultithread ?? false {
+        if chatWidget?.multiThread ?? false {
            handleMultithreadBackButton(appearing: true)
         }
     }
@@ -141,8 +137,9 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         MobileMessaging.inAppChat?.isChatScreenVisible = false
     }
     
-    private lazy var chatAttachmentPicker: ChatAttachmentPicker = ChatAttachmentPicker(delegate: self)
-    
+    private lazy var chatAttachmentPicker: ChatAttachmentPicker = ChatAttachmentPicker(
+        delegate: self, allowedContentTypes: self.chatWidget?.attachments.allowedExtensions ?? [])
+
     private func handleMultithreadBackButton(appearing: Bool) {
         if appearing {
             if firstTimeHandlingMultithread {
@@ -237,7 +234,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             return
         }
 
-        if chatWidget?.isMultithread ?? false {
+        if chatWidget?.multiThread ?? false {
            handleMultithreadBackButton(appearing: false) // actual back action. We do not trigger this in viewDidDisappear because we could recognise wrong a pushing of new VC instead of a popping of current (remember, we are intercepting the back action with a left button replacement)
         }
 
@@ -260,7 +257,8 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     func didLoadWidget(_ widget: ChatWidget) {
         chatWidget = widget
         webView.loadWidget(widget)
-        isComposeBarVisible = !(widget.isMultithread ?? false)
+        isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
+        (composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -292,21 +290,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
                 return
             })
         }
-    }
-
-    public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        let css: String? = {
-            switch MMChatSettings.colorTheme {
-            case .dark: return "img {-webkit-filter: invert(100%);} html {-webkit-filter: invert(100%);}"
-            case .auto: return "@media (prefers-color-scheme: dark) { img {-webkit-filter: invert(100%);} html {-webkit-filter: invert(100%);}}"
-            case .light: return nil /// In case of light theme we dont need to inject css
-            }
-        }()
-        
-        guard let css = css else { return }
-        let script = "var style = document.createElement('style'); style.innerHTML = '\(css)'; document.head.appendChild(style);"
-        let cssScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-        webView.configuration.userContentController.addUserScript(cssScript)
     }
 
     public func setLanguage(_ language: MMLanguage, completion: @escaping (_ error: NSError?) -> Void) {
@@ -348,7 +331,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     func didShowComposeBar(_ visible: Bool) {
-        guard !(chatWidget?.isMultithread ?? false) else { return }
+        guard !(chatWidget?.multiThread ?? false) else { return }
         isComposeBarVisible = visible
     }
     
@@ -473,7 +456,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
 
     public func didChangeView(_ state: MMChatWebViewState) {
-        if !(chatWidget?.isMultithread ?? false) {
+        if !(chatWidget?.multiThread ?? false) {
             isComposeBarVisible = true
             isChattingInMultithread = false
         } else {
@@ -481,7 +464,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
             isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
         }
 
-        if chatWidget?.isMultithread ?? false {
+        if chatWidget?.multiThread ?? false {
             hideLeftButton(!isChattingInMultithread && (self.navigationItem.backBarButtonItem == nil || initialBackButtonIsHidden))
         }
 
@@ -494,21 +477,29 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     // MARK: MMComposeBarDelegate delegate
+    @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendText(_ text: String, completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.sendText(text, completion: { error in completion(error as? NSError) })
+        webViewHandler?.send(text.livechatBasicPayload, completion: { error in completion(error as? NSError) })
     }
     // Sends a draft message to be shown in a chat-to-peer chat.
+    @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendDraft(_ message: String?, completion: @escaping (NSError?) -> Void) {
-        webViewHandler?.sendDraft(message, completion: { error in completion(error as? NSError) })
+        webViewHandler?.send((message ?? "").livechatDraftPayload, completion: { error in completion(error as? NSError) })
     }
-    
+
+    @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendAttachment(_ fileName: String? = nil, data: Data, completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.sendAttachment(fileName, data: data, completion: { error in completion(error as? NSError) })
+        let payload = MMLivechatBasicPayload(fileName: fileName, data: data)
+        webViewHandler?.send(payload, completion: { error in completion(error as? NSError) })
+    }
+
+    public override func send(_ payload: MMLivechatPayload, completion: @escaping (_ error: NSError?) -> Void) {
+        webViewHandler?.send(payload, completion: { error in completion(error as? NSError) })
     }
 
     public override func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void) {
         draftPostponer.postponeBlock(delay: userInputDebounceTimeMs) { [weak self] in
-            self?.sendDraft(text, completion: completion)
+            self?.send((text ?? "").livechatDraftPayload, completion: { _ in })
         }
     }
     
@@ -545,7 +536,8 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
 
 extension MMChatViewController: ChatAttachmentPickerDelegate {
     func didSelect(filename: String?, data: Data) {
-        self.sendAttachment(filename, data: data, completion: { _ in })
+        let payload = MMLivechatBasicPayload(fileName: filename, data: data)
+        self.send(payload, completion: { _ in })
     }
     
     func permissionNotGranted(permissionKeys: [String]?) {
@@ -596,7 +588,7 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
     }
 
     private var maxUploadAttachmentSize: UInt {
-        return chatWidget?.maxUploadContentSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize
+        return chatWidget?.attachments.maxSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize
     }
 }
 
@@ -609,24 +601,6 @@ extension MMChatViewController: WKNavigationDelegate {
         logDebug("will open URL: \(url)")
         UIApplication.shared.open(url)
         decisionHandler(.cancel)
-    }
-}
-
-extension MMChatViewController {
-    open override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
-            handleColorTheme()
-        }
-    }
-    
-    func handleColorTheme() {
-        MMChatSettings.isDarkMode = {
-            switch MMChatSettings.colorTheme {
-            case .auto: return traitCollection.userInterfaceStyle == .dark
-            case .dark: return true
-            case .light: return false
-            }
-        }()
     }
 }
 

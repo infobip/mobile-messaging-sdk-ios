@@ -8,17 +8,6 @@
 import Foundation
 
 struct ChatAPIKeys {
-	struct Widget {
-		static let widgetId = "id"
-		static let title = "title"
-		static let primaryColor = "primaryColor"
-		static let backgroundColor = "backgroundColor"
-        static let maxUploadContentSize = "maxUploadContentSize"
-        static let multiThread = "multiThread"
-        static let callsEnabled = "callsEnabled"
-        static let themeNames = "themeNames"
-	}
-
 	struct QueryParams {
 		static let pushRegId = "pushRegId"
 		static let widgetId = "widgetId"

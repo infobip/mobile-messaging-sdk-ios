@@ -25,12 +25,16 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
     private let imagePickerController: UIImagePickerController
     private let documentPickerController: UIDocumentPickerViewController
     private weak var delegate: ChatAttachmentPickerDelegate?
-    
-    init(delegate: ChatAttachmentPickerDelegate) {
+    private var allowedContentTypes: [String] = []
+
+    init(delegate: ChatAttachmentPickerDelegate, allowedContentTypes: [String]) {
         self.imagePickerController = UIImagePickerController()
+        self.allowedContentTypes = allowedContentTypes
         if #available(iOS 14.0, *) {
-            self.documentPickerController = UIDocumentPickerViewController(forOpeningContentTypes: [.directory, .item ])
+            self.documentPickerController = UIDocumentPickerViewController(
+                forOpeningContentTypes: ChatAttachmentUtils.convertToUTType(allowedContentTypes))
         } else {
+            // In iOS 13 and older, where UTType is not offered, we cannot filter types. We let livechat API level to handle it instead.
             self.documentPickerController = UIDocumentPickerViewController(documentTypes: [kUTTypeContent as String], in: .open)
         }
         super.init()
@@ -39,7 +43,7 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
         self.documentPickerController.allowsMultipleSelection = false
         self.delegate = delegate
     }
-    
+
     private func action(for type: UIImagePickerController.SourceType, title: String, presentationController: UIViewController) -> UIAlertAction? {
         guard UIImagePickerController.isSourceTypeAvailable(type),
             let mediaTypes = UIImagePickerController.availableMediaTypes(for: type) else {
@@ -93,17 +97,23 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
             preferredStyle: .actionSheet,
             sourceView: sourceView ?? presentationController.view)
         alertController.view.tintColor = MMChatSettings.getMainTextColor()
-        if let action = self.action(for: .camera,
-                                    title: ChatLocalization.localizedString(forKey: "mm_action_sheet_take_photo_or_video", defaultString: "Take Photo or Video"),
-                                    presentationController: presentationController) {
-            alertController.addAction(action)
+        if ChatAttachmentUtils.isCameraNeeded(for: allowedContentTypes) {
+            if let action = self.action(
+                for: .camera,
+                title: ChatLocalization.localizedString(forKey: "mm_action_sheet_take_photo_or_video", defaultString: "Take Photo or Video"),
+                presentationController: presentationController) {
+                alertController.addAction(action)
+            }
+            if let action = self.action(
+                for: .photoLibrary,
+                title: ChatLocalization.localizedString(forKey: "mm_action_sheet_photo_library", defaultString: "Photo Library"),
+                presentationController: presentationController) {
+                alertController.addAction(action)
+            }
         }
-        if let action = self.action(for: .photoLibrary,
-                                    title: ChatLocalization.localizedString(forKey: "mm_action_sheet_photo_library", defaultString: "Photo Library"),
-                                    presentationController: presentationController) {
-            alertController.addAction(action)
-        }
-        if let action = self.browseAction(title: ChatLocalization.localizedString(forKey: "mm_action_sheet_browse", defaultString: "Browse"), presentationController: presentationController) {
+        if let action = self.browseAction(
+            title: ChatLocalization.localizedString(forKey: "mm_action_sheet_browse", defaultString: "Browse"),
+            presentationController: presentationController) {
             alertController.addAction(action)
         }
         alertController.addAction(UIAlertAction(title: MMLocalization.localizedString(forKey: "mm_button_cancel", defaultString: "Cancel"), style: .cancel, handler: nil))

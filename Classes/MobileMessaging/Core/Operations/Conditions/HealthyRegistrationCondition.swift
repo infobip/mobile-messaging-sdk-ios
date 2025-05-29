@@ -23,7 +23,8 @@ public class HealthyRegistrationCondition : OperationCondition {
 	}
 
     public func evaluateForOperation(_ operation: Operation, completion: @escaping (OperationConditionResult) -> Void) {
-		guard mmContext.apnsRegistrationManager.isRegistrationHealthy else {
+
+		guard mmContext.apnsRegistrationManager != nil && mmContext.apnsRegistrationManager.isRegistrationHealthy else {
 			operation.logWarn("Registration is not healthy. Finishing...")
 			completion(OperationConditionResult.failed(NSError(type: MMInternalErrorType.InvalidRegistration)))
 			return

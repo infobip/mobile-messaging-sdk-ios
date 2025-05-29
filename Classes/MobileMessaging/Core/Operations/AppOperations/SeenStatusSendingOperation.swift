@@ -96,8 +96,7 @@ class SeenStatusSendingOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logDebug("finished: \(errors)")
+        logDebug("finished: \(errors)")
 		if let error = errors.first {
 			result = SeenStatusSendingResult.Failure(error)
 		}

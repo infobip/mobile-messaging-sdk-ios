@@ -10,6 +10,8 @@ import CallKit
 import AVKit
 #if WEBRTCUI_ENABLED
 import InfobipRTC
+import WebRTC
+import AVFoundation
 
 enum ActiveCall {
     case applicationCall(ApplicationCall)
@@ -298,9 +300,7 @@ extension CallKitManager: CXProviderDelegate {
         }
         action.fulfill()
     }
-    
-    func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {}
-    
+
     func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {}
     
     func provider(_ provider: CXProvider, perform action: CXSetMutedCallAction) {
@@ -332,6 +332,42 @@ extension CallKitManager: CXProviderDelegate {
             MMLogError("Failed to send DTMF.")
             action.fail()
         }
+    }
+
+    func provider(_: CXProvider, didActivate audioSession: AVAudioSession) {
+        // We overwrite the audio configuration and rtc audio session in didActive to avoid a known iOS issue with syste call UI related to speaker button deactivating itself
+        setupCorrectAudioConfiguration()
+        setAudioSessionActive(true)
+    }
+
+    func setupCorrectAudioConfiguration() {
+        let rtcAudioSession = RTCAudioSession.sharedInstance()
+        rtcAudioSession.lockForConfiguration()
+        let configuration = RTCAudioSessionConfiguration.webRTC()
+        configuration.categoryOptions = [
+          .allowBluetoothA2DP,
+          .duckOthers,
+          .allowBluetooth,
+          .mixWithOthers
+        ]
+        do {
+            try rtcAudioSession.setConfiguration(configuration)
+        } catch {
+            print(error)
+        }
+        rtcAudioSession.unlockForConfiguration()
+    }
+
+    func setAudioSessionActive(_ active: Bool) {
+        let rtcAudioSession = RTCAudioSession.sharedInstance()
+        rtcAudioSession.lockForConfiguration()
+        do {
+            try rtcAudioSession.setActive(active)
+            rtcAudioSession.isAudioEnabled = active // Added this line
+        } catch {
+            print(error)
+        }
+        rtcAudioSession.unlockForConfiguration()
     }
 }
 

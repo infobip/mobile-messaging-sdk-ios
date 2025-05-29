@@ -23,10 +23,13 @@ public struct GetChatWidgetResponse {
 
 extension GetChatWidgetResponse: JSONDecodable {
     public init?(json value: JSON) {
-        guard let widget = ChatWidget(responseJson: value) else {
+        do {
+            let widgetData = try value.rawData()
+            self.widget = try JSONDecoder().decode(ChatWidget.self, from: widgetData)
+        } catch {
+            MMLogError("Unable to parse widget parameters, error: \(error.localizedDescription)")
             return nil
         }
-        self.widget = widget
     }
 }
 

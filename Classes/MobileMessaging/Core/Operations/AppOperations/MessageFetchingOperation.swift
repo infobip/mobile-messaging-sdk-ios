@@ -125,8 +125,7 @@ final class MessageFetchingOperation: MMOperation {
 	}
 	
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logDebug("finished with errors: \(errors)")
+        logDebug("finished with errors: \(errors)")
 		
 		switch result {
 		case .Success(let fetchResponse):

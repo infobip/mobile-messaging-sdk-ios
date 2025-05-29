@@ -9,7 +9,7 @@ import Foundation
 import CoreLocation
 
 let installationDispatchQueue = DispatchQueue(label: "installation-service", qos: DispatchQoS.default, attributes: .concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
-let installationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: installationDispatchQueue)
+let installationQueue = MMOperationQueue.newSerialQueue(underlyingQueue: installationDispatchQueue, name: "installation-queue")
 
 class InstallationDataService: MobileMessagingService {
     init(mmContext: MobileMessaging) {
@@ -23,6 +23,7 @@ class InstallationDataService: MobileMessagingService {
     
     override func mobileMessagingWillStop(_ completion: @escaping () -> Void) {
         assert(!Thread.isMainThread)
+        logDebug("InstallationDataService mobileMessagingWillStop")
         MMInstallation.cached.reset()
         installationQueue.cancelAllOperations()
         completion()

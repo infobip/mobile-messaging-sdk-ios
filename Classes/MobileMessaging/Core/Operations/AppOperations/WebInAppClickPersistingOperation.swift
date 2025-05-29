@@ -53,7 +53,6 @@ class WebInAppClickPersistingOperation : MMOperation {
     }
     
     override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
         logVerbose("finished WebInAppClickPersistingOperation: \(errors)")
         finishBlock(errors.first)
     }

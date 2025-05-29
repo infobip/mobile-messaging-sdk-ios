@@ -7,19 +7,23 @@
 
 import Foundation
 
-class ChatMobileAttachment: ChatBaseAttachment {
+class ChatMobileAttachment: ChatBaseAttachment, Encodable {
     let base64: String
     let mimeType: String
-    
+    let fileExtension: String?
+
     init(_ name: String? = nil, data: Data) {
         self.base64 = data.base64EncodedString(options: NSData.Base64EncodingOptions.init(rawValue: 0))
         self.mimeType = ChatAttachmentUtils.mimeType(forData: data)
         let fileName = name ?? UUID().uuidString
         
         guard let fileExtension = ChatAttachmentUtils.fileExtension(forData: data) else {
+            let filenameComponents = fileName.components(separatedBy: ".")
+            self.fileExtension = filenameComponents.count > 1 ? filenameComponents.last : nil
             super.init(fileName: fileName)
             return
         }
+        self.fileExtension = fileExtension
         super.init(fileName: name ?? (fileName  + "." + fileExtension))
     }
     

@@ -10,7 +10,7 @@ import Foundation
 class FloatingWindowView: UIView {
     
     private struct LayoutConstants {
-        lazy var floatingWindowHeight: CGFloat = UIApplication.shared.statusBarOrientation.isLandscape ? UIScreen.main.bounds.width / 5 : UIScreen.main.bounds.height / 5
+        lazy var floatingWindowHeight: CGFloat = UIWindow.mmIsLandscape ? UIScreen.main.bounds.width / 5 : UIScreen.main.bounds.height / 5
         lazy var floatingWindowWidth: CGFloat = (floatingWindowHeight / 16) * 9
     }
 

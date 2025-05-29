@@ -50,11 +50,11 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     }
 
     func showChatInNavigation() {
-        chatVC = MMChatViewController.makeChildNavigationViewController()
+        let childChatVC = MMChatViewController.makeChildNavigationViewController()
         let demoBtn = UIBarButtonItem(title: "Change Theme", style: .plain, target: self, action: #selector(onChangeTheme))
-        chatVC?.navigationItem.rightBarButtonItems = [demoBtn]
-        guard let vc = chatVC else { return }
-        navigationController?.pushViewController(vc, animated: true)
+        childChatVC.navigationItem.rightBarButtonItems = [demoBtn]
+        navigationController?.pushViewController(childChatVC, animated: true)
+        chatVC = childChatVC
     }
     
     func showChatModally() {
@@ -193,13 +193,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
             presenterVC: self.navigationController ?? self.parent ?? self)
     }
     
-    func onChangeColorTheme() {
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-        if let vc = storyboard.instantiateViewController(withIdentifier: "setColorTheme") as? ColorThemeTableVC {
-            navigationController?.present(vc, animated: true, completion: nil)
-        }
-    }
-    
     func showLanguageVC() {
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         if let vc = storyboard.instantiateViewController(withIdentifier: "setLanguage") as? LanguageTableVC {
@@ -302,8 +295,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
             showPersonalizationVC()
         case .depersonalize:
             onDePersonalize()
-        case .changeColorTheme:
-            onChangeColorTheme()
         case .externalChatInputVC:
             BadgeCounterHandler.clearBadge()
             onExternalUIKitChat()
@@ -380,13 +371,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.settings.errorLabelTextColor = .white
         MMChatSettings.settings.errorLabelBackgroundColor = .red
         MMChatSettings.settings.widgetTheme = "dark" // You need to have this theme defined in your widget's setup. See method 'onChangeTheme' for more info.
-        MMChatSettings.darkSettings = MMChatSettings()
-        MMChatSettings().reversedColors()
-        MMChatSettings.darkSettings?.backgroundColor = .black
-        MMChatSettings.darkSettings?.advancedSettings.mainTextColor                 = .white
-        MMChatSettings.darkSettings?.advancedSettings.mainPlaceholderTextColor      = .lightGray
-        MMChatSettings.darkSettings?.advancedSettings.textInputBackgroundColor      = .black
-        MMChatSettings.darkSettings?.advancedSettings.typingIndicatorColor          = .darkGray
     }
 
 // Uncomment if you want to handle call UI here.
@@ -454,7 +438,8 @@ class CustomInputView: UIView, MMChatComposer, UITextViewDelegate {
     
     @objc func onSendPic() {
         guard let data = UIImage(named: "alphaLogo")?.pngData() else { return }
-        delegate?.sendAttachment("alphaLogo", data: data, completion: { error in
+        let payload = MMLivechatBasicPayload(fileName: "alphaLogo", data: data)
+        delegate?.send(payload, completion: { error in
             if let error = error {
                 MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
             } else {
@@ -464,7 +449,7 @@ class CustomInputView: UIView, MMChatComposer, UITextViewDelegate {
     }
     
     @objc func onSendText() {
-        delegate?.sendText(textView.text, completion: { error in
+        delegate?.send(textView.text.livechatBasicPayload, completion: { error in
             if let error = error {
                 MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
             } else {

@@ -28,13 +28,29 @@ extension WKWebView {
     }
 
     private var asyncCallbacks: [String: AsyncJSCallbackInfo] {
-        get { associatedObject(key: &Self.asyncCallbacksKey, defaultValue: [:]) }
-        set { setAssociatedObject(key: &Self.asyncCallbacksKey, value: newValue) }
+        get {
+            return withUnsafePointer(to: &Self.asyncCallbacksKey) {
+                return associatedObject(key: $0, defaultValue: [:])
+            }
+        }
+        set {
+            withUnsafePointer(to: &Self.asyncCallbacksKey) {
+                setAssociatedObject(key: $0, value: newValue)
+            }
+        }
     }
 
     private var isBridgeSetup: Bool {
-        get { associatedObject(key: &Self.bridgeSetupKey, defaultValue: false) }
-        set { setAssociatedObject(key: &Self.bridgeSetupKey, value: newValue) }
+        get {
+            return withUnsafePointer(to: &Self.bridgeSetupKey) {
+                return associatedObject(key: $0, defaultValue: false)
+            }
+        }
+        set {
+            withUnsafePointer(to: &Self.bridgeSetupKey) {
+                setAssociatedObject(key: $0, value: newValue)
+            }
+        }
     }
 
     private func setupAsyncBridgeIfNeeded() {
@@ -48,15 +64,16 @@ extension WKWebView {
     }
     
     /// Evaluates asynchronous JavaScript and returns the result via completion handler
-    public func evaluateAsyncJavaScript(_ javaScript: String, completion: @escaping (Swift.Result<Any, Error>) -> Void) {
-
+    public func evaluateAsyncInMainThread(_ javaScript: String, completion: @escaping (Swift.Result<Any, Error>) -> Void) {
         if #available(iOS 14.0, *) {
-            self.callAsyncJavaScript(
-                javaScript,
-                in: nil,
-                in: .page
-            ) { result in
-                completion(result)
+            DispatchQueue.mmEnsureMain {
+                self.callAsyncJavaScript(
+                    javaScript,
+                    in: nil,
+                    in: .page
+                ) { result in
+                    completion(result)
+                }
             }
             return
         }
@@ -93,13 +110,13 @@ extension WKWebView {
             executeAsyncCode();
         })();
         """
-        
-        evaluateJavaScript(jsWrapper) { (_, error) in
+
+        self.evaluateInMainThread(jsWrapper) { (_, error) in
             if let error = error {
                 var callbacks = self.asyncCallbacks
                 callbacks.removeValue(forKey: callbackID)
                 self.asyncCallbacks = callbacks
-                
+
                 completion(.failure(error))
             }
         }

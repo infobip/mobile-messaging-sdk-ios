@@ -191,8 +191,7 @@ final class MessageHandlingOperation: MMOperation {
 	
 //MARK: -
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logDebug("Message handling finished with errors: \(errors)")
+        logDebug("Message handling finished with errors: \(errors)")
 		self.finishBlock(errors.first, newMessages)
 	}
 }

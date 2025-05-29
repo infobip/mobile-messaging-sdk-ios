@@ -41,8 +41,7 @@ class GetChatWidgetOperation: MMOperation {
 	}
 
 	override func finished(_ errors: [NSError]) {
-        assert(userInitiated == Thread.isMainThread)
-		logDebug("finished with errors: \(errors)")
+        logDebug("finished with errors: \(errors)")
 		finishBlock(errors.first, operationResult.value?.widget)
 	}
 }

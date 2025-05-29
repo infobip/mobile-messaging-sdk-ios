@@ -197,7 +197,7 @@ final class PIPKitEventDispatcher {
         }
         
         let center = rootViewController.view.center
-        var safeAreaInsets =  window.safeAreaInsets
+        let safeAreaInsets =  window.safeAreaInsets
 
         let vh = (window.frame.height - (safeAreaInsets.top + safeAreaInsets.bottom)) / 3.0
         

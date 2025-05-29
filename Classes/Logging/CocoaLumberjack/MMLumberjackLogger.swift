@@ -172,11 +172,17 @@ public final class MMLumberjackLogger: NSObject, MMLogging {
 		}
 	}
 	
-	public func SwiftLogMacro(_ isAsynchronous: Bool, level: DDLogLevel, flag flg: DDLogFlag, context: Int = 0, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, string: @autoclosure () -> String) {
-		if level.rawValue & flg.rawValue != 0 {
+	public func SwiftLogMacro(_ isAsynchronous: Bool, level: DDLogLevel, flag: DDLogFlag, context: Int = 0, file: StaticString = #file, function: StaticString = #function, line: UInt = #line, tag: AnyObject? = nil, string: @autoclosure () -> String) {
+		if level.rawValue & flag.rawValue != 0 {
 			// Tell the DDLogMessage constructor to copy the C strings that get passed to it.
 			// Using string interpolation to prevent integer overflow warning when using StaticString.stringValue
-			let logMessage = DDLogMessage(message: string(), level: level, flag: flg, context: context, file: "\(file)", function: "\(function)", line: line, tag: tag, options: [.copyFile, .copyFunction], timestamp: nil)
+			let logMessage = DDLogMessage(
+                format: string(), formatted: string(),
+                level: level, flag: flag,
+                context: context, file: "\(file)",
+                function: "\(function)", line: line,
+                tag: tag, options: [.copyFile, .copyFunction],
+                timestamp: nil)
 			DDLog.log(asynchronous: isAsynchronous, message: logMessage)
 		}
 	}
