@@ -377,8 +377,9 @@ public class MMInAppChatService: MobileMessagingService {
     ) {
         // Only livechat related actions should proceed opening livechat
         guard let tapIdentifier = message.appliedAction?.identifier,
-              (tapIdentifier == MMNotificationAction.DefaultActionId || tapIdentifier == MMNotificationAction.PrimaryActionId),
-        message.isOpenLiveChat else {
+              (tapIdentifier == MMNotificationAction.DefaultActionId ||
+               tapIdentifier == MMNotificationAction.PrimaryActionId),
+              message.isOpenLiveChat else {
             completion(.noData)
             return
         }

@@ -44,24 +44,20 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     public func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let chatError = self.validatePayload(payload, isCreating: false) else {
-                self.webView.send(payload, completion)
+            guard let chatError = self?.validatePayload(payload, isCreating: false) else {
+                self?.webView.send(payload, completion)
                 return
             }
-            self.logError(chatError.localizedDescription)
             completion(NSError(chatError: chatError, chatPayload: payload))
         }
     }
 
     public func createThread(_ payload: any MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let chatError = self.validatePayload(payload, isCreating: true) else {
-                self.webView.createThread(payload, completion)
+            guard let chatError = self?.validatePayload(payload, isCreating: true) else {
+                self?.webView.createThread(payload, completion)
                 return
             }
-            self.logError(chatError.localizedDescription)
             completion(nil, NSError(chatError: chatError, chatPayload: payload))
         }
     }
@@ -116,49 +112,41 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
             guard let error = error else {
-                webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
+                self?.webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
                 return
             }
-
-            self.logError(error.localizedDescription)
+            completion(error)
         }
     }
 
     public func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], Error>) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
             guard let error = error else {
-                webView.getThreads(completion: completion)
+                self?.webView.getThreads(completion: completion)
                 return
             }
-
-            self.logError(error.localizedDescription)
+            completion(.failure(error))
         }
     }
 
     func openThread(with id: String, completion: @escaping (Swift.Result<MMLiveChatThread, any Error>) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
             guard let error = error else {
-                webView.openThread(threadId: id, completion: completion)
+                self?.webView.openThread(threadId: id, completion: completion)
                 return
             }
-
-            self.logError(error.localizedDescription)
+            completion(.failure(error))
         }
     }
 
     func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, any Error>) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
             guard let error = error else {
-                webView.getActiveThread(completion: completion)
+                self?.webView.getActiveThread(completion: completion)
                 return
             }
-
-            self.logError(error.localizedDescription)
+            completion(.failure(error))
         }
     }
 
@@ -172,6 +160,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     func triggerPendingActions(with error: Error?) {
         DispatchQueue.main.async {
+            if let error = error {
+                self.logError(error.localizedDescription)
+            }
             self.pendingActions.forEach { $0(error) }
             self.pendingActions.removeAll()
         }
@@ -180,54 +171,49 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     // MARK: - Chat setup
     public func setLanguage(_ language: MMLanguage, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self = self else { return }
-            guard self.webView.isLoaded else {
+            guard self?.webView.isLoaded ?? false else {
                 MMLanguage.sessionLanguage = language
-                completion(nil)
+                completion(nil) // we ignore error in loading, as language is part of the autoconfig, to be used when webview loads
                 return
             }
-            self.webView.setLanguage(language)
+            self?.webView.setLanguage(language) { error in
+                completion(error)
+            }
         }
     }
 
     public func setWidgetTheme(_ themeName: String, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
             guard let error = error else {
-                guard webView.isLoaded else {
+                guard self?.webView.isLoaded ?? false else {
                     completion(nil)
                     return
                 }
                 MMChatSettings.sharedInstance.widgetTheme = themeName
-                webView.setTheme(themeName, completion: completion)
+                self?.webView.setTheme(themeName, completion: completion)
                 return
             }
-
-            self.logError(error.localizedDescription)
+            completion(error)
         }
     }
     // MARK: - Connection
 
     func stopConnection() {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
             guard let error = error else {
-                self.webView.pauseChat() { [weak self] error in
+                self?.webView.pauseChat() { [weak self] error in
                     if let error = error {
                         self?.logError(error.description)
                     }
                 }
                 return
             }
-
-            self.logError(error.localizedDescription)
         }
     }
 
     func restartConnection() {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            webView.resumeChat() { [weak self] error in
+            self?.webView.resumeChat() { [weak self] error in
                 if let error = error {
                     self?.logError(error.description)
                 }
@@ -237,13 +223,11 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     // MARK: - UI Control
     public func showThreadsList(completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
             guard let error = error else {
-                webView.showThreadsList(completion: completion)
+                self?.webView.showThreadsList(completion: completion)
                 return
             }
-
-            self.logError(error.localizedDescription)
+            completion(error)
         }
     }
 
