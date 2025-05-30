@@ -257,9 +257,11 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     // ChatWebViewDelegate
     func didLoadWidget(_ widget: ChatWidget) {
         chatWidget = widget
-        webView.loadWidget(widget)
-        isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
-        (composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
+        webViewHandler?.ensureWidgetLoaded { [weak self] error in
+            self?.isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
+            (self?.composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
+            self?.webViewHandler?.triggerPendingActions(with: error)
+        }
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -469,10 +471,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         }
 
         if state != .loading && state != .loadingThread && state != .unknown {
+            // In case actions are pending, we finally trigger them successfully if the view state just became valid.
+            webViewHandler?.triggerPendingActions(with: nil)
             sendCachedContextData()
             addOnMessageReceivedListener()
         }
 
+        webViewHandler?.currentViewState = state
         MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)
     }
     
