@@ -167,6 +167,7 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
         stopConnection()
         webView.load(URLRequest(url: URL(string: "about:blank")!))
         webView.isLoaded = false
+        currentViewState = .unknown
     }
 
     func triggerPendingActions(with error: Error?) {
