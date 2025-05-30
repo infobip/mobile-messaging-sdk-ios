@@ -441,30 +441,6 @@ public class MMInAppChatService: MobileMessagingService {
         }
     }
 
-//    private func sendLCMessage(
-//        _ keyword: String,
-//        to chatWidget: ChatWidget,
-//        completion: @escaping (MessageHandlingResult) -> Void)
-//    {
-//        // Any further API action is triggered in background (note they take several seconds the first time API is used). The widget would be presented sooner, in loading UI state
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) { [weak self] in
-//            guard chatWidget.multiThread ?? false else {
-//                // No new thread needed, we just send payload
-//                self?.api.send(keyword.livechatBasicPayload) { error in
-//                    if let error = error {
-//                        self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
-//                    }
-//                }
-//                return
-//            } // Otherwise we create thread with payload
-//            self?.api.createThread(keyword.livechatBasicPayload) { thread, error in
-//                if let error = error {
-//                    self?.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
-//                }
-//            }
-//        }
-//    }
-
     private func sendLCMessage(
         _ keyword: String,
         to chatWidget: ChatWidget,
@@ -481,6 +457,7 @@ public class MMInAppChatService: MobileMessagingService {
                     if let error = error {
                         self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
                     }
+                    completion(.newData)
                 }
                 return
             } // Otherwise we create thread with payload
@@ -488,6 +465,7 @@ public class MMInAppChatService: MobileMessagingService {
                 if let error = error {
                     self?.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
                 }
+                completion(.newData)
             }
         }
     }

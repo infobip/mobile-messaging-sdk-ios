@@ -263,7 +263,6 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        webView.setLanguage()
         webView.addViewChangedListener(completion: { [weak self] error in
             if let error = error {
                 self?.logError(error.description)

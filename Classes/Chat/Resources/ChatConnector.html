@@ -16,7 +16,7 @@
    </head>
    <body>
 	   <script>
-
+           const language = getQueryParameter('language');
            const jwt = getQueryParameter('jwt');
            const theme = getQueryParameter('theme');
            const widgetId = getQueryParameter('widgetId');
@@ -94,6 +94,9 @@
                 if (error) {
                     propageError(error, 'identify()')
                 } else {
+                   if(!isNullOrBlank(language)) {
+                       setLanguage(language)
+                   }
                    if(!isNullOrBlank(domain)) {
                        liveChat('init', { widgetId: widgetId, domain: domain },
                                 initPropagationAndShowingChat(error, result));

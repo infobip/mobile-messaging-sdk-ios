@@ -255,6 +255,7 @@ extension MMInAppChatWidgetAPI: WidgetSubscriber {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             chatHandler.chatWidget = widget
+            chatHandler.webView.isSettingLanguage = false // we avoid reloading - API doesn't show language changes in UI anyways
             chatHandler.webView.loadWidget(widget)
         }
     }
@@ -332,7 +333,6 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
 
 extension MMInAppChatWidgetAPI: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        webView.setLanguage()
         webView.addViewChangedListener(completion: { [weak self] error in
             if let error = error {
                 self?.logError(error.description)
