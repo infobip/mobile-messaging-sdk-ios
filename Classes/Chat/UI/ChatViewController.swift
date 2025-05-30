@@ -11,8 +11,9 @@ import WebKit
 ///We support two ways to quickly embed it into your own application:
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
 /// - programmatically: use one of the `make` methods provided.
-open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
-    
+open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDelegate,
+                                 ChatSettingsApplicable, NamedLogger {
+
     ///Will make UINavigationController with ChatViewController as root
     public static func makeRootNavigationViewController() -> MMChatNavigationVC {
         return MMChatNavigationVC.makeChatNavigationViewController()
@@ -627,5 +628,15 @@ extension MMChatViewController: MMLiveChatThreadsActions {
                 self?.logError(error.localizedDescription)
             }
         })
+    }
+}
+
+extension MMChatViewController: MMChatBasiWebViewActions {
+    public func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
+        webViewHandler?.send(payload, completion: completion)
+    }
+
+    public func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (any Error)?) -> Void) {
+        webViewHandler?.createThread(payload, completion: completion)
     }
 }

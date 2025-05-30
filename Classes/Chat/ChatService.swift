@@ -375,59 +375,44 @@ public class MMInAppChatService: MobileMessagingService {
         _ message: MM_MTMessage,
         completion: @escaping (MessageHandlingResult) -> Void
     ) {
-        // 1. Only livechat related actions should proceed opening livechat
+        // Only livechat related actions should proceed opening livechat
         guard let tapIdentifier = message.appliedAction?.identifier,
               (tapIdentifier == MMNotificationAction.DefaultActionId || tapIdentifier == MMNotificationAction.PrimaryActionId) else {
             completion(.noData)
             return
         }
-        // 2. If there is no widget available, nothing can be done.
+        // If there is no widget available, nothing can be done.
         guard let chatWidget = chatWidget else {
             logError("Widget not found. In-App action could not open LiveChat")
             completion(.noData)
             return
         }
-        // 3. We present the widget first, in current thread.
-        self.displayLiveChat(for: message, completion: completion)
-        // 4. If there is no keyword, the flow ends as there is nothing to send
-        guard let keyword = message.openLiveChatKeyword else {
-            return
-        }
-        // 4. Any further API action is triggered in background (note they take several seconds the first time API is used). The widget would be presented sooner, in loading UI state
-        DispatchQueue.main.async { [weak self] in
-            guard chatWidget.multiThread ?? false else {
-                // 4.1 No new thread needed, we just send payload
-                self?.api.send(keyword.livechatBasicPayload) { error in
-                    if let error = error {
-                        self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
-                    }
-                }
+        // We present the widget first, in current thread.
+        self.displayLiveChat(for: message) { [weak self] result, chatNavVC in
+            // 4. If there is no keyword, the flow ends as there is nothing to send
+            guard let keyword = message.openLiveChatKeyword else {
                 return
-            } // 4.1 Otherwise we create thread with payload
-            self?.api.createThread(keyword.livechatBasicPayload) { thread, error in
-                if let error = error {
-                    self?.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
-                }
             }
+            self?.sendLCMessage(keyword, to: chatWidget,chatNavVC: chatNavVC, completion: completion)
         }
     }
 
     private func displayLiveChat(
         for message: MM_MTMessage,
         attempt: Int = 0,
-        completion: @escaping (MessageHandlingResult
-    ) -> Void) {
+        completion: @escaping (MessageHandlingResult, MMChatNavigationVC?) -> Void)
+    {
         // If the 'openingLivechat' delegate method below is implemented, the chat won't be presented, as the event will be delegated to the parent app. This allows choosing where the chat is presented, how is presented (in a root navigation bar, as modal, SUI HostingVC, etc.), and what input composer will be used (allowing a total replacement). Otherwise, default chat view controller (as full size navigation child VC) will be pushed in the navigation of the top view controller, if found.
         guard MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped == nil else {
             MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped?(for: message)
             logDebug("In-App action to open LiveChat was delegated to app side.")
-            completion(MessageHandlingResult.noData)
+            completion(MessageHandlingResult.noData, nil)
             return
         }
 
         guard MobileMessaging.inAppChat?.webViewDelegate == nil else {
             logDebug("In-App action to open LiveChat not applied: ChatViewController already loaded by parent app.")
-            completion(MessageHandlingResult.noData)
+            completion(MessageHandlingResult.noData, nil)
             return
         }
 
@@ -436,7 +421,7 @@ public class MMInAppChatService: MobileMessagingService {
             // We allow a few retries, in 1 second intervals, in case MobileMessaging.application.visibleViewController was not initialized on time
             guard attempt < 3 else {
                 logError("Unable to present chat view controller after receiving action to open LiveChat: no navigation controller available")
-                completion(.noData)
+                completion(.noData, nil)
                 return
             }
 
@@ -449,9 +434,61 @@ public class MMInAppChatService: MobileMessagingService {
         DispatchQueue.mmEnsureMain {
             let chatVC = MMChatViewController.makeRootNavigationViewController()
             chatVC.modalPresentationStyle = .fullScreen
-            presenterVC.present(chatVC, animated: true)
-            self.logDebug("Chat view controller was presented after open LiveChat action.")
-            completion(.newData)
+            presenterVC.present(chatVC, animated: true) {
+                self.logDebug("Chat view controller was presented after open LiveChat action.")
+                completion(.newData, chatVC)
+            }
+        }
+    }
+
+//    private func sendLCMessage(
+//        _ keyword: String,
+//        to chatWidget: ChatWidget,
+//        completion: @escaping (MessageHandlingResult) -> Void)
+//    {
+//        // Any further API action is triggered in background (note they take several seconds the first time API is used). The widget would be presented sooner, in loading UI state
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) { [weak self] in
+//            guard chatWidget.multiThread ?? false else {
+//                // No new thread needed, we just send payload
+//                self?.api.send(keyword.livechatBasicPayload) { error in
+//                    if let error = error {
+//                        self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+//                    }
+//                }
+//                return
+//            } // Otherwise we create thread with payload
+//            self?.api.createThread(keyword.livechatBasicPayload) { thread, error in
+//                if let error = error {
+//                    self?.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+//                }
+//            }
+//        }
+//    }
+
+    private func sendLCMessage(
+        _ keyword: String,
+        to chatWidget: ChatWidget,
+        chatNavVC: MMChatNavigationVC?,
+        completion: @escaping (MessageHandlingResult) -> Void)
+    {
+        // We check for a VC to send the commants into. That avoids using the API, which would need to load a separate webview, resulting in slower UX
+        let chatVC = chatNavVC?.viewControllers.first as? MMChatViewController
+        let apiInterface: MMChatBasiWebViewActions? = (chatVC ?? api)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            guard chatWidget.multiThread ?? false else {
+                // No new thread needed, we just send payload
+                apiInterface?.send(keyword.livechatBasicPayload) { error in
+                    if let error = error {
+                        self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+                    }
+                }
+                return
+            } // Otherwise we create thread with payload
+            apiInterface?.createThread(keyword.livechatBasicPayload) { thread, error in
+                if let error = error {
+                    self?.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+                }
+            }
         }
     }
 }
