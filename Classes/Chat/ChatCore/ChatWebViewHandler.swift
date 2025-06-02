@@ -14,9 +14,17 @@ class ChatWebViewHandler: NamedLogger {
     let webView: ChatWebView
     var chatWidget: ChatWidget?
     var eventHandler: WebEventHandlerProtocol
-    private let lock = NSLock()
-    private(set) var pendingActions: [(Error?) -> Void] = []
-    var currentViewState = MMChatWebViewState.unknown
+    private let stateQueue = DispatchQueue(label: "com.infobip.ChatWebViewHandler.stateQueue")
+    private var _pendingActions: [(Error?) -> Void] = []
+    private var _currentViewState = MMChatWebViewState.unknown
+    var pendingActions: [(Error?) -> Void] {
+        get { stateQueue.sync { _pendingActions } }
+        set { stateQueue.sync { _pendingActions = newValue } }
+    }
+    var currentViewState: MMChatWebViewState {
+        get { stateQueue.sync { _currentViewState } }
+        set { stateQueue.sync { _currentViewState = newValue } }
+    }
 
     init(webView: ChatWebView = .init(frame: .zero), eventHandler: WebEventHandlerProtocol = ChatViewEventHandler()) {
         self.webView = webView
@@ -151,20 +159,28 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     }
 
     func reset() {
-        pendingActions.removeAll()
-        stopConnection()
-        webView.load(URLRequest(url: URL(string: "about:blank")!))
-        webView.isLoaded = false
-        currentViewState = .unknown
+        stateQueue.async { [weak self] in
+            self?._pendingActions.removeAll()
+            self?.stopConnection()
+            DispatchQueue.main.async {
+                self?.webView.load(URLRequest(url: URL(string: "about:blank")!))
+                self?.webView.isLoaded = false
+                self?.currentViewState = .unknown
+            }
+        }
     }
 
     func triggerPendingActions(with error: Error?) {
-        DispatchQueue.main.async {
-            if let error = error {
-                self.logError(error.localizedDescription)
+        stateQueue.async { [weak self] in
+            guard let self = self else { return }
+            let actions = self._pendingActions
+            self._pendingActions.removeAll()
+            DispatchQueue.main.async {
+                if let error = error {
+                    self.logError(error.localizedDescription)
+                }
+                actions.forEach { $0(error) }
             }
-            self.pendingActions.forEach { $0(error) }
-            self.pendingActions.removeAll()
         }
     }
 
@@ -245,26 +261,23 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     }
 
     func ensureWidgetLoaded(completion: @escaping (Error?) -> Void) {
-        Thread { [weak self] in
-            self?.lock.lock()
+        stateQueue.async { [weak self] in
+            guard let self = self else { return }
 
-            if self?.currentViewState != .unknown, self?.currentViewState != .loading {
-                completion(nil)
-                self?.lock.unlock()
+            if self._currentViewState != .unknown, self._currentViewState != .loading {
+                DispatchQueue.main.async { completion(nil) }
                 return
             }
 
-            let isFirstAction = self?.pendingActions.isEmpty ?? false
-            self?.pendingActions.append(completion)
+            let isFirstAction = self._pendingActions.isEmpty
+            self._pendingActions.append(completion)
 
-            if isFirstAction, let chatWidget = self?.chatWidget {
-                DispatchQueue.mmEnsureMain {
-                    self?.webView.loadWidget(chatWidget)
+            if isFirstAction, let chatWidget = self.chatWidget {
+                DispatchQueue.main.async {
+                    self.webView.loadWidget(chatWidget)
                 }
             }
-
-            self?.lock.unlock()
-        }.start()
+        }
     }
 }
 
