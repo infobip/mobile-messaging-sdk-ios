@@ -41,8 +41,10 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
     }
 
     func loadWidget() {
-        chatHandler.webView.navigationDelegate = self
-        MMInAppChatService.sharedInstance?.update(for: self)
+        DispatchQueue.mmEnsureMain {
+            self.chatHandler.webView.navigationDelegate = self
+            MMInAppChatService.sharedInstance?.update(for: self)
+        }
     }
 
     func stopConnection() {
