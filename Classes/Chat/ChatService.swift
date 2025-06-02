@@ -377,9 +377,9 @@ public class MMInAppChatService: MobileMessagingService {
     ) {
         // Only livechat related actions should proceed opening livechat
         guard let tapIdentifier = message.appliedAction?.identifier,
-              (tapIdentifier == MMNotificationAction.DefaultActionId ||
+               (tapIdentifier == MMNotificationAction.DefaultActionId ||
                tapIdentifier == MMNotificationAction.PrimaryActionId),
-              message.isOpenLiveChat else {
+               message.isOpenLiveChat else {
             completion(.noData)
             return
         }
@@ -389,9 +389,9 @@ public class MMInAppChatService: MobileMessagingService {
             completion(.noData)
             return
         }
-        // We present the widget first, in current thread.
+        // We present the widget first, asap, for optimal UX. Widget will display loading state and further actions are async.
         self.displayLiveChat(for: message) { [weak self] chatVC in
-            // 4. If there is no keyword, the flow ends as there is nothing to send
+            // If there is no keyword, the flow ends as there is nothing to send
             guard let keyword = message.openLiveChatKeyword else {
                 return
             }
@@ -408,8 +408,9 @@ public class MMInAppChatService: MobileMessagingService {
         completion: @escaping (MMChatViewController?) -> Void)
     {
         DispatchQueue.mmEnsureMain {
-            // If the 'openingLivechat' delegate method below is implemented, the chat won't be presented, as the event will be delegated to the parent app. This allows choosing where the chat is presented, how is presented (in a root navigation bar, as modal, SUI HostingVC, etc.), and what input composer will be used (allowing a total replacement). Otherwise, default chat view controller (as full size navigation child VC) will be pushed in the navigation of the top view controller, if found.
+            // If the 'openingLivechat' delegate method below is implemented, the chat won't be presented, as the event will be delegated to the parent app. This allows choosing where the chat is presented, how is presented (in a root navigation bar, as modal, SUI HostingVC, etc.), and what input composer will be used (allowing a total replacement). Otherwise, default chat view controller (as full size navigation child VC) will be pushed in the navigation of the top view controller, if found. Nevertheless, a payload will be sent if it exists.
             guard MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped == nil else {
+                self.logDebug("In-App action to open LiveChat: presentation delegated")
                 completion(nil)
                 return
             }
@@ -424,7 +425,7 @@ public class MMInAppChatService: MobileMessagingService {
                     ?? MobileMessaging.application.visibleViewController else {
                 // We allow a few retries, in 1 second intervals, in case MobileMessaging.application.visibleViewController was not initialized on time
                 guard attempt < 3 else {
-                    self.logError("Unable to present chat view controller after receiving action to open LiveChat: no navigation controller available")
+                    self.logError("n-App action to open LiveChat: Unable to present chat as there is no navigation controller available (attempt 1/\(attempt)")
                     completion(nil)
                     return
                 }
@@ -452,9 +453,9 @@ public class MMInAppChatService: MobileMessagingService {
         chatVC: MMChatViewController?,
         completion: @escaping () -> Void)
     {
-        // We check for a VC to send the commants into. That avoids using the API, which would need to load a separate webview, resulting in slower UX
+        // We check for a VC to send the commants into. This avoids using the API, which would need to load a separate webview, resulting in slower UX
         let apiInterface: MMChatBasiWebViewActions? = (chatVC ?? api)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in // Delay as a precaution to avoid any 'identify' collision on more than one webview. A further BE fix may do this obsolete.
             guard chatWidget.multiThread ?? false else {
                 // No new thread needed, we just send payload
                 apiInterface?.send(keyword.livechatBasicPayload) { error in
