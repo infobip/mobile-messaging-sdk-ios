@@ -391,7 +391,7 @@ public class MMInAppChatService: MobileMessagingService {
         }
         // We present the widget first, asap, for optimal UX. Widget will display loading state and further actions are async.
         self.displayLiveChat(for: message) { [weak self] chatVC in
-            // If there is no keyword, the flow ends as there is nothing to send
+            // If there is no keyword, the flow ends as there is nothing to send 
             guard let keyword = message.openLiveChatKeyword else {
                 return
             }
