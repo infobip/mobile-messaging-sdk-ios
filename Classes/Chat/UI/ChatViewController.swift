@@ -11,8 +11,7 @@ import WebKit
 ///We support two ways to quickly embed it into your own application:
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
 /// - programmatically: use one of the `make` methods provided.
-open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDelegate,
-                                 ChatSettingsApplicable, NamedLogger {
+open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
 
     ///Will make UINavigationController with ChatViewController as root
     public static func makeRootNavigationViewController() -> MMChatNavigationVC {
