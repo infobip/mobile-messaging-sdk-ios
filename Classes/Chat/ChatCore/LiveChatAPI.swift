@@ -32,51 +32,31 @@ public protocol MMInAppChatWidgetAPIDelegate: AnyObject {
 class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger {
     private lazy var chatHandler: ChatWebViewHandler = ChatWebViewHandler(eventHandler: self)
     private var didSetOnMessageReceivedListener = false
-    private let lock = NSLock()
-    private var pendingActions: [(Error?) -> Void] = []
-    
+
     weak var delegate: MMInAppChatWidgetAPIDelegate?
-    var currentViewState = MMChatWebViewState.unknown
+
+    override init() {
+        super.init()
+        loadWidget()
+    }
 
     func loadWidget() {
-        chatHandler.webView.navigationDelegate = self
-        MMInAppChatService.sharedInstance?.update(for: self)
+        DispatchQueue.mmEnsureMain {
+            self.chatHandler.webView.navigationDelegate = self
+            MMInAppChatService.sharedInstance?.update(for: self)
+        }
     }
 
     func stopConnection() {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.stopConnection()
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.stopConnection()
     }
     
     func restartConnection() {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.restartConnection()
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.restartConnection()
     }
     
     func setLanguage(_ language: MMLanguage, completion: @escaping ((any Error)?) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.setLanguage(language, completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.setLanguage(language, completion: completion)
     }
     
     func sendDraft(_ message: String?, completion: @escaping ((any Error)?) -> Void) {
@@ -93,142 +73,46 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
     }
 
     func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.send(payload, completion: completion)
-                return
-            }
-
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.send(payload, completion: completion)
     }
 
     func createThread(_ payload: any MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (any Error)?) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.createThread(payload, completion: completion)
-                return
-            }
-
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.createThread(payload, completion: completion)
     }
 
     func showThreadsList(completion: @escaping ((any Error)?) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.showThreadsList(completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.showThreadsList(completion: completion)
     }
     
     func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy, completion: @escaping ((any Error)?) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
     }
     
     func setWidgetTheme(_ themeName: String, completion: @escaping ((any Error)?) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.setWidgetTheme(themeName, completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.setWidgetTheme(themeName, completion: completion)
     }
     
     func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], Error>) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.getThreads(completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.getThreads(completion: completion)
     }
     
     func openThread(with id: String, completion: @escaping (Swift.Result<MMLiveChatThread, any Error>) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.openThread(with: id, completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.openThread(with: id, completion: completion)
     }
     
     func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, any Error>) -> Void) {
-        ensureWidgetLoaded { [weak self] error in
-            guard let self else { return }
-            guard let error = error else {
-                chatHandler.getActiveThread(completion: completion)
-                return
-            }
-            
-            self.logError(error.localizedDescription)
-        }
+        chatHandler.getActiveThread(completion: completion)
     }
     
     func reset() {
-        pendingActions.removeAll()
-        chatHandler.stopConnection()
-        chatHandler.webView.load(URLRequest(url: URL(string: "about:blank")!))
-        chatHandler.webView.isLoaded = false
+        chatHandler.reset()
     }
      
     // MARK: - Utility methods
-    private func ensureWidgetLoaded(completion: @escaping (Error?) -> Void) {
-        Thread { [weak self] in
-            self?.lock.lock()
 
-            if self?.currentViewState != .unknown, self?.currentViewState != .loading {
-                completion(nil)
-                self?.lock.unlock()
-                return
-            }
-
-            let isFirstAction = self?.pendingActions.isEmpty ?? false
-            self?.pendingActions.append(completion)
-
-            if isFirstAction {
-                DispatchQueue.mmEnsureMain {
-                    self?.loadWidget()
-                }
-            }
-
-            self?.lock.unlock()
-        }.start()
-    }
-    
     private func didLoadWidget(with error: Error?) {
         guard let error = error else { return } // we want to propagate errors only. Successful widget loads require the proper view state update
-        triggerPendingActions(with: error)
-    }
-
-    func triggerPendingActions(with error: Error?) {
-        DispatchQueue.main.async {
-            self.pendingActions.forEach { $0(error) }
-            self.pendingActions.removeAll()
-        }
+        chatHandler.triggerPendingActions(with: error)
     }
 
     internal func sendCachedContextData() {
@@ -244,7 +128,7 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
         let exception = MMChatException(code: errors.rawValue, name: errors.rawDescription, message: errors.localizedDescription, retryable: true)
         self.delegate?.didReceiveError(exception: exception)
         
-        if self.pendingActions.count > 0 {
+        if self.chatHandler.pendingActions.count > 0 {
             didLoadWidget(with: exception)
         }
     }
@@ -255,6 +139,7 @@ extension MMInAppChatWidgetAPI: WidgetSubscriber {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             chatHandler.chatWidget = widget
+            chatHandler.webView.isSettingLanguage = false // API doesn't show language changes in UI, so we avoid unnecessary reloads. These reloads may cause issues on identify if another widget is being loaded in parallel (ie, API use, and also in a view controller)
             chatHandler.webView.loadWidget(widget)
         }
     }
@@ -291,12 +176,12 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
             }
 
             let state = jsMessage.state
-            if currentViewState != state, state != .loading {
+            if chatHandler.currentViewState != state, state != .loading {
                 // In case actions are pending, we finally trigger them successfully if the view state just became valid.
-                triggerPendingActions(with: nil)
+                chatHandler.triggerPendingActions(with: nil)
                 addMessageEventListener()
             }
-            currentViewState = state
+            chatHandler.currentViewState = state
 
             if state != .loading && state != .loadingThread && state != .unknown {
                 sendCachedContextData()
@@ -332,7 +217,10 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
 
 extension MMInAppChatWidgetAPI: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        webView.setLanguage()
+        guard !chatHandler.webView.isReset else {
+            chatHandler.webView.isReset = false
+            return
+        }
         webView.addViewChangedListener(completion: { [weak self] error in
             if let error = error {
                 self?.logError(error.description)

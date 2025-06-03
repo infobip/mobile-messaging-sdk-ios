@@ -127,7 +127,16 @@ class WebInAppBannerManager: NSObject, NamedLogger, WKNavigationDelegate, UserIn
                                                         url: deeplink)
         }
     }
-    
+
+    func scriptEventRecipientDidDetectOpenLiveChat(withKeyword keyword: String) {
+        scriptEventRecipient.listener = nil
+        dismiss {
+            self.delegate?.inAppMessageDidReceiveAction(MMNotificationAction.DefaultActionId,
+                                                        internalDataKey: Consts.InternalDataKeys.liveChatKeyword,
+                                                        url: keyword)
+        }
+    }
+
     func scriptEventRecipientDidDetectClose() {
         scriptEventRecipient.listener = nil
         dismiss { self.delegate?.inAppMessageDidClose() }

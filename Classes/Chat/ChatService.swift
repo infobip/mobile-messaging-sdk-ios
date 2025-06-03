@@ -370,6 +370,110 @@ public class MMInAppChatService: MobileMessagingService {
         
         webViewDelegate.sendContextualData(ContextualData(metadata: metadata, multiThreadStrategy: multiThreadStrategy))
     }
+
+    public override func handleAnyMessage(
+        _ message: MM_MTMessage,
+        completion: @escaping (MessageHandlingResult) -> Void
+    ) {
+        // Only livechat related actions should proceed opening livechat
+        guard let tapIdentifier = message.appliedAction?.identifier,
+               (tapIdentifier == MMNotificationAction.DefaultActionId ||
+               tapIdentifier == MMNotificationAction.PrimaryActionId),
+               message.isOpenLiveChat else {
+            completion(.noData)
+            return
+        }
+        // If there is no widget available, nothing can be done.
+        guard let chatWidget = chatWidget else {
+            logError("Widget not found. In-App action could not open LiveChat")
+            completion(.noData)
+            return
+        }
+        // We present the widget first, asap, for optimal UX. Widget will display loading state and further actions are async.
+        self.displayLiveChat(for: message) { [weak self] chatVC in
+            // If there is no keyword, the flow ends as there is nothing to send 
+            guard let keyword = message.openLiveChatKeyword else {
+                return
+            }
+            self?.sendLCMessage(keyword, to: chatWidget, chatVC: chatVC) {
+                MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped?(for: message)
+                completion(.noData)
+            }
+        }
+    }
+
+    private func displayLiveChat(
+        for message: MM_MTMessage,
+        attempt: Int = 0,
+        completion: @escaping (MMChatViewController?) -> Void)
+    {
+        DispatchQueue.mmEnsureMain {
+            // If the 'openingLivechat' delegate method below is implemented, the chat won't be presented, as the event will be delegated to the parent app. This allows choosing where the chat is presented, how is presented (in a root navigation bar, as modal, SUI HostingVC, etc.), and what input composer will be used (allowing a total replacement). Otherwise, default chat view controller (as full size navigation child VC) will be pushed in the navigation of the top view controller, if found. Nevertheless, a payload will be sent if it exists.
+            guard MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped == nil else {
+                self.logDebug("In-App action to open LiveChat: presentation delegated")
+                completion(nil)
+                return
+            }
+
+            guard MobileMessaging.inAppChat?.webViewDelegate == nil else {
+                self.logDebug("In-App action to open LiveChat: ChatViewController already loaded by parent app.")
+                completion(MobileMessaging.inAppChat?.webViewDelegate as? MMChatViewController)
+                return
+            }
+
+            guard let presenterVC = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: message)
+                    ?? MobileMessaging.application.visibleViewController else {
+                // We allow a few retries, in 1 second intervals, in case MobileMessaging.application.visibleViewController was not initialized on time
+                guard attempt < 3 else {
+                    self.logError("n-App action to open LiveChat: Unable to present chat as there is no navigation controller available (attempt 1/\(attempt)")
+                    completion(nil)
+                    return
+                }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                   self.displayLiveChat(for: message, attempt: attempt + 1, completion: completion)
+                }
+                return
+            }
+
+            let chatNavVC = MMChatViewController.makeRootNavigationViewController()
+            chatNavVC.navigationBar.backgroundColor = MMChatSettings.sharedInstance.backgroundColor
+            chatNavVC.view.backgroundColor = MMChatSettings.sharedInstance.backgroundColor
+            chatNavVC.modalPresentationStyle = .fullScreen
+            presenterVC.present(chatNavVC, animated: true) {
+                self.logDebug("Chat view controller was presented after open LiveChat action.")
+                completion(chatNavVC.viewControllers.first as? MMChatViewController)
+            }
+        }
+    }
+
+    private func sendLCMessage(
+        _ keyword: String,
+        to chatWidget: ChatWidget,
+        chatVC: MMChatViewController?,
+        completion: @escaping () -> Void)
+    {
+        // We check for a VC to send the commants into. This avoids using the API, which would need to load a separate webview, resulting in slower UX
+        let apiInterface: MMChatBasiWebViewActions? = (chatVC ?? api)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in // Delay as a precaution to avoid any 'identify' collision on more than one webview. A further BE fix may do this obsolete.
+            guard chatWidget.multiThread ?? false else {
+                // No new thread needed, we just send payload
+                apiInterface?.send(keyword.livechatBasicPayload) { error in
+                    if let error = error {
+                        self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+                    }
+                    completion()
+                }
+                return
+            } // Otherwise we create thread with payload
+            apiInterface?.createThread(keyword.livechatBasicPayload) { thread, error in
+                if let error = error {
+                    self?.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+                }
+                completion()
+            }
+        }
+    }
 }
 
 struct ContextualData {

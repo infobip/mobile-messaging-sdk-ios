@@ -52,4 +52,8 @@ import UserNotifications
     /// - parameter url: `URL` received in the tapped notification.
     /// - returns: Boolean value indicating should or shouldn't open the URL in the mobile's browser.
     @objc optional func shouldOpenInBrowser(_ url: URL) -> Bool
+
+    /// Called when an in-app notification with action "open LiveChat" is tapped. If not implemented, in-app chat will be automatically presented, with default input composer and in the top view controller. Implement this method if you wish to have full control on how the chat will be presented and what input composer will be used (as you can define your own).
+    /// - parameter message: `MM_MTMessage` object
+    @objc optional func inAppOpenLiveChatActionTapped(for message: MM_MTMessage)
 }

@@ -11,7 +11,9 @@ import WebKit
 class ChatWebView: WKWebView {
 	let scriptHandler = ChatScriptMessageHandler()
     var isLoaded = false
-    
+    var isReset = false
+    var isSettingLanguage = true
+
 	deinit {
 		self.stopLoading()
 		for value in JSMessageType.allCases {
@@ -55,6 +57,11 @@ class ChatWebView: WKWebView {
 			URLQueryItem(name: ChatAPIKeys.QueryParams.pushRegId, value: pushRegId),
 			URLQueryItem(name: ChatAPIKeys.QueryParams.widgetId, value: widgetId),
 		]
+        if isSettingLanguage {
+            let language = MMLanguage.sessionLanguage.locale
+            components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.language, value: language))
+        }
+
         if let jwt = MobileMessaging.inAppChat?.jwt {
             components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.jwt, value: jwt))
         }

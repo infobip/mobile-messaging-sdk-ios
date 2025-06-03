@@ -133,7 +133,7 @@ public class NotificationsInteractionService: MobileMessagingService {
                     // We retry handleNotificationTap because there might be a condition when MobileMessaging.application.visibleViewController
                     // is not yet initialized in the app that is being started by user tapping on notification
                     // we do 2 additional attempts with 1 second interval.
-                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         self.handleNotificationTap(message: message, attempt: attempt + 1, completion: {})
                     }
                 }

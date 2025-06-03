@@ -8,9 +8,9 @@
 import Foundation
 
 public struct MMLiveChatThread: Codable {
-    public let id: String
-    public let conversationId: String
-    public let status: Status
+    public let id: String?
+    public let conversationId: String?
+    public let status: Status?
 
     public enum Status: String, Codable {
         case open = "OPEN"

@@ -143,7 +143,7 @@ struct ThreadAPIView: View {
                         api?.openThread(with: item, completion: { result in
                             switch result {
                             case .success(let conv):
-                                self.curr = conv.id
+                                self.curr = conv.id ?? ""
                             case .failure(let error):
                                 print(error)
                                 return
@@ -170,7 +170,7 @@ struct ThreadAPIView: View {
                 api?.getThreads(completion: { result in
                     switch result {
                     case .success(let threads):
-                        self.threads = threads.map { $0.id }
+                        self.threads = threads.map { $0.id ?? "" }
                     case .failure(_): return
                     }
                 })

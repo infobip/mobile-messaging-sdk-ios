@@ -12,7 +12,7 @@ import WebKit
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
 /// - programmatically: use one of the `make` methods provided.
 open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
-    
+
     ///Will make UINavigationController with ChatViewController as root
     public static func makeRootNavigationViewController() -> MMChatNavigationVC {
         return MMChatNavigationVC.makeChatNavigationViewController()
@@ -256,13 +256,14 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     // ChatWebViewDelegate
     func didLoadWidget(_ widget: ChatWidget) {
         chatWidget = widget
-        webView.loadWidget(widget)
-        isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
-        (composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
+        webViewHandler?.ensureWidgetLoaded { [weak self] error in
+            self?.isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
+            (self?.composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
+            self?.webViewHandler?.triggerPendingActions(with: error)
+        }
     }
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        webView.setLanguage()
         webView.addViewChangedListener(completion: { [weak self] error in
             if let error = error {
                 self?.logError(error.description)
@@ -469,10 +470,13 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         }
 
         if state != .loading && state != .loadingThread && state != .unknown {
+            // In case actions are pending, we finally trigger them successfully if the view state just became valid.
+            webViewHandler?.triggerPendingActions(with: nil)
             sendCachedContextData()
             addOnMessageReceivedListener()
         }
 
+        webViewHandler?.currentViewState = state
         MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)
     }
     
@@ -627,5 +631,15 @@ extension MMChatViewController: MMLiveChatThreadsActions {
                 self?.logError(error.localizedDescription)
             }
         })
+    }
+}
+
+extension MMChatViewController: MMChatBasiWebViewActions {
+    public func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
+        webViewHandler?.send(payload, completion: completion)
+    }
+
+    public func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (any Error)?) -> Void) {
+        webViewHandler?.createThread(payload, completion: completion)
     }
 }

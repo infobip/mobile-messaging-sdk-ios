@@ -7,7 +7,22 @@
 
 import Foundation
 
-public protocol MMChatWebViewActions: MMLiveChatThreadsActions {
+public protocol MMChatBasiWebViewActions {
+    /// Sends message payload to the chat.
+    ///
+    /// - Parameter payload: message payload to be sent. Max texts length allowed is 4096 characters. Max attachment size is defined on web account level.
+    /// - Parameter threadId: threadId where the message payload will be sent to. Can be empty, in which case the message will be sent to the currently active thread
+    /// - Parameter completion: A closure called when the operation completes, with an optional error if it fails (including within a description of the original payload sent).
+    func send(_ payload: MMLivechatPayload, completion: @escaping ((Error)?) -> Void)
+
+    /// Create thread with a message paload
+    ///
+    /// - Parameter payload: message payload to be sent to the newly created thread. Max texts length allowed is 4096 characters. Max attachment size is defined on web account level.
+    /// - Parameter completion: A closure called when the operation completes, with the thread already created in case of success, and an optional error if it fails (including within a description of the original payload sent).
+    func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (Error)?) -> Void)
+}
+
+public protocol MMChatWebViewActions: MMChatBasiWebViewActions, MMLiveChatThreadsActions {
 
     /// Pauses the chat by closing its socket. As a result, the connection is considered terminated,
     /// and remote push notifications will be delivered to the device.
@@ -43,19 +58,6 @@ public protocol MMChatWebViewActions: MMLiveChatThreadsActions {
     /// - Parameter completion: A closure called when the operation completes, with an optional error if it fails.
     @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     func sendAttachment(_ fileName: String?, data: Data, completion: @escaping (Error?) -> Void)
-
-    /// Sends message payload to the chat.
-    ///
-    /// - Parameter payload: message payload to be sent. Max texts length allowed is 4096 characters. Max attachment size is defined on web account level.
-    /// - Parameter threadId: threadId where the message payload will be sent to. Can be empty, in which case the message will be sent to the currently active thread
-    /// - Parameter completion: A closure called when the operation completes, with an optional error if it fails (including within a description of the original payload sent).
-    func send(_ payload: MMLivechatPayload, completion: @escaping ((Error)?) -> Void)
-
-    /// Create thread with a message paload
-    ///
-    /// - Parameter payload: message payload to be sent to the newly created thread. Max texts length allowed is 4096 characters. Max attachment size is defined on web account level.
-    /// - Parameter completion: A closure called when the operation completes, with the thread already created in case of success, and an optional error if it fails (including within a description of the original payload sent).
-    func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (Error)?) -> Void)
 
     /// Set contextual data of the Livechat Widget.
     ///

@@ -20,12 +20,13 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     
     @IBOutlet weak var optionsTableV: UITableView!
     @IBOutlet weak var optionsSegmentedC: UISegmentedControl!
-    private var chatVC: MMChatViewController?
+    private weak var chatVC: MMChatViewController?
     private var isLightModeOn = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
         MobileMessaging.inAppChat?.delegate = self
+        MobileMessaging.messageHandlingDelegate = self
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -49,11 +50,11 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     }
 
     func showChatInNavigation() {
-        chatVC = MMChatViewController.makeChildNavigationViewController()
+        let childChatVC = MMChatViewController.makeChildNavigationViewController()
         let demoBtn = UIBarButtonItem(title: "Change Theme", style: .plain, target: self, action: #selector(onChangeTheme))
-        chatVC?.navigationItem.rightBarButtonItems = [demoBtn]
-        guard let vc = chatVC else { return }
-        navigationController?.pushViewController(vc, animated: true)
+        childChatVC.navigationItem.rightBarButtonItems = [demoBtn]
+        navigationController?.pushViewController(childChatVC, animated: true)
+        chatVC = childChatVC
     }
     
     func showChatModally() {
@@ -486,4 +487,17 @@ class CustomInputView: UIView, MMChatComposer, UITextViewDelegate {
 
 class OptionCell: UITableViewCell {
     @IBOutlet weak var titleLbl: UILabel!
+}
+
+extension OptionListVC: MMMessageHandlingDelegate {
+   // func inAppOpenLiveChatActionTapped(for message: MM_MTMessage) {
+        // By implementing this delegate method, you can choose (in your app) where, how and with what input the chat view controller will be presented.
+        // If you don't implement it, the SDK will try to present the chat with default input composer, in the top view controller of your app.
+        //showReplacedChatInNavigation()
+        // showChatInNavigation()
+        // showChatModally()
+        // presentRootNavigationVC()
+        // onShowSwiftUIDefaultChat()
+        // onShowSwiftUIChat()
+   // }
 }

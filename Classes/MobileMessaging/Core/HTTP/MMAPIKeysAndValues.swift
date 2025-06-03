@@ -178,6 +178,8 @@ public struct MMConsts {
         public static let inbox = "inbox"
         public static let seen = "seen"
         public static let inAppDetails = "inAppDetails"
+        public static let openLiveChat = "openLiveChat"
+        public static let liveChatKeyword = "keyword"
 	}
     
     struct InAppDetailsKeys {

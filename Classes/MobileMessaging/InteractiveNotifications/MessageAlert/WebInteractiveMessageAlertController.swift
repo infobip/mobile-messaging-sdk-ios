@@ -124,6 +124,14 @@ class WebInteractiveMessageAlertController: UIViewController,
                                                         url: deeplink)
         }
     }
+
+    func scriptEventRecipientDidDetectOpenLiveChat(withKeyword keyword: String) {
+        dismiss(animated: true) {
+            self.delegate?.inAppMessageDidReceiveAction(MMNotificationAction.PrimaryActionId,
+                                                        internalDataKey: Consts.InternalDataKeys.liveChatKeyword,
+                                                        url: keyword)
+        }
+    }
     
     func scriptEventRecipientDidDetectClose() {
         dismiss(animated: true) {
