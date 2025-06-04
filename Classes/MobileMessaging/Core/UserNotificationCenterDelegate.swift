@@ -75,17 +75,17 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 		)
 	}
 
-	func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
-		logDebug("received response")
-
-		let message = MM_MTMessage(
-			payload: notificationUserInfo,
-			deliveryMethod: .undefined,
-			seenDate: nil,
-			deliveryReportDate: nil,
-			seenStatus: .NotSeen,
-			isDeliveryReportSent: false)
-		
-		MobileMessaging.handleAction(identifier: actionId, category: categoryId, message: message, notificationUserInfo: notificationUserInfo as? [String: Any], userText: userText, completionHandler: completionHandler)
-	}
+    func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
+        logDebug("received response")
+        
+        let message = MM_MTMessage(
+            payload: notificationUserInfo,
+            deliveryMethod: .undefined,
+            seenDate: nil,
+            deliveryReportDate: nil,
+            seenStatus: .NotSeen,
+            isDeliveryReportSent: false)
+        
+        MobileMessaging.handleAction(identifier: actionId, category: categoryId, message: message, notificationUserInfo: notificationUserInfo as? [String: Any], userText: userText, completionHandler: completionHandler)
+    }
 }

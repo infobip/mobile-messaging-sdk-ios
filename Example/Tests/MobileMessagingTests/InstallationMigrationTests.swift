@@ -55,7 +55,7 @@ class InstallationMigrationTests: XCTestCase {
 							"msisdn": "79214444444",
 							"email": "darth@vader.com"], coreDataProvider.installationObject.value(forKey: "predefinedUserData") as! Dictionary)
 
-            MobileMessaging.sharedInstance?.doStop()
+            MobileMessaging.sharedInstance?.doStop(nil)
 			MobileMessaging.sharedInstance = nil
 		}
 		do {
@@ -95,7 +95,7 @@ class InstallationMigrationTests: XCTestCase {
 
 
 
-            MobileMessaging.sharedInstance?.doStop()
+            MobileMessaging.sharedInstance?.doStop(nil)
 			MobileMessaging.sharedInstance = nil
 		}
 	}
@@ -141,7 +141,7 @@ class InstallationMigrationTests: XCTestCase {
 			XCTAssertEqual("pushRegId", coreDataProvider.installationObject.value(forKey: "pushRegId") as! String)
 
 
-            MobileMessaging.sharedInstance?.doStop()
+            MobileMessaging.sharedInstance?.doStop(nil)
 			MobileMessaging.sharedInstance = nil
 		}
 		do {
@@ -180,7 +180,7 @@ class InstallationMigrationTests: XCTestCase {
 
 
 
-            MobileMessaging.sharedInstance?.doStop()
+            MobileMessaging.sharedInstance?.doStop(nil)
 			MobileMessaging.sharedInstance = nil
 		}
 	}

@@ -186,7 +186,7 @@ class DepersonalizeTests: MMTestCase {
         
         performFailedDepersonalizeCase() {
             XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
-            MobileMessaging.sharedInstance?.doStop()
+            MobileMessaging.sharedInstance?.doStop(nil)
             
             MMTestCase.startWithCorrectApplicationCode()
             depersonalizeFailed?.fulfill()

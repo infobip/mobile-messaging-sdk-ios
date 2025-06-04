@@ -467,7 +467,7 @@ final class RegistrationTests: MMTestCase {
             XCTAssertNotNil(internalDataPersisted!.applicationCodeHash, "application code has must be persisted")
             XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, token)
             XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId, pushRegId)
-            MobileMessaging.sharedInstance?.doStop()
+            MobileMessaging.sharedInstance?.doStop(nil)
 
             DispatchQueue.main.async {
                 MMTestCase.startWithApplicationCode("newApplicationCode")
@@ -512,7 +512,7 @@ final class RegistrationTests: MMTestCase {
 			XCTAssertNotNil(firstInternalId)
 
 			// uninstall >
-            MobileMessaging.sharedInstance?.doCleanupAndStop(false)
+            MobileMessaging.sharedInstance?.doCleanupAndStop(false, completion: nil)
 			// < uninstall
 
 			// reinstall >

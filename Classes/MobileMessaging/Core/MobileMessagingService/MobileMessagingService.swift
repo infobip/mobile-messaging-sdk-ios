@@ -46,9 +46,11 @@ open class MobileMessagingService: NSObject, NamedLogger {
         logDebug("stopping...")
         suspend()
         NotificationCenter.default.removeObserver(self)
-        dispatchGroup.wait()
-        logDebug("stopped.")
-        completion(isRunning)
+
+        dispatchGroup.notify(queue: mmContext.queue) {
+            self.logDebug("stopped.")
+            completion(self.isRunning)
+        }
     }
     
     /// A system data that is related to a particular subservice. For example for Inbox service it is a key-value pair "inbox: <bool>" that indicates whether the service is enabled or not

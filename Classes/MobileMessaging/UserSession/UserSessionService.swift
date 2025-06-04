@@ -41,6 +41,7 @@ class UserSessionService : MobileMessagingService {
 	//MARK: -
 
 	override func suspend() {
+        logDebug("suspending...")
 		serviceQueue.async {
 			self.timer = nil
 			self.cancelOperations()

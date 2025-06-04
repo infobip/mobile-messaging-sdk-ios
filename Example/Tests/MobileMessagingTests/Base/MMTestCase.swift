@@ -197,7 +197,7 @@ class MMTestCase: XCTestCase {
         super.tearDown()
         
         waitAllQueues(cancel: true)
-        MobileMessaging.sharedInstance?.doCleanupAndStop()
+        MobileMessaging.sharedInstance?.doCleanupAndStop(true, completion: nil)
         MobileMessaging.privacySettings = MMPrivacySettings()
         MobileMessaging.timeZone = TimeZone.current
         MobileMessaging.calendar = Calendar.current

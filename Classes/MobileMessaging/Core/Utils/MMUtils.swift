@@ -890,3 +890,15 @@ extension UIWindow {
         }
     }
 }
+
+internal func notifyOrWait(dispatchGroup: DispatchGroup, queue: DispatchQueue, block: @escaping () -> Void, completion: (() -> Void)?) {
+    if (completion == nil) {
+        dispatchGroup.wait()
+        block()
+    } else {
+        dispatchGroup.notify(queue: queue) {
+            block()
+            completion?()
+        }
+    }
+}

@@ -112,10 +112,14 @@ public final class MobileMessaging: NSObject, NamedLogger {
         queue.async {
             if self.requiresRestart {
                 self.requiresRestart = false
-                self.doStop()
+                self.doStop() {
+                    self.doStart()
+                    completion?()
+                }
+            } else {
+                self.doStart()
+                completion?()
             }
-            self.doStart()
-            completion?()
         }
     }
     
@@ -556,6 +560,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
         MobileMessaging.sharedInstance?.interactiveAlertManager.showModalNotificationManually(forMessage: message)
     }
     
+    /**
+     It is strongly recommended to setup UNUserNotificationCenter delegate as soon as possible during the app launch in order to handle user notifications interactions properly. This method allows you to set the delegate up independently from MobileMessaging initialization.
+     */
+    public class func setupUserNotificationCenterDelegate() {
+        UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
+    }
+    
     //MARK: Internal
     public static var sharedInstance: MobileMessaging?
     public let userNotificationType: MMUserNotificationType
@@ -586,7 +597,9 @@ public final class MobileMessaging: NSObject, NamedLogger {
         ci.applicationCode = self.applicationCode
         ci.applicationCodeHash = calculateAppCodeHash(self.applicationCode)
         ci.archiveCurrent()
-        
+        if overridingNotificationCenterDeleageDisabled == false {
+            UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
+        }
         self.startComponents()
         NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingWillStart"), object: self)
         self.apnsRegistrationManager.registerForRemoteNotifications(userInitiated: false)
@@ -596,14 +609,16 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     func cleanUpAndStop(_ clearKeychain: Bool = true, completion: @escaping () -> Void) {
         queue.async {
-            self.doCleanupAndStop(clearKeychain)
-            completion()
+            self.doCleanupAndStop(clearKeychain, completion: completion)
         }
     }
     
-    func doCleanupAndStop(_ clearKeychain: Bool = true) {
+    /**
+        Pass nil completion only from tests to run doCleanupAndStop synchronously
+     */
+    func doCleanupAndStop(_ clearKeychain: Bool = true, completion: (() -> Void)?) {
         MobileMessaging.doCleanUp(clearKeychain)
-        self.doStop()
+        self.doStop(completion)
     }
     
     class func doCleanUp(_ clearKeychain: Bool = true) {
@@ -628,12 +643,14 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     func stop(_ completion: @escaping () -> Void) {
         queue.async {
-            self.doStop()
-            completion()
+            self.doStop(completion)
         }
     }
     
-    func doStop() {
+    /**
+        Pass nil completion only from tests to run doStop synchronously
+     */
+    func doStop(_ completion: (() -> Void)?) {
         logInfo("Stopping MobileMessaging service...")
         NotificationCenter.default.post(name: Notification.Name.init("mobileMessagingWillStop"), object: self)
         
@@ -646,36 +663,40 @@ public final class MobileMessaging: NSObject, NamedLogger {
                 dispatchGroup.leave()
             })
         }
-        dispatchGroup.wait()
-        
-        messageStorages.values.forEach({$0.stop()})
-        messageStorages.removeAll()
-        
-        MobileMessaging.messageHandlingDelegate = nil
-        
-        cleanupSubservices()
-        
-        // just to break retain cycles:
-        apnsRegistrationManager = nil
-        registeringForRemoteNotificationsDisabled = false
-        overridingNotificationCenterDeleageDisabled = false
-        messageHandler = nil
-        remoteApiProvider = nil
-        userSessionService = nil
-        installationService = nil
-        userService = nil
-        eventsService = nil
-        baseUrlManager = nil
-        webInAppClickService = nil
-        notificationsInteractionService = nil
-        httpSessionManager = nil
-        InternalData.cached.reset()
-        
-        keychain = nil
-        sharedNotificationExtensionStorage = nil
-        MobileMessaging.application = MainThreadedUIApplication()
-        MobileMessaging.sharedInstance = nil
-        logInfo("MobileMessaging service stopped")
+        logDebug("Waiting subservices stop...")
+        notifyOrWait(dispatchGroup: dispatchGroup, queue: queue, block: {
+            self.logDebug("All subservices stopped.")
+            
+            self.messageStorages.values.forEach({$0.stop()})
+            self.messageStorages.removeAll()
+            self.logDebug("messageStorages removed.")
+            
+            MobileMessaging.messageHandlingDelegate = nil
+            
+            self.cleanupSubservices()
+            
+            // just to break retain cycles:
+            self.apnsRegistrationManager = nil
+            self.registeringForRemoteNotificationsDisabled = false
+            self.overridingNotificationCenterDeleageDisabled = false
+            self.messageHandler = nil
+            self.remoteApiProvider = nil
+            self.userSessionService = nil
+            self.installationService = nil
+            self.userService = nil
+            self.eventsService = nil
+            self.baseUrlManager = nil
+            self.webInAppClickService = nil
+            self.notificationsInteractionService = nil
+            self.httpSessionManager = nil
+            InternalData.cached.reset()
+            
+            self.keychain = nil
+            self.sharedNotificationExtensionStorage = nil
+            self.logInfo("MobileMessaging service stopped")
+            MobileMessaging.application = MainThreadedUIApplication()
+            MobileMessaging.sharedInstance = nil
+        }, completion: completion)
     }
     
     func didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: Bool, token: Data, completion: @escaping (NSError?) -> Void) {
@@ -746,6 +767,10 @@ public final class MobileMessaging: NSObject, NamedLogger {
             requiresRestart = true
         }
         
+        if let appGroupId = Bundle.mainAppBundle.appGroupId, sharedNotificationExtensionStorage == nil {
+            sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: appCode, appGroupId: appGroupId)
+        }
+        
         if applicationCodeChanged(newApplicationCode: appCode) {
             appCodeChanged = true
         }
@@ -761,9 +786,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
     }
     
     private func startComponents() {
-        if let appGroupId = appGroupId, sharedNotificationExtensionStorage == nil {
-            sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
-        }
         if webInAppClickService == nil && fullFeaturedInAppsEnabled {
             webInAppClickService = WebInAppClickService(mmContext: self)
         }

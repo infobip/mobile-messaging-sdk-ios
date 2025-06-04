@@ -13,6 +13,7 @@ import WebRTCUI
 #endif
 import UserNotifications
 
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
@@ -20,8 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let messagesManager = MessagesManager.sharedInstance
     
     func applicationDidFinishLaunching(_ application: UIApplication) {
-        if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {
+        if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {    
             setupLogging()
+    
             MobileMessaging
                 .withApplicationCode(
                     "<# your application code #>",

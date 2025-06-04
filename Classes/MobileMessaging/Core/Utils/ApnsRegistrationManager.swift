@@ -166,9 +166,6 @@ class ApnsRegistrationManager: NamedLogger {
 	private static let encoding: String.Encoding = .utf8
 	
 	private func registerNotificationSettings(application: MMApplication, userNotificationType: MMUserNotificationType) {
-        if mmContext.overridingNotificationCenterDeleageDisabled == false {
-            UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
-        }
 		UNUserNotificationCenter.current().requestAuthorization(options: userNotificationType.unAuthorizationOptions) { (granted, error) in
 			UserEventsManager.postNotificationCenterAuthRequestFinished(granted: granted, error: error)
 			guard granted else {
