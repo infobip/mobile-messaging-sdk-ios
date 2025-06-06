@@ -115,6 +115,7 @@ public class NotificationsInteractionService: MobileMessagingService {
     }
     
     fileprivate func handleNotificationTap(message: MM_MTMessage, attempt: Int = 0, completion: @escaping () -> Void) {
+        logDebug("handleNotificationTap")
         guard attempt < 3 else {
             completion()
             return
@@ -232,6 +233,7 @@ public class NotificationsInteractionService: MobileMessagingService {
         
         if message.appliedAction?.isTapOnNotificationAlert ?? false ||
             message.appliedAction?.identifier == MMNotificationAction.PrimaryActionId {
+            logDebug("Message has applied action with identifier \(String(describing: appliedAction.identifier))")
             dispatchGroup.enter()
             handleNotificationTap(message: message, completion: {
                 dispatchGroup.leave()

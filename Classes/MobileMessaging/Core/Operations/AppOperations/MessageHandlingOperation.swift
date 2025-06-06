@@ -144,6 +144,7 @@ final class MessageHandlingOperation: MMOperation {
 	
 	private func handleNotificationTappedIfNeeded(with message: MM_MTMessage) {
         guard isNotificationTapped else { return }
+        logDebug("Setting message applied action tap")
         message.appliedAction = MMNotificationAction.defaultAction
 	}
 	

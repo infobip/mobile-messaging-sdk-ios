@@ -902,3 +902,18 @@ internal func notifyOrWait(dispatchGroup: DispatchGroup, queue: DispatchQueue, b
         }
     }
 }
+
+extension UIApplication.State: @retroactive CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .active:
+            return "Active"
+        case .inactive:
+            return "Inactive"
+        case .background:
+            return "Background"
+        @unknown default:
+            return "Unknown"
+        }
+    }
+}

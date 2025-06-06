@@ -88,7 +88,13 @@ public class MMMessageHandler: MobileMessagingService {
     }
 
     public override func start(_ completion: @escaping (Bool) -> Void) {
-        super.start({ _ in })
+        let currentInstallation = mmContext.currentInstallation()
+        let currentDepersonalizationStatus = mmContext.internalData().currentDepersonalizationStatus
+        if currentInstallation.isPushRegistrationEnabled && currentDepersonalizationStatus != .pending  {
+            super.start({ _ in })
+        } else {
+            logDebug("messageHandler didn't start: reg enabled \(currentInstallation.isPushRegistrationEnabled), depersonalizaton status \(currentDepersonalizationStatus.rawValue)")
+        }
         evictOldMessages(userInitiated: false, completion: {
             self.syncWithServer(userInitiated: false) {_ in  completion(self.isRunning)}
         })
@@ -122,7 +128,7 @@ public class MMMessageHandler: MobileMessagingService {
     }
 
     public func handleMTMessages(userInitiated: Bool, messages: [MM_MTMessage], notificationTapped: Bool = false, handlingIteration: Int = 0, completion: @escaping (MessageHandlingResult) -> Void) {
-        logDebug("handleMTMessages...")
+        logDebug("Handling MTMessages userInitiated: \(userInitiated), notificationsTapped: \(notificationTapped)")
         guard isRunning == true, !messages.isEmpty else {
             logDebug("abort messages handling \(messages), service running \(isRunning)")
             completion(.noData)
@@ -389,11 +395,10 @@ public class MMMessageHandler: MobileMessagingService {
     }
 
     public override func depersonalizationStatusDidChange(_ completion: @escaping () -> Void) {
-        switch mmContext.internalData().currentDepersonalizationStatus {
-        case .pending:
+        if (mmContext.internalData().currentDepersonalizationStatus == .pending) {
             suspend()
             completion()
-        case .success, .undefined:
+        } else {
             start({ _ in completion() })
         }
     }
@@ -417,7 +422,9 @@ public class MMMessageHandler: MobileMessagingService {
 #if SWIFT_PACKAGE
         return applicationState == .inactive
 #else
-        return applicationState == .inactive || (notificationUserInfo != nil ? notificationUserInfo![ApplicationLaunchedByNotification_Key] != nil : false)
+        let ret = applicationState == .inactive || (notificationUserInfo != nil ? notificationUserInfo![ApplicationLaunchedByNotification_Key] != nil : false)
+        logDebug("Determined if app was launched by notification: \(ret) (applicationState: \(applicationState), notificationUserInfo![ApplicationLaunchedByNotification_Key] = \(String(describing: notificationUserInfo?[ApplicationLaunchedByNotification_Key]))")
+        return ret
 #endif
     }
 

@@ -76,7 +76,7 @@ class UserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate
 	}
 
     func didReceive(notificationUserInfo: [AnyHashable: Any], actionId: String?, categoryId: String?, userText: String?, withCompletionHandler completionHandler: @escaping () -> Swift.Void) {
-        logDebug("received response")
+        logDebug("received response actionId \(String(describing: actionId)) categoryId \(String(describing: categoryId))")
         
         let message = MM_MTMessage(
             payload: notificationUserInfo,

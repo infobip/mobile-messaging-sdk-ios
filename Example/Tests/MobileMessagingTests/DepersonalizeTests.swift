@@ -102,7 +102,7 @@ class DepersonalizeTests: MMTestCase {
 		}
 		
 		waitForExpectations(timeout: 20) { _ in
-			XCTAssertEqual(MMSuccessPending.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
+			XCTAssertEqual(.undefined, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
 			// assert there is not any message in message storage
 			let messages = Message.MM_findAllWithPredicate(nil, context: MobileMessaging.defaultMessageStorage!.context!)
 			XCTAssertTrue(messages == nil || messages?.isEmpty ?? true)
@@ -193,7 +193,7 @@ class DepersonalizeTests: MMTestCase {
         }
         
         waitForExpectations(timeout: 20) { _ in
-            XCTAssertEqual(MMSuccessPending.pending.rawValue, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus.rawValue)
+            XCTAssertEqual(.pending, self.mobileMessagingInstance.internalData().currentDepersonalizationStatus)
             XCTAssertFalse(self.mobileMessagingInstance.messageHandler.isRunning)
             XCTAssertNil(MobileMessaging.getUser()!.firstName)
             XCTAssertNil(MobileMessaging.getUser()!.customAttributes?["bootsize"])

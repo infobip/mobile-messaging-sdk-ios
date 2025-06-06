@@ -13,8 +13,8 @@ import MobileMessagingLogging
 
 extension AppDelegate {
 	func setupLogging() {
-//        MobileMessaging.logger = MMLumberjackLogger(logOutput: .Console, logLevel: .Debug)
-        MobileMessaging.logger = MMDefaultLogger()
+        MobileMessaging.logger = MMLumberjackLogger(logOutput: .Console, logLevel: .Debug)
+//        MobileMessaging.logger = MMDefaultLogger()
 	}
 	
 	var customCategories: Set<MMNotificationCategory> {

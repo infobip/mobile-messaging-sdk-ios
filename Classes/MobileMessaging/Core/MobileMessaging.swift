@@ -791,6 +791,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         }
         if notificationsInteractionService == nil {
             notificationsInteractionService = NotificationsInteractionService(mmContext: self, categories: nil)
+            notificationsInteractionService?.start({ _ in }) // lets start as soon as possible to handle interactions for terminated app
         }
         baseUrlManager = BaseUrlManager(mmContext: self)
         userSessionService = UserSessionService(mmContext: self)
@@ -799,12 +800,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         installationService = InstallationDataService(mmContext: self)
         messageStorages.values.forEach({ $0.start() })
         
-        let currentInstall = currentInstallation()
-        if currentInstall.isPushRegistrationEnabled && internalData().currentDepersonalizationStatus == .undefined  {
-            messageHandler.start({ _ in })
-        } else {
-            logDebug("messageHandler didn't start: reg enabled \(currentInstall.isPushRegistrationEnabled), depersonalizaton status \(internalData().currentDepersonalizationStatus.rawValue)")
-        }
+        messageHandler.start({ _ in }) // lets start as soon as possible to handle interactions for terminated app
         
         if !isTestingProcessRunning {
 #if DEBUG
