@@ -8,20 +8,20 @@
 import Foundation
 
 public enum APIPath: String {
-	case SeenMessages = "/mobile/2/messages/seen"
-	case SyncMessages = "/mobile/5/messages"
-	case MOMessage = "/mobile/1/messages/mo"
-	case LibraryVersion = "/mobile/3/version"
+    case SeenMessages = "/mobile/2/messages/seen"
+    case SyncMessages = "/mobile/5/messages"
+    case MOMessage = "/mobile/1/messages/mo"
+    case LibraryVersion = "/mobile/3/version"
     case BaseURL = "/mobile/1/baseurl"
-	case DeliveryReport = "/mobile/1/messages/deliveryreport"
+    case DeliveryReport = "/mobile/1/messages/deliveryreport"
 
-	case AppInstancePersonalize = "/mobile/1/appinstance/{pushRegistrationId}/personalize"
-	case AppInstanceDepersonalize = "/mobile/1/appinstance/{pushRegistrationId}/depersonalize"
-	case AppInstanceUser_CRUD = "/mobile/1/appinstance/{pushRegistrationId}/user"
-	case AppInstance_xRUD = "/mobile/1/appinstance/{pushRegistrationId}"
-	case AppInstance_Cxxx = "/mobile/1/appinstance"
-	case UserSession = "/mobile/1/appinstance/{pushRegistrationId}/user/events/session"
-	case CustomEvents = "/mobile/1/appinstance/{pushRegistrationId}/user/events/custom"
+    case AppInstancePersonalize = "/mobile/1/appinstance/{pushRegistrationId}/personalize"
+    case AppInstanceDepersonalize = "/mobile/1/appinstance/{pushRegistrationId}/depersonalize"
+    case AppInstanceUser_CRUD = "/mobile/1/appinstance/{pushRegistrationId}/user"
+    case AppInstance_xRUD = "/mobile/1/appinstance/{pushRegistrationId}"
+    case AppInstance_Cxxx = "/mobile/1/appinstance"
+    case UserSession = "/mobile/1/appinstance/{pushRegistrationId}/user/events/session"
+    case CustomEvents = "/mobile/1/appinstance/{pushRegistrationId}/user/events/custom"
 
     case Inbox = "/mobile/1/user/{externalUserId}/inbox/apns/messages"
 
@@ -29,23 +29,23 @@ public enum APIPath: String {
     case WebRTCToken = "/webrtc/1/token"
     case LiveChatInfo = "/mobile/1/appinstance/{pushRegistrationId}/user/livechatinfo"
 
-	case empty = ""
+    case empty = ""
 }
 
 class SeenStatusSendingRequest: PostRequest {
-	typealias ResponseType = EmptyResponse
+    typealias ResponseType = EmptyResponse
 
-	init(applicationCode: String, pushRegistrationId: String?, body: RequestBody) {
-		super.init(applicationCode: applicationCode, path: .SeenMessages, pushRegistrationId: pushRegistrationId, body: body)
-	}
+    init(applicationCode: String, pushRegistrationId: String?, body: RequestBody) {
+        super.init(applicationCode: applicationCode, path: .SeenMessages, pushRegistrationId: pushRegistrationId, body: body)
+    }
 }
 
 class LibraryVersionRequest: GetRequest {
-	typealias ResponseType = LibraryVersionResponse
+    typealias ResponseType = LibraryVersionResponse
 
-	init(applicationCode: String, pushRegistrationId: String?) {
-		super.init(applicationCode: applicationCode, path: .LibraryVersion, pushRegistrationId: pushRegistrationId, parameters: [Consts.PushRegistration.platform: Consts.APIValues.platformType])
-	}
+    init(applicationCode: String, pushRegistrationId: String?) {
+        super.init(applicationCode: applicationCode, path: .LibraryVersion, pushRegistrationId: pushRegistrationId, parameters: [Consts.PushRegistration.platform: Consts.APIValues.platformType])
+    }
 }
 
 class BaseUrlRequest: GetRequest {
@@ -58,123 +58,123 @@ class BaseUrlRequest: GetRequest {
 
 
 class MessagesSyncRequest: PostRequest {
-	typealias ResponseType = MessagesSyncResponse
+    typealias ResponseType = MessagesSyncResponse
 
-	init(applicationCode: String, pushRegistrationId: String, body: RequestBody) {
-		super.init(applicationCode: applicationCode, path: .SyncMessages, pushRegistrationId: pushRegistrationId, body: body, parameters: {
-			var params = RequestParameters()
-			params[Consts.PushRegistration.platform] = Consts.APIValues.platformType
-			return params
-		}())
-	}
+    init(applicationCode: String, pushRegistrationId: String, body: RequestBody) {
+        super.init(applicationCode: applicationCode, path: .SyncMessages, pushRegistrationId: pushRegistrationId, body: body, parameters: {
+            var params = RequestParameters()
+            params[Consts.PushRegistration.platform] = Consts.APIValues.platformType
+            return params
+        }())
+    }
 }
 
 class DeliveryReportRequest: PostRequest {
-	typealias ResponseType = EmptyResponse
+    typealias ResponseType = EmptyResponse
 
-	init(applicationCode: String, body: RequestBody) {
-		super.init(applicationCode: applicationCode, path: .DeliveryReport, body: body)
-	}
+    init(applicationCode: String, body: RequestBody) {
+        super.init(applicationCode: applicationCode, path: .DeliveryReport, body: body)
+    }
 }
 
 class MOMessageSendingRequest: PostRequest {
-	typealias ResponseType = MOMessageSendingResponse
+    typealias ResponseType = MOMessageSendingResponse
 
-	init(applicationCode: String, pushRegistrationId: String, body: RequestBody) {
-		super.init(applicationCode: applicationCode, path: .MOMessage, pushRegistrationId: pushRegistrationId, body: body, parameters: [Consts.PushRegistration.platform : Consts.APIValues.platformType])
-	}
+    init(applicationCode: String, pushRegistrationId: String, body: RequestBody) {
+        super.init(applicationCode: applicationCode, path: .MOMessage, pushRegistrationId: pushRegistrationId, body: body, parameters: [Consts.PushRegistration.platform : Consts.APIValues.platformType])
+    }
 }
 
 class PostCustomEvent: PostRequest {
-	typealias ResponseType = EmptyResponse
+    typealias ResponseType = EmptyResponse
 
-	init(applicationCode: String, pushRegistrationId: String, validate: Bool, requestBody: RequestBody?) {
-		super.init(applicationCode: applicationCode, path: .CustomEvents, pushRegistrationId: pushRegistrationId, body: requestBody, parameters: ["validate": validate], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
-	}
+    init(applicationCode: String, pushRegistrationId: String, validate: Bool, requestBody: RequestBody?) {
+        super.init(applicationCode: applicationCode, path: .CustomEvents, pushRegistrationId: pushRegistrationId, body: requestBody, parameters: ["validate": validate], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
+    }
 }
 
 class PostUserSession: PostRequest {
-	typealias ResponseType = EmptyResponse
+    typealias ResponseType = EmptyResponse
 
-	init(applicationCode: String, pushRegistrationId: String, requestBody: RequestBody?) {
-		super.init(applicationCode: applicationCode, path: .UserSession, pushRegistrationId: pushRegistrationId, body: requestBody, pathParameters: ["{pushRegistrationId}": pushRegistrationId])
-	}
+    init(applicationCode: String, pushRegistrationId: String, requestBody: RequestBody?) {
+        super.init(applicationCode: applicationCode, path: .UserSession, pushRegistrationId: pushRegistrationId, body: requestBody, pathParameters: ["{pushRegistrationId}": pushRegistrationId])
+    }
 }
 
 class GetInstance: GetRequest {
-	typealias ResponseType = MMInstallation
+    typealias ResponseType = MMInstallation
 
-	init(applicationCode: String, pushRegistrationId: String, returnPushServiceToken: Bool) {
-		super.init(applicationCode: applicationCode, path: .AppInstance_xRUD, pushRegistrationId: pushRegistrationId, parameters: ["rt": returnPushServiceToken], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
-	}
+    init(applicationCode: String, pushRegistrationId: String, returnPushServiceToken: Bool) {
+        super.init(applicationCode: applicationCode, path: .AppInstance_xRUD, pushRegistrationId: pushRegistrationId, parameters: ["rt": returnPushServiceToken], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
+    }
 }
 
 class PatchInstance: PatchRequest {
-	typealias ResponseType = EmptyResponse
+    typealias ResponseType = EmptyResponse
 
-	init?(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, returnPushServiceToken: Bool) {
-		super.init(applicationCode: applicationCode, path: .AppInstance_xRUD, pushRegistrationId: authPushRegistrationId, body: body, parameters: ["rt": returnPushServiceToken], pathParameters: ["{pushRegistrationId}": refPushRegistrationId])
-		if self.body?.isEmpty ?? true {
-			return nil
-		}
-	}
+    init?(applicationCode: String, authPushRegistrationId: String, refPushRegistrationId: String, body: RequestBody, returnPushServiceToken: Bool) {
+        super.init(applicationCode: applicationCode, path: .AppInstance_xRUD, pushRegistrationId: authPushRegistrationId, body: body, parameters: ["rt": returnPushServiceToken], pathParameters: ["{pushRegistrationId}": refPushRegistrationId])
+        if self.body?.isEmpty ?? true {
+            return nil
+        }
+    }
 }
 
 class PostInstance: PostRequest {
-	typealias ResponseType = MMInstallation
+    typealias ResponseType = MMInstallation
 
-	init?(applicationCode: String, body: RequestBody, returnPushServiceToken: Bool) {
-		super.init(applicationCode: applicationCode, path: .AppInstance_Cxxx, body: body, parameters: ["rt": returnPushServiceToken])
-		if self.body?.isEmpty ?? true {
-			return nil
-		}
-	}
+    init?(applicationCode: String, body: RequestBody, returnPushServiceToken: Bool) {
+        super.init(applicationCode: applicationCode, path: .AppInstance_Cxxx, body: body, parameters: ["rt": returnPushServiceToken])
+        if self.body?.isEmpty ?? true {
+            return nil
+        }
+    }
 }
 
 class DeleteInstance: DeleteRequest {
-	typealias ResponseType = EmptyResponse
+    typealias ResponseType = EmptyResponse
 
-	init(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String) {
-		super.init(applicationCode: applicationCode, path: .AppInstance_xRUD, pushRegistrationId: pushRegistrationId, pathParameters: ["{pushRegistrationId}": expiredPushRegistrationId])
-	}
+    init(applicationCode: String, pushRegistrationId: String, expiredPushRegistrationId: String) {
+        super.init(applicationCode: applicationCode, path: .AppInstance_xRUD, pushRegistrationId: pushRegistrationId, pathParameters: ["{pushRegistrationId}": expiredPushRegistrationId])
+    }
 }
 
 class GetUser: GetRequest {
-	typealias ResponseType = MMUser
+    typealias ResponseType = MMUser
 
-	init(applicationCode: String, pushRegistrationId: String, returnInstance: Bool, returnPushServiceToken: Bool) {
-		super.init(applicationCode: applicationCode, path: .AppInstanceUser_CRUD, pushRegistrationId: pushRegistrationId, parameters: ["rt": returnPushServiceToken, "ri": returnInstance], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
-	}
+    init(applicationCode: String, pushRegistrationId: String, returnInstance: Bool, returnPushServiceToken: Bool, accessToken: String? = nil) {
+        super.init(applicationCode: applicationCode, path: .AppInstanceUser_CRUD, pushRegistrationId: pushRegistrationId, parameters: ["rt": returnPushServiceToken, "ri": returnInstance], pathParameters: ["{pushRegistrationId}": pushRegistrationId], accessToken: accessToken)
+    }
 }
 
 class PatchUser: PatchRequest {
-	typealias ResponseType = EmptyResponse
+    typealias ResponseType = EmptyResponse
 
-	init?(applicationCode: String, pushRegistrationId: String, body: RequestBody?, returnInstance: Bool, returnPushServiceToken: Bool) {
+    init?(applicationCode: String, pushRegistrationId: String, body: RequestBody?, returnInstance: Bool, returnPushServiceToken: Bool, accessToken: String? = nil) {
         guard let body = body else {
             return nil
         }
-		super.init(applicationCode: applicationCode, path: .AppInstanceUser_CRUD, pushRegistrationId: pushRegistrationId, body: body, parameters: ["rt": returnPushServiceToken, "ri": returnInstance], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
-		if self.body?.isEmpty ?? true {
-			return nil
-		}
-	}
+        super.init(applicationCode: applicationCode, path: .AppInstanceUser_CRUD, pushRegistrationId: pushRegistrationId, body: body, parameters: ["rt": returnPushServiceToken, "ri": returnInstance], pathParameters: ["{pushRegistrationId}": pushRegistrationId], accessToken: accessToken)
+        if self.body?.isEmpty ?? true {
+            return nil
+        }
+    }
 }
 
 class PostDepersonalize: PostRequest {
-	typealias ResponseType = EmptyResponse
+    typealias ResponseType = EmptyResponse
 
-	init(applicationCode: String, pushRegistrationId: String, pushRegistrationIdToDepersonalize: String) {
-		super.init(applicationCode: applicationCode, path: .AppInstanceDepersonalize, pushRegistrationId: pushRegistrationId, pathParameters: ["{pushRegistrationId}": pushRegistrationIdToDepersonalize])
-	}
+    init(applicationCode: String, pushRegistrationId: String, pushRegistrationIdToDepersonalize: String) {
+        super.init(applicationCode: applicationCode, path: .AppInstanceDepersonalize, pushRegistrationId: pushRegistrationId, pathParameters: ["{pushRegistrationId}": pushRegistrationIdToDepersonalize])
+    }
 }
 
 class PostPersonalize: PostRequest {
-	typealias ResponseType = MMUser
+    typealias ResponseType = MMUser
 
-    init(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, keepAsLead: Bool) {
-        super.init(applicationCode: applicationCode, path: .AppInstancePersonalize, pushRegistrationId: pushRegistrationId, body: body, parameters: ["forceDepersonalize": forceDepersonalize, "keepAsLead": keepAsLead], pathParameters: ["{pushRegistrationId}": pushRegistrationId])
-	}
+    init(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, keepAsLead: Bool, accessToken: String? = nil) {
+        super.init(applicationCode: applicationCode, path: .AppInstancePersonalize, pushRegistrationId: pushRegistrationId, body: body, parameters: ["forceDepersonalize": forceDepersonalize, "keepAsLead": keepAsLead], pathParameters: ["{pushRegistrationId}": pushRegistrationId], accessToken: accessToken)
+    }
 }
 
 class WebInAppClickReportRequest: GetRequest {
@@ -206,30 +206,30 @@ public typealias RequestBody = [String: Any]
 public typealias RequestParameters = [String: Any]
 
 open class RequestData {
-    public init(applicationCode: String, accessToken: String?, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
-		self.applicationCode = applicationCode
-		self.method = method
-		self.path = path
-		self.pushRegistrationId = pushRegistrationId
-		self.body = body
-		self.parameters = parameters
-		self.pathParameters = pathParameters
+    public init(applicationCode: String, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil, accessToken: String? = nil) {
+        self.applicationCode = applicationCode
+        self.method = method
+        self.path = path
+        self.pushRegistrationId = pushRegistrationId
+        self.body = body
+        self.parameters = parameters
+        self.pathParameters = pathParameters
         self.baseUrl = baseUrl
         self.accessToken = accessToken
-	}
+    }
     let accessToken: String?
-	let applicationCode: String
-	public let pushRegistrationId: String?
-	let method: HTTPMethod
-	let path: APIPath
+    let applicationCode: String
+    public let pushRegistrationId: String?
+    let method: HTTPMethod
+    let path: APIPath
     let baseUrl: URL?
 
-	var headers: HTTPHeaders? {
-		var headers: HTTPHeaders = [:]
+    var headers: HTTPHeaders? {
+        var headers: HTTPHeaders = [:]
         if let accessToken = accessToken {
-            headers[MMConsts.APIHeaders.authorization] = "Bearer \(accessToken)"
+            headers[MMConsts.APIHeaders.authorization] = "\(MMConsts.APIHeaders.authorizationBearer) \(accessToken)"
         } else {
-            headers[MMConsts.APIHeaders.authorization] = "App \(self.applicationCode)"
+            headers[MMConsts.APIHeaders.authorization] = "\(MMConsts.APIHeaders.authorizationApiKey) \(self.applicationCode)"
         }
         headers[MMConsts.APIHeaders.applicationcode] = calculateAppCodeHash(self.applicationCode)
         headers[MMConsts.APIHeaders.userAgent] = MobileMessaging.userAgent.currentUserAgentString
@@ -239,47 +239,47 @@ open class RequestData {
         headers[MMConsts.APIHeaders.accept] = "application/json"
         headers[MMConsts.APIHeaders.contentType] = "application/json"
         headers[MMConsts.APIHeaders.installationId] = MobileMessaging.sharedInstance?.installationService?.getUniversalInstallationId()
-		return headers
-	}
-	let body: RequestBody?
-	let parameters: RequestParameters?
-	let pathParameters: [String: String]?
+        return headers
+    }
+    let body: RequestBody?
+    let parameters: RequestParameters?
+    let pathParameters: [String: String]?
 
-	var resolvedPath: String {
-		var ret: String = path.rawValue
-		pathParameters?.forEach { (pathParameterName, pathParameterValue) in
-			ret = ret.replacingOccurrences(of: pathParameterName, with: pathParameterValue)
-		}
-		return ret
-	}
+    var resolvedPath: String {
+        var ret: String = path.rawValue
+        pathParameters?.forEach { (pathParameterName, pathParameterValue) in
+            ret = ret.replacingOccurrences(of: pathParameterName, with: pathParameterValue)
+        }
+        return ret
+    }
 }
 
 open class GetRequest: RequestData {
-    public init(applicationCode: String, accessToken: String? = nil, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil) {
-        super.init(applicationCode: applicationCode, accessToken: accessToken, method: .get, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, baseUrl: baseUrl)
-	}
+    public init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil, accessToken: String? = nil) {
+        super.init(applicationCode: applicationCode, method: .get, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, baseUrl: baseUrl, accessToken: accessToken)
+    }
 }
 
 open class PostRequest: RequestData {
-	public init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, accessToken: nil, method: .post, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
-	}
+    public init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, accessToken: String? = nil) {
+        super.init(applicationCode: applicationCode, method: .post, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, accessToken: accessToken)
+    }
 }
 
 class DeleteRequest: RequestData {
-	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, accessToken: nil, method: .delete, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
-	}
+    init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
+        super.init(applicationCode: applicationCode, method: .delete, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, accessToken: nil)
+    }
 }
 
 class PutRequest: RequestData {
-	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, accessToken: nil, method: .put, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
-	}
+    init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
+        super.init(applicationCode: applicationCode, method: .put, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, accessToken: nil)
+    }
 }
 
 class PatchRequest: RequestData {
-	init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil) {
-		super.init(applicationCode: applicationCode, accessToken: nil, method: .patch, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters)
-	}
+    init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, accessToken: String? = nil) {
+        super.init(applicationCode: applicationCode, method: .patch, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, accessToken: accessToken)
+    }
 }

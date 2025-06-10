@@ -3,7 +3,6 @@
 //  MobileMessagingExample_Tests
 //
 //  Created by Andrey Kadochnikov on 01.03.2022.
-//  Copyright © 2022 CocoaPods. All rights reserved.
 //
 
 import XCTest

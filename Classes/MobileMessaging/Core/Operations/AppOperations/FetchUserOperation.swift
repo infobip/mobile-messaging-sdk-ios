@@ -41,8 +41,16 @@ class FetchUserOperation: MMOperation {
 	}
 
 	private func performRequest(pushRegistrationId: String) {
-		logDebug("fetching from server...")
-        mmContext.remoteApiProvider.getUser(applicationCode: mmContext.applicationCode, pushRegistrationId: pushRegistrationId, queue: underlyingQueue)
+        var accessToken: String? = nil
+        do {
+            accessToken = try mmContext.getValidJwtAccessToken()
+        } catch let error as NSError {
+            finishWithError(error)
+            return
+        }
+        
+        logDebug("Fetching from server - Auth: \(accessToken != nil ? "JWT" : "AppCode")")
+        mmContext.remoteApiProvider.getUser(applicationCode: mmContext.applicationCode, accessToken: accessToken, pushRegistrationId: pushRegistrationId, queue: underlyingQueue)
 		{ result in
 			self.handleResult(result)
 			self.finishWithError(result.error)

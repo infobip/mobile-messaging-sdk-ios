@@ -104,6 +104,26 @@ public final class MobileMessaging: NSObject, NamedLogger {
     }
     
     /**
+     Fabric method for Mobile Messaging session.
+     Sets the MMJwtSupplier to be used for API authorization during initialization.
+     The provided MMJwtSupplier will be called to obtain JWT tokens for requests to
+     APIs that support JWT-based authorization, specifically personalization, fetching and updating the user.
+     The token is expected to be supplied by the MMJwtSupplier.getJwt() method when
+     an authorized API call is made.
+     If set, the JWT returned by MMJwtSupplier.getJwt() will be included in the
+     appropriate authorization header for supported API requests. This allows for
+     more secure authentication compared to using application code alone.
+     The SDK will check if a MMJwtSupplier is available, and if so, it will use the provided
+     JWT token instead of the default authentication method.
+     - parameter jwtSupplier: The supplier that provides JWT tokens for API authorization.
+     - seealso: MMJwtSupplier.swift
+     */
+    public func withJwtSupplier(_ jwtSupplier: MMJwtSupplier) -> MobileMessaging {
+        MobileMessaging.jwtSupplier = jwtSupplier
+        return self
+    }
+    
+    /**
      Asynchronously starts a new Mobile Messaging session.
      This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
      - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
@@ -481,6 +501,13 @@ public final class MobileMessaging: NSObject, NamedLogger {
         }
     }
     
+    /**
+     The MMJwtSupplier protocol defines method which will be called to obtain JWT tokens for requests to APIs that
+     support JWT-based authorization. The token is expected to be supplied by the MMJwtSupplier.getJwt()
+     method when an authorized API call is made.
+     */
+    public static var jwtSupplier: MMJwtSupplier? = nil
+    
     /** An auxiliary component provides the convenient access to the user agent data. */
     public internal(set) static var userAgent = MMUserAgent()
     
@@ -672,6 +699,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
             self.logDebug("messageStorages removed.")
             
             MobileMessaging.messageHandlingDelegate = nil
+            MobileMessaging.jwtSupplier = nil
             
             self.cleanupSubservices()
             
@@ -830,7 +858,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
     var eventsService: EventsService!
     var webInAppClickService: WebInAppClickService?
     var notificationsInteractionService: NotificationsInteractionService?
-    
     
     public lazy var messageHandler: MMMessageHandler! = MMMessageHandler(storage: self.internalStorage, mmContext: self)
     lazy var apnsRegistrationManager: ApnsRegistrationManager! = ApnsRegistrationManager(mmContext: self)

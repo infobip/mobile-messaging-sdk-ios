@@ -109,6 +109,8 @@ public struct MMConsts {
         static let accept = "Accept"
         static let contentType = "Content-Type"
         static let installationId = "installationid"
+        static let authorizationBearer = "Bearer"
+        static let authorizationApiKey = "App"
 	}
     
     struct BaseUrlRecovery {

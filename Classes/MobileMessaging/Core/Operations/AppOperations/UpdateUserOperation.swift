@@ -54,7 +54,17 @@ class UpdateUserOperation: MMOperation {
 	}
 
 	private func performRequest(pushRegistrationId: String) {
+        var accessToken: String? = nil
+        do {
+            accessToken = try mmContext.getValidJwtAccessToken()
+        } catch let error as NSError {
+            finishWithError(error)
+            return
+        }
+        
+        logDebug("Updating user - Auth: \(accessToken != nil ? "JWT" : "AppCode")")
 		mmContext.remoteApiProvider.patchUser(applicationCode: mmContext.applicationCode,
+                                              accessToken: accessToken,
 											  pushRegistrationId: pushRegistrationId,
 											  body: body,
                                               queue: underlyingQueue)

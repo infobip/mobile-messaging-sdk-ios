@@ -20,7 +20,7 @@ class GetInbox: GetRequest {
         parameters[MMConsts.InboxKeys.dateTimeTo] = (to?.mm_epochUnixTimestamp() as Int64?).flatMap { String($0) }
         parameters[MMConsts.InboxKeys.limit] = limit.flatMap{ String($0) }
         
-        super.init(applicationCode: applicationCode, accessToken: accessToken, path: .Inbox, pushRegistrationId: nil, body: nil, parameters: parameters as RequestParameters, pathParameters: ["{externalUserId}": externalUserId])
+        super.init(applicationCode: applicationCode, path: .Inbox, pushRegistrationId: nil, body: nil, parameters: parameters as RequestParameters, pathParameters: ["{externalUserId}": externalUserId], accessToken: accessToken)
     }
 }
 

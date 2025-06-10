@@ -41,10 +41,11 @@ class MMGetChatRegistrationsRequest: GetRequest {
         if let baseURLString = baseURLString {
             baseURL = URL(string: baseURLString)
         }
-        super.init(applicationCode: applicationCode, accessToken: nil, path: .LiveChatInfo,
+        super.init(applicationCode: applicationCode, path: .LiveChatInfo,
                    pushRegistrationId: pushRegistrationId,
                    pathParameters: ["{pushRegistrationId}": pushRegistrationId],
-                   baseUrl: baseURL)
+                   baseUrl: baseURL,
+                   accessToken: nil)
     }
 }
 

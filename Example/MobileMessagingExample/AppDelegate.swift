@@ -23,14 +23,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidFinishLaunching(_ application: UIApplication) {
         if !ProcessInfo.processInfo.arguments.contains("-IsStartedToRunTests") {    
             setupLogging()
-    
+            
+            let jwtSupplier = JwtSupplierExampleImpl()
+            jwtSupplier.setExternalUserId("jwtExtUserId1")
+            
+            let jwtSupplierNil = JwtSupplierExampleNilImpl()
+            
             MobileMessaging
                 .withApplicationCode(
                     "<# your application code #>",
                     notificationType: MMUserNotificationType(options: [.alert, .sound]))?
                 .withInteractiveNotificationCategories(customCategories)
                 .withFullFeaturedInApps()
+                .withJwtSupplier(jwtSupplier)
                 .start()
+            
+            MobileMessaging.jwtSupplier = jwtSupplierNil
+            //MobileMessaging.setJwtSupplier(jwtSupplier)
         }
         UIToolbar.setupAppearance()
     }

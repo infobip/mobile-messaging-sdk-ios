@@ -10,6 +10,8 @@
 		022BFEB42CC1449F00BB30B5 /* WebInAppClickObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022BFEB22CC1449F00BB30B5 /* WebInAppClickObject.swift */; };
 		022BFEB52CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022BFEB32CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift */; };
 		02421C642CBFA95B00F159C8 /* WebInAppClickService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02421C632CBFA95200F159C8 /* WebInAppClickService.swift */; };
+		0270CF162DBFC8F60070EB08 /* MMJwtSupplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0270CF142DBFC8F20070EB08 /* MMJwtSupplier.swift */; };
+		0270CF192DBFCA470070EB08 /* MMJwtUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0270CF172DBFCA380070EB08 /* MMJwtUtils.swift */; };
 		02A31D1C2C9C1AF200051D30 /* WebInAppClickPersistingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A31D1B2C9C1AE000051D30 /* WebInAppClickPersistingOperation.swift */; };
 		02A31D1E2C9C1B0A00051D30 /* WebInAppClickReportingOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A31D1D2C9C1AF800051D30 /* WebInAppClickReportingOperation.swift */; };
 		0ECABD2F10663827D649C473E329D109 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8653CFEDB27A9FB9D1E2E629C595EBCD /* CoreLocation.framework */; };
@@ -303,6 +305,8 @@
 		022BFEB22CC1449F00BB30B5 /* WebInAppClickObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickObject.swift; sourceTree = "<group>"; };
 		022BFEB32CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WebInAppClickObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		02421C632CBFA95200F159C8 /* WebInAppClickService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickService.swift; sourceTree = "<group>"; };
+		0270CF142DBFC8F20070EB08 /* MMJwtSupplier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMJwtSupplier.swift; sourceTree = "<group>"; };
+		0270CF172DBFCA380070EB08 /* MMJwtUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMJwtUtils.swift; sourceTree = "<group>"; };
 		02A31D1B2C9C1AE000051D30 /* WebInAppClickPersistingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickPersistingOperation.swift; sourceTree = "<group>"; };
 		02A31D1D2C9C1AF800051D30 /* WebInAppClickReportingOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickReportingOperation.swift; sourceTree = "<group>"; };
 		1DEBE42652391EE1D71D4A0DE46B1042 /* MobileMessaging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = MobileMessaging.xcconfig; sourceTree = "<group>"; };
@@ -684,11 +688,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1B5F5FF8D1D1F453557F27DD /* Pods */ = {
+		0270CF1A2DC228170070EB08 /* JWT */ = {
 			isa = PBXGroup;
 			children = (
+				0270CF142DBFC8F20070EB08 /* MMJwtSupplier.swift */,
+				0270CF172DBFCA380070EB08 /* MMJwtUtils.swift */,
 			);
-			path = Pods;
+			path = JWT;
 			sourceTree = "<group>";
 		};
 		1EB0AEE32DF73E58AC174D599FA44DFB /* Targets Support Files */ = {
@@ -983,6 +989,7 @@
 		764555D51F78FF4E00B8F14B /* HTTP */ = {
 			isa = PBXGroup;
 			children = (
+				0270CF1A2DC228170070EB08 /* JWT */,
 				764555D61F78FF4E00B8F14B /* MMAPIKeysAndValues.swift */,
 				764555D91F78FF4E00B8F14B /* MMRequests.swift */,
 				764555DA1F78FF4E00B8F14B /* MMResponses.swift */,
@@ -1272,7 +1279,6 @@
 				20B56609144CE204DFA8221F742B2D76 /* Frameworks */,
 				1EC852B12152CDB7042DD88F7126A70F /* Products */,
 				1EB0AEE32DF73E58AC174D599FA44DFB /* Targets Support Files */,
-				1B5F5FF8D1D1F453557F27DD /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1708,6 +1714,7 @@
 				A08CB2672459B0BB00ED91B6 /* ChatService.swift in Sources */,
 				A0672BF52AC1A4C0005EDCD9 /* ScriptMethodInvoker.swift in Sources */,
 				763A1AFA23E490A000C997BC /* CustomEventMapper.swift in Sources */,
+				0270CF162DBFC8F60070EB08 /* MMJwtSupplier.swift in Sources */,
 				02A31D1E2C9C1B0A00051D30 /* WebInAppClickReportingOperation.swift in Sources */,
 				A8CBD7D7292CCDA200322961 /* AVPIPKitUsable+UIKit.swift in Sources */,
 				764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */,
@@ -1790,6 +1797,7 @@
 				7617506523351827000438A8 /* NetworkReachabilityManager.swift in Sources */,
 				764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */,
 				7636909C21F07330000CF3F8 /* PersonalizeOperation.swift in Sources */,
+				0270CF192DBFCA470070EB08 /* MMJwtUtils.swift in Sources */,
 				7601F191208E056400738C1A /* ImageCache.swift in Sources */,
 				7601F1A1208E056500738C1A /* ImageTransition.swift in Sources */,
 				A0E49BBD2455A4A500BABC7E /* ChatViewController.swift in Sources */,

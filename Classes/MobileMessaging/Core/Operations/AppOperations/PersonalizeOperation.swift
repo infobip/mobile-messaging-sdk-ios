@@ -50,9 +50,18 @@ class PersonalizeOperation: MMOperation {
 		}
 		
 		let body = UserDataMapper.personalizeRequestPayload(userIdentity: userIdentity, userAttributes: userAttributes) ?? [:]
-
-		logDebug("sending request with force depersonalizing \(forceDepersonalize)")
+        
+        var accessToken: String? = nil
+        do {
+            accessToken = try mmContext.getValidJwtAccessToken()
+        } catch let error as NSError {
+            finishWithError(error)
+            return
+        }
+        
+        logDebug("Sending personalize API request - Auth: \(accessToken != nil ? "JWT" : "AppCode"), forceDeperosnalize: \(forceDepersonalize)")
 		mmContext.remoteApiProvider.personalize(applicationCode: mmContext.applicationCode,
+                                                accessToken: accessToken,
 												pushRegistrationId: pushRegistrationId,
 												body: body,
                                                 forceDepersonalize: forceDepersonalize, 

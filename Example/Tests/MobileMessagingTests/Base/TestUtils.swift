@@ -178,12 +178,12 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 		}
 	}
     
-    override func personalize(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool,
+    override func personalize(applicationCode: String, accessToken: String? = nil, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool,
                               keepAsLead: Bool = false, queue: DispatchQueue, completion: @escaping (PersonalizeResult) -> Void) {
         if let personalizeClosure = personalizeClosure {
             completion(personalizeClosure(applicationCode, pushRegistrationId,body,forceDepersonalize))
         } else {
-            super.personalize(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, queue: queue, completion: completion)
+            super.personalize(applicationCode: applicationCode, accessToken: accessToken, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, queue: queue, completion: completion)
         }
     }
 
@@ -227,19 +227,19 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 		}
 	}
 
-	override func patchUser(applicationCode: String, pushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (UpdateUserDataResult) -> Void) {
+	override func patchUser(applicationCode: String, accessToken: String? = nil, pushRegistrationId: String, body: RequestBody, queue: DispatchQueue, completion: @escaping (UpdateUserDataResult) -> Void) {
 		if let patchUserClosure = patchUserClosure {
 			completion(patchUserClosure(applicationCode, pushRegistrationId, body))
 		} else {
-			super.patchUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: queue, completion: completion)
+			super.patchUser(applicationCode: applicationCode, accessToken: accessToken, pushRegistrationId: pushRegistrationId, body: body, queue: queue, completion: completion)
 		}
 	}
 
-	override func getUser(applicationCode: String, pushRegistrationId: String, queue: DispatchQueue, completion: @escaping (FetchUserDataResult) -> Void) {
+	override func getUser(applicationCode: String, accessToken: String? = nil, pushRegistrationId: String, queue: DispatchQueue, completion: @escaping (FetchUserDataResult) -> Void) {
 		if let getUserClosure = getUserClosure {
 			completion(getUserClosure(applicationCode, pushRegistrationId))
 		} else {
-			super.getUser(applicationCode: applicationCode, pushRegistrationId: pushRegistrationId, queue: queue, completion: completion)
+			super.getUser(applicationCode: applicationCode, accessToken: accessToken, pushRegistrationId: pushRegistrationId, queue: queue, completion: completion)
 		}
 	}
     

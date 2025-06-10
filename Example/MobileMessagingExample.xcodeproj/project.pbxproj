@@ -7,8 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0230BA8B2DD726E800525CE1 /* JwtSupplierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0230BA8A2DD726DE00525CE1 /* JwtSupplierTests.swift */; };
+		0230BA8C2DD726E800525CE1 /* JwtSupplierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0230BA8A2DD726DE00525CE1 /* JwtSupplierTests.swift */; };
 		02CB0C382CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */; };
 		02CB0C392CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */; };
+		02E2AF6A2DD534E5004015F8 /* JwtSupplierExampleImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E2AF692DD534D5004015F8 /* JwtSupplierExampleImpl.swift */; };
+		02E2AF6C2DD619DF004015F8 /* JwtValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E2AF6B2DD619D6004015F8 /* JwtValidatorTests.swift */; };
+		02E2AF6D2DD619DF004015F8 /* JwtValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E2AF6B2DD619D6004015F8 /* JwtValidatorTests.swift */; };
 		0F993D704C704257EB8C0F89 /* Pods_MobileMessagingExample_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C11E8B364EBCAB366057E445 /* Pods_MobileMessagingExample_Tests.framework */; };
 		5000030C1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		5000030D1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
@@ -163,7 +168,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0230BA8A2DD726DE00525CE1 /* JwtSupplierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtSupplierTests.swift; sourceTree = "<group>"; };
 		02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickTests.swift; sourceTree = "<group>"; };
+		02E2AF692DD534D5004015F8 /* JwtSupplierExampleImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtSupplierExampleImpl.swift; sourceTree = "<group>"; };
+		02E2AF6B2DD619D6004015F8 /* JwtValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtValidatorTests.swift; sourceTree = "<group>"; };
 		1503E2C8AC711154DC36CA19 /* Pods_MobileMessagingExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		19EF9870F5C743DB3D8F78B1 /* Pods-MobileMessagingExample_Tests_Device.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; path = "Target Support Files/Pods-MobileMessagingExample_Tests_Device/Pods-MobileMessagingExample_Tests_Device.release.xcconfig"; sourceTree = "<group>"; };
 		1C514408FCC7F1BDA7ECB844 /* Pods_MobileMessagingExample_Tests_Device.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingExample_Tests_Device.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -350,6 +358,7 @@
 		5087EDAB1CEF052700B85546 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				02E2AF692DD534D5004015F8 /* JwtSupplierExampleImpl.swift */,
 				A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */,
 				6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */,
 				A09FE7331F4F09A7007B66E8 /* UIToolbarExtension.swift */,
@@ -464,6 +473,8 @@
 		A09103D91CABA839001873B4 /* MobileMessagingTests */ = {
 			isa = PBXGroup;
 			children = (
+				0230BA8A2DD726DE00525CE1 /* JwtSupplierTests.swift */,
+				02E2AF6B2DD619D6004015F8 /* JwtValidatorTests.swift */,
 				02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */,
 				A0218EE82ADFD2B900219258 /* CodingDecodingTests.swift */,
 				A026DDB82AC3215C00A7318C /* InboxDataModelsTests.swift */,
@@ -718,13 +729,27 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileMessagingExample_Tests_Device/Pods-MobileMessagingExample_Tests_Device-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
+				"${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework",
+				"${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework",
+				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
 				"${BUILT_PRODUCTS_DIR}/MobileMessaging/MobileMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cryptor.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorECC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorRSA.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KituraContracts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LoggerAPI.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftJWT.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -738,13 +763,27 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileMessagingExample_Tests/Pods-MobileMessagingExample_Tests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
+				"${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework",
+				"${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework",
+				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
 				"${BUILT_PRODUCTS_DIR}/MobileMessaging/MobileMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cryptor.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorECC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorRSA.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KituraContracts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LoggerAPI.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftJWT.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -830,13 +869,27 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileMessagingExample/Pods-MobileMessagingExample-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework",
 				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
+				"${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework",
+				"${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework",
+				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
 				"${BUILT_PRODUCTS_DIR}/MobileMessaging/MobileMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cryptor.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorECC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorRSA.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KituraContracts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LoggerAPI.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftJWT.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -944,6 +997,7 @@
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				5087EDB11CEF067100B85546 /* ListViewController.swift in Sources */,
 				5087EDB31CEF067100B85546 /* SettingsViewController.swift in Sources */,
+				02E2AF6A2DD534E5004015F8 /* JwtSupplierExampleImpl.swift in Sources */,
 				A0ED14F91F4EEB2700EB3262 /* InteractiveNotifications.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -961,6 +1015,7 @@
 				7640DC4522063FD600F50470 /* CheckVersionTests.swift in Sources */,
 				76C3C9BA23D6126100562C57 /* UserSessionTests.swift in Sources */,
 				76E49FEB22118CD0002B810D /* TimezoneFormatterTests.swift in Sources */,
+				0230BA8C2DD726E800525CE1 /* JwtSupplierTests.swift in Sources */,
 				7640DC3522036EC000F50470 /* DeliveryReportingTests.swift in Sources */,
 				02CB0C392CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */,
 				762F9D3922064B4000A35F1E /* InstallationMigrationTests.swift in Sources */,
@@ -986,6 +1041,7 @@
 				762E22D42417BED8003E2696 /* InAppAlertTests.swift in Sources */,
 				76AAE58125FBF58000E70F13 /* UtilsTests.swift in Sources */,
 				767B849E1EA8AD1100CCD81F /* Mocks.swift in Sources */,
+				02E2AF6D2DD619DF004015F8 /* JwtValidatorTests.swift in Sources */,
 				7640DC3722036F1900F50470 /* FetchMessagesTest.swift in Sources */,
 				762E2E5427F1C04200CFC5ED /* OtherVendorsTests.swift in Sources */,
 				7640DC2D22030D1C00F50470 /* EscapingQueryTests.swift in Sources */,
@@ -1023,6 +1079,7 @@
 				76174FD92334F8F6000438A8 /* PrimaryDeviceTests.swift in Sources */,
 				7640DC4822063FDC00F50470 /* BaseSettingsTests.swift in Sources */,
 				A0218EEA2ADFD2B900219258 /* CodingDecodingTests.swift in Sources */,
+				0230BA8B2DD726E800525CE1 /* JwtSupplierTests.swift in Sources */,
 				762F9D492207220700A35F1E /* InstallationsManagementTests.swift in Sources */,
 				767B84831EA8A6EC00CCD81F /* MMTestCase.swift in Sources */,
 				762F9D3E22064E5900A35F1E /* InstallationCoreDataProvider.swift in Sources */,
@@ -1031,6 +1088,7 @@
 				76934B3A232C415800882DAA /* MOMessageSendingTests.swift in Sources */,
 				7640DC3A22036F4E00F50470 /* MessageSeenTests.swift in Sources */,
 				762E22D52417BED8003E2696 /* InAppAlertTests.swift in Sources */,
+				02E2AF6C2DD619DF004015F8 /* JwtValidatorTests.swift in Sources */,
 				76AAE58225FBF58000E70F13 /* UtilsTests.swift in Sources */,
 				767B848B1EA8A6EC00CCD81F /* Mocks.swift in Sources */,
 				7640DC3822036F1A00F50470 /* FetchMessagesTest.swift in Sources */,

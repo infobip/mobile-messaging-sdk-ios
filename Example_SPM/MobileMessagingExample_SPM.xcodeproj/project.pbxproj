@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0230BA8F2DDDD2C100525CE1 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = 0230BA8E2DDDD2C100525CE1 /* SwiftJWT */; };
+		0230BA912DDDD5DB00525CE1 /* JwtSupplierExampleImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0230BA902DDDD5DB00525CE1 /* JwtSupplierExampleImpl.swift */; };
 		5000030C1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		5000030D1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		500003101CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
@@ -66,6 +68,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0230BA902DDDD5DB00525CE1 /* JwtSupplierExampleImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtSupplierExampleImpl.swift; sourceTree = "<group>"; };
 		502129421CEEF450007CEF8E /* MessagesManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesManager.swift; sourceTree = "<group>"; };
 		5087EDA61CEEF82500B85546 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		5087EDAC1CEF067100B85546 /* InfoTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoTableViewController.swift; sourceTree = "<group>"; };
@@ -106,6 +109,7 @@
 			files = (
 				A09C675B2A7BE28000559A5F /* WebRTCUI in Frameworks */,
 				A08599472A2F6602005AED85 /* MobileMessaging in Frameworks */,
+				0230BA8F2DDDD2C100525CE1 /* SwiftJWT in Frameworks */,
 				A085994D2A2F76C3005AED85 /* MobileMessagingInbox in Frameworks */,
 				A09C67592A7BE27C00559A5F /* InAppChat in Frameworks */,
 				A08599492A2F6606005AED85 /* MobileMessagingLogging in Frameworks */,
@@ -160,6 +164,7 @@
 		5087EDAB1CEF052700B85546 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				0230BA902DDDD5DB00525CE1 /* JwtSupplierExampleImpl.swift */,
 				A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */,
 				6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */,
 				A09FE7331F4F09A7007B66E8 /* UIToolbarExtension.swift */,
@@ -280,6 +285,7 @@
 				A085994C2A2F76C3005AED85 /* MobileMessagingInbox */,
 				A09C67582A7BE27C00559A5F /* InAppChat */,
 				A09C675A2A7BE28000559A5F /* WebRTCUI */,
+				0230BA8E2DDDD2C100525CE1 /* SwiftJWT */,
 			);
 			productName = MobileMessaging;
 			productReference = 607FACD01AFB9204008FA782 /* MobileMessagingExample_SPM.app */;
@@ -320,8 +326,6 @@
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
-						DevelopmentTeam = T6U248P7YM;
-						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -342,8 +346,6 @@
 					};
 					A013D44E1ED8355F00B371C0 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = T6U248P7YM;
-						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -363,6 +365,9 @@
 				ru,
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
+			packageReferences = (
+				0230BA8D2DDDD2C100525CE1 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
+			);
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -484,6 +489,7 @@
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				5087EDB11CEF067100B85546 /* ListViewController.swift in Sources */,
 				5087EDB31CEF067100B85546 /* SettingsViewController.swift in Sources */,
+				0230BA912DDDD5DB00525CE1 /* JwtSupplierExampleImpl.swift in Sources */,
 				A0ED14F91F4EEB2700EB3262 /* InteractiveNotifications.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -657,6 +663,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1460136653961;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -675,7 +683,7 @@
 				OTHER_SWIFT_FLAGS = "-D USING_SPM";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample_SPM;
-				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 			};
 			name = Debug;
@@ -686,10 +694,11 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1460136653961;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = T6U248P7YM;
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -706,8 +715,7 @@
 				OTHER_SWIFT_FLAGS = "-D USING_SPM";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample_SPM;
-				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc com.infobip.mobilemessaging.example";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.infobip.mobilemessaging.example";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 			};
 			name = Release;
@@ -721,6 +729,8 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -733,7 +743,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example.NotificationServiceExtension";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 			};
@@ -748,8 +758,9 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T6U248P7YM;
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -760,8 +771,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc com.infobip.mobilemessaging.example.NotificationServiceExtension";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.infobip.mobilemessaging.example.NotificationServiceExtension";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -800,7 +810,23 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		0230BA8D2DDDD2C100525CE1 /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Kitura/Swift-JWT.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		0230BA8E2DDDD2C100525CE1 /* SwiftJWT */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0230BA8D2DDDD2C100525CE1 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
+			productName = SwiftJWT;
+		};
 		A08599422A2F65F8005AED85 /* MobileMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MobileMessaging;

@@ -14,16 +14,19 @@ end
 
 target 'MobileMessagingExample' do
 	includeMobileMessagingPods
+  pod 'SwiftJWT'
 	target 'NotificationServiceExtension' do
 		inherit! :search_paths
 	end
 end
 
 target 'MobileMessagingExample_Tests' do
+  pod 'SwiftJWT'
 	includeMobileMessagingPods
 end
 
 target 'MobileMessagingExample_Tests_Device' do
+  pod 'SwiftJWT'
 	includeMobileMessagingPods
 end
 

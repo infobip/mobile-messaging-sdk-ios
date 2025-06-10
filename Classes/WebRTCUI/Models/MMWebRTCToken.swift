@@ -82,12 +82,12 @@ class MMWebRTCTokenRequest: RequestData {
         }
         super.init(
             applicationCode: applicationCode,
-            accessToken: nil,
             method: .post,
             path: .WebRTCToken,
             pushRegistrationId: pushRegistrationId,
             body: body,
-            baseUrl: baseURL)
+            baseUrl: baseURL,
+            accessToken: nil)
     }
 }
 #endif
