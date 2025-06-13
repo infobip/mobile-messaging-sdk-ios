@@ -107,7 +107,7 @@ open class MM_MTMessage: MMBaseMessage, NamedLogger {
 	}
 
     public var isOpenLiveChat: Bool {
-        return internalData?[Consts.InternalDataKeys.openLiveChat] as? MMAPNSPayload != nil
+        return internalData?[Consts.InternalDataKeys.openLiveChat] != nil
     }
 
     public var openLiveChatKeyword: String? {

@@ -160,6 +160,10 @@
                liveChat('set_theme', themeName);
            }
 
+           function openNewThread() {
+               liveChat('open_new_thread'); // 'star new chat' UI only action, no thread/online effect
+           }
+
            function getLivechatSdk() {
                if (!livechatSdk) {
                    try {

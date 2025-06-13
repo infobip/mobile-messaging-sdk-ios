@@ -248,6 +248,16 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
         }
     }
 
+    public func openNewThread(completion: @escaping ((any Error)?) -> Void) {
+        ensureWidgetLoaded { [weak self] error in
+            guard let error = error else {
+                self?.webView.openNewThread(completion: completion)
+                return
+            }
+            completion(error)
+        }
+    }
+
     // MARK: - Utility methods
     private func validateTextLength(size: Int) -> Bool {
         return size <= ChatAttachmentUtils.DefaultMaxTextLength

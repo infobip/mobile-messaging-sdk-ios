@@ -634,12 +634,16 @@ extension MMChatViewController: MMLiveChatThreadsActions {
     }
 }
 
-extension MMChatViewController: MMChatBasiWebViewActions {
+extension MMChatViewController: MMChatBasiWebViewActions, MMChatInternalWebViewActions {
     public func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
         webViewHandler?.send(payload, completion: completion)
     }
 
     public func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (any Error)?) -> Void) {
         webViewHandler?.createThread(payload, completion: completion)
+    }
+
+    func openNewThread(completion: @escaping ((any Error)?) -> Void) {
+        webViewHandler?.openNewThread(completion: completion)
     }
 }

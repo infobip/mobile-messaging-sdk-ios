@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol MMChatInternalWebViewActions {
+    func openNewThread(completion: @escaping ((Error)?) -> Void)
+}
+
 public protocol MMChatBasiWebViewActions {
     /// Sends message payload to the chat.
     ///

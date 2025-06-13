@@ -228,7 +228,14 @@ extension WKWebView: ChatJSWrapper {
             completion(error as? NSError)
         }
     }
-    
+
+    func openNewThread(completion: @escaping (NSError?) -> Void) {
+        self.evaluateInMainThread("openNewThread()") { [weak self] (response, error) in
+            self?.logDebug("openNewThread got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
+            completion(error as? NSError)
+        }
+    }
+
     func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], Error>) -> Void) {
 
         struct Response: Codable {

@@ -29,7 +29,7 @@ public protocol MMInAppChatWidgetAPIDelegate: AnyObject {
     func onRawMessageReceived(_ message: Any)
 }
 
-class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger {
+class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatInternalWebViewActions, NamedLogger {
     private lazy var chatHandler: ChatWebViewHandler = ChatWebViewHandler(eventHandler: self)
     private var didSetOnMessageReceivedListener = false
 
@@ -83,7 +83,11 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, NamedLogger 
     func showThreadsList(completion: @escaping ((any Error)?) -> Void) {
         chatHandler.showThreadsList(completion: completion)
     }
-    
+
+    func openNewThread(completion: @escaping ((any Error)?) -> Void) {
+        chatHandler.openNewThread(completion: completion)
+    }
+
     func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy, completion: @escaping ((any Error)?) -> Void) {
         chatHandler.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
     }
