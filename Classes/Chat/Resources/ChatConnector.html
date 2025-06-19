@@ -48,6 +48,9 @@
                }
            }
 
+           if (!isNullOrBlank(theme)) {
+               setTheme(theme)
+           }
            // Override widget config
            liveChat('config', {
                 widgetId: widgetId,
@@ -69,22 +72,12 @@
                inputParams.jwt = jwt;
             }
 
-            const onShowCallback = function (error, result) {
-               if (error == null && !isNullOrBlank(theme) ) {
-                   liveChat('set_theme', theme,
-                    function(error, result) {
-                       propageError(error, 'set_theme('+theme+')')
-                    });
-               }
-            }
-
            function initPropagationAndShowingChat(error, result) {
                 propageError(error, 'init()')
                 if(!error) {
-                    liveChat('show', null, onShowCallback,
-                        function(error, result) {
-                            propageError(error, 'show()')
-                        });
+                    liveChat('show', null, function(error, result) {
+                        propageError(error, 'show()')
+                    });
                     window.webkit.messageHandlers.enableControls.postMessage({enabled: true});
                 }
            }
