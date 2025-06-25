@@ -21,7 +21,8 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for empty token")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
-            XCTAssertEqual(error.userInfo[MMJwtValidationErrorDetails] as? String, "Token is empty or blank.")
+            XCTAssertEqual(error.mm_code, MMJwtValidator.invalidToken)
+            XCTAssertEqual(error.mm_message, "Token is empty or blank.")
         }
     }
     
@@ -34,7 +35,8 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for blank token")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
-            XCTAssertEqual(error.userInfo[MMJwtValidationErrorDetails] as? String, "Token is empty or blank.")
+            XCTAssertEqual(error.mm_code, MMJwtValidator.invalidToken)
+            XCTAssertEqual(error.mm_message, "Token is empty or blank.")
         }
     }
     
@@ -47,7 +49,8 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for token without 3 parts")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
-            XCTAssertEqual(error.userInfo[MMJwtValidationErrorDetails] as? String, "Token must have three parts separated by dots.")
+            XCTAssertEqual(error.mm_code, MMJwtValidator.invalidToken)
+            XCTAssertEqual(error.mm_message, "Token must have three parts separated by dots.")
         }
     }
     
@@ -60,7 +63,8 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for token with invalid header")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
-            XCTAssertEqual(error.userInfo[MMJwtValidationErrorDetails] as? String, "Token header is not a valid Base64 encoded JSON object.")
+            XCTAssertEqual(error.mm_code, MMJwtValidator.invalidToken)
+            XCTAssertEqual(error.mm_message, "Token header is not a valid Base64 encoded JSON object.")
         }
     }
     
@@ -80,7 +84,8 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for token with missing header fields")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
-            XCTAssertTrue((error.userInfo[MMJwtValidationErrorDetails] as? String)?.contains("Missing JWT header fields:") ?? false)
+            XCTAssertEqual(error.mm_code, MMJwtValidator.invalidToken)
+            XCTAssertTrue((error.mm_message)?.contains("Missing JWT header fields:") ?? false)
         }
     }
     
@@ -100,7 +105,8 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for token with invalid payload")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
-            XCTAssertEqual(error.userInfo[MMJwtValidationErrorDetails] as? String, "Token payload is not a valid Base64 encoded JSON object.")
+            XCTAssertEqual(error.mm_code, MMJwtValidator.invalidToken)
+            XCTAssertEqual(error.mm_message, "Token payload is not a valid Base64 encoded JSON object.")
         }
     }
     
@@ -127,7 +133,8 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for token with missing claims")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
-            XCTAssertTrue((error.userInfo[MMJwtValidationErrorDetails] as? String)?.contains("Missing JWT claims:") ?? false)
+            XCTAssertEqual(error.mm_code, MMJwtValidator.invalidToken)
+            XCTAssertTrue((error.mm_message)?.contains("Missing JWT claims:") ?? false)
         }
     }
     
@@ -165,6 +172,7 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for expired token")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
+            XCTAssertEqual(error.mm_code, MMJwtValidator.expiredToken)
             XCTAssertEqual(error.userInfo[NSLocalizedDescriptionKey] as? String, "The provided JWT is expired.")
         }
         
@@ -260,6 +268,7 @@ class MMJwtValidatorTests: MMTestCase {
             XCTFail("Should throw an error for token with invalid exp format")
         } catch let error as NSError {
             XCTAssertEqual(error.domain, MMInternalErrorDomain)
+            XCTAssertEqual(error.mm_code, MMJwtValidator.expiredToken)
             XCTAssertEqual(error.userInfo[NSLocalizedDescriptionKey] as? String, "The provided JWT is expired.")
         }
     }

@@ -3,7 +3,7 @@
 //  MobileMessaging
 //
 //  Created by okoroleva on 08.03.16.
-//  
+//
 
 import Foundation
 
@@ -11,17 +11,22 @@ public let MMInternalErrorDomain = "com.mobile-messaging"
 
 public enum MMInternalErrorType: Error {
     case UnknownError
-	case NoRegistration
-	case StorageInitializationError
-	case PendingLogout
-	case InvalidRegistration
-	case CantLogoutCurrentRegistration
-	case CantSetPrimaryCurrentRegistration
-	case UnknownResponseFormat
-	case MobileMessagingInstanceNotInitialized
-	case ProtectedDataUnavailable
-    case JwtStructureValidationError
+    case NoRegistration
+    case StorageInitializationError
+    case PendingLogout
+    case InvalidRegistration
+    case CantLogoutCurrentRegistration
+    case CantSetPrimaryCurrentRegistration
+    case UnknownResponseFormat
+    case MobileMessagingInstanceNotInitialized
+    case ProtectedDataUnavailable
+    case JwtStructureValidationEmptyError
     case JwtExpirationError
+    case JwtStructureValidationThreePartsError
+    case JwtStructureValidationHeaderNotValidError
+    case JwtStructureValidationHeaderMissingFieldsError
+    case JwtStructureValidationPayloadNotValidError
+    case JwtStructureValidationMissingClaimsError
     
     fileprivate var errorCode: Int {
         switch self {
@@ -45,14 +50,24 @@ public enum MMInternalErrorType: Error {
             return 8
         case .ProtectedDataUnavailable:
             return 9
-        case .JwtStructureValidationError:
+        case .JwtStructureValidationEmptyError:
             return 10
         case .JwtExpirationError:
             return 11
+        case .JwtStructureValidationThreePartsError:
+            return 12
+        case .JwtStructureValidationHeaderNotValidError:
+            return 13
+        case .JwtStructureValidationHeaderMissingFieldsError:
+            return 14
+        case .JwtStructureValidationPayloadNotValidError:
+            return 15
+        case .JwtStructureValidationMissingClaimsError:
+            return 16
         }
     }
-
-	var userInfo: [String: String] {
+    
+    var userInfo: [String: String] {
         var errorDescription: String = ""
         
         switch self {
@@ -80,50 +95,73 @@ public enum MMInternalErrorType: Error {
             errorDescription = NSLocalizedString("Mobile Messaging instance not initialized. It's either you haven't started it or there were fatal errors due to initialization. Check Mobile Messaging logs for troubleshooting.", comment: "")
         case .ProtectedDataUnavailable:
             errorDescription = NSLocalizedString("Protected data is unavailable at this moment.", comment: "")
-        case .JwtStructureValidationError:
+        case .JwtStructureValidationEmptyError:
             errorDescription = NSLocalizedString("JWT token has invalid structure.", comment: "")
+            return [NSLocalizedDescriptionKey: errorDescription, MMConsts.APIKeys.errorMessageId: MMJwtValidator.invalidToken, MMConsts.APIKeys.errorText: "Token is empty or blank."]
         case .JwtExpirationError:
             errorDescription = NSLocalizedString("The provided JWT is expired.", comment: "")
+            return [NSLocalizedDescriptionKey: errorDescription,MMConsts.APIKeys.errorMessageId: MMJwtValidator.expiredToken]
+        case .JwtStructureValidationThreePartsError:
+            errorDescription = NSLocalizedString("JWT token has invalid structure.", comment: "")
+            return [NSLocalizedDescriptionKey: errorDescription, MMConsts.APIKeys.errorMessageId: MMJwtValidator.invalidToken, MMConsts.APIKeys.errorText: "Token must have three parts separated by dots."]
+        case .JwtStructureValidationHeaderNotValidError:
+            errorDescription = NSLocalizedString("JWT token has invalid structure.", comment: "")
+            return [NSLocalizedDescriptionKey: errorDescription, MMConsts.APIKeys.errorMessageId: MMJwtValidator.invalidToken, MMConsts.APIKeys.errorText: "Token header is not a valid Base64 encoded JSON object."]
+        case .JwtStructureValidationHeaderMissingFieldsError:
+            errorDescription = NSLocalizedString("JWT token has invalid structure.", comment: "")
+            return [NSLocalizedDescriptionKey: errorDescription, MMConsts.APIKeys.errorMessageId: MMJwtValidator.invalidToken]
+        case .JwtStructureValidationPayloadNotValidError:
+            errorDescription = NSLocalizedString("JWT token has invalid structure.", comment: "")
+            return [NSLocalizedDescriptionKey: errorDescription, MMConsts.APIKeys.errorMessageId: MMJwtValidator.invalidToken, MMConsts.APIKeys.errorText: "Token payload is not a valid Base64 encoded JSON object."]
+        case .JwtStructureValidationMissingClaimsError:
+            errorDescription = NSLocalizedString("JWT token has invalid structure.", comment: "")
+            return [NSLocalizedDescriptionKey: errorDescription, MMConsts.APIKeys.errorMessageId: MMJwtValidator.invalidToken]
         }
-
+        
         return [NSLocalizedDescriptionKey: errorDescription]
     }
-	
-	var foundationError: NSError {
-		return NSError(type: self)
-	}
+    
+    var foundationError: NSError {
+        return NSError(type: self)
+    }
 }
 
 extension Error {
-	var mm_isNoSuchFile: Bool {
-		return (self as NSError).mm_isNoSuchFile
-	}
+    var mm_isNoSuchFile: Bool {
+        return (self as NSError).mm_isNoSuchFile
+    }
 }
 
 extension NSError {
-	@objc public var mm_message: String? {
-		return userInfo[Consts.APIKeys.errorText] as? String
-	}
-	
-	@objc public var mm_code: String? {
-		return userInfo[Consts.APIKeys.errorMessageId] as? String
-	}
-	
-	var mm_isNoSuchFile: Bool {
-		return domain == NSCocoaErrorDomain && (code == NSFileNoSuchFileError || code == NSFileReadNoSuchFileError)
-	}
-	
-	var mm_isCannotFindHost: Bool {
-		return domain == NSURLErrorDomain && code == NSURLErrorCannotFindHost
-	}
-	
+    @objc public var mm_message: String? {
+        return userInfo[Consts.APIKeys.errorText] as? String
+    }
+    
+    @objc public var mm_code: String? {
+        return userInfo[Consts.APIKeys.errorMessageId] as? String
+    }
+    
+    var mm_isNoSuchFile: Bool {
+        return domain == NSCocoaErrorDomain && (code == NSFileNoSuchFileError || code == NSFileReadNoSuchFileError)
+    }
+    
+    var mm_isCannotFindHost: Bool {
+        return domain == NSURLErrorDomain && code == NSURLErrorCannotFindHost
+    }
+    
     public convenience init(type: MMInternalErrorType) {
         self.init(domain: MMInternalErrorDomain, code: type.errorCode, userInfo: type.userInfo)
     }
     
     public convenience init(type: MMInternalErrorType, detail: [String: Any]) {
-            var fullUserInfo = type.userInfo as [String: Any]
-            for (k, v) in detail { fullUserInfo[k] = v }
-            self.init(domain: MMInternalErrorDomain, code: type.errorCode, userInfo: fullUserInfo)
-        }
+        var fullUserInfo = type.userInfo as [String: Any]
+        for (k, v) in detail { fullUserInfo[k] = v }
+        self.init(domain: MMInternalErrorDomain, code: type.errorCode, userInfo: fullUserInfo)
+    }
+    
+    public convenience init(type: MMInternalErrorType, description: String) {
+        var fullUserInfo = type.userInfo as [String: Any]
+        fullUserInfo[MMConsts.APIKeys.errorText] = description
+        self.init(domain: MMInternalErrorDomain, code: type.errorCode, userInfo: fullUserInfo)
+    }
 }
