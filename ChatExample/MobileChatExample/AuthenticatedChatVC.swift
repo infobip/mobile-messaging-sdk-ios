@@ -14,11 +14,15 @@ import InAppChat
 import MobileMessagingLogging
 #endif
 
-class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
+class AuthenticatedChatVC: UIViewController {
     @IBOutlet weak var identityTextField: UITextField!
     @IBOutlet weak var identitySegmentedC: UISegmentedControl!
     @IBOutlet weak var fullNameTextField: UITextField!
     @IBOutlet weak var keepAsLeadSwitch: UISwitch!
+
+    var emails: [String]?
+    var phones: [String]?
+    var externalId: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,20 +31,19 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        MobileMessaging.inAppChat?.jwt = nil
         identityTextField.text = "dsa@asd.com"
         identitySegmentedC.selectedSegmentIndex = 0
         fullNameTextField.text = "John Smith"
     }
-    
+
     @IBAction func doAuthenticateAndPresentChat(_ sender: Any) {
         guard let identityString = identityTextField.text else {
             MMLogError("Identity cannot be empty")
             return
         }
-        let emails = identitySegmentedC.selectedSegmentIndex == 0 ? [identityString] : nil
-        let phones = identitySegmentedC.selectedSegmentIndex == 1 ? [identityString] : nil
-        let externalId = identitySegmentedC.selectedSegmentIndex == 2 ? identityString : nil
+        emails = identitySegmentedC.selectedSegmentIndex == 0 ? [identityString] : nil
+        phones = identitySegmentedC.selectedSegmentIndex == 1 ? [identityString] : nil
+        externalId = identitySegmentedC.selectedSegmentIndex == 2 ? identityString : nil
         let identity = MMUserIdentity(phones: phones, emails: emails, externalUserId: externalId)
         let nameComponents = fullNameTextField.text?.components(separatedBy: " ")
         let atts = nameComponents == nil ? nil : MMUserAttributes(firstName: nameComponents?.first, middleName: nil, lastName: nameComponents?.last, tags: nil, gender: nil, birthday: nil, customAttributes: nil)
@@ -51,20 +54,22 @@ class AuthenticatedChatVC: UIViewController, MMInAppChatDelegate {
             if result != nil {
                 MMLogError(">>>>Personalize result: " + (result?.mm_message ?? ""))
             } else {
-                self?.handleJWT(identityMode: emails != nil ? "email" :
-                                    phones != nil ? "msisdn" :
-                                    "externalPersonId")
+
+                let vc = MMChatViewController.makeModalViewController()
+                self?.present(vc, animated: true)
             }
         }
     }
-    
-    func handleJWT(identityMode: String) {
+}
+
+extension AuthenticatedChatVC: MMInAppChatDelegate {
+    func getJWT() -> String? {
+        let identityMode = emails != nil ? "email" :
+                            phones != nil ? "msisdn" : "externalPersonId"
         guard let identifier = identityTextField.text, let jwt = JWTClaims.generateJWT(identityMode, identifier: identifier) else {
             MMLogError("Could not generate JWT, aborting")
-            return
+            return nil
         }
-        MobileMessaging.inAppChat?.jwt = jwt // We suggest you freshly generate a new token before presenting the chat (to avoid expirations)
-        let vc = MMChatViewController.makeModalViewController()
-        self.present(vc, animated: true)
+        return jwt
     }
 }

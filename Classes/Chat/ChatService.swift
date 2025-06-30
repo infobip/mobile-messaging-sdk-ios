@@ -58,6 +58,7 @@ public class MMInAppChatService: MobileMessagingService {
     private var chatWidget: ChatWidget?
     private var isConfigurationSynced: Bool = false
     private var callsEnabled: Bool?
+    @available(*, deprecated, message: "This variable is going to be deprecated in a future version. Please use MMInAppChatDelegate's method getJWT() instead")
     public var jwt: String?
     public var domain: String? // Do not edit unless you have an agreement with Infobip to define the auth domain. 
     internal var ChatRegistrationId: String? {
@@ -270,7 +271,7 @@ public class MMInAppChatService: MobileMessagingService {
     }
 
     internal func obtainChatRegistrations() {
-        // Chat registrarions are only needed for "calls enabled" widgest. Skip otherwise.
+        // Chat registrations are only needed for "calls enabled" widgets. Skip otherwise.
         guard let widgetId = chatWidget?.id, (chatWidget?.callsEnabled ?? true) else { return }
         getChatRegistrationQueue.addOperation(
             GetChatRegistrationsOperation(mmContext: mmContext) { [weak self] (error, ChatRegistrations) in
@@ -479,7 +480,7 @@ public class MMInAppChatService: MobileMessagingService {
     {
         // We check for a VC to send the commants into. This avoids using the API, which would need to load a separate webview, resulting in slower UX
         let apiInterface: MMChatBasiWebViewActions? = (chatVC ?? api)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in // Delay as a precaution to avoid any 'identify' collision on more than one webview. A further BE fix may do this obsolete.
+        DispatchQueue.main.async { [weak self] in // ensure API is called on MT
             guard chatWidget.multiThread ?? false else {
                 // No new thread needed, we just send payload
                 apiInterface?.send(keyword.livechatBasicPayload) { error in
@@ -506,7 +507,7 @@ public class MMInAppChatService: MobileMessagingService {
     {
         // We check for a VC to send the commants into. This avoids using the API, which would need to load a separate webview, resulting in slower UX
         let apiInterface: MMChatInternalWebViewActions? = (chatVC ?? (api as? MMChatInternalWebViewActions))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in // Delay as a precaution to avoid any 'identify' collision on more than one webview. A further BE fix may do this obsolete.
+        DispatchQueue.main.async { [weak self] in
             apiInterface?.openNewThread() { [weak self] error in
                 if let error = error {
                     self?.logError("Failure when opening single thread view in LiveChat widgetId \(chatWidget.id): error \(error.localizedDescription)")
@@ -554,8 +555,12 @@ protocol ChatWebViewDelegate: AnyObject, WidgetSubscriber {
     @objc optional func chatDidChange(to state: MMChatWebViewState)
 
     ///Called for informing about an exception received from the widget, either upon loading or after a request from client side.
-    /// You can decide (by returning a MMChatExceptionDisplayMode value) if the default error banner is presented for the exception, or you prefer to display an error UI of your own
+    ///You can decide (by returning a MMChatExceptionDisplayMode value) if the default error banner is presented for the exception, or you prefer to display an error UI of your own
     @objc optional func didReceiveException(_ exception: MMChatException) -> MMChatExceptionDisplayMode
+
+    ///Called when the SDK needs a JSON Web Token from your end. This method is only needed if your widget requires JWT for authentication, as defined on its setup. Keep in mind each JWT you provide must be different from the previous one.
+    ///Note: this method is predictable: it will be triggered only when a new chat view (or navigation) controller is created, or the first time you use an API method.
+    @objc optional func getJWT() -> String?
 }
 
 extension UserEventsManager {

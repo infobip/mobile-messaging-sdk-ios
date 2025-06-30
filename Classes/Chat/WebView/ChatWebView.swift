@@ -23,7 +23,8 @@ class ChatWebView: WKWebView {
 	
 	init(frame: CGRect) {
 		let configuration = WKWebViewConfiguration()
-        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        // We ensure all widgets, whatever their origin and use case, utilize same local storage and keys. Otherwise, weird results may happen in terms of user creation
+        configuration.websiteDataStore = WKWebsiteDataStore.default()
 		for value in JSMessageType.allCases {
 			configuration.userContentController.add(scriptHandler, name: value.rawValue)
 		}
@@ -62,7 +63,7 @@ class ChatWebView: WKWebView {
             components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.language, value: language))
         }
 
-        if let jwt = MobileMessaging.inAppChat?.jwt {
+        if let jwt = MobileMessaging.inAppChat?.jwt ?? MobileMessaging.inAppChat?.delegate?.getJWT?() {
             components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.jwt, value: jwt))
         }
         if let theme = MMChatSettings.settings.widgetTheme {

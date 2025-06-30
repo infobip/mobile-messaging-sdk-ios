@@ -163,6 +163,10 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
             self?._pendingActions.removeAll()
             self?.stopConnection()
             DispatchQueue.main.async {
+                let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
+                self?.webView.configuration.websiteDataStore.removeData(
+                    ofTypes: dataTypes,
+                    modifiedSince: Date.distantPast) { }
                 self?.webView.isReset = true // to avoid adding js observers to a blank page
                 self?.webView.load(URLRequest(url: URL(string: "about:blank")!))
                 self?.webView.isLoaded = false
@@ -273,7 +277,10 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     func ensureWidgetLoaded(completion: @escaping (Error?) -> Void) {
         stateQueue.async { [weak self] in
-            guard let self = self else { return }
+            guard let self = self else {
+                DispatchQueue.main.async { completion(nil) }
+                return
+            }
 
             if self._currentViewState != .unknown, self._currentViewState != .loading {
                 DispatchQueue.main.async { completion(nil) }

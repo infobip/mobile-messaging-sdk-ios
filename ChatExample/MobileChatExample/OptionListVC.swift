@@ -32,6 +32,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         resetNavBarAppearance() // chat view controller may modify navigation appearance - we reset it to default
+        MobileMessaging.inAppChat?.delegate = self // in case some other controller (ie JWT Authentication one) temporarily took control
     }
 
     private func resetNavBarAppearance() {
