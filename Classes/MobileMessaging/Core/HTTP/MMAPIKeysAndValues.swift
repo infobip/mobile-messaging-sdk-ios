@@ -10,6 +10,11 @@ import Foundation
 internal typealias Consts = MMConsts
 public struct MMConsts {
 
+    struct Encryption {
+        static let encryptionAlgHeaderString = "alg:1"
+        static let keyLength = 32
+    }
+    
     struct Notifications {
         struct PrivacySettings {
             static let appCodePersistingUpdated = "com.mobile-messaging.privacy-settings.applicationCodePersisting.updated"

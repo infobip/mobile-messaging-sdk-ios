@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import CryptoKit
 
 public protocol Archivable: ArchivableCurrent {
 	var version: Int {get set}
@@ -44,17 +45,25 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
 		archive(at: Self.currentPath)
 		handleCurrentChanges(old: old, new: self)
 	}
+    
     public func archive(at path: String) {
         MMLogVerbose("Archiving \(Thread.current.description) at \(path)")
-		let save = self.copy() as! Self
-		save.removeSensitiveData()
+        let save = self.copy() as! Self
+        save.removeSensitiveData()
         do {
             let dataToBeArchived = try NSKeyedArchiver.archivedData(withRootObject: save, requiringSecureCoding: true)
-            try dataToBeArchived.write(to: URL(fileURLWithPath: path))
+            if let key = Self.generateKey(),
+               var dataToBeArchived = try Self.encrypt(data: dataToBeArchived, key: key),
+               let headersData = MMConsts.Encryption.encryptionAlgHeaderString.data(using: .utf8)
+            {
+                dataToBeArchived = headersData + dataToBeArchived
+                try dataToBeArchived.write(to: URL(fileURLWithPath: path))
+            }
         } catch {
             MMLogError("Unexpected error while archiving at \(path): \(error)")
         }
-	}
+    }
+    
     public static func resetCurrent() {
         MMLogVerbose("Resetting cached value \(Thread.current.description) \(Self.currentPath)")
 		Self.cached.set(value: nil, forKey: Self.currentPath)
@@ -73,10 +82,18 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
 	}
     public static func unarchive(from path: String) -> Self? {
         let url = URL(fileURLWithPath: path)
-        guard let data = try? Data(contentsOf: url) else {
+        guard var data = try? Data(contentsOf: url) else {
             return nil
         }
         do {
+            let headersData = MMConsts.Encryption.encryptionAlgHeaderString.data(using: .utf8)!
+            let isEncrypted = data.starts(with: headersData)
+            if isEncrypted, let key = Self.generateKey() {
+                data = data.dropFirst(headersData.count)
+                data = try decrypt(data: data, with: key)
+            } else {
+                // no special logic
+            }
             let unarchived = try NSKeyedUnarchiver.unarchivedObject(ofClass: Self.self, from: data)
             MMLogVerbose("Unarchived \(String(describing: unarchived)) from \(path)")
             return unarchived
@@ -98,6 +115,46 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
 		block(o)
 		o.archiveCurrent()
 	}
+    
+    static private func encrypt(data: Data, key: SymmetricKey) throws -> Data? {
+        do {
+            let sealedBox = try AES.GCM.seal(data, using: key)
+            return sealedBox.combined
+        } catch {
+            MMLogError("Error while encrypting data: \(error).")
+            throw error
+        }
+    }
+
+    static private func decrypt(data: Data, with key: SymmetricKey) throws -> Data {
+        do {
+            let sealedBox = try AES.GCM.SealedBox(combined: data)
+            return try AES.GCM.open(sealedBox, using: key)
+        } catch {
+            MMLogError("Error while decrypting data: \(error).")
+            throw error
+        }
+    }
+    
+    static private func generateKey() -> SymmetricKey? {
+        if let key = MobileMessaging.sharedInstance?.applicationCode.replacingOccurrences(of: "-", with: "").suffixPadded(length: MMConsts.Encryption.keyLength),
+           let keyData = key.data(using: .utf8)
+        {
+            return SymmetricKey(data: keyData)
+        } else {
+            MMLogError("Unable to generate key because applicationCode is nil or cannot be used to create a SymmetricKey")
+            return nil
+        }
+    }
+}
+
+extension String {
+    func suffixPadded(length: Int) -> String {
+        let suffix = self.suffix(length)
+        let paddingCount = length - suffix.count
+        let padded = String(repeating: " ", count: paddingCount) + suffix
+        return padded
+    }
 }
 
 extension Archivable where Self: NSCopying {

@@ -444,7 +444,7 @@ final class RegistrationTests: MMTestCase {
 
     func testThatRegistrationCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
         MobileMessaging.privacySettings.applicationCodePersistingDisabled = true
-        MMTestCase.startWithApplicationCode("oldApplicationCode")
+        MMTestCase.startWithApplicationCode("oldApplicationCode-oldApplicationCode")
         let token = "someToken".data(using: String.Encoding.utf16)!.mm_toHexString
         let remoteProviderMock = RemoteAPIProviderStub()
         let pushRegId = "new pushRegId"
@@ -460,9 +460,7 @@ final class RegistrationTests: MMTestCase {
 
         weak var finished = self.expectation(description: "finished")
         mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "someToken".data(using: String.Encoding.utf16)!) {  error in
-            let url = URL(fileURLWithPath: InternalData.currentPath)
-            let data = try! Data(contentsOf: url)
-            let internalDataPersisted = try! NSKeyedUnarchiver.unarchivedObject(ofClass: InternalData.self, from: data)
+            let internalDataPersisted = InternalData.unarchive(from: InternalData.currentPath)
             XCTAssertNil(internalDataPersisted!.applicationCode, "application code must not be persisted")
             XCTAssertNotNil(internalDataPersisted!.applicationCodeHash, "application code has must be persisted")
             XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, token)
@@ -470,8 +468,8 @@ final class RegistrationTests: MMTestCase {
             MobileMessaging.sharedInstance?.doStop(nil)
 
             DispatchQueue.main.async {
-                MMTestCase.startWithApplicationCode("newApplicationCode")
-                let internalDataPersisted2 = try! NSKeyedUnarchiver.unarchivedObject(ofClass: InternalData.self, from: data)
+                MMTestCase.startWithApplicationCode("newApplicationCode-newApplicationCode")
+                let internalDataPersisted2 = InternalData.unarchive(from: InternalData.currentPath)
                 XCTAssertNil(internalDataPersisted2!.applicationCode, "application code must not be persisted")
                 XCTAssertNotNil(internalDataPersisted2!.applicationCodeHash, "application code has must be persisted")
                 XCTAssertNil(MobileMessaging.getInstallation()!.pushServiceToken, "registration must be reset after app code changes")

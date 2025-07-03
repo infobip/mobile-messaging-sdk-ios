@@ -263,8 +263,7 @@ class UserDataTests: MMTestCase {
 		currentUser.archiveAll()
 		
 		do {
-            let dirtyUserData = retrieveDataFromPath(MMUser.dirtyPath)!
-            let dirtyUser = try! NSKeyedUnarchiver.unarchivedObject(ofClass: MMUser.self, from: dirtyUserData)
+            let dirtyUser = MMUser.unarchive(from: MMUser.dirtyPath)
 			// we havent stored on disk
 			XCTAssertNil(dirtyUser!.phones, "userdata must not be persisted")
 			XCTAssertNil(dirtyUser!.lastName, "userdata must not be persisted")
@@ -273,8 +272,7 @@ class UserDataTests: MMTestCase {
 			XCTAssertNil(dirtyUser!.customAttributes, "userdata must not be persisted")
 			XCTAssertNil(dirtyUser!.externalUserId, "userdata must not be persisted")
 			
-            let currentUserData = retrieveDataFromPath(MMUser.currentPath)!
-            let currentUser = try! NSKeyedUnarchiver.unarchivedObject(ofClass: MMUser.self, from: currentUserData)
+            let currentUser = MMUser.unarchive(from: MMUser.currentPath)
 			// we havent stored on disk
 			XCTAssertNil(currentUser!.phones, "userdata must not be persisted")
 			XCTAssertNil(currentUser!.lastName, "userdata must not be persisted")

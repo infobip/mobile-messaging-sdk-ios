@@ -176,6 +176,34 @@ class CodingDecodingTests: MMTestCase {
         XCTAssertNotNil(userUnarchieved.installations!.first!.customAttributes)
     }
     
+    func testMMUserUnencryptedUnarchivedSuccessfullyWhenDecryptionIsOptionallyApplied() {
+        // writing unencrypted user data on disk
+        let dataToBeArchived = try! NSKeyedArchiver.archivedData(withRootObject: testUser, requiringSecureCoding: true)
+        try! dataToBeArchived.write(to: URL(fileURLWithPath: MMUser.currentPath))
+        
+        // reading unencrypted user data
+        let userUnarchieved = MMUser.unarchiveCurrent()
+        
+        //checking MMUser attributes
+        XCTAssertNotNil(userUnarchieved)
+        XCTAssertEqual(testUser.externalUserId, userUnarchieved.externalUserId)
+        XCTAssertEqual(userUnarchieved.gender, MMGender.Male)
+        XCTAssertEqual(userUnarchieved.birthday, testUser.birthday)
+        
+        //checking MMPhone and MMEmail attributes
+        XCTAssertEqual(testUser.phones!.first, userUnarchieved.phones!.first)
+        XCTAssertEqual(testUser.emails!.first, userUnarchieved.emails!.first)
+        
+        //checking customAttributes
+        XCTAssertNotNil(userUnarchieved.customAttributes)
+        
+        //checking MMInstallations attributes
+        XCTAssertNotNil(userUnarchieved.installations)
+        XCTAssertEqual(testUser.installations!.first!.applicationUserId, userUnarchieved.installations!.first!.applicationUserId)
+        XCTAssertEqual(testUser.installations!.first!.isPrimaryDevice, userUnarchieved.installations!.first!.isPrimaryDevice)
+        XCTAssertNotNil(userUnarchieved.installations!.first!.customAttributes)
+    }
+    
     func testInternalDataArchivedAndUnarchivedSuccessfully() {
         XCTAssertNotNil(testInternalData.archiveCurrent())
         
