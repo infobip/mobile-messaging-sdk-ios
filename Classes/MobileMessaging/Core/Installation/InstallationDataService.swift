@@ -123,6 +123,7 @@ class InstallationDataService: MobileMessagingService {
         
         let ci = mmContext.currentInstallation() //dup
         ci.customAttributes = [:]
+        ci.isPrimaryDevice = false
         ci.archiveAll()
         
         completion()

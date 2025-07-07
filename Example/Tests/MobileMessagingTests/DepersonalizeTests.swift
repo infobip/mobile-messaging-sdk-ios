@@ -69,6 +69,27 @@ class DepersonalizeTests: MMTestCase {
 			XCTAssertNil(user.customAttributes?["bootsize"])
 		}
 	}
+    
+    func testThatInstallationPrimaryFlagResetAfterDepersonalize() {
+        MMTestCase.startWithCorrectApplicationCode()
+        MobileMessaging.sharedInstance?.remoteApiProvider = successfulDepersonalizeApiMock
+        mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+        weak var depersonalizeFinished = expectation(description: "Depersonalize")
+        let i = MobileMessaging.getInstallation()!
+        i.isPrimaryDevice = true
+        i.archiveAll()
+
+        
+        MobileMessaging.depersonalize() { status, _ in
+            XCTAssertEqual(status, MMSuccessPending.undefined)
+            depersonalizeFinished?.fulfill()
+        }
+        
+        waitForExpectations(timeout: 20) { _ in
+            let i = MobileMessaging.getInstallation()!
+            XCTAssertFalse(i.isPrimaryDevice)
+        }
+    }
 	
 	func testThatDefaultMessageStorageCleanedUpAfterDepersonalize() {
         MMTestCase.startWithCorrectApplicationCode()
