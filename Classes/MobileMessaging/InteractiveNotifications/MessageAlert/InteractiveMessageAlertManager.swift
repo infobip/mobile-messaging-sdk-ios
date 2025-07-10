@@ -15,7 +15,7 @@ import UserNotifications
 @objcMembers
 public class MMInteractiveMessageAlertSettings: NSObject {
 	public static var errorPlaceholderText: String = "Sorry, couldn't load the image"
-	public static var tintColor = UIColor(red: 0, green: 122, blue: 255, alpha: 1)
+	public static var tintColor = UIColor(red: 0, green: 122/255, blue: 255/255, alpha: 1)
 	public static var enabled: Bool = true
     ///cornerRadius is only supported for webInApps
     public static var cornerRadius: Float = 16.0
