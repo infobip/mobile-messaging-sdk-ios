@@ -114,6 +114,24 @@ public class NotificationsInteractionService: MobileMessagingService {
         }
     }
     
+    func isUrlDomainTrusted(_ url: URL) -> Bool {
+        guard let trustedDomains = mmContext.trustedDomains, !trustedDomains.isEmpty else {
+            return true
+        }
+        
+        guard let host = url.host else {
+            return false
+        }
+        
+        for trustedDomain in trustedDomains {
+            if host == trustedDomain || host.hasSuffix("."+trustedDomain) {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
     fileprivate func handleNotificationTap(message: MM_MTMessage, attempt: Int = 0, completion: @escaping () -> Void) {
         logDebug("handleNotificationTap")
         guard attempt < 3 else {
@@ -124,23 +142,31 @@ public class NotificationsInteractionService: MobileMessagingService {
             let delegate = MobileMessaging.messageHandlingDelegate
             if let urlString = message.webViewUrl?.absoluteString {
                 if let url = URL(string: urlString), url.scheme != "http", url.scheme != "https" {
+                    // For non-HTTP/HTTPS URLs (deeplinks), don't apply domain validation
                     if (UIApplication.shared.canOpenURL(url)) {
                         UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     }
-                } else if let presentingVc = delegate?.inAppPresentingViewController?(for: message) ??
-                            MobileMessaging.application.visibleViewController {
-                    NotificationsInteractionService.presentInAppWebview(urlString, presentingVc, message)
-                } else {
-                    // We retry handleNotificationTap because there might be a condition when MobileMessaging.application.visibleViewController
-                    // is not yet initialized in the app that is being started by user tapping on notification
-                    // we do 2 additional attempts with 1 second interval.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        self.handleNotificationTap(message: message, attempt: attempt + 1, completion: {})
+                } else if let url = URL(string: urlString), self.isUrlDomainTrusted(url) {
+                    // For HTTP/HTTPS URLs, apply domain validation before opening in webview
+                    if let presentingVc = delegate?.inAppPresentingViewController?(for: message) ??
+                                MobileMessaging.application.visibleViewController {
+                        NotificationsInteractionService.presentInAppWebview(urlString, presentingVc, message)
+                    } else {
+                        // We retry handleNotificationTap because there might be a condition when MobileMessaging.application.visibleViewController
+                        // is not yet initialized in the app that is being started by user tapping on notification
+                        // we do 2 additional attempts with 1 second interval.
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            self.handleNotificationTap(message: message, attempt: attempt + 1, completion: {})
+                        }
                     }
+                } else {
+                    self.logWarn("WebView URL domain is not trusted and will not be opened: \(urlString)")
                 }
             } else if let browserUrl = message.browserUrl, (delegate?.shouldOpenInBrowser?(browserUrl) ?? true),
-                      UIApplication.shared.canOpenURL(browserUrl) {
+                      self.isUrlDomainTrusted(browserUrl), UIApplication.shared.canOpenURL(browserUrl) {
                 UIApplication.shared.open(browserUrl)
+            } else if let browserUrl = message.browserUrl, !self.isUrlDomainTrusted(browserUrl) {
+                self.logWarn("Browser URL domain is not trusted and will not be opened: \(browserUrl.absoluteString)")
             }
         }
         completion()

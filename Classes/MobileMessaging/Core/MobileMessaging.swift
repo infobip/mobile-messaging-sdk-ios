@@ -124,6 +124,20 @@ public final class MobileMessaging: NSObject, NamedLogger {
     }
     
     /**
+     Fabric method for Mobile Messaging session.
+     Use this method to configure trusted domains for URLs that can be opened in webviews or external browsers.
+     Only URLs matching the specified trusted domains will be allowed to open. URLs from untrusted domains will be blocked.
+     If no trusted domains are configured, all URLs will be allowed (default behavior).
+     
+     - parameter domains: Array of trusted domain strings. Each domain should be in the format "example.com" or "subdomain.example.com".
+     - remark: This is an optional security feature. If not configured, all URLs will be processed as before.
+     */
+    public func withTrustedDomains(_ domains: [String]) -> MobileMessaging {
+        trustedDomains = domains
+        return self
+    }
+    
+    /**
      Asynchronously starts a new Mobile Messaging session.
      This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
      - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
@@ -604,6 +618,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     var unregisteringForRemoteNotificationsDisabled: Bool = false
     var storageType: MMStorageType = .SQLite
     public var remoteAPIBaseURL: String
+    var trustedDomains: [String]? = nil
 
     func doStart() {
         if appCodeChanged {
@@ -707,6 +722,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
             self.apnsRegistrationManager = nil
             self.registeringForRemoteNotificationsDisabled = false
             self.overridingNotificationCenterDeleageDisabled = false
+            self.trustedDomains = nil
             self.messageHandler = nil
             self.remoteApiProvider = nil
             self.userSessionService = nil
