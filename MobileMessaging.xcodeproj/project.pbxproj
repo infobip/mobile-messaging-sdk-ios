@@ -101,6 +101,7 @@
 		763A1B0123E5D12100C997BC /* SeenReportMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763A1B0023E5D12100C997BC /* SeenReportMapper.swift */; };
 		763A1B0323E5D32F00C997BC /* MessageSyncMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763A1B0223E5D32F00C997BC /* MessageSyncMapper.swift */; };
 		763A1B0523E5D4F300C997BC /* MOSendingMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763A1B0423E5D4F300C997BC /* MOSendingMapper.swift */; };
+		763E29882E37BDFD00226D3C /* PrivacySettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 763E29862E37BDFD00226D3C /* PrivacySettingsService.swift */; };
 		7642820D21920F5F0053A063 /* InstallationMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7642820C21920F5F0053A063 /* InstallationMigrationPolicy.swift */; };
 		7642821E219305780053A063 /* FetchUserOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7642821D219305780053A063 /* FetchUserOperation.swift */; };
 		764556741F78FF5800B8F14B /* MMKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7645560B1F78FF4F00B8F14B /* MMKeychain.swift */; };
@@ -396,6 +397,7 @@
 		763A1B0023E5D12100C997BC /* SeenReportMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenReportMapper.swift; sourceTree = "<group>"; };
 		763A1B0223E5D32F00C997BC /* MessageSyncMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSyncMapper.swift; sourceTree = "<group>"; };
 		763A1B0423E5D4F300C997BC /* MOSendingMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MOSendingMapper.swift; sourceTree = "<group>"; };
+		763E29862E37BDFD00226D3C /* PrivacySettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacySettingsService.swift; sourceTree = "<group>"; };
 		7642820C21920F5F0053A063 /* InstallationMigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationMigrationPolicy.swift; sourceTree = "<group>"; };
 		7642821D219305780053A063 /* FetchUserOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchUserOperation.swift; sourceTree = "<group>"; };
 		764555D01F78FF4E00B8F14B /* MMNotificationAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNotificationAction.swift; sourceTree = "<group>"; };
@@ -934,6 +936,14 @@
 			path = SeenReports;
 			sourceTree = "<group>";
 		};
+		763E29872E37BDFD00226D3C /* PrivacySettings */ = {
+			isa = PBXGroup;
+			children = (
+				763E29862E37BDFD00226D3C /* PrivacySettingsService.swift */,
+			);
+			path = PrivacySettings;
+			sourceTree = "<group>";
+		};
 		764555CF1F78FF4E00B8F14B /* InteractiveNotifications */ = {
 			isa = PBXGroup;
 			children = (
@@ -981,6 +991,7 @@
 				764556311F78FF4F00B8F14B /* Utils */,
 				76626D10218B097800E95E2C /* PrivacySettings.swift */,
 				7636909921F06E25000CF3F8 /* UserEventsManager.swift */,
+				763E29872E37BDFD00226D3C /* PrivacySettings */,
 			);
 			name = Core;
 			path = Classes/MobileMessaging/Core;
@@ -1743,6 +1754,7 @@
 				A0E4439E24AF59F300387CDD /* MimeType.swift in Sources */,
 				A0672BF02AC1A4C0005EDCD9 /* WebInteractiveMessageAlertController.swift in Sources */,
 				7601F19E208E056500738C1A /* ImageModifier.swift in Sources */,
+				763E29882E37BDFD00226D3C /* PrivacySettingsService.swift in Sources */,
 				764556AF1F78FF8F00B8F14B /* UserNotificationType.swift in Sources */,
 				7692B56124EC4783000DA5A2 /* MMOperation.swift in Sources */,
 				7601F1A5208E056500738C1A /* Filter.swift in Sources */,
