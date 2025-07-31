@@ -29,4 +29,11 @@ public extension MobileMessaging {
     class func didApplicationCodeChange(applicationCode: String) -> Bool {
         return applicationCodeChanged(newApplicationCode: applicationCode)
     }
+    
+    /**
+     Retreives application code from keychain
+     */
+    class func getKeychainApplicationCode() -> String? {
+        return MobileMessaging.keychain.applicationCode
+    }
 }
