@@ -6,34 +6,51 @@
 //
 
 class MMKeychain: KeychainSwift, NamedLogger {
-	var pushRegId: String? {
-		get {
-			let internalId = get(Consts.KeychainKeys.pushRegId)
-			logDebug("get internalId \(internalId.orNil)")
-			return internalId
-		}
-		set {
-			if let unwrappedValue = newValue {
-				logDebug("set internalId \(unwrappedValue)")
-				set(unwrappedValue, forKey: Consts.KeychainKeys.pushRegId, withAccess: .accessibleWhenUnlockedThisDeviceOnly)
-			}
-		}
-	}
-	
-	override init() {
-		let prefix = Consts.KeychainKeys.prefix + "/" + (Bundle.main.bundleIdentifier ?? "")
-		super.init(keyPrefix: prefix)
-	}
-	
-	//MARK: private
-	
-	@discardableResult
-	override func clear() -> Bool {
-		logDebug("clearing")
-		let cleared = delete(Consts.KeychainKeys.pushRegId)
-		if !cleared {
-			logError("clearing failure \(lastResultCode)")
-		}
-		return cleared
-	}
+    var applicationCode: String? {
+        get {
+            return getWithLogging(key: Consts.KeychainKeys.appCode)
+        }
+        set {
+            setWithLogging(key: Consts.KeychainKeys.appCode, value: newValue)
+        }
+    }
+    var pushRegId: String? {
+        get {
+            return getWithLogging(key: Consts.KeychainKeys.pushRegId)
+        }
+        set {
+            setWithLogging(key: Consts.KeychainKeys.pushRegId, value: newValue)
+        }
+    }
+    
+    override init() {
+        let prefix = Consts.KeychainKeys.prefix + "/" + (Bundle.main.bundleIdentifier ?? "")
+        super.init(keyPrefix: prefix)
+    }
+    
+    @discardableResult
+    override func clear() -> Bool {
+        logDebug("Clearing...")
+        let cleared = delete(Consts.KeychainKeys.pushRegId) && delete(Consts.KeychainKeys.appCode)
+        if !cleared {
+            logError("Clearing failure \(lastResultCode)")
+        }
+        return cleared
+    }
+    
+    //MARK: private
+    private func getWithLogging(key: String) -> String? {
+        let val = get(key)
+        logDebug("Got \(key) \(val == nil ? "nil" : "***")")
+        return val
+    }
+    
+    private func setWithLogging(key: String, value: String?) {
+        logDebug("Setting key \(key) value \(value == nil ? "nil" :  "***")")
+        if let unwrappedValue = value {
+            set(unwrappedValue, forKey: key, withAccess: .accessibleWhenUnlockedThisDeviceOnly)
+        } else {
+            delete(key)
+        }
+    }
 }

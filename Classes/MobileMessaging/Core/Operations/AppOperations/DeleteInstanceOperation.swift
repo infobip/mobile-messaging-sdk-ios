@@ -46,7 +46,7 @@ class DeleteInstanceOperation : MMOperation {
 		self.result = result
 		switch result {
 		case .Success:
-			mmContext.keychain.pushRegId = pushRegistrationId // rewrite expired with actual one
+            MobileMessaging.keychain.pushRegId = pushRegistrationId // rewrite expired with actual one
 			logDebug("succeeded")
 		case .Failure(let error):
 			logError("sync request failed with error: \(error.orNil)")

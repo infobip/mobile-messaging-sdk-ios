@@ -52,7 +52,7 @@ class InstallationDataService: MobileMessagingService {
         let dirtyInstallation = mmContext.dirtyInstallation()
         if dirtyInstallation.pushServiceToken != nil && dirtyInstallation.pushRegistrationId != nil {
             logDebug("recovering registration...")
-            mmContext.keychain.clear()
+            MobileMessaging.keychain.pushRegId = nil
             MMInstallation.resetCurrent()
             dirtyInstallation.pushRegistrationId = nil
             dirtyInstallation.archiveDirty()
@@ -218,7 +218,7 @@ class InstallationDataService: MobileMessagingService {
     
     private func expireIfNeeded(userInitiated: Bool, error: NSError?, _ completion: @escaping (NSError?) -> Void) {
         assert(!Thread.isMainThread)
-        if let actualPushRegId = self.mmContext.currentInstallation().pushRegistrationId, let keychainPushRegId = self.mmContext.keychain.pushRegId, actualPushRegId != keychainPushRegId {
+        if let actualPushRegId = self.mmContext.currentInstallation().pushRegistrationId, let keychainPushRegId = MobileMessaging.keychain.pushRegId, actualPushRegId != keychainPushRegId {
             let deleteExpiredInstanceOp = DeleteInstanceOperation(
                 userInitiated: userInitiated,
                 pushRegistrationId: actualPushRegId,

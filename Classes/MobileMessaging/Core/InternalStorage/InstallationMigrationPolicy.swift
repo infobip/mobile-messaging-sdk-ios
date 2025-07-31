@@ -45,10 +45,6 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy, NamedLogger {
 
 
 			let internalData = InternalData.unarchiveCurrent()
-			internalData.applicationCode = sInstance.value(forKey: "applicationCode") as? String
-            if let appcode = internalData.applicationCode {
-                internalData.applicationCodeHash = calculateAppCodeHash(appcode)
-            }
 			internalData.badgeNumber = (sInstance.value(forKey: "badgeNumber") as? Int) ?? 0
 			internalData.location = sInstance.value(forKey: "location") as? CLLocation
 			internalData.depersonalizeFailCounter = (sInstance.value(forKey: "logoutFailCounter") as? Int) ?? 0
@@ -85,10 +81,6 @@ class InstallationMigrationPolicy : NSEntityMigrationPolicy, NamedLogger {
 
 
 			let internalData = InternalData.unarchiveCurrent()
-			internalData.applicationCode = sInstance.value(forKey: "applicationCode") as? String
-            if let appcode = internalData.applicationCode {
-                internalData.applicationCodeHash = calculateAppCodeHash(appcode)
-            }
 			internalData.badgeNumber = (sInstance.value(forKey: "badgeNumber") as? Int) ?? 0
 			internalData.location = sInstance.value(forKey: "location") as? CLLocation
 			internalData.depersonalizeFailCounter = (sInstance.value(forKey: "logoutFailCounter") as? Int) ?? 0

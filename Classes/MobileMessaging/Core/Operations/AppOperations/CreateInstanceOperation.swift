@@ -72,8 +72,8 @@ class CreateInstanceOperation : MMOperation {
 			response.archiveAll()
 
 			UserEventsManager.postInstallationSyncedEvent(currentInstallation)
-			if mmContext.keychain.pushRegId == nil {
-				mmContext.keychain.pushRegId = response.pushRegistrationId
+            if MobileMessaging.keychain.pushRegId == nil {
+                MobileMessaging.keychain.pushRegId = response.pushRegistrationId
 			}
 			logDebug("successfully created registration \(String(describing: response.pushRegistrationId))")
 		case .Failure(let error):

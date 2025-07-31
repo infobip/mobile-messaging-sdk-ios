@@ -14,9 +14,10 @@ public extension MobileMessaging {
      - parameter notificationType: Preferable notification types that indicate how the app alerts the user when a push notification arrives
      */
     class func withSavedApplicationCode(notificationType: MMUserNotificationType) -> MobileMessaging? {
-        if let internalData = InternalData.unarchive(from: InternalData.currentPath),
-           let applicationCode = internalData.applicationCode {
+        if let applicationCode = MobileMessaging.keychain.applicationCode {
             return withApplicationCode(applicationCode, notificationType: notificationType)
+        } else {
+            logWarn("Could not start Mobile Messaging with saved application code. App code was never saved before.")
         }
         return nil
     }

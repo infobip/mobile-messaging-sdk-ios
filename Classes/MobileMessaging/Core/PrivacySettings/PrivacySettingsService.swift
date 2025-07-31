@@ -20,11 +20,6 @@ class PrivacySettingsService : MobileMessagingService {
     override func start(_ completion: @escaping (Bool) -> Void) {
         assert(!Thread.isMainThread)
         evaluateCurrentPrivacySettings()
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleAppCodePersistingUpdated(_:)),
-            name: NSNotification.Name(rawValue: MMConsts.Notifications.PrivacySettings.appCodePersistingUpdated),
-            object: nil)
 
         NotificationCenter.default.addObserver(
             self,
@@ -41,11 +36,6 @@ class PrivacySettingsService : MobileMessagingService {
         logDebug("Privacy setting service started")
     }
     
-    @objc func handleAppCodePersistingUpdated(_ notification: Notification) {
-        logDebug("Privacy setting applicationCodePersistingDisabled changed, evaluating")
-        cleanupAppCode()
-    }
-    
     @objc func handleUserDataPersistingUpdated(_ notification: Notification) {
         logDebug("Privacy setting userDataPersistingDisabled changed, evaluating")
         cleanupUserData()
@@ -58,20 +48,8 @@ class PrivacySettingsService : MobileMessagingService {
     
     private func evaluateCurrentPrivacySettings() {
         logDebug("Evaluating current privacy settings")
-        cleanupAppCode()
         cleanupUserData()
         cleanupInstallationData()
-    }
-    
-    private func cleanupAppCode() {
-        guard MobileMessaging.privacySettings.applicationCodePersistingDisabled else {
-            logDebug("applicationCodePersistingDisabled is false, skipping")
-            return
-        }
-        logDebug("applicationCodePersistingDisabled is true, cleaning up")
-        let dataCurrent = mmContext.internalData()
-        dataCurrent.removeSensitiveData()
-        dataCurrent.archiveCurrent()
     }
     
     private func cleanupUserData() {

@@ -595,12 +595,8 @@ func getDocumentsDirectory(filename: String) -> String {
 }
 
 func applicationCodeChanged(newApplicationCode: String) -> Bool {
-    let ci = InternalData.unarchive(from: InternalData.currentPath)
-    if let currentApplicationCode = ci?.applicationCode {
+    if let currentApplicationCode = MobileMessaging.keychain.applicationCode {
         return newApplicationCode != currentApplicationCode
-    } else if let currentApplicationCodeHash = ci?.applicationCodeHash {
-        let newApplicationCodeHash = calculateAppCodeHash(newApplicationCode)
-        return newApplicationCodeHash != currentApplicationCodeHash
     } else {
         return false
     }

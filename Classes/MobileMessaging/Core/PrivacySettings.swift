@@ -24,11 +24,8 @@ public class MMPrivacySettings: NSObject {
 	///
 	/// Default value is `false`.
 	/// - Warning: there might be situation when you want to switch between different Application Codes during development/testing. If you disable the application code persisting (value `true`), the SDK won't detect the application code changes, thus won't cleanup the old application code related data. You should manually invoke `MobileMessaging.cleanUpAndStop()` prior to start otherwise the SDK would not detect the application code change.
-	public var applicationCodePersistingDisabled: Bool = false {
-        didSet {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: MMConsts.Notifications.PrivacySettings.appCodePersistingUpdated), object: self)
-        }
-    }
+    @available(*, deprecated, message: "This setting has no effect anymore as we never persist application code anymore.")
+	public var applicationCodePersistingDisabled: Bool = false
 
 	/// A boolean variable that indicates whether the MobileMessaging SDK will be persisting the user data locally. Persisting user data locally gives you quick access to the data and eliminates a need to implement it yourself.
 	///

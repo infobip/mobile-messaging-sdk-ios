@@ -427,12 +427,12 @@ final class RegistrationTests: MMTestCase {
 
 		weak var finished = self.expectation(description: "finished")
         mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "someToken".data(using: String.Encoding.utf16)!) {  error in
-			XCTAssertEqual(self.mobileMessagingInstance.internalData().applicationCode, MMTestConstants.kTestCorrectApplicationCode)
+            XCTAssertEqual(MobileMessaging.keychain.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
 			XCTAssertNotNil(self.mobileMessagingInstance.resolveInstallation().pushServiceToken)
 			XCTAssertNotNil(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 			DispatchQueue.main.async {
 				MMTestCase.startWithApplicationCode("newApplicationCode")
-				XCTAssertEqual(self.mobileMessagingInstance.internalData().applicationCode, "newApplicationCode")
+                XCTAssertEqual(MobileMessaging.keychain.applicationCode, "newApplicationCode")
 				XCTAssertNil(MobileMessaging.getInstallation()!.pushServiceToken)
 				XCTAssertNil(MobileMessaging.getInstallation()!.pushRegistrationId)
 				finished?.fulfill()
@@ -441,45 +441,6 @@ final class RegistrationTests: MMTestCase {
 
 		waitForExpectations(timeout: 10, handler: nil)
 	}
-
-    func testThatRegistrationCleanedIfAppCodeChangedWhenAppCodePersistingDisabled() {
-        MobileMessaging.privacySettings.applicationCodePersistingDisabled = true
-        MMTestCase.startWithApplicationCode("oldApplicationCode-oldApplicationCode")
-        let token = "someToken".data(using: String.Encoding.utf16)!.mm_toHexString
-        let remoteProviderMock = RemoteAPIProviderStub()
-        let pushRegId = "new pushRegId"
-        remoteProviderMock.postInstanceClosure = { _, _ -> FetchInstanceDataResult in
-            return FetchInstanceDataResult.Success(
-                MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: nil, deviceModel: nil, deviceName: nil, deviceSecure: false, deviceTimeZone: nil, isPrimaryDevice: true, isPushRegistrationEnabled: true, language: nil, notificationsEnabled: true, os: nil, osVersion: nil, pushRegistrationId: pushRegId, pushServiceToken: token, pushServiceType: nil, sdkVersion: nil)
-            )
-        }
-        remoteProviderMock.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
-            return UpdateInstanceDataResult.Success(EmptyResponse())
-        }
-        mobileMessagingInstance.remoteApiProvider = remoteProviderMock
-
-        weak var finished = self.expectation(description: "finished")
-        mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "someToken".data(using: String.Encoding.utf16)!) {  error in
-            let internalDataPersisted = InternalData.unarchive(from: InternalData.currentPath)
-            XCTAssertNil(internalDataPersisted!.applicationCode, "application code must not be persisted")
-            XCTAssertNotNil(internalDataPersisted!.applicationCodeHash, "application code has must be persisted")
-            XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushServiceToken, token)
-            XCTAssertEqual(self.mobileMessagingInstance.resolveInstallation().pushRegistrationId, pushRegId)
-            MobileMessaging.sharedInstance?.doStop(nil)
-
-            DispatchQueue.main.async {
-                MMTestCase.startWithApplicationCode("newApplicationCode-newApplicationCode")
-                let internalDataPersisted2 = InternalData.unarchive(from: InternalData.currentPath)
-                XCTAssertNil(internalDataPersisted2!.applicationCode, "application code must not be persisted")
-                XCTAssertNotNil(internalDataPersisted2!.applicationCodeHash, "application code has must be persisted")
-                XCTAssertNil(MobileMessaging.getInstallation()!.pushServiceToken, "registration must be reset after app code changes")
-                XCTAssertNil(MobileMessaging.getInstallation()!.pushRegistrationId, "registration must be reset after app code changes")
-                finished?.fulfill()
-            }
-        }
-
-        waitForExpectations(timeout: 1000, handler: nil)
-    }
 
 	//https://openradar.appspot.com/29489461
 	func testThatExpireRequestBeingSentAfterReinstallation(){
@@ -504,7 +465,7 @@ final class RegistrationTests: MMTestCase {
 		}
 
         mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "someToken".data(using: String.Encoding.utf16)!) {  error in
-			XCTAssertEqual(self.mobileMessagingInstance.internalData().applicationCode, MMTestConstants.kTestCorrectApplicationCode)
+            XCTAssertEqual(MobileMessaging.keychain.applicationCode, MMTestConstants.kTestCorrectApplicationCode)
 			XCTAssertNotNil(self.mobileMessagingInstance.resolveInstallation().pushServiceToken)
 			let firstInternalId = self.mobileMessagingInstance.resolveInstallation().pushRegistrationId
 			XCTAssertNotNil(firstInternalId)
@@ -517,7 +478,7 @@ final class RegistrationTests: MMTestCase {
 			MMTestCase.startWithCorrectApplicationCode()
 			// < reinstall
 
-			XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, firstInternalId)
+            XCTAssertEqual(MobileMessaging.keychain.pushRegId, firstInternalId)
 
 			do {
 				let remoteProviderMock = RemoteAPIProviderStub()
@@ -530,7 +491,7 @@ final class RegistrationTests: MMTestCase {
 					)
 				}
 				remoteProviderMock.deleteInstanceClosure = { (_, _, expiredPushRef) -> UpdateInstanceDataResult in
-					XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, firstInternalId)
+                    XCTAssertEqual(MobileMessaging.keychain.pushRegId, firstInternalId)
 					XCTAssertEqual(expiredPushRef, firstInternalId)
 					expirationRequested?.fulfill()
 					return UpdateInstanceDataResult.Success(EmptyResponse())
@@ -542,8 +503,8 @@ final class RegistrationTests: MMTestCase {
             self.mobileMessagingInstance.didRegisterForRemoteNotificationsWithDeviceToken(userInitiated: false, token: "someToken".data(using: String.Encoding.utf16)!) { error in
 				registration2Done?.fulfill()
 
-				XCTAssertNotEqual(self.mobileMessagingInstance.keychain.pushRegId, firstInternalId)
-				XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
+                XCTAssertNotEqual(MobileMessaging.keychain.pushRegId, firstInternalId)
+                XCTAssertEqual(MobileMessaging.keychain.pushRegId, self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 
 				do {
 					let remoteProviderMock = RemoteAPIProviderStub()
@@ -556,7 +517,7 @@ final class RegistrationTests: MMTestCase {
 
 				// try to redundantly expire again
 				self.mobileMessagingInstance.installationService.syncWithServer(userInitiated: false) { _ in
-					XCTAssertEqual(self.mobileMessagingInstance.keychain.pushRegId, self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
+                    XCTAssertEqual(MobileMessaging.keychain.pushRegId, self.mobileMessagingInstance.resolveInstallation().pushRegistrationId)
 					registration3Done?.fulfill()
 				}
 			}

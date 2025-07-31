@@ -635,10 +635,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
         
         self.logDebug("Starting service (with apns registration disabled=\(self.registeringForRemoteNotificationsDisabled), apns unregistering disabled=\(self.unregisteringForRemoteNotificationsDisabled), notification center delegate disabled=\(self.overridingNotificationCenterDeleageDisabled))...")
         
-        let ci = InternalData.unarchiveCurrent()
-        ci.applicationCode = self.applicationCode
-        ci.applicationCodeHash = calculateAppCodeHash(self.applicationCode)
-        ci.archiveCurrent()
+        MobileMessaging.keychain.applicationCode = self.applicationCode
+        
         if overridingNotificationCenterDeleageDisabled == false {
             UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
         }
@@ -672,9 +670,10 @@ public final class MobileMessaging: NSObject, NamedLogger {
             MMCoreDataStorage.dropStorages(internalStorage: mm.internalStorage, messageStorages: mm.messageStorages)
             
             if (clearKeychain) {
-                mm.keychain.clear()
+                MobileMessaging.keychain.clear()
             }
             mm.apnsRegistrationManager.cleanup()
+            MobileMessaging.keychain.applicationCode = nil
         }
         
         
@@ -735,7 +734,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
             self.httpSessionManager = nil
             InternalData.cached.reset()
             
-            self.keychain = nil
             self.sharedNotificationExtensionStorage = nil
             self.logInfo("MobileMessaging service stopped")
             MobileMessaging.application = MainThreadedUIApplication()
@@ -880,7 +878,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public lazy var remoteApiProvider: RemoteAPIProvider! = {
         return RemoteAPIProvider(sessionManager: self.httpSessionManager)
     }()
-    lazy var keychain: MMKeychain! = MMKeychain()
+    static let keychain: MMKeychain = MMKeychain()
     lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
     public lazy var httpSessionManager: DynamicBaseUrlHTTPSessionManager! = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
     

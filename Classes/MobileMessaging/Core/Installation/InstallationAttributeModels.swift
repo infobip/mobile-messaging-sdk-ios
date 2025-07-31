@@ -21,12 +21,10 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
     public static var currentPath = getDocumentsDirectory(filename: "internal-data")
     public static var cached = ThreadSafeDict<InternalData>()
     public static var empty: InternalData {
-        return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, applicationCode: nil, applicationCodeHash: nil, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined, registrationDate: nil, chatMessageCounter: 0)
+        return InternalData(systemDataHash: 0, location: nil, badgeNumber: 0, depersonalizeFailCounter: 0, currentDepersonalizationStatus: .undefined, registrationDate: nil, chatMessageCounter: 0)
 	}
     public func removeSensitiveData() {
-		if MobileMessaging.privacySettings.applicationCodePersistingDisabled  {
-			self.applicationCode = nil
-		}
+		// nothing to remove
 	}
     public func handleCurrentChanges(old: InternalData, new: InternalData) {
 		if old.currentDepersonalizationStatus != new.currentDepersonalizationStatus {
@@ -40,23 +38,19 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 	var systemDataHash: Int64
 	public var location: CLLocation?
 	public var badgeNumber: Int
-	var applicationCode: String?
-    var applicationCodeHash: String?
 	var depersonalizeFailCounter: Int
 	public var currentDepersonalizationStatus: MMSuccessPending
     ///
 
     public func copy(with zone: NSZone? = nil) -> Any {
-        let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, applicationCode: applicationCode, applicationCodeHash: applicationCodeHash, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus, registrationDate: registrationDate, chatMessageCounter: chatMessageCounter)
+        let copy = InternalData(systemDataHash: systemDataHash, location: location, badgeNumber: badgeNumber, depersonalizeFailCounter: depersonalizeFailCounter, currentDepersonalizationStatus: currentDepersonalizationStatus, registrationDate: registrationDate, chatMessageCounter: chatMessageCounter)
 		return copy
 	}
 
-    init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, applicationCode: String?, applicationCodeHash: String?, depersonalizeFailCounter: Int, currentDepersonalizationStatus: MMSuccessPending, registrationDate: Date?, chatMessageCounter: Int) {
+    init(systemDataHash: Int64, location: CLLocation?, badgeNumber: Int, depersonalizeFailCounter: Int, currentDepersonalizationStatus: MMSuccessPending, registrationDate: Date?, chatMessageCounter: Int) {
 		self.systemDataHash = systemDataHash
 		self.location = location
 		self.badgeNumber = badgeNumber
-		self.applicationCode = applicationCode
-        self.applicationCodeHash = applicationCodeHash
 		self.depersonalizeFailCounter = depersonalizeFailCounter
 		self.currentDepersonalizationStatus = currentDepersonalizationStatus
 		self.registrationDate = registrationDate
@@ -67,8 +61,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		systemDataHash = aDecoder.decodeInt64(forKey: "systemDataHash")
         location = aDecoder.decodeObject(of: CLLocation.self, forKey: "location")
 		badgeNumber = aDecoder.decodeInteger(forKey: "badgeNumber")
-        applicationCode = aDecoder.decodeObject(of: NSString.self, forKey: "applicationCode") as? String
-        applicationCodeHash = aDecoder.decodeObject(of: NSString.self, forKey: "applicationCodeHash") as? String
 		depersonalizeFailCounter = aDecoder.decodeInteger(forKey: "depersonalizeFailCounter")
 		currentDepersonalizationStatus = MMSuccessPending(rawValue: aDecoder.decodeInteger(forKey: "currentDepersonalizationStatus")) ?? .undefined
         registrationDate = aDecoder.decodeObject(of: NSDate.self, forKey: "registrationDate") as? Date
@@ -79,8 +71,6 @@ public final class InternalData : NSObject, NSSecureCoding, NSCopying, Archivabl
 		aCoder.encode(systemDataHash, forKey: "systemDataHash")
 		aCoder.encode(location, forKey: "location")
 		aCoder.encode(badgeNumber, forKey: "badgeNumber")
-		aCoder.encode(applicationCode, forKey: "applicationCode")
-        aCoder.encode(applicationCodeHash, forKey: "applicationCodeHash")
 		aCoder.encode(depersonalizeFailCounter, forKey: "depersonalizeFailCounter")
 		aCoder.encode(currentDepersonalizationStatus.rawValue, forKey: "currentDepersonalizationStatus")
 		aCoder.encode(registrationDate, forKey: "registrationDate")

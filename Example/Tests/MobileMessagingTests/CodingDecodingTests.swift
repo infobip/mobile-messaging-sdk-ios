@@ -72,8 +72,6 @@ class CodingDecodingTests: MMTestCase {
         systemDataHash: 12345,
         location: CLLocation(),
         badgeNumber: 5,
-        applicationCode: "appCode",
-        applicationCodeHash: "appCodeHash",
         depersonalizeFailCounter: 0,
         currentDepersonalizationStatus: MMSuccessPending.success,
         registrationDate: Date(),
