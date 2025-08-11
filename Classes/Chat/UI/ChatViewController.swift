@@ -646,4 +646,8 @@ extension MMChatViewController: MMChatBasiWebViewActions, MMChatInternalWebViewA
     func openNewThread(completion: @escaping ((any Error)?) -> Void) {
         webViewHandler?.openNewThread(completion: completion)
     }
+
+    func reset() {
+        webViewHandler?.reset()
+    }
 }

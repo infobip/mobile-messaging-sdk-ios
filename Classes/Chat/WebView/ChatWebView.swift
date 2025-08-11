@@ -36,24 +36,31 @@ class ChatWebView: WKWebView {
 		super.init(coder: coder)
 	}
 	
-	func loadWidget(_ widget: ChatWidget) {
-		guard let pushRegistrationId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
-			let request = request(forWidgetId: widget.id, pushRegId: pushRegistrationId) else {
-				logDebug("no push registration id, can't start chat")
-				return
-		}
-		load(request)
-	}
-	
-	private func request(forWidgetId widgetId: String, pushRegId: String) -> URLRequest? {
+    func loadWidget(_ widget: ChatWidget) {
+        guard let url = MMInAppChatService.resourceBundle.url(forResource: "ChatConnector", withExtension: "html"),
+              loadFileURL(url, allowingReadAccessTo: url) != nil, // loadFileURL requires MT
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                logDebug("can't load ChatConnector.html")
+            return
+        }
+
+        DispatchQueue.global(qos: .background).async { [weak self] in // BT to ensure JWT doesn't block MT, for example in plugins
+            guard let pushRegistrationId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
+            let request = self?.request(widget.id, pushRegistrationId, components) else {
+                self?.logDebug("no push registration id, can't start chat")
+                return
+            }
+            DispatchQueue.mmEnsureMain {
+                self?.load(request)
+            }
+        }
+    }
+
+	private func request(_ widgetId: String, _ pushRegId: String, _ baseComponents: URLComponents) -> URLRequest? {
 		logDebug("pushregId: \(pushRegId) widgetId: \(widgetId)")
-		
-		guard let url = MMInAppChatService.resourceBundle.url(forResource: "ChatConnector", withExtension: "html"),
-		      loadFileURL(url, allowingReadAccessTo: url) != nil,
-		      var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-				logDebug("can't load ChatConnector.html")
-			return nil
-		}
+
+        var components = baseComponents
+
 		components.queryItems = [
 			URLQueryItem(name: ChatAPIKeys.QueryParams.pushRegId, value: pushRegId),
 			URLQueryItem(name: ChatAPIKeys.QueryParams.widgetId, value: widgetId),
@@ -65,7 +72,11 @@ class ChatWebView: WKWebView {
 
         if let jwt = MobileMessaging.inAppChat?.jwt ?? MobileMessaging.inAppChat?.delegate?.getJWT?() {
             components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.jwt, value: jwt))
+            MobileMessaging.inAppChat?.isUsingJWT = true
+        } else {
+            MobileMessaging.inAppChat?.isUsingJWT = false
         }
+
         if let theme = MMChatSettings.settings.widgetTheme {
             components.queryItems?.append(URLQueryItem(name: ChatAPIKeys.QueryParams.theme, value: theme))
         }

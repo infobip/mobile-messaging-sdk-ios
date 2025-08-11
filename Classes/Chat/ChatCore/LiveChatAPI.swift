@@ -37,6 +37,7 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
 
     override init() {
         super.init()
+        MobileMessaging.inAppChat?.isUsingAPI = true
         loadWidget()
     }
 

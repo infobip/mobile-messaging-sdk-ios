@@ -58,6 +58,8 @@ public class MMInAppChatService: MobileMessagingService {
     private var chatWidget: ChatWidget?
     private var isConfigurationSynced: Bool = false
     private var callsEnabled: Bool?
+    var isUsingJWT = false
+    var isUsingAPI = false
     @available(*, deprecated, message: "This variable is going to be deprecated in a future version. Please use MMInAppChatDelegate's method getJWT() instead")
     public var jwt: String?
     public var domain: String? // Do not edit unless you have an agreement with Infobip to define the auth domain. 
@@ -217,6 +219,8 @@ public class MMInAppChatService: MobileMessagingService {
             chatErrors.remove(.jsError)
             getChatWidget(completion)
             obtainChatRegistrations()
+        } else {
+            completion(nil)
         }
     }
 	
@@ -326,7 +330,11 @@ public class MMInAppChatService: MobileMessagingService {
             } else {
                 if _self.chatErrors.contains(.noInternetConnectionError) {
                     _self.chatErrors.remove(.noInternetConnectionError)
-                    _self.syncWithServer {_ in}
+                    _self.syncWithServer { [weak self] _ in
+                        // When we reconnect, and JWT is used, we need to reload the widget with fresh JWT, as network reconnections trigger 'identify' method in widget
+                        guard (self?.isUsingJWT ?? false) else { return }
+                        self?.reloadChat()
+                    }
                 }
             }
         }
@@ -468,6 +476,23 @@ public class MMInAppChatService: MobileMessagingService {
             presenterVC.present(chatNavVC, animated: true) {
                 self.logDebug("Chat view controller was presented after open LiveChat action.")
                 completion(chatNavVC.viewControllers.first as? MMChatViewController)
+            }
+        }
+    }
+
+    private func reloadChat()
+    {
+        guard chatWidget != nil else { return }
+        if let chatVC = MobileMessaging.application.visibleViewController as? MMChatViewController {
+            chatVC.reset()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                chatVC.restartConnection()
+            }
+        }
+        if isUsingAPI {
+            self.api.reset()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.api.restartConnection()
             }
         }
     }
