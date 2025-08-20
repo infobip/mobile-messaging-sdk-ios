@@ -99,6 +99,16 @@ class CallControllerEventListenerImpl: AggregatedCallEventListener {
 }
  
 class MMCallEventListener: CallEventListener, ApplicationCallEventListener, WebrtcCallEventListener {
+    func onCameraVideoRemoved(_ cameraVideoRemovedEvent: CameraVideoRemovedEvent) { }
+
+    func onParticipantBlinded(_ participantBlindedEvent: ParticipantBlindedEvent) { }
+
+    func onParticipantUnblinded(_ participantUnblindedEvent: ParticipantUnblindedEvent) { }
+
+    func onRoleChanged(_ roleChangedEvent: RoleChangedEvent) { }
+
+    func onParticipantRoleChanged(_ participantRoleChangedEvent: ParticipantRoleChangedEvent) { }
+
     let output: AggregatedCallEventListener
     
     init(controller: AggregatedCallEventListener) {

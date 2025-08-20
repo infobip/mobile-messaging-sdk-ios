@@ -10,7 +10,7 @@ import CallKit
 import AVKit
 #if WEBRTCUI_ENABLED
 import InfobipRTC
-import WebRTC
+import IBWebRTC
 import AVFoundation
 
 enum ActiveCall {
