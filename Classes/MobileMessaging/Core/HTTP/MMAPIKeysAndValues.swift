@@ -219,6 +219,7 @@ public struct MMConsts {
 		static let customPayload = "customPayload"
 		public static let internalData = "internalData"
 		static let contentAvailable = "content-available"
+        static let category = "category"
 
 		//MARK: Common fields
 		public static let messageId = "messageId"

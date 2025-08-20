@@ -11,10 +11,10 @@ import UserNotifications
 class LocalNotifications: NamedLogger {
 	class func presentLocalNotification(with message: MM_MTMessage) {
 		MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
-		LocalNotifications.scheduleUserNotification(with: message)
+        LocalNotifications.scheduleUserNotification(with: message, completion: nil)
 	}
 	
-	class func scheduleUserNotification(with message: MM_MTMessage) {
+	class func scheduleUserNotification(with message: MM_MTMessage, completion: (() -> Void)?) {
 		guard let txt = message.text else {
 			return
 		}
@@ -46,7 +46,12 @@ class LocalNotifications: NamedLogger {
 			}
 			let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)
 			logDebug("scheduling notification for \(message.messageId)")
-			UNUserNotificationCenter.current().add(req, withCompletionHandler: nil)
+            UNUserNotificationCenter.current().add(req) { error in
+                if let error = error {
+                    logError("Error while scheduling local notification: \(error)")
+                }
+                completion?()
+            }
 		})
 	}
 }

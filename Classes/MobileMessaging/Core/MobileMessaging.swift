@@ -608,6 +608,15 @@ public final class MobileMessaging: NSObject, NamedLogger {
         UNUserNotificationCenter.current().delegate = UserNotificationCenterDelegate.sharedInstance
     }
     
+    /**
+     Schedules a local user notification with the provided MM_MTMessage.
+     - parameter message: The MM_MTMessage object containing notification content.
+     - parameter completion: The block which executes after local notification has been added to the Notification Center.
+     */
+    public class func scheduleUserNotification(with message: MM_MTMessage, completion: (() -> Void)?) {
+        LocalNotifications.scheduleUserNotification(with: message, completion: completion)
+    }
+    
     //MARK: Internal
     public static var sharedInstance: MobileMessaging?
     public let userNotificationType: MMUserNotificationType

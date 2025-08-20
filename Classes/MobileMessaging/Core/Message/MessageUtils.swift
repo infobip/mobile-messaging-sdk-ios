@@ -198,6 +198,11 @@ public func apsByMerging(nativeAPS: MMStringKeyPayload?, withSilentAPS silentAPS
 	if let sound = silentAPS[Consts.APNSPayloadKeys.sound] as? String {
 		resultAps[Consts.APNSPayloadKeys.sound] = sound
 	}
+    
+    if let category = silentAPS[Consts.APNSPayloadKeys.category] as? String {
+        resultAps[Consts.APNSPayloadKeys.category] = category
+    }
+    
 	return resultAps
 }
 

@@ -51,7 +51,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         
         if MM_MTMessage.isCorrectPayload(userInfo) {
-            MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+            let internalData = userInfo["internalData"] as? [String: Any] ?? [:]
+            let isSilent = internalData["silent"] != nil
+            let isNewInApp = internalData["inAppDetails"] != nil
+
+            let isExpired = (internalData["validUntil"] as? NSNumber).map {
+                Date().timeIntervalSince1970 > $0.doubleValue / 1000.0
+            } ?? false
+            
+            if isSilent && !isNewInApp && !isExpired {
+                if let message = MM_MTMessage.make(withPayload: userInfo) {
+                    MobileMessaging.scheduleUserNotification(with: message) {
+                        MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+                    }
+                }
+            } else if !isExpired {
+                MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+            }
         } else {
             // Other push vendors might have their code here and handle a remote notification as well.
             // completionHandler needs to be called only once.
