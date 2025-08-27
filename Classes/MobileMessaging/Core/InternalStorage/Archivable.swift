@@ -7,7 +7,6 @@
 
 import Foundation
 import CoreLocation
-import CryptoKit
 
 public protocol Archivable: ArchivableCurrent {
 	var version: Int {get set}
@@ -52,12 +51,17 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
         save.removeSensitiveData()
         do {
             let dataToBeArchived = try NSKeyedArchiver.archivedData(withRootObject: save, requiringSecureCoding: true)
-            if let key = Self.generateKey(),
-               var dataToBeArchived = try Self.encrypt(data: dataToBeArchived, key: key),
+            if let key = generateKey(),
+               var dataToBeArchived = try encrypt(data: dataToBeArchived, key: key),
                let headersData = MMConsts.Encryption.encryptionAlgHeaderString.data(using: .utf8)
             {
                 dataToBeArchived = headersData + dataToBeArchived
-                try dataToBeArchived.write(to: URL(fileURLWithPath: path))
+                var url = URL(fileURLWithPath: path)
+                try dataToBeArchived.write(
+                    to: url,
+                    options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+                
+                url.excludeFromBackup()
             }
         } catch {
             MMLogError("Unexpected error while archiving at \(path): \(error)")
@@ -69,6 +73,7 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
 		Self.cached.set(value: nil, forKey: Self.currentPath)
 		Self.removeArchive(at: Self.currentPath)
 	}
+    
     public static func unarchiveCurrent() -> Self {
 		if let cached = Self.cached.getValue(forKey: Self.currentPath), let ret = cached.copy() as? Self {
             MMLogVerbose("Using cached value \(Thread.current.description) \(Self.currentPath)")
@@ -80,6 +85,7 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
 			return current
 		}
 	}
+    
     public static func unarchive(from path: String) -> Self? {
         let url = URL(fileURLWithPath: path)
         guard var data = try? Data(contentsOf: url) else {
@@ -88,7 +94,7 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
         do {
             let headersData = MMConsts.Encryption.encryptionAlgHeaderString.data(using: .utf8)!
             let isEncrypted = data.starts(with: headersData)
-            if isEncrypted, let key = Self.generateKey() {
+            if isEncrypted, let key = generateKey() {
                 data = data.dropFirst(headersData.count)
                 data = try decrypt(data: data, with: key)
             } else {
@@ -102,6 +108,7 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
         }
         return nil
     }
+    
     public static func removeArchive(at path: String) {
 		MMLogVerbose("Removing archive \(Thread.current.description) at \(path)")
 		do {
@@ -110,42 +117,12 @@ extension ArchivableCurrent where Self: NSCopying, Self: NSCoding {
 			MMLogError("Unexpected error while removing archive at \(path): \(error)")
 		}
 	}
+    
     public static func modifyCurrent(with block: (Self) -> Void) {
 		let o = Self.unarchiveCurrent()
 		block(o)
 		o.archiveCurrent()
 	}
-    
-    static private func encrypt(data: Data, key: SymmetricKey) throws -> Data? {
-        do {
-            let sealedBox = try AES.GCM.seal(data, using: key)
-            return sealedBox.combined
-        } catch {
-            MMLogError("Error while encrypting data: \(error).")
-            throw error
-        }
-    }
-
-    static private func decrypt(data: Data, with key: SymmetricKey) throws -> Data {
-        do {
-            let sealedBox = try AES.GCM.SealedBox(combined: data)
-            return try AES.GCM.open(sealedBox, using: key)
-        } catch {
-            MMLogError("Error while decrypting data: \(error).")
-            throw error
-        }
-    }
-    
-    static private func generateKey() -> SymmetricKey? {
-        if let key = MobileMessaging.sharedInstance?.applicationCode.replacingOccurrences(of: "-", with: "").suffixPadded(length: MMConsts.Encryption.keyLength),
-           let keyData = key.data(using: .utf8)
-        {
-            return SymmetricKey(data: keyData)
-        } else {
-            MMLogError("Unable to generate key because applicationCode is nil or cannot be used to create a SymmetricKey")
-            return nil
-        }
-    }
 }
 
 extension String {

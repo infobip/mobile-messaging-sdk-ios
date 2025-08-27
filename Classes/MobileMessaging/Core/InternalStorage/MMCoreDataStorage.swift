@@ -27,7 +27,7 @@ struct MMStorageSettings {
 	static var SQLiteChatStorageSettings = MMStorageSettings(modelName: "MMMessageStorageModel", databaseFileName: "ChatStorage.sqlite", storeOptions: defaultStoreOptions)
 
 	static var defaultStoreOptions: MMStoreOptions {
-		var result: MMStoreOptions = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
+        var result: MMStoreOptions = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true, NSPersistentStoreFileProtectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
 		// by doing this, we stick to old behaviour until we have time to investigate possible issues (i.e. http://stackoverflow.com/questions/39438433/xcode-8-gm-sqlite-error-code6922-disk-i-o-error)
 		result[NSPersistentStoreConnectionPoolMaxSizeKey] = 1
 		return result
@@ -127,16 +127,14 @@ final public class MMCoreDataStorage: NamedLogger {
 	}
 
 	//FIXME: align the name with swift guidelines
-	private func addPersistentStoreWithPath(_ psc: NSPersistentStoreCoordinator, storePath: String?, options: MMStoreOptions?) throws {
-		if let storePath = storePath {
-			let storeURL = URL(fileURLWithPath: storePath)
+	private func addPersistentStoreWithPath(_ psc: NSPersistentStoreCoordinator, storeUrl: URL?, options: MMStoreOptions?) throws {
+		if let storeURL = storeUrl {
 			do {
 				logDebug("Adding persistent store at \(storeURL)")
 				_persistentStore = try psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)
 				logDebug("Persistent store added successfully")
 			} catch let error as NSError {
 				logError("Error occured while adding persistent store: \(error)")
-
 
 				let isMigrationError = error.code == NSMigrationError ||
 					error.code == NSMigrationMissingSourceModelError ||
@@ -155,7 +153,7 @@ final public class MMCoreDataStorage: NamedLogger {
 		}
 	}
 
-	private func persistentStoreDirectory(fileName: String) -> String {
+	private func persistentStoreDirectory() -> URL {
 		let applicationSupportPaths = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)
 		let basePath = applicationSupportPaths.first ?? NSTemporaryDirectory()
 		let fm = FileManager.default
@@ -165,7 +163,7 @@ final public class MMCoreDataStorage: NamedLogger {
 				try fm.createDirectory(atPath: persistentStoreDir, withIntermediateDirectories: true, attributes: nil)
 			} catch { }
 		}
-		return URL(fileURLWithPath: persistentStoreDir).appendingPathComponent(fileName).path
+		return URL(fileURLWithPath: persistentStoreDir, isDirectory: true)
 
 	}
 
@@ -203,17 +201,19 @@ final public class MMCoreDataStorage: NamedLogger {
 
 		if let dbFileName = databaseFileName {
 			// SQLite storage
-			let storePath = persistentStoreDirectory(fileName: dbFileName)
+            var storeDirUrl = persistentStoreDirectory()
+            let storeURL = storeDirUrl.appendingPathComponent(dbFileName)
 			do {
-				try addPersistentStoreWithPath(newPSC, storePath: storePath, options: storeOptions)
+				try addPersistentStoreWithPath(newPSC, storeUrl: storeURL, options: storeOptions)
+                storeDirUrl.excludeFromBackup()
 			} catch let error as NSError {
-				didNotAddPersistentStoreWithPath(storePath, options: storeOptions, error: error)
+				didNotAddPersistentStoreWithPath(storeURL, options: storeOptions, error: error)
 				throw MMInternalErrorType.StorageInitializationError
 			}
 		} else {
 			// in-memory storage
 			do {
-				try addPersistentStoreWithPath(newPSC, storePath: nil, options: storeOptions)
+				try addPersistentStoreWithPath(newPSC, storeUrl: nil, options: storeOptions)
 			} catch let error as NSError {
 				didNotAddPersistentStoreWithPath(nil, options: storeOptions, error: error)
 				throw MMInternalErrorType.StorageInitializationError
@@ -237,7 +237,7 @@ final public class MMCoreDataStorage: NamedLogger {
 		}
 	}
 
-	private func didNotAddPersistentStoreWithPath(_ storePath: String?, options: MMStoreOptions?, error: NSError?) {
+	private func didNotAddPersistentStoreWithPath(_ storeUrl: URL?, options: MMStoreOptions?, error: NSError?) {
 		logError("Failed creating persistent store: \(error.orNil)")
 	}
 

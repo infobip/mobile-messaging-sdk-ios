@@ -12,6 +12,7 @@ import CoreLocation
 import SystemConfiguration
 import UserNotifications
 import CommonCrypto
+import CryptoKit
 
 public typealias DictionaryRepresentation = [String: Any]
 
@@ -807,6 +808,20 @@ extension URL {
     static func attachmentDownloadDestinatioUrl(sourceUrl: URL, appGroupId: String?) -> URL {
         return URL.attachmentDownloadDestinationFolderUrl(appGroupId:appGroupId).appendingPathComponent(sourceUrl.absoluteString.sha256() + "." + sourceUrl.pathExtension)
     }
+    
+    mutating func excludeFromBackup() {
+        guard FileManager.default.fileExists(atPath: self.path) else {
+            return
+        }
+        
+        do {
+            var resourceValues = URLResourceValues()
+            resourceValues.isExcludedFromBackup = true
+            try self.setResourceValues(resourceValues)
+        } catch {
+            MMLogError("Failed to set backup exclusion for \(self): \(error)")
+        }
+    }
 }
 
 extension Bundle {
@@ -911,5 +926,36 @@ extension UIApplication.State: @retroactive CustomStringConvertible {
         @unknown default:
             return "Unknown"
         }
+    }
+}
+
+internal func encrypt(data: Data, key: SymmetricKey) throws -> Data? {
+    do {
+        let sealedBox = try AES.GCM.seal(data, using: key)
+        return sealedBox.combined
+    } catch {
+        MMLogError("Error while encrypting data: \(error).")
+        throw error
+    }
+}
+
+internal func decrypt(data: Data, with key: SymmetricKey) throws -> Data {
+    do {
+        let sealedBox = try AES.GCM.SealedBox(combined: data)
+        return try AES.GCM.open(sealedBox, using: key)
+    } catch {
+        MMLogError("Error while decrypting data: \(error).")
+        throw error
+    }
+}
+
+internal func generateKey() -> SymmetricKey? {
+    if let key = MobileMessaging.sharedInstance?.applicationCode.replacingOccurrences(of: "-", with: "").suffixPadded(length: MMConsts.Encryption.keyLength),
+       let keyData = key.data(using: .utf8)
+    {
+        return SymmetricKey(data: keyData)
+    } else {
+        MMLogError("Unable to generate key because applicationCode is nil or cannot be used to create a SymmetricKey")
+        return nil
     }
 }
