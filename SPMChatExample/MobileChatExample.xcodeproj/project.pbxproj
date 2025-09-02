@@ -16,7 +16,6 @@
 		A82572E62AB9D4DC00598CD5 /* MMInboundCall.wav in Resources */ = {isa = PBXBuildFile; fileRef = A82572D12AB9D4DB00598CD5 /* MMInboundCall.wav */; };
 		A82572E72AB9D4DC00598CD5 /* JWTClaims.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82572D22AB9D4DB00598CD5 /* JWTClaims.swift */; };
 		A82572E82AB9D4DC00598CD5 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82572D32AB9D4DB00598CD5 /* Constants.swift */; };
-		A82572E92AB9D4DC00598CD5 /* ColorThemeTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82572D42AB9D4DB00598CD5 /* ColorThemeTableVC.swift */; };
 		A82572EA2AB9D4DC00598CD5 /* OptionListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82572D52AB9D4DC00598CD5 /* OptionListVC.swift */; };
 		A82572EB2AB9D4DC00598CD5 /* AuthenticatedChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82572D62AB9D4DC00598CD5 /* AuthenticatedChatVC.swift */; };
 		A82572EC2AB9D4DC00598CD5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82572D72AB9D4DC00598CD5 /* AppDelegate.swift */; };
@@ -30,6 +29,8 @@
 		A82572F42AB9D4DC00598CD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A82572E32AB9D4DC00598CD5 /* Main.storyboard */; };
 		A83DDBC02ACAF72800FE9874 /* ExternalChatInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83DDBBF2ACAF72800FE9874 /* ExternalChatInputViewController.swift */; };
 		A83DDBC22ACAF73900FE9874 /* SwiftUIChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83DDBC12ACAF73900FE9874 /* SwiftUIChatView.swift */; };
+		A8A3AA3A2E5EF63F007F5E2B /* LiveChatAPIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A3AA392E5EF63F007F5E2B /* LiveChatAPIView.swift */; };
+		A8A3AA3B2E5EF63F007F5E2B /* BadgeCounterHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A3AA382E5EF63F007F5E2B /* BadgeCounterHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +41,6 @@
 		A82572D12AB9D4DB00598CD5 /* MMInboundCall.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = MMInboundCall.wav; sourceTree = "<group>"; };
 		A82572D22AB9D4DB00598CD5 /* JWTClaims.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JWTClaims.swift; path = ../../ChatExample/MobileChatExample/JWTClaims.swift; sourceTree = "<group>"; };
 		A82572D32AB9D4DB00598CD5 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Constants.swift; path = ../../ChatExample/MobileChatExample/Constants.swift; sourceTree = "<group>"; };
-		A82572D42AB9D4DB00598CD5 /* ColorThemeTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ColorThemeTableVC.swift; path = ../../ChatExample/MobileChatExample/ColorThemeTableVC.swift; sourceTree = "<group>"; };
 		A82572D52AB9D4DC00598CD5 /* OptionListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = OptionListVC.swift; path = ../../ChatExample/MobileChatExample/OptionListVC.swift; sourceTree = "<group>"; };
 		A82572D62AB9D4DC00598CD5 /* AuthenticatedChatVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AuthenticatedChatVC.swift; path = ../../ChatExample/MobileChatExample/AuthenticatedChatVC.swift; sourceTree = "<group>"; };
 		A82572D72AB9D4DC00598CD5 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../ChatExample/MobileChatExample/AppDelegate.swift; sourceTree = "<group>"; };
@@ -55,6 +55,8 @@
 		A82572E42AB9D4DC00598CD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
 		A83DDBBF2ACAF72800FE9874 /* ExternalChatInputViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExternalChatInputViewController.swift; path = ../../ChatExample/MobileChatExample/ExternalChatInputViewController.swift; sourceTree = "<group>"; };
 		A83DDBC12ACAF73900FE9874 /* SwiftUIChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SwiftUIChatView.swift; path = ../../ChatExample/MobileChatExample/SwiftUIChatView.swift; sourceTree = "<group>"; };
+		A8A3AA382E5EF63F007F5E2B /* BadgeCounterHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BadgeCounterHandler.swift; path = ../ChatExample/MobileChatExample/BadgeCounterHandler.swift; sourceTree = SOURCE_ROOT; };
+		A8A3AA392E5EF63F007F5E2B /* LiveChatAPIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveChatAPIView.swift; path = ../ChatExample/MobileChatExample/LiveChatAPIView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,13 +111,14 @@
 		765259E81FB5A99100058788 /* MobileChatExample */ = {
 			isa = PBXGroup;
 			children = (
+				A8A3AA382E5EF63F007F5E2B /* BadgeCounterHandler.swift */,
+				A8A3AA392E5EF63F007F5E2B /* LiveChatAPIView.swift */,
 				A83DDBC12ACAF73900FE9874 /* SwiftUIChatView.swift */,
 				A83DDBBF2ACAF72800FE9874 /* ExternalChatInputViewController.swift */,
 				A82572D72AB9D4DC00598CD5 /* AppDelegate.swift */,
 				A82572DA2AB9D4DC00598CD5 /* Assets.xcassets */,
 				A82572D62AB9D4DC00598CD5 /* AuthenticatedChatVC.swift */,
 				A82572E02AB9D4DC00598CD5 /* Base.lproj */,
-				A82572D42AB9D4DB00598CD5 /* ColorThemeTableVC.swift */,
 				A82572D32AB9D4DB00598CD5 /* Constants.swift */,
 				A82572D22AB9D4DB00598CD5 /* JWTClaims.swift */,
 				A82572D82AB9D4DC00598CD5 /* LanguageTableVC.swift */,
@@ -255,11 +258,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				A83DDBC02ACAF72800FE9874 /* ExternalChatInputViewController.swift in Sources */,
+				A8A3AA3A2E5EF63F007F5E2B /* LiveChatAPIView.swift in Sources */,
+				A8A3AA3B2E5EF63F007F5E2B /* BadgeCounterHandler.swift in Sources */,
 				A82572EB2AB9D4DC00598CD5 /* AuthenticatedChatVC.swift in Sources */,
 				A82572E72AB9D4DC00598CD5 /* JWTClaims.swift in Sources */,
 				A82572EA2AB9D4DC00598CD5 /* OptionListVC.swift in Sources */,
 				A83DDBC22ACAF73900FE9874 /* SwiftUIChatView.swift in Sources */,
-				A82572E92AB9D4DC00598CD5 /* ColorThemeTableVC.swift in Sources */,
 				A82572EC2AB9D4DC00598CD5 /* AppDelegate.swift in Sources */,
 				A82572ED2AB9D4DC00598CD5 /* LanguageTableVC.swift in Sources */,
 				A82572E52AB9D4DC00598CD5 /* ViewController.swift in Sources */,

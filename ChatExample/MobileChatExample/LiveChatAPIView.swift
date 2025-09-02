@@ -9,6 +9,10 @@
 import SwiftUI
 import MobileMessaging
 import UniformTypeIdentifiers
+#if USING_SPM
+import InAppChat
+import MobileMessagingLogging
+#endif
 
 struct PerformedActions: Identifiable, Hashable {
     var id: UUID = .init()
