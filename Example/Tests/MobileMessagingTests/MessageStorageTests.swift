@@ -425,9 +425,9 @@ class MessageStorageTests: MMTestCase {
 		}
 		let notificationExtensionStorageStub = NotificationExtensionMessageStorageStub(applicationCode: "appCode", appGroupId: "groupId")!
 		
-		MobileMessagingNotificationServiceExtension.startWithApplicationCode("appCode", appGroupId: "groupId")
-		MobileMessagingNotificationServiceExtension.sharedInstance?.deliveryReporter = SuccessfullDeliveryReporterStub()
-		MobileMessagingNotificationServiceExtension.sharedInstance?.sharedNotificationExtensionStorage = notificationExtensionStorageStub
+        MobileMessagingNotificationServiceExtension.sharedInstance = MobileMessagingNotificationServiceExtension(appCode: "appCode", appGroupId: "groupId")
+		MobileMessagingNotificationServiceExtension.sharedInstance!.deliveryReporter = SuccessfullDeliveryReporterStub()
+		MobileMessagingNotificationServiceExtension.sharedInstance!.sharedNotificationExtensionStorage = notificationExtensionStorageStub
 		MobileMessagingNotificationServiceExtension.didReceive(request, withContentHandler: contentHandler)
 		
 		XCTAssertEqual(notificationExtensionStorageStub.retrieveMessages().count, 1)

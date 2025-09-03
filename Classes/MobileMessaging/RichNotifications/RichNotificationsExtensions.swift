@@ -53,39 +53,26 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
 	
 	/// Starts a new Mobile Messaging Notification Service Extension session.
 	///
-	/// This method should be called form `didReceive(_:, withContentHandler:)` of your subclass of UNNotificationServiceExtension.
+	/// This method should be called from `didReceive(_:, withContentHandler:)` of your subclass of UNNotificationServiceExtension.
 	/// - parameter code: The application code of your Application from Push Portal website.
 	/// - parameter appGroupId: An ID of an App Group. App Groups used to share data among app Notification Extension and the main application itself. Provide the appropriate App Group ID for both application and application extension in order to keep them in sync.
 	/// - remark: If you are facing with the following error in your console:
 	/// `[User Defaults] Failed to read values in CFPrefsPlistSource<0xXXXXXXX> (Domain: ..., User: kCFPreferencesAnyUser, ByHost: Yes, Container: (null)): Using kCFPreferencesAnyUser with a container is only allowed for SystemContainers, detaching from cfprefsd`.
 	/// Although this warning doesn't mean that our code doesn't work, you can shut it up by prefixing your App Group ID with a Team ID of a certificate that you are signing the build with. For example: `"9S95Y6XXXX.group.com.mobile-messaging.notification-service-extension"`. The App Group ID itself doesn't need to be changed though.
-	@available(*, deprecated, message: "The function is deprecated. Plese use `startWithApplicationCode(_ applicationCode: String)` instead and put your App Group Id as a String value for a key `com.mobilemessaging.app_group` respectively in your main info dictionary (info .plist file).")
-	public class func startWithApplicationCode(_ code: String, appGroupId: String) {
-		if sharedInstance == nil {
-			sharedInstance = MobileMessagingNotificationServiceExtension(appCode: code, appGroupId: appGroupId)
-		}
-		sharedInstance?.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: code, appGroupId: appGroupId)
-	}
+    @available(*, deprecated, message: "The function is deprecated. You can safely delete the invocation from your code.")
+	public class func startWithApplicationCode(_ code: String, appGroupId: String) { }
 
 	/// Starts a new Mobile Messaging Notification Service Extension session.
 	///
-	/// This method should be called form `didReceive(_:, withContentHandler:)` of your subclass of UNNotificationServiceExtension.
+	/// This method should be called from `didReceive(_:, withContentHandler:)` of your subclass of UNNotificationServiceExtension.
 	/// - parameter applicationCode: The application code of your Application from Push Portal website.
 	///
-	/// **It is required for the session start to put your App Group Id as a String value for a key** `com.mobilemessaging.app_group` **in your main info dictionary (info .plist file)**
+	/// **In order to start the Mobile Messaging SDK it is required to put your App Group Id as a String value for a key** `com.mobilemessaging.app_group` **in your main info dictionary (info .plist file)**
 	/// - remark: If you are facing with the following error in your console:
 	/// `[User Defaults] Failed to read values in CFPrefsPlistSource<0xXXXXXXX> (Domain: ..., User: kCFPreferencesAnyUser, ByHost: Yes, Container: (null)): Using kCFPreferencesAnyUser with a container is only allowed for SystemContainers, detaching from cfprefsd`.
 	/// Although this warning doesn't mean that our code doesn't work, you can shut it up by prefixing your App Group ID with a Team ID of a certificate that you are signing the build with. For example: `"9S95Y6XXXX.group.com.mobile-messaging.notification-service-extension"`. The App Group ID itself doesn't need to be changed though.
-	public class func startWithApplicationCode(_ applicationCode: String) {
-		guard let appGroupId = Bundle.mainAppBundle.appGroupId else {
-			logError("App Group Id is not provided in Notification Extension target info dictionary")
-			return
-		}
-		if sharedInstance == nil {
-			sharedInstance = MobileMessagingNotificationServiceExtension(appCode: applicationCode, appGroupId: appGroupId)
-		}
-		sharedInstance?.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
-	}
+    @available(*, deprecated, message: "The function is deprecated. You can safely delete the invocation from your code.")
+	public class func startWithApplicationCode(_ applicationCode: String) { }
 
     /// This method handles an incoming notification on the Notification Service Extensions side. It performs message delivery reporting and downloads data from `contentUrl` if provided. This method must be called within `UNNotificationServiceExtension.didReceive(_: withContentHandler:)` callback.
     ///
@@ -103,6 +90,20 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
     /// - parameter contentHandler: The block to execute with the modified content. The block will be called after the delivery reporting and contend downloading finished.
 	public class func didReceive(content: UNNotificationContent,
                                  withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
+        if (sharedInstance == nil) {
+            guard let applicationCode = MobileMessaging.keychain.applicationCode else {
+                logError("Could not start notification extension. ApplicationCode not found in keychain.")
+                return
+            }
+            guard let appGroupId = Bundle.mainAppBundle.appGroupId else {
+                logError("Could not start notification extension. AppGroupId not defined in info.plist.")
+                return
+            }
+            if sharedInstance == nil {
+                sharedInstance = MobileMessagingNotificationServiceExtension(appCode: applicationCode, appGroupId: appGroupId)
+            }
+            sharedInstance?.sharedNotificationExtensionStorage = DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: appGroupId)
+        }
         var result = content
         
 		guard let sharedInstance = sharedInstance,
@@ -149,7 +150,7 @@ final public class MobileMessagingNotificationServiceExtension: NSObject, NamedL
 	//MARK: Internal
 	let sessionManager: DynamicBaseUrlHTTPSessionManager
 	static var sharedInstance: MobileMessagingNotificationServiceExtension?
-	private init(appCode: String, appGroupId: String) {
+    init(appCode: String, appGroupId: String) {
 		self.applicationCode = appCode
 		self.appGroupId = appGroupId
 		self.sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: Consts.APIValues.prodDynamicBaseURLString)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)

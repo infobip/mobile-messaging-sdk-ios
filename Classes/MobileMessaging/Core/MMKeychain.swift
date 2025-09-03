@@ -23,9 +23,30 @@ class MMKeychain: KeychainSwift, NamedLogger {
         }
     }
     
-    override init() {
-        let prefix = Consts.KeychainKeys.prefix + "/" + (Bundle.main.bundleIdentifier ?? "")
+    init(accessGroup: String?) {
+        let sharedPrefix = accessGroup == nil ? "" : "shared."
+        let prefix = sharedPrefix + Consts.KeychainKeys.prefix + "/" + (Bundle.mainAppBundle.bundleIdentifier ?? "")
         super.init(keyPrefix: prefix)
+        self.accessGroup = accessGroup
+        if (accessGroup != nil) {
+            performMigration()
+        }
+    }
+        
+    func performMigration() {
+        // the set of fields should not be extended here since old keychain had only two to migrate: applicationCode and pushRegId
+        if (self.applicationCode == nil || self.pushRegId == nil) {
+            logDebug("Migrating data from old keychain...")
+            let oldKeychain = MMKeychain(accessGroup: nil)
+            if (self.applicationCode == nil && oldKeychain.applicationCode != nil) {
+                self.applicationCode = oldKeychain.applicationCode
+            }
+            if (self.pushRegId == nil && oldKeychain.pushRegId != nil) {
+                self.pushRegId = oldKeychain.pushRegId
+            }
+            logDebug("Clearing old keychain...")
+            oldKeychain.clear()
+        }
     }
     
     @discardableResult
@@ -48,7 +69,7 @@ class MMKeychain: KeychainSwift, NamedLogger {
     private func setWithLogging(key: String, value: String?) {
         logDebug("Setting key \(key) value \(value == nil ? "nil" :  "***")")
         if let unwrappedValue = value {
-            set(unwrappedValue, forKey: key, withAccess: .accessibleWhenUnlockedThisDeviceOnly)
+            set(unwrappedValue, forKey: key, withAccess: .accessibleAfterFirstUnlockThisDeviceOnly)
         } else {
             delete(key)
         }

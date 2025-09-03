@@ -15,7 +15,6 @@ class NotificationService: UNNotificationServiceExtension {
         self.contentHandler = contentHandler
         self.originalContent = request.content
         if MM_MTMessage.isCorrectPayload(request.content.userInfo) {
-            MobileMessagingNotificationServiceExtension.startWithApplicationCode("<# your application code #>")
             MobileMessaging.logger = MMLumberjackLogger(logOutput: MMLogOutput.Console, logLevel: MMLogLevel.All)
             MobileMessagingNotificationServiceExtension.didReceive(request, withContentHandler: contentHandler)
         } else {

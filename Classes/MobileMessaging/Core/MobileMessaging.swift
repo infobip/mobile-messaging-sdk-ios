@@ -139,7 +139,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     /**
      Asynchronously starts a new Mobile Messaging session.
-     This method should be called form AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
+     This method should be called from AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
      - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
      */
     public func start(_ completion: (() -> Void)? = nil) {
@@ -201,7 +201,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     /**
      This method handles a new APNs device token and updates user's registration on the server.
-     This method should be called form AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
+     This method should be called from AppDelegate's `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` callback.
      - parameter token: A token that identifies a particular device to APNs.
      */
     public class func didRegisterForRemoteNotificationsWithDeviceToken(_ token: Data) {
@@ -887,7 +887,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public lazy var remoteApiProvider: RemoteAPIProvider! = {
         return RemoteAPIProvider(sessionManager: self.httpSessionManager)
     }()
-    static let keychain: MMKeychain = MMKeychain()
+    static let keychain: MMKeychain = MMKeychain(accessGroup: Bundle.mainAppBundle.appGroupId)
     lazy var interactiveAlertManager: InteractiveMessageAlertManager! = InteractiveMessageAlertManager.sharedInstance
     public lazy var httpSessionManager: DynamicBaseUrlHTTPSessionManager! = DynamicBaseUrlHTTPSessionManager(baseURL: URL(string: remoteAPIBaseURL)!, sessionConfiguration: MobileMessaging.urlSessionConfiguration, appGroupId: appGroupId)
     
