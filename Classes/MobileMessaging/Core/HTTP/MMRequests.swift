@@ -72,8 +72,8 @@ class MessagesSyncRequest: PostRequest {
 class DeliveryReportRequest: PostRequest {
     typealias ResponseType = EmptyResponse
 
-    init(applicationCode: String, body: RequestBody) {
-        super.init(applicationCode: applicationCode, path: .DeliveryReport, body: body)
+    init(applicationCode: String, pushRegistrationId: String? = nil, body: RequestBody) {
+        super.init(applicationCode: applicationCode, path: .DeliveryReport, pushRegistrationId: pushRegistrationId, body: body)
     }
 }
 
@@ -238,7 +238,9 @@ open class RequestData {
         headers[MMConsts.APIHeaders.sessionId] = MobileMessaging.sharedInstance?.userSessionService.currentSessionId
         headers[MMConsts.APIHeaders.accept] = "application/json"
         headers[MMConsts.APIHeaders.contentType] = "application/json"
-        headers[MMConsts.APIHeaders.installationId] = MobileMessaging.sharedInstance?.installationService?.getUniversalInstallationId()
+        if let installationId = getInstallationId() {
+            headers[MMConsts.APIHeaders.installationId] = installationId
+        }
         return headers
     }
     let body: RequestBody?
@@ -251,6 +253,18 @@ open class RequestData {
             ret = ret.replacingOccurrences(of: pathParameterName, with: pathParameterValue)
         }
         return ret
+    }
+    
+    private func getInstallationId() -> String? {
+        // normal SDK
+        if let installationId = MobileMessaging.sharedInstance?.installationService?.getUniversalInstallationId() {
+            return installationId
+        } else if let appGroupId = Bundle.mainAppBundle.appGroupId,
+                  let sharedDefaults = UserDefaults(suiteName: appGroupId) {
+            // NSE fallback
+            return sharedDefaults.string(forKey: Consts.UserDefaultsKeys.universalInstallationId)
+        }
+        return nil
     }
 }
 

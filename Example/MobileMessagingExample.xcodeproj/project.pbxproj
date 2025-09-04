@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		0230BA8B2DD726E800525CE1 /* JwtSupplierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0230BA8A2DD726DE00525CE1 /* JwtSupplierTests.swift */; };
 		0230BA8C2DD726E800525CE1 /* JwtSupplierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0230BA8A2DD726DE00525CE1 /* JwtSupplierTests.swift */; };
+		0283EA082E6705DB00CE5BAD /* InstallationDataServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0283EA072E6705DB00CE5BAD /* InstallationDataServiceTests.swift */; };
+		0283EA092E6705DB00CE5BAD /* InstallationDataServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0283EA072E6705DB00CE5BAD /* InstallationDataServiceTests.swift */; };
+		0283EA0B2E67147C00CE5BAD /* NSEDeliveryReportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0283EA0A2E67147C00CE5BAD /* NSEDeliveryReportingTests.swift */; };
+		0283EA0C2E67147C00CE5BAD /* NSEDeliveryReportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0283EA0A2E67147C00CE5BAD /* NSEDeliveryReportingTests.swift */; };
 		02CB0C382CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */; };
 		02CB0C392CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */; };
 		02E2AF6A2DD534E5004015F8 /* JwtSupplierExampleImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E2AF692DD534D5004015F8 /* JwtSupplierExampleImpl.swift */; };
@@ -173,6 +177,8 @@
 
 /* Begin PBXFileReference section */
 		0230BA8A2DD726DE00525CE1 /* JwtSupplierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtSupplierTests.swift; sourceTree = "<group>"; };
+		0283EA072E6705DB00CE5BAD /* InstallationDataServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationDataServiceTests.swift; sourceTree = "<group>"; };
+		0283EA0A2E67147C00CE5BAD /* NSEDeliveryReportingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSEDeliveryReportingTests.swift; sourceTree = "<group>"; };
 		02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebInAppClickTests.swift; sourceTree = "<group>"; };
 		02E2AF692DD534D5004015F8 /* JwtSupplierExampleImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtSupplierExampleImpl.swift; sourceTree = "<group>"; };
 		02E2AF6B2DD619D6004015F8 /* JwtValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtValidatorTests.swift; sourceTree = "<group>"; };
@@ -479,6 +485,8 @@
 		A09103D91CABA839001873B4 /* MobileMessagingTests */ = {
 			isa = PBXGroup;
 			children = (
+				0283EA0A2E67147C00CE5BAD /* NSEDeliveryReportingTests.swift */,
+				0283EA072E6705DB00CE5BAD /* InstallationDataServiceTests.swift */,
 				7665927A2E65D61900B97A27 /* KeychainTests.swift */,
 				0230BA8A2DD726DE00525CE1 /* JwtSupplierTests.swift */,
 				02E2AF6B2DD619D6004015F8 /* JwtValidatorTests.swift */,
@@ -1045,7 +1053,9 @@
 				762F9D322206409400A35F1E /* ApnsRegistrationManagerTests.swift in Sources */,
 				76934B35232BD2EF00882DAA /* RegistrationTests.swift in Sources */,
 				76934B39232C415700882DAA /* MOMessageSendingTests.swift in Sources */,
+				0283EA092E6705DB00CE5BAD /* InstallationDataServiceTests.swift in Sources */,
 				7640DC3922036F4E00F50470 /* MessageSeenTests.swift in Sources */,
+				0283EA0B2E67147C00CE5BAD /* NSEDeliveryReportingTests.swift in Sources */,
 				A0218EE92ADFD2B900219258 /* CodingDecodingTests.swift in Sources */,
 				A026DDBD2AC3215C00A7318C /* InboxDataModelsTests.swift in Sources */,
 				762E22D42417BED8003E2696 /* InAppAlertTests.swift in Sources */,
@@ -1067,6 +1077,7 @@
 			files = (
 				7665927C2E65D61F00B97A27 /* KeychainTests.swift in Sources */,
 				76934B32232BD12300882DAA /* MessageStorageTests.swift in Sources */,
+				0283EA0C2E67147C00CE5BAD /* NSEDeliveryReportingTests.swift in Sources */,
 				76174FD52334D8DE000438A8 /* SystemDataTests.swift in Sources */,
 				02CB0C382CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */,
 				762F9D4B220724A400A35F1E /* DataModelsTests.swift in Sources */,
@@ -1106,6 +1117,7 @@
 				7640DC3822036F1A00F50470 /* FetchMessagesTest.swift in Sources */,
 				7640DC2E22030D1C00F50470 /* EscapingQueryTests.swift in Sources */,
 				767B84811EA8A6EC00CCD81F /* TestUtils.swift in Sources */,
+				0283EA082E6705DB00CE5BAD /* InstallationDataServiceTests.swift in Sources */,
 				7640DC4A22063FE300F50470 /* InteractiveNotificationsTests.swift in Sources */,
 				76174FDB2334F9B3000438A8 /* PersonalizeTests.swift in Sources */,
 			);

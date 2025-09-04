@@ -60,6 +60,10 @@ public struct MMConsts {
         static let appCode = "appCode"
 	}
 
+	struct UserDefaultsKeys {
+		static let universalInstallationId = "com.mobile-messaging.universal-installation-id"
+	}
+
 	struct DynamicBaseUrlConsts {
 		static let newBaseUrlHeader = "New-Base-URL"
 		static let storedDynamicBaseUrlKey = "com.mobile-messaging.dynamic-base-url"

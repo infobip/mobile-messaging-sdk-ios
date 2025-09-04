@@ -32,6 +32,7 @@ class InstallationDataService: MobileMessagingService {
     override func start(_ completion: @escaping (Bool) -> Void) {
         assert(!Thread.isMainThread)
         super.start(completion)
+        performInstallationIdMigration()
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleError(_:)),
@@ -60,16 +61,45 @@ class InstallationDataService: MobileMessagingService {
         }
     }
     
+    func performInstallationIdMigration() {
+        guard let appGroupId = Bundle.mainAppBundle.appGroupId,
+              let sharedDefaults = UserDefaults(suiteName: appGroupId) else {
+            return
+        }
+        
+        if sharedDefaults.string(forKey: Consts.UserDefaultsKeys.universalInstallationId) != nil {
+            return
+        }
+        
+        if let installationId = UserDefaults.standard.string(forKey: Consts.UserDefaultsKeys.universalInstallationId) {
+            logDebug("Migrating installationId \(installationId) from standard to shared UserDefaults")
+            sharedDefaults.set(installationId, forKey: Consts.UserDefaultsKeys.universalInstallationId)
+        }
+    }
+    
     func getUniversalInstallationId() -> String {
         assert(!Thread.isMainThread)
-        let key = "com.mobile-messaging.universal-installation-id"
-        if let universalInstallationId = UserDefaults.standard.string(forKey: key) {
-            return universalInstallationId
-        } else {
-            let universalInstallationId = UUID().uuidString
-            UserDefaults.standard.set(universalInstallationId, forKey: key)
-            return universalInstallationId
+        
+        // shared UserDefaults (App Group) - accessible from both main app and NSE
+        if let appGroupId = Bundle.mainAppBundle.appGroupId,
+           let sharedDefaults = UserDefaults(suiteName: appGroupId),
+           let installationId = sharedDefaults.string(forKey: Consts.UserDefaultsKeys.universalInstallationId) {
+            return installationId
         }
+        
+        // fallback to standard UserDefaults
+        if let installationId = UserDefaults.standard.string(forKey: Consts.UserDefaultsKeys.universalInstallationId) {
+            return installationId
+        }
+        
+        let newInstallationId = UUID().uuidString
+        if let appGroupId = Bundle.mainAppBundle.appGroupId,
+           let sharedDefaults = UserDefaults(suiteName: appGroupId) {
+            sharedDefaults.set(newInstallationId, forKey: Consts.UserDefaultsKeys.universalInstallationId)
+        } else {
+            UserDefaults.standard.set(newInstallationId, forKey: Consts.UserDefaultsKeys.universalInstallationId)
+        }
+        return newInstallationId
     }
     
     func save(userInitiated: Bool, deviceToken: Data, completion: @escaping (NSError?) -> Void) {

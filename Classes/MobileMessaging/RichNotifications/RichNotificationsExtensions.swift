@@ -200,9 +200,17 @@ class DeliveryReporter: DeliveryReporting, NamedLogger {
 			completion(nil)
 			return
 		}
-		let request = DeliveryReportRequest(applicationCode: applicationCode, body: [Consts.DeliveryReport.dlrMessageIds: messageIds])
-        extensionInstance.sessionManager.getDataResponse(request, queue: DispatchQueue.global(), completion: { completion($1) })
+		
+		let pushRegId = MobileMessaging.keychain.pushRegId
+		logDebug("[Notification Extension] using pushRegId: \(pushRegId ?? "nil") for delivery report")
+		
+		let request = DeliveryReportRequest(applicationCode: applicationCode, pushRegistrationId: pushRegId, body: [Consts.DeliveryReport.dlrMessageIds: messageIds])
+		
+        extensionInstance.sessionManager.getDataResponse(request, queue: DispatchQueue.global(), completion: { (response, error) in
+			completion(error)
+		})
 	}
+	
 }
 
 protocol AppGroupMessageStorage {
