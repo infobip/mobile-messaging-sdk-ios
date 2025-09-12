@@ -255,7 +255,7 @@
         <scene sceneID="nw8-dq-6Nl">
             <objects>
                 <navigationController id="WN3-JM-dhw" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="MSISDN" image="settings" id="NZR-TV-kfR"/>
+                    <tabBarItem key="tabBarItem" title="Tools" image="settings" id="NZR-TV-kfR"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="Gcd-Gg-CJs">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -276,7 +276,7 @@
         <!--MSISDN-->
         <scene sceneID="eKE-QT-HoO">
             <objects>
-                <viewController title="MSISDN" id="CYs-GD-BE8" customClass="SettingsViewController" customModule="MobileMessagingExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Tools" id="CYs-GD-BE8" customClass="SettingsViewController" customModule="MobileMessagingExample" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="ADf-XP-UbJ"/>
                         <viewControllerLayoutGuide type="bottom" id="pKG-SB-SNG"/>
@@ -288,7 +288,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Kk9-1K-JMb">
                                 <rect key="frame" x="133.5" y="90" width="108" height="33"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <state key="normal" title="Send MSISDN">
+                                <state key="normal" title="Save phone number">
                                     <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
@@ -299,30 +299,161 @@
                                 <rect key="frame" x="169" y="90" width="37" height="37"/>
                                 <color key="color" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </activityIndicatorView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Save User" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sav-usr-lbl">
+                                <rect key="frame" x="155" y="20" width="65" height="16"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="13"/>
+                                <color key="textColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="MSISDN" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="37E-C4-nzL">
-                                <rect key="frame" x="77.5" y="30" width="220" height="30"/>
+                                <rect key="frame" x="77.5" y="45" width="220" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="220" id="kTH-xg-Nu6"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <textInputTraits key="textInputTraits" keyboardType="phonePad"/>
                             </textField>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Spc-vw-div">
+                                <rect key="frame" x="0" y="140" width="375" height="20"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="Spc-ht-cst"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Div-phn-sep">
+                                <rect key="frame" x="30" y="170" width="315" height="2"/>
+                                <color key="backgroundColor" red="0.6" green="0.6" blue="0.6" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="2" id="Div-phn-ht"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Personalize &amp; Inbox" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Per-inb-lbl">
+                                <rect key="frame" x="135" y="170" width="105" height="16"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="13"/>
+                                <color key="textColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter External User ID" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Ext-usr-txt">
+                                <rect key="frame" x="77.5" y="195" width="220" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="220" id="Ext-usr-wdt"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Per-sn-btn">
+                                <rect key="frame" x="125" y="220" width="125" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Personalize">
+                                    <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="personalizeButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Per-sn-act"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dep-sn-btn">
+                                <rect key="frame" x="118" y="268" width="139" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Depersonalize">
+                                    <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="depersonalizeButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Dep-sn-act"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Inb-al-btn">
+                                <rect key="frame" x="110" y="200" width="155" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Fetch Inbox (All - limit 100)">
+                                    <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="fetchInboxAllButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Inb-al-act"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Inb-st-btn">
+                                <rect key="frame" x="75" y="250" width="225" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Fetch Inbox (Promotions)">
+                                    <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="fetchInboxSingleTopicButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Inb-st-act"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Inb-mt-btn">
+                                <rect key="frame" x="40" y="300" width="295" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Fetch Inbox (Transactions, Personal)">
+                                    <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="fetchInboxMultiTopicsButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Inb-mt-act"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Div-ln-sep">
+                                <rect key="frame" x="50" y="420" width="275" height="1"/>
+                                <color key="backgroundColor" red="0.8" green="0.8" blue="0.8" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="1" id="Div-ln-ht"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="37E-C4-nzL" firstAttribute="top" secondItem="ADf-XP-UbJ" secondAttribute="bottom" constant="30" id="Q6w-gh-OZd"/>
+                            <constraint firstItem="Sav-usr-lbl" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Sav-usr-cX"/>
+                            <constraint firstItem="Sav-usr-lbl" firstAttribute="top" secondItem="ADf-XP-UbJ" secondAttribute="bottom" constant="20" id="Sav-usr-tY"/>
+                            <constraint firstItem="37E-C4-nzL" firstAttribute="top" secondItem="Sav-usr-lbl" secondAttribute="bottom" constant="9" id="Q6w-gh-OZd"/>
                             <constraint firstItem="Rj2-x4-o4J" firstAttribute="top" secondItem="37E-C4-nzL" secondAttribute="bottom" constant="30" id="UAL-OI-hYO"/>
                             <constraint firstItem="Kk9-1K-JMb" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Xge-pU-HaM"/>
                             <constraint firstItem="37E-C4-nzL" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="ape-Et-7Ak"/>
-                            <constraint firstItem="Kk9-1K-JMb" firstAttribute="top" secondItem="37E-C4-nzL" secondAttribute="bottom" constant="30" id="hmX-Ge-MeH"/>
+                            <constraint firstItem="Kk9-1K-JMb" firstAttribute="top" secondItem="37E-C4-nzL" secondAttribute="bottom" constant="15" id="hmX-Ge-MeH"/>
                             <constraint firstItem="Rj2-x4-o4J" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="zqm-6I-VGO"/>
+                            <constraint firstItem="Spc-vw-div" firstAttribute="top" secondItem="Kk9-1K-JMb" secondAttribute="bottom" constant="17" id="Spc-vw-tY"/>
+                            <constraint firstItem="Spc-vw-div" firstAttribute="leading" secondItem="o4u-gw-hCc" secondAttribute="leading" id="Spc-vw-lX"/>
+                            <constraint firstItem="Spc-vw-div" firstAttribute="trailing" secondItem="o4u-gw-hCc" secondAttribute="trailing" id="Spc-vw-rX"/>
+                            <constraint firstItem="Div-phn-sep" firstAttribute="centerX" secondItem="Spc-vw-div" secondAttribute="centerX" id="Div-phn-cX"/>
+                            <constraint firstItem="Div-phn-sep" firstAttribute="centerY" secondItem="Spc-vw-div" secondAttribute="centerY" id="Div-phn-cY"/>
+                            <constraint firstItem="Div-phn-sep" firstAttribute="leading" secondItem="o4u-gw-hCc" secondAttribute="leading" constant="30" id="Div-phn-lX"/>
+                            <constraint firstItem="Div-phn-sep" firstAttribute="trailing" secondItem="o4u-gw-hCc" secondAttribute="trailing" constant="-30" id="Div-phn-rX"/>
+                            <constraint firstItem="Per-inb-lbl" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Per-inb-cX"/>
+                            <constraint firstItem="Per-inb-lbl" firstAttribute="top" secondItem="Spc-vw-div" secondAttribute="bottom" constant="10" id="Per-inb-tY"/>
+                            <constraint firstItem="Ext-usr-txt" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Ext-usr-cX"/>
+                            <constraint firstItem="Ext-usr-txt" firstAttribute="top" secondItem="Per-inb-lbl" secondAttribute="bottom" constant="9" id="Ext-usr-tY"/>
+                            <constraint firstItem="Per-sn-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Per-sn-cX"/>
+                            <constraint firstItem="Per-sn-btn" firstAttribute="top" secondItem="Ext-usr-txt" secondAttribute="bottom" constant="15" id="Per-sn-tY"/>
+                            <constraint firstItem="Inb-al-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Inb-al-cX"/>
+                            <constraint firstItem="Inb-al-btn" firstAttribute="top" secondItem="Per-sn-btn" secondAttribute="bottom" constant="17" id="Inb-al-tY"/>
+                            <constraint firstItem="Inb-st-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Inb-st-cX"/>
+                            <constraint firstItem="Inb-st-btn" firstAttribute="top" secondItem="Inb-al-btn" secondAttribute="bottom" constant="17" id="Inb-st-tY"/>
+                            <constraint firstItem="Inb-mt-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Inb-mt-cX"/>
+                            <constraint firstItem="Inb-mt-btn" firstAttribute="top" secondItem="Inb-st-btn" secondAttribute="bottom" constant="17" id="Inb-mt-tY"/>
+                            <constraint firstItem="Div-ln-sep" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Div-ln-cX"/>
+                            <constraint firstItem="Div-ln-sep" firstAttribute="top" secondItem="Inb-mt-btn" secondAttribute="bottom" constant="25" id="Div-ln-tY"/>
+                            <constraint firstItem="Div-ln-sep" firstAttribute="leading" secondItem="o4u-gw-hCc" secondAttribute="leading" constant="50" id="Div-ln-lX"/>
+                            <constraint firstItem="Div-ln-sep" firstAttribute="trailing" secondItem="o4u-gw-hCc" secondAttribute="trailing" constant="-50" id="Div-ln-rX"/>
+                            <constraint firstItem="Dep-sn-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Dep-sn-cX"/>
+                            <constraint firstItem="Dep-sn-btn" firstAttribute="top" secondItem="Div-ln-sep" secondAttribute="bottom" constant="25" id="Dep-sn-tY"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="MSISDN" id="y36-JH-rdX"/>
+                    <navigationItem key="navigationItem" title="Tools" id="y36-JH-rdX">
+                        <barButtonItem key="rightBarButtonItem" image="Info" id="Tools-info-btn">
+                            <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <connections>
+                                <segue destination="g0I-QR-GlM" kind="presentation" identifier="kToolsInfoSegueId" id="Tools-info-segue"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="activityIndicator" destination="Rj2-x4-o4J" id="ADl-zd-1LD"/>
                         <outlet property="msisdsTextField" destination="37E-C4-nzL" id="H2Z-Fe-kvP"/>
                         <outlet property="sendMSISDNButton" destination="Kk9-1K-JMb" id="G0r-gs-LaO"/>
+                        <outlet property="externalUserIdTextField" destination="Ext-usr-txt" id="Ext-usr-out"/>
+                        <outlet property="personalizeButton" destination="Per-sn-btn" id="Per-sn-out"/>
+                        <outlet property="depersonalizeButton" destination="Dep-sn-btn" id="Dep-sn-out"/>
+                        <outlet property="fetchInboxAllButton" destination="Inb-al-btn" id="Inb-al-out"/>
+                        <outlet property="fetchInboxSingleTopicButton" destination="Inb-st-btn" id="Inb-st-out"/>
+                        <outlet property="fetchInboxMultiTopicsButton" destination="Inb-mt-btn" id="Inb-mt-out"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HWb-HL-ajm" userLabel="First Responder" sceneMemberID="firstResponder"/>

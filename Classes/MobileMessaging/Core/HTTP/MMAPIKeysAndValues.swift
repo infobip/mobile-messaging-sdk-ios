@@ -167,6 +167,8 @@ public struct MMConsts {
         public static let messages = "messages"
         public static let countTotal = "countTotal"
         public static let countUnread = "countUnread"
+        public static let countTotalFiltered = "countTotalFiltered"
+        public static let countUnreadFiltered = "countUnreadFiltered"
     }
 
 	public struct InternalDataKeys {

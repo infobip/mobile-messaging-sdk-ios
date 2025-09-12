@@ -39,6 +39,16 @@ class GetInbox: GetRequest {
     public var countUnread: Int
     
     /**
+     Total number of messages available in the Inbox after applying filters. Only present when filters are applied.
+     */
+    public var countTotalFiltered: Int?
+    
+    /**
+     Number of unread messages after applying filters. Only present when filters are applied.
+     */
+    public var countUnreadFiltered: Int?
+    
+    /**
      Array of inbox messages ordered by message send date-time.
      */
     public var messages: [MM_MTMessage]
@@ -46,5 +56,31 @@ class GetInbox: GetRequest {
         self.messages = value[MMConsts.InboxKeys.messages].arrayValue.compactMap { MM_MTMessage(messageSyncResponseJson: $0) }
         self.countTotal = value[MMConsts.InboxKeys.countTotal].intValue
         self.countUnread = value[MMConsts.InboxKeys.countUnread].intValue
+        self.countTotalFiltered = MMInbox.extractOptionalInt(from: value, key: MMConsts.InboxKeys.countTotalFiltered)
+        self.countUnreadFiltered = MMInbox.extractOptionalInt(from: value, key: MMConsts.InboxKeys.countUnreadFiltered)
+        super.init()
+    }
+    
+    public init(messages: [MM_MTMessage], countTotal: Int, countUnread: Int, countTotalFiltered: Int?, countUnreadFiltered: Int?) {
+        self.messages = messages
+        self.countTotal = countTotal
+        self.countUnread = countUnread
+        self.countTotalFiltered = countTotalFiltered
+        self.countUnreadFiltered = countUnreadFiltered
+        super.init()
+    }
+    
+    private static func extractOptionalInt(from json: JSON, key: String) -> Int? {
+        let jsonValue = json[key]
+        // Use rawValue to access the underlying value directly
+        if let intValue = jsonValue.rawValue as? Int {
+            return intValue
+        } else if let nsNumber = jsonValue.rawValue as? NSNumber {
+            return nsNumber.intValue
+        } else if let stringValue = jsonValue.string, let intValue = Int(stringValue) {
+            return intValue
+        } else {
+            return nil
+        }
     }
 }

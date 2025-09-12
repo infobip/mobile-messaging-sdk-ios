@@ -13,13 +13,15 @@ let kSettingCellId = "kSettingCellId"
 class InfoTableViewController : UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var tableView: UITableView!
     enum SettingsCell: Int {
+        case applicationCode
         case deviceToken
         case internalId
         
 		var text: String {
             switch self {
+            case .applicationCode: return "Application Code: "
             case .deviceToken: return "APNs Device token: "
-            case .internalId: return "Internal Registration Id: "
+            case .internalId: return "Push Registration Id: "
             }
         }
         
@@ -60,8 +62,35 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
         return SettingsCell.count
     }
     
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return SettingsCell(rawValue: section)?.text
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let headerText = SettingsCell(rawValue: section)?.text else { return nil }
+        
+        let headerView = UIView()
+        headerView.backgroundColor = UIColor.clear
+        
+        let label = UILabel()
+        label.text = headerText
+        label.font = UIFont.preferredFont(forTextStyle: .footnote)
+        if #available(iOS 13.0, *) {
+            label.textColor = UIColor.systemGray
+        } else {
+            label.textColor = UIColor.darkGray
+        }
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        headerView.addSubview(label)
+        
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
+            label.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -6)
+        ])
+        
+        return headerView
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 28.0 // Standard grouped table view header height
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -70,6 +99,8 @@ class InfoTableViewController : UIViewController, UITableViewDelegate, UITableVi
 		
 		var settingValue : String?
 		switch indexPath.section {
+		case SettingsCell.applicationCode.rawValue:
+			settingValue = MobileMessaging.sharedInstance?.applicationCode
 		case SettingsCell.deviceToken.rawValue:
 			settingValue = MobileMessaging.sharedInstance?.currentInstallation().pushServiceToken
 		case SettingsCell.internalId.rawValue:

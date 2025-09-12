@@ -33,6 +33,7 @@ public class MMInboxService: MobileMessagingService {
         doFetchInbox(token: token, externalUserId: externalUserId, options: options, completion: completion)
     }
     
+    
     /**
      Asynchronously fetches inbox data for authorised user. Uses Application Code for authorization.
      - Attention: This version of API uses Application Code (or API key) based authorization. This is not the most secure way of authorization because it is heavily dependent on how secure is your Application Code stored on a device. If it's hardcoded, consider obfuscating the Application Code string (we can recommend the following open-source library for string obfuscation: [UAObfuscatedString](https://github.com/UrbanApps/UAObfuscatedString)).
@@ -54,6 +55,7 @@ public class MMInboxService: MobileMessagingService {
     public func fetchInbox(externalUserId: String, options: MMInboxFilterOptions?, completion: @escaping (_ inbox: MMInbox?, _ error: NSError?) -> Void) {
         doFetchInbox(token: nil, externalUserId: externalUserId, options: options, completion: completion)
     }
+    
     
     /**
      Asynchronously marks inbox message as seen.
@@ -98,19 +100,65 @@ public class MMInboxService: MobileMessagingService {
         return ["inbox": true]
     }
     
+    private static let multipleTopicsFetchLimit = 1000
+    
     private func doFetchInbox(token: String?, externalUserId: String, options: MMInboxFilterOptions?, completion: @escaping (_ inbox: MMInbox?, _ error: NSError?) -> Void) {
-        q.async {
-            self.mmContext.remoteApiProvider.getInbox(
-                applicationCode: self.mmContext.applicationCode,
-                accessToken: token,
-                externalUserId: externalUserId,
-                from: options?.fromDateTime,
-                to: options?.toDateTime,
-                limit: options?.limit,
-                topic: options?.topic,
-                queue: DispatchQueue.main) { result in
-                    completion(result.value, result.error)
-                }
+        if let topics = options?.topics, !topics.isEmpty {
+            // For multiple topics, fetch with limit 1000 and filter client-side
+            q.async {
+                self.mmContext.remoteApiProvider.getInbox(
+                    applicationCode: self.mmContext.applicationCode,
+                    accessToken: token,
+                    externalUserId: externalUserId,
+                    from: options?.fromDateTime,
+                    to: options?.toDateTime,
+                    limit: Self.multipleTopicsFetchLimit, // Fetch 1000 messages from server
+                    topic: nil, // Don't filter by topic on server side
+                    queue: DispatchQueue.main) { result in
+                        guard let serverInbox = result.value, result.error == nil else {
+                            completion(result.value, result.error)
+                            return
+                        }
+                        
+                        let filteredMessages = serverInbox.messages.filter { message in
+                            guard let messageTopic = message.topic else {
+                                return false
+                            }
+                            return topics.contains(messageTopic)
+                        }
+                        
+                        let limitedMessages: [MM_MTMessage]
+                        if let limit = options?.limit, limit > 0 && filteredMessages.count > limit {
+                            limitedMessages = Array(filteredMessages.prefix(limit))
+                        } else {
+                            limitedMessages = filteredMessages
+                        }
+                        
+                        let filteredInbox = MMInbox(
+                            messages: limitedMessages,
+                            countTotal: serverInbox.countTotal,
+                            countUnread: serverInbox.countUnread,
+                            countTotalFiltered: filteredMessages.count,
+                            countUnreadFiltered: filteredMessages.filter { $0.seenStatus == .NotSeen }.count
+                        )
+                        
+                        completion(filteredInbox, nil)
+                    }
+            }
+        } else {
+            q.async {
+                self.mmContext.remoteApiProvider.getInbox(
+                    applicationCode: self.mmContext.applicationCode,
+                    accessToken: token,
+                    externalUserId: externalUserId,
+                    from: options?.fromDateTime,
+                    to: options?.toDateTime,
+                    limit: options?.limit,
+                    topic: options?.topic,
+                    queue: DispatchQueue.main) { result in
+                        completion(result.value, result.error)
+                    }
+            }
         }
     }
     

@@ -16,6 +16,7 @@ import Foundation
     public let fromDateTime: Date?
     public let toDateTime: Date?
     public let topic: String?
+    public let topics: [String]?
     public let limit: Int?
     
     
@@ -29,6 +30,21 @@ import Foundation
         self.fromDateTime = fromDateTime
         self.toDateTime = toDateTime
         self.topic = topic
+        self.topics = nil
+        self.limit = limit
+    }
+    
+    /**
+     - parameter fromDateTime: defines that messages with send datetime greater than or equal `fromDateTime` should be fetched. Default is undefined.
+     - parameter toDateTime: defines that messages with send datetime less than `toDateTime` should be fetched. Default is undefined.
+     - parameter topics: defines filter by multiple topic names. Messages matching any of the topics will be included. When provided, filtering is done client-side after fetching all messages. Default is undefined.
+     - parameter limit: defines maximum number of messages returned after filtering. Default is 20.
+     */
+    public init(fromDateTime: Date?, toDateTime: Date?, topics: [String]?, limit: Int?) {
+        self.fromDateTime = fromDateTime
+        self.toDateTime = toDateTime
+        self.topic = nil
+        self.topics = topics
         self.limit = limit
     }
     
@@ -43,11 +59,20 @@ import Foundation
             toDateTime = DateStaticFormatters.ISO8601SecondsFormatter.date(from: toDateTimeValue)
         }
         
-        self.init(
-            fromDateTime: fromDateTime,
-            toDateTime: toDateTime,
-            topic: dict["topic"] as? String,
-            limit: dict["limit"] as? Int
-        )
+        if let topics = dict["topics"] as? [String] {
+            self.init(
+                fromDateTime: fromDateTime,
+                toDateTime: toDateTime,
+                topics: topics,
+                limit: dict["limit"] as? Int
+            )
+        } else {
+            self.init(
+                fromDateTime: fromDateTime,
+                toDateTime: toDateTime,
+                topic: dict["topic"] as? String,
+                limit: dict["limit"] as? Int
+            )
+        }
     }
 }
