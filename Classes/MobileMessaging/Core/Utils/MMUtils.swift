@@ -30,6 +30,16 @@ func arrayToSet<T>(arr: [T]?) -> Set<T>? {
     return arr != nil ? Set<T>(arr!) : nil
 }
 
+// This function extracts difference between current and dirty data
+// Logic:
+// current     dirty       result value
+// nil          nil        key omitted
+// "1"          nil        NSNull
+// nil          "1"        "1"
+// "1"          "1"        key omitted
+// "1"          "2"        "2"
+// [:]          [:]        key omitted
+// [x:y]        [x:z]      recursively deltaDict
 func deltaDict(_ current: [String: Any], _ dirty: [String: Any]) -> [String: Any]? {
     var ret:[String: Any] = [:]
     dirty.keys.forEach { (k) in

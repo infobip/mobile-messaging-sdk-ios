@@ -47,6 +47,7 @@ class UserDataTests: MMTestCase {
 		
 		let jsonStr = """
 	{
+        "type":"LEAD",
 		"phones": [
 			{
 				"number": "1",
@@ -131,6 +132,7 @@ class UserDataTests: MMTestCase {
 						   MMInstallation(applicationUserId: nil, appVersion: nil, customAttributes: [:], deviceManufacturer: "Samsung", deviceModel: "Galaxy", deviceName: "Johns Sam", deviceSecure: false, deviceTimeZone: nil, isPrimaryDevice: false, isPushRegistrationEnabled: false, language: nil, notificationsEnabled: true, os: "Android", osVersion: nil, pushRegistrationId: "pushregid2", pushServiceToken: nil, pushServiceType: nil, sdkVersion: nil)
 			)
 			
+            XCTAssertEqual(user.type, MMUserType.Lead)
 			XCTAssertTrue(user.phones?.contains("1") ?? false)
 			XCTAssertTrue(user.phones?.contains("2") ?? false)
 			
@@ -179,6 +181,7 @@ class UserDataTests: MMTestCase {
 			
 			XCTAssertNil(currentUser.externalUserId)
 			
+            XCTAssertEqual(currentUser.type, MMUserType.Lead)
 			XCTAssertEqual(currentUser.firstName, "Darth")
 			XCTAssertEqual(currentUser.lastName, "Vader")
 			XCTAssertEqual(currentUser.birthday, darthVaderDateOfBirth)
@@ -434,6 +437,16 @@ class UserDataTests: MMTestCase {
 			XCTAssertNil(second)
 		})
 	}
+    
+    func testThatUserTypeNeverAppearInUserDataReuqestPayload() {
+        let userCustomer = MMUser(externalUserId: nil, type: MMUserType.Customer, firstName: nil, middleName: nil, lastName: nil, phones: nil, emails: nil, tags: nil, gender: nil, birthday: nil, customAttributes: nil, installations: nil)
+        
+        let userLead = MMUser(externalUserId: nil, type: MMUserType.Lead, firstName: nil, middleName: nil, lastName: nil, phones: nil, emails: nil, tags: nil, gender: nil, birthday: nil, customAttributes: nil, installations: nil)
+        
+        let b = UserDataMapper.requestPayload(currentUser: userCustomer, dirtyUser: userLead)!
+        
+        XCTAssertTrue(b.isEmpty)
+    }
 }
 
 func performMergeInterruptedUserUpdateCase(user: MMUser, then: (() -> Void)? = nil) {

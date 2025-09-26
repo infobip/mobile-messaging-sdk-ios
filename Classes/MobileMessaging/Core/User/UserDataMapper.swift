@@ -48,6 +48,7 @@ class UserDataMapper {
 	class func requestPayload(currentUser: MMUser, dirtyUser: MMUser) -> RequestBody? {
 		var ret = deltaDict(currentUser.dictionaryRepresentation, dirtyUser.dictionaryRepresentation)
 		ret?["installations"] = nil
+        ret?["type"] = nil
 		if let phones = (ret?["phones"] as? [String]) {
 			ret?["phones"] = phones.reduce([[String: Any]](), { (result, phoneNumber) -> [[String: Any]] in
 				let entry: [String: Any] = ["number": phoneNumber]
