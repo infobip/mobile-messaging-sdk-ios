@@ -347,7 +347,7 @@ extension CallKitManager: CXProviderDelegate {
         configuration.categoryOptions = [
           .allowBluetoothA2DP,
           .duckOthers,
-          .allowBluetooth,
+          .allowBluetoothHFP,
           .mixWithOthers
         ]
         do {

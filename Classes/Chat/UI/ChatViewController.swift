@@ -400,19 +400,22 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     func didReceiveError(_ errors: ChatErrors) {
-        if errors == .none {
-            chatNotAvailableLabel.setVisibility(false, text: nil)
-            if !(webView.isLoaded) {
-                webView.reload()
+        Task { @MainActor in
+            if errors == .none {
+                chatNotAvailableLabel.setVisibility(false, text: nil)
+                if !(webView.isLoaded) {
+                    webView.reload()
+                }
+            } else {
+                let errorDisplayMode = MMInAppChatService.sharedInstance?.delegate?.didReceiveException?(errors.exception) ?? .displayDefaultAlert
+                switch errorDisplayMode {
+                case .displayDefaultAlert:
+                    chatNotAvailableLabel.setVisibility(true, text: errors.localizedDescription)
+                default:
+                    break
+                }
             }
-        } else {
-            let exception = MMChatException(code: errors.rawValue, name: errors.rawDescription, message: errors.localizedDescription, retryable: true)
-            switch MMInAppChatService.sharedInstance?.delegate?.didReceiveException?(exception) ?? .displayDefaultAlert {
-            case .displayDefaultAlert:
-                chatNotAvailableLabel.setVisibility(true, text: errors.localizedDescription)
-            default:
-                break
-            }
+
         }
     }
     

@@ -291,6 +291,7 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
             self._pendingActions.append(completion)
 
             if isFirstAction, let chatWidget = self.chatWidget {
+                MMInAppChatService.sharedInstance?.resetErrors()
                 DispatchQueue.main.async {
                     self.webView.loadWidget(chatWidget)
                 }
@@ -324,7 +325,7 @@ class ChatViewEventHandler: NamedLogger, WebEventHandlerProtocol {
                 logError(failureDescription(for: jsMessage, type: type))
                 return
             }
-            MobileMessaging.inAppChat?.handleJSError(jsMessage.message)
+            MobileMessaging.inAppChat?.handleJSError(jsMessage)
         case .openAttachmentPreview:
             guard let jsMessage = jsMessage as? AttachmentPreviewJSMessage,
                   let attachment = ChatWebAttachment(url: jsMessage.url, typeString: jsMessage.type, fileName: jsMessage.caption) else {

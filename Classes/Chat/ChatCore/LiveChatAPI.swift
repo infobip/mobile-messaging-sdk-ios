@@ -130,11 +130,12 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
     }
     
     private func onError(errors: ChatErrors) {
-        let exception = MMChatException(code: errors.rawValue, name: errors.rawDescription, message: errors.localizedDescription, retryable: true)
-        self.delegate?.didReceiveError(exception: exception)
-        
-        if self.chatHandler.pendingActions.count > 0 {
-            didLoadWidget(with: exception)
+        Task { @MainActor in
+            let exception = errors.exception
+            self.delegate?.didReceiveError(exception: exception)
+            if self.chatHandler.pendingActions.count > 0 {
+                didLoadWidget(with: exception)
+            }
         }
     }
 }
@@ -150,7 +151,7 @@ extension MMInAppChatWidgetAPI: WidgetSubscriber {
     }
 
     func didReceiveError(_ errors: ChatErrors) {
-        if errors == .configurationSyncError {
+        if errors != .none {
             onError(errors: errors)
         }
     }
@@ -173,6 +174,7 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
             
             var chatError = ChatErrors.jsError
             chatError.rawDescription = jsMessage.message
+            chatError.additionalInfo = jsMessage.additionalInfo
             onError(errors: chatError)
         case .onViewChanged:
             guard let jsMessage = jsMessage as? ViewStateJSMessage else {

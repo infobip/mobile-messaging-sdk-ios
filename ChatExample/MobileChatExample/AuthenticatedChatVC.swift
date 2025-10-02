@@ -23,6 +23,7 @@ class AuthenticatedChatVC: UIViewController {
     var emails: [String]?
     var phones: [String]?
     var externalId: String?
+    var identityValue: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +42,7 @@ class AuthenticatedChatVC: UIViewController {
             MMLogError("Identity cannot be empty")
             return
         }
+        identityValue = identityString
         emails = identitySegmentedC.selectedSegmentIndex == 0 ? [identityString] : nil
         phones = identitySegmentedC.selectedSegmentIndex == 1 ? [identityString] : nil
         externalId = identitySegmentedC.selectedSegmentIndex == 2 ? identityString : nil
@@ -66,7 +68,7 @@ extension AuthenticatedChatVC: MMInAppChatDelegate {
     func getJWT() -> String? {
         let identityMode = emails != nil ? "email" :
                             phones != nil ? "msisdn" : "externalPersonId"
-        guard let identifier = identityTextField.text, let jwt = JWTClaims.generateJWT(identityMode, identifier: identifier) else {
+        guard let identifier = identityValue, let jwt = JWTClaims.generateJWT(identityMode, identifier: identifier) else {
             MMLogError("Could not generate JWT, aborting")
             return nil
         }

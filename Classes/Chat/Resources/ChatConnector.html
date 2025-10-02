@@ -44,7 +44,8 @@
 
            function propageError(error, text) {
                if (error) {
-                   window.webkit.messageHandlers.onError.postMessage({errorMessage: error, additionalInfo: text});
+                   var message = error instanceof Error ? error.message : error;
+                   window.webkit.messageHandlers.onError.postMessage({errorMessage: message, additionalInfo: text});
                }
            }
 

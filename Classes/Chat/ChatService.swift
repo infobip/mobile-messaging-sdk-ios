@@ -212,11 +212,13 @@ public class MMInAppChatService: MobileMessagingService {
         }
     }
     
+    func resetErrors() {
+        chatErrors = ChatErrors.none
+    }
+    
     private func syncWithServerIfNeeded(_ completion: @escaping (NSError?) -> Void) {
-        if !isConfigurationSynced {
-            chatErrors.rawDescription = nil
-            chatErrors.remove(.configurationSyncError)
-            chatErrors.remove(.jsError)
+        if !isConfigurationSynced, !chatErrors.contains(.noInternetConnectionError) {
+            resetErrors()
             getChatWidget(completion)
             obtainChatRegistrations()
         } else {
@@ -239,8 +241,10 @@ public class MMInAppChatService: MobileMessagingService {
             _self.isConfigurationSynced = (error == nil)
             _self.notifyForChatAvailabilityChange()
             if !_self.isConfigurationSynced {
-                _self.chatErrors.rawDescription = error?.localizedDescription
-                _self.chatErrors.insert(.configurationSyncError)
+                var errors = _self.chatErrors // We first use a copy to overwrite the original (and call didSet) just once
+                errors.insert(.configurationSyncError)
+                errors.rawDescription = error?.localizedDescription
+                _self.chatErrors = errors
             }
             _self.update(withChatWidget: _self.chatWidget)
             completion?(error)
@@ -315,9 +319,12 @@ public class MMInAppChatService: MobileMessagingService {
     }
     private let networkReachabilityManager = NetworkReachabilityManager();
     
-   func handleJSError(_ error: String?) {
-        chatErrors.rawDescription = error
-        chatErrors.insert(.jsError)
+   func handleJSError(_ error: ErrorJSMessage) {
+       var errors = chatErrors
+       errors.insert(.jsError)
+       errors.rawDescription = error.message
+       errors.additionalInfo = error.additionalInfo
+       chatErrors = errors
     }
     
     private func startReachabilityListener() {
@@ -607,6 +614,12 @@ extension UserEventsManager {
     }
 }
 
+/*
+ Chat Errors can be:
+ - Local (ie input related) in the form of public enum MMChatError; ie attachment limits and wrong inputs.
+ - External (ie backend or widget related) from different sources (system, javascript exception, etc).
+ External errors are converted to internal struct ChatErrors below, before being propagated either as error banner or public MMChatException (MMChatException follows a documented structure consistent in Livechat product).
+ */
 struct ChatErrors: OptionSet {
     let rawValue: Int
     init(rawValue: Int = 0) { self.rawValue = rawValue }
@@ -615,6 +628,7 @@ struct ChatErrors: OptionSet {
     static let configurationSyncError = ChatErrors(rawValue: 1 << 1)
     static let noInternetConnectionError = ChatErrors(rawValue: 1 << 2)
     var rawDescription: String?
+    var additionalInfo: String?
     var localizedDescription: String {
         let somethingWrong = MMLocalization.localizedString(forKey: "mm_something_went_wrong",
                                                             defaultString: "Something went wrong.")
@@ -623,13 +637,23 @@ struct ChatErrors: OptionSet {
                                                                defaultString: "No Internet connection")
         } else if self.contains(.configurationSyncError) || self.contains(.jsError) {
             guard let remoteDescription = rawDescription else { return somethingWrong }
-            if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
-                return "\(remoteDescription) - " + somethingWrong
-            } else {
-                return somethingWrong + " - \(remoteDescription)"
+            guard let additionalInfo = additionalInfo else {
+                return String(format: "%1$@ - %2$@", somethingWrong, remoteDescription)
             }
+            return String(format: "%1$@ - %2$@ %3$@", somethingWrong, remoteDescription, additionalInfo)
         }
         return somethingWrong
+    }
+    var exception: MMChatException {
+        guard let json = rawDescription,
+            let exception = try? JSONDecoder().decode(MMChatException.self, from: Data(json.utf8)) else {
+            return MMChatException(
+                code: rawValue,
+                name: additionalInfo,
+                message: rawDescription)
+        }
+        exception.name = additionalInfo
+        return exception
     }
 }
 
@@ -639,17 +663,18 @@ public enum MMChatExceptionDisplayMode: Int {
          noDisplay
 }
 
+// Codes and descriptions defined in https://www.infobip.com/docs/essentials/api-essentials/response-status-and-error-codes#live-chat-error-codes
 @objc
-public class MMChatException: NSObject, Error {
+public class MMChatException: NSObject, Decodable, Error {
     public var code: Int
     public var name: String?
     public var message: String?
-    public var retryable: Bool
+    public var origin = "LiveChat"
+    public var platform = "iOS"
 
-    init(code: Int, name: String?, message: String?, retryable: Bool) {
+    init(code: Int, name: String?, message: String?) {
         self.code = code
         self.name = name
         self.message = message
-        self.retryable = retryable
     }
 }

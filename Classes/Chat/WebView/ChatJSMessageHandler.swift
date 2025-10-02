@@ -124,6 +124,7 @@ protocol JSMessage {
 
 class ErrorJSMessage: JSMessage, NamedLogger {
 	let message: String
+    let additionalInfo: String?
 
 	required init?(message: WKScriptMessage) {
 		guard let bodyDict = message.body as? [String: AnyObject] else {
@@ -131,13 +132,8 @@ class ErrorJSMessage: JSMessage, NamedLogger {
 				return nil
 		}
 
-        let errorMessage = (bodyDict[ChatAPIKeys.JSMessageKeys.errorMessage] as? String) ?? "Wrong InAppchat setup or method invocation"
-
-        if let additionalInfo = bodyDict[ChatAPIKeys.JSMessageKeys.additionalInfo] as? String {
-            self.message = errorMessage + " - " + additionalInfo
-        } else {
-            self.message = errorMessage
-        }
+        self.message = (bodyDict[ChatAPIKeys.JSMessageKeys.errorMessage] as? String) ?? "Wrong InAppchat setup or method invocation"
+        self.additionalInfo = bodyDict[ChatAPIKeys.JSMessageKeys.additionalInfo] as? String
 	}
 }
 
