@@ -1,3 +1,11 @@
+// 
+//  WebInAppMessagePresenter.swift
+//  MobileMessaging
+//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
+//
+
 import WebKit
 
 /// The minimal distance between in-app message and the edge of the screen.

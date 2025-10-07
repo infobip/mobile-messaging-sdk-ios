@@ -1,8 +1,9 @@
-//
-//  MMJwtValidatorTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/JwtValidatorTests.swift
 //  MobileMessagingExample
 //
-//  Created by Luka Ilic on 07.05.2025.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import XCTest

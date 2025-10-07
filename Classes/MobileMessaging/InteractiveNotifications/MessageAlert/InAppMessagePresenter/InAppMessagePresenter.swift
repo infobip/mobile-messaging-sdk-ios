@@ -1,3 +1,11 @@
+// 
+//  InAppMessagePresenter.swift
+//  MobileMessaging
+//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
+//
+
 /// Loads message resources and presents the message to the UI.
 protocol InAppMessagePresenter: AnyObject {
     /// Asynchronously loads message resources and shows the message to the UI.

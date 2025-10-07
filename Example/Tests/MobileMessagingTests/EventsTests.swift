@@ -1,8 +1,9 @@
-//
-//  EventsTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/EventsTests.swift
 //  MobileMessagingExample
 //
-//  Created by Andrey Kadochnikov on 03.02.2020.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

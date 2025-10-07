@@ -1,9 +1,11 @@
+// 
+//  MMNotificationAction.swift
+//  MobileMessaging
 //
-//  NotificationAction.swift
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
-//  Created by okoroleva on 27.07.17.
-//
-//
+
 import UserNotifications
 
 @objcMembers

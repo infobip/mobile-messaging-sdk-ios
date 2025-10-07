@@ -1,8 +1,10 @@
+// 
+//  Example/MobileMessagingExample/AppDelegate.swift
+//  MobileMessagingExample
 //
-//  AppDelegate.swift
-//  MobileMessaging
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
-//  Created by Andrey K. on 03/29/2016.
 
 import UIKit
 import MobileMessaging

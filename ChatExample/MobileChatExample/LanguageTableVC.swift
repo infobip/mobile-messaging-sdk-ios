@@ -1,9 +1,9 @@
-//
-//  LanguageTableVC.swift
+// 
+//  ChatExample/MobileChatExample/LanguageTableVC.swift
 //  MobileChatExample
 //
-//  Created by Francisco Fortes on 08/06/2022.
-//  Copyright © 2022 Infobip d.o.o. All rights reserved.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

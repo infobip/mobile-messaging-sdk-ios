@@ -1,17 +1,10 @@
-//
+// 
 //  MMLoc.swift
 //  MobileMessaging
 //
-//  Created by localiseStrings.sh on 24/10/2023.
-//  Copyright © 2023 Infobip Ltd. All rights reserved.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
-
-// This file was generated automatically by localiseString.sh script. You can update the variables in MMLoc by cleaning and building the MobileMessaging SDK project.
-
-// swiftlint:disable identifier_name
-// swiftlint:disable line_length
-// swiftlint:disable file_length
-// swiftlint:disable type_body_length
 
 public enum MMLoc {
     public static var `buttonAccept`: String { return  MMLocalization.localizedString(forKey: "mm_button_accept", defaultString: "Accept") }

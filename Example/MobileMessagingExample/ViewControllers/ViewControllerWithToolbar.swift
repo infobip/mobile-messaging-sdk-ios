@@ -1,8 +1,9 @@
-//
-//  ViewControllerWithToolbar.swift
+// 
+//  Example/MobileMessagingExample/ViewControllers/ViewControllerWithToolbar.swift
 //  MobileMessagingExample
 //
-//  Created by okoroleva on 01.09.17.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import UIKit

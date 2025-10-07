@@ -1,10 +1,11 @@
-//
+// 
 //  MMCallFactory.swift
 //  MobileMessaging
 //
-//  Created by Francisco Fortes on 19/08/2021.
-//  Copyright © 2021 Infobip Ltd. All rights reserved.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
+
 public struct MMWebRTCUIConstants {
     static let phoneNumber = "phoneNumber"
     static let autoAccept = "autoAccept"

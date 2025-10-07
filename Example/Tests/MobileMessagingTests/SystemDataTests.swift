@@ -1,8 +1,9 @@
-//
-//  SystemDataTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/SystemDataTests.swift
 //  MobileMessagingExample
 //
-//  Created by Andrey K. on 29/08/16.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import XCTest

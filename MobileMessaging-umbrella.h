@@ -1,3 +1,11 @@
+// 
+//  MobileMessaging-umbrella.h
+//  MobileMessaging
+//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
+//
+
 #ifdef __OBJC__
 #import <UIKit/UIKit.h>
 #else

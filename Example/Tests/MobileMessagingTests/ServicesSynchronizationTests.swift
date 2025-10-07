@@ -1,8 +1,9 @@
-//
-//  ServiceSynchronizationTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/ServicesSynchronizationTests.swift
 //  MobileMessagingExample
 //
-//  Created by Olga Koroleva on 13.12.2021.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

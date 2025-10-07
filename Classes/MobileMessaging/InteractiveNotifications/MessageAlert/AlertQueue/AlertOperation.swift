@@ -1,3 +1,11 @@
+// 
+//  AlertOperation.swift
+//  MobileMessaging
+//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
+//
+
 /// Presents the in-app message and waits until it is dismissed, or dismisses it manually if the alert operation gets cancelled. It uses the appropriate
 /// implementation of `InAppMessagePresenter` depending on the type of the in-app message (old-style native type or new-style web type).
 class AlertOperation: Foundation.Operation, NamedLogger, InAppMessagePresenterDelegate {

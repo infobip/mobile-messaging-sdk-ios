@@ -1,8 +1,9 @@
-//
+// 
 //  WebInAppClickReportingOperation.swift
 //  MobileMessaging
 //
-//  Created by Luka Ilic on 19.09.2024..
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

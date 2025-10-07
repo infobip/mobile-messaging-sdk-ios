@@ -1,8 +1,9 @@
+// 
+//  Example/MobileMessagingExample/ViewControllers/InfoTableViewController.swift
+//  MobileMessagingExample
 //
-//  SettingsTableViewController.swift
-//  MobileMessaging
-//
-//  Created by okoroleva on 05.04.16.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import UIKit

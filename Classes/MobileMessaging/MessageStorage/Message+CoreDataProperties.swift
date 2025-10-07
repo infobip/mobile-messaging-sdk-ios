@@ -1,11 +1,9 @@
-//
+// 
 //  Message+CoreDataProperties.swift
+//  MobileMessaging
 //
-//  Created by Andrey K. on 15/09/16.
-//
-//
-//  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
-//  to delete and recreate this implementation file for your updated model.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

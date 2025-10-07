@@ -1,8 +1,9 @@
+// 
+//  MessageUtils.swift
+//  MobileMessaging
 //
-//  MMMessage.swift
-//
-//  Created by Andrey K. on 15/07/16.
-//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

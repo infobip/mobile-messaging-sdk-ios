@@ -1,5 +1,9 @@
+// 
+//  MobileMessagingPluginApplicationDelegate.m
+//  MobileMessaging
 //
-// Created by Goran Tomasic on 10/10/2016.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 #import "MobileMessagingPluginApplicationDelegate.h"

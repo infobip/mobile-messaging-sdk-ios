@@ -1,8 +1,9 @@
-//
+// 
 //  MMKeychain.swift
+//  MobileMessaging
 //
-//  Created by okoroleva on 13.01.17.
-//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 class MMKeychain: KeychainSwift, NamedLogger {

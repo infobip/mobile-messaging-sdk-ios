@@ -1,8 +1,9 @@
-//
-//  KeychainTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/KeychainTests.swift
 //  MobileMessagingExample
 //
-//  Created by Andrey Kadochnikov on 01.09.2025.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import XCTest

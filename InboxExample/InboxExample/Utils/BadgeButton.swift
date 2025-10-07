@@ -1,8 +1,9 @@
-//
-//  BadgeButton.swift
+// 
+//  InboxExample/InboxExample/Utils/BadgeButton.swift
 //  InboxExample
 //
-//  Created by Andrey Kadochnikov on 26.05.2022.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import UIKit

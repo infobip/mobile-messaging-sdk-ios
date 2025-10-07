@@ -1,3 +1,11 @@
+// 
+//  NativeInAppMessagePresenter.swift
+//  MobileMessaging
+//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
+//
+
 /// Implementation of `InAppMessagePresenter` which shows an old-style in-app message as a native popup. Preloaded resource is an image.
 class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter, NativeInteractiveMessageAlertControllerDelegate {
     private let message: MM_MTMessage

@@ -1,8 +1,9 @@
-//
-//  MOMessageSendingTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/MOMessageSendingTests.swift
 //  MobileMessagingExample
 //
-//  Created by okoroleva on 21.07.16.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import XCTest

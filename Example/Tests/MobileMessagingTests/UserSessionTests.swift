@@ -1,8 +1,9 @@
-//
-//  UserSessionTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/UserSessionTests.swift
 //  MobileMessagingExample
 //
-//  Created by Andrey Kadochnikov on 20.01.2020.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

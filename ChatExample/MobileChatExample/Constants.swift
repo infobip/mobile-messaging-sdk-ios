@@ -1,9 +1,9 @@
-//
-//  Constants.swift
+// 
+//  ChatExample/MobileChatExample/Constants.swift
 //  MobileChatExample
 //
-//  Created by Francisco Fortes on 10/02/2023.
-//  Copyright © 2023 Infobip d.o.o. All rights reserved.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

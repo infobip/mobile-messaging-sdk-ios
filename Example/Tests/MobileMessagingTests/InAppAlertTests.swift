@@ -1,8 +1,9 @@
-//
-//  InAppAlertTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/InAppAlertTests.swift
 //  MobileMessagingExample
 //
-//  Created by Andrey Kadochnikov on 10.03.2020.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

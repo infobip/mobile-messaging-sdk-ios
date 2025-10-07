@@ -1,9 +1,9 @@
-//
-//  TimezoneFormatterTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/TimezoneFormatterTests.swift
 //  MobileMessagingExample
 //
-//  Created by Andrey Kadochnikov on 11/02/2019.
-//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import XCTest

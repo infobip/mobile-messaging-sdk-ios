@@ -1,9 +1,11 @@
-//
-//  LocalMessageFetchingTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/LocalMessageFetchingTests.swift
 //  MobileMessagingExample
 //
-//  Created by Andrey Kadochnikov on 21/09/2017.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
+
 import XCTest
 import Foundation
 import UserNotifications

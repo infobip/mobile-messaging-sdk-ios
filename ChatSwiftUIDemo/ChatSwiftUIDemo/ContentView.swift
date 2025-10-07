@@ -1,9 +1,9 @@
-//
-//  ContentView.swift
+// 
+//  ChatSwiftUIDemo/ChatSwiftUIDemo/ContentView.swift
 //  ChatSwiftUIDemo
 //
-//  Created by Maksym Svitlovskyi on 14/02/2024.
-//  Copyright © 2023 Infobip Ltd. All rights reserved.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import SwiftUI

@@ -1,3 +1,11 @@
+// 
+//  AlertQueue.swift
+//  MobileMessaging
+//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
+//
+
 /// Holds a sequence of `AlertOperation` instances and makes sure they are executed synchronously and safely with respect to application's "active" state.
 class AlertQueue {
 	static let sharedInstace = AlertQueue()

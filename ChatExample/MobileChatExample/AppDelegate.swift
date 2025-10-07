@@ -1,10 +1,9 @@
-//
-//  AppDelegate.swift
+// 
+//  ChatExample/MobileChatExample/AppDelegate.swift
 //  MobileChatExample
 //
-//  Created by Andrey Kadochnikov on 10/11/2017.
-//  Copyright © 2017 Infobip d.o.o. All rights reserved.
-//
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import UIKit

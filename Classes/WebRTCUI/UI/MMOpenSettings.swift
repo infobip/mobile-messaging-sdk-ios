@@ -1,8 +1,9 @@
-//
+// 
 //  MMOpenSettings.swift
 //  MobileMessaging
 //
-//  Created by Francisco Fortes on 12/10/2022.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

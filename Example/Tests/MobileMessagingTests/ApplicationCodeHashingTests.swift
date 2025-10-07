@@ -1,8 +1,9 @@
-//
-//  ApplicationCodeHashingTests.swift
+// 
+//  Example/Tests/MobileMessagingTests/ApplicationCodeHashingTests.swift
 //  MobileMessagingExample
 //
-//  Created by Andrey Kadochnikov on 16/04/2018.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

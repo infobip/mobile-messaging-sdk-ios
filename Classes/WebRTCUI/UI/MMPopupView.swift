@@ -1,9 +1,9 @@
-//
+// 
 //  MMPopupView.swift
 //  MobileMessaging
 //
-//  Created by Francisco Fortes on 04/10/2020.
-//  Copyright © 2020 Infobip Ltd. All rights reserved.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation

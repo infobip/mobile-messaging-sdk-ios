@@ -1,7 +1,9 @@
-//
+// 
 //  CPViewController.swift
+//  MobileMessaging
 //
-//  Created by Andrey Kadochnikov on 15.07.15.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import UIKit

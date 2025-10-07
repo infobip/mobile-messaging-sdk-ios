@@ -1,8 +1,9 @@
+// 
+//  Example/Tests/MobileMessagingTests/NSEDeliveryReportingTests.swift
+//  MobileMessagingExample
 //
-//  NSEDeliveryReportingTests.swift
-//  MobileMessaging
-//
-//  Created by Luka Ilić on 02/09/25.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import XCTest

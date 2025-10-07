@@ -1,8 +1,9 @@
+// 
+//  Example/Tests/MobileMessagingTests/RegistrationTests.swift
+//  MobileMessagingExample
 //
-//  RegistrationTests.swift
-//  RegistrationTests
-//
-//  Created by Andrey K. on 17/02/16.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import XCTest

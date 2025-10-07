@@ -1,8 +1,9 @@
+// 
+//  LiveChatAPI+Models.swift
+//  MobileMessaging
 //
-//  LiveChatAPI.swift
-//  InfobipMobileMessaging
-//
-//  Created by Maksym Svitlovskyi on 20/02/2025.
+//  Copyright (c) 2016-2025 Infobip Limited
+//  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation
