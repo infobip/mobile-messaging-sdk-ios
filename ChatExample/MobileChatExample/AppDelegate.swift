@@ -30,6 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .withInAppChatCalls(configurationId: webrtcConfigurationId)
             .withFullFeaturedInApps()
             .start()
+        MobileMessaging.logger = MMDefaultLogger()
         MobileMessaging.logger?.logLevel = .All
         MobileMessaging.logger?.logOutput = .Console
         MobileMessaging.webRTCService?.callAppIcon = UIImage(named: "alphaLogo")
@@ -45,6 +46,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         MobileMessaging.didReceiveRemoteNotification(userInfo, fetchCompletionHandler: completionHandler)
+    }
+    
+    // MARK: UISceneSession Lifecycle
+
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+      // Called when a new scene session is being created.
+      // Use this method to select a configuration to create the new scene with.
+      return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
+
+    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+      // Called when the user discards a scene session.
     }
 }
 

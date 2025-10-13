@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		15222F93D9B3B7D7BFF5AF0C /* libPods-MobileMessagingExample_static_Tests_Device.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 71DB91AE75F54D71FA628543 /* libPods-MobileMessagingExample_static_Tests_Device.a */; };
-		5000030C1CCB7B2F00C91479 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		5000030D1CCB7B2F00C91479 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		500003101CCB7B3C00C91479 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		500003111CCB7B3C00C91479 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		5000030C1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		5000030D1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		500003101CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		500003111CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502129421CEEF450007CEF8E /* MessagesManager.swift */; };
 		5087EDA71CEEF82500B85546 /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDA61CEEF82500B85546 /* MessageCell.swift */; };
 		5087EDB01CEF067100B85546 /* InfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5087EDAC1CEF067100B85546 /* InfoTableViewController.swift */; };
@@ -21,8 +21,6 @@
 		50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		569D6154992FF42FD11CD816 /* libPods-MobileMessagingExample_static_Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9937B65EBCA7FE7957A7FF6 /* libPods-MobileMessagingExample_static_Tests.a */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
-		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
-		6E3B11C11F3472EF00C48B92 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3B11C01F3472EF00C48B92 /* WebViewController.swift */; };
 		6E3B11C31F34D4C800C48B92 /* WindowExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */; };
 		76174FD42334D8DD000438A8 /* SystemDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509B06631D7444C900E2C065 /* SystemDataTests.swift */; };
 		76174FD52334D8DE000438A8 /* SystemDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509B06631D7444C900E2C065 /* SystemDataTests.swift */; };
@@ -103,7 +101,6 @@
 		A079184F282E9F6A004309F5 /* libCocoaLumberjack.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A079184D282E9F6A004309F5 /* libCocoaLumberjack.a */; };
 		A0791850282E9F6A004309F5 /* libMobileMessaging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A079184E282E9F6A004309F5 /* libMobileMessaging.a */; };
 		A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */; };
-		A0953C291CAD1C660076488D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A0953C271CAD1C660076488D /* Main.storyboard */; };
 		A09FE7341F4F09A7007B66E8 /* UIToolbarExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09FE7331F4F09A7007B66E8 /* UIToolbarExtension.swift */; };
 		A0CA35002767251E00517867 /* ServicesSynchronizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0CA34FF2767251E00517867 /* ServicesSynchronizationTests.swift */; };
 		A0CA35012767251E00517867 /* ServicesSynchronizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0CA34FF2767251E00517867 /* ServicesSynchronizationTests.swift */; };
@@ -111,6 +108,8 @@
 		A0DB0FBE1E2F8FC0005F5979 /* mocks in Resources */ = {isa = PBXBuildFile; fileRef = A0DB0FBC1E2F8FC0005F5979 /* mocks */; };
 		A0DB0FBF1E2F8FC0005F5979 /* mocks in Resources */ = {isa = PBXBuildFile; fileRef = A0DB0FBC1E2F8FC0005F5979 /* mocks */; };
 		A0ED14F91F4EEB2700EB3262 /* InteractiveNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ED14F81F4EEB2700EB3262 /* InteractiveNotifications.swift */; };
+		A8A2F6362E965036007EE220 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A8A2F6332E965036007EE220 /* Main.storyboard */; };
+		A8A2F6372E965036007EE220 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = A8A2F6322E965036007EE220 /* LaunchScreen.xib */; };
 		C2CD6D42AA913AA5CB701ADF /* libPods-MobileMessagingExample_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 669F45493D7975D34BA188A3 /* libPods-MobileMessagingExample_static.a */; };
 		FD1E1EDF4FA1243F6D31DA62 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1132530B4C6019CAB96C61F7 /* libPods-NotificationServiceExtension.a */; };
 /* End PBXBuildFile section */
@@ -177,7 +176,6 @@
 		607FACE51AFB9204008FA782 /* MobileMessagingExample_static_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MobileMessagingExample_static_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		669F45493D7975D34BA188A3 /* libPods-MobileMessagingExample_static.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MobileMessagingExample_static.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6E3B11C01F3472EF00C48B92 /* WebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowExtension.swift; sourceTree = "<group>"; };
 		71DB91AE75F54D71FA628543 /* libPods-MobileMessagingExample_static_Tests_Device.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MobileMessagingExample_static_Tests_Device.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7614AD6D20751913004A2F90 /* DepersonalizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DepersonalizeTests.swift; sourceTree = "<group>"; };
@@ -194,8 +192,6 @@
 		76A1FD881F7D32E900924B51 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		76A9579C21EC83C2000AFD9C /* DataModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModelsTests.swift; sourceTree = "<group>"; usesTabs = 1; };
 		76AAE58025FBF58000E70F13 /* UtilsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtilsTests.swift; sourceTree = "<group>"; };
-		76BD26561F7E449D00EB39C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		76BD26571F7E44AC00EB39C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		76C31EEB1F73A9D0002CBF2D /* LocalMessageFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingTests.swift; sourceTree = "<group>"; };
 		76C3C9B923D6126100562C57 /* UserSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionTests.swift; sourceTree = "<group>"; };
 		76E49FE922118B4B002B810D /* TimezoneFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneFormatterTests.swift; sourceTree = "<group>"; };
@@ -233,6 +229,8 @@
 		A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MOMessageSendingTests.swift; sourceTree = "<group>"; };
 		A0F6AAE21F262E7F0013A3E5 /* InteractiveNotificationsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractiveNotificationsTests.swift; sourceTree = "<group>"; };
 		A0FF884A1DB1042F00A58F49 /* CheckVersionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckVersionTests.swift; sourceTree = "<group>"; };
+		A8A2F6342E965036007EE220 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = ../../Example/MobileMessagingExample/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		A8A2F6352E965036007EE220 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../Example/MobileMessagingExample/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		ADB4039820E248690020CA64 /* PrimaryDeviceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryDeviceTests.swift; sourceTree = "<group>"; };
 		C1D407081673CDBE5FAEAB02 /* Pods-MobileMessagingExample_static_Tests_Device.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_static_Tests_Device.debug.xcconfig"; path = "Target Support Files/Pods-MobileMessagingExample_static_Tests_Device/Pods-MobileMessagingExample_static_Tests_Device.debug.xcconfig"; sourceTree = "<group>"; };
 		C9937B65EBCA7FE7957A7FF6 /* libPods-MobileMessagingExample_static_Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MobileMessagingExample_static_Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -315,7 +313,6 @@
 				5087EDAD1CEF067100B85546 /* ListViewController.swift */,
 				5087EDAE1CEF067100B85546 /* MessageDetailsViewController.swift */,
 				5087EDAF1CEF067100B85546 /* SettingsViewController.swift */,
-				6E3B11C01F3472EF00C48B92 /* WebViewController.swift */,
 				A04F34BE1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift */,
 			);
 			name = ViewControllers;
@@ -381,16 +378,16 @@
 		607FACD21AFB9204008FA782 /* Example for MobileMessaging */ = {
 			isa = PBXGroup;
 			children = (
+				A8A2F6322E965036007EE220 /* LaunchScreen.xib */,
+				A8A2F6332E965036007EE220 /* Main.storyboard */,
 				5087EDAB1CEF052700B85546 /* Utils */,
 				5087EDAA1CEF04DB00B85546 /* Views */,
 				5087EDA91CEF04D500B85546 /* Models */,
 				5087EDA81CEF04CC00B85546 /* ViewControllers */,
-				A0953C271CAD1C660076488D /* Main.storyboard */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
 				A0ED14F81F4EEB2700EB3262 /* InteractiveNotifications.swift */,
 				A04F34BC1F594EA600B9CC6E /* LinksHandler.swift */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
-				607FACDE1AFB9204008FA782 /* LaunchScreen.xib */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
 			);
 			name = "Example for MobileMessaging";
@@ -594,7 +591,7 @@
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = T6U248P7YM;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -621,13 +618,13 @@
 					};
 					8EFABFC71CEB3B9400510762 = {
 						DevelopmentTeam = T6U248P7YM;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
 					A013D44E1ED8355F00B371C0 = {
 						CreatedOnToolsVersion = 8.3.2;
 						DevelopmentTeam = T6U248P7YM;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -665,15 +662,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0DB0FBD1E2F8FC0005F5979 /* mocks in Resources */,
-				500003111CCB7B3C00C91479 /* BuildFile in Resources */,
+				500003111CCB7B3C00C91479 /* (null) in Resources */,
+				A8A2F6362E965036007EE220 /* Main.storyboard in Resources */,
+				A8A2F6372E965036007EE220 /* LaunchScreen.xib in Resources */,
 				50B8C10D1CAD3362000FB79A /* Images.xcassets in Resources */,
-				500003101CCB7B3C00C91479 /* BuildFile in Resources */,
-				A0953C291CAD1C660076488D /* Main.storyboard in Resources */,
+				500003101CCB7B3C00C91479 /* (null) in Resources */,
 				76A1FD841F7D32E000924B51 /* Localizable.strings in Resources */,
 				8EC5E6061CEB4A36008D53A3 /* MobileMessagingExample_static_Tests_Device-Info.plist in Resources */,
-				5000030D1CCB7B2F00C91479 /* BuildFile in Resources */,
-				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
-				5000030C1CCB7B2F00C91479 /* BuildFile in Resources */,
+				5000030D1CCB7B2F00C91479 /* (null) in Resources */,
+				5000030C1CCB7B2F00C91479 /* (null) in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -912,7 +909,6 @@
 				A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */,
 				A04F34BB1F594E8B00B9CC6E /* DeeplinkViewControllers.swift in Sources */,
 				502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */,
-				6E3B11C11F3472EF00C48B92 /* WebViewController.swift in Sources */,
 				5087EDB21CEF067100B85546 /* MessageDetailsViewController.swift in Sources */,
 				5087EDB01CEF067100B85546 /* InfoTableViewController.swift in Sources */,
 				A04F34BF1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift in Sources */,
@@ -1038,14 +1034,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		607FACDE1AFB9204008FA782 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				76BD26561F7E449D00EB39C2 /* Base */,
-			);
-			name = LaunchScreen.xib;
-			sourceTree = "<group>";
-		};
 		76A1FD871F7D32E000924B51 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1056,10 +1044,18 @@
 			path = ../Example;
 			sourceTree = "<group>";
 		};
-		A0953C271CAD1C660076488D /* Main.storyboard */ = {
+		A8A2F6322E965036007EE220 /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				76BD26571F7E44AC00EB39C2 /* Base */,
+				A8A2F6342E965036007EE220 /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+		A8A2F6332E965036007EE220 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A8A2F6352E965036007EE220 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -1117,7 +1113,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_SWIFT_FLAGS = "";
@@ -1171,7 +1167,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -1188,6 +1184,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1460136653961;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -1200,12 +1198,13 @@
 					"COCOAPODS=1",
 				);
 				INFOPLIST_FILE = MobileMessagingExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample_static;
-				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 			};
 			name = Debug;
@@ -1217,6 +1216,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1460136653961;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -1230,12 +1231,13 @@
 					"COCOAPODS=1",
 				);
 				INFOPLIST_FILE = MobileMessagingExample/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example;
 				PRODUCT_NAME = MobileMessagingExample_static;
-				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc com.infobip.mobilemessaging.example";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 			};
 			name = Release;
@@ -1296,7 +1298,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C1D407081673CDBE5FAEAB02 /* Pods-MobileMessagingExample_static_Tests_Device.debug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1314,6 +1317,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\"";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.infobip.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MobileMessagingExample_static.app/MobileMessagingExample_static";
 			};
 			name = Debug;
@@ -1351,6 +1355,8 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -1362,7 +1368,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match Development com.infobip.mobilemessaging.example.NotificationServiceExtension";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 			};
@@ -1378,6 +1384,8 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
@@ -1388,7 +1396,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc com.infobip.mobilemessaging.example.NotificationServiceExtension";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};

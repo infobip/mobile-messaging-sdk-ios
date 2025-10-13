@@ -12,6 +12,7 @@
 		25A61B8F2A24A17300E0F9E1 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = 25A61B8E2A24A17300E0F9E1 /* SwiftJWT */; };
 		A01BC55F2A273B2E0029F965 /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A01BC55E2A273B2E0029F965 /* MobileMessaging */; };
 		A01BC5612A273B320029F965 /* MobileMessagingLogging in Frameworks */ = {isa = PBXBuildFile; productRef = A01BC5602A273B320029F965 /* MobileMessagingLogging */; };
+		A80949A62E955C73000EE4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A80949A52E955C73000EE4E8 /* SceneDelegate.swift */; };
 		A82572E52AB9D4DC00598CD5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82572CF2AB9D4DB00598CD5 /* ViewController.swift */; };
 		A82572E62AB9D4DC00598CD5 /* MMInboundCall.wav in Resources */ = {isa = PBXBuildFile; fileRef = A82572D12AB9D4DB00598CD5 /* MMInboundCall.wav */; };
 		A82572E72AB9D4DC00598CD5 /* JWTClaims.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82572D22AB9D4DB00598CD5 /* JWTClaims.swift */; };
@@ -29,14 +30,16 @@
 		A82572F42AB9D4DC00598CD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A82572E32AB9D4DC00598CD5 /* Main.storyboard */; };
 		A83DDBC02ACAF72800FE9874 /* ExternalChatInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83DDBBF2ACAF72800FE9874 /* ExternalChatInputViewController.swift */; };
 		A83DDBC22ACAF73900FE9874 /* SwiftUIChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A83DDBC12ACAF73900FE9874 /* SwiftUIChatView.swift */; };
+		A8813ED42E9557CB00401C41 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A8813ED22E9557CB00401C41 /* Main.storyboard */; };
+		A8813ED52E9557CB00401C41 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A8813ED02E9557CB00401C41 /* LaunchScreen.storyboard */; };
 		A8A3AA3A2E5EF63F007F5E2B /* LiveChatAPIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A3AA392E5EF63F007F5E2B /* LiveChatAPIView.swift */; };
 		A8A3AA3B2E5EF63F007F5E2B /* BadgeCounterHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A3AA382E5EF63F007F5E2B /* BadgeCounterHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		765259E61FB5A99100058788 /* MobileChatExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobileChatExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		765259F51FB5A99100058788 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A01BC55D2A2738CD0029F965 /* infobip-mobile-messaging-ios */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "infobip-mobile-messaging-ios"; path = ..; sourceTree = "<group>"; };
+		A80949A52E955C73000EE4E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = ../ChatExample/MobileChatExample/SceneDelegate.swift; sourceTree = SOURCE_ROOT; };
 		A82572CF2AB9D4DB00598CD5 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = ../../ChatExample/MobileChatExample/ViewController.swift; sourceTree = "<group>"; };
 		A82572D12AB9D4DB00598CD5 /* MMInboundCall.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = MMInboundCall.wav; sourceTree = "<group>"; };
 		A82572D22AB9D4DB00598CD5 /* JWTClaims.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JWTClaims.swift; path = ../../ChatExample/MobileChatExample/JWTClaims.swift; sourceTree = "<group>"; };
@@ -55,6 +58,8 @@
 		A82572E42AB9D4DC00598CD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
 		A83DDBBF2ACAF72800FE9874 /* ExternalChatInputViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExternalChatInputViewController.swift; path = ../../ChatExample/MobileChatExample/ExternalChatInputViewController.swift; sourceTree = "<group>"; };
 		A83DDBC12ACAF73900FE9874 /* SwiftUIChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SwiftUIChatView.swift; path = ../../ChatExample/MobileChatExample/SwiftUIChatView.swift; sourceTree = "<group>"; };
+		A8813ECF2E9557CB00401C41 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A8813ED12E9557CB00401C41 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
 		A8A3AA382E5EF63F007F5E2B /* BadgeCounterHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BadgeCounterHandler.swift; path = ../ChatExample/MobileChatExample/BadgeCounterHandler.swift; sourceTree = SOURCE_ROOT; };
 		A8A3AA392E5EF63F007F5E2B /* LiveChatAPIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LiveChatAPIView.swift; path = ../ChatExample/MobileChatExample/LiveChatAPIView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -111,6 +116,8 @@
 		765259E81FB5A99100058788 /* MobileChatExample */ = {
 			isa = PBXGroup;
 			children = (
+				A80949A52E955C73000EE4E8 /* SceneDelegate.swift */,
+				A8813ED32E9557CB00401C41 /* Base.lproj */,
 				A8A3AA382E5EF63F007F5E2B /* BadgeCounterHandler.swift */,
 				A8A3AA392E5EF63F007F5E2B /* LiveChatAPIView.swift */,
 				A83DDBC12ACAF73900FE9874 /* SwiftUIChatView.swift */,
@@ -128,7 +135,6 @@
 				A82572DB2AB9D4DC00598CD5 /* Resources */,
 				A82572D02AB9D4DB00598CD5 /* Sounds */,
 				A82572CF2AB9D4DB00598CD5 /* ViewController.swift */,
-				765259F51FB5A99100058788 /* Info.plist */,
 			);
 			path = MobileChatExample;
 			sourceTree = "<group>";
@@ -162,6 +168,16 @@
 			name = Base.lproj;
 			path = ../../ChatExample/MobileChatExample/Base.lproj;
 			sourceTree = "<group>";
+		};
+		A8813ED32E9557CB00401C41 /* Base.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				A8813ED02E9557CB00401C41 /* LaunchScreen.storyboard */,
+				A8813ED22E9557CB00401C41 /* Main.storyboard */,
+			);
+			name = Base.lproj;
+			path = ../ChatExample/MobileChatExample/Base.lproj;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -244,6 +260,8 @@
 				A82572EF2AB9D4DC00598CD5 /* Assets.xcassets in Resources */,
 				A82572F02AB9D4DC00598CD5 /* attachIcon.svg in Resources */,
 				A82572F22AB9D4DC00598CD5 /* sendIcon.svg in Resources */,
+				A8813ED42E9557CB00401C41 /* Main.storyboard in Resources */,
+				A8813ED52E9557CB00401C41 /* LaunchScreen.storyboard in Resources */,
 				A82572F32AB9D4DC00598CD5 /* LaunchScreen.storyboard in Resources */,
 				A82572E62AB9D4DC00598CD5 /* MMInboundCall.wav in Resources */,
 				A82572F12AB9D4DC00598CD5 /* alphaLogo.png in Resources */,
@@ -265,6 +283,7 @@
 				A82572EA2AB9D4DC00598CD5 /* OptionListVC.swift in Sources */,
 				A83DDBC22ACAF73900FE9874 /* SwiftUIChatView.swift in Sources */,
 				A82572EC2AB9D4DC00598CD5 /* AppDelegate.swift in Sources */,
+				A80949A62E955C73000EE4E8 /* SceneDelegate.swift in Sources */,
 				A82572ED2AB9D4DC00598CD5 /* LanguageTableVC.swift in Sources */,
 				A82572E52AB9D4DC00598CD5 /* ViewController.swift in Sources */,
 				A82572EE2AB9D4DC00598CD5 /* PersonalizationVC.swift in Sources */,
@@ -287,6 +306,22 @@
 			isa = PBXVariantGroup;
 			children = (
 				A82572E42AB9D4DC00598CD5 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		A8813ED02E9557CB00401C41 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A8813ECF2E9557CB00401C41 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		A8813ED22E9557CB00401C41 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A8813ED12E9557CB00401C41 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -345,7 +380,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_SWIFT_FLAGS = "\"-D\" \"USING_SPM\"";
@@ -401,7 +436,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_SWIFT_FLAGS = "\"-D\" \"USING_SPM\"";
 				SDKROOT = iphoneos;
@@ -427,7 +462,7 @@
 					"USING_SPM=1",
 				);
 				INFOPLIST_FILE = MobileChatExample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -453,7 +488,7 @@
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				GCC_PREPROCESSOR_DEFINITIONS = "USING_SPM=1";
 				INFOPLIST_FILE = MobileChatExample/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

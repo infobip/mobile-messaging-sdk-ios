@@ -110,7 +110,7 @@ struct LiveChatAPIView: View {
                    api?.loadWidget()
                 }.frame(height: 40)
             }
-        }
+        }.background(Color.gray)
     }
 }
 
