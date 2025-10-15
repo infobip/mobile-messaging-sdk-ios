@@ -136,9 +136,7 @@ struct ThreadAPIView: View {
             List(threads ?? [], id: \.self) { item in
                 HStack {
                     Button(item) {
-                        if #available(iOS 14.0, *) {
-                            UIPasteboard.general.setValue(item, forPasteboardType: UTType.plainText.identifier)
-                        }
+                        UIPasteboard.general.setValue(item, forPasteboardType: UTType.plainText.identifier)
                     }.frame(height: 40)
 
                     Spacer()

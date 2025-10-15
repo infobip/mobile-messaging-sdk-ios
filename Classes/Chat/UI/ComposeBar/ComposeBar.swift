@@ -24,12 +24,12 @@ struct ComposeBarConsts {
 	static let kTextContainerBottomMargin: CGFloat  	=  8.0
 	static let kTextContainerLeftPadding: CGFloat   	=  3.0
 	static let kTextContainerRightPadding: CGFloat  	=  2.0
-	static let kTextContainerTopPadding: CGFloat    	=  4.0
+	static let kTextContainerTopPadding: CGFloat    	=  8.0
 	static let kTextContainerCornerRadius: CGFloat  	= 0.0
 	static let kTextViewTopMargin: CGFloat          	= -8.0
 	static let kPlaceholderHeight: CGFloat          	= 25.0
 	static let kPlaceholderSideMargin: CGFloat      	=  8.0
-	static let kPlaceholderTopMargin: CGFloat       	=  2.0
+	static let kPlaceholderTopMargin: CGFloat       	=  4.0
 	static let kButtonHeight: CGFloat               	= 32.0
 	static let kButtonTouchableOverlap: CGFloat     	=  6.0
 	static let kButtonRightMargin: CGFloat          	= 8.0
@@ -106,22 +106,6 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
         }
     }
 	
-	private var _sendButtonTitle: String?
-	public var buttonTitle: String? {
-		get {
-			if _sendButtonTitle == nil {
-                _sendButtonTitle = MMLocalization.localizedString(forKey: "Send", defaultString: "Send")
-			}
-			return _sendButtonTitle
-		}
-		set {
-			if newValue != _sendButtonTitle {
-				_sendButtonTitle = newValue
-				sendButton.setTitle(newValue, for: .normal)
-				resizeSendButton()
-			}
-		}
-	}
     public weak var delegate: MMComposeBarDelegate?
 	public var isEnabled: Bool = true {
 		didSet {

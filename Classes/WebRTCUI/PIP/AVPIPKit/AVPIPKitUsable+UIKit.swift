@@ -28,7 +28,6 @@ import Foundation
 import UIKit
 import Combine
 
-@available(iOS 15.0, *)
 public protocol AVPIPUIKitUsable: AVPIPKitUsable {
     
     var pipTargetView: UIView { get }
@@ -37,7 +36,6 @@ public protocol AVPIPUIKitUsable: AVPIPKitUsable {
     
 }
 
-@available(iOS 15.0, *)
 public extension AVPIPUIKitUsable {
     
     var renderPolicy: AVPIPKitRenderPolicy {
@@ -46,7 +44,6 @@ public extension AVPIPUIKitUsable {
     
 }
 
-@available(iOS 15.0, *)
 public extension AVPIPUIKitUsable where Self: UIViewController {
     
     var pipTargetView: UIView { view }
@@ -94,7 +91,6 @@ public extension AVPIPUIKitUsable where Self: UIViewController {
     
 }
 
-@available(iOS 15.0, *)
 public extension AVPIPUIKitUsable where Self: UIView {
     
     var pipTargetView: UIView { self }

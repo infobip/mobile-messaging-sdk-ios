@@ -28,7 +28,6 @@ import Foundation
 import Combine
 import UIKit
 
-@available(iOS 15.0, *)
 public protocol AVPIPKitRenderer {
     
     var policy: AVPIPKitRenderPolicy { get }
@@ -40,7 +39,6 @@ public protocol AVPIPKitRenderer {
     
 }
 
-@available(iOS 15.0, *)
 final class AVPIPUIKitRenderer: AVPIPKitRenderer {
     
     let policy: AVPIPKitRenderPolicy
@@ -116,7 +114,6 @@ final class AVPIPUIKitRenderer: AVPIPKitRenderer {
     
 }
 
-@available(iOS 15.0, *)
 private extension UIView {
     
     var uiImage: UIImage {

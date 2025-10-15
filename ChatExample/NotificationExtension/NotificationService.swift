@@ -22,7 +22,6 @@ class NotificationService: UNNotificationServiceExtension {
         mutableContent?.badge = NSNumber(value: BadgeCounterHandler.increaseBadge(by: 1))
 
         if MM_MTMessage.isCorrectPayload(request.content.userInfo) {
-            MobileMessagingNotificationServiceExtension.startWithApplicationCode("<# your mobile application code #>")
             MobileMessagingNotificationServiceExtension.didReceive(
                 content: localisedContentFor(mutableContent ?? request.content),
                 withContentHandler: contentHandler)

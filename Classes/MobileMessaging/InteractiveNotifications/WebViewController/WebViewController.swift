@@ -13,13 +13,11 @@ public class MMWebViewController: UINavigationController {
         super.init(rootViewController: MMWebViewControllerBase(url: url))
         navigationBar.tintColor = UIColor.label
         navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.label as Any]
-        if #available(iOS 15.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.label as Any]
-            navigationBar.standardAppearance = appearance
-            navigationBar.scrollEdgeAppearance = appearance
-        }
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.label as Any]
+        navigationBar.standardAppearance = appearance
+        navigationBar.scrollEdgeAppearance = appearance
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -46,20 +44,16 @@ public class MMWebViewController: UINavigationController {
     public var barTintColor: UIColor? {
         set {
             navigationBar.barTintColor = newValue
-            if #available(iOS 15.0, *) {
-                navigationBar.standardAppearance.backgroundColor = newValue
-                navigationBar.scrollEdgeAppearance?.backgroundColor = newValue
-            }
+            navigationBar.standardAppearance.backgroundColor = newValue
+            navigationBar.scrollEdgeAppearance?.backgroundColor = newValue
         }
         get { return navigationBar.barTintColor } }
     
     public var titleColor: UIColor? {
         set {
             navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any]
-            if #available(iOS 15.0, *) {
-                navigationBar.standardAppearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any]
-                navigationBar.scrollEdgeAppearance?.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any]
-            }
+            navigationBar.standardAppearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any]
+            navigationBar.scrollEdgeAppearance?.titleTextAttributes = [NSAttributedString.Key.foregroundColor : newValue as Any]
         }
         get { return navigationBar.titleTextAttributes?[NSAttributedString.Key.foregroundColor] as? UIColor } }
     

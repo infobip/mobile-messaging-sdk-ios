@@ -25,13 +25,11 @@ class ChatAttachmentUtils: NamedLogger {
         return Swime.mimeType(data: data)?.ext
     }
     
-    static func mimeType(forPathExtension pathExtension: String) -> String? {
-        guard let uti: CFString = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as NSString, nil)?.takeRetainedValue(),
-              let mimeType: CFString = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() else {
-            return nil
-        }
-
-        return mimeType as String
+    static func mimeType(for pathExtension: String) -> String? {
+        guard let utType = UTType(filenameExtension: pathExtension) else {
+               return nil
+           }
+       return utType.preferredMIMEType
     }
     
     static func isInfoPlistKeyDefined(_ key: String) -> Bool {
@@ -43,7 +41,6 @@ class ChatAttachmentUtils: NamedLogger {
     }
 
 
-    @available(iOS 14.0, *)
     static func convertToUTType(_ allowedContentTypes: [String]) -> [UTType] {
         var contentTypes: [UTType] = []
         for typeExtension in allowedContentTypes {

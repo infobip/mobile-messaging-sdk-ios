@@ -110,6 +110,9 @@ public class MMCallController: UIViewController, MMPIPUsable {
                 CallInteractor.checkMicPermission(completion: { [weak self] granted in
                     DispatchQueue.mmEnsureMain {
                         self?.micButtonContent?.button?.isEnabled = granted
+                        if !granted {
+                            self?.showErrorAlert(message: MMLoc.microphonePermissionPermanentlyDenied)
+                        }
                     }
                 })
             }
@@ -420,6 +423,9 @@ extension MMCallController {
                         DispatchQueue.main.async {
                             button.isSelected = toggleResult
                             button.isEnabled = permitted
+                            if !permitted {
+                                self?.showErrorAlert(message: MMLoc.cameraPermissionPermanentlyDenied)
+                            }
                             let cell = HiddenCallButtonContent(
                                 icon: MMWebRTCSettings.sharedInstance.iconFlipCamera,
                                 text: MMLoc.flipCamera,

@@ -48,7 +48,6 @@ extension UIViewController {
         }
     }
     
-    @available(iOS 15.0, *)
     internal  var avUIKitRenderer: AVPIPUIKitRenderer? {
         get {
             return withUnsafePointer(to: &MMAssociatedKeys.avUIKitRenderer) {
@@ -62,7 +61,6 @@ extension UIViewController {
         }
     }
     
-    @available(iOS 15.0, *)
     internal  var videoController: AVPIPKitVideoController? {
         get {
             return withUnsafePointer(to: &MMAssociatedKeys.pipVideoController) {

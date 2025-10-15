@@ -68,21 +68,22 @@ extension WKWebView {
     public func evaluateAsyncInMainThread(_ javaScript: String, completion: @escaping (Swift.Result<Any, Error>) -> Void) {
 #if targetEnvironment(simulator)
         // callAsyncJavaScript started crashing in simulator on Xcode 16.4 for unknown reasons
+        simAlternativeTocallAsyncJavaScript(javaScript, completion: completion)
 #else
-        if #available(iOS 14.0, *) {
-            DispatchQueue.mmEnsureMain{ [weak self] in
-                self?.callAsyncJavaScript(
-                    javaScript,
-                    in: nil,
-                    in: .page
-                ) { result in
-                    completion(result)
-                }
+        DispatchQueue.mmEnsureMain{ [weak self] in
+            self?.callAsyncJavaScript(
+                javaScript,
+                in: nil,
+                in: .page
+            ) { result in
+                completion(result)
             }
-            return
         }
+        return
 #endif
-
+    }
+    
+    fileprivate func simAlternativeTocallAsyncJavaScript(_ javaScript: String, completion: @escaping (Swift.Result<Any, Error>) -> Void) {
         setupAsyncBridgeIfNeeded()
         
         let callbackID = UUID().uuidString

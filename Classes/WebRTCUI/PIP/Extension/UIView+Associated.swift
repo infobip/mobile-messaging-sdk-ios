@@ -34,7 +34,6 @@ extension UIView {
         static var pipVideoController = "PIPVideoController"
     }
     
-    @available(iOS 15.0, *)
     internal var avUIKitRenderer: AVPIPUIKitRenderer? {
         get {
             return withUnsafePointer(to: &MMAssociatedKeys.avUIKitRenderer) {
@@ -48,7 +47,6 @@ extension UIView {
         }
     }
     
-    @available(iOS 15.0, *)
     internal var videoController: AVPIPKitVideoController? {
         get {
             return withUnsafePointer(to: &MMAssociatedKeys.pipVideoController) {

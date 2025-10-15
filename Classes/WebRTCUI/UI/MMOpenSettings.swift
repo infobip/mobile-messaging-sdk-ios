@@ -25,8 +25,7 @@ public extension MMOpenSettings {
         completion: ((Bool) -> Void)?
     ) {
         DispatchQueue.main.async {
-            guard let viewController = UIApplication.shared.windows.filter({ $0.isKeyWindow }).first?
-                    .rootViewController else {
+            guard let viewController = UIApplication.shared._keyWindow?.rootViewController else {
                 return
             }
             let gotoSettingsAction = UIAlertAction(title: MMLoc.settings, style: .default, handler: { _ in

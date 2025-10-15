@@ -24,11 +24,7 @@ public extension UNNotificationPresentationOptions {
     static func make(with userNotificationType: MMUserNotificationType) -> UNNotificationPresentationOptions {
         var ret: UNNotificationPresentationOptions = []
         if userNotificationType.contains(options: .alert) {
-            if #available(iOS 14.0, *) {
-                ret.insert([.banner, .list])
-            } else {
-                ret.insert(.alert)
-            }
+            ret.insert([.banner, .list])
         }
         if userNotificationType.contains(options: .badge) {
             ret.insert(.badge)

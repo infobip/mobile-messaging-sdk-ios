@@ -12,15 +12,10 @@ import InfobipRTC
 
 extension UIWindow {
     static var mmIsLandscape: Bool {
-        if #available(iOS 13.0, *) {
-            return UIApplication.shared.windows
-                .first?
-                .windowScene?
-                .interfaceOrientation
-                .isLandscape ?? false
-        } else {
-            return UIApplication.shared.statusBarOrientation.isLandscape
-        }
+        return UIApplication.shared._keyWindow?
+            .windowScene?
+            .interfaceOrientation
+            .isLandscape ?? false        
     }
 }
 

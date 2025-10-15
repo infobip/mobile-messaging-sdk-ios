@@ -230,6 +230,6 @@ class WebInteractiveMessageAlertController: UIViewController,
 
 extension UIApplication {
     var interfaceOrientation: UIInterfaceOrientation {
-        return windows.first?.windowScene?.interfaceOrientation ?? .unknown
+        return UIApplication.shared.firstKeyWindow?.windowScene?.interfaceOrientation ?? .unknown
     }
 }

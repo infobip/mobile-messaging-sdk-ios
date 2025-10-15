@@ -30,7 +30,6 @@ import UIKit
 import AVKit
 import Combine
 
-@available(iOS 15.0, *)
 extension AVPIPKitUsable {
 
     func createVideoController() -> AVPIPKitVideoController {
@@ -39,7 +38,6 @@ extension AVPIPKitUsable {
     
 }
 
-@available(iOS 15.0, *)
 final class PIPVideoProvider {
     
     private(set) var isRunning: Bool = false

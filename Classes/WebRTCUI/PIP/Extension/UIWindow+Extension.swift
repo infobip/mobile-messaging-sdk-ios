@@ -35,8 +35,8 @@ extension UIApplication {
             .first { $0 is UIWindowScene }
             .flatMap { $0 as? UIWindowScene }?.windows
 
-        let windows = sceneWindows ?? self.windows
-        return windows.first(where: \.isKeyWindow) ?? windows.first
+        let windows = sceneWindows
+        return windows?.first(where: \.isKeyWindow) ?? windows?.first
     }
     
     static internal var center: CGPoint {

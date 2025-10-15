@@ -31,13 +31,9 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
     init(delegate: ChatAttachmentPickerDelegate, allowedContentTypes: [String]) {
         self.imagePickerController = UIImagePickerController()
         self.allowedContentTypes = allowedContentTypes
-        if #available(iOS 14.0, *) {
-            self.documentPickerController = UIDocumentPickerViewController(
+        self.documentPickerController = UIDocumentPickerViewController(
                 forOpeningContentTypes: ChatAttachmentUtils.convertToUTType(allowedContentTypes))
-        } else {
-            // In iOS 13 and older, where UTType is not offered, we cannot filter types. We let livechat API level to handle it instead.
-            self.documentPickerController = UIDocumentPickerViewController(documentTypes: [kUTTypeContent as String], in: .open)
-        }
+        
         super.init()
         self.imagePickerController.delegate = self
         self.documentPickerController.delegate = self
@@ -78,13 +74,7 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
     }
     
     private func browseAction(title: String, presentationController: UIViewController) -> UIAlertAction? {
-        if #available(iOS 14.0, *) {
-            // On iOS 14 and above, local and iCloud documents are accessed through Files app without restrictions
-        } else if FileManager.default.ubiquityIdentityToken == nil {
-            // On older versions, iCloud capabilities need to be checked to avoid problems with the documents picker
-            logDebug("[InAppChat] iCloud documents unavailable, unable to attach documents")
-            return nil
-        }
+        // On iOS 14 and above, local and iCloud documents are accessed through Files app without restrictions
         return UIAlertAction(title: title, style: .default) { [weak self, weak presentationController] _ in
             guard let self = self else { return }
             presentationController?.present(self.documentPickerController, animated: true)
