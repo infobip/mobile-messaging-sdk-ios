@@ -12,7 +12,7 @@ import WebKit
 ///We support two ways to quickly embed it into your own application:
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
 /// - programmatically: use one of the `make` methods provided.
-open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
+open class MMChatViewController: MMMessageComposingViewController, @MainActor ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
 
     ///Will make UINavigationController with ChatViewController as root
     public static func makeRootNavigationViewController() -> MMChatNavigationVC {
@@ -106,7 +106,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         setBackgroundSettings()
         NotificationCenter.default.addObserver(self, selector: #selector(appBecomeActive), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appBecomeInactive), name: UIApplication.didEnterBackgroundNotification, object: nil)
-
+        MobileMessaging.inAppChat?.validateSetup()
     }
 
     private func setBackgroundSettings() {
@@ -255,7 +255,7 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
     }
     
     // ChatWebViewDelegate
-    func didLoadWidget(_ widget: ChatWidget) {
+    func didLoad(_ widget: ChatWidget) {
         chatWidget = widget
         webViewHandler?.ensureWidgetLoaded { [weak self] error in
             self?.isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
@@ -400,7 +400,17 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
         )
     }
     
-    func didReceiveError(_ errors: ChatErrors) {
+    private func displayThrown(_ error: MMChatThrowable) {
+        let errorDisplayMode = MMInAppChatService.sharedInstance?.delegate?.didReceiveException?(error.exception) ?? .displayDefaultAlert
+        switch errorDisplayMode {
+        case .displayDefaultAlert:
+            chatNotAvailableLabel.setVisibility(true, text: error.localizedDescription)
+        default:
+            break
+        }
+    }
+    
+    func didReceive(_ errors: MMChatRemoteError) {
         Task { @MainActor in
             if errors == .none {
                 chatNotAvailableLabel.setVisibility(false, text: nil)
@@ -408,16 +418,16 @@ open class MMChatViewController: MMMessageComposingViewController, ChatWebViewDe
                     webView.reload()
                 }
             } else {
-                let errorDisplayMode = MMInAppChatService.sharedInstance?.delegate?.didReceiveException?(errors.exception) ?? .displayDefaultAlert
-                switch errorDisplayMode {
-                case .displayDefaultAlert:
-                    chatNotAvailableLabel.setVisibility(true, text: errors.localizedDescription)
-                default:
-                    break
-                }
+                displayThrown(errors)
             }
 
         }
+    }
+    
+    @MainActor
+    func didDetectWrongSetup(_ error: MMChatLocalError) {
+        displayThrown(error)
+        logError(error.technicalMessage)
     }
     
     func didOpenPreview(forAttachment attachment: ChatWebAttachment) {
@@ -638,7 +648,7 @@ extension MMChatViewController: MMLiveChatThreadsActions {
     }
 }
 
-extension MMChatViewController: MMChatBasiWebViewActions, MMChatInternalWebViewActions {
+extension MMChatViewController: MMChatBasicWebViewActions, MMChatInternalWebViewActions {
     public func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
         webViewHandler?.send(payload, completion: completion)
     }

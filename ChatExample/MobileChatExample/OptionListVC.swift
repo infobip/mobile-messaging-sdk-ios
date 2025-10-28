@@ -258,6 +258,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.sharedInstance.shouldUseExternalChatInput = false
         BadgeCounterHandler.clearBadge()
         guard let suboption = ShowChatOptions(rawValue: option) else { return }
+        setDefaultSettings()
         switch suboption {
         case .pushNavigationItem:
             showChatInNavigation()
@@ -276,11 +277,15 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance = true
         MMChatSettings.sharedInstance.shouldUseExternalChatInput = false
         guard let suboption = AdvancedChatOptions(rawValue: option) else { return }
+        if suboption != .customisedChatInput {
+            setDefaultSettings()
+        } else {
+            setCustomSettings()
+        }
         switch suboption {
         case .setLanguage:
             showLanguageVC()
         case .customisedChatInput:
-            setCustomSettings()
             showChatInNavigation()
         case .replacedChatInput:
             BadgeCounterHandler.clearBadge()
@@ -330,6 +335,14 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         }
     }
     
+    private func setDefaultSettings() {
+        MMChatSettings.settings = MMChatSettings()
+        MMChatSettings.settings.advancedSettings = MMAdvancedChatSettings()
+        MMChatSettings.settings.navBarItemsTintColor = .darkGray
+        MMChatSettings.settings.navBarColor = .white
+        MMChatSettings.settings.navBarTitleColor = .darkGray
+    }
+        
     private func setCustomSettings() {
         let advSettings = MMAdvancedChatSettings()
         advSettings.textContainerTopMargin                  = 8.0

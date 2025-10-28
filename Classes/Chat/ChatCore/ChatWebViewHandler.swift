@@ -71,7 +71,7 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
         }
     }
 
-    private func validateAttachment(_ basicPayload: MMLivechatBasicPayload) -> MMChatError? {
+    private func validateAttachment(_ basicPayload: MMLivechatBasicPayload) -> MMChatLocalError? {
         /*
          Rules:
          - Max attachment sized checked with remote widget configuration value
@@ -80,7 +80,7 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
          - Attachments of extensions not in the allowed types list are to be excluded
          */
         if !validateAttachmentSize(size: basicPayload.byteCount) {
-            return MMChatError.attachmentSizeExceeded(maxUploadAttachmentSize)
+            return MMChatLocalError.attachmentSizeExceeded(maxUploadAttachmentSize)
         } else if basicPayload.text?.isEmpty ?? true, basicPayload.attachment?.isEmpty ?? true {
             return .wrongPayload
         } else if !(basicPayload.attachment?.isEmpty ?? true), !(chatWidget?.attachments.isEnabled ?? false) {
@@ -92,8 +92,8 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
         return nil
     }
 
-    private func validatePayload(_ payload: MMLivechatPayload, isCreating: Bool) -> MMChatError? {
-        var chatError: MMChatError?
+    private func validatePayload(_ payload: MMLivechatPayload, isCreating: Bool) -> MMChatLocalError? {
+        var chatError: MMChatLocalError?
         if let basicPayload = payload as? MMLivechatBasicPayload {
             if !validateTextLength(size: (basicPayload.text ?? "").count) {
                 MMInAppChatService.sharedInstance?.delegate?.textLengthExceeded?(ChatAttachmentUtils.DefaultMaxTextLength)
@@ -296,6 +296,8 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
                 DispatchQueue.main.async {
                     self.webView.loadWidget(chatWidget)
                 }
+            } else if self.chatWidget == nil { // an action request without widget could mean it was triggered too soon (and it will recover later), or it could be an actual environment problem, so we check for the later
+                MobileMessaging.inAppChat?.validateSetup()
             }
         }
     }

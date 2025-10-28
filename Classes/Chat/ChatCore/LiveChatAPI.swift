@@ -43,7 +43,7 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
     }
 
     func loadWidget() {
-        DispatchQueue.mmEnsureMain {
+        Task { @MainActor in
             self.chatHandler.webView.navigationDelegate = self
             MMInAppChatService.sharedInstance?.update(for: self)
         }
@@ -130,9 +130,9 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
         self.sendContextualData(contextualData.metadata, multiThreadStrategy: contextualData.multiThreadStrategy, completion: { _ in })
     }
     
-    private func onError(errors: ChatErrors) {
+    private func onError(_ error: MMChatThrowable) {
         Task { @MainActor in
-            let exception = errors.exception
+            let exception = error.exception
             self.delegate?.didReceiveError(exception: exception)
             if self.chatHandler.pendingActions.count > 0 {
                 didLoadWidget(with: exception)
@@ -141,8 +141,8 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
     }
 }
 
-extension MMInAppChatWidgetAPI: WidgetSubscriber {
-    func didLoadWidget(_ widget: ChatWidget) {
+extension MMInAppChatWidgetAPI: @MainActor WidgetSubscriber {
+    func didLoad(_ widget: ChatWidget) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             chatHandler.chatWidget = widget
@@ -151,10 +151,16 @@ extension MMInAppChatWidgetAPI: WidgetSubscriber {
         }
     }
 
-    func didReceiveError(_ errors: ChatErrors) {
+    func didReceive(_ errors: MMChatRemoteError) {
         if errors != .none {
-            onError(errors: errors)
+            onError(errors)
         }
+    }
+    
+    @MainActor
+    func didDetectWrongSetup(_ error: MMChatLocalError) {
+        onError(error)
+        logError(error.technicalMessage)
     }
 }
 
@@ -173,10 +179,10 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
                 return
             }
             
-            var chatError = ChatErrors.jsError
+            var chatError = MMChatRemoteError.jsError
             chatError.rawDescription = jsMessage.message
             chatError.additionalInfo = jsMessage.additionalInfo
-            onError(errors: chatError)
+            onError(chatError)
         case .onViewChanged:
             guard let jsMessage = jsMessage as? ViewStateJSMessage else {
                 logError(failureDescription(for: jsMessage, type: type))

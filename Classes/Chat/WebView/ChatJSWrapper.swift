@@ -62,9 +62,7 @@ extension WKWebView: ChatJSWrapper {
             return nil
         }
 
-        return NSError(
-            code: .conditionFailed,
-             userInfo: ["reason" : lcError.description, "payload": payload.interfaceValue])
+        return MMChatLocalError.apiRequestFailure(.validate, lcError.description, payload.interfaceValue) as NSError
     }
 
     private func handleCompletion(
@@ -100,10 +98,8 @@ extension WKWebView: ChatJSWrapper {
             case .success(let value):
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
                       let response = try? JSONDecoder().decode(MMLivechatMessageResponse.self, from: data) else {
-                    let reasonString = "sendMessage failed, unable to parse value: \(value)"
-                    let error = NSError(code: .conditionFailed,
-                                        userInfo: ["reason" : reasonString,
-                                                   "payload": payload.interfaceValue])
+                    let reason = "unable to parse value: \(value)"
+                    let error = MMChatLocalError.apiRequestFailure(.send, reason, payload.interfaceValue) as NSError
                     self?.handleCompletion(payload: payload, error: error, completion: completion)
                     return
                 }
@@ -129,8 +125,8 @@ extension WKWebView: ChatJSWrapper {
             case .success(let value):
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
                       let response = try? JSONDecoder().decode(MMLivechatMessageResponse.self, from: data) else {
-                    let reasonString = "createThread failed, unable to parse value: \(value)"
-                    let error = NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])
+                    let reason = "unable to parse value: \(value)"
+                    let error = MMChatLocalError.apiRequestFailure(.createThread, reason, nil) as NSError
                     self?.handleCompletion(payload: payload, error: error, completion: completion)
                     return
                 }
@@ -153,9 +149,9 @@ extension WKWebView: ChatJSWrapper {
         let mmLanguage = language ?? MMLanguage.sessionLanguage // If never saved, it is MobileMessaging installation language (or English as default)
         MMLanguage.sessionLanguage = mmLanguage
         guard let localeEscaped = mmLanguage.locale.javaScriptEscapedString() else {
-            let reasonString = "setLanguage not called, unable to obtain escaped localed for \(mmLanguage.locale)"
-            logDebug(reasonString)
-            completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
+            let reason = "unable to obtain escaped localed for \(mmLanguage.locale)"
+            logDebug(reason)
+            completion(MMChatLocalError.apiRequestFailure(.setLanguage, reason, nil) as NSError)
             return
         }
         self.evaluateInMainThread("setLanguage(\(localeEscaped))") {
@@ -218,9 +214,9 @@ extension WKWebView: ChatJSWrapper {
 
     func setTheme(_ themeName: String, completion: @escaping (_ error: NSError?) -> Void) {
         guard let themeJS = themeName.javaScriptEscapedString() else {
-            let reasonString = "setTheme not called, unable to obtain escaped localed for \(themeName)"
-            logDebug(reasonString)
-            completion(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString]))
+            let reason = "setTheme not called, invalid value \(themeName)"
+            logDebug(reason)
+            completion(MMChatLocalError.apiRequestFailure(.setTheme, reason, nil) as NSError?)
             return
         }
         self.evaluateInMainThread("setTheme(\(themeJS))") {
@@ -254,10 +250,9 @@ extension WKWebView: ChatJSWrapper {
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
                       let result = try? JSONDecoder().decode(Response.self, from: data) else {
                     
-                    let reasonString = "getThreads failed, unable to parse value: \(value)"
-                    self?.logDebug(reasonString)
-                    completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
-                    
+                    let reason = "unable to parse value: \(value)"
+                    self?.logDebug(reason)
+                    completion(.failure(MMChatLocalError.apiRequestFailure(.getThreads, reason, nil) as NSError))
                     return
                 }
                 completion(.success(result.data))
@@ -300,11 +295,9 @@ extension WKWebView: ChatJSWrapper {
         }
 
         guard let id = threadId.javaScriptEscapedString() else {
-            
-            let reasonString = "openThread failed, invalid threadId: \(threadId)"
-            self.logDebug(reasonString)
-            completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
-            
+            let reason = "invalid threadId: \(threadId)"
+            self.logDebug(reason)
+            completion(.failure(MMChatLocalError.apiRequestFailure(.openThread, reason, nil) as NSError))
             return
         }
 
@@ -318,10 +311,9 @@ extension WKWebView: ChatJSWrapper {
             case .success(let value):
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
                       let result = try? JSONDecoder().decode(Response.self, from: data) else {
-                    let reasonString = "openThread failed, unable to parse value: \(value)"
-                    self?.logDebug(reasonString)
-                    completion(.failure(NSError(code: .conditionFailed, userInfo: ["reason" : reasonString])))
-
+                    let reason = "unable to parse value: \(value)"
+                    self?.logDebug(reason)
+                    completion(.failure(MMChatLocalError.apiRequestFailure(.openThread, reason, nil) as NSError))
                     return
                 }
                 completion(.success(result.data))

@@ -12,7 +12,7 @@ protocol MMChatInternalWebViewActions {
     func openNewThread(completion: @escaping ((Error)?) -> Void)
 }
 
-public protocol MMChatBasiWebViewActions {
+public protocol MMChatBasicWebViewActions {
     /// Sends message payload to the chat.
     ///
     /// - Parameter payload: message payload to be sent. Max texts length allowed is 4096 characters. Max attachment size is defined on web account level.
@@ -27,7 +27,7 @@ public protocol MMChatBasiWebViewActions {
     func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (Error)?) -> Void)
 }
 
-public protocol MMChatWebViewActions: MMChatBasiWebViewActions, MMLiveChatThreadsActions {
+public protocol MMChatWebViewActions: MMChatBasicWebViewActions, MMLiveChatThreadsActions {
 
     /// Pauses the chat by closing its socket. As a result, the connection is considered terminated,
     /// and remote push notifications will be delivered to the device.
