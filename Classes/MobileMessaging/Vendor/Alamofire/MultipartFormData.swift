@@ -23,12 +23,7 @@
 //
 
 import Foundation
-
-#if os(iOS) || os(watchOS) || os(tvOS)
-import MobileCoreServices
-#elseif os(macOS)
-import CoreServices
-#endif
+import UniformTypeIdentifiers
 
 /// Constructs `multipart/form-data` for uploads within an HTTP or HTTPS body. There are currently two ways to encode
 /// multipart form data. The first way is to encode the data directly in memory. This is very efficient, but can lead
@@ -535,11 +530,9 @@ class MultipartFormData {
     // MARK: - Private - Mime Type
 
     private func mimeType(forPathExtension pathExtension: String) -> String {
-        if
-            let id = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as CFString, nil)?.takeRetainedValue(),
-            let contentType = UTTypeCopyPreferredTagWithClass(id, kUTTagClassMIMEType)?.takeRetainedValue()
-        {
-            return contentType as String
+        if let utType = UTType(filenameExtension: pathExtension),
+           let mimeType = utType.preferredMIMEType {
+            return mimeType
         }
 
         return "application/octet-stream"

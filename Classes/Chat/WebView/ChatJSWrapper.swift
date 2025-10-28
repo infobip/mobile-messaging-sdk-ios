@@ -39,7 +39,7 @@ protocol ChatJSWrapper {
     }
 }
 
-extension WKWebView: NamedLogger {}
+extension WKWebView: @retroactive NamedLogger {}
 
 extension WKWebView: ChatJSWrapper {
     func evaluateInMainThread(_ javaScriptString: String, completionHandler: (@MainActor @Sendable (Any?, (any Error)?) -> Void)? = nil) {

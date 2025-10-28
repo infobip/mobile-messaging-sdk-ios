@@ -31,7 +31,7 @@ private var imagesKey: Void?
 private var durationKey: Void?
 #else
 import UIKit
-import MobileCoreServices
+import UniformTypeIdentifiers
 private var imageSourceKey: Void?
 #endif
 private var animatedImageDataKey: Void?
@@ -259,7 +259,7 @@ extension Kingfisher where Base: Image {
         }
         
         // Start of kf.animatedImageWithGIFData
-        let options: NSDictionary = [kCGImageSourceShouldCache as String: true, kCGImageSourceTypeIdentifierHint as String: kUTTypeGIF]
+        let options: NSDictionary = [kCGImageSourceShouldCache as String: true, kCGImageSourceTypeIdentifierHint as String: UTType.gif.identifier]
         guard let imageSource = CGImageSourceCreateWithData(data as CFData, options) else {
             return nil
         }

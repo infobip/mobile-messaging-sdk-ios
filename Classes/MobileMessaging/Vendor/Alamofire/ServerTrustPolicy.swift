@@ -252,10 +252,8 @@ enum ServerTrustPolicy {
     private func certificateData(for trust: SecTrust) -> [Data] {
         var certificates: [SecCertificate] = []
 
-        for index in 0..<SecTrustGetCertificateCount(trust) {
-            if let certificate = SecTrustGetCertificateAtIndex(trust, index) {
-                certificates.append(certificate)
-            }
+        if let certificateChain = SecTrustCopyCertificateChain(trust) as? [SecCertificate] {
+            certificates = certificateChain
         }
 
         return certificateData(for: certificates)
@@ -270,12 +268,11 @@ enum ServerTrustPolicy {
     private static func publicKeys(for trust: SecTrust) -> [SecKey] {
         var publicKeys: [SecKey] = []
 
-        for index in 0..<SecTrustGetCertificateCount(trust) {
-            if
-                let certificate = SecTrustGetCertificateAtIndex(trust, index),
-                let publicKey = publicKey(for: certificate)
-            {
-                publicKeys.append(publicKey)
+        if let certificateChain = SecTrustCopyCertificateChain(trust) as? [SecCertificate] {
+            for certificate in certificateChain {
+                if let publicKey = publicKey(for: certificate) {
+                    publicKeys.append(publicKey)
+                }
             }
         }
 
@@ -290,7 +287,7 @@ enum ServerTrustPolicy {
         let trustCreationStatus = SecTrustCreateWithCertificates(certificate, policy, &trust)
 
         if let trust = trust, trustCreationStatus == errSecSuccess {
-            publicKey = SecTrustCopyPublicKey(trust)
+            publicKey = SecTrustCopyKey(trust)
         }
 
         return publicKey
