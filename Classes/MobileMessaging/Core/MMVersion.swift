@@ -7,5 +7,5 @@
 //
 
 class MMVersion {
-    static let mobileMessagingVersion = "13.12.5"
+    static let mobileMessagingVersion = "14.0.0"
 }
