@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
-	<string>14.0.0</string>
+	<string>14.0.1</string>
 	<key>CFBundleVersion</key>
-	<string>1460136654096</string>
+	<string>1460136654097</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
