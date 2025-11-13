@@ -33,6 +33,7 @@ Pods/
 
 *.xcworkspace
 */Podfile.lock
+*/Gemfile.lock
 */Pods/
 */fastlane/keys
 */fastlane/test_output
