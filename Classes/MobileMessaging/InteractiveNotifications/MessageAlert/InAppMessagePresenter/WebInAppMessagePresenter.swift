@@ -83,13 +83,10 @@ class WebInAppMessagePresenter: NamedLogger,
     
     private func prepareWebViewURLRequest(url: URL) -> URLRequest {
         var request = URLRequest(url: message.url, timeoutInterval: WebInAppMessagePresenter.requestTimeout)
-        guard let applicationCode = MobileMessaging.sharedInstance?.applicationCode else {
-            return request
-        }
-        request.setValue("App \(applicationCode)", forHTTPHeaderField: MMConsts.APIHeaders.authorization)
         request.setValue(MobileMessaging.userAgent.currentUserAgentString, forHTTPHeaderField: MMConsts.APIHeaders.userAgent)
-        request.setValue(MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId, forHTTPHeaderField: MMConsts.APIHeaders.pushRegistrationId)
-        
+        if let pushRegistrationId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId {
+            request.setValue(pushRegistrationId, forHTTPHeaderField: MMConsts.APIHeaders.pushRegistrationId)
+        }
         return request
     }
     
