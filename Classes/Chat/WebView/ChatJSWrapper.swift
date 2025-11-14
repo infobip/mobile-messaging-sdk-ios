@@ -62,7 +62,7 @@ extension WKWebView: ChatJSWrapper {
             return nil
         }
 
-        return MMChatLocalError.apiRequestFailure(.validate, lcError.description, payload.interfaceValue) as NSError
+        return MMChatLocalError.apiRequestFailure(.validate, lcError.description, payload.interfaceValue).foundationError
     }
 
     private func handleCompletion(
@@ -99,7 +99,7 @@ extension WKWebView: ChatJSWrapper {
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
                       let response = try? JSONDecoder().decode(MMLivechatMessageResponse.self, from: data) else {
                     let reason = "unable to parse value: \(value)"
-                    let error = MMChatLocalError.apiRequestFailure(.send, reason, payload.interfaceValue) as NSError
+                    let error = MMChatLocalError.apiRequestFailure(.send, reason, payload.interfaceValue).foundationError
                     self?.handleCompletion(payload: payload, error: error, completion: completion)
                     return
                 }
@@ -126,7 +126,7 @@ extension WKWebView: ChatJSWrapper {
                 guard let data = try? JSONSerialization.data(withJSONObject: value),
                       let response = try? JSONDecoder().decode(MMLivechatMessageResponse.self, from: data) else {
                     let reason = "unable to parse value: \(value)"
-                    let error = MMChatLocalError.apiRequestFailure(.createThread, reason, nil) as NSError
+                    let error = MMChatLocalError.apiRequestFailure(.createThread, reason, nil).foundationError
                     self?.handleCompletion(payload: payload, error: error, completion: completion)
                     return
                 }
@@ -151,7 +151,7 @@ extension WKWebView: ChatJSWrapper {
         guard let localeEscaped = mmLanguage.locale.javaScriptEscapedString() else {
             let reason = "unable to obtain escaped localed for \(mmLanguage.locale)"
             logDebug(reason)
-            completion(MMChatLocalError.apiRequestFailure(.setLanguage, reason, nil) as NSError)
+            completion(MMChatLocalError.apiRequestFailure(.setLanguage, reason, nil).foundationError)
             return
         }
         self.evaluateInMainThread("setLanguage(\(localeEscaped))") {
@@ -216,7 +216,7 @@ extension WKWebView: ChatJSWrapper {
         guard let themeJS = themeName.javaScriptEscapedString() else {
             let reason = "setTheme not called, invalid value \(themeName)"
             logDebug(reason)
-            completion(MMChatLocalError.apiRequestFailure(.setTheme, reason, nil) as NSError?)
+            completion(MMChatLocalError.apiRequestFailure(.setTheme, reason, nil).foundationError)
             return
         }
         self.evaluateInMainThread("setTheme(\(themeJS))") {
@@ -252,7 +252,7 @@ extension WKWebView: ChatJSWrapper {
                     
                     let reason = "unable to parse value: \(value)"
                     self?.logDebug(reason)
-                    completion(.failure(MMChatLocalError.apiRequestFailure(.getThreads, reason, nil) as NSError))
+                    completion(.failure(MMChatLocalError.apiRequestFailure(.getThreads, reason, nil).foundationError))
                     return
                 }
                 completion(.success(result.data))
@@ -297,7 +297,7 @@ extension WKWebView: ChatJSWrapper {
         guard let id = threadId.javaScriptEscapedString() else {
             let reason = "invalid threadId: \(threadId)"
             self.logDebug(reason)
-            completion(.failure(MMChatLocalError.apiRequestFailure(.openThread, reason, nil) as NSError))
+            completion(.failure(MMChatLocalError.apiRequestFailure(.openThread, reason, nil).foundationError))
             return
         }
 
@@ -313,7 +313,7 @@ extension WKWebView: ChatJSWrapper {
                       let result = try? JSONDecoder().decode(Response.self, from: data) else {
                     let reason = "unable to parse value: \(value)"
                     self?.logDebug(reason)
-                    completion(.failure(MMChatLocalError.apiRequestFailure(.openThread, reason, nil) as NSError))
+                    completion(.failure(MMChatLocalError.apiRequestFailure(.openThread, reason, nil).foundationError))
                     return
                 }
                 completion(.success(result.data))
