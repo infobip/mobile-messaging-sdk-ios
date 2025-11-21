@@ -113,8 +113,8 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     internal static func getMainFont() -> UIFont {
         return advSettings?.mainFont ?? CBC.kMainFont
     }
-    internal static func getCharCountFont() -> UIFont {
-        return advSettings?.charCountFont ?? CBC.kCharCountFont
+    internal static func getCharCounterFont() -> UIFont {
+        return advSettings?.charCounterFont ?? CBC.kCharCounterFont
     }
     internal static func getMainTextColor() -> UIColor {
         return advSettings?.mainTextColor ?? CBC.kMainTextColor
@@ -136,33 +136,35 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
 
 @objcMembers
 public class MMAdvancedChatSettings: NSObject, MMPropertyLoopable {
-    public var textContainerTopMargin: CGFloat         = CBC.kTextContainerTopMargin
-    public var textContainerBottomMargin: CGFloat      = CBC.kTextContainerBottomMargin
-    public var textContainerLeftPadding: CGFloat       = CBC.kTextContainerLeftPadding
-    public var textContainerRightPadding: CGFloat      = CBC.kTextContainerRightPadding
-    public var textContainerTopPadding: CGFloat        = CBC.kTextContainerTopPadding
-    public var textContainerCornerRadius: CGFloat      = CBC.kTextContainerCornerRadius
-    public var textViewTopMargin: CGFloat              = CBC.kTextViewTopMargin
-    public var placeholderHeight: CGFloat              = CBC.kPlaceholderHeight
-    public var placeholderSideMargin: CGFloat          = CBC.kPlaceholderSideMargin
-    public var placeholderTopMargin: CGFloat           = CBC.kPlaceholderTopMargin
-    public var buttonHeight: CGFloat                   = CBC.kButtonHeight
-    public var buttonTouchableOverlap: CGFloat         = CBC.kButtonTouchableOverlap
-    public var buttonRightMargin: CGFloat              = CBC.kButtonRightMargin
-    public var buttonBottomMargin: CGFloat             = CBC.kButtonBottomMargin
-    public var utilityButtonWidth: CGFloat             = CBC.kUtilityButtonWidth
-    public var utilityButtonHeight: CGFloat            = CBC.kUtilityButtonHeight
-    public var utilityButtonBottomMargin: CGFloat      = CBC.kUtilityButtonBottomMargin
-    public var initialHeight: CGFloat                  = CBC.kInitialHeight
-    public var mainTextColor: UIColor                  = CBC.kMainTextColor
-    public var mainPlaceholderTextColor: UIColor       = CBC.kMainPlaceholderTextColor
-    public var textInputBackgroundColor: UIColor       = CBC.kTextInputBackgroundColor
-    public var typingIndicatorColor: UIColor           = CBC.kTypingIndicatorColor
-    public var sendButtonIcon: UIImage?                = CBC.kSendButtonIcon
-    public var attachmentButtonIcon: UIImage?          = CBC.kAttachmentButtonIcon
-    public var isLineSeparatorHidden: Bool             = CBC.kIsLineSeparatorHidden
-    public var mainFont: UIFont?                       = CBC.kMainFont
-    public var charCountFont: UIFont?                  = CBC.kCharCountFont
+    public var textContainerTopMargin: CGFloat           = CBC.kTextContainerTopMargin
+    public var textContainerBottomMargin: CGFloat        = CBC.kTextContainerBottomMargin
+    public var textContainerLeftPadding: CGFloat         = CBC.kTextContainerLeftPadding
+    public var textContainerRightPadding: CGFloat        = CBC.kTextContainerRightPadding
+    public var textContainerTopPadding: CGFloat          = CBC.kTextContainerTopPadding
+    public var textContainerCornerRadius: CGFloat        = CBC.kTextContainerCornerRadius
+    public var textViewTopMargin: CGFloat                = CBC.kTextViewTopMargin
+    public var placeholderHeight: CGFloat                = CBC.kPlaceholderHeight
+    public var placeholderSideMargin: CGFloat            = CBC.kPlaceholderSideMargin
+    public var placeholderTopMargin: CGFloat             = CBC.kPlaceholderTopMargin
+    public var buttonHeight: CGFloat                     = CBC.kButtonHeight
+    public var buttonTouchableOverlap: CGFloat           = CBC.kButtonTouchableOverlap
+    public var buttonRightMargin: CGFloat                = CBC.kButtonRightMargin
+    public var buttonBottomMargin: CGFloat               = CBC.kButtonBottomMargin
+    public var utilityButtonWidth: CGFloat               = CBC.kUtilityButtonWidth
+    public var utilityButtonHeight: CGFloat              = CBC.kUtilityButtonHeight
+    public var utilityButtonBottomMargin: CGFloat        = CBC.kUtilityButtonBottomMargin
+    public var initialHeight: CGFloat                    = CBC.kInitialHeight
+    public var mainTextColor: UIColor                    = CBC.kMainTextColor
+    public var mainPlaceholderTextColor: UIColor         = CBC.kMainPlaceholderTextColor
+    public var textInputBackgroundColor: UIColor         = CBC.kTextInputBackgroundColor
+    public var typingIndicatorColor: UIColor             = CBC.kTypingIndicatorColor
+    public var sendButtonIcon: UIImage?                  = CBC.kSendButtonIcon
+    public var attachmentButtonIcon: UIImage?            = CBC.kAttachmentButtonIcon
+    public var isLineSeparatorHidden: Bool               = CBC.kIsLineSeparatorHidden
+    public var mainFont: UIFont?                         = CBC.kMainFont
+    public var charCounterFont: UIFont?                  = CBC.kCharCounterFont
+    public var charCounterDefaultColor: UIColor          = CBC.kCharCounterDefaultColor
+    public var charCounterAlertColor: UIColor            = CBC.kCharCounterAlertColor
 }
 
 class ChatSettingsManager {

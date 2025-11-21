@@ -371,7 +371,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         advSettings.attachmentButtonIcon                    = UIImage(named: "attachIcon")
         advSettings.isLineSeparatorHidden                   = true
         advSettings.mainFont                                = UIFont(name: "HelveticaNeue-Thin", size: 18.0)
-        advSettings.charCountFont                           = UIFont(name: "HelveticaNeue-Bold", size: 18.0)
+        advSettings.charCounterFont                           = UIFont(name: "HelveticaNeue-Bold", size: 18.0)
         MMChatSettings.settings.advancedSettings = advSettings
         MMChatSettings.settings.title = "Overwriting title"
         MMChatSettings.settings.sendButtonTintColor = .white

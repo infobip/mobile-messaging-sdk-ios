@@ -9,37 +9,38 @@
 import Foundation
 import UIKit
 
+fileprivate typealias consts = ComposeBarConsts
+
 struct ComposeBarConsts {
 	// runtime consts
 	static var kTextViewLineHeight: CGFloat = 0.0
 	static var kTextViewFirstLineHeight: CGFloat = 0.0
 	static var kTextViewToSuperviewHeightDelta: CGFloat = 0.0
 	
-	static let kResizeAnimationCurve 		= UIView.AnimationCurve.easeInOut
-	static let kResizeAnimationOptions 		= UIView.AnimationOptions.curveEaseInOut
-	static let kResizeAnimationDuration: CGFloat 	= 0.25
-	static let kHorizontalSpacing: CGFloat          	=  4.0
+	static let kResizeAnimationCurve 		            = UIView.AnimationCurve.easeInOut
+	static let kResizeAnimationOptions 		            = UIView.AnimationOptions.curveEaseInOut
+	static let kResizeAnimationDuration: CGFloat 	    = 0.25
+	static let kHorizontalSpacing: CGFloat          	= 4.0
 	static let kFontSize: CGFloat                   	= 16.0
-	static let kTextContainerTopMargin: CGFloat     	=  8.0
-	static let kTextContainerBottomMargin: CGFloat  	=  8.0
-	static let kTextContainerLeftPadding: CGFloat   	=  3.0
-	static let kTextContainerRightPadding: CGFloat  	=  2.0
-	static let kTextContainerTopPadding: CGFloat    	=  8.0
+	static let kTextContainerTopMargin: CGFloat     	= 8.0
+	static let kTextContainerBottomMargin: CGFloat  	= 8.0
+	static let kTextContainerLeftPadding: CGFloat   	= 3.0
+	static let kTextContainerRightPadding: CGFloat  	= 2.0
+	static let kTextContainerTopPadding: CGFloat    	= 8.0
 	static let kTextContainerCornerRadius: CGFloat  	= 0.0
 	static let kTextViewTopMargin: CGFloat          	= -8.0
 	static let kPlaceholderHeight: CGFloat          	= 25.0
-	static let kPlaceholderSideMargin: CGFloat      	=  8.0
-	static let kPlaceholderTopMargin: CGFloat       	=  4.0
+	static let kPlaceholderSideMargin: CGFloat      	= 8.0
+	static let kPlaceholderTopMargin: CGFloat       	= 4.0
 	static let kButtonHeight: CGFloat               	= 32.0
-	static let kButtonTouchableOverlap: CGFloat     	=  6.0
+	static let kButtonTouchableOverlap: CGFloat     	= 6.0
 	static let kButtonRightMargin: CGFloat          	= 8.0
-	static let kButtonBottomMargin: CGFloat         	=  8.0
+	static let kButtonBottomMargin: CGFloat         	= 8.0
 	static let kUtilityButtonWidth: CGFloat         	= 32.0
 	static let kUtilityButtonHeight: CGFloat        	= 32.0
-	static let kUtilityButtonBottomMargin: CGFloat  	=  6.0
-	static let kCaretYOffset: CGFloat               	=  7.0
-	static let kCharCountFontSize: CGFloat          	= 11.0
-	static let kCharCountTopMargin: CGFloat			    = 15.0
+	static let kUtilityButtonBottomMargin: CGFloat  	= 6.0
+	static let kCaretYOffset: CGFloat               	= 7.0
+	static let kCharCounterFontSize: CGFloat          	= 11.0
 	static let kInitialHeight: CGFloat 				    = 44.0
     static let kMainTextColor: UIColor                  = .black
     static let kMainPlaceholderTextColor: UIColor       = UIColor(hue: 240/360, saturation: 0.02, brightness: 0.8, alpha: 1.0)
@@ -48,26 +49,45 @@ struct ComposeBarConsts {
     static let kSendButtonIcon: UIImage?                = UIImage(mm_chat_named: "sendButton")
     static let kAttachmentButtonIcon: UIImage?          = UIImage(mm_chat_named: "attachmentButton")
     static let kIsLineSeparatorHidden: Bool             = false
-    static let kMainFont: UIFont                        = UIFont.systemFont(ofSize: ComposeBarConsts.kFontSize)
-    static let kCharCountFont: UIFont                   = UIFont.systemFont(ofSize: ComposeBarConsts.kCharCountFontSize)
+    static let kMainFont: UIFont                        = UIFont.systemFont(ofSize: consts.kFontSize)
+    
+    static let kCharCounterTrailing                     = 140.0
+    static let kCharCounterTop                          = 14.0
+    static let kCharCounterWidth                        = 100.0
+    static let kCharCounterHeight                       = 15.0
+    static let kCharCounterFont: UIFont                 = UIFont.systemFont(ofSize: consts.kCharCounterFontSize)
+    static let kCharCounterDefaultColor: UIColor        = .lightGray
+    static let kCharCounterAlertColor: UIColor          = .red
 	
 	struct Notifications {
-		static let didChangeFrameNotification = "ComposeBarDidChangeFrameNotification"
-		static let willChangeFrameNotification = "ComposeBarWillChangeFrameNotification"
+		static let didChangeFrameNotification           = "ComposeBarDidChangeFrameNotification"
+		static let willChangeFrameNotification          = "ComposeBarWillChangeFrameNotification"
 		
 		struct Keys {
-			static let animationDurationUserInfoKey = "ComposeAnimationDurationUserInfoKey"
-			static let animationCurveUserInfoKey = "ComposeAnimationCurveUserInfoKey"
-			static let frameBeginUserInfoKey = "ComposeBarFrameBeginUserInfoKey"
-			static let frameEndUserInfoKey = "ComposeBarFrameEndUserInfoKey"
+			static let animationDurationUserInfoKey     = "ComposeAnimationDurationUserInfoKey"
+			static let animationCurveUserInfoKey        = "ComposeAnimationCurveUserInfoKey"
+			static let frameBeginUserInfoKey            = "ComposeBarFrameBeginUserInfoKey"
+			static let frameEndUserInfoKey              = "ComposeBarFrameEndUserInfoKey"
 		}
 	}
 }
 
 class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
-    public var composeBarSettings: MMAdvancedChatSettings = MMAdvancedChatSettings()
-    private var textBuffer : [String] = []
+    public var settings = MMChatSettings.settings.advancedSettings
 
+    lazy var sendButton: ComposeBar_Send_Button! = {
+        let ret = ComposeBar_Send_Button()
+        ret.frame = CGRect(
+            x: self.bounds.size.width - consts.kHorizontalSpacing - settings.buttonRightMargin - settings.buttonTouchableOverlap,
+            y: self.bounds.size.height - settings.buttonBottomMargin - settings.buttonHeight,
+            width: 2 * settings.buttonTouchableOverlap,
+            height: settings.buttonHeight
+        )
+        ret.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
+        ret.addTarget(self, action: #selector(ComposeBar.didPressSendButton), for: .touchUpInside)
+        return ret
+    }()
+    
 	public var autoAdjustTopOffset: Bool = true {
 		didSet {
 			autoresizingMask = {
@@ -79,14 +99,6 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 			}()
 		}
 	}
-    
-	lazy var sendButton: ComposeBar_Send_Button! = {
-		let ret = ComposeBar_Send_Button()
-		ret.frame = CGRect(x: self.bounds.size.width - ComposeBarConsts.kHorizontalSpacing - composeBarSettings.buttonRightMargin - composeBarSettings.buttonTouchableOverlap, y: self.bounds.size.height - composeBarSettings.buttonBottomMargin - composeBarSettings.buttonHeight, width: 2 * composeBarSettings.buttonTouchableOverlap, height: composeBarSettings.buttonHeight)
-		ret.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
-		ret.addTarget(self, action: #selector(ComposeBar.didPressSendButton), for: .touchUpInside)
-		return ret
-	}()
     
 	public var sendButtonTintColor: UIColor? {
 		get {
@@ -114,11 +126,6 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 			utilityButton?.isEnabled = isEnabled
 		}
 	}
-	public var maxCharCount: UInt = 0 {
-		didSet {
-			updateCharCountLabel()
-		}
-	}
 	public var maxHeight: CGFloat = 0 {
 		didSet {
 			resizeTextViewIfNeededAnimated(true)
@@ -127,12 +134,12 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	public var maxLinesCount: CGFloat {
 		get {
-			let maxTextHeight = maxHeight - composeBarSettings.initialHeight + ComposeBarConsts.kTextViewLineHeight
-			return maxTextHeight / ComposeBarConsts.kTextViewLineHeight
+			let maxTextHeight = maxHeight - settings.initialHeight + consts.kTextViewLineHeight
+			return maxTextHeight / consts.kTextViewLineHeight
 		}
 		set {
-			let maxTextHeight = newValue * ComposeBarConsts.kTextViewLineHeight
-			let maxHeight = maxTextHeight - ComposeBarConsts.kTextViewLineHeight + composeBarSettings.initialHeight
+			let maxTextHeight = newValue * consts.kTextViewLineHeight
+			let maxHeight = maxTextHeight - consts.kTextViewLineHeight + settings.initialHeight
 			self.maxHeight = maxHeight
 		}
 	}
@@ -150,9 +157,10 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		ret.isUserInteractionEnabled = false
 		ret.autoresizingMask = .flexibleWidth
 		ret.adjustsFontSizeToFitWidth = true
-		ret.minimumScaleFactor = UIFont.smallSystemFontSize / ComposeBarConsts.kFontSize
+		ret.minimumScaleFactor = UIFont.smallSystemFontSize / consts.kFontSize
 		return ret
 	}()
+    
 	public var text: String {
 		get {
 			return textView.text
@@ -161,19 +169,27 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 			setText(newValue, animated: true)
 		}
 	}
+    
 	lazy var textView: ComposeBar_TextView! = {
 		let ret = ComposeBar_TextView(frame: CGRect.zero)
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		ret.scrollIndicatorInsets = UIEdgeInsets(top: 8.0, left: 0, bottom: 8.0, right: 0.5)
 		return ret
 	}()
+    
 	lazy var utilityButton: ComposeBar_Button! = {
 		let ret = ComposeBar_Button(type: .custom)
 		ret.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
-		ret.frame = CGRect(x: 0, y: self.bounds.size.height - composeBarSettings.utilityButtonHeight - composeBarSettings.utilityButtonBottomMargin, width: composeBarSettings.utilityButtonWidth, height: composeBarSettings.utilityButtonHeight)
+		ret.frame = CGRect(
+            x: 0,
+            y: self.bounds.size.height - settings.utilityButtonHeight - settings.utilityButtonBottomMargin,
+            width: settings.utilityButtonWidth,
+            height: settings.utilityButtonHeight
+        )
 		ret.addTarget(self, action: #selector(ComposeBar.didPressUtilityButton), for: .touchUpInside)
 		return ret
 	}()
+    
 	public var utilityButtonImage: UIImage? {
 		get {
 			return utilityButton.image(for: .normal)
@@ -183,6 +199,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 			updateUtilityButtonVisibility()
 		}
 	}
+    
     public var isAttachmentUploadEnabled: Bool = false {
         didSet {
             updateUtilityButtonVisibility()
@@ -196,7 +213,6 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		handleTextViewChangeAnimated(animated)
 	}
 	
-	// priv
 	lazy var backgroundView: UIToolbar! = {
 		var frame = self.bounds
 		frame.origin.y = 0.5
@@ -206,20 +222,29 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		ret.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		return ret
 	}()
-	lazy var charCountLabel: UILabel! = {
-		let ret = UILabel(frame: CGRect(x: 0, y: ComposeBarConsts.kCharCountTopMargin, width: self.bounds.size.width - 8, height: 20))
-		ret.isHidden = self.maxCharCount == 0
+    
+	lazy var charCounterLabel: UILabel! = {
+        let ret = UILabel(frame: CGRect(
+            x: self.bounds.size.width - consts.kCharCounterTrailing,
+            y: self.bounds.size.height - consts.kCharCounterTop,
+            width: consts.kCharCounterWidth,
+            height: consts.kCharCounterHeight)
+        )
+    	ret.isHidden = true // will be updated dynamically
 		ret.textAlignment = .right
-		ret.textColor = UIColor(hue: 240/360, saturation: 0.02, brightness: 0.8, alpha: 1)
-		ret.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
+        ret.textColor = settings.charCounterDefaultColor
+		ret.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
+		ret.font = settings.charCounterFont
 		return ret
 	}()
 
 	lazy var textContainer: UIButton! = {
-        let textContainerFrame = CGRect(x: ComposeBarConsts.kHorizontalSpacing, y:
-			composeBarSettings.textContainerTopMargin, width:
-			self.bounds.size.width - ComposeBarConsts.kHorizontalSpacing * 3 - composeBarSettings.buttonRightMargin, height:
-											   self.bounds.size.height - composeBarSettings.textContainerTopMargin - composeBarSettings.textContainerBottomMargin)
+        let textContainerFrame = CGRect(
+            x: consts.kHorizontalSpacing,
+            y: settings.textContainerTopMargin,
+            width: self.bounds.size.width - consts.kHorizontalSpacing * 3 - settings.buttonRightMargin,
+            height: self.bounds.size.height - settings.textContainerTopMargin - settings.textContainerBottomMargin
+        )
 		let ret = UIButton(type: .custom)
 		ret.frame = textContainerFrame
 		ret.clipsToBounds = true
@@ -227,14 +252,19 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		let txtH = self.textHeight
 		self.previousTextHeight = txtH
 		var textViewFrame = textContainerFrame
-		textViewFrame.origin.x = composeBarSettings.textContainerLeftPadding
-		textViewFrame.origin.y = composeBarSettings.textContainerTopPadding + composeBarSettings.textViewTopMargin
-		textViewFrame.size.width = textViewFrame.size.width - composeBarSettings.textContainerLeftPadding - composeBarSettings.textContainerRightPadding
+		textViewFrame.origin.x = settings.textContainerLeftPadding
+		textViewFrame.origin.y = settings.textContainerTopPadding + settings.textViewTopMargin
+		textViewFrame.size.width = textViewFrame.size.width - settings.textContainerLeftPadding - settings.textContainerRightPadding
 		textViewFrame.size.height = self.textHeight
 		self.textView.frame = textViewFrame
 		ret.addSubview(self.textView)
 		
-		let placeholderFrame = CGRect(x: composeBarSettings.placeholderSideMargin, y: composeBarSettings.placeholderTopMargin, width: textContainerFrame.size.width - 2 * composeBarSettings.placeholderSideMargin, height: composeBarSettings.placeholderHeight)
+		let placeholderFrame = CGRect(
+            x: settings.placeholderSideMargin,
+            y: settings.placeholderTopMargin,
+            width: textContainerFrame.size.width - 2 * settings.placeholderSideMargin,
+            height: settings.placeholderHeight
+        )
 		
 		self.placeholderLabel.frame = placeholderFrame
 		ret.addSubview(self.placeholderLabel)
@@ -260,7 +290,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
     
     init(frame: CGRect, settings: MMAdvancedChatSettings) {
         super.init(frame: frame)
-        self.composeBarSettings = settings
+        self.settings = settings
         calculateRuntimeConstants()
         setup()
     }
@@ -307,7 +337,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 			ret.origin.y = 0.5
 			return ret
 		}()
-		updateCharCountLabel()
+		updateCharCounterLabel()
 		resizeTextViewIfNeededAnimated(false)
 	}
 	
@@ -317,17 +347,14 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		handleTextViewChangeAnimated(false)
         delegate?.textDidChange(text, completion: { _ in })
 	}
-	
-	//MARK: - public properties
-	
-	//MAKR: - privates
+		
 	private func calculateRuntimeConstants() {
-		if (ComposeBarConsts.kTextViewFirstLineHeight == 0 && ComposeBarConsts.kTextViewLineHeight == 0 && ComposeBarConsts.kTextViewToSuperviewHeightDelta == 0) {
-            ComposeBarConsts.kTextViewFirstLineHeight = textHeight
+		if (consts.kTextViewFirstLineHeight == 0 && consts.kTextViewLineHeight == 0 && consts.kTextViewToSuperviewHeightDelta == 0) {
+            consts.kTextViewFirstLineHeight = textHeight
 			textView.text = "\n"
-            ComposeBarConsts.kTextViewLineHeight = textHeight - ComposeBarConsts.kTextViewFirstLineHeight
+            consts.kTextViewLineHeight = textHeight - consts.kTextViewFirstLineHeight
 			textView.text = ""
-            ComposeBarConsts.kTextViewToSuperviewHeightDelta = CGFloat(ceilf(Float(composeBarSettings.initialHeight) - Float(ComposeBarConsts.kTextViewFirstLineHeight)))
+            consts.kTextViewToSuperviewHeightDelta = CGFloat(ceilf(Float(settings.initialHeight) - Float(consts.kTextViewFirstLineHeight)))
 		}
 	}
 	
@@ -337,7 +364,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		maxHeight = 200.0
 		autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
 		addSubview(backgroundView)
-		addSubview(charCountLabel)
+		addSubview(charCounterLabel)
 		addSubview(sendButton)
 		addSubview(textContainer)
         textView.delegate = self
@@ -345,7 +372,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	private func updateSendButtonEnabled() {
-		let enabled = isEnabled && textView.text.count > 0
+		let enabled = isEnabled && textView.text.count > 0 && textView.text.count <= ChatAttachmentUtils.DefaultMaxTextLength
         sendButton.isEnabled = enabled
 	}
 	
@@ -356,6 +383,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		
 		let th = textHeight
 		let mh = maxHeight
+
 		let pth = previousTextHeight
 		let delta = th - pth
 		
@@ -365,11 +393,12 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		
 		previousTextHeight = th
 		let newvh = max(
-			min(th + ComposeBarConsts.kTextViewToSuperviewHeightDelta, mh),
-			composeBarSettings.initialHeight
+			min(th + consts.kTextViewToSuperviewHeightDelta, mh),
+			settings.initialHeight
 		)
+
 		let viewHeightDelta = newvh - bounds.size.height
-		
+
 		guard viewHeightDelta != 0 else {
 			return
 		}
@@ -382,48 +411,58 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		if autoAdjustTopOffset {
 			frameEnd.origin.y = frameEnd.origin.y - viewHeightDelta
 		}
-		
+                
 		let animation = {
 			self.frame = frameEnd
 		}
 		
-		let animationDuration = ComposeBarConsts.kResizeAnimationDuration * animationDurationFactor
+		let animationDuration = consts.kResizeAnimationDuration * animationDurationFactor
 		
 		let willChangeUserInfo: [String: Any] = [
-			ComposeBarConsts.Notifications.Keys.frameBeginUserInfoKey: NSValue.init(cgRect: frameBegin),
-			ComposeBarConsts.Notifications.Keys.frameEndUserInfoKey: NSValue.init(cgRect: frameEnd),
-			ComposeBarConsts.Notifications.Keys.animationDurationUserInfoKey: animationDuration,
-			ComposeBarConsts.Notifications.Keys.animationCurveUserInfoKey: ComposeBarConsts.kResizeAnimationCurve
+			consts.Notifications.Keys.frameBeginUserInfoKey: NSValue.init(cgRect: frameBegin),
+			consts.Notifications.Keys.frameEndUserInfoKey: NSValue.init(cgRect: frameEnd),
+			consts.Notifications.Keys.animationDurationUserInfoKey: animationDuration,
+			consts.Notifications.Keys.animationCurveUserInfoKey: consts.kResizeAnimationCurve
 		]
 		
 		let didChangeUserInfo: [String: Any] = [
-			ComposeBarConsts.Notifications.Keys.frameBeginUserInfoKey: NSValue.init(cgRect: frameBegin),
-			ComposeBarConsts.Notifications.Keys.frameEndUserInfoKey: NSValue.init(cgRect: frameEnd)
+			consts.Notifications.Keys.frameBeginUserInfoKey: NSValue.init(cgRect: frameBegin),
+			consts.Notifications.Keys.frameEndUserInfoKey: NSValue.init(cgRect: frameEnd)
 		]
 		
 		let afterAnimation: (Bool) -> Void = {[weak self] _ in
-			self?.postNotification(name: ComposeBarConsts.Notifications.didChangeFrameNotification, userInfo: didChangeUserInfo)
+			self?.postNotification(name: consts.Notifications.didChangeFrameNotification, userInfo: didChangeUserInfo)
             self?.delegate?.composeBarDidChangeFrom(frameBegin, to: frameEnd)
 		}
 		
-		postNotification(name: ComposeBarConsts.Notifications.willChangeFrameNotification, userInfo: willChangeUserInfo)
-        delegate?.composeBarWillChangeFrom(frameBegin, to: frameEnd, duration: TimeInterval(animationDuration), animationCurve: ComposeBarConsts.kResizeAnimationCurve)
+		postNotification(name: consts.Notifications.willChangeFrameNotification, userInfo: willChangeUserInfo)
+        delegate?.composeBarWillChangeFrom(frameBegin, to: frameEnd, duration: TimeInterval(animationDuration), animationCurve: consts.kResizeAnimationCurve)
 		
 		if animated {
-			UIView.animate(withDuration: TimeInterval(ComposeBarConsts.kResizeAnimationDuration * animationDurationFactor), delay: 0, options: ComposeBarConsts.kResizeAnimationOptions, animations: animation, completion: afterAnimation)
+			UIView.animate(
+                withDuration: TimeInterval(consts.kResizeAnimationDuration * animationDurationFactor),
+                delay: 0,
+                options: consts.kResizeAnimationOptions,
+                animations: animation,
+                completion: afterAnimation
+            )
 		} else {
 			animation()
 			afterAnimation(true)
 		}
 	}
 	
-	private func updateCharCountLabel() {
+	private func updateCharCounterLabel() {
         DispatchQueue.mmEnsureMain {
-            let isHidden = self.maxCharCount == 0 || self.textHeight == ComposeBarConsts.kTextViewFirstLineHeight
-            self.charCountLabel.isHidden = isHidden
+            let count = self.textView.text.count
+            let isHidden = count < ChatAttachmentUtils.charCounterVisibleForLength
+            self.charCounterLabel.isHidden = isHidden
             if !isHidden {
-                let count = self.textView.text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).count
-                self.charCountLabel.text = "\(count)/\(self.maxCharCount)"
+                self.charCounterLabel.text = "\(count)/\(ChatAttachmentUtils.DefaultMaxTextLength)"
+                let exceedsMaxCharLimit = count > ChatAttachmentUtils.DefaultMaxTextLength
+                self.charCounterLabel.textColor = exceedsMaxCharLimit ?
+                                                self.settings.charCounterAlertColor :
+                                                self.settings.charCounterDefaultColor
             }
         }
 	}
@@ -432,7 +471,7 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		updatePlaceholderVisibility()
 		resizeTextViewIfNeededAnimated(animated)
 		scrollToCaretIfNeeded()
-		updateCharCountLabel()
+		updateCharCounterLabel()
 		updateSendButtonEnabled()
 	}
 	
@@ -440,22 +479,17 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		let previousButtonFrame = sendButton.frame
 		var newButtonFrame = previousButtonFrame
 		var textContainerFrame = textContainer.frame
-		var charCountLabelFrame = charCountLabel.frame
-		
+
         sendButton.sizeToFit()
-		
-		let widthDelta = sendButton.bounds.size.width + 2 * composeBarSettings.buttonTouchableOverlap - previousButtonFrame.size.width
-		
+
+		let widthDelta = sendButton.bounds.size.width + 2 * settings.buttonTouchableOverlap - previousButtonFrame.size.width
+
 		newButtonFrame.size.width = newButtonFrame.size.width + widthDelta
 		newButtonFrame.origin.x = newButtonFrame.origin.x - widthDelta
         sendButton.frame = newButtonFrame
-		
+
 		textContainerFrame.size.width = textContainerFrame.size.width - widthDelta
 		textContainer.frame = textContainerFrame
-		
-		charCountLabelFrame.origin.x = textContainerFrame.origin.x + textContainerFrame.size.width
-		charCountLabelFrame.size.width = bounds.size.width - charCountLabelFrame.origin.x - ComposeBarConsts.kHorizontalSpacing
-		charCountLabel.frame = charCountLabelFrame
 	}
 		
 	private func scrollToCaretIfNeeded() {
@@ -466,12 +500,12 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		
 		let position = selectedTextRange.start
 		var offset = textView.contentOffset
-		let relativeCaretY: CGFloat = textView.caretRect(for: position).origin.y - offset.y - ComposeBarConsts.kCaretYOffset
+		let relativeCaretY: CGFloat = textView.caretRect(for: position).origin.y - offset.y - consts.kCaretYOffset
 		var offsetYDelta: CGFloat = 0.0
 		if relativeCaretY < 0.0 {
 			offsetYDelta = relativeCaretY
 		} else if relativeCaretY > 0.0 {
-			let maxY = bounds.size.height - composeBarSettings.initialHeight
+			let maxY = bounds.size.height - settings.initialHeight
 			if relativeCaretY > maxY {
 				offsetYDelta = relativeCaretY - maxY
 			}
@@ -499,27 +533,10 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
         }
 	}
 
-    private func handleTextBuffer() {
-        precondition(Thread.isMainThread, "Not on main thread")
-        guard let text = textBuffer.first else { return }
-        textBuffer.removeFirst()
-        delegate?.send(text.livechatBasicPayload, completion: { error in
-            guard error == nil else { return }
-            DispatchQueue.main.async { [weak self] in
-                self?.handleTextBuffer()
-            }
-        })
-    }
-
 	@objc func didPressSendButton() {
-        // When a string longer than the max length is sent, we'll cut it into fragments of max length (or less) and send
-        // them as individual messages, in order. This only applies to the default ComposerBar. Custom composers will
-        // just trigger the chat's delegate method "textLengthExceeded" and not send.
         DispatchQueue.mmEnsureMain { [weak self] in
             guard let self else { return }
-            let max = Int(ChatAttachmentUtils.DefaultMaxTextLength)
-            self.textBuffer.append(contentsOf: self.text.mm_components(withMaxLength: max))
-            self.handleTextBuffer()
+            self.delegate?.send(self.text.livechatBasicPayload, completion: { _ in })
             self.text = ""
         }
 	}
@@ -530,17 +547,26 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	}
 	
 	var textHeight: CGFloat {
-		return CGFloat(ceilf(Float(textView.sizeThatFits(CGSize(width: textView.frame.size.width, height: CGFloat.greatestFiniteMagnitude)).height)))
+		return CGFloat(ceilf(Float(textView.sizeThatFits(
+            CGSize(width: textView.frame.size.width,
+                   height: CGFloat.greatestFiniteMagnitude)).height))
+        )
 	}
 	
 	private func postNotification(name: String, userInfo: [String: Any]) {
-		NotificationCenter.default.post(name: NSNotification.Name(rawValue: name), object: self, userInfo: userInfo)
+		NotificationCenter.default.post(
+            name: NSNotification.Name(rawValue: name),
+            object: self, userInfo: userInfo
+        )
 	}
 	
 	private func shifTextFieldInDirection(_ direction: Int8) {
+        let fDirection = CGFloat(direction)
+        let bWidth = settings.utilityButtonWidth
+        let hSpacing = consts.kHorizontalSpacing
 		var textContainerFrame = textContainer.frame
-		textContainerFrame.size.width = textContainerFrame.size.width - CGFloat(direction) * (composeBarSettings.utilityButtonWidth + ComposeBarConsts.kHorizontalSpacing)
-		textContainerFrame.origin.x = textContainerFrame.origin.x + CGFloat(direction) * (composeBarSettings.utilityButtonWidth + ComposeBarConsts.kHorizontalSpacing)
+		textContainerFrame.size.width = textContainerFrame.size.width - fDirection * (bWidth + hSpacing)
+		textContainerFrame.origin.x = textContainerFrame.origin.x + fDirection * (bWidth + hSpacing)
 		textContainer.frame = textContainerFrame
 	}
 	
@@ -549,8 +575,8 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
         shifTextFieldInDirection(+1)
 		let ub: UIButton = self.utilityButton
 		var utilityButtonFrame = ub.frame
-		utilityButtonFrame.origin.x = ComposeBarConsts.kHorizontalSpacing
-		utilityButtonFrame.origin.y = frame.size.height - composeBarSettings.utilityButtonHeight - composeBarSettings.utilityButtonBottomMargin
+		utilityButtonFrame.origin.x = consts.kHorizontalSpacing
+		utilityButtonFrame.origin.y = frame.size.height - settings.utilityButtonHeight - settings.utilityButtonBottomMargin
 		ub.frame = utilityButtonFrame
 		addSubview(ub)
 	}
@@ -560,6 +586,5 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
         shifTextFieldInDirection(-1)
 		utilityButton.removeFromSuperview()
 	}
-	
 	
 }

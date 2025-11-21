@@ -12,7 +12,8 @@ import Photos
 
 class ChatAttachmentUtils: NamedLogger {
     static let DefaultMaxAttachmentSize: UInt = 10*1024*1024 // 10Mb
-    static let DefaultMaxTextLength: UInt = 1024*4 // 4096 chars
+    static let DefaultMaxTextLength: UInt = 1024*4 // above 4096, char counter becomes red
+    static let charCounterVisibleForLength: UInt = 4000 // above, char counter becomes visible as light gray
     static func mimeType(forData data: Data) -> String {
         var result = "application/octet-stream"
         if let mimeType = Swime.mimeType(data: data)?.mime {
