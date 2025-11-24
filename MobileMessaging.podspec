@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
     s.swift_version = '5'
     s.requires_arc  = true
     s.pod_target_xcconfig =  {
-        'SWIFT_VERSION' => '5',
+        'SWIFT_VERSION' => '5.5',
         'OTHER_SWIFT_FLAGS[config=Debug]' => '$(inherited) -DDEBUG'
     }
     s.default_subspec = 'CocoaLumberjack'
