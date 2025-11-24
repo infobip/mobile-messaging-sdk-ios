@@ -31,7 +31,18 @@ struct JSONRequestEncoding: ParameterEncoding {
 }
 
 public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
-	var dynamicBaseUrl: URL?
+	private var _dynamicBaseUrl: URL?
+	private let baseUrlQueue = DispatchQueue(label: "com.infobip.mobilemessaging.baseurl", qos: .userInitiated)
+
+	var dynamicBaseUrl: URL? {
+		get {
+			return baseUrlQueue.sync { _dynamicBaseUrl }
+		}
+		set {
+			baseUrlQueue.sync { _dynamicBaseUrl = newValue }
+		}
+	}
+
 	var originalBaseUrl: URL
 	let configuration: URLSessionConfiguration
 	let alamofireSessionManager: SessionManager
@@ -59,15 +70,15 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 
 	private func storeDynamicBaseUrl(_ url: URL?) {
 		if let url = url {
-			storage.set(url, forKey: Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
+			storage.set(url, forKey: Consts.DynamicBaseUrl.storedDynamicBaseUrlKey)
 		} else {
-			storage.removeObject(forKey: Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
+			storage.removeObject(forKey: Consts.DynamicBaseUrl.storedDynamicBaseUrlKey)
 			storage.synchronize()
 		}
 	}
 
 	private func getStoredDynamicBaseUrl() -> URL? {
-		return storage.url(forKey: Consts.DynamicBaseUrlConsts.storedDynamicBaseUrlKey)
+		return storage.url(forKey: Consts.DynamicBaseUrl.storedDynamicBaseUrlKey)
 	}
 
 	func resolveUrl(_ r: RequestData) -> String {
@@ -130,7 +141,7 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
             logDebug("Cannot find host, resetting dynamic base URL")
 			resetBaseUrl()
 		} else {
-			if let httpResponse = response as? HTTPURLResponse, let newBaseUrlString = httpResponse.allHeaderFields[Consts.DynamicBaseUrlConsts.newBaseUrlHeader] as? String, let newDynamicBaseUrl = URL(string: newBaseUrlString) {
+			if let httpResponse = response as? HTTPURLResponse, let newBaseUrlString = httpResponse.value(forHTTPHeaderField: Consts.DynamicBaseUrl.newBaseUrlHeader), let newDynamicBaseUrl = URL(string: newBaseUrlString) {
 				setNewBaseUrl(newBaseUrl: newDynamicBaseUrl)
 			}
 		}

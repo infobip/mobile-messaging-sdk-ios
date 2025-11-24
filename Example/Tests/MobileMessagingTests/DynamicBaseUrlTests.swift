@@ -41,7 +41,7 @@ class DynamicBaseUrlTests: MMTestCase {
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
 		
 		// assert that DBU changed if a new one received
-		let responseWithNewBaseUrl = HTTPURLResponse(url: initialUrl, statusCode: 200, httpVersion: nil, headerFields: [Consts.DynamicBaseUrlConsts.newBaseUrlHeader: "https://new.com"])
+		let responseWithNewBaseUrl = HTTPURLResponse(url: initialUrl, statusCode: 200, httpVersion: nil, headerFields: [Consts.DynamicBaseUrl.newBaseUrlHeader: "https://new.com"])
 		sessionManager.handleDynamicBaseUrl(response: responseWithNewBaseUrl, error: nil)
 		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://new.com")
 		
@@ -222,5 +222,55 @@ class DynamicBaseUrlTests: MMTestCase {
 //		}
 //		
 //		self.waitForExpectations(timeout: 10) { _ in }
+	}
+
+	// MARK: - Case-Insensitive Header Tests
+
+	func testThatNewBaseUrlHeaderIsCaseInsensitiveMixedCase() {
+		// Test with mixed case "New-Base-URL" (HTTP/1.1 style)
+		// Clear any stored base URL from previous tests
+		UserDefaults.standard.removeObject(forKey: Consts.DynamicBaseUrl.storedDynamicBaseUrlKey)
+		UserDefaults.standard.synchronize()
+
+		let initialUrl = URL(string: "https://initial.com")!
+		let sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: nil)
+		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
+
+		// Simulate response with mixed case header (HTTP/1.1)
+		let responseWithMixedCaseHeader = HTTPURLResponse(url: initialUrl, statusCode: 200, httpVersion: nil, headerFields: ["New-Base-URL": "https://new-mixed.com"])
+		sessionManager.handleDynamicBaseUrl(response: responseWithMixedCaseHeader, error: nil)
+		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://new-mixed.com")
+	}
+
+	func testThatNewBaseUrlHeaderIsCaseInsensitiveLowercase() {
+		// Test with lowercase "new-base-url" (HTTP/2 style)
+		// Clear any stored base URL from previous tests
+		UserDefaults.standard.removeObject(forKey: Consts.DynamicBaseUrl.storedDynamicBaseUrlKey)
+		UserDefaults.standard.synchronize()
+
+		let initialUrl = URL(string: "https://initial2.com")!
+		let sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: nil)
+		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial2.com")
+
+		// Simulate response with lowercase header (HTTP/2)
+		let responseWithLowercaseHeader = HTTPURLResponse(url: initialUrl, statusCode: 200, httpVersion: nil, headerFields: ["new-base-url": "https://new-lower.com"])
+		sessionManager.handleDynamicBaseUrl(response: responseWithLowercaseHeader, error: nil)
+		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://new-lower.com")
+	}
+
+	func testThatNewBaseUrlHeaderIsCaseInsensitiveUppercase() {
+		// Test with uppercase "NEW-BASE-URL"
+		// Clear any stored base URL from previous tests
+		UserDefaults.standard.removeObject(forKey: Consts.DynamicBaseUrl.storedDynamicBaseUrlKey)
+		UserDefaults.standard.synchronize()
+
+		let initialUrl = URL(string: "https://initial3.com")!
+		let sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: nil)
+		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial3.com")
+
+		// Simulate response with uppercase header
+		let responseWithUppercaseHeader = HTTPURLResponse(url: initialUrl, statusCode: 200, httpVersion: nil, headerFields: ["NEW-BASE-URL": "https://new-upper.com"])
+		sessionManager.handleDynamicBaseUrl(response: responseWithUppercaseHeader, error: nil)
+		XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://new-upper.com")
 	}
 }
