@@ -299,6 +299,7 @@
 		A8FF1E122D842113003D66C8 /* LiveChatAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FF1E112D842112003D66C8 /* LiveChatAPI.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
 		D7D8676991D4F24F952F3F9B /* UserDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D8601249D4FAAD2A589A3D /* UserDataService.swift */; };
+		E2173FF52ECB665C00A65BEC /* UserDataValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2173FF42ECB665C00A65BEC /* UserDataValidator.swift */; };
 		E82568AF2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */; };
 /* End PBXBuildFile section */
 
@@ -672,6 +673,7 @@
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		C146998C41B16C1606AEA6547A0285E7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		D7D8601249D4FAAD2A589A3D /* UserDataService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataService.swift; sourceTree = "<group>"; };
+		E2173FF42ECB665C00A65BEC /* UserDataValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataValidator.swift; sourceTree = "<group>"; };
 		E82568AE2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileMessaging+PluginsMethods.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -885,6 +887,7 @@
 		76212E6F21B043A0002FB8D9 /* User */ = {
 			isa = PBXGroup;
 			children = (
+				E2173FF42ECB665C00A65BEC /* UserDataValidator.swift */,
 				D7D8601249D4FAAD2A589A3D /* UserDataService.swift */,
 				76212E7121B043D5002FB8D9 /* UserStandardAttributeModels.swift */,
 				76626D14218B2CD200E95E2C /* CustomAttributeModels.swift */,
@@ -1631,6 +1634,7 @@
 				764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */,
 				764556BE1F78FFCB00B8F14B /* RetryableDownloadTask.swift in Sources */,
 				7617505723351827000438A8 /* Validation.swift in Sources */,
+				E2173FF52ECB665C00A65BEC /* UserDataValidator.swift in Sources */,
 				763A1AE923E224DC00C997BC /* RepeatingTimer.swift in Sources */,
 				A08E503F2496536700F026ED /* ChatLocalization.swift in Sources */,
 				765B9FBE2012126700B1E77A /* MessageHandlingDelegate.swift in Sources */,

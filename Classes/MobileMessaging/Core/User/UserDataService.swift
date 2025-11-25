@@ -99,6 +99,12 @@ class UserDataService: MobileMessagingService {
 
     func save(userInitiated: Bool, userData: MMUser, completion: @escaping (NSError?) -> Void) {
         assert(!Thread.isMainThread)
+        do {
+            try UserDataValidator.validate(user: userData)
+        } catch let validationError as NSError {
+            completion(validationError)
+            return
+        }
 		logDebug("saving \(userData.dictionaryRepresentation)")
 		userData.archiveDirty()
         syncWithServer(userInitiated: userInitiated, completion: completion)
@@ -119,6 +125,16 @@ class UserDataService: MobileMessagingService {
 
     func personalize(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (NSError?) -> Void) {
         assert(!Thread.isMainThread)
+
+        // Validate user data before personalization
+        do {
+            try UserDataValidator.validate(userIdentity: userIdentity)
+            try UserDataValidator.validate(userAttributes: userAttributes)
+        } catch let validationError as NSError {
+            completion(validationError)
+            return
+        }
+
 		let du = mmContext.dirtyUser()
 		UserDataMapper.apply(userIdentity: userIdentity, to: du)
 		if let userAttributes = userAttributes {

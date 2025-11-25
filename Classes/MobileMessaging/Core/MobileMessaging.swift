@@ -293,7 +293,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     /**
      Asynchronously saves changed user data on the server.
-     
+
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter user: User data to save on server.
      - parameter completion: The block to execute after the server responded.
@@ -400,7 +400,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     /**
      Asynchronously personalizes current installation with a person on the server.
      Each user can have Phone numbers, Emails and External user ID. These fields are unique identifiers of a user profile on Infobip platform and provide capability to personalize any app installation with a user profile. The platform provides data grouping functions based on these parameters. For example, if two installations of a particular app will try to save the same Phone number, then both of them will be collected under a single user. Phone number, Email and External user ID are also widely used when targeting users with messages across different channels via Infobip platform.
-     
+
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter forceDepersonalize: Determines whether or not the depersonalization should be performed on our server in order to depersonalize the installation from previous user profile.
      - parameter userIdentity: A combination of phones, emails and an external user id that will form a unique key for a person.

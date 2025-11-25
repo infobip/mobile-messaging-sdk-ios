@@ -28,6 +28,7 @@ public enum MMInternalErrorType: Error {
     case JwtStructureValidationHeaderMissingFieldsError
     case JwtStructureValidationPayloadNotValidError
     case JwtStructureValidationMissingClaimsError
+    case UserDataValidationError
     
     fileprivate var errorCode: Int {
         switch self {
@@ -65,6 +66,8 @@ public enum MMInternalErrorType: Error {
             return 15
         case .JwtStructureValidationMissingClaimsError:
             return 16
+        case .UserDataValidationError:
+            return 17
         }
     }
     
@@ -117,8 +120,10 @@ public enum MMInternalErrorType: Error {
         case .JwtStructureValidationMissingClaimsError:
             errorDescription = NSLocalizedString("JWT token has invalid structure.", comment: "")
             return [NSLocalizedDescriptionKey: errorDescription, MMConsts.APIKeys.errorMessageId: MMJwtValidator.invalidToken]
+        case .UserDataValidationError:
+            errorDescription = NSLocalizedString("User data validation failed. Please check field limits.", comment: "")
         }
-        
+
         return [NSLocalizedDescriptionKey: errorDescription]
     }
     
