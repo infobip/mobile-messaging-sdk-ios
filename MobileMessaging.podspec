@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
     s.source        = { :git => 'https://github.com/infobip/mobile-messaging-sdk-ios.git', :tag => s.version }
     s.platform      = :ios
     s.ios.deployment_target = '15.0'
-    s.swift_version = '5'
+    s.swift_version = '5.5'
     s.requires_arc  = true
     s.pod_target_xcconfig =  {
         'SWIFT_VERSION' => '5.5',
@@ -75,7 +75,7 @@ Pod::Spec.new do |s|
         webrtcui.source_files = 'Classes/WebRTCUI/**/*.{h,m,swift}'
         webrtcui.resource_bundles = {'MMWebRTCUI' => ['Classes/WebRTCUI/Resources/**/*.{xcassets,png,wav,svg,html}']}
         s.pod_target_xcconfig = {
-            'SWIFT_VERSION' => '5',
+            'SWIFT_VERSION' => '5.5',
             'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) COCOAPODS=1 WEBRTCUI_ENABLED=1',
             'OTHER_SWIFT_FLAGS' => '$(inherited) -D WEBRTCUI_ENABLED'
         }    
