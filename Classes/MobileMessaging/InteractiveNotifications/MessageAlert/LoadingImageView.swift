@@ -9,7 +9,7 @@
 import UIKit
 
 class LoadingImageView: UIView {
-    @IBOutlet weak var contentImageView: AnimatedImageView!
+    @IBOutlet weak var contentImageView: MMAnimatedImageView!
 	@IBOutlet weak var errorLabel: UILabel!
     
     var view: UIView!

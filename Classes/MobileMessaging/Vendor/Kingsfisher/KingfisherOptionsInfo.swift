@@ -97,7 +97,7 @@ internal enum KingfisherOptionsInfoItem {
 
     /// Whether all the animated image data should be preloaded. Default it false, which means following frames will be
     /// loaded on need. If true, all the animated image data will be loaded and decoded into memory. This option is mainly
-    /// used for back compatibility internally. You should not set it directly. `AnimatedImageView` will not preload
+    /// used for back compatibility internally. You should not set it directly. `MMAnimatedImageView` will not preload
     /// all data, while a normal image view (`UIImageView` or `NSImageView`) will load all data. Choose to use
     /// corresponding image view type instead of setting this option.
     case preloadAllAnimationData

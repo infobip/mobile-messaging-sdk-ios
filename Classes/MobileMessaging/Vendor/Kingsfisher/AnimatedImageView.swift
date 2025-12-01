@@ -34,37 +34,37 @@
 import UIKit
 import ImageIO
 
-/// Protocol of `AnimatedImageView`.
-internal protocol AnimatedImageViewDelegate: AnyObject {
+/// Protocol of `MMAnimatedImageView`.
+internal protocol MMAnimatedImageViewDelegate: AnyObject {
     /**
      Called after the animatedImageView has finished each animation loop.
 
      - parameter imageView: The animatedImageView that is being animated.
      - parameter count: The looped count.
      */
-    func animatedImageView(_ imageView: AnimatedImageView, didPlayAnimationLoops count: UInt)
+    func animatedImageView(_ imageView: MMAnimatedImageView, didPlayAnimationLoops count: UInt)
 
     /**
      Called after the animatedImageView has reached the max repeat count.
 
      - parameter imageView: The animatedImageView that is being animated.
      */
-    func animatedImageViewDidFinishAnimating(_ imageView: AnimatedImageView)
+    func animatedImageViewDidFinishAnimating(_ imageView: MMAnimatedImageView)
 }
 
-extension AnimatedImageViewDelegate {
-    internal func animatedImageView(_ imageView: AnimatedImageView, didPlayAnimationLoops count: UInt) {}
-    internal func animatedImageViewDidFinishAnimating(_ imageView: AnimatedImageView) {}
+extension MMAnimatedImageViewDelegate {
+    internal func animatedImageView(_ imageView: MMAnimatedImageView, didPlayAnimationLoops count: UInt) {}
+    internal func animatedImageViewDidFinishAnimating(_ imageView: MMAnimatedImageView) {}
 }
 
-/// `AnimatedImageView` is a subclass of `UIImageView` for displaying animated image.
-open class AnimatedImageView: UIImageView {
+/// `MMAnimatedImageView` is a subclass of `UIImageView` for displaying animated image.
+open class MMAnimatedImageView: UIImageView {
     
-    /// Proxy object for prevending a reference cycle between the CADDisplayLink and AnimatedImageView.
+    /// Proxy object for prevending a reference cycle between the CADDisplayLink and MMAnimatedImageView.
     class TargetProxy {
-        private weak var target: AnimatedImageView?
+        private weak var target: MMAnimatedImageView?
         
-        init(target: AnimatedImageView) {
+        init(target: MMAnimatedImageView) {
             self.target = target
         }
         
@@ -129,8 +129,8 @@ open class AnimatedImageView: UIImageView {
         }
     }
 
-    /// Delegate of this `AnimatedImageView` object. See `AnimatedImageViewDelegate` protocol for more.
-    internal weak var kf_delegate: AnimatedImageViewDelegate?
+    /// Delegate of this `MMAnimatedImageView` object. See `MMAnimatedImageViewDelegate` protocol for more.
+    internal weak var kf_delegate: MMAnimatedImageViewDelegate?
     
     // MARK: - Private property
     /// `Animator` instance that holds the frames of a specific image in memory.
@@ -272,7 +272,7 @@ open class AnimatedImageView: UIImageView {
     }
 }
 
-extension AnimatedImageView: AnimatorDelegate {
+extension MMAnimatedImageView: AnimatorDelegate {
     func animator(_ animator: Animator, didPlayAnimationLoops count: UInt) {
         kf_delegate?.animatedImageView(self, didPlayAnimationLoops: count)
     }
@@ -296,7 +296,7 @@ class Animator {
     fileprivate let size: CGSize
     fileprivate let maxFrameCount: Int
     fileprivate let imageSource: CGImageSource
-    fileprivate let maxRepeatCount: AnimatedImageView.RepeatCount
+    fileprivate let maxRepeatCount: MMAnimatedImageView.RepeatCount
     
     fileprivate var animatedFrames = [AnimatedFrame]()
     fileprivate let maxTimeStep: TimeInterval = 1.0
@@ -337,8 +337,8 @@ class Animator {
      Init an animator with image source reference.
      
      - parameter imageSource: The reference of animated image.
-     - parameter contentMode: Content mode of AnimatedImageView.
-     - parameter size: Size of AnimatedImageView.
+     - parameter contentMode: Content mode of MMAnimatedImageView.
+     - parameter size: Size of MMAnimatedImageView.
      - parameter framePreloadCount: Frame cache size.
      
      - returns: The animator object.
@@ -347,7 +347,7 @@ class Animator {
 		 contentMode mode: UIView.ContentMode,
          size: CGSize,
          framePreloadCount count: Int,
-         repeatCount: AnimatedImageView.RepeatCount) {
+         repeatCount: MMAnimatedImageView.RepeatCount) {
         self.imageSource = source
         self.contentMode = mode
         self.size = size
