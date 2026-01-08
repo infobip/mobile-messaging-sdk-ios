@@ -8,8 +8,8 @@ Mobile Messaging SDK is designed and developed to easily enable push notificatio
 
 ## Requirements
 - Xcode 16+
-- Swift 5.0
-- iOS 13.0+
+- Swift 5.5+
+- iOS 15.0+
 
 ## Quick start guide
 This guide is designed to get you up and running with Mobile Messaging SDK integrated into your iOS application. 
@@ -23,7 +23,11 @@ This guide is designed to get you up and running with Mobile Messaging SDK integ
     2. Turn on Background Modes and check the Remote notifications checkbox.
     <img src="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Images/background_modes.png?raw=true" alt="Enable Remote Notifications in Background Modes settings"/>
     
-3. Using <a href="https://guides.cocoapods.org/using/getting-started.html#getting-started" target="_blank">CocoaPods</a>, specify it in your `Podfile`:
+3. Include Mobile Messaging as dependency in your project with your preferred method:
+
+a) Using <a href="https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Integration-via-Swift-Package-Manager" target="_blank">Swift Package Manager</a>, directly in Xcode's *Package Dependencies* or your *Package.swift* file, from this URL: https://github.com/infobip/mobile-messaging-sdk-ios.
+
+b) Or alternatively, using <a href="https://guides.cocoapods.org/using/getting-started.html#getting-started" target="_blank">CocoaPods</a>, specify it in your `Podfile`:
 
     ```ruby
     source 'https://github.com/CocoaPods/Specs.git'
