@@ -283,6 +283,10 @@ public class MMInAppChatService: MobileMessagingService {
 
     @objc
     private func personalizedEventReceived() {
+        if chatWidget == nil {
+            // This could be the case where the operations were cancelled due to forceDepersonalization
+            getChatWidget { _ in }
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
             // We give time to People to reflect the change
             self?.obtainChatRegistrations()
