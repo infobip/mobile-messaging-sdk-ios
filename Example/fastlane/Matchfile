@@ -1,9 +1,13 @@
-git_url "ssh://git@git.ib-ci.com:7999/mml/ios-certificates.git"
+git_url("ssh://git@git.ib-ci.com:7999/mml/mmt-ios-certificates.git")
 
-type "development"
+storage_mode("git")
+
+type("development") # The default type, can be: appstore, adhoc, enterprise or development
 
 readonly true
 
-app_identifier ["com.infobip.mobilemessaging.example", "com.infobip.mobilemessaging.example.NotificationServiceExtension"]
+app_identifier(["com.infobip.mobilemessaging.example", "com.infobip.mobilemessaging.example.NotificationServiceExtension"])
 
-username "andrey.kadochnikov@infobip.com"
+username("team_mobile_messaging@infobip.com") # Your Apple Developer Portal username
+
+
