@@ -11,34 +11,53 @@ import InAppChat
 import WebRTCUI
 import InfobipRTC
 
-struct ContentView: SwiftUI.View {
-    @State var showChat: Bool = false
+final class ChatBackBridge: ObservableObject {
+    var onBackTapped: (() -> Bool)?
+}
 
-    var showBtn: some SwiftUI.View {
-        Button("Show livechat + custom webRTCUI presentation") {
-            showChat.toggle()
+struct CustomBackButton: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var backBridge: ChatBackBridge
+
+    var body: some View {
+        Button {
+            // We check if chat has internal navigation that needs to go back first:
+            // onBackTapped returns true if we should dismiss, false if handled internally
+            if backBridge.onBackTapped?() ?? true {
+                // No internal navigation, dismiss to home screen
+                dismiss()
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.backward")
+            }
         }
     }
+}
+
+struct ContentView: SwiftUI.View {
+    @StateObject private var backBridge = ChatBackBridge()
 
     var body: some SwiftUI.View {
-        NavigationView {
-            VStack(spacing: 20) {
-                NavigationLink(destination: NavigationLazyView(LiveChatViewControllerRepresentable()), isActive: $showChat, label: {
-                    showBtn
-                })
+        NavigationStack {
+            ZStack {
+                NavigationLink(destination: chatViewWithCustomBack()) {
+                    Text("Show chat")
+                }
             }
             .padding()
         }.navigationViewStyle(StackNavigationViewStyle())
     }
-}
-
-struct NavigationLazyView<Content: SwiftUI.View>: SwiftUI.View {
-    let build: () -> Content
-    init(_ build: @autoclosure @escaping () -> Content) {
-        self.build = build
-    }
-    var body: Content {
-        build()
+    
+    @ViewBuilder
+    private func chatViewWithCustomBack() -> some View {
+        ChatView(backBridge: backBridge)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    CustomBackButton(backBridge: backBridge)
+                }
+            }
     }
 }
 
@@ -46,30 +65,45 @@ struct NavigationLazyView<Content: SwiftUI.View>: SwiftUI.View {
     ContentView()
 }
 
-struct LiveChatViewControllerRepresentable: UIViewControllerRepresentable {
-    var liveChatVC = MMChatViewController.makeModalViewController()
+struct ChatView: UIViewControllerRepresentable {
+    @ObservedObject var backBridge: ChatBackBridge
+
     func makeUIViewController(context: Context) -> InAppChat.MMChatViewController {
         MobileMessaging.webRTCService?.delegate = context.coordinator
         MMChatSettings.sharedInstance.shouldSetNavBarAppearance = false
         MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance = false
-        return liveChatVC
+        backBridge.onBackTapped = { [weak coordinator = context.coordinator] in
+           return coordinator?.handleBackAction() ?? false
+        }
+        return context.coordinator.chatVC
     }
     
-    func updateUIViewController(_ uiViewController: InAppChat.MMChatViewController, context: Context) { }
+    func updateUIViewController(_ uiViewController: InAppChat.MMChatViewController, context: Context) {
+        backBridge.onBackTapped = { [weak coordinator = context.coordinator] in
+           return coordinator?.handleBackAction() ?? false
+        }
+    }
     
     typealias UIViewControllerType = MMChatViewController
     
     func makeCoordinator() -> Coordinator {
-        return Coordinator(parent: self)
+        return Coordinator()
     }
     
     class Coordinator: MMWebRTCDelegate {
+        let chatVC = MMChatViewController.makeChildNavigationViewController()
+
+        func handleBackAction() -> Bool {
+            // Use SDK's method to check if back should dismiss or be handled internally
+            return chatVC.onCustomBackPressed()
+        }
+        
         func inboundCallEstablished(_ call: ApplicationCall, event: CallEstablishedEvent) {
             if let callController = MobileMessaging.webRTCService?.getInboundCallController(
                 incoming: call,
                 establishedEvent: event
             ) {
-                parent.liveChatVC.present(callController, animated: true)
+                chatVC.present(callController, animated: true)
             }
         }
         
@@ -78,7 +112,7 @@ struct LiveChatViewControllerRepresentable: UIViewControllerRepresentable {
                 incoming: call,
                 establishedEvent: event
             ) {
-                parent.liveChatVC.present(callController, animated: true)
+                chatVC.present(callController, animated: true)
             }
         }
         
@@ -88,12 +122,6 @@ struct LiveChatViewControllerRepresentable: UIViewControllerRepresentable {
         
         func callUnregistrationEnded(with statusCode: MMWebRTCRegistrationCode, and error: Error?) {
             print("Unregistration ended")
-        }
-
-        private let parent: LiveChatViewControllerRepresentable
-        
-        init(parent: LiveChatViewControllerRepresentable) {
-            self.parent = parent
         }
     }
 }
