@@ -116,7 +116,7 @@ public class MMInAppChatService: MobileMessagingService {
     }
 	
 	///In-app Chat delegate, can be set to receive additional chat info.
-	public var delegate: MMInAppChatDelegate? {
+	weak public var delegate: MMInAppChatDelegate? {
 		didSet {
             DispatchQueue.main.async { [unowned self] in
                 self.delegate?.inAppChatIsEnabled?(self.isConfigurationSynced)

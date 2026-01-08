@@ -24,7 +24,7 @@ public class MMInteractiveMessageAlertSettings: NSObject {
 
 class InteractiveMessageAlertManager: NamedLogger {
 	static let sharedInstance = InteractiveMessageAlertManager()
-	var delegate: InAppAlertDelegate?
+	weak var delegate: InAppAlertDelegate?
 
 	func cancelAllAlerts() {
 		AlertQueue.sharedInstace.cancelAllAlerts()
