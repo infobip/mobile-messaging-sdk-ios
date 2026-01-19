@@ -33,7 +33,7 @@ import SystemConfiguration
 /// Reachability can be used to determine background information about why a network operation failed, or to retry
 /// network requests when a connection is established. It should not be used to prevent a user from initiating a network
 /// request, as it's possible that an initial request may be required to establish reachability.
-public class NetworkReachabilityManager {
+public class MMNetworkReachabilityManager {
     /// Defines the various states of network reachability.
     ///
     /// - unknown:      It is unknown whether the network is reachable.
@@ -61,7 +61,7 @@ public class NetworkReachabilityManager {
     // MARK: - Properties
 
     /// Whether the network is currently reachable.
-    var isReachable: Bool { return isReachableOnWWAN || isReachableOnEthernetOrWiFi }
+    public var isReachable: Bool { return isReachableOnWWAN || isReachableOnEthernetOrWiFi }
 
     /// Whether the network is currently reachable over the WWAN interface.
     var isReachableOnWWAN: Bool { return networkReachabilityStatus == .reachable(.wwan) }
@@ -150,7 +150,7 @@ public class NetworkReachabilityManager {
         let callbackEnabled = SCNetworkReachabilitySetCallback(
             reachability,
             { (_, flags, info) in
-                let reachability = Unmanaged<NetworkReachabilityManager>.fromOpaque(info!).takeUnretainedValue()
+                let reachability = Unmanaged<MMNetworkReachabilityManager>.fromOpaque(info!).takeUnretainedValue()
                 reachability.notifyListener(flags)
             },
             &context
@@ -210,7 +210,7 @@ public class NetworkReachabilityManager {
 
 // MARK: -
 
-extension NetworkReachabilityManager.NetworkReachabilityStatus: Equatable {}
+extension MMNetworkReachabilityManager.NetworkReachabilityStatus: Equatable {}
 
 /// Returns whether the two network reachability status values are equal.
 ///
@@ -219,8 +219,8 @@ extension NetworkReachabilityManager.NetworkReachabilityStatus: Equatable {}
 ///
 /// - returns: `true` if the two values are equal, `false` otherwise.
 public func ==(
-    lhs: NetworkReachabilityManager.NetworkReachabilityStatus,
-    rhs: NetworkReachabilityManager.NetworkReachabilityStatus)
+    lhs: MMNetworkReachabilityManager.NetworkReachabilityStatus,
+    rhs: MMNetworkReachabilityManager.NetworkReachabilityStatus)
     -> Bool
 {
     switch (lhs, rhs) {

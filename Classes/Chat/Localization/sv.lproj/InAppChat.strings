@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Överföring av bilaga misslyckades";
 "mm_attachment_upload_failed_alert_message" = "Maximal tillåten storlek överskridits";
 "mm_permissions_alert_message" = "Gå till Inställningar för att bevilja behörigheter";
+"mm_error_try_again_or_contact_support" = "Försök igen senare eller kontakta kundtjänst. Felkod: %1$@.";

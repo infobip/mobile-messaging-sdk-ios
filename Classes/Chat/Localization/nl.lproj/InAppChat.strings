@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Uploaden van bijlage mislukt";
 "mm_attachment_upload_failed_alert_message" = "Maximaal toegestane grootte overschreden";
 "mm_permissions_alert_message" = "Ga naar Instellingen om machtigingen te verlenen";
+"mm_error_try_again_or_contact_support" = "Probeer het later opnieuw of neem contact op met de klantenservice. Foutcode: %1$@.";

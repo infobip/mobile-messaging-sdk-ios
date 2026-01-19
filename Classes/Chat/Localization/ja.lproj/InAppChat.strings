@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "添付ファイルのアップロードに失敗しました";
 "mm_attachment_upload_failed_alert_message" = "最大許容サイズを超えています";
 "mm_permissions_alert_message" = "権限を付与するには、[設定]に移動します";
+"mm_error_try_again_or_contact_support" = "後でもう一度お試しいただくか、カスタマーサポートにお問い合わせください。エラーコード: %1$@。";

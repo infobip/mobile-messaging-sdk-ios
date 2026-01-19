@@ -8,24 +8,17 @@
 
 import Foundation
 import UIKit
-#if WEBRTCUI_ENABLED
 
 @objc
 public class MMPopupView: UIAlertController {
-    
-    public enum BrandStyle: Int {
-        case error = 0
-        case info = 1
-    }
-    
     public static func display(
         title: String?, 
-        message: String?, 
-        style: MMPopupView.BrandStyle,
+        message: String?,
+        foregroundColor: UIColor,
+        backgroundColor: UIColor,
         actions: [UIAlertAction] = [UIAlertAction(title: MMLoc.ok, style: .cancel, handler: nil)],
         in viewController: UIViewController) {
         DispatchQueue.mmEnsureMain {
-            let settings = MMWebRTCSettings.sharedInstance
             let popup = MMPopupView(title: title, message: message,
                                     preferredStyle: .alert)
             if UIDevice.current.userInterfaceIdiom == .pad,
@@ -34,10 +27,10 @@ public class MMPopupView: UIAlertController {
                 popoverController.sourceRect = viewController.view.frame
                 popoverController.permittedArrowDirections = []
             }
-            popup.mmSetup(backgroundColor: style == .error ? settings.errorColor : settings.backgroundColor,
-                          titleColor: settings.foregroundColor,
-                          messageColor: settings.foregroundColor,
-                          buttonsLabelColor: settings.foregroundColor,
+            popup.mmSetup(backgroundColor: backgroundColor,
+                          titleColor: foregroundColor,
+                          messageColor: foregroundColor,
+                          buttonsLabelColor: foregroundColor,
                           titleFont: UIFont(name: "Roboto", size: 20.0) ??  UIFont(name: "HelveticaNeue", size: 20.0), 
                           messageFont: UIFont(name: "Roboto", size: 14.0) ??  UIFont(name: "HelveticaNeue", size: 14.0))
             for action in actions {
@@ -55,4 +48,3 @@ public class MMPopupView: UIAlertController {
         }
     }
 }
-#endif

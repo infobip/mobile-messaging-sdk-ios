@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Échec du téléchargement des pièces jointes";
 "mm_attachment_upload_failed_alert_message" = "Dépassement de la taille maximale autorisée";
 "mm_permissions_alert_message" = "Pour accorder des autorisations, accédez à Paramètres";
+"mm_error_try_again_or_contact_support" = "Réessayez plus tard ou contactez le support client. Code d'erreur : %1$@.";

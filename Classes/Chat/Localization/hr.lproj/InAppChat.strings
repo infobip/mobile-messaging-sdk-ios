@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Prijenos privitka nije uspio";
 "mm_attachment_upload_failed_alert_message" = "Premašena je najveća dopuštena veličina";
 "mm_permissions_alert_message" = "Da biste odobrili odobrenja, idite na Postavke";
+"mm_error_try_again_or_contact_support" = "Pokušajte ponovno kasnije ili kontaktirajte korisničku podršku. Kod greške: %1$@.";

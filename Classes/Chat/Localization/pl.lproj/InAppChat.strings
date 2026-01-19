@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Przesyłanie załącznika nie powiodło się";
 "mm_attachment_upload_failed_alert_message" = "Przekroczono maksymalny dozwolony rozmiar";
 "mm_permissions_alert_message" = "Aby przyznać uprawnienia, przejdź do Ustawień";
+"mm_error_try_again_or_contact_support" = "Spróbuj ponownie później lub skontaktuj się z obsługą klienta. Kod błędu: %1$@.";

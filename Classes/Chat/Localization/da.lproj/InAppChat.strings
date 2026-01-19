@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Upload af vedhæftet fil mislykkedes";
 "mm_attachment_upload_failed_alert_message" = "Maksimal tilladt størrelse overskredet";
 "mm_permissions_alert_message" = "Gå til Indstillinger for at give tilladelser";
+"mm_error_try_again_or_contact_support" = "Prøv igen senere eller kontakt kundesupport. Fejlkode: %1$@.";

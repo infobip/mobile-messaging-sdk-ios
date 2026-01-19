@@ -25,7 +25,7 @@ public extension MMOpenSettings {
         completion: ((Bool) -> Void)?
     ) {
         DispatchQueue.main.async {
-            guard let viewController = UIApplication.shared._keyWindow?.rootViewController else {
+            guard let viewController = UIApplication.shared.mmkeyWindow?.rootViewController else {
                 return
             }
             let gotoSettingsAction = UIAlertAction(title: MMLoc.settings, style: .default, handler: { _ in
@@ -45,7 +45,8 @@ public extension MMOpenSettings {
              MMPopupView.display(
                 title: title,
                 message: description,
-                style: .info,
+                foregroundColor: MMWebRTCSettings.sharedInstance.foregroundColor,
+                backgroundColor: MMWebRTCSettings.sharedInstance.backgroundColor,
                 actions: [gotoSettingsAction, cancelAction],
                 in: viewController)
         }

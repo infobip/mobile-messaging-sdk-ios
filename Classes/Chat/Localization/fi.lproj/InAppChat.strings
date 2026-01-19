@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Liitteen lähettäminen epäonnistui";
 "mm_attachment_upload_failed_alert_message" = "Suurin sallittu koko ylitetty";
 "mm_permissions_alert_message" = "Voit myöntää käyttöoikeudet siirtymällä kohtaan Asetukset";
+"mm_error_try_again_or_contact_support" = "Yritä myöhemmin uudelleen tai ota yhteyttä asiakastukeen. Virhekoodi: %1$@.";

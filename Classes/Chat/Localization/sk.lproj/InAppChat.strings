@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Odovzdanie prílohy zlyhalo";
 "mm_attachment_upload_failed_alert_message" = "Bola prekročená maximálna povolená veľkosť";
 "mm_permissions_alert_message" = "Ak chcete udeliť povolenia, prejdite na Nastavenia";
+"mm_error_try_again_or_contact_support" = "Skúste to neskôr alebo kontaktujte zákaznícku podporu. Kód chyby: %1$@.";

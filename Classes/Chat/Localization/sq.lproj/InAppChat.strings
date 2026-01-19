@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Ngarkimi i bashkëngjitjes dështoi";
 "mm_attachment_upload_failed_alert_message" = "Madhësia maksimale e lejuar është e kaluar";
 "mm_permissions_alert_message" = "Për të dhënë leje, shkoni te Cilësimet";
+"mm_error_try_again_or_contact_support" = "Provoni përsëri më vonë ose kontaktoni mbështetjen e klientit. Kodi i gabimit: %1$@.";

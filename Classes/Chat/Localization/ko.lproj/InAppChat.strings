@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "첨부 파일 업로드 실패";
 "mm_attachment_upload_failed_alert_message" = "최대 허용 크기를 초과했습니다";
 "mm_permissions_alert_message" = "권한을 부여하려면 설정으로 이동하십시오";
+"mm_error_try_again_or_contact_support" = "나중에 다시 시도하거나 고객 지원에 문의하세요. 오류 코드: %1$@.";

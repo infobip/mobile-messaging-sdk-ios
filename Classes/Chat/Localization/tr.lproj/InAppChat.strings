@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Ek yüklenemedi";
 "mm_attachment_upload_failed_alert_message" = "İzin verilen maksimum boyut aşıldı";
 "mm_permissions_alert_message" = "İzin vermek için Ayarlar'a gidin";
+"mm_error_try_again_or_contact_support" = "Daha sonra tekrar deneyin veya müşteri desteğine başvurun. Hata kodu: %1$@.";

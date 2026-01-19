@@ -254,10 +254,11 @@ public class MMCallController: UIViewController, MMPIPUsable {
     
     func showErrorAlert(message: String?) {
         guard let message = message else { return }
-        let settings = MMWebRTCSettings.sharedInstance
         MMPopOverBar.show(
-            backgroundColor: settings.errorColor,
-            textColor: settings.foregroundColor,
+            textColor: MMWebRTCSettings.sharedInstance.foregroundColor,
+            backgroundColor: MMWebRTCSettings.sharedInstance.backgroundColor,
+            icon:  MMWebRTCSettings.sharedInstance.iconAlert,
+            iconTint: MMWebRTCSettings.sharedInstance.foregroundColor,
             message: message,
             duration: 3,
             options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
@@ -303,8 +304,10 @@ public class MMCallController: UIViewController, MMPIPUsable {
             
             let settings = MMWebRTCSettings.sharedInstance
             MMPopOverBar.show(
-                backgroundColor: settings.backgroundColor,
                 textColor: settings.foregroundColor,
+                backgroundColor: settings.errorColor,
+                icon: MMWebRTCSettings.sharedInstance.iconAlert,
+                iconTint: settings.foregroundColor,
                 message: MMLoc.microphoneMuted,
                 duration: 9999,
                 hideOnTap: false, // Don't use double(Int.max) because it overflows TimeInterval
@@ -331,8 +334,10 @@ public class MMCallController: UIViewController, MMPIPUsable {
 
             let settings = MMWebRTCSettings.sharedInstance
             MMPopOverBar.show(
-                backgroundColor: settings.backgroundColor,
                 textColor: settings.foregroundColor,
+                backgroundColor: settings.backgroundColor,
+                icon: MMWebRTCSettings.sharedInstance.iconAlert,
+                iconTint: settings.foregroundColor,
                 message: MMLoc.connectionProblems,
                 duration: 9999, // Don't use double(Int.max) because it overflows TimeInterval
                 options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
@@ -353,7 +358,7 @@ public class MMCallController: UIViewController, MMPIPUsable {
     
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if PIPKit.isPIP {
-            self.view.center = UIApplication.center
+            self.view.center = UIApplication.mmCenter
             self.setNeedsUpdatePIPFrame()
         }
     }

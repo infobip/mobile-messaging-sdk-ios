@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Caricamento allegato non riuscito";
 "mm_attachment_upload_failed_alert_message" = "Dimensione massima consentita superata";
 "mm_permissions_alert_message" = "Per concedere le autorizzazioni, vai su Impostazioni";
+"mm_error_try_again_or_contact_support" = "Riprova più tardi o contatta l'assistenza clienti. Codice errore: %1$@.";

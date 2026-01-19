@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Не удалось загрузить файл";
 "mm_attachment_upload_failed_alert_message" = "Превышен максимально допустимый размер";
 "mm_permissions_alert_message" = "Чтобы предоставить разрешения, перейдите в Настройки";
+"mm_error_try_again_or_contact_support" = "Попробуйте позже или обратитесь в службу поддержки. Код ошибки: %1$@.";

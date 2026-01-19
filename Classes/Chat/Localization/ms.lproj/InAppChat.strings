@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Gagal memuat naik lampiran";
 "mm_attachment_upload_failed_alert_message" = "Melebihi saiz maksimum yang dibenarkan";
 "mm_permissions_alert_message" = "Untuk memberikan kebenaran, pergi ke Tetapan";
+"mm_error_try_again_or_contact_support" = "Cuba lagi kemudian atau hubungi sokongan pelanggan. Kod ralat: %1$@.";

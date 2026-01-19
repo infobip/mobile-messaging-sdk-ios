@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Anhang-Upload fehlgeschlagen";
 "mm_attachment_upload_failed_alert_message" = "Maximal zulässige Größe überschritten";
 "mm_permissions_alert_message" = "Um Berechtigungen zu erteilen, gehen Sie zu Einstellungen";
+"mm_error_try_again_or_contact_support" = "Versuchen Sie es später erneut oder kontaktieren Sie den Kundensupport. Fehlercode: %1$@.";

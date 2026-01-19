@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "附件上傳失敗";
 "mm_attachment_upload_failed_alert_message" = "超過最大允許大小";
 "mm_permissions_alert_message" = "要授予權限，請轉到設置";
+"mm_error_try_again_or_contact_support" = "請稍後重試或聯絡客戶支援。錯誤代碼：%1$@。";

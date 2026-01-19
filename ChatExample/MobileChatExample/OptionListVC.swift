@@ -66,6 +66,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     
     func presentRootNavigationVC() {
         let vc = MMChatViewController.makeRootNavigationViewController()
+        vc.modalPresentationStyle = .fullScreen
         navigationController?.present(vc, animated: true)
     }
 
@@ -185,8 +186,10 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
             text = "Identity copied to clipboard"
         }
         MMPopOverBar.show(
-            backgroundColor: .black,
             textColor: .white,
+            backgroundColor: .black,
+            icon: MMWebRTCSettings.sharedInstance.iconAlert,
+            iconTint: .white,
             message: text,
             duration: 5,
             options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
@@ -384,6 +387,8 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.settings.backgroundColor = .orange
         MMChatSettings.settings.errorLabelTextColor = .white
         MMChatSettings.settings.errorLabelBackgroundColor = .red
+        MMChatSettings.settings.networkErrorLabelTextColor = .white
+        MMChatSettings.settings.networkErrorLabelBackgroundColor = .black
         MMChatSettings.settings.widgetTheme = "dark" // You need to have this theme defined in your widget's setup. See method 'onChangeTheme' for more info.
     }
 

@@ -168,7 +168,7 @@ public final class PIPKit {
         PIPKit.state = .none
         PIPKit.pipWindow = nil
         PIPKit.rootViewController = nil
-        UIApplication.shared._keyWindow?.makeKeyAndVisible()
+        UIApplication.shared.mmkeyWindow?.makeKeyAndVisible()
     }
     
 }

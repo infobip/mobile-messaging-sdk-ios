@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Tải lên tệp đính kèm không thành công";
 "mm_attachment_upload_failed_alert_message" = "Vượt quá kích thước tối đa cho phép";
 "mm_permissions_alert_message" = "Để cấp quyền, hãy đi tới Cài đặt";
+"mm_error_try_again_or_contact_support" = "Thử lại sau hoặc liên hệ hỗ trợ khách hàng. Mã lỗi: %1$@.";

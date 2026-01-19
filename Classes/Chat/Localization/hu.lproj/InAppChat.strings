@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "A melléklet feltöltése sikertelen";
 "mm_attachment_upload_failed_alert_message" = "A maximális megengedett méret meghaladta";
 "mm_permissions_alert_message" = "Az engedélyek megadásához nyissa meg a Beállítások menüpontot";
+"mm_error_try_again_or_contact_support" = "Próbálja újra később, vagy lépjen kapcsolatba az ügyfélszolgálattal. Hibakód: %1$@.";

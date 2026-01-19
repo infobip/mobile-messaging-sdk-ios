@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "अनुलग्नक अपलोड विफल रहा";
 "mm_attachment_upload_failed_alert_message" = "अधिकतम अनुमत आकार पार हो गया";
 "mm_permissions_alert_message" = "अनुमतियाँ देने के लिए सेटिंग्स पर जाएँ";
+"mm_error_try_again_or_contact_support" = "बाद में पुनः प्रयास करें या ग्राहक सहायता से संपर्क करें। त्रुटि कोड: %1$@।";

@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Otrpemanje priloga nije uspelo";
 "mm_attachment_upload_failed_alert_message" = "Maksimalno dozvoljena veličina prekoračena";
 "mm_permissions_alert_message" = "Da date dozvolu idetie na Podešavanja";
+"mm_error_try_again_or_contact_support" = "Покушајте поново касније или контактирајте корисничку подршку. Код грешке: %1$@.";

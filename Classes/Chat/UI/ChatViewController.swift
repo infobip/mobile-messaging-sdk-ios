@@ -13,7 +13,7 @@ import WebKit
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
 /// - programmatically: use one of the `make` methods provided.
 open class MMChatViewController: MMMessageComposingViewController, @MainActor ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
-
+    
     ///Will make UINavigationController with ChatViewController as root
     public static func makeRootNavigationViewController() -> MMChatNavigationVC {
         return MMChatNavigationVC.makeChatNavigationViewController()
@@ -83,8 +83,8 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     override var scrollViewContainer: UIView! {
         return webView
     }
-    
-    var chatNotAvailableLabel: ChatNotAvailableLabel!
+        
+    private var chatSetupErrorView = ChatSetupErrorView(frame: .zero)
     public private(set) var isChattingInMultithread: Bool = false
     var initialBackButtonIsHidden: Bool = true
     var initialLeftNavigationItem: UIBarButtonItem?
@@ -95,11 +95,12 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     open override func loadView() {
         super.loadView()
         setupWebView()
-        setupChatNotAvailableLabel()
+        setupErrorView()
     }
 
     open override func viewDidLoad() {
         super.viewDidLoad()
+        self.composeBarView?.isHidden = true
         MobileMessaging.inAppChat?.webViewDelegate = self
         didEnableControls(false)
         registerToChatSettingsChanges()
@@ -107,6 +108,10 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         NotificationCenter.default.addObserver(self, selector: #selector(appBecomeActive), name: UIApplication.willEnterForegroundNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appBecomeInactive), name: UIApplication.didEnterBackgroundNotification, object: nil)
         MobileMessaging.inAppChat?.validateSetup()
+    }
+    
+    deinit {
+        MMPopOverBar.hide() // cleanup of the queued popups 
     }
 
     private func setBackgroundSettings() {
@@ -124,6 +129,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         }
         super.viewWillDisappear(animated)
     }
+    
     open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         MobileMessaging.inAppChat?.isChatScreenVisible = true
@@ -315,7 +321,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
             MobileMessaging.inAppChat?.resetMessageCounter()
         }
     }
-    
+
     override var isComposeBarVisible: Bool {
         didSet {
             if oldValue != isComposeBarVisible {
@@ -336,6 +342,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         guard !(chatWidget?.multiThread ?? false) else { return }
         isComposeBarVisible = visible
     }
+
     
     func setComposeBarVisibility(isVisible: Bool) {
         guard !MMChatSettings.sharedInstance.shouldUseExternalChatInput else {
@@ -404,7 +411,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         let errorDisplayMode = MMInAppChatService.sharedInstance?.delegate?.didReceiveException?(error.exception) ?? .displayDefaultAlert
         switch errorDisplayMode {
         case .displayDefaultAlert:
-            chatNotAvailableLabel.setVisibility(true, text: error.localizedDescription)
+            displayChatErrorBanner(for: error)
         default:
             break
         }
@@ -413,7 +420,12 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     func didReceive(_ errors: MMChatRemoteError) {
         Task { @MainActor in
             if errors == .none {
-                chatNotAvailableLabel.setVisibility(false, text: nil)
+                guard MMInAppChatService.sharedInstance?.isNetworkReachable ?? false else {
+                    displayThrown(MMChatRemoteError.noInternetConnectionError)
+                    return
+                }
+                chatSetupErrorView.setVisible(false, animated: true)
+                MMPopOverBar.hide()
                 if !(webView.isLoaded) {
                     webView.reload()
                 }
@@ -426,7 +438,13 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     
     @MainActor
     func didDetectWrongSetup(_ error: MMChatLocalError) {
-        displayThrown(error)
+        let title = settings?.fullScreenErrorTitleText ?? MMLoc.somethingWentWrong
+        let subtitle = settings?.fullScreenErrorSubtitleText ?? String(
+            format: ChatLocalization.localizedString(
+                forKey: "mm_error_try_again_or_contact_support",
+                defaultString: "Try again later or contact customer support. Error code: %1$@."), "\(error.exception.code)")
+        chatSetupErrorView.configure(title: title, subtitle: subtitle)
+        chatSetupErrorView.setVisible(true, animated: true)
         logError(error.technicalMessage)
     }
     
@@ -434,25 +452,55 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         let vc =  AttachmentPreviewController.makeRootInNavigationController(forAttachment: attachment)
         self.present(vc, animated: true, completion: nil)
     }
-    
+
     // Private
     private func setupWebView() {
         let webView = ChatWebView(frame: view.bounds)
         webView.navigationDelegate = self
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(webView)
-        
         self.webViewHandler = ChatWebViewHandler(webView: webView)
     }
     
-    private func setupChatNotAvailableLabel() {
-        chatNotAvailableLabel = ChatNotAvailableLabel(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 0))
-        chatNotAvailableLabel.font = MMChatSettings.getMainFont()
-        chatNotAvailableLabel.backgroundColor = settings?.errorLabelBackgroundColor ?? .lightGray
-        chatNotAvailableLabel.textColor = settings?.errorLabelTextColor ?? .black
-        chatNotAvailableLabel.numberOfLines = ChatNotAvailableLabel.kMaxNumberOfLines
-        chatNotAvailableLabel.isHidden = true
-        self.view.addSubview(self.chatNotAvailableLabel)
+    private func displayChatErrorBanner(for error: MMChatThrowable? = nil) {
+        var textColor = settings?.errorLabelTextColor ?? MMChatBEPO.colorTextPrimary
+        var backgroundColor = settings?.errorLabelBackgroundColor ?? MMChatBEPO.colorBackgroundModerate
+        var icontTint = MMChatBEPO.colorTextPrimary
+        var duration = 10.0
+        if error?.exception.code == MMChatErrorCodes.noInternet {
+            textColor = settings?.networkErrorLabelTextColor ?? MMChatBEPO.colorTextContrast
+            backgroundColor = settings?.networkErrorLabelBackgroundColor ?? MMChatBEPO.colorBackgroundDanger
+            icontTint = textColor
+            duration = 9999 // dismissed only when network returns
+        }
+        icontTint = settings?.errorBannerIconTint ?? icontTint
+
+        
+        let icon = (settings?.errorBannerIcon ?? UIImage(mm_chat_named: "mmChatAlertBannerIcon") ?? UIImage()).withRenderingMode(.alwaysTemplate)
+        
+        MMPopOverBar.show(
+            textColor: textColor,
+            backgroundColor: backgroundColor,
+            icon: icon,
+            iconTint: icontTint,
+            message: error?.localizedDescription ?? MMLoc.somethingWentWrong,
+            duration: duration,
+            options: MMPopOverBar.Options(shouldConsiderSafeArea: false, isStretchable: true),
+            completion: nil,
+            presenterVC: self)
+    }
+    
+    private func setupErrorView() {
+        chatSetupErrorView.translatesAutoresizingMaskIntoConstraints = false
+        chatSetupErrorView.setupView()
+        view.insertSubview(chatSetupErrorView, aboveSubview: webView)
+
+        NSLayoutConstraint.activate([
+            chatSetupErrorView.topAnchor.constraint(equalTo: view.topAnchor),
+            chatSetupErrorView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            chatSetupErrorView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            chatSetupErrorView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
     }
     
     @objc private func appBecomeActive() {
@@ -469,7 +517,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
                                          completion: @escaping (_ error: NSError?) -> Void) {
         webViewHandler?.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: { error in completion(error as? NSError) })
     }
-
+    
     public func didChangeView(_ state: MMChatWebViewState) {
         if !(chatWidget?.multiThread ?? false) {
             isComposeBarVisible = true
@@ -493,7 +541,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         webViewHandler?.currentViewState = state
         MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)
     }
-    
+
     // MARK: MMComposeBarDelegate delegate
     @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendText(_ text: String, completion: @escaping (_ error: NSError?) -> Void) {
@@ -665,3 +713,4 @@ extension MMChatViewController: MMChatBasicWebViewActions, MMChatInternalWebView
         webViewHandler?.reset()
     }
 }
+

@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "העלאת הקובץ המצורף נכשלה";
 "mm_attachment_upload_failed_alert_message" = "חרג מהגודל המרבי המותר";
 "mm_permissions_alert_message" = "כדי להעניק הרשאות כנסו להגדרות";
+"mm_error_try_again_or_contact_support" = "נסה שוב מאוחר יותר או פנה לתמיכת לקוחות. קוד שגיאה: %1$@.";

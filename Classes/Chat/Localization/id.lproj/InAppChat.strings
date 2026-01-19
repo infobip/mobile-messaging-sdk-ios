@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Unggahan lampiran gagal";
 "mm_attachment_upload_failed_alert_message" = "Ukuran maksimum yang diizinkan terlampaui";
 "mm_permissions_alert_message" = "Untuk memberikan izin, buka Pengaturan";
+"mm_error_try_again_or_contact_support" = "Coba lagi nanti atau hubungi dukungan pelanggan. Kode kesalahan: %1$@.";

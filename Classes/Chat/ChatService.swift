@@ -331,7 +331,7 @@ public class MMInAppChatService: MobileMessagingService {
             webViewDelegate?.didReceive(chatErrors)
         }
     }
-    private let networkReachabilityManager = NetworkReachabilityManager();
+    private let networkReachabilityManager = MMNetworkReachabilityManager();
     
    func handleJSError(_ error: ErrorJSMessage) {
        var errors = chatErrors
@@ -364,6 +364,10 @@ public class MMInAppChatService: MobileMessagingService {
     
     private func stopReachabilityListener() {
         networkReachabilityManager?.stopListening()
+    }
+    
+    public var isNetworkReachable: Bool {
+        return networkReachabilityManager?.isReachable ?? false
     }
     
     private func notifyForChatAvailabilityChange() {

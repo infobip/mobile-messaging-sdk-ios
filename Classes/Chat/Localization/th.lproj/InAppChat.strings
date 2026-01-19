@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "การอัปโหลดไฟล์แนบล้มเหลว";
 "mm_attachment_upload_failed_alert_message" = "เกินขนาดสูงสุดที่อนุญาต";
 "mm_permissions_alert_message" = "หากต้องการให้สิทธิ์ไปที่การตั้งค่า";
+"mm_error_try_again_or_contact_support" = "ลองอีกครั้งในภายหลังหรือติดต่อฝ่ายสนับสนุนลูกค้า รหัสข้อผิดพลาด: %1$@";

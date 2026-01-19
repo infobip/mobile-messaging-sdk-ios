@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Încărcarea atașamentului a eșuat";
 "mm_attachment_upload_failed_alert_message" = "A fost depășită dimensiunea maximă permisă";
 "mm_permissions_alert_message" = "Pentru a acorda permisiunile accesați Setări";
+"mm_error_try_again_or_contact_support" = "Încercați din nou mai târziu sau contactați asistența pentru clienți. Cod de eroare: %1$@.";

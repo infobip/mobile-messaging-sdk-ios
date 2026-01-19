@@ -62,7 +62,7 @@ final class PIPVideoProvider {
         
         isRunning = true
         
-        if let window = UIApplication.shared._keyWindow {
+        if let window = UIApplication.shared.mmkeyWindow {
             pipContainerView.backgroundColor = .clear
             pipContainerView.alpha = 0.0
             window.addSubview(pipContainerView)

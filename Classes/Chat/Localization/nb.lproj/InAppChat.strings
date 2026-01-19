@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Opplastingen av vedlegg mislyktes";
 "mm_attachment_upload_failed_alert_message" = "Maksimal tillatt størrelse overskredet";
 "mm_permissions_alert_message" = "Gå til Innstillinger for å gi tillatelser";
+"mm_error_try_again_or_contact_support" = "Prøv igjen senere eller kontakt kundeservice. Feilkode: %1$@.";

@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Не вдалося завантажити вкладений файл";
 "mm_attachment_upload_failed_alert_message" = "Перевищено максимально дозволений розмір";
 "mm_permissions_alert_message" = "Щоб надати дозволи, перейдіть у Параметри";
+"mm_error_try_again_or_contact_support" = "Спробуйте пізніше або зверніться до служби підтримки. Код помилки: %1$@.";

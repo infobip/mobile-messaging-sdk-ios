@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Falha no upload do anexo";
 "mm_attachment_upload_failed_alert_message" = "Tamanho máximo permitido excedido";
 "mm_permissions_alert_message" = "Para conceder permissões, vá para Configurações";
+"mm_error_try_again_or_contact_support" = "Tente novamente mais tarde ou entre em contato com o suporte ao cliente. Código de erro: %1$@.";

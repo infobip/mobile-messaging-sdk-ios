@@ -67,9 +67,19 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     public var attachmentPreviewBarsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var attachmentPreviewItemsColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var backgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var errorBannerIcon: UIImage? { didSet { postAppearanceChangedNotification() } }
+    public var errorBannerIconTint: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var errorLabelBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var networkErrorLabelTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var networkErrorLabelBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var chatInputSeparatorLineColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var fullScreenErrorImage: UIImage? { didSet { postAppearanceChangedNotification() } }
+    public var fullScreenErrorTitleText: String? { didSet { postAppearanceChangedNotification() } }
+    public var fullScreenErrorSubtitleText: String? { didSet { postAppearanceChangedNotification() } }
+    public var fullScreenErrorTitleTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var fullScreenErrorSubtitleTextColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var fullScreenErrorBackgroundColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var shouldSetNavBarAppearance: Bool = true
     public var shouldHandleKeyboardAppearance: Bool = true
     public var shouldUseExternalChatInput: Bool = false
@@ -212,6 +222,8 @@ extension MMChatSettings {
         static let attachmentPreviewItemsColor = "attachmentPreviewItemsColor"
         static let errorLabelTextColor = "errorLabelTextColor"
         static let errorLabelBackgroundColor = "errorLabelBackgroundColor"
+        static let networkErrorLabelTextColor = "errorLabelTextColor"
+        static let networkErrorLabelBackgroundColor = "errorLabelBackgroundColor"
         static let mainTextColor = "mainTextColor"
         static let mainPlaceholderTextColor = "mainPlaceholderTextColor"
     }
@@ -249,6 +261,12 @@ extension MMChatSettings {
         }
         if let errorLabelBackgroundColor = rawConfig[MMChatSettings.Keys.errorLabelBackgroundColor] as? String {
             self.errorLabelBackgroundColor = UIColor(hexString: errorLabelBackgroundColor)
+        }
+        if let networkErrorLabelTextColor = rawConfig[MMChatSettings.Keys.networkErrorLabelTextColor] as? String {
+            self.networkErrorLabelTextColor = UIColor(hexString: networkErrorLabelTextColor)
+        }
+        if let networkErrorLabelBackgroundColor = rawConfig[MMChatSettings.Keys.networkErrorLabelBackgroundColor] as? String {
+            self.networkErrorLabelBackgroundColor = UIColor(hexString: networkErrorLabelBackgroundColor)
         }
     }
 }

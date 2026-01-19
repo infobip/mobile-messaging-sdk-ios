@@ -163,8 +163,7 @@ struct MMChatRemoteError: OptionSet, MMChatThrowable {
         let somethingWrong = MMLocalization.localizedString(forKey: "mm_something_went_wrong",
                                                             defaultString: "Something went wrong.")
         if self.contains(.noInternetConnectionError) {
-            return MMLocalization.localizedString(forKey: "mm_no_internet_connection",
-                                                               defaultString: "No Internet connection")
+            return MMLocalization.localizedString(forKey: "mm_no_internet_connection",                                                               defaultString: "No Internet connection")
         } else if self.contains(.configurationSyncError) || self.contains(.jsError) {
             guard let remoteDescription = rawDescription else { return somethingWrong }
             guard let additionalInfo = additionalInfo else {
@@ -179,11 +178,12 @@ struct MMChatRemoteError: OptionSet, MMChatThrowable {
         guard let json = rawDescription,
             let exception = try? JSONDecoder().decode(MMChatException.self, from: Data(json.utf8)) else {
             var code = ec.unknown
-            switch  rawValue {
-            case 1 << 0: code = ec.jsOriginated
-            case 1 << 1: code = ec.configSync
-            case 1 << 2: code = ec.noInternet
-            default: break
+            if self.contains(.noInternetConnectionError) {
+                code = ec.noInternet
+            } else if self.contains(.jsError) {
+                code = ec.jsOriginated
+            } else if self.contains(.configurationSyncError) {
+                code = ec.configSync
             }
             return MMChatException(
                 code: code,

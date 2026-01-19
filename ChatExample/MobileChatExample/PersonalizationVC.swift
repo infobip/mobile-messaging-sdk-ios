@@ -31,8 +31,10 @@ class PersonalizationVC: UIViewController {
             print(">>>>personalize result " + (result?.mm_message ?? ""))
             self?.view.endEditing(true)
             MMPopOverBar.show(
-                backgroundColor: .lightGray,
                 textColor: .black,
+                backgroundColor: .lightGray,
+                icon: MMWebRTCSettings.sharedInstance.iconAlert,
+                iconTint: .black,
                 message: "Personalisation completed with message: \(result?.mm_message ?? "unknown")",
                 duration: 10,
                 options: MMPopOverBar.Options(shouldConsiderSafeArea: true,

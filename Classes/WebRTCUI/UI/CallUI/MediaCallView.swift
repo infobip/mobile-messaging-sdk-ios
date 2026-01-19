@@ -12,7 +12,7 @@ import InfobipRTC
 
 extension UIWindow {
     static var mmIsLandscape: Bool {
-        return UIApplication.shared._keyWindow?
+        return UIApplication.shared.mmkeyWindow?
             .windowScene?
             .interfaceOrientation
             .isLandscape ?? false        

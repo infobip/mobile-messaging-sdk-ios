@@ -7,3 +7,4 @@
 "mm_attachment_upload_failed_alert_title" = "Nahrávání přílohy se nezdařilo";
 "mm_attachment_upload_failed_alert_message" = "Maximální povolená velikost byla překročena";
 "mm_permissions_alert_message" = "Chcete-li udělit oprávnění, přejděte na Nastavení";
+"mm_error_try_again_or_contact_support" = "Zkuste to později nebo kontaktujte zákaznickou podporu. Kód chyby: %1$@.";
