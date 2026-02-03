@@ -337,8 +337,45 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 			ret.origin.y = 0.5
 			return ret
 		}()
+
 		updateCharCounterLabel()
 		resizeTextViewIfNeededAnimated(false)
+	}
+
+	func adjustLayoutForRTL() {
+        // This method entirely flips the frames in case right to left language was set, ignoring OS values
+        semanticContentAttribute = .forceRightToLeft
+		var sendButtonFrame = sendButton.frame
+		sendButtonFrame.origin.x = consts.kHorizontalSpacing
+		sendButton.frame = sendButtonFrame
+		sendButton.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
+        sendButton.mmFlipHorizontally()
+
+		if utilityButton.superview != nil {
+			var utilityButtonFrame = utilityButton.frame
+			utilityButtonFrame.origin.x = self.bounds.size.width - settings.utilityButtonWidth - consts.kHorizontalSpacing
+			utilityButton.frame = utilityButtonFrame
+			utilityButton.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
+            utilityButton.mmFlipHorizontally()
+		}
+
+		var textContainerFrame = textContainer.frame
+		let leftMargin: CGFloat = utilityButton.superview != nil ?
+			(settings.utilityButtonWidth + consts.kHorizontalSpacing * 2) :
+			(sendButton.bounds.size.width + consts.kHorizontalSpacing * 2)
+		let rightMargin = sendButton.bounds.size.width + consts.kHorizontalSpacing * 2 + settings.buttonRightMargin
+
+		textContainerFrame.origin.x = leftMargin
+		textContainerFrame.size.width = self.bounds.size.width - leftMargin - rightMargin
+		textContainer.frame = textContainerFrame
+
+		placeholderLabel.textAlignment = .right
+
+		var charCounterFrame = charCounterLabel.frame
+		charCounterFrame.origin.x = consts.kHorizontalSpacing
+		charCounterLabel.frame = charCounterFrame
+		charCounterLabel.textAlignment = .left
+		charCounterLabel.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
 	}
 	
 	//MARK: - UITextViewDelegate

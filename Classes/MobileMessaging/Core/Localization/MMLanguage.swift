@@ -307,5 +307,9 @@ private let MMUserDefaultChatLanguageKey = "MMInAppChatLanguage"
         set {
             UserDefaults.standard.set(newValue.stringValue, forKey: MMUserDefaultChatLanguageKey)
         }
-    }    
+    }
+    
+    public var isRightToLeft: Bool {
+        return self == .ar
+    }
 }

@@ -37,6 +37,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         MobileMessaging.webRTCService?.settings.inboundCallSoundFileName = "MMInboundCall.wav" // filename for audio file in your project
         //MobileMessaging.webRTCService?.delegate = self // Set a delegate for webrtc if you want to handle calls yourself
         //customiseCallsUI() // Change the colors, icons and sounds of the call UI
+
+        configureRTLIfNeeded()
+
         return true
     }
     
@@ -58,6 +61,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
       // Called when the user discards a scene session.
+    }
+
+    private func configureRTLIfNeeded() {
+        guard let language = Locale.preferredLanguages.first else { return }
+        if Locale.characterDirection(forLanguage: language) == .rightToLeft {
+            UIView.appearance().semanticContentAttribute = .forceRightToLeft
+            UINavigationBar.appearance().semanticContentAttribute = .forceRightToLeft
+            UIStackView.appearance().semanticContentAttribute = .forceRightToLeft
+        }
     }
 }
 
