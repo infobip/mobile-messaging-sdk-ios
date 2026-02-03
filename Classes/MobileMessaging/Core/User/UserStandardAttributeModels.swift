@@ -183,8 +183,8 @@ public enum MMGender: Int {
 	public let emails: [String]?
 	public let externalUserId: String?
 
-	/// Default initializer. The object won't be initialized if all three arguments are nil/empty. Unique user identity must have at least one value.
-	@objc public init?(phones: [String]?, emails: [String]?, externalUserId: String?) {
+	/// Default initializer with default nil parameters for convenience. The object won't be initialized if all three arguments are nil/empty. Unique user identity must have at least one value.
+	@objc public init?(phones: [String]? = nil, emails: [String]? = nil, externalUserId: String? = nil) {
 		if (phones == nil || phones!.isEmpty) && (emails == nil || emails!.isEmpty) && externalUserId == nil {
 			return nil
 		}

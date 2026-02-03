@@ -183,6 +183,14 @@ extension MMWebRTCService: PKPushRegistryDelegate {
 }
 
 extension MMWebRTCService: ApplicationCallEventListener, WebrtcCallEventListener {
+    public func onTalkingWhileMuted(_ talkingWhileMuted: TalkingWhileMutedEvent) { }
+    
+    public func onStartedTalking(_ startedTalkingEvent: StartedTalkingEvent) { }
+    
+    public func onStoppedTalking(_ stoppedTalkingEvent: StoppedTalkingEvent) { }
+    
+    public func onMessageReceived(_ messageReceivedEvent: MessageReceivedEvent) { }
+    
     public func onCameraVideoRemoved(_ cameraVideoRemovedEvent: CameraVideoRemovedEvent) { }
 
     public func onParticipantBlinded(_ participantBlindedEvent: ParticipantBlindedEvent) { }

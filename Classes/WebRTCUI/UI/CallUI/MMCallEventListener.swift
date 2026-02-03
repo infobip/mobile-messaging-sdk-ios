@@ -100,6 +100,14 @@ class CallControllerEventListenerImpl: AggregatedCallEventListener {
 }
  
 class MMCallEventListener: CallEventListener, ApplicationCallEventListener, WebrtcCallEventListener {
+    func onTalkingWhileMuted(_ talkingWhileMuted: TalkingWhileMutedEvent) { }
+    
+    func onStartedTalking(_ startedTalkingEvent: StartedTalkingEvent) { }
+    
+    func onStoppedTalking(_ stoppedTalkingEvent: StoppedTalkingEvent) { }
+    
+    func onMessageReceived(_ messageReceivedEvent: MessageReceivedEvent) { }
+    
     func onCameraVideoRemoved(_ cameraVideoRemovedEvent: CameraVideoRemovedEvent) { }
 
     func onParticipantBlinded(_ participantBlindedEvent: ParticipantBlindedEvent) { }

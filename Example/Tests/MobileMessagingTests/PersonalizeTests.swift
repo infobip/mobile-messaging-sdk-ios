@@ -43,7 +43,7 @@ class PersonalizeTests: MMTestCase {
 						XCTAssertEqual(sentMessagesCount, MMTestCase.allStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), "Messages must be persisted properly")
 						messagesReceived?.fulfill()
 						
-                        MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(phones: nil, emails: nil, externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
+                        MobileMessaging.personalize(forceDepersonalize: true, userIdentity: MMUserIdentity(externalUserId: "externalUserId")!, userAttributes: nil, completion: { _ in
 							depersonalizeFinished?.fulfill()
 						})
 					}

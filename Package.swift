@@ -38,7 +38,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/infobip/infobip-rtc-ios.git", exact: "2.6.2"),
+        .package(url: "https://github.com/infobip/infobip-rtc-ios.git", exact: "2.6.8"),
         .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.8.5")
     ],
     targets: [

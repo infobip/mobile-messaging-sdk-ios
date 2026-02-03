@@ -128,9 +128,16 @@ class UserDataMapper {
 	}
 
 	class func apply(userIdentity: MMUserIdentity, to user: MMUser) {
-		user.externalUserId = userIdentity.externalUserId
-		user.phones = userIdentity.phones
-		user.emails = userIdentity.emails
+		// Only update fields that are explicitly provided (non-nil) to prevent clearing existing data in partial updates
+		if let externalUserId = userIdentity.externalUserId {
+			user.externalUserId = externalUserId
+		}
+		if let phones = userIdentity.phones {
+			user.phones = phones
+		}
+		if let emails = userIdentity.emails {
+			user.emails = emails
+		}
 	}
 
 }
