@@ -340,6 +340,8 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 
 		updateCharCounterLabel()
 		resizeTextViewIfNeededAnimated(false)
+        
+        if MMLanguage.sessionLanguage.isRightToLeft { adjustLayoutForRTL() }
 	}
 
 	func adjustLayoutForRTL() {
