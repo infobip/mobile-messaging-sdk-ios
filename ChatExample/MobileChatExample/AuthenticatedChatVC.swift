@@ -52,13 +52,16 @@ class AuthenticatedChatVC: UIViewController {
         guard let identity = identity else { return }
         // Note: you only need to call "personalize" once for your user. Only the refreshing of the token should be done before
         // presenting the chat
-        MobileMessaging.personalize(forceDepersonalize: true, keepAsLead: keepAsLeadSwitch.isOn, userIdentity: identity, userAttributes: atts) { [weak self] result in
-            if result != nil {
-                MMLogError(">>>>Personalize result: " + (result?.mm_message ?? ""))
-            } else {
-
-                let vc = MMChatViewController.makeModalViewController()
-                self?.present(vc, animated: true)
+        let keepAsLead = self.keepAsLeadSwitch.isOn
+        Task { [weak self] in
+            do {
+                try await MobileMessaging.personalize(forceDepersonalize: true, keepAsLead: keepAsLead, userIdentity: identity, userAttributes: atts)
+                await MainActor.run {
+                    let vc = MMChatViewController.makeModalViewController()
+                    self?.present(vc, animated: true)
+                }
+            } catch {
+                MMLogError(">>>>Personalize error: \(error.localizedDescription)")
             }
         }
     }

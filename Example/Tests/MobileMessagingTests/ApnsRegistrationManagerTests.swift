@@ -56,7 +56,7 @@ class ApnsRegistrationManagerMock: ApnsRegistrationManager {
 
 class ApnsRegistrationManagerTests: MMTestCase {
 	func testThatRegistrationResetLeadsToHealthyRegFlag() {
-		weak var resetFinished = expectation(description: "regFinished")
+		weak let resetFinished = expectation(description: "regFinished")
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 		mm.doStart()
@@ -77,7 +77,7 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	}
 	
 	func testThatVeryFirstDeviceTokenLeadsToHealthyRegAndTokenUpdate() {
-		weak var regFinished = expectation(description: "regFinished")
+		weak let regFinished = expectation(description: "regFinished")
 		        
         let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
         mm.doStart()
@@ -99,7 +99,7 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	}
 	
 	func testThatSameDeviceTokenLeadsToHealthyReg() {
-		weak var regFinished = expectation(description: "regFinished")
+		weak let regFinished = expectation(description: "regFinished")
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 		mm.doStart()
@@ -120,7 +120,7 @@ class ApnsRegistrationManagerTests: MMTestCase {
 	}
 	
 	func testBackupRestorationCaseLeadsToHealedRegistration() {
-		weak var regFinished = expectation(description: "regFinished")
+		weak let regFinished = expectation(description: "regFinished")
 		
 		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 		mm.doStart()

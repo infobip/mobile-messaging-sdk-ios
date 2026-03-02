@@ -33,8 +33,8 @@ class InteractiveNotificationsTests: MMTestCase {
         MMTestCase.startWithCorrectApplicationCode()
         
 		var isSeenSet = false
-		weak var seenCalled = self.expectation(description: "seenCalled")
-		weak var messageReceived = self.expectation(description: "messageReceived")
+		weak let seenCalled = self.expectation(description: "seenCalled")
+		weak let messageReceived = self.expectation(description: "messageReceived")
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
 		msgHandlerMock.setSeenWasCalled = {
 			isSeenSet = true
@@ -53,7 +53,7 @@ class InteractiveNotificationsTests: MMTestCase {
 	}
 
 	func testActionHandlerCalledAndMOSent() {
-		weak var testCompleted = expectation(description: "testCompleted")
+		weak let testCompleted = expectation(description: "testCompleted")
 		let action = MMNotificationAction(identifier: actionId, title: "Action", options: [.moRequired])!
 		checkActionHandlerCalledAndMoSent(withAction: action, userText: nil) { _action, completionHandler in
 			if _action == action {
@@ -66,7 +66,7 @@ class InteractiveNotificationsTests: MMTestCase {
 
 	func testTextInputActionHandlerCalledAndMOSent() {
 		let typedText = "Hello world!"
-		weak var testCompleted = expectation(description: "testCompleted")
+		weak let testCompleted = expectation(description: "testCompleted")
 		let textInputAction = MMTextInputNotificationAction(identifier: "textInputActionId", title: "Reply", options: [.moRequired], textInputActionButtonTitle: "Reply", textInputPlaceholder: "print text here")!
 		checkActionHandlerCalledAndMoSent(withAction: textInputAction, userText: typedText) { _action, completionHandler in
 			if let _textInputAction = _action as? MMTextInputNotificationAction,
@@ -88,9 +88,9 @@ class InteractiveNotificationsTests: MMTestCase {
 		mm.doStart()
 
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
-		weak var seenCalled = expectation(description: "seenCalled")
-		weak var actionHandled = expectation(description: "actionHandled")
-		weak var sendMessageCalled = expectation(description: "sendMessageCalled")
+		weak let seenCalled = expectation(description: "seenCalled")
+		weak let actionHandled = expectation(description: "actionHandled")
+		weak let sendMessageCalled = expectation(description: "sendMessageCalled")
         
         let msg = MM_MTMessage(payload: userInfo, deliveryMethod: .push, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)
         
@@ -157,7 +157,7 @@ class InteractiveNotificationsTests: MMTestCase {
 	func testThatPredefinedCategoriesWork() {
         MMTestCase.startWithCorrectApplicationCode()
         
-		weak var testCompleted = expectation(description: "testCompleted")
+		weak let testCompleted = expectation(description: "testCompleted")
 		XCTAssertEqual(mobileMessagingInstance.notificationsInteractionService?.allNotificationCategories?.count, PredefinedCategoriesTest().categoriesIds?.count)
 
 		let allActions = mobileMessagingInstance.notificationsInteractionService?.allNotificationCategories?.reduce([String](), { (result, category) -> [String] in
@@ -169,7 +169,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		var actionsWithExpectations = [String: XCTestExpectation]()
 
 		for action in allActions! {
-			weak var actionHandled = expectation(description: action)
+			weak let actionHandled = expectation(description: action)
 			actionsWithExpectations[action] = actionHandled
 		}
 
@@ -195,8 +195,8 @@ class InteractiveNotificationsTests: MMTestCase {
 	}
 
 	func testSystemDefinedDismissAction() {
-		weak var handlingCompleted = expectation(description: "handlingCompleted")
-		weak var testCompleted = expectation(description: "testCompleted")
+		weak let handlingCompleted = expectation(description: "handlingCompleted")
+		weak let testCompleted = expectation(description: "testCompleted")
 
 		let category = MMNotificationCategory(identifier: categoryId, actions: [], options: [], intentIdentifiers: nil)!
 		var set = Set<MMNotificationCategory>()
@@ -206,7 +206,7 @@ class InteractiveNotificationsTests: MMTestCase {
 		mm.doStart()
 
 		let msgHandlerMock = MessagHandlerMock(originalHandler: mobileMessagingInstance.messageHandler)
-		weak var seenCalled = expectation(description: "seenCalled")
+		weak let seenCalled = expectation(description: "seenCalled")
 		msgHandlerMock.setSeenWasCalled = { seenCalled?.fulfill() }
 		mm.messageHandler = msgHandlerMock
 

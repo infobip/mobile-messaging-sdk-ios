@@ -230,7 +230,7 @@ class CodingDecodingTests: MMTestCase {
     func testThatMTMessagePayloadCorrectlyTransformed() {
         MMTestCase.startWithCorrectApplicationCode()
         
-        weak var expectation = self.expectation(description: "expectation")
+        weak let expectation = self.expectation(description: "expectation")
         let messageReceivingGroup = DispatchGroup()
         
         messageReceivingGroup.enter()

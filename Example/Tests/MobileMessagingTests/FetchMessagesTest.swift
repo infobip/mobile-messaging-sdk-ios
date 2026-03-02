@@ -27,7 +27,7 @@ class FetchMessagesTest: MMTestCase {
 	func testNothingToSynchronize() {
 		MMTestCase.startWithApplicationCode(SyncTestAppIds.kCorrectIdNothingToSynchronize)
 		
-		weak var expectation = self.expectation(description: "Sync finished")
+		weak let expectation = self.expectation(description: "Sync finished")
 		XCTAssertEqual(MMTestCase.nonReportedStoredMessagesCount(self.storage.mainThreadManagedObjectContext!), 0, "There must be not any stored message")
 		
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
@@ -52,10 +52,10 @@ class FetchMessagesTest: MMTestCase {
 	m2 seen and deivered, m1 delivered
 	*/
 	func testConcurrency() {
-		weak var prepconditionExpectation = expectation(description: "Initial message base set up")
-		weak var seenExpectation = expectation(description: "Seen request finished")
-		weak var syncExpectation = expectation(description: "Sync finished")
-		weak var newMsgExpectation = expectation(description: "New message received")
+		weak let prepconditionExpectation = expectation(description: "Initial message base set up")
+		weak let seenExpectation = expectation(description: "Seen request finished")
+		weak let syncExpectation = expectation(description: "Sync finished")
+		weak let newMsgExpectation = expectation(description: "New message received")
 		
 		MMTestCase.startWithApplicationCode(SyncTestAppIds.kCorrectIdMergeSynchronization)
 		
@@ -104,7 +104,7 @@ class FetchMessagesCompletionTests: MMTestCase {
         MMTestCase.startWithCorrectApplicationCode()
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
-		weak var exp = expectation(description: "Handler called")
+		weak let exp = expectation(description: "Handler called")
 		let apiProvider = RemoteAPIProviderStub()
 		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
 			if ((body["drIDs"] as? [String]) ?? [String]()) == ["newData"]  {
@@ -128,8 +128,8 @@ class FetchMessagesCompletionTests: MMTestCase {
         MMTestCase.startWithCorrectApplicationCode()
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
-        weak var messageHandled = expectation(description: "messageHandled")
-        weak var localNotificationScheduled = expectation(description: "localNotificationScheduled")
+        weak let messageHandled = expectation(description: "messageHandled")
+        weak let localNotificationScheduled = expectation(description: "localNotificationScheduled")
         let messageHandlingDelegateMock = MessageHandlingDelegateMock()
         messageHandlingDelegateMock.willScheduleLocalNotification = { m in
             localNotificationScheduled?.fulfill()
@@ -161,7 +161,7 @@ class FetchMessagesCompletionTests: MMTestCase {
         MMTestCase.startWithCorrectApplicationCode()
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
-		weak var exp = expectation(description: "Handler called")
+		weak let exp = expectation(description: "Handler called")
 
 		let apiProvider = RemoteAPIProviderStub()
 		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
@@ -183,7 +183,7 @@ class FetchMessagesCompletionTests: MMTestCase {
         MMTestCase.startWithCorrectApplicationCode()
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
-		weak var exp = expectation(description: "Handler called")
+		weak let exp = expectation(description: "Handler called")
 		let apiProvider = RemoteAPIProviderStub()
 		apiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
 			return MessagesSyncResult.Failure(NSError(type: MMInternalErrorType.UnknownError))

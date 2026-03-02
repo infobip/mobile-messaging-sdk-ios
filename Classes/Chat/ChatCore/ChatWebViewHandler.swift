@@ -34,6 +34,10 @@ class ChatWebViewHandler: NamedLogger {
             self?.eventHandler.onEvent(type: event, jsMessage: message)
         }
     }
+    
+    deinit {
+        self.triggerPendingActions(with: MMChatLocalError.noWidget.foundationError)
+    }
 }
 
 extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
@@ -53,8 +57,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     public func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let chatError = self?.validatePayload(payload, isCreating: false) else {
-                self?.webView.send(payload, completion)
+            guard let self = self else { completion(MMChatLocalError.noWidget.foundationError);  return }
+            guard let chatError = self.validatePayload(payload, isCreating: false) else {
+                self.webView.send(payload, completion)
                 return
             }
             completion(NSError(chatError: chatError, chatPayload: payload))
@@ -63,8 +68,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     public func createThread(_ payload: any MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard let chatError = self?.validatePayload(payload, isCreating: true) else {
-                self?.webView.createThread(payload, completion)
+            guard let self = self else { completion(nil, MMChatLocalError.noWidget.foundationError);  return }
+            guard let chatError = self.validatePayload(payload, isCreating: true) else {
+                self.webView.createThread(payload, completion)
                 return
             }
             completion(nil, NSError(chatError: chatError, chatPayload: payload))
@@ -121,8 +127,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
+            guard let self = self else { completion(MMChatLocalError.noWidget.foundationError);  return }
             guard let error = error else {
-                self?.webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
+                self.webView.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: completion)
                 return
             }
             completion(error)
@@ -131,8 +138,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     public func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], Error>) -> Void) {
         ensureWidgetLoaded { [weak self] error in
+            guard let self = self else { completion(.failure(MMChatLocalError.noWidget.foundationError));  return }
             guard let error = error else {
-                self?.webView.getThreads(completion: completion)
+                self.webView.getThreads(completion: completion)
                 return
             }
             completion(.failure(error))
@@ -141,8 +149,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     func openThread(with id: String, completion: @escaping (Swift.Result<MMLiveChatThread, any Error>) -> Void) {
         ensureWidgetLoaded { [weak self] error in
+            guard let self = self else { completion(.failure(MMChatLocalError.noWidget.foundationError));  return }
             guard let error = error else {
-                self?.webView.openThread(threadId: id, completion: completion)
+                self.webView.openThread(threadId: id, completion: completion)
                 return
             }
             completion(.failure(error))
@@ -151,8 +160,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, any Error>) -> Void) {
         ensureWidgetLoaded { [weak self] error in
+            guard let self = self else { completion(.failure(MMChatLocalError.noWidget.foundationError));  return }
             guard let error = error else {
-                self?.webView.getActiveThread(completion: completion)
+                self.webView.getActiveThread(completion: completion)
                 return
             }
             completion(.failure(error))
@@ -161,7 +171,7 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     func reset() {
         stateQueue.async { [weak self] in
-            self?._pendingActions.removeAll()
+            self?.triggerPendingActions(with: MMChatLocalError.noWidget.foundationError)
             self?.stopConnection()
             DispatchQueue.main.async {
                 let dataTypes = WKWebsiteDataStore.allWebsiteDataTypes()
@@ -193,12 +203,13 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     // MARK: - Chat setup
     public func setLanguage(_ language: MMLanguage, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
-            guard self?.webView.isLoaded ?? false else {
+            guard let self = self else { completion(MMChatLocalError.noWidget.foundationError);  return }
+            guard self.webView.isLoaded else {
                 MMLanguage.sessionLanguage = language
                 completion(nil) // we ignore error in loading, as language is part of the autoconfig, to be used when webview loads
                 return
             }
-            self?.webView.setLanguage(language) { error in
+            self.webView.setLanguage(language) { error in
                 completion(error)
             }
         }
@@ -206,13 +217,14 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     public func setWidgetTheme(_ themeName: String, completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
+            guard let self = self else { completion(MMChatLocalError.noWidget.foundationError);  return }
             guard let error = error else {
-                guard self?.webView.isLoaded ?? false else {
+                guard self.webView.isLoaded else {
                     completion(nil)
                     return
                 }
                 MMChatSettings.sharedInstance.widgetTheme = themeName
-                self?.webView.setTheme(themeName, completion: completion)
+                self.webView.setTheme(themeName, completion: completion)
                 return
             }
             completion(error)
@@ -245,8 +257,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
     // MARK: - UI Control
     public func showThreadsList(completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
+            guard let self = self else { completion(MMChatLocalError.noWidget.foundationError);  return }
             guard let error = error else {
-                self?.webView.showThreadsList(completion: completion)
+                self.webView.showThreadsList(completion: completion)
                 return
             }
             completion(error)
@@ -255,8 +268,9 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     public func openNewThread(completion: @escaping ((any Error)?) -> Void) {
         ensureWidgetLoaded { [weak self] error in
+            guard let self = self else { completion(MMChatLocalError.noWidget.foundationError);  return }
             guard let error = error else {
-                self?.webView.openNewThread(completion: completion)
+                self.webView.openNewThread(completion: completion)
                 return
             }
             completion(error)
@@ -354,6 +368,121 @@ class ChatViewEventHandler: NamedLogger, WebEventHandlerProtocol {
                 return
             }
             MobileMessaging.inAppChat?.onRawMessageReceived?(jsMessage.message)
+        }
+    }
+}
+
+// MARK: - Async/Await Alternatives
+
+extension ChatWebViewHandler {
+
+    public func send(_ payload: any MMLivechatPayload) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.send(payload) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func createThread(_ payload: any MMLivechatPayload) async throws -> MMLiveChatThread {
+        try await withCheckedThrowingContinuation { continuation in
+            self.createThread(payload) { thread, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let thread = thread {
+                    continuation.resume(returning: thread)
+                } else {
+                    continuation.resume(throwing: MMChatLocalError.apiRequestFailure(.createThread, "Element not found", nil).foundationError)
+                }
+            }
+        }
+    }
+
+    public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func getThreads() async throws -> [MMLiveChatThread] {
+        try await withCheckedThrowingContinuation { continuation in
+            self.getThreads { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func openThread(with id: String) async throws -> MMLiveChatThread {
+        try await withCheckedThrowingContinuation { continuation in
+            self.openThread(with: id) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func getActiveThread() async throws -> MMLiveChatThread? {
+        try await withCheckedThrowingContinuation { continuation in
+            self.getActiveThread { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func setLanguage(_ language: MMLanguage) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.setLanguage(language) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func setWidgetTheme(_ themeName: String) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.setWidgetTheme(themeName) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func showThreadsList() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.showThreadsList { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func openNewThread() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.openNewThread { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
         }
     }
 }

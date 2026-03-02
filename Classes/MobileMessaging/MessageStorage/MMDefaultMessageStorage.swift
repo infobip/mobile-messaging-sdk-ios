@@ -429,3 +429,182 @@ extension Array where Element: Message {
 		return self.compactMap { $0.baseMessage }
 	}
 }
+
+// MARK: - Async/Await Alternatives
+
+extension MMDefaultMessageStorage {
+	/**
+	 Counts all messages in the storage using async/await.
+	 - returns: The total number of messages.
+	 */
+	public func countAllMessages() async -> Int {
+		await withCheckedContinuation { continuation in
+			self.countAllMessages { count in
+				continuation.resume(returning: count)
+			}
+		}
+	}
+
+	/**
+	 Finds all message IDs using async/await.
+	 - returns: Array of all message identifiers.
+	 */
+	public func findAllMessageIds() async -> [String] {
+		await withCheckedContinuation { continuation in
+			self.findAllMessageIds { messageIds in
+				continuation.resume(returning: messageIds)
+			}
+		}
+	}
+
+	/**
+	 Finds non-seen message IDs using async/await.
+	 - returns: Array of non-seen message identifiers.
+	 */
+	public func findNonSeenMessageIds() async -> [String] {
+		await withCheckedContinuation { continuation in
+			self.findNonSeenMessageIds { messageIds in
+				continuation.resume(returning: messageIds)
+			}
+		}
+	}
+
+	/**
+	 Inserts outgoing messages using async/await.
+	 - parameter messages: Array of messages to insert.
+	 */
+	public func insert(outgoing messages: [MMBaseMessage]) async {
+		await withCheckedContinuation { continuation in
+			self.insert(outgoing: messages) {
+				continuation.resume()
+			}
+		}
+	}
+
+	/**
+	 Inserts incoming messages using async/await.
+	 - parameter messages: Array of messages to insert.
+	 */
+	public func insert(incoming messages: [MMBaseMessage]) async {
+		await withCheckedContinuation { continuation in
+			self.insert(incoming: messages) {
+				continuation.resume()
+			}
+		}
+	}
+
+	/**
+	 Updates message sent status using async/await.
+	 - parameter status: The new sent status.
+	 - parameter messageId: The message identifier.
+	 */
+	public func update(messageSentStatus status: MM_MOMessageSentStatus, for messageId: MessageId) async {
+		await withCheckedContinuation { continuation in
+			self.update(messageSentStatus: status, for: messageId) {
+				continuation.resume()
+			}
+		}
+	}
+
+	/**
+	 Updates message seen status using async/await.
+	 - parameter status: The new seen status.
+	 - parameter messageId: The message identifier.
+	 */
+	public func update(messageSeenStatus status: MMSeenStatus, for messageId: MessageId) async {
+		await withCheckedContinuation { continuation in
+			self.update(messageSeenStatus: status, for: messageId) {
+				continuation.resume()
+			}
+		}
+	}
+
+	/**
+	 Updates delivery report status using async/await.
+	 - parameter isDelivered: Whether the message was delivered.
+	 - parameter messageId: The message identifier.
+	 */
+	public func update(deliveryReportStatus isDelivered: Bool, for messageId: MessageId) async {
+		await withCheckedContinuation { continuation in
+			self.update(deliveryReportStatus: isDelivered, for: messageId) {
+				continuation.resume()
+			}
+		}
+	}
+
+	/**
+	 Finds all messages using async/await.
+	 - returns: Optional array of all messages.
+	 */
+	public func findAllMessages() async -> [MMBaseMessage]? {
+		await withCheckedContinuation { continuation in
+			self.findAllMessages { messages in
+				continuation.resume(returning: messages)
+			}
+		}
+	}
+
+	/**
+	 Finds messages with specific IDs using async/await.
+	 - parameter messageIds: Array of message identifiers to find.
+	 - returns: Optional array of found messages.
+	 */
+	public func findMessages(withIds messageIds: [MessageId]) async -> [MMBaseMessage]? {
+		await withCheckedContinuation { continuation in
+			self.findMessages(withIds: messageIds) { messages in
+				continuation.resume(returning: messages)
+			}
+		}
+	}
+
+	/**
+	 Finds messages matching a query using async/await.
+	 - parameter query: The query to match messages against.
+	 - returns: Optional array of found messages.
+	 */
+	public func findMessages(withQuery query: MMQuery) async -> [MMBaseMessage]? {
+		await withCheckedContinuation { continuation in
+			self.findMessages(withQuery: query) { messages in
+				continuation.resume(returning: messages)
+			}
+		}
+	}
+
+	/**
+	 Removes all messages using async/await.
+	 - returns: Array of removed message identifiers.
+	 */
+	public func removeAllMessages() async -> [MessageId] {
+		await withCheckedContinuation { continuation in
+			self.removeAllMessages { messageIds in
+				continuation.resume(returning: messageIds)
+			}
+		}
+	}
+
+	/**
+	 Removes messages with specific IDs using async/await.
+	 - parameter messageIds: Array of message identifiers to remove.
+	 - returns: Array of removed message identifiers.
+	 */
+	public func remove(withIds messageIds: [MessageId]) async -> [MessageId] {
+		await withCheckedContinuation { continuation in
+			self.remove(withIds: messageIds) { removedIds in
+				continuation.resume(returning: removedIds)
+			}
+		}
+	}
+
+	/**
+	 Removes messages matching a query using async/await.
+	 - parameter query: The query to match messages against.
+	 - returns: Array of removed message identifiers.
+	 */
+	public func remove(withQuery query: MMQuery) async -> [MessageId] {
+		await withCheckedContinuation { continuation in
+			self.remove(withQuery: query) { removedIds in
+				continuation.resume(returning: removedIds)
+			}
+		}
+	}
+}

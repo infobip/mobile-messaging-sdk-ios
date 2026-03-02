@@ -392,3 +392,20 @@ public class MMInAppChatService: MobileMessagingService {
         handleOpenLiveChatAction(message, attempt: 0, completion: completion)
     }
 }
+
+// MARK: - Async/Await Alternatives
+
+extension MMInAppChatService {
+    /**
+     Asynchronously cleans up WKWebView's cache using async/await.
+     Mobile Messaging SDK will call it in case of user depersonalization.
+     You can call it additionally in case your user logs out from In-app Chat.
+     */
+    public func cleanCache() async {
+        await withCheckedContinuation { continuation in
+            self.cleanCache {
+                continuation.resume()
+            }
+        }
+    }
+}

@@ -38,7 +38,7 @@ class LocalMessageFetchingTests : MMTestCase {
 	func testThatMessagesFetchedLocallyAreConsideredAsDelivered() {
         MMTestCase.startWithCorrectApplicationCode()
         
-		weak var expectation = self.expectation(description: "server sync finished")
+		weak let expectation = self.expectation(description: "server sync finished")
 		var dlrs = [String]()
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.userNotificationCenterStorage = UserNotificationCenterStorageStub()

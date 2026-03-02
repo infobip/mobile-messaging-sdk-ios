@@ -11,24 +11,25 @@ import Foundation
 public let MMInternalErrorDomain = "com.mobile-messaging"
 
 public enum MMInternalErrorType: Error {
-    case UnknownError
-    case NoRegistration
-    case StorageInitializationError
-    case PendingLogout
-    case InvalidRegistration
-    case CantLogoutCurrentRegistration
-    case CantSetPrimaryCurrentRegistration
-    case UnknownResponseFormat
-    case MobileMessagingInstanceNotInitialized
-    case ProtectedDataUnavailable
-    case JwtStructureValidationEmptyError
-    case JwtExpirationError
-    case JwtStructureValidationThreePartsError
-    case JwtStructureValidationHeaderNotValidError
-    case JwtStructureValidationHeaderMissingFieldsError
-    case JwtStructureValidationPayloadNotValidError
-    case JwtStructureValidationMissingClaimsError
-    case UserDataValidationError
+    case UnknownError,
+         NoRegistration,
+         StorageInitializationError,
+         PendingLogout,
+         InvalidRegistration,
+         CantLogoutCurrentRegistration,
+         CantSetPrimaryCurrentRegistration,
+         UnknownResponseFormat,
+         MobileMessagingInstanceNotInitialized,
+         ProtectedDataUnavailable,
+         JwtStructureValidationEmptyError,
+         JwtExpirationError,
+         JwtStructureValidationThreePartsError,
+         JwtStructureValidationHeaderNotValidError,
+         JwtStructureValidationHeaderMissingFieldsError,
+         JwtStructureValidationPayloadNotValidError,
+         JwtStructureValidationMissingClaimsError,
+         UserDataValidationError,
+         ResponseDeserializationFailed
     
     fileprivate var errorCode: Int {
         switch self {
@@ -68,6 +69,8 @@ public enum MMInternalErrorType: Error {
             return 16
         case .UserDataValidationError:
             return 17
+        case .ResponseDeserializationFailed:
+            return 18
         }
     }
     
@@ -122,6 +125,8 @@ public enum MMInternalErrorType: Error {
             return [NSLocalizedDescriptionKey: errorDescription, MMConsts.APIKeys.errorMessageId: MMJwtValidator.invalidToken]
         case .UserDataValidationError:
             errorDescription = NSLocalizedString("User data validation failed. Please check field limits.", comment: "")
+        case .ResponseDeserializationFailed:
+            errorDescription = NSLocalizedString("Response deserialization failed.", comment: "")
         }
 
         return [NSLocalizedDescriptionKey: errorDescription]

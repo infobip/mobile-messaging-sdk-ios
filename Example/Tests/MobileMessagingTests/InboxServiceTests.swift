@@ -13,8 +13,8 @@ import Foundation
 final class InboxServiceTests: MMTestCase {
     func testThatAccessTokenPassedInAuthorizationHeader() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var requestVerified = self.expectation(description: "requestVerified")
-        weak var inboxFetched = self.expectation(description: "inboxFetched")
+        weak let requestVerified = self.expectation(description: "requestVerified")
+        weak let inboxFetched = self.expectation(description: "inboxFetched")
         
         let remoteApiProvider = RemoteAPIProvider(sessionManager: SessionManagerStubBase(getDataResponseClosure: { requestData, completion in
             if let getInboxRequest = requestData as? GetInbox {
@@ -36,8 +36,8 @@ final class InboxServiceTests: MMTestCase {
     
     func testThatAppCodePassedInAuthorizationHeader() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var requestVerified = self.expectation(description: "requestVerified")
-        weak var inboxFetched = self.expectation(description: "inboxFetched")
+        weak let requestVerified = self.expectation(description: "requestVerified")
+        weak let inboxFetched = self.expectation(description: "inboxFetched")
         
         let remoteApiProvider = RemoteAPIProvider(sessionManager: SessionManagerStubBase(getDataResponseClosure: { requestData, completion in
             if let getInboxRequest = requestData as? GetInbox {
@@ -59,7 +59,7 @@ final class InboxServiceTests: MMTestCase {
     
     func testThatMessageIsMarkedAsSeenOnlyOnce() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var messagesMarkedAsSeen = self.expectation(description: "sendSeenStatus called once")
+        weak let messagesMarkedAsSeen = self.expectation(description: "sendSeenStatus called once")
         var sendSeenStatusCallCount = 0
         
         let remoteApiProvider = RemoteAPIProviderStub()
@@ -85,7 +85,7 @@ final class InboxServiceTests: MMTestCase {
     
     func testThatMessageIsNotMarkedAsSeenInCaseOfError() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var messagesMarkedAsSeen = self.expectation(description: "sendSeenStatus called")
+        weak let messagesMarkedAsSeen = self.expectation(description: "sendSeenStatus called")
         
         let failRemoteApiProvider = RemoteAPIProviderStub()
         failRemoteApiProvider.sendSeenStatusClosure = { (_, _, body) -> SeenStatusSendingResult in
@@ -117,7 +117,7 @@ final class InboxServiceTests: MMTestCase {
     
     func testThatMultipleTopicsFilteringWorksClientSide() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var inboxFetched = self.expectation(description: "inboxFetched")
+        weak let inboxFetched = self.expectation(description: "inboxFetched")
         
         let serverResponse = MMInbox(json: JSON.parse("""
         {
@@ -261,7 +261,7 @@ final class InboxServiceTests: MMTestCase {
     
     func testThatMultipleTopicsReturnsAllMessagesWhenNoLimitSpecified() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var inboxFetched = self.expectation(description: "inboxFetched")
+        weak let inboxFetched = self.expectation(description: "inboxFetched")
         
         var messages: [[String: Any]] = []
         for i in 1...30 {
@@ -353,7 +353,7 @@ final class InboxServiceTests: MMTestCase {
     
     func testThatMultipleTopicsRespectsLimitWhenSpecified() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var inboxFetched = self.expectation(description: "inboxFetched")
+        weak let inboxFetched = self.expectation(description: "inboxFetched")
         
         var messages: [[String: Any]] = []
         for i in 1...25 {

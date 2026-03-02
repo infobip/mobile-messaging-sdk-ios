@@ -330,4 +330,19 @@ extension MMWebRTCService: IncomingApplicationCallEventListener {
         notificationData?.activeCall = .applicationCall(incomingApplicationCall)
     }
 }
+
+// MARK: - Async/Await Alternatives
+extension MMWebRTCService {
+    /**
+     Disables call push credentials using async/await.
+     - returns: Boolean indicating success or failure.
+     */
+    public func disableCallPushCredentials() async -> Bool {
+        await withCheckedContinuation { continuation in
+            self.disableCallPushCredentials { success in
+                continuation.resume(returning: success)
+            }
+        }
+    }
+}
 #endif

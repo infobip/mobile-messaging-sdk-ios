@@ -14,7 +14,7 @@ class UserSessionTests: MMTestCase {
     
     func testThatUserSessionDataPersisted() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var expectation = self.expectation(description: "case is finished")
+        weak let expectation = self.expectation(description: "case is finished")
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         let now = MobileMessaging.date.now.timeIntervalSince1970
         
@@ -47,7 +47,7 @@ class UserSessionTests: MMTestCase {
     
     func testSuccessfulSessionReporting() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var expectation = self.expectation(description: "case is finished")
+        weak let expectation = self.expectation(description: "case is finished")
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
         let remoteApiProvider = RemoteAPIProviderStub()
@@ -86,7 +86,7 @@ class UserSessionTests: MMTestCase {
     
     func testFailedSessionReporting() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var expectation = self.expectation(description: "case is finished")
+        weak let expectation = self.expectation(description: "case is finished")
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
         let remoteApiProvider = RemoteAPIProviderStub()
@@ -131,7 +131,7 @@ class UserSessionTests: MMTestCase {
     
     func testSessionReportDoesNotHaveSessionDuplicates() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var expectation = self.expectation(description: "case is finished")
+        weak let expectation = self.expectation(description: "case is finished")
         
         let remoteApiProvider = RemoteAPIProviderStub()
         remoteApiProvider.sendUserSessionClosure = { _, _, _ in

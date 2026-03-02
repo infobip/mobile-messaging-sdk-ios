@@ -169,3 +169,66 @@ public class MMInboxService: MobileMessagingService {
         MMInboxService.sharedInstance = nil
     }
 }
+
+// MARK: - Async/Await Alternatives
+
+extension MMInboxService {
+
+    /**
+     Asynchronously fetches inbox data for authorised user using async/await. Uses access token (JWT) for authorization.
+     - parameter token: Access token (JWT in a strictly predefined format) required for current user to have access to the Inbox messages.
+     - parameter externalUserId: External User ID is meant to be an ID of a user in an external (non-Infobip) service.
+     - parameter options: Filtering options applied to messages list in response.
+     - returns: Inbox object containing list of messages and message counters.
+     - throws: NSError if the operation fails.
+     */
+    public func fetchInbox(token: String, externalUserId: String, options: MMInboxFilterOptions?) async throws -> MMInbox? {
+        try await withCheckedThrowingContinuation { continuation in
+            self.fetchInbox(token: token, externalUserId: externalUserId, options: options) { inbox, error in
+                guard let error = error else {
+                    continuation.resume(returning: inbox)
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously fetches inbox data for authorised user using async/await. Uses Application Code for authorization.
+     - Attention: This version of API uses Application Code (or API key) based authorization. This is not the most secure way of authorization because it is heavily dependent on how secure is your Application Code stored on a device.
+     - parameter externalUserId: External User ID is meant to be an ID of a user in an external (non-Infobip) service.
+     - parameter options: Filtering options applied to messages list in response.
+     - returns: Inbox object containing list of messages and message counters.
+     - throws: NSError if the operation fails.
+     */
+    public func fetchInbox(externalUserId: String, options: MMInboxFilterOptions?) async throws -> MMInbox? {
+        try await withCheckedThrowingContinuation { continuation in
+            self.fetchInbox(externalUserId: externalUserId, options: options) { inbox, error in
+                guard let error = error else {
+                    continuation.resume(returning: inbox)
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously marks inbox message as seen using async/await.
+     - parameter externalUserId: External User ID is meant to be an ID of a user in an external (non-Infobip) service.
+     - parameter messageIds: Array of inbox messages identifiers that need to be marked as seen.
+     - throws: NSError if the operation fails.
+     */
+    public func setSeen(externalUserId: String, messageIds: [String]) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.setSeen(externalUserId: externalUserId, messageIds: messageIds) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+}

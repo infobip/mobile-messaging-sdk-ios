@@ -57,10 +57,10 @@ class CheckVersionTests: MMTestCase {
         versionManager = VersionManagerMock(mmContext: self.mobileMessagingInstance, onlineVersion: MMVersion.mobileMessagingVersion)
         versionManager.lastCheckDate = nil
         
-		weak var expectationUpToDate = self.expectation(description: "up to date case")
-		weak var expectationCheckedAgain = self.expectation(description: "check again")
-		weak var expectationWait = self.expectation(description: "must wait")
-		weak var expectationAlertShown = self.expectation(description: "alert shown")
+		weak let expectationUpToDate = self.expectation(description: "up to date case")
+		weak let expectationCheckedAgain = self.expectation(description: "check again")
+		weak let expectationWait = self.expectation(description: "must wait")
+		weak let expectationAlertShown = self.expectation(description: "alert shown")
 		
 		
 		// initially we are up to data:

@@ -64,7 +64,7 @@ class MessageHandlingDelegateMock : MMMessageHandlingDelegate {
     }
     
     func willPresentInForeground(message: MM_MTMessage?, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler(willPresentInForegroundHandler?(message) ?? UNNotificationPresentationOptions.alert)
+        completionHandler(willPresentInForegroundHandler?(message) ?? .banner)
     }
     
     func canPresentInForeground(message: MM_MTMessage) {
@@ -173,7 +173,7 @@ class MMTestCase: XCTestCase {
 
     
     override func waitForExpectations(timeout: TimeInterval, handler: XCWaitCompletionHandler? = nil) {
-        weak var e = expectation(description: "Queues finished")
+        weak let e = expectation(description: "Queues finished")
         
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + 1, execute: { // we don't want to block main thread because queues might dispatch to it the finish blocks
             //todo: rework subservices to have single queue each one, then just waitUntilAllOperationsAreFinished for every subservice registered

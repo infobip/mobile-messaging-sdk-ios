@@ -921,3 +921,321 @@ public final class MobileMessaging: NSObject, NamedLogger {
     private var appCodeChanged = false
     private var requiresRestart = false
 }
+
+// MARK: - Async/Await Alternatives
+
+extension MobileMessaging {
+    /**
+     Asynchronously starts a new Mobile Messaging session using async/await.
+     This method should be called from AppDelegate's `application(_:didFinishLaunchingWithOptions:)` callback.
+     - remark: For now, Mobile Messaging SDK doesn't support Badge. You should handle the badge counter by yourself.
+     */
+    public func start() async {
+        await withCheckedContinuation { continuation in
+            self.start {
+                continuation.resume()
+            }
+        }
+    }
+
+    /**
+     Asynchronously cleans up all persisted data using async/await.
+     Use this method to completely drop any data persisted by the SDK (i.e. internal SDK data, optional user data, optional messages metadata).
+     - parameter clearKeychain: defines whether the internalId in keychain will be cleaned. True by default.
+     */
+    public class func cleanUpAndStop(_ clearKeychain: Bool = true) async {
+        await withCheckedContinuation { continuation in
+            MobileMessaging.cleanUpAndStop(clearKeychain) {
+                continuation.resume()
+            }
+        }
+    }
+
+    /**
+     Asynchronously stops all the currently running Mobile Messaging services using async/await.
+     - parameter cleanUpData: defines whether the Mobile Messaging internal storage will be dropped. False by default.
+     - attention: This function doesn't disable push notifications, they are still being received by the OS.
+     */
+    public class func stop(_ cleanUpData: Bool = false) async {
+        await withCheckedContinuation { continuation in
+            MobileMessaging.stop(cleanUpData) {
+                continuation.resume()
+            }
+        }
+    }
+
+    /**
+     Handles incoming remote notifications and triggers sending procedure for delivery reports using async/await.
+     The method should be called from AppDelegate's `application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` callback.
+     - parameter userInfo: A dictionary that contains information related to the remote notification.
+     - returns: UIBackgroundFetchResult indicating the result of the background fetch.
+     */
+    public class func didReceiveRemoteNotification(_ userInfo: [AnyHashable : Any]) async -> UIBackgroundFetchResult {
+        await withCheckedContinuation { continuation in
+            MobileMessaging.didReceiveRemoteNotification(userInfo) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+
+    /**
+     Asynchronously fetches the user data from the server using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - returns: Fetched user data.
+     - throws: NSError if the operation fails.
+     */
+    public class func fetchUser() async throws -> MMUser {
+        try await withCheckedThrowingContinuation { continuation in
+            MobileMessaging.fetchUser { user, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                guard let user = user else {
+                    continuation.resume(throwing: MMInternalErrorType.ResponseDeserializationFailed.foundationError)
+                    return
+                }
+                continuation.resume(returning: user)
+            }
+        }
+    }
+
+    /**
+     Asynchronously fetches the installation data from the server using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - returns: Fetched installation data.
+     - throws: NSError if the operation fails.
+     */
+    public class func fetchInstallation() async throws -> MMInstallation {
+        try await withCheckedThrowingContinuation { continuation in
+            MobileMessaging.fetchInstallation { installation, error in
+                guard let installation = installation else {
+                    continuation.resume(throwing: error ?? MMInternalErrorType.ResponseDeserializationFailed.foundationError)
+                    return
+                }
+                continuation.resume(returning: installation)
+            }
+        }
+    }
+
+    /**
+     Asynchronously saves changed user data on the server using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - parameter user: User data to save on server.
+     - throws: NSError if the operation fails.
+     */
+    public class func saveUser(_ user: MMUser) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            MobileMessaging.saveUser(user) { error in
+                guard let error = error else {
+                    continuation.resume()
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously saves changed installation data on the server using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - parameter installation: Installation data to save on server.
+     - throws: NSError if the operation fails.
+     */
+    public class func saveInstallation(_ installation: MMInstallation) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            MobileMessaging.saveInstallation(installation) { error in
+                guard let error = error else {
+                    continuation.resume()
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously erases currently persisted user data using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - returns: A tuple containing the depersonalization status and optional error.
+     - throws: NSError if the operation fails.
+     */
+    public class func depersonalize() async throws -> MMSuccessPending {
+        try await withCheckedThrowingContinuation { continuation in
+            MobileMessaging.depersonalize { status, error in
+                guard let error = error else {
+                    continuation.resume(returning: status)
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously personalizes current installation with a person on the server using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - parameter identity: A combination of phones, emails and an external user id.
+     - parameter userAttributes: Optional user data to be saved for the person.
+     - parameter keepAsLead: Whether to keep the installation as a lead. Default is false.
+     - throws: NSError if the operation fails.
+     */
+    public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, keepAsLead: Bool = false) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            MobileMessaging.personalize(withUserIdentity: identity, userAttributes: userAttributes, keepAsLead: keepAsLead) { error in
+                guard let error = error else {
+                    continuation.resume()
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously personalizes current installation with a person on the server using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - parameter forceDepersonalize: Determines whether depersonalization should be performed first.
+     - parameter keepAsLead: Whether to keep the installation as a lead. Default is false.
+     - parameter userIdentity: A combination of phones, emails and an external user id.
+     - parameter userAttributes: Optional user data to be saved for the person.
+     - throws: NSError if the operation fails.
+     */
+    public class func personalize(forceDepersonalize: Bool, keepAsLead: Bool = false, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            MobileMessaging.personalize(forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, userIdentity: userIdentity, userAttributes: userAttributes) { error in
+                guard let error = error else {
+                    continuation.resume()
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously sets a current user's installation as primary using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - parameter pushRegId: Push Registration Id of the installation to be updated.
+     - parameter primary: New primary value.
+     - returns: A list of installations.
+     - throws: NSError if the operation fails.
+     */
+    public class func setInstallation(withPushRegistrationId pushRegId: String, asPrimary primary: Bool) async throws -> [MMInstallation]? {
+        try await withCheckedThrowingContinuation { continuation in
+            MobileMessaging.setInstallation(withPushRegistrationId: pushRegId, asPrimary: primary) { installations, error in
+                guard let error = error else {
+                    continuation.resume(returning: installations)
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously depersonalizes current user's installation using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - parameter pushRegId: Push Registration Id of the installation to be depersonalized.
+     - returns: A list of installations.
+     - throws: NSError if the operation fails.
+     */
+    public class func depersonalizeInstallation(withPushRegistrationId pushRegId: String) async throws -> [MMInstallation]? {
+        try await withCheckedThrowingContinuation { continuation in
+            MobileMessaging.depersonalizeInstallation(withPushRegistrationId: pushRegId) { installations, error in
+                guard let error = error else {
+                    continuation.resume(returning: installations)
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously fetches all installations personalized with the current user using async/await.
+
+     For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
+     - returns: A list of fetched installations.
+     - throws: NSError if the operation fails.
+     */
+    public class func fetchInstallations() async throws -> [MMInstallation]? {
+        try await withCheckedThrowingContinuation { continuation in
+            MobileMessaging.fetchInstallations { installations, error in
+                guard let error = error else {
+                    continuation.resume(returning: installations)
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously sets seen status for messages using async/await.
+     - parameter messageIds: Array of identifiers of messages that need to be marked as seen.
+     */
+    public class func setSeen(messageIds: [String]) async {
+        await withCheckedContinuation { continuation in
+            MobileMessaging.setSeen(messageIds: messageIds) {
+                continuation.resume()
+            }
+        }
+    }
+
+    /**
+     Asynchronously sends mobile originated messages to the server using async/await.
+     - parameter messages: Array of MM_MOMessage objects to be sent.
+     - returns: List of messages sent.
+     - throws: NSError if the operation fails.
+     */
+    public class func sendMessages(_ messages: [MM_MOMessage]) async throws -> [MM_MOMessage]? {
+        try await withCheckedThrowingContinuation { continuation in
+            MobileMessaging.sendMessages(messages) { sentMessages, error in
+                guard let error = error else {
+                    continuation.resume(returning: sentMessages)
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Asynchronously submits a custom event using async/await.
+     - parameter customEvent: Custom event to be sent to the server.
+     - throws: NSError if the operation fails.
+     */
+    public class func submitEvent(_ customEvent: MMCustomEvent) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            MobileMessaging.submitEvent(customEvent) { error in
+                guard let error = error else {
+                    continuation.resume()
+                    return
+                }
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+
+    /**
+     Schedules a local user notification using async/await.
+     - parameter message: The MM_MTMessage object containing notification content.
+     */
+    public class func scheduleUserNotification(with message: MM_MTMessage) async {
+        await withCheckedContinuation { continuation in
+            MobileMessaging.scheduleUserNotification(with: message) {
+                continuation.resume()
+            }
+        }
+    }
+}

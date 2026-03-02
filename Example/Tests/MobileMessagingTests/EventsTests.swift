@@ -14,8 +14,8 @@ class EventsTests: MMTestCase {
 	func testSuccessfulSyncEventSubmit() {
 		MMTestCase.startWithCorrectApplicationCode()
 
-		weak var expectation = self.expectation(description: "expectation1")
-		weak var expectation2 = self.expectation(description: "expectation2")
+		weak let expectation = self.expectation(description: "expectation1")
+		weak let expectation2 = self.expectation(description: "expectation2")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
         let date = NSDate()
@@ -67,8 +67,8 @@ class EventsTests: MMTestCase {
 	func testFailedAsyncEventSubmit() {
 		MMTestCase.startWithCorrectApplicationCode()
         
-		weak var expectation = self.expectation(description: "case is finished")
-		weak var expectation2 = self.expectation(description: "case is finished")
+		weak let expectation = self.expectation(description: "case is finished")
+		weak let expectation2 = self.expectation(description: "case is finished")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 
 		let event = MMCustomEvent(definitionId: "event1", properties: [

@@ -13,7 +13,7 @@ class DeliveryReportingTests: MMTestCase {
     func testSendingDeliveryStatusSuccess() {
         MMTestCase.startWithCorrectApplicationCode()
         
-        weak var expectation = self.expectation(description: "Delivery sending completed")
+        weak let expectation = self.expectation(description: "Delivery sending completed")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps": ["key":"value"], "messageId": "m1"], completion: { result in
 				XCTAssertNil(result.error, "Delivery reporting request failed with error")
@@ -28,7 +28,7 @@ class DeliveryReportingTests: MMTestCase {
     func testSendingDeliveryStatusWrongAppIdFailure() {
 		MMTestCase.startWithWrongApplicationCode()
 		
-        weak var expectation = self.expectation(description: "Delivery sending completed")
+        weak let expectation = self.expectation(description: "Delivery sending completed")
 		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
 		mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: ["aps":["key":"value"], "messageId": "m2"], completion: { result in
 		

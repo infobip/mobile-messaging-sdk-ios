@@ -76,7 +76,7 @@ class InAppAlertTests: MMTestCase {
     
     func testThatInAppShownManuallyIfFalseInDelegate() {
         MMTestCase.startWithCorrectApplicationCode()
-        weak var displayed = self.expectation(description: "displayed")
+        weak let displayed = self.expectation(description: "displayed")
         let inAppDelegate = InAppMessageHandlingDelegateShouldNotShow()
         MobileMessaging.messageHandlingDelegate = inAppDelegate
         let jsonStr  = """
@@ -106,7 +106,7 @@ class InAppAlertTests: MMTestCase {
     }
 
 	private func assertAlertShownAutomatically(_ shown: Bool, inAppExpiryDateTime: TimeInterval, currentDateTime: TimeInterval, json: String? = nil) {
-		weak var messageHandled = self.expectation(description: "messageHandled")
+		weak let messageHandled = self.expectation(description: "messageHandled")
 		let jsonStr  = json ?? """
 						{
 							"messageId": "messageId",

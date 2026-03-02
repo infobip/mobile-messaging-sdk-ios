@@ -68,23 +68,31 @@ class ExternalChatInputViewController: UIViewController, UINavigationControllerD
     @objc func sendText() {
         if let text = externalChatInput.textField.text {
             externalChatInput.textField.text = ""
-            chatView.send(text.livechatBasicPayload, completion:  { _ in })
+            Task {
+                do {
+                    try await chatView.send(text.livechatBasicPayload)
+                } catch {
+                    print("Error sending text: \(error)")
+                }
+            }
         }
     }
-    
+
     @objc func presentImagePicker() {
         self.present(picker, animated: true)
     }
-    
+
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[.originalImage] as? UIImage {
             guard let imageData = image.jpegData(compressionQuality: 0.5) else { return }
             let payload = MMLivechatBasicPayload(data: imageData)
-            self.chatView.send(payload, completion:  { error in
-                if let error = error {
-                    print(error)
+            Task {
+                do {
+                    try await self.chatView.send(payload)
+                } catch {
+                    print("Error sending image: \(error)")
                 }
-            })
+            }
             picker.dismiss(animated: true)
         }
     }

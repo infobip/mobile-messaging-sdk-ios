@@ -26,7 +26,7 @@ class OtherVendorsTests: MMTestCase {
     }
     
     func testShouldRegisterDuringStart() {
-        weak var expectation = self.expectation(description: "registerForRemoteNotifications called")
+        weak let expectation = self.expectation(description: "registerForRemoteNotifications called")
         let mm = MobileMessaging.withApplicationCode("code", notificationType: MMUserNotificationType(options: []) , backendBaseURL: "http://url.com")!
         
         mm.setupApiSessionManagerStubbed()
@@ -63,8 +63,7 @@ class OtherVendorsTests: MMTestCase {
         })
     }
     
-    func testShouldNotUnregisterOnFailedDepersonalization() {
-        weak var expectation = self.expectation(description: "depersonalization finished")
+    func testShouldNotUnregisterOnFailedDepersonalization() async throws {
         let mm = MobileMessaging.withApplicationCode("code", notificationType: MMUserNotificationType(options: []) , backendBaseURL: "http://url.com")!.withoutUnregisteringForRemoteNotifications()
 
         let appMock = DefaultApplicationStub()
@@ -75,21 +74,17 @@ class OtherVendorsTests: MMTestCase {
         mm.doStart()
         mm.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         MobileMessaging.sharedInstance?.remoteApiProvider = failedDepersonalizeApiMock
-        MobileMessaging.depersonalize() { s, e in
-            XCTAssertEqual(MMSuccessPending.pending, s)
-            XCTAssertNotNil(e)
-            expectation?.fulfill()
+        do {
+            _ = try await MobileMessaging.depersonalize()
+            XCTFail("Should have thrown error")
+        } catch {
+            XCTAssertEqual(MMSuccessPending.pending, mm.internalData().currentDepersonalizationStatus)
         }
-        
-        waitForExpectations(timeout: 5, handler: { _ in
-            
-        })
     }
-    
-    func testShouldUnregisterOnFailedDepersonalization() {
-        weak var unregisterExpectation = self.expectation(description: "unregister called")
+
+    func testShouldUnregisterOnFailedDepersonalization() async throws {
+        weak let unregisterExpectation = self.expectation(description: "unregister called")
         unregisterExpectation!.assertForOverFulfill = false
-        weak var depersonalizeExpectation = self.expectation(description: "depersonalization finished")
         let mm = MobileMessaging.withApplicationCode("code", notificationType: MMUserNotificationType(options: []) , backendBaseURL: "http://url.com")!
 
         let appMock = DefaultApplicationStub()
@@ -100,14 +95,12 @@ class OtherVendorsTests: MMTestCase {
         mm.doStart()
         mm.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         MobileMessaging.sharedInstance?.remoteApiProvider = failedDepersonalizeApiMock
-        MobileMessaging.depersonalize() { s, e in
-            XCTAssertEqual(MMSuccessPending.pending, s)
-            XCTAssertNotNil(e)
-            depersonalizeExpectation?.fulfill()
+        do {
+            _ = try await MobileMessaging.depersonalize()
+            XCTFail("Should have thrown error")
+        } catch {
+            XCTAssertEqual(MMSuccessPending.pending, mm.internalData().currentDepersonalizationStatus)
         }
-        
-        waitForExpectations(timeout: 5, handler: { _ in
-            
-        })
+        await fulfillment(of: [unregisterExpectation!], timeout: 5)
     }
 }

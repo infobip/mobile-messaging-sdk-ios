@@ -14,7 +14,7 @@ class WebInAppClickTests: MMTestCase {
     func testSuccessfulWebInAppClickPersisting() {
         MMTestCase.startWithCorrectApplicationCode()
 
-        weak var expectation = self.expectation(description: "Click persisted")
+        weak let expectation = self.expectation(description: "Click persisted")
         
         let click = MMWebInAppClick(clickUrl: MMTestConstants.kTestWebInAppClickUrl, buttonIdx: MMTestConstants.kTestWebInAppButtonIdx)
         let context = self.storage.mainThreadManagedObjectContext!
@@ -42,7 +42,7 @@ class WebInAppClickTests: MMTestCase {
     func testDuplicateClickUrlNotPersisted() {
         MMTestCase.startWithCorrectApplicationCode()
         
-        weak var expectation = self.expectation(description: "Operations completed")
+        weak let expectation = self.expectation(description: "Operations completed")
         
         let context = self.storage.mainThreadManagedObjectContext!
         let click = MMWebInAppClick(clickUrl: MMTestConstants.kTestWebInAppClickUrl, buttonIdx: MMTestConstants.kTestWebInAppButtonIdx)
@@ -75,7 +75,7 @@ class WebInAppClickTests: MMTestCase {
     func testPersistingOperationCancelledHandledCorrectly() {
         MMTestCase.startWithCorrectApplicationCode()
 
-        weak var expectation = self.expectation(description: "Operation cancelled")
+        weak let expectation = self.expectation(description: "Operation cancelled")
         
         let context = self.storage.mainThreadManagedObjectContext!
         let click = MMWebInAppClick(clickUrl: MMTestConstants.kTestWebInAppClickUrl, buttonIdx: MMTestConstants.kTestWebInAppButtonIdx)
@@ -100,8 +100,8 @@ class WebInAppClickTests: MMTestCase {
     func testWebInAppClickServiceAndReportingSuccess() {
         MMTestCase.startWithCorrectApplicationCode()
         
-        weak var expectation = self.expectation(description: "expectation1")
-        weak var expectation2 = self.expectation(description: "expectation2")
+        weak let expectation = self.expectation(description: "expectation1")
+        weak let expectation2 = self.expectation(description: "expectation2")
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
         let testClickUrl = MMTestConstants.kTestWebInAppClickUrl
@@ -136,8 +136,8 @@ class WebInAppClickTests: MMTestCase {
     func testWebInAppClickServiceAndReportingFailure() {
         MMTestCase.startWithCorrectApplicationCode()
         
-        weak var expectation = self.expectation(description: "case is finished")
-        weak var expectation2 = self.expectation(description: "request attempted")
+        weak let expectation = self.expectation(description: "case is finished")
+        weak let expectation2 = self.expectation(description: "request attempted")
         
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
@@ -172,7 +172,7 @@ class WebInAppClickTests: MMTestCase {
     func testWebInAppReportRetriesOnAppWillEnterForeground() {
         MMTestCase.startWithCorrectApplicationCode()
         
-        weak var expectation = self.expectation(description: "retries completed")
+        weak let expectation = self.expectation(description: "retries completed")
         mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
         
         let testClickUrl = MMTestConstants.kTestWebInAppClickUrl

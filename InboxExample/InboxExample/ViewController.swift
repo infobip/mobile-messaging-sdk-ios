@@ -45,25 +45,43 @@ class ViewController: UIViewController, UITextFieldDelegate {
     func updateInboxMessagesCounters() {
         if let externalUserId = MobileMessaging.getUser()?.externalUserId {
             self.showActivityIndicator()
-            MobileMessaging.inbox?.fetchInbox(externalUserId: externalUserId, options: MMInboxFilterOptions.init(fromDateTime: nil, toDateTime: nil, topic: nil, limit: 0), completion: { inbox, error in
-                assert(Thread.isMainThread)
-                self.hideActivityIndicator(nil)
-                self.showAlertIfErrorPresent(error)
-                if let unreadCount =  inbox?.countUnread {
-                    self.inboxBtn.badge = unreadCount > 0 ? "\(unreadCount)" : nil
+            Task {
+                do {
+                    let inbox = try await MobileMessaging.inbox?.fetchInbox(externalUserId: externalUserId, options: MMInboxFilterOptions.init(fromDateTime: nil, toDateTime: nil, topic: nil, limit: 0))
+                    await MainActor.run {
+                        self.hideActivityIndicator(nil)
+                        if let unreadCount = inbox?.countUnread {
+                            self.inboxBtn.badge = unreadCount > 0 ? "\(unreadCount)" : nil
+                        }
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.hideActivityIndicator(nil)
+                        self.showAlertIfErrorPresent(error as NSError)
+                    }
                 }
-            })
+            }
         }
     }
     
     @IBAction func depersonalize(_ sender: Any) {
         self.showActivityIndicator()
-        MobileMessaging.depersonalize { status, error in
-            assert(Thread.isMainThread)
-            self.hideActivityIndicator(nil)
-            self.showAlertIfErrorPresent(error)
-            self.updateControls()
-            self.inboxBtn.badge = nil
+        Task {
+            do {
+                _ = try await MobileMessaging.depersonalize()
+                await MainActor.run {
+                    self.hideActivityIndicator(nil)
+                    self.updateControls()
+                    self.inboxBtn.badge = nil
+                }
+            } catch {
+                await MainActor.run {
+                    self.hideActivityIndicator(nil)
+                    self.showAlertIfErrorPresent(error as NSError)
+                    self.updateControls()
+                    self.inboxBtn.badge = nil
+                }
+            }
         }
     }
     
@@ -71,12 +89,22 @@ class ViewController: UIViewController, UITextFieldDelegate {
         externalUserIdTextField.resignFirstResponder()
         if let externalUserId = externalUserIdTextField.text, let userIdentity = MMUserIdentity(phones: nil, emails: nil, externalUserId: externalUserId) {
             self.showActivityIndicator()
-            MobileMessaging.personalize(forceDepersonalize: true, userIdentity: userIdentity, userAttributes: nil) { error in
-                assert(Thread.isMainThread)
-                self.hideActivityIndicator(nil)
-                self.showAlertIfErrorPresent(error)
-                self.updateControls()
-                self.updateInboxMessagesCounters()
+            Task {
+                do {
+                    try await MobileMessaging.personalize(forceDepersonalize: true, keepAsLead: false, userIdentity: userIdentity, userAttributes: nil)
+                    await MainActor.run {
+                        self.hideActivityIndicator(nil)
+                        self.updateControls()
+                        self.updateInboxMessagesCounters()
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.hideActivityIndicator(nil)
+                        self.showAlertIfErrorPresent(error as NSError)
+                        self.updateControls()
+                        self.updateInboxMessagesCounters()
+                    }
+                }
             }
         }
     }

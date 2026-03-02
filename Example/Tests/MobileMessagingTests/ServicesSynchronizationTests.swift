@@ -49,11 +49,11 @@ final class ServicesSynchronizationTests: MMTestCase {
     // Testing that synchronization of services is done after starting SDK, because it should be like this in plugins.
     func testSyncCalledAfterStart() {
         
-        weak var userDataSynced = self.expectation(description: "user data synced with server")
-        weak var installationDataSynced = self.expectation(description: "installation data synced with server")
-        weak var notificationInteractionSynced = self.expectation(description: "notificationInteraction synced with server")
-        weak var messagesSynced = self.expectation(description: "messages synced with server")
-        weak var chatSynced = self.expectation(description: "chat synced with server")
+        weak let userDataSynced = self.expectation(description: "user data synced with server")
+        weak let installationDataSynced = self.expectation(description: "installation data synced with server")
+        weak let notificationInteractionSynced = self.expectation(description: "notificationInteraction synced with server")
+        weak let messagesSynced = self.expectation(description: "messages synced with server")
+        weak let chatSynced = self.expectation(description: "chat synced with server")
         
         let mm = ServicesSynchronizationTests.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 

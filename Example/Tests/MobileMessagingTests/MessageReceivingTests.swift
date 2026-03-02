@@ -186,7 +186,7 @@ class MessageReceivingTests: MMTestCase {
 	func testMessagesPersisting() {
         MMTestCase.startWithCorrectApplicationCode()
         
-		weak var expectation = self.expectation(description: "Check finished")
+		weak let expectation = self.expectation(description: "Check finished")
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 		sendPushes(apnsNormalMessagePayload, count: expectedMessagesCount) { userInfo in
@@ -215,7 +215,7 @@ class MessageReceivingTests: MMTestCase {
             Consts.APNSPayloadKeys.internalData: ["messageType": "chat", "sendDateTime": testEnvironmentTimestampMillisSince1970, "internalKey": "internalValue"],
             Consts.APNSPayloadKeys.customPayload: ["customKey": "customValue"]
         ] as [AnyHashable : Any]
-        weak var expectation = self.expectation(description: "Check finished")
+        weak let expectation = self.expectation(description: "Check finished")
             
         let payload = MM_MTMessage(payload: chatPayload, deliveryMethod: .undefined, seenDate: nil, deliveryReportDate: nil, seenStatus: .NotSeen, isDeliveryReportSent: false)!.originalPayload
         self.mobileMessagingInstance.didReceiveRemoteNotification(userInitiated: true, userInfo: payload,  completion: { _ in
@@ -230,7 +230,7 @@ class MessageReceivingTests: MMTestCase {
 	func testMessagesPersistingForDisabledRegistration() {
         MMTestCase.startWithCorrectApplicationCode()
         
-		weak var expectation = self.expectation(description: "Check finished")
+		weak let expectation = self.expectation(description: "Check finished")
 		let expectedMessagesCount: Int = 5
 		var iterationCounter: Int = 0
 
@@ -261,7 +261,7 @@ class MessageReceivingTests: MMTestCase {
 		var eventsCounter: Int = 0
 		var messageHandlingCounter: Int = 0
 		
-		weak var messageHandlingFinished = self.expectation(description: "messages handling finished")
+		weak let messageHandlingFinished = self.expectation(description: "messages handling finished")
 		let notificationName = NSNotification.Name(MMNotificationMessageReceived)
 		expectation(forNotification: notificationName, object: nil) { (notification) -> Bool in
 			if let message = notification.userInfo?[MMNotificationKeyMessage] as? MM_MTMessage, message.isSilent == true {
@@ -321,12 +321,12 @@ class MessageReceivingTests: MMTestCase {
 	}
 	
 	private func collectSixTappedMessages(forApplication application: MMApplication, additionalPayload: [AnyHashable: Any] = [:], assertionsBlock: @escaping ([MM_MTMessage]) -> Void) {
-		weak var messageReceived1 = self.expectation(description: "message received")
-		weak var messageReceived2 = self.expectation(description: "message received")
-		weak var messageReceived3 = self.expectation(description: "message received")
-		weak var messageReceived4 = self.expectation(description: "message received")
-		weak var localNotificationHandled1 = self.expectation(description: "localNotificationHandled1")
-		weak var localNotificationHandled2 = self.expectation(description: "localNotificationHandled2")
+		weak let messageReceived1 = self.expectation(description: "message received")
+		weak let messageReceived2 = self.expectation(description: "message received")
+		weak let messageReceived3 = self.expectation(description: "message received")
+		weak let messageReceived4 = self.expectation(description: "message received")
+		weak let localNotificationHandled1 = self.expectation(description: "localNotificationHandled1")
+		weak let localNotificationHandled2 = self.expectation(description: "localNotificationHandled2")
 
 		var tappedMessages = [MM_MTMessage]()
 		MobileMessaging.application = application
@@ -391,8 +391,8 @@ class MessageReceivingTests: MMTestCase {
 	func testThatNotificationCenterDelegateRecognizesTaps() {
         MMTestCase.startWithCorrectApplicationCode()
         
-		weak var eventReceived = self.expectation(description: "eventReceived")
-		weak var tapHandled = self.expectation(description: "tapHandled")
+		weak let eventReceived = self.expectation(description: "eventReceived")
+		weak let tapHandled = self.expectation(description: "tapHandled")
 		let delegateMock = MessageHandlingDelegateMock()
 		delegateMock.didPerformActionHandler = { action, message, _ in
 			if action.identifier == MMNotificationAction.DefaultActionId {
@@ -559,8 +559,8 @@ class MessageReceivingTests: MMTestCase {
 				}
 			}
 			"""
-		weak var webViewShown = self.expectation(description: "webViewShown")
-		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
+		weak let webViewShown = self.expectation(description: "webViewShown")
+		weak let tapEventReceived = self.expectation(description: "tapEventReceived")
 
 		class MessageHandlingDelegateStub: MMMessageHandlingDelegate {
 			var expectation: XCTestExpectation? = nil
@@ -604,7 +604,7 @@ class MessageReceivingTests: MMTestCase {
 				}
 			}
 			"""
-		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
+		weak let tapEventReceived = self.expectation(description: "tapEventReceived")
 
 		class MessageHandlingDelegateStub: MMMessageHandlingDelegate {
 			func inAppWebViewWillShowUp(_ webViewController: MMWebViewController, for message: MM_MTMessage) {
@@ -643,7 +643,7 @@ class MessageReceivingTests: MMTestCase {
 				"internalData": {}
 			}
 			"""
-		weak var tapEventReceived = self.expectation(description: "tapEventReceived")
+		weak let tapEventReceived = self.expectation(description: "tapEventReceived")
 
 		class MessageHandlingDelegateStub: MMMessageHandlingDelegate {
 			func inAppWebViewWillShowUp(_ webViewController: MMWebViewController, for message: MM_MTMessage) {
@@ -667,8 +667,8 @@ class MessageReceivingTests: MMTestCase {
 	}
 
 	private func testThatModalAlertWillBeShownForModalStyle(_ pushJson: String) {
-		weak var alertShown = self.expectation(description: "alertShown")
-		weak var messageHandled = self.expectation(description: "messageHandled")
+		weak let alertShown = self.expectation(description: "alertShown")
+		weak let messageHandled = self.expectation(description: "messageHandled")
 		let interactiveMessageAlertManagerMock = InteractiveMessageAlertManagerMock()
 		interactiveMessageAlertManagerMock.showInteractiveAlertAutomaticallyClosure = { _ in
 			alertShown?.fulfill()

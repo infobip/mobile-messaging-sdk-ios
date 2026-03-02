@@ -41,36 +41,39 @@ struct LiveChatAPIView: View {
 
                 Button("Send Text Message") {
                     let text = "Some text \(Int.random(in: 0..<1000))"
-                    api?.send(text.livechatBasicPayload, completion: { error in
-                        if let error = error {
-                            self.performedActions.append(.init(name: "Error: Send message", description: text + " " + error.localizedDescription))
-                        } else {
+                    Task {
+                        do {
+                            try await api?.send(text.livechatBasicPayload)
                             self.performedActions.append(.init(name: "Send message", description: text))
+                        } catch {
+                            self.performedActions.append(.init(name: "Error: Send message", description: text + " " + error.localizedDescription))
                         }
-                    })
+                    }
                 }.frame(height: 40)
 
                 Button("Send Text Message (to threadId from clipboard)") {
                     let text = "Some text \(Int.random(in: 0..<1000))"
                     let payload = MMLivechatBasicPayload(text: text, threadId: UIPasteboard.general.string)
-                    api?.send(payload, completion: { error in
-                        if let error = error {
-                            self.performedActions.append(.init(name: "Error: Send message", description: text + " " + error.localizedDescription))
-                        } else {
+                    Task {
+                        do {
+                            try await api?.send(payload)
                             self.performedActions.append(.init(name: "Send message", description: text))
+                        } catch {
+                            self.performedActions.append(.init(name: "Error: Send message", description: text + " " + error.localizedDescription))
                         }
-                    })
+                    }
                 }.frame(height: 40)
 
                 Button("Send contextual") {
                     let text = "{ demoKey: \(Int.random(in: 0..<1000)) }"
-                    api?.sendContextualData(text, multiThreadStrategy: .ACTIVE, completion: { error in
-                        if let error = error {
-                            self.performedActions.append(.init(name: "Error: Send contextual", description: text + " " + error.localizedDescription))
-                        } else {
+                    Task {
+                        do {
+                            try await api?.sendContextualData(text, multiThreadStrategy: .ACTIVE)
                             self.performedActions.append(.init(name: "Send contextual", description: text))
+                        } catch {
+                            self.performedActions.append(.init(name: "Error: Send contextual", description: text + " " + error.localizedDescription))
                         }
-                    })
+                    }
                 }.frame(height: 40)
 
                 Button("Send attachment") {
@@ -79,13 +82,14 @@ struct LiveChatAPIView: View {
                     }
 
                     let payload = MMLivechatBasicPayload(fileName: "icon-user-border.png", data: data)
-                    api?.send(payload, completion:  { error in
-                        if let error = error {
-                            self.performedActions.append(.init(name: "Error: Send image", description: error.localizedDescription))
-                        } else {
+                    Task {
+                        do {
+                            try await api?.send(payload)
                             self.performedActions.append(.init(name: "Send image", description: "Image sent"))
+                        } catch {
+                            self.performedActions.append(.init(name: "Error: Send image", description: error.localizedDescription))
                         }
-                    })
+                    }
                 }.frame(height: 40)
 
                 Button("Send Custom Data") {
@@ -93,13 +97,14 @@ struct LiveChatAPIView: View {
                         customData: "{  \"name\": \"John\",  \"description\": \"This is a custom data file for John.\",  \"version\": \"1.0\",  \"author\": \"Jakub\"}",
                         agentMessage: "Seen only by agent \(Int.random(in: 0..<1000))",
                         userMessage: "Seen by user and agent \(Int.random(in: 0..<1000))")
-                    api?.send(payload, completion: { error in
-                        if let error = error {
-                            self.performedActions.append(.init(name: "Error: Send custom data", description: error.localizedDescription))
-                        } else {
+                    Task {
+                        do {
+                            try await api?.send(payload)
                             self.performedActions.append(.init(name: "Send custom data successful", description: "OK"))
+                        } catch {
+                            self.performedActions.append(.init(name: "Error: Send custom data", description: error.localizedDescription))
                         }
-                    })
+                    }
                 }.frame(height: 40)
 
                 Button("Reset") {
@@ -142,15 +147,14 @@ struct ThreadAPIView: View {
                     Spacer()
                     
                     Button("Select") {
-                        api?.openThread(with: item, completion: { result in
-                            switch result {
-                            case .success(let conv):
-                                self.curr = conv.id ?? ""
-                            case .failure(let error):
+                        Task {
+                            do {
+                                let conv = try await api?.openThread(with: item)
+                                self.curr = conv?.id ?? ""
+                            } catch {
                                 print(error)
-                                return
                             }
-                        })
+                        }
                     }.frame(height: 40)
                 }
             }
@@ -161,32 +165,37 @@ struct ThreadAPIView: View {
 
             Button("Create thread") {
                 let text = "Some text \(Int.random(in: 0..<1000))"
-                api?.createThread(text.livechatBasicPayload, completion: { (thread, error) in
-                    DispatchQueue.mmEnsureMain {
+                Task {
+                    do {
+                        let thread = try await api?.createThread(text.livechatBasicPayload)
                         self.active = thread?.id ?? "There is no active conv"
+                    } catch {
+                        self.active = "Error: \(error.localizedDescription)"
                     }
-                })
+                }
             }.frame(height: 40)
 
             Button("Get threads") {
-                api?.getThreads(completion: { result in
-                    switch result {
-                    case .success(let threads):
-                        self.threads = threads.map { $0.id ?? "" }
-                    case .failure(_): return
+                Task {
+                    do {
+                        let threads = try await api?.getThreads()
+                        self.threads = threads?.map { $0.id ?? "" }
+                    } catch {
+                        print("Error getting threads: \(error)")
                     }
-                })
+                }
             }.frame(height: 40)
 
             VStack {
                 Button("Get Active") {
-                    api?.getActiveThread(completion: { result in
-                        switch result {
-                        case .success(let thread):
+                    Task {
+                        do {
+                            let thread = try await api?.getActiveThread()
                             self.active = thread?.id ?? "There is no active conv"
-                        case .failure(_): return
+                        } catch {
+                            print("Error getting active thread: \(error)")
                         }
-                    })
+                    }
                 }.frame(height: 40)
                 Spacer()
                 Text(active)

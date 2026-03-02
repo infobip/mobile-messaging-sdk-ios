@@ -98,12 +98,14 @@ struct ExternalInputChatView: View {
             Divider()
             ChatInputView(
                 onSendDidTap: { text in
-                    chatController?.send(text.livechatBasicPayload, completion:  { error in
-                        if let error = error {
+                    Task {
+                        do {
+                            try await chatController?.send(text.livechatBasicPayload)
+                        } catch {
                             self.errorText = "Error: \(error.localizedDescription)"
                             self.showAlert = true
                         }
-                    })
+                    }
                 },
                 onAttachmentDidTap: {
                     showImagePicker.toggle()
@@ -117,12 +119,14 @@ struct ExternalInputChatView: View {
         imagePicker.didFinishPickingWithImage = { image in
             guard let imageData = image.jpegData(compressionQuality: 0.5) else { return }
             let payload = MMLivechatBasicPayload(data: imageData)
-            chatController?.send(payload, completion:  { error in
-                if let error = error {
-                    self.errorText = "Error: \(String(describing: error.localizedDescription))"
+            Task {
+                do {
+                    try await chatController?.send(payload)
+                } catch {
+                    self.errorText = "Error: \(error.localizedDescription)"
                     self.showAlert = true
                 }
-            })
+            }
         }
         return imagePicker
     }

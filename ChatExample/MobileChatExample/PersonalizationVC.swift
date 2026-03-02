@@ -22,25 +22,37 @@ class PersonalizationVC: UIViewController {
     @IBOutlet weak var lastnameTextfield: UITextField!
     @IBOutlet weak var keepAsLeadToggle: UISwitch!
     
-    @IBAction func onDoPersonalization(_ sender: Any) {
-        let identity = MMUserIdentity(phones: [phoneTextfield.text ?? "123000000000"], emails: [emailTextfield.text ?? "name@domain.com"], externalUserId: nil)
-        let atts = MMUserAttributes(firstName: firstnameTextfield.text ?? "FirstName", middleName: nil, lastName: lastnameTextfield.text ?? "Lastname", tags: nil, gender: .Male, birthday: nil, customAttributes: nil)
-        let keepAsLead = keepAsLeadToggle.isOn
-        guard let identity = identity else { return }
-        MobileMessaging.personalize(forceDepersonalize: true, keepAsLead: keepAsLead, userIdentity: identity, userAttributes: atts) { [weak self] result in
-            print(">>>>personalize result " + (result?.mm_message ?? ""))
-            self?.view.endEditing(true)
+    private func displayPopover(with message: String) {
+        Task { @MainActor in
+            self.view.endEditing(true)
+            MMLogDebug(message)
             MMPopOverBar.show(
                 textColor: .black,
                 backgroundColor: .lightGray,
                 icon: MMWebRTCSettings.sharedInstance.iconAlert,
                 iconTint: .black,
-                message: "Personalisation completed with message: \(result?.mm_message ?? "unknown")",
+                message: message,
                 duration: 10,
                 options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
-                                          isStretchable: true),
+                                              isStretchable: true),
                 completion: nil,
-                presenterVC: self?.navigationController ?? self?.parent ?? self!)
+                presenterVC: self.navigationController ?? self.parent ?? self)
+        }
+        
+    }
+    
+    @IBAction func onDoPersonalization(_ sender: Any) {
+        let identity = MMUserIdentity(phones: [phoneTextfield.text ?? "123000000000"], emails: [emailTextfield.text ?? "name@domain.com"], externalUserId: nil)
+        let atts = MMUserAttributes(firstName: firstnameTextfield.text ?? "FirstName", middleName: nil, lastName: lastnameTextfield.text ?? "Lastname", tags: nil, gender: .Male, birthday: nil, customAttributes: nil)
+        let keepAsLead = keepAsLeadToggle.isOn
+        guard let identity = identity else { return }
+        Task {
+            do {
+                try await MobileMessaging.personalize(forceDepersonalize: true, keepAsLead: keepAsLead, userIdentity: identity, userAttributes: atts)
+                displayPopover(with: "Personalisation completed successfully")
+            } catch {
+                displayPopover(with: "Personalisation failed with error: \(error.localizedDescription)")
+            }
         }
     }
 }

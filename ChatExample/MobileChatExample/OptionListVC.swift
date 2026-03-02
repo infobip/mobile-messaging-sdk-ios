@@ -124,13 +124,13 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         // some contextual data. More data can be sent asynchronously while the chat is active.
         let vc = MMChatViewController.makeModalViewController()
         navigationController?.present(vc, animated: true, completion: nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            vc.sendContextualData("{ demoKey: 'InAppChat Metadata Value' }") { error in
-                guard let error = error else {
-                    MMLogInfo("Medatata was sent")
-                    return
-                }
-                MMLogError(("Error sending metadata: \(error.localizedDescription)"))
+        Task {
+            try? await Task.sleep(nanoseconds: 5 * 1_000_000_000) // as example, we send metadata 5 seconds after chat is presented
+            do {
+                try await vc.sendContextualData("{ demoKey: 'InAppChat Metadata Value' }")
+                MMLogInfo("Medatata was sent")
+            } catch {
+                MMLogError("Error sending metadata: \(error.localizedDescription)")
             }
         }
     }
@@ -154,14 +154,24 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
          }
          */
         isLightModeOn = !isLightModeOn
-        chatVC?.setWidgetTheme( isLightModeOn ? "default" : "dark") { error in
-            print(">>>>Theme changed with: " + (error?.localizedDescription ?? "Success"))
+        Task { @MainActor in
+            do {
+                try await chatVC?.setWidgetTheme(isLightModeOn ? "default" : "dark")
+                print(">>>>Theme changed with: Success")
+            } catch {
+                print(">>>>Theme changed with: \(error.localizedDescription)")
+            }
         }
     }
 
     func onDePersonalize() {
-        MobileMessaging.depersonalize() { result, error in
-            print(">>>>Depersonalise result: " + "\(result.rawValue)" + "error: " + (error?.localizedDescription ?? "failed"))
+        Task {
+            do {
+                let result = try await MobileMessaging.depersonalize()
+                print(">>>>Depersonalise result: \(result.rawValue)")
+            } catch {
+                print(">>>>Depersonalise error: \(error.localizedDescription)")
+            }
         }
     }
 
@@ -457,34 +467,36 @@ class CustomInputView: UIView, MMChatComposer, UITextViewDelegate {
     
     @objc func onSendPic() {
         guard let data = UIImage(named: "alphaLogo")?.pngData() else { return }
-        let payload = MMLivechatBasicPayload(fileName: "alphaLogo", data: data)
-        delegate?.send(payload, completion: { error in
-            if let error = error {
-                MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
-            } else {
-                MMLogDebug(">> Text message sent successfully")
+        Task {
+            do {
+                try await delegate?.send(MMLivechatBasicPayload(fileName: "alphaLogo", data: data))
+                MMLogDebug(">> Picture message sent successfully")
+            } catch {
+                MMLogDebug(">> Picture message failed with error \(error.localizedDescription)")
             }
-        })
+        }
     }
-    
+
     @objc func onSendText() {
-        delegate?.send(textView.text.livechatBasicPayload, completion: { error in
-            if let error = error {
-                MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
-            } else {
+        Task { @MainActor in
+            do {
+                try await delegate?.send(textView.text.livechatBasicPayload)
                 MMLogDebug(">> Text message sent successfully")
+            } catch {
+                MMLogDebug(">> Text message failed with error \(error.localizedDescription)")
             }
-        })
+        }
     }
-        
+
     func textViewDidChange(_ textView: UITextView) {
-        delegate?.textDidChange(textView.text, completion: { error in
-            if let error = error {
-                MMLogDebug(">> Text did change call failed with error \(error.localizedDescription)")
-            } else {
+        Task { @MainActor in
+            do {
+                try await delegate?.textDidChange(textView.text)
                 MMLogDebug(">> Text did change call sent successfully")
+            } catch {
+                MMLogDebug(">> Text did change call failed with error \(error.localizedDescription)")
             }
-        })
+        }
     }
     
     override func becomeFirstResponder() -> Bool {

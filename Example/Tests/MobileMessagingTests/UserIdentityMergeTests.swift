@@ -151,10 +151,9 @@ class UserIdentityMergeTests: MMTestCase {
 
 	// MARK: - Integration Tests with personalize() API
 
-	func testPersonalizeWithExternalUserIdPreservesExistingIdentityFields() {
+	func testPersonalizeWithExternalUserIdPreservesExistingIdentityFields() async throws {
 		MMTestCase.startWithCorrectApplicationCode()
         mobileMessagingInstance.pushRegistrationId = "123"
-		weak var expectation = self.expectation(description: "personalize completed")
 
 		// Setup: Create a user with existing identity fields
 		let initialUser = MMUser(json: JSON.parse("{}"))!
@@ -187,27 +186,17 @@ class UserIdentityMergeTests: MMTestCase {
 			return
 		}
 
-		MobileMessaging.personalize(
-			withUserIdentity: identity,
-			userAttributes: nil
-		) { error in
-			XCTAssertNil(error, "Personalize should succeed")
-			let updatedUser = MobileMessaging.getUser()!
-			XCTAssertEqual(updatedUser.externalUserId, "newExternalId", "externalUserId should be updated")
-			XCTAssertEqual(updatedUser.phones, ["123456789"], "phones should be preserved")
-			XCTAssertEqual(updatedUser.emails, ["existing@example.com"], "emails should be preserved")
-			XCTAssertEqual(updatedUser.firstName, "John", "firstName should be preserved")
-			expectation?.fulfill()
-		}
-
-		waitForExpectations(timeout: 20)
+		try await MobileMessaging.personalize(withUserIdentity: identity, userAttributes: nil)
+		let updatedUser = MobileMessaging.getUser()!
+		XCTAssertEqual(updatedUser.externalUserId, "newExternalId", "externalUserId should be updated")
+		XCTAssertEqual(updatedUser.phones, ["123456789"], "phones should be preserved")
+		XCTAssertEqual(updatedUser.emails, ["existing@example.com"], "emails should be preserved")
+		XCTAssertEqual(updatedUser.firstName, "John", "firstName should be preserved")
 	}
 
-	func testPersonalizeWithPhonesPreservesExistingIdentityFields() {
+	func testPersonalizeWithPhonesPreservesExistingIdentityFields() async throws {
 		MMTestCase.startWithCorrectApplicationCode()
         mobileMessagingInstance.pushRegistrationId = "123"
-
-		weak var expectation = self.expectation(description: "personalize completed")
 
 		// Setup: Create a user with existing identity fields
 		let initialUser = MMUser(json: JSON.parse("{}"))!
@@ -237,26 +226,16 @@ class UserIdentityMergeTests: MMTestCase {
 			return
 		}
 
-		MobileMessaging.personalize(
-			withUserIdentity: identity,
-			userAttributes: nil
-		) { error in
-			XCTAssertNil(error, "Personalize should succeed")
-			let updatedUser = MobileMessaging.getUser()!
-			XCTAssertEqual(updatedUser.phones, ["newPhone"], "phones should be updated")
-			XCTAssertEqual(updatedUser.emails, ["existing@example.com"], "emails should be preserved")
-			XCTAssertEqual(updatedUser.externalUserId, "userId", "externalUserId should be preserved")
-			expectation?.fulfill()
-		}
-
-		waitForExpectations(timeout: 20)
+		try await MobileMessaging.personalize(withUserIdentity: identity, userAttributes: nil)
+		let updatedUser = MobileMessaging.getUser()!
+		XCTAssertEqual(updatedUser.phones, ["newPhone"], "phones should be updated")
+		XCTAssertEqual(updatedUser.emails, ["existing@example.com"], "emails should be preserved")
+		XCTAssertEqual(updatedUser.externalUserId, "userId", "externalUserId should be preserved")
 	}
 
-	func testPersonalizeWithEmailsPreservesExistingIdentityFields() {
+	func testPersonalizeWithEmailsPreservesExistingIdentityFields() async throws {
 		MMTestCase.startWithCorrectApplicationCode()
         mobileMessagingInstance.pushRegistrationId = "123"
-
-		weak var expectation = self.expectation(description: "personalize completed")
 
 		// Setup: Create a user with existing identity fields
 		let initialUser = MMUser(json: JSON.parse("{}"))!
@@ -286,19 +265,11 @@ class UserIdentityMergeTests: MMTestCase {
 			return
 		}
 
-		MobileMessaging.personalize(
-			withUserIdentity: identity,
-			userAttributes: nil
-		) { error in
-			XCTAssertNil(error, "Personalize should succeed")
-			let updatedUser = MobileMessaging.getUser()!
-			XCTAssertEqual(updatedUser.emails, ["new@example.com"], "emails should be updated")
-			XCTAssertEqual(updatedUser.phones, ["phone"], "phones should be preserved")
-			XCTAssertEqual(updatedUser.externalUserId, "userId", "externalUserId should be preserved")
-			expectation?.fulfill()
-		}
-
-		waitForExpectations(timeout: 20)
+		try await MobileMessaging.personalize(withUserIdentity: identity, userAttributes: nil)
+		let updatedUser = MobileMessaging.getUser()!
+		XCTAssertEqual(updatedUser.emails, ["new@example.com"], "emails should be updated")
+		XCTAssertEqual(updatedUser.phones, ["phone"], "phones should be preserved")
+		XCTAssertEqual(updatedUser.externalUserId, "userId", "externalUserId should be preserved")
 	}
 
 	// MARK: - Backward Compatibility Tests
@@ -336,12 +307,10 @@ class UserIdentityMergeTests: MMTestCase {
 		XCTAssertEqual(identity3?.emails, ["test@example.com"])
 	}
 
-	func testExistingPersonalizeCallsStillWork() {
+	func testExistingPersonalizeCallsStillWork() async throws {
 		// Verify that existing personalize calls with the old syntax still work
 		MMTestCase.startWithCorrectApplicationCode()
         mobileMessagingInstance.pushRegistrationId = "123"
-
-		weak var expectation = self.expectation(description: "personalize completed")
 
 		// Mock successful personalize response
 		let remoteApiProvider = RemoteAPIProviderStub()
@@ -357,16 +326,10 @@ class UserIdentityMergeTests: MMTestCase {
 		}
 		self.mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
-		// Old syntax with explicit nil parameters
-		MobileMessaging.personalize(
+		try await MobileMessaging.personalize(
 			withUserIdentity: MMUserIdentity(phones: ["123"], emails: ["test@example.com"], externalUserId: "userId")!,
 			userAttributes: nil
-		) { error in
-			XCTAssertNil(error, "Existing personalize syntax should still work")
-			expectation?.fulfill()
-		}
-
-		waitForExpectations(timeout: 20)
+		)
 	}
 }
 

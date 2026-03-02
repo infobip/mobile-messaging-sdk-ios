@@ -15,7 +15,7 @@ class SystemDataTests: MMTestCase {
         MMTestCase.startWithCorrectApplicationCode()
         
 		//Preparations
-		weak var expectation = self.expectation(description: "registration sent")
+		weak let expectation = self.expectation(description: "registration sent")
 		var sentSettings = [Bool]()
 		let remoteProviderMock = RemoteAPIProviderStub()
 		remoteProviderMock.patchInstanceClosure = { _, _, _, requestBody in

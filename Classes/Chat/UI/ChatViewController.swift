@@ -13,7 +13,7 @@ import WebKit
 /// - via Interface Builder: set it as `Custom class` for your view controller object.
 /// - programmatically: use one of the `make` methods provided.
 open class MMChatViewController: MMMessageComposingViewController, @MainActor ChatWebViewDelegate, ChatSettingsApplicable, NamedLogger {
-    
+
     ///Will make UINavigationController with ChatViewController as root
     public static func makeRootNavigationViewController() -> MMChatNavigationVC {
         return MMChatNavigationVC.makeChatNavigationViewController()
@@ -46,15 +46,15 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         return vc
     }
 
-    private var webViewHandler: ChatWebViewHandler?
+    private lazy var webViewHandler = ChatWebViewHandler() // placeholder never to be retrieved as such: meant to be set in loadView's setupWebView
 
     var webView: ChatWebView! {
-        return webViewHandler?.webView
+        return webViewHandler.webView
     }
 
     public private(set) var chatWidget: ChatWidget? {
-        get { return webViewHandler?.chatWidget }
-        set { webViewHandler?.chatWidget = newValue }
+        get { return webViewHandler.chatWidget }
+        set { webViewHandler.chatWidget = newValue }
     }
 
     public var messagesViewFrame: CGRect {
@@ -253,20 +253,20 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     }
     
     public func stopConnection() {
-        webViewHandler?.stopConnection()
+        webViewHandler.stopConnection()
     }
     
     public func restartConnection() {
-        webViewHandler?.restartConnection()
+        webViewHandler.restartConnection()
     }
     
     // ChatWebViewDelegate
     func didLoad(_ widget: ChatWidget) {
         chatWidget = widget
-        webViewHandler?.ensureWidgetLoaded { [weak self] error in
+        webViewHandler.ensureWidgetLoaded { [weak self] error in
             self?.isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
             (self?.composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
-            self?.webViewHandler?.triggerPendingActions(with: error)
+            self?.webViewHandler.triggerPendingActions(with: error)
         }
     }
     
@@ -299,13 +299,13 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
             })
         }
     }
-
+    
     public func setLanguage(_ language: MMLanguage, completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.setLanguage(language, completion: { error in completion(error as? NSError) })
+        webViewHandler.setLanguage(language, completion: { error in completion(error as? NSError) })
     }
 
     public func setWidgetTheme(_ themeName: String, completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.setWidgetTheme(themeName, completion: { error in completion(error as? NSError) })
+        webViewHandler.setWidgetTheme(themeName, completion: { error in completion(error as? NSError) })
     }
 
     func didEnableControls(_ enabled: Bool) {
@@ -515,7 +515,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     /// The multiThreadStrategy is entirely optional and we recommented to leave as default ACTIVE.
     @objc public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE,
                                          completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: { error in completion(error as? NSError) })
+        webViewHandler.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: { error in completion(error as? NSError) })
     }
     
     public func didChangeView(_ state: MMChatWebViewState) {
@@ -533,40 +533,41 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
 
         if state != .loading && state != .loadingThread && state != .unknown {
             // In case actions are pending, we finally trigger them successfully if the view state just became valid.
-            webViewHandler?.triggerPendingActions(with: nil)
+            webViewHandler.triggerPendingActions(with: nil)
             sendCachedContextData()
             addOnMessageReceivedListener()
         }
 
-        webViewHandler?.currentViewState = state
+        webViewHandler.currentViewState = state
         MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)
     }
 
     // MARK: MMComposeBarDelegate delegate
     @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendText(_ text: String, completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.send(text.livechatBasicPayload, completion: { error in completion(error as? NSError) })
+        webViewHandler.send(text.livechatBasicPayload, completion: { error in completion(error as? NSError) })
     }
     // Sends a draft message to be shown in a chat-to-peer chat.
     @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendDraft(_ message: String?, completion: @escaping (NSError?) -> Void) {
-        webViewHandler?.send((message ?? "").livechatDraftPayload, completion: { error in completion(error as? NSError) })
+        webViewHandler.send((message ?? "").livechatDraftPayload, completion: { error in completion(error as? NSError) })
     }
 
     @available(*, deprecated, message: "Method 'send' needs to be used instead. This method will be removed in a future release")
     public override func sendAttachment(_ fileName: String? = nil, data: Data, completion: @escaping (_ error: NSError?) -> Void) {
         let payload = MMLivechatBasicPayload(fileName: fileName, data: data)
-        webViewHandler?.send(payload, completion: { error in completion(error as? NSError) })
+        webViewHandler.send(payload, completion: { error in completion(error as? NSError) })
     }
 
     public override func send(_ payload: MMLivechatPayload, completion: @escaping (_ error: NSError?) -> Void) {
-        webViewHandler?.send(payload, completion: { error in completion(error as? NSError) })
+        webViewHandler.send(payload, completion: { error in completion(error as? NSError) })
     }
 
     public override func textDidChange(_ text: String?, completion: @escaping (_ error: NSError?) -> Void) {
         draftPostponer.postponeBlock(delay: userInputDebounceTimeMs) { [weak self] in
             self?.send((text ?? "").livechatDraftPayload, completion: { _ in })
         }
+        completion(nil) // textDidChange completion and sending draft result are intentionally (and contextually) separated
     }
     
     public override func attachmentButtonTapped() {
@@ -672,23 +673,23 @@ extension MMChatViewController: WKNavigationDelegate {
 
 extension MMChatViewController: MMLiveChatThreadsActions {
     public func showThreadsList(completion: @escaping ((any Error)?) -> Void) {
-        webViewHandler?.showThreadsList(completion: completion)
+        webViewHandler.showThreadsList(completion: completion)
     }
     
     public func getThreads(completion: @escaping (Swift.Result<[MMLiveChatThread], any Error>) -> Void) {
-        webViewHandler?.getThreads(completion: completion)
+        webViewHandler.getThreads(completion: completion)
     }
     
     public func openThread(with id: String, completion: @escaping (Swift.Result<MMLiveChatThread, any Error>) -> Void) {
-        webViewHandler?.openThread(with: id, completion: completion)
+        webViewHandler.openThread(with: id, completion: completion)
     }
     
     public func getActiveThread(completion: @escaping (Swift.Result<MMLiveChatThread?, any Error>) -> Void) {
-        webView.getActiveThread(completion: completion)
+        webViewHandler.getActiveThread(completion: completion)
     }
     
     public func showThreadsList() {
-        webViewHandler?.showThreadsList(completion: { [weak self] error in
+        webViewHandler.showThreadsList(completion: { [weak self] error in
             if let error = error {
                 self?.logError(error.localizedDescription)
             }
@@ -698,19 +699,133 @@ extension MMChatViewController: MMLiveChatThreadsActions {
 
 extension MMChatViewController: MMChatBasicWebViewActions, MMChatInternalWebViewActions {
     public func send(_ payload: any MMLivechatPayload, completion: @escaping ((any Error)?) -> Void) {
-        webViewHandler?.send(payload, completion: completion)
+        webViewHandler.send(payload, completion: completion)
     }
 
     public func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, (any Error)?) -> Void) {
-        webViewHandler?.createThread(payload, completion: completion)
+        webViewHandler.createThread(payload, completion: completion)
     }
 
     func openNewThread(completion: @escaping ((any Error)?) -> Void) {
-        webViewHandler?.openNewThread(completion: completion)
+        webViewHandler.openNewThread(completion: completion)
     }
 
     func reset() {
-        webViewHandler?.reset()
+        webViewHandler.reset()
     }
 }
 
+// MARK: - Async/Await Alternatives
+
+extension MMChatViewController {
+
+    public func setLanguage(_ language: MMLanguage) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.setLanguage(language) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func setWidgetTheme(_ themeName: String) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.setWidgetTheme(themeName) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    public func send(_ payload: MMLivechatPayload) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.send(payload) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func textDidChange(_ text: String?) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.textDidChange(text) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy) { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func showThreadsList() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            self.showThreadsList { error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    public func getThreads() async throws -> [MMLiveChatThread] {
+        try await withCheckedThrowingContinuation { continuation in
+            self.getThreads { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func openThread(with id: String) async throws -> MMLiveChatThread {
+        try await withCheckedThrowingContinuation { continuation in
+            self.openThread(with: id) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func getActiveThread() async throws -> MMLiveChatThread? {
+        try await withCheckedThrowingContinuation { continuation in
+            self.getActiveThread { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public func createThread(_ payload: MMLivechatPayload) async throws -> MMLiveChatThread {
+        try await withCheckedThrowingContinuation { continuation in
+            self.createThread(payload) { thread, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let thread = thread {
+                    continuation.resume(returning: thread)
+                } else {
+                    continuation.resume(throwing: MMChatLocalError.apiRequestFailure(.createThread, "Element not found", nil).foundationError)
+                }
+            }
+        }
+    }
+}

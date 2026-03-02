@@ -55,18 +55,25 @@ class InboxViewController: UITableViewController {
         if let externalUserId = MobileMessaging.getUser()?.externalUserId {
             showActivityIndicator()
             let options = MMInboxFilterOptions(fromDateTime: nil, toDateTime: toDateTime, topic: currentTopicId, limit: nil)
-            MobileMessaging.inbox?.fetchInbox(externalUserId: externalUserId, options: options, completion: { inbox, error in
-                assert(Thread.isMainThread)
-                if let inbox = inbox {
-                    self.messages = self.messages + inbox.messages
-                    self.countTotal = inbox.countTotal
-                    self.countUnread = inbox.countUnread
+            Task {
+                do {
+                    let inbox = try await MobileMessaging.inbox?.fetchInbox(externalUserId: externalUserId, options: options)
+                    await MainActor.run {
+                        if let inbox = inbox {
+                            self.messages = self.messages + inbox.messages
+                            self.countTotal = inbox.countTotal
+                            self.countUnread = inbox.countUnread
+                        }
+                        self.tableView.reloadData()
+                        self.hideActivityIndicator(nil)
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.hideActivityIndicator(nil)
+                        self.showAlertIfErrorPresent(error as NSError)
+                    }
                 }
-                
-                self.tableView.reloadData()
-                self.hideActivityIndicator(nil)
-                self.showAlertIfErrorPresent(error)
-            })
+            }
         }
     }
     
@@ -127,18 +134,28 @@ class InboxViewController: UITableViewController {
     
     fileprivate func fetchInbox(_ externalUserId: String, topic: String?) {
         let options = MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: topic, limit: nil)
-        MobileMessaging.inbox?.fetchInbox(externalUserId: externalUserId, options: options, completion: { inbox, error in
-            assert(Thread.isMainThread)
-            if let inbox = inbox {
-                self.messages = inbox.messages
-                self.countTotal = inbox.countTotal
-                self.countUnread = inbox.countUnread
+        Task {
+            do {
+                let inbox = try await MobileMessaging.inbox?.fetchInbox(externalUserId: externalUserId, options: options)
+                await MainActor.run {
+                    if let inbox = inbox {
+                        self.messages = inbox.messages
+                        self.countTotal = inbox.countTotal
+                        self.countUnread = inbox.countUnread
+                    }
+                    self.tableView.reloadData()
+                    self.refreshControl?.endRefreshing()
+                    self.hideActivityIndicator(nil)
+                }
+            } catch {
+                await MainActor.run {
+                    self.tableView.reloadData()
+                    self.refreshControl?.endRefreshing()
+                    self.hideActivityIndicator(nil)
+                    self.showAlertIfErrorPresent(error as NSError)
+                }
             }
-            self.tableView.reloadData()
-            self.refreshControl?.endRefreshing()
-            self.hideActivityIndicator(nil)
-            self.showAlertIfErrorPresent(error)
-        })
+        }
     }
     
     fileprivate func postCountersUpdatedNotificationIfNeeded(countTotal: Int, countUnread: Int) {
@@ -153,14 +170,20 @@ class InboxViewController: UITableViewController {
                 message.seenStatus = .SeenNotSent
                 self.tableView.reloadData()
                 self.showActivityIndicator()
-                MobileMessaging.inbox?.setSeen(externalUserId: externalUserId, messageIds: [message.messageId], completion: { error in
-                    assert(Thread.isMainThread)
-                    self.hideActivityIndicator(nil)
-                    self.showAlertIfErrorPresent(error)
-                    if error == nil {
-                        self.decrementUnreadCount()
+                Task {
+                    do {
+                        try await MobileMessaging.inbox?.setSeen(externalUserId: externalUserId, messageIds: [message.messageId])
+                        await MainActor.run {
+                            self.hideActivityIndicator(nil)
+                            self.decrementUnreadCount()
+                        }
+                    } catch {
+                        await MainActor.run {
+                            self.hideActivityIndicator(nil)
+                            self.showAlertIfErrorPresent(error as NSError)
+                        }
                     }
-                })
+                }
             }))
             self.present(alert, animated: true, completion: nil)
         }

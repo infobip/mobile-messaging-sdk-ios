@@ -75,7 +75,7 @@ class DynamicBaseUrlTests: MMTestCase {
         }
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
-        weak var ex = expectation(description: "expectation")
+        weak let ex = expectation(description: "expectation")
         let sessionManager = mobileMessagingInstance.httpSessionManager!
         sessionManager.resetBaseUrl()
         let remoteApi = RemoteAPIProviderStub()
@@ -110,7 +110,7 @@ class DynamicBaseUrlTests: MMTestCase {
         
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
-        weak var ex = expectation(description: "expectation")
+        weak let ex = expectation(description: "expectation")
         let sessionManager = mobileMessagingInstance.httpSessionManager!
         sessionManager.resetBaseUrl()
         let initialUrl = sessionManager.dynamicBaseUrl
@@ -140,7 +140,7 @@ class DynamicBaseUrlTests: MMTestCase {
         
         // given
         let now = MobileMessaging.date.now.timeIntervalSince1970
-        weak var ex = expectation(description: "expectation")
+        weak let ex = expectation(description: "expectation")
         let sessionManager = mobileMessagingInstance.httpSessionManager!
         sessionManager.resetBaseUrl()
         let initialUrl = sessionManager.dynamicBaseUrl
@@ -166,7 +166,7 @@ class DynamicBaseUrlTests: MMTestCase {
     }
     
     func testBaseUrlResetDuringMMCleanup() {
-        weak var ex = expectation(description: "expectation")
+        weak let ex = expectation(description: "expectation")
         MMTestCase.startWithCorrectApplicationCode()
         let defaultBaseUrl = mobileMessagingInstance.httpSessionManager.originalBaseUrl
         let otherBaseUrl = URL(string: "http://something.com")!
@@ -186,8 +186,8 @@ class DynamicBaseUrlTests: MMTestCase {
     
 	func testThatWeDoRetryAfterCannotFindHost() {
         //FIXME: this test is invalid. DynamicBaseUrlHTTPSessionManager.handleDynamicBaseUrl is not covered.
-//		weak var registrationFinishedExpectation = expectation(description: "registration finished")
-//		weak var retriesStartedExpectation = expectation(description: "expectationRetriesStarted")
+//		weak let registrationFinishedExpectation = expectation(description: "registration finished")
+//		weak let retriesStartedExpectation = expectation(description: "expectationRetriesStarted")
 //		let newDynamicURL = URL(string: "http://not-reachable-url.com")!
 //		var retriesStarted = false
 //		let mm = MobileMessaging.withApplicationCode("", notificationType: MMUserNotificationType(options: []) , backendBaseURL: Consts.APIValues.prodDynamicBaseURLString)!

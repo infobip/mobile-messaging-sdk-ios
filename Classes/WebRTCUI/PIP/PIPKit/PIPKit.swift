@@ -100,7 +100,7 @@ public final class PIPKit {
     public class func show(with viewController: PIPKitViewController, completion: (() -> Void)? = nil) {
         guard !isActive else {
             dismiss(animated: false) {
-                PIPKit.show(with: viewController)
+                PIPKit.show(with: viewController, completion: completion)
             }
             return
         }
@@ -136,6 +136,7 @@ public final class PIPKit {
     
     public class func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
         state = .exit
+        guard rootViewController != nil else { completion?(); return }
         rootViewController?.pipDismiss(animated: animated, completion: {
             PIPKit.reset()
             completion?()
@@ -174,13 +175,45 @@ public final class PIPKit {
 }
 
 final private class PIPKitWindow: UIWindow {
-    
+
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         guard let rootViewController = rootViewController else {
             return super.hitTest(point, with: event)
         }
-        
+
         return rootViewController.view.frame.contains(point) ? super.hitTest(point, with: event) : nil
     }
-    
+
+}
+
+// MARK: - Async/Await Alternatives
+
+extension PIPKit {
+    /**
+     Shows PIPKit with a view controller using async/await.
+     - parameter viewController: The PIPKitViewController to display in picture-in-picture mode.
+     */
+    public class func show(with viewController: PIPKitViewController) async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.mmEnsureMain {
+                PIPKit.show(with: viewController) {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    /**
+     Dismisses PIPKit using async/await.
+     - parameter animated: Whether to animate the dismissal.
+     */
+    public class func dismiss(animated: Bool) async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.mmEnsureMain {
+                PIPKit.dismiss(animated: animated) {
+                    continuation.resume()
+                }
+            }
+        }
+    }
 }

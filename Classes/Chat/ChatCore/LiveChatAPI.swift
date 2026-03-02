@@ -243,3 +243,43 @@ extension MMInAppChatWidgetAPI: WKNavigationDelegate {
         })
     }
 }
+
+// MARK: - Async/Await Alternatives
+
+extension MMInAppChatWidgetAPI {
+    public func setLanguage(_ language: MMLanguage) async throws {
+        try await chatHandler.setLanguage(language)
+    }
+
+    public func send(_ payload: MMLivechatPayload) async throws {
+        try await chatHandler.send(payload)
+    }
+
+    public func createThread(_ payload: MMLivechatPayload) async throws -> MMLiveChatThread {
+        try await chatHandler.createThread(payload)
+    }
+
+    public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy) async throws {
+        try await chatHandler.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy)
+    }
+
+    public func setWidgetTheme(_ themeName: String) async throws {
+        try await chatHandler.setWidgetTheme(themeName)
+    }
+
+    public func getThreads() async throws -> [MMLiveChatThread] {
+        try await chatHandler.getThreads()
+    }
+
+    public func openThread(with id: String) async throws -> MMLiveChatThread {
+        try await chatHandler.openThread(with: id)
+    }
+
+    public func getActiveThread() async throws -> MMLiveChatThread? {
+        try await chatHandler.getActiveThread()
+    }
+
+    public func showThreadsList() async throws {
+        try await chatHandler.showThreadsList()
+    }
+}

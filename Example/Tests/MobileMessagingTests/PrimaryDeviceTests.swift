@@ -25,10 +25,9 @@ class PrimaryDeviceTests: MMTestCase {
         })
 	}
 	
-	func testPutSync() {
+	func testPutSync() async throws {
         MMTestCase.startWithCorrectApplicationCode()
-        
-		weak var expectation = self.expectation(description: "sync completed")
+
 		mobileMessagingInstance.pushRegistrationId = "123"
 
 		let remoteApiProvider = RemoteAPIProviderStub()
@@ -40,21 +39,15 @@ class PrimaryDeviceTests: MMTestCase {
 		let installation = MobileMessaging.getInstallation()!
 		XCTAssertFalse(installation.isPrimaryDevice)
 		installation.isPrimaryDevice = true
-		MobileMessaging.saveInstallation(installation) { (error) in
-			expectation?.fulfill()
-		}
-
-		waitForExpectations(timeout: 20, handler: { _ in
-			let installation = MobileMessaging.getInstallation()!
-			XCTAssertNil(MMInstallation.delta?["isPrimaryDevice"])
-			XCTAssertTrue(installation.isPrimaryDevice)
-		})
+		try await MobileMessaging.saveInstallation(installation)
+		let saved = MobileMessaging.getInstallation()!
+		XCTAssertNil(MMInstallation.delta?["isPrimaryDevice"])
+		XCTAssertTrue(saved.isPrimaryDevice)
 	}
-	
-	func testGetSync() {
+
+	func testGetSync() async throws {
         MMTestCase.startWithCorrectApplicationCode()
-        
-		weak var expectation = self.expectation(description: "sync completed")
+
 		mobileMessagingInstance.pushRegistrationId = "123"
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.patchInstanceClosure = { _, _, _, _ -> UpdateInstanceDataResult in
@@ -62,15 +55,10 @@ class PrimaryDeviceTests: MMTestCase {
 		}
 		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
 
-		MobileMessaging.fetchInstallation { (installation, error) in
-			XCTAssertFalse(installation!.isPrimaryDevice)
-			expectation?.fulfill()
-		}
-
-		waitForExpectations(timeout: 20, handler: { _ in
-			let installation = MobileMessaging.getInstallation()!
-			XCTAssertNil(MMInstallation.delta?["isPrimaryDevice"])
-			XCTAssertFalse(installation.isPrimaryDevice)
-		})
+		let installation = try await MobileMessaging.fetchInstallation()
+		XCTAssertFalse(installation.isPrimaryDevice)
+		let saved = MobileMessaging.getInstallation()!
+		XCTAssertNil(MMInstallation.delta?["isPrimaryDevice"])
+		XCTAssertFalse(saved.isPrimaryDevice)
 	}
 }
