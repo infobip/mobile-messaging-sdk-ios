@@ -291,6 +291,9 @@
 		A8CBD7D9292CCDA200322961 /* PIPKitEventDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CE292CCDA200322961 /* PIPKitEventDispatcher.swift */; };
 		A8CBD7DA292CCDA200322961 /* PIPKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7CF292CCDA200322961 /* PIPKit.swift */; };
 		A8CBD7DB292CCDA200322961 /* PIPUsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CBD7D0292CCDA200322961 /* PIPUsable.swift */; };
+		A8D7BC9F2F51B88C002E3BDF /* MMChatWidgetAPIObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D7BC9D2F51B88C002E3BDF /* MMChatWidgetAPIObservable.swift */; };
+		A8D7BCA02F51B88C002E3BDF /* MMChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D7BC9B2F51B88C002E3BDF /* MMChatView.swift */; };
+		A8D7BCA12F51B88C002E3BDF /* MMChatViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D7BC9C2F51B88C002E3BDF /* MMChatViewModifiers.swift */; };
 		A8E41C2B2F14EEB000673D77 /* ChatBEPO.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E41C2A2F14EEA500673D77 /* ChatBEPO.swift */; };
 		A8E41C2D2F14F97C00673D77 /* ChatSetupErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E41C2C2F14F97700673D77 /* ChatSetupErrorView.swift */; };
 		A8E41C312F15288F00673D77 /* ChatAttachmentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E41C2E2F15288F00673D77 /* ChatAttachmentPicker.swift */; };
@@ -665,6 +668,9 @@
 		A8CBD7CF292CCDA200322961 /* PIPKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPKit.swift; sourceTree = "<group>"; };
 		A8CBD7D0292CCDA200322961 /* PIPUsable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PIPUsable.swift; sourceTree = "<group>"; };
 		A8CE8ACD285C6E03000CC98F /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		A8D7BC9B2F51B88C002E3BDF /* MMChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatView.swift; sourceTree = "<group>"; };
+		A8D7BC9C2F51B88C002E3BDF /* MMChatViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatViewModifiers.swift; sourceTree = "<group>"; };
+		A8D7BC9D2F51B88C002E3BDF /* MMChatWidgetAPIObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatWidgetAPIObservable.swift; sourceTree = "<group>"; };
 		A8E41C2A2F14EEA500673D77 /* ChatBEPO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatBEPO.swift; sourceTree = "<group>"; };
 		A8E41C2C2F14F97700673D77 /* ChatSetupErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSetupErrorView.swift; sourceTree = "<group>"; };
 		A8E41C2E2F15288F00673D77 /* ChatAttachmentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAttachmentPicker.swift; sourceTree = "<group>"; };
@@ -778,6 +784,7 @@
 		7600857D1F9759F200837D75 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				A8D7BC9E2F51B88C002E3BDF /* SwiftUI */,
 				A8283E8D2EAA2BF100136EA7 /* MMChatErrors.swift */,
 				A8283E8B2EA8CF8E00136EA7 /* ChatService+actions.swift */,
 				25C335DB2D81CDED00624BAC /* WebView */,
@@ -1464,6 +1471,16 @@
 			path = PIPKit;
 			sourceTree = "<group>";
 		};
+		A8D7BC9E2F51B88C002E3BDF /* SwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				A8D7BC9B2F51B88C002E3BDF /* MMChatView.swift */,
+				A8D7BC9C2F51B88C002E3BDF /* MMChatViewModifiers.swift */,
+				A8D7BC9D2F51B88C002E3BDF /* MMChatWidgetAPIObservable.swift */,
+			);
+			path = SwiftUI;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1764,6 +1781,9 @@
 				764556DB1F78FFE700B8F14B /* OperationQueue.swift in Sources */,
 				763A1B0323E5D32F00C997BC /* MessageSyncMapper.swift in Sources */,
 				A0D477C729FAAC60000B6C45 /* Migration_1_3.xcmappingmodel in Sources */,
+				A8D7BC9F2F51B88C002E3BDF /* MMChatWidgetAPIObservable.swift in Sources */,
+				A8D7BCA02F51B88C002E3BDF /* MMChatView.swift in Sources */,
+				A8D7BCA12F51B88C002E3BDF /* MMChatViewModifiers.swift in Sources */,
 				A0E4439E24AF59F300387CDD /* MimeType.swift in Sources */,
 				A0672BF02AC1A4C0005EDCD9 /* WebInteractiveMessageAlertController.swift in Sources */,
 				7601F19E208E056500738C1A /* ImageModifier.swift in Sources */,

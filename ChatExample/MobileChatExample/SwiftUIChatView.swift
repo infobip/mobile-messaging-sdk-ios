@@ -1,8 +1,8 @@
-// 
+//
 //  ChatExample/MobileChatExample/SwiftUIChatView.swift
 //  MobileChatExample
 //
-//  Copyright (c) 2016-2025 Infobip Limited
+//  Copyright (c) 2016-2026 Infobip Limited
 //  Licensed under the Apache License, Version 2.0
 //
 
@@ -16,25 +16,56 @@ import MobileMessagingLogging
 #endif
 typealias View = SwiftUI.View
 
+// MARK: - Default Chat (simplest usage)
+
+struct DefaultChatView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var chatCoordinator: MMChatView.Coordinator?
+
+    var body: some View {
+        MMChatView()
+            .onMakeChatCoordinator { chatCoordinator = $0 }
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        if chatCoordinator?.handleBackAction() ?? true {
+                            dismiss()
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "chevron.backward")
+                            Text("Back")
+                        }
+                    }
+                }
+            }
+    }
+}
+
+// MARK: - Chat with Custom Navigation
+
 struct ExternalInputChatViewWithCustomNavigation: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
+    @State private var chatCoordinator: MMChatView.Coordinator?
+
     var body: some View {
         NavigationView {
-            NavigationLink(destination: getChatView(), label: {
+            NavigationLink(destination: chatView()) {
                 Text("Open chat using navigation link")
-            })
+            }
         }
     }
-    
-    @ViewBuilder func getChatView() -> some View {
-        let chatView = ChatViewRepresentable(shouldUseCustomChatInput: false, chatState: .constant(nil))
-        chatView
+
+    @ViewBuilder func chatView() -> some View {
+        MMChatView()
+            .onMakeChatCoordinator { chatCoordinator = $0 }
             .navigationBarBackButtonHidden(true)
             .navigationBarItems(
                 leading: Button(
                     action: {
-                        if chatView.chatController.onCustomBackPressed() {
-                            presentationMode.wrappedValue.dismiss()
+                        if chatCoordinator?.handleBackAction() ?? true {
+                            dismiss()
                         }
                     }, label: {
                         HStack {
@@ -46,29 +77,41 @@ struct ExternalInputChatViewWithCustomNavigation: View {
     }
 }
 
-struct DefaultChatView: View {
-    
-    var body: some View {
-        VStack {
-            ChatViewRepresentable(shouldUseCustomChatInput: false, chatState: .constant(nil))
-        }
-    }
-}
+// MARK: - Chat with External Input
 
 struct ExternalInputChatView: View {
+    @Environment(\.dismiss) private var dismiss
 
     @State private var showImagePicker: Bool = false
-    
     @State private var showAlert: Bool = false
     @State private var errorText: String = ""
-    
     @State private var chatState: MMChatWebViewState? = .unknown
-    @State private var chatController: MMChatViewController?
-    
+    @State private var chatCoordinator: MMChatView.Coordinator?
+
     var body: some View {
         VStack {
-            makeChat()
+            MMChatView()
+                .useExternalChatInput()
+                .onChatStateChange { state in
+                    chatState = state
+                }
+                .onMakeChatCoordinator { chatCoordinator = $0 }
             makeChatInput()
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    if chatCoordinator?.handleBackAction() ?? true {
+                        dismiss()
+                    }
+                } label: {
+                    HStack {
+                        Image(systemName: "chevron.backward")
+                        Text("Back")
+                    }
+                }
+            }
         }
         .sheet(isPresented: $showImagePicker, content: {
             prepareImagePicker()
@@ -80,17 +123,8 @@ struct ExternalInputChatView: View {
                 dismissButton: .default(Text("OK"))
             )
         })
-        .padding(.top)
     }
-    
-    @ViewBuilder func makeChat() -> some View {
-        let chatView = ChatViewRepresentable(shouldUseCustomChatInput: true, chatState: $chatState)
-        chatView
-            .onAppear {
-                self.chatController = chatView.chatController
-            }
-    }
-    
+
     @ViewBuilder func makeChatInput() -> some View {
         switch chatState {
         case .loading, .threadList, .closedThread, .unknown, .loadingThread: EmptyView()
@@ -100,7 +134,7 @@ struct ExternalInputChatView: View {
                 onSendDidTap: { text in
                     Task {
                         do {
-                            try await chatController?.send(text.livechatBasicPayload)
+                            try await chatCoordinator?.chatVC?.send(text.livechatBasicPayload)
                         } catch {
                             self.errorText = "Error: \(error.localizedDescription)"
                             self.showAlert = true
@@ -113,7 +147,7 @@ struct ExternalInputChatView: View {
             )
         }
     }
-    
+
     func prepareImagePicker() -> ImagePickerRepresentable {
         var imagePicker = ImagePickerRepresentable(isPresenting: $showImagePicker)
         imagePicker.didFinishPickingWithImage = { image in
@@ -121,7 +155,7 @@ struct ExternalInputChatView: View {
             let payload = MMLivechatBasicPayload(data: imageData)
             Task {
                 do {
-                    try await chatController?.send(payload)
+                    try await chatCoordinator?.chatVC?.send(payload)
                 } catch {
                     self.errorText = "Error: \(error.localizedDescription)"
                     self.showAlert = true
@@ -132,53 +166,14 @@ struct ExternalInputChatView: View {
     }
 }
 
-struct ChatViewRepresentable: UIViewControllerRepresentable {
-    typealias UIViewControllerType = MMChatViewController
-    
-    let chatController = MMChatViewController()
-    private let shouldUseCustomChatInput: Bool
-    
-    @Binding var chatState: MMChatWebViewState?
-    
-    init(shouldUseCustomChatInput: Bool, chatState: Binding<MMChatWebViewState?>) {
-        self.shouldUseCustomChatInput = shouldUseCustomChatInput
-        self._chatState = chatState
-    }
-    
-    func makeUIViewController(context: Context) -> MMChatViewController {
-        MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance = false
-        MMChatSettings.sharedInstance.shouldUseExternalChatInput = shouldUseCustomChatInput
-        return chatController
-    }
-    
-    func updateUIViewController(_ uiViewController: MMChatViewController, context: Context) { }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, MMInAppChatDelegate {
-        let parent: ChatViewRepresentable
-        init(_ parent: ChatViewRepresentable) {
-            self.parent = parent
-            super.init()
-            if parent.chatState != nil {
-                MobileMessaging.inAppChat?.delegate = self
-            }
-        }
-        
-        func chatDidChange(to state: MMChatWebViewState) {
-            parent.chatState = state
-        }
-    }
-}
+// MARK: - Reusable Input Views
 
 struct ChatInputView: View {
     @State var text: String = ""
-    
+
     var onSendDidTap: (String) -> Void
     var onAttachmentDidTap: () -> Void
-    
+
     var body: some View {
         HStack {
             Button(action: {
@@ -187,7 +182,7 @@ struct ChatInputView: View {
                 Image(systemName: "paperclip.circle")
                     .imageScale(.large)
             })
-            
+
             TextField("Message", text: $text)
                 .padding(.horizontal, 2.5).padding(.trailing, 5).padding(.leading, 10)
                 .background(
@@ -214,7 +209,7 @@ struct ChatInputView: View {
 struct ImagePickerRepresentable: UIViewControllerRepresentable {
     var didFinishPickingWithImage: ((UIImage) -> Void)?
     @Binding var isPresenting: Bool
-    
+
     class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
         let parent: ImagePickerRepresentable
         init(_ parent: ImagePickerRepresentable) {

@@ -1,8 +1,8 @@
-// 
+//
 //  ChatSwiftUIDemo/ChatSwiftUIDemo/ContentView.swift
 //  ChatSwiftUIDemo
 //
-//  Copyright (c) 2016-2025 Infobip Limited
+//  Copyright (c) 2016-2026 Infobip Limited
 //  Licensed under the Apache License, Version 2.0
 //
 
@@ -11,117 +11,128 @@ import InAppChat
 import WebRTCUI
 import InfobipRTC
 
-final class ChatBackBridge: ObservableObject {
-    var onBackTapped: (() -> Bool)?
-}
+struct ContentView: SwiftUI.View {
 
-struct CustomBackButton: View {
-    @Environment(\.dismiss) private var dismiss
-    @ObservedObject var backBridge: ChatBackBridge
-
-    var body: some View {
-        Button {
-            // We check if chat has internal navigation that needs to go back first:
-            // onBackTapped returns true if we should dismiss, false if handled internally
-            if backBridge.onBackTapped?() ?? true {
-                // No internal navigation, dismiss to home screen
-                dismiss()
+    var body: some SwiftUI.View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                NavigationLink("Show chat (simple)") {
+                    SimpleChatScreen()
+                }
+                NavigationLink("Show chat (all features)") {
+                    FeatureShowcaseChatScreen()
+                }
             }
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "chevron.backward")
-            }
+            .padding()
         }
     }
 }
 
-struct ContentView: SwiftUI.View {
-    @StateObject private var backBridge = ChatBackBridge()
+// MARK: - Simple Chat
+
+/// Simplest possible integration using MMChatView.
+/// The back button delegates to the chat coordinator for multithread navigation handling.
+struct SimpleChatScreen: SwiftUI.View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var chatCoordinator: MMChatView.Coordinator?
 
     var body: some SwiftUI.View {
-        NavigationStack {
-            ZStack {
-                NavigationLink(destination: chatViewWithCustomBack()) {
-                    Text("Show chat")
-                }
+        MMChatView()
+            .onMakeChatCoordinator { coordinator in
+                chatCoordinator = coordinator
             }
-            .padding()
-        }.navigationViewStyle(StackNavigationViewStyle())
-    }
-    
-    @ViewBuilder
-    private func chatViewWithCustomBack() -> some View {
-        ChatView(backBridge: backBridge)
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    CustomBackButton(backBridge: backBridge)
+                    Button {
+                        if chatCoordinator?.handleBackAction() ?? true {
+                            dismiss()
+                        }
+                    } label: {
+                        Image(systemName: "chevron.backward")
+                    }
                 }
             }
+    }
+}
+
+// MARK: - Feature Showcase
+
+/// Demonstrates all available MMChatView modifiers.
+struct FeatureShowcaseChatScreen: SwiftUI.View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var chatCoordinator: MMChatView.Coordinator?
+    @State private var chatState: MMChatWebViewState = .unknown
+    @State private var isChatEnabled: Bool = true
+    @State private var unreadCount: Int = 0
+    @State private var exceptionMessage: String?
+    @State private var showExceptionAlert: Bool = false
+
+    var body: some SwiftUI.View {
+        VStack(spacing: 0) {
+            HStack {
+                Circle()
+                    .fill(isChatEnabled ? .green : .red)
+                    .frame(width: 8, height: 8)
+                Text("State: \(String(describing: chatState))")
+                    .font(.caption)
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 4)
+            .background(Color(.secondarySystemBackground))
+
+            MMChatView()
+                .onMakeChatCoordinator { chatCoordinator = $0 }
+                .onChatStateChange { state in
+                    chatState = state
+                }
+                .onChatEnabled { enabled in
+                    isChatEnabled = enabled
+                }
+                .onUnreadMessagesCountChange { count in
+                    unreadCount = count
+                }
+                .onChatException { exception in
+                    exceptionMessage = exception.message ?? "Unknown error (code: \(exception.code))"
+                    showExceptionAlert = true
+                    return .noDisplay
+                }
+                //.widgetTheme("default") // Note: Unnecessary in practice as "default" widget is used by default
+                //.language(.en) // Note: Unnecessary in practice as English is the default language
+                // Uncomment and provide a real token if your widget requires JWT authentication:
+                // .jwtProvider { return "your-jwt-token" }
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    if chatCoordinator?.handleBackAction() ?? true {
+                        dismiss()
+                    }
+                } label: {
+                    Image(systemName: "chevron.backward")
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if unreadCount > 0 {
+                    Text("\(unreadCount)")
+                        .font(.caption2).bold()
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(.red))
+                }
+            }
+        }
+        .alert("Chat Exception", isPresented: $showExceptionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(exceptionMessage ?? "")
+        }
     }
 }
 
 #Preview {
     ContentView()
-}
-
-struct ChatView: UIViewControllerRepresentable {
-    @ObservedObject var backBridge: ChatBackBridge
-
-    func makeUIViewController(context: Context) -> InAppChat.MMChatViewController {
-        MobileMessaging.webRTCService?.delegate = context.coordinator
-        MMChatSettings.sharedInstance.shouldSetNavBarAppearance = false
-        MMChatSettings.sharedInstance.shouldHandleKeyboardAppearance = false
-        backBridge.onBackTapped = { [weak coordinator = context.coordinator] in
-           return coordinator?.handleBackAction() ?? false
-        }
-        return context.coordinator.chatVC
-    }
-    
-    func updateUIViewController(_ uiViewController: InAppChat.MMChatViewController, context: Context) {
-        backBridge.onBackTapped = { [weak coordinator = context.coordinator] in
-           return coordinator?.handleBackAction() ?? false
-        }
-    }
-    
-    typealias UIViewControllerType = MMChatViewController
-    
-    func makeCoordinator() -> Coordinator {
-        return Coordinator()
-    }
-    
-    class Coordinator: MMWebRTCDelegate {
-        let chatVC = MMChatViewController.makeChildNavigationViewController()
-
-        func handleBackAction() -> Bool {
-            // Use SDK's method to check if back should dismiss or be handled internally
-            return chatVC.onCustomBackPressed()
-        }
-        
-        func inboundCallEstablished(_ call: ApplicationCall, event: CallEstablishedEvent) {
-            if let callController = MobileMessaging.webRTCService?.getInboundCallController(
-                incoming: call,
-                establishedEvent: event
-            ) {
-                chatVC.present(callController, animated: true)
-            }
-        }
-        
-        func inboundWebRTCCallEstablished(_ call: WebrtcCall, event: CallEstablishedEvent) {
-            if let callController = MobileMessaging.webRTCService?.getInboundCallController(
-                incoming: call,
-                establishedEvent: event
-            ) {
-                chatVC.present(callController, animated: true)
-            }
-        }
-        
-        func callRegistrationEnded(with statusCode: MMWebRTCRegistrationCode, and error: Error?) {
-            print("Registration ended")
-        }
-        
-        func callUnregistrationEnded(with statusCode: MMWebRTCRegistrationCode, and error: Error?) {
-            print("Unregistration ended")
-        }
-    }
 }

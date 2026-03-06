@@ -12,12 +12,13 @@ import InAppChat
 import WebRTCUI
 import InfobipRTC
 
-let mmApplicationCode = ""
-let webrtcConfigurationId = ""
+let mmApplicationCode = "<# your mobile application code #>"
+let webrtcConfigurationId = "<# your webrtc config id #>"
 
 class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        MobileMessaging.logger = MMDefaultLogger()
         MobileMessaging.logger?.logLevel = .All
         MobileMessaging.logger?.logOutput = .Console
         MobileMessaging.withApplicationCode(

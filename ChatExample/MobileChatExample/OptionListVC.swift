@@ -86,12 +86,12 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     
     func onShowSwiftUIChat() {
         let vc = UIHostingController(rootView: ExternalInputChatView())
-        navigationController?.present(vc, animated: true)
+        navigationController?.pushViewController(vc, animated: true)
     }
-    
+
     func onShowSwiftUIDefaultChat() {
         let vc = UIHostingController(rootView: DefaultChatView())
-        navigationController?.present(vc, animated: true)
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     func onExternalUIKitChat() {
