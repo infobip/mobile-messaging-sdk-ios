@@ -32,7 +32,7 @@
 		A8E560A2299632D900011F0C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E560A1299632D900011F0C /* Constants.swift */; };
 		A8E632092CD12C9F0034CDA4 /* MobileMessagingNotificationServiceExtension.plist in Resources */ = {isa = PBXBuildFile; fileRef = A8E632072CD12C9F0034CDA4 /* MobileMessagingNotificationServiceExtension.plist */; };
 		A8E6320A2CD12C9F0034CDA4 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E632082CD12C9F0034CDA4 /* NotificationService.swift */; };
-		EA162A1EA3A9DF2342DA17E1 /* MobileMessagingNotificationExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FAE2972C7C0906DACFF25B82 /* MobileMessagingNotificationExtension.appex */; };
+		EA162A1EA3A9DF2342DA17E1 /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FAE2972C7C0906DACFF25B82 /* NotificationServiceExtension.appex */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,7 +52,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				EA162A1EA3A9DF2342DA17E1 /* MobileMessagingNotificationExtension.appex in Embed App Extensions */,
+				EA162A1EA3A9DF2342DA17E1 /* NotificationServiceExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,7 +94,7 @@
 		E51F26CD7613294E88707120 /* MobileMessagingNotificationExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = MobileMessagingNotificationExtension.entitlements; path = ./MobileMessagingNotificationExtension.entitlements; sourceTree = "<group>"; };
 		F8EE4B9B13E727861F01B073 /* Pods-MobileMessagingNotificationExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingNotificationExtension.debug.xcconfig"; path = "Target Support Files/Pods-MobileMessagingNotificationExtension/Pods-MobileMessagingNotificationExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		F949632CED816BF31B2C8EBB /* Pods-MobileChatExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.debug.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.debug.xcconfig"; sourceTree = "<group>"; };
-		FAE2972C7C0906DACFF25B82 /* MobileMessagingNotificationExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MobileMessagingNotificationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAE2972C7C0906DACFF25B82 /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,7 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				765259E61FB5A99100058788 /* MobileChatExample.app */,
-				FAE2972C7C0906DACFF25B82 /* MobileMessagingNotificationExtension.appex */,
+				FAE2972C7C0906DACFF25B82 /* NotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -262,7 +262,7 @@
 			);
 			name = MobileMessagingNotificationExtension;
 			productName = MobileMessagingNotificationExtension;
-			productReference = FAE2972C7C0906DACFF25B82 /* MobileMessagingNotificationExtension.appex */;
+			productReference = FAE2972C7C0906DACFF25B82 /* NotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -405,6 +405,7 @@
 				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
 				"${BUILT_PRODUCTS_DIR}/MobileMessaging/MobileMessaging.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework",
+				"${BUILT_PRODUCTS_DIR}/MobileMessagingNotificationExtension/MobileMessagingNotificationExtension.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IBGoogleWebRTC/IBWebRTC.framework/IBWebRTC",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/InfobipRTC/InfobipRTC.framework/InfobipRTC",
 			);
@@ -419,6 +420,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessaging.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftJWT.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessagingNotificationExtension.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IBWebRTC.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/InfobipRTC.framework",
 			);
@@ -497,8 +499,8 @@
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				INFOPLIST_FILE = "$(PROJECT_DIR)/NotificationExtension/MobileMessagingNotificationServiceExtension.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.infobip.inappchat.demo.notification-extension";
+				PRODUCT_MODULE_NAME = NotificationServiceExtension;
 				PRODUCT_NAME = MobileMessagingNotificationExtension;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
@@ -515,8 +517,8 @@
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				INFOPLIST_FILE = "$(PROJECT_DIR)/NotificationExtension/MobileMessagingNotificationServiceExtension.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.infobip.inappchat.demo.notification-extension";
+				PRODUCT_MODULE_NAME = NotificationServiceExtension;
 				PRODUCT_NAME = MobileMessagingNotificationExtension;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "";

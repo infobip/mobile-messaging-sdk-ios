@@ -1,5 +1,5 @@
 // 
-//  Example/Tests/MobileMessagingTests/NSEDeliveryReportingTests.swift
+//  Example/Tests/MobileMessagingTests/MMNSEDeliveryReportingTests.swift
 //  MobileMessagingExample
 //
 //  Copyright (c) 2016-2025 Infobip Limited
@@ -11,18 +11,8 @@ import XCTest
 
 // MARK: - NSE Delivery Reporting Tests
 
-class NSEDeliveryReportingTests: XCTestCase {
-	
-	override func setUp() {
-		super.setUp()
-		MobileMessagingNotificationServiceExtension.sharedInstance = nil
-	}
-	
-	override func tearDown() {
-		MobileMessagingNotificationServiceExtension.sharedInstance = nil
-		super.tearDown()
-	}
-	
+class MMNSEDeliveryReportingTests: XCTestCase {
+
 	func testDeliveryReportRequest_ConstructorWithPushRegId() {
 		let applicationCode = "test-app-code"
 		let pushRegId = "test-push-reg-id"

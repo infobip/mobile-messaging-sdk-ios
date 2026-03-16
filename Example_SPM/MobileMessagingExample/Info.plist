@@ -56,6 +56,6 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>com.mobilemessaging.app_group</key>
-	<string>group.com.mobile-messaging.notification-service-extension</string>
+	<string>group.com.infobip.Example</string>
 </dict>
 </plist>

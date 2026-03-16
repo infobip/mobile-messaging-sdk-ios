@@ -156,7 +156,9 @@ platform :ios do
 			change_log = change_log_since_last_tag
 			workspace = ENV["WORKSPACE"]
 			podspec_path = "#{workspace}/MobileMessaging.podspec"
+			nse_podspec_path = "#{workspace}/MobileMessagingNotificationExtension.podspec"
 			swift_version_path = "#{workspace}/Classes/MobileMessaging/Core/MMVersion.swift"
+			nse_version_path = "#{workspace}/Classes/NotificationExtension/MMNSEVersion.swift"
 			tagged_commit_msg = "Version bump for SDK: #{new_version_number}"
 
 			commit_version_bump(force: true, message: "Version bump for example project: #{new_version_number}", xcodeproj: example_xcodeproj_path)
@@ -164,8 +166,9 @@ platform :ios do
 
 			desc "Comitting podspec and global var version changes"
 			version_bump_podspec(path: podspec_path, version_number: new_version_number)
-			sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{new_version_number}/g;' #{swift_version_path}"
-			sh "git commit --amend -m \"#{tagged_commit_msg}\" \"#{podspec_path}\" \"#{swift_version_path}\""
+			version_bump_podspec(path: nse_podspec_path, version_number: new_version_number)
+			sh "perl -i -p -e 's/(?<=\")\\d+(?:.\\d+)+(?=\")/#{new_version_number}/g;' #{swift_version_path} #{nse_version_path}"
+			sh "git commit --amend -m \"#{tagged_commit_msg}\" \"#{podspec_path}\" \"#{nse_podspec_path}\" \"#{swift_version_path}\" \"#{nse_version_path}\""
 
 			desc "Tagging"
 			sh "git tag #{new_version_tag}"
@@ -188,6 +191,11 @@ platform :ios do
 
 				pod_push(
 					path: podspec_path,
+					allow_warnings: true
+					)
+
+				pod_push(
+					path: nse_podspec_path,
 					allow_warnings: true
 					)
 			end

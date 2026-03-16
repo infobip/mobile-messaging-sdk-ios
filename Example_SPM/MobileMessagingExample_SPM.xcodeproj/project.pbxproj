@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -29,8 +29,6 @@
 		A04F34BB1F594E8B00B9CC6E /* DeeplinkViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04F34BA1F594E8B00B9CC6E /* DeeplinkViewControllers.swift */; };
 		A04F34BD1F594EA600B9CC6E /* LinksHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04F34BC1F594EA600B9CC6E /* LinksHandler.swift */; };
 		A04F34BF1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04F34BE1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift */; };
-		A08599432A2F65F8005AED85 /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A08599422A2F65F8005AED85 /* MobileMessaging */; };
-		A08599452A2F65FC005AED85 /* MobileMessagingLogging in Frameworks */ = {isa = PBXBuildFile; productRef = A08599442A2F65FC005AED85 /* MobileMessagingLogging */; };
 		A08599472A2F6602005AED85 /* MobileMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = A08599462A2F6602005AED85 /* MobileMessaging */; };
 		A08599492A2F6606005AED85 /* MobileMessagingLogging in Frameworks */ = {isa = PBXBuildFile; productRef = A08599482A2F6606005AED85 /* MobileMessagingLogging */; };
 		A085994D2A2F76C3005AED85 /* MobileMessagingInbox in Frameworks */ = {isa = PBXBuildFile; productRef = A085994C2A2F76C3005AED85 /* MobileMessagingInbox */; };
@@ -41,6 +39,7 @@
 		A0ED14F91F4EEB2700EB3262 /* InteractiveNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ED14F81F4EEB2700EB3262 /* InteractiveNotifications.swift */; };
 		A80C3C542E964F9A00D3EB78 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A80C3C512E964F9A00D3EB78 /* Main.storyboard */; };
 		A80C3C552E964F9A00D3EB78 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = A80C3C502E964F9A00D3EB78 /* LaunchScreen.xib */; };
+		B0NSE00100000001000000001 /* MobileMessagingNotificationExtension in Frameworks */ = {isa = PBXBuildFile; productRef = B0NSE00100000001000000002 /* MobileMessagingNotificationExtension */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -120,8 +119,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A08599432A2F65F8005AED85 /* MobileMessaging in Frameworks */,
-				A08599452A2F65FC005AED85 /* MobileMessagingLogging in Frameworks */,
+				B0NSE00100000001000000001 /* MobileMessagingNotificationExtension in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,11 +293,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A013D4591ED8355F00B371C0 /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
 			buildPhases = (
-				761F1BE02180D76500C13C00 /* Put in app code */,
 				A013D44B1ED8355F00B371C0 /* Sources */,
 				A013D44C1ED8355F00B371C0 /* Frameworks */,
 				A013D44D1ED8355F00B371C0 /* Resources */,
-				761F1BDF2180D72700C13C00 /* Put out app code */,
 			);
 			buildRules = (
 			);
@@ -307,8 +303,7 @@
 			);
 			name = NotificationServiceExtension;
 			packageProductDependencies = (
-				A08599422A2F65F8005AED85 /* MobileMessaging */,
-				A08599442A2F65FC005AED85 /* MobileMessagingLogging */,
+				B0NSE00100000001000000002 /* MobileMessagingNotificationExtension */,
 			);
 			productName = NotificationServiceExtension;
 			productReference = A013D44F1ED8355F00B371C0 /* NotificationServiceExtension.appex */;
@@ -367,6 +362,7 @@
 			mainGroup = 607FACC71AFB9204008FA782;
 			packageReferences = (
 				0230BA8D2DDDD2C100525CE1 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
+				7B9E7BA82F55C58D00BF5BD8 /* XCLocalSwiftPackageReference "../../infobip-mobile-messaging-ios" */,
 			);
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
@@ -431,42 +427,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appDelegatePath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"$applicationCode\\\"/\\\"<# your application code #>\\\"/g;\" \"$appDelegatePath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
-		};
-		761F1BDF2180D72700C13C00 /* Put out app code */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Put out app code";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appExtensionPath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appExtensionPath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
-		};
-		761F1BE02180D76500C13C00 /* Put in app code */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Put in app code";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appExtensionPath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appExtensionPath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -810,6 +770,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		7B9E7BA82F55C58D00BF5BD8 /* XCLocalSwiftPackageReference "../../infobip-mobile-messaging-ios" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../infobip-mobile-messaging-ios";
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		0230BA8D2DDDD2C100525CE1 /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -826,14 +793,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0230BA8D2DDDD2C100525CE1 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
 			productName = SwiftJWT;
-		};
-		A08599422A2F65F8005AED85 /* MobileMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MobileMessaging;
-		};
-		A08599442A2F65FC005AED85 /* MobileMessagingLogging */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MobileMessagingLogging;
 		};
 		A08599462A2F6602005AED85 /* MobileMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -854,6 +813,10 @@
 		A09C675A2A7BE28000559A5F /* WebRTCUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = WebRTCUI;
+		};
+		B0NSE00100000001000000002 /* MobileMessagingNotificationExtension */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MobileMessagingNotificationExtension;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

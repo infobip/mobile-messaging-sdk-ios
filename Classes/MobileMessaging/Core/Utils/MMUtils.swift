@@ -793,6 +793,7 @@ public extension Optional {
 }
 
 extension URL {
+    // NOTE: Duplicated in MMNSEUtils.swift in MobileMessagingNotificationExtension module. Any changes here must be mirrored there.
     static func attachmentDownloadDestinationFolderUrl(appGroupId: String?) -> URL {
         let fileManager = FileManager.default
         let tempFolderUrl: URL

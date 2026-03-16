@@ -397,76 +397,9 @@ class MessageStorageTests: MMTestCase {
 		self.waitForExpectations(timeout: 60, handler: nil)
 	}
 	
-	func testThatMessageStorageIsBeingPopulatedWithNotificationExtensionHandledMessages() {
-		let content = UNMutableNotificationContent()
-		content.userInfo = [
-			"messageId": "mid1",
-			"aps": ["alert": ["title": "msg_title", "body": "msg_body"], "badge": 6, "sound": "default", "mutable-content": 1]
-		]
-		let request = UNNotificationRequest(identifier: "id1", content: content, trigger: nil)
-		let contentHandler: (UNNotificationContent) -> Void = { content in
-			
-		}
-		let notificationExtensionStorageStub = NotificationExtensionMessageStorageStub(applicationCode: "appCode", appGroupId: "groupId")!
-		
-        MobileMessagingNotificationServiceExtension.sharedInstance = MobileMessagingNotificationServiceExtension(appCode: "appCode", appGroupId: "groupId")
-		MobileMessagingNotificationServiceExtension.sharedInstance!.deliveryReporter = SuccessfullDeliveryReporterStub()
-		MobileMessagingNotificationServiceExtension.sharedInstance!.sharedNotificationExtensionStorage = notificationExtensionStorageStub
-		MobileMessagingNotificationServiceExtension.didReceive(request, withContentHandler: contentHandler)
-		
-		XCTAssertEqual(notificationExtensionStorageStub.retrieveMessages().count, 1)
-		let firstMessage = notificationExtensionStorageStub.retrieveMessages().first
-		XCTAssertNotNil(firstMessage!.deliveryReportedDate)
-		XCTAssertTrue(firstMessage!.isDeliveryReportSent)
-		
-		// starting the SDK
-		let messageStorageStub = MessageStorageStub()
-		XCTAssertEqual(messageStorageStub.mtMessages.count, 0)
-		
-		let mm = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!.withMessageStorage(messageStorageStub)
-        mm.sharedNotificationExtensionStorage = notificationExtensionStorageStub
-        mm.doStart()
-		
-		weak let expectation = self.expectation(description: "")
-		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + .seconds(1)) {
-			XCTAssertEqual(notificationExtensionStorageStub.retrieveMessages().count, 0)
-			expectation?.fulfill()
-		}
-		self.waitForExpectations(timeout: 60, handler: { _ in
-			XCTAssertEqual(messageStorageStub.mtMessages.count, 1)
-		})
-	}
-	
 	override func tearDown() {
 		self.defaultMessageStorage?.coreDataStorage?.drop()
 		super.tearDown()
 	}
 }
 
-class SuccessfullDeliveryReporterStub: DeliveryReporting {
-	func report(applicationCode: String, messageIds: [String], completion: @escaping (NSError?) -> Void) {
-		completion(nil)
-	}
-}
-
-class NotificationExtensionMessageStorageStub: AppGroupMessageStorage {
-	var inMemStorage = [String: Any]()
-	let applicationCode: String
-	required init?(applicationCode: String, appGroupId: String) {
-		self.applicationCode = applicationCode
-	}
-	
-	func save(message: MM_MTMessage) {
-		var msgs = (inMemStorage[applicationCode] as? [MM_MTMessage]) ?? [MM_MTMessage]()
-		msgs.append(message)
-		inMemStorage[applicationCode] = msgs
-	}
-	
-	func retrieveMessages() -> [MM_MTMessage] {
-		return (inMemStorage[applicationCode] as? [MM_MTMessage]) ?? [MM_MTMessage]()
-	}
-	
-	func cleanupMessages() {
-		inMemStorage[applicationCode] = nil
-	}
-}

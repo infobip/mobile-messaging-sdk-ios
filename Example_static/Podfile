@@ -4,26 +4,30 @@ platform :ios, '15.0'
 
 $podName = 'MobileMessaging'
 $chatPodName = 'MobileMessaging/InAppChat'
+$inboxPodName = 'MobileMessaging/Inbox'
 
 def includeMobileMessagingPods
 	pod $podName, :path => '../'
 	pod $chatPodName, :path => '../'
+	pod $inboxPodName, :path => '../'
 end
 
 target 'MobileMessagingExample_static' do
   includeMobileMessagingPods
-  
-  target 'NotificationServiceExtension' do
-    inherit! :search_paths
-  end
-  
-  target 'MobileMessagingExample_static_Tests' do
-    inherit! :search_paths
-  end
+  pod 'SwiftJWT'
+end
 
+target 'NotificationServiceExtension' do
+	pod 'MobileMessagingNotificationExtension', :path => '../'
+end
+
+target 'MobileMessagingExample_static_Tests' do
+  pod 'SwiftJWT'
+  includeMobileMessagingPods
 end
 
 target 'MobileMessagingExample_static_Tests_Device' do
+  pod 'SwiftJWT'
 	includeMobileMessagingPods
 end
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02E2AF6A2DD534E5004015F8 /* JwtSupplierExampleImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02E2AF692DD534D5004015F8 /* JwtSupplierExampleImpl.swift */; };
 		15222F93D9B3B7D7BFF5AF0C /* libPods-MobileMessagingExample_static_Tests_Device.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 71DB91AE75F54D71FA628543 /* libPods-MobileMessagingExample_static_Tests_Device.a */; };
 		5000030C1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		5000030D1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
@@ -98,8 +99,6 @@
 		A04F34BB1F594E8B00B9CC6E /* DeeplinkViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04F34BA1F594E8B00B9CC6E /* DeeplinkViewControllers.swift */; };
 		A04F34BD1F594EA600B9CC6E /* LinksHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04F34BC1F594EA600B9CC6E /* LinksHandler.swift */; };
 		A04F34BF1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04F34BE1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift */; };
-		A079184F282E9F6A004309F5 /* libCocoaLumberjack.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A079184D282E9F6A004309F5 /* libCocoaLumberjack.a */; };
-		A0791850282E9F6A004309F5 /* libMobileMessaging.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A079184E282E9F6A004309F5 /* libMobileMessaging.a */; };
 		A08859571CEC5ADE003EE4A3 /* NSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */; };
 		A09FE7341F4F09A7007B66E8 /* UIToolbarExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09FE7331F4F09A7007B66E8 /* UIToolbarExtension.swift */; };
 		A0CA35002767251E00517867 /* ServicesSynchronizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0CA34FF2767251E00517867 /* ServicesSynchronizationTests.swift */; };
@@ -153,6 +152,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		02E2AF692DD534D5004015F8 /* JwtSupplierExampleImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtSupplierExampleImpl.swift; sourceTree = "<group>"; };
 		1132530B4C6019CAB96C61F7 /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		28559F5B4893675A9397EE02 /* Pods-MobileMessagingExample_static_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_static_Tests.debug.xcconfig"; path = "Target Support Files/Pods-MobileMessagingExample_static_Tests/Pods-MobileMessagingExample_static_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		3672BEE0B2D986D384ABAC21 /* Pods-MobileMessagingExample_static_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingExample_static_Tests.release.xcconfig"; path = "Target Support Files/Pods-MobileMessagingExample_static_Tests/Pods-MobileMessagingExample_static_Tests.release.xcconfig"; sourceTree = "<group>"; };
@@ -268,8 +268,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0791850282E9F6A004309F5 /* libMobileMessaging.a in Frameworks */,
-				A079184F282E9F6A004309F5 /* libCocoaLumberjack.a in Frameworks */,
 				FD1E1EDF4FA1243F6D31DA62 /* libPods-NotificationServiceExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -341,6 +339,7 @@
 		5087EDAB1CEF052700B85546 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				02E2AF692DD534D5004015F8 /* JwtSupplierExampleImpl.swift */,
 				A08859561CEC5ADE003EE4A3 /* NSErrorExtension.swift */,
 				6E3B11C21F34D4C800C48B92 /* WindowExtension.swift */,
 				A09FE7331F4F09A7007B66E8 /* UIToolbarExtension.swift */,
@@ -527,6 +526,7 @@
 				607FACE11AFB9204008FA782 /* Sources */,
 				607FACE21AFB9204008FA782 /* Frameworks */,
 				607FACE31AFB9204008FA782 /* Resources */,
+				BD81FFC53E0B8077E373BCB2 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -563,11 +563,9 @@
 			buildConfigurationList = A013D4591ED8355F00B371C0 /* Build configuration list for PBXNativeTarget "NotificationServiceExtension" */;
 			buildPhases = (
 				D68CD2E8D91C2CE87146634B /* [CP] Check Pods Manifest.lock */,
-				761F1BE02180D76500C13C00 /* Put in app code */,
 				A013D44B1ED8355F00B371C0 /* Sources */,
 				A013D44C1ED8355F00B371C0 /* Frameworks */,
 				A013D44D1ED8355F00B371C0 /* Resources */,
-				761F1BDF2180D72700C13C00 /* Put out app code */,
 			);
 			buildRules = (
 			);
@@ -795,42 +793,6 @@
 			shellPath = /bin/sh;
 			shellScript = "appDelegatePath=${SRCROOT}/MobileMessagingExample/AppDelegate.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appDelegatePath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"$applicationCode\\\"/\\\"<# your application code #>\\\"/g;\" \"$appDelegatePath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
 		};
-		761F1BDF2180D72700C13C00 /* Put out app code */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Put out app code";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appExtensionPath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appExtensionPath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
-		};
-		761F1BE02180D76500C13C00 /* Put in app code */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Put in app code";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "appExtensionPath=${SRCROOT}/NotificationServiceExtension/NotificationService.swift\napplicationCodeCfgPath=${SRCROOT}/.application-code\n\nif [ ! -f \"$applicationCodeCfgPath\" ] || [ ! -f \"$appExtensionPath\" ]; then\nexit 0\nelse\napplicationCode=$(cat \"$applicationCodeCfgPath\")\nif [ -n \"$applicationCode\" ]; then\nperl -i -p -e \"s/\\\"<# your application code #>\\\"/\\\"$applicationCode\\\"/g;\" \"$appExtensionPath\"\nelse\necho \"Application code is empty\" 1>&2\nexit 1\nfi\nfi\n";
-		};
 		AA45108F533202D7DCBDD134 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -875,6 +837,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		BD81FFC53E0B8077E373BCB2 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MobileMessagingExample_static_Tests/Pods-MobileMessagingExample_static_Tests-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/CocoaLumberjack/CocoaLumberjackPrivacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/MobileMessaging/MMCore.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/MobileMessaging/MMInAppChat.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CocoaLumberjackPrivacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MMCore.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/MMInAppChat.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MobileMessagingExample_static_Tests/Pods-MobileMessagingExample_static_Tests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		D68CD2E8D91C2CE87146634B /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -915,6 +899,7 @@
 				6E3B11C31F34D4C800C48B92 /* WindowExtension.swift in Sources */,
 				A047BFD81CB4EB5C00A6859F /* CopyableCell.swift in Sources */,
 				A09FE7341F4F09A7007B66E8 /* UIToolbarExtension.swift in Sources */,
+				02E2AF6A2DD534E5004015F8 /* JwtSupplierExampleImpl.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				5087EDB11CEF067100B85546 /* ListViewController.swift in Sources */,
 				5087EDB31CEF067100B85546 /* SettingsViewController.swift in Sources */,
@@ -1247,9 +1232,7 @@
 			baseConfigurationReference = 28559F5B4893675A9397EE02 /* Pods-MobileMessagingExample_static_Tests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -1275,9 +1258,7 @@
 			baseConfigurationReference = 3672BEE0B2D986D384ABAC21 /* Pods-MobileMessagingExample_static_Tests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_ENTITLEMENTS = MobileMessagingExample/MobileMessagingExample.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T6U248P7YM;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -1359,13 +1340,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = T6U248P7YM;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/CocoaLumberjack\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/MobileMessaging\"",
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1387,13 +1362,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T6U248P7YM;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = NotificationServiceExtension/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/CocoaLumberjack\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/MobileMessaging\"",
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.infobip.mobilemessaging.example.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

@@ -35,6 +35,10 @@ let package = Package(
         .library(
             name: "WebRTCUI",
             targets: ["WebRTCUI"]
+        ),
+        .library(
+            name: "MobileMessagingNotificationExtension",
+            targets: ["MobileMessagingNotificationExtension"]
         )
     ],
     dependencies: [
@@ -81,6 +85,11 @@ let package = Package(
             name: "MobileMessagingLogging",
             dependencies: ["CocoaLumberjack", "MobileMessaging"],
             path: "Classes/Logging"
+        ),
+        .target(
+            name: "MobileMessagingNotificationExtension",
+            dependencies: [],
+            path: "Classes/NotificationExtension"
         ),
     ]
 )

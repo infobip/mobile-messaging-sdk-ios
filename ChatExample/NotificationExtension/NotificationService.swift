@@ -7,7 +7,7 @@
 //
 
 import UserNotifications
-import MobileMessaging
+import MobileMessagingNotificationExtension
 
 class NotificationService: UNNotificationServiceExtension {
 
@@ -21,7 +21,7 @@ class NotificationService: UNNotificationServiceExtension {
         let mutableContent: UNMutableNotificationContent? = (request.content.mutableCopy() as? UNMutableNotificationContent)
         mutableContent?.badge = NSNumber(value: BadgeCounterHandler.increaseBadge(by: 1))
 
-        if MM_MTMessage.isCorrectPayload(request.content.userInfo) {
+        if MobileMessagingNotificationServiceExtension.isCorrectPayload(request.content.userInfo as? [String: Any] ?? [:]) {
             MobileMessagingNotificationServiceExtension.didReceive(
                 content: localisedContentFor(mutableContent ?? request.content),
                 withContentHandler: contentHandler)
