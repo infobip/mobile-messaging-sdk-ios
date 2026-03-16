@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
     s.name          = 'MobileMessagingNotificationExtension'
     s.module_name   = 'MobileMessagingNotificationExtension'
-    s.version       = '14.4.3'
+    s.version       = '15.0.0'
     s.summary       = 'Lightweight Mobile Messaging SDK for Notification Service Extension'
     s.description   = 'A standalone, zero-dependency module for iOS Notification Service Extensions. Handles delivery reporting and rich push notification content downloading without linking the full MobileMessaging SDK.'
     s.homepage      = 'https://github.com/infobip/mobile-messaging-sdk-ios'
