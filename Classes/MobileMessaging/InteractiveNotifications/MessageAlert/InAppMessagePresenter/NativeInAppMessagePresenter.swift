@@ -40,7 +40,7 @@ class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter, NativeInt
     }
     
     // MARK: -
-    private func loadImage(completion completionHandler: @escaping (Image?) -> Void) {
+    private func loadImage(completion completionHandler: @escaping (UIImage?) -> Void) {
         guard let safeUrl = message.contentUrl?.safeUrl else {
             completionHandler(nil)
             return
@@ -60,7 +60,7 @@ class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter, NativeInt
         }
     }
     
-    private func present(image: Image?) -> Void {
+    private func present(image: UIImage?) -> Void {
         let category = message.getCategoryForInteractiveMessageAlertController()
         let newMessageController = createMessageControllerWithCategory(category, image: image)
         
@@ -91,7 +91,7 @@ class NativeInAppMessagePresenter: NamedLogger, InAppMessagePresenter, NativeInt
     }
     
     // MARK: -
-    private func createMessageControllerWithCategory(_ category: MMNotificationCategory?, image: Image?) -> NativeInteractiveMessageAlertController {
+    private func createMessageControllerWithCategory(_ category: MMNotificationCategory?, image: UIImage?) -> NativeInteractiveMessageAlertController {
         if let category {
             return NativeInteractiveMessageAlertController(
                 titleText: message.title,

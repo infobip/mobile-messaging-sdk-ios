@@ -44,7 +44,7 @@ import Foundation
 ///
 /// extension UIImageView {
 ///    func setProfileImage(with url: URL) {
-///        // Image will always cached as PNG format to preserve alpha channel for round rect.
+///        // UIImage will always cached as PNG format to preserve alpha channel for round rect.
 ///        _ = kf.setImage(with: url, options: optionsInfo)
 ///    }
 ///}
@@ -58,7 +58,7 @@ internal struct FormatIndicatedCacheSerializer: CacheSerializer {
     /// The indicated image format.
     private let imageFormat: ImageFormat
     
-    internal func data(with image: Image, original: Data?) -> Data? {
+    internal func data(with image: UIImage, original: Data?) -> Data? {
         
         func imageData(withFormat imageFormat: ImageFormat) -> Data? {
             switch imageFormat {
@@ -85,9 +85,9 @@ internal struct FormatIndicatedCacheSerializer: CacheSerializer {
     }
     
     /// Same implementation as `DefaultCacheSerializer`.
-    internal func image(with data: Data, options: KingfisherOptionsInfo?) -> Image? {
+    internal func image(with data: Data, options: KingfisherOptionsInfo?) -> UIImage? {
         let options = options ?? KingfisherEmptyOptionsInfo
-        return Kingfisher<Image>.image(
+        return Kingfisher<UIImage>.image(
             data: data,
             scale: options.scaleFactor,
             preloadAllAnimationData: options.preloadAllAnimationData,

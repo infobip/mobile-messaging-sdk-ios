@@ -19,7 +19,7 @@ class LoadingImageView: UIView {
         view.frame = bounds
         view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(view)
-		contentImageView.kf.indicatorType = .activity
+		contentImageView.kf.indicatorType = IndicatorType.activity
     }
     
     func loadViewFromNib() -> UIView {

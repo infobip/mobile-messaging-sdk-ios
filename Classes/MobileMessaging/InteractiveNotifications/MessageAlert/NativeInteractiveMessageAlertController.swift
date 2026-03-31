@@ -34,7 +34,7 @@ class NativeInteractiveMessageAlertController: UIViewController {
 	private let titleText: String?
 	private let messageText: String
 	private let imageURL: URL?
-	private let image: Image?
+	private let image: UIImage?
     private let categoryId: String?
 	private var buttons: [InteractiveMessageButton]!
     unowned var delegate: NativeInteractiveMessageAlertControllerDelegate?
@@ -42,7 +42,7 @@ class NativeInteractiveMessageAlertController: UIViewController {
 	init(titleText: String?,
          messageText: String,
          imageURL: URL?,
-         image: Image?,
+         image: UIImage?,
          dismissTitle: String?,
          openTitle: String?) {
 		self.titleText = titleText
@@ -73,7 +73,7 @@ class NativeInteractiveMessageAlertController: UIViewController {
 	init(titleText: String?,
          messageText: String,
          imageURL: URL?,
-         image: Image?,
+         image: UIImage?,
          category: MMNotificationCategory) {
 		self.titleText = titleText
 		self.messageText = messageText

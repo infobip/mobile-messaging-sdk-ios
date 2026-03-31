@@ -278,9 +278,9 @@ extension MMAnimatedImageView: AnimatorDelegate {
     }
 }
 
-/// Keeps a reference to an `Image` instance and its duration as a GIF frame.
+/// Keeps a reference to an `UIImage` instance and its duration as a GIF frame.
 struct AnimatedFrame {
-    var image: Image?
+    var image: UIImage?
     let duration: TimeInterval
     
     static let null: AnimatedFrame = AnimatedFrame(image: .none, duration: 0.0)
@@ -355,7 +355,7 @@ class Animator {
         self.maxRepeatCount = repeatCount
     }
     
-    func frame(at index: Int) -> Image? {
+    func frame(at index: Int) -> UIImage? {
         return animatedFrames[safe: index]?.image
     }
     
@@ -407,8 +407,8 @@ class Animator {
             return duration > 0.011 ? duration : defaultGIFFrameDuration
         } ?? defaultGIFFrameDuration
         
-        let image = Image(cgImage: imageRef)
-        let scaledImage: Image?
+        let image = UIImage(cgImage: imageRef)
+        let scaledImage: UIImage?
         
         if needsPrescaling {
             scaledImage = image.kf.resize(to: size, for: contentMode)

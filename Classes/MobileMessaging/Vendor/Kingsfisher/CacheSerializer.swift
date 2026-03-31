@@ -41,7 +41,7 @@ internal protocol CacheSerializer {
     ///
     /// - returns: A data which will be stored to cache, or `nil` when no valid
     ///            data could be serialized.
-    func data(with image: Image, original: Data?) -> Data?
+    func data(with image: UIImage, original: Data?) -> Data?
     
     /// Get an image deserialized from provided data.
     ///
@@ -50,7 +50,7 @@ internal protocol CacheSerializer {
     ///
     /// - returns: An image deserialized or `nil` when no valid image 
     ///            could be deserialized.
-    func image(with data: Data, options: KingfisherOptionsInfo?) -> Image?
+    func image(with data: Data, options: KingfisherOptionsInfo?) -> UIImage?
 }
 
 
@@ -62,7 +62,7 @@ internal struct DefaultCacheSerializer: CacheSerializer {
     internal static let `default` = DefaultCacheSerializer()
     private init() {}
     
-    internal func data(with image: Image, original: Data?) -> Data? {
+    internal func data(with image: UIImage, original: Data?) -> Data? {
         let imageFormat = original?.kf.imageFormat ?? .unknown
 
         let data: Data?
@@ -76,9 +76,9 @@ internal struct DefaultCacheSerializer: CacheSerializer {
         return data
     }
     
-    internal func image(with data: Data, options: KingfisherOptionsInfo?) -> Image? {
+    internal func image(with data: Data, options: KingfisherOptionsInfo?) -> UIImage? {
         let options = options ?? KingfisherEmptyOptionsInfo
-        return Kingfisher<Image>.image(
+        return Kingfisher<UIImage>.image(
             data: data,
             scale: options.scaleFactor,
             preloadAllAnimationData: options.preloadAllAnimationData,

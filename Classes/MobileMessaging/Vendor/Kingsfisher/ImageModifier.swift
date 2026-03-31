@@ -26,23 +26,23 @@
 
 import Foundation
 
-/// An `ImageModifier` can be used to change properties on an Image in between
+/// An `ImageModifier` can be used to change properties on an UIImage in between
 /// cache serialization and use of the image.
 internal protocol ImageModifier {
-    /// Modify an input `Image`.
+    /// Modify an input `UIImage`.
     ///
-    /// - parameter image:   Image which will be modified by `self`
+    /// - parameter image:   UIImage which will be modified by `self`
     ///
     /// - returns: The modified image.
     ///
     /// - Note: The return value will be unmodified if modifying is not possible on
     ///         the current platform.
     /// - Note: Most modifiers support UIImage or NSImage, but not CGImage.
-    func modify(_ image: Image) -> Image
+    func modify(_ image: UIImage) -> UIImage
 }
 
 extension ImageModifier {
-    func modify(_ image: Image?) -> Image? {
+    func modify(_ image: UIImage?) -> UIImage? {
         guard let image = image else {
             return nil
         }
@@ -50,12 +50,12 @@ extension ImageModifier {
     }
 }
 
-typealias ModifierImp = ((Image) -> Image)
+typealias ModifierImp = ((UIImage) -> UIImage)
 
 fileprivate struct GeneralModifier: ImageModifier {
     let identifier: String
     let m: ModifierImp
-    func modify(_ image: Image) -> Image {
+    func modify(_ image: UIImage) -> UIImage {
         return m(image)
     }
 }
@@ -70,14 +70,14 @@ internal struct DefaultImageModifier: ImageModifier {
     /// Initialize a `DefaultImageModifier`
     private init() {}
 
-    /// Modify an input `Image`.
+    /// Modify an input `UIImage`.
     ///
-    /// - parameter image:   Image which will be modified by `self`
+    /// - parameter image:   UIImage which will be modified by `self`
     ///
     /// - returns: The modified image.
     ///
     /// - Note: See documentation of `ImageModifier` protocol for more.
-    internal func modify(_ image: Image) -> Image {
+    internal func modify(_ image: UIImage) -> UIImage {
         return image
     }
 }
@@ -88,21 +88,21 @@ internal struct AnyImageModifier: ImageModifier {
 
     /// A block which modifies images, or returns the original image
     /// if modification cannot be performed.
-    let block: (Image) -> Image
+    let block: (UIImage) -> UIImage
 
     /// Initialize an `AnyImageModifier`
-    internal init(modify: @escaping (Image) -> Image) {
+    internal init(modify: @escaping (UIImage) -> UIImage) {
         block = modify
     }
 
-    /// Modifies an input `Image` using this `AnyImageModifier`'s `block`.
+    /// Modifies an input `UIImage` using this `AnyImageModifier`'s `block`.
     ///
-    /// - parameter image:   Image which will be modified by `self`
+    /// - parameter image:   UIImage which will be modified by `self`
     ///
     /// - returns: The modified image.
     ///
     /// - Note: See documentation of `ImageModifier` protocol for more.
-    internal func modify(_ image: Image) -> Image {
+    internal func modify(_ image: UIImage) -> UIImage {
         return block(image)
     }
 }
@@ -126,14 +126,14 @@ internal struct RenderingModeImageModifier: ImageModifier {
         self.renderingMode = renderingMode
     }
 
-    /// Modify an input `Image`.
+    /// Modify an input `UIImage`.
     ///
-    /// - parameter image:   Image which will be modified by `self`
+    /// - parameter image:   UIImage which will be modified by `self`
     ///
     /// - returns: The modified image.
     ///
     /// - Note: See documentation of `ImageModifier` protocol for more.
-    internal func modify(_ image: Image) -> Image {
+    internal func modify(_ image: UIImage) -> UIImage {
         return image.withRenderingMode(renderingMode)
     }
 }
@@ -148,14 +148,14 @@ internal struct FlipsForRightToLeftLayoutDirectionImageModifier: ImageModifier {
     ///         unmodified.
     internal init() {}
 
-    /// Modify an input `Image`.
+    /// Modify an input `UIImage`.
     ///
-    /// - parameter image:   Image which will be modified by `self`
+    /// - parameter image:   UIImage which will be modified by `self`
     ///
     /// - returns: The modified image.
     ///
     /// - Note: See documentation of `ImageModifier` protocol for more.
-    internal func modify(_ image: Image) -> Image {
+    internal func modify(_ image: UIImage) -> UIImage {
         if #available(iOS 9.0, *) {
             return image.imageFlippedForRightToLeftLayoutDirection()
         } else {
@@ -177,14 +177,14 @@ internal struct AlignmentRectInsetsImageModifier: ImageModifier {
         self.alignmentInsets = alignmentInsets
     }
 
-    /// Modify an input `Image`.
+    /// Modify an input `UIImage`.
     ///
-    /// - parameter image:   Image which will be modified by `self`
+    /// - parameter image:   UIImage which will be modified by `self`
     ///
     /// - returns: The modified image.
     ///
     /// - Note: See documentation of `ImageModifier` protocol for more.
-    internal func modify(_ image: Image) -> Image {
+    internal func modify(_ image: UIImage) -> UIImage {
         return image.withAlignmentRectInsets(alignmentInsets)
     }
 }

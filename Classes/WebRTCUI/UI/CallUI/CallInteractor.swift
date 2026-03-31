@@ -108,11 +108,19 @@ class CallInteractor {
             switch activeCall {
             case .applicationCall(let applicationCall):
                 isSharing = applicationCall.hasScreenShare()
-                try applicationCall.screenShare(screenShare: !isSharing)
+                if !isSharing {
+                    try applicationCall.startScreenShare()
+                } else {
+                    try applicationCall.stopScreenShare()
+                }
                 return isSharing
             case .webRTCCall(let webRTCCall):
                 isSharing = webRTCCall.hasScreenShare()
-                try webRTCCall.screenShare(screenShare: !isSharing)
+                if !isSharing {
+                    try webRTCCall.startScreenShare()
+                } else {
+                    try webRTCCall.stopScreenShare()
+                }
                 return isSharing
             }
             

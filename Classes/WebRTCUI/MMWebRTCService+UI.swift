@@ -33,24 +33,28 @@ public extension MMWebRTCService {
         return .audio
     }
     
+    @MainActor
     func getInboundCallController(incoming applicationCall: ApplicationCall, establishedEvent: CallEstablishedEvent) -> MMCallController {
         let callController = MMCallController()
         applicationCall.applicationCallEventListener = callController.callEventListener
         callController.interactor.currentCall = .applicationCall(applicationCall)
         callController.callEventListener.onEstablished(establishedEvent)
         if let incomingCall = applicationCall as? IncomingApplicationCall {
-            callController.callView.updateState(remoteMuted: false,title: incomingCall.fromDisplayName ?? "")
+            callController.uiState.remoteTitle = incomingCall.fromDisplayName ?? ""
+            callController.uiState.isRemoteMuted = false
         }
         return callController
     }
 
+    @MainActor
     func getInboundCallController(incoming webRTCCall: WebrtcCall, establishedEvent: CallEstablishedEvent) -> MMCallController {
         let callController = MMCallController()
         webRTCCall.webrtcCallEventListener = callController.callEventListener
         callController.callEventListener.onEstablished(establishedEvent)
         callController.interactor.currentCall = .webRTCCall(webRTCCall)
         if let webRTCCall = webRTCCall as? IncomingWebrtcCall {
-            callController.callView.updateState(remoteMuted: false, title: webRTCCall.destination().displayIdentifier() ?? webRTCCall.destination().identifier())
+            callController.uiState.remoteTitle = webRTCCall.destination().displayIdentifier() ?? webRTCCall.destination().identifier()
+            callController.uiState.isRemoteMuted = false
         }
         return callController
     }

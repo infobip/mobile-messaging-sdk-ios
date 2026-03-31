@@ -71,7 +71,7 @@ public class MMWebRTCSettings: NSObject {
     }
     public var sheetBackgroundColor: UIColor! {
         set { _sheetBackgroundColor = newValue }
-        get { return _sheetBackgroundColor ?? UIColor(hexString: "#242424") }
+        get { return _sheetBackgroundColor ?? UIColor(hexString: "#1b1b1a") }
     }
     public var sheetDividerColor: UIColor! {
         set { _sheetDividerColor = newValue }

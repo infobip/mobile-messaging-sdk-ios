@@ -11,8 +11,10 @@ import WebKit
 import CallKit
 import PushKit
 import AVFoundation
+
 #if WEBRTCUI_ENABLED
 import InfobipRTC
+import InfobipMobileUI
 
 extension MMWebRTCService: PKPushRegistryDelegate {
     func createCallsPushRegistry() {
@@ -238,25 +240,28 @@ extension MMWebRTCService: ApplicationCallEventListener, WebrtcCallEventListener
     @objc public func onReconnected(_ callReconnectedEvent: CallReconnectedEvent) { }
 
     @objc public func onEstablished(_ callEstablishedEvent: CallEstablishedEvent) {
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            switch self.notificationData?.activeCall {
+            case .applicationCall(let applicationCall):
+                if let delegate = self.delegate {
+                    delegate.inboundCallEstablished(applicationCall, event: callEstablishedEvent)
+                } else if let callController = MobileMessaging.webRTCService?.getInboundCallController(
+                    incoming: applicationCall, establishedEvent: callEstablishedEvent) {
+                    IBPIPKit.show(with: callController)
+                }
+            case .webRTCCall(let webRTCCall):
+                if let delegate = self.delegate {
+                    delegate.inboundWebRTCCallEstablished(webRTCCall, event: callEstablishedEvent)
+                } else if let callController = MobileMessaging.webRTCService?.getInboundCallController(
+                    incoming: webRTCCall, establishedEvent: callEstablishedEvent) {
+                    IBPIPKit.show(with: callController)
+                }
+            default: return
+            }
+            self.notificationData?.activeCall = nil
 
-        switch notificationData?.activeCall {
-        case .applicationCall(let applicationCall):
-            if let delegate = delegate {
-                delegate.inboundCallEstablished(applicationCall, event: callEstablishedEvent)
-            } else if let callController = MobileMessaging.webRTCService?.getInboundCallController(
-                incoming: applicationCall, establishedEvent: callEstablishedEvent) {
-                PIPKit.show(with: callController)
-            }
-        case .webRTCCall(let webRTCCall):
-            if let delegate = delegate {
-                delegate.inboundWebRTCCallEstablished(webRTCCall, event: callEstablishedEvent)
-            } else if let callController = MobileMessaging.webRTCService?.getInboundCallController(
-                incoming: webRTCCall, establishedEvent: callEstablishedEvent) {
-                PIPKit.show(with: callController)
-            }
-        default: return
         }
-        notificationData?.activeCall = nil
     }
     
     @objc public func onHangup(_ : CallHangupEvent) {

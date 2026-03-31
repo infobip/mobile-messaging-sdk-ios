@@ -41,7 +41,7 @@ internal protocol CIImageProcessor: ImageProcessor {
 }
 
 extension CIImageProcessor {
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.apply(filter)
@@ -61,7 +61,7 @@ internal struct Filter {
     }
     
     /// Tint filter which will apply a tint color to images.
-    internal static var tint: (Color) -> Filter = {
+    internal static var tint: (UIColor) -> Filter = {
         color in
         Filter(transform: { input in
             let colorFilter = CIFilter(name: "CIConstantColorGenerator")!
@@ -77,7 +77,7 @@ internal struct Filter {
     
     internal typealias ColorElement = (CGFloat, CGFloat, CGFloat, CGFloat)
     
-    /// Color control filter which will apply color control change to images.
+    /// UIColor control filter which will apply color control change to images.
     internal static var colorControl: (ColorElement) -> Filter = { arg -> Filter in
         let (brightness, contrast, saturation, inputEV) = arg
         return Filter(transform: { input in
@@ -100,7 +100,7 @@ extension Filter {
     }
 }
 
-extension Kingfisher where Base: Image {
+extension Kingfisher where Base: UIImage {
     /// Apply a `Filter` containing `CIImage` transformer to `self`.
     ///
     /// - parameter filter: The filter used to transform `self`.
@@ -108,7 +108,7 @@ extension Kingfisher where Base: Image {
     /// - returns: A transformed image by input `Filter`.
     ///
     /// - Note: Only CG-based images are supported. If any error happens during transforming, `self` will be returned.
-    internal func apply(_ filter: Filter) -> Image {
+    internal func apply(_ filter: Filter) -> UIImage {
         
         guard let cgImage = cgImage else {
             assertionFailure("[Kingfisher] Tint image only works for CG-based image.")
@@ -128,7 +128,7 @@ extension Kingfisher where Base: Image {
         #if os(macOS)
             return fixedForRetinaPixel(cgImage: result, to: size)
         #else
-            return Image(cgImage: result, scale: base.scale, orientation: base.imageOrientation)
+            return UIImage(cgImage: result, scale: base.scale, orientation: base.imageOrientation)
         #endif
     }
 

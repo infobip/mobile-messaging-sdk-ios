@@ -1,4 +1,4 @@
-// 
+//
 //  MMCallController.swift
 //  MobileMessaging
 //
@@ -7,14 +7,17 @@
 //
 
 import UIKit
+import SwiftUI
 import AVFoundation
 
 #if WEBRTCUI_ENABLED
+import InfobipRTC
+import InfobipMobileUI
 
-private let topConstraintConstant: CGFloat = 48
+// MARK: - Public button action API (unchanged)
 
 public enum MMCallButtonsAction: Equatable {
-    
+
     public static func == (lhs: MMCallButtonsAction, rhs: MMCallButtonsAction) -> Bool {
         switch (lhs, rhs) {
         case (.hangup, .hangup): return true
@@ -27,7 +30,7 @@ public enum MMCallButtonsAction: Equatable {
         default: return false
         }
     }
-    
+
     case hangup
     case screenshare((() -> Void)? = nil)
     case microphone((() -> Void)? = nil)
@@ -44,7 +47,7 @@ public struct MMCallButtonModel {
     public var selectedColor: UIColor?
     public var text: String?
     public var action: (UIButton) -> Void
-    
+
     public init(
         icon: UIImage?,
         iconSelected: UIImage? = nil,
@@ -60,89 +63,54 @@ public struct MMCallButtonModel {
         self.text = text
         self.action = action
     }
-    
-    internal func makeVisibleButtonModel() -> VisibleCallButtonContent {
-        return .init(
-            icon: icon,
-            iconSelected: iconSelected,
-            backgroundColor: color,
-            selectedBackgroundColor: selectedColor,
-            action: action
-        )
-    }
-    
-    internal func makeListOptionButtonModel() -> HiddenCallButtonContent {
-        return .init(icon: icon, iconSelected: iconSelected, text: text ?? "", action: action)
-    }
 }
 
-public class MMCallController: UIViewController, MMPIPUsable {
-    
-    struct Constants {
-        static let pipRegularSize: CGSize = CGSize(width: 200, height: 300)
-        static let visibleButtonsMaxCount = 4
-    }
-    
-    let callView = CallView()
-    let interactor = CallInteractor()
-    
-    public var isInitiatedWithPIP: Bool = false
+// MARK: - MMCallController
 
+public class MMCallController: UIViewController, IBPIPUsable {
+
+    // MARK: - Public (IBPIPUsable)
+
+    public var isInitiatedWithPIP: Bool = false
+    public var initialState: IBPIPState = .full
+
+    public var pipSize: CGSize {
+        callViewController?.pipSize ?? CGSize(width: 290, height: 180)
+    }
+
+    public override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+
+    // MARK: - Internal
+
+    let interactor = CallInteractor()
     lazy var eventListener = CallControllerEventListenerImpl(controller: self)
     lazy var callEventListener = MMCallEventListener(controller: eventListener)
-    
-    public var pipSize: CGSize {
-        if callView.state.callState == .audioCall || callView.state.callState == .calling {
-            return CGSize(width: self.callView.visibleButtonsView.contentStack.frame.width + 40, height: 180)
-        }
-        return Constants.pipRegularSize
-    }
-    public var initialState: PIPState = .full
-    
-    public override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
-    }
-    
-    var screenshareButtonContent: CallViewButtonContent?
-    var micButtonContent: CallViewButtonContent? {
-        didSet {
-            DispatchQueue.global().async { // bckgr thread as we don't want to bloc UI presentation
-                CallInteractor.checkMicPermission(completion: { [weak self] granted in
-                    DispatchQueue.mmEnsureMain {
-                        self?.micButtonContent?.button?.isEnabled = granted
-                        if !granted {
-                            self?.showErrorAlert(message: MMLoc.microphonePermissionPermanentlyDenied)
-                        }
-                    }
-                })
-            }
-        }
-    }
 
-    lazy var topConstraint: NSLayoutConstraint = callView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
-    
-    private var defaultButtons: [MMCallButtonsAction] {
+    var uiState = IBCallUIState()
+    private var buttons: [IBCallButtonModel] = []
+    private var callViewController: IBCallViewController?
+    private var callDurationTimer: Timer?
+
+    private var defaultActions: [MMCallButtonsAction] {
         if MMWebRTCSettings.sharedInstance.customButtons.isEmpty {
             return [.hangup, .microphone(), .screenshare(), .video(), .speakerphone()]
         }
         return MMWebRTCSettings.sharedInstance.customButtons
     }
-    
+
+    // MARK: - Lifecycle
+
     public override func viewDidLoad() {
         super.viewDidLoad()
-        setupView()
-        
-        setupWithButtons(defaultButtons)
-        setupViewActions()
-
         view.backgroundColor = MMWebRTCSettings.sharedInstance.backgroundColor
-        
+        setupButtons(from: defaultActions)
+        embedCallViewController()
         interactor.showErrorAlert = { [weak self] message in
             self?.showErrorAlert(message: message)
         }
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(self.appMovedToForeground),
+            selector: #selector(appMovedToForeground),
             name: UIApplication.willEnterForegroundNotification,
             object: nil)
     }
@@ -151,20 +119,11 @@ public class MMCallController: UIViewController, MMPIPUsable {
         NotificationCenter.default.removeObserver(self)
     }
 
-    @objc func appMovedToForeground() {
-        // Update system based on custom UI
-        interactor.muteOnSystem()
-        // Update custom UI based on system, as call modifications work both ways
-        handleMutePopover(with: false)
-        micButtonContent?.button?.isSelected = interactor.currentCall?.isMuted ?? false
-    }
-
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        callView.voiceCallView.collapseButton.isHidden = PIPKit.state == .none
-        callView.mediaView.header.collapseButton.isHidden = PIPKit.state == .none
+        uiState.isPIP = IBPIPKit.isActive && IBPIPKit.isPIP
     }
-    
+
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if #available(iOS 16.0, *) {
@@ -174,313 +133,343 @@ public class MMCallController: UIViewController, MMPIPUsable {
             UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
         }
     }
-    
-    func setupView() {
-        callView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(callView)
-        NSLayoutConstraint.activate([
-            callView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            callView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            callView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            topConstraint
-        ])
-    }
-    
-    func setupWithButtons(_ actions: [MMCallButtonsAction]) {
-        var actions = actions
-        if actions.first != .hangup {
-            if let index = actions.firstIndex(where: { $0 == .hangup }) {
-                actions.remove(at: index)
-            }
-            actions.insert(.hangup, at: 0)
+
+    // MARK: - Setup
+
+    private func embedCallViewController() {
+        let s = MMWebRTCSettings.sharedInstance
+        let config = IBCallUIConfiguration(
+            backgroundColor: Color(s.backgroundColor),
+            foregroundColor: Color(s.foregroundColor),
+            textSecondaryColor: Color(s.textSecondaryColor),
+            sheetBackgroundColor: Color(s.sheetBackgroundColor),
+            sheetDividerColor: Color(s.sheetDividerColor),
+            sheetDragIndicatorColor: Color(s.sheetDragIndicatorColor),
+            buttonColor: Color(s.buttonColor),
+            buttonSelectedColor: Color(s.buttonColorSelected),
+            hangupButtonColor: Color(s.hangUpButtonColor),
+            errorColor: Color(s.errorColor),
+            rowActionLabelColor: Color(s.rowActionLabelColor),
+            iconMute: Image(uiImage: s.iconMute ?? UIImage()),
+            iconUnMute: Image(uiImage: s.iconUnMute ?? UIImage()),
+            iconMutedParticipant: Image(uiImage: s.iconMutedParticipant ?? UIImage()),
+            iconScreenShareOn: Image(uiImage: s.iconScreenShareOn ?? UIImage()),
+            iconScreenShareOff: Image(uiImage: s.iconScreenShareOff ?? UIImage()),
+            iconAvatar: Image(uiImage: s.iconAvatar ?? UIImage()),
+            iconVideo: Image(uiImage: s.iconVideo ?? UIImage()),
+            iconVideoOff: Image(uiImage: s.iconVideoOff ?? UIImage()),
+            iconSpeaker: Image(uiImage: s.iconSpeaker ?? UIImage()),
+            iconSpeakerOff: Image(uiImage: s.iconSpeakerOff ?? UIImage()),
+            iconFlipCamera: Image(uiImage: s.iconFlipCamera ?? UIImage()),
+            iconEndCall: Image(uiImage: s.iconEndCall ?? UIImage()),
+            iconExpand: Image(uiImage: s.iconExpand ?? UIImage()),
+            iconCollapse: Image(uiImage: s.iconCollapse ?? UIImage()),
+            iconAlert: Image(uiImage: s.iconAlert ?? UIImage()),
+            iconLandscapeOn: Image(uiImage: s.landscapeOnIcon ?? UIImage()),
+            iconLandscapeOff: Image(uiImage: s.landscapeOffIcon ?? UIImage())
+        )
+
+        let rendererFactory: (AnyObject) -> UIView = { track in
+            let view = InfobipRTCFactory.videoView(frame: .zero, contentMode: .scaleAspectFill)
+            (track as? VideoTrack)?.addRenderer(view)
+            return view
         }
 
-        let visibleButtons: [VisibleCallButtonContent] = actions.enumerated().compactMap { (index, action) in
-            if index < Constants.visibleButtonsMaxCount {
-                let button = self.buildButton(for: action)
-                let model = button.makeVisibleButtonModel()
-                switch action {
-                case .microphone(_):
-                    self.micButtonContent = model
-                case .screenshare:
-                    self.screenshareButtonContent = model
-                default:
-                    break
+        let vc = IBCallViewController(
+            state: uiState,
+            buttons: buttons,
+            configuration: config,
+            rendererFactory: rendererFactory
+        )
+        vc.initialState = .full
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+
+        addChild(vc)
+        view.addSubview(vc.view)
+        NSLayoutConstraint.activate([
+            vc.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            vc.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            vc.view.topAnchor.constraint(equalTo: view.topAnchor),
+            vc.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        vc.didMove(toParent: self)
+        callViewController = vc
+    }
+
+    // MARK: - Button building
+
+    private func setupButtons(from actions: [MMCallButtonsAction]) {
+        var actions = actions
+        if actions.first != .hangup {
+            actions.removeAll { $0 == .hangup }
+            actions.insert(.hangup, at: 0)
+        }
+        buttons = actions.enumerated().map { ( _, action) in
+            return buildButton(for: action)
+        }
+    }
+
+    func buildButton(for action: MMCallButtonsAction) -> IBCallButtonModel {
+        let s = MMWebRTCSettings.sharedInstance
+        switch action {
+        case .hangup:
+            return IBCallButtonModel(
+                id: "hangup",
+                icon: Image(uiImage: s.iconEndCall ?? UIImage()),
+                backgroundColor: Color(s.hangUpButtonColor),
+                isSelected: false,
+                isEnabled: true,
+                onTap: { [weak self] in self?.hangup() }
+            )
+        case .screenshare(let completion):
+            return IBCallButtonModel(
+                id: "screenshare",
+                icon: Image(uiImage: s.iconScreenShareOn ?? UIImage()),
+                selectedIcon: Image(uiImage: s.iconScreenShareOff ?? UIImage()),
+                label: MMLoc.screenShare,
+                backgroundColor: Color(s.buttonColor),
+                selectedBackgroundColor: Color(s.buttonColorSelected),
+                isSelected: false,
+                isEnabled: true,
+                onTap: { [weak self] in
+                    guard let self else { return }
+                    if let isSharing = self.interactor.screenShareToggle() {
+                        self.setButton(id: "screenshare", selected: !isSharing)
+                    }
+                    completion?()
                 }
-                return model
-            }
-            return nil
-        }
-        
-        let hiddenButtons: [HiddenCallButtonContent] = actions.enumerated().compactMap { (index, action) in
-            if index >= Constants.visibleButtonsMaxCount {
-                let button = self.buildButton(for: action)
-                let model = button.makeListOptionButtonModel()
-                if case .screenshare = action {
-                    self.screenshareButtonContent = model
+            )
+        case .microphone(let completion):
+            return IBCallButtonModel(
+                id: "microphone",
+                icon: Image(uiImage: s.iconMute ?? UIImage()),
+                selectedIcon: Image(uiImage: s.iconUnMute ?? UIImage()),
+                label: "Microphone",
+                backgroundColor: Color(s.buttonColorSelected),
+                selectedBackgroundColor: Color(s.buttonColor),
+                isSelected: false,
+                isEnabled: true,
+                onTap: { [weak self] in
+                    CallInteractor.checkMicPermission { granted in
+                        self?.interactor.micToggle { isMuted, permitted in
+                            DispatchQueue.mmEnsureMain {
+                                self?.setButton(id: "microphone", selected: isMuted, enabled: permitted)
+                                self?.handleMutePopover()
+                            }
+                        }
+                    }
+                    completion?()
                 }
-                return model
+            )
+        case .video(let completion):
+            return IBCallButtonModel(
+                id: "video",
+                icon: Image(uiImage: s.iconVideoOff ?? UIImage()),
+                selectedIcon: Image(uiImage: s.iconVideo ?? UIImage()),
+                label: "Video",
+                backgroundColor: Color(s.buttonColor),
+                selectedBackgroundColor: Color(s.buttonColorSelected),
+                isSelected: false,
+                isEnabled: true,
+                onTap: { [weak self] in
+                    guard let self else { return }
+                    self.interactor.videoToggle { [weak self] isActive, permitted in
+                        guard let self else { return }
+                        DispatchQueue.main.async {
+                            self.setButton(id: "video", selected: isActive, enabled: permitted)
+                            if !permitted {
+                                self.showErrorAlert(message: MMLoc.cameraPermissionPermanentlyDenied)
+                            }
+                            // Add/remove flip-camera button dynamically
+                            let flipModel = IBCallButtonModel(
+                                id: "flipCamera",
+                                icon: Image(uiImage: s.iconFlipCamera ?? UIImage()),
+                                label: MMLoc.flipCamera,
+                                backgroundColor: Color(s.buttonColor),
+                                selectedBackgroundColor: Color(s.buttonColorSelected),
+                                isSelected: false,
+                                isEnabled: true,
+                                onTap: { [weak self] in self?.interactor.flipCamera() }
+                            )
+                            if isActive {
+                                if !self.buttons.contains(where: { $0.id == "flipCamera" }) {
+                                    self.buttons.append(flipModel)
+                                }
+                            } else {
+                                self.buttons.removeAll { $0.id == "flipCamera" }
+                            }
+                            self.callViewController?.updateButtons(self.buttons)
+                        }
+                    }
+                    completion?()
+                }
+            )
+        case .flipCamera(let completion):
+            return IBCallButtonModel(
+                id: "flipCamera",
+                icon: Image(uiImage: s.iconFlipCamera ?? UIImage()),
+                label: MMLoc.flipCamera,
+                backgroundColor: Color(s.buttonColor),
+                selectedBackgroundColor: Color(s.buttonColorSelected),
+                isSelected: false,
+                isEnabled: true,
+                onTap: { [weak self] in
+                    self?.interactor.flipCamera()
+                    completion?()
+                }
+            )
+        case .speakerphone(let completion):
+            return IBCallButtonModel(
+                id: "speakerphone",
+                icon: Image(uiImage: s.iconSpeakerOff ?? UIImage()),
+                selectedIcon: Image(uiImage: s.iconSpeaker ?? UIImage()),
+                label: MMLoc.speaker,
+                backgroundColor: Color(s.buttonColor),
+                selectedBackgroundColor: Color(s.buttonColorSelected),
+                isSelected: false,
+                isEnabled: true,
+                onTap: { [weak self] in
+                    self?.interactor.toggleSpeakerphone { result in
+                        guard let result, let self = self else { return }
+                        self.setButton(id: "speakerphone", selected: result)
+                    }
+                    completion?()
+                }
+            )
+        case .custom(let mm):
+            return IBCallButtonModel(
+                id: "custom-\(UUID().uuidString)",
+                icon: Image(uiImage: mm.icon ?? UIImage()),
+                selectedIcon: mm.iconSelected.map { Image(uiImage: $0) },
+                label: mm.text,
+                backgroundColor: Color(mm.color),
+                selectedBackgroundColor: mm.selectedColor.map(Color.init),
+                isSelected: false,
+                isEnabled: true,
+                onTap: { mm.action(UIButton()) }
+            )
+        }
+    }
+
+    // MARK: - Button state helpers
+
+    func setButton(id: String, selected: Bool, enabled: Bool = true) {
+        guard let idx = buttons.firstIndex(where: { $0.id == id }) else { return }
+        buttons[idx].isSelected = selected
+        buttons[idx].isEnabled = enabled
+        callViewController?.updateButtons(buttons)
+    }
+
+    // MARK: - Timer
+
+    func startCallTimer() {
+        guard callDurationTimer == nil else { return }
+        uiState.statusText = interactor.getFormattedCallDuration()
+        callDurationTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.uiState.statusText = self.interactor.getFormattedCallDuration()
             }
-            return nil
-        }
-        
-        callView.hiddenButtonsView.setCell(with: hiddenButtons)
-        callView.visibleButtonsView.setButtons(content: visibleButtons)
-    }
-    
-    func setupViewActions() {
-        callView.rootSheetView.setState(.mediumContent)
-        
-        callView.onPipTap = { [weak self] in
-            self?.onPIPTap()
-        }
-        
-        callView.onTimerRefresh = { [weak self] in
-            return self?.interactor.getFormattedCallDuration() ?? "00:00"
-        }
-        
-        callView.mediaView.onStopScreenshareTap = { [weak self] in
-            if let result = self?.interactor.screenShareToggle(),
-               let button = self?.screenshareButtonContent?.button {
-                button.isSelected = !result
-            }
-        }
-        
-        callView.mediaView.onRemoteScreenshareTap = { [weak self] in
-            if PIPKit.isPIP { return }
-            self?.callView.mediaView.addScreenshareOverlay()
         }
     }
-    
-    func showErrorAlert(message: String?) {
-        guard let message = message else { return }
-        MMPopOverBar.show(
-            textColor: MMWebRTCSettings.sharedInstance.foregroundColor,
-            backgroundColor: MMWebRTCSettings.sharedInstance.backgroundColor,
-            icon:  MMWebRTCSettings.sharedInstance.iconAlert,
-            iconTint: MMWebRTCSettings.sharedInstance.foregroundColor,
-            message: message,
-            duration: 3,
-            options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
-                                          isStretchable: true),
-            completion: nil,
-            presenterVC: self.parent ?? self)
+
+    func stopCallTimer() {
+        callDurationTimer?.invalidate()
+        callDurationTimer = nil
     }
-    
+
+    // MARK: - Actions
+
     func hangup() {
+        stopCallTimer()
         interactor.hangup()
         interactor.playDisconnectCall()
-        callView.callDurationTimer = nil
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             guard let self else { return }
             if self.isInitiatedWithPIP {
-                PIPKit.dismiss(animated: true)
+                IBPIPKit.dismiss(animated: true)
             } else {
                 self.dismiss(animated: true)
             }
         }
         interactor.reconnectingPlayer.cleanPlayer()
     }
-    
-    func onPIPTap() {
-        if PIPKit.isPIP {
-            stopPIPMode()
-            handleMutePopover(with: false)
+
+    @MainActor
+    func didStartReconnecting(_ value: Bool) {
+        if value {
+            self.uiState.callPhase = .reconnecting
+            self.interactor.reconnectingPlayer.startReconnecting()
         } else {
-            startPIPMode()
-            handleMutePopover(with: false)
+            self.uiState.callPhase = .established
+            self.interactor.reconnectingPlayer.reconnected()
+            self.handleMutePopover()
         }
     }
-    
-    internal func handleMutePopover(with animation: Bool = true) {
+
+    func handleMutePopover(with animation: Bool = true) {
         guard let currentCall = interactor.currentCall else { return }
-        if currentCall.isMuted && !PIPKit.isPIP {
-            
-            UIView.animate(withDuration: animation ? 0.2 : 0, animations: { [weak self] in
-                self?.topConstraint.constant = topConstraintConstant
-                self?.view.layoutIfNeeded()
-            })
-            
+        let isMuted = currentCall.isMuted
+        if isMuted && !IBPIPKit.isPIP {
             let settings = MMWebRTCSettings.sharedInstance
             MMPopOverBar.show(
                 textColor: settings.foregroundColor,
                 backgroundColor: settings.errorColor,
-                icon: MMWebRTCSettings.sharedInstance.iconAlert,
+                icon: settings.iconAlert,
                 iconTint: settings.foregroundColor,
                 message: MMLoc.microphoneMuted,
                 duration: 9999,
-                hideOnTap: false, // Don't use double(Int.max) because it overflows TimeInterval
-                options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
-                                              isStretchable: true),
+                hideOnTap: false,
+                options: MMPopOverBar.Options(shouldConsiderSafeArea: false, isStretchable: true),
                 completion: nil,
-                presenterVC: self.parent ?? self)
+                presenterVC: self)
         } else {
-            UIView.animate(withDuration: animation ? 0.2 : 0, animations: { [weak self] in
-                self?.topConstraint.constant = 0
-                self?.view.layoutIfNeeded()
-            })
             MMPopOverBar.hide(with: animation)
         }
     }
-    
-    func didStartReconnecting(_ value: Bool) {
-        MMPopOverBar.hide()
-        if value {
-            UIView.animate(withDuration: 0.2, animations: { [weak self] in
-                self?.topConstraint.constant = topConstraintConstant
-                self?.view.layoutIfNeeded()
-            })
 
-            let settings = MMWebRTCSettings.sharedInstance
-            MMPopOverBar.show(
-                textColor: settings.foregroundColor,
-                backgroundColor: settings.backgroundColor,
-                icon: MMWebRTCSettings.sharedInstance.iconAlert,
-                iconTint: settings.foregroundColor,
-                message: MMLoc.connectionProblems,
-                duration: 9999, // Don't use double(Int.max) because it overflows TimeInterval
-                options: MMPopOverBar.Options(shouldConsiderSafeArea: true,
-                                              isStretchable: true),
-                completion: nil,
-                presenterVC: self.parent ?? self)
-            interactor.reconnectingPlayer.startReconnecting()
-        } else {
-            UIView.animate(withDuration: 0.2, animations: { [weak self] in
-                self?.topConstraint.constant = 0
-                self?.view.layoutIfNeeded()
-            })
-            interactor.reconnectingPlayer.reconnected()
-            MMPopOverBar.hide(with: true)
-            handleMutePopover()
-        }
-    }
-    
-    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        if PIPKit.isPIP {
-            self.view.center = UIApplication.mmCenter
-            self.setNeedsUpdatePIPFrame()
-        }
+    func showErrorAlert(message: String?) {
+        guard let message else { return }
+        MMPopOverBar.show(
+            textColor: MMWebRTCSettings.sharedInstance.foregroundColor,
+            backgroundColor: MMWebRTCSettings.sharedInstance.backgroundColor,
+            icon: MMWebRTCSettings.sharedInstance.iconAlert,
+            iconTint: MMWebRTCSettings.sharedInstance.foregroundColor,
+            message: message,
+            duration: 3,
+            options: MMPopOverBar.Options(shouldConsiderSafeArea: false, isStretchable: true),
+            completion: nil,
+            presenterVC: self)
     }
 
-    public func didChangedState(_ state: PIPState) {
-        hideKeyboardIfPresented() // for a better UX
+    // MARK: - IBPIPUsable callbacks
+
+    public func didChangedState(_ state: IBPIPState) {
+        uiState.isPIP = (state == .pip)
         if state == .full {
-            callView.resetMovingContainerCoord()
-        }
-    }
-}
-
-extension MMCallController {
-    func buildButton(for action: MMCallButtonsAction) -> MMCallButtonModel {
-        switch action {
-        case .hangup:
-            return MMCallButtonModel(
-                icon: MMWebRTCSettings.sharedInstance.iconEndCall,
-                color: MMWebRTCSettings.sharedInstance.hangUpButtonColor,
-                action: { [weak self] _ in
-                    self?.hangup()
-                }
-            )
-        case .screenshare(let completion):
-            return MMCallButtonModel(
-                icon: MMWebRTCSettings.sharedInstance.iconScreenShareOn,
-                iconSelected: MMWebRTCSettings.sharedInstance.iconScreenShareOff,
-                color: MMWebRTCSettings.sharedInstance.buttonColor,
-                selectedColor: MMWebRTCSettings.sharedInstance.buttonColorSelected,
-                text: "Screensharing",
-                action: { [weak self] button in
-                    let toggleResult = self?.interactor.screenShareToggle()
-                    if let toggleResult = toggleResult {
-                        button.isSelected = !toggleResult
-                        if !toggleResult {
-                            self?.hideKeyboardIfPresented()
-                        }
-                    }
-                    completion?()
-                }
-            )
-        case .microphone(let completion):
-            return MMCallButtonModel(
-                icon: MMWebRTCSettings.sharedInstance.iconMute,
-                iconSelected: MMWebRTCSettings.sharedInstance.iconUnMute,
-                color: MMWebRTCSettings.sharedInstance.buttonColorSelected,
-                selectedColor: MMWebRTCSettings.sharedInstance.buttonColor,
-                text: "Microphone",
-                action: { [weak self] button in
-                    self?.interactor.micToggle(completion: { toggleResult, permitted in
-                        button.isSelected = toggleResult
-                        button.isEnabled = permitted
-                        self?.handleMutePopover()
-                    })
-                    completion?()
-                }
-            )
-        case .video(let completion):
-            return MMCallButtonModel(
-                icon: MMWebRTCSettings.sharedInstance.iconVideoOff,
-                iconSelected: MMWebRTCSettings.sharedInstance.iconVideo,
-                color: MMWebRTCSettings.sharedInstance.buttonColor,
-                selectedColor: MMWebRTCSettings.sharedInstance.buttonColorSelected,
-                text: "Video",
-                action: { [weak self] button in
-                    self?.interactor.videoToggle(completion: { toggleResult, permitted in
-                        DispatchQueue.main.async {
-                            button.isSelected = toggleResult
-                            button.isEnabled = permitted
-                            if !permitted {
-                                self?.showErrorAlert(message: MMLoc.cameraPermissionPermanentlyDenied)
-                            }
-                            let cell = HiddenCallButtonContent(
-                                icon: MMWebRTCSettings.sharedInstance.iconFlipCamera,
-                                text: MMLoc.flipCamera,
-                                action: { [weak self] _ in
-                                    self?.interactor.flipCamera()
-                                })
-                            if toggleResult {
-                                self?.callView.hiddenButtonsView.addCell(with: cell)
-                            } else {
-                                self?.callView.hiddenButtonsView.removeCell(with: cell)
-                            }
-                        }
-                    })
-                    completion?()
-                }
-            )
-        case .flipCamera(let completion):
-            return MMCallButtonModel(
-                icon: MMWebRTCSettings.sharedInstance.iconFlipCamera,
-                iconSelected: nil,
-                color: MMWebRTCSettings.sharedInstance.buttonColor,
-                selectedColor: MMWebRTCSettings.sharedInstance.buttonColorSelected,
-                text: "Camera Flip",
-                action: { [weak self] button in
-                    self?.interactor.flipCamera()
-                    completion?()
-                }
-            )
-        case .speakerphone(let completion):
-            return MMCallButtonModel(
-                icon: MMWebRTCSettings.sharedInstance.iconSpeakerOff,
-                iconSelected: MMWebRTCSettings.sharedInstance.iconSpeaker,
-                color: MMWebRTCSettings.sharedInstance.buttonColor,
-                selectedColor: MMWebRTCSettings.sharedInstance.buttonColorSelected,
-                text: "Speakerphone",
-                action: { [weak self] button in
-                    self?.interactor.toggleSpeakerphone(completion: { result in
-                        guard let result = result else { return }
-                        button.isSelected = result
-                    })
-                    completion?()
-                }
-            )
-        case .custom(let callButtonModel):
-            return callButtonModel
+            MobileMessaging.application.visibleViewController?.view.endEditing(true)
         }
     }
 
-    private func hideKeyboardIfPresented() {
-        MobileMessaging.application.visibleViewController?.view.endEditing(true)
+    // MARK: - Foreground observation
+
+    @objc private func appMovedToForeground() {
+        interactor.muteOnSystem()
+        handleMutePopover(with: false)
+        // Sync microphone button state
+        let isMuted = interactor.currentCall?.isMuted ?? false
+        setButton(id: "microphone", selected: isMuted)
+    }
+
+    // MARK: - Orientation
+
+    public override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        if #available(iOS 16.0, *) { return .all } else { return .portrait }
+    }
+
+    public override var shouldAutorotate: Bool {
+        if #available(iOS 16.0, *) { return true } else { return false }
     }
 }
+
 #endif

@@ -1,5 +1,5 @@
 //
-//  ImageView+Kingfisher.swift
+//  UIImageView+Kingfisher.swift
 //  Kingfisher
 //
 //  Created by Wei Wang on 15/4/6.
@@ -35,7 +35,7 @@ import UIKit
 /**
  *    Set image to use from web.
  */
-extension Kingfisher where Base: ImageView {
+extension Kingfisher where Base: UIImageView {
     /**
      Set an image with a resource, a placeholder image, options, progress handler and completion handler.
      
@@ -159,7 +159,7 @@ private var indicatorTypeKey: Void?
 private var placeholderKey: Void?
 private var imageTaskKey: Void?
 
-extension Kingfisher where Base: ImageView {
+extension Kingfisher where Base: UIImageView {
     /// Get the image URL binded to this image view.
     internal var webURL: URL? {
         return objc_getAssociatedObject(base, &lastURLKey) as? URL
@@ -258,6 +258,6 @@ extension Kingfisher where Base: ImageView {
 }
 
 
-@objc extension ImageView {
+@objc extension UIImageView {
     func shouldPreloadAllAnimation() -> Bool { return true }
 }

@@ -31,7 +31,7 @@ import UIKit
 #endif
 
 internal typealias DownloadProgressBlock = ((_ receivedSize: Int64, _ totalSize: Int64) -> Void)
-internal typealias CompletionHandler = ((_ image: Image?, _ error: NSError?, _ cacheType: CacheType, _ imageURL: URL?) -> Void)
+internal typealias CompletionHandler = ((_ image: UIImage?, _ error: NSError?, _ cacheType: CacheType, _ imageURL: URL?) -> Void)
 
 /// RetrieveImageTask represents a task of image retrieving process.
 /// It contains an async task of getting image from disk and from network.

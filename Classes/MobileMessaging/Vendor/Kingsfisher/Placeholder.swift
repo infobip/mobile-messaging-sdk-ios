@@ -36,34 +36,34 @@
 internal protocol Placeholder {
     
     /// How the placeholder should be added to a given image view.
-    func add(to imageView: ImageView)
+    func add(to imageView: UIImageView)
     
     /// How the placeholder should be removed from a given image view.
-    func remove(from imageView: ImageView)
+    func remove(from imageView: UIImageView)
 }
 
 /// Default implementation of an image placeholder. The image will be set or 
 /// reset directly for `image` property of the image view.
-extension Placeholder where Self: Image {
+extension Placeholder where Self: UIImage {
     
     /// How the placeholder should be added to a given image view.
-    internal func add(to imageView: ImageView) { imageView.image = self }
+    internal func add(to imageView: UIImageView) { imageView.image = self }
     
     /// How the placeholder should be removed from a given image view.
-    internal func remove(from imageView: ImageView) { imageView.image = nil }
+    internal func remove(from imageView: UIImageView) { imageView.image = nil }
 }
 
-extension Image: Placeholder {}
+extension UIImage: Placeholder {}
 
 /// Default implementation of an arbitrary view as placeholder. The view will be 
 /// added as a subview when adding and be removed from its super view when removing.
 ///
-/// To use your customize View type as placeholder, simply let it conforming to 
+/// To use your customize UIView type as placeholder, simply let it conforming to 
 /// `Placeholder` by `extension MyView: Placeholder {}`.
-extension Placeholder where Self: View {
+extension Placeholder where Self: UIView {
     
     /// How the placeholder should be added to a given image view.
-    internal func add(to imageView: ImageView) {
+    internal func add(to imageView: UIImageView) {
         imageView.addSubview(self)
 
         self.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +76,7 @@ extension Placeholder where Self: View {
     }
 
     /// How the placeholder should be removed from a given image view.
-    internal func remove(from imageView: ImageView) {
+    internal func remove(from imageView: UIImageView) {
         self.removeFromSuperview()
     }
 }

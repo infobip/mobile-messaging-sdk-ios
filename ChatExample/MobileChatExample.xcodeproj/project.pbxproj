@@ -10,12 +10,11 @@
 		2524F0A52D8041D700164574 /* LiveChatAPIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2524F0A42D8041CE00164574 /* LiveChatAPIView.swift */; };
 		2594A97E2AC6F82C00A5F1C0 /* SwiftUIChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2594A97D2AC6F82C00A5F1C0 /* SwiftUIChatView.swift */; };
 		2594A9802AC6F85900A5F1C0 /* ExternalChatInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2594A97F2AC6F85900A5F1C0 /* ExternalChatInputViewController.swift */; };
-		47E3E0C591EF18158C4CD559 /* Pods_MobileMessagingNotificationExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A45DEA1EABCFEC4E6C7E1FEB /* Pods_MobileMessagingNotificationExtension.framework */; };
+		5B44BC81BBE0FD074BCA220A /* Pods_MobileChatExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 505B8FD67F1D16CC5FA21D8B /* Pods_MobileChatExample.framework */; };
 		765259EA1FB5A99100058788 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 765259E91FB5A99100058788 /* AppDelegate.swift */; };
 		765259EF1FB5A99100058788 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259ED1FB5A99100058788 /* Main.storyboard */; };
 		765259F11FB5A99100058788 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 765259F01FB5A99100058788 /* Assets.xcassets */; };
 		765259F41FB5A99100058788 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 765259F21FB5A99100058788 /* LaunchScreen.storyboard */; };
-		A456E90671CACBA547C6568C /* Pods_MobileChatExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A620DF76D4327F5C0B7570C4 /* Pods_MobileChatExample.framework */; };
 		A80C76832BBBF37C006D8CF8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A80C76822BBBF37C006D8CF8 /* PrivacyInfo.xcprivacy */; };
 		A8164EF42D91A198002D5DFA /* BadgeCounterHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8164EF32D91A193002D5DFA /* BadgeCounterHandler.swift */; };
 		A8164EF52D91A1B6002D5DFA /* BadgeCounterHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8164EF32D91A193002D5DFA /* BadgeCounterHandler.swift */; };
@@ -32,6 +31,7 @@
 		A8E560A2299632D900011F0C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E560A1299632D900011F0C /* Constants.swift */; };
 		A8E632092CD12C9F0034CDA4 /* MobileMessagingNotificationServiceExtension.plist in Resources */ = {isa = PBXBuildFile; fileRef = A8E632072CD12C9F0034CDA4 /* MobileMessagingNotificationServiceExtension.plist */; };
 		A8E6320A2CD12C9F0034CDA4 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E632082CD12C9F0034CDA4 /* NotificationService.swift */; };
+		B0C1BDAA186FF283DD15743F /* Pods_MobileMessagingNotificationExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA4BB108F524BCF336F1F4E1 /* Pods_MobileMessagingNotificationExtension.framework */; };
 		EA162A1EA3A9DF2342DA17E1 /* NotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FAE2972C7C0906DACFF25B82 /* NotificationServiceExtension.appex */; };
 /* End PBXBuildFile section */
 
@@ -60,11 +60,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		07EA4CDA85C9AA5582FA3A51 /* Pods-MobileChatExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.release.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.release.xcconfig"; sourceTree = "<group>"; };
 		2524F0A42D8041CE00164574 /* LiveChatAPIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveChatAPIView.swift; sourceTree = "<group>"; };
 		2594A97D2AC6F82C00A5F1C0 /* SwiftUIChatView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIChatView.swift; sourceTree = "<group>"; };
 		2594A97F2AC6F85900A5F1C0 /* ExternalChatInputViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExternalChatInputViewController.swift; sourceTree = "<group>"; };
 		3AF1D1420CBF3BB43000D17B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		460388F85788BF1015D76A4D /* Pods-MobileMessagingNotificationExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingNotificationExtension.release.xcconfig"; path = "Target Support Files/Pods-MobileMessagingNotificationExtension/Pods-MobileMessagingNotificationExtension.release.xcconfig"; sourceTree = "<group>"; };
+		505B8FD67F1D16CC5FA21D8B /* Pods_MobileChatExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileChatExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5F1304F6A75D9F8F357C36A7 /* Pods-MobileChatExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.debug.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.debug.xcconfig"; sourceTree = "<group>"; };
 		765259E61FB5A99100058788 /* MobileChatExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MobileChatExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		765259E91FB5A99100058788 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		765259EE1FB5A99100058788 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -72,10 +74,8 @@
 		765259F31FB5A99100058788 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		765259F51FB5A99100058788 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		765259FB1FB5AC3A00058788 /* MobileChatExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobileChatExample.entitlements; sourceTree = "<group>"; };
-		85C4EAED072E8799C34F185E /* Pods-MobileMessagingNotificationExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingNotificationExtension.release.xcconfig"; path = "Target Support Files/Pods-MobileMessagingNotificationExtension/Pods-MobileMessagingNotificationExtension.release.xcconfig"; sourceTree = "<group>"; };
+		93A8F1851924C42A49318A81 /* Pods-MobileChatExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.release.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.release.xcconfig"; sourceTree = "<group>"; };
 		A079185E28327CAC004309F5 /* MobileMessaging.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MobileMessaging.xcframework; path = Carthage/Build/MobileMessaging.xcframework; sourceTree = "<group>"; };
-		A45DEA1EABCFEC4E6C7E1FEB /* Pods_MobileMessagingNotificationExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingNotificationExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A620DF76D4327F5C0B7570C4 /* Pods_MobileChatExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileChatExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A80C76822BBBF37C006D8CF8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A8164EF32D91A193002D5DFA /* BadgeCounterHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeCounterHandler.swift; sourceTree = "<group>"; };
 		A835D6AF2982759E002FAB5B /* AuthenticatedChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedChatVC.swift; sourceTree = "<group>"; };
@@ -91,9 +91,9 @@
 		A8E560A1299632D900011F0C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		A8E632072CD12C9F0034CDA4 /* MobileMessagingNotificationServiceExtension.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = MobileMessagingNotificationServiceExtension.plist; sourceTree = "<group>"; };
 		A8E632082CD12C9F0034CDA4 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		BA4BB108F524BCF336F1F4E1 /* Pods_MobileMessagingNotificationExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileMessagingNotificationExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C74AEBDDF0485A263B55E33E /* Pods-MobileMessagingNotificationExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingNotificationExtension.debug.xcconfig"; path = "Target Support Files/Pods-MobileMessagingNotificationExtension/Pods-MobileMessagingNotificationExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		E51F26CD7613294E88707120 /* MobileMessagingNotificationExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = MobileMessagingNotificationExtension.entitlements; path = ./MobileMessagingNotificationExtension.entitlements; sourceTree = "<group>"; };
-		F8EE4B9B13E727861F01B073 /* Pods-MobileMessagingNotificationExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileMessagingNotificationExtension.debug.xcconfig"; path = "Target Support Files/Pods-MobileMessagingNotificationExtension/Pods-MobileMessagingNotificationExtension.debug.xcconfig"; sourceTree = "<group>"; };
-		F949632CED816BF31B2C8EBB /* Pods-MobileChatExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileChatExample.debug.xcconfig"; path = "Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample.debug.xcconfig"; sourceTree = "<group>"; };
 		FAE2972C7C0906DACFF25B82 /* NotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -102,7 +102,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A456E90671CACBA547C6568C /* Pods_MobileChatExample.framework in Frameworks */,
+				5B44BC81BBE0FD074BCA220A /* Pods_MobileChatExample.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -110,7 +110,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				47E3E0C591EF18158C4CD559 /* Pods_MobileMessagingNotificationExtension.framework in Frameworks */,
+				B0C1BDAA186FF283DD15743F /* Pods_MobileMessagingNotificationExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,8 +132,8 @@
 			children = (
 				A079185E28327CAC004309F5 /* MobileMessaging.xcframework */,
 				F2D890C9273A06C25A74B36B /* iOS */,
-				A620DF76D4327F5C0B7570C4 /* Pods_MobileChatExample.framework */,
-				A45DEA1EABCFEC4E6C7E1FEB /* Pods_MobileMessagingNotificationExtension.framework */,
+				505B8FD67F1D16CC5FA21D8B /* Pods_MobileChatExample.framework */,
+				BA4BB108F524BCF336F1F4E1 /* Pods_MobileMessagingNotificationExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -215,10 +215,10 @@
 		FD2361AB9353549CAFF2B3EF /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				F949632CED816BF31B2C8EBB /* Pods-MobileChatExample.debug.xcconfig */,
-				07EA4CDA85C9AA5582FA3A51 /* Pods-MobileChatExample.release.xcconfig */,
-				85C4EAED072E8799C34F185E /* Pods-MobileMessagingNotificationExtension.release.xcconfig */,
-				F8EE4B9B13E727861F01B073 /* Pods-MobileMessagingNotificationExtension.debug.xcconfig */,
+				5F1304F6A75D9F8F357C36A7 /* Pods-MobileChatExample.debug.xcconfig */,
+				93A8F1851924C42A49318A81 /* Pods-MobileChatExample.release.xcconfig */,
+				460388F85788BF1015D76A4D /* Pods-MobileMessagingNotificationExtension.release.xcconfig */,
+				C74AEBDDF0485A263B55E33E /* Pods-MobileMessagingNotificationExtension.debug.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -230,12 +230,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 765259F81FB5A99100058788 /* Build configuration list for PBXNativeTarget "MobileChatExample" */;
 			buildPhases = (
-				50FB46394E25B5DE42832DA3 /* [CP] Check Pods Manifest.lock */,
+				9342EE8C87F36AB9C40188F7 /* [CP] Check Pods Manifest.lock */,
 				765259E21FB5A99100058788 /* Sources */,
 				765259E31FB5A99100058788 /* Frameworks */,
 				765259E41FB5A99100058788 /* Resources */,
 				B1DBC909F8EAC262041DFE3D /* Embed App Extensions */,
-				F83FBF32412527BDFDD23602 /* [CP] Embed Pods Frameworks */,
+				0DA2D7C27F00CC85B4411DEC /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -251,7 +251,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 095B1481ACE16CB8B8E9E89B /* Build configuration list for PBXNativeTarget "MobileMessagingNotificationExtension" */;
 			buildPhases = (
-				646C3CA912EB1A5E3BA0EC5D /* [CP] Check Pods Manifest.lock */,
+				B5A0099F2829ACBD90FA4943 /* [CP] Check Pods Manifest.lock */,
 				6EE66008449CB6B73A039FF6 /* Sources */,
 				870EDA590444062C00B02D20 /* Frameworks */,
 				A77338E5FD528992DAF02324 /* Resources */,
@@ -345,7 +345,49 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		50FB46394E25B5DE42832DA3 /* [CP] Check Pods Manifest.lock */ = {
+		0DA2D7C27F00CC85B4411DEC /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework",
+				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
+				"${BUILT_PRODUCTS_DIR}/InfobipMobileUI/InfobipMobileUI.framework",
+				"${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework",
+				"${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework",
+				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
+				"${BUILT_PRODUCTS_DIR}/MobileMessaging/MobileMessaging.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework",
+				"${BUILT_PRODUCTS_DIR}/MobileMessagingNotificationExtension/MobileMessagingNotificationExtension.framework",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IBGoogleWebRTC/IBWebRTC.framework/IBWebRTC",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/InfobipRTC/InfobipRTC.framework/InfobipRTC",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cryptor.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorECC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorRSA.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/InfobipMobileUI.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KituraContracts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LoggerAPI.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessaging.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftJWT.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessagingNotificationExtension.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IBWebRTC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/InfobipRTC.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9342EE8C87F36AB9C40188F7 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -367,7 +409,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		646C3CA912EB1A5E3BA0EC5D /* [CP] Check Pods Manifest.lock */ = {
+		B5A0099F2829ACBD90FA4943 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -387,46 +429,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F83FBF32412527BDFDD23602 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BlueCryptor/Cryptor.framework",
-				"${BUILT_PRODUCTS_DIR}/BlueECC/CryptorECC.framework",
-				"${BUILT_PRODUCTS_DIR}/BlueRSA/CryptorRSA.framework",
-				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
-				"${BUILT_PRODUCTS_DIR}/KituraContracts/KituraContracts.framework",
-				"${BUILT_PRODUCTS_DIR}/LoggerAPI/LoggerAPI.framework",
-				"${BUILT_PRODUCTS_DIR}/Logging/Logging.framework",
-				"${BUILT_PRODUCTS_DIR}/MobileMessaging/MobileMessaging.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftJWT/SwiftJWT.framework",
-				"${BUILT_PRODUCTS_DIR}/MobileMessagingNotificationExtension/MobileMessagingNotificationExtension.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IBGoogleWebRTC/IBWebRTC.framework/IBWebRTC",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/InfobipRTC/InfobipRTC.framework/InfobipRTC",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Cryptor.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorECC.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CryptorRSA.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KituraContracts.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LoggerAPI.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Logging.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessaging.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftJWT.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MobileMessagingNotificationExtension.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IBWebRTC.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/InfobipRTC.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MobileChatExample/Pods-MobileChatExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -493,7 +495,7 @@
 /* Begin XCBuildConfiguration section */
 		08998CB39103A789A3E59B62 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 85C4EAED072E8799C34F185E /* Pods-MobileMessagingNotificationExtension.release.xcconfig */;
+			baseConfigurationReference = 460388F85788BF1015D76A4D /* Pods-MobileMessagingNotificationExtension.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "$(PROJECT_DIR)/MobileMessagingNotificationExtension.entitlements";
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -511,7 +513,7 @@
 		};
 		3E56C8F600B906A5C61B4C48 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F8EE4B9B13E727861F01B073 /* Pods-MobileMessagingNotificationExtension.debug.xcconfig */;
+			baseConfigurationReference = C74AEBDDF0485A263B55E33E /* Pods-MobileMessagingNotificationExtension.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "$(PROJECT_DIR)/MobileMessagingNotificationExtension.entitlements";
 				DEVELOPMENT_TEAM = T6U248P7YM;
@@ -641,7 +643,7 @@
 		};
 		765259F91FB5A99100058788 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F949632CED816BF31B2C8EBB /* Pods-MobileChatExample.debug.xcconfig */;
+			baseConfigurationReference = 5F1304F6A75D9F8F357C36A7 /* Pods-MobileChatExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;
@@ -661,7 +663,7 @@
 		};
 		765259FA1FB5A99100058788 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 07EA4CDA85C9AA5582FA3A51 /* Pods-MobileChatExample.release.xcconfig */;
+			baseConfigurationReference = 93A8F1851924C42A49318A81 /* Pods-MobileChatExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = MobileChatExample/MobileChatExample.entitlements;

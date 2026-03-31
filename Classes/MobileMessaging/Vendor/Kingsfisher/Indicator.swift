@@ -142,9 +142,9 @@ final class ActivityIndicator: Indicator {
 }
 
 // MARK: - ImageIndicator
-// Displays an ImageView. Supports gif
+// Displays an UIImageView. Supports gif
 final class ImageIndicator: Indicator {
-    private let animatedImageIndicatorView: ImageView
+    private let animatedImageIndicatorView: UIImageView
 
     var view: IndicatorView {
         return animatedImageIndicatorView
@@ -162,7 +162,7 @@ final class ImageIndicator: Indicator {
             return nil
         }
 
-        animatedImageIndicatorView = ImageView()
+        animatedImageIndicatorView = UIImageView()
         animatedImageIndicatorView.image = image
         animatedImageIndicatorView.frame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
         

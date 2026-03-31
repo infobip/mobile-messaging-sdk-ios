@@ -188,7 +188,7 @@ open class ImageCache {
     - parameter toDisk:            Whether this image should be cached to disk or not. If false, the image will be only cached in memory.
     - parameter completionHandler: Called when store operation completes.
     */
-    func store(_ image: Image,
+    func store(_ image: UIImage,
                       original: Data? = nil,
                       forKey key: String,
                       processorIdentifier identifier: String = "",
@@ -286,7 +286,7 @@ open class ImageCache {
     @discardableResult
     func retrieveImage(forKey key: String,
                                options: KingfisherOptionsInfo?,
-                     completionHandler: ((Image?, CacheType) -> Void)?) -> RetrieveImageDiskTask?
+                     completionHandler: ((UIImage?, CacheType) -> Void)?) -> RetrieveImageDiskTask?
     {
         // No completion handler. Not start working and early return.
         guard let completionHandler = completionHandler else {
@@ -362,12 +362,12 @@ open class ImageCache {
                          stored with a specified `ImageProcessor`, pass the processor in the option too.
     - returns: The image object if it is cached, or `nil` if there is no such key in the cache.
     */
-    func retrieveImageInMemoryCache(forKey key: String, options: KingfisherOptionsInfo? = nil) -> Image? {
+    func retrieveImageInMemoryCache(forKey key: String, options: KingfisherOptionsInfo? = nil) -> UIImage? {
         
         let options = options ?? KingfisherEmptyOptionsInfo
         let computedKey = key.computedKey(with: options.processor.identifier)
         
-        return memoryCache.object(forKey: computedKey as NSString) as? Image
+        return memoryCache.object(forKey: computedKey as NSString) as? UIImage
     }
     
     /**
@@ -379,7 +379,7 @@ open class ImageCache {
 
     - returns: The image object if it is cached, or `nil` if there is no such key in the cache.
     */
-    func retrieveImageInDiskCache(forKey key: String, options: KingfisherOptionsInfo? = nil) -> Image? {
+    func retrieveImageInDiskCache(forKey key: String, options: KingfisherOptionsInfo? = nil) -> UIImage? {
         
         let options = options ?? KingfisherEmptyOptionsInfo
         let computedKey = key.computedKey(with: options.processor.identifier)
@@ -638,7 +638,7 @@ open class ImageCache {
 // MARK: - Internal Helper
 extension ImageCache {
   
-    func diskImage(forComputedKey key: String, serializer: CacheSerializer, options: KingfisherOptionsInfo) -> Image? {
+    func diskImage(forComputedKey key: String, serializer: CacheSerializer, options: KingfisherOptionsInfo) -> UIImage? {
         if let data = diskImageData(forComputedKey: key) {
             return serializer.image(with: data, options: options)
         } else {
@@ -692,7 +692,7 @@ extension ImageCache {
     }
 }
 
-extension Kingfisher where Base: Image {
+extension Kingfisher where Base: UIImage {
     var imageCost: Int {
         return images == nil ?
             Int(size.height * size.width * scale * scale) :

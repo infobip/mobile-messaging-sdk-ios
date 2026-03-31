@@ -404,7 +404,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
 
 // Uncomment if you want to handle call UI here.
 //    func showCallUI(in callController: MMCallController) {
-//        PIPKit.show(with: callController)
+//        IBPIPKit.show(with: callController)
 //    }
 }
 

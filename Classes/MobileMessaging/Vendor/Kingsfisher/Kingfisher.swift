@@ -29,20 +29,8 @@ import ImageIO
 
 #if os(macOS)
     import AppKit
-    internal typealias Image = NSImage
-    internal typealias View = NSView
-    internal typealias Color = NSColor
-    internal typealias ImageView = NSImageView
-    internal typealias Button = NSButton
 #else
     import UIKit
-    internal typealias Image = UIImage
-    internal typealias Color = UIColor
-    #if !os(watchOS)
-    internal typealias ImageView = UIImageView
-    internal typealias View = UIView
-    internal typealias Button = UIButton
-    #endif
 #endif
 
 internal final class Kingfisher<Base> {
@@ -66,8 +54,16 @@ internal extension KingfisherCompatible {
     }
 }
 
-extension Image: KingfisherCompatible { }
+#if os(macOS)
+extension NSImage: KingfisherCompatible { }
 #if !os(watchOS)
-extension ImageView: KingfisherCompatible { }
-extension Button: KingfisherCompatible { }
+extension NSImageView: KingfisherCompatible { }
+extension NSButton: KingfisherCompatible { }
+#endif
+#else
+extension UIImage: KingfisherCompatible { }
+#if !os(watchOS)
+extension UIImageView: KingfisherCompatible { }
+extension UIButton: KingfisherCompatible { }
+#endif
 #endif

@@ -36,7 +36,7 @@ import AppKit
 /// - image: Input image
 /// - data:  Input data
 internal enum ImageProcessItem {
-    case image(Image)
+    case image(UIImage)
     case data(Data)
 }
 
@@ -64,10 +64,10 @@ internal protocol ImageProcessor {
     ///         image itself will be returned.
     /// - Note: Most processor only supports CG-based images. 
     ///         watchOS is not supported for processors containing filter, the input image will be returned directly on watchOS.
-    func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image?
+    func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage?
 }
 
-typealias ProcessorImp = ((ImageProcessItem, KingfisherOptionsInfo) -> Image?)
+typealias ProcessorImp = ((ImageProcessItem, KingfisherOptionsInfo) -> UIImage?)
 
 internal extension ImageProcessor {
     
@@ -102,7 +102,7 @@ func !=(left: ImageProcessor, right: ImageProcessor) -> Bool {
 fileprivate struct GeneralProcessor: ImageProcessor {
     let identifier: String
     let p: ProcessorImp
-    func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         return p(item, options)
     }
 }
@@ -130,12 +130,12 @@ internal struct DefaultImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     /// 
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
         case .data(let data):
-            return Kingfisher<Image>.image(
+            return Kingfisher<UIImage>.image(
                 data: data,
                 scale: options.scaleFactor,
                 preloadAllAnimationData: options.preloadAllAnimationData,
@@ -178,7 +178,7 @@ internal struct BlendImageProcessor: ImageProcessor {
     internal let alpha: CGFloat
 
     /// Background color of the output image. If `nil`, it will stay transparent.
-    internal let backgroundColor: Color?
+    internal let backgroundColor: UIColor?
 
     /// Initialize an `BlendImageProcessor`
     ///
@@ -187,7 +187,7 @@ internal struct BlendImageProcessor: ImageProcessor {
     ///                              From 0.0 to 1.0. 1.0 means solid image, 0.0 means transparent image.
     ///                              Default is 1.0.
     /// - parameter backgroundColor: Background color to apply for the output image. Default is `nil`.
-    internal init(blendMode: CGBlendMode, alpha: CGFloat = 1.0, backgroundColor: Color? = nil) {
+    internal init(blendMode: CGBlendMode, alpha: CGFloat = 1.0, backgroundColor: UIColor? = nil) {
         self.blendMode = blendMode
         self.alpha = alpha
         self.backgroundColor = backgroundColor
@@ -206,7 +206,7 @@ internal struct BlendImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
@@ -233,7 +233,7 @@ internal struct CompositingImageProcessor: ImageProcessor {
     internal let alpha: CGFloat
 
     /// Background color of the output image. If `nil`, it will stay transparent.
-    internal let backgroundColor: Color?
+    internal let backgroundColor: UIColor?
 
     /// Initialize an `CompositingImageProcessor`
     ///
@@ -244,7 +244,7 @@ internal struct CompositingImageProcessor: ImageProcessor {
     /// - parameter backgroundColor:      Background color to apply for the output image. Default is `nil`.
     internal init(compositingOperation: NSCompositingOperation,
                 alpha: CGFloat = 1.0,
-                backgroundColor: Color? = nil)
+                backgroundColor: UIColor? = nil)
     {
         self.compositingOperation = compositingOperation
         self.alpha = alpha
@@ -264,7 +264,7 @@ internal struct CompositingImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
@@ -294,7 +294,7 @@ internal struct RoundCornerImageProcessor: ImageProcessor {
     internal let targetSize: CGSize?
 
     /// Background color of the output image. If `nil`, it will stay transparent.
-    internal let backgroundColor: Color?
+    internal let backgroundColor: UIColor?
 
     /// Initialize a `RoundCornerImageProcessor`
     ///
@@ -304,7 +304,7 @@ internal struct RoundCornerImageProcessor: ImageProcessor {
     ///                              Default is `nil`.
     /// - parameter corners:         The target corners which will be applied rounding. Default is `.all`.
     /// - parameter backgroundColor: Background color to apply for the output image. Default is `nil`.
-    internal init(cornerRadius: CGFloat, targetSize: CGSize? = nil, roundingCorners corners: RectCorner = .all, backgroundColor: Color? = nil) {
+    internal init(cornerRadius: CGFloat, targetSize: CGSize? = nil, roundingCorners corners: RectCorner = .all, backgroundColor: UIColor? = nil) {
         self.cornerRadius = cornerRadius
         self.targetSize = targetSize
         self.roundingCorners = corners
@@ -334,7 +334,7 @@ internal struct RoundCornerImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             let size = targetSize ?? image.kf.size
@@ -410,7 +410,7 @@ internal struct ResizingImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
@@ -448,7 +448,7 @@ internal struct BlurImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             let radius = blurRadius * options.scaleFactor
@@ -468,7 +468,7 @@ internal struct OverlayImageProcessor: ImageProcessor {
     internal let identifier: String
     
     /// Overlay color will be used to overlay the input image.
-    internal let overlay: Color
+    internal let overlay: UIColor
     
     /// Fraction will be used when overlay the color to image.
     internal let fraction: CGFloat
@@ -478,7 +478,7 @@ internal struct OverlayImageProcessor: ImageProcessor {
     /// - parameter overlay:  Overlay color will be used to overlay the input image.
     /// - parameter fraction: Fraction will be used when overlay the color to image. 
     ///                       From 0.0 to 1.0. 0.0 means solid color, 1.0 means transparent overlay.
-    internal init(overlay: Color, fraction: CGFloat = 0.5) {
+    internal init(overlay: UIColor, fraction: CGFloat = 0.5) {
         self.overlay = overlay
         self.fraction = fraction
         self.identifier = "com.onevcat.Kingfisher.OverlayImageProcessor(\(overlay.hex)_\(fraction))"
@@ -492,7 +492,7 @@ internal struct OverlayImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
@@ -511,12 +511,12 @@ internal struct TintImageProcessor: ImageProcessor {
     internal let identifier: String
     
     /// Tint color will be used to tint the input image.
-    internal let tint: Color
+    internal let tint: UIColor
     
     /// Initialize a `TintImageProcessor`
     ///
     /// - parameter tint: Tint color will be used to tint the input image.
-    internal init(tint: Color) {
+    internal init(tint: UIColor) {
         self.tint = tint
         self.identifier = "com.onevcat.Kingfisher.TintImageProcessor(\(tint.hex))"
     }
@@ -529,7 +529,7 @@ internal struct TintImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
@@ -582,7 +582,7 @@ internal struct ColorControlsProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
@@ -612,7 +612,7 @@ internal struct BlackWhiteProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         return ColorControlsProcessor(brightness: 0.0, contrast: 1.0, saturation: 0.0, inputEV: 0.7)
             .process(item: item, options: options)
     }
@@ -668,7 +668,7 @@ internal struct CroppingImageProcessor: ImageProcessor {
     /// - returns: The processed image.
     ///
     /// - Note: See documentation of `ImageProcessor` protocol for more.
-    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> Image? {
+    internal func process(item: ImageProcessItem, options: KingfisherOptionsInfo) -> UIImage? {
         switch item {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
@@ -688,7 +688,7 @@ internal func >>(left: ImageProcessor, right: ImageProcessor) -> ImageProcessor 
     return left.append(another: right)
 }
 
-extension Color {
+extension UIColor {
     var hex: String {
         var r: CGFloat = 0
         var g: CGFloat = 0

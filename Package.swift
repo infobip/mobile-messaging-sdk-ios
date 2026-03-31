@@ -43,6 +43,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/infobip/infobip-rtc-ios.git", exact: "2.6.8"),
+        .package(url: "https://github.com/infobip/infobip-mobile-ui-ios.git", from: "1.0.5"),
         .package(url: "https://github.com/CocoaLumberjack/CocoaLumberjack.git", from: "3.8.5")
     ],
     targets: [
@@ -75,7 +76,8 @@ let package = Package(
             dependencies: [
                 "MobileMessaging",
                 .product(name: "InfobipRTC", package: "infobip-rtc-ios"),
-                .product(name: "IBWebRTC", package: "infobip-rtc-ios")
+                .product(name: "IBWebRTC", package: "infobip-rtc-ios"),
+                .product(name: "InfobipMobileUI", package: "infobip-mobile-ui-ios")
             ],
             path: "Classes/WebRTCUI",
             cSettings: [.define("WEBRTCUI_ENABLED")],

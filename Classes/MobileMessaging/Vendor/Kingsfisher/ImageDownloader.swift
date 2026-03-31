@@ -34,7 +34,7 @@ import UIKit
 internal typealias ImageDownloaderProgressBlock = DownloadProgressBlock
 
 /// Completion block of downloader.
-internal typealias ImageDownloaderCompletionHandler = ((_ image: Image?, _ error: NSError?, _ url: URL?, _ originalData: Data?) -> Void)
+internal typealias ImageDownloaderCompletionHandler = ((_ image: UIImage?, _ error: NSError?, _ url: URL?, _ originalData: Data?) -> Void)
 
 /// Download task.
 internal struct RetrieveImageDownloadTask {
@@ -106,7 +106,7 @@ internal protocol ImageDownloaderDelegate: AnyObject {
     - parameter url:        URL of the original request URL.
     - parameter response:   The response object of the downloading process.
     */
-    func imageDownloader(_ downloader: ImageDownloader, didDownload image: Image, for url: URL, with response: URLResponse?)
+    func imageDownloader(_ downloader: ImageDownloader, didDownload image: UIImage, for url: URL, with response: URLResponse?)
     
     /**
     Called when the `ImageDownloader` object starts to download an image from specified URL.
@@ -149,7 +149,7 @@ internal protocol ImageDownloaderDelegate: AnyObject {
 }
 
 extension ImageDownloaderDelegate {
-    internal func imageDownloader(_ downloader: ImageDownloader, didDownload image: Image, for url: URL, with response: URLResponse?) {}
+    internal func imageDownloader(_ downloader: ImageDownloader, didDownload image: UIImage, for url: URL, with response: URLResponse?) {}
     
     internal func imageDownloader(_ downloader: ImageDownloader, willDownloadImageForURL url: URL, with request: URLRequest?) {}
     internal func isValidStatusCode(_ code: Int, for downloader: ImageDownloader) -> Bool {
@@ -587,7 +587,7 @@ final class ImageDownloaderSessionHandler: NSObject, URLSessionDataDelegate, Aut
             
             // Cache the processed images. So we do not need to re-process the image if using the same processor.
             // Key is the identifier of processor.
-            var imageCache: [String: Image] = [:]
+            var imageCache: [String: UIImage] = [:]
             for content in fetchLoad.contents {
                 
                 let options = content.options

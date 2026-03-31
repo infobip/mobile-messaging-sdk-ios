@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "infobip-mobile-ui-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/infobip/infobip-mobile-ui-ios.git",
+      "state" : {
+        "revision" : "d4fd73f813c8971a8c17f652b188fea810177aac",
+        "version" : "1.0.5"
+      }
+    },
+    {
       "identity" : "infobip-rtc-ios",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/infobip/infobip-rtc-ios.git",
