@@ -445,6 +445,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
                 defaultString: "Try again later or contact customer support. Error code: %1$@."), "\(error.exception.code)")
         chatSetupErrorView.configure(title: title, subtitle: subtitle)
         chatSetupErrorView.setVisible(true, animated: true)
+        webViewHandler.triggerPendingActions(with: error.foundationError)
         logError(error.technicalMessage)
     }
     

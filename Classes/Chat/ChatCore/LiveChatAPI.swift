@@ -116,11 +116,6 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
      
     // MARK: - Utility methods
 
-    private func didLoadWidget(with error: Error?) {
-        guard let error = error else { return } // we want to propagate errors only. Successful widget loads require the proper view state update
-        chatHandler.triggerPendingActions(with: error)
-    }
-
     internal func sendCachedContextData() {
         guard let contextualData = MMInAppChatService.sharedInstance?.contextualData else {
             return
@@ -135,7 +130,7 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
             let exception = error.exception
             self.delegate?.didReceiveError(exception: exception)
             if self.chatHandler.pendingActions.count > 0 {
-                didLoadWidget(with: exception)
+                self.chatHandler.triggerPendingActions(with: exception)
             }
         }
     }
@@ -190,20 +185,18 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
             }
 
             let state = jsMessage.state
-            if chatHandler.currentViewState != state, state != .loading {
-                // In case actions are pending, we finally trigger them successfully if the view state just became valid.
-                chatHandler.triggerPendingActions(with: nil)
+            if chatHandler.currentViewState != state, state != .loading, state != .unknown {
                 addMessageEventListener()
+                Task { [weak self] in
+                    // In case actions are pending, we finally trigger them successfully if the view state just became valid. Thread methods require some delay, even if loaded
+                    try? await Task.sleep(nanoseconds: 250_000_000)// 0.25 secs
+                    self?.chatHandler.triggerPendingActions(with: nil)
+                }
+                if state != .loadingThread {
+                    sendCachedContextData()
+                }
             }
             chatHandler.currentViewState = state
-
-            if state != .loading && state != .loadingThread && state != .unknown {
-                sendCachedContextData()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: { [weak self] in /// Thread methods require some delay, even If it's loaded
-                    self?.didLoadWidget(with: nil)
-                })
-            }
-            
             delegate?.didChangeState(to: state)
 
         case .onMessageEvent:

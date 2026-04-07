@@ -12,7 +12,7 @@ import WebKit
 protocol ChatWebViewHandlerProtocol: MMChatWebViewActions { }
 
 class ChatWebViewHandler: NamedLogger {
-    let webView: ChatWebView
+    var webView: ChatWebView
     var chatWidget: ChatWidget?
     var eventHandler: WebEventHandlerProtocol
     private let stateQueue = DispatchQueue(label: "com.infobip.ChatWebViewHandler.stateQueue")
@@ -27,11 +27,19 @@ class ChatWebViewHandler: NamedLogger {
         set { stateQueue.sync { _currentViewState = newValue } }
     }
 
-    init(webView: ChatWebView = .init(frame: .zero), eventHandler: WebEventHandlerProtocol = ChatViewEventHandler()) {
-        self.webView = webView
+    init(webView: ChatWebView? = nil, eventHandler: WebEventHandlerProtocol = ChatViewEventHandler()) {
+        if let webView = webView {
+            self.webView = webView
+        } else if Thread.isMainThread { // we need to ensure ChatWebView creation (and its JS scripting logic) is only done in main thread
+            self.webView = ChatWebView(frame: .zero)
+        } else {
+            self.webView = DispatchQueue.main.sync { ChatWebView(frame: .zero) }
+        }
         self.eventHandler = eventHandler
-        self.webView.scriptHandler.onChatEvent = { [weak self] event, message in
-            self?.eventHandler.onEvent(type: event, jsMessage: message)
+        DispatchQueue.mmEnsureMain {
+            self.webView.scriptHandler.onChatEvent = { [weak self] event, message in
+                self?.eventHandler.onEvent(type: event, jsMessage: message)
+            }
         }
     }
     
