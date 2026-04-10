@@ -93,7 +93,7 @@ public class MMCallController: UIViewController, IBPIPUsable {
 
     private var defaultActions: [MMCallButtonsAction] {
         if MMWebRTCSettings.sharedInstance.customButtons.isEmpty {
-            return [.hangup, .microphone(), .screenshare(), .video(), .speakerphone()]
+            return [.hangup, .microphone(), .speakerphone(), .video(), .screenshare()]
         }
         return MMWebRTCSettings.sharedInstance.customButtons
     }
@@ -138,6 +138,7 @@ public class MMCallController: UIViewController, IBPIPUsable {
 
     private func embedCallViewController() {
         let s = MMWebRTCSettings.sharedInstance
+        uiState.warningIcon = Image(uiImage: s.iconMute ?? UIImage())
         let config = IBCallUIConfiguration(
             backgroundColor: Color(s.backgroundColor),
             foregroundColor: Color(s.foregroundColor),
@@ -149,6 +150,7 @@ public class MMCallController: UIViewController, IBPIPUsable {
             buttonSelectedColor: Color(s.buttonColorSelected),
             hangupButtonColor: Color(s.hangUpButtonColor),
             errorColor: Color(s.errorColor),
+            warningColor: Color(s.warningColor),
             rowActionLabelColor: Color(s.rowActionLabelColor),
             iconMute: Image(uiImage: s.iconMute ?? UIImage()),
             iconUnMute: Image(uiImage: s.iconUnMute ?? UIImage()),
@@ -227,8 +229,9 @@ public class MMCallController: UIViewController, IBPIPUsable {
                 icon: Image(uiImage: s.iconScreenShareOn ?? UIImage()),
                 selectedIcon: Image(uiImage: s.iconScreenShareOff ?? UIImage()),
                 label: MMLoc.screenShare,
-                backgroundColor: Color(s.buttonColor),
-                selectedBackgroundColor: Color(s.buttonColorSelected),
+                backgroundColor: .clear,
+                selectedBackgroundColor: .clear,
+                iconColor: Color(s.textSecondaryColor),
                 isSelected: false,
                 isEnabled: true,
                 onTap: { [weak self] in
@@ -247,6 +250,8 @@ public class MMCallController: UIViewController, IBPIPUsable {
                 label: "Microphone",
                 backgroundColor: Color(s.buttonColorSelected),
                 selectedBackgroundColor: Color(s.buttonColor),
+                circleBorderColor: Color(s.circleBorderColor),
+                iconColor: Color(s.iconColor),
                 isSelected: false,
                 isEnabled: true,
                 onTap: { [weak self] in
@@ -269,6 +274,8 @@ public class MMCallController: UIViewController, IBPIPUsable {
                 label: "Video",
                 backgroundColor: Color(s.buttonColor),
                 selectedBackgroundColor: Color(s.buttonColorSelected),
+                circleBorderColor: Color(s.circleBorderColor),
+                iconColor: Color(s.iconColor),
                 isSelected: false,
                 isEnabled: true,
                 onTap: { [weak self] in
@@ -309,8 +316,9 @@ public class MMCallController: UIViewController, IBPIPUsable {
                 id: "flipCamera",
                 icon: Image(uiImage: s.iconFlipCamera ?? UIImage()),
                 label: MMLoc.flipCamera,
-                backgroundColor: Color(s.buttonColor),
-                selectedBackgroundColor: Color(s.buttonColorSelected),
+                backgroundColor: .clear,
+                selectedBackgroundColor: .clear,
+                iconColor: Color(s.textSecondaryColor),
                 isSelected: false,
                 isEnabled: true,
                 onTap: { [weak self] in
@@ -326,6 +334,8 @@ public class MMCallController: UIViewController, IBPIPUsable {
                 label: MMLoc.speaker,
                 backgroundColor: Color(s.buttonColor),
                 selectedBackgroundColor: Color(s.buttonColorSelected),
+                circleBorderColor: Color(s.circleBorderColor),
+                iconColor: Color(s.iconColor),
                 isSelected: false,
                 isEnabled: true,
                 onTap: { [weak self] in
@@ -344,6 +354,8 @@ public class MMCallController: UIViewController, IBPIPUsable {
                 label: mm.text,
                 backgroundColor: Color(mm.color),
                 selectedBackgroundColor: mm.selectedColor.map(Color.init),
+                circleBorderColor: Color(s.circleBorderColor),
+                iconColor: Color(s.iconColor),
                 isSelected: false,
                 isEnabled: true,
                 onTap: { mm.action(UIButton()) }
@@ -410,22 +422,7 @@ public class MMCallController: UIViewController, IBPIPUsable {
     func handleMutePopover(with animation: Bool = true) {
         guard let currentCall = interactor.currentCall else { return }
         let isMuted = currentCall.isMuted
-        if isMuted && !IBPIPKit.isPIP {
-            let settings = MMWebRTCSettings.sharedInstance
-            MMPopOverBar.show(
-                textColor: settings.foregroundColor,
-                backgroundColor: settings.errorColor,
-                icon: settings.iconAlert,
-                iconTint: settings.foregroundColor,
-                message: MMLoc.microphoneMuted,
-                duration: 9999,
-                hideOnTap: false,
-                options: MMPopOverBar.Options(shouldConsiderSafeArea: false, isStretchable: true),
-                completion: nil,
-                presenterVC: self)
-        } else {
-            MMPopOverBar.hide(with: animation)
-        }
+        uiState.warningText = isMuted && !IBPIPKit.isPIP ? MMLoc.microphoneMuted : ""
     }
 
     func showErrorAlert(message: String?) {

@@ -14,6 +14,7 @@ public class MMWebRTCSettings: NSObject {
     public static let sharedInstance = MMWebRTCSettings()
     
     private var _errorColor: UIColor!
+    private var _warningColor: UIColor!
     private var _primaryColor: UIColor!
     private var _foregroundColor: UIColor!
     private var _notificationColor: UIColor!
@@ -29,14 +30,21 @@ public class MMWebRTCSettings: NSObject {
     private var _sheetDragIndicatorColor: UIColor!
     private var _localScreenshareBackgroundColor: UIColor!
     private var _rowActionLabelColor: UIColor!
+    private var _iconColor: UIColor!
+    private var _selectedIconColor: UIColor!
+    private var _circleBorderColor: UIColor!
     
     public var errorColor: UIColor! {
         set { _errorColor = newValue }
         get { return _errorColor ?? UIColor(hexString: "#e6ff3b30") }
     }
+    public var warningColor: UIColor! {
+        set { _warningColor = newValue }
+        get { return _warningColor ?? UIColor(hexString: "#ffd770") }
+    }
     public var primaryColor: UIColor! {
         set { _primaryColor = newValue }
-        get { return _primaryColor ?? UIColor(hexString: "#29B899") }
+        get { return _primaryColor ?? UIColor(hexString: "#d69616") }
     }
     /// Color of text and elements on foreground
     public var foregroundColor: UIColor! {
@@ -46,7 +54,7 @@ public class MMWebRTCSettings: NSObject {
     /// Color of less prominent texts
     public var textSecondaryColor: UIColor! {
         set { _textSecondaryColor = newValue }
-        get { return _textSecondaryColor ?? UIColor(hexString: "#5D5F61") }
+        get { return _textSecondaryColor ?? UIColor(hexString: "#ffffff") }
     }
     /// Background color of calls
     public var backgroundColor: UIColor! {
@@ -58,20 +66,20 @@ public class MMWebRTCSettings: NSObject {
         get { return _alertBackgroundColor ?? UIColor(hexString: "#99050708") }
     }
     public var buttonColor: UIColor! {
-        set { _tintColor = newValue }
-        get { return _tintColor ?? UIColor(hexString: "#5D5F61") }
+        set { _buttonColor = newValue }
+        get { return _buttonColor ?? UIColor(hexString: "#242424") }
     }
     public var buttonColorSelected: UIColor! {
-        set { _tintColor = newValue }
-        get { return _tintColor ?? UIColor(hexString: "#ffffff") }
+        set { _buttonColorSelected = newValue }
+        get { return _buttonColorSelected ?? UIColor(hexString: "#535763") }
     }
     public var hangUpButtonColor: UIColor! {
-        set { _tintColor = newValue }
-        get { return _tintColor ?? UIColor(hexString: "#C84714") }
+        set { _hangUpButtonColor = newValue }
+        get { return _hangUpButtonColor ?? UIColor(hexString: "#C84714") }
     }
     public var sheetBackgroundColor: UIColor! {
         set { _sheetBackgroundColor = newValue }
-        get { return _sheetBackgroundColor ?? UIColor(hexString: "#1b1b1a") }
+        get { return _sheetBackgroundColor ?? UIColor(hexString: "#313540") }
     }
     public var sheetDividerColor: UIColor! {
         set { _sheetDividerColor = newValue }
@@ -88,6 +96,14 @@ public class MMWebRTCSettings: NSObject {
     public var rowActionLabelColor: UIColor! {
         set { _rowActionLabelColor = newValue }
         get { return _rowActionLabelColor ?? UIColor.white }
+    }
+    public var iconColor: UIColor! {
+        set { _iconColor = newValue }
+        get { return _iconColor ?? UIColor(hexString: "#85b6cc") }
+    }
+    public var circleBorderColor: UIColor! {
+        set { _circleBorderColor = newValue }
+        get { return _circleBorderColor ?? UIColor(hexString: "#85b6cc") }
     }
     public var customButtons: [MMCallButtonsAction] = []
     private var _iconMute: UIImage?
@@ -156,7 +172,7 @@ public class MMWebRTCSettings: NSObject {
     }
     public var iconEndCall: UIImage? {
         set { _iconEndCall = newValue }
-        get { return _iconEndCall ?? UIImage.init(mm_webrtcui_named: "endcallIcon") }
+        get { return _iconEndCall ?? UIImage.init(mm_webrtcui_named: "hangup") }
     }
     public var iconExpand: UIImage? {
         set { _iconExpand = newValue }

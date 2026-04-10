@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/infobip/infobip-mobile-ui-ios.git",
       "state" : {
-        "revision" : "c3ad672f960e111c58a78fb7c9562ba7a12249b4",
-        "version" : "1.0.8"
+        "revision" : "278f4a056e7f4d0675fe03f3613275ecd03111bd",
+        "version" : "1.0.10"
       }
     },
     {
