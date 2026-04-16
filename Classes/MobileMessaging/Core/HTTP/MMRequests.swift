@@ -2,11 +2,27 @@
 //  MMRequests.swift
 //  MobileMessaging
 //
-//  Copyright (c) 2016-2025 Infobip Limited
+//  Copyright (c) 2016-2026 Infobip Limited
 //  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation
+
+public enum MMHTTPMethod: String {
+    case options = "OPTIONS"
+    case get     = "GET"
+    case head    = "HEAD"
+    case post    = "POST"
+    case put     = "PUT"
+    case patch   = "PATCH"
+    case delete  = "DELETE"
+    case trace   = "TRACE"
+    case connect = "CONNECT"
+}
+
+public typealias MMHTTPHeaders = [String: String]
+
+// MARK: - API Paths
 
 public enum APIPath: String {
     case SeenMessages = "/mobile/2/messages/seen"
@@ -193,7 +209,7 @@ class WebInAppClickReportRequest: GetRequest {
         )
     }
     
-    override var headers: HTTPHeaders? {
+    override var headers: MMHTTPHeaders? {
         var headers = super.headers ?? [:]
         headers[MMConsts.APIHeaders.buttonidx] = buttonIdx
         return headers
@@ -207,7 +223,7 @@ public typealias RequestBody = [String: Any]
 public typealias RequestParameters = [String: Any]
 
 open class RequestData {
-    public init(applicationCode: String, method: HTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil, accessToken: String? = nil) {
+    public init(applicationCode: String, method: MMHTTPMethod, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, baseUrl: URL? = nil, accessToken: String? = nil) {
         self.applicationCode = applicationCode
         self.method = method
         self.path = path
@@ -221,12 +237,12 @@ open class RequestData {
     let accessToken: String?
     let applicationCode: String
     public let pushRegistrationId: String?
-    let method: HTTPMethod
+    let method: MMHTTPMethod
     let path: APIPath
     let baseUrl: URL?
 
-    var headers: HTTPHeaders? {
-        var headers: HTTPHeaders = [:]
+    var headers: MMHTTPHeaders? {
+        var headers: MMHTTPHeaders = [:]
         if let accessToken = accessToken {
             headers[MMConsts.APIHeaders.authorization] = "\(MMConsts.APIHeaders.authorizationBearer) \(accessToken)"
         } else {
@@ -296,5 +312,60 @@ class PutRequest: RequestData {
 class PatchRequest: RequestData {
     init(applicationCode: String, path: APIPath, pushRegistrationId: String? = nil, body: RequestBody? = nil, parameters: RequestParameters? = nil, pathParameters: [String: String]? = nil, accessToken: String? = nil) {
         super.init(applicationCode: applicationCode, method: .patch, path: path, pushRegistrationId: pushRegistrationId, body: body, parameters: parameters, pathParameters: pathParameters, accessToken: accessToken)
+    }
+}
+
+// MARK: - URLRequest building (replaces JSONRequestEncoding + SanitizedJSONSerialization)
+
+extension RequestData {
+    func buildURLRequest(baseURL: URL) throws -> URLRequest {
+        let urlString = baseURL.absoluteString + resolvedPath
+        guard var components = URLComponents(string: urlString) else {
+            throw URLError(.badURL)
+        }
+
+        if let parameters = parameters, !parameters.isEmpty {
+            components.queryItems = parameters.keys.sorted().flatMap { key in
+                queryItems(fromKey: key, value: parameters[key]!)
+            }
+        }
+
+        guard let url = components.url else { throw URLError(.badURL) }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        headers?.forEach { request.setValue($1, forHTTPHeaderField: $0) }
+
+        if let body = body {
+            request.httpBody = try JSONSerialization.data(
+                withJSONObject: body,
+                options: [.withoutEscapingSlashes, .sortedKeys]
+            )
+        }
+
+        return request
+    }
+
+    private func queryItems(fromKey key: String, value: Any) -> [URLQueryItem] {
+        if let bool = value as? Bool {
+            return [URLQueryItem(name: key, value: bool ? "1" : "0")]
+        } else if let number = value as? NSNumber,
+                  number === kCFBooleanTrue || number === kCFBooleanFalse {
+            return [URLQueryItem(name: key, value: number.boolValue ? "1" : "0")]
+        } else {
+            return [URLQueryItem(name: key, value: "\(value)")]
+        }
+    }
+}
+
+public struct MMDownloadResult {
+    public let value: Data?
+    public let destinationURL: URL?
+    public let error: Error?
+    
+    public init(value: Data?, destinationURL: URL?, error: Error?) {
+        self.value = value
+        self.destinationURL = destinationURL
+        self.error = error
     }
 }

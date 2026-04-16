@@ -1,34 +1,12 @@
-// 
+//
 //  DynamicBaseUrlHTTPSessionManager.swift
 //  MobileMessaging
 //
-//  Copyright (c) 2016-2025 Infobip Limited
+//  Copyright (c) 2016-2026 Infobip Limited
 //  Licensed under the Apache License, Version 2.0
 //
 
 import Foundation
-
-class SanitizedJSONSerialization: JSONSerialization {
-	override class func data(withJSONObject obj: Any, options opt: JSONSerialization.WritingOptions = []) throws -> Data {
-
-		let data = try super.data(withJSONObject: obj, options: opt)
-		let jsonString = String(data: data, encoding: String.Encoding.utf8)
-		let sanitizedString = jsonString?.replacingOccurrences(of: "\\/", with: "/")
-		return sanitizedString?.data(using: String.Encoding.utf8) ?? Data()
-	}
-}
-
-struct JSONRequestEncoding: ParameterEncoding {
-	let request: RequestData
-	func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
-		var urlRequest = try urlRequest.asURLRequest()
-		if let jsonBody = request.body {
-			urlRequest.httpBody = try SanitizedJSONSerialization.data(withJSONObject: jsonBody, options: [])
-		}
-		urlRequest = try URLEncoding.queryString.encode(urlRequest, with: parameters)
-		return urlRequest
-	}
-}
 
 public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 	private var _dynamicBaseUrl: URL?
@@ -45,7 +23,7 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 
 	var originalBaseUrl: URL
 	let configuration: URLSessionConfiguration
-	let alamofireSessionManager: SessionManager
+	let urlSession: URLSession
 
 	let appGroupId: String?
 	var storage: UserDefaults
@@ -56,7 +34,7 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 		self.configuration.timeoutIntervalForRequest = 20
         self.configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
         self.configuration.urlCache = nil
-		self.alamofireSessionManager = SessionManager(configuration: self.configuration)
+		self.urlSession = URLSession(configuration: self.configuration)
 		self.originalBaseUrl = url
 		self.appGroupId = appGroupId
 		if let appGroupId = appGroupId, let sharedUserDefaults = UserDefaults(suiteName: appGroupId) {
@@ -81,59 +59,102 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 		return storage.url(forKey: Consts.DynamicBaseUrl.storedDynamicBaseUrlKey)
 	}
 
-	func resolveUrl(_ r: RequestData) -> String {
-        return (r.baseUrl ?? actualBaseUrl()).absoluteString + r.resolvedPath
-	}
-    
     public func actualBaseUrl() -> URL {
         return dynamicBaseUrl ?? originalBaseUrl
     }
 
     func getDataResponse(_ r: RequestData, queue: DispatchQueue, completion: @escaping (JSON?, NSError?) -> Void) {
-		let request = alamofireSessionManager.request(resolveUrl(r), method: r.method, parameters: r.parameters, encoding: JSONRequestEncoding(request: r), headers: r.headers)
-		logDebug("Sending request: \n\(String(reflecting: request))")
+        let baseURL = r.baseUrl ?? actualBaseUrl()
 
-        request.validate().responseData(queue: queue) { dataResult in
-			let error = dataResult.error as NSError?
-			self.handleDynamicBaseUrl(response: dataResult.response, error: error)
+        let urlRequest: URLRequest
+        do {
+            urlRequest = try r.buildURLRequest(baseURL: baseURL)
+        } catch {
+            queue.async { completion(nil, error as NSError) }
+            return
+        }
 
-			guard let response = dataResult.response else {
-                self.logWarn("Empty response received")
-				completion(nil, error)
-				return
-			}
+        logDebug("Sending request: \(urlRequest.httpMethod ?? "?") \(urlRequest.url?.absoluteString ?? "nil")")
 
-			guard let data = dataResult.data else {
-                self.logWarn("""
-					Empty data received
-					url: \(response.url.orNil)
-					status code: \(response.statusCode)
-					headers: \(String(describing: response.allHeaderFields))
-					""")
-				completion(nil, error)
-				return
-			}
+        let task = urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
+            queue.async {
+                guard let self = self else { return }
+                let nsError = error as NSError?
+                self.handleDynamicBaseUrl(response: response, error: nsError)
 
-            self.logDebug("""
-				Response received
-				url: \(response.url.orNil)
-				status code: \(response.statusCode)
-				headers: \(String(describing: response.allHeaderFields))
-				data: \(String(data: data, encoding: String.Encoding.utf8).orNil)
-				""")
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    self.logWarn("Empty response received")
+                    completion(nil, nsError)
+                    return
+                }
 
-			let responseJson = JSON(data: data)
+                // #1 - Validation of the status code (to filter out errors)
+                guard (200..<300).contains(httpResponse.statusCode) else {
+                    // it is error
+                    let statusError = NSError(
+                        domain: "com.mobile-messaging.http",
+                        code: httpResponse.statusCode,
+                        userInfo: [NSLocalizedDescriptionKey: "Request failed with status code \(httpResponse.statusCode)"]
+                    )
+                    
+                    guard let data = data, !data.isEmpty else {
+                        // we have no data about the error: we propagate the base NSError
+                        completion(nil, statusError)
+                        return
+                    }
+                    
+                    // we have json data about the error, and try to generate a MMRequestError with it
+                    let responseJson = JSON(data: data)
+                    guard let serviceError = MMRequestError(json: responseJson) else {
+                        completion(nil, statusError)
+                        return
+                    }
+                    
+                    self.logWarn("Service error while performing request:\(serviceError)")
+                    completion(responseJson, serviceError.foundationError)
+                    return
+                }
 
-			if let serviceError = MMRequestError(json: responseJson) {
-                self.logWarn("""
-				Service error while performing request:
-				\(serviceError)
-				""")
-				completion(responseJson, serviceError.foundationError)
-			} else {
-				completion(responseJson, error)
-			}
-		}
+                // #2 - Validation of the Content-Type validation (to detect unexpected responses)
+                guard let data = data, !data.isEmpty else {
+                    self.logWarn("""
+                        Empty data received
+                        url: \(httpResponse.url.orNil)
+                        status code: \(httpResponse.statusCode)
+                        headers: \(String(describing: httpResponse.allHeaderFields))
+                        """)
+                    completion(nil, nsError)
+                    return
+                }
+                
+                if let mimeType = httpResponse.mimeType, !mimeType.contains("json") {
+                    let contentTypeError = NSError(
+                        type: .UnknownError,
+                        description: "Unexpected Content-Type: \(mimeType)"
+                    )
+                    completion(nil, contentTypeError)
+                    return
+                }
+
+                self.logDebug("""
+                    Response received
+                    url: \(httpResponse.url.orNil)
+                    status code: \(httpResponse.statusCode)
+                    headers: \(String(describing: httpResponse.allHeaderFields))
+                    data: \(String(data: data, encoding: String.Encoding.utf8).orNil)
+                    """)
+
+                let responseJson = JSON(data: data)
+
+                if let serviceError = MMRequestError(json: responseJson) {
+                    self.logWarn("Service error while performing request: \(serviceError)")
+                    completion(responseJson, serviceError.foundationError)
+                } else {
+                    completion(responseJson, nsError)
+                }
+            }
+        }
+        task.resume()
 	}
 
     func handleDynamicBaseUrl(response: URLResponse?, error: NSError?) {
@@ -146,19 +167,22 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 			}
 		}
 	}
-    
+
     func resetBaseUrl() {
         storeDynamicBaseUrl(nil)
         dynamicBaseUrl = originalBaseUrl
     }
-    
+
     func setNewBaseUrl(newBaseUrl: URL) {
-        if newBaseUrl != dynamicBaseUrl {
+        let didChange = baseUrlQueue.sync { () -> Bool in
+            guard newBaseUrl != _dynamicBaseUrl else { return false }
+            _dynamicBaseUrl = newBaseUrl
+            return true
+        }
+        if didChange {
             logDebug("Setting new base URL \(newBaseUrl)")
             storeDynamicBaseUrl(newBaseUrl)
-            dynamicBaseUrl = newBaseUrl
             if newBaseUrl != originalBaseUrl {
-                // We force server syncing in case a new base URL different than original one is set
                 MobileMessaging.sharedInstance?.baseUrlDidChange()
             }
         } else {

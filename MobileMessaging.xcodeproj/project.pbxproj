@@ -61,24 +61,6 @@
 		7601F1A9208E056500738C1A /* ImagePrefetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7601F190208E056400738C1A /* ImagePrefetcher.swift */; };
 		7608E307219A095500EC7289 /* CreateInstanceOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7608E306219A095500EC7289 /* CreateInstanceOperation.swift */; };
 		76092BA51FAB163900128E48 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 76092BA41FAB162C00128E48 /* AudioToolbox.framework */; };
-		7617505423351827000438A8 /* Alamofire.h in Headers */ = {isa = PBXBuildFile; fileRef = 7617504023351825000438A8 /* Alamofire.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		7617505523351827000438A8 /* DispatchQueue+Alamofire.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504123351825000438A8 /* DispatchQueue+Alamofire.swift */; };
-		7617505623351827000438A8 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504223351825000438A8 /* Result.swift */; };
-		7617505723351827000438A8 /* Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504323351825000438A8 /* Validation.swift */; };
-		7617505923351827000438A8 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504523351825000438A8 /* Request.swift */; };
-		7617505A23351827000438A8 /* SessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504623351825000438A8 /* SessionDelegate.swift */; };
-		7617505B23351827000438A8 /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504723351825000438A8 /* SessionManager.swift */; };
-		7617505C23351827000438A8 /* AFError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504823351826000438A8 /* AFError.swift */; };
-		7617505E23351827000438A8 /* TaskDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504A23351826000438A8 /* TaskDelegate.swift */; };
-		7617505F23351827000438A8 /* ParameterEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504B23351826000438A8 /* ParameterEncoding.swift */; };
-		7617506023351827000438A8 /* Timeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504C23351826000438A8 /* Timeline.swift */; };
-		7617506123351827000438A8 /* ResponseSerialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504D23351826000438A8 /* ResponseSerialization.swift */; };
-		7617506223351827000438A8 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504E23351826000438A8 /* Response.swift */; };
-		7617506323351827000438A8 /* ServerTrustPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617504F23351827000438A8 /* ServerTrustPolicy.swift */; };
-		7617506423351827000438A8 /* Alamofire.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617505023351827000438A8 /* Alamofire.swift */; };
-		7617506523351827000438A8 /* NetworkReachabilityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617505123351827000438A8 /* NetworkReachabilityManager.swift */; };
-		7617506623351827000438A8 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617505223351827000438A8 /* Notifications.swift */; };
-		7617506723351827000438A8 /* MultipartFormData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7617505323351827000438A8 /* MultipartFormData.swift */; };
 		7620450227C91AB0007970F8 /* MMInboxService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7620450127C91AB0007970F8 /* MMInboxService.swift */; };
 		7620450427C91E1D007970F8 /* MMInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7620450327C91E1D007970F8 /* MMInbox.swift */; };
 		7620450627C91E47007970F8 /* MMInboxFilterOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7620450527C91E47007970F8 /* MMInboxFilterOptions.swift */; };
@@ -272,6 +254,7 @@
 		A8947B282DC9E97900A3ACBF /* LiveChatAPI+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8947B272DC9E97800A3ACBF /* LiveChatAPI+Models.swift */; };
 		A8AD09A32F167C4C0061B3BF /* UIAlertController+MMSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8AD09A12F167C4C0061B3BF /* UIAlertController+MMSetup.swift */; };
 		A8AD09A42F167C4C0061B3BF /* UIWindow+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8AD09A22F167C4C0061B3BF /* UIWindow+Extension.swift */; };
+		A8CB36682F8E7BAD005BD2A1 /* MMNetworkReachabilityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CB36672F8E7BAD005BD2A1 /* MMNetworkReachabilityManager.swift */; };
 		A8D7BC9F2F51B88C002E3BDF /* MMChatWidgetAPIObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D7BC9D2F51B88C002E3BDF /* MMChatWidgetAPIObservable.swift */; };
 		A8D7BCA02F51B88C002E3BDF /* MMChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D7BC9B2F51B88C002E3BDF /* MMChatView.swift */; };
 		A8D7BCA12F51B88C002E3BDF /* MMChatViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8D7BC9C2F51B88C002E3BDF /* MMChatViewModifiers.swift */; };
@@ -344,24 +327,6 @@
 		7601F190208E056400738C1A /* ImagePrefetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePrefetcher.swift; sourceTree = "<group>"; };
 		7608E306219A095500EC7289 /* CreateInstanceOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateInstanceOperation.swift; sourceTree = "<group>"; };
 		76092BA41FAB162C00128E48 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.1.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
-		7617504023351825000438A8 /* Alamofire.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Alamofire.h; path = ../../../MobileMessagingObjC/Headers/Alamofire.h; sourceTree = "<group>"; };
-		7617504123351825000438A8 /* DispatchQueue+Alamofire.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Alamofire.swift"; sourceTree = "<group>"; };
-		7617504223351825000438A8 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
-		7617504323351825000438A8 /* Validation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Validation.swift; sourceTree = "<group>"; };
-		7617504523351825000438A8 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
-		7617504623351825000438A8 /* SessionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionDelegate.swift; sourceTree = "<group>"; };
-		7617504723351825000438A8 /* SessionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
-		7617504823351826000438A8 /* AFError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AFError.swift; sourceTree = "<group>"; };
-		7617504A23351826000438A8 /* TaskDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskDelegate.swift; sourceTree = "<group>"; };
-		7617504B23351826000438A8 /* ParameterEncoding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParameterEncoding.swift; sourceTree = "<group>"; };
-		7617504C23351826000438A8 /* Timeline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timeline.swift; sourceTree = "<group>"; };
-		7617504D23351826000438A8 /* ResponseSerialization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseSerialization.swift; sourceTree = "<group>"; };
-		7617504E23351826000438A8 /* Response.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
-		7617504F23351827000438A8 /* ServerTrustPolicy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerTrustPolicy.swift; sourceTree = "<group>"; };
-		7617505023351827000438A8 /* Alamofire.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alamofire.swift; sourceTree = "<group>"; };
-		7617505123351827000438A8 /* NetworkReachabilityManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkReachabilityManager.swift; sourceTree = "<group>"; };
-		7617505223351827000438A8 /* Notifications.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
-		7617505323351827000438A8 /* MultipartFormData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultipartFormData.swift; sourceTree = "<group>"; };
 		7620450127C91AB0007970F8 /* MMInboxService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMInboxService.swift; sourceTree = "<group>"; };
 		7620450327C91E1D007970F8 /* MMInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMInbox.swift; sourceTree = "<group>"; };
 		7620450527C91E47007970F8 /* MMInboxFilterOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMInboxFilterOptions.swift; sourceTree = "<group>"; };
@@ -629,6 +594,7 @@
 		A8947B272DC9E97800A3ACBF /* LiveChatAPI+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiveChatAPI+Models.swift"; sourceTree = "<group>"; };
 		A8AD09A12F167C4C0061B3BF /* UIAlertController+MMSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+MMSetup.swift"; sourceTree = "<group>"; };
 		A8AD09A22F167C4C0061B3BF /* UIWindow+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
+		A8CB36672F8E7BAD005BD2A1 /* MMNetworkReachabilityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNetworkReachabilityManager.swift; sourceTree = "<group>"; };
 		A8CE8ACD285C6E03000CC98F /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
 		A8D7BC9B2F51B88C002E3BDF /* MMChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatView.swift; sourceTree = "<group>"; };
 		A8D7BC9C2F51B88C002E3BDF /* MMChatViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMChatViewModifiers.swift; sourceTree = "<group>"; };
@@ -815,31 +781,6 @@
 				7601F190208E056400738C1A /* ImagePrefetcher.swift */,
 			);
 			path = Kingsfisher;
-			sourceTree = "<group>";
-		};
-		7617503F23351817000438A8 /* Alamofire */ = {
-			isa = PBXGroup;
-			children = (
-				7617504823351826000438A8 /* AFError.swift */,
-				7617504023351825000438A8 /* Alamofire.h */,
-				7617505023351827000438A8 /* Alamofire.swift */,
-				7617504123351825000438A8 /* DispatchQueue+Alamofire.swift */,
-				7617505323351827000438A8 /* MultipartFormData.swift */,
-				7617505123351827000438A8 /* NetworkReachabilityManager.swift */,
-				7617505223351827000438A8 /* Notifications.swift */,
-				7617504B23351826000438A8 /* ParameterEncoding.swift */,
-				7617504523351825000438A8 /* Request.swift */,
-				7617504E23351826000438A8 /* Response.swift */,
-				7617504D23351826000438A8 /* ResponseSerialization.swift */,
-				7617504223351825000438A8 /* Result.swift */,
-				7617504F23351827000438A8 /* ServerTrustPolicy.swift */,
-				7617504623351825000438A8 /* SessionDelegate.swift */,
-				7617504723351825000438A8 /* SessionManager.swift */,
-				7617504A23351826000438A8 /* TaskDelegate.swift */,
-				7617504C23351826000438A8 /* Timeline.swift */,
-				7617504323351825000438A8 /* Validation.swift */,
-			);
-			path = Alamofire;
 			sourceTree = "<group>";
 		};
 		7620450027C91A59007970F8 /* Inbox */ = {
@@ -1080,6 +1021,7 @@
 		764556311F78FF4F00B8F14B /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				A8CB36672F8E7BAD005BD2A1 /* MMNetworkReachabilityManager.swift */,
 				A8AD09A12F167C4C0061B3BF /* UIAlertController+MMSetup.swift */,
 				A8AD09A22F167C4C0061B3BF /* UIWindow+Extension.swift */,
 				A8E41C352F15303300673D77 /* MMPopOverBar.swift */,
@@ -1146,7 +1088,6 @@
 			isa = PBXGroup;
 			children = (
 				76B0A7BF24EFB43F0006A815 /* SwiftTryCatch */,
-				7617503F23351817000438A8 /* Alamofire */,
 				7601F177208E056400738C1A /* Kingsfisher */,
 				7645565E1F78FF4F00B8F14B /* Keychain */,
 				764556621F78FF4F00B8F14B /* PSOperations */,
@@ -1404,7 +1345,6 @@
 				76B0A7C324EFB43F0006A815 /* SwiftTryCatch.h in Headers */,
 				A0E2E4E6264AB3F100891124 /* MobileMessaging-umbrella.h in Headers */,
 				7645567E1F78FF5800B8F14B /* MobileMessagingPluginApplicationDelegate.h in Headers */,
-				7617505423351827000438A8 /* Alamofire.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1519,7 +1459,6 @@
 				763A1AFC23E4989700C997BC /* EventsService.swift in Sources */,
 				763A1AEB23E4633E00C997BC /* CustomEventReportingOperation.swift in Sources */,
 				7620450427C91E1D007970F8 /* MMInbox.swift in Sources */,
-				7617505623351827000438A8 /* Result.swift in Sources */,
 				764556CF1F78FFD900B8F14B /* TegKeychainConstants.swift in Sources */,
 				367B1A9A2918F3640081983C /* MMLoc.swift in Sources */,
 				764556781F78FF5800B8F14B /* MMVersion.swift in Sources */,
@@ -1529,9 +1468,7 @@
 				A0672BF22AC1A4C0005EDCD9 /* DocumentReadyState.swift in Sources */,
 				7650DC38244EEB480016233D /* ComposeBar.swift in Sources */,
 				764556B71F78FF9D00B8F14B /* MMNotificationCategory.swift in Sources */,
-				7617505923351827000438A8 /* Request.swift in Sources */,
 				76EA825C2727DE4300D16E66 /* MobileMessagingService.swift in Sources */,
-				7617505C23351827000438A8 /* AFError.swift in Sources */,
 				A0791856283258E9004309F5 /* ChatExtensions.swift in Sources */,
 				764556D91F78FFE700B8F14B /* OperationErrors.swift in Sources */,
 				25C335D42D81CDC200624BAC /* GetChatRegistrationOperation.swift in Sources */,
@@ -1559,7 +1496,6 @@
 				76B70DA721AD3A6E00E87BD5 /* DeleteInstanceOperation.swift in Sources */,
 				764556B91F78FFB200B8F14B /* Message+CoreDataProperties.swift in Sources */,
 				764556BE1F78FFCB00B8F14B /* RetryableDownloadTask.swift in Sources */,
-				7617505723351827000438A8 /* Validation.swift in Sources */,
 				E2173FF52ECB665C00A65BEC /* UserDataValidator.swift in Sources */,
 				763A1AE923E224DC00C997BC /* RepeatingTimer.swift in Sources */,
 				A08E503F2496536700F026ED /* ChatLocalization.swift in Sources */,
@@ -1583,7 +1519,6 @@
 				A8947B282DC9E97900A3ACBF /* LiveChatAPI+Models.swift in Sources */,
 				A08CB26C2459B0C600ED91B6 /* ChatWidget.swift in Sources */,
 				763A1B0523E5D4F300C997BC /* MOSendingMapper.swift in Sources */,
-				7617505523351827000438A8 /* DispatchQueue+Alamofire.swift in Sources */,
 				A0672BF72AC1A4C0005EDCD9 /* InAppMessagePresenter.swift in Sources */,
 				7645568D1F78FF6500B8F14B /* MMCoreDataExtensions.swift in Sources */,
 				A8283E8C2EA8CF8E00136EA7 /* ChatService+actions.swift in Sources */,
@@ -1605,20 +1540,16 @@
 				A0D477D129FABDEB000B6C45 /* MMInternalStorageModel.xcdatamodeld in Sources */,
 				7601F196208E056500738C1A /* Image.swift in Sources */,
 				76626D15218B2CD200E95E2C /* CustomAttributeModels.swift in Sources */,
-				7617505B23351827000438A8 /* SessionManager.swift in Sources */,
 				7626040E24EC1AA40052A36C /* HealthyRegistrationCondition.swift in Sources */,
 				7601F193208E056400738C1A /* Kingfisher.swift in Sources */,
-				7617506723351827000438A8 /* MultipartFormData.swift in Sources */,
 				764556D01F78FFE000B8F14B /* BlockObserver.swift in Sources */,
 				76A957A421ECAA82000AFD9C /* InstallationDataMapper.swift in Sources */,
-				7617506023351827000438A8 /* Timeline.swift in Sources */,
 				76F8A32D269F2F5700876E16 /* ChatMessageCounterService.swift in Sources */,
 				A8171FD12ADE5D3500AC6FC4 /* CallInteractor.swift in Sources */,
 				25C335DC2D81CDED00624BAC /* ChatWebView.swift in Sources */,
 				25C335DD2D81CDED00624BAC /* ChatJSWrapper.swift in Sources */,
 				25C335DE2D81CDED00624BAC /* ChatJSMessageHandler.swift in Sources */,
 				76263E8F24586F0300E5C97D /* WebViewToolbar.swift in Sources */,
-				7617506423351827000438A8 /* Alamofire.swift in Sources */,
 				A80F241A285B3C1F00946DEF /* MMLanguage.swift in Sources */,
 				A0E443A024AF5C8400387CDD /* ChatAttachmentUtils.swift in Sources */,
 				7626041124EC1AFE0052A36C /* NotPendingDepersonalizationCondition.swift in Sources */,
@@ -1629,11 +1560,9 @@
 				76978E2625C30C1200912DB4 /* BaseUrlManager.swift in Sources */,
 				25FBD4422D834F4200A2AD9E /* AsyncJSExecutor.swift in Sources */,
 				3659D846292B5A4E00D6ECF8 /* MMWebRTCSettings.swift in Sources */,
-				7617505E23351827000438A8 /* TaskDelegate.swift in Sources */,
 				A8E41C2B2F14EEB000673D77 /* ChatBEPO.swift in Sources */,
 				7650DC3D244EEB480016233D /* CPKeyboardAwareScrollViewController.swift in Sources */,
 				A0672BFC2AC1A4C0005EDCD9 /* AlertQueue.swift in Sources */,
-				7617506323351827000438A8 /* ServerTrustPolicy.swift in Sources */,
 				A843A44128F5A93600D5196F /* MMWebRTCService.swift in Sources */,
 				764556801F78FF5D00B8F14B /* MMAPIKeysAndValues.swift in Sources */,
 				7645568A1F78FF6500B8F14B /* InstallationManagedObject.swift in Sources */,
@@ -1661,7 +1590,6 @@
 				7601F19A208E056500738C1A /* Resource.swift in Sources */,
 				A843A43D28F5A6D700D5196F /* MMCallKitManager.swift in Sources */,
 				A0672BED2AC1A4C0005EDCD9 /* NativeInteractiveMessageAlertController.swift in Sources */,
-				7617506123351827000438A8 /* ResponseSerialization.swift in Sources */,
 				29566AA147F6FD93CB02A407FA10605F /* MobileMessaging-dummy.m in Sources */,
 				7645569F1F78FF8500B8F14B /* MessagesSyncOperation.swift in Sources */,
 				A8AD09A32F167C4C0061B3BF /* UIAlertController+MMSetup.swift in Sources */,
@@ -1696,7 +1624,6 @@
 				022BFEB52CC1449F00BB30B5 /* WebInAppClickObject+CoreDataProperties.swift in Sources */,
 				A88E21562BADA839000C10A8 /* MMDispatchQueue.swift in Sources */,
 				A0672BC92AC1A3CC005EDCD9 /* MMInAppMessage.swift in Sources */,
-				7617505A23351827000438A8 /* SessionDelegate.swift in Sources */,
 				7638B26722089F2000A98144 /* Archivable.swift in Sources */,
 				7645568C1F78FF6500B8F14B /* MessageManagedObject.swift in Sources */,
 				A8E41C312F15288F00673D77 /* ChatAttachmentPicker.swift in Sources */,
@@ -1710,7 +1637,6 @@
 				A0D477D629FBBDD9000B6C45 /* MMNotifications.m in Sources */,
 				763A1AF623E4873000C997BC /* CustomEventObject+CoreDataClass.swift in Sources */,
 				764556831F78FF5D00B8F14B /* MMRequests.swift in Sources */,
-				7617506623351827000438A8 /* Notifications.swift in Sources */,
 				764556941F78FF7F00B8F14B /* MMMessageHandler.swift in Sources */,
 				7645567A1F78FF5800B8F14B /* MobileMessaging.swift in Sources */,
 				7601F1A2208E056500738C1A /* AnimatedImageView.swift in Sources */,
@@ -1721,18 +1647,16 @@
 				764556A61F78FF8B00B8F14B /* UserNotificationCenterDelegate.swift in Sources */,
 				A0672BFA2AC1A4C0005EDCD9 /* WebInAppMessageView.swift in Sources */,
 				7601F198208E056500738C1A /* CacheSerializer.swift in Sources */,
-				7617506223351827000438A8 /* Response.swift in Sources */,
 				764556B81F78FF9D00B8F14B /* NotificationsInteractionService.swift in Sources */,
-				7617505F23351827000438A8 /* ParameterEncoding.swift in Sources */,
 				7663A2721FC8262600903C12 /* DynamicBaseUrlHTTPSessionManager.swift in Sources */,
 				763A1AF723E4873000C997BC /* CustomEventObject+CoreDataProperties.swift in Sources */,
+				A8CB36682F8E7BAD005BD2A1 /* MMNetworkReachabilityManager.swift in Sources */,
 				7642820D21920F5F0053A063 /* InstallationMigrationPolicy.swift in Sources */,
 				764556891F78FF6500B8F14B /* InstallationManagedObject+CoreDataProperties.swift in Sources */,
 				7601F194208E056400738C1A /* RequestModifier.swift in Sources */,
 				764556751F78FF5800B8F14B /* MMLoggingUtil.swift in Sources */,
 				E82568AF2D65C97200D6098F /* MobileMessaging+PluginsMethods.swift in Sources */,
 				766863A81FC824150047DA47 /* RemoteAPIProvider.swift in Sources */,
-				7617506523351827000438A8 /* NetworkReachabilityManager.swift in Sources */,
 				764556DC1F78FFF000B8F14B /* SwiftyJSON.swift in Sources */,
 				7636909C21F07330000CF3F8 /* PersonalizeOperation.swift in Sources */,
 				0270CF192DBFCA470070EB08 /* MMJwtUtils.swift in Sources */,

@@ -19,7 +19,7 @@ class SessionManagerSuccessMock: DynamicBaseUrlHTTPSessionManager {
 	}
     
     override func getDataResponse(_ r: RequestData, queue: DispatchQueue, completion: @escaping (JSON?, NSError?) -> Void) {
-		completion(responseJson(request), nil)
+		completion(responseJson(r), nil)
 	}
 }
 
@@ -31,7 +31,8 @@ class DynamicBaseUrlTests: MMTestCase {
         let sessionManager = DynamicBaseUrlHTTPSessionManager(baseURL: initialUrl, sessionConfiguration: nil, appGroupId: "")
         XCTAssertEqual(sessionManager.originalBaseUrl.absoluteString, "https://initial.com")
         XCTAssertEqual(sessionManager.dynamicBaseUrl?.absoluteString, "https://initial.com")
-        XCTAssertEqual(sessionManager.resolveUrl(baseUrlReques), "https://mobile.infobip.com/mobile/1/baseurl")
+        let urlRequest = try! baseUrlReques.buildURLRequest(baseURL: baseUrlReques.baseUrl ?? sessionManager.actualBaseUrl())
+        XCTAssertEqual(urlRequest.url?.absoluteString, "https://mobile.infobip.com/mobile/1/baseurl")
     }
     
 	func testThatNewBaseUrlIsAppliedForFollowingRequests() {

@@ -68,9 +68,7 @@ class Mocks {
 		}
 		
 		// headers are being formed by request serializer, so use it:
-//		let urlRequest: NSMutableURLRequest = RequestSerializer(applicationCode: appCode, jsonBody: request.body, pushRegistrationId: pushRegistrationId, headers: request.headers).request(withMethod: request.method.rawValue, urlString: "mock", parameters: request.parameters, error: nil)
-		let urlRequest = try! JSONRequestEncoding(request: request).encode(URLRequest(url: "mock", method: request.method, headers: request.headers), with: request.parameters)
-
+		let urlRequest = try! request.buildURLRequest(baseURL: URL(string: "https://mock")!)
 		let headers = urlRequest.allHTTPHeaderFields
 		
 		let requestJson = requestJSON(headers: headers, queryParameters: request.parameters, body: request.body)

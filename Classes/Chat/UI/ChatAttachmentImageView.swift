@@ -1,8 +1,8 @@
-// 
+//
 //  ChatAttachmentImageView.swift
 //  MobileMessaging
 //
-//  Copyright (c) 2016-2025 Infobip Limited
+//  Copyright (c) 2016-2026 Infobip Limited
 //  Licensed under the Apache License, Version 2.0
 //
 
@@ -14,7 +14,7 @@ class ChatAttachmentPreview: UIView {
     var contentView: UIView?
     let bckgrColor = MMChatSettings.sharedInstance.attachmentPreviewBarsColor ?? .black
     let vTintColor = MMChatSettings.sharedInstance.attachmentPreviewItemsColor ?? .white
-    
+
     lazy var activityIndicatior: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(frame: bounds)
         activityIndicator.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin, .flexibleRightMargin, .flexibleBottomMargin]
@@ -22,7 +22,7 @@ class ChatAttachmentPreview: UIView {
         activityIndicator.style = .large
         return activityIndicator
     }()
-    
+
     lazy var errorView: UIImageView = {
         let view = UIImageView(frame: bounds)
         view.image = UIImage(mm_chat_named: "fileNotFound")?.withRenderingMode(.alwaysTemplate)
@@ -33,7 +33,7 @@ class ChatAttachmentPreview: UIView {
         view.backgroundColor = .clear
         return view
     }()
-    
+
     func startLoading() {
         activityIndicatior.startAnimating()
     }
@@ -45,7 +45,7 @@ class ChatAttachmentPreview: UIView {
             self.errorView.isHidden = false
         }
     }
-    
+
     func setupViews() {
         backgroundColor = bckgrColor
         if let contentView = contentView {
@@ -54,23 +54,23 @@ class ChatAttachmentPreview: UIView {
         addSubview(errorView)
         addSubview(activityIndicatior)
     }
-    
-    func showContentFrom(responseData: DownloadResponse<Data>) {}
+
+    func showContentFrom(responseData: MMDownloadResult) {}
 }
 
 class ChatAttachmentImagePreview: ChatAttachmentPreview {
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView = imageView
         setupViews()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    override func showContentFrom(responseData: DownloadResponse<Data>) {
+
+    override func showContentFrom(responseData: MMDownloadResult) {
         guard let data = responseData.value,
             let image = UIImage(data: data) else {
                 showError()
@@ -78,13 +78,13 @@ class ChatAttachmentImagePreview: ChatAttachmentPreview {
         }
         setImage(image: image)
     }
-    
+
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView(frame: bounds)
         imageView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         return imageView
     }()
-    
+
     private func setImage(image: UIImage) {
         imageView.image = image
         imageView.contentMode = image.size.width < bounds.width && image.size.height < bounds.height ? .center : .scaleAspectFit
@@ -92,7 +92,7 @@ class ChatAttachmentImagePreview: ChatAttachmentPreview {
 }
 
 class ChatAttachmentVideoPreview: ChatAttachmentWebViewPreview {
-    override func showContentFrom(responseData: DownloadResponse<Data>) {
+    override func showContentFrom(responseData: MMDownloadResult) {
         guard let destinationURL = responseData.destinationURL else {
             showError()
             return
@@ -103,18 +103,18 @@ class ChatAttachmentVideoPreview: ChatAttachmentWebViewPreview {
 }
 
 class ChatAttachmentWebViewPreview: ChatAttachmentPreview {
-    
+
     init(frame: CGRect, navigationDelegate: WKNavigationDelegate) {
         super.init(frame: frame)
         webView.navigationDelegate = navigationDelegate
         contentView = webView
         setupViews()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     lazy var webView: WKWebView = {
         let configuration = WKWebViewConfiguration()
         configuration.allowsInlineMediaPlayback = true
@@ -127,13 +127,13 @@ class ChatAttachmentWebViewPreview: ChatAttachmentPreview {
         webView.backgroundColor = bckgrColor
         return webView
     }()
-    
-    override func showContentFrom(responseData: DownloadResponse<Data>) {
+
+    override func showContentFrom(responseData: MMDownloadResult) {
         guard let destinationURL = responseData.destinationURL else {
             showError()
             return
         }
-        
+
         webView.load(URLRequest(url: destinationURL))
     }
 }

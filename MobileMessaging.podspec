@@ -36,7 +36,6 @@ Pod::Spec.new do |s|
             'Classes/MobileMessagingObjC/Headers/MMNotifications.h',
             'Classes/MobileMessagingObjC/Headers/SwiftTryCatch.h'
         core.private_header_files =
-            'Classes/MobileMessagingObjC/Headers/Alamofire.h',
             'Classes/MobileMessagingObjC/Headers/Kingsfisher.h'
         core.source_files =
             'Classes/MobileMessaging/Core/**/*.{h,m,swift}',

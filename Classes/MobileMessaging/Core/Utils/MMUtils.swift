@@ -325,16 +325,6 @@ extension String {
         return data
     }
     
-    var mm_urlSafeString: String {
-        let raw: String = self
-        var urlFragmentAllowed = CharacterSet.urlFragmentAllowed
-        urlFragmentAllowed.remove(charactersIn: "!*'();:@&=+$,/?%#[]")
-        var result = String()
-        if let str = raw.addingPercentEncoding(withAllowedCharacters: urlFragmentAllowed) {
-            result = str
-        }
-        return result
-    }
 }
 
 public func += <Key, Value> (left: inout Dictionary<Key, Value>, right: Dictionary<Key, Value>?) {

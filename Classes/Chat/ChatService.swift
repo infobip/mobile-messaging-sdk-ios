@@ -342,7 +342,7 @@ public class MMInAppChatService: MobileMessagingService {
     }
     
     private func startReachabilityListener() {
-        networkReachabilityManager?.listener = { [weak self] status in
+        networkReachabilityManager.listener = { [weak self] status in
             guard let _self = self else {
                 return
             }
@@ -359,15 +359,15 @@ public class MMInAppChatService: MobileMessagingService {
                 }
             }
         }
-        networkReachabilityManager?.startListening()
+        networkReachabilityManager.startListening()
     }
     
     private func stopReachabilityListener() {
-        networkReachabilityManager?.stopListening()
+        networkReachabilityManager.stopListening()
     }
     
     public var isNetworkReachable: Bool {
-        return networkReachabilityManager?.isReachable ?? false
+        return networkReachabilityManager.isReachable
     }
     
     private func notifyForChatAvailabilityChange() {
