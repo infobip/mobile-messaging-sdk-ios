@@ -27,7 +27,7 @@ NSString* MMNotificationInAppChatAvailabilityUpdated = @"com.mobile-messaging.no
 NSString* MMNotificationInAppChatUnreadMessagesCounterUpdated = @"com.mobile-messaging.notification.inappchat-unread-messages-counter-updated";
 NSString* MMNotificationInAppChatViewChanged = @"com.mobile-messaging.notification.inappchat-view-changed";
 NSString* MMNotificationChatRegistrationReceived = @"com.mobile-messaging.notification.livechat-registration-received";
-
+NSString* MMNotificationChatRegistrationRequested = @"com.mobile-messaging.notification.livechat-registration-requested";
 
 //MARK: Notification keys
 NSString* MMNotificationKeyRegistrationInternalId = @"com.mobile-messaging.notification.key.registration";

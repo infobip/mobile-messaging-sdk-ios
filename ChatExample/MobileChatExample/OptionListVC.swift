@@ -183,6 +183,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
     
     func onRestartCalls() {
         MobileMessaging.webRTCService?.configurationId = webrtcConfigurationId
+        MobileMessaging.webRTCService?.identityMode = .inAppChat
         MobileMessaging.webRTCService?.start({ result in
             print("Calls process started successfully \(result)")
         })

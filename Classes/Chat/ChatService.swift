@@ -177,8 +177,10 @@ public class MMInAppChatService: MobileMessagingService {
         syncWithServer { _ in}
         // Personalisation changes LiveChat registration - we listen to it locally
         NotificationCenter.default.addObserver(self, selector: #selector(personalizedEventReceived), name: NSNotification.Name(rawValue: MMNotificationPersonalized), object: nil)
+        // We also listen to request for chat registration Id propagation (ie, from WebRTCUI)
+        NotificationCenter.default.addObserver(self, selector: #selector(chatRegistrationRequested), name: NSNotification.Name(rawValue: MMNotificationChatRegistrationRequested), object: nil)
     }
-	
+    	
     public override func depersonalizeService(_ mmContext: MobileMessaging, userInitiated: Bool, completion: @escaping () -> Void) {
         getWidgetQueue.cancelAllOperations()
         getChatRegistrationQueue.cancelAllOperations()
@@ -280,6 +282,12 @@ public class MMInAppChatService: MobileMessagingService {
         MMChatSettings.sharedInstance.update(withChatWidget: chatWidget)
 	}
 
+
+    @objc
+    private func chatRegistrationRequested() {
+        guard let chatRegistrationId else { return }
+        UserEventsManager.postChatRegistrationReceived(chatRegistrationId)
+    }
 
     @objc
     private func personalizedEventReceived() {

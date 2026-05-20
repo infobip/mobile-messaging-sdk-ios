@@ -168,17 +168,29 @@ public class MMWebRTCService: MobileMessagingService {
     }
 
     private func handleIdentityMode() {
-        if case .inAppChat = identityMode {
-           NotificationCenter.default.addObserver(
-               self,
-               selector: #selector(handleInAppChatRegistration(_ :)),
-               name: NSNotification.Name(rawValue: MMNotificationChatRegistrationReceived),
-               object: nil)
-        } else {
-           NotificationCenter.default.removeObserver(
-               self,
-               name: NSNotification.Name(rawValue: MMNotificationChatRegistrationReceived),
-               object: nil)
+        DispatchQueue.mmEnsureMain { [weak self] in
+            guard let self = self else { return }
+            // inAppChat identity mode is used livechat dedicated calls
+            if case .inAppChat = self.identityMode {
+                // First we create an observer: inAppChat will propagate the livechatRegistrationId when received (or updated)
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(handleInAppChatRegistration(_ :)),
+                    name: NSNotification.Name(rawValue: MMNotificationChatRegistrationReceived),
+                    object: nil)
+                // Then we post a 'request', if inAppChat was started before webrtcui and already has the value
+                if inAppChatRegistrationId == nil {
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name(rawValue: MMNotificationChatRegistrationRequested),
+                        object: self,
+                        userInfo: nil)
+                }
+            } else { // Other types (p2p webrtc calls) need no observer to inAppChat, so we remove it in case it was set before
+                NotificationCenter.default.removeObserver(
+                    self,
+                    name: NSNotification.Name(rawValue: MMNotificationChatRegistrationReceived),
+                    object: nil)
+            }
         }
     }
 

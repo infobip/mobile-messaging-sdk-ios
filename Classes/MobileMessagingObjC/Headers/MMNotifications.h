@@ -96,6 +96,11 @@ FOUNDATION_EXPORT NSString* MMNotificationInAppChatViewChanged;
  */
 FOUNDATION_EXPORT NSString* MMNotificationChatRegistrationReceived;
 
+/**
+ Posted when WebRTCUI needs the identity value. Chat observes and re-broadcasts the current chat registration Id. Useful when WebRTCUI starts after Chat already has the value.
+ */
+FOUNDATION_EXPORT NSString* MMNotificationChatRegistrationRequested;
+
 //MARK: Notification keys
 
 /**
