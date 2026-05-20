@@ -130,7 +130,8 @@ extension SessionManagement {
         if let error = error {
             return MMResult.Failure(error)
         } else {
-            if let json = json, let response = Response(json: json) {
+            // No error but empty response is also a valid response - we use then JSON.null in the successful completion
+            if let response = Response(json: json ?? JSON.null) {
                 return MMResult.Success(response)
             } else {
                 return MMResult.Failure(MMInternalErrorType.ResponseDeserializationFailed.foundationError)

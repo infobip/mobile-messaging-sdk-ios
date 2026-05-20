@@ -117,7 +117,7 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 
                 // #2 - Validation of the Content-Type validation (to detect unexpected responses)
                 guard let data = data, !data.isEmpty else {
-                    self.logWarn("""
+                    self.logDebug("""
                         Empty data received
                         url: \(httpResponse.url.orNil)
                         status code: \(httpResponse.statusCode)
