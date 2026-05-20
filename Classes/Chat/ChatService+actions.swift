@@ -252,6 +252,9 @@ protocol ChatWebViewDelegate: AnyObject, WidgetSubscriber {
     ///Called when the SDK needs a JSON Web Token from your end. This method is only needed if your widget requires JWT for authentication, as defined on its setup. Keep in mind each JWT you provide must be different from the previous one.
     ///Note: this method is predictable: it will be triggered only when a new chat view (or navigation) controller is created, or the first time you use an API method.
     @objc optional func getJWT() -> String?
+    
+    ///Called when the user taps a link within a chat message. The returned bool value will determine if the link is opened in the default mobile browser, or ignored. By checking the URI propagated here, you may detect a deeplink and act according to your needs (ie, navigate somewhere within your app vs let the web browser handle it). As soon as the content supports URI query encoding, the content will be allowed: from valid URLs (https://etc), to custom ones (that won't trigger browser opening), such as 'yourAppName://action?data'.
+    @objc optional func onChatURIInteracted(_ uri: URL) -> Bool
 }
 
 extension UserEventsManager {

@@ -335,7 +335,6 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         }
     }
     
-    
     private func handleWebRTCUI(_ option: Int) {
         guard let suboption = WebRTCUIOptions(rawValue: option) else { return }
         switch suboption {
@@ -346,6 +345,12 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         case .copyIdentityToClipboard:
             onCopyIdentityToClipboard()
         }
+    }
+    
+    func onChatURIInteracted(_ uri: URL) -> Bool {
+        // This method would be use to decide if a link tapped is a webpage the user can see opened in the mobile browser, or is actually a deeplink the parent app must intercept. The decision to open in browser or not is defined by the returned boolean.
+        print("onChatURIInteracted received: \(uri.absoluteString)")
+        return uri.absoluteString.contains("https://")
     }
     
     private func setDefaultSettings() {

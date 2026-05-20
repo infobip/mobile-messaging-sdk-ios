@@ -661,14 +661,26 @@ extension MMChatViewController: ChatAttachmentPickerDelegate {
 }
 
 extension MMChatViewController: WKNavigationDelegate {
-    public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        guard navigationAction.navigationType == .linkActivated, let url = navigationAction.request.url, UIApplication.shared.canOpenURL(url) else {
-            decisionHandler(.allow)
-            return
+    
+    private func openIfPossible(_ uri: URL) async {
+        if UIApplication.shared.canOpenURL(uri) {
+            await UIApplication.shared.open(uri)
         }
-        logDebug("will open URL: \(url)")
-        UIApplication.shared.open(url)
-        decisionHandler(.cancel)
+    }
+    
+    public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+        guard navigationAction.navigationType == .linkActivated, let uri = navigationAction.request.url else {
+            return .allow // Other navigationType include reload, etc, which are allowed.
+        }
+        logDebug("Deciding policy for URL: \(uri)")
+        guard let proceed = MobileMessaging.inAppChat?.delegate?.onChatURIInteracted?(uri) else {
+            await openIfPossible(uri) // Undefined delegate method, we keep original logic: open URI if possible
+            return .cancel // We always skip loading an URI in the same webview the widget is loaded (browser must be opened instead)
+        }
+        if proceed {
+            await openIfPossible(uri)
+        }
+        return .cancel
     }
 }
 
