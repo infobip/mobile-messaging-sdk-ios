@@ -97,6 +97,8 @@ public class MMInAppChatService: MobileMessagingService {
         //removing saved attachments
         do {
             try FileManager.default.removeItem(at: URL.chatAttachmentDestinationFolderUrl(createIfNotExist: false))
+        } catch let error as NSError where error.domain == NSCocoaErrorDomain && error.code == NSFileNoSuchFileError {
+            logDebug("attachments folder does not exist, nothing to remove")
         } catch {
             logError("error while removing attachments folder: \(error)")
         }
