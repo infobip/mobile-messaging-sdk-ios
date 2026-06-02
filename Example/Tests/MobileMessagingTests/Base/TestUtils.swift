@@ -103,7 +103,7 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 	var syncMessagesClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody) -> MessagesSyncResult)? = nil
 	var fetchRecentLibraryVersionClosure: ((String, _ pushRegistrationId: String?) -> LibraryVersionResult)? = nil
 	var depersonalizeClosure: ((String, _ pushRegistrationId: String, _ pushRegistrationIdToDepersonalize: String) -> DepersonalizeResult)? = nil
-	var personalizeClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody, _ forceDepersonalize: Bool) -> PersonalizeResult)? = nil
+	var personalizeClosure: ((String, _ pushRegistrationId: String, _ body: RequestBody, _ forceDepersonalize: Bool, _ keepAsLead: Bool, _ setDeviceAsPrimary: Bool) -> PersonalizeResult)? = nil
 	var patchOtherInstanceClosure: ((String, _ authPushRegistrationId: String, _ pushRegistrationId: String, _ body: RequestBody) -> UpdateInstanceDataResult)? = nil
 	var postInstanceClosure: ((String, RequestBody) -> FetchInstanceDataResult)? = nil
 	var patchInstanceClosure: ((String, String, String, RequestBody) -> UpdateInstanceDataResult)? = nil
@@ -180,11 +180,11 @@ class RemoteAPIProviderStub : RemoteAPIProvider {
 	}
     
     override func personalize(applicationCode: String, accessToken: String? = nil, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool,
-                              keepAsLead: Bool = false, queue: DispatchQueue, completion: @escaping (PersonalizeResult) -> Void) {
+                              keepAsLead: Bool = false, setDeviceAsPrimary: Bool = false, queue: DispatchQueue, completion: @escaping (PersonalizeResult) -> Void) {
         if let personalizeClosure = personalizeClosure {
-            completion(personalizeClosure(applicationCode, pushRegistrationId,body,forceDepersonalize))
+            completion(personalizeClosure(applicationCode, pushRegistrationId, body, forceDepersonalize, keepAsLead, setDeviceAsPrimary))
         } else {
-            super.personalize(applicationCode: applicationCode, accessToken: accessToken, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, queue: queue, completion: completion)
+            super.personalize(applicationCode: applicationCode, accessToken: accessToken, pushRegistrationId: pushRegistrationId, body: body, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, setDeviceAsPrimary: setDeviceAsPrimary, queue: queue, completion: completion)
         }
     }
 

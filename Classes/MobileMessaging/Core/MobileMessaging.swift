@@ -391,10 +391,12 @@ public final class MobileMessaging: NSObject, NamedLogger {
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter userIdentity: A combination of phones, emails and an external user id that will form a unique key for a person.
      - parameter userAttributes: Optional user data to be saved for the person.
+     - parameter keepAsLead: Whether to keep the installation as a lead. Default is false.
+     - parameter setDeviceAsPrimary: Whether to mark this installation as primary for the personalized user. Default is false.
      - parameter completion: The block to execute after the server responded.
      - parameter error: Optional error. */
-    public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, keepAsLead: Bool = false, completion: @escaping (_ error: NSError?) -> Void) {
-        personalize(forceDepersonalize: false, keepAsLead: keepAsLead, userIdentity: identity, userAttributes: userAttributes, completion: completion)
+    public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, keepAsLead: Bool = false, setDeviceAsPrimary: Bool = false, completion: @escaping (_ error: NSError?) -> Void) {
+        personalize(forceDepersonalize: false, keepAsLead: keepAsLead, setDeviceAsPrimary: setDeviceAsPrimary, userIdentity: identity, userAttributes: userAttributes, completion: completion)
     }
     
     /**
@@ -403,14 +405,16 @@ public final class MobileMessaging: NSObject, NamedLogger {
 
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter forceDepersonalize: Determines whether or not the depersonalization should be performed on our server in order to depersonalize the installation from previous user profile.
+     - parameter keepAsLead: Whether to keep the installation as a lead. Default is false.
+     - parameter setDeviceAsPrimary: Whether to mark this installation as primary for the personalized user. Default is false.
      - parameter userIdentity: A combination of phones, emails and an external user id that will form a unique key for a person.
      - parameter userAttributes: Optional user data to be saved for the person.
      - parameter completion: The block to execute after the server responded.
      - parameter error : Optional error. */
-    public class func personalize(forceDepersonalize: Bool, keepAsLead: Bool = false, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
+    public class func personalize(forceDepersonalize: Bool, keepAsLead: Bool = false, setDeviceAsPrimary: Bool = false, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (_ error: NSError?) -> Void) {
         if let mm = MobileMessaging.sharedInstance {
             mm.queue.async {
-                mm.userService.personalize(userInitiated: true, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, userIdentity: userIdentity, userAttributes: userAttributes, completion: { error in
+                mm.userService.personalize(userInitiated: true, forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, setDeviceAsPrimary: setDeviceAsPrimary, userIdentity: userIdentity, userAttributes: userAttributes, completion: { error in
                     DispatchQueue.main.async(execute: { completion(error) })
                 })
             }
@@ -1084,11 +1088,12 @@ extension MobileMessaging {
      - parameter identity: A combination of phones, emails and an external user id.
      - parameter userAttributes: Optional user data to be saved for the person.
      - parameter keepAsLead: Whether to keep the installation as a lead. Default is false.
+     - parameter setDeviceAsPrimary: Whether to mark this installation as primary for the personalized user. Default is false.
      - throws: NSError if the operation fails.
      */
-    public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, keepAsLead: Bool = false) async throws {
+    public class func personalize(withUserIdentity identity: MMUserIdentity, userAttributes: MMUserAttributes?, keepAsLead: Bool = false, setDeviceAsPrimary: Bool = false) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            MobileMessaging.personalize(withUserIdentity: identity, userAttributes: userAttributes, keepAsLead: keepAsLead) { error in
+            MobileMessaging.personalize(withUserIdentity: identity, userAttributes: userAttributes, keepAsLead: keepAsLead, setDeviceAsPrimary: setDeviceAsPrimary) { error in
                 guard let error = error else {
                     continuation.resume()
                     return
@@ -1104,13 +1109,14 @@ extension MobileMessaging {
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter forceDepersonalize: Determines whether depersonalization should be performed first.
      - parameter keepAsLead: Whether to keep the installation as a lead. Default is false.
+     - parameter setDeviceAsPrimary: Whether to mark this installation as primary for the personalized user. Default is false.
      - parameter userIdentity: A combination of phones, emails and an external user id.
      - parameter userAttributes: Optional user data to be saved for the person.
      - throws: NSError if the operation fails.
      */
-    public class func personalize(forceDepersonalize: Bool, keepAsLead: Bool = false, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?) async throws {
+    public class func personalize(forceDepersonalize: Bool, keepAsLead: Bool = false, setDeviceAsPrimary: Bool = false, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?) async throws {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            MobileMessaging.personalize(forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, userIdentity: userIdentity, userAttributes: userAttributes) { error in
+            MobileMessaging.personalize(forceDepersonalize: forceDepersonalize, keepAsLead: keepAsLead, setDeviceAsPrimary: setDeviceAsPrimary, userIdentity: userIdentity, userAttributes: userAttributes) { error in
                 guard let error = error else {
                     continuation.resume()
                     return

@@ -17,10 +17,12 @@ class PersonalizeOperation: MMOperation {
 	let requireResponse: Bool
 	let forceDepersonalize: Bool
     let keepAsLead: Bool
+    let setDeviceAsPrimary: Bool
 
-    init(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
+    init(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, setDeviceAsPrimary: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
 		self.forceDepersonalize = forceDepersonalize
         self.keepAsLead = keepAsLead
+        self.setDeviceAsPrimary = setDeviceAsPrimary
 		self.userIdentity = userIdentity
 		self.userAttributes = userAttributes
 		self.mmContext = mmContext
@@ -65,8 +67,9 @@ class PersonalizeOperation: MMOperation {
                                                 accessToken: accessToken,
 												pushRegistrationId: pushRegistrationId,
 												body: body,
-                                                forceDepersonalize: forceDepersonalize, 
+                                                forceDepersonalize: forceDepersonalize,
                                                 keepAsLead: keepAsLead,
+                                                setDeviceAsPrimary: setDeviceAsPrimary,
                                                 queue: underlyingQueue)
 		{ (result) in
 			self.handlePersonalizeResult(result)

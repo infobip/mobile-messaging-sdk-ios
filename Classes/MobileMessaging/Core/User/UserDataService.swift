@@ -123,7 +123,7 @@ class UserDataService: MobileMessagingService {
 		return ret
 	}
 
-    func personalize(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (NSError?) -> Void) {
+    func personalize(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, setDeviceAsPrimary: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, completion: @escaping (NSError?) -> Void) {
         assert(!Thread.isMainThread)
 
         // Validate user data before personalization
@@ -144,8 +144,9 @@ class UserDataService: MobileMessagingService {
 
 		let op = PersonalizeOperation(
             userInitiated: userInitiated,
-            forceDepersonalize: forceDepersonalize, 
+            forceDepersonalize: forceDepersonalize,
             keepAsLead: keepAsLead,
+            setDeviceAsPrimary: setDeviceAsPrimary,
 			userIdentity: userIdentity,
 			userAttributes: userAttributes,
 			mmContext: mmContext,

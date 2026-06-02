@@ -279,7 +279,7 @@ class PersonalizeTests: MMTestCase {
 		mobileMessagingInstance.pushRegistrationId = "123"
 
 		let remoteApiProvider = RemoteAPIProviderStub()
-		remoteApiProvider.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+		remoteApiProvider.personalizeClosure = { _, _, _, _, _, _ -> PersonalizeResult in
 			let jsonStr = """
 	{
 		"phones": [
@@ -322,11 +322,59 @@ class PersonalizeTests: MMTestCase {
 		XCTAssertEqual(user.birthday, darthVaderDateOfBirth)
 		XCTAssertEqual(user.customAttributes! as NSDictionary, ["bootsize": 9.5 as NSNumber])
 	}
+
+	func testThatPersonalizeSendsSetDeviceAsPrimaryQueryParamWhenTrue() async throws {
+		MMTestCase.startWithCorrectApplicationCode()
+		mobileMessagingInstance.pushRegistrationId = "123"
+
+		var capturedForceDepersonalize: Bool?
+		var capturedKeepAsLead: Bool?
+		var capturedSetDeviceAsPrimary: Bool?
+
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.personalizeClosure = { _, _, _, forceDepersonalize, keepAsLead, setDeviceAsPrimary -> PersonalizeResult in
+			capturedForceDepersonalize = forceDepersonalize
+			capturedKeepAsLead = keepAsLead
+			capturedSetDeviceAsPrimary = setDeviceAsPrimary
+			return PersonalizeResult.Success(MMUser.empty)
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
+
+		try await MobileMessaging.personalize(forceDepersonalize: false, keepAsLead: false, setDeviceAsPrimary: true, userIdentity: MMUserIdentity(externalUserId: "externalUserId")!, userAttributes: nil)
+
+		XCTAssertEqual(capturedForceDepersonalize, false)
+		XCTAssertEqual(capturedKeepAsLead, false)
+		XCTAssertEqual(capturedSetDeviceAsPrimary, true)
+	}
+
+	func testThatPersonalizeDefaultsSetDeviceAsPrimaryToFalseWhenOmitted() async throws {
+		MMTestCase.startWithCorrectApplicationCode()
+		mobileMessagingInstance.pushRegistrationId = "123"
+
+		var capturedForceDepersonalize: Bool?
+		var capturedKeepAsLead: Bool?
+		var capturedSetDeviceAsPrimary: Bool?
+
+		let remoteApiProvider = RemoteAPIProviderStub()
+		remoteApiProvider.personalizeClosure = { _, _, _, forceDepersonalize, keepAsLead, setDeviceAsPrimary -> PersonalizeResult in
+			capturedForceDepersonalize = forceDepersonalize
+			capturedKeepAsLead = keepAsLead
+			capturedSetDeviceAsPrimary = setDeviceAsPrimary
+			return PersonalizeResult.Success(MMUser.empty)
+		}
+		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
+
+		try await MobileMessaging.personalize(withUserIdentity: MMUserIdentity(externalUserId: "externalUserId")!, userAttributes: nil)
+
+		XCTAssertEqual(capturedForceDepersonalize, false)
+		XCTAssertEqual(capturedKeepAsLead, false)
+		XCTAssertEqual(capturedSetDeviceAsPrimary, false)
+	}
 }
 
 let ambiguousPersonalizeCandidatesApiMock = { () -> RemoteAPIProviderStub in
 	let remoteApiProvider = RemoteAPIProviderStub()
-	remoteApiProvider.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+	remoteApiProvider.personalizeClosure = { _, _, _, _, _, _ -> PersonalizeResult in
 
 		let responseDict = ["requestError":
 			["serviceException":

@@ -189,8 +189,8 @@ class PostDepersonalize: PostRequest {
 class PostPersonalize: PostRequest {
     typealias ResponseType = MMUser
 
-    init(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, keepAsLead: Bool, accessToken: String? = nil) {
-        super.init(applicationCode: applicationCode, path: .AppInstancePersonalize, pushRegistrationId: pushRegistrationId, body: body, parameters: ["forceDepersonalize": forceDepersonalize, "keepAsLead": keepAsLead], pathParameters: ["{pushRegistrationId}": pushRegistrationId], accessToken: accessToken)
+    init(applicationCode: String, pushRegistrationId: String, body: RequestBody, forceDepersonalize: Bool, keepAsLead: Bool, setDeviceAsPrimary: Bool, accessToken: String? = nil) {
+        super.init(applicationCode: applicationCode, path: .AppInstancePersonalize, pushRegistrationId: pushRegistrationId, body: body, parameters: ["forceDepersonalize": forceDepersonalize, "keepAsLead": keepAsLead, "setDeviceAsPrimary": setDeviceAsPrimary], pathParameters: ["{pushRegistrationId}": pushRegistrationId], accessToken: accessToken)
     }
 }
 

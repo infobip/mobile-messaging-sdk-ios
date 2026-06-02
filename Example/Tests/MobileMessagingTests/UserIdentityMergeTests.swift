@@ -166,7 +166,7 @@ class UserIdentityMergeTests: MMTestCase {
 
 		// Mock successful personalize response
 		let remoteApiProvider = RemoteAPIProviderStub()
-		remoteApiProvider.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+		remoteApiProvider.personalizeClosure = { _, _, _, _, _, _ -> PersonalizeResult in
 			// Server returns user with all fields intact
 			let jsonStr = """
 			{
@@ -208,7 +208,7 @@ class UserIdentityMergeTests: MMTestCase {
 
 		// Mock successful personalize response
 		let remoteApiProvider = RemoteAPIProviderStub()
-		remoteApiProvider.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+		remoteApiProvider.personalizeClosure = { _, _, _, _, _, _ -> PersonalizeResult in
 			let jsonStr = """
 			{
 				"phones": [{"number": "newPhone"}],
@@ -247,7 +247,7 @@ class UserIdentityMergeTests: MMTestCase {
 
 		// Mock successful personalize response
 		let remoteApiProvider = RemoteAPIProviderStub()
-		remoteApiProvider.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+		remoteApiProvider.personalizeClosure = { _, _, _, _, _, _ -> PersonalizeResult in
 			let jsonStr = """
 			{
 				"phones": [{"number": "phone"}],
@@ -314,7 +314,7 @@ class UserIdentityMergeTests: MMTestCase {
 
 		// Mock successful personalize response
 		let remoteApiProvider = RemoteAPIProviderStub()
-		remoteApiProvider.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+		remoteApiProvider.personalizeClosure = { _, _, _, _, _, _ -> PersonalizeResult in
 			let jsonStr = """
 			{
 				"phones": [{"number": "123"}],
@@ -337,7 +337,7 @@ class UserIdentityMergeTests: MMTestCase {
 
 let successfulPersonalizeApiMock = { () -> RemoteAPIProviderStub in
 	let ret = RemoteAPIProviderStub()
-	ret.personalizeClosure = { _, _, _, _ -> PersonalizeResult in
+	ret.personalizeClosure = { _, _, _, _, _, _ -> PersonalizeResult in
 		// Return a successful personalize result with empty user
 		return PersonalizeResult.Success(MMUser(json: JSON.parse("{}"))!)
 	}
