@@ -18,6 +18,8 @@ class ChatWebViewHandler: NamedLogger {
     private let stateQueue = DispatchQueue(label: "com.infobip.ChatWebViewHandler.stateQueue")
     private var _pendingActions: [(Error?) -> Void] = []
     private var _currentViewState = MMChatWebViewState.unknown
+    private var _loadingSlot: ChatWidgetLoadSlot?
+    private var _wantsToLoad = false
     var pendingActions: [(Error?) -> Void] {
         get { stateQueue.sync { _pendingActions } }
         set { stateQueue.sync { _pendingActions = newValue } }
@@ -179,6 +181,7 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
     func reset() {
         stateQueue.async { [weak self] in
+            self?._wantsToLoad = false // Cancel any pending slot acquisition before triggering
             self?.triggerPendingActions(with: MMChatLocalError.noWidget.foundationError)
             self?.stopConnection()
             DispatchQueue.main.async {
@@ -199,6 +202,8 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
             guard let self = self else { return }
             let actions = self._pendingActions
             self._pendingActions.removeAll()
+            self._loadingSlot?.release() // Release the global loading slot before firing callbacks
+            self._loadingSlot = nil
             DispatchQueue.main.async {
                 if let error = error {
                     self.logError(error.localizedDescription)
@@ -298,6 +303,32 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
         return chatWidget?.attachments.maxSize ?? ChatAttachmentUtils.DefaultMaxAttachmentSize
     }
 
+    // Called from stateQueue context only.
+    private func startWidgetLoad(_ widget: ChatWidget) {
+        guard !_wantsToLoad, _loadingSlot == nil else { return }
+        _wantsToLoad = true
+        Task { [weak self] in
+            let slot = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+            self?.stateQueue.async { [weak self] in
+                guard let self, self._wantsToLoad else {
+                    // Handler gone or reset() called while waiting — release the slot and stop
+                    slot.release()
+                    return
+                }
+                self._wantsToLoad = false
+                self._loadingSlot = slot
+                DispatchQueue.main.async { self.webView.loadWidget(widget) }
+            }
+        }
+    }
+
+    // Entry point for callers outside stateQueue (e.g., MMInAppChatWidgetAPI).
+    func beginLoadWidget(_ widget: ChatWidget) {
+        stateQueue.async { [weak self] in
+            self?.startWidgetLoad(widget)
+        }
+    }
+
     func ensureWidgetLoaded(completion: @escaping (Error?) -> Void) {
         stateQueue.async { [weak self] in
             guard let self = self else {
@@ -315,9 +346,7 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
 
             if isFirstAction, let chatWidget = self.chatWidget {
                 MMInAppChatService.sharedInstance?.resetErrors()
-                DispatchQueue.main.async {
-                    self.webView.loadWidget(chatWidget)
-                }
+                self.startWidgetLoad(chatWidget)
             } else if self.chatWidget == nil { // an action request without widget could mean it was triggered too soon (and it will recover later), or it could be an actual environment problem, so we check for the later
                 MobileMessaging.inAppChat?.validateSetup()
             }

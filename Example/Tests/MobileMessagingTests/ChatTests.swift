@@ -573,3 +573,141 @@ class ChatWidgetTests: MMTestCase {
 		XCTAssertTrue(attachmentSettings.allowedExtensions.contains("pdf"))
 	}
 }
+
+// MARK: - ChatWidgetLoadCoordinator Tests
+
+class ChatWidgetLoadCoordinatorTests: XCTestCase {
+
+	override func setUp() async throws {
+		try await super.setUp()
+		await ChatWidgetLoadCoordinator.shared.resetForTesting()
+	}
+
+	// MARK: Single Slot Acquire/Release
+
+	func testAcquireAndRelease_SlotIsAvailableAfterRelease() async {
+		let slot = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+
+		let isLoadingAfterAcquire = await ChatWidgetLoadCoordinator.shared.isLoading
+		XCTAssertTrue(isLoadingAfterAcquire)
+
+		slot.release()
+		try? await Task.sleep(nanoseconds: 50_000_000)
+
+		let isLoadingAfterRelease = await ChatWidgetLoadCoordinator.shared.isLoading
+		XCTAssertFalse(isLoadingAfterRelease)
+	}
+
+	// MARK: Concurrency — Second Handler Waits
+
+	func testSecondAcquire_WaitsUntilFirstReleases() async {
+		let firstAcquired = expectation(description: "First slot acquired")
+		let secondAcquired = expectation(description: "Second slot acquired")
+		let firstReleased = expectation(description: "First slot released")
+
+		// Acquire the first slot
+		let firstSlot = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+		firstAcquired.fulfill()
+
+		// Second acquirer runs concurrently — must block until first releases
+		let secondTask = Task {
+			let secondSlot = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+			secondAcquired.fulfill()
+			secondSlot.release()
+		}
+
+		// Give the second Task a moment to suspend on the coordinator
+		try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
+
+		let isStillLoading = await ChatWidgetLoadCoordinator.shared.isLoading
+		XCTAssertTrue(isStillLoading, "Slot should still be held before release")
+
+		let waiterCount = await ChatWidgetLoadCoordinator.shared.waitingCount
+		XCTAssertEqual(waiterCount, 1, "One continuation should be waiting")
+
+		// Release the first slot — this should unblock the second
+		firstSlot.release()
+		firstReleased.fulfill()
+
+		await fulfillment(of: [firstAcquired, firstReleased, secondAcquired], timeout: 2.0)
+		_ = await secondTask.result
+	}
+
+	// MARK: Multiple Waiters
+
+	func testMultipleWaiters_AllUnblockedEventually() async {
+		let allAcquired = expectation(description: "All three acquired")
+		allAcquired.expectedFulfillmentCount = 3
+
+		let firstSlot = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+
+		var tasks: [Task<Void, Never>] = []
+		for _ in 0..<3 {
+			tasks.append(Task {
+				let slot = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+				allAcquired.fulfill()
+				slot.release()
+			})
+		}
+
+		// Let all three tasks suspend on the coordinator
+		try? await Task.sleep(nanoseconds: 50_000_000)
+
+		let waiterCount = await ChatWidgetLoadCoordinator.shared.waitingCount
+		XCTAssertEqual(waiterCount, 3)
+
+		// Release the original holder — each subsequent release unblocks the next waiter
+		firstSlot.release()
+
+		await fulfillment(of: [allAcquired], timeout: 3.0)
+		for t in tasks { _ = await t.result }
+	}
+
+	// MARK: Idempotent Release
+
+	func testDoubleRelease_IsIdempotent() async {
+		let slot = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+		slot.release()
+		slot.release() // second call must be a no-op (ChatWidgetLoadSlot guards with released flag)
+
+		try? await Task.sleep(nanoseconds: 50_000_000)
+
+		let isLoading = await ChatWidgetLoadCoordinator.shared.isLoading
+		XCTAssertFalse(isLoading)
+	}
+
+	// MARK: ChatWidgetLoadSlot RAII
+
+	func testSlotDeinit_ReleasesCoordinator() async {
+		var slot: ChatWidgetLoadSlot? = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+		XCTAssertNotNil(slot)
+
+		let isLoadingBeforeDeinit = await ChatWidgetLoadCoordinator.shared.isLoading
+		XCTAssertTrue(isLoadingBeforeDeinit)
+
+		// Nil the slot — its deinit calls release() which fires an async Task
+		// that calls releaseLoadingSlot() on the coordinator.
+		slot = nil
+
+		// Give deinit's internal Task a moment to reach the actor
+		try? await Task.sleep(nanoseconds: 50_000_000)
+
+		let isLoading = await ChatWidgetLoadCoordinator.shared.isLoading
+		XCTAssertFalse(isLoading, "Slot deinit should have released the coordinator loading slot")
+	}
+
+	// MARK: ChatWidgetLoadSlot Explicit Release
+
+	func testSlotExplicitRelease_DoubleCallIsIdempotent() async {
+		let slot = await ChatWidgetLoadCoordinator.shared.acquireLoadingSlot()
+
+		slot.release()
+		slot.release() // second call must be a no-op
+
+		// Give the async Task inside release() time to run
+		try? await Task.sleep(nanoseconds: 50_000_000)
+
+		let isLoading = await ChatWidgetLoadCoordinator.shared.isLoading
+		XCTAssertFalse(isLoading)
+	}
+}

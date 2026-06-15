@@ -262,6 +262,7 @@
 		A8E41C2D2F14F97C00673D77 /* ChatSetupErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E41C2C2F14F97700673D77 /* ChatSetupErrorView.swift */; };
 		A8E41C372F15303300673D77 /* MMPopOverBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E41C352F15303300673D77 /* MMPopOverBar.swift */; };
 		A8E41C382F15303300673D77 /* MMPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E41C362F15303300673D77 /* MMPopupView.swift */; };
+		A8E7750B2FDBF88C0033AE2C /* ChatWidgetLoadCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E7750A2FDBF88C0033AE2C /* ChatWidgetLoadCoordinator.swift */; };
 		A8F1EAB62BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */; };
 		A8FF1E122D842113003D66C8 /* LiveChatAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FF1E112D842112003D66C8 /* LiveChatAPI.swift */; };
 		AB0D9EA3CDC5E7C4229013439F7C9352 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DA5DE23D784670AD3273801C61534ED /* SystemConfiguration.framework */; };
@@ -603,6 +604,7 @@
 		A8E41C2E2F15288F00673D77 /* ChatAttachmentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAttachmentPicker.swift; sourceTree = "<group>"; };
 		A8E41C352F15303300673D77 /* MMPopOverBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMPopOverBar.swift; sourceTree = "<group>"; };
 		A8E41C362F15303300673D77 /* MMPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMPopupView.swift; sourceTree = "<group>"; };
+		A8E7750A2FDBF88C0033AE2C /* ChatWidgetLoadCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatWidgetLoadCoordinator.swift; sourceTree = "<group>"; };
 		A8F1EAB52BD0FC5700E3AAC8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Classes/MobileMessaging/Resources/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
 		A8FF1E112D842112003D66C8 /* LiveChatAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveChatAPI.swift; sourceTree = "<group>"; };
 		B8116A9E9AAC273BE7D9374768311E08 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.0.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
@@ -687,6 +689,7 @@
 		25C335E22D81CE0400624BAC /* ChatCore */ = {
 			isa = PBXGroup;
 			children = (
+				A8E7750A2FDBF88C0033AE2C /* ChatWidgetLoadCoordinator.swift */,
 				A8947B272DC9E97800A3ACBF /* LiveChatAPI+Models.swift */,
 				A8FF1E112D842112003D66C8 /* LiveChatAPI.swift */,
 				25C335DF2D81CE0400624BAC /* ChatWebViewHandler.swift */,
@@ -1597,6 +1600,7 @@
 				76212E7221B043D5002FB8D9 /* UserStandardAttributeModels.swift in Sources */,
 				76C3C9B423D5B2E200562C57 /* UserSessionReportObject.swift in Sources */,
 				764556901F78FF7300B8F14B /* MessageUtils.swift in Sources */,
+				A8E7750B2FDBF88C0033AE2C /* ChatWidgetLoadCoordinator.swift in Sources */,
 				764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */,
 				7601F1A0208E056500738C1A /* FormatIndicatedCacheSerializer.swift in Sources */,
 				7620450D27CFCF2A007970F8 /* extensions.swift in Sources */,

@@ -8,13 +8,13 @@
 
 import Foundation
 
-public struct ChatWidgetAttachmentSettings: Decodable {
+public struct ChatWidgetAttachmentSettings: Decodable, Sendable {
     public let maxSize: UInt
     public let isEnabled: Bool
     public let allowedExtensions: [String]
 }
 
-public struct ChatWidget: Decodable {
+public struct ChatWidget: Decodable, Sendable {
 	public let id: String
 	public let title: String?
 	public let primaryColor: String?

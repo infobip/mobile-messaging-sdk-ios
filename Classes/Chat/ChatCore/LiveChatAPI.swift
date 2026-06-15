@@ -142,7 +142,7 @@ extension MMInAppChatWidgetAPI: @MainActor WidgetSubscriber {
             guard let self = self else { return }
             chatHandler.chatWidget = widget
             chatHandler.webView.isSettingLanguage = false // API doesn't show language changes in UI, so we avoid unnecessary reloads. These reloads may cause issues on identify if another widget is being loaded in parallel (ie, API use, and also in a view controller)
-            chatHandler.webView.loadWidget(widget)
+            chatHandler.beginLoadWidget(widget)
         }
     }
 
