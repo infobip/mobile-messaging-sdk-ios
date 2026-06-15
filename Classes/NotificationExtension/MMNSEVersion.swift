@@ -9,5 +9,5 @@
 import Foundation
 
 enum MMNSEVersion {
-    static let mobileMessagingVersion = "15.5.0"
+    static let mobileMessagingVersion = "15.5.1"
 }
