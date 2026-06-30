@@ -197,10 +197,19 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         setNavBarBranding(settings)
         title = settings.title
 
-        if let sendButtonTintColor = settings.sendButtonTintColor,
-        let composerBar = composeBarView as? ComposeBar {
-            composerBar.sendButtonTintColor = sendButtonTintColor
-            composerBar.utilityButtonTintColor = sendButtonTintColor
+        if let composerBar = composeBarView as? ComposeBar {
+            if let sendButtonTintColor = settings.sendButtonTintColor {
+                composerBar.sendButtonTintColor = sendButtonTintColor
+            }
+            if let sendButtonTintDisabledColor = settings.sendButtonTintDisabledColor {
+                composerBar.sendButtonTintDisabledColor = sendButtonTintDisabledColor
+            }
+            if let attachmentButtonTintColor = settings.attachmentButtonTintColor {
+                composerBar.utilityButtonTintColor = attachmentButtonTintColor
+            }
+            if let attachmentButtonTintDisabledColor = settings.attachmentButtonTintDisabledColor {
+                composerBar.utilityButtonTintDisabledColor = attachmentButtonTintDisabledColor
+            }
         }
         
         brandComposer()

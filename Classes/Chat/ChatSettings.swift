@@ -61,6 +61,9 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     
     public var title: String? { didSet { postAppearanceChangedNotification() } }
     public var sendButtonTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var sendButtonTintDisabledColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var attachmentButtonTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
+    public var attachmentButtonTintDisabledColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var navBarItemsTintColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var navBarColor: UIColor? { didSet { postAppearanceChangedNotification() } }
     public var navBarTitleColor: UIColor? { didSet { postAppearanceChangedNotification() } }
@@ -101,6 +104,9 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
             let color = UIColor(hexString: primaryColor)
             if sendButtonTintColor == nil {
                 sendButtonTintColor = color
+            }
+            if attachmentButtonTintColor == nil {
+                attachmentButtonTintColor = color
             }
             if navBarColor == nil {
                 navBarColor = color
@@ -213,6 +219,9 @@ extension MMChatSettings {
     struct Keys {
         static let title = "title"
         static let sendButtonColor = "sendButtonColor"
+        static let sendButtonDisabledColor = "sendButtonDisabledColor"
+        static let attachmentButtonColor = "attachmentButtonColor"
+        static let attachmentButtonDisabledColor = "attachmentButtonDisabledColor"
         static let chatInputSeparatorLineColor = "chatInputSeparatorLineColor"
         static let navigationBarItemsColor = "navigationBarItemsColor"
         static let navigationBarColor = "navigationBarColor"
@@ -234,6 +243,15 @@ extension MMChatSettings {
         }
         if let sendButtonColor = rawConfig[MMChatSettings.Keys.sendButtonColor] as? String {
             self.sendButtonTintColor = UIColor(hexString: sendButtonColor)
+        }
+        if let sendButtonDisabledColor = rawConfig[MMChatSettings.Keys.sendButtonDisabledColor] as? String {
+            self.sendButtonTintDisabledColor = UIColor(hexString: sendButtonDisabledColor)
+        }
+        if let attachmentButtonColor = rawConfig[MMChatSettings.Keys.attachmentButtonColor] as? String {
+            self.attachmentButtonTintColor = UIColor(hexString: attachmentButtonColor)
+        }
+        if let attachmentButtonDisabledColor = rawConfig[MMChatSettings.Keys.attachmentButtonDisabledColor] as? String {
+            self.attachmentButtonTintDisabledColor = UIColor(hexString: attachmentButtonDisabledColor)
         }
         if let chatInputSeparatorLineColor = rawConfig[MMChatSettings.Keys.chatInputSeparatorLineColor] as? String {
             self.chatInputSeparatorLineColor = UIColor(hexString: chatInputSeparatorLineColor)

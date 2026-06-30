@@ -109,6 +109,15 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		}
 	}
     
+    public var sendButtonTintDisabledColor: UIColor? {
+        get {
+            return sendButton.disabledTintColor
+        }
+        set {
+            sendButton.disabledTintColor = newValue
+        }
+    }
+    
     public var utilityButtonTintColor: UIColor? {
         get {
             return utilityButton.enabledTintColor
@@ -117,7 +126,16 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
             utilityButton.enabledTintColor = newValue
         }
     }
-	
+    
+    public var utilityButtonTintDisabledColor: UIColor? {
+        get {
+            return utilityButton.disabledTintColor
+        }
+        set {
+            utilityButton.disabledTintColor = newValue
+        }
+    }
+    
     public weak var delegate: MMComposeBarDelegate?
 	public var isEnabled: Bool = true {
 		didSet {

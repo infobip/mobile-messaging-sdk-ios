@@ -394,7 +394,10 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         MMChatSettings.settings.advancedSettings = advSettings
         MMChatSettings.settings.title = "Overwriting title"
         MMChatSettings.settings.sendButtonTintColor = .white
-        MMChatSettings.settings.chatInputSeparatorLineColor = .white
+        MMChatSettings.settings.sendButtonTintDisabledColor = .gray
+        MMChatSettings.settings.attachmentButtonTintColor = .white
+        MMChatSettings.settings.attachmentButtonTintDisabledColor = .gray
+        MMChatSettings.settings.chatInputSeparatorLineColor = .blue
         MMChatSettings.settings.navBarItemsTintColor = .white
         MMChatSettings.settings.navBarColor = .orange
         MMChatSettings.settings.navBarTitleColor = .white
