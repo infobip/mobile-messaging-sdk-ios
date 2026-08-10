@@ -342,9 +342,9 @@ extension CallKitManager: CXProviderDelegate {
     }
 
     func setupCorrectAudioConfiguration() {
-        let rtcAudioSession = RTCAudioSession.sharedInstance()
+        let rtcAudioSession = IBRTCAudioSession.sharedInstance()
         rtcAudioSession.lockForConfiguration()
-        let configuration = RTCAudioSessionConfiguration.webRTC()
+        let configuration = IBRTCAudioSessionConfiguration.webRTC()
         configuration.categoryOptions = [
           .allowBluetoothA2DP,
           .duckOthers,
@@ -354,19 +354,19 @@ extension CallKitManager: CXProviderDelegate {
         do {
             try rtcAudioSession.setConfiguration(configuration)
         } catch {
-            print(error)
+            MMLogError(error.localizedDescription)
         }
         rtcAudioSession.unlockForConfiguration()
     }
 
     func setAudioSessionActive(_ active: Bool) {
-        let rtcAudioSession = RTCAudioSession.sharedInstance()
+        let rtcAudioSession = IBRTCAudioSession.sharedInstance()
         rtcAudioSession.lockForConfiguration()
         do {
             try rtcAudioSession.setActive(active)
             rtcAudioSession.isAudioEnabled = active // Added this line
         } catch {
-            print(error)
+            MMLogError(error.localizedDescription)
         }
         rtcAudioSession.unlockForConfiguration()
     }

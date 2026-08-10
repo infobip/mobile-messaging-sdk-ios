@@ -140,6 +140,8 @@ class MMCallEventListener: @MainActor CallEventListener, @MainActor ApplicationC
     func onParticipantUnblinded(_ participantUnblindedEvent: ParticipantUnblindedEvent) { }
     func onRoleChanged(_ roleChangedEvent: RoleChangedEvent) { }
     func onParticipantRoleChanged(_ participantRoleChangedEvent: ParticipantRoleChangedEvent) { }
+    func onMachineDetectionFinished(_ machineDetectionFinishedEvent: MachineDetectionFinishedEvent) { }
+    func onMachineDetectionFailed(_ machineDetectionFailedEvent: MachineDetectionFailedEvent) { }
 
     let output: AggregatedCallEventListener
 

@@ -314,7 +314,8 @@ extension MMWebRTCService: ApplicationCallEventListener, WebrtcCallEventListener
     @objc public func onScreenShareRemoved(_ screenShareRemovedEvent: ScreenShareRemovedEvent) { }
     @objc public func onDialogJoined(_ dialogJoinedEvent: DialogJoinedEvent) { }
     @objc public func onDialogLeft(_ dialogLeftEvent: DialogLeftEvent) { }
-
+    @objc public func onMachineDetectionFinished(_ machineDetectionFinishedEvent: MachineDetectionFinishedEvent) { }
+    @objc public func onMachineDetectionFailed(_ machineDetectionFailedEvent: MachineDetectionFailedEvent) { }
 }
 
 
