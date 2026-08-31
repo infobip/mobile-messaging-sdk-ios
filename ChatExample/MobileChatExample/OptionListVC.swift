@@ -127,7 +127,7 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         Task {
             try? await Task.sleep(nanoseconds: 5 * 1_000_000_000) // as example, we send metadata 5 seconds after chat is presented
             do {
-                try await vc.sendContextualData("{ demoKey: 'InAppChat Metadata Value' }")
+                try await vc.sendContextualData("{ demoKey: 'InAppChat Metadata Value' }", multiThreadStrategy: .ALL_PLUS_NEW)
                 MMLogInfo("Medatata was sent")
             } catch {
                 MMLogError("Error sending metadata: \(error.localizedDescription)")
@@ -256,7 +256,15 @@ class OptionListVC: UIViewController, MMInAppChatDelegate {
         let saveAction = UIAlertAction(title: "Send", style: UIAlertAction.Style.default, handler: { alert -> Void in
             guard let textField = alertController.textFields?.first else { return }
             guard let text = textField.text else { return }
-            MobileMessaging.inAppChat?.sendContextualData("{ demoKey: \(text)}")
+            guard let json = try? JSONSerialization.data(withJSONObject: ["demoKey": text]),
+                  let metadata = String(data: json, encoding: .utf8) else {
+                MMLogError("Unable to build the contextual data payload")
+                return
+            }
+            Task {
+                await MobileMessaging.inAppChat?.sendContextualData(metadata, multiThreadStrategy: .ALL_PLUS_NEW)
+                MMLogInfo("Metadata was sent")
+            }
         })
         let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.default, handler: {
             (action : UIAlertAction!) -> Void in })

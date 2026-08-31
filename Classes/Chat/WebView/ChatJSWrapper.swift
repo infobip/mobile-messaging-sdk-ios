@@ -50,6 +50,11 @@ extension WKWebView: ChatJSWrapper {
         }
     }
 
+    @MainActor
+    func evaluateJS(_ javaScriptString: String) async throws -> Any? {
+        return try await evaluateJavaScript(javaScriptString)
+    }
+
     private func validate(_ response: MMLivechatMessageResponse?, payload: MMLivechatPayload, error: (any Error)? = nil) -> NSError? {
         self.logDebug(String(
             format: payload.type.errorString,
@@ -179,11 +184,10 @@ extension WKWebView: ChatJSWrapper {
         }
     }
     
-    func addMessageReceivedListener(completion: @escaping (NSError?) -> Void) {
-        self.evaluateInMainThread("onMessageReceived()") { [weak self] (response, error) in
-            self?.logDebug("addMessageReceivedListener got response:\(response.debugDescription), error: \(error?.localizedDescription ?? "")")
-            completion(error as? NSError)
-        }
+    @MainActor
+    func addMessageReceivedListener() async throws {
+        let response = try await evaluateJS("onMessageReceived()")
+        logDebug("addMessageReceivedListener got response:\(response.debugDescription)")
     }
 
     // This functions request a navigation from a thread chat to the thread list (possible if multithead is enabled)

@@ -20,20 +20,38 @@ public extension MMInAppChatService {
         MMChatSettings.sharedInstance.postAppearanceChangedNotification()
     }
     
-    ///  Send contextual metadata and an InAppChatMultiThreadFlag flag
-    ///
-    /// - Parameter metadata: Contextual data in JSON format.
-    /// - Parameter multiThreadStrategy: `ALL` metadata sent to all non-closed conversations for a widget. `ACTIVE` metadata sent to active only conversation for a widget.
+    @available(*, deprecated, message: "Async method 'sendContextualData' needs to be used instead. This method will be removed in a future release")
     func sendContextualData(
         _ metadata: String,
         multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE
     ) {
+        Task { @MainActor [weak self] in
+            await self?.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy)
+        }
+    }
+
+    ///  Send contextual metadata and an InAppChatMultiThreadFlag flag
+    ///
+    /// - Parameter metadata: Contextual data in JSON format.
+    /// - Parameter multiThreadStrategy: `ACTIVE` metadata sent to the active conversation only for a widget. `ALL` metadata sent to all non-closed conversations for a widget. `ALL_PLUS_NEW` metadata sent to all non-closed conversations, plus any conversation created afterwards.
+    @MainActor
+    func sendContextualData(
+        _ metadata: String,
+        multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE
+    ) async {
         guard let webViewDelegate = webViewDelegate else {
             self.contextualData = ContextualData(metadata: metadata, multiThreadStrategy: multiThreadStrategy)
             return
         }
         
-        webViewDelegate.sendContextualData(ContextualData(metadata: metadata, multiThreadStrategy: multiThreadStrategy))
+        let data = ContextualData(metadata: metadata, multiThreadStrategy: multiThreadStrategy)
+        do {
+            try await webViewDelegate.sendContextualData(data)
+        } catch {
+            // We keep the data cached afte a failure so it is retried once the widget reaches a valid state again.
+            logError("Unable to send contextual data: \(error.localizedDescription)")
+            self.contextualData = data
+        }
     }
 
     internal func handleOpenLiveChatAction(
@@ -224,7 +242,7 @@ protocol ChatWebViewDelegate: AnyObject, WidgetSubscriber {
     func didShowComposeBar(_ visible: Bool)
     func didOpenPreview(forAttachment attachment: ChatWebAttachment)
     func didChangeView(_ state: MMChatWebViewState)
-    func sendContextualData(_ contextualData: ContextualData)
+    @MainActor func sendContextualData(_ contextualData: ContextualData) async throws
 }
 
 @objc public protocol MMInAppChatDelegate {

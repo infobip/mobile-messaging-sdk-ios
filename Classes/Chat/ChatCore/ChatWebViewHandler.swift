@@ -20,6 +20,8 @@ class ChatWebViewHandler: NamedLogger {
     private var _currentViewState = MMChatWebViewState.unknown
     private var _loadingSlot: ChatWidgetLoadSlot?
     private var _wantsToLoad = false
+    private var didSetOnMessageReceivedListener = false
+    private var viewStateTask: Task<Void, Never>?
     var pendingActions: [(Error?) -> Void] {
         get { stateQueue.sync { _pendingActions } }
         set { stateQueue.sync { _pendingActions = newValue } }
@@ -46,6 +48,7 @@ class ChatWebViewHandler: NamedLogger {
     }
     
     deinit {
+        viewStateTask?.cancel()
         self.triggerPendingActions(with: MMChatLocalError.noWidget.foundationError)
     }
 }
@@ -193,6 +196,10 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
                 self?.webView.load(URLRequest(url: URL(string: "about:blank")!))
                 self?.webView.isLoaded = false
                 self?.currentViewState = .unknown
+                // Any view state work still queued belongs to the widget we are discarding: letting it run would script a blank page.
+                self?.viewStateTask?.cancel()
+                self?.viewStateTask = nil
+                self?.didSetOnMessageReceivedListener = false
             }
         }
     }
@@ -350,6 +357,79 @@ extension ChatWebViewHandler: ChatWebViewHandlerProtocol {
             } else if self.chatWidget == nil { // an action request without widget could mean it was triggered too soon (and it will recover later), or it could be an actual environment problem, so we check for the later
                 MobileMessaging.inAppChat?.validateSetup()
             }
+        }
+    }
+
+    // MARK: - View state handling
+
+    /// Stores the new view state and, when it is valid enough to run scripts on, performs the work the widget needs.
+    @MainActor
+    func updateViewState(
+        _ state: MMChatWebViewState,
+        isValid: (_ isNewState: Bool) -> Bool,
+        addingMessageListener shouldAddMessageListener: @escaping @MainActor () -> Bool
+    ) {
+        let isNewState = currentViewState != state
+        currentViewState = state
+        guard isValid(isNewState) else { return }
+
+        // Once the listener is in place and no metadata is cached, there is no script left to run and we can do queued actions right away
+        let needsListener = shouldAddMessageListener() && !didSetOnMessageReceivedListener
+        let hasCachedContextData = MMInAppChatService.sharedInstance?.contextualData != nil
+        guard needsListener || hasCachedContextData else {
+            triggerPendingActions(with: nil)
+            return
+        }
+
+        let previousTask = viewStateTask
+        viewStateTask = Task { @MainActor [weak self] in
+            await previousTask?.value // consecutive state changes are serialised, so the listener script is never evaluated twice in parallel
+            guard let self = self, !Task.isCancelled else { return } // a reset discards the work queued for the widget it dropped
+            var listenerSettled = true
+            if shouldAddMessageListener() {
+                listenerSettled = await withChatTimeout("adding the message received listener") {
+                    await self.addMessageReceivedListenerIfNeeded() // "msg received listener" is a webview script that MUST be added first and waited (otherwise there could be bad javascript states in time consuming methods, such as "all_plus_new" mode of sending of contextual data).
+                } != nil
+            }
+            if listenerSettled, !Task.isCancelled {
+                // Cached contextual data is sent as second step (if defined), so it can affect future threads (created pending actions, for example).
+                await withChatTimeout("sending the cached contextual data") { await self.sendCachedContextData(for: state) }
+            }
+            // In case actions are pending, we finally trigger them successfully as the view state just became valid, and script and contextual data is set.
+            self.triggerPendingActions(with: nil)
+        }
+    }
+
+    @MainActor
+    private func addMessageReceivedListenerIfNeeded() async {
+        guard !didSetOnMessageReceivedListener else { // we cannot add listeners before widget achieves a post-loading state
+            return
+        }
+        didSetOnMessageReceivedListener = true // the slot is claimed before suspending, so parallel runs can't add the listener twice
+        do {
+            try await webView.addMessageReceivedListener()
+        } catch {
+            logError("Unable to add the message received listener: \(error.localizedDescription)")
+            didSetOnMessageReceivedListener = false // a failed script is worth retrying on the next view state change
+        }
+    }
+
+    @MainActor
+    /// `state` is the one this call was triggered for, because a new `currentViewState` may already be stored by the time this runs.
+    private func sendCachedContextData(for state: MMChatWebViewState) async {
+        guard let contextualData = MMInAppChatService.sharedInstance?.contextualData else {
+            return
+        }
+        // The contextual data strategy determines if it is compatible or not with the view state: ACTIVE needs a thread open (cannot be loading), while ALL and ALL_PLUS_NEW act on widget level to all open, and potentially to be opened, threads.
+        guard contextualData.multiThreadStrategy != .ACTIVE || state != .loadingThread else {
+            return
+        }
+        do {
+            try await sendContextualData(contextualData.metadata, multiThreadStrategy: contextualData.multiThreadStrategy)
+            // The cache is only cleared once the data actually reached the widget, so no transient failure silently discards the metadata.
+            MMInAppChatService.sharedInstance?.contextualData = nil
+        } catch {
+            logError("Unable to send the cached contextual data: \(error.localizedDescription)")
         }
     }
 }

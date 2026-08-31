@@ -90,7 +90,6 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     var initialLeftNavigationItem: UIBarButtonItem?
     var initialLargeDisplayMode: UINavigationItem.LargeTitleDisplayMode = .automatic
     private var firstTimeHandlingMultithread = true
-    private var didSetOnMessageReceivedListener = false
 
     open override func loadView() {
         super.loadView()
@@ -286,27 +285,6 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
             }
             return
         })
-    }
-    
-    func sendCachedContextData() {
-        guard let contextualData = MMInAppChatService.sharedInstance?.contextualData else {
-            return
-        }
-        
-        MMInAppChatService.sharedInstance?.contextualData = nil
-        sendContextualData(contextualData)
-    }
-
-    func addOnMessageReceivedListener() {
-        if MobileMessaging.inAppChat?.onRawMessageReceived != nil, !didSetOnMessageReceivedListener {
-            webView.addMessageReceivedListener(completion: { [weak self] error in
-                if let error = error {
-                    self?.logError(error.description)
-                }
-                self?.didSetOnMessageReceivedListener = true
-                return
-            })
-        }
     }
     
     public func setLanguage(_ language: MMLanguage, completion: @escaping (_ error: NSError?) -> Void) {
@@ -523,6 +501,8 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     /// Method for sending metadata to conversations backend. It can be called any time, many times, but once the chat has started and is presented.
     /// The format of the metadata must be that of Javascript objects and values (for guidance, it must be a string accepted by JSON.stringify()
     /// The multiThreadStrategy is entirely optional and we recommented to leave as default ACTIVE.
+    /// `ACTIVE` metadata is sent to the active conversation only. `ALL` to all non-closed conversations of the widget.
+    /// `ALL_PLUS_NEW` to all non-closed conversations, plus any conversation created afterwards.
     @objc public func sendContextualData(_ metadata: String, multiThreadStrategy: MMChatMultiThreadStrategy = .ACTIVE,
                                          completion: @escaping (_ error: NSError?) -> Void) {
         webViewHandler.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: { error in completion(error as? NSError) })
@@ -541,14 +521,11 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
             hideLeftButton(!isChattingInMultithread && (self.navigationItem.backBarButtonItem == nil || initialBackButtonIsHidden))
         }
 
-        if state != .loading && state != .loadingThread && state != .unknown {
-            // In case actions are pending, we finally trigger them successfully if the view state just became valid.
-            webViewHandler.triggerPendingActions(with: nil)
-            sendCachedContextData()
-            addOnMessageReceivedListener()
-        }
+        webViewHandler.updateViewState(
+            state,
+            isValid: { _ in state != .loading && state != .unknown },
+            addingMessageListener: { MobileMessaging.inAppChat?.onRawMessageReceived != nil })
 
-        webViewHandler.currentViewState = state
         MMInAppChatService.sharedInstance?.delegate?.chatDidChange?(to: state)
     }
 
@@ -605,8 +582,8 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         }
     }
     
-    func sendContextualData(_ contextualData: ContextualData) {
-        self.sendContextualData(contextualData.metadata, multiThreadStrategy: contextualData.multiThreadStrategy) { _ in }
+    func sendContextualData(_ contextualData: ContextualData) async throws {
+        try await self.sendContextualData(contextualData.metadata, multiThreadStrategy: contextualData.multiThreadStrategy)
     }
 
 }

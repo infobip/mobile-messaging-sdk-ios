@@ -32,7 +32,6 @@ public protocol MMInAppChatWidgetAPIDelegate: AnyObject {
 
 class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatInternalWebViewActions, NamedLogger {
     private lazy var chatHandler: ChatWebViewHandler = ChatWebViewHandler(eventHandler: self)
-    private var didSetOnMessageReceivedListener = false
 
     weak var delegate: MMInAppChatWidgetAPIDelegate?
 
@@ -116,15 +115,6 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
      
     // MARK: - Utility methods
 
-    internal func sendCachedContextData() {
-        guard let contextualData = MMInAppChatService.sharedInstance?.contextualData else {
-            return
-        }
-        
-        MMInAppChatService.sharedInstance?.contextualData = nil
-        self.sendContextualData(contextualData.metadata, multiThreadStrategy: contextualData.multiThreadStrategy, completion: { _ in })
-    }
-    
     private func onError(_ error: MMChatThrowable) {
         Task { @MainActor in
             let exception = error.exception
@@ -185,18 +175,13 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
             }
 
             let state = jsMessage.state
-            if chatHandler.currentViewState != state, state != .loading, state != .unknown {
-                addMessageEventListener()
-                Task { [weak self] in
-                    // In case actions are pending, we finally trigger them successfully if the view state just became valid. Thread methods require some delay, even if loaded
-                    try? await Task.sleep(nanoseconds: 250_000_000)// 0.25 secs
-                    self?.chatHandler.triggerPendingActions(with: nil)
-                }
-                if state != .loadingThread {
-                    sendCachedContextData()
-                }
+            Task { @MainActor [weak self] in
+                self?.chatHandler.updateViewState(
+                    state,
+                    isValid: { isNewState in isNewState && state != .loading && state != .unknown },
+                    addingMessageListener: { true })
             }
-            chatHandler.currentViewState = state
+
             delegate?.didChangeState(to: state)
 
         case .onMessageEvent:
@@ -209,17 +194,6 @@ extension MMInAppChatWidgetAPI: WebEventHandlerProtocol {
         }
     }
 
-    private func addMessageEventListener() {
-        if !didSetOnMessageReceivedListener { // we cannot add listeners before widget achieves a post-loading state
-            chatHandler.webView.addMessageReceivedListener(completion: { [weak self] error in
-                if let error = error {
-                    self?.logError(error.description)
-                }
-                self?.didSetOnMessageReceivedListener = true
-                return
-            })
-        }
-    }
 }
 
 extension MMInAppChatWidgetAPI: WKNavigationDelegate {
