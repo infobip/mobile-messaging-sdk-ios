@@ -87,7 +87,7 @@ public class MMChatSettings: NSObject, MMPropertyLoopable {
     public var shouldHandleKeyboardAppearance: Bool = true
     public var shouldUseExternalChatInput: Bool = false
     public var widgetTheme: String?
-
+    
     public var advancedSettings: MMAdvancedChatSettings = MMAdvancedChatSettings() { didSet { postAppearanceChangedNotification() } }
 
     public var multithreadBackButton: UIBarButtonItem?

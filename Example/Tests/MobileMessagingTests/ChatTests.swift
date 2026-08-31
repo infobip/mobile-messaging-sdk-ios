@@ -12,12 +12,12 @@ import XCTest
 // MARK: - Settings Tests
 
 class ChatSettingsTests: MMTestCase {
+    let attachments = ChatWidgetAttachmentSettings(maxSize: 10000, isEnabled: true, allowedExtensions: ["pdf"])
 
 	func testUpdateWithChatWidget_NilTitle_AppliesWidgetTitle() {
 		let settings = MMChatSettings()
 		settings.title = nil
 
-		let attachments = ChatWidgetAttachmentSettings(maxSize: 10000, isEnabled: true, allowedExtensions: ["pdf"])
 		let widget = ChatWidget(
 			id: "test",
 			title: "Support Chat",
@@ -26,6 +26,7 @@ class ChatSettingsTests: MMTestCase {
 			backgroundColor: nil,
 			multiThread: false,
 			callsEnabled: false,
+            useNewDesign: false,
 			themeNames: [],
 			attachments: attachments
 		)
@@ -39,7 +40,7 @@ class ChatSettingsTests: MMTestCase {
 		let settings = MMChatSettings()
 		settings.title = "My Custom Title"
 
-		let attachments = ChatWidgetAttachmentSettings(maxSize: 10000, isEnabled: true, allowedExtensions: ["pdf"])
+
 		let widget = ChatWidget(
 			id: "test",
 			title: "Support Chat",
@@ -48,6 +49,7 @@ class ChatSettingsTests: MMTestCase {
 			backgroundColor: nil,
 			multiThread: false,
 			callsEnabled: false,
+            useNewDesign: false,
 			themeNames: [],
 			attachments: attachments
 		)
@@ -62,7 +64,6 @@ class ChatSettingsTests: MMTestCase {
 		settings.sendButtonTintColor = nil
 		settings.navBarColor = nil
 
-		let attachments = ChatWidgetAttachmentSettings(maxSize: 10000, isEnabled: true, allowedExtensions: ["pdf"])
 		let widget = ChatWidget(
 			id: "test",
 			title: nil,
@@ -71,6 +72,7 @@ class ChatSettingsTests: MMTestCase {
 			backgroundColor: nil,
 			multiThread: false,
 			callsEnabled: false,
+            useNewDesign: false,
 			themeNames: [],
 			attachments: attachments
 		)
@@ -87,7 +89,6 @@ class ChatSettingsTests: MMTestCase {
 		settings.sendButtonTintColor = UIColor.blue
 		settings.navBarColor = nil
 
-		let attachments = ChatWidgetAttachmentSettings(maxSize: 10000, isEnabled: true, allowedExtensions: ["pdf"])
 		let widget = ChatWidget(
 			id: "test",
 			title: nil,
@@ -96,6 +97,7 @@ class ChatSettingsTests: MMTestCase {
 			backgroundColor: nil,
 			multiThread: false,
 			callsEnabled: false,
+            useNewDesign: false,
 			themeNames: [],
 			attachments: attachments
 		)
@@ -110,7 +112,6 @@ class ChatSettingsTests: MMTestCase {
 		let settings = MMChatSettings()
 		settings.backgroundColor = nil
 
-		let attachments = ChatWidgetAttachmentSettings(maxSize: 10000, isEnabled: true, allowedExtensions: ["pdf"])
 		let widget = ChatWidget(
 			id: "test",
 			title: nil,
@@ -119,6 +120,7 @@ class ChatSettingsTests: MMTestCase {
 			backgroundColor: "#FFFFFF",
 			multiThread: false,
 			callsEnabled: false,
+            useNewDesign: false,
 			themeNames: [],
 			attachments: attachments
 		)
@@ -133,7 +135,6 @@ class ChatSettingsTests: MMTestCase {
 		settings.title = "Existing Title"
 		settings.navBarColor = UIColor.red
 
-		let attachments = ChatWidgetAttachmentSettings(maxSize: 10000, isEnabled: true, allowedExtensions: ["pdf"])
 		let widget = ChatWidget(
 			id: "test",
 			title: nil,
@@ -141,7 +142,8 @@ class ChatSettingsTests: MMTestCase {
 			primaryTextColor: nil,
 			backgroundColor: nil,
 			multiThread: false,
-			callsEnabled: false,
+            callsEnabled: false,
+            useNewDesign: false,
 			themeNames: [],
 			attachments: attachments
 		)
@@ -156,7 +158,6 @@ class ChatSettingsTests: MMTestCase {
 		let settings = MMChatSettings()
 		settings.navBarTitleColor = nil
 
-		let attachments = ChatWidgetAttachmentSettings(maxSize: 10000, isEnabled: true, allowedExtensions: ["pdf"])
 		let widget = ChatWidget(
 			id: "test",
 			title: nil,
@@ -164,7 +165,8 @@ class ChatSettingsTests: MMTestCase {
 			primaryTextColor: "#333333",
 			backgroundColor: nil,
 			multiThread: false,
-			callsEnabled: false,
+            callsEnabled: false,
+            useNewDesign: false,
 			themeNames: [],
 			attachments: attachments
 		)

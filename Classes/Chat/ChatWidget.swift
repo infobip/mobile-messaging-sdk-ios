@@ -22,6 +22,7 @@ public struct ChatWidget: Decodable, Sendable {
 	public let backgroundColor: String?
     public let multiThread: Bool?
     public let callsEnabled: Bool?
+    public let useNewDesign: Bool?
     public let themeNames: [String]?
     public let attachments: ChatWidgetAttachmentSettings
 }
