@@ -196,6 +196,7 @@ extension AttachmentPreviewController: WKNavigationDelegate {
 }
 
 extension URL {
+
     static func chatAttachmentDestinationFolderUrl(createIfNotExist: Bool = true) -> URL {
         let fileManager = FileManager.default
         let tempFolderUrl = URL.init(fileURLWithPath: NSTemporaryDirectory())
@@ -216,5 +217,13 @@ extension URL {
 
     static func chatAttachmentDestinationUrl(sourceUrl: URL, suggestedFileName: String?) -> URL {
         return URL.chatAttachmentDestinationFolderUrl().appendingPathComponent(suggestedFileName ?? (sourceUrl.absoluteString.sha256() + "." + sourceUrl.pathExtension))
+    }
+    
+    var chatFilename: String? {
+        let fileExtension = self.pathExtension
+        guard !fileExtension.isEmpty else {
+            return self.lastPathComponent
+        }
+        return DateStaticFormatters.filenameDateString(from: Date()) + ".\(fileExtension)"
     }
 }

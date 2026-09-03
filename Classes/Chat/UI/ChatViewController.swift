@@ -272,7 +272,7 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
     func didLoad(_ widget: ChatWidget) {
         chatWidget = widget
         webViewHandler.ensureWidgetLoaded { [weak self] error in
-            self?.isComposeBarVisible = !(widget.multiThread ?? false) // multithread displays first a list of threads, without input.
+            self?.isComposeBarVisible = self?.composeBarVisibility(for: self?.webViewHandler.currentViewState ?? .unknown) ?? false
             (self?.composeBarView as? ComposeBar)?.isAttachmentUploadEnabled = widget.attachments.isEnabled
             self?.webViewHandler.triggerPendingActions(with: error)
         }
@@ -508,12 +508,18 @@ open class MMChatViewController: MMMessageComposingViewController, @MainActor Ch
         webViewHandler.sendContextualData(metadata, multiThreadStrategy: multiThreadStrategy, completion: { error in completion(error as? NSError) })
     }
     
+    private func composeBarVisibility(for state: MMChatWebViewState) -> Bool {
+        guard chatWidget?.multiThread ?? false else {
+            return true
+        }
+        return state == .loadingThread || state == .thread || state == .singleThreadMode
+    }
+
     public func didChangeView(_ state: MMChatWebViewState) {
+        isComposeBarVisible = composeBarVisibility(for: state)
         if !(chatWidget?.multiThread ?? false) {
-            isComposeBarVisible = true
             isChattingInMultithread = false
         } else {
-            isComposeBarVisible = state == .loadingThread || state == .thread || state == .singleThreadMode
             isChattingInMultithread = state == .loadingThread || state == .thread || state == .closedThread
         }
 

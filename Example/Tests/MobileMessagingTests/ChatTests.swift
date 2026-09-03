@@ -402,7 +402,7 @@ class ChatPayloadTests: MMTestCase {
 		let jsString = payload.interfaceValue
 
 		XCTAssertTrue(jsString.contains("'fileName':"))
-		// Should contain UUID or some generated filename
+		// Should contain date as string or some generated filename
 		XCTAssertFalse(jsString.contains("'fileName': 'null'"))
 	}
 
@@ -711,5 +711,186 @@ class ChatWidgetLoadCoordinatorTests: XCTestCase {
 
 		let isLoading = await ChatWidgetLoadCoordinator.shared.isLoading
 		XCTAssertFalse(isLoading)
+	}
+}
+
+// MARK: - ChatViewController Compose Bar Visibility Tests
+
+class ChatViewControllerComposeBarVisibilityTests: MMTestCase {
+	private func multiThreadWidget(id: String) -> ChatWidget {
+		return ChatWidget(
+			id: id,
+			title: nil,
+			primaryColor: nil,
+			primaryTextColor: nil,
+			backgroundColor: nil,
+			multiThread: true,
+			callsEnabled: false,
+			useNewDesign: false,
+			themeNames: [],
+			attachments: ChatWidgetAttachmentSettings(maxSize: 0, isEnabled: false, allowedExtensions: [])
+		)
+	}
+
+	private func singleThreadWidget(id: String) -> ChatWidget {
+		return ChatWidget(
+			id: id,
+			title: nil,
+			primaryColor: nil,
+			primaryTextColor: nil,
+			backgroundColor: nil,
+			multiThread: false,
+			callsEnabled: false,
+			useNewDesign: false,
+			themeNames: [],
+			attachments: ChatWidgetAttachmentSettings(maxSize: 0, isEnabled: false, allowedExtensions: [])
+		)
+	}
+
+	// Regression test for the race: didLoad's completion used to overwrite isComposeBarVisible
+	// with a stale guess (`!widget.multiThread`) even after didChangeView had already reported the
+	// live view state, hiding the composer when it should stay visible.
+	func testDidLoad_CompletionFlushedAfterDidChangeViewEstablishedThreadState_DoesNotStompComposeBarVisible() async {
+		let vc = MMChatViewController()
+		_ = vc.view
+
+		vc.didLoad(multiThreadWidget(id: "test-widget-1"))
+		vc.didChangeView(.thread)
+
+		try? await Task.sleep(nanoseconds: 100_000_000) // let triggerPendingActions's async flush run
+
+		XCTAssertTrue(vc.isComposeBarVisible, "Compose bar should remain visible: didLoad's completion must not stomp the live state set by didChangeView")
+	}
+
+	func testDidLoad_CompletionFlushedWhileStateStillUnknown_HidesComposeBarForMultiThreadWidget() async {
+		let vc = MMChatViewController()
+		_ = vc.view
+
+		vc.didLoad(multiThreadWidget(id: "test-widget-2"))
+
+		try? await Task.sleep(nanoseconds: 100_000_000)
+
+		XCTAssertFalse(vc.isComposeBarVisible)
+	}
+
+	func testDidChangeView_SingleThreadWidget_ComposeBarAlwaysVisible() {
+		let vc = MMChatViewController()
+		_ = vc.view
+		vc.didLoad(singleThreadWidget(id: "single"))
+
+		vc.didChangeView(.loading)
+
+		XCTAssertTrue(vc.isComposeBarVisible)
+		XCTAssertFalse(vc.isChattingInMultithread)
+	}
+
+	func testDidChangeView_MultiThreadWidget_ComposeBarVisibleOnlyInThreadStates() {
+		let vc = MMChatViewController()
+		_ = vc.view
+		vc.didLoad(multiThreadWidget(id: "multi"))
+
+		vc.didChangeView(.threadList)
+		XCTAssertFalse(vc.isComposeBarVisible)
+
+		vc.didChangeView(.thread)
+		XCTAssertTrue(vc.isComposeBarVisible)
+		XCTAssertTrue(vc.isChattingInMultithread)
+
+		vc.didChangeView(.singleThreadMode)
+		XCTAssertTrue(vc.isComposeBarVisible)
+
+		vc.didChangeView(.closedThread)
+		XCTAssertFalse(vc.isComposeBarVisible)
+		XCTAssertTrue(vc.isChattingInMultithread)
+	}
+}
+
+// MARK: - URL.chatFilename Tests
+
+class URLChatFilenameTests: MMTestCase {
+	func testChatFilename_SingleExtension_ReturnsTimestampedNameWithSameExtension() {
+		let url = URL(fileURLWithPath: "IMG_0001.MOV")
+		let result = url.chatFilename
+		XCTAssertNotNil(result)
+		XCTAssertNotEqual(result, url.lastPathComponent)
+		XCTAssertTrue(result!.hasSuffix(".MOV"))
+	}
+
+	func testChatFilename_MultiDotExtension_UsesLastComponentAsExtension() {
+		let url = URL(fileURLWithPath: "archive.tar.gz")
+		let result = url.chatFilename
+		XCTAssertNotNil(result)
+		XCTAssertTrue(result!.hasSuffix(".gz"))
+	}
+
+	func testChatFilename_NoExtension_ReturnsOriginalNameUnchanged() {
+		let url = URL(fileURLWithPath: "README")
+		XCTAssertEqual(url.chatFilename, "README")
+	}
+}
+
+// MARK: - ChatAttachmentPicker Origin Detection Tests
+
+private class MockChatAttachmentPickerDelegate: ChatAttachmentPickerDelegate {
+	var receivedFilename: String?
+	var receivedData: Data?
+
+	func didSelect(filename: String?, data: Data) {
+		receivedFilename = filename
+		receivedData = data
+	}
+	func permissionNotGranted(permissionKeys: [String]?) {}
+	func validateAttachmentSize(size: Int) -> Bool { return true }
+	func attachmentSizeExceeded() {}
+}
+
+private class FakeCameraImagePickerController: UIImagePickerController {
+	override var sourceType: UIImagePickerController.SourceType {
+		get { .camera }
+		set { /* no-op: avoids "Source type not available" crash on simulator */ }
+	}
+}
+
+class ChatAttachmentPickerOriginTests: MMTestCase {
+	private func makeTempFile(named name: String) -> URL {
+		let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(name)
+		try? "dummy".data(using: .utf8)?.write(to: url)
+		return url
+	}
+
+	func testImagePicker_FromCamera_RenamesFilenameToTimestamp() {
+		let delegate = MockChatAttachmentPickerDelegate()
+		let sut = ChatAttachmentPicker(delegate: delegate, allowedContentTypes: [])
+		let fileURL = makeTempFile(named: "MyClip.mov")
+		let picker = FakeCameraImagePickerController()
+
+		sut.imagePickerController(picker, didFinishPickingMediaWithInfo: [.mediaURL: fileURL])
+
+		XCTAssertNotNil(delegate.receivedFilename)
+		XCTAssertNotEqual(delegate.receivedFilename, "MyClip.mov")
+		XCTAssertTrue(delegate.receivedFilename?.hasSuffix(".mov") ?? false)
+	}
+
+	func testImagePicker_FromPhotoLibrary_KeepsOriginalFilename() {
+		let delegate = MockChatAttachmentPickerDelegate()
+		let sut = ChatAttachmentPicker(delegate: delegate, allowedContentTypes: [])
+		let fileURL = makeTempFile(named: "MyClip.mov")
+		let picker = UIImagePickerController()
+		picker.sourceType = .photoLibrary
+
+		sut.imagePickerController(picker, didFinishPickingMediaWithInfo: [.mediaURL: fileURL])
+
+		XCTAssertEqual(delegate.receivedFilename, "MyClip.mov")
+	}
+
+	func testDocumentPicker_KeepsOriginalFilename() {
+		let delegate = MockChatAttachmentPickerDelegate()
+		let sut = ChatAttachmentPicker(delegate: delegate, allowedContentTypes: [])
+		let fileURL = makeTempFile(named: "Report.pdf")
+		let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [])
+
+		sut.documentPicker(documentPicker, didPickDocumentAt: fileURL)
+
+		XCTAssertEqual(delegate.receivedFilename, "Report.pdf")
 	}
 }

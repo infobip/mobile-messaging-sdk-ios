@@ -80,7 +80,7 @@ public struct MMLivechatBasicPayload: MMLivechatPayload {
             return """
             {
                 'attachment': '\(attachment ?? "null")', 
-                'fileName': '\(fileName ?? attachmentInfo?.fileName ?? UUID().uuidString)', 
+                'fileName': '\(fileName ?? attachmentInfo?.fileName ?? DateStaticFormatters.filenameDateString(from: Date()))',
                 'type':'\(type)' 
             }\(formattedThreadId)
             """

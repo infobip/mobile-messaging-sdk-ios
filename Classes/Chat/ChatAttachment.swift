@@ -16,7 +16,7 @@ class ChatMobileAttachment: ChatBaseAttachment, Encodable {
     init(_ name: String? = nil, data: Data) {
         self.base64 = data.base64EncodedString(options: NSData.Base64EncodingOptions.init(rawValue: 0))
         self.mimeType = ChatAttachmentUtils.mimeType(forData: data)
-        let fileName = name ?? UUID().uuidString
+        let fileName = name ?? DateStaticFormatters.filenameDateString(from: Date())
         
         guard let fileExtension = ChatAttachmentUtils.fileExtension(forData: data) else {
             let filenameComponents = fileName.components(separatedBy: ".")

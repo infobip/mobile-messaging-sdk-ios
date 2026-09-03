@@ -162,6 +162,19 @@ public struct DateStaticFormatters {
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
         return dateFormatter
     }()
+    public static var MMFilenameDateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ssSSS" // this is meant as filename and we should not include colon characters
+        return dateFormatter
+    }()
+    private static let filenameDateFormatterLock = NSLock()
+
+    // MMFilenameDateFormatter is shared and can be invoked concurrently from both the main thread (attachment picker) and background queues (chat payload building); serialize access to avoid racing its internal formatting state.
+    public static func filenameDateString(from date: Date) -> String {
+        filenameDateFormatterLock.lock()
+        defer { filenameDateFormatterLock.unlock() }
+        return MMFilenameDateFormatter.string(from: date)
+    }
     static var ContactsServiceDateFormatter: DateFormatter = {
         let result = DateFormatter()
         result.locale = Locale(identifier: "en_US_POSIX")

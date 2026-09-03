@@ -112,24 +112,25 @@ class ChatAttachmentPicker: NSObject, NamedLogger {
         presentationController.present(alertController, animated: true)
     }
     
-    private func pickerController(_ controller: UIViewController, didSelectURL url: URL?) {
+    private func pickerController(_ controller: UIViewController, didSelectURL url: URL?, isFromCamera: Bool) {
         controller.dismiss(animated: true, completion: nil)
         guard let url = url else {
             return
         }
-        
+
         let shouldStopAccessing = url.startAccessingSecurityScopedResource()
         defer {
             if shouldStopAccessing {
                 url.stopAccessingSecurityScopedResource()
             }
         }
-        
+
         guard let data = try? Data.init(contentsOf: url) else {
             logError("can't get data from contentsOf url: \(url)")
             return
         }
-        didSelect(url.lastPathComponent, data: data)
+        // Only immediate camera captures should be renamed to a timestamp-based filename.
+        didSelect(isFromCamera ? url.chatFilename : url.lastPathComponent, data: data)
     }
     
     private func pickerController(_ controller: UIViewController, didSelectImage image: UIImage?) {
@@ -182,10 +183,9 @@ extension ChatAttachmentPicker: UIImagePickerControllerDelegate {
         picker.dismiss(animated: true, completion: nil)
     }
 
-    func imagePickerController(_ picker: UIImagePickerController,
-                                      didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         if let url = info[.mediaURL] as? URL {
-            pickerController(picker, didSelectURL: url)
+            pickerController(picker, didSelectURL: url, isFromCamera: picker.sourceType == .camera)
         } else {
             pickerController(picker, didSelectImage: info[.originalImage] as? UIImage)
         }
@@ -197,7 +197,7 @@ extension ChatAttachmentPicker: UINavigationControllerDelegate {}
 extension ChatAttachmentPicker: UIDocumentPickerDelegate {
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        pickerController(controller, didSelectURL: url)
+        pickerController(controller, didSelectURL: url, isFromCamera: false)
     }
 }
 
