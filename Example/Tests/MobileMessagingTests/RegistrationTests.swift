@@ -556,7 +556,7 @@ class NotificationsEnabledMock: MMApplication {
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
-	var notificationEnabled: Bool { return true }
+	var notificationEnabled: Bool? { return true }
 }
 
 class NotificationsDisabledMock: MMApplication {
@@ -569,6 +569,6 @@ class NotificationsDisabledMock: MMApplication {
 	var isRegisteredForRemoteNotifications: Bool { return true }
 	func unregisterForRemoteNotifications() {}
 	func registerForRemoteNotifications() {}
-	var notificationEnabled: Bool { return false }
+	var notificationEnabled: Bool? { return false }
 }
 

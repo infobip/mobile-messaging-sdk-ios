@@ -171,8 +171,11 @@ public class MMCallController: UIViewController, IBPIPUsable {
             iconLandscapeOff: Image(uiImage: s.landscapeOffIcon ?? UIImage())
         )
 
-        let rendererFactory: (AnyObject) -> UIView = { track in
-            let view = InfobipRTCFactory.videoView(frame: .zero, contentMode: .scaleAspectFill)
+        let rendererFactory: IBVideoRendererFactory = { track, mode in
+            let view = InfobipRTCFactory.videoView(
+                frame: .zero,
+                contentMode: mode == .fit ? .scaleAspectFit : .scaleAspectFill
+            )
             (track as? VideoTrack)?.addRenderer(view)
             return view
         }

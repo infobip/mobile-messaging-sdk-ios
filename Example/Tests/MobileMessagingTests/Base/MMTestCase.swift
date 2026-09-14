@@ -111,7 +111,7 @@ class ActiveApplicationStub: MMApplication {
     var isRegisteredForRemoteNotifications: Bool { return true }
     func unregisterForRemoteNotifications() {}
     func registerForRemoteNotifications() {}
-    var notificationEnabled: Bool { return true }
+    var notificationEnabled: Bool? { return true }
 }
 
 class DefaultApplicationStub: MMApplication {
@@ -127,7 +127,7 @@ class DefaultApplicationStub: MMApplication {
     var isRegisteredForRemoteNotifications: Bool { return true }
     func unregisterForRemoteNotifications() { unregisterForRemoteNotificationsStub?() }
     func registerForRemoteNotifications() { registerForRemoteNotificationsStub?() }
-    var notificationEnabled: Bool { return true }
+    var notificationEnabled: Bool? { return true }
 }
 
 class InactiveApplicationStub: MMApplication {
@@ -140,7 +140,7 @@ class InactiveApplicationStub: MMApplication {
     var isRegisteredForRemoteNotifications: Bool { return true }
     func unregisterForRemoteNotifications() {}
     func registerForRemoteNotifications() {}
-    var notificationEnabled: Bool { return true }
+    var notificationEnabled: Bool? { return true }
 }
 
 class UserAgentStub: MMUserAgent {
