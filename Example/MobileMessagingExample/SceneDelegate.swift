@@ -14,6 +14,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow? // needed as we start from a storyboard
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        if let urlContext = connectionOptions.urlContexts.first {
+            _ = LinksHandler.openDeeplink(url: urlContext.url, withMessage: nil)
+        }
+    }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let urlContext = URLContexts.first else { return }
+        _ = LinksHandler.openDeeplink(url: urlContext.url, withMessage: nil)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

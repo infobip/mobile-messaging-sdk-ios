@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0230BA8F2DDDD2C100525CE1 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = 0230BA8E2DDDD2C100525CE1 /* SwiftJWT */; };
 		0230BA912DDDD5DB00525CE1 /* JwtSupplierExampleImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0230BA902DDDD5DB00525CE1 /* JwtSupplierExampleImpl.swift */; };
+		098EB51B3061170100D4190C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098EB51A3061170100D4190C /* SceneDelegate.swift */; };
 		5000030C1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		5000030D1CCB7B2F00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		500003101CCB7B3C00C91479 /* (null) in Resources */ = {isa = PBXBuildFile; };
@@ -68,6 +69,7 @@
 
 /* Begin PBXFileReference section */
 		0230BA902DDDD5DB00525CE1 /* JwtSupplierExampleImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JwtSupplierExampleImpl.swift; sourceTree = "<group>"; };
+		098EB51A3061170100D4190C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = ../../Example/MobileMessagingExample/SceneDelegate.swift; sourceTree = "<group>"; };
 		502129421CEEF450007CEF8E /* MessagesManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesManager.swift; sourceTree = "<group>"; };
 		5087EDA61CEEF82500B85546 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
 		5087EDAC1CEF067100B85546 /* InfoTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoTableViewController.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 				5087EDA91CEF04D500B85546 /* Models */,
 				5087EDA81CEF04CC00B85546 /* ViewControllers */,
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
+				098EB51A3061170100D4190C /* SceneDelegate.swift */,
 				A0ED14F81F4EEB2700EB3262 /* InteractiveNotifications.swift */,
 				A04F34BC1F594EA600B9CC6E /* LinksHandler.swift */,
 				607FACDC1AFB9204008FA782 /* Images.xcassets */,
@@ -442,6 +445,7 @@
 				502129431CEEF450007CEF8E /* MessagesManager.swift in Sources */,
 				5087EDB21CEF067100B85546 /* MessageDetailsViewController.swift in Sources */,
 				5087EDB01CEF067100B85546 /* InfoTableViewController.swift in Sources */,
+				098EB51B3061170100D4190C /* SceneDelegate.swift in Sources */,
 				A04F34BF1F5950AE00B9CC6E /* ViewControllerWithToolbar.swift in Sources */,
 				6E3B11C31F34D4C800C48B92 /* WindowExtension.swift in Sources */,
 				A047BFD81CB4EB5C00A6859F /* CopyableCell.swift in Sources */,
