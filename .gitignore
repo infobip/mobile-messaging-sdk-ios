@@ -66,3 +66,4 @@ sonarqube-generic-coverage.xml
 
 # SPM
 /.build/
+Package.resolved
