@@ -36,7 +36,7 @@ Pod::Spec.new do |s|
             'Classes/MobileMessagingObjC/Headers/MMNotifications.h',
             'Classes/MobileMessagingObjC/Headers/SwiftTryCatch.h'
         core.private_header_files =
-            'Classes/MobileMessagingObjC/Headers/Kingsfisher.h'
+            'Classes/MobileMessagingObjC/Headers/Kingfisher.h'
         core.source_files =
             'Classes/MobileMessaging/Core/**/*.{h,m,swift}',
             'Classes/MobileMessaging/InteractiveNotifications/**/*.{h,m,swift}',
@@ -53,7 +53,7 @@ Pod::Spec.new do |s|
     s.subspec 'CocoaLumberjack' do |cl|
         cl.dependency 'MobileMessaging/Core'
         cl.source_files = 'Classes/Logging/CocoaLumberjack/**/*.{h,m,swift}'
-        cl.dependency 'CocoaLumberjack/Swift', '3.8.5'
+        cl.dependency 'CocoaLumberjack/Swift', '3.10.0'
     end
     
     s.subspec 'InAppChat' do |chat|
