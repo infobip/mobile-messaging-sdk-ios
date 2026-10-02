@@ -101,6 +101,14 @@ final class MessagesManager: NSObject, UITableViewDataSource {
                                                selector: #selector(MessagesManager.handleTapNotification),
                                                name: NSNotification.Name(rawValue: MMNotificationMessageTapped),
                                                object: nil)
+
+        // Also handle action-tapped events (e.g. in-app message primary button click, interactive
+        // notification action buttons) so that deeplinks configured on those actions are opened
+        // the same way as a plain notification tap.
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(MessagesManager.handleActionTapNotification(_:)),
+                                               name: NSNotification.Name(rawValue: MMNotificationActionTapped),
+                                               object: nil)
 	}
 	
 	fileprivate func archiveMessages() {
@@ -160,14 +168,28 @@ final class MessagesManager: NSObject, UITableViewDataSource {
 		}
 	}
     
-    @objc func handleTapNotification(_ notification: Notification) {
+    // Shared helper — extracts MM_MTMessage from a notification's userInfo and passes it to
+    // LinksHandler. Returns early if the message is missing or the action is a dismiss.
+    private func handleDeeplinkIfNeeded(from notification: Notification) {
         guard let userInfo = notification.userInfo,
-            let message = userInfo[MMNotificationKeyMessage] as? MM_MTMessage
-            else {
-				return
-		}
-		LinksHandler.handleLinks(fromMessage: message)
-	}
+              let message = userInfo[MMNotificationKeyMessage] as? MM_MTMessage,
+              (userInfo[MMNotificationKeyActionIdentifier] as? String) != MMNotificationAction.DismissActionId
+        else {
+            return
+        }
+        LinksHandler.handleLinks(fromMessage: message)
+    }
+
+    // Fired when the user taps a push notification banner/alert.
+    @objc func handleTapNotification(_ notification: Notification) {
+        handleDeeplinkIfNeeded(from: notification)
+    }
+
+    // Fired when an in-app message primary button or interactive notification action button is
+    // tapped. Dismiss actions are filtered out inside handleDeeplinkIfNeeded.
+    @objc func handleActionTapNotification(_ notification: Notification) {
+        handleDeeplinkIfNeeded(from: notification)
+    }
 
 	//MARK: UITableViewDataSource
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

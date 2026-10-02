@@ -39,7 +39,17 @@ class LinksHandler {
 				return false
 		}
 		
-		openViewControllers(fromPathComponents: url.pathComponents, message: message)
+		// URLs of the form scheme://screenName have the screen name in url.host and an
+		// empty url.pathComponents (e.g. com.infobip.mobilemessaging://redScreen).
+		// Prepend url.host so both host-style and path-style URLs are handled correctly:
+		//   com.infobip.mobilemessaging://redScreen        → host=redScreen, pathComponents=[]
+		//   com.infobip.mobilemessaging://deeplink/redScreen → host=deeplink, pathComponents=["/","redScreen"]
+		var pathComponents = url.pathComponents
+		if let host = url.host, !host.isEmpty {
+			pathComponents = [host] + pathComponents
+		}
+
+		openViewControllers(fromPathComponents: pathComponents, message: message)
 		
 		return true
 	}
