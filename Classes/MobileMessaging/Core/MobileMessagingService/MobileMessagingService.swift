@@ -53,6 +53,9 @@ open class MobileMessagingService: NSObject, NamedLogger {
             completion(self.isRunning)
         }
     }
+
+    /// Called when the SDK releases its subservices after a full stop.
+    open func didRemoveFromMobileMessaging() { }
     
     /// A system data that is related to a particular subservice. For example for Inbox service it is a key-value pair "inbox: <bool>" that indicates whether the service is enabled or not
     open var systemData: [String: AnyHashable]? { return nil }

@@ -728,8 +728,6 @@ public final class MobileMessaging: NSObject, NamedLogger {
             MobileMessaging.messageHandlingDelegate = nil
             MobileMessaging.jwtSupplier = nil
             
-            self.cleanupSubservices()
-            
             // just to break retain cycles:
             self.apnsRegistrationManager = nil
             self.registeringForRemoteNotificationsDisabled = false
@@ -751,6 +749,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
             self.logInfo("MobileMessaging service stopped")
             MobileMessaging.application = MainThreadedUIApplication()
             MobileMessaging.sharedInstance = nil
+            self.cleanupSubservices()
         }, completion: completion)
     }
     
@@ -800,6 +799,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
         subservices[ss.uniqueIdentifier] = ss
     }
     func cleanupSubservices() {
+        subservices.values.forEach { $0.didRemoveFromMobileMessaging() }
         subservices.removeAll()
     }
     

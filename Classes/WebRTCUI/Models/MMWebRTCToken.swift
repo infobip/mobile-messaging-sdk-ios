@@ -9,6 +9,24 @@
 import Foundation
 #if WEBRTCUI_ENABLED
 
+struct MMWebRTCTokenRequestContext {
+    let applicationCode: String
+    let pushRegistrationId: String
+    let identity: String
+    let remoteApiProvider: RemoteAPIProvider
+
+    init?(mmContext: MobileMessaging?, identity: String?) {
+        guard let mmContext,
+              let pushRegistrationId = mmContext.currentInstallation().pushRegistrationId,
+              let identity,
+              let remoteApiProvider = mmContext.remoteApiProvider else { return nil }
+        self.applicationCode = mmContext.applicationCode
+        self.pushRegistrationId = pushRegistrationId
+        self.identity = identity
+        self.remoteApiProvider = remoteApiProvider
+    }
+}
+
 public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryRepresentable {
     public let token: String
     public let expirationTime: Date?
@@ -53,21 +71,21 @@ public final class MMWebRTCToken: NSObject, NSCoding, JSONDecodable, DictionaryR
         aCoder.encode(token, forKey: "token")
     }
     
-    static func obtain(queue: DispatchQueue, completion: @escaping (MMResult<MMWebRTCToken>) -> Void) {
-        guard let pushRegId = MobileMessaging.sharedInstance?.currentInstallation().pushRegistrationId,
-              let identity = MobileMessaging.webRTCService?.identity,
-        let appCode = MobileMessaging.sharedInstance?.applicationCode else {
-            MMLogError("WebRTCUI unable to obtain token: missing appCode")
+    static func obtain(queue: DispatchQueue,
+                       context: MMWebRTCTokenRequestContext?,
+                       completion: @escaping (MMResult<MMWebRTCToken>) -> Void) {
+        guard let context else {
+            MMLogError("WebRTCUI unable to obtain token: missing installation or call identity")
             completion(.Failure(nil))
             return
         }
-        let body: [String: Any] = ["identity": identity]
+        let body: [String: Any] = ["identity": context.identity]
         let request = MMWebRTCTokenRequest(
-            applicationCode: appCode,
-            pushRegistrationId: pushRegId,
+            applicationCode: context.applicationCode,
+            pushRegistrationId: context.pushRegistrationId,
             body: body)
         queue.async {
-            MobileMessaging.sharedInstance?.remoteApiProvider.performRequest(
+            context.remoteApiProvider.performRequest(
                 request: request, 
                 queue: queue,
                 completion: completion)
