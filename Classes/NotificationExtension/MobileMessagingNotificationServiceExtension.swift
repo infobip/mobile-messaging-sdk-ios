@@ -94,16 +94,22 @@ public class MobileMessagingNotificationServiceExtension {
     private let downloader = MMNSEAttachmentDownloader()
     private var sharedStorage: MMNSESharedStorage?
 
-    private init(appCode: String, appGroupId: String) {
+    private convenience init(appCode: String, appGroupId: String) {
+        let keychain = MMNSEKeychain(accessGroup: appGroupId)
+        let storage = UserDefaults(suiteName: appGroupId) ?? UserDefaults.standard
+        self.init(appCode: appCode,
+                  appGroupId: appGroupId,
+                  pushRegId: keychain.pushRegId,
+                  deliveryReporter: MMNSEDeliveryReporter(applicationCode: appCode, appGroupId: appGroupId, storage: storage),
+                  sharedStorage: MMNSESharedStorage(applicationCode: appCode, appGroupId: appGroupId))
+    }
+
+    init(appCode: String, appGroupId: String, pushRegId: String?, deliveryReporter: MMNSEDeliveryReporter, sharedStorage: MMNSESharedStorage?) {
         self.applicationCode = appCode
         self.appGroupId = appGroupId
-
-        let keychain = MMNSEKeychain(accessGroup: appGroupId)
-        self.pushRegId = keychain.pushRegId
-
-        let storage = UserDefaults(suiteName: appGroupId) ?? UserDefaults.standard
-        self.deliveryReporter = MMNSEDeliveryReporter(applicationCode: appCode, appGroupId: appGroupId, storage: storage)
-        self.sharedStorage = MMNSESharedStorage(applicationCode: appCode, appGroupId: appGroupId)
+        self.pushRegId = pushRegId
+        self.deliveryReporter = deliveryReporter
+        self.sharedStorage = sharedStorage
     }
 
     private class func finish(with content: UNNotificationContent) {
@@ -130,19 +136,21 @@ public class MobileMessagingNotificationServiceExtension {
         return result
     }
 
-    private func reportDelivery(for message: MMNSEMessage) async {
-        var message = message
+    func reportDelivery(for message: MMNSEMessage) async {
+        if let sharedStorage = sharedStorage, !sharedStorage.claimDeliveryReport(for: message) {
+            MMNSELogger.logDebug("delivery of \(message.messageId) is already reported or being reported, skipping")
+            return
+        }
         do {
             try await deliveryReporter.report(messageIds: [message.messageId], pushRegId: pushRegId)
-            message.isDeliveryReportSent = true
-            message.deliveryReportedDate = Date()
+            if let result = sharedStorage?.markDeliveryReported(messageId: message.messageId, date: Date()),
+               result == .receiptNotFound {
+                MMNSELogger.logDebug("delivery report receipt was already consumed")
+            }
         } catch {
             MMNSELogger.logError("delivery reporting failed: \(error)")
-            message.isDeliveryReportSent = false
-            message.deliveryReportedDate = nil
+            sharedStorage?.markDeliveryReportFailed(messageId: message.messageId)
         }
-        MMNSELogger.logDebug("saving message to shared storage")
-        sharedStorage?.save(message: message)
     }
 
     private func retrieveNotificationContent(for message: MMNSEMessage, originalContent: UNNotificationContent) async -> UNNotificationContent {

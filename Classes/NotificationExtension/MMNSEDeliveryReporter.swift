@@ -15,17 +15,18 @@ class MMNSEDeliveryReporter {
     private let applicationCode: String
     private let appGroupId: String
     private let storage: UserDefaults
+    private let sessionConfiguration: URLSessionConfiguration
     private lazy var session: URLSession = {
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.timeoutIntervalForResource = 20
-        configuration.timeoutIntervalForRequest = 20
-        return URLSession(configuration: configuration)
+        sessionConfiguration.timeoutIntervalForResource = 20
+        sessionConfiguration.timeoutIntervalForRequest = 20
+        return URLSession(configuration: sessionConfiguration)
     }()
 
-    init(applicationCode: String, appGroupId: String, storage: UserDefaults) {
+    init(applicationCode: String, appGroupId: String, storage: UserDefaults, sessionConfiguration: URLSessionConfiguration = .ephemeral) {
         self.applicationCode = applicationCode
         self.appGroupId = appGroupId
         self.storage = storage
+        self.sessionConfiguration = sessionConfiguration
     }
 
     func report(messageIds: [String], pushRegId: String?) async throws {

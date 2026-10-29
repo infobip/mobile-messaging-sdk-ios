@@ -94,6 +94,8 @@
 		76934B32232BD12300882DAA /* MessageStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */; };
 		76934B33232BD13500882DAA /* LocalMessageFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C31EEB1F73A9D0002CBF2D /* LocalMessageFetchingTests.swift */; };
 		76934B34232BD13600882DAA /* LocalMessageFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76C31EEB1F73A9D0002CBF2D /* LocalMessageFetchingTests.swift */; };
+		A1B2C3D4E5F6071829304A5C /* SharedReceiptIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304A5B /* SharedReceiptIntegrationTests.swift */; };
+		A1B2C3D4E5F6071829304A5D /* SharedReceiptIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304A5B /* SharedReceiptIntegrationTests.swift */; };
 		76934B35232BD2EF00882DAA /* RegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DB1CABA839001873B4 /* RegistrationTests.swift */; };
 		76934B36232BD2F000882DAA /* RegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DB1CABA839001873B4 /* RegistrationTests.swift */; };
 		76934B37232C32D100882DAA /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
@@ -233,6 +235,7 @@
 		76BD26561F7E449D00EB39C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		76BD26571F7E44AC00EB39C2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		76C31EEB1F73A9D0002CBF2D /* LocalMessageFetchingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMessageFetchingTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071829304A5B /* SharedReceiptIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedReceiptIntegrationTests.swift; sourceTree = "<group>"; };
 		76C3C9B923D6126100562C57 /* UserSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionTests.swift; sourceTree = "<group>"; };
 		76E49FE922118B4B002B810D /* TimezoneFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneFormatterTests.swift; sourceTree = "<group>"; };
 		76F3CAEC20359BBA008DF398 /* ApnsRegistrationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApnsRegistrationManagerTests.swift; sourceTree = "<group>"; };
@@ -533,6 +536,7 @@
 				A04CCEBB1DE7005C00D9E416 /* BaseSettingsTests.swift */,
 				A0F6AAE21F262E7F0013A3E5 /* InteractiveNotificationsTests.swift */,
 				76C31EEB1F73A9D0002CBF2D /* LocalMessageFetchingTests.swift */,
+				A1B2C3D4E5F6071829304A5B /* SharedReceiptIntegrationTests.swift */,
 				766C1F2F1FC80E020058900C /* DynamicBaseUrlTests.swift */,
 				76F3CAEC20359BBA008DF398 /* ApnsRegistrationManagerTests.swift */,
 				7614AD6D20751913004A2F90 /* DepersonalizeTests.swift */,
@@ -1031,6 +1035,7 @@
 				767B848C1EA8AD1100CCD81F /* CoreDataHelpersTests.swift in Sources */,
 				7640DC2F22030D2D00F50470 /* MessageReceivingTests.swift in Sources */,
 				76934B33232BD13500882DAA /* LocalMessageFetchingTests.swift in Sources */,
+				A1B2C3D4E5F6071829304A5C /* SharedReceiptIntegrationTests.swift in Sources */,
 				763A1B0823E82D8400C997BC /* EventsTests.swift in Sources */,
 				A026DDC52AC3215C00A7318C /* MMInAppMessageTests.swift in Sources */,
 				762F9D312206409400A35F1E /* DynamicBaseUrlTests.swift in Sources */,
@@ -1090,6 +1095,7 @@
 				767B84791EA8A6EC00CCD81F /* CoreDataHelpersTests.swift in Sources */,
 				7640DC3022030D2E00F50470 /* MessageReceivingTests.swift in Sources */,
 				76934B34232BD13600882DAA /* LocalMessageFetchingTests.swift in Sources */,
+				A1B2C3D4E5F6071829304A5D /* SharedReceiptIntegrationTests.swift in Sources */,
 				763A1B0923E82D8400C997BC /* EventsTests.swift in Sources */,
 				762F9D2E2206409400A35F1E /* DynamicBaseUrlTests.swift in Sources */,
 				76174FD92334F8F6000438A8 /* PrimaryDeviceTests.swift in Sources */,

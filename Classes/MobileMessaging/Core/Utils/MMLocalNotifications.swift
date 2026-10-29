@@ -10,12 +10,16 @@ import Foundation
 import UserNotifications
 
 class LocalNotifications: NamedLogger {
-	class func presentLocalNotification(with message: MM_MTMessage) {
-		MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
-        LocalNotifications.scheduleUserNotification(with: message, completion: nil)
+	static var addNotificationRequest: (UNNotificationRequest, @escaping (Error?) -> Void) -> Void = { request, completion in
+		UNUserNotificationCenter.current().add(request, withCompletionHandler: completion)
 	}
-	
-	class func scheduleUserNotification(with message: MM_MTMessage, completion: (() -> Void)?) {
+
+	class func presentLocalNotification(with message: MM_MTMessage, isPresentedByExtension: (() -> Bool)? = nil) {
+		MobileMessaging.messageHandlingDelegate?.willScheduleLocalNotification?(for: message)
+		LocalNotifications.scheduleUserNotification(with: message, isPresentedByExtension: isPresentedByExtension, completion: nil)
+	}
+
+	class func scheduleUserNotification(with message: MM_MTMessage, isPresentedByExtension: (() -> Bool)? = nil, completion: (() -> Void)?) {
 		guard let txt = message.text else {
 			return
 		}
@@ -35,7 +39,7 @@ class LocalNotifications: NamedLogger {
 				content.sound = UNNotificationSound.init(named: UNNotificationSoundName(rawValue: sound))
 			}
 		}
-		
+
 		message.downloadImageAttachment(completion: { (downloadedFileUrl, error) in
 			if let downloadedFileUrl = downloadedFileUrl {
 				do {
@@ -46,13 +50,29 @@ class LocalNotifications: NamedLogger {
 				}
 			}
 			let req = UNNotificationRequest(identifier: message.messageId, content: content, trigger: nil)
-			logDebug("scheduling notification for \(message.messageId)")
-            UNUserNotificationCenter.current().add(req) { error in
-                if let error = error {
-                    logError("Error while scheduling local notification: \(error)")
-                }
-                completion?()
-            }
+			guard let isPresentedByExtension = isPresentedByExtension else {
+				add(req, completion: completion)
+				return
+			}
+            
+			DispatchQueue.global(qos: .default).async {
+				guard !isPresentedByExtension() else {
+					logDebug("skipping scheduled notification for \(message.messageId), notification service extension already handles it")
+					completion?()
+					return
+				}
+				add(req, completion: completion)
+			}
 		})
+	}
+
+	private class func add(_ request: UNNotificationRequest, completion: (() -> Void)?) {
+		logDebug("scheduling notification for \(request.identifier)")
+		addNotificationRequest(request) { error in
+			if let error = error {
+				logError("Error while scheduling local notification: \(error)")
+			}
+			completion?()
+		}
 	}
 }

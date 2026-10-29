@@ -38,14 +38,7 @@ class LocalMessageFetchingOperation : MMOperation {
 	}
 	
 	private func retrieveMessagesFromNotificationServiceExtension(completion: @escaping ([MM_MTMessage]) -> Void) {
-		if let messages = notificationExtensionStorage?.retrieveMessages() {
-			if !messages.isEmpty {
-				notificationExtensionStorage?.cleanupMessages()
-			}
-			completion(messages)
-		} else {
-			completion([])
-		}
+		completion(notificationExtensionStorage?.drainMessages() ?? [])
 	}
 	
 	private func retrieveMessagesFromUserNotificationCenter(completion: @escaping ([MM_MTMessage]) -> Void) {

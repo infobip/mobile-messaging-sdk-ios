@@ -40,7 +40,8 @@ final class MessageHandlingOperation: MMOperation {
 	let messagesToHandle: [MM_MTMessage]
 	let isNotificationTapped: Bool
 	let mmContext: MobileMessaging
-	
+	private var extensionReceiptIds = Set<String>()
+
     init(userInitiated: Bool, messagesToHandle: [MM_MTMessage], context: NSManagedObjectContext, isNotificationTapped: Bool = false, mmContext: MobileMessaging, finishBlock: @escaping (NSError?, Set<MM_MTMessage>?) -> Void) {
 		self.messagesToHandle = messagesToHandle //can be either native APNS or custom Server layout
 		self.context = context
@@ -83,6 +84,8 @@ final class MessageHandlingOperation: MMOperation {
 		
         let regularMessages: [MM_MTMessage] = Array(newMessages)
         populateMessageStorageWithNewMessages(regularMessages) {
+			
+			self.extensionReceiptIds = self.loadExtensionReceiptIdsIfNeeded(for: regularMessages)
 			self.notifyAboutNewMessages(regularMessages) {
 				self.handleNotificationTappedIfNeeded(regularMessages)
 				self.finish()
@@ -129,8 +132,25 @@ final class MessageHandlingOperation: MMOperation {
 	
 //MARK: - Notification tap handling
     private func presentLocalNotificationIfNeeded(with message: MM_MTMessage) {
-        guard (!message.isSilent) && (message.deliveryMethod == .pull || message.deliveryMethod == .generatedLocally) else { return }
-        LocalNotifications.presentLocalNotification(with: message)
+        guard shouldPresentLocalNotification(for: message) else { return }
+        guard !extensionReceiptIds.contains(message.messageId) else {
+            logDebug("skipping local notification for \(message.messageId), notification service extension already handles it")
+            return
+        }
+        let storage = mmContext.sharedNotificationExtensionStorage
+        LocalNotifications.presentLocalNotification(with: message, isPresentedByExtension: storage.map { storage in
+            { storage.messageIdsHandledByExtension().contains(message.messageId) }
+        })
+    }
+
+    private func shouldPresentLocalNotification(for message: MM_MTMessage) -> Bool {
+        return (!message.isSilent) && (message.deliveryMethod == .pull || message.deliveryMethod == .generatedLocally)
+    }
+
+    private func loadExtensionReceiptIdsIfNeeded(for messages: [MM_MTMessage]) -> Set<String> {
+        guard messages.contains(where: shouldPresentLocalNotification(for:)),
+              let storage = mmContext.sharedNotificationExtensionStorage else { return [] }
+        return storage.messageIdsHandledByExtension()
     }
     
 	private func handleNotificationTappedIfNeeded(_ messages: [MM_MTMessage]) {

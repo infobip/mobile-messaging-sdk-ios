@@ -2,7 +2,7 @@
 //  Example/Tests/MobileMessagingTests/CodingDecodingTests.swift
 //  MobileMessagingExample
 //
-//  Copyright (c) 2016-2025 Infobip Limited
+//  Copyright (c) 2016-2026 Infobip Limited
 //  Licensed under the Apache License, Version 2.0
 //
 
@@ -220,9 +220,13 @@ class CodingDecodingTests: MMTestCase {
                                     deliveryReportDate: nil,
                                     seenStatus: .NotSeen,
                                     isDeliveryReportSent: false)!
-        let storage =  DefaultSharedDataStorage(applicationCode: "applicationCode", appGroupId: "appGroupId")
+        let containerURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try! FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: containerURL) }
+
+        let storage = DefaultSharedDataStorage(applicationCode: "applicationCode", appGroupId: "appGroupId", containerURL: containerURL)
         storage?.save(message: message)
-        let messages = storage?.retrieveMessages()
+        let messages = storage?.drainMessages()
         XCTAssertNotNil(messages)
         XCTAssertEqual(messages!.first!.customPayload! as NSDictionary, userInfo["customPayload"] as! NSDictionary)
     }
@@ -252,5 +256,147 @@ class CodingDecodingTests: MMTestCase {
         }
         
         self.waitForExpectations(timeout: 60, handler: nil)
+    }
+}
+
+class DefaultSharedDataStorageTests: XCTestCase {
+    private let suiteName = "com.infobip.test.app-shared-storage"
+    private let applicationCode = "test-app-code"
+    private let containerURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+
+    override func setUp() {
+        super.setUp()
+        UserDefaults.standard.removePersistentDomain(forName: suiteName)
+        try! FileManager.default.createDirectory(at: containerURL, withIntermediateDirectories: true)
+    }
+
+    override func tearDown() {
+        UserDefaults.standard.removePersistentDomain(forName: suiteName)
+        try? FileManager.default.removeItem(at: containerURL)
+        super.tearDown()
+    }
+
+    private func makeStorage() -> DefaultSharedDataStorage {
+        DefaultSharedDataStorage(applicationCode: applicationCode, appGroupId: suiteName, containerURL: containerURL)!
+    }
+
+    private func makeMessage(_ id: String, alert: String = "Hello", reported: Bool = false) -> MM_MTMessage {
+        MM_MTMessage(payload: ["messageId": id, "aps": ["alert": alert]],
+                     deliveryMethod: .undefined,
+                     seenDate: nil,
+                     deliveryReportDate: nil,
+                     seenStatus: .NotSeen,
+                     isDeliveryReportSent: reported)!
+    }
+
+    func testCorruptArchiveIsReplacedByNextSave() throws {
+        let storage = makeStorage()
+        try Data("corrupt archive".utf8).write(to: storage.receiptFileURL)
+
+        storage.save(message: makeMessage("recovered-message"))
+
+        XCTAssertEqual(storage.drainMessages().map(\.messageId), ["recovered-message"])
+    }
+
+    func testReadFailureDoesNotOverwriteExistingReceipts() throws {
+        let storage = makeStorage()
+        storage.save(message: makeMessage("existing-message"))
+
+        let originalPermissions = try FileManager.default.attributesOfItem(atPath: storage.receiptFileURL.path)[.posixPermissions] as? NSNumber
+        try FileManager.default.setAttributes([.posixPermissions: 0], ofItemAtPath: storage.receiptFileURL.path)
+        defer {
+            if let originalPermissions {
+                try? FileManager.default.setAttributes([.posixPermissions: originalPermissions], ofItemAtPath: storage.receiptFileURL.path)
+            }
+        }
+        guard (try? Data(contentsOf: storage.receiptFileURL)) == nil else {
+            throw XCTSkip("The test process can still read files with their permissions removed")
+        }
+
+        storage.save(message: makeMessage("new-message"))
+        try FileManager.default.setAttributes([.posixPermissions: originalPermissions ?? 0o600], ofItemAtPath: storage.receiptFileURL.path)
+
+        XCTAssertEqual(storage.drainMessages().map(\.messageId), ["existing-message"])
+    }
+
+    func testInitDoesNotOverwriteExistingReceipts() throws {
+        let writer = makeStorage()
+        writer.save(message: makeMessage("existing-message"))
+        let sizeBefore = try Data(contentsOf: writer.receiptFileURL).count
+
+        let laterInstance = makeStorage()
+
+        XCTAssertEqual(try Data(contentsOf: writer.receiptFileURL).count, sizeBefore)
+        XCTAssertEqual(laterInstance.drainMessages().map(\.messageId), ["existing-message"])
+    }
+
+    func testMissingReceiptFileIsReadAsEmptyAndCreatedByFirstSave() {
+        let storage = makeStorage()
+        XCTAssertFalse(FileManager.default.fileExists(atPath: storage.receiptFileURL.path))
+        XCTAssertTrue(storage.drainMessages().isEmpty)
+
+        storage.save(message: makeMessage("first-message"))
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: storage.receiptFileURL.path))
+        XCTAssertEqual(storage.drainMessages().map(\.messageId), ["first-message"])
+    }
+
+    func testMarkDeliveryReportedDistinguishesUpdatedAndConsumedReceipt() {
+        let storage = makeStorage()
+        storage.save(message: makeMessage("consumed-message"))
+
+        let date = Date()
+        XCTAssertEqual(storage.markDeliveryReported(messageId: "consumed-message", date: date), .updated)
+        let consumedMessage = storage.drainMessages().first
+        XCTAssertEqual(consumedMessage?.deliveryReportedDate, date)
+        XCTAssertTrue(consumedMessage?.isDeliveryReportSent == true)
+
+        XCTAssertEqual(storage.markDeliveryReported(messageId: "consumed-message", date: Date()), .receiptNotFound)
+        XCTAssertTrue(storage.drainMessages().isEmpty)
+    }
+
+    func testSaveUpsertsSameMessageIdAndPreservesReportedStatus() {
+        let storage = makeStorage()
+        storage.save(message: makeMessage("same-id", alert: "first", reported: true))
+        storage.save(message: makeMessage("same-id", alert: "updated"))
+
+        let messages = storage.drainMessages()
+        XCTAssertEqual(messages.map(\.messageId), ["same-id"])
+        XCTAssertTrue(messages.first?.isDeliveryReportSent == true)
+        XCTAssertEqual(messages.first?.originalPayload["aps"] as? NSDictionary, ["alert": "updated"] as NSDictionary)
+        XCTAssertTrue(storage.drainMessages().isEmpty)
+    }
+
+    func testLegacyArchivedReceiptMigratesAndIsConsumed() throws {
+        let legacyPayload: [String: Any] = ["messageId": "legacy-archive", "aps": ["alert": "Hello"]]
+        let legacyMessages: [[String: Any]] = [["p": legacyPayload, "dlr": true, "dlrd": Date(timeIntervalSince1970: 123)]]
+        let legacyData = try NSKeyedArchiver.archivedData(withRootObject: legacyMessages, requiringSecureCoding: true)
+        UserDefaults(suiteName: suiteName)!.set(legacyData, forKey: applicationCode)
+
+        let messages = makeStorage().drainMessages()
+
+        XCTAssertEqual(messages.map(\.messageId), ["legacy-archive"])
+        XCTAssertTrue(messages.first?.isDeliveryReportSent == true)
+        XCTAssertNil(UserDefaults(suiteName: suiteName)!.object(forKey: applicationCode))
+    }
+
+    func testLegacyDictionaryArrayMigrates() {
+        UserDefaults(suiteName: suiteName)!.set(
+            [["p": ["messageId": "legacy-dictionary", "aps": ["alert": "Hello"]], "dlr": false]],
+            forKey: applicationCode
+        )
+
+        let messages = makeStorage().drainMessages()
+
+        XCTAssertEqual(messages.map(\.messageId), ["legacy-dictionary"])
+        XCTAssertNil(UserDefaults(suiteName: suiteName)!.object(forKey: applicationCode))
+    }
+
+    func testConcurrentSavesDoNotLoseReceipts() {
+        DispatchQueue.concurrentPerform(iterations: 20) { index in
+            makeStorage().save(message: makeMessage("concurrent-\(index)"))
+        }
+
+        XCTAssertEqual(makeStorage().drainMessages().count, 20)
     }
 }

@@ -54,15 +54,19 @@ final class MessageFetchingOperation: MMOperation {
 	}
 	
 	private func performRequest(pushRegistrationId: String) {
+		let extensionReceiptIds = mmContext.sharedNotificationExtensionStorage?.peekMessages().map { $0.messageId } ?? []
 		context.performAndWait {
 			context.reset()
-			
+
 			let nonReportedMessageIds = self.getNonReportedMessageIds()
 			let archveMessageIds = self.getArchiveMessageIds()
-			
-			logDebug("Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages.")
 
-			let body = MessageSyncMapper.requestBody(archiveMsgIds: archveMessageIds, dlrMsgIds: nonReportedMessageIds)
+			let knownMessageIds = Set((nonReportedMessageIds ?? []) + (archveMessageIds ?? []))
+			let unknownReceiptIds = extensionReceiptIds.filter { !knownMessageIds.contains($0) }
+
+			logDebug("Found \(String(describing: nonReportedMessageIds?.count)) not reported messages. \(String(describing: archveMessageIds?.count)) archive messages. \(unknownReceiptIds.count) extension receipts.")
+
+			let body = MessageSyncMapper.requestBody(archiveMsgIds: (archveMessageIds ?? []) + unknownReceiptIds, dlrMsgIds: nonReportedMessageIds)
             self.mmContext.remoteApiProvider.syncMessages(applicationCode: self.mmContext.applicationCode, pushRegistrationId: pushRegistrationId, body: body, queue: underlyingQueue) { result in
 				self.result = result
 				self.handleRequestResponse(result: result, nonReportedMessageIds: nonReportedMessageIds) {

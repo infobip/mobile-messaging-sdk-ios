@@ -139,9 +139,9 @@ public class MMMessageHandler: MobileMessagingService {
             return MMInAppMessage(payload: message.originalPayload,
                                   deliveryMethod: .push,
                                   seenDate: nil,
-                                  deliveryReportDate: nil,
+                                  deliveryReportDate: message.deliveryReportedDate,
                                   seenStatus: .NotSeen,
-                                  isDeliveryReportSent: false)
+                                  isDeliveryReportSent: message.isDeliveryReportSent)
             ?? message
         }
         messageHandlingQueue.addOperation(MessageHandlingOperation(userInitiated: userInitiated, messagesToHandle: messagesToHandle, context: storage.newPrivateContext(), isNotificationTapped: notificationTapped, mmContext: mmContext, finishBlock:

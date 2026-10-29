@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import Foundation
 @testable import MobileMessagingNotificationExtension
 
 // MARK: - MMNSEMessage Tests
@@ -196,14 +197,55 @@ class MMNSESharedStorageTests: XCTestCase {
 
 	private let testSuiteName = "com.infobip.test.nse-shared-storage"
 	private let testAppCode = "test-app-code"
+	private var testContainerURL: URL {
+		FileManager.default.temporaryDirectory.appendingPathComponent(testSuiteName, isDirectory: true)
+	}
+
+	override func setUp() {
+		super.setUp()
+		try? FileManager.default.createDirectory(at: testContainerURL, withIntermediateDirectories: true)
+	}
 
 	override func tearDown() {
 		UserDefaults.standard.removePersistentDomain(forName: testSuiteName)
+		try? FileManager.default.removeItem(at: testContainerURL)
 		super.tearDown()
 	}
 
+	private func makeStorage() -> MMNSESharedStorage {
+		MMNSESharedStorage(applicationCode: testAppCode, appGroupId: testSuiteName, containerURL: testContainerURL)!
+	}
+
+	private func archivedMessages(from storage: MMNSESharedStorage) -> [[String: Any]]? {
+		guard let data = try? Data(contentsOf: storage.receiptFileURL) else { return nil }
+		return try? NSKeyedUnarchiver.unarchivedObject(
+			ofClasses: [NSArray.self, NSDictionary.self, NSNull.self, NSString.self, NSNumber.self, NSDate.self],
+			from: data
+		) as? [[String: Any]]
+	}
+
+	func testInitDoesNotOverwriteExistingReceipts() throws {
+		let writer = makeStorage()
+		writer.save(message: MMNSEMessage(payload: ["messageId": "existing-msg", "aps": ["alert": "Hello"]])!)
+		let sizeBefore = try Data(contentsOf: writer.receiptFileURL).count
+
+		_ = makeStorage()
+
+		XCTAssertEqual(try Data(contentsOf: writer.receiptFileURL).count, sizeBefore)
+		XCTAssertEqual(archivedMessages(from: writer)?.count, 1)
+	}
+
+	func testMissingReceiptFileIsCreatedByFirstSave() {
+		let storage = makeStorage()
+		XCTAssertFalse(FileManager.default.fileExists(atPath: storage.receiptFileURL.path))
+
+		storage.save(message: MMNSEMessage(payload: ["messageId": "first-msg", "aps": ["alert": "Hello"]])!)
+
+		XCTAssertEqual(archivedMessages(from: storage)?.count, 1)
+	}
+
 	func testSaveAndRetrieveMessage() {
-		let storage = MMNSESharedStorage(applicationCode: testAppCode, appGroupId: testSuiteName)
+		let storage = makeStorage()
 		XCTAssertNotNil(storage)
 
 		let payload: [String: Any] = [
@@ -214,15 +256,14 @@ class MMNSESharedStorageTests: XCTestCase {
 		message.isDeliveryReportSent = true
 		message.deliveryReportedDate = Date()
 
-		storage?.save(message: message)
+		storage.save(message: message)
 
-		let defaults = UserDefaults(suiteName: testSuiteName)!
-		let data = defaults.object(forKey: testAppCode) as? Data
+		let data = try? Data(contentsOf: storage.receiptFileURL)
 		XCTAssertNotNil(data)
 	}
 
 	func testSaveMultipleMessages() {
-		let storage = MMNSESharedStorage(applicationCode: testAppCode, appGroupId: testSuiteName)!
+		let storage = makeStorage()
 
 		for i in 1...3 {
 			let payload: [String: Any] = [
@@ -233,8 +274,7 @@ class MMNSESharedStorageTests: XCTestCase {
 			storage.save(message: message)
 		}
 
-		let defaults = UserDefaults(suiteName: testSuiteName)!
-		let data = defaults.object(forKey: testAppCode) as? Data
+		let data = try? Data(contentsOf: storage.receiptFileURL)
 		XCTAssertNotNil(data)
 
 		let unarchived = try? NSKeyedUnarchiver.unarchivedObject(
@@ -244,8 +284,59 @@ class MMNSESharedStorageTests: XCTestCase {
 		XCTAssertEqual(unarchived?.count, 3)
 	}
 
+	func testCorruptArchiveIsReplacedByNextSave() throws {
+		let storage = makeStorage()
+		try Data("corrupt archive".utf8).write(to: storage.receiptFileURL)
+
+		let message = MMNSEMessage(payload: ["messageId": "recovered-msg", "aps": ["alert": "Hello"]])!
+		storage.save(message: message)
+
+		XCTAssertEqual(archivedMessages(from: storage)?.compactMap { $0["p"] as? [String: Any] }
+			.compactMap { $0["messageId"] as? String }, ["recovered-msg"])
+	}
+
+	func testReadFailureDoesNotOverwriteExistingReceipts() throws {
+		let storage = makeStorage()
+		let originalMessage = MMNSEMessage(payload: ["messageId": "existing-msg", "aps": ["alert": "Existing"]])!
+		storage.save(message: originalMessage)
+
+		let originalPermissions = try FileManager.default.attributesOfItem(atPath: storage.receiptFileURL.path)[.posixPermissions] as? NSNumber
+		try FileManager.default.setAttributes([.posixPermissions: 0], ofItemAtPath: storage.receiptFileURL.path)
+		defer {
+			if let originalPermissions {
+				try? FileManager.default.setAttributes([.posixPermissions: originalPermissions], ofItemAtPath: storage.receiptFileURL.path)
+			}
+		}
+		guard (try? Data(contentsOf: storage.receiptFileURL)) == nil else {
+			throw XCTSkip("The test process can still read files with their permissions removed")
+		}
+
+		let newMessage = MMNSEMessage(payload: ["messageId": "new-msg", "aps": ["alert": "New"]])!
+		storage.save(message: newMessage)
+		try FileManager.default.setAttributes([.posixPermissions: originalPermissions ?? 0o600], ofItemAtPath: storage.receiptFileURL.path)
+
+		XCTAssertEqual(archivedMessages(from: storage)?.compactMap { $0["p"] as? [String: Any] }
+			.compactMap { $0["messageId"] as? String }, ["existing-msg"])
+	}
+
+	func testMarkDeliveryReportedDistinguishesUpdatedAndConsumedReceipt() throws {
+		let storage = makeStorage()
+		let message = MMNSEMessage(payload: ["messageId": "consumed-msg", "aps": ["alert": "Hello"]])!
+		storage.save(message: message)
+
+		let date = Date()
+		XCTAssertEqual(storage.markDeliveryReported(messageId: "consumed-msg", date: date), .updated)
+		XCTAssertEqual(archivedMessages(from: storage)?.first?["dlrd"] as? Date, date)
+
+		let emptyArchive = try NSKeyedArchiver.archivedData(withRootObject: [[String: Any]](), requiringSecureCoding: true)
+		try emptyArchive.write(to: storage.receiptFileURL)
+
+		XCTAssertEqual(storage.markDeliveryReported(messageId: "consumed-msg", date: Date()), .receiptNotFound)
+		XCTAssertTrue(archivedMessages(from: storage)?.isEmpty == true)
+	}
+
 	func testSavedMessageFormat() {
-		let storage = MMNSESharedStorage(applicationCode: testAppCode, appGroupId: testSuiteName)!
+		let storage = makeStorage()
 
 		let payload: [String: Any] = [
 			"messageId": "test-msg-1",
@@ -258,8 +349,7 @@ class MMNSESharedStorageTests: XCTestCase {
 
 		storage.save(message: message)
 
-		let defaults = UserDefaults(suiteName: testSuiteName)!
-		let data = defaults.object(forKey: testAppCode) as! Data
+				let data = try! Data(contentsOf: storage.receiptFileURL)
 		let unarchived = try! NSKeyedUnarchiver.unarchivedObject(
 			ofClasses: [NSArray.self, NSDictionary.self, NSNull.self, NSString.self, NSNumber.self, NSDate.self],
 			from: data
@@ -273,13 +363,13 @@ class MMNSESharedStorageTests: XCTestCase {
 	}
 
 	/// Verifies storage contract: the format written by MMNSESharedStorage must be readable
-	/// by the main SDK's DefaultSharedDataStorage.retrieveMessages().
+	/// by the main SDK's DefaultSharedDataStorage.
 	/// DefaultSharedDataStorage expects each dict to have:
 	///   "p" -> [String: Any] payload (must contain "messageId" and "aps")
 	///   "dlr" -> Bool (isDeliveryReportSent)
 	///   "dlrd" -> Date? (deliveryReportedDate)
 	func testStorageFormat_CompatibleWithMainSDK() {
-		let storage = MMNSESharedStorage(applicationCode: testAppCode, appGroupId: testSuiteName)!
+		let storage = makeStorage()
 
 		let payload: [String: Any] = [
 			"messageId": "compat-msg-1",
@@ -294,8 +384,7 @@ class MMNSESharedStorageTests: XCTestCase {
 		storage.save(message: message)
 
 		// Unarchive exactly how DefaultSharedDataStorage does it
-		let defaults = UserDefaults(suiteName: testSuiteName)!
-		let data = defaults.object(forKey: testAppCode) as! Data
+				let data = try! Data(contentsOf: storage.receiptFileURL)
 		let unarchived = try! NSKeyedUnarchiver.unarchivedObject(
 			ofClasses: [NSArray.self, NSDictionary.self, NSNull.self, NSString.self, NSNumber.self, NSDate.self],
 			from: data
@@ -325,7 +414,7 @@ class MMNSESharedStorageTests: XCTestCase {
 	}
 
 	func testStorageFormat_DeliveryNotSent_CompatibleWithMainSDK() {
-		let storage = MMNSESharedStorage(applicationCode: testAppCode, appGroupId: testSuiteName)!
+		let storage = makeStorage()
 
 		let payload: [String: Any] = [
 			"messageId": "compat-msg-2",
@@ -336,8 +425,7 @@ class MMNSESharedStorageTests: XCTestCase {
 
 		storage.save(message: message)
 
-		let defaults = UserDefaults(suiteName: testSuiteName)!
-		let data = defaults.object(forKey: testAppCode) as! Data
+				let data = try! Data(contentsOf: storage.receiptFileURL)
 		let unarchived = try! NSKeyedUnarchiver.unarchivedObject(
 			ofClasses: [NSArray.self, NSDictionary.self, NSNull.self, NSString.self, NSNumber.self, NSDate.self],
 			from: data
@@ -348,23 +436,6 @@ class MMNSESharedStorageTests: XCTestCase {
 		XCTAssertNil(msgDict["dlrd"], "When delivery not reported, 'dlrd' should be nil/absent")
 	}
 
-	func testCleanupAfterMainSDKRead() {
-		let storage = MMNSESharedStorage(applicationCode: testAppCode, appGroupId: testSuiteName)!
-
-		let payload: [String: Any] = [
-			"messageId": "cleanup-msg",
-			"aps": ["alert": "Hello"]
-		]
-		let message = MMNSEMessage(payload: payload)!
-		storage.save(message: message)
-
-		let defaults = UserDefaults(suiteName: testSuiteName)!
-		XCTAssertNotNil(defaults.object(forKey: testAppCode))
-
-		// Main SDK calls cleanupMessages() which does removeObject(forKey: applicationCode)
-		defaults.removeObject(forKey: testAppCode)
-		XCTAssertNil(defaults.object(forKey: testAppCode))
-	}
 }
 
 // MARK: - MMNSEDeliveryReporter Tests
