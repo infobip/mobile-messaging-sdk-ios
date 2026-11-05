@@ -76,10 +76,15 @@ public struct MMRequestError {
 	public let text: String
 	
 	var foundationError: NSError {
+		return foundationError(httpStatusCode: nil)
+	}
+
+	func foundationError(httpStatusCode: Int?) -> NSError {
 		var userInfo = [String: Any]()
 		userInfo[NSLocalizedDescriptionKey] = text
 		userInfo[Consts.APIKeys.errorText] = text
 		userInfo[Consts.APIKeys.errorMessageId] = messageId
+		userInfo[Consts.APIKeys.errorHttpStatusCode] = httpStatusCode
 		return NSError(domain: Consts.APIKeys.backendErrorDomain, code: Int(messageId) ?? 0, userInfo: userInfo)
 	}
 }
@@ -101,15 +106,25 @@ extension EmptyResponse: JSONDecodable {
 extension MMRequestError: JSONDecodable {
     public init?(json value: JSON) {
 		let serviceException = value[Consts.APIKeys.requestError][Consts.APIKeys.serviceException]
-		guard
-			let text = serviceException[Consts.APIKeys.errorText].string,
-			let messageId = serviceException[Consts.APIKeys.errorMessageId].string
-			else {
-				return nil
+		// The error code is what callers branch on, so it is required; a missing text falls back to the code.
+		guard let messageId = MMRequestError.nonBlank(serviceException[Consts.APIKeys.errorMessageId].string) else {
+			return nil
 		}
 		
 		self.messageId = messageId
-		self.text = text
+		self.text = MMRequestError.nonBlank(serviceException[Consts.APIKeys.errorText].string) ?? messageId
+	}
+
+	/// Server error text of a body that has no usable error code, so it can still be reported with the HTTP status.
+	static func text(fromErrorBody value: JSON) -> String? {
+		return nonBlank(value[Consts.APIKeys.requestError][Consts.APIKeys.serviceException][Consts.APIKeys.errorText].string)
+	}
+
+	private static func nonBlank(_ string: String?) -> String? {
+		guard let string = string, !string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+			return nil
+		}
+		return string
 	}
 }
 

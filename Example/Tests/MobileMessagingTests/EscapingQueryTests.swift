@@ -63,12 +63,43 @@ class EscapingQueryTests : XCTestCase {
 		XCTAssertTrue(query.contains("%25"), "% must be encoded as %25")
 		XCTAssertTrue(query.contains("%5B"), "[ must be encoded as %5B")
 		XCTAssertTrue(query.contains("%5D"), "] must be encoded as %5D")
+		XCTAssertTrue(query.contains("%2B"), "+ must be encoded as %2B, servers decode a bare + as a space")
 
 		// Characters that URLComponents leaves unencoded (legal in RFC 3986 query).
 		// Alamofire encoded all sub-delimiters, but Foundation only encodes
 		// structurally significant ones. These are safe unencoded per RFC 3986.
-		for char: Character in ["!", "*", "'", "(", ")", ";", ":", "@", "+", "$", ",", "/", "?"] {
+		for char: Character in ["!", "*", "'", "(", ")", ";", ":", "@", "$", ",", "/", "?"] {
 			XCTAssertTrue(query.contains(char), "\(char) is legal unencoded in query per RFC 3986")
 		}
+	}
+
+	func testArrayEncodesAsRepeatedItems() {
+		let request = RequestData(
+			applicationCode: "test",
+			method: .delete,
+			path: .empty,
+			parameters: ["messageId": ["a", "b,c"]]
+		)
+		let urlRequest = try! request.buildURLRequest(baseURL: URL(string: "http://url.com")!)
+		XCTAssertEqual("http://url.com?messageId=a&messageId=b,c", urlRequest.url!.absoluteString)
+	}
+
+	func testPlusSignIsPreservedAfterDecoding() {
+		let values = ["legacy+a", "with space", "literal%2B", "a&b=c"]
+		let request = RequestData(
+			applicationCode: "test",
+			method: .delete,
+			path: .empty,
+			parameters: ["messageId": values]
+		)
+		let urlRequest = try! request.buildURLRequest(baseURL: URL(string: "http://url.com")!)
+		let query = URLComponents(url: urlRequest.url!, resolvingAgainstBaseURL: false)!.percentEncodedQuery!
+		XCTAssertTrue(query.hasPrefix("messageId=legacy%2Ba&"))
+
+		// Decode as a servlet container would: "+" means space, then percent-decode
+		let decoded = query.components(separatedBy: "&").map {
+			$0.components(separatedBy: "=")[1].replacingOccurrences(of: "+", with: " ").removingPercentEncoding!
+		}
+		XCTAssertEqual(decoded, values)
 	}
 }

@@ -286,6 +286,7 @@ class NetworkingIntegrationTests: XCTestCase {
                     "Error should be from backend domain, got: \(error.domain)")
                 XCTAssertEqual(error.userInfo[Consts.APIKeys.errorText] as? String, "Bad request: invalid parameter")
                 XCTAssertEqual(error.userInfo[Consts.APIKeys.errorMessageId] as? String, "INVALID_VALUE")
+                XCTAssertEqual(error.mm_httpStatusCode, 400)
             }
             expectation.fulfill()
         }
@@ -320,6 +321,149 @@ class NetworkingIntegrationTests: XCTestCase {
             // 204 is a success status - should not error
             // Note: json may be nil for empty responses, which is fine
             XCTAssertNil(error, "204 No Content should not produce an error, got: \(String(describing: error))")
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 5)
+    }
+
+    // MARK: - Inbox: delete with repeated messageId and 204 No Content
+
+    func testInboxDeleteSendsRepeatedMessageIdsAndHandles204() {
+        let expectation = expectation(description: "completion")
+        let sessionManager = makeSessionManager()
+        let remoteApiProvider = RemoteAPIProvider(sessionManager: sessionManager)
+
+        MockURLProtocol.requestHandler = { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 204, httpVersion: "HTTP/1.1", headerFields: [:])!
+            return (response, nil)
+        }
+
+        remoteApiProvider.deleteInboxMessages(applicationCode: "testAppCode", accessToken: "jwt", externalUserId: "user1", messageIds: ["legacy+a", "b,c", "d e"], queue: .main) { result in
+            XCTAssertNil(result.error, "204 No Content should be a successful delete, got: \(String(describing: result.error))")
+
+            let request = MockURLProtocol.lastRequest!
+            XCTAssertEqual(request.httpMethod, "DELETE")
+            XCTAssertEqual(request.url?.path, "/mobile/1/user/user1/inbox/messages")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer jwt")
+            XCTAssertNil(request.httpBody)
+            XCTAssertEqual(URLComponents(url: request.url!, resolvingAgainstBaseURL: false)?.percentEncodedQuery,
+                           "messageId=legacy%2Ba&messageId=b,c&messageId=d%20e")
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 5)
+    }
+
+    func testInboxFetchDecodesNextCursor() {
+        let expectation = expectation(description: "completion")
+        let sessionManager = makeSessionManager()
+        let remoteApiProvider = RemoteAPIProvider(sessionManager: sessionManager)
+
+        MockURLProtocol.requestHandler = { request in
+            return self.jsonResponse(json: ["messages": [], "countTotal": 25, "countUnread": 2, "nextCursor": "eyJ2IjoxfQ"], url: request.url)
+        }
+
+        remoteApiProvider.getInbox(applicationCode: "testAppCode", accessToken: nil, externalUserId: "user1", from: nil, to: nil, limit: 20, topic: nil, cursor: "c1", queue: .main) { result in
+            XCTAssertNil(result.error)
+            XCTAssertEqual(result.value?.nextCursor, "eyJ2IjoxfQ")
+            XCTAssertEqual(result.value?.countTotal, 25)
+
+            let query = URLComponents(url: MockURLProtocol.lastRequest!.url!, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            XCTAssertEqual(query.first(where: { $0.name == "cursor" })?.value, "c1")
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 5)
+    }
+
+    func testEmptyBodyGatewayErrorHasNoServerCode() {
+        let expectation = expectation(description: "completion")
+        let sessionManager = makeSessionManager()
+        let remoteApiProvider = RemoteAPIProvider(sessionManager: sessionManager)
+
+        MockURLProtocol.requestHandler = { request in
+            let response = HTTPURLResponse(url: request.url!, statusCode: 502, httpVersion: "HTTP/1.1", headerFields: [:])!
+            return (response, nil)
+        }
+
+        remoteApiProvider.deleteInboxMessages(applicationCode: "testAppCode", accessToken: "jwt", externalUserId: "user1", messageIds: ["a"], queue: .main) { result in
+            let error = result.error
+            XCTAssertEqual(error?.domain, "com.mobile-messaging.http")
+            XCTAssertEqual(error?.code, 502)
+            XCTAssertNil(error?.mm_code)
+            XCTAssertEqual(error?.mm_httpStatusCode, 502)
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: 5)
+    }
+
+    func testInboxServerErrorKeepsHttpStatusAndServerCode() {
+        let sessionManager = makeSessionManager()
+        let remoteApiProvider = RemoteAPIProvider(sessionManager: sessionManager)
+
+        for (status, messageId) in [(401, "UNAUTHORIZED"), (403, "FORBIDDEN"), (429, "TOO_MANY_REQUESTS")] {
+            let expectation = expectation(description: messageId)
+            MockURLProtocol.requestHandler = { request in
+                return self.jsonResponse(statusCode: status, json: ["requestError": ["serviceException": ["messageId": messageId, "text": "error text"]]], url: request.url)
+            }
+            remoteApiProvider.deleteInboxMessages(applicationCode: "testAppCode", accessToken: "jwt", externalUserId: "user1", messageIds: ["a"], queue: .main) { result in
+                let error = result.error
+                XCTAssertEqual(error?.domain, "com.mobile-messaging.backend")
+                XCTAssertEqual(error?.mm_code, messageId)
+                XCTAssertEqual(error?.mm_httpStatusCode, status)
+                expectation.fulfill()
+            }
+            waitForExpectations(timeout: 5)
+        }
+    }
+
+    func testPartialServerErrorBodyKeepsWhatIsPresent() {
+        let sessionManager = makeSessionManager()
+        let remoteApiProvider = RemoteAPIProvider(sessionManager: sessionManager)
+        let cases: [(serviceException: [String: Any], domain: String, code: String?, description: String)] = [
+            (["messageId": "INVALID_CURSOR"], "com.mobile-messaging.backend", "INVALID_CURSOR", "INVALID_CURSOR"),
+            // Real body from the API for a mismatched appCode header: the server omits a null text.
+            (["messageId": "NO_APPLICATION"], "com.mobile-messaging.backend", "NO_APPLICATION", "NO_APPLICATION"),
+            (["messageId": "INVALID_CURSOR", "text": " "], "com.mobile-messaging.backend", "INVALID_CURSOR", "INVALID_CURSOR"),
+            (["text": "Cursor is invalid"], "com.mobile-messaging.http", nil, "Cursor is invalid"),
+            (["messageId": " ", "text": "Cursor is invalid"], "com.mobile-messaging.http", nil, "Cursor is invalid"),
+            ([:], "com.mobile-messaging.http", nil, "Request failed with status code 400")
+        ]
+
+        for testCase in cases {
+            let expectation = expectation(description: "\(testCase.serviceException)")
+            MockURLProtocol.requestHandler = { request in
+                return self.jsonResponse(statusCode: 400, json: ["requestError": ["serviceException": testCase.serviceException]], url: request.url)
+            }
+            remoteApiProvider.getInbox(applicationCode: "testAppCode", accessToken: nil, externalUserId: "user1", from: nil, to: nil, limit: nil, topic: nil, cursor: "bad", queue: .main) { result in
+                let error = result.error
+                XCTAssertEqual(error?.domain, testCase.domain, "\(testCase.serviceException)")
+                XCTAssertEqual(error?.mm_code, testCase.code, "\(testCase.serviceException)")
+                XCTAssertEqual(error?.localizedDescription, testCase.description, "\(testCase.serviceException)")
+                XCTAssertEqual(error?.mm_httpStatusCode, 400, "\(testCase.serviceException)")
+                if testCase.domain == "com.mobile-messaging.http" {
+                    XCTAssertEqual(error?.code, 400)
+                }
+                expectation.fulfill()
+            }
+            waitForExpectations(timeout: 5)
+        }
+    }
+
+    func testNetworkErrorHasNoHttpStatus() {
+        let expectation = expectation(description: "completion")
+        let sessionManager = makeSessionManager()
+        let remoteApiProvider = RemoteAPIProvider(sessionManager: sessionManager)
+
+        MockURLProtocol.requestHandler = { _ in
+            throw NSError(domain: NSURLErrorDomain, code: NSURLErrorNotConnectedToInternet)
+        }
+
+        remoteApiProvider.deleteInboxMessages(applicationCode: "testAppCode", accessToken: "jwt", externalUserId: "user1", messageIds: ["a"], queue: .main) { result in
+            XCTAssertEqual(result.error?.domain, NSURLErrorDomain)
+            XCTAssertNil(result.error?.mm_httpStatusCode)
             expectation.fulfill()
         }
 

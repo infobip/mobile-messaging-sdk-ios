@@ -198,4 +198,82 @@ class MMInboxFilterOptionsTests: XCTestCase {
         XCTAssertNil(filterOptions.topics) // Should be nil when using single topic
         XCTAssertEqual(filterOptions.limit, 5)
     }
+    
+    func testCursorInitializer() {
+        let filterOptions = MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: "sports", limit: 10, cursor: "c1")
+        
+        XCTAssertEqual(filterOptions.topic, "sports")
+        XCTAssertNil(filterOptions.topics)
+        XCTAssertEqual(filterOptions.limit, 10)
+        XCTAssertEqual(filterOptions.cursor, "c1")
+    }
+    
+    func testExistingInitializersHaveNoCursor() {
+        XCTAssertNil(MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: "sports", limit: 10).cursor)
+        XCTAssertNil(MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topics: ["sports"], limit: 10).cursor)
+    }
+    
+    func testCursorFromDictionaryWithTopic() {
+        let filterOptions = MMInboxFilterOptions(dictRepresentation: ["topic": "sports", "cursor": "c1"])
+        
+        XCTAssertEqual(filterOptions.topic, "sports")
+        XCTAssertEqual(filterOptions.cursor, "c1")
+    }
+    
+    func testCursorFromDictionaryIsKeptWithTopics() {
+        let filterOptions = MMInboxFilterOptions(dictRepresentation: ["topics": ["sports"], "cursor": "c1"])
+        
+        XCTAssertEqual(filterOptions.topics, ["sports"])
+        XCTAssertEqual(filterOptions.cursor, "c1")
+    }
+    
+    func testCursorFromDictionaryWithEmptyTopics() {
+        let filterOptions = MMInboxFilterOptions(dictRepresentation: ["topics": [String](), "cursor": "c1"])
+        
+        XCTAssertEqual(filterOptions.topics, [])
+        XCTAssertEqual(filterOptions.cursor, "c1")
+    }
+    
+    func testBlankCursorsAreNormalizedByEveryInitializer() {
+        for cursor in [nil, "", " ", "\t\n"] as [String?] {
+            let options = MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: "Offers", limit: 5, cursor: cursor)
+            XCTAssertNil(options.cursor)
+            for filters: [String: Any] in [["topic": "Offers"], ["topics": ["Offers"]], ["topics": [String]()]] {
+                var dictionary = filters
+                dictionary["cursor"] = cursor
+                XCTAssertNil(MMInboxFilterOptions(dictRepresentation: dictionary).cursor)
+                dictionary["cursor"] = NSNull()
+                XCTAssertNil(MMInboxFilterOptions(dictRepresentation: dictionary).cursor)
+            }
+        }
+    }
+
+    func testNonblankCursorIsPreservedExactlyByEveryInitializer() {
+        let cursor = "  opaque+/=& cursor  "
+        let options = MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: "Offers", limit: 5, cursor: cursor)
+        XCTAssertEqual(options.cursor, cursor)
+        for filters: [String: Any] in [["topic": "Offers"], ["topics": ["Offers"]], ["topics": [String]()]] {
+            var dictionary = filters
+            dictionary["cursor"] = cursor
+            XCTAssertEqual(MMInboxFilterOptions(dictRepresentation: dictionary).cursor, cursor)
+        }
+    }
+
+    func testTopicTakesPrecedenceOverTopicsInDictionary() {
+        for topics in [["news", "sports"], ["news"], []] {
+            let filterOptions = MMInboxFilterOptions(dictRepresentation: ["topic": "sports", "topics": topics, "limit": 5, "cursor": "c1"])
+            XCTAssertEqual(filterOptions.topic, "sports")
+            XCTAssertNil(filterOptions.topics)
+            XCTAssertEqual(filterOptions.limit, 5)
+            XCTAssertEqual(filterOptions.cursor, "c1")
+        }
+        // A null topic does not take precedence.
+        let filterOptions = MMInboxFilterOptions(dictRepresentation: ["topic": NSNull(), "topics": ["news"]])
+        XCTAssertNil(filterOptions.topic)
+        XCTAssertEqual(filterOptions.topics, ["news"])
+    }
+
+    func testMissingCursorFromDictionary() {
+        XCTAssertNil(MMInboxFilterOptions(dictRepresentation: ["topic": "sports"]).cursor)
+    }
 }

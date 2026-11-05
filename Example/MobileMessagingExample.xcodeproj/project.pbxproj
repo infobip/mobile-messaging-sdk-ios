@@ -119,6 +119,8 @@
 		A0218EEA2ADFD2B900219258 /* CodingDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0218EE82ADFD2B900219258 /* CodingDecodingTests.swift */; };
 		A026DDBD2AC3215C00A7318C /* InboxDataModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026DDB82AC3215C00A7318C /* InboxDataModelsTests.swift */; };
 		A026DDBE2AC3215C00A7318C /* InboxDataModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026DDB82AC3215C00A7318C /* InboxDataModelsTests.swift */; };
+		A0F1B0022F00000000C0FFEE /* MMInboxFilterOptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F1B0012F00000000C0FFEE /* MMInboxFilterOptionsTests.swift */; };
+		A0F1B0032F00000000C0FFEE /* MMInboxFilterOptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F1B0012F00000000C0FFEE /* MMInboxFilterOptionsTests.swift */; };
 		A026DDBF2AC3215C00A7318C /* InboxServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026DDB92AC3215C00A7318C /* InboxServiceTests.swift */; };
 		A026DDC02AC3215C00A7318C /* InboxServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026DDB92AC3215C00A7318C /* InboxServiceTests.swift */; };
 		A026DDC52AC3215C00A7318C /* MMInAppMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A026DDBC2AC3215C00A7318C /* MMInAppMessageTests.swift */; };
@@ -254,6 +256,7 @@
 		A0218EE82ADFD2B900219258 /* CodingDecodingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodingDecodingTests.swift; sourceTree = "<group>"; };
 		A024DEA41CF7477A00084EF5 /* EscapingQueryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EscapingQueryTests.swift; sourceTree = "<group>"; };
 		A026DDB82AC3215C00A7318C /* InboxDataModelsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InboxDataModelsTests.swift; sourceTree = "<group>"; };
+		A0F1B0012F00000000C0FFEE /* MMInboxFilterOptionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMInboxFilterOptionsTests.swift; sourceTree = "<group>"; };
 		A026DDB92AC3215C00A7318C /* InboxServiceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InboxServiceTests.swift; sourceTree = "<group>"; };
 		A026DDBC2AC3215C00A7318C /* MMInAppMessageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMInAppMessageTests.swift; sourceTree = "<group>"; };
 		A026E0262BD7E6FC007D042A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -515,6 +518,7 @@
 				02CB0C372CDCC12C0042CE9E /* WebInAppClickTests.swift */,
 				A0218EE82ADFD2B900219258 /* CodingDecodingTests.swift */,
 				A026DDB82AC3215C00A7318C /* InboxDataModelsTests.swift */,
+				A0F1B0012F00000000C0FFEE /* MMInboxFilterOptionsTests.swift */,
 				A026DDB92AC3215C00A7318C /* InboxServiceTests.swift */,
 				A026DDBC2AC3215C00A7318C /* MMInAppMessageTests.swift */,
 				762E2E5327F1C04200CFC5ED /* OtherVendorsTests.swift */,
@@ -1054,6 +1058,7 @@
 				0283EA0E2E67200000CE5BAD /* NotificationExtensionTests.swift in Sources */,
 				A0218EE92ADFD2B900219258 /* CodingDecodingTests.swift in Sources */,
 				A026DDBD2AC3215C00A7318C /* InboxDataModelsTests.swift in Sources */,
+				A0F1B0022F00000000C0FFEE /* MMInboxFilterOptionsTests.swift in Sources */,
 				762E22D42417BED8003E2696 /* InAppAlertTests.swift in Sources */,
 				A89C6A212F30CAF2004D545B /* UserIdentityMergeTests.swift in Sources */,
 				76AAE58125FBF58000E70F13 /* UtilsTests.swift in Sources */,
@@ -1082,6 +1087,7 @@
 				762F9D4B220724A400A35F1E /* DataModelsTests.swift in Sources */,
 				76934B38232C32D200882DAA /* UserDataTests.swift in Sources */,
 				A026DDBE2AC3215C00A7318C /* InboxDataModelsTests.swift in Sources */,
+				A0F1B0032F00000000C0FFEE /* MMInboxFilterOptionsTests.swift in Sources */,
 				A026DDC02AC3215C00A7318C /* InboxServiceTests.swift in Sources */,
 				762F9D36220649B900A35F1E /* ApplicationCodeHashingTests.swift in Sources */,
 				A0CA35012767251E00517867 /* ServicesSynchronizationTests.swift in Sources */,

@@ -391,6 +391,36 @@
                                     <action selector="fetchInboxMultiTopicsButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Inb-mt-act"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Inb-pg-btn">
+                                <rect key="frame" x="40" y="350" width="295" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Fetch Inbox (page size 5)">
+                                    <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="fetchInboxNextPageButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Inb-pg-act"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Inb-dl-btn">
+                                <rect key="frame" x="40" y="400" width="295" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Delete First Fetched Message">
+                                    <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="deleteFirstInboxMessageButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Inb-dl-act"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Inb-pt-btn">
+                                <rect key="frame" x="40" y="450" width="295" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Test Pagination (all pages)">
+                                    <color key="titleColor" red="0.91372549020000005" green="0.40784313729999999" blue="0.074509803920000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="testInboxPaginationButtonClicked:" destination="CYs-GD-BE8" eventType="touchUpInside" id="Inb-pt-act"/>
+                                </connections>
+                            </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Div-ln-sep">
                                 <rect key="frame" x="50" y="420" width="275" height="1"/>
                                 <color key="backgroundColor" red="0.8" green="0.8" blue="0.8" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -429,7 +459,13 @@
                             <constraint firstItem="Inb-mt-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Inb-mt-cX"/>
                             <constraint firstItem="Inb-mt-btn" firstAttribute="top" secondItem="Inb-st-btn" secondAttribute="bottom" constant="17" id="Inb-mt-tY"/>
                             <constraint firstItem="Div-ln-sep" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Div-ln-cX"/>
-                            <constraint firstItem="Div-ln-sep" firstAttribute="top" secondItem="Inb-mt-btn" secondAttribute="bottom" constant="25" id="Div-ln-tY"/>
+                            <constraint firstItem="Inb-pg-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Inb-pg-cX"/>
+                            <constraint firstItem="Inb-pg-btn" firstAttribute="top" secondItem="Inb-mt-btn" secondAttribute="bottom" constant="17" id="Inb-pg-tY"/>
+                            <constraint firstItem="Inb-dl-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Inb-dl-cX"/>
+                            <constraint firstItem="Inb-dl-btn" firstAttribute="top" secondItem="Inb-pg-btn" secondAttribute="bottom" constant="17" id="Inb-dl-tY"/>
+                            <constraint firstItem="Inb-pt-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Inb-pt-cX"/>
+                            <constraint firstItem="Inb-pt-btn" firstAttribute="top" secondItem="Inb-dl-btn" secondAttribute="bottom" constant="17" id="Inb-pt-tY"/>
+                            <constraint firstItem="Div-ln-sep" firstAttribute="top" secondItem="Inb-pt-btn" secondAttribute="bottom" constant="25" id="Div-ln-tY"/>
                             <constraint firstItem="Div-ln-sep" firstAttribute="leading" secondItem="o4u-gw-hCc" secondAttribute="leading" constant="50" id="Div-ln-lX"/>
                             <constraint firstItem="Div-ln-sep" firstAttribute="trailing" secondItem="o4u-gw-hCc" secondAttribute="trailing" constant="-50" id="Div-ln-rX"/>
                             <constraint firstItem="Dep-sn-btn" firstAttribute="centerX" secondItem="o4u-gw-hCc" secondAttribute="centerX" id="Dep-sn-cX"/>
@@ -454,6 +490,9 @@
                         <outlet property="fetchInboxAllButton" destination="Inb-al-btn" id="Inb-al-out"/>
                         <outlet property="fetchInboxSingleTopicButton" destination="Inb-st-btn" id="Inb-st-out"/>
                         <outlet property="fetchInboxMultiTopicsButton" destination="Inb-mt-btn" id="Inb-mt-out"/>
+                        <outlet property="fetchInboxNextPageButton" destination="Inb-pg-btn" id="Inb-pg-out"/>
+                        <outlet property="deleteInboxMessageButton" destination="Inb-dl-btn" id="Inb-dl-out"/>
+                        <outlet property="testInboxPaginationButton" destination="Inb-pt-btn" id="Inb-pt-out"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HWb-HL-ajm" userLabel="First Responder" sceneMemberID="firstResponder"/>

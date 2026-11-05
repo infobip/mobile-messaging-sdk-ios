@@ -152,6 +152,12 @@ extension NSError {
         return userInfo[Consts.APIKeys.errorMessageId] as? String
     }
     
+    /// HTTP status code of the response that caused the error, or `nil` for local errors and failures without an HTTP response (for example, no network).
+    /// Independent of `mm_code`, which holds the server or SDK error code.
+    public var mm_httpStatusCode: Int? {
+        return userInfo[Consts.APIKeys.errorHttpStatusCode] as? Int
+    }
+    
     var mm_isNoSuchFile: Bool {
         return domain == NSCocoaErrorDomain && (code == NSFileNoSuchFileError || code == NSFileReadNoSuchFileError)
     }

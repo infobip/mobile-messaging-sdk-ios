@@ -269,4 +269,124 @@ class InboxDataModelsTests: XCTestCase {
             return (elem["messageId"] as! String) == "m2"
         }))
     }
+    
+    func testNextCursorDecoding() {
+        let withCursor = MMInbox(json: JSON.parse("""
+        { "messages": [], "countTotal": 30, "countUnread": 5, "nextCursor": "eyJ2IjoxfQ" }
+        """))
+        XCTAssertEqual(withCursor?.nextCursor, "eyJ2IjoxfQ")
+        
+        let withoutCursor = MMInbox(json: JSON.parse("""
+        { "messages": [], "countTotal": 30, "countUnread": 5 }
+        """))
+        XCTAssertNotNil(withoutCursor)
+        XCTAssertNil(withoutCursor?.nextCursor)
+        
+        let nullCursor = MMInbox(json: JSON.parse("""
+        { "messages": [], "countTotal": 30, "countUnread": 5, "nextCursor": null }
+        """))
+        XCTAssertNotNil(nullCursor)
+        XCTAssertNil(nullCursor?.nextCursor)
+    }
+    
+    func testMemberwiseInitializers() {
+        let inbox = MMInbox(messages: [], countTotal: 1, countUnread: 0, countTotalFiltered: nil, countUnreadFiltered: nil)
+        XCTAssertNil(inbox.nextCursor)
+        
+        let inboxWithCursor = MMInbox(messages: [], countTotal: 1, countUnread: 0, countTotalFiltered: nil, countUnreadFiltered: nil, nextCursor: "c1")
+        XCTAssertEqual(inboxWithCursor.nextCursor, "c1")
+    }
+
+    func testBlankNextCursorsAreNormalizedAndOmittedFromPluginDictionary() throws {
+        for cursor in ["", " ", "\t\n", "\u{00a0}"] {
+            let decoded = try XCTUnwrap(MMInbox(json: JSON([
+                "messages": [], "countTotal": 30, "countUnread": 5, "nextCursor": cursor
+            ])))
+            let constructed = MMInbox(messages: [], countTotal: 30, countUnread: 5, countTotalFiltered: nil, countUnreadFiltered: nil, nextCursor: cursor)
+            for inbox in [decoded, constructed] {
+                XCTAssertNil(inbox.nextCursor, "A blank response cursor must end pagination instead of restarting the first page")
+                XCTAssertNil(inbox.dictionaryRepresentation["nextCursor"])
+            }
+        }
+    }
+
+    func testNonblankNextCursorsArePreservedExactly() throws {
+        for cursor in ["c1", "  opaque+/=& cursor\t\n"] {
+            let decoded = try XCTUnwrap(MMInbox(json: JSON([
+                "messages": [], "countTotal": 30, "countUnread": 5, "nextCursor": cursor
+            ])))
+            let constructed = MMInbox(messages: [], countTotal: 30, countUnread: 5, countTotalFiltered: nil, countUnreadFiltered: nil, nextCursor: cursor)
+            for inbox in [decoded, constructed] {
+                XCTAssertEqual(inbox.nextCursor, cursor)
+                XCTAssertEqual(inbox.dictionaryRepresentation["nextCursor"] as? String, cursor)
+            }
+        }
+    }
+
+    func testPluginDictionaryIncludesCursorCountersAndExistingMessageFormat() throws {
+        let inbox = try XCTUnwrap(MMInbox(json: JSON.parse("""
+        {
+            "messages": [{
+                "messageId": "message-1",
+                "aps": {"alert": {"title": "Offer", "body": "Message text"}},
+                "internalData": {"sendDateTime": 1643314503233, "inbox": {"topic": "Offers", "seen": true}}
+            }],
+            "countTotal": 10,
+            "countUnread": 3,
+            "countTotalFiltered": 2,
+            "countUnreadFiltered": 0,
+            "nextCursor": "  opaque+/=& cursor  "
+        }
+        """)))
+        let dictionary = inbox.dictionaryRepresentation
+        XCTAssertEqual(dictionary["countTotal"] as? Int, 10)
+        XCTAssertEqual(dictionary["countUnread"] as? Int, 3)
+        XCTAssertEqual(dictionary["countTotalFiltered"] as? Int, 2)
+        XCTAssertEqual(dictionary["countUnreadFiltered"] as? Int, 0)
+        XCTAssertEqual(dictionary["nextCursor"] as? String, "  opaque+/=& cursor  ")
+        let messages = try XCTUnwrap(dictionary["messages"] as? [[String: Any]])
+        XCTAssertEqual(messages.count, 1)
+        let message = try XCTUnwrap(inbox.messages.first)
+        XCTAssertEqual(messages.first.map { NSDictionary(dictionary: $0) }, NSDictionary(dictionary: message.dictionaryRepresentation))
+
+        // Bridges must be able to serialize the result without Swift Optional values or model objects.
+        let data = try JSONSerialization.data(withJSONObject: dictionary)
+        let decoded = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(decoded["nextCursor"] as? String, inbox.nextCursor)
+        let decodedMessages = try XCTUnwrap(decoded["messages"] as? [[String: Any]])
+        XCTAssertEqual(decodedMessages.first?["messageId"] as? String, "message-1")
+        XCTAssertEqual(decodedMessages.first?["topic"] as? String, "Offers")
+        XCTAssertEqual(decodedMessages.first?["seen"] as? Bool, true)
+    }
+
+    func testPluginDictionaryOmitsMissingAndNullOptionalFields() throws {
+        for json in [
+            "{\"messages\":[],\"countTotal\":0,\"countUnread\":0}",
+            "{\"messages\":[],\"countTotal\":0,\"countUnread\":0,\"nextCursor\":null,\"countTotalFiltered\":null,\"countUnreadFiltered\":null}"
+        ] {
+            let inbox = try XCTUnwrap(MMInbox(json: JSON.parse(json)))
+            let dictionary = inbox.dictionaryRepresentation
+            XCTAssertEqual(Set(dictionary.keys), ["countTotal", "countUnread", "messages"])
+            XCTAssertEqual(dictionary["countTotal"] as? Int, 0)
+            XCTAssertEqual(dictionary["countUnread"] as? Int, 0)
+            XCTAssertEqual((dictionary["messages"] as? [[String: Any]])?.count, 0)
+            XCTAssertTrue(JSONSerialization.isValidJSONObject(dictionary))
+        }
+    }
+
+    func testInboxCompletionApisAreExposedToObjectiveC() {
+        XCTAssertTrue(MobileMessaging.responds(to: NSSelectorFromString("inbox")))
+        XCTAssertTrue(MMInbox.instancesRespond(to: NSSelectorFromString("dictionaryRepresentation")))
+        XCTAssertTrue(MMInboxFilterOptions.instancesRespond(to: NSSelectorFromString("initWithDictRepresentation:")))
+        for selector in [
+            "fetchInboxWithToken:externalUserId:options:completion:",
+            "fetchInboxWithExternalUserId:options:completion:",
+            "setSeenWithExternalUserId:messageIds:completion:",
+            "deleteMessagesWithToken:externalUserId:messageIds:completionHandler:",
+            "deleteMessagesWithExternalUserId:messageIds:completionHandler:"
+        ] {
+            XCTAssertTrue(MMInboxService.instancesRespond(to: NSSelectorFromString(selector)), selector)
+        }
+    }
+
 }

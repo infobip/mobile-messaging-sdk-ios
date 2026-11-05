@@ -41,6 +41,7 @@ public enum APIPath: String {
     case CustomEvents = "/mobile/1/appinstance/{pushRegistrationId}/user/events/custom"
 
     case Inbox = "/mobile/1/user/{externalUserId}/inbox/apns/messages"
+    case InboxMessages = "/mobile/1/user/{externalUserId}/inbox/messages"
 
     case ChatWidget = "/mobile/1/chat/widget"
     case WebRTCToken = "/webrtc/1/token"
@@ -328,6 +329,8 @@ extension RequestData {
             components.queryItems = parameters.keys.sorted().flatMap { key in
                 queryItems(fromKey: key, value: parameters[key]!)
             }
+            // URLComponents leaves "+" unescaped, but servers decode it as a space in query values
+            components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         }
 
         guard let url = components.url else { throw URLError(.badURL) }
@@ -347,7 +350,9 @@ extension RequestData {
     }
 
     private func queryItems(fromKey key: String, value: Any) -> [URLQueryItem] {
-        if let bool = value as? Bool {
+        if let array = value as? [Any] {
+            return array.flatMap { queryItems(fromKey: key, value: $0) }
+        } else if let bool = value as? Bool {
             return [URLQueryItem(name: key, value: bool ? "1" : "0")]
         } else if let number = value as? NSNumber,
                   number === kCFBooleanTrue || number === kCFBooleanFalse {

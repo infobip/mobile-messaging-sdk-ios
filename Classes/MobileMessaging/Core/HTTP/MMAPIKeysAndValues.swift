@@ -82,6 +82,7 @@ public struct MMConsts {
 		static let serviceException = "serviceException"
 		static let errorText = "text"
 		static let errorMessageId = "messageId"
+		static let errorHttpStatusCode = "httpStatusCode"
 
 		//MARK: seenMessages
 		public static let seenMessages = "messages"
@@ -170,6 +171,9 @@ public struct MMConsts {
         public static let countUnread = "countUnread"
         public static let countTotalFiltered = "countTotalFiltered"
         public static let countUnreadFiltered = "countUnreadFiltered"
+        public static let cursor = "cursor"
+        public static let nextCursor = "nextCursor"
+        public static let messageId = "messageId"
     }
 
 	public struct InternalDataKeys {

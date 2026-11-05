@@ -25,8 +25,17 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 	@IBOutlet weak var fetchInboxAllButton: UIButton!
 	@IBOutlet weak var fetchInboxSingleTopicButton: UIButton!
 	@IBOutlet weak var fetchInboxMultiTopicsButton: UIButton!
+	@IBOutlet weak var fetchInboxNextPageButton: UIButton!
+	@IBOutlet weak var deleteInboxMessageButton: UIButton!
+	@IBOutlet weak var testInboxPaginationButton: UIButton!
 	
 	private var currentExternalUserId: String?
+	/// Messages fetched by the "All" and "Next Page" buttons, and the cursor for the next page.
+	private var fetchedInboxMessages: [MM_MTMessage] = []
+	private var inboxNextCursor: String?
+	/// True once a paged fetch returned no `nextCursor`, i.e. there are no more pages until paging is reset.
+	private var inboxPagingFinished = false
+	private static let inboxPageSize = 5
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -101,6 +110,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 					} else {
 						print("✅ Personalization successful with externalUserId: \(externalUserId)")
 						self.currentExternalUserId = externalUserId
+						self.resetInboxPaging()
 						self.updateUIForUserState()
 						self.showAlert(title: "Personalization Success", message: "User personalized with externalUserId: \(externalUserId)")
 					}
@@ -139,6 +149,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 					} else {
 						print("✅ Depersonalization successful")
 						self.currentExternalUserId = nil
+						self.resetInboxPaging()
 						self.externalUserIdTextField.text = ""
 						self.updateUIForUserState()
 						self.showAlert(title: "Depersonalization Success", message: "User has been depersonalized")
@@ -230,6 +241,195 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		}
 	}
 
+	@IBAction func fetchInboxAllButtonClicked(_ sender: UIButton) {
+		resetInboxPaging()
+		fetchInboxPage(options: MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: nil, limit: 100), title: "All - limit 100")
+	}
+
+	@IBAction func fetchInboxNextPageButtonClicked(_ sender: UIButton) {
+		// First tap fetches the first page, every next tap continues with the cursor returned by the previous page.
+		// The cursor must be used with the same topic and date filters as the page it was returned with.
+		let isFirstPage = inboxNextCursor == nil
+		if isFirstPage {
+			fetchedInboxMessages = []
+		}
+		let options = MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: nil, limit: SettingsViewController.inboxPageSize, cursor: inboxNextCursor)
+		fetchInboxPage(options: options, title: isFirstPage ? "first page" : "next page", paged: true)
+	}
+
+	@IBAction func deleteFirstInboxMessageButtonClicked(_ sender: UIButton) {
+		guard let externalUserId = currentExternalUserId else {
+			showAlert(title: "No User ID", message: "Please personalize first to delete inbox messages")
+			return
+		}
+		guard let message = fetchedInboxMessages.first else {
+			showAlert(title: "Nothing To Delete", message: "Fetch inbox messages first (\"All\" or \"page size 5\")")
+			return
+		}
+		// Optional chaining on a nil inbox service would silently skip the delete, so check it explicitly.
+		guard let inbox = MobileMessaging.inbox else {
+			showAlert(title: "Delete Failed", message: "Mobile Messaging SDK is not started")
+			return
+		}
+		showActivityIndicator()
+		// Uses Application Code authorization like the other inbox buttons on this screen.
+		// In production use deleteMessages(token:externalUserId:messageIds:) with the same JWT used for fetching the inbox.
+		Task { @MainActor in
+			do {
+				try await inbox.deleteMessages(externalUserId: externalUserId, messageIds: [message.messageId])
+				self.hideActivityIndicator {
+					print("✅ Deleted inbox message \(message.messageId)")
+					self.fetchedInboxMessages.removeAll { $0.messageId == message.messageId }
+					self.showAlert(title: "Delete Success", message: "Deleted message:\n\(message.messageId)\n\(message.text ?? "")\n\nA fetch right after deleting may still briefly return it (eventual consistency).")
+				}
+			} catch {
+				self.hideActivityIndicator {
+					print("❌ Delete inbox message \(message.messageId) failed: \(error)")
+					self.showAlert(title: "Delete Failed", message: self.describe(error as NSError))
+				}
+			}
+		}
+	}
+
+	/// Debug self-test: fetches the whole inbox in one request (limit 100), then walks it page by page following `nextCursor`
+	/// (without topic filter and with topic "Promotions") and verifies that paging returns exactly the same messages, in the same order.
+	/// Meaningful only for inboxes with at most 100 messages and while no new messages arrive during the test.
+	@IBAction func testInboxPaginationButtonClicked(_ sender: UIButton) {
+		guard let externalUserId = currentExternalUserId, let inbox = MobileMessaging.inbox else {
+			showAlert(title: "No User ID", message: "Please personalize first to test pagination")
+			return
+		}
+		showActivityIndicator()
+		Task { @MainActor in
+			var report: [String] = []
+			var passed = true
+			func check(_ name: String, _ condition: Bool, _ detail: String = "") {
+				passed = passed && condition
+				report.append("\(condition ? "✅" : "❌") \(name)\(detail.isEmpty ? "" : " (\(detail))")")
+			}
+			func walk(topic: String?, pageSize: Int) async throws -> (ids: [String], pages: Int, last: MMInbox?) {
+				var ids: [String] = []
+				var pages = 0
+				var cursor: String? = nil
+				var last: MMInbox? = nil
+				repeat {
+					let options = MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: topic, limit: pageSize, cursor: cursor)
+					last = try await inbox.fetchInbox(externalUserId: externalUserId, options: options)
+					pages += 1
+					ids += last?.messages.map { $0.messageId } ?? []
+					cursor = last?.nextCursor
+				} while cursor != nil && pages < 50
+				return (ids, pages, last)
+			}
+			do {
+				for topic in [nil, "Promotions"] as [String?] {
+					let label = topic ?? "all topics"
+					let full = try await inbox.fetchInbox(externalUserId: externalUserId, options: MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: topic, limit: 100))
+					let expected = full?.messages.map { $0.messageId } ?? []
+					let paged = try await walk(topic: topic, pageSize: SettingsViewController.inboxPageSize)
+					report.append("\n[\(label)] \(expected.count) messages, page size \(SettingsViewController.inboxPageSize)")
+					check("pages", paged.pages == max(1, Int(ceil(Double(expected.count) / Double(SettingsViewController.inboxPageSize)))), "\(paged.pages)")
+					check("same messages, same order", paged.ids == expected, "\(paged.ids.count) paged / \(Set(paged.ids).count) unique")
+					check("last page has no nextCursor", paged.last?.nextCursor == nil)
+					check("counters don't depend on cursor", paged.last?.countTotal == full?.countTotal && paged.last?.countTotalFiltered == full?.countTotalFiltered, "total \(paged.last?.countTotal ?? -1), filtered \(paged.last?.countTotalFiltered.map(String.init) ?? "nil")")
+				}
+				// A cursor is bound to the filters it was returned with
+				let firstPage = try await inbox.fetchInbox(externalUserId: externalUserId, options: MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: nil, limit: SettingsViewController.inboxPageSize))
+				if let cursor = firstPage?.nextCursor {
+					do {
+						_ = try await inbox.fetchInbox(externalUserId: externalUserId, options: MMInboxFilterOptions(fromDateTime: nil, toDateTime: nil, topic: "Promotions", limit: SettingsViewController.inboxPageSize, cursor: cursor))
+						check("cursor with other topic rejected", false, "no error")
+					} catch {
+						check("cursor with other topic rejected", (error as NSError).mm_code == "INVALID_CURSOR", (error as NSError).mm_code ?? "\(error)")
+					}
+				}
+			} catch {
+				check("requests succeeded", false, describe(error as NSError))
+			}
+			hideActivityIndicator {
+				let summary = report.joined(separator: "\n")
+				print("Inbox pagination test:\n\(summary)")
+				self.showAlert(title: passed ? "Pagination Test Passed" : "Pagination Test Failed", message: summary)
+			}
+		}
+	}
+
+	fileprivate func resetInboxPaging() {
+		fetchedInboxMessages = []
+		inboxNextCursor = nil
+		inboxPagingFinished = false
+		updateNextPageButton()
+	}
+
+	/// "page size 5" before paging starts, "next page" while a cursor is available, greyed out after the last page.
+	fileprivate func updateNextPageButton() {
+		let title: String
+		if inboxPagingFinished {
+			title = "Fetch Inbox (no more pages)"
+		} else if inboxNextCursor != nil {
+			title = "Fetch Inbox (next page)"
+		} else {
+			title = "Fetch Inbox (page size \(SettingsViewController.inboxPageSize))"
+		}
+		UIView.performWithoutAnimation {
+			fetchInboxNextPageButton.setTitle(title, for: .normal)
+			fetchInboxNextPageButton.layoutIfNeeded()
+		}
+		let enabled = currentExternalUserId != nil && !inboxPagingFinished
+		fetchInboxNextPageButton.isEnabled = enabled
+		fetchInboxNextPageButton.alpha = enabled ? 1.0 : 0.5
+	}
+
+	fileprivate func fetchInboxPage(options: MMInboxFilterOptions, title: String, paged: Bool = false) {
+		guard let externalUserId = currentExternalUserId else {
+			showAlert(title: "No User ID", message: "Please personalize first to fetch inbox")
+			return
+		}
+		guard let inboxService = MobileMessaging.inbox else {
+			showAlert(title: "Fetch Inbox Failed", message: "Mobile Messaging SDK is not started")
+			return
+		}
+		showActivityIndicator()
+		inboxService.fetchInbox(externalUserId: externalUserId, options: options) { inbox, error in
+			DispatchQueue.main.async {
+				self.hideActivityIndicator {
+					if let error = error {
+						print("❌ Fetch inbox (\(title)) failed: \(error)")
+						self.showAlert(title: "Fetch Inbox Failed", message: self.describe(error))
+						return
+					}
+					guard let inbox = inbox else {
+						return
+					}
+					self.fetchedInboxMessages += inbox.messages
+					self.inboxNextCursor = inbox.nextCursor
+					self.inboxPagingFinished = paged && inbox.nextCursor == nil
+					self.updateNextPageButton()
+					
+					var message = "Total messages: \(inbox.countTotal)\n"
+					message += "Unread messages: \(inbox.countUnread)\n"
+					message += "Fetched in this page: \(inbox.messages.count)\n"
+					message += "Fetched so far: \(self.fetchedInboxMessages.count)\n"
+					message += "nextCursor: \(inbox.nextCursor ?? "nil (no more pages)")"
+					if !inbox.messages.isEmpty {
+						message += "\n\n" + inbox.messages.map { "• [\($0.topic ?? "-")] \($0.text ?? "")" }.joined(separator: "\n")
+					}
+					print("✅ Fetch inbox (\(title)) successful:\n\(message)")
+					self.showAlert(title: "Fetch Inbox (\(title))", message: message)
+				}
+			}
+		}
+	}
+
+	fileprivate func describe(_ error: NSError) -> String {
+		var description = "Error: \(error.localizedDescription)"
+		if let code = error.mm_code {
+			description += "\nCode: \(code)"
+		}
+		description += "\nDomain: \(error.domain) (\(error.code))"
+		return description
+	}
+
 	//MARK: Private
 	fileprivate func validateFormat(_ msisdn : String) throws {
 		let predicate = NSPredicate(format: "SELF MATCHES[cd] %@", SettingsViewController.kMSISDNValidationRegExp)
@@ -259,6 +459,7 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 				if (finished) {
 					self.setControlsAlpha(1)
 					self.enableControls(true)
+					self.updateNextPageButton()
 					completion()
 				}
 		}
@@ -273,6 +474,9 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		fetchInboxAllButton.isEnabled = enabled
 		fetchInboxSingleTopicButton.isEnabled = enabled
 		fetchInboxMultiTopicsButton.isEnabled = enabled
+		fetchInboxNextPageButton.isEnabled = enabled
+		deleteInboxMessageButton.isEnabled = enabled
+		testInboxPaginationButton.isEnabled = enabled
 		tabBarController?.tabBar.isUserInteractionEnabled = enabled
 	}
 
@@ -285,6 +489,9 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		fetchInboxAllButton.alpha = alpha
 		fetchInboxSingleTopicButton.alpha = alpha
 		fetchInboxMultiTopicsButton.alpha = alpha
+		fetchInboxNextPageButton.alpha = alpha
+		deleteInboxMessageButton.alpha = alpha
+		testInboxPaginationButton.alpha = alpha
 	}
 
 	fileprivate func showResultAlert(_ error: NSError?) {
@@ -335,6 +542,8 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		fetchInboxAllButton.isEnabled = hasExternalUserId
 		fetchInboxSingleTopicButton.isEnabled = hasExternalUserId
 		fetchInboxMultiTopicsButton.isEnabled = hasExternalUserId
+		deleteInboxMessageButton.isEnabled = hasExternalUserId
+		testInboxPaginationButton.isEnabled = hasExternalUserId
 		
 		// Update visual feedback
 		let personalizeAlpha: CGFloat = hasExternalUserId ? 0.5 : 1.0
@@ -347,5 +556,8 @@ class SettingsViewController : UIViewController, UITextFieldDelegate {
 		fetchInboxAllButton.alpha = inboxAlpha
 		fetchInboxSingleTopicButton.alpha = inboxAlpha
 		fetchInboxMultiTopicsButton.alpha = inboxAlpha
+		deleteInboxMessageButton.alpha = inboxAlpha
+		testInboxPaginationButton.alpha = inboxAlpha
+		updateNextPageButton()
 	}
 }

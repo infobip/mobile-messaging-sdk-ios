@@ -94,7 +94,10 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
                     let statusError = NSError(
                         domain: "com.mobile-messaging.http",
                         code: httpResponse.statusCode,
-                        userInfo: [NSLocalizedDescriptionKey: "Request failed with status code \(httpResponse.statusCode)"]
+                        userInfo: [
+                            NSLocalizedDescriptionKey: "Request failed with status code \(httpResponse.statusCode)",
+                            Consts.APIKeys.errorHttpStatusCode: httpResponse.statusCode
+                        ]
                     )
                     
                     guard let data = data, !data.isEmpty else {
@@ -106,12 +109,20 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
                     // we have json data about the error, and try to generate a MMRequestError with it
                     let responseJson = JSON(data: data)
                     guard let serviceError = MMRequestError(json: responseJson) else {
-                        completion(nil, statusError)
+                        // No error code in the body: keep the HTTP status error, with the server text if there is one.
+                        if let text = MMRequestError.text(fromErrorBody: responseJson) {
+                            var userInfo = statusError.userInfo
+                            userInfo[NSLocalizedDescriptionKey] = text
+                            userInfo[Consts.APIKeys.errorText] = text
+                            completion(nil, NSError(domain: statusError.domain, code: statusError.code, userInfo: userInfo))
+                        } else {
+                            completion(nil, statusError)
+                        }
                         return
                     }
                     
                     self.logWarn("Service error while performing request:\(serviceError)")
-                    completion(responseJson, serviceError.foundationError)
+                    completion(responseJson, serviceError.foundationError(httpStatusCode: httpResponse.statusCode))
                     return
                 }
 
@@ -148,7 +159,7 @@ public class DynamicBaseUrlHTTPSessionManager: NamedLogger {
 
                 if let serviceError = MMRequestError(json: responseJson) {
                     self.logWarn("Service error while performing request: \(serviceError)")
-                    completion(responseJson, serviceError.foundationError)
+                    completion(responseJson, serviceError.foundationError(httpStatusCode: httpResponse.statusCode))
                 } else {
                     completion(responseJson, nsError)
                 }
