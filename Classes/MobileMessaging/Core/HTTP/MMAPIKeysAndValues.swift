@@ -194,6 +194,7 @@ public struct MMConsts {
         public static let inAppDetails = "inAppDetails"
         public static let openLiveChat = "openLiveChat"
         public static let liveChatKeyword = "keyword"
+        public static let liveChatThreadId = "threadId"
 	}
     
     struct InAppDetailsKeys {

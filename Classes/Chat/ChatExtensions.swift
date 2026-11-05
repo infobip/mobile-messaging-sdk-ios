@@ -32,9 +32,8 @@ func withChatTimeout<T: Sendable>(
     seconds: Double = chatJSEvaluationTimeout,
     _ operation: @escaping @MainActor () async -> T
 ) async -> T? {
-    let race = ChatTimeoutRace<T>()
     return await withCheckedContinuation { (continuation: CheckedContinuation<T?, Never>) in
-        race.continuation = continuation
+        let race = ChatTimeoutRace(continuation)
         Task { @MainActor in
             race.finish(with: await operation())
         }
@@ -49,8 +48,12 @@ func withChatTimeout<T: Sendable>(
 
 /// Hands the result of whichever racer finishes first to the caller, and ignores the loser.
 @MainActor
-private final class ChatTimeoutRace<T> {
-    var continuation: CheckedContinuation<T?, Never>?
+final class ChatTimeoutRace<T> {
+    private var continuation: CheckedContinuation<T?, Never>?
+
+    init(_ continuation: CheckedContinuation<T?, Never>) {
+        self.continuation = continuation
+    }
 
     @discardableResult
     func finish(with value: T?) -> Bool {

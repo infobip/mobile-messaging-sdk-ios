@@ -576,6 +576,515 @@ class ChatWidgetTests: MMTestCase {
 	}
 }
 
+// MARK: - Chat notification routing tests
+
+final class ChatNotificationRoutingTests: MMTestCase {
+    private final class UnresponsivePresenter: UIViewController {
+        var onPresent: (() -> Void)?
+        var pendingCompletion: (() -> Void)?
+
+        override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+            pendingCompletion = completion
+            onPresent?()
+        }
+    }
+
+    private final class PresenterDelegate: MMMessageHandlingDelegate {
+        let presenter: UIViewController
+
+        init(presenter: UIViewController) {
+            self.presenter = presenter
+        }
+
+        func inAppPresentingViewController(for message: MM_MTMessage) -> UIViewController? {
+            presenter
+        }
+    }
+
+    private final class ErrorLogger: MMLogging {
+        var logOutput: MMLogOutput = .Console
+        var logLevel: MMLogLevel = .All
+        var logFilePaths: [String]? = nil
+        var onError: ((String) -> Void)?
+
+        func sendLogs(fromViewController vc: UIViewController) {}
+        func logDebug(message: String) {}
+        func logInfo(message: String) {}
+        func logError(message: String) { onError?(message) }
+        func logWarn(message: String) {}
+        func logVerbose(message: String) {}
+    }
+
+    private final class PresentationDelegate: MMMessageHandlingDelegate {
+        var onBroadcastChat: ((MM_MTMessage) -> Void)?
+        var onInboundChat: ((MM_MTMessage) -> Void)?
+
+        func inAppOpenLiveChatActionTapped(for message: MM_MTMessage) {
+            onBroadcastChat?(message)
+        }
+
+        func inAppInboundLiveChatPushTapped(for message: MM_MTMessage) {
+            onInboundChat?(message)
+        }
+    }
+
+    private final class OpenNewThreadRecordingAPI: MMInAppChatWidgetAPI {
+        var onOpenNewThread: (() -> Void)?
+
+        override func loadWidget() {}
+
+        override func openNewThread(completion: @escaping (Error?) -> Void) {
+            onOpenNewThread?()
+            completion(nil)
+        }
+    }
+
+    private final class LoadedChat: ChatWebViewDelegate, MMLiveChatThreadsActions, MMChatBasicWebViewActions, MMChatInternalWebViewActions {
+        var onOpenThread: ((String) -> Void)?
+        var onCreateThread: (() -> Void)?
+        var onOpenNewThread: (() -> Void)?
+
+        func didLoad(_ widget: ChatWidget) {}
+        func didReceive(_ errors: MMChatRemoteError) {}
+        func didDetectWrongSetup(_ localError: MMChatLocalError) {}
+        func didEnableControls(_ enabled: Bool) {}
+        func didShowComposeBar(_ visible: Bool) {}
+        func didOpenPreview(forAttachment attachment: ChatWebAttachment) {}
+        func didChangeView(_ state: MMChatWebViewState) {}
+        @MainActor func sendContextualData(_ contextualData: ContextualData) async throws {}
+
+        func send(_ payload: MMLivechatPayload, completion: @escaping (Error?) -> Void) {
+            completion(nil)
+        }
+
+        func send(_ payload: MMLivechatPayload) async throws {}
+
+        func createThread(_ payload: MMLivechatPayload, completion: @escaping (MMLiveChatThread?, Error?) -> Void) {
+            onCreateThread?()
+            completion(MMLiveChatThread(id: "created-thread", conversationId: nil, status: .open), nil)
+        }
+
+        func createThread(_ payload: MMLivechatPayload) async throws -> MMLiveChatThread {
+            onCreateThread?()
+            return MMLiveChatThread(id: "created-thread", conversationId: nil, status: .open)
+        }
+
+        func openNewThread(completion: @escaping (Error?) -> Void) {
+            onOpenNewThread?()
+            completion(nil)
+        }
+
+        func openThread(with id: String) async throws -> MMLiveChatThread {
+            onOpenThread?(id)
+            return MMLiveChatThread(id: id, conversationId: nil, status: .open)
+        }
+
+        func openThread(with id: String, completion: @escaping (Result<MMLiveChatThread, Error>) -> Void) {
+            XCTFail("Notification routing should use the async thread action")
+        }
+
+        func getThreads(completion: @escaping (Result<[MMLiveChatThread], Error>) -> Void) {
+            XCTFail("Unexpected getThreads call")
+        }
+
+        func getThreads() async throws -> [MMLiveChatThread] {
+            XCTFail("Unexpected getThreads call")
+            return []
+        }
+
+        func getActiveThread(completion: @escaping (Result<MMLiveChatThread?, Error>) -> Void) {
+            XCTFail("Unexpected getActiveThread call")
+        }
+
+        func getActiveThread() async throws -> MMLiveChatThread? {
+            XCTFail("Unexpected getActiveThread call")
+            return nil
+        }
+
+        func showThreadsList(completion: @escaping (Error?) -> Void) {
+            XCTFail("Unexpected showThreadsList call")
+        }
+
+        func showThreadsList() async throws {
+            XCTFail("Unexpected showThreadsList call")
+        }
+    }
+
+    override func tearDown() async throws {
+        await MainActor.run { MMInAppChatService.pushPresentationMode = nil }
+        try await super.tearDown()
+    }
+
+    override func tearDown() {
+        MobileMessaging.messageHandlingDelegate = nil
+        super.tearDown()
+    }
+
+    private func makeService(
+        multiThread: Bool = true,
+        pushPresentationMode: MobileMessaging.InAppChatPushPresentationMode? = nil
+    ) async -> MMInAppChatService {
+        let mobileMessaging = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
+        let service = MMInAppChatService(mmContext: mobileMessaging)
+        MMInAppChatService.sharedInstance = service
+        await MainActor.run { MMInAppChatService.pushPresentationMode = pushPresentationMode }
+        service.chatWidget = ChatWidget(
+            id: "notification-test-widget",
+            title: nil,
+            primaryColor: nil,
+            primaryTextColor: nil,
+            backgroundColor: nil,
+            multiThread: multiThread,
+            callsEnabled: false,
+            useNewDesign: false,
+            themeNames: [],
+            attachments: ChatWidgetAttachmentSettings(maxSize: 0, isEnabled: false, allowedExtensions: [])
+        )
+        return service
+    }
+
+    private func makeMessage(
+        isChatMessage: Bool = true,
+        threadId: String? = "thread-123",
+        openChat: Bool = false,
+        keyword: String? = nil
+    ) -> MM_MTMessage {
+        var payload = apnsNormalMessagePayload(UUID().uuidString)
+        var internalData = payload[Consts.APNSPayloadKeys.internalData] as! [String: Any]
+        if openChat {
+            var openChatData: [String: Any] = [:]
+            if let keyword { openChatData[Consts.InternalDataKeys.liveChatKeyword] = keyword }
+            internalData[Consts.InternalDataKeys.openLiveChat] = openChatData
+        } else if isChatMessage {
+            internalData[Consts.InternalDataKeys.messageType] = Consts.APIValues.MessageTypeValues.chat
+        }
+        payload[Consts.APNSPayloadKeys.internalData] = internalData
+        payload[Consts.APNSPayloadKeys.customPayload] = threadId.map { [Consts.InternalDataKeys.liveChatThreadId: $0] } ?? [:]
+        return MM_MTMessage(
+            payload: payload,
+            deliveryMethod: .push,
+            seenDate: nil,
+            deliveryReportDate: nil,
+            seenStatus: .NotSeen,
+            isDeliveryReportSent: false
+        )!
+    }
+
+    @MainActor
+    func testPushPresentationModeSurvivesServiceRecreationAndCanBeCleared() async {
+        let service = await makeService(pushPresentationMode: .uikit)
+        _ = service.mmContext.withInAppChat()
+        let recreatedService = MMInAppChatService(mmContext: service.mmContext)
+        MMInAppChatService.sharedInstance = recreatedService
+        XCTAssertNotNil(MMInAppChatService.pushPresentationMode)
+
+        _ = service.mmContext.withInAppChat(pushPresentationMode: nil)
+        XCTAssertNil(MMInAppChatService.pushPresentationMode)
+    }
+
+    func testPushPresentationModeCanBeConfiguredSynchronouslyOffMainThread() async {
+        _ = await makeService()
+        let configured = expectation(description: "Background configuration completes")
+        DispatchQueue.global().async {
+            _ = MobileMessaging.sharedInstance?.withInAppChat(pushPresentationMode: .uikit).withInAppChat()
+            configured.fulfill()
+        }
+
+        await fulfillment(of: [configured], timeout: 2)
+        let mode = await MainActor.run { MMInAppChatService.pushPresentationMode }
+        XCTAssertNotNil(mode)
+    }
+
+    private func assertChatTapReachesDelegate(action: MMNotificationAction, threadId: String? = "thread-123") async {
+        let service = await makeService()
+        let message = makeMessage(threadId: threadId)
+        message.appliedAction = action
+        let delegate = PresentationDelegate()
+        let presented = expectation(description: "App receives tapped chat message")
+        let completed = expectation(description: "Chat handling completes")
+        delegate.onInboundChat = { receivedMessage in
+            XCTAssertEqual(receivedMessage.messageId, message.messageId)
+            XCTAssertEqual(receivedMessage.chatThreadId, threadId)
+            presented.fulfill()
+        }
+        MobileMessaging.messageHandlingDelegate = delegate
+
+        service.handleAnyMessage(message) { _ in completed.fulfill() }
+
+        await fulfillment(of: [presented, completed], timeout: 2)
+    }
+
+    func testDefaultChatNotificationTapPassesThreadToPresentationDelegate() async {
+        await assertChatTapReachesDelegate(action: .defaultAction)
+    }
+
+    func testPrimaryChatNotificationTapPassesThreadToPresentationDelegate() async {
+        await assertChatTapReachesDelegate(action: .primaryAction)
+    }
+
+    func testChatNotificationWithoutThreadIdStillReachesPresentationDelegate() async {
+        await assertChatTapReachesDelegate(action: .defaultAction, threadId: nil)
+    }
+
+    func testInboundTapWithoutWidgetUsesInboundDelegate() async {
+        let service = await makeService()
+        service.chatWidget = nil
+        let message = makeMessage()
+        message.appliedAction = .defaultAction
+        let delegate = PresentationDelegate()
+        let inboundTap = expectation(description: "App receives inbound tap when widget is unavailable")
+        let unexpectedBroadcastTap = expectation(description: "Inbound tap must not use broadcast callback")
+        unexpectedBroadcastTap.isInverted = true
+        delegate.onInboundChat = { receivedMessage in
+            XCTAssertEqual(receivedMessage.messageId, message.messageId)
+            inboundTap.fulfill()
+        }
+        delegate.onBroadcastChat = { _ in unexpectedBroadcastTap.fulfill() }
+        MobileMessaging.messageHandlingDelegate = delegate
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [inboundTap], timeout: 0.5)
+        await fulfillment(of: [unexpectedBroadcastTap], timeout: 0.2)
+    }
+
+    func testBroadcastTapWithoutWidgetUsesBroadcastDelegate() async {
+        let service = await makeService()
+        service.chatWidget = nil
+        let message = makeMessage(isChatMessage: false, threadId: nil, openChat: true)
+        message.appliedAction = .defaultAction
+        let delegate = PresentationDelegate()
+        let broadcastTap = expectation(description: "App receives broadcast tap when widget is unavailable")
+        delegate.onBroadcastChat = { receivedMessage in
+            XCTAssertEqual(receivedMessage.messageId, message.messageId)
+            broadcastTap.fulfill()
+        }
+        MobileMessaging.messageHandlingDelegate = delegate
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [broadcastTap], timeout: 0.5)
+    }
+
+    func testInboundChatTapWithoutOptInDoesNotPresentChat() async {
+        let service = await makeService()
+        let presenter = await MainActor.run { UnresponsivePresenter() }
+        MobileMessaging.messageHandlingDelegate = PresenterDelegate(presenter: presenter)
+        let unexpectedPresentation = expectation(description: "Inbound tap must not present chat without opt-in")
+        unexpectedPresentation.isInverted = true
+        let completed = expectation(description: "Chat handling completes")
+        await MainActor.run { presenter.onPresent = { unexpectedPresentation.fulfill() } }
+        let message = makeMessage()
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in completed.fulfill() }
+
+        await fulfillment(of: [completed, unexpectedPresentation], timeout: 0.2)
+    }
+
+    func testNonChatNotificationTapDoesNotOpenChat() async {
+        let service = await makeService()
+        let message = makeMessage(isChatMessage: false)
+        message.appliedAction = .defaultAction
+        let delegate = PresentationDelegate()
+        let unexpectedPresentation = expectation(description: "Non-chat message must not open chat")
+        unexpectedPresentation.isInverted = true
+        let completed = expectation(description: "Notification handling completes")
+        delegate.onBroadcastChat = { _ in unexpectedPresentation.fulfill() }
+        delegate.onInboundChat = { _ in unexpectedPresentation.fulfill() }
+        MobileMessaging.messageHandlingDelegate = delegate
+
+        service.handleAnyMessage(message) { _ in completed.fulfill() }
+
+        await fulfillment(of: [completed, unexpectedPresentation], timeout: 0.2)
+    }
+
+    func testTappedChatNotificationOpensItsThreadInLoadedChat() async {
+        let service = await makeService(pushPresentationMode: .uikit)
+        let loadedChat = LoadedChat()
+        let opened = expectation(description: "Tapped thread opens in loaded chat")
+        loadedChat.onOpenThread = { threadId in
+            XCTAssertEqual(threadId, "thread-123")
+            opened.fulfill()
+        }
+        service.webViewDelegate = loadedChat
+        let message = makeMessage()
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [opened], timeout: 2)
+        withExtendedLifetime(loadedChat) {}
+    }
+
+    func testOpenChatKeywordUsesLoadedChatActions() async {
+        let service = await makeService()
+        let loadedChat = LoadedChat()
+        let created = expectation(description: "Keyword creates a thread in the loaded chat")
+        loadedChat.onCreateThread = { created.fulfill() }
+        service.webViewDelegate = loadedChat
+        let message = makeMessage(threadId: nil, openChat: true, keyword: "support")
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [created], timeout: 2)
+        withExtendedLifetime(loadedChat) {}
+    }
+
+    func testDelegatedBroadcastKeywordStillCreatesThread() async {
+        let service = await makeService()
+        let widget = service.chatWidget
+        service.chatWidget = nil
+        let loadedChat = LoadedChat()
+        let created = expectation(description: "Broadcast keyword creates a thread")
+        loadedChat.onCreateThread = { created.fulfill() }
+        service.webViewDelegate = loadedChat
+        let delegate = PresentationDelegate()
+        let routed = expectation(description: "Broadcast tap reaches app without waiting for widget")
+        delegate.onBroadcastChat = { _ in routed.fulfill() }
+        MobileMessaging.messageHandlingDelegate = delegate
+        let message = makeMessage(isChatMessage: false, threadId: nil, openChat: true, keyword: "support")
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [routed], timeout: 0.5)
+        service.chatWidget = widget
+        await fulfillment(of: [created], timeout: 2)
+        withExtendedLifetime((loadedChat, delegate)) {}
+    }
+
+    func testOpenChatWithoutKeywordOpensSingleThreadInLoadedChat() async {
+        let service = await makeService()
+        let loadedChat = LoadedChat()
+        let opened = expectation(description: "Keywordless open-chat action opens the single thread view")
+        await MainActor.run { loadedChat.onOpenNewThread = { opened.fulfill() } }
+        service.webViewDelegate = loadedChat
+        let message = makeMessage(threadId: nil, openChat: true)
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [opened], timeout: 2)
+        withExtendedLifetime(loadedChat) {}
+    }
+
+    func testOpenChatWithoutKeywordDoesNotOpenNewThreadOnSingleThreadWidget() async {
+        let service = await makeService(multiThread: false)
+        let loadedChat = LoadedChat()
+        let unexpectedOpen = expectation(description: "Single-thread widget must not open a new thread")
+        unexpectedOpen.isInverted = true
+        await MainActor.run { loadedChat.onOpenNewThread = { unexpectedOpen.fulfill() } }
+        service.webViewDelegate = loadedChat
+        let message = makeMessage(threadId: nil, openChat: true)
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [unexpectedOpen], timeout: 0.2)
+        withExtendedLifetime(loadedChat) {}
+    }
+
+    func testOpenChatWithoutKeywordLeavesActionToPresentationDelegate() async {
+        let service = await makeService()
+        let api = OpenNewThreadRecordingAPI()
+        service.api = api
+        let unexpectedSDKAction = expectation(description: "Delegate-owned action must not use SDK chat API")
+        unexpectedSDKAction.isInverted = true
+        await MainActor.run { api.onOpenNewThread = { unexpectedSDKAction.fulfill() } }
+        let message = makeMessage(threadId: nil, openChat: true)
+        message.appliedAction = .defaultAction
+        let delegate = PresentationDelegate()
+        let routed = expectation(description: "Keywordless open-chat routing finished")
+        delegate.onBroadcastChat = { routedMessage in
+            if routedMessage.messageId == message.messageId { routed.fulfill() }
+        }
+        MobileMessaging.messageHandlingDelegate = delegate
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [routed], timeout: 2)
+        await fulfillment(of: [unexpectedSDKAction], timeout: 0.2)
+        withExtendedLifetime((delegate, api)) {}
+    }
+
+    func testNonChatNotificationDoesNotOpenThreadInLoadedChat() async {
+        let service = await makeService()
+        let loadedChat = LoadedChat()
+        let unexpectedOpen = expectation(description: "Non-chat notification must not open a thread")
+        unexpectedOpen.isInverted = true
+        loadedChat.onOpenThread = { _ in unexpectedOpen.fulfill() }
+        service.webViewDelegate = loadedChat
+        let message = makeMessage(isChatMessage: false)
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [unexpectedOpen], timeout: 0.2)
+        withExtendedLifetime(loadedChat) {}
+    }
+
+    func testRejectedChatPresentationTimesOutAndFinishesRouting() async {
+        let service = await makeService(pushPresentationMode: .uikit)
+        let presenter = await MainActor.run { UnresponsivePresenter() }
+        let delegate = PresenterDelegate(presenter: presenter)
+        MobileMessaging.messageHandlingDelegate = delegate
+        let logger = ErrorLogger()
+        let previousLogger = MobileMessaging.logger
+        defer { MobileMessaging.logger = previousLogger }
+        let presentationAttempted = expectation(description: "Chat presentation attempted")
+        let presentationTimedOut = expectation(description: "Rejected presentation timed out")
+        let routingFinished = expectation(description: "Thread routing continued after timeout")
+        logger.onError = { message in
+            if message.contains("timed out waiting for chat presentation") {
+                presentationTimedOut.fulfill()
+            } else if message.contains("Unable to open thread thread-123") {
+                routingFinished.fulfill()
+            }
+        }
+        MobileMessaging.logger = logger
+        await MainActor.run { presenter.onPresent = { presentationAttempted.fulfill() } }
+        let message = makeMessage()
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [presentationAttempted, presentationTimedOut, routingFinished], timeout: 7)
+        await MainActor.run { presenter.pendingCompletion?() }
+        try? await Task.sleep(nanoseconds: 200_000_000)
+    }
+
+    func testRejectedBroadcastPresentationDoesNotStartHiddenUIAction() async {
+        let service = await makeService()
+        let api = OpenNewThreadRecordingAPI()
+        service.api = api
+        let unexpectedAPIAction = expectation(description: "UI-only action must not run in the API web view")
+        unexpectedAPIAction.isInverted = true
+        await MainActor.run { api.onOpenNewThread = { unexpectedAPIAction.fulfill() } }
+        let presenter = await MainActor.run { UnresponsivePresenter() }
+        MobileMessaging.messageHandlingDelegate = PresenterDelegate(presenter: presenter)
+        let logger = ErrorLogger()
+        let previousLogger = MobileMessaging.logger
+        defer { MobileMessaging.logger = previousLogger }
+        let presentationTimedOut = expectation(description: "Rejected broadcast presentation timed out")
+        logger.onError = { message in
+            if message.contains("timed out waiting for chat presentation") {
+                presentationTimedOut.fulfill()
+            }
+        }
+        MobileMessaging.logger = logger
+        let message = makeMessage(isChatMessage: false, threadId: nil, openChat: true)
+        message.appliedAction = .defaultAction
+
+        service.handleAnyMessage(message) { _ in }
+
+        await fulfillment(of: [presentationTimedOut], timeout: 7)
+        await fulfillment(of: [unexpectedAPIAction], timeout: 0.2)
+        await MainActor.run { presenter.pendingCompletion?() }
+    }
+}
+
 // MARK: - ChatWidgetLoadCoordinator Tests
 
 class ChatWidgetLoadCoordinatorTests: XCTestCase {

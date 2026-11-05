@@ -118,6 +118,13 @@ open class MM_MTMessage: MMBaseMessage, NamedLogger {
         }
         return keyword
     }
+    
+    public var chatThreadId: String? {
+        guard let threadId = customPayload?[Consts.InternalDataKeys.liveChatThreadId] as? String else {
+                return nil
+        }
+        return threadId
+    }
 
 	public var inAppStyle: MMInAppNotificationStyle? {
 		let defaultStyle = showInApp ? MMInAppNotificationStyle.Modal : nil

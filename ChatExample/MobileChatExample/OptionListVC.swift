@@ -548,4 +548,8 @@ extension OptionListVC: MMMessageHandlingDelegate {
         // onShowSwiftUIDefaultChat()
         // onShowSwiftUIChat()
    // }
+    
+    func inAppPresentingViewController(for message: MM_MTMessage) -> UIViewController? {
+        return self
+    }
 }

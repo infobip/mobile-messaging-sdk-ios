@@ -81,7 +81,7 @@ func nseReceipt(_ messageId: String, deliveryReportSent: Bool) -> MM_MTMessage {
 class LocalMessageFetchingTests : MMTestCase {
 	
 	func testThatMessagesFetchedLocallyAreConsideredAsDeliveredAndServerDuplicatesAreNotPresented() {
-        MMTestCase.startWithCorrectApplicationCode()
+        let mobileMessaging = MMTestCase.stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
 
 		weak let expectation = self.expectation(description: "server sync finished")
 		var dlrs = [String]()
@@ -96,9 +96,9 @@ class LocalMessageFetchingTests : MMTestCase {
 		}
 		MobileMessaging.messageHandlingDelegate = delegate
 
-		mobileMessagingInstance.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
-		mobileMessagingInstance.userNotificationCenterStorage = UserNotificationCenterStorageStub()
-		mobileMessagingInstance.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
+		mobileMessaging.pushRegistrationId = MMTestConstants.kTestCorrectInternalID
+		mobileMessaging.userNotificationCenterStorage = UserNotificationCenterStorageStub()
+		mobileMessaging.sharedNotificationExtensionStorage = NotificationExtensionStorageStub()
 
 		let remoteApiProvider = RemoteAPIProviderStub()
 		remoteApiProvider.syncMessagesClosure = { appcode, pushRegistrationId, body -> MessagesSyncResult in
@@ -108,9 +108,10 @@ class LocalMessageFetchingTests : MMTestCase {
 			let duplicatePayload: [String: Any] = ["messageId": "m2", "aps": ["alert": "Hello"]]
 			return MessagesSyncResult.Success(MessagesSyncResponse(json: JSON(["payloads": [duplicatePayload]]))!)
 		}
-		mobileMessagingInstance.remoteApiProvider = remoteApiProvider
+		mobileMessaging.remoteApiProvider = remoteApiProvider
 
-		mobileMessagingInstance.messageHandler.syncWithServer(userInitiated: false) { _ in
+		// Install the local sources and server stub before starting the message handler's sync.
+		mobileMessaging.messageHandler.start { _ in
 			expectation?.fulfill()
 		}
 

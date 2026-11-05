@@ -32,8 +32,27 @@ public extension MobileMessaging {
 				MMInAppChatService.sharedInstance = MMInAppChatService(mmContext: defaultContext)
 			}
 		}
+        return self
+    }
+
+    /// - parameter pushPresentationMode: `InAppChatPushPresentationMode` enum value. Define it if you want the SDK to present the chat for you, and navigate to a thread, when an inbound message push notification has been tapped. Alternatively, you can intercept this actions with the MMMessageHandlingDelegate's method 'inAppInboundLiveChatPushTapped'. Pass `nil` to clear the saved mode; `withInAppChat()` keeps the saved mode.
+    func withInAppChat(pushPresentationMode: InAppChatPushPresentationMode?) -> MobileMessaging {
+        _ = withInAppChat()
+		if Thread.isMainThread {
+			MainActor.assumeIsolated {
+				MMInAppChatService.pushPresentationMode = pushPresentationMode
+			}
+		} else {
+			DispatchQueue.main.sync {
+				MMInAppChatService.pushPresentationMode = pushPresentationMode
+			}
+		}
 		return self
 	}
+
+    enum InAppChatPushPresentationMode {
+        case uikit
+    }
 }
 
 // MARK: MMInAppChat Service
@@ -56,8 +75,12 @@ public class MMInAppChatService: MobileMessagingService {
     
     private let chatMessageCounterService: ChatMessageCounterService
     private let getWidgetQueue, getChatRegistrationQueue: MMOperationQueue
+    private let widgetLock = NSLock()
+    private var _chatWidget: ChatWidget?
     var chatWidget: ChatWidget? {
-        didSet {
+        get { widgetLock.withLock { _chatWidget } }
+        set {
+            widgetLock.withLock { _chatWidget = newValue }
             notifyInstallationReceivers()
         }
     }
@@ -77,6 +100,7 @@ public class MMInAppChatService: MobileMessagingService {
     }
     var isChatScreenVisible: Bool = false
     var contextualData: ContextualData?
+    @MainActor static var pushPresentationMode: MobileMessaging.InAppChatPushPresentationMode?
     
     public lazy var api: MMInAppChatWidgetAPIProtocol = MMInAppChatWidgetAPI()
     
@@ -391,15 +415,16 @@ public class MMInAppChatService: MobileMessagingService {
         _ message: MM_MTMessage,
         completion: @escaping (MessageHandlingResult) -> Void
     ) {
-        guard let tapIdentifier = message.appliedAction?.identifier,
-               (tapIdentifier == MMNotificationAction.DefaultActionId ||
-               tapIdentifier == MMNotificationAction.PrimaryActionId),
-               message.isOpenLiveChat else {
-            completion(.noData)
-            return
+        Task { @MainActor [weak self] in
+            let tapIdentifier = message.appliedAction?.identifier
+            let isTapped = tapIdentifier == MMNotificationAction.DefaultActionId ||
+                           tapIdentifier == MMNotificationAction.PrimaryActionId
+            let handlesInboundTap = message.isChatMessage &&
+                (Self.pushPresentationMode != nil || MobileMessaging.messageHandlingDelegate?.inAppInboundLiveChatPushTapped != nil)
+            guard isTapped && (message.isOpenLiveChat || handlesInboundTap) else { return }
+            self?.handleOpenLiveChatAction(message, attempt: 0)
         }
-        // Only livechat related actions should proceed opening livechat
-        handleOpenLiveChatAction(message, attempt: 0, completion: completion)
+        completion(.noData) // MMMessageHandler's dispatchgroup doesn't need to wait for chat actions and navigation, so we complete asap in all scenarios
     }
 }
 

@@ -10,6 +10,8 @@ import Foundation
 import WebKit
 import UIKit
 
+private let chatDefaultTimeout: TimeInterval = 5
+
 public extension MMInAppChatService {    
     /// Method for setting the chat language, both in the WKWebView's system messages and the inputs. We'll consider only the left side of a locale and try to recognise the language. If unsupported, English will be set instead. Language must be set before WKWebView is loaded or presented.
     @objc func setLanguage(_ localeString: String) {
@@ -54,87 +56,144 @@ public extension MMInAppChatService {
         }
     }
 
+    private func doHandleMessageDelegate(for message: MM_MTMessage) {
+        if message.isChatMessage {
+            MobileMessaging.messageHandlingDelegate?.inAppInboundLiveChatPushTapped?(for: message)
+        } else { // broadcast action
+            MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped?(for: message)
+        }
+    }
+
+    private func isTapHandledByApp(for message: MM_MTMessage) -> Bool {
+        if message.isChatMessage {
+            return MobileMessaging.messageHandlingDelegate?.inAppInboundLiveChatPushTapped != nil
+        }
+        return MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped != nil
+    }
+
+    @MainActor
+    private func handleDelegatedTap(for message: MM_MTMessage) {
+        doHandleMessageDelegate(for: message)
+        guard !message.isChatMessage, let keyword = message.openLiveChatKeyword else { return }
+        Task { @MainActor [weak self] in
+            await self?.sendDelegatedBroadcastKeyword(keyword, attempt: 0)
+        }
+    }
+
+    @MainActor
+    private func sendDelegatedBroadcastKeyword(_ keyword: String, attempt: Int) async {
+        guard let chatWidget else {
+            guard attempt < 10 else {
+                logError("Widget not found. LiveChat broadcast keyword could not be sent")
+                return
+            }
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            await sendDelegatedBroadcastKeyword(keyword, attempt: attempt + 1)
+            return
+        }
+        await sendLCMessage(keyword, to: chatWidget, chatDelegate: webViewDelegate)
+    }
+
+    @MainActor
     internal func handleOpenLiveChatAction(
         _ message: MM_MTMessage,
-        attempt: Int,
-        completion: @escaping (MessageHandlingResult) -> Void
+        attempt: Int
     ) {
+        if isTapHandledByApp(for: message) {
+            handleDelegatedTap(for: message)
+            return
+        }
 
-        // If there is no widget available, we retry a few times. This can be needed if for example the app was killed
+        // If there is no widget available, we retry a few times. This can be needed if for example the app was killed or network is slow
         guard let chatWidget = chatWidget else {
-            guard attempt < 4 else {
+            guard attempt < 10 else {
                 logError("Widget not found. In-App action could not open LiveChat")
-                completion(.noData)
                 return
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-               self?.handleOpenLiveChatAction(message, attempt: attempt + 1, completion: completion)
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                self?.handleOpenLiveChatAction(message, attempt: attempt + 1)
             }
             return
         }
-        // We present the widget first, asap, for optimal UX. Widget will display loading state and further actions are async.
-        self.displayLiveChat(for: message) { [weak self] chatVC in
-            // If there is no keyword, the flow ends as there is nothing to send 
-            guard let keyword = message.openLiveChatKeyword else {
-                guard chatWidget.multiThread ?? false else {
-                    completion(.noData)
-                    return
-                }
-                // Pure UI method, has no actual effect in the threads: just navigates to "single thread view"
-                self?.showSingleThreadUI(in: chatWidget, chatVC: chatVC, completion: {
-                    completion(.noData)
-                })
+        Task { @MainActor [weak self] in
+            // We present the widget first, asap, for optimal UX. Widget will display loading state and further actions are async.
+            let chatDelegate = await self?.displayLiveChat(for: message)
+            if self?.isTapHandledByApp(for: message) ?? false {
+                self?.handleDelegatedTap(for: message)
                 return
             }
-            self?.sendLCMessage(keyword, to: chatWidget, chatVC: chatVC) {
-                MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped?(for: message)
-                completion(.noData)
+            // If there is a keyword, this is the "broadcast notification with metadata to be sent to the chat" scenario
+            if let keyword = message.openLiveChatKeyword {
+                await self?.sendLCMessage(keyword, to: chatWidget, chatDelegate: chatDelegate)
+            } else if let chatThreadId = message.chatThreadId, chatWidget.multiThread ?? false {
+                await self?.navigateToThreadId(chatThreadId, in: chatWidget, chatDelegate: chatDelegate)
+            } else if chatWidget.multiThread ?? false, let chatDelegate {
+                await self?.showSingleThreadUI(in: chatWidget, chatDelegate: chatDelegate)
             }
         }
     }
 
+    private func delayTask(seconds: UInt) async {
+        if #available(iOS 16.0, *) {
+            try? await Task.sleep(for: .seconds(seconds))
+        } else { // #available left written so this is cleaned in the future when we move out of iOS 15
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+        }
+    }
+    
+    @MainActor
     private func displayLiveChat(
         for message: MM_MTMessage,
-        attempt: Int = 0,
-        completion: @escaping (MMChatViewController?) -> Void)
+        attempt: Int = 0) async -> ChatWebViewDelegate?
     {
-        DispatchQueue.mmEnsureMain {
-            // If the 'openingLivechat' delegate method below is implemented, the chat won't be presented, as the event will be delegated to the parent app. This allows choosing where the chat is presented, how is presented (in a root navigation bar, as modal, SUI HostingVC, etc.), and what input composer will be used (allowing a total replacement). Otherwise, default chat view controller (as full size navigation child VC) will be pushed in the navigation of the top view controller, if found. Nevertheless, a payload will be sent if it exists.
+        if message.isChatMessage {
+            guard MobileMessaging.messageHandlingDelegate?.inAppInboundLiveChatPushTapped == nil else {
+                self.logDebug("Livechat inbound msg push: presentation delegated")
+                return nil
+            }
+        } else {
             guard MobileMessaging.messageHandlingDelegate?.inAppOpenLiveChatActionTapped == nil else {
-                self.logDebug("In-App action to open LiveChat: presentation delegated")
-                completion(nil)
-                return
+                self.logDebug("Livechat open action push: presentation delegated")
+                return nil
             }
+        }
 
-            guard MobileMessaging.inAppChat?.webViewDelegate == nil else {
-                self.logDebug("In-App action to open LiveChat: ChatViewController already loaded by parent app.")
-                completion(MobileMessaging.inAppChat?.webViewDelegate as? MMChatViewController)
-                return
+        if let webViewDelegate {
+            self.logDebug("LiveChat tap action: ChatViewController already loaded by parent app.")
+            return webViewDelegate
+        }
+
+        guard let presenterVC = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: message)
+                ?? MobileMessaging.application.visibleViewController else {
+            // We allow a few retries, in 1 second intervals, in case MobileMessaging.application.visibleViewController was not initialized on time
+            guard attempt < 3 else {
+                self.logError("In-App action to open LiveChat: Unable to present chat as there is no navigation controller available (attempt \(attempt + 1)/4)")
+                return nil
             }
+            await delayTask(seconds: 1)
+            return await self.displayLiveChat(for: message, attempt: attempt + 1)
+        }
 
-            guard let presenterVC = MobileMessaging.messageHandlingDelegate?.inAppPresentingViewController?(for: message)
-                    ?? MobileMessaging.application.visibleViewController else {
-                // We allow a few retries, in 1 second intervals, in case MobileMessaging.application.visibleViewController was not initialized on time
-                guard attempt < 3 else {
-                    self.logError("In-App action to open LiveChat: Unable to present chat as there is no navigation controller available (attempt 1/\(attempt)")
-                    completion(nil)
-                    return
+        let chatNavVC = MMChatViewController.makeRootNavigationViewController()
+        chatNavVC.navigationBar.backgroundColor = MMChatSettings.sharedInstance.backgroundColor
+        chatNavVC.view.backgroundColor = MMChatSettings.sharedInstance.backgroundColor
+        chatNavVC.modalPresentationStyle = .fullScreen
+        return await withCheckedContinuation { (continuation: CheckedContinuation<MMChatViewController?, Never>) in
+            let presentation = ChatTimeoutRace(continuation)
+            DispatchQueue.main.asyncAfter(deadline: .now() + chatDefaultTimeout) {
+                if presentation.finish(with: nil) {
+                    self.logError("In-App action to open LiveChat: timed out waiting for chat presentation")
                 }
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                   self.displayLiveChat(for: message, attempt: attempt + 1, completion: completion)
-                }
-                return
             }
-
-            let chatNavVC = MMChatViewController.makeRootNavigationViewController()
-            chatNavVC.navigationBar.backgroundColor = MMChatSettings.sharedInstance.backgroundColor
-            chatNavVC.view.backgroundColor = MMChatSettings.sharedInstance.backgroundColor
-            chatNavVC.modalPresentationStyle = .fullScreen
             presenterVC.present(chatNavVC, animated: true) {
-                self.logDebug("Chat view controller was presented after open LiveChat action.")
-                completion(chatNavVC.viewControllers.first as? MMChatViewController)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    // This small delay and asyc jump is a safeguard: if the app has been killed and/or the phone was locked, navigation is actually not responsive/trustworthy in same thread execution
+                    if presentation.finish(with: chatNavVC.viewControllers.first as? MMChatViewController) {
+                        self.logDebug("Chat view controller was presented after open LiveChat action.")
+                    }
+                }
             }
         }
     }
@@ -156,51 +215,74 @@ public extension MMInAppChatService {
         }
     }
 
+    @MainActor
     private func sendLCMessage(
         _ keyword: String,
         to chatWidget: ChatWidget,
-        chatVC: MMChatViewController?,
-        completion: @escaping () -> Void)
+        chatDelegate: ChatWebViewDelegate?) async
     {
-        // We check for a VC to send the commants into. This avoids using the API, which would need to load a separate webview, resulting in slower UX
-        let apiInterface: MMChatBasicWebViewActions? = (chatVC ?? api)
-        DispatchQueue.main.async { [weak self] in // ensure API is called on MT
-            guard chatWidget.multiThread ?? false else {
-                // No new thread needed, we just send payload
-                apiInterface?.send(keyword.livechatBasicPayload) { error in
-                    if let error = error {
-                        self?.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
-                    }
-                    completion()
-                }
-                return
-            } // Otherwise we create thread with payload
-            apiInterface?.createThread(keyword.livechatBasicPayload) { thread, error in
-                if let error = error {
-                    self?.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
-                }
-                completion()
+        // Use the loaded chat when it implements message actions, avoiding a separate API web view.
+        let apiInterface: MMChatBasicWebViewActions = (chatDelegate as? MMChatBasicWebViewActions) ?? api
+        let sendingToSingleThread = !(chatWidget.multiThread ?? false)
+        do {
+            if sendingToSingleThread {
+                try await apiInterface.send(keyword.livechatBasicPayload)
+            } else { // multithread scenario
+                _ = try await apiInterface.createThread(keyword.livechatBasicPayload)
             }
-        }
-    }
-
-    private func showSingleThreadUI(
-        in chatWidget: ChatWidget,
-        chatVC: MMChatViewController?,
-        completion: @escaping () -> Void)
-    {
-        // We check for a VC to send the commants into. This avoids using the API, which would need to load a separate webview, resulting in slower UX
-        let apiInterface: MMChatInternalWebViewActions? = (chatVC ?? (api as? MMChatInternalWebViewActions))
-        DispatchQueue.main.async { [weak self] in
-            apiInterface?.openNewThread() { [weak self] error in
-                if let error = error {
-                    self?.logError("Failure when opening single thread view in LiveChat widgetId \(chatWidget.id): error \(error.localizedDescription)")
-                }
-                completion()
+            
+        } catch {
+            if sendingToSingleThread {
+                self.logError("Failure when sending LiveChat message \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
+            } else { // multithread scenario
+                self.logError("Failure when creating LiveChat thread with \(keyword) on widgetId \(chatWidget.id): error \(error.localizedDescription)")
             }
         }
     }
     
+    @MainActor
+    private func navigateToThreadId(
+        _ threadId: String,
+        in chatWidget: ChatWidget,
+        chatDelegate: ChatWebViewDelegate?) async
+    {
+        guard let chatActions = chatDelegate as? MMLiveChatThreadsActions else {
+            self.logError("Unable to open thread \(threadId) from push notification tap: there was not chat view controller available")
+            return
+        }
+        // As opposed to 'sendMessage' method above, this action is purely UI, thus it will not be handled by the API instance in any case.
+        do {
+            _ = try await chatActions.openThread(with: threadId)
+            self.logDebug("Thread \(threadId) was open from push notification tap")
+        } catch {
+            self.logError("Unable to open thread \(threadId) from push notification tap: \(error.localizedDescription)")
+        }
+    }
+
+    @MainActor
+    private func showSingleThreadUI(
+        in chatWidget: ChatWidget,
+        chatDelegate: ChatWebViewDelegate) async
+    {
+        guard let chatActions = chatDelegate as? MMChatInternalWebViewActions else {
+            self.logError("Unable to open single thread view in LiveChat widgetId \(chatWidget.id): no chat actions available")
+            return
+        }
+        do {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                chatActions.openNewThread { error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            }
+        } catch {
+            self.logError("Failure when opening single thread view in LiveChat widgetId \(chatWidget.id): error \(error.localizedDescription)")
+        }
+    }
+
     func validateSetup() {
         var error: MMChatLocalError?
         if mmContext.currentInstallation().pushRegistrationId == nil {

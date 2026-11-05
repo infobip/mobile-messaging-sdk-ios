@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         MobileMessaging.withApplicationCode(
             mmApplicationCode,
             notificationType: [.alert, .sound])?
-            .withInAppChat()
+            .withInAppChat(pushPresentationMode: .uikit)
             .withInAppChatCalls(configurationId: webrtcConfigurationId)
             .withFullFeaturedInApps()
             .start()
