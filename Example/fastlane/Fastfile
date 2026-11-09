@@ -7,12 +7,9 @@ platform :ios do
 		# Ensure gems are installed (required for Ruby 3.0+ stdlib gems)
 		sh "bundle check || bundle install"
 		match
-		`osascript -e 'tell app "Simulator" to quit'`
-		`osascript -e 'tell app "Xcode" to quit'`
-		sleep(5)
-		ENV["DEVELOPER_DIR"] = "/Applications/Xcode.app"
-		ENV["FASTLANE_EXPLICIT_OPEN_SIMULATOR"] = "2"
-		xcode_select("/Applications/Xcode.app")
+		# Other Jenkins jobs and developers may be using the Simulator/Xcode apps.
+		xcode_select(ENV.fetch("DEVELOPER_DIR", "/Applications/Xcode.app"))
+		ENV["FASTLANE_EXPLICIT_OPEN_SIMULATOR"] ||= "0" if ENV["JENKINS_URL"]
 		wait_xcrun
 	end
 
@@ -32,31 +29,27 @@ platform :ios do
 	def test_on_simulator(no_tests)
 		begin
 			unless no_tests
-				# scan(
-				# 	skip_build: true,
-				# 	scheme: "MobileMessagingExample",
-				# 	devices: ["iPhone 6 (9.3)"]
-				# 	)
-				# scan(
-				# 	skip_build: true,
-				# 	scheme: "MobileMessagingExample",
-				# 	devices: ["iPhone 7 (10.3.1)"]
-				# 	)
-				# scan(
-				# 	skip_build: true,
-				# 	scheme: "MobileMessagingExample",
-				# 	devices: ["iPhone X (11.4)"]
-				# 	)
-				scan(
+				simulator_udid = ENV["CI_IOS_SIMULATOR_UDID"]
+				if ENV["JENKINS_URL"] && simulator_udid.to_s.empty?
+					UI.user_error!("CI_IOS_SIMULATOR_UDID must identify the native SDK's dedicated simulator")
+				end
+				scan_options = {
 					clean: true,
 					skip_build: false,
 					scheme: "MobileMessagingExample",
-					devices: ["iPhone 11"],
+					ensure_devices_found: true,
 					code_coverage: true,
 					result_bundle: true,
 					output_style: "raw",
-					xcpretty_args: "--test --no-color" 
-				)
+					xcpretty_args: "--test --no-color"
+				}
+				if simulator_udid.to_s.empty?
+					scan_options[:devices] = ["iPhone 11"]
+				else
+					scan_options[:destination] = "platform=iOS Simulator,id=#{simulator_udid}"
+					scan_options[:skip_detect_devices] = true
+				end
+				scan(scan_options)
 			end
 		end
 	end
