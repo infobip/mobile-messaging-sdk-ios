@@ -9,6 +9,7 @@
 import XCTest
 import Foundation
 import CoreData
+import UserNotifications
 @testable import MobileMessaging
 
 
@@ -191,6 +192,7 @@ class MMTestCase: XCTestCase {
 //                MobileMessaging.logger?.logOutput = .Console
 //                MobileMessaging.logger?.logLevel = .Debug
         MobileMessaging.date = DateStub(nowStub: Date(timeIntervalSince1970: testEnvironmentTimestampMillisSince1970/1000))
+        MMTestCase.removeSimulatorNotifications()
         MobileMessaging.doCleanUp()
     }
     
@@ -203,6 +205,14 @@ class MMTestCase: XCTestCase {
         MobileMessaging.timeZone = TimeZone.current
         MobileMessaging.calendar = Calendar.current
         MobileMessaging.userAgent = MMUserAgent()
+        MMTestCase.removeSimulatorNotifications()
+    }
+
+    /// Notifications posted by the SDK during a test stay on a reused simulator that has notification
+    /// permission (CI), and later tests read them back as extra messages. Clear them around every test.
+    private static func removeSimulatorNotifications() {
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
     
     private func waitAllQueues(cancel: Bool) {
