@@ -23,4 +23,4 @@ The separate manual host preflight and mini-02 validation jobs are not normal CI
 
 ## Rollback
 
-Wait for any dispatcher and worker runs to finish. Disable the dispatcher, rename it out of the canonical name, and restore the legacy job to `infobip-mobile-messaging-ios`. Re-enable the legacy job. Its original mini-03 lock and scheduling settings are preserved. Do not force-unlock resources or stop other jobs to perform migration/rollback.
+Disable `native-ios-workers/push-trigger` to prevent duplicate push handling after rollback. Wait for dispatcher and worker runs, including queued requests, to finish. Disable the dispatcher, rename it out of the canonical name, and restore the legacy job to `infobip-mobile-messaging-ios`. Re-enable the legacy job. Its original mini-03 lock and scheduling settings are preserved. Do not force-unlock resources or stop other jobs to perform migration/rollback.
