@@ -365,7 +365,7 @@
 			mainGroup = 607FACC71AFB9204008FA782;
 			packageReferences = (
 				0230BA8D2DDDD2C100525CE1 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
-				7B9E7BA82F55C58D00BF5BD8 /* XCLocalSwiftPackageReference "../../infobip-mobile-messaging-ios" */,
+				7B9E7BA82F55C58D00BF5BD8 /* XCLocalSwiftPackageReference ".." */,
 			);
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
@@ -775,9 +775,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		7B9E7BA82F55C58D00BF5BD8 /* XCLocalSwiftPackageReference "../../infobip-mobile-messaging-ios" */ = {
+		7B9E7BA82F55C58D00BF5BD8 /* XCLocalSwiftPackageReference ".." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../infobip-mobile-messaging-ios";
+			relativePath = "..";
 		};
 /* End XCLocalSwiftPackageReference section */
 
