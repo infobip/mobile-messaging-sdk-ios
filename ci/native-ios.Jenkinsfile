@@ -29,6 +29,9 @@ def releaseBuild = buildType in ['release', 'release_candidate']
 if (releaseBuild && requestedHost == 'ci-zg-mac-mini-02') {
     error('Release workflows remain on mini-03; choose auto or mini-03.')
 }
+if (releaseBuild && !params.SCHEDULER_CHECK_ONLY && !(params.RELEASE_NOTES ?: '').trim()) {
+    error('Release notes are required before a release worker can start.')
+}
 def candidates = releaseBuild ? ['ci-zg-mac-mini-03'] : (requestedHost == 'auto' ? hosts.keySet().toList() : [requestedHost])
 if (!candidates.every { hosts.containsKey(it) }) { error('Unknown native iOS agent') }
 def completed = false

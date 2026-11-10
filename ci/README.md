@@ -4,6 +4,8 @@
 
 Workers keep the existing Jenkins credential bindings, signing setup, build commands, Snyk, Git publishing, Bitbucket reporting and Slack failure notifications. The dispatcher copies their XCTest results and artifacts back to the entry-point build. Each worker rejects direct manual starts and upstream jobs other than the dispatcher. It also checks its assigned node, resource and parent identity before build commands.
 
+Worker Git remotes use trusted variables injected before SCM checkout and ignore commit notifications; only the dispatcher advertises the literal repository URLs to hook discovery. Each worker has a separate custom workspace ending in `infobip-mobile-messaging-ios`, preserving older feature branches whose SPM example assumes that checkout directory name. Worker concurrency remains disabled. Skipping XCTest also skips coverage conversion/import while retaining static analysis and compilation checks.
+
 The entry-point build description and `ci-artifacts/dispatch.json` identify the tested SDK commit. The Pipeline definition is loaded from a fixed source branch, independently of `BRANCH_NAME_TO_BUILD`; its own SCM revision can therefore differ from the tested SDK revision. Canonical Bitbucket status is sent for the worker's verified SDK commit.
 
 The dispatcher holds the device resource through worker completion and artifact capture. A started build is not retried on failure. Offline agents are excluded. Executor-start waiting is bounded separately from the worker's existing build timeout. `disableConcurrentBuilds()` queues subsequent native builds without aborting the current build. The daily trigger remains `0 0 * * *` only at the established job name.
