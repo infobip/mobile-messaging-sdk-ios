@@ -103,6 +103,10 @@ timestamps {
                                                         if (metadata.node != host || metadata.resource != target.resource || metadata.parent != env.BUILD_TAG) {
                                                             error('Worker result does not match the reserved Mac/build')
                                                         }
+                                                        if (!(metadata.commit ==~ /[0-9a-f]{40}/)) {
+                                                            error('Worker did not identify a valid tested SDK commit')
+                                                        }
+                                                        currentBuild.description += ' Tested SDK commit: ' + metadata.commit + '.'
                                                     } else if (workerRun.result == 'SUCCESS') {
                                                         error('Successful worker did not publish dispatch metadata')
                                                     }
