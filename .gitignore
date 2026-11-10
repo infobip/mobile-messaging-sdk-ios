@@ -64,6 +64,8 @@ macos/
 # SonarLint working directories, configuration files (including credentials)
 .sonarlint/
 sonarqube-generic-coverage.xml
+/.ci-derived-data/
+/ci-artifacts/
 
 # SPM
 /.build/
