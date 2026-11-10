@@ -132,3 +132,32 @@ PY
         }
     }
 }
+
+// Infobip's existing /gitlab/build_now receiver discovers AbstractProject jobs,
+// not Pipelines. Enable this relay only after the dispatcher has its live name.
+freeStyleJob('Team_Mobile_Messaging/native-ios-workers/push-trigger') {
+    disabled(true)
+    label('ci-zg-mac-mini-02 || ci-zg-mac-mini-03')
+    concurrentBuild(false)
+    description('Compatibility relay for the existing repository hook. Forwards the pushed branch to the native dispatcher and exits immediately; no SDK or simulator work runs here.')
+    logRotator { daysToKeep(14); numToKeep(30) }
+    parameters { stringParam('BRANCH_NAME_TO_BUILD', 'master') }
+    scm {
+        git {
+            remote {
+                url('ssh://git@git.ib-ci.com:7999/mml/infobip-mobile-messaging-ios.git')
+                credentials('006c5191-7380-4eb1-bdbe-82a6f6d98ec2')
+            }
+            branch('origin/${BRANCH_NAME_TO_BUILD}')
+        }
+    }
+    wrappers { timestamps() }
+    steps {
+        downstreamParameterized {
+            trigger('/Team_Mobile_Messaging/infobip-mobile-messaging-ios') {
+                parameters { currentBuild() }
+                // Never block this executor waiting for the dispatcher/worker.
+            }
+        }
+    }
+}
