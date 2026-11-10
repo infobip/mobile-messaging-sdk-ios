@@ -75,7 +75,7 @@ timestamps {
                                     // Only executor allocation is timed here. Once the worker starts,
                                     // its existing 120-minute build timeout governs actual build work.
                                     timeout(time: releaseBuild ? 120 : 1, unit: 'MINUTES') {
-                                        workerRun = build(job: target.worker, parameters: workerParameters,
+                                        workerRun = build(job: '/' + target.worker, parameters: workerParameters,
                                             quietPeriod: 0, waitForStart: true, propagate: false)
                                     }
                                 } catch (FlowInterruptedException interrupted) {
@@ -96,7 +96,7 @@ timestamps {
                                             dir('.ci-dispatch-reports/' + env.BUILD_NUMBER) {
                                                 try {
                                                     deleteDir()
-                                                    copyArtifacts(projectName: target.worker, selector: specific(workerRun.number.toString()),
+                                                    copyArtifacts(projectName: '/' + target.worker, selector: specific(workerRun.number.toString()),
                                                         filter: 'ci-artifacts/**,Example/fastlane/test_output/native-tests.junit,Example/fastlane/report.xml,*_snyk_report.html', optional: true)
                                                     if (fileExists('ci-artifacts/dispatch.json')) {
                                                         metadata = readJSON(file: 'ci-artifacts/dispatch.json', returnPojo: true)
