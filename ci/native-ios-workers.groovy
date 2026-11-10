@@ -66,9 +66,8 @@ esac
 '''
             }
             def builders = project.builders[0]
-            def admission = new Node(null, 'hudson.tasks.Shell')
-            admission.appendNode('command', guard)
-            builders.children().add(0, admission)
+            def copyrightShell = builders.'hudson.tasks.Shell'[0]
+            copyrightShell.command[0].setValue(guard + copyrightShell.command.text())
             def mainShell = builders.'hudson.tasks.Shell'.find { it.command.text().contains('CI_IOS_SIMULATOR_UDID=') }
             assert mainShell != null: 'Native template does not contain the isolated build shell'
             def command = mainShell.command.text().replace('A500792F-440B-40C8-AF2C-9DDAE5782F54', udid)
