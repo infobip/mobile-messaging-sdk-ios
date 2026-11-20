@@ -253,6 +253,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
 
     /**
      Asynchronously fetches the user data from the server.
+     A repeated call within 1 second of an identical one (or of its successful completion) is not sent again: it completes right away without error with the locally stored data. A call that failed does not block a retry.
      
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter completion: The block to execute after the server responded.
@@ -294,6 +295,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     /**
      Asynchronously saves changed user data on the server.
 
+     A repeated call with the same changes within 1 second after an identical one succeeded is not sent again: it completes right away without error. A repeated call made while the identical one is still in progress is queued behind it: if that one succeeds, nothing is left to send and it completes without error; if it fails, the repeated call is sent and reports its own result.
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter user: User data to save on server.
      - parameter completion: The block to execute after the server responded.
@@ -339,6 +341,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
      */
     public class func persistUser(_ user: MMUser) {
         user.archiveDirty()
+        // a local change of the user: identical calls made before it are no longer equivalent to new ones
+        MobileMessaging.sharedInstance?.debouncingGuard.invalidate(after: .userData)
     }
     
     /**
@@ -348,6 +352,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
      */
     public class func persistInstallation(_ installation: MMInstallation) {
         installation.archiveDirty()
+        // a local change of the installation: an identical logout made before it is no longer equivalent
+        MobileMessaging.sharedInstance?.debouncingGuard.invalidate(after: .installationData)
     }
     
     // MARK: - Personalize/Depersonalize
@@ -363,6 +369,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
      - you don't want new personalized installation to be targeted by other user's data, e.g. first name;
      - you want depersonalized installation from user and still be able to receive broadcast notifications (otherwise, you need to disable push registration via Installation.isPushRegistrationEnabled).
      
+     A repeated call within 1 second after a successful one is not sent again and does not erase local data again: it completes right away without error. A repeated call made while the first one is still in progress waits for it: if that one succeeds, the repeated call is not sent; if it fails, the repeated call is sent and reports its own result.
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter completion: The block to execute after the server responded.
      - parameter status: Current depersonalization status.
@@ -388,6 +395,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
      MobileMessaging.personalize(forceDepersonalize: true, userIdentity: userAttributes: completion:)
      ```
      
+     A repeated identical call within 1 second after an identical one succeeded is not sent again: it completes right away without error. A repeated call made while the identical one is still in progress waits for it: if that one succeeds, the repeated call is not sent and completes without error; if it fails, the repeated call is sent and reports its own result.
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter userIdentity: A combination of phones, emails and an external user id that will form a unique key for a person.
      - parameter userAttributes: Optional user data to be saved for the person.
@@ -403,6 +411,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
      Asynchronously personalizes current installation with a person on the server.
      Each user can have Phone numbers, Emails and External user ID. These fields are unique identifiers of a user profile on Infobip platform and provide capability to personalize any app installation with a user profile. The platform provides data grouping functions based on these parameters. For example, if two installations of a particular app will try to save the same Phone number, then both of them will be collected under a single user. Phone number, Email and External user ID are also widely used when targeting users with messages across different channels via Infobip platform.
 
+     A repeated identical call within 1 second after an identical one succeeded is not sent again: it completes right away without error. A repeated call made while the identical one is still in progress waits for it: if that one succeeds, the repeated call is not sent and completes without error; if it fails, the repeated call is sent and reports its own result.
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter forceDepersonalize: Determines whether or not the depersonalization should be performed on our server in order to depersonalize the installation from previous user profile.
      - parameter keepAsLead: Whether to keep the installation as a lead. Default is false.
@@ -445,6 +454,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     /**
      Asynchronously depersonalizes current users arbitrary installation from the current user.
+     A repeated call for the same push registration within 1 second after an identical one succeeded is not sent again: it completes right away without error with the locally stored installations. A repeated call while the identical one is still in progress is sent and reports its own result.
      
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter pushRegId: Push Registration Id of the installation to be depersonalized.
@@ -466,6 +476,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
     
     /**
      Asynchronously fetches all installations personalized with the current user.
+     A repeated call within 1 second of an identical one (or of its successful completion) is not sent again: it completes right away without error with the locally stored data. A call that failed does not block a retry.
      
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter completion: The block to execute after the server responded.
@@ -724,6 +735,7 @@ public final class MobileMessaging: NSObject, NamedLogger {
             self.messageStorages.values.forEach({$0.stop()})
             self.messageStorages.removeAll()
             self.logDebug("messageStorages removed.")
+            self.debouncingGuard.resetAll()
             
             MobileMessaging.messageHandlingDelegate = nil
             MobileMessaging.jwtSupplier = nil
@@ -879,6 +891,8 @@ public final class MobileMessaging: NSObject, NamedLogger {
     public func resolveInstallation() -> MMInstallation { return dirtyInstallation() }
     func resolveUser() -> MMUser { return dirtyUser() }
     var userService: UserDataService!
+    /// Drops identical user/session API calls repeated within a short window.
+    let debouncingGuard = MMDebouncingGuard()
     var installationService: InstallationDataService!
     var userSessionService: UserSessionService!
     var baseUrlManager: BaseUrlManager!
@@ -984,6 +998,7 @@ extension MobileMessaging {
 
     /**
      Asynchronously fetches the user data from the server using async/await.
+     A repeated call within 1 second of an identical one (or of its successful completion) is not sent again: it completes right away without error with the locally stored data. A call that failed does not block a retry.
 
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - returns: Fetched user data.
@@ -1027,6 +1042,7 @@ extension MobileMessaging {
     /**
      Asynchronously saves changed user data on the server using async/await.
 
+     A repeated call with the same changes within 1 second after an identical one succeeded is not sent again: it completes right away without error. A repeated call made while the identical one is still in progress is queued behind it: if that one succeeds, nothing is left to send and it completes without error; if it fails, the repeated call is sent and reports its own result.
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter user: User data to save on server.
      - throws: NSError if the operation fails.
@@ -1065,6 +1081,7 @@ extension MobileMessaging {
     /**
      Asynchronously erases currently persisted user data using async/await.
 
+     A repeated call within 1 second after a successful one is not sent again and does not erase local data again: it completes right away without error. A repeated call made while the first one is still in progress waits for it: if that one succeeds, the repeated call is not sent; if it fails, the repeated call is sent and reports its own result.
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - returns: A tuple containing the depersonalization status and optional error.
      - throws: NSError if the operation fails.
@@ -1084,6 +1101,7 @@ extension MobileMessaging {
     /**
      Asynchronously personalizes current installation with a person on the server using async/await.
 
+     A repeated identical call within 1 second after an identical one succeeded is not sent again: it completes right away without error. A repeated call made while the identical one is still in progress waits for it: if that one succeeds, the repeated call is not sent and completes without error; if it fails, the repeated call is sent and reports its own result.
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter identity: A combination of phones, emails and an external user id.
      - parameter userAttributes: Optional user data to be saved for the person.
@@ -1106,6 +1124,7 @@ extension MobileMessaging {
     /**
      Asynchronously personalizes current installation with a person on the server using async/await.
 
+     A repeated identical call within 1 second after an identical one succeeded is not sent again: it completes right away without error. A repeated call made while the identical one is still in progress waits for it: if that one succeeds, the repeated call is not sent and completes without error; if it fails, the repeated call is sent and reports its own result.
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter forceDepersonalize: Determines whether depersonalization should be performed first.
      - parameter keepAsLead: Whether to keep the installation as a lead. Default is false.
@@ -1149,6 +1168,7 @@ extension MobileMessaging {
 
     /**
      Asynchronously depersonalizes current user's installation using async/await.
+     A repeated call for the same push registration within 1 second after an identical one succeeded is not sent again: it completes right away without error with the locally stored installations. A repeated call while the identical one is still in progress is sent and reports its own result.
 
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - parameter pushRegId: Push Registration Id of the installation to be depersonalized.
@@ -1169,6 +1189,7 @@ extension MobileMessaging {
 
     /**
      Asynchronously fetches all installations personalized with the current user using async/await.
+     A repeated call within 1 second of an identical one (or of its successful completion) is not sent again: it completes right away without error with the locally stored data. A call that failed does not block a retry.
 
      For more information and examples see: [Users and installations](https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations)
      - returns: A list of fetched installations.

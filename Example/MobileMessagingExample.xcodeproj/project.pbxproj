@@ -99,6 +99,8 @@
 		76934B35232BD2EF00882DAA /* RegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DB1CABA839001873B4 /* RegistrationTests.swift */; };
 		76934B36232BD2F000882DAA /* RegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09103DB1CABA839001873B4 /* RegistrationTests.swift */; };
 		76934B37232C32D100882DAA /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
+		53F7682AF25D8E121BC81E68 /* DebouncingGuardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCADDDAE5B29F1F0C165FF56 /* DebouncingGuardTests.swift */; };
+		D4EA8C28478033CD4F81A238 /* DebouncingGuardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCADDDAE5B29F1F0C165FF56 /* DebouncingGuardTests.swift */; };
 		76934B38232C32D200882DAA /* UserDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */; };
 		76934B39232C415700882DAA /* MOMessageSendingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */; };
 		76934B3A232C415800882DAA /* MOMessageSendingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */; };
@@ -202,6 +204,7 @@
 		502129421CEEF450007CEF8E /* MessagesManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesManager.swift; sourceTree = "<group>"; };
 		5073E4121D8AC93A00A175C4 /* MessageStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageStorageTests.swift; sourceTree = "<group>"; };
 		5077629C1CC2893B00499542 /* MMTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MMTestCase.swift; sourceTree = "<group>"; };
+		CCADDDAE5B29F1F0C165FF56 /* DebouncingGuardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncingGuardTests.swift; sourceTree = "<group>"; };
 		5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDataTests.swift; sourceTree = "<group>"; };
 		507D54FC1D81ABAC00A26F37 /* CoreDataHelpersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataHelpersTests.swift; sourceTree = "<group>"; };
 		5087EDA61CEEF82500B85546 /* MessageCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
@@ -534,6 +537,7 @@
 				A09103DF1CABA839001873B4 /* FetchMessagesTest.swift */,
 				A0ED51491CBFA72F00EF1B43 /* MessageSeenTests.swift */,
 				5079E8EB1D37C61700C09BE9 /* UserDataTests.swift */,
+				CCADDDAE5B29F1F0C165FF56 /* DebouncingGuardTests.swift */,
 				A0F30B0F1D410A3300247CED /* MOMessageSendingTests.swift */,
 				509B06631D7444C900E2C065 /* SystemDataTests.swift */,
 				A0FF884A1DB1042F00A58F49 /* CheckVersionTests.swift */,
@@ -1024,6 +1028,7 @@
 				76174FD42334D8DD000438A8 /* SystemDataTests.swift in Sources */,
 				762F9D4A220724A300A35F1E /* DataModelsTests.swift in Sources */,
 				76934B37232C32D100882DAA /* UserDataTests.swift in Sources */,
+				53F7682AF25D8E121BC81E68 /* DebouncingGuardTests.swift in Sources */,
 				762F9D35220649B900A35F1E /* ApplicationCodeHashingTests.swift in Sources */,
 				A0CA35002767251E00517867 /* ServicesSynchronizationTests.swift in Sources */,
 				7640DC4522063FD600F50470 /* CheckVersionTests.swift in Sources */,
@@ -1086,6 +1091,7 @@
 				02CB0C382CDCC12C0042CE9E /* WebInAppClickTests.swift in Sources */,
 				762F9D4B220724A400A35F1E /* DataModelsTests.swift in Sources */,
 				76934B38232C32D200882DAA /* UserDataTests.swift in Sources */,
+				D4EA8C28478033CD4F81A238 /* DebouncingGuardTests.swift in Sources */,
 				A026DDBE2AC3215C00A7318C /* InboxDataModelsTests.swift in Sources */,
 				A0F1B0032F00000000C0FFEE /* MMInboxFilterOptionsTests.swift in Sources */,
 				A026DDC02AC3215C00A7318C /* InboxServiceTests.swift in Sources */,

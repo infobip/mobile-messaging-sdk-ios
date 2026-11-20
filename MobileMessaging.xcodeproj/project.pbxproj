@@ -117,6 +117,7 @@
 		764556A91F78FF8F00B8F14B /* MMLocalNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556341F78FF4F00B8F14B /* MMLocalNotifications.swift */; };
 		764556AA1F78FF8F00B8F14B /* MMNSErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556351F78FF4F00B8F14B /* MMNSErrorExtension.swift */; };
 		764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556361F78FF4F00B8F14B /* MMPostponer.swift */; };
+		A24640BF60D86C5473BFE112 /* MMDebouncingGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53F1B64771ED626CC8155D7E /* MMDebouncingGuard.swift */; };
 		764556AC1F78FF8F00B8F14B /* MMUserAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556371F78FF4F00B8F14B /* MMUserAgent.swift */; };
 		764556AD1F78FF8F00B8F14B /* MMUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556381F78FF4F00B8F14B /* MMUtils.swift */; };
 		764556AE1F78FF8F00B8F14B /* MMVersionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764556391F78FF4F00B8F14B /* MMVersionManager.swift */; };
@@ -421,6 +422,7 @@
 		764556331F78FF4F00B8F14B /* MMLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLocalization.swift; sourceTree = "<group>"; };
 		764556341F78FF4F00B8F14B /* MMLocalNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLocalNotifications.swift; sourceTree = "<group>"; };
 		764556351F78FF4F00B8F14B /* MMNSErrorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMNSErrorExtension.swift; sourceTree = "<group>"; };
+		53F1B64771ED626CC8155D7E /* MMDebouncingGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMDebouncingGuard.swift; sourceTree = "<group>"; };
 		764556361F78FF4F00B8F14B /* MMPostponer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMPostponer.swift; sourceTree = "<group>"; };
 		764556371F78FF4F00B8F14B /* MMUserAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMUserAgent.swift; sourceTree = "<group>"; };
 		764556381F78FF4F00B8F14B /* MMUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMUtils.swift; sourceTree = "<group>"; };
@@ -1040,6 +1042,7 @@
 				367B1A992918F3640081983C /* MMLoc.swift */,
 				764556341F78FF4F00B8F14B /* MMLocalNotifications.swift */,
 				764556351F78FF4F00B8F14B /* MMNSErrorExtension.swift */,
+				53F1B64771ED626CC8155D7E /* MMDebouncingGuard.swift */,
 				764556361F78FF4F00B8F14B /* MMPostponer.swift */,
 				764556371F78FF4F00B8F14B /* MMUserAgent.swift */,
 				764556381F78FF4F00B8F14B /* MMUtils.swift */,
@@ -1583,6 +1586,7 @@
 				764556A21F78FF8500B8F14B /* SeenStatusPersistingOperation.swift in Sources */,
 				A0B63167255C666800B692E4 /* WebViewSettings.swift in Sources */,
 				764556AB1F78FF8F00B8F14B /* MMPostponer.swift in Sources */,
+				A24640BF60D86C5473BFE112 /* MMDebouncingGuard.swift in Sources */,
 				A0B24DBF25066782005C5403 /* AttachmentPreviewController.swift in Sources */,
 				76A8A77D2195BB80004F6E39 /* FetchInstanceOperation.swift in Sources */,
 				A0B24DC025066782005C5403 /* ChatAttachmentImageView.swift in Sources */,

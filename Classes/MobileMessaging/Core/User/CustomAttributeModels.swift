@@ -38,6 +38,25 @@ extension NSArray: MMAttributeType {}
 }
 
 extension Dictionary where Value == MMAttributeType, Key == String {
+	/// Immutable copies of mutable values (e.g. an NSMutableString, also inside lists), so a caller changing its own
+	/// objects afterwards changes neither the data the SDK stored nor a request it already accepted.
+	var mm_frozen: [String: MMAttributeType] {
+		return mapValues { Self.frozen($0) }
+	}
+
+	private static func frozen(_ value: MMAttributeType) -> MMAttributeType {
+		switch value {
+		case let string as NSString:
+			return string.copy() as! NSString
+		case let list as NSArray:
+			return list.map { element -> Any in
+				(element as? [String: MMAttributeType]).map { $0.mm_frozen as NSDictionary } ?? element
+			} as NSArray
+		default:
+			return value
+		}
+	}
+
 	func assertCustomAttributesValid() {
         assert(self.validateListObjectsContainOnlySupportedTypes(), "One of the objects in list has unsupported field datatype. Check documentation https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations.")
 		assert(self.validateListObjectsHaveTheSameStructure(), "One of the object in list has different model. Check documentation https://github.com/infobip/mobile-messaging-sdk-ios/wiki/Users-and-installations.")

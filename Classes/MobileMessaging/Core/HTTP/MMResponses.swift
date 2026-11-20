@@ -30,6 +30,11 @@ public enum MMResult<ValueType> {
 			return error
 		}
 	}
+
+	var isSuccess: Bool {
+		if case .Success = self { return true }
+		return false
+	}
 }
 
 

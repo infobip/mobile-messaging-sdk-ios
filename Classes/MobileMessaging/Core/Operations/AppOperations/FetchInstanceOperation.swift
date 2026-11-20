@@ -56,6 +56,8 @@ class FetchInstanceOperation : MMOperation {
 		case .Success(let responseInstallation):
 			if fetchedInstallationMayBeSaved(fetchedInstallation: responseInstallation) {
 				responseInstallation.archiveAll()
+				// the applied server data may set again what a logout reset (custom attributes, primary flag)
+				mmContext.debouncingGuard.invalidate(after: .installationData)
 			}
 			logDebug("successfully synced")
 		case .Failure(let error):

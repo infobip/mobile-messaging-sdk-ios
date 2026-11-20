@@ -221,7 +221,7 @@ class PersonalizeTests: MMTestCase {
 		// Launch user fetches (using withCheckedContinuation for internal API)
 		let fetchTask1 = Task { @MainActor in
 			await withCheckedContinuation { continuation in
-				self.mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (_, _) in
+				self.enqueueFetchUserOperation {
 					requestCompletionCounter += 1
 					continuation.resume()
 				}
@@ -229,7 +229,7 @@ class PersonalizeTests: MMTestCase {
 		}
 		let fetchTask2 = Task { @MainActor in
 			await withCheckedContinuation { continuation in
-				self.mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (_, _) in
+				self.enqueueFetchUserOperation {
 					requestCompletionCounter += 1
 					continuation.resume()
 				}
@@ -237,7 +237,7 @@ class PersonalizeTests: MMTestCase {
 		}
 		let fetchTask3 = Task { @MainActor in
 			await withCheckedContinuation { continuation in
-				self.mobileMessagingInstance.userService.fetchFromServer(userInitiated: true) { (_, _) in
+				self.enqueueFetchUserOperation {
 					requestCompletionCounter += 1
 					continuation.resume()
 				}

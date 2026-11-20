@@ -121,6 +121,116 @@ final class InboxServiceTests: MMTestCase {
         XCTAssertEqual(sentMessageIds, [["1", "2"], ["3"], ["3"]])
     }
 
+    /// Answers seen requests asynchronously; the first one is held until `releaseFirst` is signalled.
+    private final class HeldSeenApiStub: RemoteAPIProviderStub {
+        let firstStarted = DispatchSemaphore(value: 0)
+        let releaseFirst = DispatchSemaphore(value: 0)
+        var firstResult: SeenStatusSendingResult = .Success(EmptyResponse())
+        private let lock = NSLock()
+        private var _sent: [[String]] = []
+        var sent: [[String]] { lock.lock(); defer { lock.unlock() }; return _sent }
+
+        override func sendSeenStatus(applicationCode: String, pushRegistrationId: String?, body: RequestBody, queue: DispatchQueue, completion: @escaping (SeenStatusSendingResult) -> Void) {
+            lock.lock(); _sent.append(body.extractMessageIdsFromRequestBody()); let isFirst = _sent.count == 1; lock.unlock()
+            DispatchQueue.global().async {
+                if isFirst {
+                    self.firstStarted.signal()
+                    self.releaseFirst.wait()
+                    queue.async { completion(self.firstResult) }
+                } else {
+                    queue.async { completion(.Success(EmptyResponse())) }
+                }
+            }
+        }
+    }
+
+    private func setSeenResult(_ inbox: MMInboxService, _ ids: [String]) async -> NSError? {
+        do {
+            try await inbox.setSeen(externalUserId: "user1", messageIds: ids)
+            return nil
+        } catch {
+            return error as NSError
+        }
+    }
+
+    func testDuplicateSetSeenWhilePendingGetsTheFailureOfThatRequest() async {
+        startRegisteredSdk()
+        let inbox = MobileMessaging.inbox!
+        let stub = HeldSeenApiStub()
+        stub.firstResult = .Failure(serverError("INTERNAL_SERVER_ERROR"))
+        mobileMessagingInstance.remoteApiProvider = stub
+
+        let first = Task { await self.setSeenResult(inbox, ["M"]) }
+        await Task.detached { stub.firstStarted.wait() }.value
+        let second = Task { await self.setSeenResult(inbox, ["M"]) }
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        stub.releaseFirst.signal()
+
+        let e1 = await first.value, e2 = await second.value
+        XCTAssertEqual(e1?.mm_code, "INTERNAL_SERVER_ERROR")
+        XCTAssertEqual(e2?.mm_code, "INTERNAL_SERVER_ERROR", "duplicate must not succeed when the request it waited for failed")
+        XCTAssertEqual(stub.sent, [["M"]])
+
+        // the failure released M, so a retry sends it again
+        let e3 = await setSeenResult(inbox, ["M"])
+        XCTAssertNil(e3)
+        XCTAssertEqual(stub.sent, [["M"], ["M"]])
+    }
+
+    func testDuplicateSetSeenWhilePendingSucceedsWithThatRequest() async {
+        startRegisteredSdk()
+        let inbox = MobileMessaging.inbox!
+        let stub = HeldSeenApiStub()
+        mobileMessagingInstance.remoteApiProvider = stub
+
+        let first = Task { await self.setSeenResult(inbox, ["M"]) }
+        await Task.detached { stub.firstStarted.wait() }.value
+        let second = Task { await self.setSeenResult(inbox, ["M"]) }
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        stub.releaseFirst.signal()
+
+        let e1 = await first.value, e2 = await second.value
+        XCTAssertNil(e1); XCTAssertNil(e2)
+        XCTAssertEqual(stub.sent, [["M"]])
+        let e3 = await setSeenResult(inbox, ["M"])                   // confirmed: nothing sent
+        XCTAssertNil(e3)
+        XCTAssertEqual(stub.sent, [["M"]])
+    }
+
+    func testOverlappingSetSeenSendsOnlyNewMessagesAndReportsFailureOfTheSharedOnes() async {
+        startRegisteredSdk()
+        let inbox = MobileMessaging.inbox!
+        let stub = HeldSeenApiStub()
+        stub.firstResult = .Failure(serverError("INTERNAL_SERVER_ERROR"))
+        mobileMessagingInstance.remoteApiProvider = stub
+
+        let first = Task { await self.setSeenResult(inbox, ["1", "2"]) }
+        await Task.detached { stub.firstStarted.wait() }.value
+        let second = Task { await self.setSeenResult(inbox, ["2", "3"]) }
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        stub.releaseFirst.signal()
+
+        let e1 = await first.value, e2 = await second.value
+        XCTAssertNotNil(e1)
+        XCTAssertNotNil(e2, "message 2 was part of the failed request")
+        XCTAssertEqual(stub.sent, [["1", "2"], ["3"]], "3 is sent once, 2 is not sent twice")
+
+        _ = await setSeenResult(inbox, ["1", "2", "3"])              // 3 confirmed, 1 and 2 released
+        XCTAssertEqual(stub.sent.last.map { Set($0) }, Set(["1", "2"]))
+    }
+
+    func testSetSeenWithDuplicateIdsInOneCallSendsEachOnce() async {
+        startRegisteredSdk()
+        let inbox = MobileMessaging.inbox!
+        let stub = HeldSeenApiStub()
+        stub.releaseFirst.signal()
+        mobileMessagingInstance.remoteApiProvider = stub
+
+        let error = await setSeenResult(inbox, ["M", "M", "N"])
+        XCTAssertNil(error)
+        XCTAssertEqual(stub.sent, [["M", "N"]])
+    }
+
     func testSetSeenCompletionIsCalledOnMainEvenWhenNothingIsSent() {
         startRegisteredSdk()
         let inbox = MobileMessaging.inbox!

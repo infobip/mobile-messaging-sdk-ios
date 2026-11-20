@@ -13,6 +13,9 @@ class DepersonalizeOperation: MMOperation {
 	let finishBlock: ((MMSuccessPending, NSError?) -> Void)?
 	let pushRegistrationId: String?
 	let applicationCode: String
+	/// Taken when the operation runs: an identical logout queued before this one has finished by then.
+	private var debounceTicket: MMDebouncingGuard.Ticket?
+	private var didSucceed = false
 	
     init(userInitiated: Bool, mmContext: MobileMessaging, finishBlock: ((MMSuccessPending, NSError?) -> Void)? = nil) {
 		self.finishBlock = finishBlock
@@ -28,8 +31,22 @@ class DepersonalizeOperation: MMOperation {
             finish()
             return
         }
+		// Same type and key as depersonalizing another installation (like Android's depersonalizeById): an identical
+		// logout that succeeded within the window makes this one a duplicate. Checked before the cleanup, so a
+		// duplicate does not clean up the subservices again.
+		if let pushRegistrationId = pushRegistrationId {
+			let ticket = mmContext.debouncingGuard.admit(.depersonalizeInstallation, data: ["pushRegId": pushRegistrationId, "registration": pushRegistrationId])
+			// a pending logout (an earlier one failed) is always sent, whatever the guard remembers
+			guard ticket != nil || mmContext.internalData().currentDepersonalizationStatus == .pending else {
+				logDebug("identical logout succeeded meanwhile, not sent")
+				finish()
+				return
+			}
+			debounceTicket = ticket
+		}
 		logDebug("starting...")
-		DepersonalizeOperation.depersonalizeSubservices(userInitiated: userInitiated, mmContext: mmContext)
+		// keeps its own entry: the cleanup belongs to this very logout
+		DepersonalizeOperation.depersonalizeSubservices(userInitiated: userInitiated, mmContext: mmContext, keepingDebounceOf: .depersonalizeInstallation)
 		self.sendRequest()
 	}
 	
@@ -55,7 +72,8 @@ class DepersonalizeOperation: MMOperation {
 		switch result {
 		case .Success:
 			logDebug("request secceeded")
-			DepersonalizeOperation.handleSuccessfulDepersonalize(mmContext: self.mmContext)
+			didSucceed = true
+			DepersonalizeOperation.handleSuccessfulDepersonalize(mmContext: self.mmContext, keepingDebounceOf: .depersonalizeInstallation)
 		case .Failure(let error):
 			logError("request failed with error: \(error.orNil)")
 			DepersonalizeOperation.handleFailedDepersonalize(mmContext: self.mmContext)
@@ -64,10 +82,14 @@ class DepersonalizeOperation: MMOperation {
 		}
 	}
 
-	class func handleSuccessfulDepersonalize(mmContext: MobileMessaging) {
+	/// - parameter kept: see `depersonalizeSubservices`.
+	class func handleSuccessfulDepersonalize(mmContext: MobileMessaging, keepingDebounceOf kept: MMDebouncingGuard.OperationType? = nil) {
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending:
 			DepersonalizeOperation.logDebug("current depersonalize status: pending")
+			// a logout retried while pending: its subservice cleanup (and invalidation) was skipped, so calls made
+			// while it was pending (e.g. a personalize) are only now undone on the server
+			mmContext.debouncingGuard.invalidate(after: .logout, except: kept)
 
 			let id = mmContext.internalData()
 			id.currentDepersonalizationStatus = .success
@@ -107,7 +129,9 @@ class DepersonalizeOperation: MMOperation {
 		}
 	}
 
-    class func depersonalizeSubservices(userInitiated: Bool, mmContext: MobileMessaging) {
+    /// - parameter kept: debounce entry of the caller, kept although the user is reset: a forced personalize
+    ///   depersonalizes as part of its own call. A plain logout keeps none.
+    class func depersonalizeSubservices(userInitiated: Bool, mmContext: MobileMessaging, keepingDebounceOf kept: MMDebouncingGuard.OperationType? = nil) {
 		switch mmContext.internalData().currentDepersonalizationStatus {
 		case .pending: break
 		case .success, .undefined:
@@ -121,11 +145,13 @@ class DepersonalizeOperation: MMOperation {
 			}
 
 			_ = loopGroup.wait(timeout: DispatchTime.now() + .seconds(10))
+			mmContext.debouncingGuard.invalidate(after: .logout, except: kept)
 		}
 	}
 	
 	override func finished(_ errors: [NSError]) {
         logDebug("finished with errors: \(errors)")
+        debounceTicket.map { mmContext.debouncingGuard.finish($0, succeeded: didSucceed) }
         self.finishBlock?(self.mmContext.internalData().currentDepersonalizationStatus, errors.first)
 	}
 }

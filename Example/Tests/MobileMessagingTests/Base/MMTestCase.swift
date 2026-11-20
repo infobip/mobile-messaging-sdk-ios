@@ -215,28 +215,49 @@ class MMTestCase: XCTestCase {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
     
-    private func waitAllQueues(cancel: Bool) {
+    /// Upper bound for SDK queues to drain between tests. Healthy tests need well under a second.
+    static let queuesDrainTimeout: TimeInterval = 30
+
+    /// Waits until the SDK queues are drained, at most `timeout`. Never blocks the main thread outright: on the
+    /// main thread it keeps the run loop running, so operations waiting for a `DispatchQueue.main` block (e.g.
+    /// `MessageHandlingOperation.notifyAboutNewMessages`) can finish instead of deadlocking. Fails the test and
+    /// returns instead of hanging when the queues do not drain in time.
+    private func waitAllQueues(cancel: Bool, timeout: TimeInterval = MMTestCase.queuesDrainTimeout) {
         let queues = [MobileMessaging.sharedInstance?.messageHandler.messageSyncQueue,
                       MobileMessaging.sharedInstance?.messageHandler.messageHandlingQueue,
                       installationQueue
         ]
-        
+
         if cancel {
             queues.forEach { q in
                 q?.cancelAllOperations()
             }
         }
-        
-//        queues.filter({$0!.operationCount > 0}).forEach { q in
-//            print("Queue  \(q?.name ?? "") has operations:")
-//            print("    \(q!.operations)")
-//            
-//        }
-        
-        queues.forEach { q in
-//            print("Waiting queue  \(q!.name) to finish operations \(q!.operationCount)")
-            q?.waitUntilAllOperationsAreFinished()
-//            print("Finished")
+
+        let drained = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            queues.forEach { q in
+                q?.waitUntilAllOperationsAreFinished()
+            }
+            drained.signal()
+        }
+
+        let deadline = Date().addingTimeInterval(timeout)
+        var finished = false
+        if Thread.isMainThread {
+            while !finished && Date() < deadline {
+                finished = drained.wait(timeout: .now()) == .success
+                if !finished {
+                    RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+                }
+            }
+        } else {
+            finished = drained.wait(timeout: .now() + timeout) == .success
+        }
+        if !finished {
+            let pending = queues.compactMap { $0 }.filter { $0.operationCount > 0 }
+                .map { "\($0.name ?? "queue"): \($0.operations)" }
+            XCTFail("SDK queues did not finish within \(timeout)s, still running: \(pending)")
         }
     }
     
@@ -283,6 +304,15 @@ class MMTestCase: XCTestCase {
         return stubbedMMInstanceWithApplicationCode(code, backendBaseURL: MMTestCase.baseURL)
     }
     
+    /// Queues a FetchUserOperation directly, bypassing UserDataService (which debounces identical fetches).
+    /// For tests that need several fetches to really queue up, e.g. operation priority checks.
+    /// `finished` is called on the main queue: XCTest silently drops failures recorded after a continuation was
+    /// resumed directly on an SDK operation thread.
+    func enqueueFetchUserOperation(_ finished: @escaping () -> Void) {
+        let mm = mobileMessagingInstance
+        installationQueue.addOperation(FetchUserOperation(userInitiated: true, currentUser: mm.currentUser(), mmContext: mm, finishBlock: { _, _ in DispatchQueue.main.async(execute: finished) }))
+    }
+
     class func startWithCorrectApplicationCode() {
         let mm = stubbedMMInstanceWithApplicationCode(MMTestConstants.kTestCorrectApplicationCode)!
         mm.apnsRegistrationManager = ApnsRegistrationManagerDisabledStub(mmContext: mm)

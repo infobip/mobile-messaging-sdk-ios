@@ -46,6 +46,56 @@ class UserDataMapper {
 		return ret
 	}
 
+	/// The fields a write of `user` changes: what differs from the server-confirmed user, plus what differs from
+	/// the previous local user (a revert of a pending change equals the server-confirmed user, but must still be
+	/// sent). Shaped like a request body; nested dictionaries (custom attributes) list their changed sub-keys.
+	class func changedFields(of user: MMUser, currentUser: MMUser, previousUser: MMUser) -> RequestBody {
+		return mergeFields(requestPayload(currentUser: currentUser, dirtyUser: user) ?? [:],
+						   requestPayload(currentUser: previousUser, dirtyUser: user) ?? [:])
+	}
+
+	/// `payload` limited to `fields`. In `fields` a non-empty nested dictionary selects only those sub-keys
+	/// (custom attributes); any other value selects the whole field.
+	class func restrict(_ payload: RequestBody, to fields: RequestBody) -> RequestBody {
+		var ret = RequestBody()
+		for (key, value) in payload {
+			guard let mask = fields[key] else { continue }
+			guard let subKeys = subMask(mask) else {
+				ret[key] = value
+				continue
+			}
+			if let nested = value as? RequestBody {
+				let restricted = restrict(nested, to: subKeys)
+				if !restricted.isEmpty { ret[key] = restricted }
+			} else {
+				// the whole field is cleared: clear only the selected sub-keys
+				ret[key] = subKeys.mapValues { _ in NSNull() }
+			}
+		}
+		return ret
+	}
+
+	private class func mergeFields(_ a: RequestBody, _ b: RequestBody) -> RequestBody {
+		var ret = a
+		for (key, value) in b {
+			guard let existing = ret[key] else {
+				ret[key] = value
+				continue
+			}
+			if let left = subMask(existing), let right = subMask(value) {
+				ret[key] = mergeFields(left, right)
+			} else if subMask(existing) != nil {
+				ret[key] = value // the whole field selects more than some sub-keys
+			}
+		}
+		return ret
+	}
+
+	private class func subMask(_ value: Any) -> RequestBody? {
+		guard let dict = value as? RequestBody, !dict.isEmpty else { return nil }
+		return dict
+	}
+
 	class func requestPayload(currentUser: MMUser, dirtyUser: MMUser) -> RequestBody? {
 		var ret = deltaDict(currentUser.dictionaryRepresentation, dirtyUser.dictionaryRepresentation)
 		ret?["installations"] = nil

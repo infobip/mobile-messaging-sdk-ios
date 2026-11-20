@@ -12,12 +12,15 @@ class FetchUserOperation: MMOperation {
 	
 	let mmContext: MobileMessaging
 	let user: MMUser
-	let dirtyUserVersion: Int
-	let finishBlock: ((NSError?) -> Void)
+	/// `MMUser.dirtyRevision` when the request was sent: a change of the dirty user during the request discards
+	/// the response. Taken when the request starts, not when the operation is queued: earlier operations on the
+	/// queue (e.g. another fetch) apply their responses meanwhile, which are not local changes.
+	private var revisionAtRequest: UInt64 = 0
+	let finishBlock: ((_ error: NSError?, _ succeeded: Bool) -> Void)
+	private var didSucceed = false
 
-    init(userInitiated: Bool, currentUser: MMUser, dirtyUser: MMUser?, mmContext: MobileMessaging, finishBlock: @escaping ((NSError?) -> Void)) {
+    init(userInitiated: Bool, currentUser: MMUser, mmContext: MobileMessaging, finishBlock: @escaping ((_ error: NSError?, _ succeeded: Bool) -> Void)) {
 		self.user = currentUser
-		self.dirtyUserVersion = dirtyUser?.version ?? 0
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		super.init(isUserInitiated: userInitiated)
@@ -37,7 +40,7 @@ class FetchUserOperation: MMOperation {
 			return
 		}
 		logDebug("Started...")
-
+		revisionAtRequest = MMUser.dirtyRevision
 		performRequest(pushRegistrationId: pushRegistrationId)
 	}
 
@@ -67,10 +70,19 @@ class FetchUserOperation: MMOperation {
         
 		switch result {
 		case .Success(let responseUser):
-			if self.dirtyUserVersion != mmContext.dirtyUser().version {
+			// A discarded response did not refresh anything, so it is not a success.
+			if revisionAtRequest != MMUser.dirtyRevision {
+				logDebug("local user data changed during fetch, response discarded")
+				return
+			}
+			if hasUnsyncedLocalChanges && UserDataService.hasPendingUserWrite() {
+				// e.g. a save made while this fetch was queued, still waiting to be sent: the response would overwrite
+				// it. Without a pending write (e.g. the server rejected the save) the server data is applied as before.
+				logDebug("local user data not synced yet, response discarded")
 				return
 			}
 			responseUser.archiveAll()
+			didSucceed = true // only once the response is actually applied
 
 			logDebug("successfully synced")
 		case .Failure(let error):
@@ -82,8 +94,14 @@ class FetchUserOperation: MMOperation {
 		}
 	}
 
+	/// The dirty user differs from the server-confirmed one in data a save sends. `requestPayload` returns `[:]`
+	/// when only stripped fields (installations, type) differ, which is not an unsynced change.
+	private var hasUnsyncedLocalChanges: Bool {
+		return UserDataMapper.requestPayload(currentUser: mmContext.currentUser(), dirtyUser: mmContext.dirtyUser())?.isEmpty == false
+	}
+
 	override func finished(_ errors: [NSError]) {
         logDebug("finished with errors: \(errors)")
-		finishBlock(errors.first) //check what to do with errors/
+		finishBlock(errors.first, didSucceed)
 	}
 }

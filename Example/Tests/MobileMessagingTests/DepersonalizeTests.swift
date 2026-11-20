@@ -276,15 +276,15 @@ class DepersonalizeTests: MMTestCase {
 
 		// Launch fetch tasks
 		let fetchTask1 = Task { @MainActor in
-			_ = try await MobileMessaging.fetchUser()
+			await withCheckedContinuation { continuation in self.enqueueFetchUserOperation { continuation.resume() } }
 			requestCompletionCounter += 1
 		}
 		let fetchTask2 = Task { @MainActor in
-			_ = try await MobileMessaging.fetchUser()
+			await withCheckedContinuation { continuation in self.enqueueFetchUserOperation { continuation.resume() } }
 			requestCompletionCounter += 1
 		}
 		let fetchTask3 = Task { @MainActor in
-			_ = try await MobileMessaging.fetchUser()
+			await withCheckedContinuation { continuation in self.enqueueFetchUserOperation { continuation.resume() } }
 			requestCompletionCounter += 1
 		}
 

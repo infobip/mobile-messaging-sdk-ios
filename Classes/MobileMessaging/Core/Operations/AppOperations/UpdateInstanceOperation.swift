@@ -90,6 +90,9 @@ class UpdateInstanceOperation : MMOperation {
 			id.archiveCurrent()
 
 			dirtyInstallation.archiveCurrent()
+			// every installation sync (save, foreground/startup sync): a logout that overtook it (higher priority) has
+			// cached its result meanwhile, and this write may have changed what that logout reset
+			mmContext.debouncingGuard.invalidate(after: .installationData)
 
 			UserEventsManager.postInstallationSyncedEvent(mmContext.currentInstallation())
 			logDebug("successfully synced")

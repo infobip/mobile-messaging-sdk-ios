@@ -114,7 +114,9 @@ class InstallationDataService: MobileMessagingService {
     func save(userInitiated: Bool, installationData: MMInstallation, completion: @escaping (NSError?) -> Void) {
         assert(!Thread.isMainThread)
         logDebug("saving \(installationData.dictionaryRepresentation)")
+        mmContext.debouncingGuard.invalidate(after: .installationData)
         installationData.archiveDirty()
+        // (cleared again when the sync succeeds, in UpdateInstanceOperation)
         syncSystemDataWithServer(userInitiated: userInitiated, completion: completion)
     }
     

@@ -11,20 +11,25 @@ import Foundation
 class PersonalizeOperation: MMOperation {
 	
 	let mmContext: MobileMessaging
-	let userIdentity: MMUserIdentity
-	let userAttributes: MMUserAttributes?
-	let finishBlock: ((NSError?) -> Void)?
+	/// The request body, built when personalize was called (`UserDataService.personalize`).
+	let requestBody: RequestBody
+	let finishBlock: ((_ error: NSError?, _ succeeded: Bool) -> Void)?
+	private var didSucceed = false
+	/// Identifies identical personalize calls (see `UserDataService.personalize`).
+	let debounceKey: [String: Any]
+	/// Taken when the operation runs, so an identical personalize queued before this one has finished by then.
+	private var debounceTicket: MMDebouncingGuard.Ticket?
 	let requireResponse: Bool
 	let forceDepersonalize: Bool
     let keepAsLead: Bool
     let setDeviceAsPrimary: Bool
 
-    init(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, setDeviceAsPrimary: Bool, userIdentity: MMUserIdentity, userAttributes: MMUserAttributes?, mmContext: MobileMessaging, finishBlock: ((NSError?) -> Void)?) {
+    init(userInitiated: Bool, forceDepersonalize: Bool, keepAsLead: Bool, setDeviceAsPrimary: Bool, requestBody: RequestBody, mmContext: MobileMessaging, debounceKey: [String: Any], finishBlock: ((_ error: NSError?, _ succeeded: Bool) -> Void)?) {
 		self.forceDepersonalize = forceDepersonalize
+		self.debounceKey = debounceKey
         self.keepAsLead = keepAsLead
         self.setDeviceAsPrimary = setDeviceAsPrimary
-		self.userIdentity = userIdentity
-		self.userAttributes = userAttributes
+		self.requestBody = requestBody
 		self.mmContext = mmContext
 		self.finishBlock = finishBlock
 		self.requireResponse = false
@@ -37,9 +42,25 @@ class PersonalizeOperation: MMOperation {
 			finish()
 			return
 		}
+		// The queue is serial: an identical personalize that was in flight when this one was called has finished
+		// by now. If it succeeded, this one is a duplicate. Checked before the forced cleanup, so a duplicate forced
+		// personalize does not clean up the subservices again.
+		guard let ticket = mmContext.debouncingGuard.admit(.personalize, data: debounceKey) else {
+			logDebug("identical personalize succeeded meanwhile, not sent")
+			finish()
+			return
+		}
+		debounceTicket = ticket
 		logDebug("started...")
 		if forceDepersonalize {
-			DepersonalizeOperation.depersonalizeSubservices(userInitiated: userInitiated, mmContext: mmContext)
+			// part of this very personalize call: its own debounce entry stays
+			DepersonalizeOperation.depersonalizeSubservices(userInitiated: userInitiated, mmContext: mmContext, keepingDebounceOf: .personalize)
+			// cleanup can take a while: the SDK may have been stopped (and this operation cancelled) meanwhile
+			guard !isCancelled else {
+				logDebug("cancelled during depersonalization...")
+				finish()
+				return
+			}
 		}
 
 		sendServerRequestIfNeeded()
@@ -52,7 +73,7 @@ class PersonalizeOperation: MMOperation {
 			return
 		}
 		
-		let body = UserDataMapper.personalizeRequestPayload(userIdentity: userIdentity, userAttributes: userAttributes) ?? [:]
+		let body = requestBody
         
         var accessToken: String? = nil
         do {
@@ -63,7 +84,13 @@ class PersonalizeOperation: MMOperation {
         }
         
         logDebug("Sending personalize API request - Auth: \(accessToken != nil ? "JWT" : "AppCode"), forceDeperosnalize: \(forceDepersonalize)")
-		mmContext.remoteApiProvider.personalize(applicationCode: mmContext.applicationCode,
+		// stop() releases the provider; never unwrap it implicitly here
+		guard let remoteApiProvider = mmContext.remoteApiProvider as RemoteAPIProvider? else {
+			logWarn("SDK was stopped. Finishing...")
+			finishWithError(NSError(type: MMInternalErrorType.MobileMessagingInstanceNotInitialized))
+			return
+		}
+		remoteApiProvider.personalize(applicationCode: mmContext.applicationCode,
                                                 accessToken: accessToken,
 												pushRegistrationId: pushRegistrationId,
 												body: body,
@@ -85,9 +112,10 @@ class PersonalizeOperation: MMOperation {
 
 		switch result {
 		case .Success:
+			didSucceed = true
 			logDebug("succeeded with force depersonalizing \(forceDepersonalize)")
 			if forceDepersonalize {
-				DepersonalizeOperation.handleSuccessfulDepersonalize(mmContext: self.mmContext)
+				DepersonalizeOperation.handleSuccessfulDepersonalize(mmContext: self.mmContext, keepingDebounceOf: .personalize)
 			}
 			self.handleSuccessfulPersonalize(result.value)
 		case .Failure(let error):
@@ -124,6 +152,7 @@ class PersonalizeOperation: MMOperation {
 
 	override func finished(_ errors: [NSError]) {
         logDebug("finished with errors: \(errors)")
-        self.finishBlock?(errors.first)
+        debounceTicket.map { mmContext.debouncingGuard.finish($0, succeeded: didSucceed) }
+        self.finishBlock?(errors.first, didSucceed)
 	}
 }

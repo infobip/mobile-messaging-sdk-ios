@@ -223,6 +223,11 @@ public enum MMGender: Int {
 		willSet {
 			newValue?.assertCustomAttributesValid()
 		}
+		didSet {
+			// stored as immutable copies: changing the passed objects later must not change the stored data
+			// (setting the property here does not call the observers again)
+			customAttributes = customAttributes?.mm_frozen
+		}
 	}
 
 	convenience public init(firstName: String?
@@ -250,7 +255,7 @@ public enum MMGender: Int {
 		self.tags = tags
 		self.gender = gender
 		self.birthday = birthday
-		self.customAttributes = customAttributes
+		self.customAttributes = customAttributes?.mm_frozen
 	}
 
 	public required convenience init?(dictRepresentation dict: DictionaryRepresentation) {
@@ -303,7 +308,23 @@ public enum MMGender: Int {
 		// nothing to do
 	}
     public func handleDirtyChanges(old: MMUser, new: MMUser) {
-		// nothing to do
+		MMUser.bumpDirtyRevision()
+	}
+
+	/// Increases on every persisted change of the dirty user (in memory only). Lets a fetch tell whether
+	/// local data changed while it was pending: `version` cannot, as it is neither copied nor archived
+	/// and therefore always reads 0.
+	static var dirtyRevision: UInt64 {
+		dirtyRevisionLock.lock()
+		defer { dirtyRevisionLock.unlock() }
+		return _dirtyRevision
+	}
+	private static var _dirtyRevision: UInt64 = 0
+	private static let dirtyRevisionLock = NSLock()
+	private static func bumpDirtyRevision() {
+		dirtyRevisionLock.lock()
+		_dirtyRevision &+= 1
+		dirtyRevisionLock.unlock()
 	}
 
 	//

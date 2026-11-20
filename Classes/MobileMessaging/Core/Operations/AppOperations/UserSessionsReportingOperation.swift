@@ -15,6 +15,7 @@ class UserSessionsReportingOperation : MMOperation {
 	let mmContext: MobileMessaging
 	var finishedSessionReports: [UserSessionReportObject]?
 	var startedSessionReports: [UserSessionReportObject]?
+	private var debounceTicket: MMDebouncingGuard.Ticket?
 
 	let finishBlock: (Error?) -> Void
 
@@ -52,6 +53,12 @@ class UserSessionsReportingOperation : MMOperation {
 
 			let body = UserSessionMapper.requestPayload(newSessions: self.startedSessionReports, finishedSessions: self.finishedSessionReports)
 			if !(self.startedSessionReports?.isEmpty ?? true) || !(self.finishedSessionReports?.isEmpty ?? true) {
+				guard let ticket = self.mmContext.debouncingGuard.admit(.userSessionReport, data: body) else {
+					logWarn("session report dropped - identical report sent within debounce window")
+					self.finish()
+					return
+				}
+				self.debounceTicket = ticket
 				self.mmContext.remoteApiProvider.sendUserSessionReport(
 					applicationCode: self.mmContext.applicationCode,
 					pushRegistrationId: pushRegistrationId,
@@ -81,6 +88,7 @@ class UserSessionsReportingOperation : MMOperation {
 	}
 
 	private func handleResult(_ result: UserSessionSendingResult) {
+		defer { debounceTicket.map { mmContext.debouncingGuard.finish($0, succeeded: result.isSuccess) } }
 		switch result {
 		case .Success(_):
 			logDebug("Request succeeded")

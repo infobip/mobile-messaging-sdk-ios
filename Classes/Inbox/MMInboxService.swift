@@ -11,7 +11,11 @@ import Foundation
 public class MMInboxService: MobileMessagingService {
     private let q: DispatchQueue
     static var sharedInstance: MMInboxService?
+    /// Messages the server confirmed as seen. Guarded by `seenQueue`.
     private var seenMessageIds: Set<String>
+    /// Messages whose seen request is in flight, with that request's batch and task. Guarded by `seenQueue`.
+    /// Duplicate callers await the task, so they get the real result instead of an early success.
+    private var pendingSeen: [String: (batch: UUID, task: Task<Void, Error>)] = [:]
     private var seenQueue: DispatchQueue
     
     init(mmContext: MobileMessaging) {
@@ -71,8 +75,8 @@ public class MMInboxService: MobileMessagingService {
      */
     @objc public func setSeen(externalUserId: String, messageIds: [String], completion: @escaping (_ error: NSError?) -> Void) {
         // Reserved at call time, so consecutive calls never send the same message twice.
-        let unseenMessageIds = reserveUnseen(messageIds)
-        complete(completion) { try await self.sendSeen(unseenMessageIds, externalUserId: externalUserId) }
+        let requests = reserveSeen(messageIds, externalUserId: externalUserId)
+        complete(completion) { try await Self.awaitAll(requests) }
     }
     
     public override var systemData: [String: AnyHashable]? {
@@ -176,39 +180,87 @@ public class MMInboxService: MobileMessagingService {
         }
     }
     
-    /// Returns the messages not yet marked as seen by this service and marks them as pending.
-    private func reserveUnseen(_ messageIds: [String]) -> [String] {
+    /// For each message: skips it if the server already confirmed it, joins the request already in flight for it,
+    /// or reserves it for one new request sent for all remaining messages. Returns every request to await.
+    private func reserveSeen(_ messageIds: [String], externalUserId: String) -> [Task<Void, Error>] {
         seenQueue.sync {
-            let unseen = messageIds.filter { !seenMessageIds.contains($0) }
-            seenMessageIds.formUnion(unseen)
-            return unseen
+            var requests: [UUID: Task<Void, Error>] = [:]
+            var idsToSend: [String] = []
+            var handled = Set<String>()
+            for id in messageIds where handled.insert(id).inserted {
+                if seenMessageIds.contains(id) {
+                    continue
+                }
+                if let pending = pendingSeen[id] {
+                    requests[pending.batch] = pending.task
+                    continue
+                }
+                idsToSend.append(id)
+            }
+            if !idsToSend.isEmpty {
+                let batch = UUID()
+                let task = Task<Void, Error> {
+                    do {
+                        try await self.sendSeen(idsToSend, externalUserId: externalUserId)
+                        self.finishSeen(idsToSend, batch: batch, succeeded: true)
+                    } catch {
+                        self.finishSeen(idsToSend, batch: batch, succeeded: false)
+                        throw error
+                    }
+                }
+                // the task cannot finish before this: finishSeen waits for seenQueue, which this block holds
+                idsToSend.forEach { pendingSeen[$0] = (batch, task) }
+                requests[batch] = task
+            }
+            return Array(requests.values)
         }
     }
-    
-    /// Sends the seen status for reserved messages. On failure they are released, so a retry sends them again.
-    private func sendSeen(_ messageIds: [String], externalUserId: String) async throws {
-        guard !messageIds.isEmpty else {
-            return
-        }
-        let body = InboxSeenRequestDataMapper.requestBody(messageIds: messageIds, externalUserId: externalUserId, seenDate: MobileMessaging.date.now)
-        do {
-            // Bridges the callback-based networking layer.
-            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                mmContext.remoteApiProvider.sendSeenStatus(
-                    applicationCode: mmContext.applicationCode,
-                    pushRegistrationId: mmContext.currentInstallation().pushRegistrationId,
-                    body: body,
-                    queue: q) { result in
-                        if let error = result.error {
-                            continuation.resume(throwing: error)
-                        } else {
-                            continuation.resume()
-                        }
-                    }
+
+    /// Settles a batch: confirmed messages become seen, failed ones are released so a retry sends them again.
+    /// Only messages still pending for this batch are settled, so a request outliving a stop (which clears
+    /// `pendingSeen`) cannot write into the reset state.
+    private func finishSeen(_ messageIds: [String], batch: UUID, succeeded: Bool) {
+        seenQueue.sync {
+            for id in messageIds where pendingSeen[id]?.batch == batch {
+                pendingSeen[id] = nil
+                if succeeded {
+                    seenMessageIds.insert(id)
+                }
             }
-        } catch {
-            seenQueue.sync { seenMessageIds.subtract(messageIds) }
-            throw error
+        }
+    }
+
+    /// Awaits every request; throws the first error after all of them settled.
+    private static func awaitAll(_ requests: [Task<Void, Error>]) async throws {
+        var firstError: Error?
+        for request in requests {
+            do {
+                try await request.value
+            } catch {
+                firstError = firstError ?? error
+            }
+        }
+        if let firstError = firstError {
+            throw firstError
+        }
+    }
+
+    /// Sends the seen status for `messageIds`.
+    private func sendSeen(_ messageIds: [String], externalUserId: String) async throws {
+        let body = InboxSeenRequestDataMapper.requestBody(messageIds: messageIds, externalUserId: externalUserId, seenDate: MobileMessaging.date.now)
+        // Bridges the callback-based networking layer.
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            mmContext.remoteApiProvider.sendSeenStatus(
+                applicationCode: mmContext.applicationCode,
+                pushRegistrationId: mmContext.currentInstallation().pushRegistrationId,
+                body: body,
+                queue: q) { result in
+                    if let error = result.error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
         }
     }
     
@@ -256,7 +308,10 @@ public class MMInboxService: MobileMessagingService {
     
     public override func stopService(_ completion: @escaping (Bool) -> Void) {
         super.stopService(completion)
-        self.seenMessageIds.removeAll()
+        seenQueue.sync {
+            seenMessageIds.removeAll()
+            pendingSeen.removeAll()
+        }
         MMInboxService.sharedInstance = nil
     }
 }
@@ -296,13 +351,13 @@ extension MMInboxService {
 
     /**
      Marks inbox messages as seen.
-     Messages already marked as seen by this service, or currently being marked, are not sent again. If the request fails, they can be marked again.
+     Messages already marked as seen by this service are not sent again. Messages currently being marked are not sent again either: the call waits for that request and reports its result, so it never succeeds if that request fails. Failed messages can be marked again.
      - parameter externalUserId: External User ID is meant to be an ID of a user in an external (non-Infobip) service.
      - parameter messageIds: Array of inbox messages identifiers that need to be marked as seen.
      - throws: NSError if the operation fails.
      */
     public func setSeen(externalUserId: String, messageIds: [String]) async throws {
-        try await sendSeen(reserveUnseen(messageIds), externalUserId: externalUserId)
+        try await Self.awaitAll(reserveSeen(messageIds, externalUserId: externalUserId))
     }
 
     /**
