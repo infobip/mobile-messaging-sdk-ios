@@ -293,6 +293,8 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	lazy var previousTextHeight: CGFloat = {
 		return self.bounds.size.height
 	}()
+
+	private var appliedLayoutDirection: Bool?
 	
 	//MARK: - UIView Overridings
 
@@ -359,43 +361,84 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 		updateCharCounterLabel()
 		resizeTextViewIfNeededAnimated(false)
         
-        if MMLanguage.sessionLanguage.isRightToLeft { adjustLayoutForRTL() }
+		applyLayoutDirection(forceDirectionStyleUpdate: false)
 	}
 
-	func adjustLayoutForRTL() {
-        // This method entirely flips the frames in case right to left language was set, ignoring OS values
-        semanticContentAttribute = .forceRightToLeft
-		var sendButtonFrame = sendButton.frame
-		sendButtonFrame.origin.x = consts.kHorizontalSpacing
-		sendButton.frame = sendButtonFrame
-		sendButton.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
-        sendButton.mmFlipHorizontally()
+	func applyLayoutDirection() {
+		applyLayoutDirection(forceDirectionStyleUpdate: true)
+	}
 
-		if utilityButton.superview != nil {
+	private func applyLayoutDirection(forceDirectionStyleUpdate: Bool) {
+		let isRightToLeft = MMLanguage.resourceLanguageIsRightToLeft
+		let directionChanged = appliedLayoutDirection != isRightToLeft
+		let showsUtilityButton = utilityButton.superview != nil
+
+		if directionChanged || forceDirectionStyleUpdate {
+			semanticContentAttribute = isRightToLeft ? .forceRightToLeft : .forceLeftToRight
+			sendButton.autoresizingMask = isRightToLeft
+				? [.flexibleRightMargin, .flexibleTopMargin]
+				: [.flexibleLeftMargin, .flexibleTopMargin]
+			sendButton.imageView?.transform = isRightToLeft
+				? CGAffineTransform(scaleX: -1, y: 1) : .identity
+			if showsUtilityButton {
+				utilityButton.autoresizingMask = isRightToLeft
+					? [.flexibleLeftMargin, .flexibleTopMargin]
+					: [.flexibleRightMargin, .flexibleTopMargin]
+				utilityButton.imageView?.transform = isRightToLeft
+					? CGAffineTransform(scaleX: -1, y: 1) : .identity
+			}
+			placeholderLabel.textAlignment = isRightToLeft ? .right : .left
+			charCounterLabel.textAlignment = isRightToLeft ? .left : .right
+			charCounterLabel.autoresizingMask = isRightToLeft
+				? [.flexibleRightMargin, .flexibleTopMargin]
+				: [.flexibleLeftMargin, .flexibleTopMargin]
+			appliedLayoutDirection = isRightToLeft
+		}
+
+		var sendButtonFrame = sendButton.frame
+		sendButtonFrame.origin.x = bounds.width - consts.kHorizontalSpacing - settings.buttonRightMargin
+			+ settings.buttonTouchableOverlap - sendButtonFrame.width
+		if isRightToLeft {
+			sendButtonFrame.origin.x = bounds.width - sendButtonFrame.maxX
+		}
+		if sendButton.frame != sendButtonFrame {
+			sendButton.frame = sendButtonFrame
+		}
+
+		if showsUtilityButton {
 			var utilityButtonFrame = utilityButton.frame
-			utilityButtonFrame.origin.x = self.bounds.size.width - settings.utilityButtonWidth - consts.kHorizontalSpacing
-			utilityButton.frame = utilityButtonFrame
-			utilityButton.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
-            utilityButton.mmFlipHorizontally()
+			utilityButtonFrame.origin.x = consts.kHorizontalSpacing
+			utilityButtonFrame.origin.y = bounds.height - settings.utilityButtonHeight - settings.utilityButtonBottomMargin
+			if isRightToLeft {
+				utilityButtonFrame.origin.x = bounds.width - utilityButtonFrame.maxX
+			}
+			if utilityButton.frame != utilityButtonFrame {
+				utilityButton.frame = utilityButtonFrame
+			}
 		}
 
 		var textContainerFrame = textContainer.frame
-		let leftMargin: CGFloat = utilityButton.superview != nil ?
-			(settings.utilityButtonWidth + consts.kHorizontalSpacing * 2) :
-			(sendButton.bounds.size.width + consts.kHorizontalSpacing * 2)
-		let rightMargin = sendButton.bounds.size.width + consts.kHorizontalSpacing * 2 + settings.buttonRightMargin
-
+		let leftMargin = consts.kHorizontalSpacing
+			+ (showsUtilityButton ? settings.utilityButtonWidth + consts.kHorizontalSpacing : 0)
+		let rightMargin = sendButtonFrame.width + consts.kHorizontalSpacing * 2
+			+ settings.buttonRightMargin - settings.buttonTouchableOverlap * 2
 		textContainerFrame.origin.x = leftMargin
-		textContainerFrame.size.width = self.bounds.size.width - leftMargin - rightMargin
-		textContainer.frame = textContainerFrame
-
-		placeholderLabel.textAlignment = .right
+		textContainerFrame.size.width = bounds.width - leftMargin - rightMargin
+		if isRightToLeft {
+			textContainerFrame.origin.x = bounds.width - textContainerFrame.maxX
+		}
+		if textContainer.frame != textContainerFrame {
+			textContainer.frame = textContainerFrame
+		}
 
 		var charCounterFrame = charCounterLabel.frame
-		charCounterFrame.origin.x = consts.kHorizontalSpacing
-		charCounterLabel.frame = charCounterFrame
-		charCounterLabel.textAlignment = .left
-		charCounterLabel.autoresizingMask = [.flexibleRightMargin, .flexibleTopMargin]
+		charCounterFrame.origin.x = bounds.width - consts.kCharCounterTrailing
+		if isRightToLeft {
+			charCounterFrame.origin.x = bounds.width - charCounterFrame.maxX
+		}
+		if charCounterLabel.frame != charCounterFrame {
+			charCounterLabel.frame = charCounterFrame
+		}
 	}
 	
 	//MARK: - UITextViewDelegate
@@ -534,19 +577,12 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
 	
 	private func resizeSendButton() {
 		let previousButtonFrame = sendButton.frame
-		var newButtonFrame = previousButtonFrame
-		var textContainerFrame = textContainer.frame
-
         sendButton.sizeToFit()
 
-		let widthDelta = sendButton.bounds.size.width + 2 * settings.buttonTouchableOverlap - previousButtonFrame.size.width
-
-		newButtonFrame.size.width = newButtonFrame.size.width + widthDelta
-		newButtonFrame.origin.x = newButtonFrame.origin.x - widthDelta
-        sendButton.frame = newButtonFrame
-
-		textContainerFrame.size.width = textContainerFrame.size.width - widthDelta
-		textContainer.frame = textContainerFrame
+		var newButtonFrame = previousButtonFrame
+		newButtonFrame.size.width = sendButton.bounds.size.width + 2 * settings.buttonTouchableOverlap
+		sendButton.frame = newButtonFrame
+		applyLayoutDirection()
 	}
 		
 	private func scrollToCaretIfNeeded() {
@@ -617,31 +653,16 @@ class ComposeBar: UIView, MMChatComposer, UITextViewDelegate {
         )
 	}
 	
-	private func shifTextFieldInDirection(_ direction: Int8) {
-        let fDirection = CGFloat(direction)
-        let bWidth = settings.utilityButtonWidth
-        let hSpacing = consts.kHorizontalSpacing
-		var textContainerFrame = textContainer.frame
-		textContainerFrame.size.width = textContainerFrame.size.width - fDirection * (bWidth + hSpacing)
-		textContainerFrame.origin.x = textContainerFrame.origin.x + fDirection * (bWidth + hSpacing)
-		textContainer.frame = textContainerFrame
-	}
-	
 	private func insertUtilityButton() {
         guard utilityButton.superview == nil else { return }
-        shifTextFieldInDirection(+1)
-		let ub: UIButton = self.utilityButton
-		var utilityButtonFrame = ub.frame
-		utilityButtonFrame.origin.x = consts.kHorizontalSpacing
-		utilityButtonFrame.origin.y = frame.size.height - settings.utilityButtonHeight - settings.utilityButtonBottomMargin
-		ub.frame = utilityButtonFrame
-		addSubview(ub)
+		addSubview(utilityButton)
+		applyLayoutDirection(forceDirectionStyleUpdate: true)
 	}
 	
 	private func removeUtilityButton() {
         guard utilityButton.superview != nil else { return }
-        shifTextFieldInDirection(-1)
 		utilityButton.removeFromSuperview()
+		applyLayoutDirection()
 	}
 	
 }

@@ -151,8 +151,10 @@ extension WKWebView: ChatJSWrapper {
     }
         
     func setLanguage(_ language: MMLanguage? = nil, completion: @escaping (_ error: NSError?) -> Void) {
-        let mmLanguage = language ?? MMLanguage.sessionLanguage // If never saved, it is MobileMessaging installation language (or English as default)
-        MMLanguage.sessionLanguage = mmLanguage
+        let mmLanguage = language ?? MMLanguage.sessionLanguage
+        if let language = language {
+            MMLanguage.sessionLanguage = language
+        }
         guard let localeEscaped = mmLanguage.locale.javaScriptEscapedString() else {
             let reason = "unable to obtain escaped localed for \(mmLanguage.locale)"
             logDebug(reason)

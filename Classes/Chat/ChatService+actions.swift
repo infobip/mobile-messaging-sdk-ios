@@ -13,12 +13,9 @@ import UIKit
 private let chatDefaultTimeout: TimeInterval = 5
 
 public extension MMInAppChatService {    
-    /// Method for setting the chat language, both in the WKWebView's system messages and the inputs. We'll consider only the left side of a locale and try to recognise the language. If unsupported, English will be set instead. Language must be set before WKWebView is loaded or presented.
+    /// Sets the chat locale. The WebView uses the closest backend-supported language, while native strings use a bundled translation when available. Set this before the WebView loads.
     @objc func setLanguage(_ localeString: String) {
-        let separator = localeString.contains("_") ? "_" : "-"
-        let components = localeString.components(separatedBy: separator)
-        MMLanguage.sessionLanguage = MMLanguage.mapLanguage(from: components.first ??
-                                                         String(localeString.prefix(2)))
+        MMLanguage.setSessionLanguage(fromLocale: localeString)
         MMChatSettings.sharedInstance.postAppearanceChangedNotification()
     }
     

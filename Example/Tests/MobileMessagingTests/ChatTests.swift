@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import UIKit
 @testable import MobileMessaging
 
 // MARK: - Settings Tests
@@ -476,6 +477,18 @@ class ChatPayloadTests: MMTestCase {
 // MARK: - Language and Locale Tests
 
 class ChatLanguageTests: MMTestCase {
+	private var previousLanguageOverride: String?
+
+	override func setUp() {
+		previousLanguageOverride = UserDefaults.standard.string(forKey: "MMInAppChatLanguage")
+		super.setUp()
+		MMLanguage.setSessionLanguageOverride(nil)
+	}
+
+	override func tearDown() {
+		MMLanguage.setSessionLanguageOverride(previousLanguageOverride)
+		super.tearDown()
+	}
 
 	func testSetLanguage_EnglishUSWithUnderscore_SetsEnglish() {
 		MMTestCase.startWithCorrectApplicationCode()
@@ -508,6 +521,8 @@ class ChatLanguageTests: MMTestCase {
 
 		let language = MMLanguage.sessionLanguage
 		XCTAssertEqual(language, MMLanguage.es)
+		XCTAssertEqual(MMLanguage.resourceLanguageCode, "es")
+		XCTAssertEqual(MMLoc.buttonAccept, "Aceptar")
 	}
 
 	func testSetLanguage_OnlyLanguageCode_ParsesCorrectly() {
@@ -520,6 +535,250 @@ class ChatLanguageTests: MMTestCase {
 		let language = MMLanguage.sessionLanguage
 		// Should map to French
 		XCTAssertEqual(language, MMLanguage.fr)
+	}
+
+	func testSetLanguage_ResourceOnlyLocalePreservesRequestedLanguage() {
+		MMTestCase.startWithCorrectApplicationCode()
+		_ = mobileMessagingInstance.withInAppChat()
+		guard let service = MMInAppChatService.sharedInstance else { XCTFail("Chat service unavailable"); return }
+
+		service.setLanguage("nl-NL")
+		XCTAssertEqual(UserDefaults.standard.string(forKey: "MMInAppChatLanguage"), "nl-NL")
+		XCTAssertEqual(MMLanguage.sessionLanguage, .en)
+		XCTAssertEqual(
+			MMLanguage.preferredResourceLanguage(
+				availableLocalizations: MobileMessaging.resourceBundle.localizations,
+				preferredLanguages: ["nl-NL"]
+			),
+			"nl"
+		)
+		XCTAssertEqual(MMLanguage.resourceLanguageCode, "nl")
+		XCTAssertEqual(MMLoc.buttonAccept, "Accepteer")
+		XCTAssertEqual(ChatLocalization.localizedString(forKey: "mm_send_message_placeholder", defaultString: "missing"), "Stuur een bericht...")
+
+		service.setLanguage("en")
+		XCTAssertEqual(MMLanguage.sessionLanguage, .en)
+		XCTAssertEqual(MMLanguage.resourceLanguageCode, "en")
+		MMLanguage.sessionLanguage = .sw
+		XCTAssertEqual(MMLanguage.sessionLanguage, .sw)
+		XCTAssertEqual(MMLanguage.resourceLanguageCode, "sw")
+		MMLanguage.sessionLanguage = .bs
+		XCTAssertEqual(MMLanguage.sessionLanguage, .bs)
+		XCTAssertEqual(MMLanguage.resourceLanguageCode, "en")
+	}
+
+	func testResourceOnlyHebrewResolvesRightToLeftDirection() {
+		MMTestCase.startWithCorrectApplicationCode()
+		_ = mobileMessagingInstance.withInAppChat()
+		guard let service = MMInAppChatService.sharedInstance else { XCTFail("Chat service unavailable"); return }
+
+		service.setLanguage("he-IL")
+		XCTAssertEqual(MMLanguage.sessionLanguage, .en)
+		XCTAssertEqual(MMLanguage.resourceLanguageCode, "he")
+		XCTAssertTrue(MMLanguage.resourceLanguageIsRightToLeft)
+		XCTAssertEqual(MMLoc.buttonAccept, "אשר")
+		XCTAssertEqual(ChatLocalization.localizedString(forKey: "mm_send_message_placeholder", defaultString: "missing"), "שלח הודעה")
+
+		service.setLanguage("ar-AE")
+		XCTAssertEqual(MMLanguage.sessionLanguage, .ar)
+		XCTAssertTrue(MMLanguage.resourceLanguageIsRightToLeft)
+
+		service.setLanguage("en-US")
+		XCTAssertFalse(MMLanguage.resourceLanguageIsRightToLeft)
+	}
+
+	@MainActor func testComposerRestoresLeftToRightLayoutAfterHebrew() {
+		MMLanguage.setSessionLanguage(fromLocale: "en-US")
+		let composer = ComposeBar(frame: CGRect(x: 0, y: 0, width: 320, height: 44))
+		composer.sendButton.setImage(UIImage(systemName: "paperplane"), for: .normal)
+		composer.utilityButtonImage = UIImage(systemName: "paperclip")
+		composer.isAttachmentUploadEnabled = true
+		let initialSendFrame = composer.sendButton.frame
+		let initialUtilityFrame = composer.utilityButton.frame
+		let initialTextFrame = composer.textContainer.frame
+		let initialCounterFrame = composer.charCounterLabel.frame
+		composer.applyLayoutDirection()
+		XCTAssertEqual(composer.sendButton.frame, initialSendFrame)
+		XCTAssertEqual(composer.utilityButton.frame, initialUtilityFrame)
+		XCTAssertEqual(composer.textContainer.frame, initialTextFrame)
+		XCTAssertEqual(composer.charCounterLabel.frame, initialCounterFrame)
+		let leftToRightSendX = composer.sendButton.frame.minX
+		let leftToRightUtilityX = composer.utilityButton.frame.minX
+		let leftToRightTextFrame = composer.textContainer.frame
+		let leftToRightCounterX = composer.charCounterLabel.frame.minX
+
+		MMLanguage.setSessionLanguage(fromLocale: "he-IL")
+		composer.applyLayoutDirection()
+		XCTAssertEqual(composer.semanticContentAttribute, .forceRightToLeft)
+		XCTAssertLessThan(composer.sendButton.frame.minX, leftToRightSendX)
+		XCTAssertGreaterThan(composer.utilityButton.frame.minX, leftToRightUtilityX)
+		XCTAssertEqual(composer.placeholderLabel.textAlignment, .right)
+		XCTAssertEqual(composer.sendButton.imageView?.transform.a, -1)
+		let rightToLeftSendX = composer.sendButton.frame.minX
+
+		MMLanguage.setSessionLanguage(fromLocale: "en-US")
+		composer.applyLayoutDirection()
+		XCTAssertEqual(composer.semanticContentAttribute, .forceLeftToRight)
+		XCTAssertEqual(composer.sendButton.frame.minX, leftToRightSendX, accuracy: 0.01)
+		XCTAssertEqual(composer.utilityButton.frame.minX, leftToRightUtilityX, accuracy: 0.01)
+		XCTAssertEqual(composer.textContainer.frame, leftToRightTextFrame)
+		XCTAssertEqual(composer.charCounterLabel.frame.minX, leftToRightCounterX, accuracy: 0.01)
+		XCTAssertEqual(composer.placeholderLabel.textAlignment, .left)
+		XCTAssertEqual(composer.charCounterLabel.textAlignment, .right)
+		XCTAssertEqual(composer.sendButton.imageView?.transform, .identity)
+		XCTAssertEqual(composer.utilityButton.imageView?.transform, .identity)
+
+		MMLanguage.setSessionLanguage(fromLocale: "he-IL")
+		composer.applyLayoutDirection()
+		XCTAssertEqual(composer.sendButton.frame.minX, rightToLeftSendX, accuracy: 0.01)
+
+		MMLanguage.setSessionLanguage(fromLocale: "en-US")
+		composer.isAttachmentUploadEnabled = false
+		composer.applyLayoutDirection()
+		XCTAssertNil(composer.utilityButton.superview)
+		XCTAssertEqual(composer.textContainer.frame.minX, 4, accuracy: 0.01)
+		XCTAssertEqual(composer.sendButton.frame.minX, leftToRightSendX, accuracy: 0.01)
+	}
+
+	func testAfricanLanguages_MapLocalesAndLoadLocalizedStrings() {
+		let languages: [(tag: String, language: MMLanguage, code: String, locale: String, name: String, accept: String, message: String)] = [
+			("sw-KE", .sw, "sw", "sw-KE", "Kiswahili", "Kubali", "Tuma ujumbe..."),
+			("rw-RW", .rw, "rw", "rw-RW", "Ikinyarwanda", "Emera", "Ohereza ubutumwa..."),
+			("lg-UG", .lg, "lg", "lg-UG", "Luganda", "Kkiriza", "Weereza obubaka...")
+		]
+
+		for item in languages {
+			XCTAssertEqual(MMLanguage.mapLanguage(from: item.tag), item.language)
+			XCTAssertEqual(MMLanguage.mapLanguage(from: item.tag.replacingOccurrences(of: "-", with: "_")), item.language)
+			XCTAssertEqual(item.language.stringValue, item.code)
+			XCTAssertEqual(item.language.locale, item.locale)
+			XCTAssertEqual(item.language.localisedName, item.name)
+			MMLanguage.sessionLanguage = item.language
+			XCTAssertEqual(MMLoc.buttonAccept, item.accept)
+			XCTAssertEqual(ChatLocalization.localizedString(forKey: "mm_send_message_placeholder", defaultString: "missing"), item.message)
+			let error = ChatLocalization.localizedString(forKey: "mm_error_try_again_or_contact_support", defaultString: "missing")
+			XCTAssertTrue(String(format: error, "E42").contains("E42"))
+		}
+
+		XCTAssertEqual(MMLanguage.mapLanguage(from: "sw-TZ"), .sw)
+	}
+
+	func testPreferredResourceLanguageUsesFirstAvailablePreference() {
+		let available = ["en", "es", "cs", "zh-Hant"]
+		XCTAssertEqual(
+			MMLanguage.preferredResourceLanguage(availableLocalizations: available, preferredLanguages: ["cs-CZ", "es-SK"]),
+			"cs"
+		)
+		XCTAssertEqual(
+			MMLanguage.preferredResourceLanguage(availableLocalizations: available, preferredLanguages: ["zh-Hant-TW"]),
+			"zh-Hant"
+		)
+		XCTAssertEqual(
+			MMLanguage.preferredResourceLanguage(availableLocalizations: available, preferredLanguages: ["ca-ES", "es-SK"]),
+			"es"
+		)
+	}
+
+	func testPreferredResourceLanguageFallsBackToEnglishWhenNoPreferenceMatches() {
+		let available = ["fr", "es", "en", "cs"]
+		for preferred in ["ca-ES", "eu-ES", "et-EE", "lt-LT"] {
+			XCTAssertEqual(
+				MMLanguage.preferredResourceLanguage(availableLocalizations: available, preferredLanguages: [preferred]),
+				"en"
+			)
+		}
+	}
+
+	func testPreferredResourceLanguageRetainsTranslationsOutsideBackendLanguageSet() {
+		let core = MobileMessaging.resourceBundle.localizations
+		let chat = MMInAppChatService.resourceBundle.localizations
+		for code in ["cs", "fi", "he", "hi", "id", "ms", "nb", "nl", "sk", "vi"] {
+			XCTAssertEqual(MMLanguage.preferredResourceLanguage(availableLocalizations: core, preferredLanguages: [code]), code)
+			XCTAssertEqual(MMLanguage.preferredResourceLanguage(availableLocalizations: chat, preferredLanguages: [code]), code)
+			let resolved = MMLanguage.resolveLanguages(availableLocalizations: core, preferredLanguages: [code])
+			XCTAssertEqual(resolved.chatLanguage, .en)
+			XCTAssertEqual(resolved.resourceCode, code)
+		}
+		let dutchOverride = MMLanguage.resolveLanguages(
+			availableLocalizations: core,
+			preferredLanguages: ["de-DE"],
+			overrideLanguage: "nl-NL"
+		)
+		XCTAssertEqual(dutchOverride.chatLanguage, .en)
+		XCTAssertEqual(dutchOverride.resourceCode, "nl")
+	}
+
+	func testNoOverrideUsesSystemPreferencesForBothLanguages() {
+		MMLanguage.setSessionLanguageOverride(nil)
+		let expected = MMLanguage.resolveLanguages(
+			availableLocalizations: MobileMessaging.resourceBundle.localizations,
+			preferredLanguages: Locale.preferredLanguages
+		)
+		XCTAssertEqual(MMLanguage.sessionLanguage, expected.chatLanguage)
+		XCTAssertEqual(MMLanguage.resourceLanguageCode, expected.resourceCode)
+	}
+
+	func testChatLanguageDoesNotDependOnBundledStrings() {
+		let resourceLocalizations = MobileMessaging.resourceBundle.localizations
+		let languages: [(tag: String, language: MMLanguage)] = [
+			("bs-BA", .bs), ("el-GR", .el), ("lt-LT", .lt), ("lv-LV", .lv), ("sl-SI", .sl)
+		]
+		for item in languages {
+			let resolved = MMLanguage.resolveLanguages(
+				availableLocalizations: resourceLocalizations,
+				preferredLanguages: [item.tag, "en"]
+			)
+			XCTAssertEqual(resolved.chatLanguage, item.language)
+			XCTAssertEqual(resolved.resourceCode, "en")
+			let overridden = MMLanguage.resolveLanguages(
+				availableLocalizations: resourceLocalizations,
+				preferredLanguages: ["de-DE"],
+				overrideLanguage: item.tag
+			)
+			XCTAssertEqual(overridden.chatLanguage, item.language)
+			XCTAssertEqual(overridden.resourceCode, "de")
+		}
+		let secondPreference = MMLanguage.resolveLanguages(
+			availableLocalizations: resourceLocalizations,
+			preferredLanguages: ["ca-ES", "es-ES"]
+		)
+		XCTAssertEqual(secondPreference.chatLanguage, .es)
+		XCTAssertEqual(secondPreference.resourceCode, "es")
+		let unsupported = MMLanguage.resolveLanguages(
+			availableLocalizations: resourceLocalizations,
+			preferredLanguages: ["ca-ES"]
+		)
+		XCTAssertEqual(unsupported.chatLanguage, .en)
+		XCTAssertEqual(unsupported.resourceCode, "en")
+	}
+
+	func testChineseRegionOnlyLocalesSelectMatchingResourceScript() {
+		let available = MobileMessaging.resourceBundle.localizations
+		for tag in ["zh-TW", "zh-HK", "zh-MO", "zh_TW"] {
+			let resolved = MMLanguage.resolveLanguages(availableLocalizations: available, preferredLanguages: [tag])
+			XCTAssertEqual(resolved.chatLanguage, .zhHant)
+			XCTAssertEqual(resolved.resourceCode, "zh-Hant")
+		}
+		for tag in ["zh-CN", "zh-SG", "zh_CN"] {
+			let resolved = MMLanguage.resolveLanguages(availableLocalizations: available, preferredLanguages: [tag])
+			XCTAssertEqual(resolved.chatLanguage, .zhHans)
+			XCTAssertEqual(resolved.resourceCode, "zh-Hans")
+		}
+	}
+
+	func testChineseScriptAndRegionLocalesKeepTheirScript() {
+		XCTAssertEqual(MMLanguage.mapLanguage(from: "zh"), .zhHans)
+		XCTAssertEqual(MMLanguage.mapLanguage(from: "zh-Hans-CN"), .zhHans)
+		XCTAssertEqual(MMLanguage.mapLanguage(from: "zh_Hans_CN"), .zhHans)
+		XCTAssertEqual(MMLanguage.mapLanguage(from: "zh-Hans-TW"), .zhHans)
+		XCTAssertEqual(MMLanguage.mapLanguage(from: "zh-Hant-TW"), .zhHant)
+		XCTAssertEqual(MMLanguage.mapLanguage(from: "zh_TW"), .zhHant)
+	}
+
+	func testCoreAndChatOfferTheSameLocalizations() {
+		let core = Set(MobileMessaging.resourceBundle.localizations.map { $0.lowercased() })
+		let chat = Set(MMInAppChatService.resourceBundle.localizations.map { $0.lowercased() })
+		XCTAssertEqual(core, chat)
 	}
 }
 

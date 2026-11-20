@@ -48,9 +48,3 @@ class ComposeBar_Send_Button: ComposeBar_Button {
 		fatalError("init(coder:) has not been implemented")
 	}
 }
-
-extension UIButton {
-    func mmFlipHorizontally() {
-        imageView?.transform = CGAffineTransform(scaleX: -1, y: 1)
-    }
-}

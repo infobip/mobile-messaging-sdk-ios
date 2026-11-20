@@ -397,6 +397,9 @@
 		764556071F78FF4F00B8F14B /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
 		764556081F78FF4F00B8F14B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MobileMessaging.strings"; sourceTree = "<group>"; };
 		764556091F78FF4F00B8F14B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/MobileMessaging.strings"; sourceTree = "<group>"; };
+		C39000012E3C100000000001 /* sw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sw; path = sw.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		C39000012E3C100000000002 /* rw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = rw; path = rw.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
+		C39000012E3C100000000003 /* lg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lg; path = lg.lproj/MobileMessaging.strings; sourceTree = "<group>"; };
 		7645560B1F78FF4F00B8F14B /* MMKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMKeychain.swift; sourceTree = "<group>"; };
 		7645560C1F78FF4F00B8F14B /* MMLoggingUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMLoggingUtil.swift; sourceTree = "<group>"; };
 		7645560F1F78FF4F00B8F14B /* MMVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MMVersion.swift; sourceTree = "<group>"; };
@@ -549,6 +552,9 @@
 		A08E5038249650D000F026ED /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A08E5039249650D000F026ED /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A08E503A249650D000F026ED /* hi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hi; path = hi.lproj/InAppChat.strings; sourceTree = "<group>"; };
+		C39000012E3C100000000004 /* sw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sw; path = sw.lproj/InAppChat.strings; sourceTree = "<group>"; };
+		C39000012E3C100000000005 /* rw */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = rw; path = rw.lproj/InAppChat.strings; sourceTree = "<group>"; };
+		C39000012E3C100000000006 /* lg */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = lg; path = lg.lproj/InAppChat.strings; sourceTree = "<group>"; };
 		A08E503E2496536700F026ED /* ChatLocalization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatLocalization.swift; sourceTree = "<group>"; };
 		A08E522F2A8D244700EDAA35 /* MobileMessagingCallUIIcons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = MobileMessagingCallUIIcons.xcassets; path = Classes/WebRTCUI/Resources/MobileMessagingCallUIIcons.xcassets; sourceTree = SOURCE_ROOT; };
 		A0B24DBD25066782005C5403 /* AttachmentPreviewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachmentPreviewController.swift; sourceTree = "<group>"; };
@@ -1402,6 +1408,7 @@
 				it,
 				ja,
 				ko,
+				lg,
 				ms,
 				nb,
 				nl,
@@ -1410,8 +1417,10 @@
 				pt,
 				ro,
 				ru,
+				rw,
 				sk,
 				sv,
+				sw,
 				th,
 				tr,
 				vi,
@@ -1742,6 +1751,9 @@
 				764556091F78FF4F00B8F14B /* zh-Hant */,
 				A8CE8ACD285C6E03000CC98F /* uk */,
 				A84781C02AC18440009FA3F7 /* sr */,
+				C39000012E3C100000000001 /* sw */,
+				C39000012E3C100000000002 /* rw */,
+				C39000012E3C100000000003 /* lg */,
 			);
 			name = MobileMessaging.strings;
 			path = ../../Resources/Localization;
@@ -1784,6 +1796,9 @@
 				A08E503A249650D000F026ED /* hi */,
 				A86ABE51285C646F00D5E00C /* uk */,
 				A84781C12AC18440009FA3F7 /* sr */,
+				C39000012E3C100000000004 /* sw */,
+				C39000012E3C100000000005 /* rw */,
+				C39000012E3C100000000006 /* lg */,
 			);
 			name = InAppChat.strings;
 			sourceTree = "<group>";

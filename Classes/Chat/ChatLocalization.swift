@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if SWIFT_PACKAGE
+@_spi(InAppChat) import MobileMessaging
+#endif
 
 class ChatLocalization {
     class func localizedString(forKey key: String?, defaultString: String) -> String {
@@ -20,12 +23,9 @@ class ChatLocalization {
     }
     
     private class func languageBundle() -> Bundle {
-        guard let langBundleURL = MMInAppChatService.resourceBundle.url(
-            forResource: MMLanguage.sessionLanguage.stringValue,
-            withExtension: "lproj"),
-            let langBundle = Bundle(url: langBundleURL) else {
-            return MMInAppChatService.resourceBundle
-        }
-        return langBundle
+        MMLocalizationBundleResolver.bundle(
+            for: MMInAppChatService.resourceBundle,
+            languageCode: MMLanguage.resourceLanguageCode
+        )
     }
 }
