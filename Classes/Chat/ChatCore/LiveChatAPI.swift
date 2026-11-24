@@ -43,6 +43,9 @@ class MMInAppChatWidgetAPI: NSObject, MMInAppChatWidgetAPIProtocol, MMChatIntern
 
     func loadWidget() {
         Task { @MainActor in
+            if #available(iOS 17.0, *) {
+                self.chatHandler.webView.configuration.preferences.inactiveSchedulingPolicy = .none
+            }
             self.chatHandler.webView.navigationDelegate = self
             MMInAppChatService.sharedInstance?.update(for: self)
         }
